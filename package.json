@@ -1,5 +1,5 @@
 {
-  "name": "@stencil/core",
+  "name": "@natural-apptitude/stencil",
   "version": "4.19.1",
   "license": "MIT",
   "main": "./internal/stencil-core/index.cjs",
@@ -7,6 +7,9 @@
   "types": "./internal/stencil-core/index.d.ts",
   "bin": {
     "stencil": "bin/stencil"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "files": [
     "!**/*.map",
