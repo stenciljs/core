@@ -80,8 +80,9 @@ const inspect = (ref: any) => {
 };
 
 export const installDevTools = () => {
+  const stencil = ((win as any).stencil = (win as any).stencil || {});
+
   if (BUILD.devTools) {
-    const stencil = ((win as any).stencil = (win as any).stencil || {});
     const originalInspect = stencil.inspect;
 
     stencil.inspect = (ref: any) => {
@@ -92,4 +93,8 @@ export const installDevTools = () => {
       return result;
     };
   }
+
+  stencil.getHostRef = (ref: any) => {
+    return getHostRef(ref);
+  };
 };

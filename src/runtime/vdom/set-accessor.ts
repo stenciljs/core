@@ -122,6 +122,7 @@ export const setAccessor = (
         }
         if (newValue) {
           plt.ael(elm, memberName, newValue, capture);
+          (elm as any)['__hndlr__' + memberName] = newValue;
         }
       }
     } else if (BUILD.vdomPropOrAttr) {
