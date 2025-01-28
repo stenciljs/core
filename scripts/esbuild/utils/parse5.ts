@@ -60,7 +60,6 @@ export async function bundleParse5(opts: BuildOptions): Promise<[contents: strin
     format: 'iife',
     name: 'PARSE5',
     footer: ['export const parse = PARSE5.parse;', 'export const parseFragment = PARSE5.parseFragment;'].join('\n'),
-    preferConst: true,
     strict: false,
   });
 

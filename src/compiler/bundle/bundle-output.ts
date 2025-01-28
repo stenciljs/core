@@ -58,24 +58,37 @@ export const getRollupOptions = (
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
 ): RollupOptions => {
-  const customResolveOptions = createCustomResolverAsync(config.sys, compilerCtx.fs, [
-    '.tsx',
-    '.ts',
-    '.js',
-    '.mjs',
-    '.json',
-    '.d.ts',
-  ]);
+  // @ts-expect-error node-resulve no longer accepts customResolveOptions. 
+  // Whilst the options aren't necessary, it make file I/O slower 
+  // because it's not utilising Stencil's memory fs ,,, investigate
+  const customResolveOptions = createCustomResolverAsync(config.sys, compilerCtx.fs);
   const nodeResolvePlugin = rollupNodeResolvePlugin({
     mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'],
-    customResolveOptions,
+    // customResolveOptions,
     browser: true,
     rootDir: config.rootDir,
+    extensions: [
+      '.tsx',
+      '.ts',
+      '.js',
+      '.mjs',
+      '.json',
+      '.d.ts',
+    ],
     ...(config.nodeResolve as any),
   });
 
-  const orgNodeResolveId = nodeResolvePlugin.resolveId;
-  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId = async function (importee: string, importer: string) {
+  // @ts-expect-error INVESTIGATE
+  const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
+
+  // @ts-expect-error INVESTIGATE
+  // this is required now. Not sure what it does
+  nodeResolvePlugin.resolve = async function (importee: string, importer: string) {
+    // console.log('nodeResolvePlugin.resolve', arguments);
+  }
+
+  // @ts-expect-error INVESTIGATE
+  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (importee: string, importer: string) {
     const [realImportee, query] = importee.split('?');
     const resolved = await orgNodeResolveId.call(
       nodeResolvePlugin as unknown as PluginContext,

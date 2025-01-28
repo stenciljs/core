@@ -46,7 +46,7 @@ export const resolveModuleIdAsync = (
 export const createCustomResolverAsync = (
   sys: d.CompilerSystem,
   inMemoryFs: InMemoryFileSystem,
-  exts: string[],
+  exts?: string[],
 ): any => {
   return {
     async isFile(filePath: string, cb: (err: any, isFile: boolean) => void) {

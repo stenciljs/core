@@ -62,6 +62,7 @@ export const generateHydrateApp = async (
       external: ['stream'],
 
       input,
+      // @ts-ignore
       inlineDynamicImports: true,
       plugins: [
         {
@@ -125,7 +126,6 @@ const generateHydrateFactory = async (config: d.ValidatedConfig, compilerCtx: d.
           strict: false,
           intro: HYDRATE_FACTORY_INTRO,
           outro: HYDRATE_FACTORY_OUTRO,
-          preferConst: false,
           inlineDynamicImports: true,
         });
 

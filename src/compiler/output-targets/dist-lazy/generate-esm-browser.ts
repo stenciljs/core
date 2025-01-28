@@ -21,7 +21,6 @@ export const generateEsmBrowser = async (
       entryFileNames: '[name].esm.js',
       chunkFileNames: config.hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      preferConst: true,
       sourcemap: config.sourceMap,
     };
 
