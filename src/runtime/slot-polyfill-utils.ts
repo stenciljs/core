@@ -26,7 +26,7 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
     getHostSlotNodes(childNodes as any, (elm as HTMLElement).tagName).forEach((slotNode) => {
       if (slotNode.nodeType === NODE_TYPE.ElementNode && slotNode.tagName === 'SLOT-FB') {
         // this is a slot fallback node
-        if (getSlotChildSiblings(slotNode, getSlotName(slotNode), false)?.length) {
+        if (getSlotChildSiblings(slotNode, getSlotName(slotNode), false).length) {
           // has slotted nodes, hide fallback
           slotNode.hidden = true;
         } else {
@@ -108,7 +108,7 @@ export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, inclu
   let node = slot;
 
   while ((node = node.nextSibling as any)) {
-    if (getSlotName(node) === slotName) childNodes.push(node as any);
+    if (getSlotName(node) === slotName && (includeSlot || !node['s-sr'])) childNodes.push(node as any);
   }
   return childNodes;
 };
