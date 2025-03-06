@@ -62,8 +62,6 @@ export const generateHydrateApp = async (
       external: ['stream'],
 
       input,
-      // @ts-ignore
-      inlineDynamicImports: true,
       plugins: [
         {
           name: 'hydrateAppPlugin',
