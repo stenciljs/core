@@ -4,8 +4,10 @@ import { supportsShadow } from '@platform';
 import type * as d from '../declarations';
 import {
   addSlotRelocateNode,
-  getHostSlotChildNodes,
+  dispatchSlotChangeEvent,
+  findSlotFromSlottedNode,
   getHostSlotNodes,
+  getSlotChildSiblings,
   getSlotName,
   getSlottedChildNodes,
   updateFallbackSlotVisibility,
@@ -90,22 +92,18 @@ export const patchCloneNode = (HostElementPrototype: HTMLElement) => {
  */
 export const patchSlotAppendChild = (HostElementPrototype: any) => {
   HostElementPrototype.__appendChild = HostElementPrototype.appendChild;
+
   HostElementPrototype.appendChild = function (this: d.RenderNode, newChild: d.RenderNode) {
-    const slotName = (newChild['s-sn'] = getSlotName(newChild));
-    const slotNode = getHostSlotNodes((this as any).__childNodes || this.childNodes, this.tagName, slotName)[0];
+    const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
     if (slotNode) {
       addSlotRelocateNode(newChild, slotNode);
 
-      const slotChildNodes = getHostSlotChildNodes(slotNode, slotName);
+      const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
       const appendAfter = slotChildNodes[slotChildNodes.length - 1];
 
-      const parent = intrnlCall(appendAfter, 'parentNode') as d.RenderNode;
-      let insertedNode: d.RenderNode;
-      if (parent.__insertBefore) {
-        insertedNode = parent.__insertBefore(newChild, appendAfter.nextSibling);
-      } else {
-        insertedNode = parent.insertBefore(newChild, appendAfter.nextSibling);
-      }
+      const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
+      const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(newChild, appendAfter.nextSibling);
+      dispatchSlotChangeEvent(slotNode);
 
       // Check if there is fallback content that should be hidden
       updateFallbackSlotVisibility(this);
@@ -155,20 +153,18 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
       if (typeof newChild === 'string') {
         newChild = this.ownerDocument.createTextNode(newChild) as unknown as d.RenderNode;
       }
-      const slotName = (newChild['s-sn'] = getSlotName(newChild));
-      const childNodes = (this as any).__childNodes || this.childNodes;
+      const slotName = (newChild['s-sn'] = getSlotName(newChild)) || '';
+      const childNodes = internalCall(this, 'childNodes');
       const slotNode = getHostSlotNodes(childNodes, this.tagName, slotName)[0];
       if (slotNode) {
         addSlotRelocateNode(newChild, slotNode, true);
-        const slotChildNodes = getHostSlotChildNodes(slotNode, slotName);
+        const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
         const appendAfter = slotChildNodes[0];
-        const parent = intrnlCall(appendAfter, 'parentNode') as d.RenderNode;
 
-        if (parent.__insertBefore) {
-          return parent.__insertBefore(newChild, intrnlCall(appendAfter, 'nextSibling'));
-        } else {
-          return parent.insertBefore(newChild, intrnlCall(appendAfter, 'nextSibling'));
-        }
+        const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
+        const toReturn = internalCall(parent, 'insertBefore')(newChild, internalCall(appendAfter, 'nextSibling'));
+        dispatchSlotChangeEvent(slotNode);
+        return toReturn;
       }
 
       if (newChild.nodeType === 1 && !!newChild.getAttribute('slot')) {
@@ -263,8 +259,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
     newChild: T,
     currentChild: d.RenderNode | null,
   ) {
-    const slotName = (newChild['s-sn'] = getSlotName(newChild));
-    const slotNode = getHostSlotNodes(this.__childNodes, this.tagName, slotName)[0];
+    const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
     const slottedNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
 
     if (slotNode) {
@@ -286,18 +281,30 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
             // current child ('slot before' node) is 'in' the same slot
             addSlotRelocateNode(newChild, slotNode);
 
-            const parent = intrnlCall(currentChild, 'parentNode') as d.RenderNode;
-            if (parent.__insertBefore) {
-              // the parent is a patched component, so we need to use the internal method
-              parent.__insertBefore(newChild, currentChild);
-            } else {
-              parent.insertBefore(newChild, currentChild);
-            }
+            const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
+            internalCall(parent, 'insertBefore')(newChild, currentChild);
+
+            dispatchSlotChangeEvent(slotNode);
           }
           return;
         }
       });
       if (found) return newChild;
+    }
+
+    /**
+     * Fixes an issue where slotted elements are dynamically relocated in React, such as after data fetch.
+     *
+     * When a slotted element is passed to another scoped component (e.g., <A><C slot="header"/></A>),
+     * the child’s __parentNode (original parent node property) does not match this.
+     *
+     * To prevent errors, this checks if the current child's parent node differs from this.
+     * If so, appendChild(newChild) is called to ensure the child is correctly inserted,
+     * allowing Stencil to properly manage the slot placement.
+     */
+    const parentNode = (currentChild as d.PatchedSlotNode)?.__parentNode;
+    if (parentNode && !this.isSameNode(parentNode)) {
+      return this.appendChild(newChild);
     }
     return (this as d.RenderNode).__insertBefore(newChild, currentChild);
   };
@@ -417,7 +424,7 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
  * @param node the slotted node to be patched
  */
 export const patchSlottedNode = (node: Node) => {
-  if (!node || (node as any).__nextSibling || !globalThis.Node) return;
+  if (!node || (node as any).__nextSibling !== undefined || !globalThis.Node) return;
 
   patchNextSibling(node);
   patchPreviousSibling(node);
@@ -580,10 +587,13 @@ function patchHostOriginalAccessor(
  *
  * @returns the original accessor or method of the node
  */
-function intrnlCall<T extends d.RenderNode, P extends keyof d.RenderNode>(node: T, method: P): T[P] {
+export function internalCall<T extends d.RenderNode, P extends keyof d.RenderNode>(node: T, method: P): T[P] {
   if ('__' + method in node) {
-    return node[('__' + method) as keyof d.RenderNode] as T[P];
+    const toReturn = node[('__' + method) as keyof d.RenderNode] as T[P];
+    if (typeof toReturn !== 'function') return toReturn;
+    return toReturn.bind(node) as T[P];
   } else {
-    return node[method];
+    if (typeof node[method] !== 'function') return node[method];
+    return node[method].bind(node) as T[P];
   }
 }

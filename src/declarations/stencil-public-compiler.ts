@@ -946,12 +946,33 @@ export interface SerializeDocumentOptions extends HydrateDocumentOptions {
    */
   removeHtmlComments?: boolean;
   /**
-   * If set to `true` the component will be rendered within a Declarative Shadow DOM.
-   * If set to `false` Stencil will ignore the contents of the shadow root and render the
-   * element as given in provided template.
-   * @default true
+   * Configure how Stencil serializes the components shadow root.
+   * - If set to `declarative-shadow-dom` the component will be rendered within a Declarative Shadow DOM.
+   * - If set to `scoped` Stencil will render the contents of the shadow root as a `scoped: true` component
+   *   and the shadow DOM will be created during client-side hydration.
+   * - Alternatively you can mix and match the two by providing an object with `declarative-shadow-dom` and `scoped` keys,
+   * the value arrays containing the tag names of the components that should be rendered in that mode.
+   *
+   * Examples:
+   * - `{ 'declarative-shadow-dom': ['my-component-1', 'another-component'], default: 'scoped' }`
+   * Render all components as `scoped` apart from `my-component-1` and `another-component`
+   * -  `{ 'scoped': ['an-option-component'], default: 'declarative-shadow-dom' }`
+   * Render all components within `declarative-shadow-dom` apart from `an-option-component`
+   * - `'scoped'` Render all components as `scoped`
+   * - `false` disables shadow root serialization
+   *
+   * *NOTE* `true` has been deprecated in favor of `declarative-shadow-dom` and `scoped`
+   * @default 'declarative-shadow-dom'
    */
-  serializeShadowRoot?: boolean;
+  serializeShadowRoot?:
+    | 'declarative-shadow-dom'
+    | 'scoped'
+    | {
+        'declarative-shadow-dom'?: string[];
+        scoped?: string[];
+        default: 'declarative-shadow-dom' | 'scoped';
+      }
+    | boolean;
   /**
    * The `fullDocument` flag determines the format of the rendered output. Set it to true to
    * generate a complete HTML document, or false to render only the component.
@@ -1766,7 +1787,7 @@ export interface NodeResolveConfig {
    * @see https://github.com/browserify/resolve#resolveid-opts-cb
    * @deprecated the `customResolveOptions` field is no longer honored in future versions of
    * `@rollup/plugin-node-resolve`. If you are currently using it, please open a new issue in the Stencil repo to
-   * describe your use case & provide input (https://github.com/ionic-team/stencil/issues/new/choose)
+   * describe your use case & provide input (https://github.com/stenciljs/core/issues/new/choose)
    */
   customResolveOptions?: {
     basedir?: string;

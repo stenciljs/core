@@ -7,11 +7,8 @@ import { rootAppliedStyles } from './styles';
 import { safeCall } from './update-component';
 
 const disconnectInstance = (instance: any, elm?: d.HostElement) => {
-  if (BUILD.lazyLoad && BUILD.disconnectedCallback) {
+  if (BUILD.lazyLoad) {
     safeCall(instance, 'disconnectedCallback', undefined, elm || instance);
-  }
-  if (BUILD.cmpDidUnload) {
-    safeCall(instance, 'componentDidUnload', undefined, elm || instance);
   }
 };
 

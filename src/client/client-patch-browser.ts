@@ -1,5 +1,5 @@
 import { BUILD, NAMESPACE } from '@app-data';
-import { consoleDevInfo, doc, H, promiseResolve } from '@platform';
+import { consoleDevInfo, H, promiseResolve, win } from '@platform';
 
 import type * as d from '../declarations';
 
@@ -15,7 +15,8 @@ export const patchBrowser = (): Promise<d.CustomElementsDefineOptions> => {
   }
 
   const scriptElm = BUILD.scriptDataOpts
-    ? Array.from(doc.querySelectorAll('script')).find(
+    ? win.document &&
+      Array.from(win.document.querySelectorAll('script')).find(
         (s) =>
           new RegExp(`\/${NAMESPACE}(\\.esm)?\\.js($|\\?|#)`).test(s.src) ||
           s.getAttribute('data-stencil-namespace') === NAMESPACE,

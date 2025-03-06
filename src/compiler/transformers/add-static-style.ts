@@ -134,7 +134,7 @@ const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler
   if (cmp.encapsulation === 'scoped') {
     // scope the css first
     const scopeId = getScopeId(cmp.tagName, style.modeName);
-    return ts.factory.createStringLiteral(scopeCss(style.styleStr, scopeId));
+    return ts.factory.createStringLiteral(scopeCss(style.styleStr, scopeId, false));
   }
 
   return ts.factory.createStringLiteral(style.styleStr);

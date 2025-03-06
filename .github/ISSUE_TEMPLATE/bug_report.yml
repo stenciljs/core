@@ -7,11 +7,11 @@ body:
       label: Prerequisites
       description: Please ensure you have completed all of the following.
       options:
-        - label: I have read the [Contributing Guidelines](https://github.com/ionic-team/stencil/blob/main/CONTRIBUTING.md).
+        - label: I have read the [Contributing Guidelines](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md).
           required: true
-        - label: I agree to follow the [Code of Conduct](https://github.com/ionic-team/stencil/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow the [Code of Conduct](https://github.com/stenciljs/core/blob/main/CODE_OF_CONDUCT.md).
           required: true
-        - label: I have searched for [existing issues](https://github.com/ionic-team/stencil/issues) that already report this problem, without success.
+        - label: I have searched for [existing issues](https://github.com/stenciljs/core/issues) that already report this problem, without success.
           required: true
   - type: input
     attributes:

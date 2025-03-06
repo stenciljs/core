@@ -11,8 +11,9 @@
     "build.prerender": "node ../../bin/stencil build --config prerender.stencil.config.ts --prerender --debug && node ./test-prerender/prerender.js && node ./test-prerender/no-script-build.js",
     "build.invisible-prehydration": "node ../../bin/stencil build --debug --es5 --config invisible-prehydration.stencil.config.ts",
     "build.no-external-runtime": "node ../../bin/stencil build --debug --es5 --config no-external-runtime.stencil.config.ts",
-    "test": "run-s build wdio",
-    "wdio": "wdio run ./wdio.conf.ts"
+    "test": "run-s build wdio end-to-end",
+    "wdio": "wdio run ./wdio.conf.ts",
+    "end-to-end": "node ./test-end-to-end-import.mjs"
   },
   "devDependencies": {
     "@stencil/core": "file:../..",

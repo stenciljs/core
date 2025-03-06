@@ -16,9 +16,14 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
   }
 
   /**
-   * Only attach shadow root if there isn't one already
+   * Only attach shadow root if there isn't one already and
+   * the component is rendering DSD (not scoped) during SSR
    */
-  if (!elm.shadowRoot && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
+  if (
+    !elm.shadowRoot &&
+    !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+    !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
+  ) {
     if (BUILD.shadowDelegatesFocus) {
       elm.attachShadow({
         mode: 'open',
@@ -85,38 +90,45 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         }
 
         // element
-        Object.defineProperty(elm, memberName, {
-          get: function (this: any) {
+        const getterSetterDescriptor: PropertyDescriptor = {
+          get: function (this: d.RuntimeRef) {
             return getValue(this, memberName);
           },
-          set(this: d.RuntimeRef, newValue) {
-            // proxyComponent, set value
+          set: function (this: d.RuntimeRef, newValue: unknown) {
             setValue(this, memberName, newValue, cmpMeta);
           },
           configurable: true,
           enumerable: true,
-        });
+        };
+        Object.defineProperty(elm, memberName, getterSetterDescriptor);
+        Object.defineProperty(elm, metaAttributeName, getterSetterDescriptor);
 
-        // instance
-        Object.defineProperty((cstr as any).prototype, memberName, {
-          get: function (this: any) {
-            if (origGetter && attrPropVal === undefined && !getValue(this, memberName)) {
-              // if the initial value comes from an instance getter
-              // the element will never have the value set. So let's do that now.
-              setValue(this, memberName, origGetter.apply(this), cmpMeta);
-            }
+        if (!(cstr as any).prototype.__stencilAugmented) {
+          // instance prototype
+          Object.defineProperty((cstr as any).prototype, memberName, {
+            get: function (this: any) {
+              const ref = getHostRef(this);
+              // incoming value from a attr / prop?
+              const attrPropVal = ref.$instanceValues$?.get(memberName);
 
-            // if we have a parsed value from an attribute / or userland prop use that first.
-            // otherwise if we have a getter already applied, use that.
-            return attrPropVal !== undefined
-              ? attrPropVal
-              : origGetter
-                ? origGetter.apply(this)
-                : getValue(this, memberName);
-          },
-          configurable: true,
-          enumerable: true,
-        });
+              if (origGetter && attrPropVal === undefined && !getValue(this, memberName)) {
+                // if the initial value comes from an instance getter
+                // the element will never have the value set. So let's do that now.
+                setValue(this, memberName, origGetter.apply(this), cmpMeta);
+              }
+
+              // if we have a parsed value from an attribute / or userland prop use that first.
+              // otherwise if we have a getter already applied, use that.
+              return attrPropVal !== undefined
+                ? attrPropVal
+                : origGetter
+                  ? origGetter.apply(this)
+                  : getValue(this, memberName);
+            },
+            configurable: true,
+            enumerable: true,
+          });
+        }
       } else if (memberFlags & MEMBER_FLAGS.Method) {
         Object.defineProperty(elm, memberName, {
           value(this: d.HostElement, ...args: any[]) {
@@ -130,6 +142,8 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         });
       }
     });
+    // instance prototype should only be processed once
+    (cstr as any).prototype.__stencilAugmented = true;
   }
 }
 

@@ -425,7 +425,13 @@ const scopeSelector = (selector: string, scopeSelectorText: string, hostSelector
     .join(', ');
 };
 
-const scopeSelectors = (cssText: string, scopeSelectorText: string, hostSelector: string, slotSelector: string) => {
+const scopeSelectors = (
+  cssText: string,
+  scopeSelectorText: string,
+  hostSelector: string,
+  slotSelector: string,
+  commentOriginalSelector: boolean,
+) => {
   return processRules(cssText, (rule: CssRule) => {
     let selector = rule.selector;
     let content = rule.content;
@@ -437,7 +443,7 @@ const scopeSelectors = (cssText: string, scopeSelectorText: string, hostSelector
       rule.selector.startsWith('@page') ||
       rule.selector.startsWith('@document')
     ) {
-      content = scopeSelectors(rule.content, scopeSelectorText, hostSelector, slotSelector);
+      content = scopeSelectors(rule.content, scopeSelectorText, hostSelector, slotSelector, commentOriginalSelector);
     }
 
     const cssRule: CssRule = {
@@ -448,7 +454,13 @@ const scopeSelectors = (cssText: string, scopeSelectorText: string, hostSelector
   });
 };
 
-const scopeCssText = (cssText: string, scopeId: string, hostScopeId: string, slotScopeId: string) => {
+const scopeCssText = (
+  cssText: string,
+  scopeId: string,
+  hostScopeId: string,
+  slotScopeId: string,
+  commentOriginalSelector: boolean,
+) => {
   cssText = insertPolyfillHostInCssText(cssText);
   cssText = convertColonHost(cssText);
   cssText = convertColonHostContext(cssText);
@@ -458,7 +470,7 @@ const scopeCssText = (cssText: string, scopeId: string, hostScopeId: string, slo
   cssText = convertShadowDOMSelectors(cssText);
 
   if (scopeId) {
-    cssText = scopeSelectors(cssText, scopeId, hostScopeId, slotScopeId);
+    cssText = scopeSelectors(cssText, scopeId, hostScopeId, slotScopeId, commentOriginalSelector);
   }
 
   cssText = replaceShadowCssHost(cssText, hostScopeId);
@@ -487,15 +499,52 @@ const replaceShadowCssHost = (cssText: string, hostScopeId: string) => {
   return cssText.replace(/-shadowcsshost-no-combinator/g, `.${hostScopeId}`);
 };
 
-export const scopeCss = (cssText: string, scopeId: string) => {
+export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelector: boolean) => {
   const hostScopeId = scopeId + '-h';
   const slotScopeId = scopeId + '-s';
 
   const commentsWithHash = extractCommentsWithHash(cssText);
 
   cssText = stripComments(cssText);
-  const scoped = scopeCssText(cssText, scopeId, hostScopeId, slotScopeId);
+  const orgSelectors: {
+    placeholder: string;
+    comment: string;
+  }[] = [];
+
+  if (commentOriginalSelector) {
+    const processCommentedSelector = (rule: CssRule) => {
+      const placeholder = `/*!@___${orgSelectors.length}___*/`;
+      const comment = `/*!@${rule.selector}*/`;
+
+      orgSelectors.push({ placeholder, comment });
+      rule.selector = placeholder + rule.selector;
+      return rule;
+    };
+
+    cssText = processRules(cssText, (rule) => {
+      if (rule.selector[0] !== '@') {
+        return processCommentedSelector(rule);
+      } else if (
+        rule.selector.startsWith('@media') ||
+        rule.selector.startsWith('@supports') ||
+        rule.selector.startsWith('@page') ||
+        rule.selector.startsWith('@document')
+      ) {
+        rule.content = processRules(rule.content, processCommentedSelector);
+        return rule;
+      }
+      return rule;
+    });
+  }
+
+  const scoped = scopeCssText(cssText, scopeId, hostScopeId, slotScopeId, commentOriginalSelector);
   cssText = [scoped.cssText, ...commentsWithHash].join('\n');
+
+  if (commentOriginalSelector) {
+    orgSelectors.forEach(({ placeholder, comment }) => {
+      cssText = cssText.replace(placeholder, comment);
+    });
+  }
 
   scoped.slottedSelectors.forEach((slottedSelector) => {
     const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector), 'g');

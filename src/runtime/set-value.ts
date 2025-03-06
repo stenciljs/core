@@ -14,7 +14,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
 
   /**
    * If the host element is not found, let's fail with a better error message and provide
-   * details on why this may happen. In certain cases, e.g. see https://github.com/ionic-team/stencil/issues/5457,
+   * details on why this may happen. In certain cases, e.g. see https://github.com/stenciljs/core/issues/5457,
    * users might import a component through e.g. a loader script, which causes confusions in runtime
    * as there are multiple runtimes being loaded and/or different components used with different
    * loading strategies, e.g. lazy vs implicitly loaded.
@@ -28,7 +28,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
         'a 3rd party Stencil component with another Stencil component or application. ' +
         'Please reach out to the maintainers of the 3rd party Stencil component or report ' +
         'this on the Stencil Discord server (https://chat.stenciljs.com) or comment ' +
-        'on this similar [GitHub issue](https://github.com/ionic-team/stencil/issues/5457).',
+        'on this similar [GitHub issue](https://github.com/stenciljs/core/issues/5457).',
     );
   }
 
@@ -92,7 +92,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
         BUILD.updatable &&
         (flags & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
       ) {
-        if (BUILD.cmpShouldUpdate && instance.componentShouldUpdate) {
+        if (instance.componentShouldUpdate) {
           if (instance.componentShouldUpdate(newVal, oldVal, propName) === false) {
             return;
           }

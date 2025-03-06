@@ -1,5 +1,5 @@
 import { BUILD, NAMESPACE } from '@app-data';
-import { Build, consoleError, doc, getHostRef, nextTick, plt, win, writeTask } from '@platform';
+import { Build, consoleError, getHostRef, nextTick, plt, win, writeTask } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -97,31 +97,25 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
       }
     }
     emitLifecycleEvent(elm, 'componentWillLoad');
-    if (BUILD.cmpWillLoad) {
-      // If `componentWillLoad` returns a `Promise` then we want to wait on
-      // whatever's going on in that `Promise` before we launch into
-      // rendering the component, doing other lifecycle stuff, etc. So
-      // in that case we assign the returned promise to the variable we
-      // declared above to hold a possible 'queueing' Promise
-      maybePromise = safeCall(instance, 'componentWillLoad', undefined, elm);
-    }
+    // If `componentWillLoad` returns a `Promise` then we want to wait on
+    // whatever's going on in that `Promise` before we launch into
+    // rendering the component, doing other lifecycle stuff, etc. So
+    // in that case we assign the returned promise to the variable we
+    // declared above to hold a possible 'queueing' Promise
+    maybePromise = safeCall(instance, 'componentWillLoad', undefined, elm);
   } else {
     emitLifecycleEvent(elm, 'componentWillUpdate');
 
-    if (BUILD.cmpWillUpdate) {
-      // Like `componentWillLoad` above, we allow Stencil component
-      // authors to return a `Promise` from this lifecycle callback, and
-      // we specify that our runtime will wait for that `Promise` to
-      // resolve before the component re-renders. So if the method
-      // returns a `Promise` we need to keep it around!
-      maybePromise = safeCall(instance, 'componentWillUpdate', undefined, elm);
-    }
+    // Like `componentWillLoad` above, we allow Stencil component
+    // authors to return a `Promise` from this lifecycle callback, and
+    // we specify that our runtime will wait for that `Promise` to
+    // resolve before the component re-renders. So if the method
+    // returns a `Promise` we need to keep it around!
+    maybePromise = safeCall(instance, 'componentWillUpdate', undefined, elm);
   }
 
   emitLifecycleEvent(elm, 'componentWillRender');
-  if (BUILD.cmpWillRender) {
-    maybePromise = enqueue(maybePromise, () => safeCall(instance, 'componentWillRender', undefined, elm));
-  }
+  maybePromise = enqueue(maybePromise, () => safeCall(instance, 'componentWillRender', undefined, elm));
 
   endSchedule();
 
@@ -322,14 +316,12 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
   const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
   const ancestorComponent = hostRef.$ancestorComponent$;
 
-  if (BUILD.cmpDidRender) {
-    if (BUILD.isDev) {
-      hostRef.$flags$ |= HOST_FLAGS.devOnRender;
-    }
-    safeCall(instance, 'componentDidRender', undefined, elm);
-    if (BUILD.isDev) {
-      hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
-    }
+  if (BUILD.isDev) {
+    hostRef.$flags$ |= HOST_FLAGS.devOnRender;
+  }
+  safeCall(instance, 'componentDidRender', undefined, elm);
+  if (BUILD.isDev) {
+    hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
   }
   emitLifecycleEvent(elm, 'componentDidRender');
 
@@ -341,14 +333,12 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
       addHydratedFlag(elm);
     }
 
-    if (BUILD.cmpDidLoad) {
-      if (BUILD.isDev) {
-        hostRef.$flags$ |= HOST_FLAGS.devOnDidLoad;
-      }
-      safeCall(instance, 'componentDidLoad', undefined, elm);
-      if (BUILD.isDev) {
-        hostRef.$flags$ &= ~HOST_FLAGS.devOnDidLoad;
-      }
+    if (BUILD.isDev) {
+      hostRef.$flags$ |= HOST_FLAGS.devOnDidLoad;
+    }
+    safeCall(instance, 'componentDidLoad', undefined, elm);
+    if (BUILD.isDev) {
+      hostRef.$flags$ &= ~HOST_FLAGS.devOnDidLoad;
     }
 
     emitLifecycleEvent(elm, 'componentDidLoad');
@@ -361,18 +351,16 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
       }
     }
   } else {
-    if (BUILD.cmpDidUpdate) {
-      // we've already loaded this component
-      // fire off the user's componentDidUpdate method (if one was provided)
-      // componentDidUpdate runs AFTER render() has been called
-      // and all child components have finished updating
-      if (BUILD.isDev) {
-        hostRef.$flags$ |= HOST_FLAGS.devOnRender;
-      }
-      safeCall(instance, 'componentDidUpdate', undefined, elm);
-      if (BUILD.isDev) {
-        hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
-      }
+    // we've already loaded this component
+    // fire off the user's componentDidUpdate method (if one was provided)
+    // componentDidUpdate runs AFTER render() has been called
+    // and all child components have finished updating
+    if (BUILD.isDev) {
+      hostRef.$flags$ |= HOST_FLAGS.devOnRender;
+    }
+    safeCall(instance, 'componentDidUpdate', undefined, elm);
+    if (BUILD.isDev) {
+      hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
     }
     emitLifecycleEvent(elm, 'componentDidUpdate');
     endPostUpdate();
@@ -415,11 +403,6 @@ export const forceUpdate = (ref: any) => {
 };
 
 export const appDidLoad = (who: string) => {
-  // on appload
-  // we have finish the first big initial render
-  if (BUILD.cssAnnotations) {
-    addHydratedFlag(doc.documentElement);
-  }
   if (BUILD.asyncQueue) {
     plt.$flags$ |= PLATFORM_FLAGS.appLoaded;
   }

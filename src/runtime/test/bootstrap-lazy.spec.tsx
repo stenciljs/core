@@ -1,11 +1,11 @@
-import { doc } from '@platform';
+import { win } from '@platform';
 
 import { LazyBundlesRuntimeData } from '../../internal';
 import { bootstrapLazy } from '../bootstrap-lazy';
 
 describe('bootstrap lazy', () => {
   it('should not inject invalid CSS when no lazy bundles are provided', () => {
-    const spy = jest.spyOn(doc.head, 'insertBefore');
+    const spy = jest.spyOn(win.document.head, 'insertBefore');
 
     bootstrapLazy([]);
 
@@ -25,7 +25,7 @@ describe('bootstrap lazy', () => {
   });
 
   it('should not inject invalid CSS when components are already in custom element registry', () => {
-    const spy = jest.spyOn(doc.head, 'insertBefore');
+    const spy = jest.spyOn(win.document.head, 'insertBefore');
 
     const lazyBundles: LazyBundlesRuntimeData = [
       ['my-component', [[0, 'my-component', { first: [1], middle: [1], last: [1] }]]],

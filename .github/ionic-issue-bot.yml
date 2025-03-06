@@ -42,7 +42,7 @@ comment:
 
 
         For a guide on how to create a good reproduction, see our
-        [Contributing Guide](https://github.com/ionic-team/stencil/blob/main/CONTRIBUTING.md).
+        [Contributing Guide](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md).
   dryRun: false
 
 noReply:

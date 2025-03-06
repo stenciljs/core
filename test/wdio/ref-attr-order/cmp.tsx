@@ -12,7 +12,7 @@ export class RefAttrOrder {
   // this is testing that even though the `ref` attribute is declared first in
   // the JSX for the `div` the `ref` callback will nonetheless be called after
   // the `tabIndex` attribute is applied to the element.
-  // See https://github.com/ionic-team/stencil/issues/4074
+  // See https://github.com/stenciljs/core/issues/4074
   render() {
     return (
       <div

@@ -1,14 +1,5 @@
 import { BUILD } from '@app-data';
-import {
-  addHostEventListeners,
-  deleteHostRef,
-  forceUpdate,
-  getHostRef,
-  plt,
-  registerHost,
-  styles,
-  supportsShadow,
-} from '@platform';
+import { addHostEventListeners, forceUpdate, getHostRef, registerHost, styles, supportsShadow } from '@platform';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -24,7 +15,7 @@ import {
 import { computeMode } from './mode';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
-import { attachStyles, getScopeId, registerStyle } from './styles';
+import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
   customElements.define(compactMeta[1], proxyCustomElement(Cstr, compactMeta) as CustomElementConstructor);
@@ -74,6 +65,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     }
   }
 
+  if (BUILD.hydrateClientSide && BUILD.shadowDom) {
+    hydrateScopedToShadow();
+  }
+
   const originalConnectedCallback = Cstr.prototype.connectedCallback;
   const originalDisconnectedCallback = Cstr.prototype.disconnectedCallback;
   Object.assign(Cstr.prototype, {
@@ -89,29 +84,15 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       }
 
       connectedCallback(this);
-      if (BUILD.connectedCallback && originalConnectedCallback) {
+      if (originalConnectedCallback) {
         originalConnectedCallback.call(this);
       }
     },
     disconnectedCallback() {
       disconnectedCallback(this);
-      if (BUILD.disconnectedCallback && originalDisconnectedCallback) {
+      if (originalDisconnectedCallback) {
         originalDisconnectedCallback.call(this);
       }
-
-      /**
-       * Clean up Node references lingering around in `hostRef` objects
-       * to ensure GC can clean up the memory.
-       */
-      plt.raf(() => {
-        const hostRef = getHostRef(this);
-        if (hostRef?.$vnode$?.$elm$ instanceof Node && !hostRef.$vnode$.$elm$.isConnected) {
-          delete hostRef.$vnode$;
-        }
-        if (this instanceof Node && !this.isConnected) {
-          deleteHostRef(this);
-        }
-      });
     },
     __attachShadow() {
       if (supportsShadow) {

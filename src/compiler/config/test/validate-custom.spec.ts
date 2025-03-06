@@ -42,7 +42,7 @@ describe('validateCustom', () => {
       level: 'warn',
       lines: [],
       messageText:
-        'nodeResolve.customResolveOptions is a deprecated option in a Stencil Configuration file. If you need this option, please open a new issue in the Stencil repository (https://github.com/ionic-team/stencil/issues/new/choose)',
+        'nodeResolve.customResolveOptions is a deprecated option in a Stencil Configuration file. If you need this option, please open a new issue in the Stencil repository (https://github.com/stenciljs/core/issues/new/choose)',
       type: 'build',
     });
   });

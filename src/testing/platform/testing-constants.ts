@@ -21,8 +21,3 @@ export const queuedLoadModules: QueuedLoadModule[] = [];
  * A collection of errors that were detected to surface during the rendering process
  */
 export const caughtErrors: Error[] = [];
-/**
- * A mapping of runtime references to HTML elements to the data structure Stencil uses to track the element alongside
- * additional metadata
- */
-export const hostRefs = new Map<d.RuntimeRef, d.HostRef>();

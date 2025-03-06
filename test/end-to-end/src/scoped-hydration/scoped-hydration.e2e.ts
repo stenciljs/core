@@ -28,8 +28,8 @@ describe('`scoped: true` hydration checks', () => {
     const page = await newE2EPage({ html, url: 'https://stencil.com' });
     const styles = await page.findAll('style');
     expect(styles.length).toBe(3);
-    expect(styles[0].textContent).toContain(`.sc-non-shadow-child-h`);
-    expect(styles[1].textContent).not.toContain(`.sc-non-shadow-child-h`);
+    expect(styles[1].textContent).toContain(`.sc-non-shadow-child-h`);
+    expect(styles[0].textContent).not.toContain(`.sc-non-shadow-child-h`);
     expect(styles[2].textContent).not.toContain(`.sc-non-shadow-child-h`);
   });
 
@@ -154,29 +154,21 @@ describe('`scoped: true` hydration checks', () => {
     await page.evaluate(() => {
       (window as any).root = document.querySelector('hydrated-sibling-accessors');
     });
-    expect(await page.evaluate(() => root.firstChild.nextSibling.textContent)).toBe('First slot element');
-    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.textContent)).toBe(
-      ' Default slot text node  ',
-    );
+    expect(await page.evaluate(() => root.firstChild.textContent)).toBe('First slot element');
+    expect(await page.evaluate(() => root.firstChild.nextSibling.textContent)).toBe(' Default slot text node  ');
+    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.textContent)).toBe('Second slot element');
     expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.nextSibling.textContent)).toBe(
-      'Second slot element',
-    );
-    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.textContent)).toBe(
       ' Default slot comment node  ',
     );
 
-    expect(await page.evaluate(() => root.lastChild.previousSibling.textContent)).toBe(' Default slot comment node  ');
+    expect(await page.evaluate(() => root.lastChild.textContent)).toBe(' Default slot comment node  ');
+    expect(await page.evaluate(() => root.lastChild.previousSibling.textContent)).toBe('Second slot element');
     expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.textContent)).toBe(
-      'Second slot element',
-    );
-    expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.previousSibling.textContent)).toBe(
       ' Default slot text node  ',
     );
-    expect(
-      await page.evaluate(
-        () => root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
-      ),
-    ).toBe('First slot element');
+    expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.previousSibling.textContent)).toBe(
+      'First slot element',
+    );
   });
 
   it('Steps through only "lightDOM" elements', async () => {

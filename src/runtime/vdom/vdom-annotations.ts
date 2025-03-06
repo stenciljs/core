@@ -128,7 +128,7 @@ const parseVNodeAnnotations = (
      */
     const childNodes = [...Array.from(node.childNodes), ...Array.from(node.shadowRoot?.childNodes || [])];
     childNodes.forEach((childNode) => {
-      const hostRef = getHostRef(childNode);
+      const hostRef = getHostRef(childNode as d.RuntimeRef);
       if (hostRef != null && !docData.staticComponents.has(childNode.nodeName.toLowerCase())) {
         const cmpData: CmpData = {
           nodeIds: 0,

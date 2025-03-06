@@ -7,13 +7,19 @@
  * Modified for Stencil's renderer and slot projection
  */
 import { BUILD } from '@app-data';
-import { consoleDevError, doc, plt, supportsShadow } from '@platform';
+import { consoleDevError, plt, supportsShadow, win } from '@platform';
 import { CMP_FLAGS, HTML_NS, isDef, NODE_TYPES, SVG_NS } from '@utils';
 
 import type * as d from '../../declarations';
 import { patchParentNode } from '../dom-extras';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
-import { isNodeLocatedInSlot, updateFallbackSlotVisibility } from '../slot-polyfill-utils';
+import {
+  dispatchSlotChangeEvent,
+  findSlotFromSlottedNode,
+  isNodeLocatedInSlot,
+  patchSlotNode,
+  updateFallbackSlotVisibility,
+} from '../slot-polyfill-utils';
 import { h, isHost, newVNode } from './h';
 import { updateElement } from './update-element';
 
@@ -68,25 +74,39 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
 
   if (BUILD.vdomText && newVNode.$text$ !== null) {
     // create text node
-    elm = newVNode.$elm$ = doc.createTextNode(newVNode.$text$) as any;
+    elm = newVNode.$elm$ = win.document.createTextNode(newVNode.$text$) as any;
   } else if (BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotReference) {
     // create a slot reference node
     elm = newVNode.$elm$ =
-      BUILD.isDebug || BUILD.hydrateServerSide ? slotReferenceDebugNode(newVNode) : (doc.createTextNode('') as any);
+      BUILD.isDebug || BUILD.hydrateServerSide
+        ? slotReferenceDebugNode(newVNode)
+        : (win.document.createTextNode('') as any);
+    // add css classes, attrs, props, listeners, etc.
+    if (BUILD.vdomAttribute) {
+      updateElement(null, newVNode, isSvgMode);
+    }
   } else {
     if (BUILD.svg && !isSvgMode) {
       isSvgMode = newVNode.$tag$ === 'svg';
     }
+
+    if (!win.document) {
+      throw new Error(
+        "You are trying to render a Stencil component in an environment that doesn't support the DOM. " +
+          'Make sure to populate the [`window`](https://developer.mozilla.org/en-US/docs/Web/API/Window/window) object before rendering a component.',
+      );
+    }
+
     // create element
     elm = newVNode.$elm$ = (
       BUILD.svg
-        ? doc.createElementNS(
+        ? win.document.createElementNS(
             isSvgMode ? SVG_NS : HTML_NS,
             !useNativeShadowDom && BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotFallback
               ? 'slot-fb'
               : (newVNode.$tag$ as string),
           )
-        : doc.createElement(
+        : win.document.createElement(
             !useNativeShadowDom && BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotFallback
               ? 'slot-fb'
               : (newVNode.$tag$ as string),
@@ -146,6 +166,9 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
 
       // remember the ref callback function
       elm['s-rf'] = newVNode.$attrs$?.ref;
+
+      // give this node `assignedElements` and `assignedNodes` methods
+      patchSlotNode(elm);
 
       // check if we've got an old vnode for this slot
       oldVNode = oldParentVNode && oldParentVNode.$children$ && oldParentVNode.$children$[childIndex];
@@ -680,12 +703,11 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
           newVNode.$elm$['s-sn'] = newVNode.$name$ || '';
           relocateToHostRoot(newVNode.$elm$.parentElement);
         }
-      } else {
-        // either this is the first render of an element OR it's an update
-        // AND we already know it's possible it could have changed
-        // this updates the element's css classes, attrs, props, listeners, etc.
-        updateElement(oldVNode, newVNode, isSvgMode, isInitialRender);
       }
+      // either this is the first render of an element OR it's an update
+      // AND we already know it's possible it could have changed
+      // this updates the element's css classes, attrs, props, listeners, etc.
+      updateElement(oldVNode, newVNode, isSvgMode, isInitialRender);
     }
 
     if (BUILD.updatable && oldChildren !== null && newChildren !== null) {
@@ -869,7 +891,13 @@ export const insertBefore = (
       patchParentNode(newNode);
     }
     // potentially use the patched insertBefore method. This will correctly slot the new node
-    return parent.insertBefore(newNode, reference);
+    parent.insertBefore(newNode, reference);
+
+    // if we find a corresponding slot node, dispatch a slotchange event now
+    const { slotNode } = findSlotFromSlottedNode(newNode);
+    if (slotNode) dispatchSlotChangeEvent(slotNode);
+
+    return newNode;
   }
 
   if (BUILD.experimentalSlotFixes && (parent as d.RenderNode).__insertBefore) {
@@ -913,7 +941,7 @@ function addRemoveSlotScopedClass(
     // let's add a scoped-slot class to this slotted node's parent
     newParent.classList?.add(scopeId + '-s');
 
-    if (oldParent && oldParent.classList.contains(scopeId + '-s')) {
+    if (oldParent && oldParent.classList?.contains(scopeId + '-s')) {
       let child = ((oldParent as d.RenderNode).__childNodes || oldParent.childNodes)[0] as d.RenderNode;
       let found = false;
 
@@ -1021,7 +1049,10 @@ render() {
     scopeId = hostElm['s-sc'];
   }
 
-  useNativeShadowDom = supportsShadow && (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) !== 0;
+  useNativeShadowDom =
+    supportsShadow &&
+    !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+    !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss);
   if (BUILD.slotRelocation) {
     contentRef = hostElm['s-cr'];
 
@@ -1043,13 +1074,13 @@ render() {
       for (const relocateData of relocateNodes) {
         const nodeToRelocate = relocateData.$nodeToRelocate$;
 
-        if (!nodeToRelocate['s-ol']) {
+        if (!nodeToRelocate['s-ol'] && win.document) {
           // add a reference node marking this node's original location
           // keep a reference to this node for later lookups
           const orgLocationNode =
             BUILD.isDebug || BUILD.hydrateServerSide
               ? originalLocationDebugNode(nodeToRelocate)
-              : (doc.createTextNode('') as any);
+              : (win.document.createTextNode('') as any);
           orgLocationNode['s-nr'] = nodeToRelocate;
 
           insertBefore(nodeToRelocate.parentNode, (nodeToRelocate['s-ol'] = orgLocationNode), nodeToRelocate);
@@ -1136,8 +1167,7 @@ render() {
               }
             }
           }
-
-          nodeToRelocate && typeof slotRefNode['s-rf'] === 'function' && slotRefNode['s-rf'](nodeToRelocate);
+          nodeToRelocate && typeof slotRefNode['s-rf'] === 'function' && slotRefNode['s-rf'](slotRefNode);
         } else {
           // this node doesn't have a slot home to go to, so let's hide it
           if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
@@ -1190,12 +1220,12 @@ render() {
 // slot comment debug nodes only created with the `--debug` flag
 // otherwise these nodes are text nodes w/out content
 const slotReferenceDebugNode = (slotVNode: d.VNode) =>
-  doc.createComment(
+  win.document?.createComment(
     `<slot${slotVNode.$name$ ? ' name="' + slotVNode.$name$ + '"' : ''}> (host=${hostTagName.toLowerCase()})`,
   );
 
 const originalLocationDebugNode = (nodeToRelocate: d.RenderNode): any =>
-  doc.createComment(
+  win.document?.createComment(
     `org-location for ` +
       (nodeToRelocate.localName
         ? `<${nodeToRelocate.localName}> (host=${nodeToRelocate['s-hn']})`

@@ -10,6 +10,7 @@ export namespace Components {
         "basicProp": string;
         "decoratedGetterSetterProp": number;
         "decoratedProp": number;
+        "dynamicLifecycle": string[];
     }
 }
 declare global {
@@ -28,6 +29,7 @@ declare namespace LocalJSX {
         "basicProp"?: string;
         "decoratedGetterSetterProp"?: number;
         "decoratedProp"?: number;
+        "dynamicLifecycle"?: string[];
     }
     interface IntrinsicElements {
         "ts-target-props": TsTargetProps;

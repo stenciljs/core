@@ -308,7 +308,7 @@ export class MockElement extends MockNode {
        *
        * For example:
        * calling `renderToString('<my-component></my-component>', {
-       *   serializeShadowRoot: false
+       *   serializeShadowRoot: 'scoped'
        * })`
        */
       delete this.__shadowRoot;

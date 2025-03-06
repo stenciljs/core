@@ -36,7 +36,8 @@ function normalizeSerializationOptions(opts: Partial<SerializeNodeToHtmlOptions>
     removeBooleanAttributeQuotes:
       typeof opts.removeBooleanAttributeQuotes !== 'boolean' ? false : opts.removeBooleanAttributeQuotes,
     removeHtmlComments: typeof opts.removeHtmlComments !== 'boolean' ? false : opts.removeHtmlComments,
-    serializeShadowRoot: typeof opts.serializeShadowRoot !== 'boolean' ? true : opts.serializeShadowRoot,
+    serializeShadowRoot:
+      typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot,
     fullDocument: typeof opts.fullDocument !== 'boolean' ? true : opts.fullDocument,
   } as const;
 }
@@ -127,7 +128,7 @@ function* streamToHtml(
       output.currentLineWidth += tag.length + 1;
 
       /**
-       * ToDo(https://github.com/ionic-team/stencil/issues/4111): the shadow root class is `#document-fragment`
+       * ToDo(https://github.com/stenciljs/core/issues/4111): the shadow root class is `#document-fragment`
        * and has no mode attribute. We should consider adding a mode attribute.
        */
       if (
@@ -243,7 +244,7 @@ function* streamToHtml(
 
     if (EMPTY_ELEMENTS.has(tagName) === false) {
       const shadowRoot = (node as HTMLElement).shadowRoot;
-      if (shadowRoot != null && opts.serializeShadowRoot) {
+      if (shadowRoot != null && opts.serializeShadowRoot !== false) {
         output.indent = output.indent + (opts.indentSpaces ?? 0);
 
         yield* streamToHtml(shadowRoot, opts, output);
@@ -665,7 +666,7 @@ interface SerializeOutput {
 }
 
 /**
- * Partially duplicate of https://github.com/ionic-team/stencil/blob/6017dad2cb6fe366242e2e0594f82c8e3a3b5d15/src/declarations/stencil-public-compiler.ts#L895
+ * Partially duplicate of https://github.com/stenciljs/core/blob/6017dad2cb6fe366242e2e0594f82c8e3a3b5d15/src/declarations/stencil-public-compiler.ts#L895
  * Types can't be imported in this documented as Eslint will not embed the types
  * in the d.ts file.
  */
@@ -681,6 +682,14 @@ export interface SerializeNodeToHtmlOptions {
   removeBooleanAttributeQuotes?: boolean;
   removeEmptyAttributes?: boolean;
   removeHtmlComments?: boolean;
-  serializeShadowRoot?: boolean;
+  serializeShadowRoot?:
+    | 'declarative-shadow-dom'
+    | 'scoped'
+    | {
+        'declarative-shadow-dom'?: string[];
+        scoped?: string[];
+        default: 'declarative-shadow-dom' | 'scoped';
+      }
+    | boolean;
   fullDocument?: boolean;
 }

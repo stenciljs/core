@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { consoleError, doc, plt, supportsListenerOptions, win } from '@platform';
+import { consoleError, plt, supportsListenerOptions, win } from '@platform';
 import { HOST_FLAGS, LISTENER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -10,7 +10,7 @@ export const addHostEventListeners = (
   listeners?: d.ComponentRuntimeHostListener[],
   attachParentListeners?: boolean,
 ) => {
-  if (BUILD.hostListener && listeners) {
+  if (BUILD.hostListener && listeners && win.document) {
     // this is called immediately within the element's constructor
     // initialize our event listeners on the host element
     // we do this now so that we can listen to events that may
@@ -32,7 +32,7 @@ export const addHostEventListeners = (
     }
 
     listeners.map(([flags, name, method]) => {
-      const target = BUILD.hostListenerTarget ? getHostListenerTarget(elm, flags) : elm;
+      const target = BUILD.hostListenerTarget ? getHostListenerTarget(win.document, elm, flags) : elm;
       const handler = hostListenerProxy(hostRef, method);
       const opts = hostListenerOpts(flags);
       plt.ael(target, name, handler, opts);
@@ -58,12 +58,20 @@ const hostListenerProxy = (hostRef: d.HostRef, methodName: string) => (ev: Event
   }
 };
 
-const getHostListenerTarget = (elm: Element, flags: number): EventTarget => {
-  if (BUILD.hostListenerTargetDocument && flags & LISTENER_FLAGS.TargetDocument) return doc;
-  if (BUILD.hostListenerTargetWindow && flags & LISTENER_FLAGS.TargetWindow) return win;
-  if (BUILD.hostListenerTargetBody && flags & LISTENER_FLAGS.TargetBody) return doc.body;
-  if (BUILD.hostListenerTargetParent && flags & LISTENER_FLAGS.TargetParent && elm.parentElement)
+const getHostListenerTarget = (doc: Document, elm: Element, flags: number): EventTarget => {
+  if (BUILD.hostListenerTargetDocument && flags & LISTENER_FLAGS.TargetDocument) {
+    return doc;
+  }
+  if (BUILD.hostListenerTargetWindow && flags & LISTENER_FLAGS.TargetWindow) {
+    return win;
+  }
+  if (BUILD.hostListenerTargetBody && flags & LISTENER_FLAGS.TargetBody) {
+    return doc.body;
+  }
+  if (BUILD.hostListenerTargetParent && flags & LISTENER_FLAGS.TargetParent && elm.parentElement) {
     return elm.parentElement;
+  }
+
   return elm;
 };
 

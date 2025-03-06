@@ -68,22 +68,22 @@ function parseCssComment(styleDocs: d.StyleDoc[], comment: string, mode: string 
   const docs = comment.split(CSS_PROP_ANNOTATION);
 
   docs.forEach((d) => {
-    const doc = d.trim();
+    const cssDocument = d.trim();
 
-    if (!doc.startsWith(`--`)) {
+    if (!cssDocument.startsWith(`--`)) {
       return;
     }
 
-    const splt = doc.split(`:`);
-    const cssDoc: d.StyleDoc = {
+    const splt = cssDocument.split(`:`);
+    const styleDoc: d.StyleDoc = {
       name: splt[0].trim(),
       docs: (splt.shift() && splt.join(`:`)).trim(),
       annotation: 'prop',
       mode,
     };
 
-    if (!styleDocs.some((c) => c.name === cssDoc.name && c.annotation === 'prop')) {
-      styleDocs.push(cssDoc);
+    if (!styleDocs.some((c) => c.name === styleDoc.name && c.annotation === 'prop')) {
+      styleDocs.push(styleDoc);
     }
   });
 }

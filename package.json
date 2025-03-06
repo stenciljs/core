@@ -1,6 +1,6 @@
 {
   "name": "@stencil/core",
-  "version": "4.25.1",
+  "version": "4.27.2",
   "license": "MIT",
   "main": "./internal/stencil-core/index.cjs",
   "module": "./internal/stencil-core/index.js",
@@ -24,9 +24,9 @@
   ],
   "exports": {
     ".": {
+      "types": "./internal/stencil-core/index.d.ts",
       "import": "./internal/stencil-core/index.js",
-      "require": "./internal/stencil-core/index.cjs",
-      "types": "./internal/stencil-core/index.d.ts"
+      "require": "./internal/stencil-core/index.cjs"
     },
     "./cli": {
       "import": "./cli/index.js",
@@ -48,40 +48,40 @@
       "import": "./internal/testing/*"
     },
     "./internal/app-data": {
+      "types": "./internal/app-data/index.d.ts",
       "import": "./internal/app-data/index.js",
-      "require": "./internal/app-data/index.cjs",
-      "types": "./internal/app-data/index.d.ts"
+      "require": "./internal/app-data/index.cjs"
     },
     "./mock-doc": {
+      "types": "./mock-doc/index.d.ts",
       "import": "./mock-doc/index.js",
-      "require": "./mock-doc/index.cjs",
-      "types": "./mock-doc/index.d.ts"
+      "require": "./mock-doc/index.cjs"
     },
     "./compiler": {
+      "types": "./compiler/stencil.d.ts",
       "import": "./compiler/stencil.js",
-      "require": "./compiler/stencil.js",
-      "types": "./compiler/stencil.d.ts"
+      "require": "./compiler/stencil.js"
     },
     "./compiler/*": {
-      "import": "./compiler/*",
-      "types": "./compiler/*"
+      "types": "./compiler/*",
+      "import": "./compiler/*"
     },
     "./screenshot": {
-      "require": "./screenshot/index.js",
-      "types": "./screenshot/index.d.ts"
+      "types": "./screenshot/index.d.ts",
+      "require": "./screenshot/index.js"
     },
     "./sys/node": {
+      "types": "./sys/node/index.d.ts",
       "import": "./sys/node/index.js",
-      "require": "./sys/node/index.js",
-      "types": "./sys/node/index.d.ts"
+      "require": "./sys/node/index.js"
     },
     "./sys/node/*": {
       "import": "./sys/node/*",
       "require": "./sys/node/*"
     },
     "./testing": {
-      "import": "./testing/index.js",
       "types": "./testing/index.d.ts",
+      "import": "./testing/index.js",
       "require": "./testing/index.js"
     },
     "./testing/jest-preset": {
@@ -155,7 +155,7 @@
     "conventional-changelog-cli": "^5.0.0",
     "cspell": "^8.0.0",
     "dts-bundle-generator": "~9.5.0",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.25.0",
     "esbuild-plugin-replace": "^1.4.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^9.0.0",
@@ -201,7 +201,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/stencil.git"
+    "url": "git+https://github.com/stenciljs/core.git"
   },
   "author": "Ionic Team",
   "homepage": "https://stenciljs.com/",

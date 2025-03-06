@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/internal';
 
-import { cstrs, hostRefs, moduleLoaded, styles } from './testing-constants';
+import { cstrs, moduleLoaded, styles } from './testing-constants';
 import { flushAll, resetTaskQueue } from './testing-task-queue';
 import { win } from './testing-window';
 
@@ -54,7 +54,6 @@ export function resetPlatform(defaults: Partial<d.PlatformRuntime> = {}) {
     win.close();
   }
 
-  hostRefs.clear();
   styles.clear();
   plt.$flags$ = 0;
   Object.assign(plt, defaults);

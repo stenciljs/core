@@ -4,6 +4,10 @@ import { $, browser } from '@wdio/globals';
 
 import { setupIFrameTest } from '../util.js';
 
+/**
+ * Smoke tests for `tsconfig.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
+ */
+
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../../hydrate');
 
@@ -123,6 +127,25 @@ const testSuites = async (root: HTMLTsTargetPropsElement) => {
       expect(await getTxtHtml(html, 'basicState')).toBe('basicState');
       expect(await getTxtHtml(html, 'decoratedState')).toBe('10');
     },
+    dynamicLifecycleMethods: async () => {
+      root.basicProp = 'basicProp via prop';
+      await browser.pause(100);
+      const buttons = root.querySelectorAll('button');
+      buttons[0].click();
+      await browser.pause(100);
+      root.remove();
+      await browser.pause(100);
+
+      expect(window.lifecycleCalls).toContain('componentWillLoad');
+      expect(window.lifecycleCalls).toContain('componentWillRender');
+      expect(window.lifecycleCalls).toContain('componentDidLoad');
+      expect(window.lifecycleCalls).toContain('componentDidRender');
+      expect(window.lifecycleCalls).toContain('connectedCallback');
+      expect(window.lifecycleCalls).toContain('disconnectedCallback');
+      expect(window.lifecycleCalls).toContain('componentShouldUpdate');
+      expect(window.lifecycleCalls).toContain('componentWillUpdate');
+      expect(window.lifecycleCalls).toContain('componentDidUpdate');
+    },
   };
 };
 
@@ -160,6 +183,12 @@ describe('Checks class properties and runtime decorators of different es targets
       const mod = await import('/hydrate/index.mjs');
       await (await testSuites(document.querySelector('ts-target-props'))).ssrViaProps(mod);
     });
+
+    it('adds dynamic lifecycle hooks', async () => {
+      render({ template: () => <ts-target-props /> });
+      await (await $('ts-target-props')).waitForStable();
+      await (await testSuites(document.querySelector('ts-target-props'))).dynamicLifecycleMethods();
+    });
   });
 
   describe('es2022 dist output', () => {
@@ -196,6 +225,11 @@ describe('Checks class properties and runtime decorators of different es targets
       const mod = await import('/test-ts-target-output/hydrate/index.mjs');
       await (await testSuites(document.querySelector('ts-target-props'))).ssrViaProps(mod);
     });
+
+    it('adds dynamic lifecycle hooks', async () => {
+      const { dynamicLifecycleMethods } = await testSuites(frameContent.querySelector('ts-target-props'));
+      await dynamicLifecycleMethods();
+    });
   });
 
   describe('es2022 dist-custom-elements output', () => {
@@ -226,6 +260,11 @@ describe('Checks class properties and runtime decorators of different es targets
     it('reflects internal state changes to the dom', async () => {
       const { reflectsStateChanges } = await testSuites(frameContent.querySelector('ts-target-props'));
       await reflectsStateChanges();
+    });
+
+    it('adds dynamic lifecycle hooks', async () => {
+      const { dynamicLifecycleMethods } = await testSuites(frameContent.querySelector('ts-target-props'));
+      await dynamicLifecycleMethods();
     });
   });
 });

@@ -1762,6 +1762,8 @@ declare module "@stencil/core" {
 
     await generateAppTypes(config, compilerCtx, buildCtx, 'src');
 
+    console.log(mockWriteFile.mock.calls[0][1]);
+
     expect(mockWriteFile).toHaveBeenCalledWith(
       '/components.d.ts',
       `/* eslint-disable */

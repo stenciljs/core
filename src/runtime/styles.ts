@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { doc, plt, styles, supportsConstructableStylesheets, supportsShadow } from '@platform';
+import { plt, styles, supportsConstructableStylesheets, supportsShadow, win } from '@platform';
 import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
@@ -51,12 +51,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
   const scopeId = getScopeId(cmpMeta, mode);
   const style = styles.get(scopeId);
 
-  if (!BUILD.attachStyles) {
+  if (!BUILD.attachStyles || !win.document) {
     return scopeId;
   }
   // if an element is NOT connected then getRootNode() will return the wrong root node
   // so the fallback is to always use the document for the root node in those cases
-  styleContainerNode = styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : doc;
+  styleContainerNode = styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : win.document;
 
   if (style) {
     if (typeof style === 'string') {
@@ -75,18 +75,19 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           // This is only happening on native shadow-dom, do not needs CSS var shim
           styleElm.innerHTML = style;
         } else {
-          styleElm = document.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`) || doc.createElement('style');
+          styleElm =
+            document.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`) || win.document.createElement('style');
           styleElm.innerHTML = style;
 
           // Apply CSP nonce to the style tag if it exists
-          const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(doc);
+          const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(win.document);
           if (nonce != null) {
             styleElm.setAttribute('nonce', nonce);
           }
 
           if (
             (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-            cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation
+            (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation || cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
           ) {
             styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
           }
@@ -147,7 +148,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           /**
            * attach styles at the beginning of a shadow root node if we render shadow components
            */
-          if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation && styleContainerNode.nodeName !== 'HEAD') {
+          if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
             styleContainerNode.insertBefore(styleElm, null);
           }
         }
@@ -188,8 +189,8 @@ export const attachStyles = (hostRef: d.HostRef) => {
   if (
     (BUILD.shadowDom || BUILD.scoped) &&
     BUILD.cssAnnotations &&
-    flags & CMP_FLAGS.needsScopedEncapsulation &&
-    flags & CMP_FLAGS.scopedCssEncapsulation
+    ((flags & CMP_FLAGS.needsScopedEncapsulation && flags & CMP_FLAGS.scopedCssEncapsulation) ||
+      flags & CMP_FLAGS.shadowNeedsScopedCss)
   ) {
     // only required when we're NOT using native shadow dom (slot)
     // or this browser doesn't support native shadow dom
@@ -213,6 +214,50 @@ export const attachStyles = (hostRef: d.HostRef) => {
  */
 export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
   'sc-' + (BUILD.mode && mode && cmp.$flags$ & CMP_FLAGS.hasMode ? cmp.$tagName$ + '-' + mode : cmp.$tagName$);
+
+/**
+ * Convert a 'scoped' CSS string to one appropriate for use in the shadow DOM.
+ *
+ * Given a 'scoped' CSS string that looks like this:
+ *
+ * ```
+ * /*!@div*\/div.class-name { display: flex };
+ * ```
+ *
+ * Convert it to a 'shadow' appropriate string, like so:
+ *
+ * ```
+ *  /*!@div*\/div.class-name { display: flex }
+ *      ─┬─                  ────────┬────────
+ *       │                           │
+ *       │         ┌─────────────────┘
+ *       ▼         ▼
+ *      div{ display: flex }
+ * ```
+ *
+ * Note that forward-slashes in the above are escaped so they don't end the
+ * comment.
+ *
+ * @param css a CSS string to convert
+ * @returns the converted string
+ */
+export const convertScopedToShadow = (css: string) => css.replace(/\/\*!@([^\/]+)\*\/[^\{]+\{/g, '$1{');
+
+/**
+ * Hydrate styles after SSR for components *not* using DSD. Convert 'scoped' styles to 'shadow'
+ * and add them to a constructable stylesheet.
+ */
+export const hydrateScopedToShadow = () => {
+  if (!win.document) {
+    return;
+  }
+
+  const styles = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
+  let i = 0;
+  for (; i < styles.length; i++) {
+    registerStyle(styles[i].getAttribute(HYDRATED_STYLE_ID), convertScopedToShadow(styles[i].innerHTML), true);
+  }
+};
 
 declare global {
   export interface CSSStyleSheet {

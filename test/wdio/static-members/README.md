@@ -25,6 +25,6 @@ Which produces an error when we get to the rollup stage:
            ... (elided) ...
 ```
 
-See: https://github.com/ionic-team/stencil/issues/4424 for more information
+See: https://github.com/stenciljs/core/issues/4424 for more information
 See: https://www.typescriptlang.org/play?#code/KYDwDg9gTgLgBAYwDYEMDOa4GUYpgSwQFlgBbAI2CkwG8BYAKDjjVwITjCgjCpgE84AXjgAmANyMAvkA
 for a TS playground reproduction of the `export` keyword being moved around

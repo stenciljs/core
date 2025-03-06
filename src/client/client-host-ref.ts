@@ -4,40 +4,18 @@ import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
 import type * as d from '../declarations';
 
 /**
- * A WeakMap mapping runtime component references to their corresponding host reference
- * instances.
- *
- * **Note**: If we're in an HMR context we need to store a reference to this
- * value on `window` in order to maintain the mapping of {@link d.RuntimeRef}
- * to {@link d.HostRef} across HMR updates.
- *
- * This is necessary because when HMR updates for a component are processed by
- * the browser-side dev server client the JS bundle for that component is
- * re-fetched. Since the module containing {@link hostRefs} is included in
- * that bundle, if we do not store a reference to it the new iteration of the
- * component will not have access to the previous hostRef map, leading to a
- * bug where the new version of the component cannot properly initialize.
- */
-const hostRefs: WeakMap<d.RuntimeRef, d.HostRef> = /*@__PURE__*/ BUILD.hotModuleReplacement
-  ? ((window as any).__STENCIL_HOSTREFS__ ||= new WeakMap())
-  : new WeakMap();
-
-/**
- * Given a {@link d.RuntimeRef} remove the corresponding {@link d.HostRef} from
- * the {@link hostRefs} WeakMap.
- *
- * @param ref the runtime ref of interest
- * @returns — true if the element was successfully removed, or false if it was not present.
- */
-export const deleteHostRef = (ref: d.RuntimeRef) => hostRefs.delete(ref);
-
-/**
  * Given a {@link d.RuntimeRef} retrieve the corresponding {@link d.HostRef}
  *
  * @param ref the runtime ref of interest
  * @returns the Host reference (if found) or undefined
  */
-export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => hostRefs.get(ref);
+export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => {
+  if (ref.__stencil__getHostRef) {
+    return ref.__stencil__getHostRef();
+  }
+
+  return undefined;
+};
 
 /**
  * Register a lazy instance with the {@link hostRefs} object so it's
@@ -47,7 +25,9 @@ export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => hostRefs
  * @param hostRef that instances `HostRef` object
  */
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
-  hostRefs.set((hostRef.$lazyInstance$ = lazyInstance), hostRef);
+  lazyInstance.__stencil__getHostRef = () => hostRef;
+  hostRef.$lazyInstance$ = lazyInstance;
+
   if (BUILD.modernPropertyDecls && (BUILD.state || BUILD.prop)) {
     reWireGetterSetter(lazyInstance, hostRef);
   }
@@ -81,7 +61,8 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     hostElement['s-rc'] = [];
   }
 
-  const ref = hostRefs.set(hostElement, hostRef);
+  const ref = hostRef;
+  hostElement.__stencil__getHostRef = () => ref;
 
   if (!BUILD.lazyLoad && BUILD.modernPropertyDecls && (BUILD.state || BUILD.prop)) {
     reWireGetterSetter(hostElement, hostRef);

@@ -102,6 +102,38 @@ export namespace Components {
         "someMethodWithArgs": (unit: string, value: number) => Promise<string>;
         "someProp": number;
     }
+    interface MyCmp {
+        /**
+          * bar prop
+          * @returns bar
+          * @readonly
+         */
+        "barProp": string;
+        /**
+          * foo prop
+         */
+        "fooProp": string;
+        /**
+          * Mode
+         */
+        "mode"?: any;
+    }
+    interface MyJsxCmp {
+        /**
+          * bar prop
+          * @returns bar
+          * @readonly
+         */
+        "barProp": string;
+        /**
+          * foo prop
+         */
+        "fooProp": string;
+        /**
+          * Mode
+         */
+        "mode"?: any;
+    }
     interface NestedCmpChild {
     }
     interface NestedCmpParent {
@@ -370,6 +402,18 @@ declare global {
         prototype: HTMLMethodCmpElement;
         new (): HTMLMethodCmpElement;
     };
+    interface HTMLMyCmpElement extends Components.MyCmp, HTMLStencilElement {
+    }
+    var HTMLMyCmpElement: {
+        prototype: HTMLMyCmpElement;
+        new (): HTMLMyCmpElement;
+    };
+    interface HTMLMyJsxCmpElement extends Components.MyJsxCmp, HTMLStencilElement {
+    }
+    var HTMLMyJsxCmpElement: {
+        prototype: HTMLMyJsxCmpElement;
+        new (): HTMLMyJsxCmpElement;
+    };
     interface HTMLNestedCmpChildElement extends Components.NestedCmpChild, HTMLStencilElement {
     }
     var HTMLNestedCmpChildElement: {
@@ -524,6 +568,8 @@ declare global {
         "import-assets": HTMLImportAssetsElement;
         "listen-cmp": HTMLListenCmpElement;
         "method-cmp": HTMLMethodCmpElement;
+        "my-cmp": HTMLMyCmpElement;
+        "my-jsx-cmp": HTMLMyJsxCmpElement;
         "nested-cmp-child": HTMLNestedCmpChildElement;
         "nested-cmp-parent": HTMLNestedCmpParentElement;
         "nested-scope-cmp": HTMLNestedScopeCmpElement;
@@ -616,6 +662,38 @@ declare namespace LocalJSX {
     interface MethodCmp {
         "someProp"?: number;
     }
+    interface MyCmp {
+        /**
+          * bar prop
+          * @returns bar
+          * @readonly
+         */
+        "barProp"?: string;
+        /**
+          * foo prop
+         */
+        "fooProp"?: string;
+        /**
+          * Mode
+         */
+        "mode"?: any;
+    }
+    interface MyJsxCmp {
+        /**
+          * bar prop
+          * @returns bar
+          * @readonly
+         */
+        "barProp"?: string;
+        /**
+          * foo prop
+         */
+        "fooProp"?: string;
+        /**
+          * Mode
+         */
+        "mode"?: any;
+    }
     interface NestedCmpChild {
     }
     interface NestedCmpParent {
@@ -702,6 +780,8 @@ declare namespace LocalJSX {
         "import-assets": ImportAssets;
         "listen-cmp": ListenCmp;
         "method-cmp": MethodCmp;
+        "my-cmp": MyCmp;
+        "my-jsx-cmp": MyJsxCmp;
         "nested-cmp-child": NestedCmpChild;
         "nested-cmp-parent": NestedCmpParent;
         "nested-scope-cmp": NestedScopeCmp;
@@ -758,6 +838,8 @@ declare module "@stencil/core" {
             "import-assets": LocalJSX.ImportAssets & JSXBase.HTMLAttributes<HTMLImportAssetsElement>;
             "listen-cmp": LocalJSX.ListenCmp & JSXBase.HTMLAttributes<HTMLListenCmpElement>;
             "method-cmp": LocalJSX.MethodCmp & JSXBase.HTMLAttributes<HTMLMethodCmpElement>;
+            "my-cmp": LocalJSX.MyCmp & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
+            "my-jsx-cmp": LocalJSX.MyJsxCmp & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
             "nested-cmp-child": LocalJSX.NestedCmpChild & JSXBase.HTMLAttributes<HTMLNestedCmpChildElement>;
             "nested-cmp-parent": LocalJSX.NestedCmpParent & JSXBase.HTMLAttributes<HTMLNestedCmpParentElement>;
             "nested-scope-cmp": LocalJSX.NestedScopeCmp & JSXBase.HTMLAttributes<HTMLNestedScopeCmpElement>;

@@ -4,7 +4,7 @@ This file is in a custom location, set with `.dir` on the `docs-readme` OT.
 
 The content here above the 'auto-generation' comment shouldn't be overwritten.
 
-This is a regression test for the issue reported in ionic-team/stencil#5400.
+This is a regression test for the issue reported in stenciljs/core#5400.
 
 <!-- Auto Generated Below -->
 

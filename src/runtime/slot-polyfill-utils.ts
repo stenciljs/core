@@ -1,11 +1,12 @@
 import { BUILD } from '@app-data';
 
 import type * as d from '../declarations';
+import { internalCall } from './dom-extras';
 import { NODE_TYPE } from './runtime-constants';
 
 /**
  * Adjust the `.hidden` property as-needed on any nodes in a DOM subtree which
- * are slot fallbacks nodes - `<slot-fb>...</slot-fb>`
+ * are slot fallback nodes - `<slot-fb>...</slot-fb>`
  *
  * A slot fallback node should be visible by default. Then, it should be
  * conditionally hidden if:
@@ -17,7 +18,7 @@ import { NODE_TYPE } from './runtime-constants';
  * @param elm the element of interest
  */
 export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
-  const childNodes: d.RenderNode[] = elm.__childNodes || (elm.childNodes as any);
+  const childNodes = internalCall(elm, 'childNodes');
 
   // is this is a stencil component?
   if (elm.tagName && elm.tagName.includes('-') && elm['s-cr'] && elm.tagName !== 'SLOT-FB') {
@@ -25,7 +26,7 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
     getHostSlotNodes(childNodes as any, (elm as HTMLElement).tagName).forEach((slotNode) => {
       if (slotNode.nodeType === NODE_TYPE.ElementNode && slotNode.tagName === 'SLOT-FB') {
         // this is a slot fallback node
-        if (getHostSlotChildNodes(slotNode, slotNode['s-sn'], false)?.length) {
+        if (getSlotChildSiblings(slotNode, getSlotName(slotNode), false).length) {
           // has slotted nodes, hide fallback
           slotNode.hidden = true;
         } else {
@@ -35,8 +36,11 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
       }
     });
   }
-  for (const childNode of childNodes) {
-    if (childNode.nodeType === NODE_TYPE.ElementNode && (childNode.__childNodes || childNode.childNodes).length) {
+
+  let i = 0;
+  for (i = 0; i < childNodes.length; i++) {
+    const childNode = childNodes[i] as d.RenderNode;
+    if (childNode.nodeType === NODE_TYPE.ElementNode && internalCall(childNode, 'childNodes').length) {
       // keep drilling down
       updateFallbackSlotVisibility(childNode);
     }
@@ -54,7 +58,7 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
  * @returns An array of slotted reference nodes.
  */
 export const getSlottedChildNodes = (childNodes: NodeListOf<ChildNode>): d.PatchedSlotNode[] => {
-  const result = [];
+  const result: d.PatchedSlotNode[] = [];
   for (let i = 0; i < childNodes.length; i++) {
     const slottedNode = ((childNodes[i] as d.RenderNode)['s-nr'] as d.PatchedSlotNode) || undefined;
     if (slottedNode && slottedNode.isConnected) {
@@ -71,7 +75,7 @@ export const getSlottedChildNodes = (childNodes: NodeListOf<ChildNode>): d.Patch
  * @param slotName the name of the slot to match on.
  * @returns a reference to the slot node that matches the provided name, `null` otherwise
  */
-export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName: string, slotName?: string) {
+export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName?: string, slotName?: string) {
   let i = 0;
   let slottedNodes: d.RenderNode[] = [];
   let childNode: d.RenderNode;
@@ -80,8 +84,8 @@ export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName: st
     childNode = childNodes[i] as any;
     if (
       childNode['s-sr'] &&
-      childNode['s-hn'] === hostName &&
-      (slotName === undefined || childNode['s-sn'] === slotName)
+      (!hostName || childNode['s-hn'] === hostName) &&
+      (slotName === undefined || getSlotName(childNode) === slotName)
     ) {
       slottedNodes.push(childNode);
       if (typeof slotName !== 'undefined') return slottedNodes;
@@ -92,18 +96,19 @@ export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName: st
 }
 
 /**
- * Get slotted child nodes of a slot node
- * @param node - the slot node to get the child nodes from
+ * Get all 'child' sibling nodes of a slot node
+ * @param slot - the slot node to get the child nodes from
  * @param slotName - the name of the slot to match on
  * @param includeSlot - whether to include the slot node in the result
- * @returns slotted child nodes of the slot node
+ * @returns child nodes of the slot node
  */
-export const getHostSlotChildNodes = (node: d.RenderNode, slotName: string, includeSlot = true) => {
+export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, includeSlot = true) => {
   const childNodes: d.RenderNode[] = [];
-  if ((includeSlot && node['s-sr']) || !node['s-sr']) childNodes.push(node as any);
+  if ((includeSlot && slot['s-sr']) || !slot['s-sr']) childNodes.push(slot as any);
+  let node = slot;
 
-  while ((node = node.nextSibling as any) && (node as d.RenderNode)['s-sn'] === slotName) {
-    childNodes.push(node as any);
+  while ((node = node.nextSibling as any)) {
+    if (getSlotName(node) === slotName && (includeSlot || !node['s-sr'])) childNodes.push(node as any);
   }
   return childNodes;
 };
@@ -150,37 +155,34 @@ export const addSlotRelocateNode = (
   prepend?: boolean,
   position?: number,
 ) => {
-  let slottedNodeLocation: d.RenderNode;
-
-  // does newChild already have a slot location node?
   if (newChild['s-ol'] && newChild['s-ol'].isConnected) {
-    slottedNodeLocation = newChild['s-ol'];
-  } else {
-    slottedNodeLocation = document.createTextNode('') as any;
-    slottedNodeLocation['s-nr'] = newChild;
+    // newChild already has a slot location node
+    return;
   }
 
+  const slottedNodeLocation = document.createTextNode('') as any;
+  slottedNodeLocation['s-nr'] = newChild;
+
+  // if there's no content reference node, or parentNode we can't do anything
   if (!slotNode['s-cr'] || !slotNode['s-cr'].parentNode) return;
 
   const parent = slotNode['s-cr'].parentNode as any;
-  const appendMethod = prepend ? parent.__prepend || parent.prepend : parent.__appendChild || parent.appendChild;
+  const appendMethod = prepend ? internalCall(parent, 'prepend') : internalCall(parent, 'appendChild');
 
-  if (typeof position !== 'undefined') {
-    if (BUILD.hydrateClientSide) {
-      slottedNodeLocation['s-oo'] = position;
-      const childNodes = (parent.__childNodes || parent.childNodes) as NodeListOf<d.RenderNode>;
-      const slotRelocateNodes: d.RenderNode[] = [slottedNodeLocation];
-      childNodes.forEach((n) => {
-        if (n['s-nr']) slotRelocateNodes.push(n);
-      });
+  if (BUILD.hydrateClientSide && typeof position !== 'undefined') {
+    slottedNodeLocation['s-oo'] = position;
+    const childNodes = internalCall(parent, 'childNodes') as NodeListOf<d.RenderNode>;
+    const slotRelocateNodes: d.RenderNode[] = [slottedNodeLocation];
+    childNodes.forEach((n) => {
+      if (n['s-nr']) slotRelocateNodes.push(n);
+    });
 
-      slotRelocateNodes.sort((a, b) => {
-        if (!a['s-oo'] || a['s-oo'] < b['s-oo']) return -1;
-        else if (!b['s-oo'] || b['s-oo'] < a['s-oo']) return 1;
-        return 0;
-      });
-      slotRelocateNodes.forEach((n) => appendMethod.call(parent, n));
-    }
+    slotRelocateNodes.sort((a, b) => {
+      if (!a['s-oo'] || a['s-oo'] < (b['s-oo'] || 0)) return -1;
+      else if (!b['s-oo'] || b['s-oo'] < a['s-oo']) return 1;
+      return 0;
+    });
+    slotRelocateNodes.forEach((n) => appendMethod.call(parent, n));
   } else {
     appendMethod.call(parent, slottedNodeLocation);
   }
@@ -190,4 +192,75 @@ export const addSlotRelocateNode = (
 };
 
 export const getSlotName = (node: d.PatchedSlotNode) =>
-  node['s-sn'] || (node.nodeType === 1 && (node as Element).getAttribute('slot')) || '';
+  typeof node['s-sn'] === 'string'
+    ? node['s-sn']
+    : (node.nodeType === 1 && (node as Element).getAttribute('slot')) || undefined;
+
+/**
+ * Add `assignedElements` and `assignedNodes` methods on a fake slot node
+ *
+ * @param node - slot node to patch
+ */
+export function patchSlotNode(node: d.RenderNode) {
+  if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) return;
+
+  const assignedFactory = (elementsOnly: boolean) =>
+    function (opts?: { flatten: boolean }) {
+      const toReturn: d.RenderNode[] = [];
+      const slotName = this['s-sn'];
+
+      if (opts?.flatten) {
+        console.error(`
+          Flattening is not supported for Stencil non-shadow slots. 
+          You can use \`.childNodes\` to nested slot fallback content.
+          If you have a particular use case, please open an issue on the Stencil repo.
+        `);
+      }
+
+      const parent = this['s-cr'].parentElement as d.RenderNode;
+      // get all light dom nodes
+      const slottedNodes = parent.__childNodes ? parent.childNodes : getSlottedChildNodes(parent.childNodes);
+
+      (slottedNodes as d.RenderNode[]).forEach((n) => {
+        // find all the nodes assigned to slots we care about
+        if (slotName === getSlotName(n)) {
+          toReturn.push(n);
+        }
+      });
+
+      if (elementsOnly) {
+        return toReturn.filter((n) => n.nodeType === NODE_TYPE.ElementNode);
+      }
+      return toReturn;
+    }.bind(node);
+
+  (node as any).assignedElements = assignedFactory(true);
+  (node as any).assignedNodes = assignedFactory(false);
+}
+
+/**
+ * Dispatches a `slotchange` event on a fake `<slot />` node.
+ *
+ * @param elm the slot node to dispatch the event from
+ */
+export function dispatchSlotChangeEvent(elm: d.RenderNode) {
+  elm.dispatchEvent(new CustomEvent('slotchange', { bubbles: false, cancelable: false, composed: false }));
+}
+
+/**
+ * Find the slot node that a slotted node belongs to
+ *
+ * @param slottedNode - the slotted node to find the slot for
+ * @param parentHost - the parent host element of the slotted node
+ * @returns the slot node and slot name
+ */
+export function findSlotFromSlottedNode(slottedNode: d.PatchedSlotNode, parentHost?: HTMLElement) {
+  parentHost = parentHost || slottedNode['s-ol']?.parentElement;
+
+  if (!parentHost) return { slotNode: null, slotName: '' };
+
+  const slotName = (slottedNode['s-sn'] = getSlotName(slottedNode) || '');
+  const childNodes = internalCall(parentHost, 'childNodes');
+  const slotNode = getHostSlotNodes(childNodes, parentHost.tagName, slotName)[0];
+  return { slotNode, slotName };
+}

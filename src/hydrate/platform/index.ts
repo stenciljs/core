@@ -54,8 +54,6 @@ export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
 
 export const win = window;
 
-export const doc = win.document;
-
 export const readTask = (cb: Function) => {
   nextTick(() => {
     try {
@@ -127,17 +125,22 @@ export const supportsListenerOptions = false;
 
 export const supportsConstructableStylesheets = false;
 
-const hostRefs: WeakMap<d.RuntimeRef, d.HostRef> = new WeakMap();
+export const getHostRef = (ref: d.RuntimeRef) => {
+  if (ref.__stencil__getHostRef) {
+    return ref.__stencil__getHostRef();
+  }
 
-export const getHostRef = (ref: d.RuntimeRef) => hostRefs.get(ref);
-export const deleteHostRef = (ref: d.RuntimeRef) => hostRefs.delete(ref);
+  return undefined;
+};
 
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
-  const ref = hostRefs.set((hostRef.$lazyInstance$ = lazyInstance), hostRef);
+  lazyInstance.__stencil__getHostRef = () => hostRef;
+  hostRef.$lazyInstance$ = lazyInstance;
+
   if (BUILD.modernPropertyDecls && (BUILD.state || BUILD.prop)) {
     reWireGetterSetter(lazyInstance, hostRef);
   }
-  return ref;
+  return hostRef;
 };
 
 export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta) => {
@@ -152,7 +155,9 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
   hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
   elm['s-p'] = [];
   elm['s-rc'] = [];
-  return hostRefs.set(elm, hostRef);
+  elm.__stencil__getHostRef = () => hostRef;
+
+  return hostRef;
 };
 
 export const Build: d.UserBuildConditionals = {

@@ -107,4 +107,34 @@ describe('different types of decorated properties and states render on both serv
     expect(await txt('basicState')).toBe('basicState');
     expect(await txt('decoratedState')).toBe('10');
   });
+
+  it('renders different values on different component instances ', async () => {
+    const doc = await renderToString(`
+      <runtime-decorators></runtime-decorators>
+      <runtime-decorators 
+        decorated-prop="200"
+        decorated-getter-setter-prop="-5"
+        basic-prop="basicProp via attribute"
+        basic-state="basicState via attribute"
+        decorated-state="decoratedState via attribute"
+      ></runtime-decorators>
+    `);
+    html = doc.html;
+
+    // first component should have default values
+
+    expect(htmlTxt('basicProp')).toBe('basicProp');
+    expect(htmlTxt('decoratedProp')).toBe('-5');
+    expect(htmlTxt('decoratedGetterSetterProp')).toBe('999');
+    expect(htmlTxt('basicState')).toBe('basicState');
+    expect(htmlTxt('decoratedState')).toBe('10');
+
+    page = await newE2EPage({ html, url: 'https://stencil.com' });
+
+    expect(await txt('basicProp')).toBe('basicProp');
+    expect(await txt('decoratedProp')).toBe('-5');
+    expect(await txt('decoratedGetterSetterProp')).toBe('999');
+    expect(await txt('basicState')).toBe('basicState');
+    expect(await txt('decoratedState')).toBe('10');
+  });
 });

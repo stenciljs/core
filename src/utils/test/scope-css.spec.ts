@@ -14,8 +14,8 @@
 import { scopeCss } from '../shadow-css';
 
 describe('ShadowCss', function () {
-  function s(cssText: string, scopeId: string) {
-    const shim = scopeCss(cssText, scopeId);
+  function s(cssText: string, scopeId: string, commentOriginalSelector = false) {
+    const shim = scopeCss(cssText, scopeId, commentOriginalSelector);
 
     const nlRegexp = /\n/g;
     return normalizeCSS(shim.replace(nlRegexp, ''));
@@ -23,6 +23,21 @@ describe('ShadowCss', function () {
 
   it('should handle empty string', () => {
     expect(s('', 'a')).toEqual('');
+  });
+
+  it('should handle empty string, commented org selector', () => {
+    expect(s('', 'a', true)).toEqual('');
+  });
+
+  it('div', () => {
+    const r = s('div {}', 'sc-ion-tag', true);
+    expect(r).toEqual('/*!@div*/div.sc-ion-tag {}');
+  });
+
+  it('should add an attribute to every rule, commented org selector', () => {
+    const css = 'one {color: red;}two {color: red;}';
+    const expected = '/*!@one*/one.a {color:red;}/*!@two*/two.a {color:red;}';
+    expect(s(css, 'a', true)).toEqual(expected);
   });
 
   it('should add an attribute to every rule', () => {

@@ -1192,7 +1192,7 @@ describe('render-vdom', () => {
       // have trouble with.
       //
       // This is essentially a regression test for the issue described in
-      // https://github.com/ionic-team/stencil/issues/3253
+      // https://github.com/stenciljs/core/issues/3253
       expect(rootInstance.divRef).toEqual(root.querySelector('.a'));
     });
   });

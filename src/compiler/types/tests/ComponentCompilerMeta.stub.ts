@@ -27,7 +27,6 @@ export const stubComponentCompilerMeta = (
   hasAttributeChangedCallbackFn: false,
   hasComponentDidLoadFn: false,
   hasComponentDidRenderFn: false,
-  hasComponentDidUnloadFn: false,
   hasComponentDidUpdateFn: false,
   hasComponentShouldUpdateFn: false,
   hasComponentWillLoadFn: false,

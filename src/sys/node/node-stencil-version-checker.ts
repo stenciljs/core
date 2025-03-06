@@ -8,7 +8,7 @@ import type { Logger, PackageJsonData } from '../../declarations';
 
 const REGISTRY_URL = `https://registry.npmjs.org/@stencil/core`;
 const CHECK_INTERVAL = 1000 * 60 * 60 * 24 * 7;
-const CHANGELOG = `https://github.com/ionic-team/stencil/blob/main/CHANGELOG.md`;
+const CHANGELOG = `https://github.com/stenciljs/core/blob/main/CHANGELOG.md`;
 
 export async function checkVersion(logger: Logger, currentVersion: string): Promise<() => void> {
   try {

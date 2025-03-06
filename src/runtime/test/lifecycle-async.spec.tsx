@@ -111,7 +111,6 @@ describe('lifecycle async', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       componentWillLoad() {
-        expect(document.documentElement.classList.contains('hydrated')).toBe(false);
         window.addEventListener('appload', (ev: CustomEvent) => mockEvent(ev.detail));
       }
 
@@ -125,7 +124,6 @@ describe('lifecycle async', () => {
       includeAnnotations: true,
     });
 
-    expect(document.documentElement.classList.contains('hydrated')).toBe(true);
     expect(mockEvent).toHaveBeenCalledTimes(1);
     expect(mockEvent).toHaveBeenCalledWith({
       namespace: 'app',

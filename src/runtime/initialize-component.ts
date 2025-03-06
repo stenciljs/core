@@ -3,6 +3,7 @@ import { consoleError, loadModule, styles } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
@@ -32,7 +33,8 @@ export const initializeComponent = async (
     // Let the runtime know that the component has been initialized
     hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
 
-    if (BUILD.lazyLoad || BUILD.hydrateClientSide) {
+    const bundleId = cmpMeta.$lazyBundleId$;
+    if (BUILD.lazyLoad && bundleId) {
       // lazy loaded components
       // request the component's implementation to be
       // wired up with the host element
@@ -154,16 +156,9 @@ export const initializeComponent = async (
       if (!styles.has(scopeId)) {
         const endRegisterStyles = createTime('registerStyles', cmpMeta.$tagName$);
 
-        if (
-          !BUILD.hydrateServerSide &&
-          BUILD.shadowDom &&
-          // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-          BUILD.shadowDomShim &&
-          cmpMeta.$flags$ & CMP_FLAGS.needsShadowDomShim
-        ) {
-          style = await import('@utils/shadow-css').then((m) => m.scopeCss(style, scopeId));
+        if (BUILD.hydrateServerSide && BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
+          style = scopeCss(style, scopeId, true);
         }
-
         registerStyle(scopeId, style, !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation));
         endRegisterStyles();
       }
@@ -189,7 +184,7 @@ export const initializeComponent = async (
 };
 
 export const fireConnectedCallback = (instance: any, elm?: HTMLElement) => {
-  if (BUILD.lazyLoad && BUILD.connectedCallback) {
+  if (BUILD.lazyLoad) {
     safeCall(instance, 'connectedCallback', undefined, elm);
   }
 };

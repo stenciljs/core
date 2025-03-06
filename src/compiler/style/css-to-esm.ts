@@ -115,7 +115,7 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCs
 
     if (isString(input.tag) && input.encapsulation === 'scoped') {
       const scopeId = getScopeId(input.tag, input.mode);
-      results.styleText = scopeCss(results.styleText, scopeId);
+      results.styleText = scopeCss(results.styleText, scopeId, false);
     }
 
     const cssImports = getCssToEsmImports(varNames, results.styleText, input.file, input.mode);

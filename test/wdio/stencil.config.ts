@@ -14,6 +14,7 @@ export const config: Config = {
       dir: 'test-components',
       customElementsExportBehavior: 'bundle',
       isPrimaryPackageOutputTarget: true,
+      externalRuntime: false,
     },
     {
       type: 'dist-hydrate-script',

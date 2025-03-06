@@ -2,9 +2,11 @@ import { BUILD } from '@app-data';
 
 import type * as d from '../declarations';
 
-export const win = typeof window !== 'undefined' ? window : ({} as Window);
+interface StencilWindow extends Omit<Window, 'document'> {
+  document?: Document;
+}
 
-export const doc = win.document || ({ head: {} } as Document);
+export const win = (typeof window !== 'undefined' ? window : ({} as StencilWindow)) as StencilWindow;
 
 export const H = ((win as any).HTMLElement || (class {} as any)) as HTMLElement;
 
@@ -33,7 +35,7 @@ export const supportsShadow = BUILD.shadowDom;
 export const supportsListenerOptions = /*@__PURE__*/ (() => {
   let supportsListenerOptions = false;
   try {
-    doc.addEventListener(
+    win.document?.addEventListener(
       'e',
       null,
       Object.defineProperty({}, 'passive', {

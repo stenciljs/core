@@ -443,7 +443,7 @@ describe('hydrate, slot fallback', () => {
         return (
           <article>
             <cmp-b>
-              <slot>Fallback content parent - should not be hidden</slot>
+              <slot>Fallback content parent - should be hidden</slot>
             </cmp-b>
           </article>
         );
@@ -458,7 +458,7 @@ describe('hydrate, slot fallback', () => {
       render() {
         return (
           <section>
-            <slot>Fallback content child - should be hidden</slot>
+            <slot>Fallback content child - should not be hidden</slot>
           </section>
         );
       }
@@ -479,13 +479,13 @@ describe('hydrate, slot fallback', () => {
             <!--r.2-->
             <!--o.1.2.-->
             <section c-id=\"2.0.0.0\">
-              <slot-fb c-id=\"2.1.1.0\" hidden=\"\" s-sn=\"\">
+              <slot-fb c-id=\"2.1.1.0\" s-sn=\"\">
                 <!--t.2.2.2.0-->
-                Fallback content child - should be hidden
+                Fallback content child - should not be hidden
               </slot-fb>
               <slot-fb c-id=\"1.2.2.0\" s-sn=\"\">
                 <!--t.1.3.3.0-->
-                Fallback content parent - should not be hidden
+                Fallback content parent - should be hidden
               </slot-fb>
             </section>
           </cmp-b>
@@ -507,12 +507,12 @@ describe('hydrate, slot fallback', () => {
             <mock:shadow-root>
               <section>
                 <slot>
-                  Fallback content child - should be hidden
+                  Fallback content child - should not be hidden
                 </slot>
               </section>
             </mock:shadow-root>
             <slot-fb class="sc-cmp-a">
-              Fallback content parent - should not be hidden
+              Fallback content parent - should be hidden
             </slot-fb>
           </cmp-b>
         </article>

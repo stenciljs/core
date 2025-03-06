@@ -1,6 +1,6 @@
 <p align="center">
   <a href="#">
-    <img alt="stencil-logo" src="https://github.com/ionic-team/stencil/blob/main/stencil-logo.png" width="60">
+    <img alt="stencil-logo" src="https://github.com/stenciljs/core/blob/main/stencil-logo.png" width="60">
   </a>
 </p>
 
@@ -15,10 +15,10 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@stencil/core">
     <img src="https://img.shields.io/npm/v/@stencil/core.svg" alt="StencilJS is released under the MIT license." /></a>
-  <a href="https://github.com/ionic-team/stencil/blob/main/LICENSE.md">
+  <a href="https://github.com/stenciljs/core/blob/main/LICENSE.md">
     <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="StencilJS is released under the MIT license." />
   </a>
-  <a href="https://github.com/ionic-team/stencil/blob/main/CONTRIBUTING.md">
+  <a href="https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
   </a>
   <a href="https://twitter.com/stenciljs">
@@ -34,7 +34,7 @@
   <span> · </span>
   <a href="https://stenciljs.com/docs/introduction">Documentation</a>
   <span> · </span>
-  <a href="https://github.com/ionic-team/stencil/blob/main/CONTRIBUTING.md">Contribute</a>
+  <a href="https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md">Contribute</a>
   <span> · </span>
   <a href="https://ionicframework.com/blog/tag/stencil/">Blog</a>
   <br />
@@ -50,7 +50,7 @@
 
 Start a new project by following our quick [Getting Started guide](https://stenciljs.com/docs/getting-started).
 We would love to hear from you!
-If you have any feedback or run into issues using Stencil, please file an [issue](https://github.com/ionic-team/stencil/issues/new) on this repository.
+If you have any feedback or run into issues using Stencil, please file an [issue](https://github.com/stenciljs/core/issues/new) on this repository.
 
 ### Examples
 A Stencil component looks a lot like a class-based React component, with the addition of TypeScript decorators:
@@ -90,5 +90,5 @@ In many cases, Stencil can be used as a drop in replacement for traditional fron
 ### Contributing
 
 Thanks for your interest in contributing!
-Please take a moment to read up on our guidelines for [contributing](https://github.com/ionic-team/stencil/blob/main/CONTRIBUTING.md).
-Please note that this project is released with a [Contributor Code of Conduct](https://github.com/ionic-team/stencil/blob/main/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+Please take a moment to read up on our guidelines for [contributing](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md).
+Please note that this project is released with a [Contributor Code of Conduct](https://github.com/stenciljs/core/blob/main/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.

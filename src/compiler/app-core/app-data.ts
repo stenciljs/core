@@ -24,23 +24,13 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
   const slotRelocation = cmps.some((c) => c.encapsulation !== 'shadow' && c.htmlTagNames.includes('slot'));
   const f: BuildFeatures = {
     allRenderFn: cmps.every((c) => c.hasRenderFn),
-    cmpDidLoad: cmps.some((c) => c.hasComponentDidLoadFn),
-    cmpShouldUpdate: cmps.some((c) => c.hasComponentShouldUpdateFn),
-    cmpDidUnload: cmps.some((c) => c.hasComponentDidUnloadFn),
-    cmpDidUpdate: cmps.some((c) => c.hasComponentDidUpdateFn),
-    cmpDidRender: cmps.some((c) => c.hasComponentDidRenderFn),
-    cmpWillLoad: cmps.some((c) => c.hasComponentWillLoadFn),
-    cmpWillUpdate: cmps.some((c) => c.hasComponentWillUpdateFn),
-    cmpWillRender: cmps.some((c) => c.hasComponentWillRenderFn),
     formAssociated: cmps.some((c) => c.formAssociated),
 
-    connectedCallback: cmps.some((c) => c.hasConnectedCallbackFn),
-    disconnectedCallback: cmps.some((c) => c.hasDisconnectedCallbackFn),
     element: cmps.some((c) => c.hasElement),
     event: cmps.some((c) => c.hasEvent),
     hasRenderFn: cmps.some((c) => c.hasRenderFn),
     lifecycle: cmps.some((c) => c.hasLifecycle),
-    asyncLoading: false,
+    asyncLoading: true,
     hostListener: cmps.some((c) => c.hasListener),
     hostListenerTargetWindow: cmps.some((c) => c.hasListenerTargetWindow),
     hostListenerTargetDocument: cmps.some((c) => c.hasListenerTargetDocument),
@@ -81,7 +71,6 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     watchCallback: cmps.some((c) => c.hasWatchCallback),
     taskQueue: true,
   };
-  f.asyncLoading = f.cmpWillUpdate || f.cmpWillLoad || f.cmpWillRender;
   f.vdomAttribute = f.vdomAttribute || f.reflect;
   f.vdomPropOrAttr = f.vdomPropOrAttr || f.reflect;
 

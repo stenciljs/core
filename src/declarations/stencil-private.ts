@@ -145,16 +145,6 @@ export interface BuildFeatures {
 
   // lifecycle events
   lifecycle: boolean;
-  cmpDidLoad: boolean;
-  cmpShouldUpdate: boolean;
-  cmpWillLoad: boolean;
-  cmpDidUpdate: boolean;
-  cmpWillUpdate: boolean;
-  cmpWillRender: boolean;
-  cmpDidRender: boolean;
-  cmpDidUnload: boolean;
-  connectedCallback: boolean;
-  disconnectedCallback: boolean;
   asyncLoading: boolean;
 
   // attr
@@ -547,7 +537,6 @@ export interface ComponentCompilerFeatures {
   hasComponentDidUpdateFn: boolean;
   hasComponentWillRenderFn: boolean;
   hasComponentDidRenderFn: boolean;
-  hasComponentDidUnloadFn: boolean;
   hasConnectedCallbackFn: boolean;
   hasDisconnectedCallbackFn: boolean;
   hasElement: boolean;
@@ -1088,6 +1077,8 @@ export interface HostElement extends HTMLElement {
   host?: Element;
   forceUpdate?: () => void;
 
+  __stencil__getHostRef?: () => HostRef;
+
   // "s-" prefixed properties should not be property renamed
   // and should be common between all versions of stencil
 
@@ -1438,7 +1429,7 @@ export interface RenderNode extends HostElement {
 
   /**
    * Node reference:
-   * This is a reference for a original location node
+   * This is a reference from an original location node
    * back to the node that's been moved around.
    */
   ['s-nr']?: PatchedSlotNode | RenderNode;
@@ -1724,7 +1715,7 @@ export type ComponentRuntimeReflectingAttr = [string, string | undefined];
  * keys in a `WeakMap` which maps {@link HostElement} instances to their
  * associated {@link HostRef} instance.
  */
-export type RuntimeRef = HostElement | {};
+export type RuntimeRef = HostElement | { __stencil__getHostRef?: () => HostRef };
 
 /**
  * Interface used to track an Element, it's virtual Node (`VNode`), and other data

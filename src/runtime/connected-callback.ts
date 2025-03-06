@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { addHostEventListeners, doc, getHostRef, nextTick, plt, supportsShadow } from '@platform';
+import { addHostEventListeners, getHostRef, nextTick, plt, supportsShadow, win } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -124,13 +124,17 @@ export const connectedCallback = (elm: d.HostElement) => {
 };
 
 const setContentReference = (elm: d.HostElement) => {
+  if (!win.document) {
+    return;
+  }
+
   // only required when we're NOT using native shadow dom (slot)
   // or this browser doesn't support native shadow dom
   // and this host element was NOT created with SSR
   // let's pick out the inner content for slot projection
   // create a node to represent where the original
   // content was first placed, which is useful later on
-  const contentRefElm = (elm['s-cr'] = doc.createComment(
+  const contentRefElm = (elm['s-cr'] = win.document.createComment(
     BUILD.isDebug ? `content-ref (host=${elm.localName})` : '',
   ) as any);
   contentRefElm['s-cn'] = true;

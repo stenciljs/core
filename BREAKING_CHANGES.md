@@ -42,7 +42,7 @@ In the example above, `"@utils"` would be mapped to the string `"src/utils/index
 The TypeScript compiler does not however, transform these paths from their keys to their values as a part of its output.
 Instead, it relies on a bundler/loader to do the transformation.
 
-The ability to transform path aliases was introduced in [Stencil v3.1.0](https://github.com/ionic-team/stencil/releases/tag/v3.1.0) as an opt-in feature.
+The ability to transform path aliases was introduced in [Stencil v3.1.0](https://github.com/stenciljs/core/releases/tag/v3.1.0) as an opt-in feature.
 Previously, users had to explicitly enable this functionality in their `stencil.config.ts` file with `transformAliasedImportPaths`:
 ```ts title="stencil.config.ts - enabling 'transformAliasedImportPaths' in Stencil v3.1.0"
 import { Config } from '@stencil/core';
@@ -56,7 +56,7 @@ export const config: Config = {
 Starting with Stencil v4.0.0, this feature is enabled by default.
 Projects that had previously enabled this functionality that are migrating from Stencil v3.1.0+ may safely remove the flag from their Stencil configuration file(s).
 
-For users that run into issues with this new default, we encourage you to file a [new issue on the Stencil GitHub repo](https://github.com/ionic-team/stencil/issues/new?assignees=&labels=&projects=&template=bug_report.yml&title=bug%3A+).
+For users that run into issues with this new default, we encourage you to file a [new issue on the Stencil GitHub repo](https://github.com/stenciljs/core/issues/new?assignees=&labels=&projects=&template=bug_report.yml&title=bug%3A+).
 As a workaround, this flag can be set to `false` to disable the default functionality.
 ```ts title="stencil.config.ts - disabling 'transformAliasedImportPaths' in Stencil v4.0.0"
 import { Config } from '@stencil/core';
@@ -71,14 +71,14 @@ For more information on this flag, please see the [configuration documentation](
 
 #### `transformAliasedImportPathsInCollection`
 
-Introduced in [Stencil v2.18.0](https://github.com/ionic-team/stencil/releases/tag/v2.18.0), `transformAliasedImportPathsInCollection` is a configuration flag on the [`dist` output target](https://stenciljs.com/docs/distribution#transformaliasedimportpathsincollection).
+Introduced in [Stencil v2.18.0](https://github.com/stenciljs/core/releases/tag/v2.18.0), `transformAliasedImportPathsInCollection` is a configuration flag on the [`dist` output target](https://stenciljs.com/docs/distribution#transformaliasedimportpathsincollection).
 `transformAliasedImportPathsInCollection` transforms import paths, similar to [`transformAliasedImportPaths`](#transformaliasedimportpaths).
 This flag however, only enables the functionality of `transformAliasedImportPaths` for collection output targets.
 
 Starting with Stencil v4.0.0, this flag is enabled by default.
 Projects that had previously enabled this functionality that are migrating from Stencil v2.18.0+ may safely remove the flag from their Stencil configuration file(s).
 
-For users that run into issues with this new default, we encourage you to file a [new issue on the Stencil GitHub repo](https://github.com/ionic-team/stencil/issues/new?assignees=&labels=&projects=&template=bug_report.yml&title=bug%3A+).
+For users that run into issues with this new default, we encourage you to file a [new issue on the Stencil GitHub repo](https://github.com/stenciljs/core/issues/new?assignees=&labels=&projects=&template=bug_report.yml&title=bug%3A+).
 As a workaround, this flag can be set to `false` to disable the default functionality.
 ```ts title="stencil.config.ts - disabling 'transformAliasedImportPathsInCollection' in Stencil v4.0.0"
 import { Config } from '@stencil/core';
@@ -102,7 +102,7 @@ For more information on this flag, please see the [`dist` output target's docume
 Prior to Stencil v4.0.0, components could be compiled from TSX to JS in the browser.
 This feature was seldom used, and has been removed from Stencil.
 At this time, there is no replacement functionality.
-For additional details, please see the [request-for-comment](https://github.com/ionic-team/stencil/discussions/4134) on the Stencil GitHub Discussions page.
+For additional details, please see the [request-for-comment](https://github.com/stenciljs/core/discussions/4134) on the Stencil GitHub Discussions page.
 
 ### Legacy Context and Connect APIs Removed
 
@@ -532,7 +532,7 @@ The `inlineDynamicImports` configuration option on `dist-custom-elements` has be
 time during the Rollup bundling process if the build contained multiple "inputs" (components).
 
 #### `dist-custom-elements-bundle` Output Target
-The `dist-custom-elements-bundle` has been removed starting with Stencil v3.0.0, following the [RFC process](https://github.com/ionic-team/stencil/issues/3136).
+The `dist-custom-elements-bundle` has been removed starting with Stencil v3.0.0, following the [RFC process](https://github.com/stenciljs/core/issues/3136).
 Users of this output target should migrate to the `dist-custom-elements` output target.
 
 By default, `dist-custom-elements` does not automatically define all a project's component's with the `CustomElementsRegistry`.
@@ -562,7 +562,7 @@ However, it does not necessarily improve treeshaking/bundle size.
 For more information on configuring this output target, please see the [`dist-custom-elements` documentation](https://stenciljs.com/docs/custom-elements)
 
 ### Legacy Angular Output Target
-Prior to the creation of the [`@stencil/angular-output-target`](https://github.com/ionic-team/stencil-ds-output-targets/blob/main/packages/angular-output-target/README.md), the `'angular'` output target was the original means of connecting a Stencil component to an Angular application.
+Prior to the creation of the [`@stencil/angular-output-target`](https://github.com/stenciljs/core-ds-output-targets/blob/main/packages/angular-output-target/README.md), the `'angular'` output target was the original means of connecting a Stencil component to an Angular application.
 This output target has been removed in favor of `@stencil/angular-output-target`.
 Please migrate to `@stencil/angular-output-target` and remove the `'angular'` output target from your `stencil.config.ts` file.
 Instructions for doing so can be found [on the Stencil site](https://stenciljs.com/docs/angular#setup)
@@ -614,19 +614,19 @@ While migrating from Stencil One, any changes will be flagged and described by t
 
 #### Opt-in for IE11, Edge 16-18 and Safari 10 Builds
 
-- **config:** update config extra defaults to not build IE11, Edge 16-18 and Safari 10 by default ([363bf59](https://github.com/ionic-team/stencil/commit/363bf59fc9212a771a766c21909263d6c4ccdf18))
+- **config:** update config extra defaults to not build IE11, Edge 16-18 and Safari 10 by default ([363bf59](https://github.com/stenciljs/core/commit/363bf59fc9212a771a766c21909263d6c4ccdf18))
 
 A change in Stencil 2 is that the IE11, Edge 16-18 and Safari 10 builds will not be enabled by default. However, the ability to opt-in is still available, and can be enabled by setting each `extras` config flag to `true`. An advantage of this is less runtime within your builds. See the [config.extras docs](https://stenciljs.com/docs/config-extras) for more info.
 
 #### Opt-in for ES5 and SystemJS Builds
 
-- **config:** do not build es5 by default ([fa67d97](https://github.com/ionic-team/stencil/commit/fa67d97d043d12e0a3af0d868fa1746eb9e3badf))
+- **config:** do not build es5 by default ([fa67d97](https://github.com/stenciljs/core/commit/fa67d97d043d12e0a3af0d868fa1746eb9e3badf))
 
 Just like having to opt-in for IE11, the same goes for opting-in for ES5 and SystemJS builds. For a production build in Stencil 1, it would build both ES2017/ESM files, and ES5/SystemJS files. As of Stencil 2, both dev and prod builds do not create ES5/SystemJS builds. An advantage of this is having faster production builds by not having to also downlevel to es5. See the [buildEs5](https://stenciljs.com/docs/config#buildes5) for more info.
 
 #### Use `disconnectedCallback()` instead of `componentDidUnload()`
 
-- **componentDidUnload:** use disconnectedCallback instead of componentDidUnload ([4e45862](https://github.com/ionic-team/stencil/commit/4e45862f73609599a7195fcf5c93d9fb39492154))
+- **componentDidUnload:** use disconnectedCallback instead of componentDidUnload ([4e45862](https://github.com/stenciljs/core/commit/4e45862f73609599a7195fcf5c93d9fb39492154))
 
 When Stencil is used within other frameworks, DOM elements may be reused, making it impossible for `componentDidUnload()` to be accurate 100% of the time if it is disconnected, then re-connected, and disconnected again. Instead, `disconnectedCallback()` is the preferred way to always know if a component was disconnected from the DOM.
 
@@ -634,7 +634,7 @@ _Note that the runtime still works for any collections that have been built with
 
 #### Default to `async` task queue
 
-- **taskQueue:** set "async" taskQueue as default ([f3bb121](https://github.com/ionic-team/stencil/commit/f3bb121b8130e0c4e0c344eca7078ce572ad34a5))
+- **taskQueue:** set "async" taskQueue as default ([f3bb121](https://github.com/stenciljs/core/commit/f3bb121b8130e0c4e0c344eca7078ce572ad34a5))
 
 Update taskQueue default to "async". Stencil 1 default was "congestionAsync". See [config.taskQueue](https://stenciljs.com/docs/config#taskqueue) for more info.
 
@@ -679,11 +679,11 @@ If you're using the `dist` output target, update the `package.json` in the root 
 
 Additionally the `dist/loader` output directory has renamed its extensions too, but since its `dist/loader/package.json` file is auto-generated, the entries were renamed too. So unless you were referencing the loader files directly you will not have to do external updates.
 
-See the [Output Folder Structure Defaults](https://github.com/ionic-team/stencil/blob/main/src/compiler/output-targets/readme.md) for more info.
+See the [Output Folder Structure Defaults](https://github.com/stenciljs/core/blob/main/src/compiler/output-targets/readme.md) for more info.
 
 #### NodeJS Update
 
-- **node:** minimum of Node 12.10.0, recommend 14.5.0 or greater ([55331be](https://github.com/ionic-team/stencil/commit/55331be42f311a6e2a4e4f8ac13c01d28dc31613))
+- **node:** minimum of Node 12.10.0, recommend 14.5.0 or greater ([55331be](https://github.com/stenciljs/core/commit/55331be42f311a6e2a4e4f8ac13c01d28dc31613))
 
 With the major release, now's a good time to update the minimum and recommended version of NodeJS.
 

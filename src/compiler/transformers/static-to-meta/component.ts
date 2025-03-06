@@ -106,7 +106,6 @@ export const parseStaticComponentMeta = (
     hasComponentDidUpdateFn: false,
     hasComponentWillRenderFn: false,
     hasComponentDidRenderFn: false,
-    hasComponentDidUnloadFn: false,
     hasConnectedCallbackFn: false,
     hasDisconnectedCallbackFn: false,
     hasElement: false,
