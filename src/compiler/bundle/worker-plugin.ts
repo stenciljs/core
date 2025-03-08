@@ -186,7 +186,6 @@ const buildWorker = async (
       footer: '})();',
       intro: getWorkerIntro(workerMsgId, config.devMode),
       esModule: false,
-      preferConst: true,
       externalLiveBindings: false,
     });
     const entryPoint = output.output[0];

@@ -1334,7 +1334,7 @@ export interface ResolveModuleIdOptions {
   moduleId: string;
   containingFile?: string;
   exts?: string[];
-  packageFilter?: (pkg: any) => void;
+  packageFilter?: (pkg: any, pkgFile: string) => any;
 }
 
 export interface ResolveModuleIdResults {
