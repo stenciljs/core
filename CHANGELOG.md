@@ -1,3 +1,13 @@
+# 🎩 [4.28.0](https://github.com/stenciljs/core/compare/v4.27.2...v4.28.0) (2025-03-11)
+
+
+### Bug Fixes
+
+* add missing name attribute for details html element ([#6188](https://github.com/stenciljs/core/issues/6188)) ([aa1bc62](https://github.com/stenciljs/core/commit/aa1bc62f84f089bd349229fb8c24764737d34b95))
+* **compiler:** fix file watcher sometimes doesn't trigger rebuild ([#6191](https://github.com/stenciljs/core/issues/6191)) ([840ead9](https://github.com/stenciljs/core/commit/840ead92f9147bf5ab2b8ed39f6d852863b4e815)), closes [#6190](https://github.com/stenciljs/core/issues/6190)
+
+
+
 ## 🌱 [4.27.2](https://github.com/stenciljs/core/compare/v4.27.1...v4.27.2) (2025-03-03)
 
 
