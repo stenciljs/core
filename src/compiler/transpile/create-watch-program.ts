@@ -52,7 +52,7 @@ export const createTsWatchProgram = async (
         } else {
           timeoutId = setTimeout(tick, delay);
         }
-      }
+      };
       timeoutId = setTimeout(tick, delay);
       return timeoutId;
     },
