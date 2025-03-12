@@ -42,11 +42,18 @@ export const createJsVarName = (fileName: string): string => {
 };
 
 /**
+ * Create a function that lowercases the first string parameter before passing it to the provided function
+ * @param fn the function to pass the lowercased path to
+ * @returns the result of the provided function
+ */
+const lowerPathParam = (fn: ((p: string) => boolean)) => (p: string) => fn(p.toLowerCase());
+
+/**
  * Determine if a stringified file path is a TypeScript declaration file based on the extension at the end of the path.
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.d.ts` (case-sensitive), `false` otherwise.
  */
-export const isDtsFile = (p: string) => p.endsWith('.d.ts') || p.endsWith('.d.mts') || p.endsWith('.d.cts');
+export const isDtsFile = lowerPathParam((p) => p.endsWith('.d.ts') || p.endsWith('.d.mts') || p.endsWith('.d.cts'));
 
 /**
  * Determine if a stringified file path is a TypeScript file based on the extension at the end of the path. This
@@ -54,28 +61,28 @@ export const isDtsFile = (p: string) => p.endsWith('.d.ts') || p.endsWith('.d.mt
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.ts` (case-sensitive) but does _not_ end in `.d.ts`, `false` otherwise.
  */
-export const isTsFile = (p: string) => !isDtsFile(p) && (p.endsWith('.ts') || p.endsWith('.mts') || p.endsWith('.cts'));
+export const isTsFile = lowerPathParam((p: string) => !isDtsFile(p) && (p.endsWith('.ts') || p.endsWith('.mts') || p.endsWith('.cts')));
 
 /**
  * Determine if a stringified file path is a TSX file based on the extension at the end of the path
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.tsx` (case-sensitive), `false` otherwise.
  */
-export const isTsxFile = (p: string) => p.endsWith('.tsx') || p.endsWith('.mtsx') || p.endsWith('.ctsx');
+export const isTsxFile = lowerPathParam((p: string) => p.endsWith('.tsx') || p.endsWith('.mtsx') || p.endsWith('.ctsx'));
 
 /**
  * Determine if a stringified file path is a JSX file based on the extension at the end of the path
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.jsx` (case-sensitive), `false` otherwise.
  */
-export const isJsxFile = (p: string) => p.endsWith('.jsx') || p.endsWith('.mjsx') || p.endsWith('.cjsx');
+export const isJsxFile = lowerPathParam((p: string) => p.endsWith('.jsx') || p.endsWith('.mjsx') || p.endsWith('.cjsx'));
 
 /**
  * Determine if a stringified file path is a JavaScript file based on the extension at the end of the path
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.js` (case-sensitive), `false` otherwise.
  */
-export const isJsFile = (p: string) => p.endsWith('.js') || p.endsWith('.mjs') || p.endsWith('.cjs');
+export const isJsFile = lowerPathParam((p: string) => p.endsWith('.js') || p.endsWith('.mjs') || p.endsWith('.cjs'));
 
 /**
  * Generate the preamble to be placed atop the main file of the build
