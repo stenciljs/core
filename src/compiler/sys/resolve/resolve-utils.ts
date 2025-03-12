@@ -2,7 +2,7 @@ import { normalizePath } from '@utils';
 
 import type * as d from '../../../declarations';
 
-const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mjs', '.js', '.jsx', '.json', '.md'];
+const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mts', '.cts', '.mjs', '.js', '.cjs', '.jsx', '.json', '.md'];
 
 /**
  * Determine if a stringified file path is a TypeScript declaration file based on the extension at the end of the path.
