@@ -1,4 +1,4 @@
-import { isString, normalizeFsPath } from '@utils';
+import { isDtsFile, isString, normalizeFsPath } from '@utils';
 import { basename, isAbsolute } from 'path';
 import type { LoadResult, Plugin, TransformResult } from 'rollup';
 import ts from 'typescript';
@@ -90,7 +90,7 @@ export const resolveIdWithTypeScript = (config: d.ValidatedConfig, compilerCtx: 
         const tsResolvedPath = tsResolved.resolvedModule.resolvedFileName;
         if (
           isString(tsResolvedPath) &&
-          !(tsResolvedPath.endsWith('.d.ts') || tsResolvedPath.endsWith('.d.mts') || tsResolvedPath.endsWith('.d.cts'))
+          !isDtsFile(tsResolvedPath)
         ) {
           return tsResolvedPath;
         }
