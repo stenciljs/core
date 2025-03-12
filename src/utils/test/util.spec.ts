@@ -270,12 +270,9 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
       expect(util.isTsFile('d.ts')).toEqual(true);
     });
 
-    it.each(['foo.tS', 'foo.Ts', 'foo.TS'])(
-      'returns true for non-lowercase extensions (%s)',
-      (fileName) => {
-        expect(util.isTsFile(fileName)).toEqual(true);
-      },
-    );
+    it.each(['foo.tS', 'foo.Ts', 'foo.TS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
+      expect(util.isTsFile(fileName)).toEqual(true);
+    });
   });
 
   describe('isJsFile', () => {
