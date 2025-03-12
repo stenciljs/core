@@ -88,7 +88,10 @@ export const resolveIdWithTypeScript = (config: d.ValidatedConfig, compilerCtx: 
         // this is probably a .d.ts file for whatever reason in how TS resolves this
         // use this resolved file as the "importer"
         const tsResolvedPath = tsResolved.resolvedModule.resolvedFileName;
-        if (isString(tsResolvedPath) && !(tsResolvedPath.endsWith('.d.ts') || tsResolvedPath.endsWith('.d.mts') || tsResolvedPath.endsWith('.d.cts'))) {
+        if (
+          isString(tsResolvedPath) &&
+          !(tsResolvedPath.endsWith('.d.ts') || tsResolvedPath.endsWith('.d.mts') || tsResolvedPath.endsWith('.d.cts'))
+        ) {
           return tsResolvedPath;
         }
       }

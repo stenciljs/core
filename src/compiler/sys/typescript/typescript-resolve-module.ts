@@ -1,9 +1,8 @@
-import { isString, join, normalizePath, resolve } from '@utils';
+import { isDtsFile, isJsFile, isJsxFile, isString, isTsFile, isTsxFile, join, normalizePath, resolve } from '@utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { isDtsFile, isJsFile, isJsxFile, isTsFile, isTsxFile } from '../resolve/resolve-utils';
 import { patchTsSystemFileSystem } from './typescript-sys';
 
 export const tsResolveModuleName = (

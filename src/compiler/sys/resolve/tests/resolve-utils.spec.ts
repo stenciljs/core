@@ -1,4 +1,4 @@
-import { isJsFile, isTsFile } from '../resolve-utils';
+import { isJsFile, isTsFile } from '@utils';
 
 describe('resolve-utils', () => {
   describe('isTsFile', () => {
