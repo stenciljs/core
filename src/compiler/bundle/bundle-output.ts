@@ -62,7 +62,7 @@ export const getRollupOptions = (
     browser: true,
     rootDir: config.rootDir,
     ...(config.nodeResolve as any),
-    extensions: ['.tsx', '.ts', '.js', '.mjs', '.json', '.d.ts'],
+    extensions: ['.tsx', '.ts', '.js', '.mjs', '.json', '.d.ts', '.d.mts'],
   });
 
   // @ts-expect-error - this is required now.

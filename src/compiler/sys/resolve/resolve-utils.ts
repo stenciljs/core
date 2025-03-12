@@ -9,7 +9,7 @@ const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mjs', '.js', '.jsx', '.json', '
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.d.ts` (case-sensitive), `false` otherwise.
  */
-export const isDtsFile = (p: string) => p.endsWith('.d.ts');
+export const isDtsFile = (p: string) => p.endsWith('.d.ts') || p.endsWith('.d.mts');
 
 /**
  * Determine if a stringified file path is a TypeScript file based on the extension at the end of the path. This
