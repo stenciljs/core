@@ -27,23 +27,6 @@ const generateLoader = async (
   }
 
   const es5HtmlElement = await getClientPolyfill(config, compilerCtx, 'es5-html-element.js');
-
-  const packageJsonContent = JSON.stringify(
-    {
-      name: config.fsNamespace + '-loader',
-      private: true,
-      typings: './index.d.ts',
-      module: './index.js',
-      main: './index.cjs.js',
-      'jsnext:main': './index.es2017.js',
-      es2015: './index.es2017.js',
-      es2017: './index.es2017.js',
-      unpkg: './cdn.js',
-    },
-    null,
-    2,
-  );
-
   const polyfillsEntryPoint = join(es2017Dir, 'polyfills/index.js');
   const polyfillsExport = `export * from '${relative(loaderPath, polyfillsEntryPoint)}';`;
 
@@ -72,7 +55,6 @@ const generateLoader = async (
   const indexDtsPath = join(loaderPath, 'index.d.ts');
 
   await Promise.all([
-    compilerCtx.fs.writeFile(join(loaderPath, 'package.json'), packageJsonContent),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.d.ts'), generateIndexDts(indexDtsPath, outputTarget.componentDts)),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.js'), indexContent),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs.js'), indexCjsContent),
