@@ -3,10 +3,10 @@
 
 ### Bug Fixes
 
-* **build:** add more platform specific optionalDependencies ([#6195](https://github.com/stenciljs/core/issues/6195)) ([#6196](https://github.com/stenciljs/core/issues/6196)) ([e2965e5](https://github.com/stenciljs/core/commit/e2965e555a709a66708f90797dfab1fd9b831567))
-* **build:** get ts to handle `.d.mts` files ([#6197](https://github.com/stenciljs/core/issues/6197)) ([d9095b2](https://github.com/stenciljs/core/commit/d9095b2be23b2c3d2996fd647988dc555b8635e9))
-* **compiler:** get to handle .cts files ([#6199](https://github.com/stenciljs/core/issues/6199)) ([6c1804f](https://github.com/stenciljs/core/commit/6c1804f7276a47a9b314e686dcd2bac81656ecd7))
-* **loader:** remove package.json as it interferes with main ([#6200](https://github.com/stenciljs/core/issues/6200)) ([bad6e1e](https://github.com/stenciljs/core/commit/bad6e1e7ad8d0ed047e956313099848c3b4f3836))
+* **build:** add more platform specific optionalDependencies ([#6196](https://github.com/stenciljs/core/issues/6196)) ([e2965e5](https://github.com/stenciljs/core/commit/e2965e555a709a66708f90797dfab1fd9b831567)), closes [#6195](https://github.com/stenciljs/core/issues/6195)
+* **build:** get ts to handle `.d.mts` files ([#6193](https://github.com/stenciljs/core/issues/6193)) ([d9095b2](https://github.com/stenciljs/core/commit/d9095b2be23b2c3d2996fd647988dc555b8635e9)), closes [#6195](https://github.com/stenciljs/core/issues/6195)
+* **compiler:** get to handle .cts files ([#6199](https://github.com/stenciljs/core/issues/6199)) ([6c1804f](https://github.com/stenciljs/core/commit/6c1804f7276a47a9b314e686dcd2bac81656ecd7)), closes [#6198](https://github.com/stenciljs/core/issues/6198)
+* **loader:** remove package.json as it interferes with main ([#6200](https://github.com/stenciljs/core/issues/6200)) ([bad6e1e](https://github.com/stenciljs/core/commit/bad6e1e7ad8d0ed047e956313099848c3b4f3836)), closes [#5637](https://github.com/stenciljs/core/issues/5637)
 
 
 
