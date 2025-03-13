@@ -1779,7 +1779,7 @@ export interface NodeResolveConfig {
   dedupe?: string[] | ((importee: string) => boolean);
   extensions?: readonly string[];
   jail?: string;
-  mainFields?: readonly string[];
+  mainFields?: string[];
   modulesOnly?: boolean;
   preferBuiltins?: boolean | ((module: string) => boolean);
   resolveOnly?: ReadonlyArray<string | RegExp> | null | ((module: string) => boolean);
