@@ -1,3 +1,7 @@
+## 🎤 [4.28.2](https://github.com/stenciljs/core/compare/v4.28.1...v4.28.2) (2025-03-13)
+
+
+
 ## 🐵 [4.28.1](https://github.com/stenciljs/core/compare/v4.28.0...v4.28.1) (2025-03-13)
 
 
