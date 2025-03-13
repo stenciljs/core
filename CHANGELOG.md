@@ -1,3 +1,15 @@
+## 🐵 [4.28.1](https://github.com/stenciljs/core/compare/v4.28.0...v4.28.1) (2025-03-13)
+
+
+### Bug Fixes
+
+* **build:** add more platform specific optionalDependencies ([#6195](https://github.com/stenciljs/core/issues/6195)) ([#6196](https://github.com/stenciljs/core/issues/6196)) ([e2965e5](https://github.com/stenciljs/core/commit/e2965e555a709a66708f90797dfab1fd9b831567))
+* **build:** get ts to handle `.d.mts` files ([#6197](https://github.com/stenciljs/core/issues/6197)) ([d9095b2](https://github.com/stenciljs/core/commit/d9095b2be23b2c3d2996fd647988dc555b8635e9))
+* **compiler:** get to handle .cts files ([#6199](https://github.com/stenciljs/core/issues/6199)) ([6c1804f](https://github.com/stenciljs/core/commit/6c1804f7276a47a9b314e686dcd2bac81656ecd7))
+* **loader:** remove package.json as it interferes with main ([#6200](https://github.com/stenciljs/core/issues/6200)) ([bad6e1e](https://github.com/stenciljs/core/commit/bad6e1e7ad8d0ed047e956313099848c3b4f3836))
+
+
+
 # 🎩 [4.28.0](https://github.com/stenciljs/core/compare/v4.27.2...v4.28.0) (2025-03-11)
 
 
