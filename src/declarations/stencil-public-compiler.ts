@@ -1772,15 +1772,19 @@ export interface BundlingConfig {
 }
 
 export interface NodeResolveConfig {
-  module?: boolean;
-  jsnext?: boolean;
-  main?: boolean;
+  exportConditions?: string[];
   browser?: boolean;
-  extensions?: string[];
-  preferBuiltins?: boolean;
+  moduleDirectories?: string[];
+  modulePaths?: string[];
+  dedupe?: string[] | ((importee: string) => boolean);
+  extensions?: readonly string[];
   jail?: string;
-  only?: Array<string | RegExp>;
+  mainFields?: readonly string[];
   modulesOnly?: boolean;
+  preferBuiltins?: boolean | ((module: string) => boolean);
+  resolveOnly?: ReadonlyArray<string | RegExp> | null | ((module: string) => boolean);
+  rootDir?: string;
+  allowExportsFolderMapping?: boolean;
 
   // TODO(STENCIL-1107): Remove this field [BREAKING_CHANGE]
   /**

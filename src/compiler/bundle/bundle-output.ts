@@ -62,8 +62,8 @@ export const getRollupOptions = (
     browser: bundleOpts.platform !== 'hydrate',
     rootDir: config.rootDir,
     exportConditions: ['default', 'module', 'import', 'require'],
-    ...(config.nodeResolve as any),
     extensions: ['.tsx', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '.json', '.d.ts', '.d.mts', '.d.cts'],
+    ...config.nodeResolve,
   });
 
   // @ts-expect-error - this is required now.
