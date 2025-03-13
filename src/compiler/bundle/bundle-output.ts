@@ -59,8 +59,9 @@ export const getRollupOptions = (
 ): RollupOptions => {
   const nodeResolvePlugin = rollupNodeResolvePlugin({
     mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'],
-    browser: true,
+    browser: bundleOpts.platform !== 'hydrate',
     rootDir: config.rootDir,
+    exportConditions: ['default', 'module', 'import', 'require'],
     ...(config.nodeResolve as any),
     extensions: ['.tsx', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '.json', '.d.ts', '.d.mts', '.d.cts'],
   });
