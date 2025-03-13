@@ -1,5 +1,8 @@
 ## 🎤 [4.28.2](https://github.com/stenciljs/core/compare/v4.28.1...v4.28.2) (2025-03-13)
 
+### Bug Fixes
+
+* **compiler:** improve nodeResolve config ([#6203](https://github.com/stenciljs/core/issues/6203)) ([34d2284](https://github.com/stenciljs/core/commit/34d2284f9a6118da3f0a11e34c6c2d30e969fa74)),
 
 
 ## 🐵 [4.28.1](https://github.com/stenciljs/core/compare/v4.28.0...v4.28.1) (2025-03-13)
