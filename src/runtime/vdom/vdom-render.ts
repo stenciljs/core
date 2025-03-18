@@ -994,15 +994,6 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   const isHostElem = isHost(renderFnResults);
   const rootVnode = isHostElem ? renderFnResults : h(null, null, renderFnResults as any);
 
-  /**
-   * Make sure to propagate attributes set on the host element to the root vnode.
-   * This is needed as otherwise the root vnode will not have any attributes set on it
-   * which causes issues when rendering the node during hydration.
-   */
-  if (isInitialLoad && !isHostElem && hostRef.$vnode$) {
-    rootVnode.$attrs$ = hostRef.$vnode$.$attrs$ || {};
-  }
-
   hostTagName = hostElm.tagName;
 
   // <Host> runtime check

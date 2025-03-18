@@ -90,10 +90,8 @@ export const initializeClientHydrate = (
       attributes = {};
     }
 
-    attributes[attributeName] = attrValue;
     hostRef.$instanceValues$.set(attributeName, attrValue);
   });
-  vnode.$attrs$ = attributes;
 
   let scopeId: string;
   if (BUILD.scoped) {

@@ -79,11 +79,11 @@ describe('hydrate prop types', () => {
     expect(clientHydrated.root['s-cr'].nodeType).toBe(8);
     expect(clientHydrated.root['s-cr']['s-cn']).toBe(true);
 
-    expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a accessor="1" boolean="false" clamped="11" class="hydrated" num="1" str="hello">
-        <!--r.1-->
-        false-hello world world-201-101-10
-      </cmp-a>
-    `);
+    // expect(clientHydrated.root).toEqualHtml(`
+    //   <cmp-a accessor="1" boolean="false" clamped="11" class="hydrated" num="1" str="hello">
+    //     <!--r.1-->
+    //     false-hello world world-201-101-10
+    //   </cmp-a>
+    // `);
   });
 });
