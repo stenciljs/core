@@ -90,7 +90,7 @@ export const initializeClientHydrate = (
       attributes = {};
     }
 
-    hostRef.$instanceValues$.set(attributeName, attrValue);
+    hostRef.$instanceValues$.set(memberName, attrValue);
   });
 
   let scopeId: string;

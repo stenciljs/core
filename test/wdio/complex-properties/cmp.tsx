@@ -60,7 +60,7 @@ export class ComplexProperties {
           {`this.waldo`}: {this.waldo === null ? 'true' : 'false'}
         </li>
         <li>
-          {`this.kidsNames`}: {this.kidsNames.join(', ')}
+          {`this.kidsNames`}: {this.kidsNames?.join(', ')}
         </li>
       </ul>
     );

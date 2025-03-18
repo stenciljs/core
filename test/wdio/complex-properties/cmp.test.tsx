@@ -46,8 +46,18 @@ describe('complex-properties', () => {
   it('can change a complex property and see it updated correctly', async () => {
     const elm = document.querySelector('complex-properties') as HTMLComplexPropertiesElement;
     elm.foo = { bar: '456', loo: [4, 5, 6], qux: { quux: Symbol('new quux') } };
+    elm.kidsNames.push('Jill');
     await expect(elm).toHaveText(
-      expect.stringContaining([`this.foo.bar: 456`, `this.foo.loo: 4, 5, 6`, `this.foo.qux: symbol`].join('\n')),
+      [
+        `this.foo.bar: 456`,
+        `this.foo.loo: 4, 5, 6`,
+        `this.foo.qux: symbol`,
+        `this.baz.get('foo'): symbol`,
+        `this.quux.has('foo'): true`,
+        `this.grault: true`,
+        `this.waldo: true`,
+        `this.kidsNames: John, Jane, Jim, Jill`,
+      ].join('\n'),
     );
   });
 });
