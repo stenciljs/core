@@ -991,7 +991,17 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   // 'dummy' Host node (well, an empty vnode) since `renderVdom` assumes
   // implicitly that the top-level vdom node is 1) an only child and 2)
   // contains attrs that need to be set on the host element.
-  const rootVnode = isHost(renderFnResults) ? renderFnResults : h(null, null, renderFnResults as any);
+  const isHostElem = isHost(renderFnResults)
+  const rootVnode = isHostElem ? renderFnResults : h(null, null, renderFnResults as any);
+
+  /**
+   * Make sure to propagate attributes set on the host element to the root vnode.
+   * This is needed as otherwise the root vnode will not have any attributes set on it
+   * which causes issues when rendering the node during hydration.
+   */
+  if (isInitialLoad && !isHostElem && hostRef.$vnode$) {
+    rootVnode.$attrs$ = hostRef.$vnode$.$attrs$ || {};
+  }
 
   hostTagName = hostElm.tagName;
 

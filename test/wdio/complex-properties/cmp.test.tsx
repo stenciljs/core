@@ -1,3 +1,4 @@
+/// <reference types="../dist/components.d.ts" />
 import { render } from '@wdio/browser-runner/stencil';
 import { $, expect } from '@wdio/globals';
 
@@ -25,10 +26,6 @@ describe('complex-properties', () => {
     const { html } = await renderToString(template, {
       fullDocument: false,
     });
-    const stage = document.createElement('div');
-    stage.setAttribute('id', 'stage');
-    stage.setHTMLUnsafe(html);
-    document.body.appendChild(stage);
 
     render({ html, components: [] });
     await expect($('complex-properties')).toHaveText(
@@ -41,6 +38,18 @@ describe('complex-properties', () => {
         `this.grault: true`,
         `this.waldo: true`,
       ].join('\n'),
+    );
+  });
+
+  it('can change a complex property and see it updated correctly', async () => {
+    const elm = document.querySelector('complex-properties') as HTMLComplexPropertiesElement;
+    elm.foo = { bar: '456', loo: [4, 5, 6], qux: { quux: Symbol('new quux') } };
+    await expect(elm).toHaveText(
+      expect.stringContaining([
+        `this.foo.bar: 456`,
+        `this.foo.loo: 4, 5, 6`,
+        `this.foo.qux: symbol`,
+      ].join('\n')),
     );
   });
 });

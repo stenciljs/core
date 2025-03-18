@@ -46,7 +46,7 @@ export function serializeProperty(value: unknown) {
   /**
    * If the value is a primitive type, return it as is.
    */
-  if (SERIALIZABLE_TYPES.includes(typeof value)) {
+  if (SERIALIZABLE_TYPES.includes(typeof value) && value !== Infinity && value !== -Infinity && !isNaN(value as number)) {
     return value
   }
 

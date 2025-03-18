@@ -1,8 +1,9 @@
 import { BUILD } from '@app-data';
 import { plt, win } from '@platform';
-import { CMP_FLAGS } from '@utils';
+import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { deserializeProperty, SERIALIZED_PREFIX } from '../hydrate/runner/serialize';
 import { patchSlottedNode } from './dom-extras';
 import { createTime } from './profile';
 import {
@@ -52,6 +53,44 @@ export const initializeClientHydrate = (
   // The root VNode for this component
   const vnode: d.VNode = newVNode(tagName, null);
   vnode.$elm$ = hostElm;
+
+  const attributes: Record<string, unknown> = {};
+  const members = Object.entries(hostRef.$cmpMeta$.$members$ || {});
+  members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
+    if (!(memberFlags & MEMBER_FLAGS.Prop)) {
+      return
+    }
+    const attributeName = metaAttributeName || memberName;
+    let attrValue = hostElm.getAttribute(attributeName);
+
+    /**
+     * Allow hydrate parameters that contain a simple object, e.g.
+     * ```ts
+     * import { renderToString } from 'component-library/hydrate';
+     * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
+     * ```
+     */
+    if (
+      (attrValue?.startsWith('{') && attrValue.endsWith('}')) ||
+      (attrValue?.startsWith('[') && attrValue.endsWith(']'))
+    ) {
+      try {
+        attrValue = JSON.parse(attrValue);
+      } catch (e) {
+        /* ignore */
+      }
+    }
+    /**
+     * Allow hydrate parameters that contain a complex non-serialized values.
+     */
+    else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
+      attrValue = deserializeProperty(attrValue);
+    }
+
+    attributes[attributeName] = attrValue;
+    hostRef.$instanceValues$.set(attributeName, attrValue);
+  });
+  vnode.$attrs$ = attributes;
 
   let scopeId: string;
   if (BUILD.scoped) {
