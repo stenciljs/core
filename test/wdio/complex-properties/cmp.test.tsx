@@ -45,11 +45,7 @@ describe('complex-properties', () => {
     const elm = document.querySelector('complex-properties') as HTMLComplexPropertiesElement;
     elm.foo = { bar: '456', loo: [4, 5, 6], qux: { quux: Symbol('new quux') } };
     await expect(elm).toHaveText(
-      expect.stringContaining([
-        `this.foo.bar: 456`,
-        `this.foo.loo: 4, 5, 6`,
-        `this.foo.qux: symbol`,
-      ].join('\n')),
+      expect.stringContaining([`this.foo.bar: 456`, `this.foo.loo: 4, 5, 6`, `this.foo.qux: symbol`].join('\n')),
     );
   });
 });

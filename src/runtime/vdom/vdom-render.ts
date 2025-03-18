@@ -991,7 +991,7 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   // 'dummy' Host node (well, an empty vnode) since `renderVdom` assumes
   // implicitly that the top-level vdom node is 1) an only child and 2)
   // contains attrs that need to be set on the host element.
-  const isHostElem = isHost(renderFnResults)
+  const isHostElem = isHost(renderFnResults);
   const rootVnode = isHostElem ? renderFnResults : h(null, null, renderFnResults as any);
 
   /**
