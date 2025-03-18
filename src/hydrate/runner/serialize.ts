@@ -31,17 +31,31 @@ export enum NonPrimitiveType {
 
 export const TYPE_CONSTANT = 'type';
 export const VALUE_CONSTANT = 'value';
+export const SERIALIZED_PREFIX = 'serialized:';
 
 type Serializeable = string | number | boolean | unknown;
 type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Serializeable][];
 
+/**
+ * Serialize a value to a string that can be deserialized later.
+ * @param {unknown} value - The value to serialize.
+ * @returns {string} A string that can be deserialized later.
+ */
 export function serializeProperty(value: unknown) {
   const arg = LocalValue.getArgument(value);
-  return JSON.stringify(arg);
+  return `${SERIALIZED_PREFIX}${btoa(JSON.stringify(arg))}`;
 }
 
-export function deserializeProperty(value: ScriptLocalValue) {
-  return RemoteValue.fromLocalValue(value);
+/**
+ * Deserialize a value from a string that was serialized earlier.
+ * @param {string} value - The string to deserialize.
+ * @returns {unknown} The deserialized value.
+ */
+export function deserializeProperty(value: string) {
+  if (!value.startsWith(SERIALIZED_PREFIX)) {
+    return value;
+  }
+  return RemoteValue.fromLocalValue(JSON.parse(atob(value.slice(SERIALIZED_PREFIX.length))));
 }
 
 /**

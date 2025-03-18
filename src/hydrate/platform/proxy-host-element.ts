@@ -4,8 +4,7 @@ import { getValue, parsePropertyValue, setValue } from '@runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
-import { deserializeProperty, TYPE_CONSTANT } from '../runner/serialize';
-import type { ScriptLocalValue } from '../runner/types';
+import { deserializeProperty, SERIALIZED_PREFIX } from '../runner/serialize';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;
@@ -47,7 +46,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         let attrValue = elm.getAttribute(attributeName);
 
         /**
-         * allow hydrate parameters that contain a simple object, e.g.
+         * Allow hydrate parameters that contain a simple object, e.g.
          * ```ts
          * import { renderToString } from 'component-library/hydrate';
          * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
@@ -59,12 +58,15 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         ) {
           try {
             attrValue = JSON.parse(attrValue);
-            if (TYPE_CONSTANT in (attrValue as unknown as object)) {
-              attrValue = deserializeProperty(attrValue as unknown as ScriptLocalValue);
-            }
           } catch (e) {
             /* ignore */
           }
+        }
+        /**
+         * Allow hydrate parameters that contain a complex non-serialized values.
+         */
+        else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
+          attrValue = deserializeProperty(attrValue);
         }
 
         const { get: origGetter, set: origSetter } =
