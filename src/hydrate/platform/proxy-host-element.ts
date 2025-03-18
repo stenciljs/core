@@ -4,6 +4,8 @@ import { getValue, parsePropertyValue, setValue } from '@runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
+import { deserializeProperty, TYPE_CONSTANT } from '../runner/serialize';
+import type { ScriptLocalValue } from '../runner/types';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;
@@ -57,6 +59,9 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         ) {
           try {
             attrValue = JSON.parse(attrValue);
+            if (TYPE_CONSTANT in (attrValue as unknown as object)) {
+              attrValue = deserializeProperty(attrValue as unknown as ScriptLocalValue)
+            }
           } catch (e) {
             /* ignore */
           }
@@ -67,7 +72,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
 
         let attrPropVal: any;
 
-        if (attrValue != null) {
+        if (typeof attrValue !== 'undefined') {
           attrPropVal = parsePropertyValue(attrValue, memberFlags);
         }
 

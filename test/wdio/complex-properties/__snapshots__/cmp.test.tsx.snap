@@ -1,0 +1,39 @@
+// Snapshot v1
+
+exports[`complex-properties > should render complex properties 1`] = `
+"<complex-properties baz="{&quot;type&quot;:&quot;map&quot;,&quot;value&quot;:[[{&quot;type&quot;:&quot;string&quot;,&quot;value&quot;:&quot;foo&quot;},{&quot;type&quot;:&quot;object&quot;,&quot;value&quot;:[[&quot;qux&quot;,{&quot;type&quot;:&quot;symbol&quot;,&quot;value&quot;:&quot;quux&quot;}]]}]]}" class="hydrated" corge="{&quot;type&quot;:&quot;set&quot;,&quot;value&quot;:[{&quot;type&quot;:&quot;object&quot;,&quot;value&quot;:[[&quot;foo&quot;,{&quot;type&quot;:&quot;object&quot;,&quot;value&quot;:[[&quot;bar&quot;,{&quot;type&quot;:&quot;string&quot;,&quot;value&quot;:&quot;foo&quot;}]]}]]}]}" foo="{&quot;type&quot;:&quot;object&quot;,&quot;value&quot;:[[&quot;bar&quot;,{&quot;type&quot;:&quot;number&quot;,&quot;value&quot;:123}],[&quot;loo&quot;,{&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[{&quot;type&quot;:&quot;number&quot;,&quot;value&quot;:1},{&quot;type&quot;:&quot;number&quot;,&quot;value&quot;:2},{&quot;type&quot;:&quot;number&quot;,&quot;value&quot;:3}]}],[&quot;qux&quot;,{&quot;type&quot;:&quot;object&quot;,&quot;value&quot;:[[&quot;quux&quot;,{&quot;type&quot;:&quot;symbol&quot;,&quot;value&quot;:&quot;quux&quot;}]]}]]}" grault="{&quot;type&quot;:&quot;number&quot;,&quot;value&quot;:&quot;Infinity&quot;}" quux="{&quot;type&quot;:&quot;set&quot;,&quot;value&quot;:[{&quot;type&quot;:&quot;string&quot;,&quot;value&quot;:&quot;foo&quot;}]}" s-id="1" waldo="{&quot;type&quot;:&quot;null&quot;}">
+  <template shadowrootmode="open">
+    <ul c-id="1.0.0.0">
+      <li c-id="1.1.1.0">
+        <!--t.1.2.2.0-->
+        this.foo.bar: 123
+      </li>
+      <li c-id="1.3.1.1">
+        <!--t.1.4.2.0-->
+        this.foo.loo: 1, 2, 3
+      </li>
+      <li c-id="1.5.1.2">
+        <!--t.1.6.2.0-->
+        this.foo.qux: symbol
+      </li>
+      <li c-id="1.7.1.3">
+        <!--t.1.8.2.0-->
+        this.baz.get('foo'): symbol
+      </li>
+      <li c-id="1.9.1.4">
+        <!--t.1.10.2.0-->
+        this.quux.has('foo'): true
+      </li>
+      <li c-id="1.11.1.5">
+        <!--t.1.12.2.0-->
+        this.grault: true
+      </li>
+      <li c-id="1.13.1.6">
+        <!--t.1.14.2.0-->
+        this.waldo: true
+      </li>
+    </ul>
+  </template>
+  <!--r.1-->
+</complex-properties>"
+`;
