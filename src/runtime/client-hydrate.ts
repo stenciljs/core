@@ -54,8 +54,8 @@ export const initializeClientHydrate = (
   const vnode: d.VNode = newVNode(tagName, null);
   vnode.$elm$ = hostElm;
 
-  const attributes: Record<string, unknown> = {};
-  const members = Object.entries(hostRef.$cmpMeta$.$members$ || {});
+  let attributes: Record<string, unknown> | undefined;
+  const members = Object.entries(hostRef.$cmpMeta$?.$members$ || {});
   members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
     if (!(memberFlags & MEMBER_FLAGS.Prop)) {
       return;
@@ -80,10 +80,14 @@ export const initializeClientHydrate = (
         /* ignore */
       }
     } else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
-    /**
-     * Allow hydrate parameters that contain a complex non-serialized values.
-     */
+      /**
+       * Allow hydrate parameters that contain a complex non-serialized values.
+       */
       attrValue = deserializeProperty(attrValue);
+    }
+
+    if (!attributes) {
+      attributes = {};
     }
 
     attributes[attributeName] = attrValue;

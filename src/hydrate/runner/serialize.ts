@@ -52,11 +52,11 @@ export function serializeProperty(value: unknown) {
     value !== -Infinity &&
     !isNaN(value as number)
   ) {
-    return value;
+    return value as string | number | boolean;
   }
 
   const arg = LocalValue.getArgument(value);
-  return SERIALIZED_PREFIX + btoa(JSON.stringify(arg));
+  return (SERIALIZED_PREFIX + btoa(JSON.stringify(arg))) as string;
 }
 
 /**
@@ -65,7 +65,7 @@ export function serializeProperty(value: unknown) {
  * @returns {unknown} The deserialized value.
  */
 export function deserializeProperty(value: string) {
-  if (!value.startsWith(SERIALIZED_PREFIX)) {
+  if (typeof value !== 'string' || !value.startsWith(SERIALIZED_PREFIX)) {
     return value;
   }
   return RemoteValue.fromLocalValue(JSON.parse(atob(value.slice(SERIALIZED_PREFIX.length))));
@@ -163,7 +163,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createBigIntValue(value: bigint) {
-    return new LocalValue(PrimitiveType.BigInt, value);
+    return new LocalValue(PrimitiveType.BigInt, value.toString());
   }
 
   /**
