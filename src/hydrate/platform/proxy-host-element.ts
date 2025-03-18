@@ -62,9 +62,9 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
             /* ignore */
           }
         } else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
-        /**
-         * Allow hydrate parameters that contain a complex non-serialized values.
-         */
+          /**
+           * Allow hydrate parameters that contain a complex non-serialized values.
+           */
           attrValue = deserializeProperty(attrValue);
         }
 
