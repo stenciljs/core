@@ -123,8 +123,16 @@ const formatFlags = (compilerProperty: d.ComponentCompilerProperty) => {
   return type;
 };
 
+/**
+ * We mainly add the alternative kebab-case attribute name because it might
+ * be used in an HTML environment (non JSX). Since we support hydration of
+ * complex types we provide a kebab-case attribute name for properties with
+ * these types.
+ */
+const kebabCaseSupportForTypes = ['string', 'unknown'];
+
 const formatAttrName = (compilerProperty: d.ComponentCompilerProperty) => {
-  if (typeof compilerProperty.attribute === 'string') {
+  if (kebabCaseSupportForTypes.includes(typeof compilerProperty.attribute)) {
     // string attr name means we should observe this attribute
     if (compilerProperty.name === compilerProperty.attribute) {
       // property name and attribute name are the exact same

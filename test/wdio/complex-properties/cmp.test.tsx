@@ -11,6 +11,7 @@ const template = `<complex-properties
   corge=${serializeProperty(new Set([{ foo: { bar: 'foo' } }]))}
   grault=${serializeProperty(Infinity)}
   waldo=${serializeProperty(null)}
+  kids-names=${serializeProperty(['John', 'Jane', 'Jim'])}
 />`;
 
 describe('complex-properties', () => {
@@ -37,6 +38,7 @@ describe('complex-properties', () => {
         `this.quux.has('foo'): true`,
         `this.grault: true`,
         `this.waldo: true`,
+        `this.kidsNames: John, Jane, Jim`,
       ].join('\n'),
     );
   });

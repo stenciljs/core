@@ -30,6 +30,11 @@ export class ComplexProperties {
    */
   @Prop() waldo: null;
 
+  /**
+   * basic array
+   */
+  @Prop() kidsNames: string[];
+
   render() {
     return (
       <ul>
@@ -53,6 +58,9 @@ export class ComplexProperties {
         </li>
         <li>
           {`this.waldo`}: {this.waldo === null ? 'true' : 'false'}
+        </li>
+        <li>
+          {`this.kidsNames`}: {this.kidsNames.join(', ')}
         </li>
       </ul>
     );
