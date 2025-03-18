@@ -1,5 +1,13 @@
-export type ScriptLocalValue = ScriptPrimitiveProtocolValue | ScriptArrayLocalValue | ScriptDateLocalValue | ScriptSymbolValue | ScriptMapLocalValue | ScriptObjectLocalValue | ScriptRegExpLocalValue | ScriptSetLocalValue;
-export type ScriptListLocalValue = (ScriptLocalValue)[];
+export type ScriptLocalValue =
+  | ScriptPrimitiveProtocolValue
+  | ScriptArrayLocalValue
+  | ScriptDateLocalValue
+  | ScriptSymbolValue
+  | ScriptMapLocalValue
+  | ScriptObjectLocalValue
+  | ScriptRegExpLocalValue
+  | ScriptSetLocalValue;
+export type ScriptListLocalValue = ScriptLocalValue[];
 
 export interface ScriptArrayLocalValue {
   type: 'array';
@@ -40,7 +48,13 @@ export interface ScriptSetLocalValue {
 
 export type ScriptPreloadScript = string;
 export type ScriptRealm = string;
-export type ScriptPrimitiveProtocolValue = ScriptUndefinedValue | ScriptNullValue | ScriptStringValue | ScriptNumberValue | ScriptBooleanValue | ScriptBigIntValue;
+export type ScriptPrimitiveProtocolValue =
+  | ScriptUndefinedValue
+  | ScriptNullValue
+  | ScriptStringValue
+  | ScriptNumberValue
+  | ScriptBooleanValue
+  | ScriptBigIntValue;
 
 export interface ScriptUndefinedValue {
   type: 'undefined';

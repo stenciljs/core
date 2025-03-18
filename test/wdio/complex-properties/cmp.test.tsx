@@ -10,7 +10,7 @@ const template = `<complex-properties
   corge=${serializeProperty(new Set([{ foo: { bar: 'foo' } }]))}
   grault=${serializeProperty(Infinity)}
   waldo=${serializeProperty(null)}
-/>`
+/>`;
 
 describe('complex-properties', () => {
   it('should render complex properties', async () => {
@@ -31,14 +31,16 @@ describe('complex-properties', () => {
     document.body.appendChild(stage);
 
     render({ html, components: [] });
-    await expect($('complex-properties')).toHaveText([
-      `this.foo.bar: 123`,
-      `this.foo.loo: 1, 2, 3`,
-      `this.foo.qux: symbol`,
-      `this.baz.get('foo'): symbol`,
-      `this.quux.has('foo'): true`,
-      `this.grault: true`,
-      `this.waldo: true`,
-    ].join('\n'));
+    await expect($('complex-properties')).toHaveText(
+      [
+        `this.foo.bar: 123`,
+        `this.foo.loo: 1, 2, 3`,
+        `this.foo.qux: symbol`,
+        `this.baz.get('foo'): symbol`,
+        `this.quux.has('foo'): true`,
+        `this.grault: true`,
+        `this.waldo: true`,
+      ].join('\n'),
+    );
   });
 });

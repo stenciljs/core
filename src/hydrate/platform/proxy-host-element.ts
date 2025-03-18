@@ -60,7 +60,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           try {
             attrValue = JSON.parse(attrValue);
             if (TYPE_CONSTANT in (attrValue as unknown as object)) {
-              attrValue = deserializeProperty(attrValue as unknown as ScriptLocalValue)
+              attrValue = deserializeProperty(attrValue as unknown as ScriptLocalValue);
             }
           } catch (e) {
             /* ignore */

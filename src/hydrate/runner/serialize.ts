@@ -11,13 +11,13 @@ export enum PrimitiveType {
   Number = 'number',
   SpecialNumber = 'number',
   Boolean = 'boolean',
-  BigInt = 'bigint'
+  BigInt = 'bigint',
 }
 
 /**
-* Represents a non-primitive type.
-* Described in https://w3c.github.io/webdriver-bidi/#type-script-RemoteValue.
-*/
+ * Represents a non-primitive type.
+ * Described in https://w3c.github.io/webdriver-bidi/#type-script-RemoteValue.
+ */
 export enum NonPrimitiveType {
   Array = 'array',
   Date = 'date',
@@ -26,22 +26,22 @@ export enum NonPrimitiveType {
   RegularExpression = 'regexp',
   Set = 'set',
   Channel = 'channel',
-  Symbol = 'symbol'
+  Symbol = 'symbol',
 }
 
-export const TYPE_CONSTANT = 'type'
-export const VALUE_CONSTANT = 'value'
+export const TYPE_CONSTANT = 'type';
+export const VALUE_CONSTANT = 'value';
 
-type Serializeable = string | number | boolean | unknown
-type LocalValueParam = Serializeable | (Serializeable)[] | [Serializeable, Serializeable][]
+type Serializeable = string | number | boolean | unknown;
+type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Serializeable][];
 
 export function serializeProperty(value: unknown) {
-  const arg = LocalValue.getArgument(value)
-  return JSON.stringify(arg)
+  const arg = LocalValue.getArgument(value);
+  return JSON.stringify(arg);
 }
 
 export function deserializeProperty(value: ScriptLocalValue) {
-  return RemoteValue.fromLocalValue(value)
+  return RemoteValue.fromLocalValue(value);
 }
 
 /**
@@ -49,15 +49,15 @@ export function deserializeProperty(value: ScriptLocalValue) {
  * Described in https://w3c.github.io/webdriver-bidi/#type-script-LocalValue
  */
 class LocalValue {
-  type: PrimitiveType | NonPrimitiveType
-  value?: Serializeable | (Serializeable)[] | [Serializeable, Serializeable][]
+  type: PrimitiveType | NonPrimitiveType;
+  value?: Serializeable | Serializeable[] | [Serializeable, Serializeable][];
 
   constructor(type: PrimitiveType | NonPrimitiveType, value?: LocalValueParam) {
     if (type === PrimitiveType.Undefined || type === PrimitiveType.Null) {
-      this.type = type
+      this.type = type;
     } else {
-      this.type = type
-      this.value = value
+      this.type = type;
+      this.value = value;
     }
   }
 
@@ -68,7 +68,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createStringValue(value: string) {
-    return new LocalValue(PrimitiveType.String, value)
+    return new LocalValue(PrimitiveType.String, value);
   }
 
   /**
@@ -78,7 +78,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createNumberValue(value: number) {
-    return new LocalValue(PrimitiveType.Number, value)
+    return new LocalValue(PrimitiveType.Number, value);
   }
 
   /**
@@ -89,18 +89,18 @@ class LocalValue {
    */
   static createSpecialNumberValue(value: number) {
     if (Number.isNaN(value)) {
-      return new LocalValue(PrimitiveType.SpecialNumber, 'NaN')
+      return new LocalValue(PrimitiveType.SpecialNumber, 'NaN');
     }
     if (Object.is(value, -0)) {
-      return new LocalValue(PrimitiveType.SpecialNumber, '-0')
+      return new LocalValue(PrimitiveType.SpecialNumber, '-0');
     }
     if (value === Infinity) {
-      return new LocalValue(PrimitiveType.SpecialNumber, 'Infinity')
+      return new LocalValue(PrimitiveType.SpecialNumber, 'Infinity');
     }
     if (value === -Infinity) {
-      return new LocalValue(PrimitiveType.SpecialNumber, '-Infinity')
+      return new LocalValue(PrimitiveType.SpecialNumber, '-Infinity');
     }
-    return new LocalValue(PrimitiveType.SpecialNumber, value)
+    return new LocalValue(PrimitiveType.SpecialNumber, value);
   }
 
   /**
@@ -108,7 +108,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createUndefinedValue() {
-    return new LocalValue(PrimitiveType.Undefined)
+    return new LocalValue(PrimitiveType.Undefined);
   }
 
   /**
@@ -116,7 +116,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createNullValue() {
-    return new LocalValue(PrimitiveType.Null)
+    return new LocalValue(PrimitiveType.Null);
   }
 
   /**
@@ -126,7 +126,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createBooleanValue(value: boolean) {
-    return new LocalValue(PrimitiveType.Boolean, value)
+    return new LocalValue(PrimitiveType.Boolean, value);
   }
 
   /**
@@ -136,7 +136,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createBigIntValue(value: bigint) {
-    return new LocalValue(PrimitiveType.BigInt, value)
+    return new LocalValue(PrimitiveType.BigInt, value);
   }
 
   /**
@@ -146,7 +146,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createArrayValue(value: Array<unknown>) {
-    return new LocalValue(NonPrimitiveType.Array, value)
+    return new LocalValue(NonPrimitiveType.Array, value);
   }
 
   /**
@@ -156,7 +156,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createDateValue(value: Date) {
-    return new LocalValue(NonPrimitiveType.Date, value)
+    return new LocalValue(NonPrimitiveType.Date, value);
   }
 
   /**
@@ -179,11 +179,11 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createObjectValue(object: Record<string | number | symbol, unknown>) {
-    const value: [Serializeable, Serializeable][] = []
+    const value: [Serializeable, Serializeable][] = [];
     Object.entries(object).forEach(([key, val]) => {
-      value.push([key, LocalValue.getArgument(val)])
-    })
-    return new LocalValue(NonPrimitiveType.Object, value)
+      value.push([key, LocalValue.getArgument(val)]);
+    });
+    return new LocalValue(NonPrimitiveType.Object, value);
   }
 
   /**
@@ -192,8 +192,8 @@ class LocalValue {
    * @param {string} value - The value of the regular expression.
    * @returns {LocalValue} - The created LocalValue object.
    */
-  static createRegularExpressionValue(value: { pattern: string, flags: string }) {
-    return new LocalValue(NonPrimitiveType.RegularExpression, value)
+  static createRegularExpressionValue(value: { pattern: string; flags: string }) {
+    return new LocalValue(NonPrimitiveType.RegularExpression, value);
   }
 
   /**
@@ -202,7 +202,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createSetValue(value: ([unknown, unknown] | LocalValue)[]) {
-    return new LocalValue(NonPrimitiveType.Set, value)
+    return new LocalValue(NonPrimitiveType.Set, value);
   }
 
   /**
@@ -212,7 +212,7 @@ class LocalValue {
    * @returns {LocalValue} - The created LocalValue object.
    */
   static createChannelValue(value: unknown) {
-    return new LocalValue(NonPrimitiveType.Channel, value)
+    return new LocalValue(NonPrimitiveType.Channel, value);
   }
 
   /**
@@ -228,72 +228,66 @@ class LocalValue {
   }
 
   static getArgument(argument: unknown) {
-    const type = typeof argument
+    const type = typeof argument;
     switch (type) {
       case PrimitiveType.String:
-        return LocalValue.createStringValue(argument as string)
+        return LocalValue.createStringValue(argument as string);
       case PrimitiveType.Number:
-        if (
-          Number.isNaN(argument) ||
-          Object.is(argument, -0) ||
-          !Number.isFinite(argument)
-        ) {
-          return LocalValue.createSpecialNumberValue(argument as number)
+        if (Number.isNaN(argument) || Object.is(argument, -0) || !Number.isFinite(argument)) {
+          return LocalValue.createSpecialNumberValue(argument as number);
         }
 
-        return LocalValue.createNumberValue(argument as number)
+        return LocalValue.createNumberValue(argument as number);
       case PrimitiveType.Boolean:
-        return LocalValue.createBooleanValue(argument as boolean)
+        return LocalValue.createBooleanValue(argument as boolean);
       case PrimitiveType.BigInt:
-        return LocalValue.createBigIntValue(argument as bigint)
+        return LocalValue.createBigIntValue(argument as bigint);
       case PrimitiveType.Undefined:
-        return LocalValue.createUndefinedValue()
+        return LocalValue.createUndefinedValue();
       case NonPrimitiveType.Symbol:
-        return LocalValue.createSymbolValue(argument as Symbol)
+        return LocalValue.createSymbolValue(argument as Symbol);
       case NonPrimitiveType.Object:
         if (argument === null) {
-          return LocalValue.createNullValue()
+          return LocalValue.createNullValue();
         }
         if (argument instanceof Date) {
-          return LocalValue.createDateValue(argument)
+          return LocalValue.createDateValue(argument);
         }
         if (argument instanceof Map) {
-          const map: ([unknown, unknown] | LocalValue)[] = []
+          const map: ([unknown, unknown] | LocalValue)[] = [];
 
           argument.forEach((value, key) => {
-            const objectKey = typeof key === 'string'
-              ? key
-              : LocalValue.getArgument(key)
-            const objectValue = LocalValue.getArgument(value)
-            map.push([objectKey, objectValue])
-          })
-          return LocalValue.createMapValue(argument as Map<unknown, unknown>)
+            const objectKey = typeof key === 'string' ? key : LocalValue.getArgument(key);
+            const objectValue = LocalValue.getArgument(value);
+            map.push([objectKey, objectValue]);
+          });
+          return LocalValue.createMapValue(argument as Map<unknown, unknown>);
         }
         if (argument instanceof Set) {
-          const set: LocalValue[] = []
+          const set: LocalValue[] = [];
           argument.forEach((value) => {
-            set.push(LocalValue.getArgument(value))
-          })
-          return LocalValue.createSetValue(set)
+            set.push(LocalValue.getArgument(value));
+          });
+          return LocalValue.createSetValue(set);
         }
         if (argument instanceof Array) {
-          const arr: LocalValue[] = []
+          const arr: LocalValue[] = [];
           argument.forEach((value) => {
-            arr.push(LocalValue.getArgument(value))
-          })
-          return LocalValue.createArrayValue(arr)
+            arr.push(LocalValue.getArgument(value));
+          });
+          return LocalValue.createArrayValue(arr);
         }
         if (argument instanceof RegExp) {
           return LocalValue.createRegularExpressionValue({
             pattern: argument.source,
             flags: argument.flags,
-          })
+          });
         }
 
-        return LocalValue.createObjectValue(argument as Record<string | number | symbol, unknown>)
+        return LocalValue.createObjectValue(argument as Record<string | number | symbol, unknown>);
     }
 
-    throw new Error(`Unsupported type: ${type}`)
+    throw new Error(`Unsupported type: ${type}`);
   }
 
   asMap() {
@@ -301,8 +295,8 @@ class LocalValue {
       [TYPE_CONSTANT]: this.type,
       ...(!(this.type === PrimitiveType.Null || this.type === PrimitiveType.Undefined)
         ? { [VALUE_CONSTANT]: this.value }
-        : {})
-    } as ScriptLocalValue
+        : {}),
+    } as ScriptLocalValue;
   }
 }
 
@@ -352,8 +346,7 @@ class RemoteValue {
       case NonPrimitiveType.Map:
         const map = new Map();
         for (const [key, val] of value as unknown as [string, ScriptLocalValue][]) {
-          const deserializedKey = typeof key === 'object' && key !== null ?
-            RemoteValue.fromLocalValue(key) : key;
+          const deserializedKey = typeof key === 'object' && key !== null ? RemoteValue.fromLocalValue(key) : key;
           const deserializedValue = RemoteValue.fromLocalValue(val);
           map.set(deserializedKey, deserializedValue);
         }
@@ -392,7 +385,7 @@ class RemoteValue {
    * @returns Array of deserialized JavaScript values
    */
   static fromLocalValueArray(serializedValues: ScriptLocalValue[]): any[] {
-    return serializedValues.map(value => RemoteValue.fromLocalValue(value));
+    return serializedValues.map((value) => RemoteValue.fromLocalValue(value));
   }
 
   /**
