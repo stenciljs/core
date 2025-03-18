@@ -32,7 +32,6 @@ export enum NonPrimitiveType {
 export const TYPE_CONSTANT = 'type';
 export const VALUE_CONSTANT = 'value';
 export const SERIALIZED_PREFIX = 'serialized:';
-const SERIALIZABLE_TYPES = ['string', 'boolean', 'undefined', 'number'];
 
 type Serializeable = string | number | boolean | unknown;
 type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Serializeable][];
@@ -47,10 +46,8 @@ export function serializeProperty(value: unknown) {
    * If the value is a primitive type, return it as is.
    */
   if (
-    SERIALIZABLE_TYPES.includes(typeof value) &&
-    value !== Infinity &&
-    value !== -Infinity &&
-    !isNaN(value as number)
+    ['string', 'boolean', 'undefined'].includes(typeof value) ||
+    (typeof value === 'number' && value !== Infinity && value !== -Infinity && !isNaN(value))
   ) {
     return value as string | number | boolean;
   }
