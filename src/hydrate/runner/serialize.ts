@@ -32,6 +32,7 @@ export enum NonPrimitiveType {
 export const TYPE_CONSTANT = 'type';
 export const VALUE_CONSTANT = 'value';
 export const SERIALIZED_PREFIX = 'serialized:';
+const SERIALIZABLE_TYPES = ['string', 'boolean', 'undefined', 'number'];
 
 type Serializeable = string | number | boolean | unknown;
 type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Serializeable][];
@@ -42,8 +43,15 @@ type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Seriali
  * @returns {string} A string that can be deserialized later.
  */
 export function serializeProperty(value: unknown) {
+  /**
+   * If the value is a primitive type, return it as is.
+   */
+  if (SERIALIZABLE_TYPES.includes(typeof value)) {
+    return value
+  }
+
   const arg = LocalValue.getArgument(value);
-  return `${SERIALIZED_PREFIX}${btoa(JSON.stringify(arg))}`;
+  return SERIALIZED_PREFIX + btoa(JSON.stringify(arg));
 }
 
 /**
