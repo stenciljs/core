@@ -28,6 +28,8 @@ describe('convert-decorators', () => {
           return {
             "val": {
               "type": "string",
+              attribute: 'val',
+              reflect: false,
               "mutable": false,
               "complexType": { "original": "string", "resolved": "string", "references": {} },
               "required": false,
@@ -35,8 +37,6 @@ describe('convert-decorators', () => {
               "docs": { "tags": [], "text": "" },
               "getter": false, 
               "setter": false,
-              "attribute": "val",
-              "reflect": false,
               "defaultValue": "\\"initial value\\""
             }
           };
