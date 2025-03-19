@@ -996,7 +996,8 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
 
   /**
    * If the rootVnode is not a Host element, then we need to copy the attributes
-   * from the oldVNode to the rootVnode.
+   * from the oldVNode to the rootVnode, otherwise hydrated values are not
+   * reflected on the host element.
    */
   if (!isHostElement) {
     rootVnode.$attrs$ = oldVNode.$attrs$;
