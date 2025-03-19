@@ -42,16 +42,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
     members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
       if (memberFlags & MEMBER_FLAGS.Prop) {
         const attributeName = metaAttributeName || memberName;
-        const attrValue = elm.getAttribute(attributeName);
-
-        const { get: origGetter, set: origSetter } =
-          Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
-
-        let attrPropVal: any;
-
-        if (attrValue != null) {
-          attrPropVal = parsePropertyValue(attrValue, memberFlags);
-        }
+        let attrPropVal = parsePropertyValue(elm.getAttribute(attributeName), memberFlags);
 
         const ownValue = (elm as any)[memberName];
         if (ownValue !== undefined) {
@@ -61,6 +52,9 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           // so the getter/setter kicks in instead, but still getting this value
           delete (elm as any)[memberName];
         }
+
+        const { get: origGetter, set: origSetter } =
+          Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
 
         if (attrPropVal !== undefined) {
           if (origSetter) {
