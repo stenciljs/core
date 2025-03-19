@@ -985,23 +985,13 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   const hostElm = hostRef.$hostElement$;
   const cmpMeta = hostRef.$cmpMeta$;
   const oldVNode: d.VNode = hostRef.$vnode$ || newVNode(null, null);
-  const isHostElement = isHost(renderFnResults);
 
   // if `renderFnResults` is a Host node then we can use it directly. If not,
   // we need to call `h` again to wrap the children of our component in a
   // 'dummy' Host node (well, an empty vnode) since `renderVdom` assumes
   // implicitly that the top-level vdom node is 1) an only child and 2)
   // contains attrs that need to be set on the host element.
-  const rootVnode = isHostElement ? renderFnResults : h(null, null, renderFnResults as any);
-
-  /**
-   * If the rootVnode is not a Host element, then we need to copy the attributes
-   * from the oldVNode to the rootVnode, otherwise hydrated values are not
-   * reflected on the host element.
-   */
-  if (!isHostElement) {
-    rootVnode.$attrs$ = oldVNode.$attrs$;
-  }
+  const rootVnode = isHost(renderFnResults) ? renderFnResults : h(null, null, renderFnResults as any);
 
   hostTagName = hostElm.tagName;
 

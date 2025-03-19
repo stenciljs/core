@@ -213,7 +213,6 @@ describe('parse props', () => {
     `);
     expect(getStaticGetter(t.outputText, 'properties')).toEqual({
       val: {
-        attribute: 'val',
         complexType: {
           references: {},
           resolved: '{}', // TODO, needs to be string[]
@@ -232,7 +231,7 @@ describe('parse props', () => {
       },
     });
     expect(t.property?.type).toBe('unknown');
-    expect(t.property?.attribute).toBe('val');
+    expect(t.property?.attribute).toBe(undefined);
     expect(t.property?.reflect).toBe(false);
   });
 
@@ -820,7 +819,6 @@ describe('parse props', () => {
         return {
           val: {
             type: 'string',
-            attribute: 'val',
             mutable: false,
             complexType: { original: 'string', resolved: 'string', references: {} },
             required: false,
@@ -828,12 +826,12 @@ describe('parse props', () => {
             docs: { tags: [], text: '' },
             getter: false,
             setter: false,
+            attribute: 'val',
             reflect: false,
             defaultValue: \"'good'\",
           },
           val2: {
             type: 'string',
-            attribute: 'val-2',
             mutable: false,
             complexType: { original: 'string', resolved: 'string', references: {} },
             required: false,
@@ -842,6 +840,7 @@ describe('parse props', () => {
             getter: false,
             setter: false,
             ogPropName: 'dynVal',
+            attribute: 'val-2',
             reflect: false,
             defaultValue: \"'nice'\",
           },
