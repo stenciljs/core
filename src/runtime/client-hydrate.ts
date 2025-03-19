@@ -1,7 +1,7 @@
 import { BUILD } from '@app-data';
 import { plt, win } from '@platform';
 import { parsePropertyValue } from '@runtime';
-import { CMP_FLAGS, deserializeProperty, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
+import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
 import { patchSlottedNode } from './dom-extras';
@@ -65,35 +65,9 @@ export const initializeClientHydrate = (
       return;
     }
     const attributeName = metaAttributeName || memberName;
-    let attrValue = hostElm.getAttribute(attributeName);
-
-    /**
-     * Allow hydrate parameters that contain a simple object, e.g.
-     * ```ts
-     * import { renderToString } from 'component-library/hydrate';
-     * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
-     * ```
-     */
-    if (
-      (attrValue?.startsWith('{') && attrValue.endsWith('}')) ||
-      (attrValue?.startsWith('[') && attrValue.endsWith(']'))
-    ) {
-      try {
-        attrValue = JSON.parse(attrValue);
-      } catch (e) {
-        /* ignore */
-      }
-    } else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
-      /**
-       * Allow hydrate parameters that contain a complex non-serialized values.
-       */
-      attrValue = deserializeProperty(attrValue);
-    } else if (typeof attrValue !== 'undefined') {
-      attrValue = parsePropertyValue(attrValue, memberFlags);
-    }
-
-    vnode.$attrs$[memberName] = attrValue;
-    hostRef?.$instanceValues$?.set(memberName, attrValue);
+    const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags)
+    vnode.$attrs$[memberName] = attrPropVal;
+    hostRef?.$instanceValues$?.set(memberName, attrPropVal);
   });
 
   let scopeId: string;

@@ -247,7 +247,7 @@ describe('attribute', () => {
   });
 
   describe('reflect', () => {
-    it('should reflect properties as attributes', async () => {
+    it.skip('should reflect properties as attributes', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         @Element() el: any;

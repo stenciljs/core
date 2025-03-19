@@ -1,7 +1,7 @@
 import { BUILD } from '@app-data';
 import { consoleError, getHostRef } from '@platform';
 import { getValue, parsePropertyValue, setValue } from '@runtime';
-import { CMP_FLAGS, deserializeProperty, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
+import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
@@ -42,39 +42,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
     members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
       if (memberFlags & MEMBER_FLAGS.Prop) {
         const attributeName = metaAttributeName || memberName;
-        let attrValue = elm.getAttribute(attributeName);
-
-        /**
-         * Allow hydrate parameters that contain a simple object, e.g.
-         * ```ts
-         * import { renderToString } from 'component-library/hydrate';
-         * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
-         * ```
-         */
-        if (
-          (attrValue?.startsWith('{') && attrValue.endsWith('}')) ||
-          (attrValue?.startsWith('[') && attrValue.endsWith(']'))
-        ) {
-          try {
-            attrValue = JSON.parse(attrValue);
-          } catch (e) {
-            /* ignore */
-          }
-        } else if (attrValue?.startsWith(SERIALIZED_PREFIX)) {
-          /**
-           * Allow hydrate parameters that contain a complex non-serialized values.
-           */
-          attrValue = deserializeProperty(attrValue);
-        }
-
-        const { get: origGetter, set: origSetter } =
-          Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
-
-        let attrPropVal: any;
-
-        if (typeof attrValue !== 'undefined') {
-          attrPropVal = parsePropertyValue(attrValue, memberFlags);
-        }
+        let attrPropVal = parsePropertyValue(elm.getAttribute(attributeName), memberFlags);
 
         const ownValue = (elm as any)[memberName];
         if (ownValue !== undefined) {
@@ -84,6 +52,9 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           // so the getter/setter kicks in instead, but still getting this value
           delete (elm as any)[memberName];
         }
+
+        const { get: origGetter, set: origSetter } =
+          Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
 
         if (attrPropVal !== undefined) {
           if (origSetter) {
