@@ -55,29 +55,31 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
     return deserializeProperty(propValue);
   }
 
-  /**
-   * ensure this value is of the correct prop type
-   */
-  if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
+  if (propValue != null && !isComplexType(propValue)) {
     /**
-     * per the HTML spec, any string value means it is a boolean true value
-     * but we'll cheat here and say that the string "false" is the boolean false
+     * ensure this value is of the correct prop type
      */
-    return propValue === 'false' ? false : propValue === '' || !!propValue;
-  }
+    if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
+      /**
+       * per the HTML spec, any string value means it is a boolean true value
+       * but we'll cheat here and say that the string "false" is the boolean false
+       */
+      return propValue === 'false' ? false : propValue === '' || !!propValue;
+    }
 
-  /**
-   * force it to be a number
-   */
-  if (typeof propValue === 'string' && BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-    return parseFloat(propValue);
-  }
+    /**
+     * force it to be a number
+     */
+    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
+      return parseFloat(propValue);
+    }
 
-  /**
-   * could have been passed as a number or boolean but we still want it as a string
-   */
-  if (BUILD.propString && propType & MEMBER_FLAGS.String) {
-    return String(propValue);
+    /**
+     * could have been passed as a number or boolean but we still want it as a string
+     */
+    if (BUILD.propString && propType & MEMBER_FLAGS.String) {
+      return String(propValue);
+    }
   }
 
   /**
