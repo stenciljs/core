@@ -42,7 +42,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
     members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
       if (memberFlags & MEMBER_FLAGS.Prop) {
         const attributeName = metaAttributeName || memberName;
-        let attrValue = elm.getAttribute(attributeName);
+        const attrValue = elm.getAttribute(attributeName);
 
         let attrPropVal: any;
         if (attrValue != null) {
