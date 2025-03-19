@@ -99,7 +99,6 @@ const parsePropDecorator = (
   const propMeta: d.ComponentCompilerStaticProperty = {
     type: typeStr,
     attribute: getAttributeName(propName, propOptions),
-    reflect: getReflect(diagnostics, propDecorator, propOptions),
     mutable: !!propOptions.mutable,
     complexType: getComplexType(typeChecker, prop, type, program),
     required: prop.exclamationToken !== undefined && propName !== 'mode',
@@ -110,6 +109,11 @@ const parsePropDecorator = (
   };
   if (ogPropName && ogPropName !== propName) {
     propMeta.ogPropName = ogPropName;
+  }
+
+  // prop can have an attribute if type is NOT "unknown"
+  if (typeStr !== 'unknown') {
+    propMeta.reflect = getReflect(diagnostics, propDecorator, propOptions);
   }
 
   // extract default value

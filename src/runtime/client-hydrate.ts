@@ -65,7 +65,7 @@ export const initializeClientHydrate = (
       return;
     }
     const attributeName = metaAttributeName || memberName;
-    const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags)
+    const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags);
     vnode.$attrs$[memberName] = attrPropVal;
     hostRef?.$instanceValues$?.set(memberName, attrPropVal);
   });

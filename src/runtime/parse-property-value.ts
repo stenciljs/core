@@ -36,10 +36,7 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
   if (
     isComplexType(propValue) &&
     typeof propValue === 'string' &&
-    (
-      (propValue.startsWith('{') && propValue.endsWith('}')) ||
-      (propValue.startsWith('[') && propValue.endsWith(']'))
-    )
+    ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
   ) {
     try {
       return JSON.parse(propValue);
@@ -70,7 +67,7 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
     /**
      * force it to be a number
      */
-    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
+    if (typeof propValue === 'string' && BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
       return parseFloat(propValue);
     }
 
