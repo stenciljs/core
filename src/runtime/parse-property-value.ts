@@ -48,7 +48,7 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
   /**
    * Allow hydrate parameters that contain a complex non-serialized values.
    */
-  if (typeof propValue === 'string' && propValue.startsWith(SERIALIZED_PREFIX)) {
+  if (BUILD.hydrateClientSide && typeof propValue === 'string' && propValue.startsWith(SERIALIZED_PREFIX)) {
     return deserializeProperty(propValue);
   }
 
