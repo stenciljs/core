@@ -985,7 +985,7 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   const hostElm = hostRef.$hostElement$;
   const cmpMeta = hostRef.$cmpMeta$;
   const oldVNode: d.VNode = hostRef.$vnode$ || newVNode(null, null);
-  const isHostElement = isHost(renderFnResults)
+  const isHostElement = isHost(renderFnResults);
 
   // if `renderFnResults` is a Host node then we can use it directly. If not,
   // we need to call `h` again to wrap the children of our component in a
@@ -999,7 +999,7 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
    * from the oldVNode to the rootVnode.
    */
   if (!isHostElement) {
-    rootVnode.$attrs$ = oldVNode.$attrs$
+    rootVnode.$attrs$ = oldVNode.$attrs$;
   }
 
   hostTagName = hostElm.tagName;
