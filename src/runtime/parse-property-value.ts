@@ -69,11 +69,7 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
      * force it to be a number
      */
     if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-      return typeof propValue === 'string'
-        ? parseFloat(propValue)
-        : typeof propValue === 'number'
-          ? propValue
-          : NaN;
+      return typeof propValue === 'string' ? parseFloat(propValue) : typeof propValue === 'number' ? propValue : NaN;
     }
 
     /**
