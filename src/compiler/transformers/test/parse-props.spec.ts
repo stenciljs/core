@@ -841,8 +841,8 @@ describe('parse props', () => {
             docs: { tags: [], text: '' },
             getter: false,
             setter: false,
-            reflect: false,
             ogPropName: 'dynVal',
+            reflect: false,
             defaultValue: \"'nice'\",
           },
         };

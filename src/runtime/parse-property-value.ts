@@ -34,6 +34,7 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
    * @deprecated
    */
   if (
+    BUILD.hydrateClientSide &&
     isComplexType(propValue) &&
     typeof propValue === 'string' &&
     ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
@@ -67,8 +68,12 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
     /**
      * force it to be a number
      */
-    if (typeof propValue === 'string' && BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-      return parseFloat(propValue);
+    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
+      return typeof propValue === 'string'
+        ? parseFloat(propValue)
+        : typeof propValue === 'number'
+          ? propValue
+          : NaN;
     }
 
     /**
