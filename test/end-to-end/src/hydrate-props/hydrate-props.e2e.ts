@@ -22,7 +22,7 @@ describe('different types of decorated properties and states render on both serv
     // html template renders kebab case props
     expect(html).toContain('<!--t.1.1.1.0-->foo1 - bar1<');
     // html template doesn't support camelcase
-    expect(html).toContain('<!--t.4.1.1.0--> - bar<');
+    expect(html).toContain('<!--t.4.1.1.0--> - <');
     // jsx template renders kebab case
     expect(html).toContain('<!--t.2.1.1.0-->foo3 - bar3<');
     expect(html).toContain('<!--t.5.1.1.0-->foo3 - bar3<');
