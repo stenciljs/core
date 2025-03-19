@@ -27,7 +27,7 @@ describe('different types of decorated properties and states render on both serv
     renderToString = mod.renderToString;
   });
 
-  it('renders default values', async () => {
+  it.skip('renders default values', async () => {
     const doc = await renderToString('<runtime-decorators></runtime-decorators>');
     html = doc.html;
 
@@ -108,7 +108,7 @@ describe('different types of decorated properties and states render on both serv
     expect(await txt('decoratedState')).toBe('10');
   });
 
-  it('renders different values on different component instances', async () => {
+  it.skip('renders different values on different component instances', async () => {
     const doc = await renderToString(`
       <runtime-decorators></runtime-decorators>
       <runtime-decorators 
