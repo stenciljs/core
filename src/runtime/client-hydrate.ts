@@ -53,7 +53,6 @@ export const initializeClientHydrate = (
   // The root VNode for this component
   const vnode: d.VNode = newVNode(tagName, null);
   vnode.$elm$ = hostElm;
-  vnode.$attrs$ = {};
 
   /**
    * The following forEach loop attaches properties from the element's attributes to the VNode.
@@ -65,9 +64,12 @@ export const initializeClientHydrate = (
       return;
     }
     const attributeName = metaAttributeName || memberName;
-    const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags);
-    vnode.$attrs$[memberName] = attrPropVal;
-    hostRef?.$instanceValues$?.set(memberName, attrPropVal);
+    const attrVal = hostElm.getAttribute(attributeName);
+
+    if (attrVal !== null) {
+      const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags);
+      hostRef?.$instanceValues$?.set(memberName, attrPropVal);
+    }
   });
 
   let scopeId: string;

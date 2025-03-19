@@ -994,15 +994,6 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   // contains attrs that need to be set on the host element.
   const rootVnode = isHostElement ? renderFnResults : h(null, null, renderFnResults as any);
 
-  /**
-   * If the rootVnode is not a Host element, then we need to copy the attributes
-   * from the oldVNode to the rootVnode, otherwise hydrated values are not
-   * reflected on the host element.
-   */
-  if (!isHostElement) {
-    rootVnode.$attrs$ = oldVNode.$attrs$;
-  }
-
   hostTagName = hostElm.tagName;
 
   // <Host> runtime check
