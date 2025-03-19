@@ -259,3 +259,36 @@ export const enum NODE_TYPES {
   DOCUMENT_FRAGMENT_NODE = 11,
   NOTATION_NODE = 12,
 }
+
+/**
+ * Represents a primitive type.
+ * Described in https://w3c.github.io/webdriver-bidi/#type-script-PrimitiveProtocolValue.
+ */
+export enum PrimitiveType {
+  Undefined = 'undefined',
+  Null = 'null',
+  String = 'string',
+  Number = 'number',
+  SpecialNumber = 'number',
+  Boolean = 'boolean',
+  BigInt = 'bigint',
+}
+
+/**
+ * Represents a non-primitive type.
+ * Described in https://w3c.github.io/webdriver-bidi/#type-script-RemoteValue.
+ */
+export enum NonPrimitiveType {
+  Array = 'array',
+  Date = 'date',
+  Map = 'map',
+  Object = 'object',
+  RegularExpression = 'regexp',
+  Set = 'set',
+  Channel = 'channel',
+  Symbol = 'symbol',
+}
+
+export const TYPE_CONSTANT = 'type';
+export const VALUE_CONSTANT = 'value';
+export const SERIALIZED_PREFIX = 'serialized:';

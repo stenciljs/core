@@ -1,10 +1,9 @@
 import { BUILD } from '@app-data';
 import { consoleError, getHostRef } from '@platform';
 import { getValue, parsePropertyValue, setValue } from '@runtime';
-import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
+import { CMP_FLAGS, deserializeProperty, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
 
 import type * as d from '../../declarations';
-import { deserializeProperty, SERIALIZED_PREFIX } from '../runner/serialize';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;

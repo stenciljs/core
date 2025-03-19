@@ -1,9 +1,8 @@
 import { BUILD } from '@app-data';
 import { plt, win } from '@platform';
-import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
+import { CMP_FLAGS, deserializeProperty, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
 
 import type * as d from '../declarations';
-import { deserializeProperty, SERIALIZED_PREFIX } from '../hydrate/runner/serialize';
 import { patchSlottedNode } from './dom-extras';
 import { createTime } from './profile';
 import {

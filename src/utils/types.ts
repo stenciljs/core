@@ -1,3 +1,6 @@
+export type Serializeable = string | number | boolean | unknown;
+export type LocalValueParam = Serializeable | Serializeable[] | [Serializeable, Serializeable][];
+
 export type ScriptLocalValue =
   | ScriptPrimitiveProtocolValue
   | ScriptArrayLocalValue
