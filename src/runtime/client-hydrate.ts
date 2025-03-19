@@ -1,5 +1,6 @@
 import { BUILD } from '@app-data';
 import { plt, win } from '@platform';
+import { parsePropertyValue } from '@runtime';
 import { CMP_FLAGS, deserializeProperty, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
 
 import type * as d from '../declarations';
@@ -52,8 +53,12 @@ export const initializeClientHydrate = (
   // The root VNode for this component
   const vnode: d.VNode = newVNode(tagName, null);
   vnode.$elm$ = hostElm;
+  vnode.$attrs$ = {};
 
-  let attributes: Record<string, unknown> | undefined;
+  /**
+   * The following forEach loop attaches properties from the element's attributes to the VNode.
+   * This is used to hydrate the VNode with the initial values of the element's attributes.
+   */
   const members = Object.entries(hostRef.$cmpMeta$?.$members$ || {});
   members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
     if (!(memberFlags & MEMBER_FLAGS.Prop)) {
@@ -83,13 +88,12 @@ export const initializeClientHydrate = (
        * Allow hydrate parameters that contain a complex non-serialized values.
        */
       attrValue = deserializeProperty(attrValue);
+    } else if (typeof attrValue !== 'undefined') {
+      attrValue = parsePropertyValue(attrValue, memberFlags);
     }
 
-    if (!attributes) {
-      attributes = {};
-    }
-
-    hostRef.$instanceValues$.set(memberName, attrValue);
+    vnode.$attrs$[memberName] = attrValue;
+    hostRef?.$instanceValues$?.set(memberName, attrValue);
   });
 
   let scopeId: string;
