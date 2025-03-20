@@ -41,27 +41,32 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
 
     members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
       if (memberFlags & MEMBER_FLAGS.Prop) {
+        // hyphenated attribute name
         const attributeName = metaAttributeName || memberName;
+        // attribute value
         const attrValue = elm.getAttribute(attributeName);
-
+        // property value
+        const propValue = (elm as any)[memberName];
         let attrPropVal: any;
-        if (attrValue != null) {
-          attrPropVal = parsePropertyValue(attrValue, memberFlags);
-        }
-
-        const ownValue = (elm as any)[memberName];
-        if (ownValue !== undefined) {
-          attrPropVal = ownValue;
-          // we've got an actual value already set on the host element
-          // let's add that to our instance values and pull it off the element
-          // so the getter/setter kicks in instead, but still getting this value
-          delete (elm as any)[memberName];
-        }
-
+        // any existing getter/setter applied to class property
         const { get: origGetter, set: origSetter } =
           Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
 
+        if (attrValue != null) {
+          // incoming value from `an-attribute=....`. Convert from string to correct type
+          attrPropVal = parsePropertyValue(attrValue, memberFlags);
+        }
+
+        if (propValue !== undefined) {
+          // incoming value set on the host element (e.g `element.aProp = ...`)
+          // let's add that to our instance values and pull it off the element.
+          // This allows any applied getter/setter to kick in instead whilst still getting this value
+          attrPropVal = propValue;
+          delete (elm as any)[memberName];
+        }
+
         if (attrPropVal !== undefined) {
+          // value set via attribute/prop on the host element
           if (origSetter) {
             // we have an original setter, so let's set the value via that.
             origSetter.apply(elm, [attrPropVal]);

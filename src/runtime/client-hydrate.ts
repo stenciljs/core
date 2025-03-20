@@ -67,7 +67,7 @@ export const initializeClientHydrate = (
     const attrVal = hostElm.getAttribute(attributeName);
 
     if (attrVal !== null) {
-      const attrPropVal = parsePropertyValue(hostElm.getAttribute(attributeName), memberFlags);
+      const attrPropVal = parsePropertyValue(attrVal, memberFlags);
       hostRef?.$instanceValues$?.set(memberName, attrPropVal);
     }
   });

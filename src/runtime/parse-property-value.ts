@@ -34,13 +34,13 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
    * @deprecated
    */
   if (
-    BUILD.hydrateClientSide &&
-    isComplexType(propValue) &&
+    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
     typeof propValue === 'string' &&
     ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
   ) {
     try {
-      return JSON.parse(propValue);
+      propValue = JSON.parse(propValue);
+      return propValue;
     } catch (e) {
       /* ignore */
     }
@@ -49,8 +49,13 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
   /**
    * Allow hydrate parameters that contain a complex non-serialized values.
    */
-  if (BUILD.hydrateClientSide && typeof propValue === 'string' && propValue.startsWith(SERIALIZED_PREFIX)) {
-    return deserializeProperty(propValue);
+  if (
+    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
+    typeof propValue === 'string' &&
+    propValue.startsWith(SERIALIZED_PREFIX)
+  ) {
+    propValue = deserializeProperty(propValue);
+    return propValue;
   }
 
   if (propValue != null && !isComplexType(propValue)) {
@@ -78,6 +83,8 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
     if (BUILD.propString && propType & MEMBER_FLAGS.String) {
       return String(propValue);
     }
+
+    return propValue;
   }
 
   /**
