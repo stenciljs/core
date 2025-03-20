@@ -63,7 +63,7 @@ describe('hydrate prop types', () => {
     });
 
     expect(serverHydrated.root).toEqualHtml(`
-      <cmp-a class="hydrated" boolean="false" clamped="11" class="hydrated" num="1" s-id="1" str="hello" accessor="1">
+      <cmp-a class="hydrated" boolean="false" clamped="11" num="1" s-id="1" str="hello" accessor="1">
         <!--r.1-->
         <!--t.1.0.0.0-->
         false-hello world world-201-101-10

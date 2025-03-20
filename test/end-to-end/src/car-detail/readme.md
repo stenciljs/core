@@ -9,7 +9,7 @@
 
 | Property | Attribute | Description | Type      | Default     |
 | -------- | --------- | ----------- | --------- | ----------- |
-| `car`    | --        |             | `CarData` | `undefined` |
+| `car`    | `car`     |             | `CarData` | `undefined` |
 
 
 ## Dependencies
