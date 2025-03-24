@@ -13,6 +13,7 @@ export { parsePropertyValue } from './parse-property-value';
 export { setPlatformOptions } from './platform-options';
 export { proxyComponent } from './proxy-component';
 export { getValue, setValue } from './set-value';
+export { setTagTransformer, transformTag } from './tag-transform';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';
 export { insertVdomAnnotations } from './vdom/vdom-annotations';

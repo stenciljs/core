@@ -354,6 +354,7 @@ interface ConfigExtrasBase {
   /**
    * Enables the tagNameTransform option of `defineCustomElements()`, so the component tagName
    * can be customized at runtime. Defaults to `false`.
+   * @deprecated This option has been deprecated in favour of `setTagTransformer` and `transformTag`. It will be removed in a future major version of Stencil.
    */
   tagNameTransform?: boolean;
 
