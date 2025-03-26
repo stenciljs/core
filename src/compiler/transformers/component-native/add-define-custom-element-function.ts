@@ -83,7 +83,9 @@ const setupComponentDependencies = (
       newStatements.push(createImportStatement([`defineCustomElement as ${importAs}`], foundDep.sourceFilePath));
 
       // define a dependent component by recursively calling their own `defineCustomElement()`
-      const callExpression = ts.factory.createCallExpression(ts.factory.createIdentifier(importAs), undefined, []);
+      const callExpression = ts.factory.createCallExpression(ts.factory.createIdentifier(importAs), undefined, [
+        ts.factory.createIdentifier('tagNameTransformer'),
+      ]);
       // `case` blocks that define the dependent components. We'll add them to our switch statement later.
       caseStatements.push(createCustomElementsDefineCase(foundDep.tagName, callExpression));
     });
@@ -107,7 +109,7 @@ const setupComponentDependencies = (
  * @returns ts AST CaseClause
  */
 const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Expression): ts.CaseClause => {
-  return ts.factory.createCaseClause(ts.factory.createStringLiteral(tagName), [
+  return ts.factory.createCaseClause(wrapTagNameWithTransformer(tagName), [
     ts.factory.createIfStatement(
       ts.factory.createPrefixUnaryExpression(
         ts.SyntaxKind.ExclamationToken,
@@ -158,7 +160,43 @@ const addDefineCustomElementFunction = (
     undefined,
     ts.factory.createIdentifier('defineCustomElement'),
     undefined,
-    [],
+    [
+      ts.factory.createParameterDeclaration(
+        undefined,
+        undefined,
+        ts.factory.createIdentifier('tagNameTransformer'),
+        undefined,
+        ts.factory.createFunctionTypeNode(
+          undefined,
+          [
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              ts.factory.createIdentifier('tagName'),
+              undefined,
+              ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+            ),
+          ],
+          ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        ),
+        ts.factory.createArrowFunction(
+          undefined,
+          undefined,
+          [
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              ts.factory.createIdentifier('tagName'),
+              undefined,
+              undefined,
+            ),
+          ],
+          undefined,
+          ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+          ts.factory.createBlock([ts.factory.createReturnStatement(ts.factory.createIdentifier('tagName'))], true),
+        ),
+      ),
+    ],
     undefined,
     ts.factory.createBlock(
       [
@@ -177,9 +215,7 @@ const addDefineCustomElementFunction = (
                 'components',
                 undefined,
                 undefined,
-                ts.factory.createArrayLiteralExpression(
-                  tagNames.map((tagName) => ts.factory.createStringLiteral(tagName)),
-                ),
+                ts.factory.createArrayLiteralExpression(tagNames.map((tagName) => wrapTagNameWithTransformer(tagName))),
               ),
             ],
             ts.NodeFlags.Const,
@@ -235,4 +271,10 @@ function createAutoDefinitionExpression(componentName: string): ts.ExpressionSta
       ts.factory.createIdentifier(componentName),
     ]),
   );
+}
+
+function wrapTagNameWithTransformer(tagName: string) {
+  return ts.factory.createCallExpression(ts.factory.createIdentifier('tagNameTransformer'), undefined, [
+    ts.factory.createStringLiteral(tagName),
+  ]);
 }
