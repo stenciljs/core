@@ -31,6 +31,6 @@
   },
   "include": [
     ".",
-    "../wdio/dist/components.d.ts"
+    "../wdio/dist/types/components.d.ts"
   ]
 }

@@ -1,4 +1,4 @@
-/// <reference types="../wdio/dist/components.d.ts" />
+/// <reference types="../wdio/dist/types/components.d.ts" />
 
 import { h } from '@stencil/core';
 
