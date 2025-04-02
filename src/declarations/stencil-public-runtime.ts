@@ -1853,6 +1853,10 @@ export namespace JSXBase {
     onTransitionRunCapture?: (event: TransitionEvent) => void;
     onTransitionStart?: (event: TransitionEvent) => void;
     onTransitionStartCapture?: (event: TransitionEvent) => void;
+
+    // WAI-ARIA Attributes
+    [key: `aria-${string}`]: string | boolean | undefined;
+    [key: `aria${string}`]: string | boolean | undefined;
   }
 }
 
