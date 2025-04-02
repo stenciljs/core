@@ -25,6 +25,7 @@ jobs:
 
   type_tests:
     name: Type Tests
+    needs: [build_core]
     uses: ./.github/workflows/test-types.yml
 
   analysis_tests:
