@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "resolveJsonModule": false,
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "h.Fragment",
+    "lib": [
+      "dom",
+      "ES2021"
+    ],
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "useUnknownInCatchVariables": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@stencil/core": ["../../internal"],
+      "@stencil/core/internal": ["../../internal"],
+      "@test-sibling": ["./test-sibling"]
+    }
+  },
+  "include": [
+    ".",
+    "../wdio/dist/components.d.ts"
+  ]
+}

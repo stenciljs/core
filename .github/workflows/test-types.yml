@@ -1,0 +1,26 @@
+name: Type Tests
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+jobs:
+  unit_test:
+    name: Type Tests
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Type Tests
+        run: npm run test.type-tests
+        shell: bash
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context
