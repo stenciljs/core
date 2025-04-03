@@ -1,3 +1,13 @@
+# 🌁 [4.29.0](https://github.com/stenciljs/core/compare/v4.28.2...v4.29.0) (2025-04-03)
+
+
+### Features
+
+* **hydrate:** support object serialization for hydrated components ([#6208](https://github.com/stenciljs/core/issues/6208)) ([523461e](https://github.com/stenciljs/core/commit/523461e3bf884c0f6acba59b88b81c1b8cf0ed4a))
+* **jsx:** add support for aria-* attributes in JSX typings ([#6221](https://github.com/stenciljs/core/issues/6221)) ([6e748ec](https://github.com/stenciljs/core/commit/6e748ec831d7a3ad16d690c950d1adb4d74658ef)), closes [#6182](https://github.com/stenciljs/core/issues/6182)
+
+
+
 ## 🎤 [4.28.2](https://github.com/stenciljs/core/compare/v4.28.1...v4.28.2) (2025-03-13)
 
 ### Bug Fixes
