@@ -84,16 +84,16 @@ describe('shadow', () => {
     });
 
     const expected = `
-    <cmp-a class="hydrated">
+    <cmp-a class="hydrated sc-cmp-a-h">
       <!---->
-      <div>
+      <div class=\"sc-cmp-a sc-cmp-a-s\">
         <span slot=\"start\">
           Start
         </span>
-        <span>
+        <span class=\"sc-cmp-a sc-cmp-a-s\">
           Text
         </span>
-        <div class="end">
+        <div class="end sc-cmp-a sc-cmp-a-s">
           <span slot=\"end\">
             End
           </span>
