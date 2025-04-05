@@ -1,38 +1,38 @@
 // Snapshot v1
 
 exports[`complex-properties > should render complex properties 1`] = `
-"<complex-properties baz="serialized:eyJ0eXBlIjoibWFwIiwidmFsdWUiOltbeyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOiJmb28ifSx7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1sicXV4Iix7InR5cGUiOiJzeW1ib2wiLCJ2YWx1ZSI6InF1dXgifV1dfV1dfQ==" class="hydrated" corge="serialized:eyJ0eXBlIjoic2V0IiwidmFsdWUiOlt7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1siZm9vIix7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1siYmFyIix7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6ImZvbyJ9XV19XV19XX0=" foo="serialized:eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOltbImJhciIseyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOjEyM31dLFsibG9vIix7InR5cGUiOiJhcnJheSIsInZhbHVlIjpbeyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOjF9LHsidHlwZSI6Im51bWJlciIsInZhbHVlIjoyfSx7InR5cGUiOiJudW1iZXIiLCJ2YWx1ZSI6M31dfV0sWyJxdXgiLHsidHlwZSI6Im9iamVjdCIsInZhbHVlIjpbWyJxdXV4Iix7InR5cGUiOiJzeW1ib2wiLCJ2YWx1ZSI6InF1dXgifV1dfV1dfQ==" grault="serialized:eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOiJJbmZpbml0eSJ9" kids-names="serialized:eyJ0eXBlIjoiYXJyYXkiLCJ2YWx1ZSI6W3sidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSm9obiJ9LHsidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSmFuZSJ9LHsidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSmltIn1dfQ==" quux="serialized:eyJ0eXBlIjoic2V0IiwidmFsdWUiOlt7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6ImZvbyJ9XX0=" s-id="1" waldo="serialized:eyJ0eXBlIjoibnVsbCJ9">
+"<complex-properties baz="serialized:eyJ0eXBlIjoibWFwIiwidmFsdWUiOltbeyJ0eXBlIjoic3RyaW5nIiwidmFsdWUiOiJmb28ifSx7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1sicXV4Iix7InR5cGUiOiJzeW1ib2wiLCJ2YWx1ZSI6InF1dXgifV1dfV1dfQ==" class="hydrated sc-complex-properties-h" corge="serialized:eyJ0eXBlIjoic2V0IiwidmFsdWUiOlt7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1siZm9vIix7InR5cGUiOiJvYmplY3QiLCJ2YWx1ZSI6W1siYmFyIix7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6ImZvbyJ9XV19XV19XX0=" foo="serialized:eyJ0eXBlIjoib2JqZWN0IiwidmFsdWUiOltbImJhciIseyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOjEyM31dLFsibG9vIix7InR5cGUiOiJhcnJheSIsInZhbHVlIjpbeyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOjF9LHsidHlwZSI6Im51bWJlciIsInZhbHVlIjoyfSx7InR5cGUiOiJudW1iZXIiLCJ2YWx1ZSI6M31dfV0sWyJxdXgiLHsidHlwZSI6Im9iamVjdCIsInZhbHVlIjpbWyJxdXV4Iix7InR5cGUiOiJzeW1ib2wiLCJ2YWx1ZSI6InF1dXgifV1dfV1dfQ==" grault="serialized:eyJ0eXBlIjoibnVtYmVyIiwidmFsdWUiOiJJbmZpbml0eSJ9" kids-names="serialized:eyJ0eXBlIjoiYXJyYXkiLCJ2YWx1ZSI6W3sidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSm9obiJ9LHsidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSmFuZSJ9LHsidHlwZSI6InN0cmluZyIsInZhbHVlIjoiSmltIn1dfQ==" quux="serialized:eyJ0eXBlIjoic2V0IiwidmFsdWUiOlt7InR5cGUiOiJzdHJpbmciLCJ2YWx1ZSI6ImZvbyJ9XX0=" s-id="1" waldo="serialized:eyJ0eXBlIjoibnVsbCJ9">
   <template shadowrootmode="open">
-    <ul c-id="1.0.0.0">
-      <li c-id="1.1.1.0">
+    <ul c-id="1.0.0.0" class="sc-complex-properties">
+      <li c-id="1.1.1.0" class="sc-complex-properties">
         <!--t.1.2.2.0-->
         this.foo.bar: 123
       </li>
-      <li c-id="1.3.1.1">
+      <li c-id="1.3.1.1" class="sc-complex-properties">
         <!--t.1.4.2.0-->
         this.foo.loo: 1, 2, 3
       </li>
-      <li c-id="1.5.1.2">
+      <li c-id="1.5.1.2" class="sc-complex-properties">
         <!--t.1.6.2.0-->
         this.foo.qux: symbol
       </li>
-      <li c-id="1.7.1.3">
+      <li c-id="1.7.1.3" class="sc-complex-properties">
         <!--t.1.8.2.0-->
         this.baz.get('foo'): symbol
       </li>
-      <li c-id="1.9.1.4">
+      <li c-id="1.9.1.4" class="sc-complex-properties">
         <!--t.1.10.2.0-->
         this.quux.has('foo'): true
       </li>
-      <li c-id="1.11.1.5">
+      <li c-id="1.11.1.5" class="sc-complex-properties">
         <!--t.1.12.2.0-->
         this.grault: true
       </li>
-      <li c-id="1.13.1.6">
+      <li c-id="1.13.1.6" class="sc-complex-properties">
         <!--t.1.14.2.0-->
         this.waldo: true
       </li>
-      <li c-id="1.15.1.7">
+      <li c-id="1.15.1.7" class="sc-complex-properties">
         <!--t.1.16.2.0-->
         this.kidsNames: John, Jane, Jim
       </li>

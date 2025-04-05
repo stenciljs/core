@@ -8,7 +8,7 @@
   "scripts": {
     "build": "node ../../bin/stencil build --config ./stencil.build.config.ts --docs",
     "start": "node ../../bin/stencil build --debug --watch --dev --serve",
-    "test": "node ../../bin/stencil test --ci --e2e --spec --screenshot --debug",
+    "test": "node ../../bin/stencil test --ci --e2e --spec --screenshot --debug -u",
     "test.dist": "npm run build && node test-end-to-end-dist.js && node test-end-to-end-hydrate.js && npm run test.exportMap",
     "test.e2e": "node ../../bin/stencil test --e2e",
     "test.exportMap": "node ./exportMap/index.js && tsx ./exportMap/index.mts",
