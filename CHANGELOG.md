@@ -3,7 +3,7 @@
 
 ### Bug Fixes
 
-* **runtime:** properly set scope classes ([#6224](https://github.com/stenciljs/core/issues/6224)) ([5982264](https://github.com/stenciljs/core/commit/5982264793b81704a20815ea00737032257a436b))
+* **runtime:** properly set scope classes ([#6224](https://github.com/stenciljs/core/issues/6224)) ([5982264](https://github.com/stenciljs/core/commit/5982264793b81704a20815ea00737032257a436b)), closes [ionic-team/ionic-framework#30323](ionic-team/ionic-framework/issues/30323)
 
 
 
