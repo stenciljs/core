@@ -1,3 +1,12 @@
+## 🌼 [4.29.1](https://github.com/stenciljs/core/compare/v4.29.0...v4.29.1) (2025-04-05)
+
+
+### Bug Fixes
+
+* **runtime:** properly set scope classes ([#6224](https://github.com/stenciljs/core/issues/6224)) ([5982264](https://github.com/stenciljs/core/commit/5982264793b81704a20815ea00737032257a436b))
+
+
+
 # 🌁 [4.29.0](https://github.com/stenciljs/core/compare/v4.28.2...v4.29.0) (2025-04-03)
 
 
