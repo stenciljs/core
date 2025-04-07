@@ -1,3 +1,12 @@
+## 🔋 [4.29.2](https://github.com/stenciljs/core/compare/v4.29.1...v4.29.2) (2025-04-07)
+
+
+### Bug Fixes
+
+* **utils:** don't create sourcemap file if disabled ([#6229](https://github.com/stenciljs/core/issues/6229)) ([31a97d2](https://github.com/stenciljs/core/commit/31a97d2a90beef00299ebe337cb40f4cac4154dd))
+
+
+
 ## 🌼 [4.29.1](https://github.com/stenciljs/core/compare/v4.29.0...v4.29.1) (2025-04-05)
 
 
