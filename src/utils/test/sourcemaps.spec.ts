@@ -18,6 +18,10 @@ describe('sourcemaps', () => {
       expect(rollupToStencilSourceMap(undefined)).toBeNull();
     });
 
+    it('returns null if the given sourcemap has no file', () => {
+      expect(rollupToStencilSourceMap({ sourcesContent: [] } as RollupSourceMap)).toBeNull();
+    });
+
     it('transforms a rollup sourcemap to a stencil sourcemap', () => {
       const rollupSourceMap: RollupSourceMap = {
         file: 'index.js',
