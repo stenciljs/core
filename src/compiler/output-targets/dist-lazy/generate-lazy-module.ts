@@ -254,7 +254,7 @@ const writeLazyChunk = async (
     destinations.map((dst) => {
       const filePath = join(dst, rollupResult.fileName);
       let fileCode = code;
-      if (rollupResult.map) {
+      if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rollupResult.fileName);
         compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType });
       }
