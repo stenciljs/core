@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 /**
  * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
