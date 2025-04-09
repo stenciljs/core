@@ -236,5 +236,9 @@ function setupTestingConfig(validatedConfig: ValidatedConfig): ValidatedConfig {
     validatedConfig.watch = true;
   }
 
+  if (validatedConfig?.testing?.compilerLogLevel) {
+    process.env.__STENCIL_TEST_LOGLEVEL = validatedConfig.testing.compilerLogLevel.toLowerCase().trim();
+  }
+
   return validatedConfig;
 }

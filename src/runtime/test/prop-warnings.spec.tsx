@@ -19,34 +19,70 @@ describe('prop', () => {
   afterEach(() => spy.mockReset());
   afterAll(() => spy.mockRestore());
 
-  it('should show warning when immutable prop is mutated', async () => {
-    @Component({ tag: 'cmp-a' })
-    class CmpA {
-      @Prop() a = 1;
+  describe('by default', () => {
+    it('should not show warning when immutable prop is mutated', async () => {
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Prop() a = 1;
 
-      @Method()
-      async update() {
-        this.a = 2;
+        @Method()
+        async update() {
+          this.a = 2;
+        }
+
+        render() {
+          return `${this.a}`;
+        }
       }
 
-      render() {
-        return `${this.a}`;
-      }
-    }
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
 
-    const { root, waitForChanges } = await newSpecPage({
-      components: [CmpA],
-      html: `<cmp-a></cmp-a>`,
+      expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+
+      await root.update();
+      await waitForChanges();
+
+      expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
+      expect(spy).not.toHaveBeenCalled();
     });
+  });
 
-    expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+  describe('when compilerLogLevel is set to "warn"', () => {
+    beforeEach(() => (process.env.__STENCIL_TEST_LOGLEVEL = 'warn'));
+    afterEach(() => delete process.env.__STENCIL_TEST_LOGLEVEL);
 
-    await root.update();
-    await waitForChanges();
+    it('should show warning when immutable prop is mutated', async () => {
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Prop() a = 1;
 
-    expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy.mock.calls[0][0]).toMatch(/@Prop\(\) "[A-Za-z-]+" on <[A-Za-z-]+> is immutable/);
+        @Method()
+        async update() {
+          this.a = 2;
+        }
+
+        render() {
+          return `${this.a}`;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+
+      await root.update();
+      await waitForChanges();
+
+      expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy.mock.calls[0][0]).toMatch(/@Prop\(\) "[A-Za-z-]+" on <[A-Za-z-]+> is immutable/);
+    });
   });
 
   it('should not show warning when mutable prop is mutated', async () => {
