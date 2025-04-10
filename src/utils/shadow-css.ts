@@ -107,9 +107,9 @@ const createSupportsRuleRe = (selector: string) => {
     // First capture group: match any context before the selector that's not inside @supports selector()
     // Using negative lookahead to avoid matching inside @supports selector(...) condition
     `(^|[^@]|@(?!supports\\s+selector\\s*\\([^{]*?${safeSelector}))` +
-    // Then match the selector
-    `(${safeSelector}\\b)`,
-    'g'
+      // Then match the selector
+      `(${safeSelector}\\b)`,
+    'g',
   );
 };
 const _colonSlottedRe = createSupportsRuleRe('::slotted');
