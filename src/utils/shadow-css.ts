@@ -92,8 +92,26 @@ const _polyfillHostRe = /-shadowcsshost/gim;
  * @param selector The CSS selector we want to match for replacement
  * @returns A look-behind regex containing the selector
  */
-const createSupportsRuleRe = (selector: string) =>
-  new RegExp(`((?<!(^@supports(.*)))|(?<=\{.*))(${selector}\\b)`, 'gim');
+const createSupportsRuleRe = (selector: string) => {
+  // We need to match any occurrence of the selector that's NOT inside @supports selector(...)
+  const safeSelector = escapeRegExpSpecialCharacters(selector);
+
+  // This regex needs to:
+  // 1. Skip selectors inside @supports selector(...) rule conditions
+  // 2. Match selectors in normal CSS rules
+  // 3. Match selectors inside declaration blocks of @supports rules
+
+  // To avoid matching selectors inside @supports selector() conditions, we need to carefully
+  // construct the pattern to look for context that indicates we're NOT inside such a condition.
+  return new RegExp(
+    // First capture group: match any context before the selector that's not inside @supports selector()
+    // Using negative lookahead to avoid matching inside @supports selector(...) condition
+    `(^|[^@]|@(?!supports\\s+selector\\s*\\([^{]*?${safeSelector}))` +
+    // Then match the selector
+    `(${safeSelector}\\b)`,
+    'g'
+  );
+};
 const _colonSlottedRe = createSupportsRuleRe('::slotted');
 const _colonHostRe = createSupportsRuleRe(':host');
 const _colonHostContextRe = createSupportsRuleRe(':host-context');
@@ -212,6 +230,17 @@ const escapeBlocks = (input: string) => {
  * @returns The modified CSS string
  */
 const insertPolyfillHostInCssText = (cssText: string) => {
+  // Special handling for @supports selector() rules
+  // We need to preserve the original selector in the condition but replace it in the declaration
+  const supportsBlocks: string[] = [];
+
+  // First, extract and preserve @supports selector(...) conditions
+  cssText = cssText.replace(/@supports\s+selector\s*\(\s*([^)]*)\s*\)/g, (_, selectorContent) => {
+    const placeholder = `__supports_${supportsBlocks.length}__`;
+    supportsBlocks.push(selectorContent);
+    return `@supports selector(${placeholder})`;
+  });
+
   // These replacements use a special syntax with the `$1`. When the replacement
   // occurs, `$1` maps to the content of the string leading up to the selector
   // to be replaced.
@@ -224,6 +253,11 @@ const insertPolyfillHostInCssText = (cssText: string) => {
     .replace(_colonHostContextRe, `$1${_polyfillHostContext}`)
     .replace(_colonHostRe, `$1${_polyfillHost}`)
     .replace(_colonSlottedRe, `$1${_polyfillSlotted}`);
+
+  // Now restore the original @supports selector conditions
+  supportsBlocks.forEach((originalSelector, index) => {
+    cssText = cssText.replace(`__supports_${index}__`, originalSelector);
+  });
 
   return cssText;
 };
