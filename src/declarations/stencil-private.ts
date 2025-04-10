@@ -1294,10 +1294,12 @@ export interface Plugin {
     sourceText: string,
     id: string,
     context: PluginCtx,
-  ) => Promise<PluginTransformResults> | PluginTransformResults | string;
+  ) => Promise<PluginTransformResults> | PluginTransformResults;
 }
 
-export interface PluginTransformResults {
+export type PluginTransformResults = PluginTransformationDescriptor | string | null;
+
+export interface PluginTransformationDescriptor {
   code?: string;
   map?: string;
   id?: string;
