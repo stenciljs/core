@@ -121,7 +121,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       updateElement(null, newVNode, isSvgMode);
     }
 
-    if (BUILD.scoped && isDef(scopeId) && elm['s-si'] !== scopeId) {
+    if ((BUILD.scoped || CMP_FLAGS.shadowNeedsScopedCss) && isDef(scopeId) && elm['s-si'] !== scopeId) {
       // if this element is `scoped: true` all internal
       // children required the scope id class for styling
       elm.classList.add((elm['s-si'] = scopeId));
@@ -183,7 +183,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
           putBackInOriginalLocation(oldParentVNode.$elm$, false);
         }
       }
-      if (BUILD.scoped) {
+      if (BUILD.scoped || CMP_FLAGS.shadowNeedsScopedCss) {
         addRemoveSlotScopedClass(contentRef, elm, newParentVNode.$elm$, oldParentVNode?.$elm$);
       }
     }
