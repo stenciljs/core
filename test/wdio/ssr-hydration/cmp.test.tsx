@@ -2,7 +2,6 @@ import { browser } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 import { setupIFrameTest } from '../util.js';
-import exp from 'constants';
 
 describe('Sanity check SSR > Client hydration', () => {
   const testSuites = async (
