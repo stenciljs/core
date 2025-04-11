@@ -87,14 +87,14 @@ describe('shadow', () => {
     <cmp-a class="hydrated sc-cmp-a-h">
       <!---->
       <div class=\"sc-cmp-a sc-cmp-a-s\">
-        <span slot=\"start\">
+        <span class="sc-cmp-a" slot=\"start\">
           Start
         </span>
         <span class=\"sc-cmp-a sc-cmp-a-s\">
           Text
         </span>
         <div class="end sc-cmp-a sc-cmp-a-s">
-          <span slot=\"end\">
+          <span class="sc-cmp-a" slot=\"end\">
             End
           </span>
         </div>
