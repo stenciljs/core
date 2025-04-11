@@ -39,7 +39,7 @@ describe('scoped-slot-assigned-methods', () => {
     let nodes = await component.getSlotAssignedElements();
     expect(nodes).toBeDefined();
     expect(nodes.length).toBe(1);
-    expect(nodes[0].outerHTML).toBe('<p>My initial slotted content.</p>');
+    expect(nodes[0].outerHTML).toBe('<p class="sc-scoped-slot-assigned-methods">My initial slotted content.</p>');
     component.removeChild(nodes[0]);
 
     expect(await component.getSlotAssignedElements()).toHaveLength(0);
@@ -68,7 +68,7 @@ describe('scoped-slot-assigned-methods', () => {
     let nodes = await component.getSlotAssignedNodes();
     expect(nodes).toBeDefined();
     expect(nodes.length).toBe(2);
-    expect(nodes[0].outerHTML).toBe('<p>My initial slotted content.</p>');
+    expect(nodes[0].outerHTML).toBe('<p class="sc-scoped-slot-assigned-methods">My initial slotted content.</p>');
     component.removeChild(nodes[0]);
 
     nodes = await component.getSlotAssignedNodes();
@@ -105,8 +105,8 @@ describe('scoped-slot-assigned-methods', () => {
     expect(nodes).toBeDefined();
     expect(nodes.length).toBe(1);
     expect(eles.length).toBe(1);
-    expect(nodes[0].outerHTML).toBe('<div slot="plain-slot">Plain slot content.</div>');
-    expect(eles[0].outerHTML).toBe('<div slot="plain-slot">Plain slot content.</div>');
+    expect(nodes[0].outerHTML).toBe('<div slot="plain-slot" class="sc-scoped-slot-assigned-methods">Plain slot content.</div>');
+    expect(eles[0].outerHTML).toBe('<div slot="plain-slot" class="sc-scoped-slot-assigned-methods">Plain slot content.</div>');
     component.removeChild(nodes[0]);
 
     expect(await component.getSlotAssignedElements(undefined, true)).toHaveLength(0);

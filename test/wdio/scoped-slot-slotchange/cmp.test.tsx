@@ -22,7 +22,7 @@ describe('scoped-slot-slotchange', () => {
     await expect(slotChangeEle.slotEventCatch).toHaveLength(1);
     await expect(slotChangeEle.slotEventCatch[0]).toMatchObject({ event: { type: 'slotchange' } });
     await expect(slotChangeEle.slotEventCatch[0].assignedNodes[0].outerHTML).toMatch(
-      `<p class="sc-scoped-slot-slotchange-wrap">Initial slotted content</p>`,
+      `<p class="sc-scoped-slot-slotchange-wrap sc-scoped-slot-slotchange">Initial slotted content</p>`,
     );
 
     document.querySelector('scoped-slot-slotchange-wrap').setAttribute('swap-slot-content', 'true');
@@ -30,7 +30,7 @@ describe('scoped-slot-slotchange', () => {
     await expect(slotChangeEle.slotEventCatch).toHaveLength(2);
     await expect(slotChangeEle.slotEventCatch[1]).toMatchObject({ event: { type: 'slotchange' } });
     await expect(slotChangeEle.slotEventCatch[1].assignedNodes[0].outerHTML).toMatch(
-      '<div class="sc-scoped-slot-slotchange-wrap">Swapped slotted content</div>',
+      '<div class="sc-scoped-slot-slotchange-wrap sc-scoped-slot-slotchange">Swapped slotted content</div>',
     );
   });
 
