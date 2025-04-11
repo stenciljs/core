@@ -145,10 +145,10 @@ describe('renderToString', () => {
     });
     expect(html).toMatchSnapshot();
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.2.2.0\" s-id=\"10\"><!--r.10--><section c-id=\"10.0.0.0\"><!--t.10.1.1.0-->2024 VW Vento</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.2.2.0\" s-id=\"10\"><!--r.10--><section class=\"sc-car-list\" c-id=\"10.0.0.0\"><!--t.10.1.1.0-->2024 VW Vento</section></car-detail>`,
     );
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.4.2.0\" s-id=\"11\"><!--r.11--><section c-id=\"11.0.0.0\"><!--t.11.1.1.0-->2023 VW Beetle</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.4.2.0\" s-id=\"11\"><!--r.11--><section class=\"sc-car-list\" c-id=\"11.0.0.0\"><!--t.11.1.1.0-->2023 VW Beetle</section></car-detail>`,
     );
   });
 
@@ -161,18 +161,18 @@ describe('renderToString', () => {
 
     const resultRenderToString = await readableToString(renderToString(input, opts, true));
     expect(resultRenderToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.2.2.0" s-id="13"><!--r.13--><section c-id="13.0.0.0"><!--t.13.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"12.2.2.0\" s-id=\"13\"><!--r.13--><section class=\"sc-car-list\" c-id=\"13.0.0.0\"><!--t.13.1.1.0-->2024 VW Vento</section></car-detail>',
     );
     expect(resultRenderToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.4.2.0" s-id="14"><!--r.14--><section c-id="14.0.0.0"><!--t.14.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"12.4.2.0\" s-id=\"14\"><!--r.14--><section class=\"sc-car-list\" c-id=\"14.0.0.0\"><!--t.14.1.1.0-->2023 VW Beetle</section></car-detail>',
     );
 
     const resultStreamToString = await readableToString(streamToString(input, opts));
     expect(resultStreamToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.2.2.0" s-id="16"><!--r.16--><section c-id="16.0.0.0"><!--t.16.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"15.2.2.0\" s-id=\"16\"><!--r.16--><section class=\"sc-car-list\" c-id=\"16.0.0.0\"><!--t.16.1.1.0-->2024 VW Vento</section></car-detail>',
     );
     expect(resultStreamToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.4.2.0" s-id="17"><!--r.17--><section c-id="17.0.0.0"><!--t.17.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"15.4.2.0\" s-id=\"17\"><!--r.17--><section class=\"sc-car-list\" c-id=\"17.0.0.0\"><!--t.17.1.1.0-->2023 VW Beetle</section></car-detail>',
     );
   });
 
@@ -257,7 +257,7 @@ describe('renderToString', () => {
      * </car-detail>
      */
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"22.4.2.0\" s-id=\"24\"><!--r.24--><section c-id=\"24.0.0.0\"><!--t.24.1.1.0-->2023 VW Beetle</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"22.4.2.0\" s-id=\"24\"><!--r.24--><section class=\"sc-car-list\" c-id=\"24.0.0.0\"><!--t.24.1.1.0-->2023 VW Beetle</section></car-detail>`,
     );
 
     const page = await newE2EPage({ html, url: 'https://stencil.com' });
@@ -357,9 +357,9 @@ describe('renderToString', () => {
       <nested-scope-cmp c-id="29.1.1.0" class="sc-nested-cmp-parent sc-nested-scope-cmp-h" custom-hydrate-flag="" s-id="31">
         <!--r.31-->
         <!--o.29.2.c-->
-        <div c-id="31.0.0.0" class="sc-nested-scope-cmp sc-nested-scope-cmp-s some-scope-class">
+        <div c-id="31.0.0.0" class="sc-nested-cmp-parent sc-nested-scope-cmp sc-nested-scope-cmp-s some-scope-class">
           <!--s.31.1.1.0.-->
-          <slot c-id="29.2.2.0" class="sc-nested-cmp-parent" s-sn=""></slot>
+          <slot c-id="29.2.2.0" class="sc-nested-cmp-parent sc-nested-scope-cmp" s-sn=""></slot>
         </div>
       </nested-scope-cmp>
     </div>

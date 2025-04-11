@@ -38,9 +38,10 @@ let isSvgMode = false;
  * @param newParentVNode the parent VNode from the current render
  * @param childIndex the index of the VNode, in the _new_ parent node's
  * children, for which we will create a new DOM node
+ * @param parentElm the parent DOM node which our new node will be a child of
  * @returns the newly created node
  */
-const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex: number) => {
+const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex: number, parentElm: d.RenderNode) => {
   // tslint:disable-next-line: prefer-const
   const newVNode = newParentVNode.$children$[childIndex];
   let i = 0;
@@ -121,15 +122,20 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       updateElement(null, newVNode, isSvgMode);
     }
 
-    if (BUILD.scoped && isDef(scopeId) && elm['s-si'] !== scopeId) {
+    if ((BUILD.shadowDom || BUILD.scoped) && isDef(scopeId) && elm['s-si'] !== scopeId) {
       // if this element is `scoped: true` all internal
       // children required the scope id class for styling
       elm.classList.add((elm['s-si'] = scopeId));
     }
+
+    if (BUILD.scoped) {
+      updateElementScopeIds(elm as d.RenderNode, parentElm as d.RenderNode);
+    }
+
     if (newVNode.$children$) {
       for (i = 0; i < newVNode.$children$.length; ++i) {
         // create the node
-        childNode = createElm(oldParentVNode, newVNode, i);
+        childNode = createElm(oldParentVNode, newVNode, i, elm);
 
         // return node could have been null
         if (childNode) {
@@ -308,7 +314,7 @@ const addVnodes = (
 
   for (; startIdx <= endIdx; ++startIdx) {
     if (vnodes[startIdx]) {
-      childNode = createElm(null, parentVNode, startIdx);
+      childNode = createElm(null, parentVNode, startIdx, parentElm);
       if (childNode) {
         vnodes[startIdx].$elm$ = childNode as any;
         insertBefore(containerElm, childNode as d.RenderNode, BUILD.slotRelocation ? referenceNode(before) : before);
@@ -565,7 +571,7 @@ const updateChildren = (
 
         if (elmToMove.$tag$ !== newStartVnode.$tag$) {
           // the tag doesn't match so we'll need a new DOM element
-          node = createElm(oldCh && oldCh[newStartIdx], newVNode, idxInOld);
+          node = createElm(oldCh && oldCh[newStartIdx], newVNode, idxInOld, parentElm);
         } else {
           patch(elmToMove, newStartVnode, isInitialRender);
           // invalidate the matching old node so that we won't try to update it
@@ -580,7 +586,7 @@ const updateChildren = (
         // the key of the first new child OR the build is not using `key`
         // attributes at all. In either case we need to create a new element
         // for the new node.
-        node = createElm(oldCh && oldCh[newStartIdx], newVNode, newStartIdx);
+        node = createElm(oldCh && oldCh[newStartIdx], newVNode, newStartIdx, parentElm);
         newStartVnode = newCh[++newStartIdx];
       }
 
@@ -881,6 +887,10 @@ export const insertBefore = (
   newNode: d.RenderNode,
   reference?: d.RenderNode | d.PatchedSlotNode,
 ): Node => {
+  if (BUILD.scoped) {
+    updateElementScopeIds(newNode as d.RenderNode, parent as d.RenderNode);
+  }
+
   if (BUILD.scoped && typeof newNode['s-sn'] === 'string' && !!newNode['s-sr'] && !!newNode['s-cr']) {
     // this is a slot node
     addRemoveSlotScopedClass(newNode['s-cr'], newNode, parent as d.RenderNode, newNode.parentElement);
@@ -959,6 +969,49 @@ function addRemoveSlotScopedClass(
     }
   }
 }
+
+const findScopeIds = (element: d.RenderNode): string[] => {
+  const scopeIds: string[] = [];
+  if (element) {
+    scopeIds.push(
+      ...(element['s-scs'] || []),
+      element['s-si'],
+      element['s-sc'],
+      ...findScopeIds(element.parentElement),
+    );
+  }
+  return scopeIds;
+};
+
+/**
+ * To be able to style the deep nested scoped component from the parent components,
+ * all the scope ids of its parents need to be added to the child node since sass compiler
+ * adds scope id to the nested selectors during compilation phase
+ *
+ * @param element an element to be updated
+ * @param parent a parent element that scope id is retrieved
+ * @param iterateChildNodes iterate child nodes
+ */
+const updateElementScopeIds = (element: d.RenderNode, parent: d.RenderNode, iterateChildNodes = false) => {
+  if (element && parent && element.nodeType === NODE_TYPE.ElementNode) {
+    const scopeIds = new Set(findScopeIds(parent).filter(Boolean));
+    if (scopeIds.size) {
+      element.classList?.add(...(element['s-scs'] = [...scopeIds]));
+
+      if (element['s-ol'] || iterateChildNodes) {
+        /**
+         * If the element has an original location, this means element is relocated.
+         * So, we need to notify the child nodes to update their new scope ids since
+         * the DOM structure is changed.
+         */
+        for (const childNode of Array.from(element.childNodes)) {
+          updateElementScopeIds(childNode as d.RenderNode, element, true);
+        }
+      }
+    }
+  }
+};
+
 /**
  * Information about nodes to be relocated in order to support
  * `<slot>` elements in scoped (i.e. non-shadow DOM) components
