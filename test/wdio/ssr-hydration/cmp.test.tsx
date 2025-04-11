@@ -2,6 +2,7 @@ import { browser } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 import { setupIFrameTest } from '../util.js';
+import exp from 'constants';
 
 describe('Sanity check SSR > Client hydration', () => {
   const testSuites = async (
@@ -150,6 +151,25 @@ describe('Sanity check SSR > Client hydration', () => {
 
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
+    });
+
+    it('makes sure it has scoped class names from SSR script', async () => {
+      const { html } = await renderToString(
+        `
+        <ssr-shadow-cmp>
+          <p>Default slot content</p>
+          <p slot="client-only">Client-only slot content</p>
+        </ssr-shadow-cmp>
+      `,
+        {
+          fullDocument: true,
+          serializeShadowRoot: 'scoped',
+          constrainTimeouts: false,
+          prettyHTML: false,
+        },
+      );
+      // standard scoped class + ::slotted scoped class
+      expect(html).toContain('sc-ssr-shadow-cmp sc-ssr-shadow-cmp-s');
     });
   });
 
