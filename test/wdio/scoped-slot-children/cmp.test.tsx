@@ -29,7 +29,9 @@ describe('scoped-slot-children', function () {
       (document.querySelector('scoped-slot-children') as any).__childNodes as NodeListOf<ChildNode>;
 
     expect(nodeOrEleContent(childNodes()[0])).toBe(`Some default slot, slotted text`);
-    expect(nodeOrEleContent(childNodes()[1])).toBe(`<span class="sc-scoped-slot-children">a default slot, slotted element</span>`);
+    expect(nodeOrEleContent(childNodes()[1])).toBe(
+      `<span class="sc-scoped-slot-children">a default slot, slotted element</span>`,
+    );
     expect(nodeOrEleContent(childNodes()[2])).toBe(
       `<div slot="second-slot" class="sc-scoped-slot-children">a second slot, slotted element<span class="sc-scoped-slot-children"> nested element in the second slot</span></div>`,
     );
@@ -37,7 +39,9 @@ describe('scoped-slot-children', function () {
     expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
 
     childNodes()[0].remove();
-    expect(nodeOrEleContent(childNodes()[0])).toBe(`<span class="sc-scoped-slot-children">a default slot, slotted element</span>`);
+    expect(nodeOrEleContent(childNodes()[0])).toBe(
+      `<span class="sc-scoped-slot-children">a default slot, slotted element</span>`,
+    );
 
     expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
 
@@ -61,7 +65,9 @@ describe('scoped-slot-children', function () {
     const innerChildren = () =>
       (document.querySelector('scoped-slot-children') as any).__children as NodeListOf<Element>;
 
-    expect(nodeOrEleContent(children()[0])).toBe(`<span class="sc-scoped-slot-children">a default slot, slotted element</span>`);
+    expect(nodeOrEleContent(children()[0])).toBe(
+      `<span class="sc-scoped-slot-children">a default slot, slotted element</span>`,
+    );
     expect(nodeOrEleContent(children()[1])).toBe(
       `<div slot="second-slot" class="sc-scoped-slot-children">a second slot, slotted element<span class="sc-scoped-slot-children"> nested element in the second slot</span></div>`,
     );
