@@ -161,18 +161,18 @@ describe('renderToString', () => {
 
     const resultRenderToString = await readableToString(renderToString(input, opts, true));
     expect(resultRenderToString).toContain(
-      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"12.2.2.0\" s-id=\"13\"><!--r.13--><section class=\"sc-car-list\" c-id=\"13.0.0.0\"><!--t.13.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.2.2.0" s-id="13"><!--r.13--><section class="sc-car-list" c-id="13.0.0.0"><!--t.13.1.1.0-->2024 VW Vento</section></car-detail>',
     );
     expect(resultRenderToString).toContain(
-      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"12.4.2.0\" s-id=\"14\"><!--r.14--><section class=\"sc-car-list\" c-id=\"14.0.0.0\"><!--t.14.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.4.2.0" s-id="14"><!--r.14--><section class="sc-car-list" c-id="14.0.0.0"><!--t.14.1.1.0-->2023 VW Beetle</section></car-detail>',
     );
 
     const resultStreamToString = await readableToString(streamToString(input, opts));
     expect(resultStreamToString).toContain(
-      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"15.2.2.0\" s-id=\"16\"><!--r.16--><section class=\"sc-car-list\" c-id=\"16.0.0.0\"><!--t.16.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.2.2.0" s-id="16"><!--r.16--><section class="sc-car-list" c-id="16.0.0.0"><!--t.16.1.1.0-->2024 VW Vento</section></car-detail>',
     );
     expect(resultStreamToString).toContain(
-      '<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"15.4.2.0\" s-id=\"17\"><!--r.17--><section class=\"sc-car-list\" c-id=\"17.0.0.0\"><!--t.17.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.4.2.0" s-id="17"><!--r.17--><section class="sc-car-list" c-id="17.0.0.0"><!--t.17.1.1.0-->2023 VW Beetle</section></car-detail>',
     );
   });
 
