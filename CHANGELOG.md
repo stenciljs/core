@@ -1,3 +1,14 @@
+## 🐻 [4.29.3](https://github.com/stenciljs/core/compare/v4.29.2...v4.29.3) (2025-04-14)
+
+
+### Bug Fixes
+
+* **ssr:** add scoped classes during SSR ([#6238](https://github.com/stenciljs/core/issues/6238)) ([3363017](https://github.com/stenciljs/core/commit/3363017df3f1ef6d2f3f5433cb0d15ebc7ba948d))
+* **test:** don't always update snapshots ([b7e410b](https://github.com/stenciljs/core/commit/b7e410b961360b8efafe621b2782bc478d7c3d2b))
+* **utils:** remove lookbehind regexp for better performance ([#6236](https://github.com/stenciljs/core/issues/6236)) ([2f712bc](https://github.com/stenciljs/core/commit/2f712bc045f0abdbeea8a8441f983880322f65b9))
+
+
+
 ## 🔋 [4.29.2](https://github.com/stenciljs/core/compare/v4.29.1...v4.29.2) (2025-04-07)
 
 
