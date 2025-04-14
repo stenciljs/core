@@ -152,7 +152,7 @@ describe('Sanity check SSR > Client hydration', () => {
       await testSuite.slots();
     });
 
-    it('makes sure it has scoped class names from SSR script', async () => {
+    it('checks renderToString adds scoped class names', async () => {
       const { html } = await renderToString(
         `
         <ssr-shadow-cmp>
