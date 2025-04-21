@@ -5,10 +5,9 @@ import { h } from '@stencil/core';
 export function TypeTestComponent() {
   return (
     <div>
-      <h1 ariaLabel="123">Hello</h1>
-      <h1 ariaLabel={'123'}>Hello</h1>
-      {/* @ts-expect-error */}
-      <h1 ariaLabel={123}>Hello</h1>
+      <h1 aria-label="123">Hello</h1>
+      <h1 aria-label={'123'}>Hello</h1>
+      <h1 aria-label={123}>Hello</h1>
       <attribute-complex
         // @ts-expect-error
         nu0={'123'}
