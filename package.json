@@ -64,7 +64,8 @@
     },
     "./compiler/*": {
       "types": "./compiler/*",
-      "import": "./compiler/*"
+      "import": "./compiler/*",
+      "require": "./compiler/*"
     },
     "./screenshot": {
       "types": "./screenshot/index.d.ts",
