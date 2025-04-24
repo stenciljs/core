@@ -1,3 +1,12 @@
+# 🌺 [4.30.0](https://github.com/stenciljs/core/compare/v4.29.3...v4.30.0) (2025-04-24)
+
+
+### Features
+
+* **runtime:** export a render method from the runtime ([#6245](https://github.com/stenciljs/core/issues/6245)) ([e6c0593](https://github.com/stenciljs/core/commit/e6c05939e59b63c71e586bf05b25c4435f97ff47))
+
+
+
 ## 🐻 [4.29.3](https://github.com/stenciljs/core/compare/v4.29.2...v4.29.3) (2025-04-14)
 
 
