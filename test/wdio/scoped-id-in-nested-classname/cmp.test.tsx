@@ -1,9 +1,11 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('scope-id-in-nested-classname', function () {
   it('should have root scope id in the nested element as classname', async () => {
     render({
+      components: [],
       template: () => <cmp-level-1></cmp-level-1>,
     });
     await $('cmp-level-3').waitForStable();
@@ -19,6 +21,7 @@ describe('scope-id-in-nested-classname', function () {
 
   it('should not have root scope id in slotted / user provided nested element as classname', async () => {
     render({
+      components: [],
       template: () => (
         <cmp-level-1>
           <span id="test-element">Test</span>

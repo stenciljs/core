@@ -255,7 +255,7 @@ export const generateEntryPoint = (
 
   // Exports that are always present
   exports.push(
-    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
+    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 

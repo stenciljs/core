@@ -303,6 +303,26 @@ export declare function setPlatformHelpers(helpers: {
 export declare function getAssetPath(path: string): string;
 
 /**
+ * Method to render a virtual DOM tree to a container element.
+ *
+ * @example
+ * ```tsx
+ * import { render } from '@stencil/core';
+ *
+ * const vnode = (
+ *   <div>
+ *     <h1>Hello, world!</h1>
+ *   </div>
+ * );
+ * render(vnode, document.body);
+ * ```
+ *
+ * @param vnode - The virtual DOM tree to render
+ * @param container - The container element to render the virtual DOM tree to
+ */
+export declare function render(vnode: VNode, container: Element): void;
+
+/**
  * Used to manually set the base path where assets can be found. For lazy-loaded
  * builds the asset path is automatically set and assets copied to the correct
  * build directory. However, for custom elements builds, the `setAssetPath(path)` could
