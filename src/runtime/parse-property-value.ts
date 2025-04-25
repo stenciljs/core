@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { isComplexType, MEMBER_FLAGS } from '@utils';
+import { deserializeProperty, isComplexType, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
 
 /**
  * Parse a new property value for a given property type.
@@ -24,32 +24,71 @@ import { isComplexType, MEMBER_FLAGS } from '@utils';
  * @param propType the type of the prop, expressed as a binary number
  * @returns the parsed/coerced value
  */
-export const parsePropertyValue = (propValue: any, propType: number): any => {
-  // ensure this value is of the correct prop type
-
-  if (propValue != null && !isComplexType(propValue)) {
-    if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
-      // per the HTML spec, any string value means it is a boolean true value
-      // but we'll cheat here and say that the string "false" is the boolean false
-      return propValue === 'false' ? false : propValue === '' || !!propValue;
+export const parsePropertyValue = (propValue: unknown, propType: number): any => {
+  /**
+   * Allow hydrate parameters that contain a simple object, e.g.
+   * ```ts
+   * import { renderToString } from 'component-library/hydrate';
+   * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
+   * ```
+   * @deprecated
+   */
+  if (
+    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
+    typeof propValue === 'string' &&
+    ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
+  ) {
+    try {
+      propValue = JSON.parse(propValue);
+      return propValue;
+    } catch (e) {
+      /* ignore */
     }
+  }
 
-    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-      // force it to be a number
-      return parseFloat(propValue);
-    }
-
-    if (BUILD.propString && propType & MEMBER_FLAGS.String) {
-      // could have been passed as a number or boolean
-      // but we still want it as a string
-      return String(propValue);
-    }
-
-    // redundant return here for better minification
+  /**
+   * Allow hydrate parameters that contain a complex non-serialized values.
+   */
+  if (
+    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
+    typeof propValue === 'string' &&
+    propValue.startsWith(SERIALIZED_PREFIX)
+  ) {
+    propValue = deserializeProperty(propValue);
     return propValue;
   }
 
-  // not sure exactly what type we want
-  // so no need to change to a different type
+  if (propValue != null && !isComplexType(propValue)) {
+    /**
+     * ensure this value is of the correct prop type
+     */
+    if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
+      /**
+       * per the HTML spec, any string value means it is a boolean true value
+       * but we'll cheat here and say that the string "false" is the boolean false
+       */
+      return propValue === 'false' ? false : propValue === '' || !!propValue;
+    }
+
+    /**
+     * force it to be a number
+     */
+    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
+      return typeof propValue === 'string' ? parseFloat(propValue) : typeof propValue === 'number' ? propValue : NaN;
+    }
+
+    /**
+     * could have been passed as a number or boolean but we still want it as a string
+     */
+    if (BUILD.propString && propType & MEMBER_FLAGS.String) {
+      return String(propValue);
+    }
+
+    return propValue;
+  }
+
+  /**
+   * not sure exactly what type we want so no need to change to a different type
+   */
   return propValue;
 };

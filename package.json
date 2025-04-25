@@ -1,6 +1,6 @@
 {
   "name": "@stencil/core",
-  "version": "4.28.2",
+  "version": "4.30.0",
   "license": "MIT",
   "main": "./internal/stencil-core/index.cjs",
   "module": "./internal/stencil-core/index.js",
@@ -64,7 +64,8 @@
     },
     "./compiler/*": {
       "types": "./compiler/*",
-      "import": "./compiler/*"
+      "import": "./compiler/*",
+      "require": "./compiler/*"
     },
     "./screenshot": {
       "types": "./screenshot/index.d.ts",
@@ -116,6 +117,7 @@
     "test.dist": "npm run ts scripts/index.ts -- --validate-build",
     "test.end-to-end": "cd test/end-to-end && npm ci && npm test && npm run test.dist",
     "test.jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test.type-tests": "cd ./test/wdio && npm install && npm run build.main && cd ../../ && tsc -p test/type-tests/tsconfig.json",
     "test.wdio": "cd test/wdio && npm ci && npm run test",
     "test.wdio.testOnly": "cd test/wdio && npm ci && npm run wdio",
     "test.prod": "npm run test.dist && npm run test.end-to-end && npm run test.jest && npm run test.wdio && npm run test.testing && npm run test.analysis",

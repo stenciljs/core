@@ -23,6 +23,11 @@ jobs:
     name: Lint and Format
     uses: ./.github/workflows/lint-and-format.yml
 
+  type_tests:
+    name: Type Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-types.yml
+
   analysis_tests:
     name: Analysis Tests
     needs: [build_core]

@@ -1,3 +1,51 @@
+# 🌺 [4.30.0](https://github.com/stenciljs/core/compare/v4.29.3...v4.30.0) (2025-04-24)
+
+
+### Features
+
+* **runtime:** export a render method from the runtime ([#6245](https://github.com/stenciljs/core/issues/6245)) ([e6c0593](https://github.com/stenciljs/core/commit/e6c05939e59b63c71e586bf05b25c4435f97ff47))
+
+
+
+## 🐻 [4.29.3](https://github.com/stenciljs/core/compare/v4.29.2...v4.29.3) (2025-04-14)
+
+
+### Bug Fixes
+
+* **ssr:** add scoped classes during SSR ([#6238](https://github.com/stenciljs/core/issues/6238)) ([3363017](https://github.com/stenciljs/core/commit/3363017df3f1ef6d2f3f5433cb0d15ebc7ba948d)), closes [#6219](https://github.com/stenciljs/core/issues/6219)
+* **test:** don't always update snapshots ([b7e410b](https://github.com/stenciljs/core/commit/b7e410b961360b8efafe621b2782bc478d7c3d2b))
+* **utils:** remove lookbehind regexp for better performance ([#6236](https://github.com/stenciljs/core/issues/6236)) ([2f712bc](https://github.com/stenciljs/core/commit/2f712bc045f0abdbeea8a8441f983880322f65b9)), closes [#6226](https://github.com/stenciljs/core/issues/6226)
+
+
+
+## 🔋 [4.29.2](https://github.com/stenciljs/core/compare/v4.29.1...v4.29.2) (2025-04-07)
+
+
+### Bug Fixes
+
+* **utils:** don't create sourcemap file if disabled ([#6229](https://github.com/stenciljs/core/issues/6229)) ([31a97d2](https://github.com/stenciljs/core/commit/31a97d2a90beef00299ebe337cb40f4cac4154dd))
+
+
+
+## 🌼 [4.29.1](https://github.com/stenciljs/core/compare/v4.29.0...v4.29.1) (2025-04-05)
+
+
+### Bug Fixes
+
+* **runtime:** properly set scope classes ([#6224](https://github.com/stenciljs/core/issues/6224)) ([5982264](https://github.com/stenciljs/core/commit/5982264793b81704a20815ea00737032257a436b)), closes [ionic-team/ionic-framework#30323](ionic-team/ionic-framework/issues/30323)
+
+
+
+# 🌁 [4.29.0](https://github.com/stenciljs/core/compare/v4.28.2...v4.29.0) (2025-04-03)
+
+
+### Features
+
+* **hydrate:** support object serialization for hydrated components ([#6208](https://github.com/stenciljs/core/issues/6208)) ([523461e](https://github.com/stenciljs/core/commit/523461e3bf884c0f6acba59b88b81c1b8cf0ed4a))
+* **jsx:** add support for aria-* attributes in JSX typings ([#6221](https://github.com/stenciljs/core/issues/6221)) ([6e748ec](https://github.com/stenciljs/core/commit/6e748ec831d7a3ad16d690c950d1adb4d74658ef)), closes [#6182](https://github.com/stenciljs/core/issues/6182)
+
+
+
 ## 🎤 [4.28.2](https://github.com/stenciljs/core/compare/v4.28.1...v4.28.2) (2025-03-13)
 
 ### Bug Fixes

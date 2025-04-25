@@ -1,4 +1,5 @@
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 
@@ -11,7 +12,7 @@ describe('dsd-cmp', () => {
     });
 
     expect(html).toContain('I am rendered on the Server!');
-    render({ html });
+    render({ html, components: [] });
     await expect($('dsd-cmp')).toHaveText('I am rendered on the Client!');
   });
 });

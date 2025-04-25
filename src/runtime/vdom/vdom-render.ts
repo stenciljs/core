@@ -121,7 +121,11 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       updateElement(null, newVNode, isSvgMode);
     }
 
-    if (BUILD.scoped && isDef(scopeId) && elm['s-si'] !== scopeId) {
+    if (
+      (BUILD.scoped || (BUILD.hydrateServerSide && CMP_FLAGS.shadowNeedsScopedCss)) &&
+      isDef(scopeId) &&
+      elm['s-si'] !== scopeId
+    ) {
       // if this element is `scoped: true` all internal
       // children required the scope id class for styling
       elm.classList.add((elm['s-si'] = scopeId));
@@ -183,7 +187,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
           putBackInOriginalLocation(oldParentVNode.$elm$, false);
         }
       }
-      if (BUILD.scoped) {
+      if (BUILD.scoped || (BUILD.hydrateServerSide && CMP_FLAGS.shadowNeedsScopedCss)) {
         addRemoveSlotScopedClass(contentRef, elm, newParentVNode.$elm$, oldParentVNode?.$elm$);
       }
     }
@@ -985,13 +989,14 @@ export const renderVdom = (hostRef: d.HostRef, renderFnResults: d.VNode | d.VNod
   const hostElm = hostRef.$hostElement$;
   const cmpMeta = hostRef.$cmpMeta$;
   const oldVNode: d.VNode = hostRef.$vnode$ || newVNode(null, null);
+  const isHostElement = isHost(renderFnResults);
 
   // if `renderFnResults` is a Host node then we can use it directly. If not,
   // we need to call `h` again to wrap the children of our component in a
   // 'dummy' Host node (well, an empty vnode) since `renderVdom` assumes
   // implicitly that the top-level vdom node is 1) an only child and 2)
   // contains attrs that need to be set on the host element.
-  const rootVnode = isHost(renderFnResults) ? renderFnResults : h(null, null, renderFnResults as any);
+  const rootVnode = isHostElement ? renderFnResults : h(null, null, renderFnResults as any);
 
   hostTagName = hostElm.tagName;
 

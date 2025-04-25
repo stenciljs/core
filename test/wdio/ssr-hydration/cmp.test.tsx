@@ -151,6 +151,25 @@ describe('Sanity check SSR > Client hydration', () => {
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
     });
+
+    it('checks renderToString adds scoped class names', async () => {
+      const { html } = await renderToString(
+        `
+        <ssr-shadow-cmp>
+          <p>Default slot content</p>
+          <p slot="client-only">Client-only slot content</p>
+        </ssr-shadow-cmp>
+      `,
+        {
+          fullDocument: true,
+          serializeShadowRoot: 'scoped',
+          constrainTimeouts: false,
+          prettyHTML: false,
+        },
+      );
+      // standard scoped class + ::slotted scoped class
+      expect(html).toContain('sc-ssr-shadow-cmp sc-ssr-shadow-cmp-s');
+    });
   });
 
   describe('custom-elements / declarative-shadow-dom', () => {

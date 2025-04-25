@@ -41,6 +41,7 @@ export {
   Method,
   Prop,
   readTask,
+  render,
   setAssetPath,
   setErrorHandler,
   setMode,
