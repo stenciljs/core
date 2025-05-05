@@ -12,7 +12,7 @@
     "jsxFragmentFactory": "Fragment",
     "lib": ["dom", "es2021"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
