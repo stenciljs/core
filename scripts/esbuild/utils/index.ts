@@ -21,10 +21,7 @@ export function getEsbuildAliases(): Record<string, string> {
     '@stencil/core/mock-doc': '../mock-doc/index.cjs',
     '@stencil/core/internal/testing': '../internal/testing/index.js',
     '@stencil/core/cli': '../cli/index.cjs',
-    '@sys-api-node': '../sys/node/index.js',
-
-    // dev server related aliases
-    ws: './ws.js',
+    '@sys-api-node': '../sys/node/index.js'
   };
 }
 

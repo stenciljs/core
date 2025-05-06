@@ -34,7 +34,6 @@ const pkgs: TestPackage[] = [
       'dev-server/server-process.js',
       'dev-server/server-worker-thread.js',
       'dev-server/visualstudio.vbs',
-      'dev-server/ws.js',
       'dev-server/xdg-open',
     ],
   },
