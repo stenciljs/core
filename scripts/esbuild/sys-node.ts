@@ -95,7 +95,7 @@ async function sysNodeExternalBundles(opts: BuildOptions) {
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'glob.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'graceful-fs.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'node-fetch.js'),
-    bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'prompts.js')
+    bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'prompts.js'),
   ]);
 
   /**
@@ -168,10 +168,10 @@ export function bundleExternal(opts: BuildOptions, outputDir: string, cachedDir:
       mode: 'production',
     };
 
-    console.log(`[sys-node] bundleExternal ${entryFileName} via webpack`)
+    console.log(`[sys-node] bundleExternal ${entryFileName} via webpack`);
     webpack(webpackConfig, async (err, stats) => {
       try {
-        console.log(`[sys-node] bundleExternal ${entryFileName} success, err: ${err}, stats: ${stats}`)
+        console.log(`[sys-node] bundleExternal ${entryFileName} success, err: ${err}, stats: ${stats}`);
         const { minify } = await import('terser');
         if (err && err.message) {
           rejectBundle(err);

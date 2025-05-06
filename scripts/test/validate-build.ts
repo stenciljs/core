@@ -30,7 +30,6 @@ const pkgs: TestPackage[] = [
       'dev-server/templates/directory-index.html',
       'dev-server/templates/initial-load.html',
       'dev-server/connector.html',
-      'dev-server/open-in-editor-api.js',
       'dev-server/server-process.js',
       'dev-server/server-worker-thread.js',
       'dev-server/visualstudio.vbs',
