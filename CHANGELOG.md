@@ -1,3 +1,13 @@
+# 🐁 [4.31.0](https://github.com/stenciljs/core/compare/v4.30.0...v4.31.0) (2025-05-06)
+
+
+### Bug Fixes
+
+* **build:** fix build after dependency updates ([#6251](https://github.com/stenciljs/core/issues/6251)) ([d0c5ce5](https://github.com/stenciljs/core/commit/d0c5ce5ad0e0fcec4cf01262aec5641c6e3947d2))
+* **docs:** add overwriteExisting option for flexible README overwrite behaviour ([#6249](https://github.com/stenciljs/core/issues/6249)) ([fa9a2cc](https://github.com/stenciljs/core/commit/fa9a2cca7816b39ad98d2874add00a02acd3112d))
+
+
+
 # 🌺 [4.30.0](https://github.com/stenciljs/core/compare/v4.29.3...v4.30.0) (2025-04-24)
 
 
