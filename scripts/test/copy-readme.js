@@ -21,8 +21,14 @@ const fs = require('fs');
 const path = require('path');
 
 // Define source and destination paths
-const src = path.resolve(__dirname, '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme-supplemental.md');
-const dest = path.resolve(__dirname, '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme.md');
+const src = path.resolve(
+  __dirname,
+  '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme-supplemental.md',
+);
+const dest = path.resolve(
+  __dirname,
+  '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme.md',
+);
 
 // Copy the file
 try {
