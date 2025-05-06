@@ -90,16 +90,12 @@ async function sysNodeExternalBundles(opts: BuildOptions) {
   const cachedDir = path.join(opts.scriptsBuildDir, sysNodeBundleCacheDir);
 
   await fs.ensureDir(cachedDir);
-
   await Promise.all([
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'autoprefixer.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'glob.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'graceful-fs.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'node-fetch.js'),
     bundleExternal(opts, opts.output.sysNodeDir, cachedDir, 'prompts.js'),
-    // TODO(STENCIL-1052): remove next two entries once Rollup -> esbuild migration is complete
-    bundleExternal(opts, opts.output.devServerDir, cachedDir, 'open-in-editor-api.js'),
-    bundleExternal(opts, opts.output.devServerDir, cachedDir, 'ws.js'),
   ]);
 
   /**
@@ -110,18 +106,6 @@ async function sysNodeExternalBundles(opts: BuildOptions) {
   const globOutputPath = path.join(opts.output.sysNodeDir, 'glob.js');
   const glob = fs.readFileSync(globOutputPath, 'utf8');
   fs.writeFileSync(globOutputPath, glob.replace(/require\("node:/g, 'require("'));
-
-  // open-in-editor's visualstudio.vbs file
-  // TODO(STENCIL-1052): remove once Rollup -> esbuild migration is complete
-  const visualstudioVbsSrc = path.join(opts.nodeModulesDir, 'open-in-editor', 'lib', 'editors', 'visualstudio.vbs');
-  const visualstudioVbsDesc = path.join(opts.output.devServerDir, 'visualstudio.vbs');
-  await fs.copy(visualstudioVbsSrc, visualstudioVbsDesc);
-
-  // copy open's xdg-open file
-  // TODO(STENCIL-1052): remove once Rollup -> esbuild migration is complete
-  const xdgOpenSrcPath = path.join(opts.nodeModulesDir, 'open', 'xdg-open');
-  const xdgOpenDestPath = path.join(opts.output.devServerDir, 'xdg-open');
-  await fs.copy(xdgOpenSrcPath, xdgOpenDestPath);
 }
 
 export function bundleExternal(opts: BuildOptions, outputDir: string, cachedDir: string, entryFileName: string) {
@@ -184,34 +168,40 @@ export function bundleExternal(opts: BuildOptions, outputDir: string, cachedDir:
       mode: 'production',
     };
 
+    console.log(`[sys-node] bundleExternal ${entryFileName} via webpack`);
     webpack(webpackConfig, async (err, stats) => {
-      const { minify } = await import('terser');
-      if (err && err.message) {
-        rejectBundle(err);
-      } else if (stats) {
-        const info = stats.toJson({ errors: true });
-        if (stats.hasErrors() && info && info.errors) {
-          const webpackError = info.errors.join('\n');
-          rejectBundle(webpackError);
-        } else {
-          let code = await fs.readFile(outputFile, 'utf8');
+      try {
+        console.log(`[sys-node] bundleExternal ${entryFileName} success, err: ${err}, stats: ${stats}`);
+        const { minify } = await import('terser');
+        if (err && err.message) {
+          rejectBundle(err);
+        } else if (stats) {
+          const info = stats.toJson({ errors: true });
+          if (stats.hasErrors() && info && info.errors) {
+            const webpackError = info.errors.join('\n');
+            rejectBundle(webpackError);
+          } else {
+            let code = await fs.readFile(outputFile, 'utf8');
 
-          if (opts.isProd) {
-            try {
-              const minifyResults = await minify(code);
-              if (minifyResults.code) {
-                code = minifyResults.code;
+            if (opts.isProd) {
+              try {
+                const minifyResults = await minify(code);
+                if (minifyResults.code) {
+                  code = minifyResults.code;
+                }
+              } catch (e) {
+                rejectBundle(e);
+                return;
               }
-            } catch (e) {
-              rejectBundle(e);
-              return;
             }
-          }
-          await fs.writeFile(cachedFile, code);
-          await fs.writeFile(outputFile, code);
+            await fs.writeFile(cachedFile, code);
+            await fs.writeFile(outputFile, code);
 
-          resolveBundle();
+            resolveBundle();
+          }
         }
+      } catch (e) {
+        rejectBundle(e);
       }
     });
   });

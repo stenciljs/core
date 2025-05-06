@@ -22,9 +22,6 @@ export function getEsbuildAliases(): Record<string, string> {
     '@stencil/core/internal/testing': '../internal/testing/index.js',
     '@stencil/core/cli': '../cli/index.cjs',
     '@sys-api-node': '../sys/node/index.js',
-
-    // dev server related aliases
-    ws: './ws.js',
   };
 }
 

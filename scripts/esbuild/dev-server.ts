@@ -9,7 +9,6 @@ import ts from 'typescript';
 import { getBanner } from '../utils/banner';
 import { type BuildOptions, createReplaceData } from '../utils/options';
 import { writePkgJson } from '../utils/write-pkg-json';
-import { bundleExternal, sysNodeBundleCacheDir } from './sys-node';
 import { externalAlias, getBaseEsbuildOptions, getEsbuildAliases, getFirstOutputFile, runBuilds } from './utils';
 import { createContentTypeData } from './utils/content-types';
 
@@ -64,20 +63,7 @@ export async function buildDevServer(opts: BuildOptions) {
   const xdgOpenDestPath = join(opts.output.devServerDir, 'xdg-open');
   await fs.copy(xdgOpenSrcPath, xdgOpenDestPath);
 
-  const cachedDir = join(opts.scriptsBuildDir, sysNodeBundleCacheDir);
-  await Promise.all([
-    bundleExternal(opts, opts.output.devServerDir, cachedDir, 'ws.js'),
-    bundleExternal(opts, opts.output.devServerDir, cachedDir, 'open-in-editor-api.js'),
-  ]);
-
-  const external = [
-    ...builtinModules,
-    // ws.js is externally bundled
-    './ws.js',
-    // open-in-editor-api is externally bundled
-    './open-in-editor-api',
-  ];
-
+  const external = [...builtinModules];
   const devServerAliases = {
     ...getEsbuildAliases(),
     glob: '../../sys/node/glob.js',
