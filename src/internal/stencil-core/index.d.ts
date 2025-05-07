@@ -47,7 +47,9 @@ export {
   setMode,
   setNonce,
   setPlatformHelpers,
+  setTagTransformer,
   State,
+  transformTag,
   Watch,
   writeTask,
 } from '../stencil-public-runtime';

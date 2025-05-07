@@ -1,4 +1,5 @@
 import { BUILD } from '@app-data';
+import { transformTag } from '@platform';
 import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
 
 import type * as d from '../../declarations';
@@ -46,9 +47,16 @@ export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
   for (const Cstr of Cstrs) {
     // using this format so it follows exactly how client-side modules work
     const exportName = Cstr.cmpMeta.$tagName$;
+    const transformedTagName = transformTag(exportName);
+
     cmpModules.set(exportName, {
       [exportName]: Cstr,
     });
+    if (transformedTagName !== exportName) {
+      cmpModules.set(transformedTagName, {
+        [transformedTagName]: Cstr,
+      });
+    }
   }
 };
 
@@ -198,5 +206,7 @@ export {
   setAssetPath,
   setMode,
   setNonce,
+  setTagTransformer,
   setValue,
+  transformTag,
 } from '@runtime';

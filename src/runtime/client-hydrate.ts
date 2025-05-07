@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { plt, win } from '@platform';
+import { plt, win, transformTag } from '@platform';
 import { parsePropertyValue } from '@runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
@@ -118,7 +118,7 @@ export const initializeClientHydrate = (
     const node = childRenderNode.$elm$ as d.RenderNode;
 
     if (!shadowRoot) {
-      node['s-hn'] = tagName.toUpperCase();
+      node['s-hn'] = transformTag(tagName).toUpperCase();
 
       if (childRenderNode.$tag$ === 'slot') {
         // If this is a virtual 'slot', add it's Content-position Reference now.
