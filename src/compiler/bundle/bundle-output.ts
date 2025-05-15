@@ -177,9 +177,9 @@ const getTreeshakeOption = (config: d.ValidatedConfig, bundleOpts: BundleOptions
   const treeshake =
     !config.devMode && config.rollupConfig.inputOptions.treeshake !== false
       ? {
-        propertyReadSideEffects: false,
-        tryCatchDeoptimization: false,
-      }
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false,
+        }
       : false;
   return treeshake;
 };
