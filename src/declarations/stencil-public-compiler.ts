@@ -1817,6 +1817,7 @@ export interface RollupInputOptions {
   context?: string;
   moduleContext?: ((id: string) => string) | { [id: string]: string };
   treeshake?: boolean;
+  maxParallelFileOps?: number;
   external?:
     | (string | RegExp)[]
     | string
