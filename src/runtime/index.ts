@@ -12,6 +12,7 @@ export { setNonce } from './nonce';
 export { parsePropertyValue } from './parse-property-value';
 export { setPlatformOptions } from './platform-options';
 export { proxyComponent } from './proxy-component';
+export { render } from './render';
 export { getValue, setValue } from './set-value';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';

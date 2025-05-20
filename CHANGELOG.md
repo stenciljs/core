@@ -1,3 +1,25 @@
+# 🐁 [4.31.0](https://github.com/stenciljs/core/compare/v4.30.0...v4.31.0) (2025-05-06)
+
+
+### Features
+
+* **docs:** add overwriteExisting option for flexible README overwrite behaviour ([#6249](https://github.com/stenciljs/core/issues/6249)) ([fa9a2cc](https://github.com/stenciljs/core/commit/fa9a2cca7816b39ad98d2874add00a02acd3112d)), closes [#6248](https://github.com/stenciljs/core/issues/6248)
+
+### Bug Fixes
+
+* **build:** fix build after dependency updates ([#6251](https://github.com/stenciljs/core/issues/6251)) ([d0c5ce5](https://github.com/stenciljs/core/commit/d0c5ce5ad0e0fcec4cf01262aec5641c6e3947d2))
+
+
+
+# 🌺 [4.30.0](https://github.com/stenciljs/core/compare/v4.29.3...v4.30.0) (2025-04-24)
+
+
+### Features
+
+* **runtime:** export a render method from the runtime ([#6245](https://github.com/stenciljs/core/issues/6245)) ([e6c0593](https://github.com/stenciljs/core/commit/e6c05939e59b63c71e586bf05b25c4435f97ff47))
+
+
+
 ## 🐻 [4.29.3](https://github.com/stenciljs/core/compare/v4.29.2...v4.29.3) (2025-04-14)
 
 
