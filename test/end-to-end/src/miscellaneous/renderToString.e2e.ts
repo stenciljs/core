@@ -159,4 +159,12 @@ describe('renderToString', () => {
       '<head><meta charset="utf-8"><style sty-id="sc-scoped-car-list">.sc-scoped-car-list-h{display:block;margin:10px;padding:10px;border:1px solid blue}ul.sc-scoped-car-list{display:block;margin:0;padding:0}li.sc-scoped-car-list{list-style:none;margin:0;padding:20px}.selected.sc-scoped-car-list{font-weight:bold;background:rgb(255, 255, 210)}</style><style class="vjs-styles-defaults">.video-js {width: 300px;height: 150px;}.vjs-fluid:not(.vjs-audio-only-mode) {padding-top: 56.25%}</style> <link rel="stylesheet" href="whatever.css"> </head>',
     );
   });
+
+  it('populates style information even if we do not render the whole document', async () => {
+    const { styles } = await renderToString(`<scoped-car-list cars=${JSON.stringify([vento, beetle])}></scoped-car-list>`);
+    expect(styles.length).toBe(2);
+    expect(styles[0].id).toBe('sc-scoped-car-list');
+    expect(styles[0].content).toContain('.sc-scoped-car-list-h{display:block;');
+    expect(styles[1].content).toContain('.video-js {');
+  });
 });

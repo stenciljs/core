@@ -18,3 +18,4 @@ export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-comp
 export { h, Host } from './vdom/h';
 export { insertVdomAnnotations } from './vdom/vdom-annotations';
 export { renderVdom } from './vdom/vdom-render';
+export { HYDRATED_STYLE_ID } from './runtime-constants';
