@@ -30,6 +30,7 @@ type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
 let hydrateDocument: HydrateModule['hydrateDocument'];
+let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
 
 describe('renderToString', () => {
   beforeAll(async () => {
@@ -38,6 +39,7 @@ describe('renderToString', () => {
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
     hydrateDocument = mod.hydrateDocument;
+    createWindowFromHtml = mod.createWindowFromHtml;
   });
 
   it('resolves to a Promise<HydrateResults> by default', async () => {
@@ -378,5 +380,32 @@ describe('renderToString', () => {
     Hello World
   </nested-cmp-child>
 </nested-cmp-parent>`);
+  });
+
+  describe('hydrateDocument', () => {
+    it('can hydrate components with open shadow dom by default', async () => {
+      const template = `<another-car-detail></another-car-detail>`;
+      const fullHTML = `<html><head></head><body>${template}</body></html>`;
+      const win = createWindowFromHtml(fullHTML, Math.random().toString());
+      const document = win.document;
+      await hydrateDocument(document);
+      const html = document.documentElement.outerHTML;
+
+      expect(html).toContain('shadowrootmode="open"');
+    });
+
+    it('can hydrate components with scoped shadow dom', async () => {
+      const template = `<another-car-detail></another-car-detail>`;
+      const fullHTML = `<html><head></head><body>${template}</body></html>`;
+      const win = createWindowFromHtml(fullHTML, Math.random().toString());
+      const document = win.document;
+      await hydrateDocument(document, {
+        serializeShadowRoot: 'scoped',
+      });
+      const html = document.documentElement.outerHTML;
+
+      expect(html).not.toContain('shadowrootmode="open"');
+      expect(html).toContain('sc-');
+    });
   });
 });

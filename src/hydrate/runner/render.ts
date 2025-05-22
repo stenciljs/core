@@ -70,6 +70,11 @@ export function hydrateDocument(
   asStream?: boolean,
 ): Promise<HydrateResults> | Readable {
   const opts = normalizeHydrateOptions(options);
+  /**
+   * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
+   */
+  opts.serializeShadowRoot =
+    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
 
   let win: MockWindow | null = null;
   const results = generateHydrateResults(opts);
