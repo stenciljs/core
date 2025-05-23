@@ -1196,7 +1196,9 @@ export interface HydrateScriptElement extends HydrateElement {
 }
 
 export interface HydrateStyleElement extends HydrateElement {
+  id?: string;
   href?: string;
+  content?: string;
 }
 
 export interface HydrateStaticData {
