@@ -161,7 +161,9 @@ describe('renderToString', () => {
   });
 
   it('populates style information even if we do not render the whole document', async () => {
-    const { styles } = await renderToString(`<scoped-car-list cars=${JSON.stringify([vento, beetle])}></scoped-car-list>`);
+    const { styles } = await renderToString(
+      `<scoped-car-list cars=${JSON.stringify([vento, beetle])}></scoped-car-list>`,
+    );
     expect(styles.length).toBe(2);
     expect(styles[0].id).toBe('sc-scoped-car-list');
     expect(styles[0].content).toContain('.sc-scoped-car-list-h{display:block;');

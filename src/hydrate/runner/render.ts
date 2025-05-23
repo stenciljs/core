@@ -213,11 +213,13 @@ function finalizeHydrate(win: MockWindow, doc: Document, opts: HydrateFactoryOpt
 
     const styles = doc.querySelectorAll('head style');
     if (styles.length > 0) {
-      results.styles.push(...Array.from(styles).map((style) => ({
-        href: style.getAttribute('href'),
-        id: style.getAttribute(HYDRATED_STYLE_ID),
-        content: style.textContent,
-      })));
+      results.styles.push(
+        ...Array.from(styles).map((style) => ({
+          href: style.getAttribute('href'),
+          id: style.getAttribute(HYDRATED_STYLE_ID),
+          content: style.textContent,
+        })),
+      );
     }
 
     try {
