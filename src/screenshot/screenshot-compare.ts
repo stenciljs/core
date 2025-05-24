@@ -22,7 +22,7 @@ export async function compareScreenshot(
   testPath: string,
   pixelmatchThreshold: number,
 ) {
-  const currentImageHash = createHash('md5').update(currentScreenshotBuf).digest('hex');
+  const currentImageHash = createHash('sha256').update(currentScreenshotBuf).digest('hex');
   const currentImageName = `${currentImageHash}.png`;
   const currentImagePath = join(screenshotBuildData.imagesDir, currentImageName);
 
