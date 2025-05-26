@@ -28,7 +28,7 @@ export const defineCustomElement = (
 
 const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentCompilerMeta) => {
   if (compilerMeta.isPlain) {
-    // add customElements.define('cmp-a', CmpClass);
+    // add customElements.define(transformTag('cmp-a'), CmpClass);
     return ts.factory.createExpressionStatement(
       ts.factory.createCallExpression(
         ts.factory.createPropertyAccessExpression(
@@ -37,13 +37,18 @@ const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentC
         ),
         [],
         [
-          ts.factory.createStringLiteral(compilerMeta.tagName),
+          ts.factory.createCallExpression(
+            ts.factory.createIdentifier('transformTag'),
+            [],
+            [ts.factory.createStringLiteral(compilerMeta.tagName)],
+          ),
           ts.factory.createIdentifier(compilerMeta.componentClassName),
         ],
       ),
     );
   }
 
+  addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
   addCoreRuntimeApi(moduleFile, RUNTIME_APIS.defineCustomElement);
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(compilerMeta, true);
 
