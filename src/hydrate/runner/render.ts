@@ -2,9 +2,9 @@ import { Readable } from 'node:stream';
 
 import { hydrateFactory } from '@hydrate-factory';
 import { modeResolutionChain, setMode } from '@platform';
+import { HYDRATED_STYLE_ID } from '@runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
 import { hasError } from '@utils';
-import { HYDRATED_STYLE_ID } from '@runtime';
 
 import { updateCanonicalLink } from '../../compiler/html/canonical-link';
 import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';
