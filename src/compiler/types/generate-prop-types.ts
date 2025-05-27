@@ -18,6 +18,11 @@ export const generatePropTypes = (cmpMeta: d.ComponentCompilerMeta, typeImportDa
         cmpProp.docs.tags = [...(cmpProp.docs.tags || []), { name: 'readonly', text: '' }];
         doc = getTextDocs(cmpProp.docs);
       }
+      if (cmpProp.defaultValue !== undefined && !doc?.match('@default')) {
+        cmpProp.docs = cmpProp.docs || { tags: [], text: '' };
+        cmpProp.docs.tags = [...(cmpProp.docs.tags || []), { name: 'default', text: cmpProp.defaultValue }];
+        doc = getTextDocs(cmpProp.docs);
+      }
       return {
         name: cmpProp.name,
         type: getType(cmpProp, typeImportData, cmpMeta.sourceFilePath),
