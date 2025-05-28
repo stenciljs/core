@@ -4,7 +4,6 @@ import Listr, { ListrTask } from 'listr';
 import { buildAll } from './build';
 import { BuildOptions } from './utils/options';
 import { isPrereleaseVersion, isValidVersionInput, SEMVER_INCREMENTS, updateChangeLog } from './utils/release-utils';
-import { stderr } from 'node:process';
 
 /**
  * We have to wrap `execa` in a promise to ensure it works with `Listr`. `Listr` uses rxjs under the hood which
@@ -166,12 +165,7 @@ export async function runReleaseTasks(opts: BuildOptions, args: ReadonlyArray<st
           if (isDryRun) {
             return console.log(`[dry-run] ${cmd} ${cmdArgs.join(' ')}`);
           }
-          return execa(cmd, cmdArgs, { cwd: rootDir }).then(({ stdout, stderr }) => {
-            if (stderr) {
-              throw new Error(stderr);
-            }
-            console.log(stdout);
-          });
+          return execa(cmd, cmdArgs, { cwd: rootDir });
         },
       },
       {
