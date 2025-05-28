@@ -19,6 +19,9 @@ export namespace Components {
     interface CmpClientShadow {
     }
     interface CmpD {
+        /**
+          * @default ''
+         */
         "uniqueId": string;
     }
     interface CmpScopedA {
@@ -134,6 +137,9 @@ declare namespace LocalJSX {
     interface CmpClientShadow {
     }
     interface CmpD {
+        /**
+          * @default ''
+         */
         "uniqueId"?: string;
     }
     interface CmpScopedA {

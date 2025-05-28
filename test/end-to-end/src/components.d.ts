@@ -39,6 +39,9 @@ export namespace Components {
     interface CmpC {
     }
     interface CmpDsd {
+        /**
+          * @default 0
+         */
         "initialCounter": number;
     }
     interface CmpServerVsClient {
@@ -85,6 +88,9 @@ export namespace Components {
     interface ImportAssets {
     }
     interface ListenCmp {
+        /**
+          * @default false
+         */
         "opened": boolean;
     }
     interface MethodCmp {
@@ -100,13 +106,17 @@ export namespace Components {
           * @returns some string
          */
         "someMethodWithArgs": (unit: string, value: number) => Promise<string>;
+        /**
+          * @default 0
+         */
         "someProp": number;
     }
     interface MyCmp {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp": string;
         /**
@@ -122,7 +132,8 @@ export namespace Components {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp": string;
         /**
@@ -153,6 +164,9 @@ export namespace Components {
     interface PrerenderCmp {
     }
     interface PropCmp {
+        /**
+          * @default 'life preservers'
+         */
         "clothes": string;
         "first": string;
         /**
@@ -166,8 +180,14 @@ export namespace Components {
         "mode"?: any;
     }
     interface RuntimeDecorators {
+        /**
+          * @default 'basicProp'
+         */
         "basicProp": string;
         "decoratedGetterSetterProp": number;
+        /**
+          * @default -10
+         */
         "decoratedProp": number;
     }
     interface ScopedCarDetail {
@@ -625,6 +645,9 @@ declare namespace LocalJSX {
     interface CmpC {
     }
     interface CmpDsd {
+        /**
+          * @default 0
+         */
         "initialCounter"?: number;
     }
     interface CmpServerVsClient {
@@ -657,16 +680,23 @@ declare namespace LocalJSX {
     interface ImportAssets {
     }
     interface ListenCmp {
+        /**
+          * @default false
+         */
         "opened"?: boolean;
     }
     interface MethodCmp {
+        /**
+          * @default 0
+         */
         "someProp"?: number;
     }
     interface MyCmp {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp"?: string;
         /**
@@ -682,7 +712,8 @@ declare namespace LocalJSX {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp"?: string;
         /**
@@ -713,6 +744,9 @@ declare namespace LocalJSX {
     interface PrerenderCmp {
     }
     interface PropCmp {
+        /**
+          * @default 'life preservers'
+         */
         "clothes"?: string;
         "first"?: string;
         /**
@@ -726,8 +760,14 @@ declare namespace LocalJSX {
         "mode"?: any;
     }
     interface RuntimeDecorators {
+        /**
+          * @default 'basicProp'
+         */
         "basicProp"?: string;
         "decoratedGetterSetterProp"?: number;
+        /**
+          * @default -10
+         */
         "decoratedProp"?: number;
     }
     interface ScopedCarDetail {

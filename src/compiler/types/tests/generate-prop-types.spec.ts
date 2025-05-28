@@ -189,5 +189,61 @@ describe('generate-prop-types', () => {
 
       expect(actualTypeInfo).toEqual(expectedTypeInfo);
     });
+
+    it('appends `@default` to jsdoc when the property has a default value', () => {
+      const stubImportTypes = stubTypesImportData();
+      const componentMeta = stubComponentCompilerMeta({
+        properties: [
+          stubComponentCompilerProperty({
+            defaultValue: "'hello'",
+          }),
+        ],
+      });
+
+      const expectedTypeInfo: d.TypeInfo = [
+        {
+          jsdoc: "@default 'hello'",
+          internal: false,
+          name: 'propName',
+          optional: false,
+          required: false,
+          type: 'UserCustomPropType',
+        },
+      ];
+
+      const actualTypeInfo = generatePropTypes(componentMeta, stubImportTypes);
+
+      expect(actualTypeInfo).toEqual(expectedTypeInfo);
+    });
+
+    it('does not duplicate `@default` in jsdoc when it is already present', () => {
+      const stubImportTypes = stubTypesImportData();
+      const componentMeta = stubComponentCompilerMeta({
+        properties: [
+          stubComponentCompilerProperty({
+            defaultValue: "'hello'",
+            docs: {
+              text: '',
+              tags: [{ name: 'default', text: "'existing default'" }],
+            },
+          }),
+        ],
+      });
+
+      const expectedTypeInfo: d.TypeInfo = [
+        {
+          jsdoc: "@default 'existing default'",
+          internal: false,
+          name: 'propName',
+          optional: false,
+          required: false,
+          type: 'UserCustomPropType',
+        },
+      ];
+
+      const actualTypeInfo = generatePropTypes(componentMeta, stubImportTypes);
+
+      expect(actualTypeInfo).toEqual(expectedTypeInfo);
+    });
   });
 });
