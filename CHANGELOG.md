@@ -8,6 +8,9 @@
 * **hydrate:** add `serializeShadowroot` to hydrateDocument ([#6259](https://github.com/stenciljs/core/issues/6259)) ([47f8845](https://github.com/stenciljs/core/commit/47f8845e967cbeb692b2f52687cf7f0e8454c0e0))
 * **hydrate:** export style content from hydrated scoped components ([#6260](https://github.com/stenciljs/core/issues/6260)) ([1bdcdb9](https://github.com/stenciljs/core/commit/1bdcdb904b77e93a01a58336125ef173fd83d88b))
 
+### Bug Fixes
+
+* **screenshot:** Changed hash algorithm in screenshot-compare to sha256 ([#6258](https://github.com/stenciljs/core/issues/6258)) ([bbbfb45](https://github.com/stenciljs/core/commit/bbbfb45989be8b8a423c49dd614155ed14db0e68)), closes [#6241](https://github.com/stenciljs/core/issues/6241)
 
 
 # 🐁 [4.31.0](https://github.com/stenciljs/core/compare/v4.30.0...v4.31.0) (2025-05-06)
