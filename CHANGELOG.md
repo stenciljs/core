@@ -1,3 +1,15 @@
+# 🤖 [4.32.0](https://github.com/stenciljs/core/compare/v4.31.0...v4.32.0) (2025-05-28)
+
+
+### Features
+
+* **compiler:** Automatically add [@default](https://github.com/default) JSDoc to @Prop() declarations ([#6264](https://github.com/stenciljs/core/issues/6264)) ([9657927](https://github.com/stenciljs/core/commit/965792774858243ffbb866f01b6d8571f9dbb936))
+* **compiler:** support maxParallelFileOps in RollupInputOptions ([#6255](https://github.com/stenciljs/core/issues/6255)) ([71cf735](https://github.com/stenciljs/core/commit/71cf7358812fe7c4c65c95d28edd3a1e816de596))
+* **hydrate:** add `serializeShadowroot` to hydrateDocument ([#6259](https://github.com/stenciljs/core/issues/6259)) ([47f8845](https://github.com/stenciljs/core/commit/47f8845e967cbeb692b2f52687cf7f0e8454c0e0))
+* **hydrate:** export style content from hydrated scoped components ([#6260](https://github.com/stenciljs/core/issues/6260)) ([1bdcdb9](https://github.com/stenciljs/core/commit/1bdcdb904b77e93a01a58336125ef173fd83d88b))
+
+
+
 # 🐁 [4.31.0](https://github.com/stenciljs/core/compare/v4.30.0...v4.31.0) (2025-05-06)
 
 
