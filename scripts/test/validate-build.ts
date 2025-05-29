@@ -366,7 +366,10 @@ async function validateModuleTreeshake(opts: BuildOptions, moduleName: string, e
         },
         load(id) {
           if (id === '@stencil/core/internal/app-globals') {
-            return 'export const globalScripts = () => {};';
+            return [
+              'export const globalScripts = () => {};',
+              'export const globalStyles = "";',
+            ].join('\n');
           }
           if (id === virtualInputId) {
             return `import "${entryId}";`;
