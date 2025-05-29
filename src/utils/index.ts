@@ -16,6 +16,7 @@ export * from './regular-expression';
 export * from './remote-value';
 export * as result from './result';
 export * from './serialize';
+export * from './shadow-root';
 export * from './sourcemaps';
 export * from './types';
 export * from './url-paths';

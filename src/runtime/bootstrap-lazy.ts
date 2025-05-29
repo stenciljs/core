@@ -1,7 +1,7 @@
 import { BUILD } from '@app-data';
 import { getHostRef, plt, registerHost, supportsShadow, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
-import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
+import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -117,14 +117,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
               if (!self.shadowRoot) {
                 // we don't want to call `attachShadow` if there's already a shadow root
                 // attached to the component
-                if (BUILD.shadowDelegatesFocus) {
-                  self.attachShadow({
-                    mode: 'open',
-                    delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-                  });
-                } else {
-                  self.attachShadow({ mode: 'open' });
-                }
+                createShadowRoot.call(self, cmpMeta);
               } else {
                 // we want to check to make sure that the mode for the shadow
                 // root already attached to the element (i.e. created via DSD)

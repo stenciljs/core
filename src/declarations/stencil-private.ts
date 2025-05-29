@@ -273,7 +273,10 @@ export interface BuildCtx {
   scriptsDeleted: string[];
   startTime: number;
   styleBuildCount: number;
-  stylesPromise: Promise<void>;
+  /**
+   * A promise that resolves to the global styles for the current build.
+   */
+  stylesPromise: Promise<string>;
   stylesUpdated: BuildStyleUpdate[];
   timeSpan: LoggerTimeSpan;
   timestamp: string;

@@ -12,13 +12,15 @@ export const generateGlobalStyles = async (
 ) => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistGlobalStyles);
   if (outputTargets.length === 0) {
-    return;
+    return '';
   }
 
   const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
   if (globalStyles) {
     await Promise.all(outputTargets.map((o) => compilerCtx.fs.writeFile(o.file, globalStyles)));
   }
+
+  return globalStyles;
 };
 
 const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
