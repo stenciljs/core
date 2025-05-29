@@ -1781,7 +1781,7 @@ export namespace JSXBase {
 
     // MouseEvents
     onAuxClick?: (event: MouseEvent) => void;
-    onClick?: (event: MouseEvent) => void;
+    onClick?: (event: PointerEvent) => void;
     onClickCapture?: (event: MouseEvent) => void;
     onContextMenu?: (event: MouseEvent) => void;
     onContextMenuCapture?: (event: MouseEvent) => void;
