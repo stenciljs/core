@@ -18,7 +18,7 @@ jobs:
   get-dev-version:
     name: Get Dev Build Version
     needs: [build_core]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       dev-version: ${{ steps.get-dev-version.outputs.DEV_VERSION }}
     steps:
@@ -55,7 +55,7 @@ jobs:
   release-stencil-dev-build:
     name: Publish Dev Build
     needs: [get-dev-version, build_core]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:

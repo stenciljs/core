@@ -8,8 +8,6 @@ on:
 jobs:
   unit_test:
     name: Type Tests
-    strategy:
-      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

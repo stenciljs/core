@@ -10,7 +10,7 @@ jobs:
     name: Core
     strategy:
       matrix:
-        os: ['ubuntu-22.04', 'windows-latest']
+        os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Code
@@ -32,7 +32,7 @@ jobs:
         shell: bash
 
       - name: Upload Build Artifacts
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: ./.github/workflows/actions/upload-archive
         with:
           name: stencil-core

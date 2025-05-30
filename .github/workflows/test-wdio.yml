@@ -8,7 +8,7 @@ on:
 jobs:
   wdio_test:
     name: Run WebdriverIO Component Tests (${{ matrix.browser }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         # browser: [CHROME, FIREFOX, EDGE]
