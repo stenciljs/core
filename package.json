@@ -52,6 +52,10 @@
       "import": "./internal/app-data/index.js",
       "require": "./internal/app-data/index.cjs"
     },
+    "./internal/app-globals": {
+      "import": "./internal/app-globals/index.js",
+      "require": "./internal/app-globals/index.js"
+    },
     "./mock-doc": {
       "types": "./mock-doc/index.d.ts",
       "import": "./mock-doc/index.js",
