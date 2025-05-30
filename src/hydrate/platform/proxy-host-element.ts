@@ -1,7 +1,6 @@
-import { BUILD } from '@app-data';
 import { consoleError, getHostRef } from '@platform';
 import { getValue, parsePropertyValue, setValue } from '@runtime';
-import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
+import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
@@ -24,14 +23,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
     !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
     !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
   ) {
-    if (BUILD.shadowDelegatesFocus) {
-      elm.attachShadow({
-        mode: 'open',
-        delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-      });
-    } else {
-      elm.attachShadow({ mode: 'open' });
-    }
+    createShadowRoot.call(elm, cmpMeta);
   }
 
   if (cmpMeta.$members$ != null) {

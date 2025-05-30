@@ -1,5 +1,6 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 const css = `
 body {
@@ -9,6 +10,7 @@ body {
 describe('esm-import', () => {
   beforeEach(() => {
     render({
+      components: [],
       template: () => (
         <>
           <style>{css}</style>
@@ -25,9 +27,19 @@ describe('esm-import', () => {
     const hostStyles = window.getComputedStyle(host);
     expect(hostStyles.borderBottomColor).toBe('rgb(0, 0, 255)');
 
+    /**
+     * text color defined by :host
+     */
+    const span = host.shadowRoot.querySelector('span');
+    const spanStyles = window.getComputedStyle(span);
+    expect(spanStyles.color).toBe('rgb(128, 0, 128)');
+
+    /**
+     * test color defined by h1 rule in global-css-entry.css
+     */
     const h1 = host.shadowRoot.querySelector('h1');
     const h1Styles = window.getComputedStyle(h1);
-    expect(h1Styles.color).toBe('rgb(128, 0, 128)');
+    expect(h1Styles.color).toBe('rgb(128, 0, 0)');
 
     const button = host.shadowRoot.querySelector('button');
 

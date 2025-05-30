@@ -1,6 +1,6 @@
 import { BUILD } from '@app-data';
 import { addHostEventListeners, forceUpdate, getHostRef, registerHost, styles, supportsShadow } from '@platform';
-import { CMP_FLAGS } from '@utils';
+import { CMP_FLAGS, createShadowRoot } from '@utils';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -97,14 +97,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     __attachShadow() {
       if (supportsShadow) {
         if (!this.shadowRoot) {
-          if (BUILD.shadowDelegatesFocus) {
-            this.attachShadow({
-              mode: 'open',
-              delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-            });
-          } else {
-            this.attachShadow({ mode: 'open' });
-          }
+          createShadowRoot.call(this, cmpMeta);
         } else {
           // we want to check to make sure that the mode for the shadow
           // root already attached to the element (i.e. created via DSD)

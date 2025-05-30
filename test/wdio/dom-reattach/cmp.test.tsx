@@ -1,11 +1,13 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('dom-reattach', function () {
   let showElement = true;
 
   beforeEach(() => {
     render({
+      components: [],
       template: () => (
         <>
           <button onClick={reattach}>Toggle</button>

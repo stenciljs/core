@@ -58,10 +58,11 @@ export const appDataPlugin = (
       return null;
     },
 
-    load(id: string): LoadResult {
+    async load(id: string): Promise<LoadResult> {
       if (id === STENCIL_APP_GLOBALS_ID) {
         const s = new MagicString(``);
         appendGlobalScripts(globalScripts, s);
+        await appendGlobalStyles(buildCtx, s);
         return s.toString();
       }
       if (id === STENCIL_APP_DATA_ID) {
@@ -192,6 +193,17 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
   } else {
     s.append(`export const globalScripts = () => {};\n`);
   }
+};
+
+/**
+ * Appends the global styles to the MagicString.
+ *
+ * @param buildCtx the build context
+ * @param s the MagicString to append the global styles onto
+ */
+const appendGlobalStyles = async (buildCtx: d.BuildCtx, s: MagicString) => {
+  const globalStyles = buildCtx.config.globalStyle ? await buildCtx.stylesPromise : '';
+  s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 
 /**
