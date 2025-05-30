@@ -15,9 +15,10 @@ describe('dom-reattach', function () {
   });
 
   it('should have proper values', async () => {
-    await expect(await $('global-styles').getCSSProperty('border'))
-      .toEqual(expect.objectContaining({
-        value: '5px dotted rgb(255, 0, 0)'
-      }));
+    await expect(await $('global-styles').getCSSProperty('border')).toEqual(
+      expect.objectContaining({
+        value: '5px dotted rgb(255, 0, 0)',
+      }),
+    );
   });
 });

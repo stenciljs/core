@@ -58,9 +58,9 @@ export class MockCSSStyleSheet {
     // Naive rule parser: split by `}` and restore closing bracket
     const rules = cssText
       .split('}')
-      .map(rule => rule.trim())
+      .map((rule) => rule.trim())
       .filter(Boolean)
-      .map(rule => rule + '}');
+      .map((rule) => rule + '}');
 
     for (const rule of rules) {
       const cssRule = new MockCSSRule(this);

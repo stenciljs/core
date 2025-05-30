@@ -58,11 +58,18 @@ export async function buildInternal(opts: BuildOptions) {
   const clientPlatformBundles = await getInternalClientBundles(opts);
   const hydratePlatformBundles = await getInternalPlatformHydrateBundles(opts);
   const appDataBundles = await getInternalAppDataBundles(opts);
-  const appGlobalsBundles = await getInternalAppGlobalsBundles(opts)
+  const appGlobalsBundles = await getInternalAppGlobalsBundles(opts);
   const internalTestingBundle = await getInternalTestingBundle(opts);
 
   return runBuilds(
-    [shadowCSSBundle, ...clientPlatformBundles, ...hydratePlatformBundles, internalTestingBundle, ...appDataBundles, ...appGlobalsBundles],
+    [
+      shadowCSSBundle,
+      ...clientPlatformBundles,
+      ...hydratePlatformBundles,
+      internalTestingBundle,
+      ...appDataBundles,
+      ...appGlobalsBundles,
+    ],
     opts,
   );
 }
