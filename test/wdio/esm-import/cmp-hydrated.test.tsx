@@ -1,5 +1,6 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 const css = `
 .esm-import-componentOnReady {
@@ -10,6 +11,7 @@ const css = `
 describe('esm-webpack', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           <esm-import prop-val="88"></esm-import>
@@ -33,7 +35,11 @@ describe('esm-webpack', () => {
 
     const h1 = host.shadowRoot.querySelector('h1');
     const h1Styles = window.getComputedStyle(h1);
-    expect(h1Styles.color).toBe('rgb(128, 0, 128)');
+    /**
+     * <h1 /> color is given by global-css-entry.css
+     * however, the component defines also a host color, which is rgb(128, 0, 128)
+     */
+    expect(h1Styles.color).toBe('rgb(128, 0, 0)');
 
     const button = host.shadowRoot.querySelector('button');
 

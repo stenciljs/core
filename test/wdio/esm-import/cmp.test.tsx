@@ -9,6 +9,7 @@ body {
 describe('esm-import', () => {
   beforeEach(() => {
     render({
+      components: [],
       template: () => (
         <>
           <style>{css}</style>
@@ -27,7 +28,11 @@ describe('esm-import', () => {
 
     const h1 = host.shadowRoot.querySelector('h1');
     const h1Styles = window.getComputedStyle(h1);
-    expect(h1Styles.color).toBe('rgb(128, 0, 128)');
+    /**
+     * <h1 /> color is given by global-css-entry.css
+     * however, the component defines also a host color, which is rgb(128, 0, 128)
+     */
+    expect(h1Styles.color).toBe('rgb(128, 0, 0)');
 
     const button = host.shadowRoot.querySelector('button');
 
