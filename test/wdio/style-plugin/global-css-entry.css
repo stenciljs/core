@@ -7,7 +7,6 @@ h2::after {
   content: ': from global-css-entry.css';
 }
 
-
 :host {
   display: block;
   margin: 10px;
