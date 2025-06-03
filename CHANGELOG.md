@@ -1,3 +1,17 @@
+# 🐿 [4.33.0](https://github.com/stenciljs/core/compare/v4.32.0...v4.33.0) (2025-06-03)
+
+
+### Bug Fixes
+
+* **compiler:** enable rollup interop helpers for cjs when import injection is enabled ([#6272](https://github.com/stenciljs/core/issues/6272)) ([58d4ad0](https://github.com/stenciljs/core/commit/58d4ad010e7c2fc526ab9bf58177a83467fc994f))
+
+
+### Features
+
+* **global-styles:** add global styles support to shadow DOM components ([#6268](https://github.com/stenciljs/core/issues/6268)) ([33363d4](https://github.com/stenciljs/core/commit/33363d4077728793e0c6f635a22dccbb5740be49))
+
+
+
 # 🤖 [4.32.0](https://github.com/stenciljs/core/compare/v4.31.0...v4.32.0) (2025-05-28)
 
 
