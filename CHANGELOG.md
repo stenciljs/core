@@ -1,3 +1,12 @@
+## 🥃 [4.33.1](https://github.com/stenciljs/core/compare/v4.33.0...v4.33.1) (2025-06-03)
+
+
+### Bug Fixes
+
+* **runtime:** conditionally apply global styles using  flag ([f4f815f](https://github.com/stenciljs/core/commit/f4f815f4624d8df7332ea9762e08a153a66a4c94))
+
+
+
 # 🐿 [4.33.0](https://github.com/stenciljs/core/compare/v4.32.0...v4.33.0) (2025-06-03)
 
 
