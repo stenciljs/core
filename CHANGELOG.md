@@ -1,3 +1,19 @@
+# 🐿 [4.33.0](https://github.com/stenciljs/core/compare/v4.32.0...v4.33.0) (2025-06-03)
+
+
+### Bug Fixes
+
+* **compiler:** enable rollup interop helpers for cjs when import injection is enabled ([#6272](https://github.com/stenciljs/core/issues/6272)) ([58d4ad0](https://github.com/stenciljs/core/commit/58d4ad010e7c2fc526ab9bf58177a83467fc994f)), closes [#6270](https://github.com/stenciljs/core/issues/6270)
+* **mock-doc:** onClick returns PointerEvent instead of MouseEvent ([#6267](https://github.com/stenciljs/core/issues/6267)) ([dc4bd52](https://github.com/stenciljs/core/commit/dc4bd52c9b52d684c644cf5db53577aa725609ad)), closes [#6217](https://github.com/stenciljs/core/issues/6217)
+
+
+### Features
+
+* **global-styles:** add global styles support to shadow DOM components ([#6268](https://github.com/stenciljs/core/issues/6268)) ([33363d4](https://github.com/stenciljs/core/commit/33363d4077728793e0c6f635a22dccbb5740be49))
+
+__Note:__ if you are using global styles this update may an impact on your Stencil shadow components, e.g. with `shadow: true` flag. Please validate visual correctness.
+
+
 # 🤖 [4.32.0](https://github.com/stenciljs/core/compare/v4.31.0...v4.32.0) (2025-05-28)
 
 
