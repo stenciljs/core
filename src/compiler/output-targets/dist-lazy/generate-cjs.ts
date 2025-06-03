@@ -23,6 +23,12 @@ export const generateCjs = async (
       assetFileNames: '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
     };
+
+    if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
+      esmOpts.interop = 'auto';
+      esmOpts.dynamicImportInCjs = false;
+    }
+
     const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
     if (results != null) {
       const destinations = cjsOutputs
