@@ -3,7 +3,7 @@
 
 ### Bug Fixes
 
-* **runtime:** conditionally apply global styles using  flag ([f4f815f](https://github.com/stenciljs/core/commit/f4f815f4624d8df7332ea9762e08a153a66a4c94))
+* **runtime:** conditionally apply global styles using `supportsConstructableStylesheets` flag ([f4f815f](https://github.com/stenciljs/core/commit/f4f815f4624d8df7332ea9762e08a153a66a4c94))
 
 
 
