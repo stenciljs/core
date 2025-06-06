@@ -277,7 +277,6 @@ export interface StencilConfig {
 
   globalScript?: string;
   srcIndexHtml?: string;
-  watch?: boolean;
   testing?: TestingConfig;
   maxConcurrentWorkers?: number;
   preamble?: string;
@@ -298,12 +297,25 @@ export interface StencilConfig {
   sys?: CompilerSystem;
   tsconfig?: string;
   validateTypes?: boolean;
+
+  /**
+   * Sets whether Stencil will watch for changes in the source files and rebuild the project automatically.
+   * @default true
+   */
+  watch?: boolean;
+  /**
+   * External directories to watch for changes. By default, Stencil will watch the root and {@link StencilConfig.srcDir}
+   * directory for changes. If you want to watch additional directories, including e.g. `node_modules`, you can add them here.
+   * @default []
+   */
+  watchExternalDirs?: string[];
   /**
    * An array of RegExp patterns that are matched against all source files before adding
    * to the watch list in watch mode. If the file path matches any of the patterns, when it
    * is updated, it will not trigger a re-run of tests.
    */
   watchIgnoredRegex?: RegExp | RegExp[];
+
   /**
    * Set whether unused dependencies should be excluded from the built output.
    */

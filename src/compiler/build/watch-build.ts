@@ -147,10 +147,26 @@ export const createWatchBuild = async (
    * @returns A promise of the result of creating the watch program.
    */
   const start = async () => {
-    const srcRead = watchSrcDirectory(config, compilerCtx);
-    const otherRead = watchRootFiles(config, compilerCtx);
-    await srcRead;
-    await otherRead;
+    /**
+     * Stencil watches the following directories for changes:
+     */
+    await Promise.all([
+      /**
+       * the `srcDir` directory, e.g. component files
+       */
+      watchFiles(compilerCtx, config.srcDir),
+      /**
+       * the root directory, e.g. `stencil.config.ts`
+       */
+      watchFiles(compilerCtx, config.rootDir, {
+        recursive: false,
+      }),
+      /**
+       * the external directories, defined in `watchExternalDirs`, e.g. `node_modules`
+       */
+      ...(config.watchExternalDirs || []).map((dir) => watchFiles(compilerCtx, dir)),
+    ]);
+
     tsWatchProgram = await createTsWatchProgram(config, onBuild);
     return watchWaiter;
   };
@@ -273,53 +289,70 @@ export const createWatchBuild = async (
 };
 
 /**
- * Recursively marks all files under a Stencil project's `src` directory to be watched for changes. Whenever
- * one of these files is determined as changed (according to TS), a rebuild of the project will execute.
- *
- * @param config The Stencil project's config
- * @param compilerCtx The compiler context for the Stencil project
+ * A list of directories that are excluded from being watched for changes.
  */
-const watchSrcDirectory = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
-  const srcFiles = await compilerCtx.fs.readdir(config.srcDir, {
-    recursive: true,
-    excludeDirNames: ['.cache', '.git', '.github', '.stencil', '.vscode', 'node_modules'],
-    excludeExtensions: [
-      '.md',
-      '.markdown',
-      '.txt',
-      '.spec.ts',
-      '.spec.tsx',
-      '.e2e.ts',
-      '.e2e.tsx',
-      '.gitignore',
-      '.editorconfig',
-    ],
-  });
+const EXCLUDE_DIRS = ['.cache', '.git', '.github', '.stencil', '.vscode', 'node_modules'];
 
-  // Iterate over each file in the collection (filter out directories) and add
-  // a watcher for each
-  srcFiles.filter(({ isFile }) => isFile).forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
-
-  compilerCtx.addWatchDir(config.srcDir, true);
-};
+/**
+ * A list of file extensions that are excluded from being watched for changes.
+ */
+const EXCLUDE_EXTENSIONS = [
+  '.md',
+  '.markdown',
+  '.txt',
+  '.spec.ts',
+  '.spec.tsx',
+  '.e2e.ts',
+  '.e2e.tsx',
+  '.gitignore',
+  '.editorconfig',
+];
 
 /**
  * Marks all root files of a Stencil project to be watched for changes. Whenever
  * one of these files is determined as changed (according to TS), a rebuild of the project will execute.
  *
- * @param config The Stencil project's config
  * @param compilerCtx The compiler context for the Stencil project
+ * @param dir The directory to watch for changes
+ * @param options The options to watch files in the directory
+ * @param options.recursive Whether to watch files recursively
+ * @param options.excludeDirNames A list of directories to exclude from being watched
+ * @param options.excludeExtensions A list of file extensions to exclude from being watched for changes
  */
-const watchRootFiles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
-  // non-src files that cause a rebuild
-  // mainly for root level config files, and getting an event when they change
-  const rootFiles = await compilerCtx.fs.readdir(config.rootDir, {
-    recursive: false,
-    excludeDirNames: ['.cache', '.git', '.github', '.stencil', '.vscode', 'node_modules'],
+const watchFiles = async (
+  compilerCtx: d.CompilerCtx,
+  dir: string,
+  options?: {
+    recursive?: boolean;
+    excludeDirNames?: string[];
+    excludeExtensions?: string[];
+  },
+) => {
+  const recursive = options?.recursive ?? true;
+  const excludeDirNames = options?.excludeDirNames ?? EXCLUDE_DIRS;
+  const excludeExtensions = options?.excludeExtensions ?? EXCLUDE_EXTENSIONS;
+
+  /**
+   * non-src files that cause a rebuild
+   * mainly for root level config files, and getting an event when they change
+   */
+  const rootFiles = await compilerCtx.fs.readdir(dir, {
+    recursive,
+    excludeDirNames,
+    excludeExtensions,
   });
 
-  // Iterate over each file in the collection (filter out directories) and add
-  // a watcher for each
+  /**
+   * If the directory is watched recursively, we need to watch the directory itself.
+   */
+  if (recursive) {
+    compilerCtx.addWatchDir(dir, true);
+  }
+
+  /**
+   * Iterate over each file in the collection (filter out directories) and add
+   * a watcher for each
+   */
   rootFiles.filter(({ isFile }) => isFile).forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
 };
 
