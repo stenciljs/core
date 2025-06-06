@@ -326,7 +326,7 @@ const watchFiles = async (
     recursive?: boolean;
     excludeDirNames?: string[];
     excludeExtensions?: string[];
-  }
+  },
 ) => {
   const recursive = options?.recursive ?? true;
   const excludeDirNames = options?.excludeDirNames ?? EXCLUDE_DIRS;
@@ -353,9 +353,7 @@ const watchFiles = async (
    * Iterate over each file in the collection (filter out directories) and add
    * a watcher for each
    */
-  rootFiles
-    .filter(({ isFile }) => isFile)
-    .forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
+  rootFiles.filter(({ isFile }) => isFile).forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
 };
 
 const emitFsChange = (compilerCtx: d.CompilerCtx, buildCtx: BuildContext) => {
