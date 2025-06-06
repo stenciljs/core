@@ -134,22 +134,32 @@ export const updateCacheFromRebuild = (compilerCtx: d.CompilerCtx, buildCtx: d.B
   });
 };
 
+/**
+ * Checks if a path is ignored by the watch configuration
+ *
+ * @param config The validated config for the Stencil project
+ * @param path The path to check
+ * @returns Whether the path is ignored by the watch configuration
+ */
 export const isWatchIgnorePath = (config: d.ValidatedConfig, path: string) => {
-  if (isString(path)) {
-    const isWatchIgnore = (config.watchIgnoredRegex as RegExp[]).some((reg) => reg.test(path));
-    if (isWatchIgnore) {
-      return true;
-    }
-    const outputTargets = config.outputTargets;
-    const ignoreFiles = [
-      ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.file),
-      ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.typesFile),
-      ...outputTargets.filter(isOutputTargetStats).map((o) => o.file),
-      ...outputTargets.filter(isOutputTargetDocsVscode).map((o) => o.file),
-    ];
-    if (ignoreFiles.includes(path)) {
-      return true;
-    }
+  if (!isString(path)) {
+    return false;
   }
+
+  const isWatchIgnore = (config.watchIgnoredRegex as RegExp[]).some((reg) => reg.test(path));
+  if (isWatchIgnore) {
+    return true;
+  }
+  const outputTargets = config.outputTargets;
+  const ignoreFiles = [
+    ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.file),
+    ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.typesFile),
+    ...outputTargets.filter(isOutputTargetStats).map((o) => o.file),
+    ...outputTargets.filter(isOutputTargetDocsVscode).map((o) => o.file),
+  ];
+  if (ignoreFiles.includes(path)) {
+    return true;
+  }
+
   return false;
 };
