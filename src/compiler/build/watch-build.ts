@@ -332,17 +332,30 @@ const watchFiles = async (
   const excludeDirNames = options?.excludeDirNames ?? EXCLUDE_DIRS;
   const excludeExtensions = options?.excludeExtensions ?? EXCLUDE_EXTENSIONS;
 
-  // non-src files that cause a rebuild
-  // mainly for root level config files, and getting an event when they change
+  /**
+   * non-src files that cause a rebuild
+   * mainly for root level config files, and getting an event when they change
+   */
   const rootFiles = await compilerCtx.fs.readdir(dir, {
     recursive,
     excludeDirNames,
     excludeExtensions,
   });
 
-  // Iterate over each file in the collection (filter out directories) and add
-  // a watcher for each
-  rootFiles.filter(({ isFile }) => isFile).forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
+  /**
+   * If the directory is watched recursively, we need to watch the directory itself.
+   */
+  if (recursive) {
+    compilerCtx.addWatchDir(dir, true);
+  }
+
+  /**
+   * Iterate over each file in the collection (filter out directories) and add
+   * a watcher for each
+   */
+  rootFiles
+    .filter(({ isFile }) => isFile)
+    .forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
 };
 
 const emitFsChange = (compilerCtx: d.CompilerCtx, buildCtx: BuildContext) => {
