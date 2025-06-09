@@ -16,6 +16,11 @@ const localLaunchers = {
       '--disable-gpu',
       // without a remote debugging port, Chrome exits immediately.
       '--remote-debugging-port=9333',
+      // Fix for Ubuntu 24.04+ AppArmor restrictions
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      // Additional flags for CI environments
+      '--disable-dev-shm-usage',
     ],
   },
 };
