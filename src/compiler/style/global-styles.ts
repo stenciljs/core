@@ -1,23 +1,29 @@
-import type * as d from '../../declarations';
-import { catchError, normalizePath } from '@utils';
-import { getCssImports } from './css-imports';
-import { isOutputTargetDistGlobalStyles } from '../output-targets/output-utils';
-import { optimizeCss } from './optimize-css';
-import { runPluginTransforms } from '../plugin/plugin';
+import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '@utils';
 
-export const generateGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+import type * as d from '../../declarations';
+import { runPluginTransforms } from '../plugin/plugin';
+import { getCssImports } from './css-imports';
+import { optimizeCss } from './optimize-css';
+
+export const generateGlobalStyles = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistGlobalStyles);
   if (outputTargets.length === 0) {
-    return;
+    return '';
   }
 
   const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
   if (globalStyles) {
     await Promise.all(outputTargets.map((o) => compilerCtx.fs.writeFile(o.file, globalStyles)));
   }
+
+  return globalStyles;
 };
 
-const buildGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   let globalStylePath = config.globalStyle;
   if (!globalStylePath) {
     return null;
@@ -40,7 +46,7 @@ const buildGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx, b
         compilerCtx,
         buildCtx.diagnostics,
         transformResults.code,
-        globalStylePath
+        globalStylePath,
       );
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
@@ -65,7 +71,7 @@ const buildGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx, b
   return null;
 };
 
-const canSkipGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const canSkipGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (!compilerCtx.cachedGlobalStyle) {
     return false;
   }
@@ -94,7 +100,7 @@ const canSkipGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx,
     buildCtx,
     config.globalStyle,
     compilerCtx.cachedGlobalStyle,
-    []
+    [],
   );
   if (hasChangedImports) {
     return false;
@@ -104,12 +110,12 @@ const canSkipGlobalStyles = async (config: d.Config, compilerCtx: d.CompilerCtx,
 };
 
 const hasChangedImportFile = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   filePath: string,
   content: string,
-  noLoop: string[]
+  noLoop: string[],
 ): Promise<boolean> => {
   if (noLoop.includes(filePath)) {
     return false;
@@ -120,12 +126,12 @@ const hasChangedImportFile = async (
 };
 
 const hasChangedImportContent = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   filePath: string,
   content: string,
-  checkedFiles: string[]
+  checkedFiles: string[],
 ) => {
   const cssImports = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
   if (cssImports.length === 0) {
@@ -142,7 +148,7 @@ const hasChangedImportContent = async (
     return true;
   }
 
-  // keep diggin'
+  // keep digging
   const promises = cssImports.map(async (cssImportData) => {
     try {
       const content = await compilerCtx.fs.readFile(cssImportData.filePath);

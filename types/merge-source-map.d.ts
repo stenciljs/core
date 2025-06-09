@@ -17,7 +17,7 @@ declare module 'merge-source-map' {
    */
   function merge(
     oldMap: import('../src/declarations').SourceMap,
-    newMap: import('../src/declarations').SourceMap
+    newMap: import('../src/declarations').SourceMap,
   ): import('../src/declarations').SourceMap | undefined;
 
   /**

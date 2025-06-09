@@ -1,4 +1,3 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
 import { getHostRef, win } from '@platform';
 import { HOST_FLAGS } from '@utils';
@@ -22,11 +21,11 @@ export const createTime = (fnName: string, tagName = '') => {
 
 export const uniqueTime = (key: string, measureText: string) => {
   if (BUILD.profile && performance.mark) {
-    if (performance.getEntriesByName(key).length === 0) {
+    if (performance.getEntriesByName(key, 'mark').length === 0) {
       performance.mark(key);
     }
     return () => {
-      if (performance.getEntriesByName(measureText).length === 0) {
+      if (performance.getEntriesByName(measureText, 'measure').length === 0) {
         performance.measure(measureText, key);
       }
     };
@@ -43,7 +42,7 @@ const inspect = (ref: any) => {
     return undefined;
   }
   const flags = hostRef.$flags$;
-  const hostElement = hostRef.$hostElement$ as d.HostElement;
+  const hostElement = hostRef.$hostElement$;
   return {
     renderCount: hostRef.$renderCount$,
     flags: {

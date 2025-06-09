@@ -1,9 +1,60 @@
+import {
+  CONTENT_REF_ID,
+  HYDRATE_ID,
+  ORG_LOCATION_ID,
+  SLOT_NODE_ID,
+  TEXT_NODE_ID,
+  XLINK_NS,
+} from '../runtime/runtime-constants';
 import { cloneAttributes } from './attribute';
-import { CONTENT_REF_ID, ORG_LOCATION_ID, SLOT_NODE_ID, TEXT_NODE_ID, XLINK_NS } from '../runtime/runtime-constants';
-import { MockNode } from './node';
 import { NODE_TYPES } from './constants';
+import { type MockDocument } from './document';
+import { type MockNode } from './node';
 
-export function serializeNodeToHtml(elm: Node | MockNode, opts: SerializeNodeToHtmlOptions = {}) {
+/**
+ * Set default values for serialization options.
+ * @param opts options to control serialization behavior
+ * @returns normalized serialization options
+ */
+function normalizeSerializationOptions(opts: Partial<SerializeNodeToHtmlOptions> = {}) {
+  return {
+    ...opts,
+    outerHtml: typeof opts.outerHtml !== 'boolean' ? false : opts.outerHtml,
+    ...(opts.prettyHtml
+      ? {
+          indentSpaces: typeof opts.indentSpaces !== 'number' ? 2 : opts.indentSpaces,
+          newLines: typeof opts.newLines !== 'boolean' ? true : opts.newLines,
+        }
+      : {
+          prettyHtml: false,
+          indentSpaces: typeof opts.indentSpaces !== 'number' ? 0 : opts.indentSpaces,
+          newLines: typeof opts.newLines !== 'boolean' ? false : opts.newLines,
+        }),
+    approximateLineWidth: typeof opts.approximateLineWidth !== 'number' ? -1 : opts.approximateLineWidth,
+    removeEmptyAttributes: typeof opts.removeEmptyAttributes !== 'boolean' ? true : opts.removeEmptyAttributes,
+    removeAttributeQuotes: typeof opts.removeAttributeQuotes !== 'boolean' ? false : opts.removeAttributeQuotes,
+    removeBooleanAttributeQuotes:
+      typeof opts.removeBooleanAttributeQuotes !== 'boolean' ? false : opts.removeBooleanAttributeQuotes,
+    removeHtmlComments: typeof opts.removeHtmlComments !== 'boolean' ? false : opts.removeHtmlComments,
+    serializeShadowRoot:
+      typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot,
+    fullDocument: typeof opts.fullDocument !== 'boolean' ? true : opts.fullDocument,
+  } as const;
+}
+
+/**
+ * Serialize a node (either a DOM node or a mock-doc node) to an HTML string.
+ * This operation is similar to `outerHTML` but allows for more control over the
+ * serialization process. It is fully synchronous meaning that it will not
+ * wait for a component to be fully rendered before serializing it. Use `streamToHtml`
+ * for a streaming version of this function.
+ *
+ * @param elm the node to serialize
+ * @param serializationOptions options to control serialization behavior
+ * @returns an html string
+ */
+export function serializeNodeToHtml(elm: Node | MockNode, serializationOptions: SerializeNodeToHtmlOptions = {}) {
+  const opts = normalizeSerializationOptions(serializationOptions);
   const output: SerializeOutput = {
     currentLineWidth: 0,
     indent: 0,
@@ -11,71 +62,44 @@ export function serializeNodeToHtml(elm: Node | MockNode, opts: SerializeNodeToH
     text: [],
   };
 
-  if (opts.prettyHtml) {
-    if (typeof opts.indentSpaces !== 'number') {
-      opts.indentSpaces = 2;
-    }
+  let renderedNode = '';
+  const children =
+    !opts.fullDocument && (elm as MockDocument).body
+      ? Array.from((elm as MockDocument).body.childNodes)
+      : opts.outerHtml
+        ? [elm]
+        : Array.from(getChildNodes(elm));
 
-    if (typeof opts.newLines !== 'boolean') {
-      opts.newLines = true;
-    }
-    opts.approximateLineWidth = -1;
-  } else {
-    opts.prettyHtml = false;
-    if (typeof opts.newLines !== 'boolean') {
-      opts.newLines = false;
-    }
-    if (typeof opts.indentSpaces !== 'number') {
-      opts.indentSpaces = 0;
-    }
+  for (let i = 0, ii = children.length; i < ii; i++) {
+    const child = children[i];
+    const chunks = Array.from(streamToHtml(child, opts, output));
+    renderedNode += chunks.join('');
   }
 
-  if (typeof opts.approximateLineWidth !== 'number') {
-    opts.approximateLineWidth = -1;
-  }
-
-  if (typeof opts.removeEmptyAttributes !== 'boolean') {
-    opts.removeEmptyAttributes = true;
-  }
-
-  if (typeof opts.removeAttributeQuotes !== 'boolean') {
-    opts.removeAttributeQuotes = false;
-  }
-
-  if (typeof opts.removeBooleanAttributeQuotes !== 'boolean') {
-    opts.removeBooleanAttributeQuotes = false;
-  }
-
-  if (typeof opts.removeHtmlComments !== 'boolean') {
-    opts.removeHtmlComments = false;
-  }
-
-  if (typeof opts.serializeShadowRoot !== 'boolean') {
-    opts.serializeShadowRoot = false;
-  }
-
-  if (opts.outerHtml) {
-    serializeToHtml(elm as Node, opts, output, false);
-  } else {
-    for (let i = 0, ii = elm.childNodes.length; i < ii; i++) {
-      serializeToHtml(elm.childNodes[i] as Node, opts, output, false);
-    }
-  }
-
-  if (output.text[0] === '\n') {
-    output.text.shift();
-  }
-
-  if (output.text[output.text.length - 1] === '\n') {
-    output.text.pop();
-  }
-
-  return output.text.join('');
+  return renderedNode.trim();
 }
 
-function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: SerializeOutput, isShadowRoot: boolean) {
+const shadowRootTag = 'mock:shadow-root';
+
+/**
+ * Same as `serializeNodeToHtml` but returns a generator that yields the serialized
+ * HTML in chunks. This is useful for streaming the serialized HTML to the client
+ * as it is being generated.
+ *
+ * @param node the node to serialize
+ * @param opts options to control serialization behavior
+ * @param output keeps track of the current line width and indentation
+ * @returns a generator that yields the serialized HTML in chunks
+ */
+function* streamToHtml(
+  node: Node | MockNode,
+  opts: SerializeNodeToHtmlOptions,
+  output: Omit<SerializeOutput, 'text'>,
+): Generator<string, void, undefined> {
+  const isShadowRoot = node.nodeType === NODE_TYPES.DOCUMENT_FRAGMENT_NODE;
+
   if (node.nodeType === NODE_TYPES.ELEMENT_NODE || isShadowRoot) {
-    const tagName = isShadowRoot ? 'mock:shadow-root' : getTagName(node as Element);
+    const tagName = isShadowRoot ? shadowRootTag : getTagName(node as Element);
 
     if (tagName === 'body') {
       output.isWithinBody = true;
@@ -85,21 +109,40 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
 
     if (ignoreTag === false) {
       const isWithinWhitespaceSensitiveNode =
-        opts.newLines || opts.indentSpaces > 0 ? isWithinWhitespaceSensitive(node) : false;
+        opts.newLines || (opts.indentSpaces ?? 0) > 0 ? isWithinWhitespaceSensitive(node) : false;
       if (opts.newLines && !isWithinWhitespaceSensitiveNode) {
-        output.text.push('\n');
+        yield '\n';
         output.currentLineWidth = 0;
       }
 
-      if (opts.indentSpaces > 0 && !isWithinWhitespaceSensitiveNode) {
+      if ((opts.indentSpaces ?? 0) > 0 && !isWithinWhitespaceSensitiveNode) {
         for (let i = 0; i < output.indent; i++) {
-          output.text.push(' ');
+          yield ' ';
         }
         output.currentLineWidth += output.indent;
       }
 
-      output.text.push('<' + tagName);
-      output.currentLineWidth += tagName.length + 1;
+      const tag = tagName === shadowRootTag ? 'template' : tagName;
+
+      yield '<' + tag;
+      output.currentLineWidth += tag.length + 1;
+
+      /**
+       * ToDo(https://github.com/stenciljs/core/issues/4111): the shadow root class is `#document-fragment`
+       * and has no mode attribute. We should consider adding a mode attribute.
+       */
+      if (
+        tag === 'template' &&
+        (!(node as Element).getAttribute || !(node as Element).getAttribute('shadowrootmode')) &&
+        /**
+         * If the node is a shadow root, we want to add the `shadowrootmode` attribute
+         */
+        ('host' in node || node.nodeName.toLocaleLowerCase() === shadowRootTag)
+      ) {
+        const mode = ` shadowrootmode="open"`;
+        yield mode;
+        output.currentLineWidth += mode.length;
+      }
 
       const attrsLength = (node as HTMLElement).attributes.length;
       const attributes =
@@ -108,7 +151,7 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
           : (node as Element).attributes;
 
       for (let i = 0; i < attrsLength; i++) {
-        const attr = attributes.item(i);
+        const attr = attributes.item(i)!;
         const attrName = attr.name;
 
         if (attrName === 'style') {
@@ -123,28 +166,32 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
         const attrNamespaceURI = attr.namespaceURI;
         if (attrNamespaceURI == null) {
           output.currentLineWidth += attrName.length + 1;
-          if (opts.approximateLineWidth > 0 && output.currentLineWidth > opts.approximateLineWidth) {
-            output.text.push('\n' + attrName);
+          if (
+            opts.approximateLineWidth &&
+            opts.approximateLineWidth > 0 &&
+            output.currentLineWidth > opts.approximateLineWidth
+          ) {
+            yield '\n' + attrName;
             output.currentLineWidth = 0;
           } else {
-            output.text.push(' ' + attrName);
+            yield ' ' + attrName;
           }
         } else if (attrNamespaceURI === 'http://www.w3.org/XML/1998/namespace') {
-          output.text.push(' xml:' + attrName);
+          yield ' xml:' + attrName;
           output.currentLineWidth += attrName.length + 5;
         } else if (attrNamespaceURI === 'http://www.w3.org/2000/xmlns/') {
           if (attrName !== 'xmlns') {
-            output.text.push(' xmlns:' + attrName);
+            yield ' xmlns:' + attrName;
             output.currentLineWidth += attrName.length + 7;
           } else {
-            output.text.push(' ' + attrName);
+            yield ' ' + attrName;
             output.currentLineWidth += attrName.length + 1;
           }
         } else if (attrNamespaceURI === XLINK_NS) {
-          output.text.push(' xlink:' + attrName);
+          yield ' xlink:' + attrName;
           output.currentLineWidth += attrName.length + 7;
         } else {
-          output.text.push(' ' + attrNamespaceURI + ':' + attrName);
+          yield ' ' + attrNamespaceURI + ':' + attrName;
           output.currentLineWidth += attrNamespaceURI.length + attrName.length + 2;
         }
 
@@ -167,10 +214,10 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
         }
 
         if (opts.removeAttributeQuotes && CAN_REMOVE_ATTR_QUOTES.test(attrValue)) {
-          output.text.push('=' + escapeString(attrValue, true));
+          yield '=' + escapeString(attrValue, true);
           output.currentLineWidth += attrValue.length + 1;
         } else {
-          output.text.push('="' + escapeString(attrValue, true) + '"');
+          yield '="' + escapeString(attrValue, true) + '"';
           output.currentLineWidth += attrValue.length + 3;
         }
       }
@@ -179,47 +226,54 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
         const cssText = (node as HTMLElement).style.cssText;
 
         if (
+          opts.approximateLineWidth &&
           opts.approximateLineWidth > 0 &&
           output.currentLineWidth + cssText.length + 10 > opts.approximateLineWidth
         ) {
-          output.text.push(`\nstyle="${cssText}">`);
+          yield `\nstyle="${cssText}">`;
           output.currentLineWidth = 0;
         } else {
-          output.text.push(` style="${cssText}">`);
+          yield ` style="${cssText}">`;
           output.currentLineWidth += cssText.length + 10;
         }
       } else {
-        output.text.push('>');
+        yield '>';
         output.currentLineWidth += 1;
       }
     }
 
     if (EMPTY_ELEMENTS.has(tagName) === false) {
-      if (opts.serializeShadowRoot && (node as HTMLElement).shadowRoot != null) {
-        output.indent = output.indent + opts.indentSpaces;
-        serializeToHtml((node as HTMLElement).shadowRoot, opts, output, true);
-        output.indent = output.indent - opts.indentSpaces;
+      const shadowRoot = (node as HTMLElement).shadowRoot;
+      if (shadowRoot != null && opts.serializeShadowRoot !== false) {
+        output.indent = output.indent + (opts.indentSpaces ?? 0);
 
+        yield* streamToHtml(shadowRoot, opts, output);
+        output.indent = output.indent - (opts.indentSpaces ?? 0);
+
+        const childNodes = getChildNodes(node);
         if (
           opts.newLines &&
-          (node.childNodes.length === 0 ||
-            (node.childNodes.length === 1 &&
-              node.childNodes[0].nodeType === NODE_TYPES.TEXT_NODE &&
-              node.childNodes[0].nodeValue.trim() === ''))
+          (childNodes.length === 0 ||
+            (childNodes.length === 1 &&
+              childNodes[0].nodeType === NODE_TYPES.TEXT_NODE &&
+              childNodes[0].nodeValue?.trim() === ''))
         ) {
-          output.text.push('\n');
+          yield '\n';
           output.currentLineWidth = 0;
 
           for (let i = 0; i < output.indent; i++) {
-            output.text.push(' ');
+            yield ' ';
           }
           output.currentLineWidth += output.indent;
         }
       }
 
       if (opts.excludeTagContent == null || opts.excludeTagContent.includes(tagName) === false) {
+        const tag = tagName === shadowRootTag ? 'template' : tagName;
         const childNodes =
-          tagName === 'template' ? ((node as any as HTMLTemplateElement).content.childNodes as any) : node.childNodes;
+          tagName === 'template'
+            ? ((node as any as HTMLTemplateElement).content.childNodes as any)
+            : getChildNodes(node);
         const childNodeLength = childNodes.length;
 
         if (childNodeLength > 0) {
@@ -231,26 +285,41 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
             // skip over empty text nodes
           } else {
             const isWithinWhitespaceSensitiveNode =
-              opts.newLines || opts.indentSpaces > 0 ? isWithinWhitespaceSensitive(node) : false;
+              opts.newLines || (opts.indentSpaces ?? 0) > 0 ? isWithinWhitespaceSensitive(node) : false;
 
-            if (!isWithinWhitespaceSensitiveNode && opts.indentSpaces > 0 && ignoreTag === false) {
-              output.indent = output.indent + opts.indentSpaces;
+            if (!isWithinWhitespaceSensitiveNode && (opts.indentSpaces ?? 0) > 0 && ignoreTag === false) {
+              output.indent = output.indent + (opts.indentSpaces ?? 0);
             }
 
             for (let i = 0; i < childNodeLength; i++) {
-              serializeToHtml(childNodes[i], opts, output, false);
+              /**
+               * In cases where a user would pass in a declarative shadow dom of a
+               * Stencil component, we want to skip over the template tag as we
+               * will be parsing the shadow root of the component again.
+               *
+               * We know it is a hydrated Stencil component by checking if the `HYDRATE_ID`
+               * is set on the node.
+               */
+              const sId = (node as HTMLElement).attributes.getNamedItem(HYDRATE_ID);
+              const isStencilDeclarativeShadowDOM = childNodes[i].nodeName.toLowerCase() === 'template' && sId;
+              if (isStencilDeclarativeShadowDOM) {
+                yield `\n${' '.repeat(output.indent)}<!--r.${sId.value}-->`;
+                continue;
+              }
+
+              yield* streamToHtml(childNodes[i], opts, output);
             }
 
             if (ignoreTag === false) {
               if (opts.newLines && !isWithinWhitespaceSensitiveNode) {
-                output.text.push('\n');
+                yield '\n';
                 output.currentLineWidth = 0;
               }
 
-              if (opts.indentSpaces > 0 && !isWithinWhitespaceSensitiveNode) {
-                output.indent = output.indent - opts.indentSpaces;
+              if ((opts.indentSpaces ?? 0) > 0 && !isWithinWhitespaceSensitiveNode) {
+                output.indent = output.indent - (opts.indentSpaces ?? 0);
                 for (let i = 0; i < output.indent; i++) {
-                  output.text.push(' ');
+                  yield ' ';
                 }
                 output.currentLineWidth += output.indent;
               }
@@ -259,14 +328,14 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
         }
 
         if (ignoreTag === false) {
-          output.text.push('</' + tagName + '>');
-          output.currentLineWidth += tagName.length + 3;
+          yield '</' + tag + '>';
+          output.currentLineWidth += tag.length + 3;
         }
       }
     }
 
-    if (opts.approximateLineWidth > 0 && STRUCTURE_ELEMENTS.has(tagName)) {
-      output.text.push('\n');
+    if ((opts.approximateLineWidth ?? 0) > 0 && STRUCTURE_ELEMENTS.has(tagName)) {
+      yield '\n';
       output.currentLineWidth = 0;
     }
 
@@ -283,9 +352,9 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
         if (isWithinWhitespaceSensitive(node)) {
           // whitespace matters within this element
           // just add the exact text we were given
-          output.text.push(textContent);
+          yield textContent;
           output.currentLineWidth += textContent.length;
-        } else if (opts.approximateLineWidth > 0 && !output.isWithinBody) {
+        } else if ((opts.approximateLineWidth ?? 0) > 0 && !output.isWithinBody) {
           // do nothing if we're not in the <body> and we're tracking line width
         } else if (!opts.prettyHtml) {
           // this text node is only whitespace, and it's not
@@ -293,29 +362,33 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
           // so replace the entire white space with a single new line
           output.currentLineWidth += 1;
 
-          if (opts.approximateLineWidth > 0 && output.currentLineWidth > opts.approximateLineWidth) {
+          if (
+            opts.approximateLineWidth &&
+            opts.approximateLineWidth > 0 &&
+            output.currentLineWidth > opts.approximateLineWidth
+          ) {
             // good enough for a new line
             // for perf these are all just estimates
             // we don't care to ensure exact line lengths
-            output.text.push('\n');
+            yield '\n';
             output.currentLineWidth = 0;
           } else {
             // let's keep it all on the same line yet
-            output.text.push(' ');
+            yield ' ';
           }
         }
       } else {
         // this text node has text content
         const isWithinWhitespaceSensitiveNode =
-          opts.newLines || opts.indentSpaces > 0 || opts.prettyHtml ? isWithinWhitespaceSensitive(node) : false;
+          opts.newLines || (opts.indentSpaces ?? 0) > 0 || opts.prettyHtml ? isWithinWhitespaceSensitive(node) : false;
         if (opts.newLines && !isWithinWhitespaceSensitiveNode) {
-          output.text.push('\n');
+          yield '\n';
           output.currentLineWidth = 0;
         }
 
-        if (opts.indentSpaces > 0 && !isWithinWhitespaceSensitiveNode) {
+        if ((opts.indentSpaces ?? 0) > 0 && !isWithinWhitespaceSensitiveNode) {
           for (let i = 0; i < output.indent; i++) {
-            output.text.push(' ');
+            yield ' ';
           }
           output.currentLineWidth += output.indent;
         }
@@ -328,13 +401,13 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
             node.parentNode != null && node.parentNode.nodeType === NODE_TYPES.ELEMENT_NODE
               ? node.parentNode.nodeName
               : null;
-          if (NON_ESCAPABLE_CONTENT.has(parentTagName)) {
+          if (typeof parentTagName === 'string' && NON_ESCAPABLE_CONTENT.has(parentTagName)) {
             // this text node cannot have its content escaped since it's going
             // into an element like <style> or <script>
             if (isWithinWhitespaceSensitive(node)) {
-              output.text.push(textContent);
+              yield textContent;
             } else {
-              output.text.push(trimmedTextContent);
+              yield trimmedTextContent;
               textContentLength = trimmedTextContent.length;
             }
             output.currentLineWidth += textContentLength;
@@ -342,7 +415,7 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
             // this text node is going into a normal element and html can be escaped
             if (opts.prettyHtml && !isWithinWhitespaceSensitiveNode) {
               // pretty print the text node
-              output.text.push(escapeString(textContent.replace(/\s\s+/g, ' ').trim(), false));
+              yield escapeString(textContent.replace(/\s\s+/g, ' ').trim(), false);
               output.currentLineWidth += textContentLength;
             } else {
               // not pretty printing the text node
@@ -359,6 +432,7 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
                 if (textContentLength > 1) {
                   if (/\s/.test(textContent.charAt(textContentLength - 1))) {
                     if (
+                      opts.approximateLineWidth &&
                       opts.approximateLineWidth > 0 &&
                       output.currentLineWidth + textContentLength > opts.approximateLineWidth
                     ) {
@@ -372,7 +446,7 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
                 output.currentLineWidth += textContentLength;
               }
 
-              output.text.push(escapeString(textContent, false));
+              yield escapeString(textContent, false);
             }
           }
         }
@@ -381,35 +455,40 @@ function serializeToHtml(node: Node, opts: SerializeNodeToHtmlOptions, output: S
   } else if (node.nodeType === NODE_TYPES.COMMENT_NODE) {
     const nodeValue = node.nodeValue;
 
-    if (opts.removeHtmlComments) {
-      const isHydrateAnnotation =
-        nodeValue.startsWith(CONTENT_REF_ID + '.') ||
-        nodeValue.startsWith(ORG_LOCATION_ID + '.') ||
-        nodeValue.startsWith(SLOT_NODE_ID + '.') ||
-        nodeValue.startsWith(TEXT_NODE_ID + '.');
-      if (!isHydrateAnnotation) {
-        return;
-      }
+    const isHydrateAnnotation =
+      nodeValue?.startsWith(CONTENT_REF_ID + '.') ||
+      nodeValue?.startsWith(ORG_LOCATION_ID + '.') ||
+      nodeValue?.startsWith(SLOT_NODE_ID + '.') ||
+      nodeValue?.startsWith(TEXT_NODE_ID + '.');
+
+    /**
+     * remove comments from stringified output if user set the `removeHtmlComments` e.g.
+     * in the `renderToString` function and we are no dealing with a hydrate annotation
+     */
+    if (opts.removeHtmlComments && !isHydrateAnnotation) {
+      return;
     }
 
     const isWithinWhitespaceSensitiveNode =
-      opts.newLines || opts.indentSpaces > 0 ? isWithinWhitespaceSensitive(node) : false;
+      opts.newLines || (opts.indentSpaces ?? 0) > 0 ? isWithinWhitespaceSensitive(node) : false;
     if (opts.newLines && !isWithinWhitespaceSensitiveNode) {
-      output.text.push('\n');
+      yield '\n';
       output.currentLineWidth = 0;
     }
 
-    if (opts.indentSpaces > 0 && !isWithinWhitespaceSensitiveNode) {
+    if ((opts.indentSpaces ?? 0) > 0 && !isWithinWhitespaceSensitiveNode) {
       for (let i = 0; i < output.indent; i++) {
-        output.text.push(' ');
+        yield ' ';
       }
       output.currentLineWidth += output.indent;
     }
 
-    output.text.push('<!--' + nodeValue + '-->');
-    output.currentLineWidth += nodeValue.length + 7;
+    yield '<!--' + nodeValue + '-->';
+    if (nodeValue) {
+      output.currentLineWidth += nodeValue.length + 7;
+    }
   } else if (node.nodeType === NODE_TYPES.DOCUMENT_TYPE_NODE) {
-    output.text.push('<!doctype html>');
+    yield '<!doctype html>';
   }
 }
 
@@ -438,16 +517,37 @@ function escapeString(str: string, attrMode: boolean) {
   return str.replace(LT_REGEX, '&lt;').replace(GT_REGEX, '&gt;');
 }
 
-function isWithinWhitespaceSensitive(node: Node) {
-  while (node != null) {
-    if (WHITESPACE_SENSITIVE.has(node.nodeName)) {
+/**
+ * Determine whether a given node is within a whitespace-sensitive node by
+ * walking the parent chain until either a whitespace-sensitive node is found or
+ * there are no more parents to examine.
+ *
+ * @param node a node to check
+ * @returns whether or not this is within a whitespace-sensitive node
+ */
+function isWithinWhitespaceSensitive(node: Node | MockNode) {
+  let _node: Node | MockNode | null = node;
+  while (_node?.nodeName) {
+    if (WHITESPACE_SENSITIVE.has(_node.nodeName)) {
       return true;
     }
-    node = node.parentNode;
+    _node = _node.parentNode;
   }
   return false;
 }
 
+/**
+ * Normalizes the `childNodes` of a node due to if `experimentalSlotFixes` is enabled, `
+ * childNodes` will only return 'slotted' / lightDOM nodes
+ *
+ * @param node to return `childNodes` from
+ * @returns a node list of child nodes
+ */
+function getChildNodes(node: Node | MockNode) {
+  return ((node as any).__childNodes || node.childNodes) as NodeList;
+}
+
+// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
 /*@__PURE__*/ export const NON_ESCAPABLE_CONTENT = new Set([
   'STYLE',
   'SCRIPT',
@@ -459,6 +559,10 @@ function isWithinWhitespaceSensitive(node: Node) {
   'PLAINTEXT',
 ]);
 
+// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
+/**
+ * A list of whitespace sensitive tag names, such as `code`, `pre`, etc.
+ */
 /*@__PURE__*/ export const WHITESPACE_SENSITIVE = new Set([
   'CODE',
   'OUTPUT',
@@ -469,7 +573,8 @@ function isWithinWhitespaceSensitive(node: Node) {
   'TEXTAREA',
 ]);
 
-/*@__PURE__*/ const EMPTY_ELEMENTS = new Set([
+// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
+/*@__PURE__*/ export const EMPTY_ELEMENTS = new Set([
   'area',
   'base',
   'basefont',
@@ -487,11 +592,14 @@ function isWithinWhitespaceSensitive(node: Node) {
   'param',
   'source',
   'trace',
+  'track',
   'wbr',
 ]);
 
+// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated attr
 /*@__PURE__*/ const REMOVE_EMPTY_ATTR = new Set(['class', 'dir', 'id', 'lang', 'name', 'title']);
 
+// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated attr
 /*@__PURE__*/ const BOOLEAN_ATTR = new Set([
   'allowfullscreen',
   'async',
@@ -557,6 +665,11 @@ interface SerializeOutput {
   text: string[];
 }
 
+/**
+ * Partially duplicate of https://github.com/stenciljs/core/blob/6017dad2cb6fe366242e2e0594f82c8e3a3b5d15/src/declarations/stencil-public-compiler.ts#L895
+ * Types can't be imported in this documented as Eslint will not embed the types
+ * in the d.ts file.
+ */
 export interface SerializeNodeToHtmlOptions {
   approximateLineWidth?: number;
   excludeTagContent?: string[];
@@ -569,5 +682,14 @@ export interface SerializeNodeToHtmlOptions {
   removeBooleanAttributeQuotes?: boolean;
   removeEmptyAttributes?: boolean;
   removeHtmlComments?: boolean;
-  serializeShadowRoot?: boolean;
+  serializeShadowRoot?:
+    | 'declarative-shadow-dom'
+    | 'scoped'
+    | {
+        'declarative-shadow-dom'?: string[];
+        scoped?: string[];
+        default: 'declarative-shadow-dom' | 'scoped';
+      }
+    | boolean;
+  fullDocument?: boolean;
 }

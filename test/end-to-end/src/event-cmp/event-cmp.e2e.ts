@@ -71,7 +71,7 @@ describe('@Event', () => {
     const elm = await page.find('event-cmp');
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
-    await elm.callMethod('methodThatFiresEventWithOptions');
+    await elm.callMethod('methodThatFiresEventWithOptions', 88);
 
     expect(elmEventSpy).toHaveReceivedEventTimes(1);
 
@@ -92,11 +92,13 @@ describe('@Event', () => {
     const elm = await page.find('event-cmp');
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
-    await elm.callMethod('methodThatFiresEventWithOptions');
-    await elm.callMethod('methodThatFiresEventWithOptions');
-    await elm.callMethod('methodThatFiresEventWithOptions');
+    await elm.callMethod('methodThatFiresEventWithOptions', 80);
+    await elm.callMethod('methodThatFiresEventWithOptions', 90);
+    await elm.callMethod('methodThatFiresEventWithOptions', 100);
 
     expect(elmEventSpy).toHaveReceivedEventTimes(3);
+    expect(elmEventSpy).toHaveFirstReceivedEventDetail({ mph: 80 });
+    expect(elmEventSpy).toHaveLastReceivedEventDetail({ mph: 100 });
   });
 
   it('element spyOnEvent', async () => {
@@ -111,7 +113,7 @@ describe('@Event', () => {
 
     expect(elmEventSpy).not.toHaveReceivedEvent();
 
-    await elm.callMethod('methodThatFiresEventWithOptions');
+    await elm.callMethod('methodThatFiresEventWithOptions', 88);
 
     await page.waitForChanges();
 

@@ -67,7 +67,7 @@ describe('parse encapsulation', () => {
 
     expect(getStaticGetter(t.outputText, 'encapsulation')).toEqual('scoped');
     expect(t.cmp.encapsulation).toBe('scoped');
-    expect(t.cmp.shadowDelegatesFocus).toBe(null);
+    expect(t.cmp.shadowDelegatesFocus).toBe(false);
   });
 
   it('no encapsulation', () => {
@@ -80,6 +80,6 @@ describe('parse encapsulation', () => {
 
     expect(t.outputText).not.toContain(`static get encapsulation()`);
     expect(t.cmp.encapsulation).toBe('none');
-    expect(t.cmp.shadowDelegatesFocus).toBe(null);
+    expect(t.cmp.shadowDelegatesFocus).toBe(false);
   });
 });

@@ -1,10 +1,19 @@
+import {
+  type html,
+  parse,
+  parseFragment,
+  type ParserOptions,
+  type Token,
+  type TreeAdapter,
+  type TreeAdapterTypeMap,
+} from 'parse5';
+
 import { MockComment } from './comment-node';
-import { MockDocument } from './document';
-import { MockElement, MockNode, MockTextNode } from './node';
-import { MockTemplateElement } from './element';
 import { NODE_NAMES, NODE_TYPES } from './constants';
-import { Attribute, ParserOptions, TreeAdapter, parse, parseFragment } from 'parse5';
+import { MockDocument } from './document';
 import { MockDocumentFragment } from './document-fragment';
+import { MockTemplateElement } from './element';
+import { MockElement, MockNode, MockTextNode } from './node';
 
 const docParser = new WeakMap<any, any>();
 
@@ -29,7 +38,7 @@ export function parseFragmentUtil(ownerDocument: any, html: string) {
 }
 
 function getParser(ownerDocument: MockDocument) {
-  let parseOptions: ParserOptions = docParser.get(ownerDocument);
+  let parseOptions: ParserOptions<TreeAdapterTypeMap> = docParser.get(ownerDocument);
 
   if (parseOptions != null) {
     return parseOptions;
@@ -54,7 +63,7 @@ function getParser(ownerDocument: MockDocument) {
       return ownerDocument.createDocumentFragment();
     },
 
-    createElement(tagName: string, namespaceURI: string, attrs: Attribute[]) {
+    createElement(tagName: string, namespaceURI: string, attrs: Token.Attribute[]) {
       const elm = ownerDocument.createElementNS(namespaceURI, tagName);
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
@@ -135,7 +144,7 @@ function getParser(ownerDocument: MockDocument) {
       }
     },
 
-    adoptAttributes(recipient: MockElement, attrs: Attribute[]) {
+    adoptAttributes(recipient: MockElement, attrs: Token.Attribute[]) {
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
 
@@ -158,7 +167,7 @@ function getParser(ownerDocument: MockDocument) {
     },
 
     getAttrList(element: MockElement) {
-      const attrs: Attribute[] = element.attributes.__items.map((attr) => {
+      const attrs: Token.Attribute[] = element.attributes.__items.map((attr) => {
         return {
           name: attr.name,
           value: attr.value,
@@ -178,7 +187,9 @@ function getParser(ownerDocument: MockDocument) {
     },
 
     getNamespaceURI(element: MockElement) {
-      return element.namespaceURI;
+      // mock-doc widens the type of an element's namespace uri to 'string | null'
+      // we use a type assertion here to adhere to parse5's type definitions
+      return element.namespaceURI as html.NS;
     },
 
     getTextNodeContent(textNode: MockTextNode) {
@@ -201,18 +212,26 @@ function getParser(ownerDocument: MockDocument) {
       return doctypeNode['x-systemId'];
     },
 
+    // @ts-ignore - a `MockNode` will never be assignable to a `TreeAdapterTypeMap['text']`. As a result, we cannot
+    // complete this function signature
     isTextNode(node: MockNode) {
       return node.nodeType === NODE_TYPES.TEXT_NODE;
     },
 
-    isCommentNode(node: MockNode) {
+    // @ts-ignore - a `MockNode` will never be assignable to a `TreeAdapterTypeMap['comment']`. As a result, we cannot
+    // complete this function signature (which requires its return type to be a type predicate)
+    isCommentNode(node: MockNode): boolean {
       return node.nodeType === NODE_TYPES.COMMENT_NODE;
     },
 
+    // @ts-ignore - a `MockNode` will never be assignable to a `TreeAdapterTypeMap['document']`. As a result, we cannot
+    // complete this function signature (which requires its return type to be a type predicate)
     isDocumentTypeNode(node: MockNode) {
       return node.nodeType === NODE_TYPES.DOCUMENT_TYPE_NODE;
     },
 
+    // @ts-ignore - a `MockNode` will never be assignable to a `TreeAdapterTypeMap['element']`. As a result, we cannot
+    // complete this function signature (which requires its return type to be a type predicate)
     isElementNode(node: MockNode) {
       return node.nodeType === NODE_TYPES.ELEMENT_NODE;
     },

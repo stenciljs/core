@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`vdom-annotations should add annotations when component-a-test and component-b-test is given as static component 1`] = `"<section> <component-a-test><!---->o.0.1<div> <!--t.0.1-->slotContent</div></component-a-test> <component-b-test><!---->o.0.2<div> <!--t.0.2-->slotContent</div></component-b-test> </section>"`;
+
+exports[`vdom-annotations should add annotations when component-a-test is given as static component 1`] = `"<section> <component-a-test><!---->o.0.1<div> <!--t.0.1-->slotContent</div></component-a-test> <component-b-test s-id=\\"1\\"><!--r.1-->o.0.2<div c-id=\\"1.0.0.0\\"><!--t.1.1.1.0--> <!--t.0.2-->slotContent</div></component-b-test> </section>"`;
+
+exports[`vdom-annotations should add annotations when no static component is given 1`] = `"<section> <component-a-test s-id=\\"1\\"><!--r.1-->o.0.1<div c-id=\\"1.0.0.0\\"><!--t.1.1.1.0--> <!--t.0.1-->slotContent</div></component-a-test> <component-b-test s-id=\\"2\\"><!--r.2-->o.0.2<div c-id=\\"2.0.0.0\\"><!--t.2.1.1.0--> <!--t.0.2-->slotContent</div></component-b-test> </section>"`;

@@ -1,12 +1,14 @@
-import type * as d from '../../../../declarations';
+import { mockValidatedConfig } from '@stencil/core/testing';
+
 import { createSystem } from '../../../../compiler/sys/stencil-sys';
+import type * as d from '../../../../declarations';
 import { getTypescriptPathFromUrl } from '../typescript-sys';
 
 describe('getTypescriptPathFromUrl', () => {
-  const config: d.Config = {
+  const config: d.ValidatedConfig = mockValidatedConfig({
     rootDir: '/some/path/',
     sys: createSystem(),
-  };
+  });
 
   it('not typescript, return url', () => {
     const tsExecutingUrl = 'https://cdn.jsdelivr.net/npm/@stencil/core@2.0.0/compiler/stencil.js';

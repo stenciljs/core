@@ -1,15 +1,16 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
-import { doc, plt, consoleError, supportsListenerOptions, win } from '@platform';
+import { consoleError, plt, supportsListenerOptions, win } from '@platform';
 import { HOST_FLAGS, LISTENER_FLAGS } from '@utils';
+
+import type * as d from '../declarations';
 
 export const addHostEventListeners = (
   elm: d.HostElement,
   hostRef: d.HostRef,
-  listeners: d.ComponentRuntimeHostListener[],
-  attachParentListeners: boolean
+  listeners?: d.ComponentRuntimeHostListener[],
+  attachParentListeners?: boolean,
 ) => {
-  if (BUILD.hostListener && listeners) {
+  if (BUILD.hostListener && listeners && win.document) {
     // this is called immediately within the element's constructor
     // initialize our event listeners on the host element
     // we do this now so that we can listen to events that may
@@ -31,7 +32,7 @@ export const addHostEventListeners = (
     }
 
     listeners.map(([flags, name, method]) => {
-      const target = BUILD.hostListenerTarget ? getHostListenerTarget(elm, flags) : elm;
+      const target = BUILD.hostListenerTarget ? getHostListenerTarget(win.document, elm, flags) : elm;
       const handler = hostListenerProxy(hostRef, method);
       const opts = hostListenerOpts(flags);
       plt.ael(target, name, handler, opts);
@@ -45,7 +46,7 @@ const hostListenerProxy = (hostRef: d.HostRef, methodName: string) => (ev: Event
     if (BUILD.lazyLoad) {
       if (hostRef.$flags$ & HOST_FLAGS.isListenReady) {
         // instance is ready, let's call it's member method for this event
-        hostRef.$lazyInstance$[methodName](ev);
+        hostRef.$lazyInstance$?.[methodName](ev);
       } else {
         (hostRef.$queuedListeners$ = hostRef.$queuedListeners$ || []).push([methodName, ev]);
       }
@@ -53,15 +54,24 @@ const hostListenerProxy = (hostRef: d.HostRef, methodName: string) => (ev: Event
       (hostRef.$hostElement$ as any)[methodName](ev);
     }
   } catch (e) {
-    consoleError(e);
+    consoleError(e, hostRef.$hostElement$);
   }
 };
 
-const getHostListenerTarget = (elm: Element, flags: number): EventTarget => {
-  if (BUILD.hostListenerTargetDocument && flags & LISTENER_FLAGS.TargetDocument) return doc;
-  if (BUILD.hostListenerTargetWindow && flags & LISTENER_FLAGS.TargetWindow) return win;
-  if (BUILD.hostListenerTargetBody && flags & LISTENER_FLAGS.TargetBody) return doc.body;
-  if (BUILD.hostListenerTargetParent && flags & LISTENER_FLAGS.TargetParent) return elm.parentElement;
+const getHostListenerTarget = (doc: Document, elm: Element, flags: number): EventTarget => {
+  if (BUILD.hostListenerTargetDocument && flags & LISTENER_FLAGS.TargetDocument) {
+    return doc;
+  }
+  if (BUILD.hostListenerTargetWindow && flags & LISTENER_FLAGS.TargetWindow) {
+    return win;
+  }
+  if (BUILD.hostListenerTargetBody && flags & LISTENER_FLAGS.TargetBody) {
+    return doc.body;
+  }
+  if (BUILD.hostListenerTargetParent && flags & LISTENER_FLAGS.TargetParent && elm.parentElement) {
+    return elm.parentElement;
+  }
+
   return elm;
 };
 

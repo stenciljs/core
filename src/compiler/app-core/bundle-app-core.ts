@@ -1,13 +1,24 @@
-import type * as d from '../../declarations';
 import type { OutputAsset, OutputChunk, OutputOptions, RollupBuild } from 'rollup';
+
+import type * as d from '../../declarations';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
+/**
+ * Generate rollup output based on a rollup build and a series of options.
+ *
+ * @param build a rollup build
+ * @param options output options for rollup
+ * @param config a user-supplied configuration object
+ * @param entryModules a list of entry modules, for checking which chunks
+ * contain components
+ * @returns a Promise wrapping either build results or `null`
+ */
 export const generateRollupOutput = async (
   build: RollupBuild,
   options: OutputOptions,
-  config: d.Config,
-  entryModules: d.EntryModule[]
-): Promise<d.RollupResult[]> => {
+  config: d.ValidatedConfig,
+  entryModules: d.EntryModule[],
+): Promise<d.RollupResult[] | null> => {
   if (build == null) {
     return null;
   }
@@ -15,11 +26,14 @@ export const generateRollupOutput = async (
   const { output }: { output: [OutputChunk, ...(OutputChunk | OutputAsset)[]] } = await build.generate(options);
   return output.map((chunk: OutputChunk | OutputAsset) => {
     if (chunk.type === 'chunk') {
-      const isCore = Object.keys(chunk.modules).some((m) => m.includes('@stencil/core'));
+      const isCore = Object.keys(chunk.modules).some((m) => m.includes(STENCIL_CORE_ID));
       return {
         type: 'chunk',
         fileName: chunk.fileName,
-        map: chunk.map,
+        map: {
+          ...chunk.map,
+          sourcesContent: chunk.map?.sourcesContent || [],
+        },
         code: chunk.code,
         moduleFormat: options.format,
         entryKey: chunk.name,
@@ -39,11 +53,3 @@ export const generateRollupOutput = async (
     }
   });
 };
-
-export const DEFAULT_CORE = `
-export * from '${STENCIL_CORE_ID}';
-`;
-
-export const DEFAULT_ENTRY = `
-export * from '@stencil/core';
-`;

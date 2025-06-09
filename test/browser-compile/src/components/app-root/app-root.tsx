@@ -210,7 +210,7 @@ export class AppRoot {
    * @param entity the error that was caught
    * @returns `true` if the `entity` parameter is of type `RollupLogProps`, `false` otherwise
    */
-  private isRollupLogProps(entity: unknown): entity is RollupTypes.RollupLogProps {
+  private isRollupLogProps(entity: unknown): entity is RollupTypes.RollupLog {
     return this.isObjectWithMessage(entity) && typeof entity.message === 'string';
   }
 

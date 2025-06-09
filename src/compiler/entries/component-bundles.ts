@@ -1,18 +1,27 @@
-import type * as d from '../../declarations';
 import { sortBy } from '@utils';
+
+import type * as d from '../../declarations';
 import { getDefaultBundles } from './default-bundles';
 
 /**
  * Generate a list of all component tags that will be used by the output
+ *
+ * If the user has set the {@link d.Config.excludeUnusedDependencies} option
+ * to `false` then this simply returns all components.
+ *
+ * Else, this takes {@link d.ComponentCompilerMeta} objects which are being
+ * used in the current output and then ensures that all used components as well
+ * as their dependencies are present.
+ *
  * @param config the Stencil configuration used for the build
  * @param defaultBundles metadata of the assumed components being used/bundled
  * @param allCmps all known components
  * @returns a set of all component tags that are used
  */
-export function computeUsedComponents(
-  config: d.Config,
+function computeUsedComponents(
+  config: d.ValidatedConfig,
   defaultBundles: readonly d.ComponentCompilerMeta[][],
-  allCmps: readonly d.ComponentCompilerMeta[]
+  allCmps: readonly d.ComponentCompilerMeta[],
 ): Set<string> {
   if (!config.excludeUnusedDependencies) {
     // the user/config has specified that Stencil should use all the dependencies it's found, return the set of all
@@ -43,34 +52,44 @@ export function computeUsedComponents(
 
 /**
  * Generate the bundles that will be used during the bundling process
+ *
+ * This gathers information about all of the components used in the build,
+ * including the bundles which will be included by default, and then returns a
+ * deduplicated list of all the bundles which need to be present.
+ *
  * @param config the Stencil configuration used for the build
  * @param buildCtx the current build context
  * @returns the bundles to be used during the bundling process
  */
-export function generateComponentBundles(config: d.Config, buildCtx: d.BuildCtx): readonly d.ComponentCompilerMeta[][] {
-  const cmps = sortBy(buildCtx.components, (cmp: d.ComponentCompilerMeta) => cmp.dependents.length);
+export function generateComponentBundles(
+  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
+): readonly d.ComponentCompilerMeta[][] {
+  const components = sortBy(buildCtx.components, (cmp: d.ComponentCompilerMeta) => cmp.dependents.length);
 
-  const defaultBundles = getDefaultBundles(config, buildCtx, cmps);
-  const usedComponents = computeUsedComponents(config, defaultBundles, cmps);
+  const defaultBundles = getDefaultBundles(config, buildCtx, components);
+  // this is most likely all the components
+  const usedComponents = computeUsedComponents(config, defaultBundles, components);
 
   if (config.devMode) {
-    return cmps
+    // return only components used in the build
+    return components
       .filter((c: d.ComponentCompilerMeta) => usedComponents.has(c.tagName))
       .map((cmp: d.ComponentCompilerMeta) => [cmp]);
   }
 
-  // Visit components that are already in one of the default bundlers
+  // Visit components that are already in one of the default bundles
   const alreadyBundled = new Set();
   defaultBundles.forEach((entry: readonly d.ComponentCompilerMeta[]) => {
     entry.forEach((cmp: d.ComponentCompilerMeta) => alreadyBundled.add(cmp));
   });
 
-  const bundlers: readonly d.ComponentCompilerMeta[][] = cmps
+  const bundlers: readonly d.ComponentCompilerMeta[][] = components
     .filter((cmp: d.ComponentCompilerMeta) => usedComponents.has(cmp.tagName) && !alreadyBundled.has(cmp))
     .map((c: d.ComponentCompilerMeta) => [c]);
 
   return [...defaultBundles, ...optimizeBundlers(bundlers, 0.6)].filter(
-    (b: readonly d.ComponentCompilerMeta[]) => b.length > 0
+    (b: readonly d.ComponentCompilerMeta[]) => b.length > 0,
   );
 }
 
@@ -82,7 +101,7 @@ export function generateComponentBundles(config: d.Config, buildCtx: d.BuildCtx)
  */
 function optimizeBundlers(
   bundles: readonly d.ComponentCompilerMeta[][],
-  threshold: number
+  threshold: number,
 ): readonly d.ComponentCompilerMeta[][] {
   /**
    * build a mapping of component tag names in each `bundles` entry to the index where that entry occurs in `bundles`:

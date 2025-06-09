@@ -1,22 +1,25 @@
-import { doNotExpectFiles, expectFiles } from '../../../testing/testing-utils';
+// @ts-nocheck
 import { Compiler, Config } from '@stencil/core/compiler';
 import { mockConfig } from '@stencil/core/testing';
 import path from 'path';
 
-xdescribe('outputTarget, dist', () => {
+import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+
+describe.skip('outputTarget, dist', () => {
   jest.setTimeout(20000);
   let compiler: Compiler;
   let config: Config;
   const root = path.resolve('/');
 
   it('default dist files', async () => {
-    config = mockConfig();
-    config.buildAppCore = true;
-    config.rootDir = path.join(root, 'User', 'testing', '/');
-    config.namespace = 'TestApp';
-    config.buildEs5 = true;
-    config.globalScript = path.join(root, 'User', 'testing', 'src', 'global.ts');
-    config.outputTargets = [{ type: 'dist' }];
+    config = mockConfig({
+      buildAppCore: true,
+      buildEs5: true,
+      globalScript: path.join(root, 'User', 'testing', 'src', 'global.ts'),
+      namespace: 'TestApp',
+      outputTargets: [{ type: 'dist' }],
+      rootDir: path.join(root, 'User', 'testing', '/'),
+    });
 
     compiler = new Compiler(config);
 
@@ -39,20 +42,15 @@ xdescribe('outputTarget, dist', () => {
         }) export class CmpA {}`,
       [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.ios.css')]: `cmp-a { color: blue; }`,
       [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.md.css')]: `cmp-a { color: green; }`,
-      [path.join(
-        root,
-        'User',
-        'testing',
-        'src',
-        'global.ts'
-      )]: `export default function() { console.log('my global'); }`,
+      [path.join(root, 'User', 'testing', 'src', 'global.ts')]:
+        `export default function() { console.log('my global'); }`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    expectFiles(compiler.fs, [
+    expectFilesExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'dist', 'index.js'),
       path.join(root, 'User', 'testing', 'dist', 'index.mjs'),
       path.join(root, 'User', 'testing', 'dist', 'index.js.map'),
@@ -81,7 +79,7 @@ xdescribe('outputTarget, dist', () => {
       path.join(root, 'User', 'testing', 'src', 'components.d.ts'),
     ]);
 
-    doNotExpectFiles(compiler.fs, [
+    expectFilesDoNotExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'build'),
       path.join(root, 'User', 'testing', 'esm'),
       path.join(root, 'User', 'testing', 'es5'),

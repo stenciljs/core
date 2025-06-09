@@ -1,6 +1,7 @@
+import { NODE_TYPES } from '../constants';
 import { createFragment } from '../document';
 import { MockDocument } from '../document';
-import { NODE_TYPES } from '../constants';
+import { MockDOMMatrix, MockDOMPoint, MockSVGRect, MockSVGSVGElement, MockSVGTextContentElement } from '../element';
 import { parseHtmlToDocument, parseHtmlToFragment } from '../parse-html';
 
 describe('parseHtml', () => {
@@ -53,13 +54,13 @@ describe('parseHtml', () => {
         <svg>
       </div>
     `);
-    expect(doc.body.firstElementChild.tagName).toEqual('DIV');
-    expect(doc.body.firstElementChild.firstElementChild.tagName).toEqual('svg');
-    expect(doc.body.firstElementChild.firstElementChild.children[0].tagName).toEqual('a');
-    expect(doc.body.firstElementChild.firstElementChild.children[1].tagName).toEqual('feImage');
-    expect(doc.body.firstElementChild.firstElementChild.children[2].tagName).toEqual('foreignObject');
-    expect(doc.body.firstElementChild.firstElementChild.children[2].children[0].tagName).toEqual('A');
-    expect(doc.body.firstElementChild.firstElementChild.children[2].children[1].tagName).toEqual('FEIMAGE');
+    expect(doc.body?.firstElementChild?.tagName).toEqual('DIV');
+    expect(doc.body?.firstElementChild?.firstElementChild?.tagName).toEqual('svg');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[0]?.tagName).toEqual('a');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[1]?.tagName).toEqual('feImage');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.tagName).toEqual('foreignObject');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2].children?.[0]?.tagName).toEqual('A');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.children?.[1]?.tagName).toEqual('FEIMAGE');
     expect(doc.body).toEqualHtml(`
     <div>
       <svg>
@@ -84,7 +85,41 @@ describe('parseHtml', () => {
       <svg viewBox="0 0 100 100"></svg>
     `);
 
-    expect(doc.body.firstElementChild.attributes.item(0).name).toEqual('viewBox');
+    expect(doc.body?.firstElementChild?.attributes?.item(0)?.name).toEqual('viewBox');
+  });
+
+  it('svg matrix members', () => {
+    doc = new MockDocument(`
+      <svg viewBox="0 0 100 100">
+        <svg>
+          <rect x="0" y="0" width="10" height="10"></rect>
+        </svg>
+      </svg>
+    `);
+    const svgElem: MockSVGSVGElement = doc.body.firstElementChild?.firstElementChild as MockSVGSVGElement;
+    expect(svgElem).toBeDefined();
+    expect(svgElem.getBBox()).toEqual(new MockSVGRect());
+    expect(svgElem.createSVGPoint()).toEqual(new MockDOMPoint());
+    expect(svgElem.getScreenCTM()).toEqual(new MockDOMMatrix());
+    expect(svgElem.getCTM()).toEqual(new MockDOMMatrix());
+  });
+
+  it('svg text members', () => {
+    doc = new MockDocument(`
+      <svg viewBox="0 0 100 100">
+        <text x="10" y="10">
+          Hello
+          <tspan>world</tspan>
+        </text>
+      </svg>
+    `);
+    const text: MockSVGTextContentElement = doc.body.firstElementChild?.firstElementChild as MockSVGTextContentElement;
+    expect(text).toBeDefined();
+    expect(text.tagName).toEqual('text');
+
+    const tspan: MockSVGTextContentElement = text.firstElementChild as MockSVGTextContentElement;
+    expect(tspan).toBeDefined();
+    expect(tspan.getComputedTextLength()).toEqual(0);
   });
 
   it('template', () => {
@@ -97,7 +132,7 @@ describe('parseHtml', () => {
     const tmplElm: HTMLTemplateElement = doc.head.firstElementChild as any;
 
     expect(tmplElm.outerHTML).toBe(`<template>text</template>`);
-    expect(tmplElm.content.firstChild.textContent).toBe(`text`);
+    expect(tmplElm.content?.firstChild?.textContent).toBe(`text`);
     expect(tmplElm.childNodes).toHaveLength(0);
   });
 
@@ -110,8 +145,8 @@ describe('parseHtml', () => {
 
     expect(doc.nodeType).toBe(NODE_TYPES.DOCUMENT_NODE);
     expect(doc.childElementCount).toBe(1);
-    expect(doc.firstElementChild.tagName).toBe('HTML');
-    expect(doc.lastChild.nodeName).toBe('HTML');
+    expect(doc.firstElementChild?.tagName).toBe('HTML');
+    expect(doc.lastChild?.nodeName).toBe('HTML');
     expect(doc.children[0].nodeName).toBe('HTML');
     expect(doc.children[0].nodeType).toBe(NODE_TYPES.ELEMENT_NODE);
 
@@ -133,7 +168,7 @@ describe('parseHtml', () => {
     expect(sectionElms[1].tagName).toBe('SECTION');
   });
 
-  it('getElementsByTagName', () => {
+  it('getElementsByName', () => {
     doc = new MockDocument(`
       <form name="form-name">
         <input name="a">

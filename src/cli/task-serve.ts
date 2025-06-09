@@ -1,16 +1,23 @@
-import type { Config } from '../declarations';
 import { isString } from '@utils';
 
-export const taskServe = async (config: Config) => {
+import type { ValidatedConfig } from '../declarations';
+
+export const taskServe = async (config: ValidatedConfig) => {
   config.suppressLogs = true;
 
   config.flags.serve = true;
-  config.devServer.openBrowser = config.flags.open;
+  config.devServer.openBrowser = !!config.flags.open;
   config.devServer.reloadStrategy = null;
   config.devServer.initialLoadUrl = '/';
   config.devServer.websocket = false;
   config.maxConcurrentWorkers = 1;
   config.devServer.root = isString(config.flags.root) ? config.flags.root : config.sys.getCurrentDirectory();
+
+  if (!config.sys.getDevServerExecutingPath || !config.sys.dynamicImport || !config.sys.onProcessInterrupt) {
+    throw new Error(
+      `Environment doesn't provide required functions: getDevServerExecutingPath, dynamicImport, onProcessInterrupt`,
+    );
+  }
 
   const devServerPath = config.sys.getDevServerExecutingPath();
   const { start }: typeof import('@stencil/core/dev-server') = await config.sys.dynamicImport(devServerPath);

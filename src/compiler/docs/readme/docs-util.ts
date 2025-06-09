@@ -1,5 +1,3 @@
-import type * as d from '../../../declarations';
-
 export class MarkdownTable {
   private rows: RowData[] = [];
 
@@ -132,6 +130,23 @@ const normalizeColumnWidth = (rows: RowData[]) => {
   }
 };
 
+/**
+ * Checks if a given string is a valid hexadecimal color representation.
+ *
+ * @param str - The string to be checked.
+ * @returns `true` if the string is a valid hex color (e.g., '#FF00AA', '#f0f'), `false` otherwise.
+ *
+ * @example
+ * isHexColor('#FF00AA'); // true
+ * isHexColor('#f0f');    // true
+ * isHexColor('#abcde');  // false (too many characters)
+ * isHexColor('FF00AA');  // false (missing #)
+ */
+export const isHexColor = (str: string): boolean => {
+  const hexColorRegex = /^#([0-9A-Fa-f]{3}){1,2}$/;
+  return hexColorRegex.test(str);
+};
+
 interface ColumnData {
   text: string;
   width: number;
@@ -141,50 +156,3 @@ interface RowData {
   columns: ColumnData[];
   isHeader?: boolean;
 }
-
-export const getEventDetailType = (eventType: d.JsDoc) => {
-  if (eventType && eventType.type && typeof eventType.type === 'string' && eventType.type !== 'void') {
-    return eventType.type.trim();
-  }
-  return 'void';
-};
-
-export const getMemberDocumentation = (jsDoc: d.JsDoc) => {
-  if (jsDoc && typeof jsDoc.documentation === 'string') {
-    return jsDoc.documentation.trim();
-  }
-  return '';
-};
-
-export const getPlatform = (jsDoc: d.JsDoc) => {
-  const tag = jsDoc.tags.find((t) => t.name === 'platform');
-  return tag.text || 'all';
-};
-
-export const getMemberType = (jsDoc: d.JsDoc) => {
-  if (jsDoc && typeof jsDoc.type === 'string') {
-    return jsDoc.type.trim();
-  }
-  return '';
-};
-
-export const getMethodParameters = ({ parameters }: d.JsDoc): d.JsonDocMethodParameter[] => {
-  if (parameters) {
-    return parameters.map(({ name, type, documentation }) => ({
-      name,
-      type,
-      docs: documentation,
-    }));
-  }
-  return [];
-};
-
-export const getMethodReturns = ({ returns }: d.JsDoc): d.JsonDocsMethodReturn => {
-  if (returns) {
-    return {
-      type: returns.type,
-      docs: returns.documentation,
-    };
-  }
-  return null;
-};

@@ -10,7 +10,7 @@ export class AppProfile {
 
   formattedName(): string {
     if (this.name) {
-      return this.name.substr(0, 1).toUpperCase() + this.name.substr(1).toLowerCase();
+      return this.name.slice(0, 1).toUpperCase() + this.name.slice(1).toLowerCase();
     }
     return '';
   }

@@ -1,9 +1,8 @@
+import { isFunction, isRemoteUrl, relative } from '@utils';
+
 import type * as d from '../../declarations';
 import { generateBuildResults } from './build-results';
 import { generateBuildStats, writeBuildStats } from './build-stats';
-import { isFunction, isRemoteUrl } from '@utils';
-import { IS_NODE_ENV } from '../sys/environment';
-import { relative } from 'path';
 
 /**
  * Finish a build as having completed successfully
@@ -43,10 +42,10 @@ export const buildAbort = (buildCtx: d.BuildCtx): Promise<d.CompilerBuildResults
  * @returns the build results
  */
 const buildDone = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  aborted: boolean
+  aborted: boolean,
 ): Promise<d.CompilerBuildResults> => {
   if (buildCtx.hasFinished && buildCtx.buildResults) {
     // we've already marked this build as finished and
@@ -77,7 +76,7 @@ const buildDone = async (
     if (buildCtx.isRebuild && hasChanges && buildCtx.buildResults.hmr && !aborted) {
       // this is a rebuild, and we've got hmr data
       // and this build hasn't been aborted
-      logHmr(config.logger, buildCtx);
+      logHmr(config.logger, buildCtx.buildResults.hmr);
     }
 
     // create a nice pretty message stating what happened
@@ -121,7 +120,7 @@ const buildDone = async (
 
   if (!config.watch) {
     compilerCtx.reset();
-    if (IS_NODE_ENV && global.gc) {
+    if (global.gc) {
       buildCtx.debug(`triggering forced gc`);
       global.gc();
       buildCtx.debug(`forced gc finished`);
@@ -131,10 +130,12 @@ const buildDone = async (
   return buildCtx.buildResults;
 };
 
-const logHmr = (logger: d.Logger, buildCtx: d.BuildCtx) => {
-  // this is a rebuild, and we've got hmr data
-  // and this build hasn't been aborted
-  const hmr = buildCtx.buildResults.hmr;
+/**
+ * In a Hot Module Replacement (HMR) context, log what changed between builds
+ * @param logger the instance of the logger to report what's changed
+ * @param hmr the HMR data, which includes what's changed between builds
+ */
+const logHmr = (logger: d.Logger, hmr: d.HotModuleReplacement): void => {
   if (hmr.componentsUpdated) {
     cleanupUpdateMsg(logger, `updated component`, hmr.componentsUpdated);
   }
@@ -187,7 +188,7 @@ const cleanupUpdateMsg = (logger: d.Logger, msg: string, fileNames: string[]) =>
  */
 const cleanDiagnosticsRelativePath = (config: d.Config, diagnostics: ReadonlyArray<d.Diagnostic>): void => {
   diagnostics.forEach((diagnostic) => {
-    if (!diagnostic.relFilePath && !isRemoteUrl(diagnostic.absFilePath) && diagnostic.absFilePath && config.rootDir) {
+    if (!diagnostic.relFilePath && diagnostic.absFilePath && !isRemoteUrl(diagnostic.absFilePath) && config.rootDir) {
       diagnostic.relFilePath = relative(config.rootDir, diagnostic.absFilePath);
     }
   });

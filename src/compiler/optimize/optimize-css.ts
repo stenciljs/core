@@ -1,15 +1,23 @@
+import { hasError } from '@utils';
+
 import { OptimizeCssInput, OptimizeCssOutput } from '../../declarations';
 import { autoprefixCss } from './autoprefixer';
-import { hasError } from '@utils';
 import { minifyCss } from './minify-css';
 
-export const optimizeCss = async (inputOpts: OptimizeCssInput) => {
+/**
+ * Optimize a CSS file, optionally running an autoprefixer and a minifier
+ * depending on the options set on the input options argument.
+ *
+ * @param inputOpts input CSS options
+ * @returns a promise wrapping the optimized output
+ */
+export const optimizeCss = async (inputOpts: OptimizeCssInput): Promise<OptimizeCssOutput> => {
   let result: OptimizeCssOutput = {
     output: inputOpts.input,
     diagnostics: [],
   };
   if (inputOpts.autoprefixer !== false && inputOpts.autoprefixer !== null) {
-    result = await autoprefixCss(inputOpts.input, inputOpts.autoprefixer);
+    result = await autoprefixCss(inputOpts.input, inputOpts.autoprefixer ?? null);
     if (hasError(result.diagnostics)) {
       return result;
     }

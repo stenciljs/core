@@ -1,17 +1,16 @@
+import { generatePreamble, join, relativeImport } from '@utils';
+import type { OutputOptions, RollupBuild } from 'rollup';
+
 import type * as d from '../../../declarations';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
-import { join } from 'path';
-import type { OutputOptions, RollupBuild } from 'rollup';
-import { relativeImport } from '../output-utils';
-import { generatePreamble } from '@utils';
 
 export const generateCjs = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   rollupBuild: RollupBuild,
-  outputTargets: d.OutputTargetDistLazy[]
+  outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const cjsOutputs = outputTargets.filter((o) => !!o.cjsDir);
 
@@ -22,12 +21,19 @@ export const generateCjs = async (
       format: 'cjs',
       entryFileNames: '[name].cjs.js',
       assetFileNames: '[name]-[hash][extname]',
-      preferConst: true,
       sourcemap: config.sourceMap,
     };
+
+    if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
+      esmOpts.interop = 'auto';
+      esmOpts.dynamicImportInCjs = false;
+    }
+
     const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
     if (results != null) {
-      const destinations = cjsOutputs.map((o) => o.cjsDir);
+      const destinations = cjsOutputs
+        .map((o) => o.cjsDir)
+        .filter((cjsDir): cjsDir is string => typeof cjsDir === 'string');
 
       buildCtx.commonJsComponentBundle = await generateLazyModules(
         config,
@@ -38,7 +44,7 @@ export const generateCjs = async (
         results,
         'es2017',
         false,
-        '.cjs'
+        '.cjs',
       );
 
       await generateShortcuts(compilerCtx, results, cjsOutputs);
@@ -51,7 +57,7 @@ export const generateCjs = async (
 const generateShortcuts = (
   compilerCtx: d.CompilerCtx,
   rollupResult: d.RollupResult[],
-  outputTargets: d.OutputTargetDistLazy[]
+  outputTargets: d.OutputTargetDistLazy[],
 ): Promise<void[]> => {
   const indexFilename = rollupResult.find((r) => r.type === 'chunk' && r.isIndex).fileName;
   return Promise.all(
@@ -62,6 +68,6 @@ const generateShortcuts = (
         const shortcutContent = `module.exports = require('${relativePath}');\n`;
         await compilerCtx.fs.writeFile(o.cjsIndexFile, shortcutContent, { outputTargetType: o.type });
       }
-    })
+    }),
   );
 };

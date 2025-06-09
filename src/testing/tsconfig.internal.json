@@ -8,11 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
     "jsxFactory": "h",
-    "lib": [
-      "dom",
-      "es2017",
-      "esnext.array"
-    ],
+    "lib": ["dom", "es2017", "esnext.array"],
     "module": "esnext",
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -24,27 +20,14 @@
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
     "paths": {
-      "@stencil/core/cli": [
-        "../cli/index.ts"
-      ],
-      "@stencil/core/compiler": [
-        "../compiler/index.ts"
-      ],
-      "@stencil/core/declarations": [
-        "../declarations/index.ts"
-      ],
-      "@stencil/core/mock-doc": [
-        "../mock-doc/index.ts"
-      ],
-      "@stencil/core/testing": [
-        "../testing/index.ts"
-      ],
-      "@stencil/core": [
-        "../index.ts"
-      ],
-      "@utils": [
-        "../utils/index.ts"
-      ]
+      "@stencil/core/cli": ["../cli/index.ts"],
+      "@stencil/core/compiler": ["../compiler/index.ts"],
+      "@stencil/core/declarations": ["../declarations/index.ts"],
+      "@stencil/core/mock-doc": ["../mock-doc/index.ts"],
+      "@stencil/core/testing": ["../testing/index.ts"],
+      "@stencil/core": ["../index.ts"],
+      "@sys-api-node": ["../sys/node/index.ts"],
+      "@utils": ["../utils/index.ts"]
     }
   }
 }

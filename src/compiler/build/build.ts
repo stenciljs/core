@@ -1,19 +1,20 @@
-import type * as d from '../../declarations';
-import { buildAbort, buildFinish } from './build-finish';
-import { catchError, isString, readPackageJson } from '@utils';
 import { createDocument } from '@stencil/core/mock-doc';
-import { emptyOutputTargets } from '../output-targets/empty-dir';
-import { generateGlobalStyles } from '../style/global-styles';
-import { generateOutputTargets } from '../output-targets';
-import { runTsProgram } from '../transpile/run-program';
-import { writeBuild } from './write-build';
+import { catchError, isString, readPackageJson } from '@utils';
 import ts from 'typescript';
 
+import type * as d from '../../declarations';
+import { generateOutputTargets } from '../output-targets';
+import { emptyOutputTargets } from '../output-targets/empty-dir';
+import { generateGlobalStyles } from '../style/global-styles';
+import { runTsProgram } from '../transpile/run-program';
+import { buildAbort, buildFinish } from './build-finish';
+import { writeBuild } from './write-build';
+
 export const build = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  tsBuilder: ts.BuilderProgram
+  tsBuilder: ts.BuilderProgram,
 ) => {
   try {
     // reset process.cwd() for 3rd-party plugins

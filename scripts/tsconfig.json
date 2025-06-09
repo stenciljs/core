@@ -1,26 +1,28 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
+    "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "lib": [
       "dom",
-      "es2017",
-      "esnext.array"
+      "es2021"
     ],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true,
     "outDir": "build/",
     "pretty": true,
-    "target": "es2017",
+    "target": "ES2020",
     "incremental": false,
     "useUnknownInCatchVariables": true
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "types/*.d.ts"
   ],
   "exclude": [
-    "**/*.spec.ts",
+    "**/*.spec.ts"
   ]
 }

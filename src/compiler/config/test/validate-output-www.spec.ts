@@ -1,39 +1,49 @@
 import type * as d from '@stencil/core/declarations';
-import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww } from '../../output-targets/output-utils';
-import { validateConfig } from '../validate-config';
+import { mockLoadConfigInit } from '@stencil/core/testing';
+import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '@utils';
 import path from 'path';
 
+import { ConfigFlags, createConfigFlags } from '../../../cli/config-flags';
+import { validateConfig } from '../validate-config';
+
 describe('validateOutputTargetWww', () => {
+  // use Node's resolve() here to simulate a user using either Win/Posix separators (depending on the platform these
+  // tests are run on)
   const rootDir = path.resolve('/');
   let userConfig: d.Config;
+  let flags: ConfigFlags;
+
   beforeEach(() => {
+    flags = createConfigFlags();
     userConfig = {
       rootDir: rootDir,
-      flags: {},
-    } as any;
+      flags,
+    };
   });
 
   it('should have default value', () => {
     const outputTarget: d.OutputTargetWww = {
       type: 'www',
+      // use Node's join() here to simulate a user using either Win/Posix separators (depending on the platform these
+      // tests are run on) for their input
       dir: path.join('www', 'docs'),
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildEs5 = false;
-    const { config } = validateConfig(userConfig);
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
     expect(config.outputTargets).toEqual([
       {
-        appDir: path.join(rootDir, 'www', 'docs'),
+        appDir: join(rootDir, 'www', 'docs'),
         baseUrl: '/',
-        buildDir: path.join(rootDir, 'www', 'docs', 'build'),
-        dir: path.join(rootDir, 'www', 'docs'),
+        buildDir: join(rootDir, 'www', 'docs', 'build'),
+        dir: join(rootDir, 'www', 'docs'),
         empty: true,
-        indexHtml: path.join(rootDir, 'www', 'docs', 'index.html'),
+        indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
         polyfills: true,
         serviceWorker: {
           dontCacheBustURLsMatching: /p-\w{8}/,
-          globDirectory: path.join(rootDir, 'www', 'docs'),
+          globDirectory: join(rootDir, 'www', 'docs'),
           globIgnores: [
             '**/host.config.json',
             '**/*.system.entry.js',
@@ -43,13 +53,13 @@ describe('validateOutputTargetWww', () => {
             '**/app.css',
           ],
           globPatterns: ['*.html', '**/*.{js,css,json}'],
-          swDest: path.join(rootDir, 'www', 'docs', 'sw.js'),
+          swDest: join(rootDir, 'www', 'docs', 'sw.js'),
         },
         type: 'www',
       },
       {
-        dir: path.join(rootDir, 'www', 'docs', 'build'),
-        esmDir: path.join(rootDir, 'www', 'docs', 'build'),
+        dir: join(rootDir, 'www', 'docs', 'build'),
+        esmDir: join(rootDir, 'www', 'docs', 'build'),
         isBrowserBuild: true,
         polyfills: true,
         systemDir: undefined,
@@ -58,7 +68,7 @@ describe('validateOutputTargetWww', () => {
       },
       {
         copyAssets: 'dist',
-        dir: path.join(rootDir, 'www', 'docs', 'build'),
+        dir: join(rootDir, 'www', 'docs', 'build'),
         type: 'copy',
       },
       {
@@ -72,11 +82,11 @@ describe('validateOutputTargetWww', () => {
             warn: false,
           },
         ],
-        dir: path.join(rootDir, 'www', 'docs'),
+        dir: join(rootDir, 'www', 'docs'),
         type: 'copy',
       },
       {
-        file: path.join(rootDir, 'www', 'docs', 'build', 'app.css'),
+        file: join(rootDir, 'www', 'docs', 'build', 'app.css'),
         type: 'dist-global-styles',
       },
     ]);
@@ -85,16 +95,18 @@ describe('validateOutputTargetWww', () => {
   it('should www with sub directory', () => {
     const outputTarget: d.OutputTargetWww = {
       type: 'www',
+      // use Node's join() here to simulate a user using either Win/Posix separators (depending on the platform these
+      // tests are run on) for their input
       dir: path.join('www', 'docs'),
     };
     userConfig.outputTargets = [outputTarget];
-    const { config } = validateConfig(userConfig);
-    const www = config.outputTargets.find(isOutputTargetWww);
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
-    expect(www.dir).toBe(path.join(rootDir, 'www', 'docs'));
-    expect(www.appDir).toBe(path.join(rootDir, 'www', 'docs'));
-    expect(www.buildDir).toBe(path.join(rootDir, 'www', 'docs', 'build'));
-    expect(www.indexHtml).toBe(path.join(rootDir, 'www', 'docs', 'index.html'));
+    expect(www.dir).toBe(join(rootDir, 'www', 'docs'));
+    expect(www.appDir).toBe(join(rootDir, 'www', 'docs'));
+    expect(www.buildDir).toBe(join(rootDir, 'www', 'docs', 'build'));
+    expect(www.indexHtml).toBe(join(rootDir, 'www', 'docs', 'index.html'));
   });
 
   it('should set www values', () => {
@@ -106,45 +118,45 @@ describe('validateOutputTargetWww', () => {
       empty: false,
     };
     userConfig.outputTargets = [outputTarget];
-    const { config } = validateConfig(userConfig);
-    const www = config.outputTargets.find(isOutputTargetWww);
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
     expect(www.type).toBe('www');
-    expect(www.dir).toBe(path.join(rootDir, 'my-www'));
-    expect(www.buildDir).toBe(path.join(rootDir, 'my-www', 'my-build'));
-    expect(www.indexHtml).toBe(path.join(rootDir, 'my-www', 'my-index.htm'));
+    expect(www.dir).toBe(join(rootDir, 'my-www'));
+    expect(www.buildDir).toBe(join(rootDir, 'my-www', 'my-build'));
+    expect(www.indexHtml).toBe(join(rootDir, 'my-www', 'my-index.htm'));
     expect(www.empty).toBe(false);
   });
 
   it('should default to add www when outputTargets is undefined', () => {
-    const { config } = validateConfig(userConfig);
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
     expect(config.outputTargets).toHaveLength(5);
 
-    const outputTarget = config.outputTargets.find(isOutputTargetWww);
-    expect(outputTarget.dir).toBe(path.join(rootDir, 'www'));
-    expect(outputTarget.buildDir).toBe(path.join(rootDir, 'www', 'build'));
-    expect(outputTarget.indexHtml).toBe(path.join(rootDir, 'www', 'index.html'));
+    const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(outputTarget.dir).toBe(join(rootDir, 'www'));
+    expect(outputTarget.buildDir).toBe(join(rootDir, 'www', 'build'));
+    expect(outputTarget.indexHtml).toBe(join(rootDir, 'www', 'index.html'));
     expect(outputTarget.empty).toBe(true);
   });
 
   describe('baseUrl', () => {
-    it('baseUrl does not end with /', () => {
+    it('baseUrl does not end with / with dir set', () => {
       const outputTarget: d.OutputTargetWww = {
         type: 'www',
         dir: 'my-www',
         baseUrl: '/docs',
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
-      const www = config.outputTargets.find(isOutputTargetWww);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
       expect(www.type).toBe('www');
-      expect(www.dir).toBe(path.join(rootDir, 'my-www'));
+      expect(www.dir).toBe(join(rootDir, 'my-www'));
       expect(www.baseUrl).toBe('/docs/');
-      expect(www.appDir).toBe(path.join(rootDir, 'my-www/docs'));
+      expect(www.appDir).toBe(join(rootDir, 'my-www/docs'));
 
-      expect(www.buildDir).toBe(path.join(rootDir, 'my-www', 'docs', 'build'));
-      expect(www.indexHtml).toBe(path.join(rootDir, 'my-www', 'docs', 'index.html'));
+      expect(www.buildDir).toBe(join(rootDir, 'my-www', 'docs', 'build'));
+      expect(www.indexHtml).toBe(join(rootDir, 'my-www', 'docs', 'index.html'));
     });
 
     it('baseUrl does not end with /', () => {
@@ -153,16 +165,16 @@ describe('validateOutputTargetWww', () => {
         baseUrl: '/docs',
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
-      const www = config.outputTargets.find(isOutputTargetWww);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
       expect(www.type).toBe('www');
-      expect(www.dir).toBe(path.join(rootDir, 'www'));
+      expect(www.dir).toBe(join(rootDir, 'www'));
       expect(www.baseUrl).toBe('/docs/');
-      expect(www.appDir).toBe(path.join(rootDir, 'www/docs'));
+      expect(www.appDir).toBe(join(rootDir, 'www/docs'));
 
-      expect(www.buildDir).toBe(path.join(rootDir, 'www', 'docs', 'build'));
-      expect(www.indexHtml).toBe(path.join(rootDir, 'www', 'docs', 'index.html'));
+      expect(www.buildDir).toBe(join(rootDir, 'www', 'docs', 'build'));
+      expect(www.indexHtml).toBe(join(rootDir, 'www', 'docs', 'index.html'));
     });
 
     it('baseUrl is a full url', () => {
@@ -171,16 +183,16 @@ describe('validateOutputTargetWww', () => {
         baseUrl: 'https://example.com/docs',
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
-      const www = config.outputTargets.find(isOutputTargetWww);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
       expect(www.type).toBe('www');
-      expect(www.dir).toBe(path.join(rootDir, 'www'));
+      expect(www.dir).toBe(join(rootDir, 'www'));
       expect(www.baseUrl).toBe('https://example.com/docs/');
-      expect(www.appDir).toBe(path.join(rootDir, 'www/docs'));
+      expect(www.appDir).toBe(join(rootDir, 'www/docs'));
 
-      expect(www.buildDir).toBe(path.join(rootDir, 'www', 'docs', 'build'));
-      expect(www.indexHtml).toBe(path.join(rootDir, 'www', 'docs', 'index.html'));
+      expect(www.buildDir).toBe(join(rootDir, 'www', 'docs', 'build'));
+      expect(www.indexHtml).toBe(join(rootDir, 'www', 'docs', 'index.html'));
     });
   });
 
@@ -188,6 +200,8 @@ describe('validateOutputTargetWww', () => {
     it('should add copy tasks', () => {
       const outputTarget: d.OutputTargetWww = {
         type: 'www',
+        // use Node's join() here to simulate a user using either Win/Posix separators (depending on the platform these
+        // tests are run on) for their input
         dir: path.join('www', 'docs'),
         copy: [
           {
@@ -197,13 +211,13 @@ describe('validateOutputTargetWww', () => {
         ],
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
           copyAssets: 'dist',
-          dir: path.join(rootDir, 'www', 'docs', 'build'),
+          dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
         {
@@ -221,7 +235,7 @@ describe('validateOutputTargetWww', () => {
               warn: false,
             },
           ],
-          dir: path.join(rootDir, 'www', 'docs'),
+          dir: join(rootDir, 'www', 'docs'),
           type: 'copy',
         },
       ]);
@@ -230,6 +244,8 @@ describe('validateOutputTargetWww', () => {
     it('should replace copy tasks', () => {
       const outputTarget: d.OutputTargetWww = {
         type: 'www',
+        // use Node's join() here to simulate a user using either Win/Posix separators (depending on the platform these
+        // tests are run on) for their input
         dir: path.join('www', 'docs'),
         copy: [
           {
@@ -239,13 +255,13 @@ describe('validateOutputTargetWww', () => {
         ],
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
           copyAssets: 'dist',
-          dir: path.join(rootDir, 'www', 'docs', 'build'),
+          dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
         {
@@ -259,7 +275,7 @@ describe('validateOutputTargetWww', () => {
               warn: false,
             },
           ],
-          dir: path.join(rootDir, 'www', 'docs'),
+          dir: join(rootDir, 'www', 'docs'),
           type: 'copy',
         },
       ]);
@@ -268,22 +284,24 @@ describe('validateOutputTargetWww', () => {
     it('should disable copy tasks', () => {
       const outputTarget: d.OutputTargetWww = {
         type: 'www',
+        // use Node's join() here to simulate a user using either Win/Posix separators (depending on the platform these
+        // tests are run on) for their input
         dir: path.join('www', 'docs'),
         copy: null,
       };
       userConfig.outputTargets = [outputTarget];
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
           copyAssets: 'dist',
-          dir: path.join(rootDir, 'www', 'docs', 'build'),
+          dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
         {
           copy: [],
-          dir: path.join(rootDir, 'www', 'docs'),
+          dir: join(rootDir, 'www', 'docs'),
           type: 'copy',
         },
       ]);
@@ -292,7 +310,7 @@ describe('validateOutputTargetWww', () => {
 
   describe('dist-hydrate-script', () => {
     it('should not add hydrate by default', () => {
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
@@ -302,7 +320,7 @@ describe('validateOutputTargetWww', () => {
         type: 'www',
       };
       userConfig.outputTargets = [wwwOutputTarget];
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
@@ -315,21 +333,21 @@ describe('validateOutputTargetWww', () => {
         type: 'dist-hydrate-script',
       };
       userConfig.outputTargets = [wwwOutputTarget, hydrateOutputTarget];
-      const { config } = validateConfig(userConfig);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with --prerender flag', () => {
-      userConfig.flags.prerender = true;
-      const { config } = validateConfig(userConfig);
+      userConfig.flags = { ...flags, prerender: true };
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with --ssr flag', () => {
-      userConfig.flags.ssr = true;
-      const { config } = validateConfig(userConfig);
+      userConfig.flags = { ...flags, ssr: true };
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
@@ -340,8 +358,8 @@ describe('validateOutputTargetWww', () => {
         external: ['lodash', 'left-pad'],
       };
       userConfig.outputTargets = [hydrateOutputTarget];
-      const { config } = validateConfig(userConfig);
-      const o = config.outputTargets.find(isOutputTargetHydrate);
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
       expect(o.external).toContain('lodash');
       expect(o.external).toContain('left-pad');
       expect(o.external).toContain('fs');
@@ -350,9 +368,10 @@ describe('validateOutputTargetWww', () => {
     });
 
     it('should add node builtins to external by default', () => {
-      userConfig.flags.prerender = true;
-      const { config } = validateConfig(userConfig);
-      const o = config.outputTargets.find(isOutputTargetHydrate);
+      userConfig.flags = { ...flags, prerender: true };
+
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
       expect(o.external).toContain('fs');
       expect(o.external).toContain('path');
       expect(o.external).toContain('crypto');

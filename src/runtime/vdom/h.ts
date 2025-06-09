@@ -7,12 +7,11 @@
  * Modified for Stencil's compiler and vdom
  */
 
-import type * as d from '../../declarations';
 import { BUILD } from '@app-data';
 import { consoleDevError, consoleDevWarn } from '@platform';
 import { isComplexType } from '@utils';
 
-// const stack: any[] = [];
+import type * as d from '../../declarations';
 
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, child?: d.ChildType): d.VNode;
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;
@@ -22,7 +21,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
   let slotName: string = null;
   let simple = false;
   let lastSimple = false;
-  let vNodeChildren: d.VNode[] = [];
+  const vNodeChildren: d.VNode[] = [];
   const walk = (c: any[]) => {
     for (let i = 0; i < c.length; i++) {
       child = c[i];
@@ -53,13 +52,13 @@ Empty objects can also be the cause, look for JSX comments that became objects.`
     if (BUILD.isDev && nodeName === 'input') {
       validateInputProperties(vnodeData);
     }
-    // normalize class / classname attributes
     if (BUILD.vdomKey && vnodeData.key) {
       key = vnodeData.key;
     }
     if (BUILD.slotRelocation && vnodeData.name) {
       slotName = vnodeData.name;
     }
+    // normalize class / className attributes
     if (BUILD.vdomClass) {
       const classData = vnodeData.className || vnodeData.class;
       if (classData) {
@@ -84,7 +83,7 @@ Empty objects can also be the cause, look for JSX comments that became objects.`
     return (nodeName as d.FunctionalComponent<any>)(
       vnodeData === null ? {} : vnodeData,
       vNodeChildren,
-      vdomFnUtils
+      vdomFnUtils,
     ) as any;
   }
 
@@ -102,6 +101,14 @@ Empty objects can also be the cause, look for JSX comments that became objects.`
   return vnode;
 };
 
+/**
+ * A utility function for creating a virtual DOM node from a tag and some
+ * possible text content.
+ *
+ * @param tag the tag for this element
+ * @param text possible text content for the node
+ * @returns a newly-minted virtual DOM node
+ */
 export const newVNode = (tag: string, text: string) => {
   const vnode: d.VNode = {
     $flags$: 0,
@@ -124,13 +131,33 @@ export const newVNode = (tag: string, text: string) => {
 
 export const Host = {};
 
+/**
+ * Check whether a given node is a Host node or not
+ *
+ * @param node the virtual DOM node to check
+ * @returns whether it's a Host node or not
+ */
 export const isHost = (node: any): node is d.VNode => node && node.$tag$ === Host;
 
+/**
+ * Implementation of {@link d.FunctionalUtilities} for Stencil's VDom.
+ *
+ * Note that these functions convert from {@link d.VNode} to
+ * {@link d.ChildNode} to give functional component developers a friendly
+ * interface.
+ */
 const vdomFnUtils: d.FunctionalUtilities = {
   forEach: (children, cb) => children.map(convertToPublic).forEach(cb),
   map: (children, cb) => children.map(convertToPublic).map(cb).map(convertToPrivate),
 };
 
+/**
+ * Convert a {@link d.VNode} to a {@link d.ChildNode} in order to present a
+ * friendlier public interface (hence, 'convertToPublic').
+ *
+ * @param node the virtual DOM node to convert
+ * @returns a converted child node
+ */
 const convertToPublic = (node: d.VNode): d.ChildNode => ({
   vattrs: node.$attrs$,
   vchildren: node.$children$,
@@ -140,6 +167,15 @@ const convertToPublic = (node: d.VNode): d.ChildNode => ({
   vtext: node.$text$,
 });
 
+/**
+ * Convert a {@link d.ChildNode} back to an equivalent {@link d.VNode} in
+ * order to use the resulting object in the virtual DOM. The initial object was
+ * likely created as part of presenting a public API, so converting it back
+ * involved making it 'private' again (hence, `convertToPrivate`).
+ *
+ * @param node the child node to convert
+ * @returns a converted virtual DOM node
+ */
 const convertToPrivate = (node: d.ChildNode): d.VNode => {
   if (typeof node.vtag === 'function') {
     const vnodeData = { ...node.vattrs };
@@ -165,6 +201,7 @@ const convertToPrivate = (node: d.ChildNode): d.VNode => {
 
 /**
  * Validates the ordering of attributes on an input element
+ *
  * @param inputElm the element to validate
  */
 const validateInputProperties = (inputElm: HTMLInputElement): void => {

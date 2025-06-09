@@ -1,8 +1,8 @@
+import { buildError, catchError, isFunction, isString, relative } from '@utils';
+
 import type * as d from '../../declarations';
-import { buildError, catchError, isFunction, isString } from '@utils';
 import { crawlAnchorsForNextUrls } from './crawl-urls';
 import { getWriteFilePathFromUrlPath } from './prerendered-write-path';
-import { relative } from 'path';
 
 export const initializePrerenderEntryUrls = (results: d.PrerenderResults, manager: d.PrerenderManager) => {
   const entryAnchors: d.HydrateAnchorElement[] = [];
@@ -127,7 +127,7 @@ const prerenderUrl = async (results: d.PrerenderResults, manager: d.PrerenderMan
       writeToFilePath: getWriteFilePathFromUrlPath(manager, url),
     };
 
-    // prender this path and wait on the results
+    // prerender this path and wait on the results
     const urlResults = await manager.prerenderUrlWorker(prerenderRequest);
 
     if (manager.isDebug) {
@@ -160,7 +160,7 @@ const prerenderUrl = async (results: d.PrerenderResults, manager: d.PrerenderMan
   const urlsCompletedSize = manager.urlsCompleted.size;
   if (manager.progressLogger && urlsCompletedSize > 1) {
     manager.progressLogger.update(
-      `           prerendered ${urlsCompletedSize} urls: ${manager.config.logger.dim(previewUrl)}`
+      `           prerendered ${urlsCompletedSize} urls: ${manager.config.logger.dim(previewUrl)}`,
     );
   }
 

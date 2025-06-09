@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig-stencil.json",
+  "compilerOptions": {
+    "paths": {
+      "@stencil/core": ["../../../internal"],
+      "@stencil/core/internal": ["../../../internal"]
+    }
+  },
+  "include": [
+    "test-prerender/src",
+  ]
+}

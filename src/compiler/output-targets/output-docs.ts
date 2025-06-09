@@ -1,29 +1,37 @@
-import type * as d from '../../declarations';
-import { generateDocData } from '../docs/generate-doc-data';
-import { generateCustomDocs } from '../docs/custom';
-import { generateJsonDocs } from '../docs/json';
-import { generateReadmeDocs } from '../docs/readme';
-import { generateVscodeDocs } from '../docs/vscode';
 import {
-  isOutputTargetCustom,
   isOutputTargetDocsCustom,
   isOutputTargetDocsJson,
   isOutputTargetDocsReadme,
   isOutputTargetDocsVscode,
-} from './output-utils';
-import { outputCustom } from './output-custom';
+} from '@utils';
 
-export const outputDocs = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+import type * as d from '../../declarations';
+import { generateCustomDocs } from '../docs/custom';
+import { generateDocData } from '../docs/generate-doc-data';
+import { generateJsonDocs } from '../docs/json';
+import { generateReadmeDocs } from '../docs/readme';
+import { generateVscodeDocs } from '../docs/vscode';
+
+/**
+ * Generate documentation-related output targets
+ * @param config the configuration associated with the current Stencil task run
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the build context for the current Stencil task run
+ */
+export const outputDocs = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): Promise<void> => {
   if (!config.buildDocs) {
     return;
   }
   const docsOutputTargets = config.outputTargets.filter(
     (o) =>
-      isOutputTargetCustom(o) ||
       isOutputTargetDocsReadme(o) ||
       isOutputTargetDocsJson(o) ||
       isOutputTargetDocsCustom(o) ||
-      isOutputTargetDocsVscode(o)
+      isOutputTargetDocsVscode(o),
   );
 
   if (docsOutputTargets.length === 0) {
@@ -40,6 +48,5 @@ export const outputDocs = async (config: d.Config, compilerCtx: d.CompilerCtx, b
     generateJsonDocs(config, compilerCtx, docsData, docsOutputTargets),
     generateVscodeDocs(compilerCtx, docsData, docsOutputTargets),
     generateCustomDocs(config, docsData, docsOutputTargets),
-    outputCustom(config, compilerCtx, buildCtx, docsData, docsOutputTargets),
   ]);
 };

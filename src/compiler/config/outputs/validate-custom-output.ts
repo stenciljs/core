@@ -1,8 +1,12 @@
-import type * as d from '../../../declarations';
-import { catchError } from '@utils';
-import { COPY, isOutputTargetCustom } from '../../output-targets/output-utils';
+import { catchError, COPY, isOutputTargetCustom } from '@utils';
 
-export const validateCustomOutput = (config: d.Config, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
+import type * as d from '../../../declarations';
+
+export const validateCustomOutput = (
+  config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
+  userOutputs: d.OutputTarget[],
+) => {
   return userOutputs.filter(isOutputTargetCustom).map((o) => {
     if (o.validate) {
       const localDiagnostics: d.Diagnostic[] = [];

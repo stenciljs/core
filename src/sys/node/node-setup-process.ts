@@ -1,5 +1,6 @@
-import type { Logger } from '../../declarations';
 import { shouldIgnoreError } from '@utils';
+
+import type { Logger } from '../../declarations';
 
 export function setupNodeProcess(c: { process: any; logger: Logger }) {
   c.process.on(`unhandledRejection`, (e: any) => {

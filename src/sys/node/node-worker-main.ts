@@ -1,19 +1,38 @@
-import type * as d from '../../declarations';
+import { TASK_CANCELED_MSG } from '@utils';
 import * as cp from 'child_process';
 import { EventEmitter } from 'events';
-import { TASK_CANCELED_MSG } from '@utils';
 
+import type * as d from '../../declarations';
+
+/**
+ * A class that holds a reference to a node worker sub-process within the main
+ * thread so that messages may be passed to it.
+ */
 export class NodeWorkerMain extends EventEmitter {
+  /**
+   * A handle for the OS process that is running our worker code
+   */
   childProcess: cp.ChildProcess;
   tasks = new Map<number, d.CompilerWorkerTask>();
   exitCode: number = null;
   processQueue = true;
-  sendQueue: d.MsgToWorker[] = [];
+  sendQueue: d.MsgToWorker<any>[] = [];
   stopped = false;
   successfulMessage = false;
   totalTasksAssigned = 0;
 
-  constructor(public id: number, forkModulePath: string) {
+  /**
+   * Create an object for holding and interacting with a reference to a worker
+   * child-process.
+   *
+   * @param id a unique ID
+   * @param forkModulePath the path to the module which should be run by the
+   * child process
+   */
+  constructor(
+    public id: number,
+    forkModulePath: string,
+  ) {
     super();
     this.fork(forkModulePath);
   }
@@ -56,13 +75,16 @@ export class NodeWorkerMain extends EventEmitter {
     this.totalTasksAssigned++;
     this.tasks.set(task.stencilId, task);
 
+    const [method, ...args] = task.inputArgs;
+
     this.sendToWorker({
       stencilId: task.stencilId,
-      args: task.inputArgs,
+      method,
+      args,
     });
   }
 
-  sendToWorker(msg: d.MsgToWorker) {
+  sendToWorker<T extends d.WorkerContextMethod>(msg: d.MsgToWorker<T>) {
     if (!this.processQueue) {
       this.sendQueue.push(msg);
       return;
@@ -87,7 +109,7 @@ export class NodeWorkerMain extends EventEmitter {
     }
   }
 
-  receiveFromWorker(msgFromWorker: d.MsgFromWorker) {
+  receiveFromWorker<T extends d.WorkerContextMethod>(msgFromWorker: d.MsgFromWorker<T>) {
     this.successfulMessage = true;
 
     if (this.stopped) {

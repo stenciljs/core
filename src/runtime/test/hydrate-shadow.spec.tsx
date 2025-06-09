@@ -61,7 +61,6 @@ describe('hydrate, shadow', () => {
               <slot></slot>
             </article>
           </mock:shadow-root>
-          <!---->
           CmpALightDom
         </cmp-b>
       </cmp-a>
@@ -119,7 +118,7 @@ describe('hydrate, shadow', () => {
             </header>
             <div c-id="1.5.2.1">
               <!--s.1.6.3.0.-->
-              <div c-id="0.2">
+              <div c-id="0.2" s-sn="">
                 <img>
                 <p>
                   LightDom1
@@ -157,7 +156,6 @@ describe('hydrate, shadow', () => {
             </section>
           </article>
         </mock:shadow-root>
-        <!---->
         <div>
           <img>
           <p>

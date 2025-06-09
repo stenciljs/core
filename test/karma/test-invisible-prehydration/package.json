@@ -1,7 +1,0 @@
-{
-  "name": "test-invisible-prehydration",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
-  "collection": "dist/collection/collection-manifest.json",
-  "types": "dist/types/components.d.ts"
-}

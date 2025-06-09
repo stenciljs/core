@@ -1,11 +1,12 @@
-import type * as d from '../../declarations';
-import type { BundleOptions } from './bundle-interface';
-import { getModule } from '../transpile/transpiled-module';
-import { isString, normalizeFsPath } from '@utils';
+import { isDtsFile, isString, normalizeFsPath } from '@utils';
+import { basename, isAbsolute } from 'path';
 import type { LoadResult, Plugin, TransformResult } from 'rollup';
-import { tsResolveModuleName } from '../sys/typescript/typescript-resolve-module';
-import { isAbsolute, basename } from 'path';
 import ts from 'typescript';
+
+import type * as d from '../../declarations';
+import { tsResolveModuleName } from '../sys/typescript/typescript-resolve-module';
+import { getModule } from '../transpile/transpiled-module';
+import type { BundleOptions } from './bundle-interface';
 
 /**
  * Rollup plugin that aids in resolving the TypeScript files and performing the transpilation step.
@@ -14,7 +15,11 @@ import ts from 'typescript';
  * @param config the Stencil configuration for the project
  * @returns the rollup plugin for handling TypeScript files.
  */
-export const typescriptPlugin = (compilerCtx: d.CompilerCtx, bundleOpts: BundleOptions, config: d.Config): Plugin => {
+export const typescriptPlugin = (
+  compilerCtx: d.CompilerCtx,
+  bundleOpts: BundleOptions,
+  config: d.ValidatedConfig,
+): Plugin => {
   return {
     name: `${bundleOpts.id}TypescriptPlugin`,
 
@@ -56,7 +61,9 @@ export const typescriptPlugin = (compilerCtx: d.CompilerCtx, bundleOpts: BundleO
           const tsResult = ts.transpileModule(mod.staticSourceFileText, {
             compilerOptions: config.tsCompilerOptions,
             fileName: mod.sourceFilePath,
-            transformers: { before: bundleOpts.customTransformers },
+            transformers: {
+              before: bundleOpts.customBeforeTransformers ?? [],
+            },
           });
           const sourceMap: d.SourceMap = tsResult.sourceMapText ? JSON.parse(tsResult.sourceMapText) : null;
           return { code: tsResult.outputText, map: sourceMap };
@@ -67,7 +74,7 @@ export const typescriptPlugin = (compilerCtx: d.CompilerCtx, bundleOpts: BundleO
   };
 };
 
-export const resolveIdWithTypeScript = (config: d.Config, compilerCtx: d.CompilerCtx): Plugin => {
+export const resolveIdWithTypeScript = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx): Plugin => {
   return {
     name: `resolveIdWithTypeScript`,
 
@@ -81,7 +88,7 @@ export const resolveIdWithTypeScript = (config: d.Config, compilerCtx: d.Compile
         // this is probably a .d.ts file for whatever reason in how TS resolves this
         // use this resolved file as the "importer"
         const tsResolvedPath = tsResolved.resolvedModule.resolvedFileName;
-        if (isString(tsResolvedPath) && !tsResolvedPath.endsWith('.d.ts')) {
+        if (isString(tsResolvedPath) && !isDtsFile(tsResolvedPath)) {
           return tsResolvedPath;
         }
       }

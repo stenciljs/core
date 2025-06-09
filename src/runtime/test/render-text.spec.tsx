@@ -20,6 +20,30 @@ describe('render-text', () => {
     `);
   });
 
+  @Component({ tag: 'cmp-a', shadow: true })
+  class CmpAShadow {
+    render() {
+      return 'Hello World';
+    }
+  }
+
+  it('Hello World, innerHTML, await waitForChanges, shadow component', async () => {
+    const { body, waitForChanges } = await newSpecPage({
+      components: [CmpAShadow],
+    });
+
+    body.innerHTML = `<cmp-a></cmp-a>`;
+    await waitForChanges();
+
+    expect(body).toEqualHtml(`
+      <cmp-a>
+        <mock:shadow-root>
+          Hello World
+        </mock:shadow-root>
+      </cmp-a>
+    `);
+  });
+
   it('Hello World, innerHTML, await waitForChanges', async () => {
     const { body, waitForChanges } = await newSpecPage({
       components: [CmpA],

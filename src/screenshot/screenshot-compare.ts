@@ -1,26 +1,32 @@
 import type * as d from '@stencil/core/internal';
 import { normalizePath } from '@utils';
-import { writeScreenshotData, writeScreenshotImage } from './screenshot-fs';
+import { fork } from 'child_process';
 import { createHash } from 'crypto';
 import { join, relative } from 'path';
-import { fork } from 'child_process';
+
+import { writeScreenshotData, writeScreenshotImage } from './screenshot-fs';
+
+/**
+ * @see {@link d.TestingConfig.screenshotTimeout}
+ */
+const DEFAULT_SCREENSHOT_TIMEOUT = 2500;
 
 export async function compareScreenshot(
   emulateConfig: d.EmulateConfig,
   screenshotBuildData: d.ScreenshotBuildData,
   currentScreenshotBuf: Buffer,
+  screenshotTimeoutMs: number | null,
   desc: string,
   width: number,
   height: number,
   testPath: string,
-  pixelmatchThreshold: number
+  pixelmatchThreshold: number,
 ) {
-  const currentImageHash = createHash('md5').update(currentScreenshotBuf).digest('hex');
+  const currentImageHash = createHash('sha256').update(currentScreenshotBuf).digest('hex');
   const currentImageName = `${currentImageHash}.png`;
   const currentImagePath = join(screenshotBuildData.imagesDir, currentImageName);
 
   await writeScreenshotImage(currentImagePath, currentScreenshotBuf);
-  currentScreenshotBuf = null;
 
   if (testPath) {
     testPath = normalizePath(relative(screenshotBuildData.rootDir, testPath));
@@ -32,7 +38,7 @@ export async function compareScreenshot(
   // and what we can use to quickly see if they're identical or not
   const screenshotId = getScreenshotId(emulateConfig, desc);
 
-  const screenshot: d.Screenshot = {
+  const screenshot = {
     id: screenshotId,
     image: currentImageName,
     device: emulateConfig.device,
@@ -41,10 +47,10 @@ export async function compareScreenshot(
     testPath: testPath,
     width: width,
     height: height,
-    deviceScaleFactor: emulateConfig.viewport.deviceScaleFactor,
-    hasTouch: emulateConfig.viewport.hasTouch,
-    isLandscape: emulateConfig.viewport.isLandscape,
-    isMobile: emulateConfig.viewport.isMobile,
+    deviceScaleFactor: emulateConfig.viewport?.deviceScaleFactor,
+    hasTouch: emulateConfig.viewport?.hasTouch,
+    isLandscape: emulateConfig.viewport?.isLandscape,
+    isMobile: emulateConfig.viewport?.isMobile,
     diff: {
       id: screenshotId,
       desc: desc,
@@ -55,15 +61,16 @@ export async function compareScreenshot(
       userAgent: emulateConfig.userAgent,
       width: width,
       height: height,
-      deviceScaleFactor: emulateConfig.viewport.deviceScaleFactor,
-      hasTouch: emulateConfig.viewport.hasTouch,
-      isLandscape: emulateConfig.viewport.isLandscape,
-      isMobile: emulateConfig.viewport.isMobile,
+      deviceScaleFactor: emulateConfig.viewport?.deviceScaleFactor,
+      hasTouch: emulateConfig.viewport?.hasTouch,
+      isLandscape: emulateConfig.viewport?.isLandscape,
+      isMobile: emulateConfig.viewport?.isMobile,
       allowableMismatchedPixels: screenshotBuildData.allowableMismatchedPixels,
       allowableMismatchedRatio: screenshotBuildData.allowableMismatchedRatio,
       testPath: testPath,
+      cacheKey: undefined as string | undefined,
     },
-  };
+  } satisfies d.Screenshot;
 
   if (screenshotBuildData.updateMaster) {
     // this data is going to become the master data
@@ -102,21 +109,18 @@ export async function compareScreenshot(
       // compare the two images pixel by pixel to
       // figure out a mismatch value
 
-      // figure out the actual width and height of the screenshot
-      const naturalWidth = Math.round(emulateConfig.viewport.width * emulateConfig.viewport.deviceScaleFactor);
-      const naturalHeight = Math.round(emulateConfig.viewport.height * emulateConfig.viewport.deviceScaleFactor);
-
       const pixelMatchInput: d.PixelMatchInput = {
         imageAPath: join(screenshotBuildData.imagesDir, screenshot.diff.imageA),
         imageBPath: join(screenshotBuildData.imagesDir, screenshot.diff.imageB),
-        width: naturalWidth,
-        height: naturalHeight,
+        width: Math.round(width),
+        height: Math.round(height),
         pixelmatchThreshold: pixelmatchThreshold,
       };
 
       screenshot.diff.mismatchedPixels = await getMismatchedPixels(
         screenshotBuildData.pixelmatchModulePath,
-        pixelMatchInput
+        pixelMatchInput,
+        screenshotTimeoutMs,
       );
     }
   }
@@ -126,14 +130,32 @@ export async function compareScreenshot(
   return screenshot.diff;
 }
 
-async function getMismatchedPixels(pixelmatchModulePath: string, pixelMatchInput: d.PixelMatchInput) {
+async function getMismatchedPixels(
+  pixelmatchModulePath: string,
+  pixelMatchInput: d.PixelMatchInput,
+  screenshotTimeoutMs: number | null,
+) {
   return new Promise<number>((resolve, reject) => {
-    const timeout = jasmine.DEFAULT_TIMEOUT_INTERVAL * 0.5;
+    /**
+     * When using screenshot functionality in a runner that is not Jasmine (e.g. Jest Circus), we need to set a default
+     * value for timeouts. There are runtime errors that occur if we attempt to use optional chaining + nullish
+     * coalescing with the `jasmine` global stating it's not defined. As a result, we use a ternary here.
+     *
+     * For Jest environments that don't use Jest Circus we define the timeout based on the
+     * `jasmine.DEFAULT_TIMEOUT_INTERVAL` (5000) divided by 2. Otherwise we use {@link d.TestingConfig.screenshotTimeout}.
+     */
+    const timeout =
+      screenshotTimeoutMs !== null
+        ? screenshotTimeoutMs
+        : typeof jasmine !== 'undefined' && jasmine.DEFAULT_TIMEOUT_INTERVAL
+          ? jasmine.DEFAULT_TIMEOUT_INTERVAL * 0.5
+          : DEFAULT_SCREENSHOT_TIMEOUT;
     const tmr = setTimeout(() => {
       reject(`getMismatchedPixels timeout: ${timeout}ms`);
     }, timeout);
 
     try {
+      let error: string | undefined;
       const filteredExecArgs = process.execArgv.filter((v) => !/^--(debug|inspect)/.test(v));
 
       const options = {
@@ -156,6 +178,25 @@ async function getMismatchedPixels(pixelmatchModulePath: string, pixelMatchInput
         reject(err);
       });
 
+      pixelMatchProcess.stderr?.on('data', (data) => {
+        error = data.toString();
+      });
+
+      /**
+       * Make sure we reject the promise if the process exits due to an error
+       * or prematurely for some other reason. Note that in order to resolve
+       * the promise we expect a message to be sent containing information about
+       * the mismatched pixels.
+       */
+      pixelMatchProcess.on('exit', (code) => {
+        clearTimeout(tmr);
+        const exitError =
+          code === 0
+            ? new Error('Pixelmatch process exited unexpectedly')
+            : new Error(`Pixelmatch process exited with code ${code}: ${error || 'unknown error'}`);
+        return reject(exitError);
+      });
+
       pixelMatchProcess.send(pixelMatchInput);
     } catch (e) {
       clearTimeout(tmr);
@@ -167,7 +208,7 @@ async function getMismatchedPixels(pixelmatchModulePath: string, pixelMatchInput
 function getCacheKey(imageA: string, imageB: string, pixelmatchThreshold: number) {
   const hash = createHash('md5');
   hash.update(`${imageA}:${imageB}:${pixelmatchThreshold}`);
-  return hash.digest('hex').substr(0, 10);
+  return hash.digest('hex').slice(0, 10);
 }
 
 function getScreenshotId(emulateConfig: d.EmulateConfig, uniqueDescription: string) {
@@ -179,11 +220,14 @@ function getScreenshotId(emulateConfig: d.EmulateConfig, uniqueDescription: stri
 
   hash.update(uniqueDescription + ':');
   hash.update(emulateConfig.userAgent + ':');
-  hash.update(emulateConfig.viewport.width + ':');
-  hash.update(emulateConfig.viewport.height + ':');
-  hash.update(emulateConfig.viewport.deviceScaleFactor + ':');
-  hash.update(emulateConfig.viewport.hasTouch + ':');
-  hash.update(emulateConfig.viewport.isMobile + ':');
 
-  return hash.digest('hex').substr(0, 8).toLowerCase();
+  if (emulateConfig.viewport !== undefined) {
+    hash.update(emulateConfig.viewport.width + ':');
+    hash.update(emulateConfig.viewport.height + ':');
+    hash.update(emulateConfig.viewport.deviceScaleFactor + ':');
+    hash.update(emulateConfig.viewport.hasTouch + ':');
+    hash.update(emulateConfig.viewport.isMobile + ':');
+  }
+
+  return hash.digest('hex').slice(0, 8).toLowerCase();
 }

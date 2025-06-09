@@ -1,7 +1,7 @@
-import type { Diagnostic } from '../../declarations';
-import { IS_NODE_ENV } from './environment';
-import { loadTypeScriptDiagnostic, catchError } from '@utils';
+import { catchError, loadTypeScriptDiagnostic } from '@utils';
 import ts from 'typescript';
+
+import type { Diagnostic } from '../../declarations';
 
 export const nodeRequire = (id: string) => {
   const results = {
@@ -10,58 +10,59 @@ export const nodeRequire = (id: string) => {
     diagnostics: [] as Diagnostic[],
   };
 
-  if (IS_NODE_ENV) {
-    try {
-      const fs: typeof import('fs') = require('fs');
-      const path: typeof import('path') = require('path');
+  try {
+    const fs: typeof import('fs') = require('fs');
+    const path: typeof import('path') = require('path');
 
-      results.id = path.resolve(id);
+    results.id = path.resolve(id);
 
-      // ensure we cleared out node's internal require() cache for this file
-      delete require.cache[results.id];
+    // ensure we cleared out node's internal require() cache for this file
+    delete require.cache[results.id];
 
-      // let's override node's require for a second
-      // don't worry, we'll revert this when we're done
-      require.extensions['.ts'] = (module: NodeModuleWithCompile, fileName: string) => {
-        let sourceText = fs.readFileSync(fileName, 'utf8');
+    // let's override node's require for a second
+    // don't worry, we'll revert this when we're done
+    require.extensions['.ts'] = (module: NodeJS.Module, fileName: string) => {
+      let sourceText = fs.readFileSync(fileName, 'utf8');
 
-        if (fileName.endsWith('.ts')) {
-          // looks like we've got a typed config file
-          // let's transpile it to .js quick
-          const tsResults = ts.transpileModule(sourceText, {
-            fileName,
-            compilerOptions: {
-              module: ts.ModuleKind.CommonJS,
-              moduleResolution: ts.ModuleResolutionKind.NodeJs,
-              esModuleInterop: true,
-              target: ts.ScriptTarget.ES2017,
-              allowJs: true,
-            },
-          });
-          sourceText = tsResults.outputText;
+      if (fileName.endsWith('.ts')) {
+        // looks like we've got a typed config file
+        // let's transpile it to .js quick
+        const tsResults = ts.transpileModule(sourceText, {
+          fileName,
+          compilerOptions: {
+            module: ts.ModuleKind.CommonJS,
+            moduleResolution: ts.ModuleResolutionKind.NodeJs,
+            esModuleInterop: true,
+            target: ts.ScriptTarget.ES2017,
+            allowJs: true,
+          },
+        });
+        sourceText = tsResults.outputText;
 
-          results.diagnostics.push(...tsResults.diagnostics.map(loadTypeScriptDiagnostic));
-        } else {
-          // quick hack to turn a modern es module
-          // into and old school commonjs module
-          sourceText = sourceText.replace(/export\s+\w+\s+(\w+)/gm, 'exports.$1');
-        }
+        results.diagnostics.push(...tsResults.diagnostics.map(loadTypeScriptDiagnostic));
+      } else {
+        // quick hack to turn a modern es module
+        // into and old school commonjs module
+        sourceText = sourceText.replace(/export\s+\w+\s+(\w+)/gm, 'exports.$1');
+      }
 
-        try {
-          module._compile(sourceText, fileName);
-        } catch (e: any) {
-          catchError(results.diagnostics, e);
-        }
-      };
+      try {
+        // we need to coerce because of the requirements for the arguments to
+        // this function. It's safe enough since it's already wrapped in a
+        // `try { } catch`.
+        (module as NodeModuleWithCompile)._compile(sourceText, fileName);
+      } catch (e: any) {
+        catchError(results.diagnostics, e);
+      }
+    };
 
-      // let's do this!
-      results.module = require(results.id);
+    // let's do this!
+    results.module = require(results.id);
 
-      // all set, let's go ahead and reset the require back to the default
-      require.extensions['.ts'] = undefined;
-    } catch (e: any) {
-      catchError(results.diagnostics, e);
-    }
+    // all set, let's go ahead and reset the require back to the default
+    require.extensions['.ts'] = undefined;
+  } catch (e: any) {
+    catchError(results.diagnostics, e);
   }
 
   return results;

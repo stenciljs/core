@@ -1,5 +1,3 @@
-import type * as d from '../../../declarations';
-import { getAbsolutePath } from '../config-utils';
 import {
   COPY,
   DIST_COLLECTION,
@@ -8,16 +6,34 @@ import {
   DIST_LAZY_LOADER,
   DIST_TYPES,
   getComponentsDtsTypesFilePath,
+  isBoolean,
   isOutputTargetDist,
-} from '../../output-targets/output-utils';
-import { isAbsolute, join, resolve } from 'path';
-import { isBoolean, isString } from '@utils';
+  isString,
+  join,
+  resolve,
+} from '@utils';
+import { isAbsolute } from 'path';
+
+import type * as d from '../../../declarations';
+import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 
-export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) => {
+/**
+ * Validate that the "dist" output targets are valid and ready to go.
+ *
+ * This function will also add in additional output targets to its output, based on the input supplied.
+ *
+ * @param config the compiler config, what else?
+ * @param userOutputs a user-supplied list of output targets.
+ * @returns a list of OutputTargets which have been validated for us.
+ */
+export const validateDist = (config: d.ValidatedConfig, userOutputs: d.OutputTarget[]): d.OutputTarget[] => {
   const distOutputTargets = userOutputs.filter(isOutputTargetDist);
-  return distOutputTargets.reduce((outputs, o) => {
-    const distOutputTarget = validateOutputTargetDist(config, o);
+
+  const outputs: d.OutputTarget[] = [];
+
+  for (const outputTarget of distOutputTargets) {
+    const distOutputTarget = validateOutputTargetDist(config, outputTarget);
     outputs.push(distOutputTarget);
 
     const namespace = config.fsNamespace || 'app';
@@ -30,7 +46,7 @@ export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) =>
       systemDir: config.buildEs5 ? lazyDir : undefined,
       systemLoaderFile: config.buildEs5 ? join(lazyDir, namespace + '.js') : undefined,
       legacyLoaderFile: join(distOutputTarget.buildDir, namespace + '.js'),
-      polyfills: distOutputTarget.polyfills !== undefined ? !!distOutputTarget.polyfills : true,
+      polyfills: outputTarget.polyfills !== undefined ? !!distOutputTarget.polyfills : true,
       isBrowserBuild: true,
       empty: distOutputTarget.empty,
     });
@@ -38,7 +54,7 @@ export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) =>
       type: COPY,
       dir: lazyDir,
       copyAssets: 'dist',
-      copy: [...distOutputTarget.copy],
+      copy: (distOutputTarget.copy ?? []).concat(),
     });
     outputs.push({
       type: DIST_GLOBAL_STYLES,
@@ -49,7 +65,6 @@ export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) =>
       type: DIST_TYPES,
       dir: distOutputTarget.dir,
       typesDir: distOutputTarget.typesDir,
-      empty: distOutputTarget.empty,
     });
 
     if (config.buildDist) {
@@ -59,6 +74,7 @@ export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) =>
           dir: distOutputTarget.dir,
           collectionDir: distOutputTarget.collectionDir,
           empty: distOutputTarget.empty,
+          transformAliasedImportPaths: distOutputTarget.transformAliasedImportPathsInCollection,
         });
         outputs.push({
           type: COPY,
@@ -97,54 +113,57 @@ export const validateDist = (config: d.Config, userOutputs: d.OutputTarget[]) =>
         empty: distOutputTarget.empty,
       });
     }
+  }
 
-    return outputs;
-  }, []);
+  return outputs;
 };
 
-const validateOutputTargetDist = (config: d.Config, o: d.OutputTargetDist) => {
+/**
+ * Validate that an OutputTargetDist object has what it needs to do it's job.
+ * To enforce this, we have this function return
+ * `Required<d.OutputTargetDist>`, giving us a compile-time check that all
+ * properties are defined (with either user-supplied or default values).
+ *
+ * @param config the current config
+ * @param o the OutputTargetDist object we want to validate
+ * @returns `Required<d.OutputTargetDist>`, i.e. `d.OutputTargetDist` with all
+ * optional properties rendered un-optional.
+ */
+const validateOutputTargetDist = (config: d.ValidatedConfig, o: d.OutputTargetDist): Required<d.OutputTargetDist> => {
+  // we need to create an object with a bunch of default values here so that
+  // the typescript compiler can infer their types correctly
   const outputTarget = {
     ...o,
     dir: getAbsolutePath(config, o.dir || DEFAULT_DIR),
-  };
-
-  if (!isString(outputTarget.buildDir)) {
-    outputTarget.buildDir = DEFAULT_BUILD_DIR;
-  }
+    buildDir: isString(o.buildDir) ? o.buildDir : DEFAULT_BUILD_DIR,
+    collectionDir: o.collectionDir !== undefined ? o.collectionDir : DEFAULT_COLLECTION_DIR,
+    typesDir: o.typesDir || DEFAULT_TYPES_DIR,
+    esmLoaderPath: o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR,
+    copy: validateCopy(o.copy ?? [], []),
+    polyfills: isBoolean(o.polyfills) ? o.polyfills : false,
+    empty: isBoolean(o.empty) ? o.empty : true,
+    transformAliasedImportPathsInCollection: isBoolean(o.transformAliasedImportPathsInCollection)
+      ? o.transformAliasedImportPathsInCollection
+      : true,
+    isPrimaryPackageOutputTarget: o.isPrimaryPackageOutputTarget ?? false,
+  } satisfies Required<d.OutputTargetDist>;
 
   if (!isAbsolute(outputTarget.buildDir)) {
     outputTarget.buildDir = join(outputTarget.dir, outputTarget.buildDir);
-  }
-
-  if (outputTarget.collectionDir === undefined) {
-    outputTarget.collectionDir = DEFAULT_COLLECTION_DIR;
   }
 
   if (outputTarget.collectionDir && !isAbsolute(outputTarget.collectionDir)) {
     outputTarget.collectionDir = join(outputTarget.dir, outputTarget.collectionDir);
   }
 
-  if (!outputTarget.esmLoaderPath) {
-    outputTarget.esmLoaderPath = DEFAULT_ESM_LOADER_DIR;
-  }
-
   if (!isAbsolute(outputTarget.esmLoaderPath)) {
     outputTarget.esmLoaderPath = resolve(outputTarget.dir, outputTarget.esmLoaderPath);
-  }
-
-  if (!outputTarget.typesDir) {
-    outputTarget.typesDir = DEFAULT_TYPES_DIR;
   }
 
   if (!isAbsolute(outputTarget.typesDir)) {
     outputTarget.typesDir = join(outputTarget.dir, outputTarget.typesDir);
   }
 
-  if (!isBoolean(outputTarget.empty)) {
-    outputTarget.empty = true;
-  }
-
-  outputTarget.copy = validateCopy(outputTarget.copy, []);
   return outputTarget;
 };
 

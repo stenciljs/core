@@ -5,39 +5,52 @@ describe('parse methods', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
       export class CmpA {
+        /**
+         * @param foo bar
+         * @param bar foo
+         */
         @Method()
-        someMethod() {
+        someMethod(foo: string, bar: number) {
 
         }
       }
     `);
 
-    expect(getStaticGetter(t.outputText, 'methods')).toEqual({
-      someMethod: {
-        complexType: {
-          parameters: [],
-          return: 'void',
-          references: {},
-          signature: '() => void',
-        },
-        docs: {
-          text: '',
-          tags: [],
-        },
-      },
-    });
-
-    expect(t.method).toEqual({
+    const someMethod = {
       complexType: {
-        parameters: [],
+        parameters: [
+          {
+            name: 'foo',
+            type: 'string',
+            docs: 'bar',
+          },
+          {
+            name: 'bar',
+            type: 'number',
+            docs: 'foo',
+          },
+        ],
         return: 'void',
         references: {},
-        signature: '() => void',
+        signature: '(foo: string, bar: number) => void',
       },
       docs: {
-        tags: [],
         text: '',
+        tags: [
+          {
+            name: 'param',
+            text: 'foo bar',
+          },
+          {
+            name: 'param',
+            text: 'bar foo',
+          },
+        ],
       },
+    };
+    expect(getStaticGetter(t.outputText, 'methods')).toEqual({ someMethod });
+    expect(t.method).toEqual({
+      ...someMethod,
       internal: false,
       name: 'someMethod',
     });

@@ -1,9 +1,10 @@
-import type { BuildResultsComponentGraph, Config, Diagnostic } from '../declarations';
-import type { CoreCompiler } from './load-compiler';
 import { catchError } from '@utils';
+
+import type { BuildResultsComponentGraph, Diagnostic, ValidatedConfig } from '../declarations';
+import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 
-export const taskPrerender = async (coreCompiler: CoreCompiler, config: Config) => {
+export const taskPrerender = async (coreCompiler: CoreCompiler, config: ValidatedConfig) => {
   startupCompilerLog(coreCompiler, config);
 
   const hydrateAppFilePath = config.flags.unknownArgs[0];
@@ -15,7 +16,7 @@ export const taskPrerender = async (coreCompiler: CoreCompiler, config: Config) 
 
   const srcIndexHtmlPath = config.srcIndexHtml;
 
-  const diagnostics = await runPrerenderTask(coreCompiler, config, hydrateAppFilePath, null, srcIndexHtmlPath);
+  const diagnostics = await runPrerenderTask(coreCompiler, config, hydrateAppFilePath, undefined, srcIndexHtmlPath);
   config.logger.printDiagnostics(diagnostics);
 
   if (diagnostics.some((d) => d.level === 'error')) {
@@ -25,10 +26,10 @@ export const taskPrerender = async (coreCompiler: CoreCompiler, config: Config) 
 
 export const runPrerenderTask = async (
   coreCompiler: CoreCompiler,
-  config: Config,
-  hydrateAppFilePath: string,
-  componentGraph: BuildResultsComponentGraph,
-  srcIndexHtmlPath: string
+  config: ValidatedConfig,
+  hydrateAppFilePath?: string,
+  componentGraph?: BuildResultsComponentGraph,
+  srcIndexHtmlPath?: string,
 ) => {
   const diagnostics: Diagnostic[] = [];
 

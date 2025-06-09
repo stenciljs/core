@@ -1,10 +1,9 @@
-import type * as d from '../../../declarations';
-import { DIST_LAZY, isOutputTargetDistLazy } from '../../output-targets/output-utils';
-import { getAbsolutePath } from '../config-utils';
-import { isBoolean } from '@utils';
-import { join } from 'path';
+import { DIST_LAZY, isBoolean, isOutputTargetDistLazy, join } from '@utils';
 
-export const validateLazy = (config: d.Config, userOutputs: d.OutputTarget[]) => {
+import type * as d from '../../../declarations';
+import { getAbsolutePath } from '../config-utils';
+
+export const validateLazy = (config: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {
   return userOutputs.filter(isOutputTargetDistLazy).map((o) => {
     const dir = getAbsolutePath(config, o.dir || join('dist', config.fsNamespace));
     const lazyOutput: d.OutputTargetDistLazy = {

@@ -1,0 +1,172 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  /**
+   * Documentation: https://docs.renovatebot.com/configuration-options
+   *
+   * This configuration file can be locally validated:
+   * 1. `npm i -g renovate` will install the validator
+   * 2. `renovate-config-validator` will run the validator
+   */
+  dependencyDashboard: true,
+  ignoreDeps: [
+    // TODO(STENCIL-596): Remove once rollup upgrade is unblocked
+    'rollup',
+    '@rollup/plugin-commonjs',
+    '@rollup/plugin-node-resolve',
+  ],
+  ignorePaths: [
+    'test/package.json',
+    'test/browser-compile',
+    'test/end-to-end',
+    'test/hello-vdom',
+    'test/hello-world',
+    'test/ionic-app',
+    'test/jest-spec-runner',
+    'test/performance',
+    'test/prerender-shadow',
+    'test/style-modes',
+    'test/todo-app',
+  ],
+  /**
+   * Apply these labels to every PR
+   */
+  labels: ['dependencies'],
+  /**
+   * The minimum age (in days) for updates that have a release timestamp header to be PR'ed.
+   * This will not batch releases together - if package A gets a release on Monday, Tuesday and Wednesday and has a
+   * `minimumReleaseAge: 3` and runs every day, then a PR will be created on:
+   * - Thursday (for Monday's release)
+   * - Friday (for Tuesday's release)
+   * - Saturday (for Wednesday's release)
+   *
+   * This setting is to prevent a compromised package from being merged into Stencil in the first three days of its
+   * release date
+   *
+   * A value of 3 days was chosen as npm packages younger than 72 hours old can be unpublished. This prevents merging
+   * support for a package that could be removed from the registry.
+   */
+  minimumReleaseAge: '3 days',
+  /**
+   * Note: Renovate will evaluate all packageRules and not stop once it gets a first match.
+   */
+  packageRules: [
+    {
+      matchPackageNames: ['@types/node'],
+      allowedVersions: '<23.0.0',
+    },
+    {
+      // Increment this value as a part of updating TypeScript
+      matchPackageNames: ['typescript'],
+      allowedVersions: '<5.6.0',
+      commitMessagePrefix: "feat(typescript):"
+    },
+    {
+      // disable Jest updates until the new testing architecture is in place
+      matchPackageNames: ['@types/jest', 'jest', 'jest-cli', 'jest-environment-node'],
+      groupName: 'Jest',
+      allowedVersions: '<28.0.0',
+    },
+    {
+      // TODO(STENCIL-1274): Remove this block
+      // disable eslint v9 updates until typescript-eslint supports it
+      matchPackageNames: ['eslint'],
+      allowedVersions: '<9.0.0',
+    },
+    {
+      // TODO(STENCIL-1274): Remove this block
+      // disable Eslint plugin updates until we have updated Eslint to v9
+      matchPackageNames: ['@typescript-eslint/eslint-plugin', '@typescript-eslint/parser'],
+      allowedVersions: '<8.0.0',
+    },
+    {
+      matchPackagePrefixes: ['@typescript-eslint'],
+      groupName: 'TypeScript-ESLint',
+      // these packages can be released often, let's look at them every week
+      // Note: Timezone for the schedule is specified as UTC
+      schedule: ["before 11am on monday"]
+    },
+    {
+      // group these two, as they may rely on one another during major version bumps (see #5191)
+      matchPackageNames: ['actions/download-artifact', 'actions/upload-artifact'],
+      groupName: 'Download + Upload Artifacts',
+    },
+    {
+      matchPackageNames: ['eslint-plugin-jsdoc'],
+      // this package can be released often, let's look at it every week
+      // Note: Timezone for the schedule is specified as UTC
+      schedule: ["before 11am on monday"]
+    },
+    {
+      "matchFileNames": ["src/testing/jest/jest-27-and-under/package.json"],
+      matchPackageNames: ['@types/jest', 'jest'],
+      allowedVersions: '<=27'
+    },
+    {
+      "matchFileNames": ["src/testing/jest/jest-28/package.json"],
+      matchPackageNames: ['@types/jest', 'jest'],
+      allowedVersions: '<=28'
+    },
+    {
+      "matchFileNames": ["src/testing/jest/jest-29/package.json"],
+      matchPackageNames: ['@types/jest', 'jest'],
+      allowedVersions: '<=29'
+    },
+    {
+      // We intentionally run the WebdriverIO tests against the oldest LTS of Node we support.
+      // Prevent renovate from trying to bump node
+      matchFileNames: ['test/wdio/package.json'],
+      matchDepNames: ['node'],
+      allowedVersions: '<=16'
+    },
+    {
+      // We intentionally run the WebdriverIO tests against the oldest LTS of Node we support.
+      // Prevent renovate from trying to bump node
+      matchFileNames: ['test/wdio/package.json'],
+      matchPackageNames: ['@types/node'],
+      allowedVersions: '<=16'
+    },
+    {
+      // We intentionally run the WebdriverIO tests against the oldest LTS of Node we support.
+      // Prevent renovate from trying to bump npm and keep it in sync with a version that's supported by the version of
+      // Node we run against.
+      matchFileNames: ['test/wdio/package.json'],
+      matchDepNames: ['npm'],
+      allowedVersions: '<=8'
+    },
+    {
+      matchPackageNames: ['rollup'],
+      matchPackagePrefixes: ['@rollup'],
+      groupName: 'rollup,'
+    },
+    {
+      matchPackageNames: ['expect-webdriverio'],
+      matchPackagePrefixes: ['@wdio'],
+      groupName: 'webdriverio,'
+    },
+    // TODO(STENCIL-1088): remove once support for Node v16 is dropped
+    {
+      matchPackageNames: ['open'],
+      allowedVersions: '<10',
+    },
+    // TODO(STENCIL-1141): remove once support for Node v16 is dropped
+    {
+      matchPackageNames: ['puppeteer'],
+      allowedVersions: '<=21',
+    }
+  ],
+  // Never rebase the branch or update it unless manually requested to avoid noisy PR emails
+  rebaseWhen: 'never',
+  /**
+   * Cron syntax to run at midnight (UTC) on the first day of every month
+   *
+   * Note: Renovate does not support minute value granularity, so the wildcard value is necessary
+   */
+  schedule: ["* 0 1 * *"],
+  /**
+   * Ensure semantic commits are enabled for commits + PR titles.
+   *
+   * By default, Angular-style semantic commits will have a type of 'chore' and a scope of 'deps':
+   * `chore(deps): _your git commit title here_`
+   */
+  semanticCommits: "enabled",
+}

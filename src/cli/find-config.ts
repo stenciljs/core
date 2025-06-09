@@ -1,37 +1,63 @@
-import type { CompilerSystem, Diagnostic } from '../declarations';
-import { isString, normalizePath, buildError } from '@utils';
+import { buildError, isString, normalizePath, result } from '@utils';
 
-export const findConfig = async (opts: { sys: CompilerSystem; configPath: string }) => {
+import type { CompilerSystem, Diagnostic } from '../declarations';
+
+/**
+ * An object containing the {@link CompilerSystem} used to find the configuration file, as well as the location on disk
+ * to search for a Stencil configuration
+ */
+export type FindConfigOptions = {
+  sys: CompilerSystem;
+  configPath?: string | null;
+};
+
+/**
+ * The results of attempting to find a Stencil configuration file on disk
+ */
+export type FindConfigResults = {
+  configPath: string;
+  rootDir: string;
+};
+
+/**
+ * Attempt to find a Stencil configuration file on the file system
+ * @param opts the options needed to find the configuration file
+ * @returns the results of attempting to find a configuration file on disk
+ */
+export const findConfig = async (opts: FindConfigOptions): Promise<result.Result<FindConfigResults, Diagnostic[]>> => {
   const sys = opts.sys;
   const cwd = sys.getCurrentDirectory();
-  const results = {
-    configPath: null as string,
-    rootDir: normalizePath(cwd),
-    diagnostics: [] as Diagnostic[],
-  };
+  const rootDir = normalizePath(cwd);
+
   let configPath = opts.configPath;
 
   if (isString(configPath)) {
     if (!sys.platformPath.isAbsolute(configPath)) {
-      // passed in a custom stencil config location
+      // passed in a custom stencil config location,
       // but it's relative, so prefix the cwd
       configPath = normalizePath(sys.platformPath.join(cwd, configPath));
     } else {
       // config path already an absolute path, we're good here
-      configPath = normalizePath(opts.configPath);
+      configPath = normalizePath(configPath);
     }
   } else {
     // nothing was passed in, use the current working directory
-    configPath = results.rootDir;
+    configPath = rootDir;
   }
+
+  const results: FindConfigResults = {
+    configPath,
+    rootDir: normalizePath(cwd),
+  };
 
   const stat = await sys.stat(configPath);
   if (stat.error) {
-    const diagnostic = buildError(results.diagnostics);
+    const diagnostics: Diagnostic[] = [];
+    const diagnostic = buildError(diagnostics);
     diagnostic.absFilePath = configPath;
     diagnostic.header = `Invalid config path`;
     diagnostic.messageText = `Config path "${configPath}" not found`;
-    return results;
+    return result.err(diagnostics);
   }
 
   if (stat.isFile) {
@@ -50,5 +76,5 @@ export const findConfig = async (opts: { sys: CompilerSystem; configPath: string
     }
   }
 
-  return results;
+  return result.ok(results);
 };

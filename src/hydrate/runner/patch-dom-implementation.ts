@@ -1,8 +1,9 @@
-import type * as d from '../../declarations';
 import { MockWindow, patchWindow } from '@stencil/core/mock-doc';
 
+import type * as d from '../../declarations';
+
 export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) {
-  let win: any;
+  let win: MockWindow;
 
   if (doc.defaultView != null) {
     opts.destroyWindow = true;
@@ -37,7 +38,8 @@ export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) 
   }
 
   try {
-    doc.baseURI;
+    // @ts-expect-error Assigning the baseURI prevents JavaScript optimizers from treating this as dead code
+    win.__stencil_baseURI = doc.baseURI;
   } catch (e) {
     Object.defineProperty(doc, 'baseURI', {
       get() {
@@ -50,13 +52,13 @@ export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) 
     });
   }
 
-  return win as Window & typeof globalThis;
+  return win;
 }
 
-function getRootNode(opts?: { composed?: boolean; [key: string]: any }) {
+function getRootNode(this: Node, opts?: { composed?: boolean; [key: string]: any }) {
   const isComposed = opts != null && opts.composed === true;
 
-  let node: Node = this as any;
+  let node: Node = this;
 
   while (node.parentNode != null) {
     node = node.parentNode;

@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  padding: 5px;
+  background: bisque;
+  cursor: pointer;
+  max-width: 300px;
+}
+:host(:focus) {
+  outline: 2px solid blue;
+}

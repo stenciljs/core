@@ -255,29 +255,6 @@
         "${workspaceFolder}/../ionic-docs/stencil.config.ts"
       ],
       "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Karma",
-      "args": [
-        "${workspaceFolder}/bin/stencil",
-        "build",
-        "--max-workers=0",
-        "--dev",
-        "--config",
-        "${workspaceFolder}/test/karma/stencil.config.ts"
-      ],
-      "protocol": "inspector"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Karma Prerender",
-      "args": [
-        "${workspaceFolder}/test/karma/test-prerender/prerender.js"
-      ],
-      "protocol": "inspector"
     }
   ]
 }

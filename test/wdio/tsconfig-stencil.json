@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "declaration": false,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "lib": ["dom", "es2017"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strictPropertyInitialization": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "target": "es2017",
+    "useUnknownInCatchVariables": true,
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "paths": {
+      "@test-sibling": ["./test-sibling"]
+    }
+  },
+  "include": ["./src/components.d.ts", "./**/*.spec.ts", "./**/*.tsx", "./util.ts", "./global.ts"],
+  "exclude": [
+    "./**/*.test.tsx",
+    // we exclude the files in the global-script directory here since they're
+    // compiled separately
+    "./global-script/**/*.tsx",
+    "./global-script/**/*.ts",
+    // we also exclude the files in the test-sibling directory
+    "./test-sibling/**/*.tsx",
+    // we also exclude the files in the invisible-prehydration directory
+    "./invisible-prehydration/**/*.tsx",
+    "./invisible-prehydration/**/*.ts",
+    // exclude no-external-runtime because they are built separately with `externalRuntime: false`
+    "./no-external-runtime/**/*.tsx",
+    "./no-external-runtime/**/*.ts",
+     // exclude ts-target because they are built separately with `target: es2022`
+     "./test-ts-target/**/*.tsx",
+     "./test-ts-target/**/*.ts",
+  ]
+}

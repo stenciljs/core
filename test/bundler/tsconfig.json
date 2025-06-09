@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    // karma-typescript only supports CommonJS
+    "module": "CommonJS",
+    "strict": true,
+  },
+  "include": [
+    "karma-stencil-utils.ts",
+    "**/*.spec.ts"
+  ],
+  "exclude": ["component-library"],
+}

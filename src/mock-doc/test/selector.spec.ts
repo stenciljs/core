@@ -1,5 +1,6 @@
 import { MockDocument } from '../document';
 import { MockElement } from '../node';
+import { PROBLEMATIC_SELECTORS } from '../selector';
 
 describe('selector', () => {
   it('closest', () => {
@@ -224,5 +225,52 @@ describe('selector', () => {
 
     const q2 = div.querySelector('span.c a');
     expect(q2.tagName).toBe('A');
+  });
+
+  it.each(PROBLEMATIC_SELECTORS)("should error for '%p' selector", (selector) => {
+    const doc = new MockDocument();
+
+    const expectedMessage = [
+      `At present jQuery does not support the ${selector} selector.`,
+      'If you need this in your test, consider writing an end-to-end test instead.',
+      `Syntax error, unrecognized expression: unsupported pseudo: ${selector.replace(':', '')}`,
+    ].join('\n');
+
+    expect(() => doc.querySelector(selector)).toThrow(expectedMessage);
+    expect(() => doc.querySelectorAll(selector)).toThrow(expectedMessage);
+    expect(() => doc.matches(selector)).toThrow(expectedMessage);
+  });
+
+  it('should error for combinations of problematic selectors', () => {
+    const doc = new MockDocument();
+    expect(() => {
+      doc.querySelector(':scope :is');
+    }).toThrow(
+      [
+        `At present jQuery does not support the :scope and :is selectors.`,
+        'If you need this in your test, consider writing an end-to-end test instead.',
+        `Syntax error, unrecognized expression: unsupported pseudo: scope`,
+      ].join('\n'),
+    );
+
+    expect(() => {
+      doc.querySelector(':is :where');
+    }).toThrow(
+      [
+        `At present jQuery does not support the :where and :is selectors.`,
+        'If you need this in your test, consider writing an end-to-end test instead.',
+        `Syntax error, unrecognized expression: unsupported pseudo: is`,
+      ].join('\n'),
+    );
+
+    expect(() => {
+      doc.querySelector(':scope :is :where');
+    }).toThrow(
+      [
+        `At present jQuery does not support the :scope, :where and :is selectors.`,
+        'If you need this in your test, consider writing an end-to-end test instead.',
+        `Syntax error, unrecognized expression: unsupported pseudo: scope`,
+      ].join('\n'),
+    );
   });
 });

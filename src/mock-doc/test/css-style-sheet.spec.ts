@@ -1,6 +1,5 @@
-import { MockDocument, createDocument } from '../document';
+import { MockDocument } from '../document';
 import { MockStyleElement } from '../element';
-import { MockCSSStyleSheet } from '../css-style-sheet';
 
 describe('css-style-sheet', () => {
   let doc: MockDocument;

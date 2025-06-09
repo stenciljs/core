@@ -56,4 +56,14 @@ describe('@Element', () => {
 
     expect(elm).toEqualText('inner content');
   });
+
+  it('should get computed styles of CSS vars assigned on host element', async () => {
+    const page = await newE2EPage({
+      html: `
+      <element-cmp id="my-elm" style="--my-component-text-color: rgb(255, 0, 0);"></element-cmp>
+    `,
+    });
+    const el = await page.find('element-cmp');
+    expect((await el.getComputedStyle()).getPropertyValue('--my-component-text-color')).toEqual('rgb(255, 0, 0)');
+  });
 });

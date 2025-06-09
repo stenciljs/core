@@ -1,42 +1,33 @@
-import { convertPathToFileProtocol, isFileUrl, isRemoteUrl } from '../url-paths';
+import { isRemoteUrl } from '../url-paths';
 
 describe('url-paths', () => {
-  it('isFileUrl', () => {
-    expect(isFileUrl('file://domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('FILE://domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('file:/domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('file:///domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('file:/domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('file:///c:/domain.com/file.txt')).toBe(true);
-    expect(isFileUrl('C:/file.txt')).toBe(false);
-    expect(isFileUrl('C:\\file.txt')).toBe(false);
-    expect(isFileUrl('/User/file.txt')).toBe(false);
-    expect(isFileUrl('')).toBe(false);
-    expect(isFileUrl(null)).toBe(false);
-  });
+  describe('isRemoteUrl', () => {
+    it.each(['http://domain.com/file.txt', 'HTTP://domain.com/file.txt'])(
+      "returns true for the http protocol '%s'",
+      (url) => {
+        expect(isRemoteUrl(url)).toBe(true);
+      },
+    );
 
-  it('isRemoteUrl', () => {
-    expect(isRemoteUrl('https://domain.com/file.txt')).toBe(true);
-    expect(isRemoteUrl('http://domain.com/file.txt')).toBe(true);
-    expect(isRemoteUrl('HTTP://domain.com/file.txt')).toBe(true);
-    expect(isRemoteUrl('file://domain.com/file.txt')).toBe(false);
-    expect(isRemoteUrl('C:/file.txt')).toBe(false);
-    expect(isRemoteUrl('C:\\file.txt')).toBe(false);
-    expect(isRemoteUrl('/User/file.txt')).toBe(false);
-    expect(isRemoteUrl('')).toBe(false);
-    expect(isRemoteUrl(null)).toBe(false);
-  });
+    it.each(['https://domain.com/file.txt', 'HTTPS://domain.com/file.txt'])(
+      "returns true for the https protocol '%s'",
+      (url) => {
+        expect(isRemoteUrl(url)).toBe(true);
+      },
+    );
 
-  it('convertPathToFileProtocol', () => {
-    // https://en.wikipedia.org/wiki/File_URI_scheme
-    expect(convertPathToFileProtocol('/User/file.txt')).toBe('file:///User/file.txt');
-    expect(convertPathToFileProtocol('C:/User/file.txt')).toBe('file:///C:/User/file.txt');
-    expect(convertPathToFileProtocol('C:\\User\\file.txt')).toBe('file:///C:/User/file.txt');
-    expect(convertPathToFileProtocol('file:/dir/file.txt')).toBe('file:/dir/file.txt');
-    expect(convertPathToFileProtocol('file://dir/file.txt')).toBe('file://dir/file.txt');
-    expect(convertPathToFileProtocol('file:///dir/file.txt')).toBe('file:///dir/file.txt');
-    expect(convertPathToFileProtocol('https://domain.com/file.txt')).toBe('https://domain.com/file.txt');
-    expect(convertPathToFileProtocol('http://domain.com/file.txt')).toBe('http://domain.com/file.txt');
-    expect(convertPathToFileProtocol(null)).toBe(null);
+    it.each(['C:/file.txt', 'C:\\file.txt', '/User/file.txt'])("returns false for file paths '%s'", (fileName) => {
+      expect(isRemoteUrl(fileName)).toBe(false);
+    });
+
+    it('returns false if the provided url is an empty string', () => {
+      expect(isRemoteUrl('')).toBe(false);
+    });
+
+    it('returns false if the provided url is not a string', () => {
+      // to facilitate the `isString()` check, we provide `null` as an argument. this violates the function signature,
+      // requiring a type assertion here
+      expect(isRemoteUrl(null as unknown as string)).toBe(false);
+    });
   });
 });

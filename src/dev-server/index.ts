@@ -1,16 +1,17 @@
+import path from 'path';
+
 import type {
   BuildOnEventRemove,
+  CompilerBuildResults,
   CompilerWatcher,
+  DevServer,
   DevServerConfig,
+  DevServerMessage,
+  InitServerProcess,
   Logger,
   StencilDevServerConfig,
-  DevServer,
-  CompilerBuildResults,
-  InitServerProcess,
-  DevServerMessage,
 } from '../declarations';
 import { initServerProcessWorkerProxy } from './server-worker-main';
-import path from 'path';
 
 export function start(stencilDevServerConfig: StencilDevServerConfig, logger: Logger, watcher?: CompilerWatcher) {
   return new Promise<DevServer>(async (resolve, reject) => {
@@ -48,7 +49,7 @@ function startServer(
   watcher: CompilerWatcher,
   initServerProcess: InitServerProcess,
   resolve: (devServer: DevServer) => void,
-  reject: (err: any) => void
+  reject: (err: any) => void,
 ) {
   const timespan = logger.createTimeSpan(`starting dev server`, true);
 
@@ -61,7 +62,7 @@ function startServer(
 
   let isActivelyBuilding = false;
   let lastBuildResults: CompilerBuildResults = null;
-  let devServer: DevServer = null;
+  let devServer: DevServer | null = null;
   let removeWatcher: BuildOnEventRemove = null;
   let closeResolve: () => void = null;
   let hasStarted = false;
@@ -135,11 +136,11 @@ function startServer(
         logger.info(logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`));
       } else if (msg.requestLog.status >= 400) {
         logger.info(
-          logger.dim(logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`))
+          logger.dim(logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`)),
         );
       } else if (msg.requestLog.status >= 300) {
         logger.info(
-          logger.dim(logger.magenta(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`))
+          logger.dim(logger.magenta(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`)),
         );
       } else {
         logger.info(logger.dim(`${logger.cyan(msg.requestLog.method)} ${msg.requestLog.url}`));

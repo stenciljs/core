@@ -1,0 +1,20 @@
+name: 'Stencil Archive Download'
+description: 'downloads and decompresses an archive from a previous job'
+inputs:
+  path:
+    description: 'location to decompress the archive to'
+  filename:
+    description: 'the name of the decompressed artifact'
+  name:
+    description: 'name of the archive to decompress'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+
+    - name: Extract Archive
+      run: unzip -q -o ${{ inputs.path }}/${{ inputs.filename }} -d ${{ inputs.path }}
+      shell: bash

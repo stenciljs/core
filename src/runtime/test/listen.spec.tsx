@@ -176,17 +176,17 @@ describe('listen', () => {
     a.dispatchEvent(
       new CustomEvent('event', {
         detail: getEventDetail(),
-      })
+      }),
     );
     a.dispatchEvent(
       new CustomEvent('event', {
         detail: getEventDetail(),
-      })
+      }),
     );
     a.dispatchEvent(
       new CustomEvent('event', {
         detail: getEventDetail(),
-      })
+      }),
     );
 
     await Promise.resolve();
@@ -195,10 +195,42 @@ describe('listen', () => {
 
     await waitForChanges();
     expect(log).toEqual(
-      `connectedCallback event0 event1 event2 event3 event4 event5 componentWillLoad event6 componentDidLoad `
+      `connectedCallback event0 event1 event2 event3 event4 event5 componentWillLoad event6 componentDidLoad `,
     );
     expect(a).toEqualHtml(`<cmp-a>1 7</cmp-a>`);
     await waitForChanges();
     expect(a).toEqualHtml(`<cmp-a>1 7</cmp-a>`);
+  });
+
+  it('disconnects target listeners when element is not connected to DOM', async () => {
+    let events = 0;
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Listen('testEvent', { target: 'document' })
+      buttonClick() {
+        events++;
+      }
+
+      render() {
+        return '';
+      }
+    }
+
+    const { doc, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+    });
+
+    jest.spyOn(doc, 'addEventListener');
+    jest.spyOn(doc, 'removeEventListener');
+
+    doc.createElement('cmp-a');
+    await waitForChanges();
+
+    // Event listener will never be called
+    expect(events).toEqual(0);
+
+    // no event listeners have been added as the element is not connected to the DOM
+    expect(doc.addEventListener.mock.calls.length).toBe(0);
+    expect(doc.removeEventListener.mock.calls.length).toBe(0);
   });
 });

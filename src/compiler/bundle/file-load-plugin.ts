@@ -1,14 +1,15 @@
-import type * as d from '../../declarations';
-import { normalizeFsPath } from '@utils';
+import { isDtsFile, normalizeFsPath } from '@utils';
 import type { Plugin } from 'rollup';
 
-export const fileLoadPlugin = (fs: d.InMemoryFileSystem): Plugin => {
+import { InMemoryFileSystem } from '../sys/in-memory-fs';
+
+export const fileLoadPlugin = (fs: InMemoryFileSystem): Plugin => {
   return {
     name: 'fileLoadPlugin',
 
     load(id) {
       const fsFilePath = normalizeFsPath(id);
-      if (id.endsWith('.d.ts')) {
+      if (isDtsFile(fsFilePath)) {
         return '';
       }
       return fs.readFile(fsFilePath);

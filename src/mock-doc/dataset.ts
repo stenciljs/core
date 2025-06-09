@@ -37,7 +37,7 @@ function toDataAttribute(str: string) {
 }
 
 function dashToPascalCase(str: string) {
-  str = String(str).substr(5);
+  str = String(str).slice(5);
   return str
     .split('-')
     .map((segment, index) => {

@@ -1,7 +1,8 @@
-import type * as d from '../../declarations';
 import { buildWarn } from '@utils';
 
-export const validatePlugins = (config: d.Config, diagnostics: d.Diagnostic[]) => {
+import type * as d from '../../declarations';
+
+export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diagnostic[]) => {
   const userPlugins = config.plugins;
 
   if (!config.rollupPlugins) {

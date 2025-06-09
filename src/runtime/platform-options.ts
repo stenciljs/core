@@ -6,13 +6,13 @@ interface SetPlatformOptions {
     el: EventTarget,
     eventName: string,
     listener: EventListenerOrEventListenerObject,
-    options: boolean | AddEventListenerOptions
+    options: boolean | AddEventListenerOptions,
   ) => void;
   rel?: (
     el: EventTarget,
     eventName: string,
     listener: EventListenerOrEventListenerObject,
-    options: boolean | AddEventListenerOptions
+    options: boolean | AddEventListenerOptions,
   ) => void;
   ce?: (eventName: string, opts?: any) => CustomEvent;
 }

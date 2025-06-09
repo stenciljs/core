@@ -1,12 +1,13 @@
+import { isOutputTargetDocsReadme } from '@utils';
+
 import type * as d from '../../../declarations';
 import { generateReadme } from './output-docs';
-import { isOutputTargetDocsReadme } from '../../output-targets/output-utils';
 
 export const generateReadmeDocs = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   docsData: d.JsonDocs,
-  outputTargets: d.OutputTarget[]
+  outputTargets: d.OutputTarget[],
 ) => {
   const readmeOutputTargets = outputTargets.filter(isOutputTargetDocsReadme);
   if (readmeOutputTargets.length === 0) {
@@ -14,17 +15,17 @@ export const generateReadmeDocs = async (
   }
   const strictCheck = readmeOutputTargets.some((o) => o.strict);
   if (strictCheck) {
-    strickCheckDocs(config, docsData);
+    strictCheckDocs(config, docsData);
   }
 
   await Promise.all(
     docsData.components.map((cmpData) => {
       return generateReadme(config, compilerCtx, readmeOutputTargets, cmpData, docsData.components);
-    })
+    }),
   );
 };
 
-export const strickCheckDocs = (config: d.Config, docsData: d.JsonDocs) => {
+export const strictCheckDocs = (config: d.ValidatedConfig, docsData: d.JsonDocs) => {
   docsData.components.forEach((component) => {
     component.props.forEach((prop) => {
       if (!prop.docs && prop.deprecation === undefined) {

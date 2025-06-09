@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig-stencil.json",
+  "include": [
+    "global-script"
+  ],
+  "exclude": [
+    "global-script/*.test.tsx"
+  ]
+}

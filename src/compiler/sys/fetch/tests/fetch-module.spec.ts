@@ -1,19 +1,10 @@
-import type * as d from '../../../../declarations';
-import { getNodeModuleFetchUrl, getStencilModuleUrl, getStencilRootUrl, skipFilePathFetch } from '../fetch-utils';
-import { createSystem } from '../../stencil-sys';
+import { getStencilModuleUrl, skipFilePathFetch } from '../fetch-utils';
 
 describe('fetch module', () => {
   let compilerExe: string;
 
   beforeEach(() => {
     compilerExe = 'http://localhost:3333/@stencil/core/compiler/stencil.js';
-  });
-
-  it('getStencilRootUrl', () => {
-    expect(getStencilRootUrl(compilerExe)).toBe('http://localhost:3333/@stencil/core/');
-
-    compilerExe = 'https://cdn.stenciljs.com/npm/@stencil/core@1.2.3/compiler/stencil.js';
-    expect(getStencilRootUrl(compilerExe)).toBe('https://cdn.stenciljs.com/npm/@stencil/core@1.2.3/');
   });
 
   describe('getStencilModulePath', () => {
@@ -49,93 +40,6 @@ describe('fetch module', () => {
       const m = getStencilModuleUrl(compilerExe, p);
       expect(m).toBe('http://localhost:3333/@stencil/core/package.json');
     });
-  });
-});
-
-describe('getNodeModuleFetchUrl', () => {
-  const pkgVersions = new Map<string, string>();
-  const config: d.Config = {
-    rootDir: '/my-app/',
-    sys: createSystem(),
-  };
-  const sys = config.sys;
-
-  beforeEach(() => {
-    sys.getCompilerExecutingPath = null;
-    pkgVersions.clear();
-  });
-
-  it('cdn @stencil/core', () => {
-    const filePath = '/node_modules/@stencil/core/internal/hydrate/index.mjs';
-    sys.getCompilerExecutingPath = () => 'http://localhost/stencil/core/compiler/stencil.js';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('http://localhost/stencil/core/internal/hydrate/index.mjs');
-  });
-
-  it('local @stencil/core', () => {
-    const filePath = '/node_modules/@stencil/core/package.json';
-    sys.getCompilerExecutingPath = () => 'http://cdn.stenciljs.com/npm/@stencil/core@1.2.3/compiler/stencil.js';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('http://cdn.stenciljs.com/npm/@stencil/core@1.2.3/package.json');
-  });
-
-  it('local @stencil/core, root dir', () => {
-    const filePath = '/some/dir/node_modules/@stencil/core/package.json';
-    sys.getCompilerExecutingPath = () => 'https://cdn.stenciljs.com/@stencil/core@1.2.3/compiler/stencil.js';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.stenciljs.com/@stencil/core@1.2.3/package.json');
-  });
-
-  it('w/ version number', () => {
-    pkgVersions.set('lodash', '1.2.3');
-    const filePath = '/node_modules/lodash/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/lodash@1.2.3/package.json');
-  });
-
-  it('w/ version number, root dir', () => {
-    pkgVersions.set('lodash', '1.2.3');
-    const filePath = '/some/dir/node_modules/lodash/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/lodash@1.2.3/package.json');
-  });
-
-  it('w/out version number', () => {
-    const filePath = '/node_modules/lodash/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/lodash/package.json');
-  });
-
-  it('w/out version number, root dir', () => {
-    const filePath = 'some/path/node_modules/lodash/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/lodash/package.json');
-  });
-
-  it('w/ scoped package', () => {
-    const filePath = '/node_modules/@ionic/core/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/@ionic/core/package.json');
-  });
-
-  it('w/ scoped package, rootdir', () => {
-    const filePath = '/some/dir/node_modules/@ionic/core/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/@ionic/core/package.json');
-  });
-
-  it('version w/ scoped package', () => {
-    pkgVersions.set('@ionic/core', '1.2.3');
-    const filePath = '/node_modules/@ionic/core/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/@ionic/core@1.2.3/package.json');
-  });
-
-  it('version w/ scoped package, rootdir', () => {
-    pkgVersions.set('@ionic/core', '1.2.3');
-    const filePath = '/some/path/node_modules/@ionic/core/package.json';
-    const url = getNodeModuleFetchUrl(sys, pkgVersions, filePath);
-    expect(url).toBe('https://cdn.jsdelivr.net/npm/@ionic/core@1.2.3/package.json');
   });
 });
 

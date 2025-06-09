@@ -1,12 +1,13 @@
+import { join } from '@utils';
+
 import type * as d from '../../declarations';
 import { getAbsoluteBuildDir } from './html-utils';
-import { join } from 'path';
 
 export const updateGlobalStylesLink = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   doc: Document,
   globalScriptFilename: string,
-  outputTarget: d.OutputTargetWww
+  outputTarget: d.OutputTargetWww,
 ) => {
   if (!globalScriptFilename) {
     return;

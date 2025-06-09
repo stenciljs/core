@@ -1,9 +1,9 @@
+import { getSourceMappingUrlForEndOfFile, join } from '@utils';
+
 import type * as d from '../../../declarations';
-import { join } from 'path';
-import { getSourceMappingUrlForEndOfFile } from '@utils';
 
 export const writeLazyModule = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   outputTargetType: string,
   destinations: string[],
@@ -11,7 +11,7 @@ export const writeLazyModule = async (
   shouldHash: boolean,
   code: string,
   sourceMap: d.SourceMap,
-  sufix: string
+  sufix: string,
 ): Promise<d.BundleModuleOutput> => {
   // code = replaceStylePlaceholders(entryModule.cmps, modeName, code);
 
@@ -28,7 +28,7 @@ export const writeLazyModule = async (
       if (!!sourceMap) {
         compilerCtx.fs.writeFile(join(dst, fileName) + '.map', JSON.stringify(sourceMap), { outputTargetType });
       }
-    })
+    }),
   );
 
   return {
@@ -39,11 +39,11 @@ export const writeLazyModule = async (
 };
 
 const getBundleId = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   entryKey: string,
   shouldHash: boolean,
   code: string,
-  sufix: string
+  sufix: string,
 ): Promise<string> => {
   if (shouldHash) {
     const hash = await config.sys.generateContentHash(code, config.hashedFileNameLength);

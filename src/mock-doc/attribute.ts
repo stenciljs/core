@@ -53,7 +53,7 @@ export class MockAttributeMap {
     return this.getNamedItemNS(null, attrName);
   }
 
-  getNamedItemNS(namespaceURI: string, attrName: string) {
+  getNamedItemNS(namespaceURI: string | null, attrName: string) {
     namespaceURI = getNamespaceURI(namespaceURI);
     return (
       this.__items.find((attr) => attr.name === attrName && getNamespaceURI(attr.namespaceURI) === namespaceURI) || null
@@ -89,7 +89,7 @@ export class MockAttributeMap {
   }
 }
 
-function getNamespaceURI(namespaceURI: string) {
+function getNamespaceURI(namespaceURI: string | null) {
   return namespaceURI === XLINK_NS ? null : namespaceURI;
 }
 
@@ -129,9 +129,9 @@ function sortAttributes(a: MockAttr, b: MockAttr) {
 export class MockAttr {
   private _name: string;
   private _value: string;
-  private _namespaceURI: string;
+  private _namespaceURI: string | null;
 
-  constructor(attrName: string, attrValue: string, namespaceURI: string = null) {
+  constructor(attrName: string, attrValue: string, namespaceURI: string | null = null) {
     this._name = attrName;
     this._value = String(attrValue);
     this._namespaceURI = namespaceURI;

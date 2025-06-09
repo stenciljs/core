@@ -1,10 +1,10 @@
-import type { Config, DevServer } from '../declarations';
+import type { DevServer, ValidatedConfig } from '../declarations';
+import { printCheckVersionResults, startCheckVersion } from './check-version';
 import type { CoreCompiler } from './load-compiler';
-import { startCheckVersion, printCheckVersionResults } from './check-version';
 import { startupCompilerLog } from './logs';
 
-export const taskWatch = async (coreCompiler: CoreCompiler, config: Config) => {
-  let devServer: DevServer = null;
+export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedConfig) => {
+  let devServer: DevServer | null = null;
   let exitCode = 0;
 
   try {
@@ -14,6 +14,12 @@ export const taskWatch = async (coreCompiler: CoreCompiler, config: Config) => {
 
     const compiler = await coreCompiler.createCompiler(config);
     const watcher = await compiler.createWatcher();
+
+    if (!config.sys.getDevServerExecutingPath || !config.sys.dynamicImport || !config.sys.onProcessInterrupt) {
+      throw new Error(
+        `Environment doesn't provide required functions: getDevServerExecutingPath, dynamicImport, onProcessInterrupt`,
+      );
+    }
 
     if (config.flags.serve) {
       const devServerPath = config.sys.getDevServerExecutingPath();
@@ -36,7 +42,8 @@ export const taskWatch = async (coreCompiler: CoreCompiler, config: Config) => {
       const rmDevServerLog = watcher.on('buildFinish', () => {
         // log the dev server url one time
         rmDevServerLog();
-        config.logger.info(`${config.logger.cyan(devServer.browserUrl)}\n`);
+        const url = devServer?.browserUrl ?? 'UNKNOWN URL';
+        config.logger.info(`${config.logger.cyan(url)}\n`);
       });
     }
 

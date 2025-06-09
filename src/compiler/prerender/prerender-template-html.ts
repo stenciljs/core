@@ -1,5 +1,7 @@
+import { createDocument, serializeNodeToHtml } from '@stencil/core/mock-doc';
+import { catchError, isFunction, isString } from '@utils';
+
 import type * as d from '../../declarations';
-import { catchError, isPromise, isFunction, isString } from '@utils';
 import {
   hasStencilScript,
   inlineExternalStyleSheets,
@@ -7,31 +9,26 @@ import {
   minifyStyleElements,
   removeStencilScripts,
 } from './prerender-optimize';
-import { createDocument, serializeNodeToHtml } from '@stencil/core/mock-doc';
 
 export const generateTemplateHtml = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   prerenderConfig: d.PrerenderConfig,
   diagnostics: d.Diagnostic[],
   isDebug: boolean,
   srcIndexHtmlPath: string,
   outputTarget: d.OutputTargetWww,
   hydrateOpts: d.PrerenderHydrateOptions,
-  manager: d.PrerenderManager
+  manager: d.PrerenderManager,
 ) => {
   try {
-    if (!isString(srcIndexHtmlPath)) {
+    if (!isString(srcIndexHtmlPath) && outputTarget.indexHtml) {
       srcIndexHtmlPath = outputTarget.indexHtml;
     }
 
     let templateHtml: string;
     if (isFunction(prerenderConfig.loadTemplate)) {
       const loadTemplateResult = prerenderConfig.loadTemplate(srcIndexHtmlPath);
-      if (isPromise(loadTemplateResult)) {
-        templateHtml = await loadTemplateResult;
-      } else {
-        templateHtml = loadTemplateResult;
-      }
+      templateHtml = await loadTemplateResult;
     } else {
       templateHtml = await config.sys.readFile(srcIndexHtmlPath);
     }
@@ -41,7 +38,7 @@ export const generateTemplateHtml = async (
     let staticSite = false;
 
     if (prerenderConfig.staticSite) {
-      // purposely do not want any clientside JS
+      // purposely do not want any client-side JS
       // go through the document and remove only stencil's scripts
       removeStencilScripts(doc);
       staticSite = true;
@@ -55,7 +52,7 @@ export const generateTemplateHtml = async (
 
     doc.documentElement.classList.add('hydrated');
 
-    if (hydrateOpts.inlineExternalStyleSheets && !isDebug) {
+    if (hydrateOpts.inlineExternalStyleSheets && !isDebug && outputTarget.appDir) {
       try {
         await inlineExternalStyleSheets(config.sys, outputTarget.appDir, doc);
       } catch (e: any) {
@@ -71,7 +68,7 @@ export const generateTemplateHtml = async (
       }
     }
 
-    if (hydrateOpts.minifyStyleElements && !isDebug) {
+    if (hydrateOpts.minifyStyleElements && !isDebug && outputTarget.baseUrl) {
       try {
         const baseUrl = new URL(outputTarget.baseUrl, manager.devServerHostUrl);
         await minifyStyleElements(config.sys, outputTarget.appDir, doc, baseUrl, true);
@@ -82,22 +79,14 @@ export const generateTemplateHtml = async (
 
     if (isFunction(prerenderConfig.beforeSerializeTemplate)) {
       const beforeSerializeResults = prerenderConfig.beforeSerializeTemplate(doc);
-      if (isPromise(beforeSerializeResults)) {
-        doc = await beforeSerializeResults;
-      } else {
-        doc = beforeSerializeResults;
-      }
+      doc = await beforeSerializeResults;
     }
 
     let html = serializeNodeToHtml(doc);
 
     if (isFunction(prerenderConfig.afterSerializeTemplate)) {
       const afterSerializeResults = prerenderConfig.afterSerializeTemplate(html);
-      if (isPromise(afterSerializeResults)) {
-        html = await afterSerializeResults;
-      } else {
-        html = afterSerializeResults;
-      }
+      html = await afterSerializeResults;
     }
 
     return {

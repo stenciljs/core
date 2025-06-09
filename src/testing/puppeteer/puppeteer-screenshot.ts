@@ -6,9 +6,10 @@ import type {
   ScreenshotDiff,
   ScreenshotOptions,
 } from '@stencil/core/internal';
+import type * as puppeteer from 'puppeteer';
+
 import { compareScreenshot } from '../../screenshot/screenshot-compare';
 import type * as pd from './puppeteer-declarations';
-import type * as puppeteer from 'puppeteer';
 
 export function initPageScreenshot(page: pd.E2EPageInternal) {
   const env = process.env as E2EProcessEnv;
@@ -53,7 +54,7 @@ export function initPageScreenshot(page: pd.E2EPageInternal) {
 
       if (jestEnv.screenshotDescriptions.has(desc)) {
         throw new Error(
-          `Screenshot description "${desc}" found in "${testPath}" cannot be used for multiple screenshots and must be unique. To make screenshot descriptions unique within the same test, use the first argument to "compareScreenshot", such as "compareScreenshot('more to the description')".`
+          `Screenshot description "${desc}" found in "${testPath}" cannot be used for multiple screenshots and must be unique. To make screenshot descriptions unique within the same test, use the first argument to "compareScreenshot", such as "compareScreenshot('more to the description')".`,
         );
       }
       jestEnv.screenshotDescriptions.add(desc);
@@ -64,6 +65,7 @@ export function initPageScreenshot(page: pd.E2EPageInternal) {
     // screen shot not enabled, so just skip over all the logic
     page.compareScreenshot = async () => {
       const diff: ScreenshotDiff = {
+        id: 'placeholder',
         mismatchedPixels: 0,
         allowableMismatchedPixels: 1,
         allowableMismatchedRatio: 1,
@@ -82,7 +84,7 @@ export async function pageCompareScreenshot(
   env: E2EProcessEnv,
   desc: string,
   testPath: string,
-  opts: ScreenshotOptions
+  opts: ScreenshotOptions,
 ) {
   if (typeof env.__STENCIL_EMULATE__ !== 'string') {
     throw new Error(`compareScreenshot, missing screenshot emulate env var`);
@@ -91,6 +93,11 @@ export async function pageCompareScreenshot(
   if (typeof env.__STENCIL_SCREENSHOT_BUILD__ !== 'string') {
     throw new Error(`compareScreenshot, missing screen build env var`);
   }
+
+  const screenshotTimeoutMs: number | null =
+    typeof env.__STENCIL_SCREENSHOT_TIMEOUT_MS__ === 'string'
+      ? parseInt(env.__STENCIL_SCREENSHOT_TIMEOUT_MS__, 10)
+      : null;
 
   const emulateConfig = JSON.parse(env.__STENCIL_EMULATE__) as EmulateConfig;
   const screenshotBuildData = JSON.parse(env.__STENCIL_SCREENSHOT_BUILD__) as ScreenshotBuildData;
@@ -104,11 +111,6 @@ export async function pageCompareScreenshot(
     });
   });
 
-  const screenshotOpts = createPuppeteerScreenshopOptions(opts);
-  const screenshotBuf = await page.screenshot(screenshotOpts);
-  const pixelmatchThreshold =
-    typeof opts.pixelmatchThreshold === 'number' ? opts.pixelmatchThreshold : screenshotBuildData.pixelmatchThreshold;
-
   let width = emulateConfig.viewport.width;
   let height = emulateConfig.viewport.height;
 
@@ -121,21 +123,34 @@ export async function pageCompareScreenshot(
     }
   }
 
+  // The width and height passed into this function will be the dimensions of the generated image
+  // This is _not_ guaranteed to be the viewport dimensions specified in the emulate config. If clip
+  // options were provided this comparison function, the width and height will be set to those clip dimensions.
+  // Otherwise, it will default to the emulate config viewport dimensions.
+  const screenshotOpts = createPuppeteerScreenshotOptions(opts, { width, height });
+  const screenshotBuf = await page.screenshot(screenshotOpts);
+  const pixelmatchThreshold =
+    typeof opts.pixelmatchThreshold === 'number' ? opts.pixelmatchThreshold : screenshotBuildData.pixelmatchThreshold;
+
   const results = await compareScreenshot(
     emulateConfig,
     screenshotBuildData,
     screenshotBuf,
+    screenshotTimeoutMs,
     desc,
     width,
     height,
     testPath,
-    pixelmatchThreshold
+    pixelmatchThreshold,
   );
 
   return results;
 }
 
-function createPuppeteerScreenshopOptions(opts: ScreenshotOptions) {
+export function createPuppeteerScreenshotOptions(
+  opts: ScreenshotOptions,
+  { width, height }: { width: number; height: number },
+) {
   const puppeteerOpts: puppeteer.ScreenshotOptions = {
     type: 'png',
     fullPage: opts.fullPage,
@@ -144,11 +159,22 @@ function createPuppeteerScreenshopOptions(opts: ScreenshotOptions) {
   };
 
   if (opts.clip) {
+    puppeteerOpts.captureBeyondViewport =
+      typeof opts.captureBeyondViewport === 'boolean' ? opts.captureBeyondViewport : true;
     puppeteerOpts.clip = {
       x: opts.clip.x,
       y: opts.clip.y,
       width: opts.clip.width,
       height: opts.clip.height,
+    };
+  } else {
+    puppeteerOpts.captureBeyondViewport =
+      typeof opts.captureBeyondViewport === 'boolean' ? opts.captureBeyondViewport : false;
+    puppeteerOpts.clip = {
+      x: 0,
+      y: 0,
+      width,
+      height,
     };
   }
 

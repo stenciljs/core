@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+
 import { Prop } from '../../declarations';
 
 describe('SVG element', () => {

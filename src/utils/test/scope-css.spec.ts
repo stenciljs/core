@@ -12,9 +12,11 @@
  */
 
 import { scopeCss } from '../shadow-css';
-import { convertScopedToShadow } from '../../runtime/styles';
 
-describe('ShadowCss', function () {
+const exampleComponentCss =
+  '@charset "UTF-8";:host{display:block}.x7f9d2e .sc-k8j2m4-h{display:block}.x7f9d2e [clamp].sc-k8j2m4-h{min-width:0}.x7f9d2e .sc-k8j2m4-h{--font-family-text:Helvetica, sans-serif}@supports (font-variation-settings: normal){.x7f9d2e .sc-k8j2m4-h{--font-family-text:Bull VF, Helvetica, sans-serif}}.x7f9d2e .sc-k8j2m4-h:lang(ja){--font-family-text:Noto Sans JP, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(ar){--font-family-text:Noto Kufi Arabic, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(ko){--font-family-text:Noto Sans KR, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(hi){--font-family-text:Noto Sans, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(he){--font-family-text:Noto Sans Hebrew, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(ka){--font-family-text:Noto Sans Georgian, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(th){--font-family-text:Noto Sans Thai, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(zh){--font-family-text:Microsoft YaHei, ヒラギノ角ゴ Pro W3, Hiragino Kaku Gothic Pro, Hiragino Kaku Gothic ProN W3, Osaka, メイリオ, Meiryo, ＭＳ Ｐゴシック, MS PGothic, Arial Unicode MS, Tahoma, Helvetica, sans-serif}.x7f9d2e .sc-k8j2m4-h:lang(zh-Hant){--font-family-text:Microsoft JhengHei, Geneva CY, ヒラギノ角ゴ Pro W3, Hiragino Kaku Gothic Pro, Hiragino Kaku Gothic ProN W3, Osaka, メイリオ, Meiryo, ＭＳ Ｐゴシック, MS PGothic, Arial Unicode MS, Tahoma, Helvetica, sans-serif}@supports (font-variation-settings: normal){.x7f9d2e .sc-k8j2m4-s>strong,.x7f9d2e .sc-k8j2m4-s>b{font-variation-settings:"opsz" 12, "wght" 700}}.x7f9d2e .a9b3c7{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;color:var(--text-color, #000F1E);font-family:var(--text-font-family, var(--font-family-text));font-style:var(--text-font-style, inherit);font-variant-numeric:tabular-nums;font-variation-settings:"opsz" 12, "wght" 400;font-weight:var(--text-font-weight, 400);letter-spacing:var(--text-letter-spacing, inherit);line-height:var(--text-line-height, 1.5);margin:0;text-transform:var(--text-text-transform, var(--text-transform, inherit))}.x7f9d2e .f3d8e1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.x7f9d2e .b7c4d9{-webkit-box-orient:vertical;display:-webkit-box;-webkit-line-clamp:var(--text-clamp-length);overflow:hidden}.x7f9d2e .a9b3c7--size-xx-small{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--size-x-small{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--size-small{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.411765);margin-bottom:0.470588em;padding-top:0.705882em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-small{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-small{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--size-medium{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-medium{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--size-large{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-large{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-large{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--size-x-large{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}@media (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-xx-small\\@small{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small\\@small{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@small{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-x-small\\@small{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small\\@small{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@small{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-small\\@small{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.411765);margin-bottom:0.470588em;padding-top:0.705882em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-small\\@small{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@small{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-medium\\@small{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-medium\\@small{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@small{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-large\\@small{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-large\\@small{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@small{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}@media screen and (min-width: 0){.x7f9d2e .a9b3c7--size-x-large\\@small{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}}@media screen and (min-width: 0) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large\\@small{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media screen and (min-width: 0) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@small{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-xx-small\\@medium{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-x-small\\@medium{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-small\\@medium{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.411765);margin-bottom:0.470588em;padding-top:0.705882em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@medium{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-medium\\@medium{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-medium\\@medium{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@medium{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-large\\@medium{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-large\\@medium{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@medium{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}@media screen and (min-width: 650px){.x7f9d2e .a9b3c7--size-x-large\\@medium{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}}@media screen and (min-width: 650px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large\\@medium{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media screen and (min-width: 650px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@medium{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-xx-small\\@large{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small\\@large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-x-small\\@large{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small\\@large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-small\\@large{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.411765);margin-bottom:0.470588em;padding-top:0.705882em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-small\\@large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-medium\\@large{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-medium\\@large{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@large{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-large\\@large{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-large\\@large{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@large{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1000px){.x7f9d2e .a9b3c7--size-x-large\\@large{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}}@media screen and (min-width: 1000px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large\\@large{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1000px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@large{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@x-large{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@x-large{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@x-large{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var --text-line-height, 1.411765;margin-bottom:0.470588em;padding-top:0.705882em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@x-large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@x-large{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-medium\\@x-large{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@x-large{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@x-large{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-large\\@x-large{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@x-large{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@x-large{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}}@media screen and (min-width: 1200px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large\\@x-large{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1200px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@x-large{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-xx-small\\@xx-large{font-size:var(--text-font-size, calc(12rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.25);margin-bottom:0.333333em;padding-top:0.666667em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-xx-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-xx-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(12rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-x-small\\@xx-large{font-size:var(--text-font-size, calc(14rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.357143);margin-bottom:0.428571em;padding-top:0.714286em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(14rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-small\\@xx-large{font-size:var(--text-font-size, calc(17rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.411765);margin-bottom:0.470588em;padding-top:0.705882em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16) + 0 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-small\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(17rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-medium\\@xx-large{font-size:var(--text-font-size, calc(18rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.5);margin-bottom:0.4em;padding-top:0.6em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-medium\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(18rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-medium\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(20rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-large\\@xx-large{font-size:var(--text-font-size, calc(22rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.333333);margin-bottom:0.5em;padding-top:1.083333em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-large\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(22rem / var(--base-font-size, 16) + 2 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-large\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(24rem / var(--base-font-size, 16))))}}@media screen and (min-width: 1350px){.x7f9d2e .a9b3c7--size-x-large\\@xx-large{font-size:var(--text-font-size, calc(26rem / var(--base-font-size, 16)));line-height:var(--text-line-height, 1.137931);margin-bottom:0.413793em;padding-top:1.103448em}}@media screen and (min-width: 1350px) and (min-width: 380px){.x7f9d2e .a9b3c7--size-x-large\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(26rem / var(--base-font-size, 16) + 3 * (100vw - 380px) / 820)))}}@media screen and (min-width: 1350px) and (min-width: 1200px){.x7f9d2e .a9b3c7--size-x-large\\@xx-large{font-size:calc(1 * var(--text-font-size, calc(29rem / var(--base-font-size, 16))))}}.x7f9d2e .a9b3c7--spacing-none{margin-bottom:0;padding-top:0}.x7f9d2e .a9b3c7--spacing-long-form-bottom{padding-top:0}.x7f9d2e .a9b3c7--spacing-long-form-top{margin-bottom:0}.x7f9d2e .h2j5k8{font-variation-settings:"opsz" 12, "wght" 500;font-weight:var(--text-font-weight, 500)}.x7f9d2e .m4n7p2{font-variation-settings:"opsz" 12, "wght" 700;font-weight:var(--text-font-weight, 700)}.x7f9d2e .q8r5t3.w6x9y4{color:var(--text-color, #FFFFFF)}.x7f9d2e .u1v4w7{color:var(--text-color, rgba(0, 15, 30, 0.6))}.x7f9d2e .u1v4w7.w6x9y4{color:var(--text-color, rgba(255, 255, 255, 0.6))}';
+
+describe('scopeCSS', function () {
   function s(cssText: string, scopeId: string, commentOriginalSelector = false) {
     const shim = scopeCss(cssText, scopeId, commentOriginalSelector);
 
@@ -59,7 +61,7 @@ describe('ShadowCss', function () {
     expect(s(css, 'a')).toEqual(expected);
   });
 
-  it('should support newlines in the selector and content ', () => {
+  it('should support newlines in the selector and content', () => {
     const css = 'one, \ntwo {\ncolor: red;}';
     const expected = 'one.a, two.a {color:red;}';
     expect(s(css, 'a')).toEqual(expected);
@@ -71,22 +73,10 @@ describe('ShadowCss', function () {
     expect(s(css, 'a')).toEqual(expected);
   });
 
-  it('should handle media rules, commentOriginalSelector', () => {
-    const css = '@media screen and (max-width:800px, max-height:100%) {div {font-size:50px;}}';
-    const expected = '@media screen and (max-width:800px, max-height:100%) {/*!@div*/div.a {font-size:50px;}}';
-    expect(s(css, 'a', true)).toEqual(expected);
-  });
-
   it('should handle page rules', () => {
     const css = '@page {div {font-size:50px;}}';
     const expected = '@page {div.a {font-size:50px;}}';
     expect(s(css, 'a')).toEqual(expected);
-  });
-
-  it('should handle page rules, commentOriginalSelector', () => {
-    const css = '@page {div {font-size:50px;}}';
-    const expected = '@page {/*!@div*/div.a {font-size:50px;}}';
-    expect(s(css, 'a', true)).toEqual(expected);
   });
 
   it('should handle document rules', () => {
@@ -107,20 +97,21 @@ describe('ShadowCss', function () {
     expect(s(css, 'a')).toEqual(expected);
   });
 
-  // Check that the browser supports unprefixed CSS animation
+  // Check that the browser supports un-prefixed CSS animation
   it('should handle keyframes rules', () => {
     const css = '@keyframes foo {0% {transform:translate(-50%) scaleX(0);}}';
     expect(s(css, 'a')).toEqual(css);
   });
 
-  it('should handle keyframes rules, commentOriginalSelector', () => {
-    const css = '@keyframes foo {0% {transform:translate(-50%) scaleX(0);}}';
-    expect(s(css, 'a', true)).toEqual(css);
-  });
-
   it('should handle -webkit-keyframes rules', () => {
     const css = '@-webkit-keyframes foo {0% {-webkit-transform:translate(-50%) scaleX(0);}}';
     expect(s(css, 'a')).toEqual(css);
+  });
+
+  it('should perform relative fast', () => {
+    const now = Date.now();
+    scopeCss(exampleComponentCss, 'a', true);
+    expect(Date.now() - now).toBeLessThan(200);
   });
 
   it('should handle complicated selectors', () => {
@@ -153,10 +144,6 @@ describe('ShadowCss', function () {
   });
 
   describe(':host', () => {
-    it('should handle no context, commentOriginalSelector', () => {
-      expect(s(':host {}', 'a', true)).toEqual('/*!@:host*/.a-h {}');
-    });
-
     it('should handle no context', () => {
       expect(s(':host {}', 'a')).toEqual('.a-h {}');
     });
@@ -175,11 +162,6 @@ describe('ShadowCss', function () {
     });
 
     it('should handle multiple tag selectors', () => {
-      expect(s(':host(ul,li) {}', 'a', true)).toEqual('/*!@:host(ul,li)*/ul.a-h, li.a-h {}');
-      expect(s(':host(ul,li) > .z {}', 'a', true)).toEqual('/*!@:host(ul,li) > .z*/ul.a-h > .z.a, li.a-h > .z.a {}');
-    });
-
-    it('should handle multiple tag selectors', () => {
       expect(s(':host(ul,li) {}', 'a')).toEqual('ul.a-h, li.a-h {}');
       expect(s(':host(ul,li) > .z {}', 'a')).toEqual('ul.a-h > .z.a, li.a-h > .z.a {}');
     });
@@ -193,14 +175,6 @@ describe('ShadowCss', function () {
       expect(s(':host([a="b"],[c=d]) {}', 'a')).toEqual('[a="b"].a-h, [c="d"].a-h {}');
     });
 
-    it('should handle multiple attribute selectors, commentOriginalSelector', () => {
-      expect(s(':host([a="b"],[c=d]) {}', 'a', true)).toEqual('/*!@:host([a="b"],[c=d])*/[a="b"].a-h, [c="d"].a-h {}');
-    });
-
-    it('should handle multiple attribute selectors, commentOriginalSelector', () => {
-      expect(s(':host([a="b"],[c=d]) {}', 'a', true)).toEqual('/*!@:host([a="b"],[c=d])*/[a="b"].a-h, [c="d"].a-h {}');
-    });
-
     it('should handle pseudo selectors', () => {
       expect(s(':host(:before) {}', 'a')).toEqual('.a-h:before {}');
       expect(s(':host:before {}', 'a')).toEqual('.a-h:before {}');
@@ -210,16 +184,15 @@ describe('ShadowCss', function () {
       expect(s(':host.class:before {}', 'a')).toEqual('.class.a-h:before {}');
       expect(s(':host(:not(p)):before {}', 'a')).toEqual('.a-h:not(p):before {}');
     });
+
+    it('should not replace the selector in a `@supports` rule', () => {
+      expect(s('@supports selector(:host()) {:host {color: red; }}', 'a')).toEqual(
+        '@supports selector(:host()) {.a-h {color:red;}}',
+      );
+    });
   });
 
   describe(':host-context', () => {
-    it('should handle tag selector, commentOriginalSelector', () => {
-      expect(s(':host-context(div) {}', 'a', true)).toEqual('/*!@:host-context(div)*/div.a-h, div .a-h {}');
-      expect(s(':host-context(ul) > .y {}', 'a', true)).toEqual(
-        '/*!@:host-context(ul) > .y*/ul.a-h > .y.a, ul .a-h > .y.a {}'
-      );
-    });
-
     it('should handle tag selector', () => {
       expect(s(':host-context(div) {}', 'a')).toEqual('div.a-h, div .a-h {}');
       expect(s(':host-context(ul) > .y {}', 'a')).toEqual('ul.a-h > .y.a, ul .a-h > .y.a {}');
@@ -235,14 +208,16 @@ describe('ShadowCss', function () {
       expect(s(':host-context([a="b"]) {}', 'a')).toEqual('[a="b"].a-h, [a="b"] .a-h {}');
       expect(s(':host-context([a=b]) {}', 'a')).toEqual('[a=b].a-h, [a="b"] .a-h {}');
     });
+
+    it('should not replace the selector in a `@supports` rule', () => {
+      expect(s('@supports selector(:host-context(.class1)) {:host-context(.class1) {color: red; }}', 'a')).toEqual(
+        '@supports selector(:host-context(.class1)) {.class1.a-h, .class1 .a-h {color:red;}}',
+      );
+    });
+    ``;
   });
 
   describe('::slotted', () => {
-    it('should handle *, commentOriginalSelector', () => {
-      const r = s('::slotted(*) {}', 'sc-ion-tag', true);
-      expect(r).toEqual('/*!@::slotted(*)*/.sc-ion-tag-s > * {}');
-    });
-
     it('should handle *', () => {
       const r = s('::slotted(*) {}', 'sc-ion-tag');
       expect(r).toEqual('.sc-ion-tag-s > * {}');
@@ -255,13 +230,15 @@ describe('ShadowCss', function () {
 
     it('should handle :host complex selector', () => {
       const r = s(':host > ::slotted(*:nth-of-type(2n - 1)) {}', 'sc-ion-tag');
-      expect(r).toEqual('.sc-ion-tag-h > .sc-ion-tag-s > *:nth-of-type(2n - 1) {}');
+      expect(r).toEqual(
+        '.sc-ion-tag-h >.sc-ion-tag-s > *:nth-of-type(2n - 1), .sc-ion-tag-h > .sc-ion-tag-s > *:nth-of-type(2n - 1) {}',
+      );
     });
 
     it('should handle host-context complex selector', () => {
       const r = s(':host-context(.red) > ::slotted(*:nth-of-type(2n - 1)) {}', 'sc-ion-tag');
       expect(r).toEqual(
-        '.sc-ion-tag-h.red > .sc-ion-tag-s > *:nth-of-type(2n - 1), .red .sc-ion-tag-h > .sc-ion-tag-s > *:nth-of-type(2n - 1) {}'
+        '.sc-ion-tag-h.red >.sc-ion-tag-s > *:nth-of-type(2n - 1), .sc-ion-tag-h.red > .sc-ion-tag-s > *:nth-of-type(2n - 1), .red .sc-ion-tag-h >.sc-ion-tag-s > *:nth-of-type(2n - 1), .red .sc-ion-tag-h > .sc-ion-tag-s > *:nth-of-type(2n - 1) {}',
       );
     });
 
@@ -295,53 +272,15 @@ describe('ShadowCss', function () {
       expect(r).toEqual('.sc-ion-tag-s > * {}, .sc-ion-tag-s > * {}, .sc-ion-tag-s > * {}');
     });
 
-    it('same selectors, commentOriginalSelector', () => {
-      const r = s('::slotted(*) {}, ::slotted(*) {}, ::slotted(*) {}', 'sc-ion-tag', true);
-      expect(r).toEqual(
-        '/*!@::slotted(*)*/.sc-ion-tag-s > * {}/*!@, ::slotted(*)*/.sc-ion-tag, .sc-ion-tag-s > * {}/*!@, ::slotted(*)*/.sc-ion-tag, .sc-ion-tag-s > * {}'
-      );
-    });
-
     it('should combine parent selector when comma', () => {
       const r = s('.a .b, .c ::slotted(*) {}', 'sc-ion-tag');
       expect(r).toEqual('.a.sc-ion-tag .b.sc-ion-tag, .c.sc-ion-tag-s > *, .c .sc-ion-tag-s > * {}');
     });
 
-    it('should handle multiple selector, commentOriginalSelector', () => {
-      const r = s('::slotted(ul), ::slotted(li) {}', 'sc-ion-tag', true);
-      expect(r).toEqual('/*!@::slotted(ul), ::slotted(li)*/.sc-ion-tag-s > ul, .sc-ion-tag-s > li {}');
-    });
-  });
-
-  describe('convertScopedToShadow', () => {
-    it('media query', () => {
-      const input = `@media screen and (max-width:800px, max-height:100%) {/*!@div*/div.a {font-size:50px;}}`;
-      const expected = `@media screen and (max-width:800px, max-height:100%) {div{font-size:50px;}}`;
-      expect(convertScopedToShadow(input)).toBe(expected);
-    });
-
-    it('div', () => {
-      const input = `/*!@div*/div.sc-ion-tag {}`;
-      const expected = `div{}`;
-      expect(convertScopedToShadow(input)).toBe(expected);
-    });
-
-    it('new lines', () => {
-      const input = `/*!@div*/div.sc-ion-tag \n\n\n     \t{}`;
-      const expected = `div{}`;
-      expect(convertScopedToShadow(input)).toBe(expected);
-    });
-
-    it(':host', () => {
-      const input = `/*!@:host*/.a-h {}`;
-      const expected = `:host{}`;
-      expect(convertScopedToShadow(input)).toBe(expected);
-    });
-
-    it('::slotted', () => {
-      const input = `/*!@::slotted(ul), ::slotted(li)*/.sc-ion-tag-s > ul, .sc-ion-tag-s > li {}`;
-      const expected = `::slotted(ul), ::slotted(li){}`;
-      expect(convertScopedToShadow(input)).toBe(expected);
+    it('should not replace the selector in a `@supports` rule', () => {
+      expect(s('@supports selector(::slotted(*)) {::slotted(*) {color: red; }}', 'sc-cmp')).toEqual(
+        '@supports selector(::slotted(*)) {.sc-cmp-s > * {color:red;}}',
+      );
     });
   });
 

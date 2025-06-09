@@ -1,7 +1,8 @@
+import { SVG_NS, XLINK_NS } from '@utils';
+
 import type * as d from '../../../declarations';
 import { h, newVNode } from '../h';
 import { patch } from '../vdom-render';
-import { SVG_NS, XLINK_NS } from '@utils';
 
 describe('attributes', () => {
   let hostElm: d.HostElement;
@@ -84,7 +85,7 @@ describe('attributes', () => {
         {},
         h('div', {
           'xlink:href': testUrl,
-        })
+        }),
       );
 
       hostElm = document.createElementNS(SVG_NS, 'svg') as any;

@@ -1,0 +1,131 @@
+{
+  "components": [
+    {
+      "filePath": "src/components/my-component/my-component.tsx",
+      "encapsulation": "shadow",
+      "tag": "my-component",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [
+        {
+          "name": "onDidDismiss",
+          "returns": {
+            "type": "Promise<ImportedInterface<T>>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "<T>(arg: T) => Promise<ImportedInterface<T>>",
+            "parameters": [
+              {
+                "name": "arg",
+                "type": "T",
+                "docs": ""
+              }
+            ],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              },
+              "ImportedInterface": {
+                "location": "import",
+                "path": "./imported-interface",
+                "id": "src/components/my-component/imported-interface.ts::ImportedInterface"
+              },
+              "T": {
+                "location": "global",
+                "id": "global::T"
+              }
+            },
+            "return": "Promise<ImportedInterface<T>>"
+          },
+          "signature": "onDidDismiss<T>(arg: T) => Promise<ImportedInterface<T>>",
+          "parameters": [
+            {
+              "name": "arg",
+              "type": "T",
+              "docs": ""
+            }
+          ],
+          "docs": "A comment, which should be included, I should think!",
+          "docsTags": []
+        }
+      ],
+      "events": [],
+      "listeners": [],
+      "styles": [
+        {
+          "name": "--background",
+          "annotation": "prop",
+          "docs": "the background color",
+          "mode": "ios"
+        },
+        {
+          "name": "--background",
+          "annotation": "prop",
+          "docs": "the background color",
+          "mode": "md"
+        }
+      ],
+      "slots": [],
+      "parts": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    }
+  ],
+  "typeLibrary": {
+    "src/components/my-component/imported-interface.ts::ImportedInterface": {
+      "declaration": "export interface ImportedInterface<T> {\n  test: 'boop';\n  another: T;\n}",
+      "docstring": "Some JSDoc here describing something or other\n\nIt's multi-line, etc.",
+      "path": "src/components/my-component/imported-interface.ts"
+    },
+    "src/components/interfaces.ts::Pie": {
+      "declaration": "export interface Pie {\n  /**\n   * What flavor of pie, hmm?\n   *\n   * This JSDoc should show up in the 'declaration' field in the JSON output.\n   */\n  type: 'pumpkin' | 'apple' | 'pecan';\n  name: string;\n  diameter: number;\n}",
+      "docstring": "Interface that should be included",
+      "path": "src/components/interfaces.ts"
+    },
+    "src/components/interfaces.ts::FooBar": {
+      "declaration": "{\n  biz: string;\n}",
+      "docstring": "",
+      "path": "src/components/interfaces.ts"
+    },
+    "src/components/interfaces.ts::FizzBuzz": {
+      "declaration": "export enum FizzBuzz {\n  One,\n  Two,\n  Three,\n}",
+      "docstring": "Enum that should be included",
+      "path": "src/components/interfaces.ts"
+    },
+    "src/components/interfaces.ts::StringUnion": {
+      "declaration": "export type StringUnion = 'left' | 'right';",
+      "docstring": "",
+      "path": "src/components/interfaces.ts"
+    },
+    "src/components/test-not-used.ts::ReExportedUnderNewNameWithType": {
+      "declaration": "export interface ReExportedUnderNewNameWithType {\n  test: string;\n}",
+      "docstring": "If I show up then a re-export w/ alias and `export type` works!",
+      "path": "src/components/test-not-used.ts"
+    },
+    "src/components/test-not-used.ts::ReExportedUnderNewName": {
+      "declaration": "export interface ReExportedUnderNewName {\n  test: string;\n}",
+      "docstring": "If I show up then a re-export w/ alias works!",
+      "path": "src/components/test-not-used.ts"
+    },
+    "src/components/test-not-used.ts::ReExportedWithType": {
+      "declaration": "export interface ReExportedWithType {\n  test: string;\n}",
+      "docstring": "If I show up then a re-export w/ `export type` works!",
+      "path": "src/components/test-not-used.ts"
+    },
+    "src/components/test-not-used.ts::ReExported": {
+      "declaration": "export interface ReExported {\n  test: string;\n}",
+      "docstring": "If I show up then a re-export works!",
+      "path": "src/components/test-not-used.ts"
+    },
+    "src/components/test-not-used.ts::IncludedInWildcard": {
+      "declaration": "export interface IncludedInWildcard {\n  test: string;\n}",
+      "docstring": "If I show up then a `export * from '...'` works!",
+      "path": "src/components/test-not-used.ts"
+    }
+  }
+}

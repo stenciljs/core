@@ -1,4 +1,6 @@
-import type { E2EProcessEnv, EmulateConfig, HostElement, JestEnvironmentGlobal } from '@stencil/core/internal';
+import type { E2EProcessEnv, HostElement, JestEnvironmentGlobal } from '@stencil/core/internal';
+import type { ConsoleMessage, ConsoleMessageLocation, ElementHandle, JSHandle, WaitForOptions } from 'puppeteer';
+
 import type {
   E2EPage,
   E2EPageInternal,
@@ -7,15 +9,16 @@ import type {
   PageCloseOptions,
   PageDiagnostic,
 } from './puppeteer-declarations';
-
-import type { ConsoleMessage, ConsoleMessageLocation, JSHandle, Page, WaitForOptions } from 'puppeteer';
 import { find, findAll } from './puppeteer-element';
 import { initPageEvents, waitForEvent } from './puppeteer-events';
 import { initPageScreenshot } from './puppeteer-screenshot';
 
 declare const global: JestEnvironmentGlobal;
 
-const env: E2EProcessEnv = process.env;
+const DEFAULT_LOAD_TIMEOUT = 30 * 1000; // 30s
+
+// during E2E tests, we can safely assume that the current environment is a `E2EProcessEnv`
+const env: E2EProcessEnv = process.env as E2EProcessEnv;
 export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage> {
   if (!global.__NEW_TEST_PAGE__) {
     throw new Error(`newE2EPage() is only available from E2E tests, and ran with the --e2e cmd line flag.`);
@@ -29,7 +32,6 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
     page._e2eGoto = page.goto;
     page._e2eClose = page.close;
 
-    await setPageEmulate(page as any);
     await page.setCacheEnabled(false);
     await initPageEvents(page);
 
@@ -76,7 +78,7 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
         docPromise = page.evaluateHandle(() => document);
       }
       const documentJsHandle = await docPromise;
-      return documentJsHandle.asElement();
+      return documentJsHandle.asElement() as ElementHandle;
     };
 
     page.find = async (selector: FindSelector) => {
@@ -115,6 +117,8 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
 
     const failOnConsoleError = opts.failOnConsoleError === true;
     const failOnNetworkError = opts.failOnNetworkError === true;
+    const logFailingNetworkRequests =
+      typeof opts.logFailingNetworkRequests === 'boolean' ? opts.logFailingNetworkRequests : true;
 
     page.on('console', (ev) => {
       if (ev.type() === 'error') {
@@ -124,7 +128,7 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
           location: ev.location().url,
         });
         if (failOnConsoleError) {
-          fail(new Error(serializeConsoleMessage(ev)));
+          throw new Error(serializeConsoleMessage(ev));
         }
       }
       consoleMessage(ev);
@@ -135,7 +139,7 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
         message: err.message,
         location: err.stack,
       });
-      fail(err);
+      throw err;
     });
     page.on('requestfailed', (req) => {
       diagnostics.push({
@@ -144,8 +148,8 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
         location: req.url(),
       });
       if (failOnNetworkError) {
-        fail(new Error(req.failure().errorText));
-      } else {
+        throw new Error(req.failure().errorText);
+      } else if (logFailingNetworkRequests) {
         console.error('requestfailed', req.url());
       }
     });
@@ -262,37 +266,15 @@ async function e2eSetContent(page: E2EPageInternal, html: string, options: WaitF
   }
 
   await waitForStencil(page, options);
-
-  return rsp;
 }
 
 async function waitForStencil(page: E2EPage, options: WaitForOptions) {
+  const timeout = typeof options.timeout === 'number' ? options.timeout : DEFAULT_LOAD_TIMEOUT;
   try {
-    const timeout = typeof options.timeout === 'number' ? options.timeout : 4750;
     await page.waitForFunction('window.stencilAppLoaded', { timeout });
   } catch (e) {
-    throw new Error(`App did not load in allowed time. Please ensure the content loads a stencil application.`);
+    throw new Error(`App did not load within ${timeout}ms. Please ensure the content loads a stencil application.`);
   }
-}
-
-async function setPageEmulate(page: Page) {
-  if (page.isClosed()) {
-    return;
-  }
-
-  const emulateJsonContent = env.__STENCIL_EMULATE__;
-  if (!emulateJsonContent) {
-    return;
-  }
-
-  const screenshotEmulate = JSON.parse(emulateJsonContent) as EmulateConfig;
-
-  const emulateOptions = {
-    viewport: screenshotEmulate.viewport,
-    userAgent: screenshotEmulate.userAgent,
-  };
-
-  await (page as Page).emulate(emulateOptions);
 }
 
 async function waitForChanges(page: E2EPageInternal) {
@@ -351,13 +333,7 @@ async function waitForChanges(page: E2EPageInternal) {
       return;
     }
 
-    if (typeof (page as any).waitForTimeout === 'function') {
-      // https://github.com/puppeteer/puppeteer/issues/6214
-      await (page as any).waitForTimeout(100);
-    } else {
-      await page.waitFor(100);
-    }
-
+    await new Promise((r) => setTimeout(r, 100));
     await Promise.all(page._e2eElements.map((elm) => elm.e2eSync()));
   } catch (e) {}
 }
@@ -365,13 +341,12 @@ async function waitForChanges(page: E2EPageInternal) {
 function consoleMessage(c: ConsoleMessage) {
   const msg = serializeConsoleMessage(c);
   const type = c.type();
-  const normalizedType = type === 'warning' ? 'warn' : type;
-  if (normalizedType === 'debug') {
+  if (type === 'debug') {
     // Skip debug messages
     return;
   }
-  if (typeof (console as any)[normalizedType] === 'function') {
-    (console as any)[normalizedType](msg);
+  if (typeof (console as any)[type] === 'function') {
+    (console as any)[type](msg);
   } else {
     console.log(type, msg);
   }

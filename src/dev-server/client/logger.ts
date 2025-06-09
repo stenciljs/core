@@ -8,7 +8,7 @@ export const logWarn = (prefix: string, msg: string) => log(YELLOW, prefix, msg)
 
 export const logDisabled = (prefix: string, msg: string) => log(GRAY, prefix, msg);
 
-export const logDiagnostic = (diag: any) => {
+export const logDiagnostic = (diag: Diagnostic) => {
   const diagnostic: Diagnostic = diag;
   let color = RED;
   let prefix = 'Error';

@@ -1,16 +1,27 @@
-import type * as d from '../../../declarations';
-import { buildError, buildWarn, catchError, isString, loadTypeScriptDiagnostic, normalizePath } from '@utils';
-import { isAbsolute, join, relative } from 'path';
+import {
+  buildError,
+  buildWarn,
+  catchError,
+  isString,
+  join,
+  loadTypeScriptDiagnostic,
+  normalizePath,
+  relative,
+} from '@utils';
+import { isAbsolute } from 'path';
 import ts from 'typescript';
 
-export const validateTsConfig = async (config: d.Config, sys: d.CompilerSystem, init: d.LoadConfigInit) => {
+import type * as d from '../../../declarations';
+
+export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.CompilerSystem, init: d.LoadConfigInit) => {
   const tsconfig = {
-    path: null as string,
-    compilerOptions: null as any,
-    files: null as string[],
-    include: null as string[],
-    exclude: null as string[],
-    extends: null as string,
+    path: '',
+    compilerOptions: {} as ts.CompilerOptions,
+    watchOptions: {} as ts.WatchOptions,
+    files: [] as string[],
+    include: [] as string[],
+    exclude: [] as string[],
+    extends: '',
     diagnostics: [] as d.Diagnostic[],
   };
 
@@ -36,6 +47,10 @@ export const validateTsConfig = async (config: d.Config, sys: d.CompilerSystem, 
       };
 
       const results = ts.getParsedCommandLineOfConfigFile(tsconfig.path, {}, host);
+
+      if (results === undefined) {
+        throw 'Encountered an error reading tsconfig!';
+      }
 
       if (results.errors && results.errors.length > 0) {
         results.errors.forEach((configErr) => {
@@ -77,6 +92,10 @@ export const validateTsConfig = async (config: d.Config, sys: d.CompilerSystem, 
           }
         }
 
+        if (results.watchOptions) {
+          tsconfig.watchOptions = results.watchOptions;
+        }
+
         if (results.options) {
           tsconfig.compilerOptions = results.options;
 
@@ -105,10 +124,17 @@ export const validateTsConfig = async (config: d.Config, sys: d.CompilerSystem, 
   return tsconfig;
 };
 
-const getTsConfigPath = async (config: d.Config, sys: d.CompilerSystem, init: d.LoadConfigInit) => {
+export const getTsConfigPath = async (
+  config: d.ValidatedConfig,
+  sys: d.CompilerSystem,
+  init: d.LoadConfigInit,
+): Promise<{
+  path: string;
+  content: string;
+} | null> => {
   const tsconfig = {
-    path: null as string,
-    content: null as string,
+    path: '',
+    content: '',
   };
 
   if (isString(config.tsconfig)) {
@@ -139,7 +165,7 @@ const getTsConfigPath = async (config: d.Config, sys: d.CompilerSystem, init: d.
   return tsconfig;
 };
 
-const createDefaultTsConfig = (config: d.Config) =>
+const createDefaultTsConfig = (config: d.ValidatedConfig) =>
   JSON.stringify(
     {
       compilerOptions: {
@@ -158,11 +184,24 @@ const createDefaultTsConfig = (config: d.Config) =>
       include: [relative(config.rootDir, config.srcDir)],
     },
     null,
-    2
+    2,
   );
 
-const hasSrcDirectoryInclude = (includeProp: string[], src: string) =>
-  Array.isArray(includeProp) && includeProp.includes(src);
+/**
+ * Determines if the included `src` argument belongs in `includeProp`.
+ *
+ * This function normalizes the paths found in both arguments, to catch cases where it's called with:
+ * ```ts
+ * hasSrcDirectoryInclude(['src'], './src'); // should return `true`
+ * ```
+ *
+ * @param includeProp the paths in `include` that should be tested
+ * @param src the path to find in `includeProp`
+ * @returns true if the provided `src` directory is found, `false` otherwise
+ */
+export const hasSrcDirectoryInclude = (includeProp: string[], src: string): boolean =>
+  Array.isArray(includeProp) &&
+  includeProp.some((included) => normalizePath(included, false) === normalizePath(src, false));
 
 const hasStencilConfigInclude = (includeProp: string[]) =>
   Array.isArray(includeProp) && includeProp.includes('stencil.config.ts');

@@ -1,0 +1,70 @@
+name: 'Stencil Nightly Release'
+
+on:
+  schedule:
+    # Run every Monday-Friday at 5:00 AM (UTC) (https://crontab.guru/#00_05_*_*_1-5)
+    # This is done to have a nightly build ready for the Ionic Framework/Stencil Eval Workflow:
+    # https://github.com/ionic-team/ionic-framework/blob/main/.github/workflows/stencil-eval.yml
+    - cron: '00 05 * * 1-5'
+  workflow_dispatch:
+    # Allow this workflow to be run on-demand
+
+jobs:
+  build_core:
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  get-nightly-version:
+    name: Get Nightly Build Version
+    needs: [build_core]
+    runs-on: ubuntu-22.04
+    outputs:
+      nightly-version: ${{ steps.get-nightly-version.outputs.NIGHTLY_VERSION }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Get Version
+        id: get-nightly-version
+        run: |
+          # A unique string to publish Stencil under
+          # e.g. "3.0.1-dev.1677185104.7c87e34"
+          #
+          # Note: A 'nightly' build is just a 'dev' build that is published at
+          # night, under the 'nightly' tag in npm
+          #
+          # Pull this value from the compiled artifacts
+          NIGHTLY_VERSION=$(./bin/stencil version)
+
+          echo "Using version $NIGHTLY_VERSION"
+
+          # store a key/value pair in GITHUB_OUTPUT
+          # e.g. "NIGHTLY_VERSION=3.0.1-dev.1677185104.7c87e34"
+          echo "NIGHTLY_VERSION=$NIGHTLY_VERSION" >> $GITHUB_OUTPUT
+
+        shell: bash
+
+  release-stencil-nightly-build:
+    name: Publish Nightly Build
+    needs: [get-nightly-version, build_core]
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: ./.github/workflows/actions/publish-npm
+        with:
+          tag: nightly
+          version: ${{ needs.get-nightly-version.outputs.nightly-version }}
+          token: ${{ secrets.NPM_TOKEN }}

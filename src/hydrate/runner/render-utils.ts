@@ -1,13 +1,13 @@
 import type * as d from '../../declarations';
 
-export function normalizeHydrateOptions(inputOpts: d.HydrateDocumentOptions) {
+export function normalizeHydrateOptions(inputOpts?: d.HydrateDocumentOptions) {
   const outputOpts: d.HydrateFactoryOptions = Object.assign(
     {
       serializeToHtml: false,
       destroyWindow: false,
       destroyDocument: false,
     },
-    inputOpts || {}
+    inputOpts || {},
   );
 
   if (typeof outputOpts.clientHydrateAnnotations !== 'boolean') {
@@ -120,15 +120,15 @@ export function renderBuildDiagnostic(
   results: d.HydrateResults,
   level: 'error' | 'warn' | 'info' | 'log' | 'debug',
   header: string,
-  msg: string
+  msg: string,
 ) {
   const diagnostic: d.Diagnostic = {
     level: level,
     type: 'build',
     header: header,
     messageText: msg,
-    relFilePath: null,
-    absFilePath: null,
+    relFilePath: undefined,
+    absFilePath: undefined,
     lines: [],
   };
 
@@ -144,12 +144,12 @@ export function renderBuildDiagnostic(
   return diagnostic;
 }
 
-export function renderBuildError(results: d.HydrateResults, msg: string) {
-  return renderBuildDiagnostic(results, 'error', 'Hydrate Error', msg);
+export function renderBuildError(results: d.HydrateResults, msg?: string) {
+  return renderBuildDiagnostic(results, 'error', 'Hydrate Error', msg || '');
 }
 
 export function renderCatchError(results: d.HydrateResults, err: any) {
-  const diagnostic = renderBuildError(results, null);
+  const diagnostic = renderBuildError(results);
 
   if (err != null) {
     if (err.stack != null) {

@@ -1,6 +1,7 @@
 import type { SerializedEvent } from '@stencil/core/internal';
-import type * as pd from './puppeteer-declarations';
 import type * as puppeteer from 'puppeteer';
+
+import type * as pd from './puppeteer-declarations';
 
 export async function initPageEvents(page: pd.E2EPageInternal) {
   page._e2eEvents = new Map();
@@ -32,9 +33,17 @@ async function pageSpyOnEvent(page: pd.E2EPageInternal, eventName: string, selec
 export async function waitForEvent(
   page: pd.E2EPageInternal,
   eventName: string,
-  elementHandle: puppeteer.ElementHandle
+  elementHandle: puppeteer.ElementHandle,
 ) {
-  const timeoutMs = jasmine.DEFAULT_TIMEOUT_INTERVAL * 0.5;
+  /**
+   * When using screenshot functionality in a runner that is not Jasmine (e.g. Jest Circus), we need to set a default
+   * value for timeouts. There are runtime errors that occur if we attempt to use optional chaining + nullish
+   * coalescing with the `jasmine` global stating it's not defined. As a result, we use a ternary here.
+   *
+   * The '2500' value that we default to is the value of `jasmine.DEFAULT_TIMEOUT_INTERVAL` (5000) divided by 2.
+   */
+  const timeoutMs =
+    typeof jasmine !== 'undefined' && jasmine.DEFAULT_TIMEOUT_INTERVAL ? jasmine.DEFAULT_TIMEOUT_INTERVAL * 0.5 : 2500;
   const ev = await page.evaluate(
     (element: Element, eventName: string, timeoutMs: number) => {
       return new Promise<any>((resolve, reject) => {
@@ -48,13 +57,13 @@ export async function waitForEvent(
             clearTimeout(tmr);
             resolve((window as unknown as pd.BrowserWindow).stencilSerializeEvent(ev as any));
           },
-          { once: true }
+          { once: true },
         );
       });
     },
     elementHandle,
     eventName,
-    timeoutMs
+    timeoutMs,
   );
 
   await page.waitForChanges();
@@ -112,7 +121,7 @@ export async function addE2EListener(
   page: pd.E2EPageInternal,
   elmHandle: puppeteer.JSHandle,
   eventName: string,
-  callback: (ev: any) => void
+  callback: (ev: any) => void,
 ) {
   // NODE CONTEXT
   const id = page._e2eEventIds++;
@@ -121,21 +130,18 @@ export async function addE2EListener(
     callback,
   });
 
-  const executionContext = elmHandle.executionContext();
-
   // add element event listener
-  await executionContext.evaluate(
+  await elmHandle.evaluate(
     (elm: any, id: number, eventName: string) => {
       elm.addEventListener(eventName, (ev: any) => {
         (window as unknown as pd.BrowserWindow).stencilOnEvent(
           id,
-          (window as unknown as pd.BrowserWindow).stencilSerializeEvent(ev)
+          (window as unknown as pd.BrowserWindow).stencilSerializeEvent(ev),
         );
       });
     },
-    elmHandle,
     id,
-    eventName
+    eventName,
   );
 }
 

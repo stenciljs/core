@@ -1,14 +1,15 @@
+import ts from 'typescript';
+
 import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
+import { updateStyleImports } from '../style-imports';
 import { getComponentMeta, getModuleFromSourceFile } from '../transform-utils';
 import { updateHydrateComponentClass } from './hydrate-component';
-import { updateStyleImports } from '../style-imports';
-import ts from 'typescript';
 
 export const hydrateComponentTransform = (
   compilerCtx: d.CompilerCtx,
-  transformOpts: d.TransformOptions
+  transformOpts: d.TransformOptions,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     return (tsSourceFile) => {

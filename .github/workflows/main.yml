@@ -1,83 +1,69 @@
-name: Build & Test
+name: CI
 
 on:
+  merge_group:
   push:
     branches:
       - 'main'
-      - 'v3.0.0-dev'
+      - 'stencil/v4-dev'
   pull_request:
     branches:
       - '**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build_and_test:
-    strategy:
-      matrix:
-        node: ['12', '14', '16']
-        os: ['ubuntu-latest', 'windows-latest']
+  build_core:
+    name: Build
+    uses: ./.github/workflows/build.yml
 
-    name: Node ${{ matrix.node }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  lint_and_format:
+    name: Lint and Format
+    uses: ./.github/workflows/lint-and-format.yml
 
-    steps:
-      - uses: actions/checkout@v2
+  type_tests:
+    name: Type Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-types.yml
 
-      - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'npm'
+  analysis_tests:
+    name: Analysis Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-analysis.yml
 
-      - name: Install dependencies
-        run: npm ci
+  docs_build_tests:
+    name: Docs Build Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-docs-build.yml
 
-      - name: Build
-        run: npm run build -- --ci
+  bundler_tests:
+    name: Bundler Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-bundlers.yml
 
-      - name: Test dist
-        run: npm run test.dist
+  copytask_tests:
+    name: Copy Task Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-copytask.yml
 
-      - name: Test testing suite
-        run: npm run test.testing
+  component_starter_tests:
+    name: Component Starter Smoke Test
+    needs: [build_core]
+    uses: ./.github/workflows/test-component-starter.yml
 
-      - name: Test jest
-        run: npm run test.jest
+  e2e_tests:
+    name: E2E Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-e2e.yml
 
-      - name: Test end-to-end
-        run: npm run test.end-to-end -- --ci
+  unit_tests:
+    name: Unit Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-unit.yml
 
-      - name: Test sys-node
-        if: matrix.os != 'windows-latest'
-        run: npm run test.sys.node
-
-      - name: Test analysis
-        run: npm run test.analysis
-
-      - name: Pack build artifacts
-        if: matrix.os != 'windows-latest'
-        run: mv `npm pack` stencil-build.tgz
-
-      - name: Unload build artifacts
-        uses: actions/upload-artifact@v2
-        if: matrix.os == 'ubuntu-latest' && matrix.node == '12'
-        with:
-          name: stencil-build
-          path: stencil-build.tgz
-
-  prettier:
-    name: Prettier
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prettier dry-run
-        run: npm run prettier.dry-run
+  wdio_tests:
+    name: WebdriverIO Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-wdio.yml

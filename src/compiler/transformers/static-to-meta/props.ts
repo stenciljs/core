@@ -1,7 +1,16 @@
-import type * as d from '../../../declarations';
-import { getStaticValue, isInternal } from '../transform-utils';
 import ts from 'typescript';
 
+import type * as d from '../../../declarations';
+import { getStaticValue, isInternal } from '../transform-utils';
+
+/**
+ * Parse a list of {@link ts.ClassElement} objects representing static props
+ * into a list of our own Intermediate Representation (IR) of properties on
+ * components.
+ *
+ * @param staticMembers TypeScript IR for the properties on our component
+ * @returns a manifest of compiler properties in our own Stencil IR
+ */
 export const parseStaticProps = (staticMembers: ts.ClassElement[]): d.ComponentCompilerProperty[] => {
   const parsedProps: { [key: string]: d.ComponentCompilerStaticProperty } = getStaticValue(staticMembers, 'properties');
   if (!parsedProps) {
@@ -15,6 +24,7 @@ export const parseStaticProps = (staticMembers: ts.ClassElement[]): d.ComponentC
 
   return propNames.map((propName) => {
     const val = parsedProps[propName];
+
     return {
       name: propName,
       type: val.type,
@@ -27,6 +37,8 @@ export const parseStaticProps = (staticMembers: ts.ClassElement[]): d.ComponentC
       complexType: val.complexType,
       docs: val.docs,
       internal: isInternal(val.docs),
+      getter: !!val.getter,
+      setter: !!val.setter,
     };
   });
 };

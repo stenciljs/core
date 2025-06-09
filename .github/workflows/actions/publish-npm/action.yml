@@ -1,0 +1,38 @@
+name: 'Release'
+description: 'Releases Stencil Core'
+inputs:
+  version:
+    description: 'The type of version to release.'
+  tag:
+    description: 'The tag to publish to on NPM.'
+  token:
+    description: 'The NPM authentication token required to publish.'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Get Core Dependencies
+      uses: ./.github/workflows/actions/get-core-dependencies
+
+    - name: Download Build Archive
+      uses: ./.github/workflows/actions/download-archive
+      with:
+        name: stencil-core
+        path: .
+        filename: stencil-core-build.zip
+
+    - name: Set Version
+      run: npm version --no-git-tag-version ${{ inputs.version }}
+      shell: bash
+
+    - name: Prepare NPM Token
+      run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.token }}
+
+    - name: Publish to NPM
+      run: npm publish --tag ${{ inputs.tag }} --provenance
+      shell: bash

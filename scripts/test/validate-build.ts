@@ -1,9 +1,12 @@
-import { dirname, join, relative, resolve } from 'path';
 import fs from 'fs-extra';
+import { dirname, join, relative } from 'path';
+import { rollup } from 'rollup';
+import ts, { ModuleResolutionKind, ScriptTarget } from 'typescript';
+import url from 'url';
+
+import { NODE_BUILTINS } from '../utils/constants';
 import { BuildOptions, getOptions } from '../utils/options';
 import { PackageData } from '../utils/write-pkg-json';
-import { rollup } from 'rollup';
-import ts from 'typescript';
 
 /**
  * Used to triple check that the final build files
@@ -27,11 +30,9 @@ const pkgs: TestPackage[] = [
       'dev-server/templates/directory-index.html',
       'dev-server/templates/initial-load.html',
       'dev-server/connector.html',
-      'dev-server/open-in-editor-api.js',
       'dev-server/server-process.js',
       'dev-server/server-worker-thread.js',
       'dev-server/visualstudio.vbs',
-      'dev-server/ws.js',
       'dev-server/xdg-open',
     ],
   },
@@ -117,6 +118,8 @@ const pkgs: TestPackage[] = [
 ];
 
 /**
+ * Validate that certain files were written to disk during the build, and that
+ * these files tree-shake correctly.
  *
  * @param rootDir the root of the Stencil repository
  */
@@ -162,15 +165,15 @@ function validatePackage(opts: BuildOptions, testPkg: TestPackage, dtsEntries: s
         throw new Error(testPkg.packageJson + ' missing "files" property');
       }
       pkgJson.files.forEach((f) => {
-        if (f === '!**/*.map') {
-          // skip sourcemaps
+        if (f === '!**/*.map' || f === '!**/*.stub.ts' || f === '!**/*.stub.tsx') {
+          // skip sourcemaps, stub files
           return;
         }
         const pkgFile = join(pkgDir, f);
         fs.accessSync(pkgFile);
       });
       testPkg.packageJsonFiles.forEach((testPkgFile) => {
-        if (!pkgJson.files.includes(testPkgFile)) {
+        if (!pkgJson.files?.includes(testPkgFile)) {
           throw new Error(testPkg.packageJson + ' missing file ' + testPkgFile);
         }
 
@@ -185,8 +188,10 @@ function validatePackage(opts: BuildOptions, testPkg: TestPackage, dtsEntries: s
 
     if (pkgJson.bin) {
       Object.keys(pkgJson.bin).forEach((k) => {
-        const binExe = join(pkgDir, pkgJson.bin[k]);
-        fs.accessSync(binExe);
+        if (pkgJson.bin?.[k]) {
+          const binExe = join(pkgDir, pkgJson.bin[k]);
+          fs.accessSync(binExe);
+        }
       });
     }
 
@@ -219,7 +224,7 @@ function validatePackage(opts: BuildOptions, testPkg: TestPackage, dtsEntries: s
 }
 
 /**
- * Validate the the .d.ts files used in the output are semantically and syntactically correct
+ * Validate the .d.ts files used in the output are semantically and syntactically correct
  * @param opts build options to be used to validate .d.ts files
  * @param dtsEntries the .d.ts files to validate
  */
@@ -231,6 +236,8 @@ function validateDts(opts: BuildOptions, dtsEntries: string[]): void {
       '@stencil/core/internal': [join(opts.rootDir, 'internal', 'index.d.ts')],
       '@stencil/core/internal/testing': [join(opts.rootDir, 'internal', 'testing', 'index.d.ts')],
     },
+    moduleResolution: ModuleResolutionKind.NodeJs,
+    target: ScriptTarget.ES2016,
   });
 
   const tsDiagnostics = program.getSemanticDiagnostics().concat(program.getSyntacticDiagnostics());
@@ -252,15 +259,15 @@ function validateDts(opts: BuildOptions, dtsEntries: string[]): void {
  * @param opts build options to be used to validate the compiler
  */
 async function validateCompiler(opts: BuildOptions): Promise<void> {
-  const compilerPath = join(opts.output.compilerDir, 'stencil.js');
-  const cliPath = join(opts.output.cliDir, 'index.cjs');
-  const sysNodePath = join(opts.output.sysNodeDir, 'index.js');
+  const compilerPath = url.pathToFileURL(join(opts.output.compilerDir, 'stencil.js')).pathname;
+  const cliPath = url.pathToFileURL(join(opts.output.cliDir, 'index.cjs')).pathname;
+  const sysNodePath = url.pathToFileURL(join(opts.output.sysNodeDir, 'index.js')).pathname;
 
   const compiler = await import(compilerPath);
   const cli = await import(cliPath);
   const sysNodeApi = await import(sysNodePath);
 
-  const nodeLogger = sysNodeApi.createNodeLogger({ process });
+  const nodeLogger = sysNodeApi.createNodeLogger();
   const nodeSys = sysNodeApi.createNodeSys({ process });
 
   if (!nodeSys || nodeSys.name !== 'node' || nodeSys.version.length < 4) {
@@ -290,7 +297,7 @@ async function validateCompiler(opts: BuildOptions): Promise<void> {
   console.log(`🐋  Validated compiler.transpileSync()`);
 
   const orgConsoleLog = console.log;
-  let loggedVersion = null;
+  let loggedVersion = '';
   console.log = (value: string) => (loggedVersion = value);
 
   // this runTask is intentionally not wrapped in telemetry helpers
@@ -307,13 +314,12 @@ async function validateCompiler(opts: BuildOptions): Promise<void> {
 
 /**
  * Validate tree shaking for various modules in the output
- * @param opts build options to be used to validate treeshaking
+ * @param opts build options to be used to validate tree-shaking
  */
 async function validateTreeshaking(opts: BuildOptions) {
   await validateModuleTreeshake(opts, 'app-data', join(opts.output.internalDir, 'app-data', 'index.js'));
   await validateModuleTreeshake(opts, 'client', join(opts.output.internalDir, 'client', 'index.js'));
   await validateModuleTreeshake(opts, 'patch-browser', join(opts.output.internalDir, 'client', 'patch-browser.js'));
-  await validateModuleTreeshake(opts, 'patch-esm', join(opts.output.internalDir, 'client', 'patch-esm.js'));
   await validateModuleTreeshake(opts, 'shadow-css', join(opts.output.internalDir, 'client', 'shadow-css.js'));
   await validateModuleTreeshake(opts, 'hydrate', join(opts.output.internalDir, 'hydrate', 'index.js'));
   await validateModuleTreeshake(opts, 'stencil-core', join(opts.output.internalDir, 'stencil-core', 'index.js'));
@@ -321,8 +327,8 @@ async function validateTreeshaking(opts: BuildOptions) {
 }
 
 /**
- * Validates treeshaking for a single module & entrypoint
- * @param opts build options to be used to validate treeshaking for a specific module
+ * Validates tree-shaking for a single module & entrypoint
+ * @param opts build options to be used to validate tree-shaking for a specific module
  * @param moduleName the module to validate
  * @param entryModulePath the entrypoint to validate
  */
@@ -333,8 +339,11 @@ async function validateModuleTreeshake(opts: BuildOptions, moduleName: string, e
   const outputFile = join(opts.scriptsBuildDir, `treeshake_${moduleName}.js`);
 
   const bundle = await rollup({
+    external: NODE_BUILTINS,
     input: virtualInputId,
-    treeshake: true,
+    treeshake: {
+      moduleSideEffects: false,
+    },
     plugins: [
       {
         name: 'stencilResolver',
@@ -357,7 +366,7 @@ async function validateModuleTreeshake(opts: BuildOptions, moduleName: string, e
         },
         load(id) {
           if (id === '@stencil/core/internal/app-globals') {
-            return 'export const globalScripts = () => {};';
+            return 'export const globalScripts = () => {};\nexport const globalStyles = "";';
           }
           if (id === virtualInputId) {
             return `import "${entryId}";`;

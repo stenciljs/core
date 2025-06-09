@@ -1,8 +1,9 @@
 import type * as d from '@stencil/core/internal';
-import { fileExists, readFile, writeFile } from './screenshot-fs';
-import { join, relative } from 'path';
 import { normalizePath } from '@utils';
+import { join, relative } from 'path';
+
 import { ScreenshotConnector } from './connector-base';
+import { fileExists, readFile, writeFile } from './screenshot-fs';
 
 export class ScreenshotLocalConnector extends ScreenshotConnector {
   override async publishBuild(results: d.ScreenshotBuildResults) {
@@ -43,7 +44,7 @@ export class ScreenshotLocalConnector extends ScreenshotConnector {
       imagesUrl,
       jsonpUrl,
       results.masterBuild,
-      results.currentBuild
+      results.currentBuild,
     );
 
     const compareAppFileName = 'compare.html';
@@ -89,7 +90,7 @@ function createLocalCompareApp(
   imagesUrl: string,
   jsonpUrl: string,
   a: d.ScreenshotBuild,
-  b: d.ScreenshotBuild
+  b: d.ScreenshotBuild,
 ) {
   return `<!doctype html>
 <html dir="ltr" lang="en">

@@ -1,27 +1,48 @@
+import { EntryPointConfig, generateDtsBundle, OutputOptions } from 'dts-bundle-generator';
 import fs from 'fs-extra';
-import { generateDtsBundle } from 'dts-bundle-generator/dist/bundle-generator.js';
+
 import { BuildOptions } from './options';
 
-export async function bundleDts(opts: BuildOptions, inputFile: string) {
+/**
+ * A thin wrapper for `dts-bundle-generator` which uses our build options to
+ * set a few things up
+ *
+ * **Note**: this file caches its output to disk, and will return any
+ * previously cached file if not in a prod environment!
+ *
+ * @param opts an object holding information about the current build of Stencil
+ * @param inputFile the path to the file which should be bundled
+ * @param outputOptions options for bundling the file
+ * @param useCache whether or not the bundled file should be cached to disk
+ * @returns a string containing the bundled typedef
+ */
+export async function bundleDts(
+  opts: BuildOptions,
+  inputFile: string,
+  outputOptions?: OutputOptions,
+  useCache = true,
+): Promise<string> {
   const cachedDtsOutput = inputFile + '-bundled.d.ts';
 
-  if (!opts.isProd) {
+  if (!opts.isProd && useCache) {
     try {
       return await fs.readFile(cachedDtsOutput, 'utf8');
     } catch (e) {}
   }
 
-  const entries = [
-    {
-      filePath: inputFile,
-    },
-  ];
+  const config: EntryPointConfig = {
+    filePath: inputFile,
+  };
 
-  let outputCode = generateDtsBundle(entries).join('\n');
+  if (outputOptions) {
+    config.output = outputOptions;
+  }
 
-  outputCode = cleanDts(outputCode);
+  const outputCode = cleanDts(generateDtsBundle([config]).join('\n'));
 
-  await fs.writeFile(cachedDtsOutput, outputCode);
+  if (useCache) {
+    await fs.writeFile(cachedDtsOutput, outputCode);
+  }
 
   return outputCode;
 }

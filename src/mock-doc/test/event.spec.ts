@@ -1,7 +1,7 @@
-import { MockWindow } from '../window';
-import { EventTarget, MockEvent } from '../event';
-import { MockElement } from '../node';
 import { MockDocument } from '../document';
+import { MockEvent } from '../event';
+import { MockElement } from '../node';
+import { MockWindow } from '../window';
 
 describe('event', () => {
   let win: MockWindow;
@@ -11,12 +11,13 @@ describe('event', () => {
 
   it('Event() requires type', () => {
     expect(() => {
+      // @ts-ignore checking that it throws when not supplied required args
       new win.Event();
     }).toThrow();
   });
 
   it('Event(type)', () => {
-    const ev = new win.Event('click') as Event;
+    const ev = new win.Event('click');
     expect(ev.bubbles).toBe(false);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -34,7 +35,7 @@ describe('event', () => {
       bubbles: true,
       composed: true,
     };
-    const ev = new win.Event('click', eventInitDict) as Event;
+    const ev = new win.Event('click', eventInitDict);
     expect(ev.bubbles).toBe(true);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -49,12 +50,13 @@ describe('event', () => {
 
   it('CustomEvent() requires type', () => {
     expect(() => {
+      // @ts-ignore checking that it throws when not supplied required args
       new win.CustomEvent();
     }).toThrow();
   });
 
   it('CustomEvent(type)', () => {
-    const ev = new win.CustomEvent('click') as CustomEvent;
+    const ev = new win.CustomEvent('click');
     expect(ev.bubbles).toBe(false);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -74,7 +76,7 @@ describe('event', () => {
       composed: true,
       detail: 88,
     };
-    const ev = new win.CustomEvent('click', eventInitDict) as CustomEvent;
+    const ev = new win.CustomEvent('click', eventInitDict);
     expect(ev.bubbles).toBe(true);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -88,14 +90,58 @@ describe('event', () => {
     expect(ev.detail).toBe(88);
   });
 
+  it('FocusEvent() requires type', () => {
+    expect(() => {
+      // @ts-ignore checking that it throws when not supplied required arguments
+      new win.FocusEvent();
+    }).toThrow();
+  });
+
+  const focusEventTypes: ('blur' | 'focus')[] = ['blur', 'focus'];
+  it.each(focusEventTypes)('creates a %s-type MockFocusEvent', (focusType) => {
+    const ev = new win.FocusEvent(focusType);
+    expect(ev.bubbles).toBe(false);
+    expect(ev.cancelBubble).toBe(false);
+    expect(ev.cancelable).toBe(false);
+    expect(ev.composed).toBe(false);
+    expect(ev.currentTarget).toBe(null);
+    expect(ev.defaultPrevented).toBe(false);
+    expect(ev.srcElement).toBe(null);
+    expect(ev.target).toBe(null);
+    expect(typeof ev.timeStamp).toBe('number');
+    expect(ev.type).toBe(focusType);
+    expect(ev.relatedTarget).toBe(null);
+  });
+
+  it('FocusEvent(type, focusEventInitDic)', () => {
+    const focusEventInitDic = {
+      bubbles: true,
+      composed: true,
+      relatedTarget: null as EventTarget | null,
+    };
+    const ev = new win.FocusEvent('blur', focusEventInitDic);
+    expect(ev.bubbles).toBe(true);
+    expect(ev.cancelBubble).toBe(false);
+    expect(ev.cancelable).toBe(false);
+    expect(ev.composed).toBe(true);
+    expect(ev.currentTarget).toBe(null);
+    expect(ev.defaultPrevented).toBe(false);
+    expect(ev.srcElement).toBe(null);
+    expect(ev.target).toBe(null);
+    expect(typeof ev.timeStamp).toBe('number');
+    expect(ev.type).toBe('blur');
+    expect(ev.relatedTarget).toBe(null);
+  });
+
   it('KeyboardEvent() requires type', () => {
     expect(() => {
+      // @ts-ignore checking that it throws when not supplied required arguments
       new win.KeyboardEvent();
     }).toThrow();
   });
 
   it('KeyboardEvent(type)', () => {
-    const ev = new win.KeyboardEvent('keyup') as KeyboardEvent;
+    const ev = new win.KeyboardEvent('keyup');
     expect(ev.bubbles).toBe(false);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -129,7 +175,7 @@ describe('event', () => {
       location: 0,
       repeat: true,
     };
-    const ev = new win.KeyboardEvent('keyup', eventInitDict) as KeyboardEvent;
+    const ev = new win.KeyboardEvent('keyup', eventInitDict);
     expect(ev.bubbles).toBe(true);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -152,12 +198,13 @@ describe('event', () => {
 
   it('MouseEvent() requires type', () => {
     expect(() => {
+      // @ts-ignore checking that it throws when not supplied required args
       new win.MouseEvent();
     }).toThrow();
   });
 
   it('MouseEvent(type)', () => {
-    const ev = new win.MouseEvent('onclick') as MouseEvent;
+    const ev = new win.MouseEvent('onclick');
     expect(ev.bubbles).toBe(false);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);
@@ -182,7 +229,7 @@ describe('event', () => {
   });
 
   it('MouseEvent(type, eventInitDict)', () => {
-    const eventInitDict = {
+    const eventInitDict: MouseEventInit = {
       bubbles: true,
       composed: true,
       screenX: 99,
@@ -197,7 +244,7 @@ describe('event', () => {
       buttons: 99,
       relatedTarget: null,
     };
-    const ev = new win.MouseEvent('onmousedown', eventInitDict) as MouseEvent;
+    const ev = new win.MouseEvent('onmousedown', eventInitDict);
     expect(ev.bubbles).toBe(true);
     expect(ev.cancelBubble).toBe(false);
     expect(ev.cancelable).toBe(false);

@@ -1,18 +1,33 @@
 import type * as d from '@stencil/core/declarations';
-import { getCssImports, isCssNodeModule, isLocalCssImport, replaceImportDeclarations } from '../css-imports';
-import { mockBuildCtx, mockConfig, mockCompilerCtx } from '@stencil/core/testing';
-import { normalizePath } from '@utils';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { buildError, normalizePath } from '@utils';
 import path from 'path';
+
+import { FsReadOptions } from '../../sys/in-memory-fs';
+import {
+  getCssImports,
+  isCssNodeModule,
+  isLocalCssImport,
+  parseCssImports,
+  replaceImportDeclarations,
+} from '../css-imports';
 
 describe('css-imports', () => {
   const root = path.resolve('/');
-  const config = mockConfig();
   let compilerCtx: d.CompilerCtx;
   let buildCtx: d.BuildCtx;
+  let config: d.ValidatedConfig;
+  let readFileMock: jest.SpyInstance<Promise<string>, [string, FsReadOptions?]>;
 
   beforeEach(() => {
+    config = mockValidatedConfig();
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
+    readFileMock = jest.spyOn(compilerCtx.fs, 'readFile');
+  });
+
+  afterEach(() => {
+    readFileMock.mockClear();
   });
 
   describe('isCssNodeModule', () => {
@@ -88,54 +103,60 @@ describe('css-imports', () => {
   });
 
   describe('isLocalCssImport', () => {
-    it('not local, http w/ spaces url', () => {
-      const i = `@import url(   "  https//stenciljs.com/some.css);`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('not local, // url', () => {
-      const i = `@import url(//stenciljs.com/some.css);`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('not local, https url', () => {
-      const i = `@import url(https://stenciljs.com/some.css);`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('not local, http url, no quotes', () => {
-      const i = `@import url(http://stenciljs.com/some.css);`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('not local, http url, double quotes', () => {
-      const i = `@import url("http://stenciljs.com/some.css");`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('not local, http url, single quotes', () => {
-      const i = `@import url('http://stenciljs.com/some.css');`;
-      expect(isLocalCssImport(i)).toBe(false);
-    });
-
-    it('is local, url, single quotes', () => {
-      const i = `@import url('some.css');`;
-      expect(isLocalCssImport(i)).toBe(true);
-    });
-
-    it('is local, url, double quotes', () => {
-      const i = `@import url("some.css");`;
-      expect(isLocalCssImport(i)).toBe(true);
-    });
-
-    it('is local, double quotes', () => {
-      const i = `@import "some.css";`;
-      expect(isLocalCssImport(i)).toBe(true);
-    });
-
-    it('is local, single quotes', () => {
-      const i = `@import 'some.css';`;
-      expect(isLocalCssImport(i)).toBe(true);
+    it.each([
+      {
+        importStmt: '@import url(   "  https//stenciljs.com/some.css);',
+        description: 'not local, http w/ spaces url',
+        expected: false,
+      },
+      {
+        importStmt: `@import url(//stenciljs.com/some.css);`,
+        description: 'not local, // url',
+        expected: false,
+      },
+      {
+        importStmt: `@import url(https://stenciljs.com/some.css);`,
+        description: 'not local, https url',
+        expected: false,
+      },
+      {
+        importStmt: `@import url(http://stenciljs.com/some.css);`,
+        description: 'not local, http url, no quotes',
+        expected: false,
+      },
+      {
+        importStmt: `@import url("http://stenciljs.com/some.css");`,
+        description: 'not local, http url, double quotes',
+        expected: false,
+      },
+      {
+        importStmt: `@import url('http://stenciljs.com/some.css');`,
+        description: 'not local, http url, single quotes',
+        expected: false,
+      },
+      {
+        importStmt: `@import url('some.css');`,
+        description: 'is local, url, single quotes',
+        expected: true,
+      },
+      {
+        importStmt: `@import url("some.css");`,
+        description: 'is local, url, double quotes',
+        expected: true,
+      },
+      {
+        importStmt: `@import "some.css";`,
+        description: 'is local, double quotes',
+        expected: true,
+      },
+      {
+        importStmt: `@import 'some.css';`,
+        description: 'is local, single quotes',
+        expected: true,
+      },
+    ])('should return $expected when $description', (testArgs) => {
+      const { importStmt, expected } = testArgs;
+      expect(isLocalCssImport(importStmt)).toBe(expected);
     });
   });
 
@@ -335,7 +356,7 @@ describe('css-imports', () => {
           filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
           srcImport: `@import '~@ionic/core/dist/ionic/ionic.css';`,
           updatedImport: `@import "${normalizePath(
-            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')
+            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
           )}";`,
           url: `~@ionic/core/dist/ionic/ionic.css`,
         },
@@ -392,7 +413,7 @@ describe('css-imports', () => {
           filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
           srcImport: `@import '~@ionic/core/dist/ionic/ionic.css';`,
           updatedImport: `@import "${normalizePath(
-            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')
+            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
           )}";`,
           url: `~@ionic/core/dist/ionic/ionic.css`,
         },
@@ -419,6 +440,55 @@ describe('css-imports', () => {
       const content = `body { color: red; }`;
       const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
       expect(results).toEqual([]);
+    });
+  });
+
+  describe('parseCssImports', () => {
+    it('should report an error when a CSS import is missing', async () => {
+      const srcFilePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+      const resolvedFilePath = normalizePath(path.join(root, 'boop', 'file-a.css'));
+      const content = '@import "missing"';
+
+      await parseCssImports(config, compilerCtx, buildCtx, srcFilePath, resolvedFilePath, content, []);
+      expect(buildCtx.diagnostics).toEqual([
+        {
+          ...buildError(),
+          absFilePath: srcFilePath,
+          messageText: 'Unable to read css import: @import "missing"',
+        },
+      ]);
+    });
+
+    it('should merge in imported files w/ child imports', async () => {
+      const mainFilePath = normalizePath(path.join(root, 'src', 'main.css'));
+      const firstImportPath = normalizePath(path.join(root, 'src', 'first.css'));
+      const secondImportPath = normalizePath(path.join(root, 'src', 'second.css'));
+
+      const files = {
+        [mainFilePath]: '@import "first.css"',
+        [firstImportPath]: '@import "second.css"; :host { color: red; }',
+        [secondImportPath]: 'div { display: flex }',
+      };
+
+      readFileMock.mockImplementation(async (path: string) => {
+        if (files[path]) {
+          return files[path];
+        } else {
+          throw new Error('unmatched path!');
+        }
+      });
+
+      const result = await parseCssImports(
+        config,
+        compilerCtx,
+        buildCtx,
+        mainFilePath,
+        mainFilePath,
+        files[mainFilePath],
+        [],
+      );
+      // CSS from child and grandchild are merged in
+      expect(result.styleText).toBe('div { display: flex } :host { color: red; }');
     });
   });
 });

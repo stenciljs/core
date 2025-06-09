@@ -1,4 +1,4 @@
-import { Component, Element, Prop, h, Host } from '@stencil/core';
+import { Component, Element, h, Host, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('attribute', () => {
@@ -262,6 +262,14 @@ describe('attribute', () => {
 
         @Prop({ reflect: true, mutable: true }) dynamicStr: string;
         @Prop({ reflect: true }) dynamicNu: number;
+        private _getset = 'prop via getter';
+        @Prop({ reflect: true })
+        get getSet() {
+          return this._getset;
+        }
+        set getSet(newVal: string) {
+          this._getset = newVal;
+        }
 
         componentWillLoad() {
           this.dynamicStr = 'value';
@@ -275,7 +283,7 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a str="single" nu="2" other-bool dynamic-str="value" dynamic-nu="123"></cmp-a>
+        <cmp-a str="single" nu="2" other-bool dynamic-str="value" dynamic-nu="123" get-set="prop via getter"></cmp-a>
       `);
 
       root.str = 'second';
@@ -284,14 +292,16 @@ describe('attribute', () => {
       root.null = 'no null';
       root.bool = true;
       root.otherBool = false;
+      root.getSet = 'prop set via setter';
 
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a str="second" nu="-12.2" undef="no undef" null="no null" bool dynamic-str="value" dynamic-nu="123"></cmp-a>
+        <cmp-a str="second" nu="-12.2" undef="no undef" null="no null" bool dynamic-str="value" dynamic-nu="123" get-set="prop set via setter"></cmp-a>
       `);
     });
-    it('should reflect properties as attributes', async () => {
+
+    it('should reflect properties as attributes with strict build', async () => {
       @Component({ tag: 'cmp-a', shadow: true })
       class CmpA {
         @Prop({ reflect: true }) foo = 'bar';

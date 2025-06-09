@@ -1,5 +1,5 @@
 import type * as d from '../../../declarations';
-import { ParseCssResults, CssNode, CssParsePosition, CssNodeType } from './css-parse-declarations';
+import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
 
 export const parseCss = (css: string, filePath?: string): ParseCssResults => {
   let lineno = 1;
@@ -104,10 +104,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     comments(rules);
 
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
-      if (node !== false) {
-        rules.push(node);
-        comments(rules);
-      }
+      rules.push(node);
+      comments(rules);
     }
     return rules;
   };
@@ -122,9 +120,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     let c;
     rules = rules || [];
     while ((c = comment())) {
-      if (c !== false) {
-        rules.push(c);
-      }
+      rules.push(c);
     }
     return rules;
   };
@@ -202,10 +198,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     // declarations
     let decl;
     while ((decl = declaration())) {
-      if (decl !== false) {
-        decls.push(decl);
-        comments(decls);
-      }
+      decls.push(decl);
+      comments(decls);
     }
 
     if (!close()) return error(`missing '}'`);

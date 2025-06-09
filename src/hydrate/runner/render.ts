@@ -1,175 +1,196 @@
+import { Readable } from 'node:stream';
+
+import { hydrateFactory } from '@hydrate-factory';
+import { modeResolutionChain, setMode } from '@platform';
+import { HYDRATED_STYLE_ID } from '@runtime';
+import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
+import { hasError } from '@utils';
+
+import { updateCanonicalLink } from '../../compiler/html/canonical-link';
+import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';
+import { removeUnusedStyles } from '../../compiler/html/remove-unused-styles';
 import type {
   HydrateDocumentOptions,
   HydrateFactoryOptions,
   HydrateResults,
   SerializeDocumentOptions,
 } from '../../declarations';
-import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';
-import { hasError, isPromise } from '@utils';
-import { hydrateFactory } from '@hydrate-factory';
-import { initializeWindow } from './window-initialize';
 import { inspectElement } from './inspect-element';
-import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
 import { patchDomImplementation } from './patch-dom-implementation';
-import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';
-import { removeUnusedStyles } from '../../compiler/html/remove-unused-styles';
-import { updateCanonicalLink } from '../../compiler/html/canonical-link';
+import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';
+import { initializeWindow } from './window-initialize';
 
-export function renderToString(html: string | any, options?: SerializeDocumentOptions) {
+const NOOP = () => {};
+
+export function streamToString(html: string | any, option?: SerializeDocumentOptions) {
+  return renderToString(html, option, true);
+}
+
+export function renderToString(html: string | any, options?: SerializeDocumentOptions): Promise<HydrateResults>;
+export function renderToString(
+  html: string | any,
+  options: SerializeDocumentOptions | undefined,
+  asStream: true,
+): Readable;
+export function renderToString(
+  html: string | any,
+  options?: SerializeDocumentOptions,
+  asStream?: boolean,
+): Promise<HydrateResults> | Readable {
   const opts = normalizeHydrateOptions(options);
+  /**
+   * Makes the rendered DOM not being rendered to a string.
+   */
   opts.serializeToHtml = true;
+  /**
+   * Set the flag whether or not we like to render into a declarative shadow root.
+   */
+  opts.fullDocument = typeof opts.fullDocument === 'boolean' ? opts.fullDocument : true;
+  /**
+   * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
+   */
+  opts.serializeShadowRoot =
+    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
+  /**
+   * Make sure we wait for components to be hydrated.
+   */
+  opts.constrainTimeouts = false;
 
-  return new Promise<HydrateResults>((resolve) => {
-    let win: Window & typeof globalThis;
-    const results = generateHydrateResults(opts);
-
-    if (hasError(results.diagnostics)) {
-      resolve(results);
-    } else if (typeof html === 'string') {
-      try {
-        opts.destroyWindow = true;
-        opts.destroyDocument = true;
-        win = new MockWindow(html) as any;
-        render(win, opts, results, resolve);
-      } catch (e) {
-        if (win && win.close) {
-          win.close();
-        }
-        win = null;
-        renderCatchError(results, e);
-        resolve(results);
-      }
-    } else if (isValidDocument(html)) {
-      try {
-        opts.destroyDocument = false;
-        win = patchDomImplementation(html, opts);
-        render(win, opts, results, resolve);
-      } catch (e) {
-        if (win && win.close) {
-          win.close();
-        }
-        win = null;
-        renderCatchError(results, e);
-        resolve(results);
-      }
-    } else {
-      renderBuildError(results, `Invalid html or document. Must be either a valid "html" string, or DOM "document".`);
-      resolve(results);
-    }
-  });
+  return hydrateDocument(html, opts, asStream);
 }
 
-export function hydrateDocument(doc: any | string, options?: HydrateDocumentOptions) {
+export function hydrateDocument(doc: any | string, options?: HydrateDocumentOptions): Promise<HydrateResults>;
+export function hydrateDocument(
+  doc: any | string,
+  options: HydrateDocumentOptions | undefined,
+  asStream?: boolean,
+): Readable;
+export function hydrateDocument(
+  doc: any | string,
+  options?: HydrateDocumentOptions,
+  asStream?: boolean,
+): Promise<HydrateResults> | Readable {
   const opts = normalizeHydrateOptions(options);
-  opts.serializeToHtml = false;
+  /**
+   * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
+   */
+  opts.serializeShadowRoot =
+    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
 
-  return new Promise<HydrateResults>((resolve) => {
-    let win: Window & typeof globalThis;
-    const results = generateHydrateResults(opts);
+  let win: MockWindow | null = null;
+  const results = generateHydrateResults(opts);
 
-    if (hasError(results.diagnostics)) {
-      resolve(results);
-    } else if (typeof doc === 'string') {
-      try {
-        opts.destroyWindow = true;
-        opts.destroyDocument = true;
-        win = new MockWindow(doc) as any;
-        render(win, opts, results, resolve);
-      } catch (e) {
-        if (win && win.close) {
-          win.close();
-        }
-        win = null;
-        renderCatchError(results, e);
-        resolve(results);
+  if (hasError(results.diagnostics)) {
+    return Promise.resolve(results);
+  }
+
+  if (typeof doc === 'string') {
+    try {
+      opts.destroyWindow = true;
+      opts.destroyDocument = true;
+      win = new MockWindow(doc);
+
+      if (!asStream) {
+        return render(win, opts, results).then(() => results);
       }
-    } else if (isValidDocument(doc)) {
-      try {
-        opts.destroyDocument = false;
-        win = patchDomImplementation(doc, opts);
-        render(win, opts, results, resolve);
-      } catch (e) {
-        if (win && win.close) {
-          win.close();
-        }
-        win = null;
-        renderCatchError(results, e);
-        resolve(results);
+
+      return renderStream(win, opts, results);
+    } catch (e) {
+      if (win && win.close) {
+        win.close();
       }
-    } else {
-      renderBuildError(results, `Invalid html or document. Must be either a valid "html" string, or DOM "document".`);
-      resolve(results);
+      win = null;
+      renderCatchError(results, e);
+      return Promise.resolve(results);
     }
-  });
+  }
+
+  if (isValidDocument(doc)) {
+    try {
+      opts.destroyDocument = false;
+      win = patchDomImplementation(doc, opts);
+
+      if (!asStream) {
+        return render(win, opts, results).then(() => results);
+      }
+
+      return renderStream(win, opts, results);
+    } catch (e) {
+      if (win && win.close) {
+        win.close();
+      }
+      win = null;
+      renderCatchError(results, e);
+      return Promise.resolve(results);
+    }
+  }
+
+  renderBuildError(results, `Invalid html or document. Must be either a valid "html" string, or DOM "document".`);
+  return Promise.resolve(results);
 }
 
-function render(
-  win: Window & typeof globalThis,
-  opts: HydrateFactoryOptions,
-  results: HydrateResults,
-  resolve: (results: HydrateResults) => void
-) {
-  if (!(process as any).__stencilErrors) {
+async function render(win: MockWindow, opts: HydrateFactoryOptions, results: HydrateResults) {
+  if ('process' in globalThis && typeof process.on === 'function' && !(process as any).__stencilErrors) {
     (process as any).__stencilErrors = true;
-
     process.on('unhandledRejection', (e) => {
       console.log('unhandledRejection', e);
     });
   }
 
   initializeWindow(win, win.document, opts, results);
-
-  if (typeof opts.beforeHydrate === 'function') {
-    try {
-      const rtn = opts.beforeHydrate(win.document);
-      if (isPromise(rtn)) {
-        rtn.then(() => {
-          hydrateFactory(win, opts, results, afterHydrate, resolve);
-        });
-      } else {
-        hydrateFactory(win, opts, results, afterHydrate, resolve);
+  const beforeHydrateFn = typeof opts.beforeHydrate === 'function' ? opts.beforeHydrate : NOOP;
+  try {
+    await Promise.resolve(beforeHydrateFn(win.document));
+    return new Promise<HydrateResults>((resolve) => {
+      if (Array.isArray(opts.modes)) {
+        /**
+         * Reset the mode resolution chain as we expect every `renderToString` call to render
+         * the components in new environment/document.
+         */
+        modeResolutionChain.length = 0;
+        opts.modes.forEach((mode) => setMode(mode));
       }
-    } catch (e) {
-      renderCatchError(results, e);
-      finalizeHydrate(win, win.document, opts, results, resolve);
-    }
-  } else {
-    hydrateFactory(win, opts, results, afterHydrate, resolve);
+      return hydrateFactory(win, opts, results, afterHydrate, resolve);
+    });
+  } catch (e) {
+    renderCatchError(results, e);
+    return finalizeHydrate(win, win.document, opts, results);
   }
 }
 
-function afterHydrate(
-  win: Window,
+/**
+ * Wrapper around `render` method to enable streaming by returning a Readable instead of a promise.
+ * @param win MockDoc window object
+ * @param opts serialization options
+ * @param results render result object
+ * @returns a Readable that can be passed into a response
+ */
+function renderStream(win: MockWindow, opts: HydrateFactoryOptions, results: HydrateResults) {
+  async function* processRender() {
+    const renderResult = await render(win, opts, results);
+    yield renderResult.html;
+  }
+
+  return Readable.from(processRender());
+}
+
+async function afterHydrate(
+  win: MockWindow,
   opts: HydrateFactoryOptions,
   results: HydrateResults,
-  resolve: (results: HydrateResults) => void
+  resolve: (results: HydrateResults) => void,
 ) {
-  if (typeof opts.afterHydrate === 'function') {
-    try {
-      const rtn = opts.afterHydrate(win.document);
-      if (isPromise(rtn)) {
-        rtn.then(() => {
-          finalizeHydrate(win, win.document, opts, results, resolve);
-        });
-      } else {
-        finalizeHydrate(win, win.document, opts, results, resolve);
-      }
-    } catch (e) {
-      renderCatchError(results, e);
-      finalizeHydrate(win, win.document, opts, results, resolve);
-    }
-  } else {
-    finalizeHydrate(win, win.document, opts, results, resolve);
+  const afterHydrateFn = typeof opts.afterHydrate === 'function' ? opts.afterHydrate : NOOP;
+  try {
+    await Promise.resolve(afterHydrateFn(win.document));
+    return resolve(finalizeHydrate(win, win.document, opts, results));
+  } catch (e) {
+    renderCatchError(results, e);
+    return resolve(finalizeHydrate(win, win.document, opts, results));
   }
 }
 
-function finalizeHydrate(
-  win: Window,
-  doc: Document,
-  opts: HydrateFactoryOptions,
-  results: HydrateResults,
-  resolve: (results: HydrateResults) => void
-) {
+function finalizeHydrate(win: MockWindow, doc: Document, opts: HydrateFactoryOptions, results: HydrateResults) {
   try {
     inspectElement(results, doc.documentElement, 0);
 
@@ -193,6 +214,17 @@ function finalizeHydrate(
 
     if (opts.removeScripts) {
       removeScripts(doc.documentElement);
+    }
+
+    const styles = doc.querySelectorAll('head style');
+    if (styles.length > 0) {
+      results.styles.push(
+        ...Array.from(styles).map((style) => ({
+          href: style.getAttribute('href'),
+          id: style.getAttribute(HYDRATED_STYLE_ID),
+          content: style.textContent,
+        })),
+      );
     }
 
     try {
@@ -230,25 +262,30 @@ function finalizeHydrate(
     renderCatchError(results, e);
   }
 
-  if (opts.destroyWindow) {
-    try {
-      if (!opts.destroyDocument) {
-        (win as any).document = null;
-        (doc as any).defaultView = null;
-      }
-
-      if (win.close) {
-        win.close();
-      }
-    } catch (e) {
-      renderCatchError(results, e);
-    }
-  }
-
-  resolve(results);
+  destroyWindow(win, doc, opts, results);
+  return results;
 }
 
-export function serializeDocumentToString(doc: any, opts: HydrateFactoryOptions) {
+function destroyWindow(win: MockWindow, doc: Document, opts: HydrateFactoryOptions, results: HydrateResults) {
+  if (!opts.destroyWindow) {
+    return;
+  }
+
+  try {
+    if (!opts.destroyDocument) {
+      (win as any).document = null;
+      (doc as any).defaultView = null;
+    }
+
+    if (win.close) {
+      win.close();
+    }
+  } catch (e) {
+    renderCatchError(results, e);
+  }
+}
+
+export function serializeDocumentToString(doc: Document, opts: HydrateFactoryOptions) {
   return serializeNodeToHtml(doc, {
     approximateLineWidth: opts.approximateLineWidth,
     outerHtml: false,
@@ -257,7 +294,8 @@ export function serializeDocumentToString(doc: any, opts: HydrateFactoryOptions)
     removeBooleanAttributeQuotes: opts.removeBooleanAttributeQuotes,
     removeEmptyAttributes: opts.removeEmptyAttributes,
     removeHtmlComments: opts.removeHtmlComments,
-    serializeShadowRoot: false,
+    serializeShadowRoot: opts.serializeShadowRoot,
+    fullDocument: opts.fullDocument,
   });
 }
 

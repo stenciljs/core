@@ -1,54 +1,82 @@
+import { join, normalizePath } from '@utils';
+import { isAbsolute } from 'path';
+
 import type * as d from '../../declarations';
-import { isAbsolute, join } from 'path';
 
-export const validatePaths = (config: d.Config) => {
-  if (typeof config.rootDir !== 'string') {
-    config.rootDir = '/';
+/**
+ * The paths validated in this module. These fields can be incorporated into a
+ * {@link d.ValidatedConfig} object.
+ */
+interface ConfigPaths {
+  rootDir: string;
+  srcDir: string;
+  packageJsonFilePath: string;
+  cacheDir: string;
+  srcIndexHtml: string;
+  globalScript?: string;
+  globalStyle?: string;
+  buildLogFilePath?: string;
+}
+
+/**
+ * Do logical-level validation (as opposed to type-level validation)
+ * for various properties in the user-supplied config which represent
+ * filesystem paths.
+ *
+ * @param config a validated user-supplied configuration
+ * @returns an object holding the validated paths
+ */
+export const validatePaths = (config: d.Config): ConfigPaths => {
+  const rootDir = typeof config.rootDir !== 'string' ? '/' : config.rootDir;
+
+  let srcDir = typeof config.srcDir !== 'string' ? DEFAULT_SRC_DIR : config.srcDir;
+
+  if (!isAbsolute(srcDir)) {
+    srcDir = join(rootDir, srcDir);
   }
 
-  if (typeof config.srcDir !== 'string') {
-    config.srcDir = DEFAULT_SRC_DIR;
-  }
-  if (!isAbsolute(config.srcDir)) {
-    config.srcDir = join(config.rootDir, config.srcDir);
+  let cacheDir = typeof config.cacheDir !== 'string' ? DEFAULT_CACHE_DIR : config.cacheDir;
+
+  if (!isAbsolute(cacheDir)) {
+    cacheDir = join(rootDir, cacheDir);
+  } else {
+    cacheDir = normalizePath(cacheDir);
   }
 
-  if (typeof config.cacheDir !== 'string') {
-    config.cacheDir = DEFAULT_CACHE_DIR;
-  }
-  if (!isAbsolute(config.cacheDir)) {
-    config.cacheDir = join(config.rootDir, config.cacheDir);
+  let srcIndexHtml = typeof config.srcIndexHtml !== 'string' ? join(srcDir, DEFAULT_INDEX_HTML) : config.srcIndexHtml;
+
+  if (!isAbsolute(srcIndexHtml)) {
+    srcIndexHtml = join(rootDir, srcIndexHtml);
   }
 
-  if (typeof config.srcIndexHtml !== 'string') {
-    config.srcIndexHtml = join(config.srcDir, DEFAULT_INDEX_HTML);
-  }
-  if (!isAbsolute(config.srcIndexHtml)) {
-    config.srcIndexHtml = join(config.rootDir, config.srcIndexHtml);
-  }
+  const packageJsonFilePath = join(rootDir, 'package.json');
+
+  const validatedPaths: ConfigPaths = {
+    rootDir,
+    srcDir,
+    cacheDir,
+    srcIndexHtml,
+    packageJsonFilePath,
+  };
 
   if (typeof config.globalScript === 'string' && !isAbsolute(config.globalScript)) {
-    if (!isAbsolute(config.globalScript)) {
-      config.globalScript = join(config.rootDir, config.globalScript);
-    }
+    validatedPaths.globalScript = join(rootDir, config.globalScript);
   }
 
-  if (typeof config.globalStyle === 'string') {
-    if (!isAbsolute(config.globalStyle)) {
-      config.globalStyle = join(config.rootDir, config.globalStyle);
-    }
+  if (typeof config.globalStyle === 'string' && !isAbsolute(config.globalStyle)) {
+    validatedPaths.globalStyle = join(rootDir, config.globalStyle);
   }
 
   if (config.writeLog) {
-    if (typeof config.buildLogFilePath !== 'string') {
-      config.buildLogFilePath = DEFAULT_BUILD_LOG_FILE_NAME;
-    }
-    if (!isAbsolute(config.buildLogFilePath)) {
-      config.buildLogFilePath = join(config.rootDir, config.buildLogFilePath);
+    validatedPaths.buildLogFilePath =
+      typeof config.buildLogFilePath === 'string' ? config.buildLogFilePath : DEFAULT_BUILD_LOG_FILE_NAME;
+
+    if (!isAbsolute(validatedPaths.buildLogFilePath)) {
+      validatedPaths.buildLogFilePath = join(rootDir, config.buildLogFilePath);
     }
   }
 
-  config.packageJsonFilePath = join(config.rootDir, 'package.json');
+  return validatedPaths;
 };
 
 const DEFAULT_BUILD_LOG_FILE_NAME = 'stencil-build.log';

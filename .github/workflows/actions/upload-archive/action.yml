@@ -1,0 +1,20 @@
+name: 'Stencil Archive Upload'
+description: 'compresses and uploads an archive to be reused across jobs'
+inputs:
+  paths:
+    description: 'paths to files or directories to archive (recursive)'
+  output:
+    description: 'output file name'
+  name:
+    description: 'name of the archive to upload'
+runs:
+  using: 'composite'
+  steps:
+    - name: Create Archive
+      run: zip -q -r ${{ inputs.output }} ${{ inputs.paths }}
+      shell: bash
+
+    - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.output }}

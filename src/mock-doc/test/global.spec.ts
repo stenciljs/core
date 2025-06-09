@@ -1,9 +1,3 @@
-import { MockDocument } from '../document';
-import { MockWindow, cloneWindow } from '../window';
-import { MockElement, MockHTMLElement } from '../node';
-import { XLINK_NS } from '../../runtime/runtime-constants';
-import { MockSVGElement } from '../element';
-
 describe('global', () => {
   it('HTMLElement', () => {
     expect(HTMLElement).toBeDefined();
@@ -27,5 +21,14 @@ describe('global', () => {
     expect(Event).toBeDefined();
     expect(KeyboardEvent).toBeDefined();
     expect(MouseEvent).toBeDefined();
+  });
+
+  it('Fetch', () => {
+    expect(Request).toBeDefined();
+    expect(Response).toBeDefined();
+  });
+
+  it('Parse', () => {
+    expect(DOMParser).toBeDefined();
   });
 });

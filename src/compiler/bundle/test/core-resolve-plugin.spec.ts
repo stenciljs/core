@@ -1,12 +1,14 @@
-import type * as d from '../../../declarations';
+import { mockValidatedConfig } from '@stencil/core/testing';
+
 import { createSystem } from '../../../compiler/sys/stencil-sys';
+import type * as d from '../../../declarations';
 import { getHydratedFlagHead, getStencilInternalModule } from '../core-resolve-plugin';
 
 describe('core resolve plugin', () => {
-  const config: d.Config = {
+  const config: d.ValidatedConfig = mockValidatedConfig({
     rootDir: '/',
     sys: createSystem(),
-  };
+  });
 
   it('http localhost with port url path', () => {
     const compilerExe = 'http://localhost:3333/@stencil/core/compiler/stencil.js?v=1.2.3';

@@ -29,7 +29,7 @@ describe('minifyCss', () => {
       },
     });
     expect(c).toBe(
-      `@font-face{font-family:"Open Sans";src:url("/font.woff2?mph=88") format("woff2"),url('/font.woff?mph=88') format('woff')}`
+      `@font-face{font-family:"Open Sans";src:url("/font.woff2?mph=88") format("woff2"),url('/font.woff?mph=88') format('woff')}`,
     );
   });
 });

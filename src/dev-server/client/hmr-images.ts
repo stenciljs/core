@@ -1,13 +1,13 @@
 import {
-  setQueryString,
-  updateCssUrlValue,
   getHmrHref,
-  isLinkStylesheet,
-  setHmrAttr,
-  isTemplate,
   hasShadowRoot,
   isElement,
+  isLinkStylesheet,
+  isTemplate,
+  setHmrAttr,
   setHmrQueryString,
+  setQueryString,
+  updateCssUrlValue,
 } from './hmr-util';
 
 export const hmrImages = (win: Window, doc: Document, versionId: string, imageFileNames: string[]) => {
@@ -34,7 +34,7 @@ const hmrStyleSheetImages = (
   cssImageProps: string[],
   styleSheet: CSSStyleSheet,
   versionId: string,
-  imageFileNames: string[]
+  imageFileNames: string[],
 ) => {
   try {
     const cssRules = styleSheet.cssRules;
@@ -64,7 +64,7 @@ const hmrStyleSheetRuleImages = (
   cssImageProps: string[],
   cssRule: CSSStyleRule,
   versionId: string,
-  imageFileNames: string[]
+  imageFileNames: string[],
 ) => {
   cssImageProps.forEach((cssImageProp) => {
     imageFileNames.forEach((imageFileName) => {
@@ -150,5 +150,6 @@ const hmrUpdateStyleElementUrl = (styleElm: HTMLStyleElement, versionId: string,
 const hmrUpdateLinkElementUrl = (linkElm: HTMLLinkElement, versionId: string, imageFileNames: string[]) => {
   linkElm.href = setQueryString(linkElm.href, 's-hmr-urls', imageFileNames.sort().join(','));
   linkElm.href = setHmrQueryString(linkElm.href, versionId);
+  // TODO(STENCIL-958): determine if we need to set this attribute
   linkElm.setAttribute('data-hmr', versionId);
 };

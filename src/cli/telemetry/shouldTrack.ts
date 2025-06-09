@@ -9,6 +9,6 @@ import { checkTelemetry } from './telemetry';
  * @param ci whether or not the process is running in a Continuous Integration (CI) environment
  * @returns true if telemetry should be sent, false otherwise
  */
-export async function shouldTrack(config: d.Config, sys: d.CompilerSystem, ci?: boolean) {
-  return !ci && isInteractive(sys, config) && (await checkTelemetry(sys));
+export async function shouldTrack(config: d.ValidatedConfig, sys: d.CompilerSystem, ci?: boolean) {
+  return !ci && isInteractive(sys, config.flags) && (await checkTelemetry(sys));
 }

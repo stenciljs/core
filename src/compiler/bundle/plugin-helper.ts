@@ -1,8 +1,8 @@
-import type * as d from '../../declarations';
-import { buildError } from '@utils';
-import { relative } from 'path';
+import { buildError, relative } from '@utils';
 
-export const pluginHelper = (config: d.Config, builtCtx: d.BuildCtx, platform: string) => {
+import type * as d from '../../declarations';
+
+export const pluginHelper = (config: d.ValidatedConfig, builtCtx: d.BuildCtx, platform: string) => {
   return {
     name: 'pluginHelper',
     resolveId(importee: string, importer: string): null {

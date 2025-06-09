@@ -2,9 +2,9 @@ import { createWindow } from '../window';
 
 describe('customElements', () => {
   it('attributeChangedCallback, removeAttribute', () => {
-    let attrName: string;
-    let oldValue: string;
-    let newValue: string;
+    let attrName: string = '';
+    let oldValue: string = '';
+    let newValue: string = '';
     let called = 0;
 
     customElements.define(
@@ -19,7 +19,7 @@ describe('customElements', () => {
         static get observedAttributes() {
           return ['attr-a', 'attr-b'];
         }
-      }
+      },
     );
 
     const cmpA = document.createElement('CMP-a');
@@ -39,9 +39,9 @@ describe('customElements', () => {
   });
 
   it('attributeChangedCallback, setAttribute', () => {
-    let attrName: string;
-    let oldValue: string;
-    let newValue: string;
+    let attrName: string = '';
+    let oldValue: string = '';
+    let newValue: string = '';
     let called = 0;
 
     customElements.define(
@@ -56,12 +56,12 @@ describe('customElements', () => {
         static get observedAttributes() {
           return ['attr-a', 'attr-b'];
         }
-      }
+      },
     );
 
     const cmpA = document.createElement('cmp-a');
     document.body.appendChild(cmpA);
-    expect(attrName).toBe(undefined);
+    expect(attrName).toBe('');
     expect(called).toBe(0);
 
     cmpA.setAttribute('attr-a', 'value-a');
@@ -102,7 +102,7 @@ describe('customElements', () => {
         disconnectedCallback() {
           disconnectedInc++;
         }
-      }
+      },
     );
 
     expect(connectedInc).toBe(0);
@@ -140,7 +140,7 @@ describe('customElements', () => {
         connectedCallback() {
           connectedInc++;
         }
-      }
+      },
     );
 
     expect(connectedInc).toBe(0);
@@ -168,7 +168,7 @@ describe('customElements', () => {
         connectedCallback() {
           connectedInc++;
         }
-      }
+      },
     );
 
     expect(connectedInc).toBe(0);
@@ -188,7 +188,7 @@ describe('customElements', () => {
         connectedCallback() {
           connectedInc++;
         }
-      }
+      },
     );
 
     expect(connectedInc).toBe(0);
@@ -214,7 +214,7 @@ describe('customElements', () => {
         disconnectedCallback() {
           disconnectedInc++;
         }
-      }
+      },
     );
 
     expect(connectedInc).toBe(0);

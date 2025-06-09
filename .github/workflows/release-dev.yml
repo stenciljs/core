@@ -1,0 +1,68 @@
+name: 'Stencil Dev Release'
+
+on:
+  workflow_dispatch:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+  workflow_call:
+    outputs:
+      dev-version:
+        description: The version that was just published to npm.
+        value: ${{ jobs.get-dev-version.outputs.dev-version }}
+
+jobs:
+  build_core:
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  get-dev-version:
+    name: Get Dev Build Version
+    needs: [build_core]
+    runs-on: ubuntu-22.04
+    outputs:
+      dev-version: ${{ steps.get-dev-version.outputs.DEV_VERSION }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Get Version
+        id: get-dev-version
+        run: |
+          # A unique string to publish Stencil under
+          # e.g. "3.0.1-dev.1677185104.7c87e34"
+          #
+          # Pull this value from the compiled artifacts
+          DEV_VERSION=$(./bin/stencil version)
+
+          echo "Using version $DEV_VERSION"
+
+          # store a key/value pair in GITHUB_OUTPUT
+          # e.g. "DEV_VERSION=3.0.1-dev.1677185104.7c87e34"
+          echo "DEV_VERSION=$DEV_VERSION" >> $GITHUB_OUTPUT
+
+        shell: bash
+
+  release-stencil-dev-build:
+    name: Publish Dev Build
+    needs: [get-dev-version, build_core]
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: ./.github/workflows/actions/publish-npm
+        with:
+          tag: dev
+          version: ${{ needs.get-dev-version.outputs.dev-version }}
+          token: ${{ secrets.NPM_TOKEN }}

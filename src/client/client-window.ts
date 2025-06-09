@@ -1,11 +1,12 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
 
-export const win = typeof window !== 'undefined' ? window : ({} as Window);
+import type * as d from '../declarations';
 
-export const CSS = BUILD.cssVarShim ? (win as any).CSS : null;
+interface StencilWindow extends Omit<Window, 'document'> {
+  document?: Document;
+}
 
-export const doc = win.document || ({ head: {} } as Document);
+export const win = (typeof window !== 'undefined' ? window : ({} as StencilWindow)) as StencilWindow;
 
 export const H = ((win as any).HTMLElement || (class {} as any)) as HTMLElement;
 
@@ -29,22 +30,19 @@ export const setPlatformHelpers = (helpers: {
   Object.assign(plt, helpers);
 };
 
-export const supportsShadow =
-  BUILD.shadowDomShim && BUILD.shadowDom
-    ? /*@__PURE__*/ (() => (doc.head.attachShadow + '').indexOf('[native') > -1)()
-    : true;
+export const supportsShadow = BUILD.shadowDom;
 
 export const supportsListenerOptions = /*@__PURE__*/ (() => {
   let supportsListenerOptions = false;
   try {
-    doc.addEventListener(
+    win.document?.addEventListener(
       'e',
       null,
       Object.defineProperty({}, 'passive', {
         get() {
           supportsListenerOptions = true;
         },
-      })
+      }),
     );
   } catch (e) {}
   return supportsListenerOptions;
@@ -52,11 +50,11 @@ export const supportsListenerOptions = /*@__PURE__*/ (() => {
 
 export const promiseResolve = (v?: any) => Promise.resolve(v);
 
-export const supportsConstructibleStylesheets = BUILD.constructableCSS
+export const supportsConstructableStylesheets = BUILD.constructableCSS
   ? /*@__PURE__*/ (() => {
       try {
         new CSSStyleSheet();
-        return typeof new CSSStyleSheet().replace === 'function';
+        return typeof new CSSStyleSheet().replaceSync === 'function';
       } catch (e) {}
       return false;
     })()

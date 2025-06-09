@@ -1,8 +1,0 @@
-h2 {
-  font-size: 16px;
-  color: red;
-}
-
-h2::after {
-  content: ': from global-css-entry.css';
-}

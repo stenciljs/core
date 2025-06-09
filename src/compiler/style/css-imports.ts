@@ -1,126 +1,138 @@
+import { buildError, join, normalizePath } from '@utils';
+import { basename, dirname, isAbsolute } from 'path';
+
 import type * as d from '../../declarations';
-import { basename, dirname, isAbsolute, join, relative } from 'path';
-import { buildError, normalizePath } from '@utils';
-import { getModuleId } from '../sys/resolve/resolve-utils';
 import { parseStyleDocs } from '../docs/style-docs';
 import { resolveModuleIdAsync } from '../sys/resolve/resolve-module-async';
+import { getModuleId } from '../sys/resolve/resolve-utils';
 import { stripCssComments } from './style-utils';
 
+/**
+ * Parse CSS imports into an object which contains a manifest of imports and a
+ * stylesheet with all imports resolved and concatenated.
+ *
+ * @param config the current config
+ * @param compilerCtx the compiler context (we need filesystem access)
+ * @param buildCtx the build context, we'll need access to diagnostics
+ * @param srcFilePath the source filepath
+ * @param resolvedFilePath the resolved filepath
+ * @param styleText style text we start with
+ * @param styleDocs optional array of style document objects
+ * @returns an object with concatenated styleText and imports
+ */
 export const parseCssImports = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   srcFilePath: string,
   resolvedFilePath: string,
   styleText: string,
-  styleDocs?: d.StyleDoc[]
-) => {
+  styleDocs?: d.StyleDoc[],
+): Promise<ParseCSSReturn> => {
   const isCssEntry = resolvedFilePath.toLowerCase().endsWith('.css');
   const allCssImports: string[] = [];
-  const concatStyleText = await updateCssImports(
-    config,
-    compilerCtx,
-    buildCtx,
-    isCssEntry,
-    srcFilePath,
-    resolvedFilePath,
-    styleText,
-    allCssImports,
-    new Set(),
-    styleDocs
-  );
+
+  // a Set of previously-resolved file paths that we add to as we traverse the
+  // import tree (to avoid a possible circular dependency and infinite loop)
+  const resolvedFilePaths = new Set();
+
+  const concatStyleText = await resolveAndFlattenImports(srcFilePath, resolvedFilePath, styleText);
+
   return {
     imports: allCssImports,
     styleText: concatStyleText,
   };
-};
 
-const updateCssImports = async (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  isCssEntry: boolean,
-  srcFilePath: string,
-  resolvedFilePath: string,
-  styleText: string,
-  allCssImports: string[],
-  noLoop: Set<string>,
-  styleDocs?: d.StyleDoc[]
-) => {
-  if (noLoop.has(resolvedFilePath)) {
-    return styleText;
-  }
-  noLoop.add(resolvedFilePath);
-
-  if (styleDocs != null) {
-    parseStyleDocs(styleDocs, styleText);
-  }
-
-  const cssImports = await getCssImports(config, compilerCtx, buildCtx, resolvedFilePath, styleText);
-  if (cssImports.length === 0) {
-    return styleText;
-  }
-
-  for (const cssImport of cssImports) {
-    if (!allCssImports.includes(cssImport.filePath)) {
-      allCssImports.push(cssImport.filePath);
+  /**
+   * Resolve and flatten all imports for a given CSS file, recursively crawling
+   * the tree of imports to resolve them all and produce a concatenated
+   * stylesheet. We declare this function here, within `parseCssImports`, in order
+   * to get access to `compilerCtx`, `buildCtx`, and more without having to pass
+   * a whole bunch of arguments.
+   *
+   * @param srcFilePath the source filepath
+   * @param resolvedFilePath the resolved filepath
+   * @param styleText style text we start with*
+   * @returns concatenated styles assembled from the various imported stylesheets
+   */
+  async function resolveAndFlattenImports(
+    srcFilePath: string,
+    resolvedFilePath: string,
+    styleText: string,
+  ): Promise<string> {
+    // if we've seen this path before we early return
+    if (resolvedFilePaths.has(resolvedFilePath)) {
+      return styleText;
     }
-  }
+    resolvedFilePaths.add(resolvedFilePath);
 
-  await Promise.all(
-    cssImports.map(async (cssImportData) => {
-      await concatCssImport(
-        config,
-        compilerCtx,
-        buildCtx,
-        isCssEntry,
-        srcFilePath,
-        cssImportData,
-        allCssImports,
-        noLoop,
-        styleDocs
-      );
-    })
-  );
+    if (styleDocs != null) {
+      parseStyleDocs(styleDocs, styleText);
+    }
 
-  return replaceImportDeclarations(styleText, cssImports, isCssEntry);
-};
+    const cssImports = await getCssImports(config, compilerCtx, buildCtx, resolvedFilePath, styleText);
+    if (cssImports.length === 0) {
+      return styleText;
+    }
 
-const concatCssImport = async (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  isCssEntry: boolean,
-  srcFilePath: string,
-  cssImportData: d.CssImportData,
-  allCssImports: string[],
-  noLoop: Set<string>,
-  styleDocs?: d.StyleDoc[]
-) => {
-  cssImportData.styleText = await loadStyleText(compilerCtx, cssImportData);
+    // add any newly-found imports to the 'global' list
+    for (const cssImport of cssImports) {
+      if (!allCssImports.includes(cssImport.filePath)) {
+        allCssImports.push(cssImport.filePath);
+      }
+    }
 
-  if (typeof cssImportData.styleText === 'string') {
-    cssImportData.styleText = await updateCssImports(
-      config,
-      compilerCtx,
-      buildCtx,
-      isCssEntry,
-      cssImportData.filePath,
-      cssImportData.filePath,
-      cssImportData.styleText,
-      allCssImports,
-      noLoop,
-      styleDocs
+    // Recur down the tree of CSS imports, resolving all the imports in
+    // the children of the current file (and, by extension, in their children
+    // and so on)
+    await Promise.all(
+      cssImports.map(async (cssImportData) => {
+        cssImportData.styleText = await loadStyleText(compilerCtx, cssImportData);
+
+        if (typeof cssImportData.styleText === 'string') {
+          cssImportData.styleText = await resolveAndFlattenImports(
+            cssImportData.filePath,
+            cssImportData.filePath,
+            cssImportData.styleText,
+          );
+        } else {
+          // we had some error loading the file from disk, so write a diagnostic
+          const err = buildError(buildCtx.diagnostics);
+          err.messageText = `Unable to read css import: ${cssImportData.srcImport}`;
+          err.absFilePath = srcFilePath;
+        }
+      }),
     );
-  } else {
-    const err = buildError(buildCtx.diagnostics);
-    err.messageText = `Unable to read css import: ${cssImportData.srcImport}`;
-    err.absFilePath = srcFilePath;
+
+    // replace import statements with the actual CSS code in children modules
+    return replaceImportDeclarations(styleText, cssImports, isCssEntry);
   }
 };
 
-const loadStyleText = async (compilerCtx: d.CompilerCtx, cssImportData: d.CssImportData) => {
-  let styleText: string = null;
+/**
+ * Interface describing the return value of `parseCSSImports`
+ */
+interface ParseCSSReturn {
+  /**
+   * An array of filepaths to the imported CSS files
+   */
+  imports: string[];
+  /**
+   * The actual CSS text itself
+   */
+  styleText: string;
+}
+
+/**
+ * Load the style text for a CSS file from disk, based on the filepaths set in
+ * our import data.
+ *
+ * @param compilerCtx the compiler context
+ * @param cssImportData the import data for the file we want to read
+ * @returns the contents of the file, if it can be read without error
+ */
+const loadStyleText = async (compilerCtx: d.CompilerCtx, cssImportData: d.CssImportData): Promise<string | null> => {
+  let styleText: string | null = null;
 
   try {
     styleText = await compilerCtx.fs.readFile(cssImportData.filePath);
@@ -135,12 +147,22 @@ const loadStyleText = async (compilerCtx: d.CompilerCtx, cssImportData: d.CssImp
   return styleText;
 };
 
+/**
+ * Get a manifest of all the CSS imports in a given CSS file
+ *
+ * @param config the current config
+ * @param compilerCtx the compiler context (we need the filesystem)
+ * @param buildCtx the build context, in case we need to set a diagnostic
+ * @param filePath the filepath we're working with
+ * @param styleText the CSS for which we want to retrieve import data
+ * @returns a Promise wrapping a list of CSS import data objects
+ */
 export const getCssImports = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   filePath: string,
-  styleText: string
+  styleText: string,
 ) => {
   const imports: d.CssImportData[] = [];
 
@@ -151,14 +173,15 @@ export const getCssImports = async (
   styleText = stripCssComments(styleText);
 
   const dir = dirname(filePath);
-  const importeeExt = filePath.split('.').pop().toLowerCase();
+  const importeeExt = (filePath.split('.').pop() ?? '').toLowerCase();
 
-  let r: RegExpExecArray;
+  let r: RegExpExecArray | null;
   const IMPORT_RE = /(@import)\s+(url\()?\s?(.*?)\s?\)?([^;]*);?/gi;
   while ((r = IMPORT_RE.exec(styleText))) {
     const cssImportData: d.CssImportData = {
       srcImport: r[0],
       url: r[4].replace(/[\"\'\)]/g, ''),
+      filePath: '',
     };
 
     if (!isLocalCssImport(cssImportData.srcImport)) {
@@ -189,7 +212,10 @@ export const getCssImports = async (
       }
     }
 
-    if (typeof cssImportData.filePath === 'string') {
+    // we set `filePath` to `""` when the object is created above, so if it
+    // hasn't been changed in the intervening conditionals then we didn't resolve
+    // a filepath for it.
+    if (cssImportData.filePath !== '') {
       imports.push(cssImportData);
     }
   }
@@ -200,11 +226,11 @@ export const getCssImports = async (
 export const isCssNodeModule = (url: string) => url.startsWith('~');
 
 export const resolveCssNodeModule = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   diagnostics: d.Diagnostic[],
   filePath: string,
-  cssImportData: d.CssImportData
+  cssImportData: d.CssImportData,
 ) => {
   try {
     const m = getModuleId(cssImportData.url);
@@ -244,23 +270,16 @@ export const isLocalCssImport = (srcImport: string) => {
   return true;
 };
 
-export const replaceNodeModuleUrl = (
-  baseCssFilePath: string,
-  moduleId: string,
-  nodeModulePath: string,
-  url: string
-) => {
-  nodeModulePath = normalizePath(dirname(nodeModulePath));
-  url = normalizePath(url);
-
-  const absPathToNodeModuleCss = normalizePath(url.replace(`~${moduleId}`, nodeModulePath));
-
-  const baseCssDir = normalizePath(dirname(baseCssFilePath));
-
-  const relToRoot = normalizePath(relative(baseCssDir, absPathToNodeModuleCss));
-  return relToRoot;
-};
-
+/**
+ * Replace import declarations (like '@import "foobar";') with the actual CSS
+ * written in the imported module, allowing us to produce a single file from a
+ * tree of stylesheets.
+ *
+ * @param styleText the text within which we want to replace @import statements
+ * @param cssImports information about imported modules
+ * @param isCssEntry whether we're dealing with a CSS file
+ * @returns an updated string with the requisite substitutions
+ */
 export const replaceImportDeclarations = (styleText: string, cssImports: d.CssImportData[], isCssEntry: boolean) => {
   for (const cssImport of cssImports) {
     if (isCssEntry) {

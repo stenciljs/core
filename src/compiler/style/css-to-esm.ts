@@ -1,15 +1,64 @@
-import type * as d from '../../declarations';
-import { DEFAULT_STYLE_MODE, catchError, createJsVarName, normalizePath, hasError, isString } from '@utils';
-import { getScopeId } from './scope-css';
+import { catchError, createJsVarName, DEFAULT_STYLE_MODE, hasError, isString, normalizePath, resolve } from '@utils';
+import { scopeCss } from '@utils/shadow-css';
 import MagicString from 'magic-string';
-import { optimizeCss } from '../optimize/optimize-css';
 import path from 'path';
+
+import type * as d from '../../declarations';
 import { parseStyleDocs } from '../docs/style-docs';
-import { scopeCss } from '../../utils/shadow-css';
+import { optimizeCss } from '../optimize/optimize-css';
 import { serializeImportPath } from '../transformers/stencil-import-path';
+import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
 
-export const transformCssToEsm = async (input: d.TransformCssToEsmInput) => {
+/**
+ * A regular expression for matching CSS import statements
+ *
+ * According to https://developer.mozilla.org/en-US/docs/Web/CSS/@import
+ * the formal grammar for CSS import statements is:
+ *
+ * ```
+ * @import [ <url> | <string> ]
+ *         [ supports( [ <supports-condition> | <declaration> ] ) ]?
+ *         <media-query-list>? ;
+ * ```
+ *
+ * Thus the string literal `"@import"` will be followed by a `<url>` or a
+ * `<string>`, where a `<url>` may be a relative or absolute URL _or_ a `url()`
+ * function.
+ *
+ * Thus the regular expression needs to match:
+ *
+ * - the string `"@import
+ * - any amount of whitespace
+ * - a URL, comprised of:
+ *   - an optional `url(` function opener
+ *   - a non-greedy match on any characters (to match the argument to the URL
+ *     function)
+ *   - an optional `)` closing paren on the `url()` function
+ * - trailing characters after the URL, given by anything which doesn't match
+ *   the line-terminator `;`
+ *   - this can match media queries, support conditions, and so on
+ * - a line-terminating semicolon
+ *
+ * The regex has 4 capture groups:
+ *
+ * 1. `@import`
+ * 2. `url(`
+ * 3. characters after `url(`
+ * 4. all characters other than `;`, greedily matching
+ *
+ * We typically only care about group 4 here.
+ */
+const CSS_IMPORT_RE = /(@import)\s+(url\()?\s?(.*?)\s?\)?([^;]*);?/gi;
+
+/**
+ * Our main entry point to this module. This performs an async transformation
+ * of CSS input to ESM.
+ *
+ * @param input CSS input to be transformed to ESM
+ * @returns a promise wrapping transformed ESM output
+ */
+export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promise<d.TransformCssToEsmOutput> => {
   const results = transformCssToEsmModule(input);
 
   const optimizeResults = await optimizeCss({
@@ -29,12 +78,24 @@ export const transformCssToEsm = async (input: d.TransformCssToEsmInput) => {
   return generateTransformCssToEsm(input, results);
 };
 
-export const transformCssToEsmSync = (input: d.TransformCssToEsmInput) => {
+/**
+ * A sync function for transforming input CSS to ESM
+ *
+ * @param input the input CSS we're going to transform
+ * @returns transformed ESM output
+ */
+export const transformCssToEsmSync = (input: d.TransformCssToEsmInput): d.TransformCssToEsmOutput => {
   const results = transformCssToEsmModule(input);
   return generateTransformCssToEsm(input, results);
 };
 
-const transformCssToEsmModule = (input: d.TransformCssToEsmInput) => {
+/**
+ * Performs the actual transformation from CSS to ESM
+ *
+ * @param input input CSS to be transformed
+ * @returns ESM output
+ */
+const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCssToEsmOutput => {
   const results: d.TransformCssToEsmOutput = {
     styleText: input.input,
     output: '',
@@ -46,17 +107,15 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput) => {
   };
 
   if (input.docs) {
-    parseStyleDocs(results.styleDocs, input.input);
+    parseStyleDocs(results.styleDocs, input.input, input.mode);
   }
 
   try {
     const varNames = new Set([results.defaultVarName]);
 
-    if (isString(input.tag)) {
-      if (input.encapsulation === 'scoped' || (input.encapsulation === 'shadow' && input.commentOriginalSelector)) {
-        const scopeId = getScopeId(input.tag, input.mode);
-        results.styleText = scopeCss(results.styleText, scopeId, input.commentOriginalSelector);
-      }
+    if (isString(input.tag) && input.encapsulation === 'scoped') {
+      const scopeId = getScopeId(input.tag, input.mode);
+      results.styleText = scopeCss(results.styleText, scopeId, false);
     }
 
     const cssImports = getCssToEsmImports(varNames, results.styleText, input.file, input.mode);
@@ -72,7 +131,7 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput) => {
           encapsulation: input.encapsulation,
           mode: input.mode,
         },
-        input.styleImportData
+        input.styleImportData,
       );
 
       // str.append(`import ${cssImport.varName} from '${importPath}';\n`);
@@ -88,7 +147,18 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput) => {
   return results;
 };
 
-const generateTransformCssToEsm = (input: d.TransformCssToEsmInput, results: d.TransformCssToEsmOutput) => {
+/**
+ * Updated the `output` property on `results` with appropriate import statements for
+ * the CSS import tree and the module type.
+ *
+ * @param input the CSS to ESM transform input
+ * @param results the corresponding output
+ * @returns the modified ESM output
+ */
+const generateTransformCssToEsm = (
+  input: d.TransformCssToEsmInput,
+  results: d.TransformCssToEsmOutput,
+): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
 
   if (input.module === 'cjs') {
@@ -125,7 +195,21 @@ const generateTransformCssToEsm = (input: d.TransformCssToEsmInput, results: d.T
   return results;
 };
 
-const getCssToEsmImports = (varNames: Set<string>, cssText: string, filePath: string, modeName: string) => {
+/**
+ * Get all of the CSS imports in a file
+ *
+ * @param varNames a set into which new names will be added
+ * @param cssText the CSS text in question
+ * @param filePath the file path to the file in question
+ * @param modeName the current mode name
+ * @returns an array of import objects
+ */
+const getCssToEsmImports = (
+  varNames: Set<string>,
+  cssText: string,
+  filePath: string,
+  modeName: string,
+): d.CssToEsmImportData[] => {
   const cssImports: d.CssToEsmImportData[] = [];
 
   if (!cssText.includes('@import')) {
@@ -157,7 +241,7 @@ const getCssToEsmImports = (varNames: Set<string>, cssText: string, filePath: st
       cssImportData.filePath = normalizePath(cssImportData.url);
     } else {
       // relative path
-      cssImportData.filePath = normalizePath(path.resolve(dir, cssImportData.url));
+      cssImportData.filePath = normalizePath(resolve(dir, cssImportData.url));
     }
 
     cssImportData.varName = createCssVarName(cssImportData.filePath, modeName);
@@ -173,12 +257,23 @@ const getCssToEsmImports = (varNames: Set<string>, cssText: string, filePath: st
   return cssImports;
 };
 
-const CSS_IMPORT_RE = /(@import)\s+(url\()?\s?(.*?)\s?\)?([^;]*);?/gi;
-
-const isCssNodeModule = (url: string) => {
+/**
+ * Check if a module URL is a css node module
+ *
+ * @param url to check
+ * @returns whether or not it's a Css node module
+ */
+const isCssNodeModule = (url: string): boolean => {
   return url.startsWith('~');
 };
 
+/**
+ * Check if a given import is a local import or not (i.e. check that it
+ * is not importing from some other domain)
+ *
+ * @param srcImport the import to check
+ * @returns whether it's local or not
+ */
 const isLocalCssImport = (srcImport: string) => {
   srcImport = srcImport.toLowerCase();
 
@@ -194,7 +289,14 @@ const isLocalCssImport = (srcImport: string) => {
   return true;
 };
 
-const createCssVarName = (filePath: string, modeName: string) => {
+/**
+ * Given a file path and a mode name, create an appropriate variable name
+ *
+ * @param filePath the path we want to use
+ * @param modeName the name for the current style mode (i.e. `md` or `ios` on Ionic)
+ * @returns an appropriate Css var name
+ */
+const createCssVarName = (filePath: string, modeName: string): string => {
   let varName = path.basename(filePath);
   if (modeName && modeName !== DEFAULT_STYLE_MODE && !varName.includes(modeName)) {
     varName = modeName + '-' + varName;

@@ -14,7 +14,7 @@ export const buildEvents = (): d.BuildEvents => {
 
   const on = (arg0: any, arg1?: any): d.BuildOnEventRemove => {
     if (typeof arg0 === 'function') {
-      const eventName: string = null;
+      const eventName: null = null;
       const callback = arg0;
       evCallbacks.push({
         eventName,
@@ -68,6 +68,6 @@ export const buildEvents = (): d.BuildEvents => {
 };
 
 interface EventCallback {
-  eventName: string;
+  eventName: string | null;
   callback: Function;
 }

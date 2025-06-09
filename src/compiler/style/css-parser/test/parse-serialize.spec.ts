@@ -6,7 +6,7 @@ describe('css parse/serialize', () => {
   // https://github.com/reworkcss/css/tree/master/test/cases
   // https://github.com/reworkcss/css/blob/master/LICENSE
 
-  const tests = [
+  it.each([
     ['at-namespace', '@namespace svg "http://www.w3.org/2000/svg";\n', '@namespace svg "http://www.w3.org/2000/svg";'],
     [
       'charset',
@@ -293,13 +293,9 @@ describe('css parse/serialize', () => {
       `abbr[title] , abbr   [title="hello   world"] {   cursor: help;  border-bottom:  1px dotted  #777;}`,
       `abbr[title],abbr [title="hello   world"]{cursor:help;border-bottom:1px dotted  #777}`,
     ],
-  ];
-
-  tests.forEach((test) => {
-    it(test[0], () => {
-      const results = parseCss(test[1]);
-      const output = serializeCss(results.stylesheet, {});
-      expect(output).toBe(test[2]);
-    });
+  ])('%s', (_testName, cssString, expectedOutput) => {
+    const results = parseCss(cssString);
+    const output = serializeCss(results.stylesheet, {});
+    expect(output).toBe(expectedOutput);
   });
 });

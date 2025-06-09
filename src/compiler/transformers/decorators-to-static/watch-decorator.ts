@@ -1,19 +1,19 @@
-import type * as d from '../../../declarations';
-import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
-import { flatOne, buildError, augmentDiagnosticWithNode, buildWarn } from '@utils';
-import { getDeclarationParameters, isDecoratorNamed } from './decorator-utils';
+import { flatOne } from '@utils';
 import ts from 'typescript';
 
+import type * as d from '../../../declarations';
+import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
+
 export const watchDecoratorsToStatic = (
-  config: d.Config,
-  diagnostics: d.Diagnostic[],
+  typeChecker: ts.TypeChecker,
   decoratedProps: ts.ClassElement[],
-  watchable: Set<string>,
-  newMembers: ts.ClassElement[]
+  newMembers: ts.ClassElement[],
+  decoratorName: string,
 ) => {
   const watchers = decoratedProps
     .filter(ts.isMethodDeclaration)
-    .map((method) => parseWatchDecorator(config, diagnostics, watchable, method));
+    .map((method) => parseWatchDecorator(typeChecker, method, decoratorName));
 
   const flatWatchers = flatOne(watchers);
 
@@ -23,20 +23,15 @@ export const watchDecoratorsToStatic = (
 };
 
 const parseWatchDecorator = (
-  config: d.Config,
-  diagnostics: d.Diagnostic[],
-  watchable: Set<string>,
-  method: ts.MethodDeclaration
+  typeChecker: ts.TypeChecker,
+  method: ts.MethodDeclaration,
+  decoratorName: string,
 ): d.ComponentCompilerWatch[] => {
   const methodName = method.name.getText();
-  return method.decorators.filter(isDecoratorNamed('Watch')).map((decorator) => {
-    const [propName] = getDeclarationParameters<string>(decorator);
-    if (!watchable.has(propName)) {
-      const diagnostic = config.devMode ? buildWarn(diagnostics) : buildError(diagnostics);
-      diagnostic.messageText = `@Watch('${propName}') is trying to watch for changes in a property that does not exist.
-        Make sure only properties decorated with @State() or @Prop() are watched.`;
-      augmentDiagnosticWithNode(diagnostic, decorator);
-    }
+  const decorators = retrieveTsDecorators(method) ?? [];
+  return decorators.filter(isDecoratorNamed(decoratorName)).map((decorator) => {
+    const [propName] = getDecoratorParameters<string>(decorator, typeChecker);
+
     return {
       propName,
       methodName,

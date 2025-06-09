@@ -1,3 +1,13 @@
+import { BUILD } from '@app-data';
+import type {
+  ComponentCompilerMeta,
+  ComponentRuntimeMeta,
+  ComponentTestingConstructor,
+  HostRef,
+  LazyBundlesRuntimeData,
+  NewSpecPageOptions,
+  SpecPage,
+} from '@stencil/core/internal';
 import {
   bootstrapLazy,
   flushAll,
@@ -9,33 +19,35 @@ import {
   registerModule,
   renderVdom,
   resetPlatform,
+  setSupportsShadowDom,
   startAutoApplyChanges,
   styles,
   win,
   writeTask,
-  setSupportsShadowDom,
 } from '@stencil/core/internal/testing';
-import { BUILD } from '@app-data';
-import type {
-  ComponentCompilerMeta,
-  ComponentRuntimeMeta,
-  ComponentTestingConstructor,
-  HostRef,
-  LazyBundlesRuntimeData,
-  NewSpecPageOptions,
-  SpecPage,
-} from '@stencil/core/internal';
 import { formatLazyBundleRuntimeMeta } from '@utils';
+
 import { getBuildFeatures } from '../compiler/app-core/app-data';
 import { resetBuildConditionals } from './reset-build-conditionals';
 
+/**
+ * Generates a random number for use in generating a bundle id
+ * @returns a random number between 100000 and 999999
+ */
+const generateRandBundleId = () => Math.round(Math.random() * 899999) + 100000;
+
+/**
+ * Creates a new spec page for unit testing
+ * @param opts the options to apply to the spec page that influence its configuration and operation
+ * @returns the created spec page
+ */
 export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   if (opts == null) {
     throw new Error(`NewSpecPageOptions required`);
   }
 
   // reset the platform for this new test
-  resetPlatform();
+  resetPlatform(opts.platform ?? {});
   resetBuildConditionals(BUILD);
 
   if (Array.isArray(opts.components)) {
@@ -79,8 +91,15 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   };
 
   const lazyBundles: LazyBundlesRuntimeData = opts.components.map((Cstr: ComponentTestingConstructor) => {
+    /**
+     * just pass through functional components that don't have styles nor any other metadata
+     */
     if (Cstr.COMPILER_META == null) {
-      throw new Error(`Invalid component class: Missing static "COMPILER_META" property.`);
+      /**
+       * the bundleId can be arbitrary, but must be unique
+       */
+      const arbitraryBundleId = `fc.${generateRandBundleId()}`;
+      return formatLazyBundleRuntimeMeta(arbitraryBundleId, []);
     }
 
     cmpTags.add(Cstr.COMPILER_META.tagName);
@@ -88,7 +107,7 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
 
     proxyComponentLifeCycles(Cstr);
 
-    const bundleId = `${Cstr.COMPILER_META.tagName}.${Math.round(Math.random() * 899999) + 100000}`;
+    const bundleId = `${Cstr.COMPILER_META.tagName}.${generateRandBundleId()}`;
     const stylesMeta = Cstr.COMPILER_META.styles;
     if (Array.isArray(stylesMeta)) {
       if (stylesMeta.length > 1) {
@@ -107,7 +126,9 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     return lazyBundleRuntimeMeta;
   });
 
-  const cmpCompilerMeta = opts.components.map((Cstr) => Cstr.COMPILER_META as ComponentCompilerMeta);
+  const cmpCompilerMeta = opts.components
+    .filter((Cstr) => Cstr.COMPILER_META != null)
+    .map((Cstr) => Cstr.COMPILER_META as ComponentCompilerMeta);
   const cmpBuild = getBuildFeatures(cmpCompilerMeta);
   if (opts.strictBuild) {
     Object.assign(BUILD, cmpBuild);
@@ -127,8 +148,8 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     BUILD.hydrateClientSide = false;
   }
   BUILD.cloneNodeFix = false;
+  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   BUILD.shadowDomShim = false;
-  BUILD.safari10 = false;
   BUILD.attachStyles = !!opts.attachStyles;
 
   if (typeof opts.url === 'string') {
@@ -225,21 +246,27 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   return page;
 }
 
-function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor) {
-  if (typeof Cstr.prototype.__componentWillLoad === 'function') {
+/**
+ * A helper method that proxies Stencil lifecycle methods by mutating the provided component class
+ * @param Cstr the component class whose lifecycle methods will be proxied
+ */
+function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor): void {
+  // we may have called this function on the class before, reset the state of the class
+  if (typeof Cstr.prototype?.__componentWillLoad === 'function') {
     Cstr.prototype.componentWillLoad = Cstr.prototype.__componentWillLoad;
     Cstr.prototype.__componentWillLoad = null;
   }
-  if (typeof Cstr.prototype.__componentWillUpdate === 'function') {
+  if (typeof Cstr.prototype?.__componentWillUpdate === 'function') {
     Cstr.prototype.componentWillUpdate = Cstr.prototype.__componentWillUpdate;
     Cstr.prototype.__componentWillUpdate = null;
   }
-  if (typeof Cstr.prototype.__componentWillRender === 'function') {
+  if (typeof Cstr.prototype?.__componentWillRender === 'function') {
     Cstr.prototype.componentWillRender = Cstr.prototype.__componentWillRender;
     Cstr.prototype.__componentWillRender = null;
   }
 
-  if (typeof Cstr.prototype.componentWillLoad === 'function') {
+  // the class should be in a known 'good' state to proxy functions
+  if (typeof Cstr.prototype?.componentWillLoad === 'function') {
     Cstr.prototype.__componentWillLoad = Cstr.prototype.componentWillLoad;
     Cstr.prototype.componentWillLoad = function () {
       const result = this.__componentWillLoad();
@@ -252,7 +279,7 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor) {
     };
   }
 
-  if (typeof Cstr.prototype.componentWillUpdate === 'function') {
+  if (typeof Cstr.prototype?.componentWillUpdate === 'function') {
     Cstr.prototype.__componentWillUpdate = Cstr.prototype.componentWillUpdate;
     Cstr.prototype.componentWillUpdate = function () {
       const result = this.__componentWillUpdate();
@@ -265,7 +292,7 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor) {
     };
   }
 
-  if (typeof Cstr.prototype.componentWillRender === 'function') {
+  if (typeof Cstr.prototype?.componentWillRender === 'function') {
     Cstr.prototype.__componentWillRender = Cstr.prototype.componentWillRender;
     Cstr.prototype.componentWillRender = function () {
       const result = this.__componentWillRender();
@@ -279,7 +306,22 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor) {
   }
 }
 
-function findRootComponent(cmpTags: Set<string>, node: Element): any {
+/**
+ * Return the first Element whose {@link Element#nodeName} property matches a tag found in the provided `cmpTags`
+ * argument.
+ *
+ * If the `nodeName` property on the element matches any of the names found in the provided `cmpTags` argument, that
+ * element is returned. If no match is found on the current element, the children will be inspected in a depth-first
+ * search manner. This process continues until either:
+ * - an element is found (and execution ends)
+ * - no element is found after an exhaustive search
+ *
+ * @param cmpTags component tag names to use in the match criteria
+ * @param node the node whose children are to be inspected
+ * @returns An element whose name matches one of the strings in the provided `cmpTags`. If no match is found, `null` is
+ * returned
+ */
+function findRootComponent(cmpTags: Set<string>, node: Element): Element | null {
   if (node != null) {
     const children = node.children;
     const childrenLength = children.length;

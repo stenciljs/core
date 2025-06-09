@@ -1,13 +1,14 @@
-import { readConfig, writeConfig, updateConfig, defaultConfig } from '../ionic-config';
+import { mockCompilerSystem } from '@stencil/core/testing';
+
 import { createSystem } from '../../compiler/sys/stencil-sys';
+import { defaultConfig, readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { UUID_REGEX } from '../telemetry/helpers';
-import { mockStencilSystem } from '@stencil/core/testing';
 
 const UUID1 = '5588e0f0-02b5-4afa-8194-5d8f78683b36';
 const UUID2 = 'e5609819-5c24-4fa2-8817-e05ca10b8cae';
 
 describe('readConfig', () => {
-  const sys = mockStencilSystem();
+  const sys = mockCompilerSystem();
 
   beforeEach(async () => {
     await sys.removeFile(defaultConfig(sys));
@@ -64,7 +65,7 @@ describe('readConfig', () => {
   it('should read a file if it exists', async () => {
     await writeConfig(sys, { 'telemetry.stencil': true, 'tokens.telemetry': UUID1 });
 
-    let result = await sys.stat(defaultConfig(sys));
+    const result = await sys.stat(defaultConfig(sys));
 
     expect(result.isFile).toBe(true);
 
@@ -82,7 +83,7 @@ describe('updateConfig', () => {
   it('should edit a file', async () => {
     await writeConfig(sys, { 'telemetry.stencil': true, 'tokens.telemetry': UUID1 });
 
-    let result = await sys.stat(defaultConfig(sys));
+    const result = await sys.stat(defaultConfig(sys));
 
     expect(result.isFile).toBe(true);
 

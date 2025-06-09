@@ -1,17 +1,21 @@
-import { getStaticGetter, transpileModule } from './transpile';
+import { transpileModule } from './transpile';
+import { formatCode } from './utils';
 
 describe('parse states', () => {
-  it('state', () => {
+  it('state', async () => {
     const t = transpileModule(`
+     const dynVal = 'val2';
       @Component({tag: 'cmp-a'})
       export class CmpA {
-        @State() val = null;
+        @State() val = 'good';
+        @State() [dynVal] = 'nice';
       }
     `);
 
-    expect(getStaticGetter(t.outputText, 'states')).toEqual({ val: {} });
-    expect(t.state).toEqual({
-      name: 'val',
-    });
+    expect(await formatCode(t.outputText)).toContain(
+      await formatCode(`
+        return { val: {}, val2: { ogPropName: 'dynVal' } }; 
+    `),
+    );
   });
 });

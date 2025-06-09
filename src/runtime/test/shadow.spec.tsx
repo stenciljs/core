@@ -1,5 +1,5 @@
-import { newSpecPage } from '@stencil/core/testing';
 import { Component, h } from '@stencil/core';
+import { newSpecPage } from '@stencil/core/testing';
 
 @Component({
   tag: 'cmp-a',
@@ -86,14 +86,14 @@ describe('shadow', () => {
     const expected = `
     <cmp-a class="hydrated sc-cmp-a-h">
       <!---->
-      <div class="sc-cmp-a sc-cmp-a-s">
+      <div class=\"sc-cmp-a sc-cmp-a-s\">
         <span slot=\"start\">
           Start
         </span>
-        <span class='sc-cmp-a sc-cmp-a-s'>
+        <span class=\"sc-cmp-a sc-cmp-a-s\">
           Text
         </span>
-        <div class='end sc-cmp-a sc-cmp-a-s'>
+        <div class="end sc-cmp-a sc-cmp-a-s">
           <span slot=\"end\">
             End
           </span>
@@ -134,5 +134,37 @@ describe('shadow', () => {
     </cmp-a>`;
     expect(page.root).toEqualHtml(expected);
     expect(page.root).toEqualLightHtml(expected);
+  });
+
+  it('test shadow root innerHTML', async () => {
+    @Component({
+      tag: 'cmp-a',
+      shadow: true,
+    })
+    class CmpA {
+      render() {
+        return <div>Shadow Content</div>;
+      }
+    }
+
+    const page = await newSpecPage({
+      components: [CmpA],
+      html: `
+        <cmp-a>
+          Light Content
+        </cmp-a>
+      `,
+    });
+
+    expect(page.root).toEqualHtml(`
+      <cmp-a>
+        <mock:shadow-root>
+          <div>
+            Shadow Content
+          </div>
+        </mock:shadow-root>
+        Light Content
+      </cmp-a>
+    `);
   });
 });

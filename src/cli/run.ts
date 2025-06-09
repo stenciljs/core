@@ -1,8 +1,10 @@
+import { hasError, isFunction, result, shouldIgnoreError } from '@utils';
+
 import type * as d from '../declarations';
-import { dependencies } from '../compiler/sys/dependencies.json';
+import { ValidatedConfig } from '../declarations';
+import { createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
-import { hasError, isFunction, shouldIgnoreError } from '@utils';
-import { loadCoreCompiler, CoreCompiler } from './load-compiler';
+import { CoreCompiler, loadCoreCompiler } from './load-compiler';
 import { loadedCompilerLog, startupLog, startupLogVersion } from './logs';
 import { parseFlags } from './parse-flags';
 import { taskBuild } from './task-build';
@@ -12,15 +14,25 @@ import { taskHelp } from './task-help';
 import { taskInfo } from './task-info';
 import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
-import { taskTest } from './task-test';
 import { taskTelemetry } from './task-telemetry';
+import { taskTest } from './task-test';
 import { telemetryAction } from './telemetry/telemetry';
 
+/**
+ * Main entry point for the Stencil CLI
+ *
+ * Take care of parsing CLI arguments, initializing various components needed
+ * by the rest of the program, and kicking off the correct task (build, test,
+ * etc).
+ *
+ * @param init initial CLI options
+ * @returns an empty promise
+ */
 export const run = async (init: d.CliInitOptions) => {
   const { args, logger, sys } = init;
 
   try {
-    const flags = parseFlags(args, sys);
+    const flags = parseFlags(args);
     const task = flags.task;
 
     if (flags.debug || flags.verbose) {
@@ -35,53 +47,47 @@ export const run = async (init: d.CliInitOptions) => {
       sys.applyGlobalPatch(sys.getCurrentDirectory());
     }
 
-    if (task === 'help' || flags.help) {
-      await taskHelp({ flags: { task: 'help', args }, outputTargets: [] }, logger, sys);
+    if ((task && task === 'version') || flags.version) {
+      // we need to load the compiler here to get the version, but we don't
+      // want to load it in the case that we're going to just log the help
+      // message and then exit below (if there's no `task` defined) so we load
+      // it just within our `if` scope here.
+      const coreCompiler = await loadCoreCompiler(sys);
+      console.log(coreCompiler.version);
+      return;
+    }
+
+    if (!task || task === 'help' || flags.help) {
+      await taskHelp(createConfigFlags({ task: 'help', args }), logger, sys);
+
       return;
     }
 
     startupLog(logger, task);
 
     const findConfigResults = await findConfig({ sys, configPath: flags.config });
-    if (hasError(findConfigResults.diagnostics)) {
-      logger.printDiagnostics(findConfigResults.diagnostics);
-      return sys.exit(1);
-    }
-
-    const ensureDepsResults = await sys.ensureDependencies({
-      rootDir: findConfigResults.rootDir,
-      logger,
-      dependencies: dependencies as any,
-    });
-
-    if (hasError(ensureDepsResults.diagnostics)) {
-      logger.printDiagnostics(ensureDepsResults.diagnostics);
+    if (findConfigResults.isErr) {
+      logger.printDiagnostics(findConfigResults.value);
       return sys.exit(1);
     }
 
     const coreCompiler = await loadCoreCompiler(sys);
-
-    if (task === 'version' || flags.version) {
-      console.log(coreCompiler.version);
-      return;
-    }
 
     startupLogVersion(logger, task, coreCompiler);
 
     loadedCompilerLog(sys, logger, flags, coreCompiler);
 
     if (task === 'info') {
-      await telemetryAction(sys, { flags: { task: 'info' }, outputTargets: [] }, logger, coreCompiler, async () => {
-        await taskInfo(coreCompiler, sys, logger);
-      });
+      taskInfo(coreCompiler, sys, logger);
       return;
     }
 
+    const foundConfig = result.unwrap(findConfigResults);
     const validated = await coreCompiler.loadConfig({
       config: {
         flags,
       },
-      configPath: findConfigResults.configPath,
+      configPath: foundConfig.configPath,
       logger,
       sys,
     });
@@ -97,9 +103,7 @@ export const run = async (init: d.CliInitOptions) => {
       sys.applyGlobalPatch(validated.config.rootDir);
     }
 
-    await sys.ensureResources({ rootDir: validated.config.rootDir, logger, dependencies: dependencies as any });
-
-    await telemetryAction(sys, validated.config, logger, coreCompiler, async () => {
+    await telemetryAction(sys, validated.config, coreCompiler, async () => {
       await runTask(coreCompiler, validated.config, task, sys);
     });
   } catch (e) {
@@ -111,50 +115,62 @@ export const run = async (init: d.CliInitOptions) => {
   }
 };
 
+/**
+ * Run a specified task
+ *
+ * @param coreCompiler an instance of a minimal, bootstrap compiler for running the specified task
+ * @param config a configuration for the Stencil project to apply to the task run
+ * @param task the task to run
+ * @param sys the {@link d.CompilerSystem} for interacting with the operating system
+ * @public
+ * @returns a void promise
+ */
 export const runTask = async (
   coreCompiler: CoreCompiler,
   config: d.Config,
   task: d.TaskCommand,
-  sys?: d.CompilerSystem
-) => {
-  config.flags = config.flags || { task };
-  config.outputTargets = config.outputTargets || [];
+  sys: d.CompilerSystem,
+): Promise<void> => {
+  const flags = createConfigFlags(config.flags ?? { task });
+  config.flags = flags;
+
+  if (!config.sys) {
+    config.sys = sys;
+  }
+  const strictConfig: ValidatedConfig = coreCompiler.validateConfig(config, {}).config;
 
   switch (task) {
     case 'build':
-      await taskBuild(coreCompiler, config, sys);
+      await taskBuild(coreCompiler, strictConfig);
       break;
 
     case 'docs':
-      await taskDocs(coreCompiler, config);
+      await taskDocs(coreCompiler, strictConfig);
       break;
 
     case 'generate':
     case 'g':
-      await taskGenerate(coreCompiler, config);
+      await taskGenerate(strictConfig);
       break;
 
     case 'help':
-      await taskHelp(config, config.logger, sys);
+      await taskHelp(strictConfig.flags, strictConfig.logger, sys);
       break;
 
     case 'prerender':
-      await taskPrerender(coreCompiler, config);
+      await taskPrerender(coreCompiler, strictConfig);
       break;
 
     case 'serve':
-      await taskServe(config);
+      await taskServe(strictConfig);
       break;
 
     case 'telemetry':
-      // TODO(STENCIL-148) make this parameter no longer optional, remove the surrounding if statement
-      if (sys) {
-        await taskTelemetry(config, sys, config.logger);
-      }
+      await taskTelemetry(strictConfig.flags, sys, strictConfig.logger);
       break;
 
     case 'test':
-      await taskTest(config);
+      await taskTest(strictConfig);
       break;
 
     case 'version':
@@ -162,8 +178,10 @@ export const runTask = async (
       break;
 
     default:
-      config.logger.error(`${config.logger.emoji('❌ ')}Invalid stencil command, please see the options below:`);
-      await taskHelp(config, config.logger, sys);
+      strictConfig.logger.error(
+        `${strictConfig.logger.emoji('❌ ')}Invalid stencil command, please see the options below:`,
+      );
+      await taskHelp(strictConfig.flags, strictConfig.logger, sys);
       return config.sys.exit(1);
   }
 };

@@ -1,6 +1,7 @@
-import type * as d from '../../declarations';
 import { augmentDiagnosticWithNode, buildWarn } from '@utils';
 import ts from 'typescript';
+
+import type * as d from '../../declarations';
 
 /**
  * Determine if a public class member collides with a reserved name for HTML elements, nodes, or JSX
@@ -17,7 +18,7 @@ export const validatePublicName = (
   memberName: string,
   decorator: string,
   memberType: string,
-  node: ts.Node
+  node: ts.Node,
 ): void => {
   if (RESERVED_PUBLIC_MEMBERS.has(memberName.toLowerCase())) {
     const warn = buildWarn(diagnostics);
@@ -33,6 +34,7 @@ export const validatePublicName = (
 };
 
 const HTML_ELEMENT_KEYS = [
+  'popover',
   'title',
   'lang',
   'translate',

@@ -1,4 +1,4 @@
-import { isLinkStylesheet, isTemplate, getHmrHref, setHmrAttr, hasShadowRoot } from './hmr-util';
+import { getHmrHref, hasShadowRoot, isLinkStylesheet, isTemplate, setHmrAttr } from './hmr-util';
 
 export const hmrExternalStyles = (elm: Element, versionId: string, cssFileNames: string[]) => {
   if (isLinkStylesheet(elm)) {

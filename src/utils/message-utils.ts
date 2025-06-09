@@ -17,8 +17,8 @@ export const buildError = (diagnostics?: d.Diagnostic[]): d.Diagnostic => {
     type: 'build',
     header: 'Build Error',
     messageText: 'build error',
-    relFilePath: null,
-    absFilePath: null,
+    relFilePath: undefined,
+    absFilePath: undefined,
     lines: [],
   };
 
@@ -45,8 +45,6 @@ export const buildWarn = (diagnostics: d.Diagnostic[]): d.Diagnostic => {
     type: 'build',
     header: 'Build Warn',
     messageText: 'build warn',
-    relFilePath: null,
-    absFilePath: null,
     lines: [],
   };
 
@@ -55,25 +53,38 @@ export const buildWarn = (diagnostics: d.Diagnostic[]): d.Diagnostic => {
   return diagnostic;
 };
 
+/**
+ * Create a diagnostic message suited for representing an error in a JSON
+ * file. This includes information about the exact lines in the JSON file which
+ * caused the error and the path to the file.
+ *
+ * @param compilerCtx the current compiler context
+ * @param diagnostics a list of diagnostics used as a return param
+ * @param jsonFilePath the path to the JSON file where the error occurred
+ * @param msg the error message
+ * @param jsonField the key for the field which caused the error, used for finding
+ * the error line in the original JSON file
+ * @returns a reference to the newly-created diagnostic
+ */
 export const buildJsonFileError = (
   compilerCtx: d.CompilerCtx,
   diagnostics: d.Diagnostic[],
   jsonFilePath: string,
   msg: string,
-  pkgKey: string
+  jsonField: string,
 ) => {
   const err = buildError(diagnostics);
   err.messageText = msg;
   err.absFilePath = jsonFilePath;
 
-  if (typeof pkgKey === 'string') {
+  if (typeof jsonField === 'string') {
     try {
       const jsonStr = compilerCtx.fs.readFileSync(jsonFilePath);
       const lines = jsonStr.replace(/\r/g, '\n').split('\n');
 
       for (let i = 0; i < lines.length; i++) {
         const txtLine = lines[i];
-        const txtIndex = txtLine.indexOf(pkgKey);
+        const txtIndex = txtLine.indexOf(jsonField);
 
         if (txtIndex > -1) {
           const warnLine: d.PrintLine = {
@@ -81,7 +92,7 @@ export const buildJsonFileError = (
             lineNumber: i + 1,
             text: txtLine,
             errorCharStart: txtIndex,
-            errorLength: pkgKey.length,
+            errorLength: jsonField.length,
           };
           err.lineNumber = warnLine.lineNumber;
           err.columnNumber = txtIndex + 1;
@@ -131,8 +142,6 @@ export const catchError = (diagnostics: d.Diagnostic[], err: Error | null | unde
     type: 'build',
     header: 'Build Error',
     messageText: 'build error',
-    relFilePath: null,
-    absFilePath: null,
     lines: [],
   };
 

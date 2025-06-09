@@ -1,9 +1,9 @@
-import type * as d from '../../declarations';
-import { buildError, buildJsonFileError } from '@utils';
-import { dirname, join } from 'path';
-import { isOutputTargetWww } from '../output-targets/output-utils';
+import { buildError, buildJsonFileError, isOutputTargetWww, join } from '@utils';
+import { dirname } from 'path';
 
-export const validateManifestJson = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+import type * as d from '../../declarations';
+
+export const validateManifestJson = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (config.devMode) {
     return null;
   }
@@ -27,7 +27,7 @@ export const validateManifestJson = (config: d.Config, compilerCtx: d.CompilerCt
           }
         }
       } catch (e) {}
-    })
+    }),
   );
 };
 
@@ -35,13 +35,13 @@ const validateManifestJsonData = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   manifestFilePath: string,
-  manifestData: any
+  manifestData: any,
 ) => {
   if (Array.isArray(manifestData.icons)) {
     await Promise.all(
       manifestData.icons.map((manifestIcon: any) => {
         return validateManifestJsonIcon(compilerCtx, buildCtx, manifestFilePath, manifestIcon);
-      })
+      }),
     );
   }
 };
@@ -50,7 +50,7 @@ const validateManifestJsonIcon = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   manifestFilePath: string,
-  manifestIcon: any
+  manifestIcon: any,
 ) => {
   let iconSrc = manifestIcon.src;
   if (typeof iconSrc !== 'string') {
@@ -60,7 +60,7 @@ const validateManifestJsonIcon = async (
   }
 
   if (iconSrc.startsWith('/')) {
-    iconSrc = iconSrc.substr(1);
+    iconSrc = iconSrc.slice(1);
   }
 
   const manifestDir = dirname(manifestFilePath);

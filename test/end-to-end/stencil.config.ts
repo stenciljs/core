@@ -1,9 +1,10 @@
-import { Config } from '../../internal';
-import builtins from 'rollup-plugin-node-builtins';
-import linaria from 'linaria/rollup';
-import css from 'rollup-plugin-css-only';
 import { reactOutputTarget } from '@stencil/react-output-target';
+import linaria from 'linaria/rollup';
 import path from 'path';
+import css from 'rollup-plugin-css-only';
+import builtins from 'rollup-plugin-node-builtins';
+
+import { Config } from '../../internal';
 
 export const config: Config = {
   namespace: 'EndToEnd',
@@ -34,9 +35,6 @@ export const config: Config = {
       type: 'dist',
     },
     {
-      type: 'dist-custom-elements-bundle',
-    },
-    {
       type: 'dist-hydrate-script',
     },
     {
@@ -63,4 +61,7 @@ export const config: Config = {
   hashFileNames: false,
   buildEs5: 'prod',
   sourceMap: true,
+  extras: {
+    experimentalSlotFixes: true,
+  },
 };

@@ -1,44 +1,56 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
 import { consoleError, loadModule, styles } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS } from '@utils';
-import { proxyComponent } from './proxy-component';
-import { safeCall, scheduleUpdate } from './update-component';
-import { computeMode } from './mode';
-import { getScopeId, registerStyle } from './styles';
-import { PROXY_FLAGS } from './runtime-constants';
-import { createTime, uniqueTime } from './profile';
 
+import type * as d from '../declarations';
+import { scopeCss } from '../utils/shadow-css';
+import { computeMode } from './mode';
+import { createTime, uniqueTime } from './profile';
+import { proxyComponent } from './proxy-component';
+import { PROXY_FLAGS } from './runtime-constants';
+import { getScopeId, registerStyle } from './styles';
+import { safeCall, scheduleUpdate } from './update-component';
+
+/**
+ * Initialize a Stencil component given a reference to its host element, its
+ * runtime bookkeeping data structure, runtime metadata about the component,
+ * and (optionally) an HMR version ID.
+ *
+ * @param elm a host element
+ * @param hostRef the element's runtime bookkeeping object
+ * @param cmpMeta runtime metadata for the Stencil component
+ * @param hmrVersionId an (optional) HMR version ID
+ */
 export const initializeComponent = async (
   elm: d.HostElement,
   hostRef: d.HostRef,
   cmpMeta: d.ComponentRuntimeMeta,
   hmrVersionId?: string,
-  Cstr?: any
 ) => {
+  let Cstr: d.ComponentConstructor | undefined;
   // initializeComponent
-  if (
-    (BUILD.lazyLoad || BUILD.hydrateServerSide || BUILD.style) &&
-    (hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0
-  ) {
-    if (BUILD.lazyLoad || BUILD.hydrateClientSide) {
-      // we haven't initialized this element yet
-      hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
+  if ((hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0) {
+    // Let the runtime know that the component has been initialized
+    hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
 
+    const bundleId = cmpMeta.$lazyBundleId$;
+    if (BUILD.lazyLoad && bundleId) {
       // lazy loaded components
       // request the component's implementation to be
       // wired up with the host element
-      Cstr = loadModule(cmpMeta, hostRef, hmrVersionId);
-      if (Cstr.then) {
+      const CstrImport = loadModule(cmpMeta, hostRef, hmrVersionId);
+      if (CstrImport && 'then' in CstrImport) {
         // Await creates a micro-task avoid if possible
         const endLoad = uniqueTime(
           `st:load:${cmpMeta.$tagName$}:${hostRef.$modeName$}`,
-          `[Stencil] Load module for <${cmpMeta.$tagName$}>`
+          `[Stencil] Load module for <${cmpMeta.$tagName$}>`,
         );
-        Cstr = await Cstr;
+        Cstr = await CstrImport;
         endLoad();
+      } else {
+        Cstr = CstrImport as d.ComponentConstructor | undefined;
       }
-      if ((BUILD.isDev || BUILD.isDebug) && !Cstr) {
+      if (!Cstr) {
         throw new Error(`Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`);
       }
       if (BUILD.member && !Cstr.isProxied) {
@@ -66,7 +78,7 @@ export const initializeComponent = async (
       try {
         new (Cstr as any)(hostRef);
       } catch (e) {
-        consoleError(e);
+        consoleError(e, elm);
       }
 
       if (BUILD.member) {
@@ -76,23 +88,66 @@ export const initializeComponent = async (
         hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
       }
       endNewInstance();
-      fireConnectedCallback(hostRef.$lazyInstance$);
+      fireConnectedCallback(hostRef.$lazyInstance$, elm);
     } else {
       // sync constructor component
       Cstr = elm.constructor as any;
-      hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
+
+      /**
+       * Instead of using e.g. `cmpMeta.$tagName$` we use `elm.localName` to get the tag name of the component.
+       * This is because we can't guarantee that the component class is actually registered with the tag name
+       * defined in the component class as users can very well also do this:
+       *
+       * ```html
+       * <script type="module">
+       *   import { MyComponent } from 'my-stencil-component-library';
+       *   customElements.define('my-other-component', MyComponent);
+       * </script>
+       * ```
+       */
+      const cmpTag = elm.localName;
+
       // wait for the CustomElementRegistry to mark the component as ready before setting `isWatchReady`. Otherwise,
       // watchers may fire prematurely if `customElements.get()`/`customElements.whenDefined()` resolves _before_
       // Stencil has completed instantiating the component.
-      customElements.whenDefined(cmpMeta.$tagName$).then(() => (hostRef.$flags$ |= HOST_FLAGS.isWatchReady));
+      customElements.whenDefined(cmpTag).then(() => (hostRef.$flags$ |= HOST_FLAGS.isWatchReady));
     }
 
-    if (BUILD.style && Cstr.style) {
-      // this component has styles but we haven't registered them yet
-      let style = Cstr.style;
+    if (BUILD.style && Cstr && Cstr.style) {
+      /**
+       * this component has styles but we haven't registered them yet
+       */
+      let style: string | undefined;
 
-      if (BUILD.mode && typeof style !== 'string') {
-        style = style[(hostRef.$modeName$ = computeMode(elm))];
+      if (typeof Cstr.style === 'string') {
+        /**
+         * in case the component has a `styleUrl` defined, e.g.
+         * ```ts
+         * @Component({
+         *   tag: 'my-component',
+         *   styleUrl: 'my-component.css'
+         * })
+         * ```
+         */
+        style = Cstr.style;
+      } else if (BUILD.mode && typeof Cstr.style !== 'string') {
+        /**
+         * in case the component has a `styleUrl` object defined, e.g.
+         * ```ts
+         * @Component({
+         *   tag: 'my-component',
+         *   styleUrl: {
+         *     ios: 'my-component.ios.css',
+         *     md: 'my-component.md.css'
+         *   }
+         * })
+         * ```
+         */
+        hostRef.$modeName$ = computeMode(elm) as string | undefined;
+        if (hostRef.$modeName$) {
+          style = Cstr.style[hostRef.$modeName$];
+        }
+
         if (BUILD.hydrateServerSide && hostRef.$modeName$) {
           elm.setAttribute('s-mode', hostRef.$modeName$);
         }
@@ -101,15 +156,9 @@ export const initializeComponent = async (
       if (!styles.has(scopeId)) {
         const endRegisterStyles = createTime('registerStyles', cmpMeta.$tagName$);
 
-        if (
-          !BUILD.hydrateServerSide &&
-          BUILD.shadowDom &&
-          BUILD.shadowDomShim &&
-          cmpMeta.$flags$ & CMP_FLAGS.needsShadowDomShim
-        ) {
-          style = await import('../utils/shadow-css').then((m) => m.scopeCss(style, scopeId, false));
+        if (BUILD.hydrateServerSide && BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
+          style = scopeCss(style, scopeId, true);
         }
-
         registerStyle(scopeId, style, !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation));
         endRegisterStyles();
       }
@@ -134,8 +183,8 @@ export const initializeComponent = async (
   }
 };
 
-export const fireConnectedCallback = (instance: any) => {
-  if (BUILD.lazyLoad && BUILD.connectedCallback) {
-    safeCall(instance, 'connectedCallback');
+export const fireConnectedCallback = (instance: any, elm?: HTMLElement) => {
+  if (BUILD.lazyLoad) {
+    safeCall(instance, 'connectedCallback', undefined, elm);
   }
 };

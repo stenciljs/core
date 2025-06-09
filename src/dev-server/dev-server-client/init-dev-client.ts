@@ -1,7 +1,7 @@
 import type * as d from '../../declarations';
+import { initBuildProgress, initBuildStatus } from '../client';
 import * as c from '../dev-server-constants';
 import { appReset, initAppUpdate } from './app-update';
-import { initBuildProgress, initBuildStatus } from '../client';
 import { initClientWebSocket } from './client-web-socket';
 
 export const initDevClient = (win: d.DevClientWindow, config: d.DevClientConfig) => {

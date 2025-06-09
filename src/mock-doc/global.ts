@@ -1,3 +1,5 @@
+import { MockCSSStyleSheet } from './css-style-sheet';
+import { MockDocumentFragment } from './document-fragment';
 import {
   MockAnchorElement,
   MockBaseElement,
@@ -12,9 +14,11 @@ import {
   MockStyleElement,
   MockTemplateElement,
   MockTitleElement,
+  MockUListElement,
 } from './element';
-import { MockCustomEvent, MockEvent, MockKeyboardEvent, MockMouseEvent } from './event';
+import { MockCustomEvent, MockEvent, MockFocusEvent, MockKeyboardEvent, MockMouseEvent } from './event';
 import { MockHeaders } from './headers';
+import { MockDOMParser } from './parser';
 import { MockRequest, MockResponse } from './request-response';
 import { MockWindow } from './window';
 
@@ -147,18 +151,25 @@ const WINDOW_PROPS = [
   'HTMLElement',
   'Node',
   'NodeList',
+  'FocusEvent',
   'KeyboardEvent',
   'MouseEvent',
+  'CSSStyleSheet',
 ];
 
 const GLOBAL_CONSTRUCTORS: [string, any][] = [
+  ['CSSStyleSheet', MockCSSStyleSheet],
   ['CustomEvent', MockCustomEvent],
+  ['DocumentFragment', MockDocumentFragment],
+  ['DOMParser', MockDOMParser],
   ['Event', MockEvent],
+  ['FocusEvent', MockFocusEvent],
   ['Headers', MockHeaders],
   ['KeyboardEvent', MockKeyboardEvent],
   ['MouseEvent', MockMouseEvent],
   ['Request', MockRequest],
   ['Response', MockResponse],
+  ['ShadowRoot', MockDocumentFragment],
 
   ['HTMLAnchorElement', MockAnchorElement],
   ['HTMLBaseElement', MockBaseElement],
@@ -173,4 +184,5 @@ const GLOBAL_CONSTRUCTORS: [string, any][] = [
   ['HTMLStyleElement', MockStyleElement],
   ['HTMLTemplateElement', MockTemplateElement],
   ['HTMLTitleElement', MockTitleElement],
+  ['HTMLUListElement', MockUListElement],
 ];

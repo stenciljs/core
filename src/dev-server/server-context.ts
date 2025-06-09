@@ -1,15 +1,16 @@
-import type * as d from '../declarations';
-import { responseHeaders } from './dev-server-utils';
 import fs from 'graceful-fs';
 import path from 'path';
 import util from 'util';
+
+import type * as d from '../declarations';
+import { responseHeaders } from './dev-server-utils';
 
 export function createServerContext(
   sys: d.CompilerSystem,
   sendMsg: d.DevServerSendMessage,
   devServerConfig: d.DevServerConfig,
   buildResultsResolves: BuildRequestResolve[],
-  compilerRequestResolves: CompilerRequestResolve[]
+  compilerRequestResolves: CompilerRequestResolve[],
 ) {
   const logRequest = (req: d.HttpRequest, status: number) => {
     if (devServerConfig) {
@@ -30,7 +31,7 @@ export function createServerContext(
         responseHeaders({
           'content-type': 'text/plain; charset=utf-8',
           'x-source': xSource,
-        })
+        }),
       );
       res.write(util.inspect(error));
       res.end();
@@ -49,7 +50,7 @@ export function createServerContext(
           responseHeaders({
             'content-type': 'image/x-icon',
             'x-source': `favicon: ${xSource}`,
-          })
+          }),
         );
         const rs = fs.createReadStream(defaultFavicon);
         rs.on('error', (err) => {
@@ -58,7 +59,7 @@ export function createServerContext(
             responseHeaders({
               'content-type': 'text/plain; charset=utf-8',
               'x-source': `createReadStream error: ${err}, ${xSource}`,
-            })
+            }),
           );
           res.write(util.inspect(err));
           res.end();
@@ -75,7 +76,7 @@ export function createServerContext(
         responseHeaders({
           'content-type': 'text/plain; charset=utf-8',
           'x-source': xSource,
-        })
+        }),
       );
       res.write(content);
       res.end();

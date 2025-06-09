@@ -22,7 +22,9 @@ describe('goto root url', () => {
     // select the "prop-cmp" element within the page (same as querySelector)
     // and once it's received, then return the element's "textContent" property
     const elm = await page.find('prop-cmp >>> div');
-    expect(elm).toEqualText('Hello, my name is Stencil JS');
+    expect(elm).toEqualText(
+      'Hello, my name is Stencil JS. My full name being Mr Stencil JS. I like to wear life preservers.',
+    );
 
     await page.compareScreenshot('navigate to homepage', {
       fullPage: false,
@@ -34,11 +36,11 @@ describe('goto root url', () => {
   it('should navigate to the index.html page with custom url searchParams', async () => {
     // create a new puppeteer page
     const page = await newE2EPage({
-      url: '/?first=Doc&last=Brown',
+      url: '/?first=Doc&last=Brown&clothes=lab coats',
     });
 
     const elm = await page.find('prop-cmp >>> div');
-    expect(elm).toEqualText('Hello, my name is Doc Brown');
+    expect(elm).toEqualText('Hello, my name is Doc Brown. My full name being Mr Doc Brown. I like to wear lab coats.');
 
     await page.compareScreenshot('navigate to homepage with querystrings');
   });

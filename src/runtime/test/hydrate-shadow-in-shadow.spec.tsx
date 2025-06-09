@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('hydrate, shadow in shadow', () => {
@@ -60,17 +60,14 @@ describe('hydrate, shadow in shadow', () => {
             <mock:shadow-root>
               <slot></slot>
             </mock:shadow-root>
-            <!---->
             <slot></slot>
           </cmp-b>
         </mock:shadow-root>
-        <!---->
         light-dom
       </cmp-a>
     `);
     expect(clientHydrated.root).toEqualLightHtml(`
       <cmp-a class="hydrated">
-        <!---->
         light-dom
       </cmp-a>
     `);
@@ -130,7 +127,6 @@ describe('hydrate, shadow in shadow', () => {
             <mock:shadow-root>
               <slot></slot>
             </mock:shadow-root>
-            <!---->
             light-dom
           </cmp-b>
         </mock:shadow-root>
@@ -314,7 +310,6 @@ describe('hydrate, shadow in shadow', () => {
             <header></header>
             <slot></slot>
           </mock:shadow-root>
-          <!---->
           light-dom
         </cmp-b>
       </cmp-a>
@@ -354,11 +349,9 @@ describe('hydrate, shadow in shadow', () => {
         <!--r.1-->
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
-          <!--t.2.0.0.0-->
-          shadow-header
+          <!--t.2.0.0.0-->shadow-header
           <footer c-id="2.1.0.1">
-            <!--t.2.2.1.0-->
-            shadow-footer
+            <!--t.2.2.1.0-->shadow-footer
           </footer>
         </cmp-b>
       </cmp-a>
@@ -423,8 +416,7 @@ describe('hydrate, shadow in shadow', () => {
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
           <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <!--t.1.1.1.0-->light-dom
           <footer c-id="2.2.0.2"></footer>
         </cmp-b>
       </cmp-a>
@@ -446,7 +438,6 @@ describe('hydrate, shadow in shadow', () => {
             <slot></slot>
             <footer></footer>
           </mock:shadow-root>
-          <!---->
           light-dom
         </cmp-b>
       </cmp-a>

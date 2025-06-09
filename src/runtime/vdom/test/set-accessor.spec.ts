@@ -1,4 +1,6 @@
-import { setAccessor } from '../set-accessor';
+import { BUILD } from '@app-data';
+
+import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {
   let elm: any;
@@ -9,7 +11,7 @@ describe('setAccessor for custom elements', () => {
 
   describe('event listener', () => {
     it('should allow public method starting with "on" and capital 3rd character', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
 
       elm.onMyMethod = () => {
         /**/
@@ -24,8 +26,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should remove standardized event listener when has old value, but no new', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const orgValue = () => {
         /**/
@@ -40,8 +42,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should remove standardized multiple-word then add event listener w/ different value', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const orgValue = () => {
         /**/
@@ -55,8 +57,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should remove standardized then add event listener w/ different value', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const orgValue = () => {
         /**/
@@ -73,8 +75,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should add custom event listener when no old value', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const newValue = () => {
         /**/
@@ -87,8 +89,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should add standardized multiple-word event listener when no old value', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const newValue = () => {
         /**/
@@ -101,8 +103,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should add standardized event listener when no old value', () => {
-      const addEventSpy = spyOn(elm, 'addEventListener');
-      const removeEventSpy = spyOn(elm, 'removeEventListener');
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
 
       const newValue = () => {
         /**/
@@ -112,6 +114,36 @@ describe('setAccessor for custom elements', () => {
 
       expect(addEventSpy).toHaveBeenCalledWith('click', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
+    });
+
+    it('should add a capture style event listener', () => {
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+
+      const newValue = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onClickCapture', undefined, newValue, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith('click', newValue, true);
+      expect(removeEventSpy).not.toHaveBeenCalled();
+    });
+
+    it('should remove a capture style event listener', () => {
+      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+
+      const orgValue = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onClickCapture', undefined, orgValue, false, 0);
+      setAccessor(elm, 'onClickCapture', orgValue, undefined, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledTimes(1);
+      expect(addEventSpy).toHaveBeenCalledWith('click', orgValue, true);
+      expect(removeEventSpy).toHaveBeenCalledWith('click', orgValue, true);
     });
   });
 
@@ -292,12 +324,19 @@ describe('setAccessor for custom elements', () => {
     expect(elm.myprop).toBeUndefined();
     expect(elm).toEqualAttributes({ myprop: 'stringval' });
   });
+
+  it('ignore when updating readonly properties', () => {
+    const readOnlyProp = 'namespaceURI';
+    const oldReadOnlyVal = 'http://www.w3.org/1999/xhtml';
+    setAccessor(elm, readOnlyProp, oldReadOnlyVal, 'foobar', false, 0);
+    expect(elm[readOnlyProp]).toBe(oldReadOnlyVal);
+  });
 });
 
 describe('setAccessor for inputs', () => {
   describe('simple attributes', () => {
     describe('should not add attribute when prop is undefined or null', () => {
-      function testStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -305,36 +344,36 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`aria-disabled`, () => {
-        testStraightForwardAttribute('aria-disabled', undefined, undefined);
-        testStraightForwardAttribute('aria-disabled', null, undefined);
+        expectStraightForwardAttribute('aria-disabled', undefined, undefined);
+        expectStraightForwardAttribute('aria-disabled', null, undefined);
       });
       it(`autoCapitalize`, () => {
-        testStraightForwardAttribute('autoCapitalize', undefined, undefined);
-        testStraightForwardAttribute('autoCapitalize', null, undefined);
+        expectStraightForwardAttribute('autoCapitalize', undefined, undefined);
+        expectStraightForwardAttribute('autoCapitalize', null, undefined);
       });
       it(`autoComplete`, () => {
-        testStraightForwardAttribute('autoComplete', undefined, undefined);
-        testStraightForwardAttribute('autoComplete', null, undefined);
+        expectStraightForwardAttribute('autoComplete', undefined, undefined);
+        expectStraightForwardAttribute('autoComplete', null, undefined);
       });
       it(`autoCorrect`, () => {
-        testStraightForwardAttribute('autoCorrect', undefined, undefined);
-        testStraightForwardAttribute('autoCorrect', null, undefined);
+        expectStraightForwardAttribute('autoCorrect', undefined, undefined);
+        expectStraightForwardAttribute('autoCorrect', null, undefined);
       });
       it(`autoFocus`, () => {
-        testStraightForwardAttribute('autoFocus', undefined, undefined);
-        testStraightForwardAttribute('autoFocus', null, undefined);
+        expectStraightForwardAttribute('autoFocus', undefined, undefined);
+        expectStraightForwardAttribute('autoFocus', null, undefined);
       });
       it(`inputMode`, () => {
-        testStraightForwardAttribute('inputMode', undefined, undefined);
-        testStraightForwardAttribute('inputMode', null, undefined);
+        expectStraightForwardAttribute('inputMode', undefined, undefined);
+        expectStraightForwardAttribute('inputMode', null, undefined);
       });
       it(`results`, () => {
-        testStraightForwardAttribute('results', undefined, undefined);
-        testStraightForwardAttribute('results', null, undefined);
+        expectStraightForwardAttribute('results', undefined, undefined);
+        expectStraightForwardAttribute('results', null, undefined);
       });
       it(`spellCheck`, () => {
-        testStraightForwardAttribute('spellCheck', undefined, undefined);
-        testStraightForwardAttribute('spellCheck', null, undefined);
+        expectStraightForwardAttribute('spellCheck', undefined, undefined);
+        expectStraightForwardAttribute('spellCheck', null, undefined);
       });
 
       it('checked', () => {
@@ -348,7 +387,7 @@ describe('setAccessor for inputs', () => {
     });
 
     describe('should update when prop is defined', () => {
-      function testStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -357,80 +396,83 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`aria-disabled should be added when set to true`, () => {
-        testStraightForwardAttribute('aria-disabled', true, undefined);
+        expectStraightForwardAttribute('aria-disabled', true, undefined);
       });
       it(`autoCapitalize should be added when set to 'sentences'`, () => {
-        testStraightForwardAttribute('autoCapitalize', 'sentences', undefined);
+        expectStraightForwardAttribute('autoCapitalize', 'sentences', undefined);
       });
       it(`autoComplete should be added when set to true`, () => {
-        testStraightForwardAttribute('autoComplete', true, undefined);
+        expectStraightForwardAttribute('autoComplete', true, undefined);
       });
       it(`autoCorrect should be added when set to true`, () => {
-        testStraightForwardAttribute('autoCorrect', true, undefined);
+        expectStraightForwardAttribute('autoCorrect', true, undefined);
       });
       it(`autoFocus should be added when set to true`, () => {
-        testStraightForwardAttribute('autoFocus', true, undefined);
+        expectStraightForwardAttribute('autoFocus', true, undefined);
       });
       it(`inputMode should be added when set to 'numeric'`, () => {
-        testStraightForwardAttribute('inputMode', 'numeric', undefined);
+        expectStraightForwardAttribute('inputMode', 'numeric', undefined);
       });
       it(`results should be added when set to 'blah'`, () => {
-        testStraightForwardAttribute('results', 'blah', undefined);
+        expectStraightForwardAttribute('results', 'blah', undefined);
       });
       it(`spellCheck should be added when set to true`, () => {
-        testStraightForwardAttribute('spellCheck', true, undefined);
+        expectStraightForwardAttribute('spellCheck', true, undefined);
       });
     });
   });
 
   describe('special attributes', () => {
     describe('should not add attribute when prop is undefined or null', () => {
-      function testSpecialAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectSpecialAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
         expect(inputElm).toEqualAttributes({});
       }
+
       it(`accept`, () => {
-        testSpecialAttribute('accept', undefined, undefined);
-        testSpecialAttribute('accept', null, undefined);
+        expectSpecialAttribute('accept', undefined, undefined);
+        expectSpecialAttribute('accept', null, undefined);
       });
+
       it(`minLength`, () => {
-        testSpecialAttribute('minLength', undefined, undefined);
-        testSpecialAttribute('minLength', null, undefined);
+        expectSpecialAttribute('minLength', undefined, undefined);
+        expectSpecialAttribute('minLength', null, undefined);
       });
+
       it(`maxLength`, () => {
-        testSpecialAttribute('maxLength', undefined, undefined);
-        testSpecialAttribute('maxLength', null, undefined);
+        expectSpecialAttribute('maxLength', undefined, undefined);
+        expectSpecialAttribute('maxLength', null, undefined);
       });
       it(`name`, () => {
-        testSpecialAttribute('name', undefined, undefined);
-        testSpecialAttribute('name', null, undefined);
+        expectSpecialAttribute('name', undefined, undefined);
+        expectSpecialAttribute('name', null, undefined);
       });
       it(`pattern`, () => {
-        testSpecialAttribute('pattern', undefined, undefined);
-        testSpecialAttribute('pattern', null, undefined);
+        expectSpecialAttribute('pattern', undefined, undefined);
+        expectSpecialAttribute('pattern', null, undefined);
       });
       it(`placeholder`, () => {
-        testSpecialAttribute('placeholder', undefined, undefined);
-        testSpecialAttribute('placeholder', null, undefined);
+        expectSpecialAttribute('placeholder', undefined, undefined);
+        expectSpecialAttribute('placeholder', null, undefined);
       });
       it(`step`, () => {
-        testSpecialAttribute('step', undefined, undefined);
-        testSpecialAttribute('step', null, undefined);
+        expectSpecialAttribute('step', undefined, undefined);
+        expectSpecialAttribute('step', null, undefined);
       });
       it(`size`, () => {
-        testSpecialAttribute('size', undefined, undefined);
-        testSpecialAttribute('size', null, undefined);
+        expectSpecialAttribute('size', undefined, undefined);
+        expectSpecialAttribute('size', null, undefined);
       });
       it(`type`, () => {
-        testSpecialAttribute('type', undefined, undefined);
-        testSpecialAttribute('type', null, undefined);
+        expectSpecialAttribute('type', undefined, undefined);
+        expectSpecialAttribute('type', null, undefined);
       });
     });
 
     describe('should update when prop is defined', () => {
-      function testSpecialAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectSpecialAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -439,38 +481,38 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`accept should be added when set to 'text/html'`, () => {
-        testSpecialAttribute('accept', 'text/html', undefined);
+        expectSpecialAttributeDefined('accept', 'text/html', undefined);
       });
       it(`minLength should be added when set to 10`, () => {
-        testSpecialAttribute('minLength', 10, undefined);
+        expectSpecialAttributeDefined('minLength', 10, undefined);
       });
       it(`maxLength should be added when set to 100`, () => {
-        testSpecialAttribute('maxLength', 100, undefined);
+        expectSpecialAttributeDefined('maxLength', 100, undefined);
       });
       it(`name should be added when set to 'test'`, () => {
-        testSpecialAttribute('name', 'test', undefined);
+        expectSpecialAttributeDefined('name', 'test', undefined);
       });
       it(`pattern should be added when set to '[a-zA-Z0-9]+'`, () => {
-        testSpecialAttribute('pattern', '[a-zA-Z0-9]+', undefined);
+        expectSpecialAttributeDefined('pattern', '[a-zA-Z0-9]+', undefined);
       });
       it(`placeholder should be added when set to 'text placeholder'`, () => {
-        testSpecialAttribute('placeholder', 'text placeholder', undefined);
+        expectSpecialAttributeDefined('placeholder', 'text placeholder', undefined);
       });
       it(`step should be added when set to 'any'`, () => {
-        testSpecialAttribute('step', 'any', undefined);
+        expectSpecialAttributeDefined('step', 'any', undefined);
       });
       it(`size should be added when set to 40`, () => {
-        testSpecialAttribute('size', 40, undefined);
+        expectSpecialAttributeDefined('size', 40, undefined);
       });
       it(`type should be added when set to 'tel'`, () => {
-        testSpecialAttribute('type', 'tel', undefined);
+        expectSpecialAttributeDefined('type', 'tel', undefined);
       });
     });
   });
 
   describe('boolean attributes', () => {
     describe('should not add attribute when prop is undefined or null', () => {
-      function testBooleanAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectBooleanAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -478,25 +520,25 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`disabled`, () => {
-        testBooleanAttribute('disabled', undefined, undefined);
-        testBooleanAttribute('disabled', null, undefined);
+        expectBooleanAttribute('disabled', undefined, undefined);
+        expectBooleanAttribute('disabled', null, undefined);
       });
       it(`multiple`, () => {
-        testBooleanAttribute('multiple', undefined, undefined);
-        testBooleanAttribute('multiple', null, undefined);
+        expectBooleanAttribute('multiple', undefined, undefined);
+        expectBooleanAttribute('multiple', null, undefined);
       });
       it(`required`, () => {
-        testBooleanAttribute('required', undefined, undefined);
-        testBooleanAttribute('required', null, undefined);
+        expectBooleanAttribute('required', undefined, undefined);
+        expectBooleanAttribute('required', null, undefined);
       });
       it(`readOnly`, () => {
-        testBooleanAttribute('readOnly', undefined, undefined);
-        testBooleanAttribute('readOnly', null, undefined);
+        expectBooleanAttribute('readOnly', undefined, undefined);
+        expectBooleanAttribute('readOnly', null, undefined);
       });
     });
 
     describe('should update when prop is defined', () => {
-      function testBooleanAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectBooleanAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -505,23 +547,23 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`disabled should be added when set to true`, () => {
-        testBooleanAttribute('disabled', true, undefined);
+        expectBooleanAttributeDefined('disabled', true, undefined);
       });
       it(`multiple should be added when set to true`, () => {
-        testBooleanAttribute('multiple', true, undefined);
+        expectBooleanAttributeDefined('multiple', true, undefined);
       });
       it(`required should be added when set to true`, () => {
-        testBooleanAttribute('required', true, undefined);
+        expectBooleanAttributeDefined('required', true, undefined);
       });
       it(`readOnly should be added when set to true`, () => {
-        testBooleanAttribute('readOnly', true, undefined);
+        expectBooleanAttributeDefined('readOnly', true, undefined);
       });
     });
   });
 
   describe('min/max attributes', () => {
     describe('should not add attribute when prop is undefined or null', () => {
-      function testMinMaxAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectMinMaxAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -529,17 +571,17 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`min`, () => {
-        testMinMaxAttribute('min', undefined, undefined);
-        testMinMaxAttribute('min', null, undefined);
+        expectMinMaxAttribute('min', undefined, undefined);
+        expectMinMaxAttribute('min', null, undefined);
       });
       it(`max`, () => {
-        testMinMaxAttribute('max', undefined, undefined);
-        testMinMaxAttribute('max', null, undefined);
+        expectMinMaxAttribute('max', undefined, undefined);
+        expectMinMaxAttribute('max', null, undefined);
       });
     });
 
     describe('should update when prop is defined', () => {
-      function testMinMaxAttribute(propName: string, newValue: any, oldValue: any) {
+      function expectMinMaxAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
         setAccessor(inputElm, propName, oldValue, newValue, false, 0);
 
@@ -548,16 +590,20 @@ describe('setAccessor for inputs', () => {
       }
 
       it(`min should be added when set to 20`, () => {
-        testMinMaxAttribute('min', 20, undefined);
+        expectMinMaxAttributeDefined('min', 20, undefined);
       });
       it(`max should be added when set to 40`, () => {
-        testMinMaxAttribute('max', 40, undefined);
+        expectMinMaxAttributeDefined('max', 40, undefined);
       });
     });
   });
 });
 
 describe('setAccessor for standard html elements', () => {
+  beforeEach(() => {
+    BUILD.hydrateClientSide = true;
+  });
+
   describe('simple global attributes', () => {
     it('should not add attribute when prop is undefined or null', () => {
       const inputElm = document.createElement('section');
@@ -684,7 +730,7 @@ describe('setAccessor for standard html elements', () => {
               class2
        class3  `,
         false,
-        0
+        0,
       );
       expect(elm).toHaveClasses(['class1', 'class2', 'class3']);
     });
@@ -721,7 +767,7 @@ describe('setAccessor for standard html elements', () => {
            ion-color`,
         'icon2',
         false,
-        0
+        0,
       );
       expect(elm).toHaveClasses(['icon2']);
     });
@@ -749,6 +795,43 @@ describe('setAccessor for standard html elements', () => {
       setAccessor(elm, 'class', 'md', '', false, 0);
       expect(elm.className).toEqual('');
     });
+
+    it('should add scope classes on initial render if `s-si` set', () => {
+      const elm = document.createElement('section');
+
+      // not s-si set
+      setAccessor(elm, 'class', 'a-scope-id', undefined, false, 0, true);
+      expect(elm.className).toEqual('');
+
+      (elm as any)['s-si'] = 'a-scope-id';
+
+      setAccessor(elm, 'class', '', undefined, false, 0, true);
+      expect(elm.className).toEqual('a-scope-id');
+
+      setAccessor(
+        elm,
+        'class',
+        'a-scope-id-something a-scope-id-something-else unrelated-old-thing',
+        undefined,
+        false,
+        0,
+        true,
+      );
+      expect(elm.className).toEqual('a-scope-id a-scope-id-something a-scope-id-something-else');
+
+      elm.className = '';
+      setAccessor(elm, 'class', 'something-old', 'something-new', false, 0, true);
+      expect(elm.className).toEqual('something-new a-scope-id');
+
+      elm.className = '';
+      setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0, true);
+      expect(elm.className).toEqual('something-new a-scope-id a-scope-id-something');
+
+      // just check it reverts to normal behavior after initial render
+      elm.className = '';
+      setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0);
+      expect(elm.className).toEqual('something-new');
+    });
   });
 
   describe('style attribute', () => {
@@ -772,7 +855,7 @@ describe('setAccessor for standard html elements', () => {
           marginRight: '55px',
         },
         false,
-        0
+        0,
       );
       expect(elm.style.cssText).toEqual('font-size: 12px; margin-right: 55px;');
 
@@ -788,7 +871,7 @@ describe('setAccessor for standard html elements', () => {
           'font-size': '20px',
         },
         false,
-        0
+        0,
       );
 
       expect(elm.style.cssText).toEqual('font-size: 20px;');
@@ -805,7 +888,7 @@ describe('setAccessor for standard html elements', () => {
         { color: 'blue', 'font-size': '12px', paddingLeft: '88px' },
         { color: 'blue', 'font-size': '12px', paddingLeft: '88px' },
         false,
-        0
+        0,
       );
       expect(elm.style.cssText).toEqual('');
 
@@ -824,7 +907,7 @@ describe('setAccessor for standard html elements', () => {
         { color: 'blue', padding: '20px', marginRight: '88px' },
         { color: 'blue', padding: '30px', marginRight: '55px' },
         false,
-        0
+        0,
       );
 
       expect(elm.style.cssText).toEqual('color: black; padding: 30px; margin-right: 55px;');
@@ -844,6 +927,37 @@ describe('setAccessor for standard html elements', () => {
 
       setAccessor(elm, 'style', { margin: '20px' }, { margin: '30px', color: 'orange' }, false, 0);
       expect(elm.style.cssText).toEqual('margin: 30px; color: orange;');
+    });
+  });
+
+  it('uses setAttribute if element has not setter', () => {
+    const elm = document.createElement('button');
+    const spy = jest.spyOn(elm, 'setAttribute');
+    setAccessor(elm, 'form', undefined, 'some-form', false, 0);
+    expect(spy.mock.calls).toEqual([['form', 'some-form']]);
+
+    const elm2 = document.createElement('button');
+    const spy2 = jest.spyOn(elm2, 'setAttribute');
+    setAccessor(elm2, 'textContent', undefined, 'some-content', false, 0);
+    expect(spy2.mock.calls).toEqual([]);
+  });
+
+  describe('parseClassList', () => {
+    it('should parse class list', () => {
+      const classList = parseClassList('class1 class2 class3');
+      expect(classList).toEqual(['class1', 'class2', 'class3']);
+    });
+
+    it('should not parse class list', () => {
+      expect(parseClassList('')).toEqual([]);
+      // @ts-expect-error
+      expect(parseClassList()).toEqual([]);
+      expect(parseClassList(null)).toEqual([]);
+    });
+
+    it('should parse SVGAnimatedString', () => {
+      const classList = parseClassList({ baseVal: 'class1 class2 class3' } as SVGAnimatedString);
+      expect(classList).toEqual(['class1', 'class2', 'class3']);
     });
   });
 });

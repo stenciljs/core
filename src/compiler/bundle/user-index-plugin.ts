@@ -1,9 +1,10 @@
-import type * as d from '../../declarations';
+import { join } from '@utils';
 import type { Plugin } from 'rollup';
-import { USER_INDEX_ENTRY_ID } from './entry-alias-ids';
-import { join } from 'path';
 
-export const userIndexPlugin = (config: d.Config, compilerCtx: d.CompilerCtx): Plugin => {
+import type * as d from '../../declarations';
+import { USER_INDEX_ENTRY_ID } from './entry-alias-ids';
+
+export const userIndexPlugin = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx): Plugin => {
   return {
     name: 'userIndexPlugin',
 

@@ -1,0 +1,45 @@
+name: WebdriverIO Tests
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+jobs:
+  wdio_test:
+    name: Run WebdriverIO Component Tests (${{ matrix.browser }})
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        # browser: [CHROME, FIREFOX, EDGE]
+        browser: [CHROME, EDGE]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Use Node Version from Volta
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          # pull the version to use from the volta key in package.json
+          node-version-file: './test/wdio/package.json'
+          cache: 'npm'
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Run WebdriverIO Component Tests
+        run: npm run test.wdio
+        shell: bash
+        env:
+          BROWSER: ${{ matrix.browser }}
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context

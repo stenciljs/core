@@ -1,30 +1,35 @@
+import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '@utils';
+import MagicString from 'magic-string';
+import * as ts from 'typescript';
+
 import type * as d from '../../../declarations';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
-import { catchError, sortBy } from '@utils';
-import { getLazyBuildConditionals } from './lazy-build-conditionals';
-import { isOutputTargetDistLazy, isOutputTargetDist } from '../output-utils';
 import {
   LAZY_BROWSER_ENTRY_ID,
   LAZY_EXTERNAL_ENTRY_ID,
   STENCIL_APP_GLOBALS_ID,
   STENCIL_CORE_ID,
   STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID,
-  STENCIL_INTERNAL_CLIENT_PATCH_ESM_ID,
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
-import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
-import { generateCjs } from './generate-cjs';
-import { generateEsmBrowser } from './generate-esm-browser';
-import { generateEsm } from './generate-esm';
-import { generateSystem } from './generate-system';
-import { generateModuleGraph } from '../../entries/component-graph';
-import { removeCollectionImports } from '../../transformers/remove-collection-imports';
-import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
-import MagicString from 'magic-string';
 import { generateComponentBundles } from '../../entries/component-bundles';
+import { generateModuleGraph } from '../../entries/component-graph';
+import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
+import { removeCollectionImports } from '../../transformers/remove-collection-imports';
+import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
+import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
+import { generateCjs } from './generate-cjs';
+import { generateEsm } from './generate-esm';
+import { generateEsmBrowser } from './generate-esm-browser';
+import { generateSystem } from './generate-system';
+import { getLazyBuildConditionals } from './lazy-build-conditionals';
 
-export const outputLazy = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx): Promise<void> => {
+export const outputLazy = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): Promise<void> => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistLazy);
   if (outputTargets.length === 0) {
     return;
@@ -38,7 +43,7 @@ export const outputLazy = async (config: d.Config, compilerCtx: d.CompilerCtx, b
       id: 'lazy',
       platform: 'client',
       conditionals: getLazyBuildConditionals(config, buildCtx.components),
-      customTransformers: getLazyCustomTransformer(config, compilerCtx),
+      customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx),
       inlineWorkers: config.outputTargets.some(isOutputTargetDist),
       inputs: {
         [config.fsNamespace]: LAZY_BROWSER_ENTRY_ID,
@@ -93,7 +98,19 @@ export const outputLazy = async (config: d.Config, compilerCtx: d.CompilerCtx, b
   timespan.finish(`${bundleEventMessage} finished`);
 };
 
-const getLazyCustomTransformer = (config: d.Config, compilerCtx: d.CompilerCtx) => {
+/**
+ * Generate a collection of transformations that are to be applied as a part of the `before` step in the TypeScript
+ * compilation process.
+ #
+ * @param config the Stencil configuration associated with the current build
+ * @param compilerCtx the current compiler context
+ * @returns a collection of transformations that should be applied to the source code, intended for the `before` part
+ * of the pipeline
+ */
+const getCustomBeforeTransformers = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
     coreImportPath: STENCIL_CORE_ID,
     componentExport: 'lazy',
@@ -103,19 +120,31 @@ const getLazyCustomTransformer = (config: d.Config, compilerCtx: d.CompilerCtx) 
     style: 'static',
     styleImportData: 'queryparams',
   };
-  return [
-    updateStencilCoreImports(transformOpts.coreImportPath),
+  const customBeforeTransformers = [updateStencilCoreImports(transformOpts.coreImportPath)];
+
+  if (config.transformAliasedImportPaths) {
+    customBeforeTransformers.push(rewriteAliasedSourceFileImportPaths);
+  }
+
+  customBeforeTransformers.push(
     lazyComponentTransform(compilerCtx, transformOpts),
     removeCollectionImports(compilerCtx),
-  ];
+  );
+  return customBeforeTransformers;
 };
 
 /**
- * Generate entry modules to be used by the build process by determining how modules and components are connected
+ * Generate entry modules to be used by the build process by determining how
+ * modules and components are connected
+ *
+ * **Note**: this function mutates the {@link d.BuildCtx} object that is
+ * passed in to it, assigning the generated entry modules to the `entryModules`
+ * property
+ *
  * @param config the Stencil configuration file that was provided as a part of the build step
  * @param buildCtx the current build context
  */
-function generateEntryModules(config: d.Config, buildCtx: d.BuildCtx): void {
+function generateEntryModules(config: d.ValidatedConfig, buildCtx: d.BuildCtx): void {
   // figure out how modules and components connect
   try {
     const bundles = generateComponentBundles(config, buildCtx);
@@ -145,24 +174,22 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
 
 const getLazyEntry = (isBrowser: boolean): string => {
   const s = new MagicString(``);
+  s.append(`export { setNonce } from '${STENCIL_CORE_ID}';\n`);
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
 
   if (isBrowser) {
     s.append(`import { patchBrowser } from '${STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID}';\n`);
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
-    s.append(`patchBrowser().then(options => {\n`);
-    s.append(`  globalScripts();\n`);
+    s.append(`patchBrowser().then(async (options) => {\n`);
+    s.append(`  await globalScripts();\n`);
     s.append(`  return bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/], options);\n`);
     s.append(`});\n`);
   } else {
-    s.append(`import { patchEsm } from '${STENCIL_INTERNAL_CLIENT_PATCH_ESM_ID}';\n`);
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
-    s.append(`export const defineCustomElements = (win, options) => {\n`);
-    s.append(`  if (typeof window === 'undefined') return Promise.resolve();\n`);
-    s.append(`  return patchEsm().then(() => {\n`);
-    s.append(`    globalScripts();\n`);
-    s.append(`    return bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/], options);\n`);
-    s.append(`  });\n`);
+    s.append(`export const defineCustomElements = async (win, options) => {\n`);
+    s.append(`  if (typeof window === 'undefined') return undefined;\n`);
+    s.append(`  await globalScripts();\n`);
+    s.append(`  return bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/], options);\n`);
     s.append(`};\n`);
   }
 

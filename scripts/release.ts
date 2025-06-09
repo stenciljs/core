@@ -1,47 +1,84 @@
-import fs from 'fs-extra';
 import color from 'ansi-colors';
-import execa from 'execa';
-import inquirer from 'inquirer';
-import { getOptions, BuildOptions } from './utils/options';
-import { runReleaseTasks } from './release-tasks';
+import fs from 'fs-extra';
 import { join } from 'path';
-import {
-  SEMVER_INCREMENTS,
-  prettyVersionDiff,
-  isValidVersionInput,
-  getNewVersion,
-  isPrereleaseVersion,
-} from './utils/release-utils';
+
+import { runReleaseTasks } from './release-tasks';
+import { BuildOptions, getOptions } from './utils/options';
+import { getNewVersion } from './utils/release-utils';
+import { getLatestVermoji } from './utils/vermoji';
 
 /**
  * Runner for creating a release of Stencil
  * @param rootDir the root directory of the Stencil repository
  * @param args stringified arguments used to influence the release steps that are taken
+ * @returns a void promise
  */
 export async function release(rootDir: string, args: ReadonlyArray<string>): Promise<void> {
   const buildDir = join(rootDir, 'build');
-  const releaseDataPath = join(buildDir, 'release-data.json');
 
-  if (args.includes('--prepare')) {
+  if (args.includes('--ci-prepare')) {
     await fs.emptyDir(buildDir);
-    const opts = getOptions(rootDir, {
+    const prepareOpts = getOptions(rootDir, {
+      isCI: true,
       isPublishRelease: false,
       isProd: true,
     });
-    return prepareRelease(opts, args, releaseDataPath);
+
+    const versionIdx = args.indexOf('--version');
+    if (versionIdx === -1 || versionIdx === args.length) {
+      console.log(`\n${color.bold.red('No `--version [VERSION]` argument was found. Exiting')}\n`);
+      process.exit(1);
+    }
+    if (prepareOpts.packageJson.version) {
+      prepareOpts.version = getNewVersion(prepareOpts.packageJson.version, args[versionIdx + 1]);
+    }
+
+    await prepareRelease(prepareOpts, args);
+    console.log(`${color.bold.blue('Release Prepared!')}`);
   }
 
-  if (args.includes('--publish')) {
-    const releaseData = await fs.readJson(releaseDataPath);
-    const opts = getOptions(rootDir, {
-      buildId: releaseData.buildId,
-      version: releaseData.version,
-      vermoji: releaseData.vermoji,
-      isCI: releaseData.isCI,
-      isPublishRelease: true,
+  if (args.includes('--ci-publish')) {
+    const prepareOpts = getOptions(rootDir, {
+      isCI: true,
+      isPublishRelease: false,
       isProd: true,
     });
-    return publishRelease(opts, args);
+    // this was bumped already, we just need to copy it from package.json into this field
+    if (prepareOpts.packageJson.version) {
+      prepareOpts.version = prepareOpts.packageJson.version;
+    }
+
+    // we generated a vermoji during the preparation step, let's grab it from the changelog
+    prepareOpts.vermoji = getLatestVermoji(prepareOpts.changelogPath);
+
+    const tagIdx = args.indexOf('--tag');
+    let newTag = null;
+    if (tagIdx === -1 || tagIdx === args.length) {
+      console.log(`\n${color.bold.yellow('No `--tag [TAG]` argument was found.')}\n`);
+    } else if (args[tagIdx + 1] === 'use_pkg_json_version') {
+      console.log(
+        `\n${color.bold.green(
+          'The default package.json version will be used for the tag. No additional tags will be applied.',
+        )}\n`,
+      );
+    } else {
+      newTag = args[tagIdx + 1];
+      console.log(`\n${color.bold.green(`Set '--tag' argument to '${newTag}'.`)}\n`);
+    }
+
+    console.log(`${color.bold.blue(`Version: ${prepareOpts.version}`)}`);
+    console.log(`${color.bold.blue(`Tag: ${newTag}`)}`);
+
+    const publishOpts = getOptions(rootDir, {
+      buildId: prepareOpts.buildId,
+      version: prepareOpts.version,
+      vermoji: prepareOpts.vermoji,
+      isCI: prepareOpts.isCI,
+      isPublishRelease: true,
+      isProd: true,
+      tag: newTag ?? undefined,
+    });
+    return await publishRelease(publishOpts, args);
   }
 }
 
@@ -49,169 +86,42 @@ export async function release(rootDir: string, args: ReadonlyArray<string>): Pro
  * Prepares a release of Stencil
  * @param opts build options containing the metadata needed to release a new version of Stencil
  * @param args stringified arguments used to influence the release steps that are taken
- * @param releaseDataPath the fully qualified path of `release-data.json` to write to disk during this step
  */
-async function prepareRelease(opts: BuildOptions, args: ReadonlyArray<string>, releaseDataPath: string): Promise<void> {
+async function prepareRelease(opts: BuildOptions, args: ReadonlyArray<string>): Promise<void> {
   const pkg = opts.packageJson;
   const oldVersion = opts.packageJson.version;
   console.log(
-    `\nPrepare to publish ${opts.vermoji}  ${color.bold.magenta(pkg.name)} ${color.dim(`(currently ${oldVersion})`)}\n`
+    `\nPrepare to publish ${opts.vermoji}  ${color.bold.magenta(pkg.name)} ${color.dim(`(currently ${oldVersion})`)}\n`,
   );
 
-  const NON_SERVER_INCREMENTS: ReadonlyArray<{ name: string; value: string }> = [
-    {
-      name: 'Dry Run',
-      value: getNewVersion(oldVersion, 'patch') + '-dryrun',
-    },
-    {
-      name: 'Other (specify)',
-      value: null,
-    },
-  ];
-
-  const prompts = [
-    {
-      type: 'list',
-      name: 'version',
-      message: 'Select semver increment or specify new version',
-      pageSize: SEMVER_INCREMENTS.length + NON_SERVER_INCREMENTS.length,
-      choices: SEMVER_INCREMENTS.map((inc) => ({
-        name: `${inc}   ${prettyVersionDiff(oldVersion, inc)}`,
-        value: inc,
-      })).concat([new inquirer.Separator() as any, ...NON_SERVER_INCREMENTS]),
-      filter: (input: string) => (isValidVersionInput(input) ? getNewVersion(oldVersion, input) : input),
-    },
-    {
-      type: 'input',
-      name: 'version',
-      message: 'Version',
-      when: (answers: any) => !answers.version,
-      filter: (input: string) => (isValidVersionInput(input) ? getNewVersion(pkg.version, input) : input),
-      validate: (input: string) => {
-        if (!isValidVersionInput(input)) {
-          return 'Please specify a valid semver, for example, `1.2.3`. See http://semver.org';
-        }
-        return true;
-      },
-    },
-    {
-      type: 'confirm',
-      name: 'confirm',
-      message: (answers: any) => {
-        return `Prepare release ${opts.vermoji}  ${color.yellow(answers.version)} from ${oldVersion}. Continue?`;
-      },
-    },
-  ];
-
-  await inquirer
-    .prompt(prompts)
-    .then((answers) => {
-      if (answers.confirm) {
-        opts.version = answers.version;
-        // write `release-data.json`
-        fs.writeJsonSync(releaseDataPath, opts, { spaces: 2 });
-        runReleaseTasks(opts, args);
-      }
-    })
-    .catch((err) => {
-      console.log('\n', color.red(err), '\n');
-      process.exit(0);
-    });
+  try {
+    await runReleaseTasks(opts, args);
+  } catch (err: any) {
+    console.log('\n', color.red(err), '\n');
+    process.exit(0);
+  }
 }
 
 /**
- * Initiates the publish of a Stencil release.
+ * Initiates publishing a Stencil release.
  * @param opts build options containing the metadata needed to publish a new version of Stencil
- * @param args stringified arguments used to influence the publish steps that are taken
+ * @param args stringified arguments used to influence the steps that are taken
+ * @returns a void promise
  */
 async function publishRelease(opts: BuildOptions, args: ReadonlyArray<string>): Promise<void> {
   const pkg = opts.packageJson;
-
   if (opts.version !== pkg.version) {
-    throw new Error('Prepare release data and package.json versions do not match. Try re-running release prepare.');
+    throw new Error(
+      `Prepare release data (${opts.version}) and package.json (${pkg.version}) versions do not match. Try re-running release prepare.`,
+    );
   }
 
   console.log(`\nPublish ${opts.vermoji}  ${color.bold.magenta(pkg.name)} ${color.yellow(`${opts.version}`)}\n`);
 
-  const prompts = [
-    {
-      type: 'list',
-      name: 'tag',
-      message: 'How should this pre-release version be tagged in npm?',
-      when: () => isPrereleaseVersion(opts.version),
-      choices: () =>
-        execa('npm', ['view', '--json', pkg.name, 'dist-tags']).then(({ stdout }) => {
-          const existingPrereleaseTags = Object.keys(JSON.parse(stdout))
-            .filter((tag) => tag !== 'latest')
-            .map((tag) => {
-              return {
-                name: tag,
-                value: tag,
-              };
-            });
-
-          if (existingPrereleaseTags.length === 0) {
-            existingPrereleaseTags.push({
-              name: 'next',
-              value: 'next',
-            });
-          }
-
-          return existingPrereleaseTags.concat([
-            new inquirer.Separator() as any,
-            {
-              name: 'Other (specify)',
-              value: null,
-            },
-          ]);
-        }),
-    },
-    {
-      type: 'input',
-      name: 'tag',
-      message: 'Tag',
-      when: (answers: any) => !pkg.private && isPrereleaseVersion(opts.version) && !answers.tag,
-      validate: (input: any) => {
-        if (input.length === 0) {
-          return 'Please specify a tag, for example, `next`.';
-        } else if (input.toLowerCase() === 'latest') {
-          return "It's not possible to publish pre-releases under the `latest` tag. Please specify something else, for example, `next`.";
-        }
-        return true;
-      },
-    },
-    {
-      type: 'confirm',
-      name: 'confirm',
-      message: (answers: any) => {
-        opts.tag = answers.tag;
-        const tagPart = opts.tag ? ` and tag this release in npm as ${color.yellow(opts.tag)}` : '';
-        return `Will publish ${opts.vermoji}  ${color.yellow(opts.version)}${tagPart}. Continue?`;
-      },
-    },
-    {
-      type: 'input',
-      name: 'otp',
-      message: 'Enter OTP:',
-      validate: (input: any) => {
-        if (input.length !== 6) {
-          return 'Please enter a valid one-time password.';
-        }
-        return true;
-      },
-    },
-  ];
-
-  await inquirer
-    .prompt(prompts)
-    .then((answers) => {
-      if (answers.confirm) {
-        opts.otp = answers.otp;
-        runReleaseTasks(opts, args);
-      }
-    })
-    .catch((err) => {
-      console.log('\n', color.red(err), '\n');
-      process.exit(0);
-    });
+  try {
+    await runReleaseTasks(opts, args);
+  } catch (err: any) {
+    console.log('\n', color.red(err), '\n');
+    process.exit(0);
+  }
 }

@@ -1,15 +1,17 @@
-import type * as d from '../../../declarations';
-import { known404Urls } from './fetch-utils';
 import { isString } from '@utils';
+
+import type * as d from '../../../declarations';
+import { InMemoryFileSystem } from '../in-memory-fs';
+import { known404Urls } from './fetch-utils';
 import { skipFilePathFetch, skipUrlFetch } from './fetch-utils';
 import { writeFetchSuccessSync } from './write-fetch-success';
 
 export const fetchModuleSync = (
   sys: d.CompilerSystem,
-  inMemoryFs: d.InMemoryFileSystem,
+  inMemoryFs: InMemoryFileSystem,
   pkgVersions: Map<string, string>,
   url: string,
-  filePath: string
+  filePath: string,
 ) => {
   if (skipFilePathFetch(filePath)) {
     return undefined;

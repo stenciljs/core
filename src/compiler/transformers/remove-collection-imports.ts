@@ -1,5 +1,6 @@
-import type * as d from '../../declarations';
 import ts from 'typescript';
+
+import type * as d from '../../declarations';
 
 export const removeCollectionImports = (compilerCtx: d.CompilerCtx): ts.TransformerFactory<ts.SourceFile> => {
   /*
@@ -32,7 +33,7 @@ export const removeCollectionImports = (compilerCtx: d.CompilerCtx): ts.Transfor
             if (isCollectionImport) {
               // turns out this is a side effect import is a collection,
               // we actually don't want to include this in the JS output
-              // we've already gather the types we needed, kthxbai
+              // we've already gathered the types we needed, kthxbai
               madeUpdates = true;
               statements.splice(i, 1);
             }
@@ -41,7 +42,7 @@ export const removeCollectionImports = (compilerCtx: d.CompilerCtx): ts.Transfor
       }
 
       if (madeUpdates) {
-        return ts.updateSourceFileNode(tsSourceFile, statements);
+        return ts.factory.updateSourceFile(tsSourceFile, statements);
       }
       return tsSourceFile;
     };

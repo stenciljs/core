@@ -56,13 +56,16 @@ describe('parse comments', () => {
       reflect: false,
       required: false,
       type: 'string',
+      getter: false,
+      setter: false,
     });
     expect(t.method).toEqual({
       complexType: {
         parameters: [
           {
-            tags: [],
-            text: '',
+            name: 'prop',
+            type: 'string',
+            docs: '',
           },
         ],
         return: 'unknown',

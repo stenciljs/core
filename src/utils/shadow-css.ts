@@ -5,15 +5,16 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  *
- * This file is a port of shadowCSS from webcomponents.js to TypeScript.
+ * This file is a port of shadowCSS from `webcomponents.js` to TypeScript.
  * https://github.com/webcomponents/webcomponentsjs/blob/4efecd7e0e/src/ShadowCSS/ShadowCSS.js
  * https://github.com/angular/angular/blob/master/packages/compiler/src/shadow_css.ts
  */
 
+import { escapeRegExpSpecialCharacters } from './regular-expression';
+
 const safeSelector = (selector: string) => {
   const placeholders: string[] = [];
   let index = 0;
-  let content: string;
 
   // Replaces attribute selectors with placeholders.
   // The WS in [attr="va lue"] would otherwise be interpreted as a selector separator.
@@ -26,7 +27,7 @@ const safeSelector = (selector: string) => {
 
   // Replaces the expression in `:nth-child(2n + 1)` with a placeholder.
   // WS and "+" would otherwise be interpreted as selector separators.
-  content = selector.replace(/(:nth-[-\w]+)(\([^)]+\))/g, (_, pseudo, exp) => {
+  const content = selector.replace(/(:nth-[-\w]+)(\([^)]+\))/g, (_, pseudo, exp) => {
     const replaceBy = `__ph-${index}__`;
     placeholders.push(exp);
     index++;
@@ -73,9 +74,47 @@ const _shadowDOMSelectorsRe = [/::shadow/g, /::content/g];
 
 const _selectorReSuffix = '([>\\s~+[.,{:][\\s\\S]*)?$';
 const _polyfillHostRe = /-shadowcsshost/gim;
-const _colonHostRe = /:host/gim;
-const _colonSlottedRe = /::slotted/gim;
-const _colonHostContextRe = /:host-context/gim;
+
+/**
+ * Little helper for generating a regex that will match a specified
+ * CSS selector when that selector is _not_ a part of a `@supports` rule.
+ *
+ * The pattern will match the provided `selector` (i.e. ':host', ':host-context', etc.)
+ * when that selector is not a part of a `@supports` selector rule _or_ if the selector
+ * is a part of the rule's declaration.
+ *
+ * For instance, if we create the regex with the selector ':host-context':
+ * - '@supports selector(:host-context())' will return no matches (starts with '@supports')
+ * - '@supports selector(:host-context()) { :host-context() { ... }}' will match the second ':host-context' (part of declaration)
+ * - ':host-context() { ... }' will match ':host-context' (selector is not a '@supports' rule)
+ * - ':host() { ... }' will return no matches (selector doesn't match selector used to create regex)
+ *
+ * @param selector The CSS selector we want to match for replacement
+ * @returns A look-behind regex containing the selector
+ */
+const createSupportsRuleRe = (selector: string) => {
+  // We need to match any occurrence of the selector that's NOT inside @supports selector(...)
+  const safeSelector = escapeRegExpSpecialCharacters(selector);
+
+  // This regex needs to:
+  // 1. Skip selectors inside @supports selector(...) rule conditions
+  // 2. Match selectors in normal CSS rules
+  // 3. Match selectors inside declaration blocks of @supports rules
+
+  // To avoid matching selectors inside @supports selector() conditions, we need to carefully
+  // construct the pattern to look for context that indicates we're NOT inside such a condition.
+  return new RegExp(
+    // First capture group: match any context before the selector that's not inside @supports selector()
+    // Using negative lookahead to avoid matching inside @supports selector(...) condition
+    `(^|[^@]|@(?!supports\\s+selector\\s*\\([^{]*?${safeSelector}))` +
+      // Then match the selector
+      `(${safeSelector}\\b)`,
+    'g',
+  );
+};
+const _colonSlottedRe = createSupportsRuleRe('::slotted');
+const _colonHostRe = createSupportsRuleRe(':host');
+const _colonHostContextRe = createSupportsRuleRe(':host-context');
 
 const _commentRe = /\/\*\s*[\s\S]*?\*\//g;
 
@@ -154,12 +193,73 @@ const escapeBlocks = (input: string) => {
   return strEscapedBlocks;
 };
 
-const insertPolyfillHostInCssText = (selector: string) => {
-  selector = selector
-    .replace(_colonHostContextRe, _polyfillHostContext)
-    .replace(_colonHostRe, _polyfillHost)
-    .replace(_colonSlottedRe, _polyfillSlotted);
-  return selector;
+/**
+ * Replaces certain strings within the CSS with placeholders
+ * that will later be replaced with class selectors appropriate
+ * for the level of encapsulation (shadow or scoped).
+ *
+ * When performing these replacements, we want to ignore selectors that are a
+ * part of an `@supports` rule. Replacing these selectors will result in invalid
+ * CSS that gets passed to autoprefixer/postcss once the placeholders are replaced.
+ * For example, a rule like:
+ *
+ * ```css
+ * @supports selector(:host()) {
+ *   :host {
+ *     color: red;
+ *   }
+ * }
+ * ```
+ *
+ * Should be converted to:
+ *
+ * ```css
+ * @supports selector(:host()) {
+ *   -shadowcsshost {
+ *     color: red;
+ *   }
+ * }
+ * ```
+ *
+ * The order the regex replacements happen in matters since we match
+ * against a whole selector word so we need to match all of `:host-context`
+ * before we try to replace `:host`. Otherwise the pattern for `:host` would match
+ * `:host-context` resulting in something like `:-shadowcsshost-context`.
+ *
+ * @param cssText A CSS string for a component
+ * @returns The modified CSS string
+ */
+const insertPolyfillHostInCssText = (cssText: string) => {
+  // Special handling for @supports selector() rules
+  // We need to preserve the original selector in the condition but replace it in the declaration
+  const supportsBlocks: string[] = [];
+
+  // First, extract and preserve @supports selector(...) conditions
+  cssText = cssText.replace(/@supports\s+selector\s*\(\s*([^)]*)\s*\)/g, (_, selectorContent) => {
+    const placeholder = `__supports_${supportsBlocks.length}__`;
+    supportsBlocks.push(selectorContent);
+    return `@supports selector(${placeholder})`;
+  });
+
+  // These replacements use a special syntax with the `$1`. When the replacement
+  // occurs, `$1` maps to the content of the string leading up to the selector
+  // to be replaced.
+  //
+  // Otherwise, we will replace all the preceding content in addition to the
+  // selector because of the lookbehind in the regex.
+  //
+  // e.g. `/*!@___0___*/:host {}` => `/*!@___0___*/--shadowcsshost {}`
+  cssText = cssText
+    .replace(_colonHostContextRe, `$1${_polyfillHostContext}`)
+    .replace(_colonHostRe, `$1${_polyfillHost}`)
+    .replace(_colonSlottedRe, `$1${_polyfillSlotted}`);
+
+  // Now restore the original @supports selector conditions
+  supportsBlocks.forEach((originalSelector, index) => {
+    cssText = cssText.replace(`__supports_${index}__`, originalSelector);
+  });
+
+  return cssText;
 };
 
 const convertColonRule = (cssText: string, regExp: RegExp, partReplacer: Function) => {
@@ -215,9 +315,9 @@ const convertColonSlotted = (cssText: string, slotScopeId: string) => {
         prefixSelector = char + prefixSelector;
       }
 
-      const orgSelector = prefixSelector + slottedSelector;
-      const addedSelector = `${prefixSelector.trimRight()}${slottedSelector.trim()}`;
-      if (orgSelector.trim() !== addedSelector.trim()) {
+      const orgSelector = (prefixSelector + slottedSelector).trim();
+      const addedSelector = `${prefixSelector.trimEnd()}${slottedSelector.trim()}`.trim();
+      if (orgSelector !== addedSelector) {
         const updatedSelector = `${addedSelector}, ${orgSelector}`;
         selectors.push({
           orgSelector,
@@ -364,7 +464,7 @@ const scopeSelectors = (
   scopeSelectorText: string,
   hostSelector: string,
   slotSelector: string,
-  commentOriginalSelector: boolean
+  commentOriginalSelector: boolean,
 ) => {
   return processRules(cssText, (rule: CssRule) => {
     let selector = rule.selector;
@@ -393,7 +493,7 @@ const scopeCssText = (
   scopeId: string,
   hostScopeId: string,
   slotScopeId: string,
-  commentOriginalSelector: boolean
+  commentOriginalSelector: boolean,
 ) => {
   cssText = insertPolyfillHostInCssText(cssText);
   cssText = convertColonHost(cssText);
@@ -407,13 +507,30 @@ const scopeCssText = (
     cssText = scopeSelectors(cssText, scopeId, hostScopeId, slotScopeId, commentOriginalSelector);
   }
 
-  cssText = cssText.replace(/-shadowcsshost-no-combinator/g, `.${hostScopeId}`);
+  cssText = replaceShadowCssHost(cssText, hostScopeId);
   cssText = cssText.replace(/>\s*\*\s+([^{, ]+)/gm, ' $1 ');
 
   return {
     cssText: cssText.trim(),
-    slottedSelectors: slotted.selectors,
+    // We need to replace the shadow CSS host string in each of these selectors since we created
+    // them prior to the replacement happening in the components CSS text.
+    slottedSelectors: slotted.selectors.map((ref) => ({
+      orgSelector: replaceShadowCssHost(ref.orgSelector, hostScopeId),
+      updatedSelector: replaceShadowCssHost(ref.updatedSelector, hostScopeId),
+    })),
   };
+};
+
+/**
+ * Helper function that replaces the interim string representing a `:host` selector with
+ * the host scope selector class for the element.
+ *
+ * @param cssText The CSS string to make the replacement in
+ * @param hostScopeId The scope ID that will be used as the class representing the host element
+ * @returns CSS with the selector replaced
+ */
+const replaceShadowCssHost = (cssText: string, hostScopeId: string) => {
+  return cssText.replace(/-shadowcsshost-no-combinator/g, `.${hostScopeId}`);
 };
 
 export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelector: boolean) => {
@@ -464,7 +581,8 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
   }
 
   scoped.slottedSelectors.forEach((slottedSelector) => {
-    cssText = cssText.replace(slottedSelector.orgSelector, slottedSelector.updatedSelector);
+    const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector), 'g');
+    cssText = cssText.replace(regex, slottedSelector.updatedSelector);
   });
 
   return cssText;

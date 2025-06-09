@@ -1,4 +1,5 @@
 import { Component, h } from '@stencil/core';
+
 import styles from './prerender-cmp.css';
 
 @Component({

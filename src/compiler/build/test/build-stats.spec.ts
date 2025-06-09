@@ -1,16 +1,17 @@
 import type * as d from '@stencil/core/declarations';
-import { mockConfig, mockCompilerCtx, mockBuildCtx } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { result } from '@utils';
+
 import { generateBuildResults } from '../build-results';
 import { generateBuildStats } from '../build-stats';
-import path from 'path';
 
 describe('generateBuildStats', () => {
-  const root = path.resolve('/');
-  const config = mockConfig();
+  let config: d.ValidatedConfig;
   let compilerCtx: d.CompilerCtx;
   let buildCtx: d.BuildCtx;
 
   beforeEach(() => {
+    config = mockValidatedConfig();
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
   });
@@ -18,18 +19,18 @@ describe('generateBuildStats', () => {
   it('should return a structured json object', async () => {
     buildCtx.buildResults = generateBuildResults(config, compilerCtx, buildCtx);
 
-    const result: d.CompilerBuildStats = generateBuildStats(config, buildCtx);
+    const compilerBuildStats = result.unwrap(generateBuildStats(config, buildCtx));
 
-    if (result.hasOwnProperty('timestamp')) {
-      delete result.timestamp;
+    if (compilerBuildStats.hasOwnProperty('timestamp')) {
+      delete compilerBuildStats.timestamp;
     }
 
-    if (result.hasOwnProperty('compiler') && result.compiler.hasOwnProperty('version')) {
-      delete result.compiler.version;
+    if (compilerBuildStats.hasOwnProperty('compiler') && compilerBuildStats.compiler.hasOwnProperty('version')) {
+      delete compilerBuildStats.compiler.version;
     }
 
-    expect(result).toStrictEqual({
-      app: { bundles: 0, components: 0, entries: 0, fsNamespace: undefined, namespace: 'Testing', outputs: [] },
+    expect(compilerBuildStats).toStrictEqual({
+      app: { bundles: 0, components: 0, entries: 0, fsNamespace: 'testing', namespace: 'Testing', outputs: [] },
       collections: [],
       compiler: { name: 'in-memory' },
       componentGraph: {},
@@ -39,11 +40,13 @@ describe('generateBuildStats', () => {
       options: {
         buildEs5: false,
         hashFileNames: false,
-        hashedFileNameLength: undefined,
+        hashedFileNameLength: 8,
         minifyCss: false,
         minifyJs: false,
       },
-      rollupResults: undefined,
+      rollupResults: {
+        modules: [],
+      },
       sourceGraph: {},
     });
   });
@@ -52,12 +55,17 @@ describe('generateBuildStats', () => {
     buildCtx.buildResults = generateBuildResults(config, compilerCtx, buildCtx);
 
     buildCtx.buildResults.hasError = true;
-    buildCtx.buildResults.diagnostics = ['Something bad happened'];
+    const diagnostic: d.Diagnostic = {
+      level: 'error',
+      type: 'horrible',
+      messageText: 'the worst error _possible_ has just occurred',
+      lines: [],
+    };
+    buildCtx.buildResults.diagnostics = [diagnostic];
+    const diagnostics = result.unwrapErr(generateBuildStats(config, buildCtx));
 
-    const result = generateBuildStats(config, buildCtx);
-
-    expect(result).toStrictEqual({
-      diagnostics: ['Something bad happened'],
+    expect(diagnostics).toStrictEqual({
+      diagnostics: [diagnostic],
     });
   });
 });

@@ -1,8 +1,9 @@
+import type { Diagnostic, DiagnosticMessageChain, Node } from 'typescript';
+
 import type * as d from '../../declarations';
 import { isIterable } from '../helpers';
-import { normalizePath } from '../normalize-path';
+import { normalizePath } from '../path';
 import { splitLineBreaks } from './logger-utils';
-import type { Diagnostic, DiagnosticMessageChain, Node } from 'typescript';
 
 /**
  * Augment a `Diagnostic` with information from a `Node` in the AST to provide richer error information
@@ -92,24 +93,33 @@ export const loadTypeScriptDiagnostics = (tsDiagnostics: readonly Diagnostic[]) 
   return diagnostics;
 };
 
-export const loadTypeScriptDiagnostic = (tsDiagnostic: Diagnostic) => {
+/**
+ * Convert a TypeScript diagnostic object into our internal, Stencil-specific
+ * diagnostic format
+ *
+ * @param tsDiagnostic a TypeScript diagnostic message record
+ * @returns a Stencil diagnostic, suitable for showing an error to the user
+ */
+export const loadTypeScriptDiagnostic = (tsDiagnostic: Diagnostic): d.Diagnostic => {
   const d: d.Diagnostic = {
-    level: 'warn',
-    type: 'typescript',
-    language: 'typescript',
-    header: 'TypeScript',
+    absFilePath: undefined,
     code: tsDiagnostic.code.toString(),
-    messageText: flattenDiagnosticMessageText(tsDiagnostic, tsDiagnostic.messageText),
-    relFilePath: null,
-    absFilePath: null,
+    columnNumber: undefined,
+    header: 'TypeScript',
+    language: 'typescript',
+    level: 'warn',
+    lineNumber: undefined,
     lines: [],
+    messageText: flattenDiagnosticMessageText(tsDiagnostic, tsDiagnostic.messageText),
+    relFilePath: undefined,
+    type: 'typescript',
   };
 
   if (tsDiagnostic.category === 1) {
     d.level = 'error';
   }
 
-  if (tsDiagnostic.file) {
+  if (tsDiagnostic.file && typeof tsDiagnostic.start === 'number') {
     d.absFilePath = tsDiagnostic.file.fileName;
 
     const sourceText = tsDiagnostic.file.text;
@@ -122,7 +132,7 @@ export const loadTypeScriptDiagnostic = (tsDiagnostic: Diagnostic) => {
       lineNumber: posData.line + 1,
       text: srcLines[posData.line],
       errorCharStart: posData.character,
-      errorLength: Math.max(tsDiagnostic.length, 1),
+      errorLength: Math.max(tsDiagnostic.length ?? 0, 1),
     };
 
     d.lineNumber = errorLine.lineNumber;
@@ -163,7 +173,18 @@ export const loadTypeScriptDiagnostic = (tsDiagnostic: Diagnostic) => {
   return d;
 };
 
-const flattenDiagnosticMessageText = (tsDiagnostic: Diagnostic, diag: string | DiagnosticMessageChain | undefined) => {
+/**
+ * Flatten a TypeScript diagnostic object into a string which can be easily
+ * included in a Stencil diagnostic record.
+ *
+ * @param tsDiagnostic a TypeScript diagnostic record
+ * @param diag a {@link DiagnosticMessageChain} or a string with further info
+ * @returns a string with the relevant error message
+ */
+const flattenDiagnosticMessageText = (
+  tsDiagnostic: Diagnostic,
+  diag: string | DiagnosticMessageChain | undefined,
+): string => {
   if (typeof diag === 'string') {
     return diag;
   } else if (diag === undefined) {
@@ -171,7 +192,8 @@ const flattenDiagnosticMessageText = (tsDiagnostic: Diagnostic, diag: string | D
   }
 
   const ignoreCodes: number[] = [];
-  const isStencilConfig = tsDiagnostic.file.fileName.includes('stencil.config');
+  // `tsDiagnostic.file` can be `undefined`, so we need to be a little careful here
+  const isStencilConfig = (tsDiagnostic.file?.fileName ?? '').includes('stencil.config');
   if (isStencilConfig) {
     ignoreCodes.push(2322);
   }

@@ -1,0 +1,40 @@
+name: Build Stencil
+
+on:
+  workflow_call:
+  # Make this a reusable workflow, no value needed
+  # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+jobs:
+  build_core:
+    name: Core
+    strategy:
+      matrix:
+        os: ['ubuntu-22.04', 'windows-latest']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Core Build
+        run: npm run build -- --ci
+        shell: bash
+
+      - name: Validate Build
+        run: npm run test.dist
+        shell: bash
+
+      - name: Validate Testing
+        run: npm run test.testing
+        shell: bash
+
+      - name: Upload Build Artifacts
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        uses: ./.github/workflows/actions/upload-archive
+        with:
+          name: stencil-core
+          output: stencil-core-build.zip
+          paths: cli compiler dev-server internal mock-doc scripts/build screenshot sys testing

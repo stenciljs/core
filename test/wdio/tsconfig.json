@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "resolveJsonModule": false,
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "lib": [
+      "dom",
+      "ES2021"
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "Node16",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "useUnknownInCatchVariables": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@stencil/core": ["../../internal"],
+      "@stencil/core/internal": ["../../internal"],
+      "@test-sibling": ["./test-sibling"]
+    }
+  },
+  "include": [
+    "."
+  ]
+}

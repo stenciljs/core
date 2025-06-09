@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig-stencil.json",
+  "include": ["invisible-prehydration"],
+  "exclude": ["invisible-prehydration/*.test.tsx"]
+}

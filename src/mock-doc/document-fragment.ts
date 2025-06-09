@@ -1,6 +1,7 @@
-import { MockElement, MockHTMLElement } from './node';
 import { NODE_NAMES, NODE_TYPES } from './constants';
+import { MockCSSStyleSheet } from './css-style-sheet';
 import { getElementById } from './document';
+import { MockElement, MockHTMLElement } from './node';
 
 export class MockDocumentFragment extends MockHTMLElement {
   constructor(ownerDocument: any) {
@@ -11,6 +12,14 @@ export class MockDocumentFragment extends MockHTMLElement {
 
   getElementById(id: string): MockElement {
     return getElementById(this, id);
+  }
+
+  get adoptedStyleSheets(): MockCSSStyleSheet[] {
+    return [];
+  }
+
+  set adoptedStyleSheets(_adoptedStyleSheets: MockCSSStyleSheet[]) {
+    throw new Error('Unimplemented');
   }
 
   override cloneNode(deep?: boolean) {

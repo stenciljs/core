@@ -1,15 +1,16 @@
-import type * as d from '../../../declarations';
-import { ConvertIdentifier, getStaticValue } from '../transform-utils';
 import { DEFAULT_STYLE_MODE, sortBy } from '@utils';
-import { normalizeStyles } from '../../style/normalize-styles';
 import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { normalizeStyles } from '../../style/normalize-styles';
+import { ConvertIdentifier, getStaticValue } from '../transform-utils';
 
 export const parseStaticStyles = (
   compilerCtx: d.CompilerCtx,
   tagName: string,
   componentFilePath: string,
   isCollectionDependency: boolean,
-  staticMembers: ts.ClassElement[]
+  staticMembers: ts.ClassElement[],
 ) => {
   const styles: d.StyleCompiler[] = [];
   const styleUrlsProp = isCollectionDependency ? 'styleUrls' : 'originalStyleUrls';

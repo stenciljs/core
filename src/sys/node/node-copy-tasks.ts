@@ -1,8 +1,9 @@
-import type * as d from '../../declarations';
 import { buildError, catchError, flatOne, isGlob, normalizePath } from '@utils';
-import { copyFile, mkdir, readdir, stat } from './node-fs-promisify';
+import { glob } from 'glob';
 import path from 'path';
-import glob from 'glob';
+
+import type * as d from '../../declarations';
+import { copyFile, mkdir, readdir, stat } from './node-fs-promisify';
 
 export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: string) {
   const results: d.CopyResults = {
@@ -51,6 +52,7 @@ async function processGlobs(copyTask: Required<d.CopyTask>, srcDir: string): Pro
           src: getSrcAbsPath(srcDir, copyTask.src),
           dest: copyTask.keepDirStructure ? path.join(copyTask.dest, copyTask.src) : copyTask.dest,
           warn: copyTask.warn,
+          ignore: copyTask.ignore,
           keepDirStructure: copyTask.keepDirStructure,
         },
       ];
@@ -67,6 +69,7 @@ async function processGlobTask(copyTask: Required<d.CopyTask>, srcDir: string): 
   const files = await asyncGlob(copyTask.src, {
     cwd: srcDir,
     nodir: true,
+    ignore: copyTask.ignore,
   });
   return files.map((globRelPath) => createGlobCopyTask(copyTask, srcDir, globRelPath));
 }
@@ -76,6 +79,7 @@ function createGlobCopyTask(copyTask: Required<d.CopyTask>, srcDir: string, glob
   return {
     src: path.join(srcDir, globRelPath),
     dest,
+    ignore: copyTask.ignore,
     warn: copyTask.warn,
     keepDirStructure: copyTask.keepDirStructure,
   };
@@ -89,13 +93,13 @@ async function processCopyTask(results: d.CopyResults, allCopyTasks: d.CopyTask[
     // get the stats for this src to see if it's a directory or not
     const stats = await stat(copyTask.src);
     if (stats.isDirectory()) {
-      // still a directory, keep diggin down
+      // still a directory, keep digging down
       if (!results.dirPaths.includes(copyTask.dest)) {
         results.dirPaths.push(copyTask.dest);
       }
 
       await processCopyTaskDirectory(results, allCopyTasks, copyTask);
-    } else if (!shouldIgnore(copyTask.src)) {
+    } else if (!shouldIgnore(copyTask)) {
       // this is a file we should copy
       if (!results.filePaths.includes(copyTask.dest)) {
         results.filePaths.push(copyTask.dest);
@@ -126,7 +130,7 @@ async function processCopyTaskDirectory(results: d.CopyResults, allCopyTasks: d.
         };
 
         await processCopyTask(results, allCopyTasks, subCopyTask);
-      })
+      }),
     );
   } catch (e: any) {
     catchError(results.diagnostics, e);
@@ -168,22 +172,11 @@ function addMkDir(mkDirs: string[], destDir: string) {
 
 const ROOT_DIR = normalizePath(path.resolve('/'));
 
-function shouldIgnore(filePath: string) {
-  filePath = filePath.trim().toLowerCase();
-  return IGNORE.some((ignoreFile) => filePath.endsWith(ignoreFile));
+function shouldIgnore({ src, ignore = [] }: d.CopyTask) {
+  const filePath = src.trim().toLowerCase();
+  return ignore.some((ignoreFile) => filePath.endsWith(ignoreFile));
 }
 
-const IGNORE = ['.ds_store', '.gitignore', 'desktop.ini', 'thumbs.db'];
-
 export function asyncGlob(pattern: string, opts: any) {
-  return new Promise<string[]>((resolve, reject) => {
-    const g: typeof glob = (glob as any).glob;
-    g(pattern, opts, (err: any, files: string[]) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(files);
-      }
-    });
-  });
+  return glob(pattern, opts);
 }

@@ -1,7 +1,7 @@
 import type * as d from '../declarations';
-import * as c from './dev-server-constants';
-import contentTypes from './content-types-db.json';
 import { version } from '../version';
+import contentTypes from './content-types-db.json';
+import * as c from './dev-server-constants';
 
 export function responseHeaders(headers: d.DevResponseHeaders, httpCache = false): any {
   headers = { ...DEFAULT_HEADERS, ...headers };
@@ -90,7 +90,7 @@ export function isSsrStaticDataPath(pathname: string) {
 
 export function getSsrStaticDataPath(req: d.HttpRequest) {
   const parts = req.url.href.split('/');
-  let fileName = parts[parts.length - 1];
+  const fileName = parts[parts.length - 1];
   const fileNameParts = fileName.split('?');
 
   parts.pop();

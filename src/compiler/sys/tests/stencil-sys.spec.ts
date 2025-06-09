@@ -70,7 +70,7 @@ describe('stencil system', () => {
     expect(newStat.isFile).toBe(true);
 
     const content = await sys.readFile('/dir/file-new');
-    expect('content').toBe('content');
+    expect(content).toBe('content');
   });
 
   it('rename directory', async () => {

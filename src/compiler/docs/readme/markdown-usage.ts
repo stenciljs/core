@@ -1,5 +1,6 @@
-import type * as d from '../../../declarations';
 import { toTitleCase } from '@utils';
+
+import type * as d from '../../../declarations';
 
 export const usageToMarkdown = (usages: d.JsonDocsUsage) => {
   const content: string[] = [];

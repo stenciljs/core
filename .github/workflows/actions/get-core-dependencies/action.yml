@@ -1,0 +1,20 @@
+name: 'Get Core Dependencies'
+description: 'sets the node version & initializes core dependencies'
+runs:
+  using: composite
+  steps:
+    # this overrides previous versions of the node runtime that was set.
+    # jobs that need a different version of the Node runtime should explicitly
+    # set their node version after running this step
+    - name: Use Node Version from Volta
+      uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      with:
+        node-version-file: './package.json'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: |
+        npm ci \
+        && npm run install.jest
+
+      shell: bash

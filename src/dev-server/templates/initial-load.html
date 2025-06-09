@@ -25,6 +25,9 @@
     * {
       box-sizing: border-box;
     }
+    html {
+      color-scheme: dark light;
+    }
     body {
       position: absolute;
       padding: 0;
@@ -41,7 +44,7 @@
       margin: auto;
       max-width: 700px;
       border-radius: 3px;
-      background: rgba(0,0,0,.9);
+      background: rgba(0, 0, 0, .9);
       -webkit-transform: translate3d(0px, -60px, 0px);
       transform: translate3d(0px, -60px, 0px);
       -webkit-transition: -webkit-transform 75ms ease-out;
@@ -122,8 +125,13 @@
       margin: auto;
       max-width: 700px;
       padding: 32px;
-      color: #5a5a5a;
       line-height: 1.5;
+    }
+
+    @media (prefers-color-scheme: dark) { 
+      .toast {
+        background: rgb(49, 49, 49, .9);
+      }
     }
   </style>
 </head>

@@ -1,12 +1,13 @@
-import type * as d from '../../declarations';
 import { catchError } from '@utils';
+
+import type * as d from '../../declarations';
 
 export const crawlAnchorsForNextUrls = (
   prerenderConfig: d.PrerenderConfig,
   diagnostics: d.Diagnostic[],
   baseUrl: URL,
   currentUrl: URL,
-  parsedAnchors: d.HydrateAnchorElement[]
+  parsedAnchors: d.HydrateAnchorElement[],
 ) => {
   if (!Array.isArray(parsedAnchors) || parsedAnchors.length === 0) {
     return [];
@@ -208,7 +209,7 @@ export const standardNormalizeHref = (prerenderConfig: d.PrerenderConfig, diagno
         // url should NOT have a trailing slash
         if (href.endsWith('/') && url.pathname !== '/') {
           // this has a trailing slash and it's not the root path
-          href = href.substr(0, href.length - 1);
+          href = href.slice(0, -1);
         }
       }
 

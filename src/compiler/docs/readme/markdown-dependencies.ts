@@ -1,10 +1,12 @@
-import type * as d from '../../../declarations';
-import { normalizePath } from '@utils';
-import { relative } from 'path';
+import { normalizePath, relative } from '@utils';
 
-export const depsToMarkdown = (cmp: d.JsonDocsComponent, cmps: d.JsonDocsComponent[]) => {
+import type * as d from '../../../declarations';
+
+export const depsToMarkdown = (cmp: d.JsonDocsComponent, cmps: d.JsonDocsComponent[], config: d.ValidatedConfig) => {
   const content: string[] = [];
+
   const deps = Object.entries(cmp.dependencyGraph);
+
   if (deps.length === 0) {
     return content;
   }
@@ -20,6 +22,7 @@ export const depsToMarkdown = (cmp: d.JsonDocsComponent, cmps: d.JsonDocsCompone
     content.push(...usedBy);
     content.push(``);
   }
+
   if (cmp.dependencies.length > 0) {
     const dependsOn = cmp.dependencies.map((tag) => '- ' + getCmpLink(cmp, tag, cmps));
 
@@ -38,7 +41,9 @@ export const depsToMarkdown = (cmp: d.JsonDocsComponent, cmps: d.JsonDocsCompone
     });
   });
 
-  content.push(`  style ${cmp.tag} fill:#f9f,stroke:#333,stroke-width:4px`);
+  const { background, textColor } = config.docs.markdown.targetComponent;
+
+  content.push(`  style ${cmp.tag} fill:${background},stroke:${textColor},stroke-width:4px`);
 
   content.push('```');
 

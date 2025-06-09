@@ -1,5 +1,6 @@
-import type * as d from '../../../declarations';
 import { dashToPascalCase, sortBy, toTitleCase } from '@utils';
+
+import type * as d from '../../../declarations';
 
 export const updateToHydrateComponents = async (cmps: d.ComponentCompilerMeta[]) => {
   const hydrateCmps = await Promise.all(cmps.map(updateToHydrateComponent));

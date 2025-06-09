@@ -3,8 +3,13 @@ import { Component, State, h } from '@stencil/core';
 @Component({
   tag: 'state-cmp',
   styles: `
-    button { color: black; }
-    .selected { font-weight: bold; color: blue; }
+    button {
+      color: black;
+    }
+    .selected {
+      font-weight: bold;
+      color: blue;
+    }
   `,
   shadow: true,
 })

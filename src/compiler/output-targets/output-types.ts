@@ -1,6 +1,7 @@
+import { isOutputTargetDistTypes } from '@utils';
+
 import type * as d from '../../declarations';
 import { generateTypes } from '../types/generate-types';
-import { isOutputTargetDistTypes } from './output-utils';
 
 /**
  * Entrypoint for generating types for all output targets
@@ -9,9 +10,9 @@ import { isOutputTargetDistTypes } from './output-utils';
  * @param buildCtx the context associated with the current build
  */
 export const outputTypes = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx
+  buildCtx: d.BuildCtx,
 ): Promise<void> => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistTypes);
   if (outputTargets.length === 0) {

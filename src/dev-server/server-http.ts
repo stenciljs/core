@@ -1,8 +1,9 @@
-import type * as d from '../declarations';
-import { createRequestHandler } from './request-handler';
 import * as http from 'http';
 import * as https from 'https';
 import * as net from 'net';
+
+import type * as d from '../declarations';
+import { createRequestHandler } from './request-handler';
 
 export function createHttpServer(devServerConfig: d.DevServerConfig, serverCtx: d.DevServerContext) {
   // create our request handler

@@ -1,6 +1,7 @@
-import type * as d from '../../declarations';
 import { splitLineBreaks } from '@utils';
-import { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOptions, minify } from 'terser';
+import { CompressOptions, MangleOptions, ManglePropertiesOptions, minify, MinifyOptions } from 'terser';
+
+import type * as d from '../../declarations';
 
 /**
  * Performs the minification of JavaScript source
@@ -62,8 +63,8 @@ const loadMinifyJsDiagnostics = (sourceText: string, diagnostics: d.Diagnostic[]
     header: 'Minify JS',
     code: '',
     messageText: error.message,
-    absFilePath: null,
-    relFilePath: null,
+    absFilePath: undefined,
+    relFilePath: undefined,
     lines: [],
   };
 
@@ -91,7 +92,7 @@ const loadMinifyJsDiagnostics = (sourceText: string, diagnostics: d.Diagnostic[]
     d.lineNumber = errorLine.lineNumber;
     d.columnNumber = errorLine.errorCharStart;
 
-    const highlightLine = errorLine.text.substr(d.columnNumber);
+    const highlightLine = errorLine.text.slice(d.columnNumber);
     for (let i = 0; i < highlightLine.length; i++) {
       if (MINIFY_CHAR_BREAK.has(highlightLine.charAt(i))) {
         break;

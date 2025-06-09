@@ -1,26 +1,8 @@
-import type * as d from '../../../declarations';
-import { IS_BROWSER_ENV, IS_FETCH_ENV } from '../environment';
 import { normalizePath } from '@utils';
 
-const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mjs', '.js', '.jsx', '.json', '.md'];
+import type * as d from '../../../declarations';
 
-export const COMMON_DIR_FILENAMES = ['package.json', 'index.js', 'index.mjs'];
-
-export const isDtsFile = (p: string) => p.endsWith('.d.ts');
-
-export const isTsFile = (p: string) => !isDtsFile(p) && p.endsWith('.ts');
-
-export const isTsxFile = (p: string) => p.endsWith('.tsx');
-
-export const isJsxFile = (p: string) => p.endsWith('.jsx');
-
-export const isJsFile = (p: string) => p.endsWith('.js');
-
-export const isMjsFile = (p: string) => p.endsWith('.mjs');
-
-export const isJsonFile = (p: string) => p.endsWith('.json');
-
-export const getCommonDirName = (dirPath: string, fileName: string) => dirPath + '/' + fileName;
+const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mts', '.cts', '.mjs', '.js', '.cjs', '.jsx', '.json', '.md'];
 
 export const isCommonDirModuleFile = (p: string) => COMMON_DIR_MODULE_EXTS.some((ext) => p.endsWith(ext));
 
@@ -40,8 +22,6 @@ export const setPackageVersionByContent = (pkgVersions: Map<string, string>, pkg
 export const isLocalModule = (p: string) => p.startsWith('.') || p.startsWith('/');
 
 export const isStencilCoreImport = (p: string) => p.startsWith('@stencil/core');
-
-export const shouldFetchModule = (p: string) => IS_FETCH_ENV && IS_BROWSER_ENV && isNodeModulePath(p);
 
 export const isNodeModulePath = (p: string) => normalizePath(p).split('/').includes('node_modules');
 

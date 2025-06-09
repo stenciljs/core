@@ -8,6 +8,7 @@ async function main() {
     <head><title>End To End</title></head>
     <body>
       <prerender-cmp></prerender-cmp>
+      <slot-cmp>Hello World</slot-cmp>
     </body>
     </html>
   `;
@@ -26,10 +27,14 @@ async function main() {
     throw new Error(`validated test/end-to-end/hydrate errors!!`);
   }
 
-  if (results.hydratedCount !== 1) {
+  if (results.hydratedCount !== 2) {
     throw new Error(`invalid hydratedCount: ${results.hydratedCount}`);
   }
-  if (results.components.length !== 1 || results.components[0].tag !== 'prerender-cmp') {
+  if (
+    results.components.length !== 2 ||
+    results.components[0].tag !== 'prerender-cmp' ||
+    results.components[1].tag !== 'slot-cmp'
+  ) {
     throw new Error(`invalid components: ${results.components}`);
   }
   if (results.httpStatus !== 200) {

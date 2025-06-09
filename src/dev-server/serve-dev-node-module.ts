@@ -1,5 +1,6 @@
-import type * as d from '../declarations';
 import type { ServerResponse } from 'http';
+
+import type * as d from '../declarations';
 import { responseHeaders } from './dev-server-utils';
 
 export async function serveDevNodeModule(serverCtx: d.DevServerContext, req: d.HttpRequest, res: ServerResponse) {

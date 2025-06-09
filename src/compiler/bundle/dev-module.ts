@@ -1,62 +1,17 @@
+import { generatePreamble, join, relative } from '@utils';
+import { basename, dirname } from 'path';
+import { OutputOptions, rollup } from 'rollup';
+
 import type * as d from '../../declarations';
-import { basename, dirname, join, relative } from 'path';
 import { BuildContext } from '../build/build-ctx';
 import { getRollupOptions } from './bundle-output';
-import { OutputOptions, PartialResolvedId, rollup } from 'rollup';
-import { generatePreamble } from '@utils';
+import { DEV_MODULE_CACHE_BUSTER, DEV_MODULE_DIR } from './constants';
 
-export const devNodeModuleResolveId = async (
-  config: d.Config,
-  inMemoryFs: d.InMemoryFileSystem,
-  resolvedId: PartialResolvedId,
-  importee: string
+export const compilerRequest = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  data: d.CompilerRequest,
 ) => {
-  if (!shouldCheckDevModule(resolvedId, importee)) {
-    return resolvedId;
-  }
-  const resolvedPath = resolvedId.id;
-
-  const pkgPath = getPackageJsonPath(resolvedPath, importee);
-  if (!pkgPath) {
-    return resolvedId;
-  }
-
-  const pkgJsonStr = await inMemoryFs.readFile(pkgPath);
-  if (!pkgJsonStr) {
-    return resolvedId;
-  }
-
-  let pkgJsonData: d.PackageJsonData;
-  try {
-    pkgJsonData = JSON.parse(pkgJsonStr);
-  } catch (e) {}
-
-  if (!pkgJsonData || !pkgJsonData.version) {
-    return resolvedId;
-  }
-
-  resolvedId.id = serializeDevNodeModuleUrl(config, pkgJsonData.name, pkgJsonData.version, resolvedPath);
-  resolvedId.external = true;
-
-  return resolvedId;
-};
-
-const getPackageJsonPath = (resolvedPath: string, importee: string): string => {
-  let currentPath = resolvedPath;
-  for (let i = 0; i < 10; i++) {
-    currentPath = dirname(currentPath);
-    const aBasename = basename(currentPath);
-
-    const upDir = dirname(currentPath);
-    const bBasename = basename(upDir);
-    if (aBasename === importee && bBasename === 'node_modules') {
-      return join(currentPath, 'package.json');
-    }
-  }
-  return null;
-};
-
-export const compilerRequest = async (config: d.Config, compilerCtx: d.CompilerCtx, data: d.CompilerRequest) => {
   const results: d.CompilerRequestResponse = {
     path: data.path,
     nodeModuleId: null,
@@ -126,10 +81,10 @@ export const compilerRequest = async (config: d.Config, compilerCtx: d.CompilerC
 };
 
 const bundleDevModule = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   parsedUrl: ParsedDevModuleUrl,
-  results: d.CompilerRequestResponse
+  results: d.CompilerRequestResponse,
 ) => {
   const buildCtx = new BuildContext(config, compilerCtx);
 
@@ -170,7 +125,7 @@ const bundleDevModule = async (
   }
 };
 
-const useDevModuleCache = async (config: d.Config, p: string) => {
+const useDevModuleCache = async (config: d.ValidatedConfig, p: string) => {
   if (config.enableCache) {
     for (let i = 0; i < 10; i++) {
       const n = basename(p);
@@ -187,7 +142,7 @@ const useDevModuleCache = async (config: d.Config, p: string) => {
   return false;
 };
 
-const writeCachedFile = async (config: d.Config, results: d.CompilerRequestResponse) => {
+const writeCachedFile = async (config: d.ValidatedConfig, results: d.CompilerRequestResponse) => {
   try {
     await config.sys.createDir(config.cacheDir);
     config.sys.writeFile(results.cachePath, results.content);
@@ -196,17 +151,7 @@ const writeCachedFile = async (config: d.Config, results: d.CompilerRequestRespo
   }
 };
 
-const serializeDevNodeModuleUrl = (config: d.Config, moduleId: string, moduleVersion: string, resolvedPath: string) => {
-  resolvedPath = relative(config.rootDir, resolvedPath);
-
-  let id = `/${DEV_MODULE_DIR}/`;
-  id += encodeURIComponent(moduleId) + '@';
-  id += encodeURIComponent(moduleVersion) + '.js';
-  id += '?p=' + encodeURIComponent(resolvedPath);
-  return id;
-};
-
-const parseDevModuleUrl = (config: d.Config, u: string) => {
+const parseDevModuleUrl = (config: d.ValidatedConfig, u: string) => {
   const parsedUrl: ParsedDevModuleUrl = {
     nodeModuleId: null,
     nodeModuleVersion: null,
@@ -218,7 +163,7 @@ const parseDevModuleUrl = (config: d.Config, u: string) => {
     let reqPath = basename(url.pathname);
     reqPath = reqPath.substring(0, reqPath.length - 3);
 
-    let splt = reqPath.split('@');
+    const splt = reqPath.split('@');
     if (splt.length === 2) {
       parsedUrl.nodeModuleId = decodeURIComponent(splt[0]);
       parsedUrl.nodeModuleVersion = decodeURIComponent(splt[1]);
@@ -234,26 +179,12 @@ const parseDevModuleUrl = (config: d.Config, u: string) => {
   return parsedUrl;
 };
 
-const getDevModuleCachePath = (config: d.Config, parsedUrl: ParsedDevModuleUrl) => {
+const getDevModuleCachePath = (config: d.ValidatedConfig, parsedUrl: ParsedDevModuleUrl) => {
   return join(
     config.cacheDir,
-    `dev_module_${parsedUrl.nodeModuleId}_${parsedUrl.nodeModuleVersion}_${DEV_MODULE_CACHE_BUSTER}.log`
+    `dev_module_${parsedUrl.nodeModuleId}_${parsedUrl.nodeModuleVersion}_${DEV_MODULE_CACHE_BUSTER}.log`,
   );
 };
-
-const DEV_MODULE_CACHE_BUSTER = 0;
-
-const DEV_MODULE_DIR = `~dev-module`;
-
-const shouldCheckDevModule = (resolvedId: PartialResolvedId, importee: string) =>
-  resolvedId &&
-  importee &&
-  resolvedId.id &&
-  resolvedId.id.includes('node_modules') &&
-  (resolvedId.id.endsWith('.js') || resolvedId.id.endsWith('.mjs')) &&
-  !resolvedId.external &&
-  !importee.startsWith('.') &&
-  !importee.startsWith('/');
 
 interface ParsedDevModuleUrl {
   nodeModuleId: string;

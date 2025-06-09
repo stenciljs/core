@@ -1,0 +1,15 @@
+{
+  "name": "@stencil/jest-29",
+  "version": "1.0.0",
+  "description": "Internal package for supporting Jest 29 with Stencil",
+  "license": "MIT",
+  "author": "Ionic Team",
+  "homepage": "https://stenciljs.com/",
+  "volta": {
+    "extends": "../../../../package.json"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.6",
+    "jest": "^29.7.0"
+  }
+}

@@ -72,7 +72,7 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
 
   - First render.
 
-  - Set the lifecycle ready value `s-lr` to `true` signifying that the lifecycle update has happened and the component is now ready for child component lifecyles.
+  - Set the lifecycle ready value `s-lr` to `true` signifying that the lifecycle update has happened and the component is now ready for child component lifecycles.
 
   - Fire off all of this component's child render callbacks within `s-rc`. Each of the child render callbacks will fire off their own initialize component process.
 
@@ -121,6 +121,6 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
 
 `s-init`: A function to be called by child components to finish initializing the component.
 
-`s-lr`: The component's lifecycle ready status. `true` if the component has finished its lifecycle update, falsey if it is actively updating and has not fired off either `componentWillLoad` or `componentWillUpdate`.
+`s-lr`: The component's lifecycle ready status. `true` if the component has finished its lifecycle update, falsy if it is actively updating and has not fired off either `componentWillLoad` or `componentWillUpdate`.
 
 `s-rc`: A component's array of child component render callbacks. After a component renders, it should then fire off all of its child component render callbacks.

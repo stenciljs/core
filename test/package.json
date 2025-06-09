@@ -6,12 +6,15 @@
     "analysis": "exit 0 && node ./.scripts/analysis.js",
     "analysis.build-and-analyze": "npm run build && npm run analysis",
     "build": "npm run build.browser-compile && npm run build.hello-world && npm run build.hello-vdom && npm run build.todo && npm run build.end-to-end && npm run build.ionic",
+    "bundlers": "cd ./bundler && npm run start",
     "build.browser-compile": "cd ./browser-compile && npm run build",
-    "build.end-to-end": "cd ./end-to-end && npm run build",
+    "build.end-to-end": "cd ./end-to-end && npm ci && npm run build",
     "build.hello-world": "cd ./hello-world && npm run build",
     "build.hello-vdom": "cd ./hello-vdom && npm run build",
     "build.ionic": "cd ./ionic-app && npm ci && npm run build",
-    "build.todo": "cd ./todo-app && npm ci && npm run build"
+    "build.todo": "cd ./todo-app && npm ci && npm run build",
+    "build.docs-json": "cd ./docs-json && npm ci && npm run build",
+    "build.docs-readme": "cd ./docs-readme && npm ci && npm run build"
   },
   "devDependencies": {
     "brotli": "^1.3.2"

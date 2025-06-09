@@ -125,7 +125,7 @@ describe('MockHeaders', () => {
     headers.append('x-header-b', 'a');
     headers.append('x-header-b', 'b');
     headers.append('X-HEADER-B', 'c');
-    const o = [];
+    const o: [string, string][] = [];
     headers.forEach((v, k) => {
       o.push([v, k]);
     });

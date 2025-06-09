@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`serialize node should serialize 1`] = `
+<body>
+  <div>
+    Test
+  </div>
+</body>
+`;

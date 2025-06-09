@@ -1,20 +1,49 @@
-import { TranspileOptions, TranspileResults, Config, TransformOptions, TransformCssToEsmInput } from '../declarations';
+import rollupPluginUtils from '@rollup/pluginutils';
+import type {
+  TransformCssToEsmInput,
+  TransformOptions,
+  TranspileOptions,
+  TranspileResults,
+  ValidatedConfig,
+} from '@stencil/core/internal';
 import { catchError, getInlineSourceMappingUrlLinker, isString } from '@utils';
-import { getPublicCompilerMeta } from './transformers/add-component-meta-static';
-import { getTranspileCssConfig, getTranspileConfig, getTranspileResults } from './config/transpile-options';
-import { patchTypescript } from './sys/typescript/typescript-sys';
-import { rollupPluginUtils } from '@compiler-deps';
+
+import { getTranspileConfig, getTranspileCssConfig, getTranspileResults } from './config/transpile-options';
+import { validateConfig } from './config/validate-config';
 import { transformCssToEsm, transformCssToEsmSync } from './style/css-to-esm';
+import { patchTypescript } from './sys/typescript/typescript-sys';
+import { getPublicCompilerMeta } from './transformers/add-component-meta-static';
 import { transpileModule } from './transpile/transpile-module';
 
-export const transpile = async (code: string, opts: TranspileOptions = {}) => {
+/**
+ * The `transpile()` function inputs source code as a string, with various options
+ * within the second argument. The function is stateless and returns a `Promise` of the
+ * results, including diagnostics and the transpiled code. The `transpile()` function
+ * does not handle any bundling, minifying, or precompiling any CSS preprocessing like
+ * Sass or Less. The `transpileSync()` equivalent is available so the same function
+ * it can be called synchronously. However, TypeScript must be already loaded within
+ * the global for it to work, where as the async `transpile()` function will load
+ * TypeScript automatically.
+ *
+ * Since TypeScript is used, the source code will transpile from TypeScript to JavaScript,
+ * and does not require Babel presets. Additionally, the results includes an `imports`
+ * array of all the import paths found in the source file. The transpile options can be
+ * used to set the `module` format, such as `cjs`, and JavaScript `target` version, such
+ * as `es2017`.
+ *
+ * @param code the code to transpile
+ * @param opts options for the transpilation process
+ * @returns a Promise wrapping the results of the transpilation
+ */
+export const transpile = async (code: string, opts: TranspileOptions = {}): Promise<TranspileResults> => {
   const { importData, results } = getTranspileResults(code, opts);
 
   try {
     if (shouldTranspileModule(results.inputFileExtension)) {
       const { config, compileOpts, transformOpts } = getTranspileConfig(opts);
-      patchTypescript(config, null);
-      transpileCode(config, compileOpts, transformOpts, results);
+      const validatedConfig = validateConfig(config, {}).config;
+      patchTypescript(validatedConfig, null);
+      transpileCode(validatedConfig, compileOpts, transformOpts, results);
     } else if (results.inputFileExtension === 'd.ts') {
       results.code = '';
     } else if (results.inputFileExtension === 'css') {
@@ -30,14 +59,24 @@ export const transpile = async (code: string, opts: TranspileOptions = {}) => {
   return results;
 };
 
-export const transpileSync = (code: string, opts: TranspileOptions = {}) => {
+/**
+ * Synchronous equivalent of the `transpile()` function. When used in a browser
+ * environment, TypeScript must already be available globally, where as the async
+ * `transpile()` function will load TypeScript automatically.
+ *
+ * @param code the code to transpile
+ * @param opts options for the transpilation process
+ * @returns the results of the transpilation
+ */
+export const transpileSync = (code: string, opts: TranspileOptions = {}): TranspileResults => {
   const { importData, results } = getTranspileResults(code, opts);
 
   try {
     if (shouldTranspileModule(results.inputFileExtension)) {
       const { config, compileOpts, transformOpts } = getTranspileConfig(opts);
-      patchTypescript(config, null);
-      transpileCode(config, compileOpts, transformOpts, results);
+      const validatedConfig = validateConfig(config, {}).config;
+      patchTypescript(validatedConfig, null);
+      transpileCode(validatedConfig, compileOpts, transformOpts, results);
     } else if (results.inputFileExtension === 'd.ts') {
       results.code = '';
     } else if (results.inputFileExtension === 'css') {
@@ -54,10 +93,10 @@ export const transpileSync = (code: string, opts: TranspileOptions = {}) => {
 };
 
 const transpileCode = (
-  config: Config,
+  config: ValidatedConfig,
   transpileOpts: TranspileOptions,
   transformOpts: TransformOptions,
-  results: TranspileResults
+  results: TranspileResults,
 ) => {
   const transpileResults = transpileModule(config, results.code, transformOpts);
 
@@ -128,5 +167,6 @@ const transpileJson = (results: TranspileResults) => {
   results.map = { mappings: '' };
 };
 
-// NOTE: if you change this, also change scripts/bundles/helpers/jest/jest-preset.js
+// NOTE: if you change this, also change jest configuration files in `src/testing/jest/jest*`.
+// Search for 'mod_extensions_jest' to find comments like this.
 const shouldTranspileModule = (ext: string) => ['tsx', 'ts', 'mjs', 'jsx', 'js'].includes(ext);

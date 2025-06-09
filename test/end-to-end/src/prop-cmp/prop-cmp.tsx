@@ -1,4 +1,4 @@
-import { Component, Prop, h, Host } from '@stencil/core';
+import { Component, h, Host, Prop } from '@stencil/core';
 import { saveAs } from 'file-saver';
 
 /**
@@ -13,8 +13,20 @@ import { saveAs } from 'file-saver';
   shadow: true,
 })
 export class PropCmp {
+  private _clothes = 'life preservers';
   @Prop() first: string;
   @Prop() lastName: string;
+  @Prop()
+  get fullName() {
+    return 'Mr ' + this.first + ' ' + this.lastName;
+  }
+  @Prop()
+  get clothes() {
+    return this._clothes;
+  }
+  set clothes(newVal: string) {
+    if (newVal === 'lab coats' || newVal === 'down filled jackets') this._clothes = newVal;
+  }
 
   saveAs() {
     saveAs('data', 'filename.txt');
@@ -24,7 +36,8 @@ export class PropCmp {
     return (
       <Host>
         <div>
-          Hello, my name is {this.first} {this.lastName}
+          Hello, my name is {this.first} {this.lastName}. My full name being {this.fullName}. I like to wear{' '}
+          {this.clothes}.
         </div>
         <button onClick={() => this.saveAs()}>File Save</button>
       </Host>

@@ -1,39 +1,36 @@
-import { doNotExpectFiles, expectFiles } from '../../../testing/testing-utils';
+// @ts-nocheck
 import { Compiler, Config } from '@stencil/core/compiler';
 import { mockConfig } from '@stencil/core/testing';
 import path from 'path';
 
-xdescribe('outputTarget, www', () => {
+import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+
+describe.skip('outputTarget, www', () => {
   jest.setTimeout(20000);
   let compiler: Compiler;
   let config: Config;
   const root = path.resolve('/');
 
   it('default www files', async () => {
-    config = mockConfig();
-    config.namespace = 'App';
-    config.buildAppCore = true;
-    config.rootDir = path.join(root, 'User', 'testing', '/');
+    config = mockConfig({
+      buildAppCore: true,
+      namespace: 'App',
+      rootDir: path.join(root, 'User', 'testing', '/'),
+    });
 
     compiler = new Compiler(config);
 
     await compiler.fs.writeFiles({
       [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(
-        root,
-        'User',
-        'testing',
-        'src',
-        'components',
-        'cmp-a.tsx'
-      )]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.tsx')]:
+        `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    expectFiles(compiler.fs, [
+    expectFilesExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'www'),
       path.join(root, 'User', 'testing', 'www', 'build'),
       path.join(root, 'User', 'testing', 'www', 'build', 'app.js'),
@@ -47,7 +44,7 @@ xdescribe('outputTarget, www', () => {
       path.join(root, 'User', 'testing', 'src', 'components.d.ts'),
     ]);
 
-    doNotExpectFiles(compiler.fs, [
+    expectFilesDoNotExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.js'),
 
       path.join(root, 'User', 'testing', 'dist', '/'),

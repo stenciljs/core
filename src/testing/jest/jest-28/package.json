@@ -1,0 +1,15 @@
+{
+  "name": "@stencil/jest-28",
+  "version": "1.0.0",
+  "description": "Internal package for supporting Jest 28 with Stencil",
+  "license": "MIT",
+  "author": "Ionic Team",
+  "homepage": "https://stenciljs.com/",
+  "volta": {
+    "extends": "../../../../package.json"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.8",
+    "jest": "^28.1.3"
+  }
+}

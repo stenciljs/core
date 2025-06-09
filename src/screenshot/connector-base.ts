@@ -1,7 +1,8 @@
 import type * as d from '@stencil/core/internal';
-import { emptyDir, fileExists, mkDir, readDir, readFile, readFileBuffer, rmDir, writeFile } from './screenshot-fs';
-import { join } from 'path';
 import { tmpdir } from 'os';
+import { join } from 'path';
+
+import { emptyDir, fileExists, mkDir, readDir, readFile, readFileBuffer, rmDir, writeFile } from './screenshot-fs';
 
 export class ScreenshotConnector implements d.ScreenshotConnector {
   rootDir: string;
@@ -15,9 +16,9 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
   logger: d.Logger;
   buildId: string;
   buildMessage: string;
-  buildAuthor: string;
-  buildUrl: string;
-  previewUrl: string;
+  buildAuthor: string | undefined;
+  buildUrl: string | undefined;
+  previewUrl: string | undefined;
   buildTimestamp: number;
   appNamespace: string;
   screenshotDir: string;
@@ -27,11 +28,11 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
   screenshotCacheFilePath: string;
   currentBuildDir: string;
   updateMaster: boolean;
-  allowableMismatchedRatio: number;
-  allowableMismatchedPixels: number;
-  pixelmatchThreshold: number;
-  waitBeforeScreenshot: number;
-  pixelmatchModulePath: string;
+  allowableMismatchedRatio: number | undefined;
+  allowableMismatchedPixels: number | undefined;
+  pixelmatchThreshold: number | undefined;
+  waitBeforeScreenshot: number | undefined;
+  pixelmatchModulePath: string | undefined;
 
   async initBuild(opts: d.ScreenshotConnectorOptions) {
     this.logger = opts.logger;
@@ -41,8 +42,8 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
     this.buildAuthor = opts.buildAuthor;
     this.buildUrl = opts.buildUrl;
     this.previewUrl = opts.previewUrl;
-    (this.buildTimestamp = typeof opts.buildTimestamp === 'number' ? opts.buildTimestamp : Date.now()),
-      (this.cacheDir = opts.cacheDir);
+    this.buildTimestamp = typeof opts.buildTimestamp === 'number' ? opts.buildTimestamp : Date.now();
+    this.cacheDir = opts.cacheDir;
     this.packageDir = opts.packageDir;
     this.rootDir = opts.rootDir;
     this.appNamespace = opts.appNamespace;
@@ -76,7 +77,7 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
 
     this.logger.debug(`screenshot build: ${this.buildId}, ${this.buildMessage}, updateMaster: ${this.updateMaster}`);
     this.logger.debug(
-      `screenshot, allowableMismatchedPixels: ${this.allowableMismatchedPixels}, allowableMismatchedRatio: ${this.allowableMismatchedRatio}, pixelmatchThreshold: ${this.pixelmatchThreshold}`
+      `screenshot, allowableMismatchedPixels: ${this.allowableMismatchedPixels}, allowableMismatchedRatio: ${this.allowableMismatchedRatio}, pixelmatchThreshold: ${this.pixelmatchThreshold}`,
     );
 
     if (typeof opts.screenshotDirName === 'string') {
@@ -119,13 +120,12 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
   }
 
   async getMasterBuild() {
-    let masterBuild: d.ScreenshotBuild = null;
-
     try {
-      masterBuild = JSON.parse(await readFile(this.masterBuildFilePath));
+      const masterBuild = JSON.parse(await readFile(this.masterBuildFilePath));
+      return masterBuild;
     } catch (e) {}
 
-    return masterBuild;
+    return null;
   }
 
   async completeBuild(masterBuild: d.ScreenshotBuild) {
@@ -216,7 +216,7 @@ export class ScreenshotConnector implements d.ScreenshotConnector {
           const imageFilePath = join(this.imagesDir, screenshot.image);
           const imageBuf = await readFileBuffer(imageFilePath);
           const jsonpContent = `loadScreenshot("${screenshot.image}","data:image/png;base64,${imageBuf.toString(
-            'base64'
+            'base64',
           )}");`;
           await writeFile(jsonFilePath, jsonpContent);
         }

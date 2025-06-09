@@ -7,7 +7,7 @@ describe('stencil-import-path', () => {
         importeePath: '/path/to/some-file.css',
         importerPath: '/path/to/some-file.js',
       },
-      undefined
+      undefined,
     );
     expect(s).toBe('./some-file.css');
     const p = parseImportPath(s);
@@ -23,7 +23,7 @@ describe('stencil-import-path', () => {
         importeePath: './some-file',
         tag: 'my-tag',
       },
-      undefined
+      undefined,
     );
     expect(s).toBe('./some-file?tag=my-tag');
     const p = parseImportPath(s);
@@ -41,7 +41,7 @@ describe('stencil-import-path', () => {
         encapsulation: 'none',
         mode: '$',
       },
-      undefined
+      undefined,
     );
     expect(s).toBe('./some-file.CSS?tag=my-tag');
     const p = parseImportPath(s);
@@ -61,7 +61,7 @@ describe('stencil-import-path', () => {
         encapsulation: 'scoped',
         mode: 'ios',
       },
-      'queryparams'
+      'queryparams',
     );
     expect(s).toBe('./some-file.CSS?tag=my-tag&mode=ios&encapsulation=scoped');
     const p = parseImportPath(s);
@@ -81,7 +81,7 @@ describe('stencil-import-path', () => {
         encapsulation: 'scoped',
         mode: 'ios',
       },
-      null
+      null,
     );
     expect(s).toBe('./some-file.CSS');
     const p = parseImportPath(s);
@@ -96,7 +96,7 @@ describe('stencil-import-path', () => {
       {
         importeePath: './some-file.d.ts',
       },
-      undefined
+      undefined,
     );
     expect(s).toBe('./some-file.d.ts');
     const p = parseImportPath(s);

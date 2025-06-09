@@ -1,13 +1,16 @@
+import { isOutputTargetHydrate } from '@utils';
+
 import type * as d from '../../../declarations';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
-import { isOutputTargetHydrate } from '../output-utils';
 
-export const getLazyBuildConditionals = (config: d.Config, cmps: d.ComponentCompilerMeta[]): d.BuildConditionals => {
+export const getLazyBuildConditionals = (
+  config: d.ValidatedConfig,
+  cmps: d.ComponentCompilerMeta[],
+): d.BuildConditionals => {
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
 
   build.lazyLoad = true;
   build.hydrateServerSide = false;
-  build.cssVarShim = config.extras.cssVarsShim;
   build.transformTagName = config.extras.tagNameTransform;
   build.asyncQueue = config.taskQueue === 'congestionAsync';
   build.taskQueue = config.taskQueue !== 'immediate';
@@ -15,6 +18,7 @@ export const getLazyBuildConditionals = (config: d.Config, cmps: d.ComponentComp
 
   const hasHydrateOutputTargets = config.outputTargets.some(isOutputTargetHydrate);
   build.hydrateClientSide = hasHydrateOutputTargets;
+  build.modernPropertyDecls = cmps.some((c) => c.hasModernPropertyDecls);
 
   updateBuildConditionals(config, build);
 

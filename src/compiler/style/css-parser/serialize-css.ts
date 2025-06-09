@@ -35,7 +35,7 @@ const serializeCssVisitNode = (opts: SerializeOpts, node: CssNode, index: number
     return serializeCssRule(opts, node);
   }
   if (nodeType === CssNodeType.Comment) {
-    if (node.comment[0] === '!') {
+    if (node.comment?.[0] === '!') {
       return `/*${node.comment}*/`;
     } else {
       return '';
@@ -83,7 +83,7 @@ const serializeCssVisitNode = (opts: SerializeOpts, node: CssNode, index: number
 const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
   const decls = node.declarations;
   const usedSelectors = opts.usedSelectors;
-  const selectors = node.selectors.slice();
+  const selectors = node.selectors?.slice() ?? [];
 
   if (decls == null || decls.length === 0) {
     return '';
@@ -160,10 +160,12 @@ const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
 
   const cleanedSelectors: string[] = [];
   let cleanedSelector = '';
-  for (const selector of node.selectors) {
-    cleanedSelector = removeSelectorWhitespace(selector);
-    if (!cleanedSelectors.includes(cleanedSelector)) {
-      cleanedSelectors.push(cleanedSelector);
+  if (node.selectors) {
+    for (const selector of node.selectors) {
+      cleanedSelector = removeSelectorWhitespace(selector);
+      if (!cleanedSelectors.includes(cleanedSelector)) {
+        cleanedSelectors.push(cleanedSelector);
+      }
     }
   }
 
@@ -197,7 +199,7 @@ const serializeCssKeyframes = (opts: SerializeOpts, node: CssNode) => {
 };
 
 const serializeCssKeyframe = (opts: SerializeOpts, node: CssNode) => {
-  return node.values.join(',') + '{' + serializeCssMapVisit(opts, node.declarations) + '}';
+  return (node.values?.join(',') ?? '') + '{' + serializeCssMapVisit(opts, node.declarations) + '}';
 };
 
 const serializeCssFontFace = (opts: SerializeOpts, node: CssNode) => {
@@ -217,7 +219,7 @@ const serializeCssSupports = (opts: SerializeOpts, node: CssNode) => {
 };
 
 const serializeCssPage = (opts: SerializeOpts, node: CssNode) => {
-  const sel = node.selectors.join(', ');
+  const sel = node.selectors?.join(', ') ?? '';
   return '@page ' + sel + '{' + serializeCssMapVisit(opts, node.declarations) + '}';
 };
 
@@ -230,7 +232,7 @@ const serializeCssDocument = (opts: SerializeOpts, node: CssNode) => {
   return doc + '{' + documentCss + '}';
 };
 
-const serializeCssMapVisit = (opts: SerializeOpts, nodes: CssNode[] | void) => {
+const serializeCssMapVisit = (opts: SerializeOpts, nodes: CssNode[] | undefined | null): string => {
   let rtn = '';
 
   if (nodes) {
@@ -272,10 +274,10 @@ const removeSelectorWhitespace = (selector: string) => {
   return rtn;
 };
 
-const removeMediaWhitespace = (media: string) => {
+const removeMediaWhitespace = (media: string | undefined) => {
   let rtn = '';
   let char = '';
-  media = media.trim();
+  media = media?.trim() ?? '';
 
   for (let i = 0, l = media.length; i < l; i++) {
     char = media[i];

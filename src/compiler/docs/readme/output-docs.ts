@@ -1,21 +1,41 @@
-import type * as d from '../../../declarations';
-import { propsToMarkdown } from './markdown-props';
-import { eventsToMarkdown } from './markdown-events';
-import { join, relative } from 'path';
-import { methodsToMarkdown } from './markdown-methods';
-import { usageToMarkdown } from './markdown-usage';
-import { stylesToMarkdown } from './markdown-css-props';
-import { slotsToMarkdown } from './markdown-slots';
-import { partsToMarkdown } from './markdown-parts';
-import { depsToMarkdown } from './markdown-dependencies';
-import { AUTO_GENERATE_COMMENT } from '../constants';
+import { join, normalizePath, relative } from '@utils';
 
+import type * as d from '../../../declarations';
+import { AUTO_GENERATE_COMMENT } from '../constants';
+import { getUserReadmeContent } from '../generate-doc-data';
+import { stylesToMarkdown } from './markdown-css-props';
+import { depsToMarkdown } from './markdown-dependencies';
+import { eventsToMarkdown } from './markdown-events';
+import { methodsToMarkdown } from './markdown-methods';
+import { overviewToMarkdown } from './markdown-overview';
+import { partsToMarkdown } from './markdown-parts';
+import { propsToMarkdown } from './markdown-props';
+import { slotsToMarkdown } from './markdown-slots';
+import { usageToMarkdown } from './markdown-usage';
+
+/**
+ * Generate a README for a given component and write it to disk.
+ *
+ * Typically the README is going to be a 'sibling' to the component's source
+ * code (i.e. written to the same directory) but the user may also configure a
+ * custom output directory by setting {@link d.OutputTargetDocsReadme.dir}.
+ *
+ * Output readme files also include {@link AUTO_GENERATE_COMMENT}, and any
+ * text located _above_ that comment is preserved when the new readme is written
+ * to disk.
+ *
+ * @param config a validated Stencil config
+ * @param compilerCtx the current compiler context
+ * @param readmeOutputs docs-readme output targets
+ * @param docsData documentation data for the component of interest
+ * @param cmps metadata for all the components in the project
+ */
 export const generateReadme = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   readmeOutputs: d.OutputTargetDocsReadme[],
   docsData: d.JsonDocsComponent,
-  cmps: d.JsonDocsComponent[]
+  cmps: d.JsonDocsComponent[],
 ) => {
   const isUpdate = !!docsData.readme;
   const userContent = isUpdate ? docsData.readme : getDefaultReadme(docsData);
@@ -23,10 +43,31 @@ export const generateReadme = async (
   await Promise.all(
     readmeOutputs.map(async (readmeOutput) => {
       if (readmeOutput.dir) {
-        const readmeContent = generateMarkdown(userContent, docsData, cmps, readmeOutput);
-        const relPath = relative(config.srcDir, docsData.readmePath);
-        const absPath = join(readmeOutput.dir, relPath);
-        const results = await compilerCtx.fs.writeFile(absPath, readmeContent);
+        const relativeReadmePath = relative(config.srcDir, docsData.readmePath);
+        const readmeOutputPath = join(readmeOutput.dir, relativeReadmePath);
+
+        const currentReadmeContent =
+          readmeOutput.overwriteExisting === true
+            ? // Overwrite explicitly requested: always use the provided user content.
+              userContent
+            : normalizePath(readmeOutput.dir) !== normalizePath(config.srcDir)
+              ? (readmeOutput.overwriteExisting === 'if-missing' &&
+                  // Validate a file exists at the output path
+                  (await compilerCtx.fs.access(readmeOutputPath))) ||
+                // False and undefined case: follow the changes made in #5648
+                (readmeOutput.overwriteExisting ?? false) === false
+                ? // Existing file found: The user set a custom `.dir` property, which is
+                  // where we're going to write the updated README. We need to read the
+                  // non-automatically generated content from that file and preserve that.
+                  await getUserReadmeContent(compilerCtx, readmeOutputPath)
+                : // No existing file found: use the provided user content.
+                  userContent
+              : // Default case: writing to srcDir, so use the provided user content.
+                userContent;
+
+        const readmeContent = generateMarkdown(currentReadmeContent, docsData, cmps, readmeOutput, config);
+
+        const results = await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
         if (results.changedContent) {
           if (isUpdate) {
             config.logger.info(`updated readme docs: ${docsData.tag}`);
@@ -35,24 +76,27 @@ export const generateReadme = async (
           }
         }
       }
-    })
+    }),
   );
 };
 
 export const generateMarkdown = (
-  userContent: string,
+  userContent: string | undefined,
   cmp: d.JsonDocsComponent,
   cmps: d.JsonDocsComponent[],
-  readmeOutput: d.OutputTargetDocsReadme
+  readmeOutput: d.OutputTargetDocsReadme,
+  config?: d.ValidatedConfig,
 ) => {
   //If the readmeOutput.dependencies is true or undefined the dependencies will be generated.
-  const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps) : [];
+  const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps, config) : [];
+
   return [
-    userContent,
+    userContent || '',
     AUTO_GENERATE_COMMENT,
     '',
     '',
     ...getDocsDeprecation(cmp),
+    ...overviewToMarkdown(cmp.overview),
     ...usageToMarkdown(cmp.usage),
     ...propsToMarkdown(cmp.props),
     ...eventsToMarkdown(cmp.events),
@@ -75,6 +119,12 @@ const getDocsDeprecation = (cmp: d.JsonDocsComponent) => {
   return [];
 };
 
+/**
+ * Get a minimal default README for a Stencil component
+ *
+ * @param docsData documentation data for the component of interest
+ * @returns a minimal README template for that component
+ */
 const getDefaultReadme = (docsData: d.JsonDocsComponent) => {
   return [`# ${docsData.tag}`, '', '', ''].join('\n');
 };

@@ -9,11 +9,6 @@ fs.accessSync(path.join(distDir, 'loader'));
 fs.accessSync(path.join(distDir, 'index.cjs.js'));
 fs.accessSync(path.join(distDir, 'index.js'));
 
-const customElementsDir = path.join(distDir, 'custom-elements');
-fs.accessSync(path.join(customElementsDir, 'index.d.ts'));
-fs.accessSync(path.join(customElementsDir, 'index.js'));
-fs.accessSync(path.join(customElementsDir, 'index.js.map'));
-
 const collectionDir = path.join(distDir, 'collection');
 fs.accessSync(path.join(collectionDir, 'car-list', 'car-data.js'));
 fs.accessSync(path.join(collectionDir, 'car-list', 'car-data.js.map'));

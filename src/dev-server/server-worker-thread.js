@@ -34,6 +34,6 @@ process.on('unhandledRejection', (e) => {
     {
       error: { message: 'unhandledRejection: ' + e, stack: typeof e.stack === 'string' ? e.stack : null },
     },
-    sendHandle
+    sendHandle,
   );
 });

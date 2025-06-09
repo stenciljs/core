@@ -1,4 +1,4 @@
-import { updateCssUrlValue, getHmrHref } from '../hmr-util';
+import { getHmrHref, updateCssUrlValue } from '../hmr-util';
 
 describe('updateCssUrlValue', () => {
   const versionId = '1234';

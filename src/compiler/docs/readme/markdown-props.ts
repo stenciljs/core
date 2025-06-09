@@ -19,8 +19,8 @@ export const propsToMarkdown = (props: d.JsonDocsProp[]) => {
       getPropertyField(prop),
       getAttributeField(prop),
       getDocsField(prop),
-      `\`${prop.type}\``,
-      `\`${prop.default}\``,
+      getTypeField(prop),
+      getDefaultValueField(prop),
     ]);
   });
 
@@ -45,4 +45,12 @@ const getDocsField = (prop: d.JsonDocsProp) => {
       ? `<span style="color:red">**[DEPRECATED]**</span> ${prop.deprecation}<br/><br/>`
       : ''
   }${prop.docs}`;
+};
+
+const getTypeField = (prop: d.JsonDocsProp) => {
+  return prop.type.includes('`') ? `\`\` ${prop.type} \`\`` : `\`${prop.type}\``;
+};
+
+const getDefaultValueField = (prop: d.JsonDocsProp) => {
+  return prop.default?.includes('`') ? `\`\` ${prop.default} \`\`` : `\`${prop.default}\``;
 };

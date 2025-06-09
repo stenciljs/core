@@ -9,6 +9,9 @@
       * {
         box-sizing: border-box;
       }
+      html {
+        color-scheme: light dark;
+      }
       body {
         padding: 40px 140px;
         margin: 0;
@@ -43,7 +46,9 @@
         padding: 0;
       }
       li a {
-        display: inline-block;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         margin: 0;
         padding: 6px 12px;
         min-width: 50%;
@@ -53,22 +58,28 @@
       }
       li a:focus,
       li a:hover {
+        color: #555;
         background: rgba(221, 235, 255, 0.65);
       }
       .icon {
         display: inline-block;
-        width: 20px;
+        width: 14px;
         min-height: 14px;
         opacity: 0.6;
-        background-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-repeat: no-repeat;
       }
       .directory .icon {
-        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjEzLjMzOCA5Nkg3NC42NjZDNTEuMTk3IDk2IDMyIDExNS4xOTggMzIgMTM4LjY2N3YyMzQuNjY2QzMyIDM5Ni44MDIgNTEuMTk3IDQxNiA3NC42NjYgNDE2aDM2Mi42NjhDNDYwLjgwMyA0MTYgNDgwIDM5Ni44MDIgNDgwIDM3My4zMzNWMTg2LjY2N0M0ODAgMTYzLjE5OCA0NjAuODAzIDE0NCA0MzcuMzM0IDE0NEgyNTYuMDA2bC00Mi42NjgtNDh6Ii8+PC9zdmc+);
+        mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjEzLjMzOCA5Nkg3NC42NjZDNTEuMTk3IDk2IDMyIDExNS4xOTggMzIgMTM4LjY2N3YyMzQuNjY2QzMyIDM5Ni44MDIgNTEuMTk3IDQxNiA3NC42NjYgNDE2aDM2Mi42NjhDNDYwLjgwMyA0MTYgNDgwIDM5Ni44MDIgNDgwIDM3My4zMzNWMTg2LjY2N0M0ODAgMTYzLjE5OCA0NjAuODAzIDE0NCA0MzcuMzM0IDE0NEgyNTYuMDA2bC00Mi42NjgtNDh6Ii8+PC9zdmc+);
+        -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjEzLjMzOCA5Nkg3NC42NjZDNTEuMTk3IDk2IDMyIDExNS4xOTggMzIgMTM4LjY2N3YyMzQuNjY2QzMyIDM5Ni44MDIgNTEuMTk3IDQxNiA3NC42NjYgNDE2aDM2Mi42NjhDNDYwLjgwMyA0MTYgNDgwIDM5Ni44MDIgNDgwIDM3My4zMzNWMTg2LjY2N0M0ODAgMTYzLjE5OCA0NjAuODAzIDE0NCA0MzcuMzM0IDE0NEgyNTYuMDA2bC00Mi42NjgtNDh6Ii8+PC9zdmc+);
         background-position: 0px 2px;
+        background-color: currentColor;
       }
       .file .icon {
-        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjg4IDQ4SDEzNmMtMjIuMDkyIDAtNDAgMTcuOTA4LTQwIDQwdjMzNmMwIDIyLjA5MiAxNy45MDggNDAgNDAgNDBoMjQwYzIyLjA5MiAwIDQwLTE3LjkwOCA0MC00MFYxNzZMMjg4IDQ4em0tMTYgMTQ0VjgwbDExMiAxMTJIMjcyeiIvPjwvc3ZnPg==);
+        mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjg4IDQ4SDEzNmMtMjIuMDkyIDAtNDAgMTcuOTA4LTQwIDQwdjMzNmMwIDIyLjA5MiAxNy45MDggNDAgNDAgNDBoMjQwYzIyLjA5MiAwIDQwLTE3LjkwOCA0MC00MFYxNzZMMjg4IDQ4em0tMTYgMTQ0VjgwbDExMiAxMTJIMjcyeiIvPjwvc3ZnPg==);
+        -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjg4IDQ4SDEzNmMtMjIuMDkyIDAtNDAgMTcuOTA4LTQwIDQwdjMzNmMwIDIyLjA5MiAxNy45MDggNDAgNDAgNDBoMjQwYzIyLjA5MiAwIDQwLTE3LjkwOCA0MC00MFYxNzZMMjg4IDQ4em0tMTYgMTQ0VjgwbDExMiAxMTJIMjcyeiIvPjwvc3ZnPg==);
         background-position: 0px 2px;
+        background-color: currentColor;
       }
       li a:hover .icon {
         opacity: 1;
@@ -107,16 +118,49 @@
           background: #e0e0e0;
         }
         li a {
-          display: block;
+          display: flex;
           border-radius: 0;
           padding: 15px 10px;
         }
         .icon {
-          width: 32px;
+          width: 24px;
+          min-width: 24px;
           min-height: 24px;
         }
         .directory .icon {
           background-position: 0px 4px;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) { 
+        body {
+          background: #000;
+        }
+        h1 {
+          color: #eaeaea;
+        }
+        a {
+          color: #ccc;
+        }
+        a:hover {
+          color: #eaeaea;
+        }
+        li a:focus,
+        li a:hover {
+          color: #ccc;
+          background: #1c1c1c;
+        }
+      }
+
+      @media (max-width: 768px) and (prefers-color-scheme: dark) {
+        ul {
+          border-top: 1px solid #333;
+        }
+        li {
+          border-bottom: 1px solid #333;
+        }
+        li:nth-child(odd) {
+          background: #333;
         }
       }
     </style>

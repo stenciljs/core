@@ -1,0 +1,11 @@
+{
+  "extends": "../../testing/tsconfig.internal.json",
+  "compilerOptions": {
+    "paths": {
+      "@stencil/core": ["../../index.ts"],
+      "@stencil/core/testing": ["../../testing/index.ts"],
+      "@platform": ["../../client/index.ts"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+}

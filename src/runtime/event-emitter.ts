@@ -1,7 +1,8 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
 import { consoleDevWarn, plt } from '@platform';
 import { EVENT_FLAGS } from '@utils';
+
+import type * as d from '../declarations';
 import { getElement } from './element';
 
 export const createEvent = (ref: d.RuntimeRef, name: string, flags: number) => {

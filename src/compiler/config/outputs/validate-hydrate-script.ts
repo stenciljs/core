@@ -1,15 +1,17 @@
-import type * as d from '../../../declarations';
 import {
   DIST_HYDRATE_SCRIPT,
+  isBoolean,
   isOutputTargetDist,
   isOutputTargetHydrate,
   isOutputTargetWww,
-} from '../../output-targets/output-utils';
-import { isBoolean, isString } from '@utils';
-import { isAbsolute, join } from 'path';
-import { NODE_BUILTINS } from '../../sys/modules';
+  isString,
+  join,
+} from '@utils';
+import { isAbsolute } from 'path';
 
-export const validateHydrateScript = (config: d.Config, userOutputs: d.OutputTarget[]) => {
+import type * as d from '../../../declarations';
+
+export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {
   const output: d.OutputTargetHydrate[] = [];
 
   const hasHydrateOutputTarget = userOutputs.some(isOutputTargetHydrate);
@@ -19,7 +21,7 @@ export const validateHydrateScript = (config: d.Config, userOutputs: d.OutputTar
     // let's still see if we require one because of other output targets
 
     const hasWwwOutput = userOutputs.filter(isOutputTargetWww).some((o) => isString(o.indexHtml));
-    const shouldBuildHydrate = config?.flags.prerender || config?.flags.ssr;
+    const shouldBuildHydrate = config.flags.prerender || config.flags.ssr;
 
     if (hasWwwOutput && shouldBuildHydrate) {
       // we're prerendering a www output target, so we'll need a hydrate app
@@ -57,7 +59,9 @@ export const validateHydrateScript = (config: d.Config, userOutputs: d.OutputTar
 
     outputTarget.external = outputTarget.external || [];
 
-    outputTarget.external.push(...NODE_BUILTINS);
+    outputTarget.external.push('fs');
+    outputTarget.external.push('path');
+    outputTarget.external.push('crypto');
 
     output.push(outputTarget);
   });

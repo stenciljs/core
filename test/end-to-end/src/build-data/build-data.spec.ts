@@ -1,5 +1,6 @@
-import { BuildData } from './build-data';
 import { newSpecPage } from '@stencil/core/testing';
+
+import { BuildData } from './build-data';
 
 describe('build-data', () => {
   it('should be a test', async () => {

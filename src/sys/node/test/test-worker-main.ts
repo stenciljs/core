@@ -6,7 +6,7 @@ export class TestWorkerMain extends NodeWorkerMain {
     this.fork();
   }
 
-  fork() {
+  override fork() {
     this.childProcess = {} as any;
   }
 }

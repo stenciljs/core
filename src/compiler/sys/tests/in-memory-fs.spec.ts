@@ -1,27 +1,27 @@
-import type * as d from '../../../declarations';
 import { createTestingSystem } from '../../../testing/testing-sys';
-import { getCommitInstructions, createInMemoryFs, shouldIgnore } from '../in-memory-fs';
 import { normalizePath } from '../../../utils';
+import type { FsItem, FsItems } from '../in-memory-fs';
+import { createInMemoryFs, getCommitInstructions, InMemoryFileSystem, shouldIgnore } from '../in-memory-fs';
 
 describe(`in-memory-fs, getCommitInstructions`, () => {
-  let items: d.FsItems;
+  let items: FsItems;
 
   beforeEach(() => {
     items = new Map();
   });
 
-  function fsItem(item: any): d.FsItem {
-    const defaultItem: d.FsItem = {
-      exists: null,
-      fileText: null,
-      size: null,
-      mtimeMs: null,
-      isDirectory: null,
-      isFile: null,
-      queueCopyFileToDest: null,
-      queueDeleteFromDisk: null,
-      queueWriteToDisk: null,
-      useCache: null,
+  function fsItem(item: any): FsItem {
+    const defaultItem: Partial<FsItem> = {
+      exists: undefined,
+      fileText: undefined,
+      size: undefined,
+      mtimeMs: undefined,
+      isDirectory: undefined,
+      isFile: undefined,
+      queueCopyFileToDest: undefined,
+      queueDeleteFromDisk: undefined,
+      queueWriteToDisk: undefined,
+      useCache: undefined,
     };
     return Object.assign(defaultItem, item);
   }
@@ -40,9 +40,9 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([]);
     expect(i.dirsToDelete).toEqual([`C:/dir1/dir2/dir3`, `C:/dir1/dir2`, `C:/dir1`]);
     expect(i.dirsToEnsure).toEqual([]);
-    expect(items.get(`C:/dir1`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`C:/dir1/dir2`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`C:/dir1/dir2/dir3`).queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1/dir2`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1/dir2/dir3`)?.queueDeleteFromDisk).toBe(false);
   });
 
   it(`dirsToDelete, sort longest to shortest, unix`, () => {
@@ -59,9 +59,9 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([]);
     expect(i.dirsToDelete).toEqual([`/dir1/dir2/dir3`, `/dir1/dir2`, `/dir1`]);
     expect(i.dirsToEnsure).toEqual([]);
-    expect(items.get(`/dir1`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1/dir2`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1/dir2/dir3`).queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1/dir2`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1/dir2/dir3`)?.queueDeleteFromDisk).toBe(false);
   });
 
   it(`ensure dirs, sort shortest to longest, windows`, () => {
@@ -76,9 +76,9 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([`C:/dir1/dir2/dir3/file2.js`, `C:/dir1/dir2/file1.js`]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`C:/dir1`, `C:/dir1/dir2`, `C:/dir1/dir2/dir3`]);
-    expect(items.get(`C:/dir1`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`C:/dir1/dir2/file1.js`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`C:/dir1/dir2/dir3/file2.js`).queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1/dir2/file1.js`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`C:/dir1/dir2/dir3/file2.js`)?.queueDeleteFromDisk).toBe(false);
   });
 
   it(`ensure dirs, sort shortest to longest`, () => {
@@ -91,9 +91,9 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([`/dir1/dir2/dir3/file2.js`, `/dir1/dir2/file1.js`]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`/dir1`, `/dir1/dir2`, `/dir1/dir2/dir3`]);
-    expect(items.get(`/dir1`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1/dir2/file1.js`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1/dir2/dir3/file2.js`).queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1/dir2/file1.js`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1/dir2/dir3/file2.js`)?.queueDeleteFromDisk).toBe(false);
   });
 
   it(`do not delete a files/directory if we also want to ensure it`, () => {
@@ -104,7 +104,7 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([`/dir1/file1.js`]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`/dir1`]);
-    expect(items.get(`/dir1/file1.js`).queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir1/file1.js`)?.queueWriteToDisk).toBe(false);
   });
 
   it(`queueDeleteFromDisk`, () => {
@@ -117,10 +117,10 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([]);
     expect(i.dirsToDelete).toEqual([`/dir1`]);
     expect(i.dirsToEnsure).toEqual([]);
-    expect(items.get(`/dir1`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1/file1.js`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir2/file2.js`).queueDeleteFromDisk).toBe(false);
-    expect(items.get(`/dir1`).queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1/file1.js`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir2/file2.js`)?.queueDeleteFromDisk).toBe(false);
+    expect(items.get(`/dir1`)?.queueDeleteFromDisk).toBe(false);
   });
 
   it(`write directory to disk`, () => {
@@ -130,7 +130,7 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`/dir1`]);
-    expect(items.get(`/dir1`).queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir1`)?.queueWriteToDisk).toBe(false);
   });
 
   it(`write file queued even if it's also queueDeleteFromDisk`, () => {
@@ -140,7 +140,7 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([`/dir1/file1.js`]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`/dir1`]);
-    expect(items.get(`/dir1/file1.js`).queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir1/file1.js`)?.queueWriteToDisk).toBe(false);
   });
 
   it(`write file queued`, () => {
@@ -152,9 +152,9 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
     expect(i.filesToWrite).toEqual([`/dir1/file1.js`, `/dir1/file2.js`, `/dir2/file3.js`]);
     expect(i.dirsToDelete).toEqual([]);
     expect(i.dirsToEnsure).toEqual([`/dir1`, `/dir2`]);
-    expect(items.get(`/dir1/file1.js`).queueWriteToDisk).toBe(false);
-    expect(items.get(`/dir1/file2.js`).queueWriteToDisk).toBe(false);
-    expect(items.get(`/dir2/file3.js`).queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir1/file1.js`)?.queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir1/file2.js`)?.queueWriteToDisk).toBe(false);
+    expect(items.get(`/dir2/file3.js`)?.queueWriteToDisk).toBe(false);
   });
 
   it(`do nothing`, () => {
@@ -168,7 +168,7 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
 
 describe(`in-memory-fs`, () => {
   let sys = createTestingSystem();
-  let fs: d.InMemoryFileSystem;
+  let fs: InMemoryFileSystem;
 
   beforeEach(() => {
     sys = createTestingSystem();
@@ -423,7 +423,7 @@ describe(`in-memory-fs`, () => {
     await fs.commit();
     fs.clearCache();
 
-    let content: string;
+    let content: string = '';
     try {
       content = await fs.readFile(`/dir/file.js`);
     } catch (e) {
@@ -465,7 +465,7 @@ describe(`in-memory-fs`, () => {
     await fs.commit();
     fs.clearCache();
 
-    let content: string;
+    let content: string = '';
     try {
       content = fs.readFileSync(`/dir/file.js`);
     } catch (e) {
@@ -583,7 +583,7 @@ describe(`in-memory-fs`, () => {
     expect(sys.diskReads).toBe(1);
 
     let i = await fs.commit();
-    expect(sys.diskWrites).toBe(3);
+    expect(sys.diskWrites).toBe(4);
     expect(i.filesWritten).toHaveLength(1);
     expect(i.filesWritten[0]).toBe(`/dir/file2.js`);
 

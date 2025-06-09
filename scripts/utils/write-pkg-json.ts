@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+
 import { BuildOptions } from './options';
 
 export function writePkgJson(opts: BuildOptions, pkgDir: string, pkgData: PackageData) {
@@ -28,7 +29,7 @@ export function writePkgJson(opts: BuildOptions, pkgDir: string, pkgData: Packag
   const formatedPkg: any = {};
   PROPS_ORDER.forEach((pkgProp) => {
     if (pkgProp in pkgData) {
-      formatedPkg[pkgProp] = pkgData[pkgProp];
+      formatedPkg[pkgProp] = pkgData[pkgProp as keyof PackageData];
     }
   });
 

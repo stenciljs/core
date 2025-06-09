@@ -90,7 +90,7 @@ function render(fileName, brotliSize, gzipSize, minifiedSize) {
     fileName = dashSplt.join('-') + '.' + dotSplt[1];
   }
   return `| ${fileName.padEnd(40)} | ${getFileSize(brotliSize).padEnd(8)} | ${getFileSize(gzipSize).padEnd(
-    8
+    8,
   )} | ${getFileSize(minifiedSize).padEnd(8)} |`;
 }
 

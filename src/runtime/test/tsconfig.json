@@ -22,7 +22,8 @@
     "baseUrl": ".",
     "paths": {
       "@stencil/core": ["../../index.ts"],
-      "@stencil/core/testing": ["../../testing/index.ts"]
+      "@stencil/core/testing": ["../../testing/index.ts"],
+      "@platform": ["../../client/index.ts"]
     }
   }
 }

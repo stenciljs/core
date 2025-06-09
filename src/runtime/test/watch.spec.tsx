@@ -1,6 +1,8 @@
 import { Component, Method, Prop, State, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
+import { withSilentWarn } from '../../testing/testing-utils';
+
 describe('watch', () => {
   it('watch is called each time a prop changes', async () => {
     @Component({ tag: 'cmp-a' })
@@ -34,8 +36,8 @@ describe('watch', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    spyOn(rootInstance, 'method1');
-    spyOn(rootInstance, 'method2');
+    jest.spyOn(rootInstance, 'method1');
+    jest.spyOn(rootInstance, 'method2');
 
     // set same values, watch should not be called
     root.prop1 = 1;
@@ -60,9 +62,9 @@ describe('watch', () => {
     class CmpA {
       watchCalled = 0;
 
-      @Prop() prop = 10;
-      @Prop() value = 10;
-      @State() someState = 'default';
+      @Prop({ mutable: true }) prop = 10;
+      @Prop({ mutable: true }) value = 10;
+      @State({ mutable: true }) someState = 'default';
 
       @Watch('prop')
       @Watch('value')
@@ -94,12 +96,15 @@ describe('watch', () => {
       }
     }
 
-    const { root, rootInstance } = await newSpecPage({
-      components: [CmpA],
-      html: `<cmp-a prop="123"></cmp-a>`,
-    });
+    const { root, rootInstance } = await withSilentWarn(() =>
+      newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a prop="123"></cmp-a>`,
+      }),
+    );
+
     expect(rootInstance.watchCalled).toBe(6);
-    spyOn(rootInstance, 'method');
+    jest.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.prop = 1000;
@@ -153,10 +158,12 @@ describe('watch', () => {
       }
     }
 
-    const { root, waitForChanges } = await newSpecPage({
-      components: [CmpA],
-      html: `<cmp-a></cmp-a>`,
-    });
+    const { root, waitForChanges } = await withSilentWarn(() =>
+      newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      }),
+    );
 
     expect(root).toEqualHtml(`<cmp-a>2 4 4</cmp-a>`);
     await waitForChanges();
@@ -166,5 +173,53 @@ describe('watch', () => {
     await root.pushState();
     await waitForChanges();
     expect(root).toEqualHtml(`<cmp-a>3 5 5</cmp-a>`);
+  });
+
+  it('correctly calls watch when @Prop uses `set()', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      method1Called = 0;
+
+      private _prop1 = 1;
+      @Prop()
+      get prop1() {
+        return this._prop1;
+      }
+      set prop1(newProp: number) {
+        if (isNaN(newProp)) return;
+        this._prop1 = newProp;
+      }
+
+      @Watch('prop1')
+      method1() {
+        this.method1Called++;
+      }
+
+      componentDidLoad() {
+        expect(this.method1Called).toBe(0);
+        expect(this.prop1).toBe(1);
+      }
+    }
+
+    const { root, rootInstance } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    jest.spyOn(rootInstance, 'method1');
+
+    // set same values, watch should not be called
+    root.prop1 = 1;
+    expect(rootInstance.method1).toHaveBeenCalledTimes(0);
+
+    // set different values
+    root.prop1 = 100;
+    expect(rootInstance.method1).toHaveBeenCalledTimes(1);
+    expect(rootInstance.method1).toHaveBeenLastCalledWith(100, 1, 'prop1');
+
+    // guard has prevented the watch from being called
+    root.prop1 = 'bye';
+    expect(root.prop1).toBe(100);
+    expect(rootInstance.method1).toHaveBeenCalledTimes(1);
+    expect(rootInstance.method1).toHaveBeenLastCalledWith(100, 1, 'prop1');
   });
 });

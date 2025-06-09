@@ -1,63 +1,49 @@
-import { isInteractive, TERMINAL_INFO, tryFn, uuidv4, hasDebug, hasVerbose } from '../helpers';
-import { mockLogger } from '@stencil/core/testing';
 import { createSystem } from '../../../compiler/sys/stencil-sys';
+import { ConfigFlags, createConfigFlags } from '../../config-flags';
+import { hasDebug, hasVerbose, isInteractive, tryFn, uuidv4 } from '../helpers';
 
 describe('hasDebug', () => {
-  it('Returns true when a flag is passed', () => {
-    const config = {
-      flags: {
-        debug: true,
-        verbose: false,
-      },
-    };
+  it('returns true when the "debug" flag is true', () => {
+    const flags = createConfigFlags({
+      debug: true,
+    });
 
-    expect(hasDebug(config)).toBe(true);
+    expect(hasDebug(flags)).toBe(true);
   });
 
-  it('Returns false when a flag is not passed', () => {
-    const config = {
-      flags: {
-        debug: false,
-        verbose: false,
-      },
-    };
+  it('returns false when the "debug" flag is false', () => {
+    const flags = createConfigFlags({
+      debug: false,
+    });
 
-    expect(hasDebug(config)).toBe(false);
+    expect(hasDebug(flags)).toBe(false);
+  });
+
+  it('returns false when a flag is not passed', () => {
+    const flags = createConfigFlags({});
+
+    expect(hasDebug(flags)).toBe(false);
   });
 });
 
 describe('hasVerbose', () => {
-  it('Returns true when both flags are passed', () => {
-    const config = {
-      flags: {
-        debug: true,
-        verbose: true,
-      },
-    };
+  it.each<Partial<ConfigFlags>>([
+    { debug: true, verbose: false },
+    { debug: false, verbose: true },
+    { debug: false, verbose: false },
+  ])('returns false when debug=$debug and verbose=$verbose', (flagOverrides) => {
+    const flags = createConfigFlags(flagOverrides);
 
-    expect(hasVerbose(config)).toBe(true);
+    expect(hasVerbose(flags)).toBe(false);
   });
 
-  it('Returns false when the verbose flag is passed, and debug is not', () => {
-    const config = {
-      flags: {
-        debug: false,
-        verbose: true,
-      },
-    };
+  it('returns true when debug=true and verbose=true', () => {
+    const flags = createConfigFlags({
+      debug: true,
+      verbose: true,
+    });
 
-    expect(hasVerbose(config)).toBe(false);
-  });
-
-  it('Returns false when the flag is not passed', () => {
-    const config = {
-      flags: {
-        debug: false,
-        verbose: false,
-      },
-    };
-
-    expect(hasVerbose(config)).toBe(false);
+    expect(hasVerbose(flags)).toBe(true);
   });
 });
 
@@ -73,22 +59,22 @@ describe('isInteractive', () => {
   const sys = createSystem();
 
   it('returns false by default', () => {
-    const result = isInteractive(sys, { flags: { ci: false } }, { ci: false, tty: false });
+    const result = isInteractive(sys, createConfigFlags({ ci: false }), { ci: false, tty: false });
     expect(result).toBe(false);
   });
 
   it('returns false when tty is false', () => {
-    const result = isInteractive(sys, { flags: { ci: true } }, { ci: true, tty: false });
+    const result = isInteractive(sys, createConfigFlags({ ci: true }), { ci: true, tty: false });
     expect(result).toBe(false);
   });
 
   it('returns false when ci is true', () => {
-    const result = isInteractive(sys, { flags: { ci: true } }, { ci: true, tty: true });
+    const result = isInteractive(sys, createConfigFlags({ ci: true }), { ci: true, tty: true });
     expect(result).toBe(false);
   });
 
   it('returns true when tty is true and ci is false', () => {
-    const result = isInteractive(sys, { flags: { ci: false } }, { ci: false, tty: true });
+    const result = isInteractive(sys, createConfigFlags({ ci: false }), { ci: false, tty: true });
     expect(result).toBe(true);
   });
 });

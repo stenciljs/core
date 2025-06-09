@@ -3,9 +3,11 @@
  */
 export class MockPerformance implements Performance {
   timeOrigin: number;
+  eventCounts: EventCounts;
 
   constructor() {
     this.timeOrigin = Date.now();
+    this.eventCounts = new Map<string, number>();
   }
 
   addEventListener() {

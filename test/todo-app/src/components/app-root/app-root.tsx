@@ -22,7 +22,7 @@ export class AppRoot {
         <section class="main" hidden={!list.length}>
           <input
             id="toggle-all"
-            onInput={(e: CustomEvent) => {
+            onInput={(e: InputEvent) => {
               this.list = list.map((item) => {
                 item.checked = !!(e.target as HTMLInputElement).checked;
                 return item;

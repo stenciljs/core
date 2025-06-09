@@ -1,17 +1,20 @@
-import type * as d from '../../../declarations';
 import { augmentDiagnosticWithNode, buildError, flatOne } from '@utils';
-import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
-import { getDeclarationParameters, isDecoratorNamed } from './decorator-utils';
 import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
 export const listenDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
+  typeChecker: ts.TypeChecker,
   decoratedMembers: ts.ClassElement[],
-  newMembers: ts.ClassElement[]
+  newMembers: ts.ClassElement[],
+  decoratorName: string,
 ) => {
   const listeners = decoratedMembers
     .filter(ts.isMethodDeclaration)
-    .map((method) => parseListenDecorators(diagnostics, method));
+    .map((method) => parseListenDecorators(diagnostics, typeChecker, method, decoratorName));
 
   const flatListeners = flatOne(listeners);
   if (flatListeners.length > 0) {
@@ -19,15 +22,20 @@ export const listenDecoratorsToStatic = (
   }
 };
 
-const parseListenDecorators = (diagnostics: d.Diagnostic[], method: ts.MethodDeclaration) => {
-  const listenDecorators = method.decorators.filter(isDecoratorNamed('Listen'));
+const parseListenDecorators = (
+  diagnostics: d.Diagnostic[],
+  typeChecker: ts.TypeChecker,
+  method: ts.MethodDeclaration,
+  decoratorName: string,
+): d.ComponentCompilerListener[] => {
+  const listenDecorators = (retrieveTsDecorators(method) ?? []).filter(isDecoratorNamed(decoratorName));
   if (listenDecorators.length === 0) {
     return [];
   }
 
   return listenDecorators.map((listenDecorator) => {
     const methodName = method.name.getText();
-    const [listenText, listenOptions] = getDeclarationParameters<string, d.ListenOptions>(listenDecorator);
+    const [listenText, listenOptions] = getDecoratorParameters<string, d.ListenOptions>(listenDecorator, typeChecker);
 
     const eventNames = listenText.split(',');
     if (eventNames.length > 1) {
@@ -57,7 +65,7 @@ export const parseListener = (eventName: string, opts: d.ListenOptions = {}, met
     passive:
       typeof opts.passive === 'boolean'
         ? opts.passive
-        : // if the event name is kown to be a passive event then set it to true
+        : // if the event name is known to be a passive event then set it to true
           PASSIVE_TRUE_DEFAULTS.has(rawEventName.toLowerCase()),
   };
   return listener;

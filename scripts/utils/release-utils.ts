@@ -1,10 +1,9 @@
-import fs from 'fs-extra';
-import execa from 'execa';
 import color from 'ansi-colors';
-import semver from 'semver';
-import open from 'open';
-import { BuildOptions } from './options';
+import fs from 'fs-extra';
 import { join } from 'path';
+import semver from 'semver';
+
+import { BuildOptions } from './options';
 
 export const SEMVER_INCREMENTS: ReadonlyArray<string> = [
   'patch',
@@ -39,7 +38,7 @@ export const isValidVersionInput = (input: string): boolean =>
 /**
  * Determines if the provided `version` is a semver pre-release or not
  * @param version the version string to evaluate
- * @retuns true if the `version` is a pre-release, false otherwise
+ * @returns true if the `version` is a pre-release, false otherwise
  */
 export const isPrereleaseVersion = (version: string): boolean =>
   PRERELEASE_VERSIONS.indexOf(version) !== -1 || Boolean(semver.prerelease(version));
@@ -91,13 +90,34 @@ export function prettyVersionDiff(oldVersion: string, inc: any): string {
 }
 
 /**
- * Write CHANGELOG.md to disk. Stencil uses the Angular-variant of conventional commits; commits must be formatted
- * accordingly in order to be added to the changelog properly.
+ * Write changes to the local CHANGELOG.md on disk.
+ *
+ * Stencil uses the Angular-variant of conventional commits; commits must be formatted accordingly in order to be added
+ * to the changelog properly.
  * @param opts build options to be used to update the changelog
  */
 export async function updateChangeLog(opts: BuildOptions): Promise<void> {
   const ccPath = join(opts.nodeModulesDir, '.bin', 'conventional-changelog');
-  await execa('node', [ccPath, '-p', 'angular', '-o', '-i', opts.changelogPath, '-s'], { cwd: opts.rootDir });
+  const ccConfigPath = join(__dirname, 'conventional-changelog-config.js');
+  const { execa } = await import('execa');
+  // API Docs for conventional-changelog: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-core#api
+  await execa(
+    'node',
+    [
+      ccPath,
+      '--preset',
+      'angular',
+      '--infile',
+      opts.changelogPath,
+      '--outfile',
+      '--same-file',
+      '--config',
+      ccConfigPath,
+    ],
+    {
+      cwd: opts.rootDir,
+    },
+  );
 
   let changelog = await fs.readFile(opts.changelogPath, 'utf8');
   changelog = changelog.replace(/\# \[/, '# ' + opts.vermoji + ' [');
@@ -146,5 +166,6 @@ export async function postGithubRelease(opts: BuildOptions): Promise<void> {
     url.searchParams.set('prerelease', '1');
   }
 
+  const open = (await import('open')).default;
   await open(url.href);
 }

@@ -1,0 +1,86 @@
+name: 'Stencil Production Release PR Creation'
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: choice
+        description: Which version should be published?
+        options:
+          - prerelease
+          - prepatch
+          - preminor
+          - premajor
+          - patch
+          - minor
+          - major
+      base:
+        required: true
+        type: choice
+        description: Which base branch should be targeted?
+        default: main
+        options:
+          - main
+          - v3-maintenance
+
+jobs:
+  create-stencil-release-pull-request:
+    name: Generate Stencil Release PR
+    runs-on: ubuntu-latest
+    steps:
+      # Log the input from GitHub Actions for easy traceability
+      - name: Log GitHub Input
+        run: |
+          echo "Version: ${{ inputs.version }}"
+        shell: bash
+
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          # A depth of 0 gets the entire git history, which we'll want for things like checking all git history/tags.
+          # We need git history to generate the changelog; however, we don't know how deep to go.
+          # Since publishing is a one-off activity, just get everything.
+          fetch-depth: 0
+          ref: ${{ inputs.base }}
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      # TODO(STENCIL-927): Backport changes to the v3 branch
+      - name: Run Publish Preparation Script
+        run: npm run release.ci.prepare -- --version ${{ inputs.version }}
+        shell: bash
+
+      - name: Log Generated Changes
+        run: git --no-pager diff
+        shell: bash
+
+      - name: Generate Version String and Branch Name
+        id: name_gen
+        run: |
+          VERSION_STR=$(jq '.version' package.json | sed s/\"//g)
+          echo "VERSION_STR=$VERSION_STR" >> "$GITHUB_OUTPUT"
+          echo "BRANCH_NAME=release/$VERSION_STR-run-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Print Version String and Branch Name
+        run: |
+          echo Version: ${{ steps.name_gen.outputs.VERSION_STR }}
+          echo Branch Name: ${{ steps.name_gen.outputs.BRANCH_NAME }}
+        shell: bash
+
+      - name: Create the Pull Request
+        uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
+        with:
+          # create a new pull request using the specified base branch
+          base: ${{ inputs.base }}
+          # specifies the name of the branch to create off of the base branch
+          branch: '${{ steps.name_gen.outputs.BRANCH_NAME }}'
+          # TODO(STENCIL-928): Remove this once pipeline is 'ready'
+          draft: true
+          # create a commit message containing the semver version, prefixed with a 'v' - e.g. 'v4.1.0'
+          commit-message: 'v${{ steps.name_gen.outputs.VERSION_STR }}'
+          # set the title of the pull request, otherwise it'll default to generic message
+          title: 'Release v${{ steps.name_gen.outputs.VERSION_STR }}'
+          # the body of the pull request summary can be empty
+          body: ''

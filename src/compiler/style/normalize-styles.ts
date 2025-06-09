@@ -1,6 +1,7 @@
+import { DEFAULT_STYLE_MODE, join, normalizePath, relative } from '@utils';
+import { dirname, isAbsolute } from 'path';
+
 import type * as d from '../../declarations';
-import { DEFAULT_STYLE_MODE, normalizePath } from '@utils';
-import { dirname, isAbsolute, join, relative } from 'path';
 
 export const normalizeStyles = (tagName: string, componentFilePath: string, styles: d.StyleCompiler[]) => {
   styles.forEach((style) => {

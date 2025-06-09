@@ -9,7 +9,7 @@ button {
   color: white;
   font-weight: bold;
 }
-`
+`,
 );
 
 styleImports.set(
@@ -22,7 +22,7 @@ my-button { display: block; padding: 20px; background: #ddd; }
 my-button::before { content: "style-import.css"; position: absolute; left: 0; top: 0; }
 
 button { background: purple; }
-`
+`,
 );
 
 styleImports.set(
@@ -35,7 +35,7 @@ styleImports.set(
 :host::before { content: "scoped-style-import.css"; position: absolute; left: 0; top: 0; }
 
 button { background: maroon; }
-`
+`,
 );
 
 styleImports.set(
@@ -48,7 +48,7 @@ styleImports.set(
 :host::before { content: "ios.css"; position: absolute; left: 0; top: 0; }
 
 button { background: blue; }
-`
+`,
 );
 
 styleImports.set(
@@ -61,7 +61,7 @@ styleImports.set(
 :host::before { content: "md.css"; position: absolute; left: 50px; top: 0; }
 
 button { background: green; }
-`
+`,
 );
 
 export const cssTemplatePlugin = {

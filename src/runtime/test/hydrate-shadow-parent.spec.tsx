@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('hydrate, shadow parent', () => {
@@ -54,7 +54,6 @@ describe('hydrate, shadow parent', () => {
             <slot></slot>
           </div>
         </mock:shadow-root>
-        <!---->
         middle
       </cmp-a>
     `);
@@ -114,7 +113,6 @@ describe('hydrate, shadow parent', () => {
           <slot></slot>
           bottom
         </mock:shadow-root>
-        <!---->
         middle
       </cmp-a>
     `);
@@ -272,7 +270,6 @@ describe('hydrate, shadow parent', () => {
         <mock:shadow-root>
           <cmp-b class="hydrated">
             <!--r.2-->
-            <!---->
             <!--s.2.0.0.0.-->
             cmp-a-light-dom
           </cmp-b>
@@ -351,13 +348,11 @@ describe('hydrate, shadow parent', () => {
             <slot name="end"></slot>
           </section>
         </mock:shadow-root>
-        <!---->
         Title
       </cmp-a>
     `);
     expect(clientHydrated.root).toEqualLightHtml(`
     <cmp-a class="hydrated">
-      <!---->
       Title
     </cmp-a>
   `);
@@ -409,7 +404,7 @@ describe('hydrate, shadow parent', () => {
         <!--o.0.2.-->
         <a c-id="1.0.0.0">
           <!--s.1.1.1.0.-->
-          <ion-badge class="hydrated" c-id="0.2" s-id="2">
+          <ion-badge class="hydrated" c-id="0.2" s-id="2" s-sn="">
             <!--r.2-->
             <!--o.0.4.-->
             <!--s.2.0.0.0.-->
@@ -441,12 +436,10 @@ describe('hydrate, shadow parent', () => {
             </ion-ripple-effect>
           </a>
         </mock:shadow-root>
-        <!---->
         <ion-badge class="hydrated">
           <mock:shadow-root>
             <slot></slot>
           </mock:shadow-root>
-          <!---->
           root-text
         </ion-badge>
       </ion-tab-button>
@@ -482,7 +475,7 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <!--s.1.0.0.0.-->
-        <cmp-b class="hydrated" c-id="0.1" s-id="2">
+        <cmp-b class="hydrated" c-id="0.1" s-id="2" s-sn="">
           <!--r.2-->
           <!--o.0.2-->
           <!--s.2.0.0.0.-->
@@ -504,10 +497,8 @@ describe('hydrate, shadow parent', () => {
         <mock:shadow-root>
             <slot></slot>
         </mock:shadow-root>
-        <!---->
         <cmp-b class="hydrated">
           <!--r.2-->
-          <!---->
           <!--s.2.0.0.0.-->
           cmp-a-light-dom
         </cmp-b>
@@ -516,10 +507,8 @@ describe('hydrate, shadow parent', () => {
 
     expect(clientHydrated.root).toEqualLightHtml(`
       <cmp-a class="hydrated">
-        <!---->
         <cmp-b class="hydrated">
             <!--r.2-->
-            <!---->
             <!--s.2.0.0.0.-->
             cmp-a-light-dom
         </cmp-b>

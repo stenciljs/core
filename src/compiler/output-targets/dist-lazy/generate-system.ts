@@ -1,18 +1,17 @@
+import { generatePreamble, join, relativeImport } from '@utils';
+import type { OutputOptions, RollupBuild } from 'rollup';
+
 import type * as d from '../../../declarations';
+import { getAppBrowserCorePolyfills } from '../../app-core/app-polyfills';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
-import { getAppBrowserCorePolyfills } from '../../app-core/app-polyfills';
-import { join } from 'path';
-import type { OutputOptions, RollupBuild } from 'rollup';
-import { relativeImport } from '../output-utils';
-import { generatePreamble } from '@utils';
 
 export const generateSystem = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   rollupBuild: RollupBuild,
-  outputTargets: d.OutputTargetDistLazy[]
+  outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const systemOutputs = outputTargets.filter((o) => !!o.systemDir);
 
@@ -23,12 +22,13 @@ export const generateSystem = async (
       entryFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name].system.js',
       chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      preferConst: true,
       sourcemap: config.sourceMap,
     };
     const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
     if (results != null) {
-      const destinations = systemOutputs.map((o) => o.esmDir);
+      const destinations = systemOutputs
+        .map((o) => o.esmDir)
+        .filter((esmDir): esmDir is string => typeof esmDir === 'string');
       buildCtx.systemComponentBundle = await generateLazyModules(
         config,
         compilerCtx,
@@ -38,7 +38,7 @@ export const generateSystem = async (
         results,
         'es5',
         true,
-        '.system'
+        '.system',
       );
 
       await generateSystemLoaders(config, compilerCtx, results, systemOutputs);
@@ -49,10 +49,10 @@ export const generateSystem = async (
 };
 
 const generateSystemLoaders = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   rollupResult: d.RollupResult[],
-  systemOutputs: d.OutputTargetDistLazy[]
+  systemOutputs: d.OutputTargetDistLazy[],
 ): Promise<void[]> => {
   const loaderFilename = rollupResult.find((r) => r.type === 'chunk' && r.isBrowserLoader).fileName;
 
@@ -60,15 +60,15 @@ const generateSystemLoaders = (
 };
 
 const writeSystemLoader = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   loaderFilename: string,
-  outputTarget: d.OutputTargetDistLazy
+  outputTarget: d.OutputTargetDistLazy,
 ): Promise<void> => {
   if (outputTarget.systemLoaderFile) {
     const entryPointPath = join(outputTarget.systemDir, loaderFilename);
     const relativePath = relativeImport(outputTarget.systemLoaderFile, entryPointPath);
-    const loaderContent = await getSystemLoader(config, compilerCtx, relativePath, outputTarget.polyfills);
+    const loaderContent = await getSystemLoader(config, compilerCtx, relativePath, !!outputTarget.polyfills);
     await compilerCtx.fs.writeFile(outputTarget.systemLoaderFile, loaderContent, {
       outputTargetType: outputTarget.type,
     });
@@ -76,10 +76,10 @@ const writeSystemLoader = async (
 };
 
 const getSystemLoader = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   corePath: string,
-  includePolyfills: boolean
+  includePolyfills: boolean,
 ): Promise<string> => {
   const polyfills = includePolyfills
     ? await getAppBrowserCorePolyfills(config, compilerCtx)
@@ -102,15 +102,12 @@ const getSystemLoader = async (
 
     var resourcesUrl = scriptElm ? scriptElm.getAttribute('data-resources-url') || scriptElm.src : '';
     var start = function() {
-      var url = new URL('${corePath}', new URL(resourcesUrl, window.location.origin));
+      // if src is not present then origin is "null", and new URL() throws TypeError: Failed to construct 'URL': Invalid base URL
+      var url = new URL('${corePath}', new URL(resourcesUrl, window.location.origin !== 'null' ? window.location.origin : undefined));
       System.import(url.href);
     };
 
-    if (window.__cssshim) {
-      window.__cssshim.i().then(start);
-    } else {
-      start();
-    }
+    start();
 
     // Note: using .call(window) here because the self-executing function needs
     // to be scoped to the window object for the ES6Promise polyfill to work

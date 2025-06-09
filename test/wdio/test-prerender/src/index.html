@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test Prerender App</title>
+  <link href="/prerender/build/testprerender.css" rel="stylesheet">
+  <script src="/prerender/build/testprerender.esm.js" type="module"></script>
+  <script src="/prerender/build/testprerender.js" nomodule></script>
+</head>
+<body>
+  <app-root></app-root>
+  <cmp-client-scoped>scoped light-dom: red if in the correct slot</cmp-client-scoped>
+  <cmp-client-shadow>shadow light-dom: red if in the correct slot</cmp-client-shadow>
+  <test-svg></test-svg>
+</body>
+</html>

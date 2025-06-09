@@ -7,11 +7,11 @@ body:
       label: Prerequisites
       description: Please ensure you have completed all of the following.
       options:
-        - label: I have read the [Contributing Guidelines](https://github.com/ionic-team/stencil/blob/main/.github/CONTRIBUTING.md).
+        - label: I have read the [Contributing Guidelines](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md).
           required: true
-        - label: I agree to follow the [Code of Conduct](https://github.com/ionic-team/stencil/blob/main/CODE_OF_CONDUCT.md).
+        - label: I agree to follow the [Code of Conduct](https://github.com/stenciljs/core/blob/main/CODE_OF_CONDUCT.md).
           required: true
-        - label: I have searched for [existing issues](https://github.com/ionic-team/stencil/issues) that already report this problem, without success.
+        - label: I have searched for [existing issues](https://github.com/stenciljs/core/issues) that already report this problem, without success.
           required: true
   - type: input
     attributes:
@@ -33,6 +33,14 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: System Info
+      description: |
+        Output of `npx stencil info`.
+        Please provide any additional information, such as npm version, browser(s) & version(s) as well
+      render: shell
+      placeholder: System, Environment, Browsers. At minimum, please include `npx stencil info` output.
+  - type: textarea
+    attributes:
       label: Steps to Reproduce
       description: Please explain the steps required to duplicate this issue.
     validations:
@@ -40,10 +48,14 @@ body:
   - type: input
     attributes:
       label: Code Reproduction URL
-      description: Please reproduce this issue in a blank Stencil starter application and provide a link to the repo. Run `npm init stencil` to quickly spin up a Stencil project. This is the best way to ensure this issue is triaged quickly. Issues without a code reproduction may be closed if the Stencil Team cannot reproduce the issue you are reporting.
+      description: |
+        Please reproduce this issue in a blank Stencil starter application and provide a link to the repo.
+        Run `npm init stencil@latest` to quickly spin up a Stencil project.
+        This is the best way to ensure this issue is triaged quickly.
+        Issues that do not include a code reproduction are likely to be be closed without any investigation.
       placeholder: https://github.com/...
     validations:
-      required: true 
+      required: true
   - type: textarea
     attributes:
       label: Additional Information

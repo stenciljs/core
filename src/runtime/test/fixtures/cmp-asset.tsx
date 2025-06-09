@@ -1,4 +1,4 @@
-import { Component, Host, Prop, getAssetPath, h } from '@stencil/core';
+import { Component, getAssetPath, h, Host, Prop } from '@stencil/core';
 
 @Component({
   tag: 'cmp-asset',

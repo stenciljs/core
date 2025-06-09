@@ -1,0 +1,131 @@
+name: Component Starter Smoke Test
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+jobs:
+  analysis_test:
+    name: (${{ matrix.os }}.node-${{ matrix.node }}.jest-${{ matrix.jest }})
+    strategy:
+      fail-fast: false
+      matrix:
+        jest: ['24', '25', '26', '27', '28', '29']
+        node: ['18', '20', '22']
+        os: ['ubuntu-latest', 'windows-latest']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Create Pack Directory
+        # `mkdir` will fail if this directory already exists.
+        # in the next steps, we'll immediately put the packed build archive in this directory.
+        # between that and excluding `*.tgz` files in `.gitignore`, that _should_ make it safe enough for us to later
+        # use `mv` to rename the `npm pack`ed tarball
+        run: mkdir stencil-pack-destination
+        shell: bash
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: ./stencil-pack-destination
+          filename: stencil-core-build.zip
+
+      - name: Copy package.json
+        # need `package.json` in order to run `npm pack`
+        run: cp package.json ./stencil-pack-destination
+        shell: bash
+
+      - name: Copy bin
+        # `bin/` isn't a part of the compiled output (therefore not in the build archive).
+        # we need this entrypoint for stencil to run.
+        run: cp -R bin ./stencil-pack-destination
+        shell: bash
+
+      - name: Remove node_modules
+        # clear out our local `node_modules/` so that they're not linked to in any way when `npm pack` is run
+        run: rm -rf node_modules/
+        shell: bash
+
+      - name: Pack the Build Archive
+        run: npm pack
+        working-directory: ./stencil-pack-destination
+        shell: bash
+
+      - name: Move the Stencil Build Artifact
+        # there isn't a great way to get the output of `npm pack`, just grab the most recent from our destination
+        # directory and hope for the best.
+        #
+        # we don't set the working-directory here to avoid having to deal with relative paths in the destination arg
+        run: mv $(ls -t stencil-pack-destination/*.tgz | head -1) stencil-eval.tgz
+        shell: bash
+
+      - name: Initialize Component Starter
+        run: npm init stencil component tmp-component-starter
+        shell: bash
+
+      - name: Install Component Starter Dependencies
+        run: npm install
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Install Stencil Eval
+        run: npm i ../stencil-eval.tgz
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Install Jest
+        run: npm install --dev-dependencies jest@29 jest-cli@29 @types/jest@29
+
+      - name: Build Starter Project
+        run: npm run build
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Test Starter Project
+        run: npm run test -- --no-build # the project was just built, don't build it again
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Test npx stencil generate
+        # `stencil generate` doesn't have a way to skip file generation, so we provide it with a component name and run
+        # `echo` with a newline to select "all files" to generate (and use -e to interpret that backslash for a newline)
+        run: echo -e '\n' | npm run generate -- hello-world
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Verify Files Exist
+        run: |
+          file_list=(
+            src/components/hello-world/hello-world.tsx
+            src/components/hello-world/hello-world.css
+            src/components/hello-world/test/hello-world.spec.tsx
+            src/components/hello-world/test/hello-world.e2e.ts
+          )
+          for file in "${file_list[@]}"; do
+              if [ -f "$file" ]; then
+                  echo "File '$file' exists."
+              else
+                  echo "File '$file' does not exist."
+                  exit 1
+              fi
+          done
+        working-directory: ./tmp-component-starter
+        shell: bash
+
+      - name: Test Generated Files
+        run: npm run test
+        working-directory: ./tmp-component-starter
+        shell: bash

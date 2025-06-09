@@ -1,18 +1,17 @@
+import { isString } from '@utils';
+import type { CompilerOptions } from 'typescript';
+
 import type {
+  CompilerSystem,
+  Config,
+  ImportData,
+  TransformCssToEsmInput,
+  TransformOptions,
   TranspileOptions,
   TranspileResults,
-  Config,
-  TransformOptions,
-  TransformCssToEsmInput,
-  ImportData,
-  CompilerSystem,
 } from '../../declarations';
-import { createSystem } from '../sys/stencil-sys';
-import { IS_NODE_ENV, requireFunc } from '../sys/environment';
-import { isString } from '@utils';
-import { parseImportPath } from '../transformers/stencil-import-path';
 import { STENCIL_INTERNAL_CLIENT_ID } from '../bundle/entry-alias-ids';
-import type { CompilerOptions } from 'typescript';
+import { parseImportPath } from '../transformers/stencil-import-path';
 
 export const getTranspileResults = (code: string, input: TranspileOptions) => {
   if (!isString(input.file)) {
@@ -39,15 +38,27 @@ export const getTranspileResults = (code: string, input: TranspileOptions) => {
 
 const transpileCtx = { sys: null as CompilerSystem };
 
-export const getTranspileConfig = (input: TranspileOptions) => {
+/**
+ * Configuration necessary for transpilation
+ */
+interface TranspileConfig {
+  compileOpts: TranspileOptions;
+  config: Config;
+  transformOpts: TransformOptions;
+}
+
+/**
+ * Get configuration necessary to carry out transpilation, including a Stencil
+ * configuration, transformation options, and transpilation options.
+ *
+ * @param input options for Stencil's transpiler (string-to-string compiler)
+ * @returns the options and configuration necessary for transpilation
+ */
+export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => {
   if (input.sys) {
     transpileCtx.sys = input.sys;
   } else if (!transpileCtx.sys) {
-    if (IS_NODE_ENV) {
-      transpileCtx.sys = requireFunc('../sys/node/index.js').createNodeSys();
-    } else {
-      transpileCtx.sys = createSystem();
-    }
+    transpileCtx.sys = require('../sys/node/index.js').createNodeSys();
   }
 
   const compileOpts: TranspileOptions = {
@@ -67,6 +78,9 @@ export const getTranspileConfig = (input: TranspileOptions) => {
   };
 
   const tsCompilerOptions: CompilerOptions = {
+    // ensure we uses legacy decorators
+    experimentalDecorators: true,
+
     // best we always set this to true
     allowSyntheticDefaultImports: true,
 
@@ -120,16 +134,17 @@ export const getTranspileConfig = (input: TranspileOptions) => {
   };
 
   const config: Config = {
-    rootDir: compileOpts.currentDirectory,
-    srcDir: compileOpts.currentDirectory,
+    _isTesting: true,
     devMode: true,
+    enableCache: false,
     minifyCss: true,
     minifyJs: false,
-    _isTesting: true,
-    validateTypes: false,
-    enableCache: false,
+    rootDir: compileOpts.currentDirectory,
+    srcDir: compileOpts.currentDirectory,
     sys: transpileCtx.sys,
+    transformAliasedImportPaths: input.transformAliasedImportPaths,
     tsCompilerOptions,
+    validateTypes: false,
   };
 
   return {
@@ -142,7 +157,7 @@ export const getTranspileConfig = (input: TranspileOptions) => {
 export const getTranspileCssConfig = (
   compileOpts: TranspileOptions,
   importData: ImportData,
-  results: TranspileResults
+  results: TranspileResults,
 ) => {
   const transformInput: TransformCssToEsmInput = {
     file: results.inputFilePath,
@@ -151,7 +166,6 @@ export const getTranspileCssConfig = (
     encapsulation: importData && importData.encapsulation,
     mode: importData && importData.mode,
     sourceMap: compileOpts.sourceMap !== false,
-    commentOriginalSelector: false,
     minify: false,
     autoprefixer: false,
     module: compileOpts.module,

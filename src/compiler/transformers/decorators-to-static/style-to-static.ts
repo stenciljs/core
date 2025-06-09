@@ -1,8 +1,9 @@
-import type * as d from '../../../declarations';
-import { basename, dirname, extname, join } from 'path';
-import { ConvertIdentifier, convertValueToLiteral, createStaticGetter } from '../transform-utils';
-import { DEFAULT_STYLE_MODE } from '@utils';
+import { DEFAULT_STYLE_MODE, join } from '@utils';
+import { basename, dirname, extname } from 'path';
 import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { ConvertIdentifier, convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
 export const styleToStatic = (newMembers: ts.ClassElement[], componentOptions: d.ComponentOptions) => {
   const defaultModeStyles = [];
@@ -43,7 +44,7 @@ export const styleToStatic = (newMembers: ts.ClassElement[], componentOptions: d
       // @Component({
       //   styles: ":host {...}"
       // })
-      newMembers.push(createStaticGetter('styles', ts.createLiteral(styles)));
+      newMembers.push(createStaticGetter('styles', ts.factory.createStringLiteral(styles)));
     }
   } else if (componentOptions.styles) {
     const convertIdentifier = componentOptions.styles as any as ConvertIdentifier;
@@ -53,7 +54,7 @@ export const styleToStatic = (newMembers: ts.ClassElement[], componentOptions: d
       //   styles
       // })
       const stylesIdentifier = convertIdentifier.__escapedText;
-      newMembers.push(createStaticGetter('styles', ts.createIdentifier(stylesIdentifier)));
+      newMembers.push(createStaticGetter('styles', ts.factory.createIdentifier(stylesIdentifier)));
     } else if (typeof convertIdentifier === 'object') {
       // import ios from './ios.css';
       // import md from './md.css';

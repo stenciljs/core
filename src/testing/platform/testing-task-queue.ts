@@ -1,4 +1,6 @@
 import type * as d from '@stencil/core/internal';
+
+import { QueuedLoadModule } from './load-module';
 import {
   caughtErrors,
   moduleLoaded,
@@ -8,7 +10,10 @@ import {
   queuedWriteTasks,
 } from './testing-constants';
 
-export function resetTaskQueue() {
+/**
+ * Reset the various data structures related to the testing rendering pipeline
+ */
+export function resetTaskQueue(): void {
   queuedTicks.length = 0;
   queuedWriteTasks.length = 0;
   queuedReadTasks.length = 0;
@@ -17,11 +22,24 @@ export function resetTaskQueue() {
   caughtErrors.length = 0;
 }
 
-export const nextTick = (cb: Function) => {
+/**
+ * Pushes the provided callback onto the {@link queuedTicks} data structure
+ * @param cb the callback to add to `queuedTicks`
+ */
+export const nextTick = (cb: Function): void => {
   queuedTicks.push(cb);
 };
 
-export function flushTicks() {
+/**
+ * Execute the callbacks in {@link queuedTicks} on the next NodeJS tick.
+ *
+ * Callbacks are invoked in the order that they appear in `queuedTasks` at the time this function is invoked.
+ * Async callbacks are not `await`ed.
+ *
+ * Any callbacks that are added to `queuedTasks` while this function is running are scheduled to be flushed on the
+ * next tick.
+ */
+export function flushTicks(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     function drain() {
       try {
@@ -50,15 +68,34 @@ export function flushTicks() {
   });
 }
 
-export function writeTask(cb: d.RafCallback) {
+/**
+ * Push a RequestAnimationFrame callback onto the {@link queuedWriteTasks} data structure
+ * @param cb the callback to push onto `queuedWriteTasks`
+ */
+export function writeTask(cb: d.RafCallback): void {
   queuedWriteTasks.push(cb);
 }
 
-export function readTask(cb: d.RafCallback) {
+/**
+ * Push a RequestAnimationFrame callback onto the {@link queuedReadTasks} data structure
+ * @param cb the callback to push onto `queuedReadTasks`
+ */
+export function readTask(cb: d.RafCallback): void {
   queuedReadTasks.push(cb);
 }
 
-export function flushQueue() {
+/**
+ * Flush the {@link queuedReadTasks} and {@link queuedWriteTasks} data structures on the next NodeJS process tick.
+ *
+ * The read task queue is drained first, followed by the write task queue.
+ * For each queue:
+ * - Each task is processed in the order it is found in its respective data structure at the time `queuedReadTasks` and
+ * `queuedWriteTasks` are read (note: these queues are not read at the same time).
+ * - When a task queue is processed, it is marked as empty before acting on the entries in the queue.
+ * - Items added to either queue after it has been read for processing will be handled on the subsequent tick.
+ * - Async items will be `await`ed
+ */
+export function flushQueue(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     async function drain() {
       try {
@@ -104,7 +141,7 @@ export function flushQueue() {
   });
 }
 
-export async function flushAll() {
+export async function flushAll(): Promise<void> {
   while (queuedTicks.length + queuedLoadModules.length + queuedWriteTasks.length + queuedReadTasks.length > 0) {
     await flushTicks();
     await flushLoadModule();
@@ -123,7 +160,14 @@ export async function flushAll() {
   return new Promise<void>((resolve) => process.nextTick(resolve));
 }
 
-export function loadModule(cmpMeta: d.ComponentRuntimeMeta, _hostRef: d.HostRef, _hmrVersionId?: string) {
+/**
+ * Add a component module to the global {@link queuedLoadModules} data structure
+ * @param cmpMeta the component compiler metadata of the component to eventually load
+ * @param _hostRef an unused parameter for a Stencil HostRef instance
+ * @param _hmrVersionId an unused parameter denoting the current hot-module reloading version
+ * @returns A promise that loads the component onto `queuedLoadModules`
+ */
+export function loadModule(cmpMeta: d.ComponentRuntimeMeta, _hostRef: d.HostRef, _hmrVersionId?: string): Promise<any> {
   return new Promise<any>((resolve) => {
     queuedLoadModules.push({
       bundleId: cmpMeta.$lazyBundleId$,
@@ -132,7 +176,7 @@ export function loadModule(cmpMeta: d.ComponentRuntimeMeta, _hostRef: d.HostRef,
   });
 }
 
-export function flushLoadModule(bundleId?: string) {
+export function flushLoadModule(bundleId?: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     try {
       process.nextTick(() => {
@@ -157,9 +201,4 @@ export function flushLoadModule(bundleId?: string) {
       reject(`flushLoadModule: ${e}`);
     }
   });
-}
-
-export interface QueuedLoadModule {
-  bundleId: any;
-  resolve: Function;
 }

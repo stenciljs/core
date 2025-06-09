@@ -5,7 +5,6 @@ export const STENCIL_APP_GLOBALS_ID = '@stencil/core/internal/app-globals';
 export const STENCIL_HYDRATE_FACTORY_ID = '@stencil/core/hydrate-factory';
 export const STENCIL_INTERNAL_CLIENT_ID = '@stencil/core/internal/client';
 export const STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID = '@stencil/core/internal/client/patch-browser';
-export const STENCIL_INTERNAL_CLIENT_PATCH_ESM_ID = '@stencil/core/internal/client/patch-esm';
 export const STENCIL_INTERNAL_HYDRATE_ID = '@stencil/core/internal/hydrate';
 export const STENCIL_MOCK_DOC_ID = '@stencil/core/mock-doc';
 export const APP_DATA_CONDITIONAL = '?app-data=conditional';

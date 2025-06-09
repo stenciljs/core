@@ -9,15 +9,20 @@ interface AppErrorData {
 
 type OpenInEditorCallback = (data: { file: string; line: number; column: number }) => void;
 
-export const appError = (data: AppErrorData) => {
-  const results = {
-    diagnostics: [] as any[],
-    status: null as string,
+interface AppErrorResults {
+  diagnostics: Diagnostic[];
+  status: null | string;
+}
+
+export const appError = (data: AppErrorData): AppErrorResults => {
+  const results: AppErrorResults = {
+    diagnostics: [] as Diagnostic[],
+    status: null,
   };
 
   if (data && data.window && Array.isArray(data.buildResults.diagnostics)) {
     const diagnostics = (data.buildResults as CompilerBuildResults).diagnostics.filter(
-      (diagnostic) => diagnostic.level === 'error'
+      (diagnostic) => diagnostic.level === 'error',
     );
 
     if (diagnostics.length > 0) {
@@ -37,16 +42,16 @@ export const appError = (data: AppErrorData) => {
 
 const appendDiagnostic = (
   doc: Document,
-  openInEditor: OpenInEditorCallback,
+  openInEditor: OpenInEditorCallback | undefined,
   modal: HTMLElement,
-  diagnostic: Diagnostic
+  diagnostic: Diagnostic,
 ) => {
   const card = doc.createElement('div');
   card.className = 'dev-server-diagnostic';
 
   const masthead = doc.createElement('div');
   masthead.className = 'dev-server-diagnostic-masthead';
-  masthead.title = `${escapeHtml(diagnostic.type)} error: ${escapeHtml(diagnostic.code)}`;
+  masthead.title = `${escapeHtml(diagnostic.type)} error: ${escapeHtml(diagnostic.code ?? 'unknown error')}`;
   card.appendChild(masthead);
 
   const title = doc.createElement('div');
@@ -72,14 +77,14 @@ const appendDiagnostic = (
 
   if (isUrl) {
     const fileHeader = doc.createElement('a');
-    fileHeader.href = diagnostic.absFilePath;
+    fileHeader.href = diagnostic.absFilePath ?? '';
     fileHeader.setAttribute('target', '_blank');
     fileHeader.setAttribute('rel', 'noopener noreferrer');
     fileHeader.className = 'dev-server-diagnostic-file-header';
 
     const filePath = doc.createElement('span');
     filePath.className = 'dev-server-diagnostic-file-path';
-    filePath.textContent = diagnostic.absFilePath;
+    filePath.textContent = diagnostic.absFilePath ?? '';
 
     fileHeader.appendChild(filePath);
     file.appendChild(fileHeader);
@@ -96,7 +101,7 @@ const appendDiagnostic = (
           fileHeader,
           diagnostic.absFilePath,
           diagnostic.lineNumber,
-          diagnostic.columnNumber
+          diagnostic.columnNumber,
         );
       }
     }
@@ -105,7 +110,7 @@ const appendDiagnostic = (
 
     const fileName = doc.createElement('span');
     fileName.className = 'dev-server-diagnostic-file-name';
-    fileName.textContent = parts.pop();
+    fileName.textContent = parts.pop() ?? '';
 
     const filePath = doc.createElement('span');
     filePath.className = 'dev-server-diagnostic-file-path';
@@ -139,18 +144,19 @@ const appendDiagnostic = (
       tdNum.className = 'dev-server-diagnostic-blob-num';
       if (l.lineNumber > 0) {
         tdNum.setAttribute('data-line-number', l.lineNumber + '');
-        tdNum.title = escapeHtml(diagnostic.relFilePath) + ', line ' + l.lineNumber;
+        tdNum.title = escapeHtml(diagnostic.relFilePath ?? '') + ', line ' + l.lineNumber;
 
-        if (canOpenInEditor) {
+        const maybeFile = diagnostic.absFilePath;
+        if (canOpenInEditor && maybeFile) {
           const column = l.lineNumber === diagnostic.lineNumber ? diagnostic.columnNumber : 1;
-          addOpenInEditor(openInEditor, tdNum, diagnostic.absFilePath, l.lineNumber, column);
+          addOpenInEditor(openInEditor, tdNum, maybeFile, l.lineNumber, column);
         }
       }
       tr.appendChild(tdNum);
 
       const tdCode = doc.createElement('td');
       tdCode.className = 'dev-server-diagnostic-blob-code';
-      tdCode.innerHTML = highlightError(l.text, l.errorCharStart, l.errorLength);
+      tdCode.innerHTML = highlightError(l.text ?? '', l.errorCharStart, l.errorLength ?? 0);
       tr.appendChild(tdCode);
     });
   }
@@ -162,33 +168,29 @@ const addOpenInEditor = (
   openInEditor: OpenInEditorCallback,
   elm: HTMLElement,
   file: string,
-  line: number,
-  column: number
+  line: number | undefined,
+  column: number | undefined,
 ) => {
   if (elm.tagName === 'A') {
     (elm as HTMLAnchorElement).href = '#open-in-editor';
   }
 
-  if (typeof line !== 'number' || line < 1) {
-    line = 1;
-  }
+  const lineNumber = typeof line !== 'number' || line < 1 ? 1 : line;
 
-  if (typeof column !== 'number' || column < 1) {
-    column = 1;
-  }
+  const columnNumber = typeof column !== 'number' || column < 1 ? 1 : column;
 
   elm.addEventListener('click', (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
     openInEditor({
       file: file,
-      line: line,
-      column: column,
+      line: lineNumber,
+      column: columnNumber,
     });
   });
 };
 
-const getDevServerModal = (doc: Document) => {
+const getDevServerModal = (doc: Document): HTMLElement => {
   let outer = doc.getElementById(DEV_SERVER_MODAL);
   if (!outer) {
     outer = doc.createElement('div');
@@ -199,12 +201,12 @@ const getDevServerModal = (doc: Document) => {
 
   outer.innerHTML = `<style>${appErrorCss}</style><div id="${DEV_SERVER_MODAL}-inner"></div>`;
 
-  return doc.getElementById(`${DEV_SERVER_MODAL}-inner`);
+  return doc.getElementById(`${DEV_SERVER_MODAL}-inner`) as HTMLElement;
 };
 
 export const clearAppErrorModal = (data: { window: Window }) => {
   const appErrorElm = data.window.document.getElementById(DEV_SERVER_MODAL);
-  if (appErrorElm) {
+  if (appErrorElm?.parentNode) {
     appErrorElm.parentNode.removeChild(appErrorElm);
   }
 };
@@ -224,7 +226,7 @@ const escapeHtml = (unsafe: string) => {
   return '';
 };
 
-const titleCase = (str: string) => str.charAt(0).toUpperCase() + str.substr(1);
+const titleCase = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const highlightError = (text: string, errorCharStart: number, errorLength: number) => {
   if (typeof text !== 'string') {
@@ -269,9 +271,9 @@ const prepareLines = (orgLines: PrintLine[]) => {
       return lines;
     }
     for (let i = 0; i < lines.length; i++) {
-      lines[i].text = lines[i].text.substr(1);
+      lines[i].text = lines[i].text?.slice(1) ?? '';
       lines[i].errorCharStart--;
-      if (!lines[i].text.length) {
+      if (!lines[i].text?.length) {
         return lines;
       }
     }
@@ -286,10 +288,10 @@ const eachLineHasLeadingWhitespace = (lines: PrintLine[]) => {
   }
 
   for (let i = 0; i < lines.length; i++) {
-    if (!lines[i].text || lines[i].text.length < 1) {
+    if (!lines[i].text || (lines[i].text?.length ?? 0) < 1) {
       return false;
     }
-    const firstChar = lines[i].text.charAt(0);
+    const firstChar = lines[i].text?.charAt(0);
     if (firstChar !== ' ' && firstChar !== '\t') {
       return false;
     }

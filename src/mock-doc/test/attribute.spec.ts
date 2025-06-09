@@ -1,7 +1,7 @@
+import { XLINK_NS } from '../../runtime/runtime-constants';
 import { MockAttr, MockAttributeMap } from '../attribute';
 import { MockDocument } from '../document';
 import { MockElement, MockHTMLElement } from '../node';
-import { XLINK_NS } from '../../runtime/runtime-constants';
 
 describe('attributes', () => {
   let doc: MockDocument;
@@ -22,11 +22,13 @@ describe('attributes', () => {
     element.setAttribute('attr-0', 'value-0');
     element.setAttribute('attr-1', 'value-1');
 
-    expect(element.attributes[0].name).toBe('attr-0');
-    expect(element.attributes[0].value).toBe('value-0');
-    expect(element.attributes[1].name).toBe('attr-1');
-    expect(element.attributes[1].value).toBe('value-1');
-    expect(element.attributes[2]).toBe(undefined);
+    const attributes = Array.from(element.attributes);
+
+    expect(attributes[0].name).toBe('attr-0');
+    expect(attributes[0].value).toBe('value-0');
+    expect(attributes[1].name).toBe('attr-1');
+    expect(attributes[1].value).toBe('value-1');
+    expect(attributes[2]).toBe(undefined);
   });
 
   it('attributes are case sensitive in Element', () => {
@@ -76,7 +78,7 @@ describe('attributes', () => {
     expect(element.getAttribute('prop6')).toBe('');
 
     expect(element).toEqualHtml(
-      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`
+      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`,
     );
   });
 
@@ -97,7 +99,7 @@ describe('attributes', () => {
     expect(element.getAttribute('prop6')).toBe('');
 
     expect(element).toEqualHtml(
-      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`
+      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`,
     );
   });
 
@@ -163,7 +165,25 @@ describe('attributes', () => {
     expect(img.draggable).toEqual(false);
   });
 
-  function testNsAttributes(element) {
+  describe('getAttributeNode', () => {
+    it('should return an attribute node if the attribute exists', () => {
+      const div = doc.createElement('div');
+      div.setAttribute('draggable', 'true');
+      expect(div.getAttributeNode('draggable')).toEqual({
+        _name: 'draggable',
+        _namespaceURI: null,
+        _value: 'true',
+      });
+    });
+
+    it('should return `null` if the attribute does not exist', () => {
+      const div = doc.createElement('div');
+      div.setAttribute('draggable', 'true');
+      expect(div.getAttributeNode('test')).toEqual(null);
+    });
+  });
+
+  function testNsAttributes(element: MockHTMLElement) {
     element.setAttributeNS('tEst', 'viewBox', '1');
     element.setAttributeNS('tEst', 'viewbox', '2');
 

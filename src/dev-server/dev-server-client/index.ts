@@ -1,8 +1,6 @@
 import type * as d from '../../declarations';
-import { applyPolyfills } from './polyfills';
 import { initDevClient } from './init-dev-client';
 
-declare const iframeWindow: Window;
 declare const appWindow: d.DevClientWindow;
 declare const config: d.DevClientConfig;
 
@@ -14,7 +12,5 @@ const defaultConfig: d.DevClientConfig = {
     location.port !== '' ? ':' + location.port : ''
   }/`,
 };
-
-applyPolyfills(iframeWindow);
 
 initDevClient(appWindow, Object.assign({}, defaultConfig, appWindow.devServerConfig, config));

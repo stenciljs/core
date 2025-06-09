@@ -1,7 +1,8 @@
-import type * as d from '../../../declarations';
-import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 import { dashToPascalCase } from '@utils';
 import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
  * Import and define components along with any component dependents within the `dist-custom-elements` output.
@@ -14,7 +15,7 @@ import ts from 'typescript';
 export const addDefineCustomElementFunctions = (
   compilerCtx: d.CompilerCtx,
   components: d.ComponentCompilerMeta[],
-  outputTarget: d.OutputTargetDistCustomElements
+  outputTarget: d.OutputTargetDistCustomElements,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return () => {
     return (tsSourceFile: ts.SourceFile): ts.SourceFile => {
@@ -31,19 +32,19 @@ export const addDefineCustomElementFunctions = (
         const customElementsDefineCallExpression = ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'define'),
           undefined,
-          [ts.factory.createIdentifier('tagName'), ts.factory.createIdentifier(principalComponent.componentClassName)]
+          [ts.factory.createIdentifier('tagName'), ts.factory.createIdentifier(principalComponent.componentClassName)],
         );
         // create a `case` block that defines the current component. We'll add them to our switch statement later.
         caseStatements.push(
-          createCustomElementsDefineCase(principalComponent.tagName, customElementsDefineCallExpression)
+          createCustomElementsDefineCase(principalComponent.tagName, customElementsDefineCallExpression),
         );
 
         setupComponentDependencies(moduleFile, components, newStatements, caseStatements, tagNames);
         addDefineCustomElementFunction(tagNames, newStatements, caseStatements);
 
-        if (outputTarget.autoDefineCustomElements) {
+        if (outputTarget.customElementsExportBehavior === 'auto-define-custom-elements') {
           const conditionalDefineCustomElementCall = createAutoDefinitionExpression(
-            principalComponent.componentClassName
+            principalComponent.componentClassName,
           );
           newStatements.push(conditionalDefineCustomElementCall);
         }
@@ -69,7 +70,7 @@ const setupComponentDependencies = (
   components: d.ComponentCompilerMeta[],
   newStatements: ts.Statement[],
   caseStatements: ts.CaseClause[],
-  tagNames: string[]
+  tagNames: string[],
 ) => {
   moduleFile.cmps.forEach((cmp) => {
     cmp.dependencies.forEach((dCmp) => {
@@ -113,10 +114,10 @@ const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Ex
         ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'get'),
           undefined,
-          [ts.factory.createIdentifier('tagName')]
-        )
+          [ts.factory.createIdentifier('tagName')],
+        ),
       ),
-      ts.factory.createBlock([ts.factory.createExpressionStatement(actionExpression)])
+      ts.factory.createBlock([ts.factory.createExpressionStatement(actionExpression)]),
     ),
     ts.factory.createBreakStatement(),
   ]);
@@ -150,24 +151,23 @@ const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Ex
 const addDefineCustomElementFunction = (
   tagNames: string[],
   newStatements: ts.Statement[],
-  caseStatements: ts.CaseClause[]
+  caseStatements: ts.CaseClause[],
 ) => {
   const newExpression = ts.factory.createFunctionDeclaration(
-    undefined,
     [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
     undefined,
     ts.factory.createIdentifier('defineCustomElement'),
     undefined,
-    undefined,
+    [],
     undefined,
     ts.factory.createBlock(
       [
         ts.factory.createIfStatement(
           ts.factory.createStrictEquality(
             ts.factory.createTypeOfExpression(ts.factory.createIdentifier('customElements')),
-            ts.factory.createStringLiteral('undefined')
+            ts.factory.createStringLiteral('undefined'),
           ),
-          ts.factory.createBlock([ts.factory.createReturnStatement()])
+          ts.factory.createBlock([ts.factory.createReturnStatement()]),
         ),
         ts.factory.createVariableStatement(
           undefined,
@@ -178,12 +178,12 @@ const addDefineCustomElementFunction = (
                 undefined,
                 undefined,
                 ts.factory.createArrayLiteralExpression(
-                  tagNames.map((tagName) => ts.factory.createStringLiteral(tagName))
-                )
+                  tagNames.map((tagName) => ts.factory.createStringLiteral(tagName)),
+                ),
               ),
             ],
-            ts.NodeFlags.Const
-          )
+            ts.NodeFlags.Const,
+          ),
         ),
         ts.factory.createExpressionStatement(
           ts.factory.createCallExpression(
@@ -197,10 +197,9 @@ const addDefineCustomElementFunction = (
                   ts.factory.createParameterDeclaration(
                     undefined,
                     undefined,
-                    undefined,
                     ts.factory.createIdentifier('tagName'),
                     undefined,
-                    undefined
+                    undefined,
                   ),
                 ],
                 undefined,
@@ -208,16 +207,16 @@ const addDefineCustomElementFunction = (
                 ts.factory.createBlock([
                   ts.factory.createSwitchStatement(
                     ts.factory.createIdentifier('tagName'),
-                    ts.factory.createCaseBlock(caseStatements)
+                    ts.factory.createCaseBlock(caseStatements),
                   ),
-                ])
+                ]),
               ),
-            ]
-          )
+            ],
+          ),
         ),
       ],
-      true
-    )
+      true,
+    ),
   );
   newStatements.push(newExpression);
 };
@@ -227,12 +226,13 @@ const addDefineCustomElementFunction = (
  * ```typescript
  * defineCustomElement(MyPrincipalComponent);
  * ```
+ * @param componentName the component's class name to use as the first argument to `defineCustomElement`
  * @returns the expression statement described above
  */
 function createAutoDefinitionExpression(componentName: string): ts.ExpressionStatement {
   return ts.factory.createExpressionStatement(
     ts.factory.createCallExpression(ts.factory.createIdentifier('defineCustomElement'), undefined, [
       ts.factory.createIdentifier(componentName),
-    ])
+    ]),
   );
 }

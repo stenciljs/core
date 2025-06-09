@@ -1,18 +1,33 @@
-import { objectLiteralToObjectMap } from '../transform-utils';
 import ts from 'typescript';
 
-export const getDeclarationParameters: GetDeclarationParameters = (decorator: ts.Decorator): any => {
+import { objectLiteralToObjectMap } from '../transform-utils';
+
+export const getDecoratorParameters: GetDecoratorParameters = (
+  decorator: ts.Decorator,
+  typeChecker: ts.TypeChecker,
+): any => {
   if (!ts.isCallExpression(decorator.expression)) {
     return [];
   }
-  return decorator.expression.arguments.map(getDeclarationParameter);
+  return decorator.expression.arguments.map((arg) => getDecoratorParameter(arg, typeChecker));
 };
 
-const getDeclarationParameter = (arg: ts.Expression): any => {
+const getDecoratorParameter = (arg: ts.Expression, typeChecker: ts.TypeChecker): any => {
   if (ts.isObjectLiteralExpression(arg)) {
     return objectLiteralToObjectMap(arg);
   } else if (ts.isStringLiteral(arg)) {
     return arg.text;
+  } else if (ts.isPropertyAccessExpression(arg) || ts.isIdentifier(arg)) {
+    const type = typeChecker.getTypeAtLocation(arg);
+    if (type !== undefined && type.isLiteral()) {
+      /**
+       * Using enums or variables require us to resolve the value for
+       * the computed property/identifier via the TS type checker. As long
+       * as the type resolves to a literal, we can grab its value to be used
+       * as the `@Watch()` decorator argument.
+       */
+      return type.value;
+    }
   }
 
   throw new Error(`invalid decorator argument: ${arg.getText()}`);
@@ -33,8 +48,8 @@ export const isDecoratorNamed = (propName: string) => {
   };
 };
 
-export interface GetDeclarationParameters {
-  <T>(decorator: ts.Decorator): [T];
-  <T, T1>(decorator: ts.Decorator): [T, T1];
-  <T, T1, T2>(decorator: ts.Decorator): [T, T1, T2];
+export interface GetDecoratorParameters {
+  <T>(decorator: ts.Decorator, typeChecker: ts.TypeChecker): [T];
+  <T, T1>(decorator: ts.Decorator, typeChecker: ts.TypeChecker): [T, T1];
+  <T, T1, T2>(decorator: ts.Decorator, typeChecker: ts.TypeChecker): [T, T1, T2];
 }

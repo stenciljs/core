@@ -1,14 +1,14 @@
-import type * as d from '../../declarations';
-import { buildError } from '@utils';
-import { relative } from 'path';
+import { buildError, relative } from '@utils';
 
-export const validateTranspiledComponents = (config: d.Config, buildCtx: d.BuildCtx) => {
+import type * as d from '../../declarations';
+
+export const validateTranspiledComponents = (config: d.ValidatedConfig, buildCtx: d.BuildCtx) => {
   for (const cmp of buildCtx.components) {
     validateUniqueTagNames(config, buildCtx, cmp);
   }
 };
 
-const validateUniqueTagNames = (config: d.Config, buildCtx: d.BuildCtx, cmp: d.ComponentCompilerMeta) => {
+const validateUniqueTagNames = (config: d.ValidatedConfig, buildCtx: d.BuildCtx, cmp: d.ComponentCompilerMeta) => {
   const tagName = cmp.tagName;
   const cmpsWithTagName = buildCtx.components.filter((c) => c.tagName === tagName);
   if (cmpsWithTagName.length > 1) {

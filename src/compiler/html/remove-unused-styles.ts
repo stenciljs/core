@@ -1,8 +1,9 @@
+import { catchError, hasError } from '@utils';
+
 import type * as d from '../../declarations';
-import { getUsedSelectors, UsedSelectors } from '../style/css-parser/used-selectors';
-import { hasError, catchError } from '@utils';
 import { parseCss } from '../style/css-parser/parse-css';
 import { serializeCss } from '../style/css-parser/serialize-css';
+import { getUsedSelectors, UsedSelectors } from '../style/css-parser/used-selectors';
 
 export const removeUnusedStyles = (doc: Document, diagnostics: d.Diagnostic[]) => {
   try {
@@ -26,7 +27,7 @@ export const removeUnusedStyles = (doc: Document, diagnostics: d.Diagnostic[]) =
 const removeUnusedStyleText = (
   usedSelectors: UsedSelectors,
   diagnostics: d.Diagnostic[],
-  styleElm: HTMLStyleElement
+  styleElm: HTMLStyleElement,
 ) => {
   try {
     // parse the css from being applied to the document
@@ -49,6 +50,7 @@ const removeUnusedStyleText = (
         type: 'css',
         header: 'CSS Stringify',
         messageText: e,
+        lines: [],
       });
     }
   } catch (e: any) {
@@ -57,6 +59,7 @@ const removeUnusedStyleText = (
       type: 'css',
       header: 'CSS Parse',
       messageText: e,
+      lines: [],
     });
   }
 };

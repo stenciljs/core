@@ -1,7 +1,8 @@
-import type * as d from '../declarations';
 import { BUILD } from '@app-data';
 import { consoleDevWarn, consoleError, getHostRef } from '@platform';
 import { HOST_FLAGS } from '@utils';
+
+import type * as d from '../declarations';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
@@ -10,6 +11,27 @@ export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref)
 export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMeta: d.ComponentRuntimeMeta) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
+
+  /**
+   * If the host element is not found, let's fail with a better error message and provide
+   * details on why this may happen. In certain cases, e.g. see https://github.com/stenciljs/core/issues/5457,
+   * users might import a component through e.g. a loader script, which causes confusions in runtime
+   * as there are multiple runtimes being loaded and/or different components used with different
+   * loading strategies, e.g. lazy vs implicitly loaded.
+   *
+   * Todo(STENCIL-1308): remove, once a solution for this was identified and implemented
+   */
+  if (BUILD.lazyLoad && !hostRef) {
+    throw new Error(
+      `Couldn't find host element for "${cmpMeta.$tagName$}" as it is ` +
+        'unknown to this Stencil runtime. This usually happens when integrating ' +
+        'a 3rd party Stencil component with another Stencil component or application. ' +
+        'Please reach out to the maintainers of the 3rd party Stencil component or report ' +
+        'this on the Stencil Discord server (https://chat.stenciljs.com) or comment ' +
+        'on this similar [GitHub issue](https://github.com/stenciljs/core/issues/5457).',
+    );
+  }
+
   const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;
@@ -33,7 +55,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
           '\nNew value',
           newVal,
           '\nOld value',
-          oldVal
+          oldVal,
         );
       } else if (hostRef.$flags$ & HOST_FLAGS.devOnDidLoad) {
         consoleDevWarn(
@@ -43,7 +65,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
           '\nNew value',
           newVal,
           '\nOld value',
-          oldVal
+          oldVal,
         );
       }
     }
@@ -70,7 +92,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
         BUILD.updatable &&
         (flags & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
       ) {
-        if (BUILD.cmpShouldUpdate && instance.componentShouldUpdate) {
+        if (instance.componentShouldUpdate) {
           if (instance.componentShouldUpdate(newVal, oldVal, propName) === false) {
             return;
           }

@@ -1,6 +1,7 @@
+import ts from 'typescript';
+
 import type * as d from '../../../declarations';
 import { getStaticValue } from '../transform-utils';
-import ts from 'typescript';
 
 export const parseStaticListeners = (staticMembers: ts.ClassElement[]): d.ComponentCompilerListener[] => {
   const parsedListeners: d.ComponentCompilerListener[] = getStaticValue(staticMembers, 'listeners');

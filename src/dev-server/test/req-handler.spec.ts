@@ -1,15 +1,16 @@
 import type * as d from '@stencil/core/declarations';
-import { appendDevServerClientIframe } from '../serve-file';
-import { createRequestHandler } from '../request-handler';
-import { createServerContext } from '../server-context';
-import { createSystem } from '../../compiler/sys/stencil-sys';
-import { mockConfig } from '@stencil/core/testing';
+import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
 import { normalizePath } from '@utils';
-import { validateConfig } from '../../compiler/config/validate-config';
-import { validateDevServer } from '../../compiler/config/validate-dev-server';
 import nodeFs from 'fs';
 import type { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
+
+import { validateConfig } from '../../compiler/config/validate-config';
+import { validateDevServer } from '../../compiler/config/validate-dev-server';
+import { createSystem } from '../../compiler/sys/stencil-sys';
+import { createRequestHandler } from '../request-handler';
+import { appendDevServerClientIframe } from '../serve-file';
+import { createServerContext } from '../server-context';
 
 describe('request-handler', () => {
   let devServerConfig: d.DevServerConfig;
@@ -25,7 +26,7 @@ describe('request-handler', () => {
   beforeEach(async () => {
     sys = createSystem();
 
-    const validated = validateConfig(mockConfig());
+    const validated = validateConfig(mockConfig(), mockLoadConfigInit());
     const stencilConfig = validated.config;
     stencilConfig.flags.serve = true;
 
@@ -55,6 +56,7 @@ describe('request-handler', () => {
 
     res.end = () => {
       res.$content = res.$contentWrite;
+      return this;
     };
 
     sendMsg = () => {};
@@ -435,6 +437,32 @@ describe('request-handler', () => {
     it('appends to end', () => {
       const h = appendDevServerClientIframe(`88mph`, `<iframe></iframe>`);
       expect(h).toBe(`88mph<iframe></iframe>`);
+    });
+  });
+
+  describe('pingRoute', () => {
+    it('should return a 200 for successful build', async () => {
+      serverCtx.getBuildResults = () =>
+        Promise.resolve({ hasSuccessfulBuild: true }) as Promise<d.CompilerBuildResults>;
+
+      const handler = createRequestHandler(devServerConfig, serverCtx);
+
+      req.url = '/ping';
+
+      await handler(req, res);
+      expect(res.$statusCode).toBe(200);
+    });
+
+    it('should return a 500 for unsuccessful build', async () => {
+      serverCtx.getBuildResults = () =>
+        Promise.resolve({ hasSuccessfulBuild: false }) as Promise<d.CompilerBuildResults>;
+
+      const handler = createRequestHandler(devServerConfig, serverCtx);
+
+      req.url = '/ping';
+
+      await handler(req, res);
+      expect(res.$statusCode).toBe(500);
     });
   });
 });

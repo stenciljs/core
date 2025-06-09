@@ -1,6 +1,7 @@
-import type * as d from '../declarations';
 import { fork } from 'child_process';
 import path from 'path';
+
+import type * as d from '../declarations';
 
 export function initServerProcessWorkerProxy(sendToMain: (msg: d.DevServerMessage) => void) {
   const workerPath = require.resolve(path.join(__dirname, 'server-worker-thread.js'));

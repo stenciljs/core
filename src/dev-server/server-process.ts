@@ -1,13 +1,14 @@
-import type * as d from '../declarations';
-import type { Server } from 'http';
-import { createServerContext, BuildRequestResolve, CompilerRequestResolve } from './server-context';
-import { createHttpServer, findClosestOpenPort } from './server-http';
 import { createNodeSys } from '@sys-api-node';
-import { createWebSocket, DevWebSocket } from './server-web-socket';
+import { normalizePath } from '@utils';
+import type { Server } from 'http';
+
+import type * as d from '../declarations';
 import { DEV_SERVER_INIT_URL } from './dev-server-constants';
 import { getBrowserUrl } from './dev-server-utils';
-import { normalizePath } from '@utils';
 import { openInBrowser } from './open-in-browser';
+import { BuildRequestResolve, CompilerRequestResolve, createServerContext } from './server-context';
+import { createHttpServer, findClosestOpenPort } from './server-http';
+import { createWebSocket, DevWebSocket } from './server-web-socket';
 
 export function initServerProcess(sendMsg: d.DevServerSendMessage) {
   let server: Server = null;
@@ -25,7 +26,7 @@ export function initServerProcess(sendMsg: d.DevServerSendMessage) {
       devServerConfig.address,
       devServerConfig.port,
       devServerConfig.basePath,
-      '/'
+      '/',
     );
     devServerConfig.root = normalizePath(devServerConfig.root);
 
@@ -44,7 +45,7 @@ export function initServerProcess(sendMsg: d.DevServerSendMessage) {
         devServerConfig.address,
         devServerConfig.port,
         devServerConfig.basePath,
-        devServerConfig.initialLoadUrl || DEV_SERVER_INIT_URL
+        devServerConfig.initialLoadUrl || DEV_SERVER_INIT_URL,
       );
       openInBrowser({ url: initialLoadUrl });
     }
@@ -79,7 +80,7 @@ export function initServerProcess(sendMsg: d.DevServerSendMessage) {
             }
             resolve();
           });
-        })
+        }),
       );
     }
     Promise.all(promises).finally(() => {

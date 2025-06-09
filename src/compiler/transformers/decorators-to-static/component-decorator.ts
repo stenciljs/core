@@ -1,19 +1,41 @@
-import type * as d from '../../../declarations';
-import { augmentDiagnosticWithNode, buildError, validateComponentTag, isString, buildWarn } from '@utils';
-import { getDeclarationParameters } from './decorator-utils';
-import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
-import { styleToStatic } from './style-to-static';
+import { augmentDiagnosticWithNode, buildError, validateComponentTag } from '@utils';
 import ts from 'typescript';
 
+import type * as d from '../../../declarations';
+import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import { getDecoratorParameters } from './decorator-utils';
+import { styleToStatic } from './style-to-static';
+
+/**
+ * Perform code generation to create new class members for a Stencil component
+ * which will drive the runtime functionality specified by various options
+ * passed to the `@Component` decorator.
+ *
+ * Inputs are validated (@see {@link validateComponent}) before code generation
+ * is performed.
+ *
+ * **Note**: in this function and in functions that it calls the `newMembers`
+ * parameter is treated as an out parameter and mutated, with new class members
+ * added to it.
+ *
+ * @param config a user-supplied config
+ * @param typeChecker a TypeScript type checker instance
+ * @param diagnostics an array of diagnostics for surfacing errors and warnings
+ * @param cmpNode a TypeScript class declaration node corresponding to a
+ * Stencil component
+ * @param newMembers an out param to hold newly generated class members
+ * @param componentDecorator the TypeScript decorator node for the `@Component`
+ * decorator
+ */
 export const componentDecoratorToStatic = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   typeChecker: ts.TypeChecker,
   diagnostics: d.Diagnostic[],
   cmpNode: ts.ClassDeclaration,
   newMembers: ts.ClassElement[],
-  componentDecorator: ts.Decorator
+  componentDecorator: ts.Decorator,
 ) => {
-  const [componentOptions] = getDeclarationParameters<d.ComponentOptions>(componentDecorator);
+  const [componentOptions] = getDecoratorParameters<d.ComponentOptions>(componentDecorator, typeChecker);
   if (!componentOptions) {
     return;
   }
@@ -36,29 +58,42 @@ export const componentDecoratorToStatic = (
     newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
   }
 
+  if (componentOptions.formAssociated === true) {
+    newMembers.push(createStaticGetter('formAssociated', convertValueToLiteral(true)));
+  }
+
   styleToStatic(newMembers, componentOptions);
 
   const assetsDirs = componentOptions.assetsDirs || [];
-
-  if (isString((componentOptions as any).assetsDir)) {
-    assetsDirs.push((componentOptions as any).assetsDir);
-    const warn = buildWarn(diagnostics);
-    warn.messageText = `@Component option "assetsDir" should be renamed to "assetsDirs" and the value should be an array of strings.`;
-    augmentDiagnosticWithNode(warn, componentDecorator);
-  }
 
   if (assetsDirs.length > 0) {
     newMembers.push(createStaticGetter('assetsDirs', convertValueToLiteral(assetsDirs)));
   }
 };
 
+/**
+ * Perform validation on a Stencil component in preparation for some
+ * component-level code generation, checking that the class declaration node
+ * itself doesn't have any problems and that the options passed to the
+ * `@Component` decorator are valid.
+ *
+ * @param config a user-supplied config
+ * @param diagnostics an array of diagnostics for surfacing errors and warnings
+ * @param typeChecker a TypeScript type checker instance
+ * @param componentOptions the options passed to the `@Component` director
+ * @param cmpNode a TypeScript class declaration node corresponding to a
+ * Stencil component
+ * @param componentDecorator the TypeScript decorator node for the `@Component`
+ * decorator
+ * @returns whether or not the component is valid
+ */
 const validateComponent = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
   componentOptions: d.ComponentOptions,
   cmpNode: ts.ClassDeclaration,
-  componentDecorator: ts.Node
+  componentDecorator: ts.Decorator,
 ) => {
   const extendNode =
     cmpNode.heritageClauses && cmpNode.heritageClauses.find((c) => c.token === ts.SyntaxKind.ExtendsKeyword);
@@ -87,7 +122,7 @@ const validateComponent = (
   }
 
   // check if class has more than one decorator
-  const otherDecorator = cmpNode.decorators && cmpNode.decorators.find((d) => d !== componentDecorator);
+  const otherDecorator = retrieveTsDecorators(cmpNode)?.find((d) => d !== componentDecorator);
   if (otherDecorator) {
     const err = buildError(diagnostics);
     err.messageText = `Classes decorated with @Component can not be decorated with more decorators.
@@ -115,7 +150,9 @@ const validateComponent = (
   if (!config._isTesting) {
     const nonTypeExports = typeChecker
       .getExportsOfModule(typeChecker.getSymbolAtLocation(cmpNode.getSourceFile()))
-      .filter((symbol) => (symbol.flags & (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias)) === 0)
+      .filter(
+        (symbol) => (symbol.flags & (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)) === 0,
+      )
       .filter((symbol) => symbol.name !== cmpNode.name.text);
 
     nonTypeExports.forEach((symbol) => {
@@ -134,18 +171,29 @@ const validateComponent = (
   return true;
 };
 
-const findTagNode = (propName: string, node: ts.Node) => {
+/**
+ * Given a TypeScript Decorator node, try to find a property with a given name
+ * on an object possibly passed to it as an argument. If found, return the node
+ * to initialize the value, and if no such property is found return the
+ * decorator instead.
+ *
+ * @param propName the name of the argument to search for
+ * @param node the decorator node to search within
+ * @returns the initializer for the property (if found) or the decorator
+ */
+const findTagNode = (propName: string, node: ts.Decorator): ts.Decorator | ts.Expression => {
+  let out: ts.Decorator | ts.Expression = node;
+
   if (ts.isDecorator(node) && ts.isCallExpression(node.expression)) {
     const arg = node.expression.arguments[0];
     if (ts.isObjectLiteralExpression(arg)) {
-      arg.properties.forEach((p) => {
-        if (ts.isPropertyAssignment(p)) {
-          if (p.name.getText() === propName) {
-            node = p.initializer;
-          }
+      arg.properties.forEach((prop) => {
+        if (ts.isPropertyAssignment(prop) && prop.name.getText() === propName) {
+          out = prop.initializer;
         }
       });
     }
   }
-  return node;
+
+  return out;
 };

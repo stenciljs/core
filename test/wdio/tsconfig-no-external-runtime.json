@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig-stencil.json",
+  "include": ["no-external-runtime"],
+  "exclude": ["no-external-runtime/**/*.test.tsx"]
+}

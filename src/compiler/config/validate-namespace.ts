@@ -1,47 +1,71 @@
+import { buildError, dashToPascalCase, isOutputTargetDist, isString } from '@utils';
+
 import type * as d from '../../declarations';
-import { buildError, dashToPascalCase, isString } from '@utils';
-import { isOutputTargetDist } from '../output-targets/output-utils';
+import { DEFAULT_NAMESPACE } from './constants';
 
-export const validateNamespace = (c: d.Config, diagnostics: d.Diagnostic[]) => {
-  c.namespace = isString(c.namespace) ? c.namespace : DEFAULT_NAMESPACE;
-  c.namespace = c.namespace.trim();
+/**
+ * Ensures that the `namespace` and `fsNamespace` properties on a project's
+ * Stencil config are valid strings. A valid namespace means:
+ * - at least 3 characters
+ * - cannot start with a number or dash
+ * - cannot end with a dash
+ * - must only contain alphanumeric, dash, and dollar sign characters
+ *
+ * If any conditions are not met, a diagnostic is added to the provided array.
+ *
+ * If a namespace is not provided, the default value is `App`.
+ *
+ * @param namespace The namespace to validate
+ * @param fsNamespace The fsNamespace to validate
+ * @param diagnostics The array of diagnostics to add to if the namespace is invalid
+ * @returns The validated namespace and fsNamespace
+ */
+export const validateNamespace = (
+  namespace: string | undefined,
+  fsNamespace: string | undefined,
+  diagnostics: d.Diagnostic[],
+) => {
+  namespace = isString(namespace) ? namespace : DEFAULT_NAMESPACE;
+  namespace = namespace.trim();
 
-  const invalidNamespaceChars = c.namespace.replace(/(\w)|(\-)|(\$)/g, '');
+  const invalidNamespaceChars = namespace.replace(/(\w)|(\-)|(\$)/g, '');
   if (invalidNamespaceChars !== '') {
     const err = buildError(diagnostics);
-    err.messageText = `Namespace "${c.namespace}" contains invalid characters: ${invalidNamespaceChars}`;
+    err.messageText = `Namespace "${namespace}" contains invalid characters: ${invalidNamespaceChars}`;
   }
-  if (c.namespace.length < 3) {
+  if (namespace.length < 3) {
     const err = buildError(diagnostics);
-    err.messageText = `Namespace "${c.namespace}" must be at least 3 characters`;
+    err.messageText = `Namespace "${namespace}" must be at least 3 characters`;
   }
-  if (/^\d+$/.test(c.namespace.charAt(0))) {
+  if (/^\d+$/.test(namespace.charAt(0))) {
     const err = buildError(diagnostics);
-    err.messageText = `Namespace "${c.namespace}" cannot have a number for the first character`;
+    err.messageText = `Namespace "${namespace}" cannot have a number for the first character`;
   }
-  if (c.namespace.charAt(0) === '-') {
+  if (namespace.charAt(0) === '-') {
     const err = buildError(diagnostics);
-    err.messageText = `Namespace "${c.namespace}" cannot have a dash for the first character`;
+    err.messageText = `Namespace "${namespace}" cannot have a dash for the first character`;
   }
-  if (c.namespace.charAt(c.namespace.length - 1) === '-') {
+  if (namespace.charAt(namespace.length - 1) === '-') {
     const err = buildError(diagnostics);
-    err.messageText = `Namespace "${c.namespace}" cannot have a dash for the last character`;
+    err.messageText = `Namespace "${namespace}" cannot have a dash for the last character`;
   }
 
   // the file system namespace is the one
   // used in filenames and seen in the url
-  if (!isString(c.fsNamespace)) {
-    c.fsNamespace = c.namespace.toLowerCase().trim();
+  if (!isString(fsNamespace)) {
+    fsNamespace = namespace.toLowerCase().trim();
   }
 
-  if (c.namespace.includes('-')) {
+  if (namespace.includes('-')) {
     // convert to PascalCase
-    c.namespace = dashToPascalCase(c.namespace);
+    namespace = dashToPascalCase(namespace);
   }
+
+  return { namespace, fsNamespace };
 };
 
-export const validateDistNamespace = (config: d.Config, diagnostics: d.Diagnostic[]) => {
-  const hasDist = config.outputTargets.some(isOutputTargetDist);
+export const validateDistNamespace = (config: d.UnvalidatedConfig, diagnostics: d.Diagnostic[]) => {
+  const hasDist = (config.outputTargets ?? []).some(isOutputTargetDist);
   if (hasDist) {
     if (!isString(config.namespace) || config.namespace.toLowerCase() === 'app') {
       const err = buildError(diagnostics);
@@ -49,5 +73,3 @@ export const validateDistNamespace = (config: d.Config, diagnostics: d.Diagnosti
     }
   }
 };
-
-const DEFAULT_NAMESPACE = 'App';

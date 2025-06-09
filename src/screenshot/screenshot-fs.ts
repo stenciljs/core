@@ -16,7 +16,7 @@ export async function writeScreenshotData(dataDir: string, screenshotData: d.Scr
 }
 
 export async function readScreenshotData(dataDir: string, screenshotId: string) {
-  let rtn: d.Screenshot = null;
+  let rtn: d.Screenshot | null = null;
 
   try {
     const dataFilePath = getDataFilePath(dataDir, screenshotId);

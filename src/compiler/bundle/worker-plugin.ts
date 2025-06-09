@@ -1,16 +1,17 @@
+import { generatePreamble, hasError, normalizeFsPath } from '@utils';
+import type { Plugin, PluginContext, TransformResult } from 'rollup';
+
 import type * as d from '../../declarations';
-import type { Plugin, TransformResult, PluginContext } from 'rollup';
-import { bundleOutput } from './bundle-output';
-import { normalizeFsPath, hasError, generatePreamble } from '@utils';
 import { optimizeModule } from '../optimize/optimize-module';
+import { bundleOutput } from './bundle-output';
 import { STENCIL_INTERNAL_ID } from './entry-alias-ids';
 
 export const workerPlugin = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   platform: string,
-  inlineWorkers: boolean
+  inlineWorkers: boolean,
 ): Plugin => {
   if (platform === 'worker' || platform === 'hydrate') {
     return {
@@ -65,7 +66,7 @@ export const workerPlugin = (
           buildCtx,
           this,
           workersMap,
-          workerEntryPath
+          workerEntryPath,
         );
         const referenceId = this.emitFile({
           type: 'asset',
@@ -86,7 +87,7 @@ export const workerPlugin = (
           buildCtx,
           this,
           workersMap,
-          workerEntryPath
+          workerEntryPath,
         );
         const referenceId = this.emitFile({
           type: 'asset',
@@ -138,12 +139,12 @@ interface WorkerMeta {
 }
 
 const getWorker = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   ctx: PluginContext,
   workersMap: Map<string, WorkerMeta>,
-  workerEntryPath: string
+  workerEntryPath: string,
 ): Promise<WorkerMeta> => {
   let worker = workersMap.get(workerEntryPath);
   if (!worker) {
@@ -160,11 +161,11 @@ const getWorkerName = (id: string) => {
 };
 
 const buildWorker = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   ctx: PluginContext,
-  workerEntryPath: string
+  workerEntryPath: string,
 ) => {
   const workerName = getWorkerName(workerEntryPath);
   const workerMsgId = `stencil.${workerName}`;
@@ -185,7 +186,6 @@ const buildWorker = async (
       footer: '})();',
       intro: getWorkerIntro(workerMsgId, config.devMode),
       esModule: false,
-      preferConst: true,
       externalLiveBindings: false,
     });
     const entryPoint = output.output[0];
@@ -415,10 +415,17 @@ import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
 export const workerPath = /*@__PURE__*/import.meta.ROLLUP_FILE_URL_${referenceId};
-const blob = new Blob(['importScripts("' + workerPath + '")'], { type: 'text/javascript' });
-const url = URL.createObjectURL(blob);
-export const worker = /*@__PURE__*/createWorker(url, workerName, workerMsgId);
-URL.revokeObjectURL(url);
+export let worker;
+try {
+  // first try directly starting the worker with the URL
+  worker = /*@__PURE__*/createWorker(workerPath, workerName, workerMsgId);
+} catch(e) {
+  // probably a cross-origin issue, try using a Blob instead
+  const blob = new Blob(['importScripts("' + workerPath + '")'], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  worker = /*@__PURE__*/createWorker(url, workerName, workerMsgId);
+  URL.revokeObjectURL(url);
+}
 `;
 };
 

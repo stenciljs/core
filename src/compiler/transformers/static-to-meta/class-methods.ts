@@ -1,5 +1,6 @@
-import type * as d from '../../../declarations';
 import ts from 'typescript';
+
+import type * as d from '../../../declarations';
 import { isMethod } from '../transform-utils';
 
 export const parseClassMethods = (cmpNode: ts.ClassDeclaration, cmpMeta: d.ComponentCompilerMeta) => {
@@ -24,7 +25,6 @@ export const parseClassMethods = (cmpNode: ts.ClassDeclaration, cmpMeta: d.Compo
   cmpMeta.hasComponentDidLoadFn = classMethods.some((m) => isMethod(m, 'componentDidLoad'));
   cmpMeta.hasComponentShouldUpdateFn = classMethods.some((m) => isMethod(m, 'componentShouldUpdate'));
   cmpMeta.hasComponentDidUpdateFn = classMethods.some((m) => isMethod(m, 'componentDidUpdate'));
-  cmpMeta.hasComponentDidUnloadFn = classMethods.some((m) => isMethod(m, 'componentDidUnload'));
   cmpMeta.hasLifecycle =
     cmpMeta.hasComponentWillLoadFn ||
     cmpMeta.hasComponentDidLoadFn ||

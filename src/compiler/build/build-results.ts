@@ -1,7 +1,8 @@
+import { fromEntries, hasError, isString, normalizeDiagnostics } from '@utils';
+
 import type * as d from '../../declarations';
-import { generateHmr } from './build-hmr';
 import { getBuildTimestamp } from './build-ctx';
-import { hasError, isString, normalizeDiagnostics, fromEntries } from '@utils';
+import { generateHmr } from './build-hmr';
 
 export const generateBuildResults = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   const componentGraph = buildCtx.componentGraph ? fromEntries(buildCtx.componentGraph.entries()) : undefined;

@@ -1,9 +1,14 @@
-import type * as d from '../../declarations';
-import { EventEmitter } from 'events';
 import { TASK_CANCELED_MSG } from '@utils';
-import { NodeWorkerMain } from './node-worker-main';
+import { EventEmitter } from 'events';
 import { cpus } from 'os';
 
+import type * as d from '../../declarations';
+import { NodeWorkerMain } from './node-worker-main';
+
+/**
+ * A custom EventEmitter which provides centralizes dispatching and control for
+ * node.js workers ({@link NodeWorkerMain} instances)
+ */
 export class NodeWorkerController extends EventEmitter implements d.WorkerMainController {
   workerIds = 0;
   stencilId = 0;
@@ -14,7 +19,21 @@ export class NodeWorkerController extends EventEmitter implements d.WorkerMainCo
   useForkedWorkers: boolean;
   mainThreadRunner: { [fnName: string]: (...args: any[]) => Promise<any> };
 
-  constructor(public forkModulePath: string, maxConcurrentWorkers: number) {
+  /**
+   * Create a node.js-specific worker controller, which controls and
+   * coordinates distributing tasks to a series of child processes (tracked by
+   * {@link NodeWorkerMain} instances). These child processes are node
+   * processes executing a special worker script (`src/sys/node/worker.ts`)
+   * which listens for {@link d.MsgToWorker} messages and runs certain tasks in
+   * response.
+   *
+   * @param forkModulePath the path to the module which k
+   * @param maxConcurrentWorkers the max number of worker threads to spin up
+   */
+  constructor(
+    public forkModulePath: string,
+    maxConcurrentWorkers: number,
+  ) {
     super();
     const osCpus = cpus().length;
 

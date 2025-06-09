@@ -1,7 +1,12 @@
-import type * as d from '../../../declarations';
-import { isOutputTargetDocsCustom } from '../../output-targets/output-utils';
+import { isOutputTargetDocsCustom } from '@utils';
 
-export const generateCustomDocs = async (config: d.Config, docsData: d.JsonDocs, outputTargets: d.OutputTarget[]) => {
+import type * as d from '../../../declarations';
+
+export const generateCustomDocs = async (
+  config: d.ValidatedConfig,
+  docsData: d.JsonDocs,
+  outputTargets: d.OutputTarget[],
+) => {
   const customOutputTargets = outputTargets.filter(isOutputTargetDocsCustom);
   if (customOutputTargets.length === 0) {
     return;
@@ -13,6 +18,6 @@ export const generateCustomDocs = async (config: d.Config, docsData: d.JsonDocs,
       } catch (e) {
         config.logger.error(`uncaught custom docs error: ${e}`);
       }
-    })
+    }),
   );
 };

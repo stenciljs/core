@@ -1,5 +1,6 @@
-import type * as d from '../../declarations';
 import { DEFAULT_STYLE_MODE } from '@utils';
+
+import type * as d from '../../declarations';
 
 export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) => {
   if (cmpMeta.properties.length > 0) {
@@ -37,7 +38,8 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     cmpMeta.hasListenerTarget = cmpMeta.listeners.some((l) => !!l.target);
   }
 
-  cmpMeta.hasMember = cmpMeta.hasProp || cmpMeta.hasState || cmpMeta.hasElement || cmpMeta.hasMethod;
+  cmpMeta.hasMember =
+    cmpMeta.hasProp || cmpMeta.hasState || cmpMeta.hasElement || cmpMeta.hasMethod || cmpMeta.formAssociated;
 
   cmpMeta.isUpdateable = cmpMeta.hasProp || cmpMeta.hasState;
   if (cmpMeta.styles.length > 0) {

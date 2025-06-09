@@ -4,8 +4,10 @@ export const loadDeps = async (resolveLookup: Map<string, string>, fs: Map<strin
 
   await loadDep('/@stencil/core/compiler/stencil.js');
 
-  const rollupDep = stencil.dependencies.find((dep: any) => dep.name === 'rollup');
-  await loadDep(`https://cdn.jsdelivr.net/npm/rollup@${rollupDep.version}/dist/rollup.browser.js`);
+  const rollupDep: [string, unknown] = Object.entries(stencil.versions).find(
+    (dep: [string, unknown]) => dep[0] === 'rollup',
+  );
+  await loadDep(`https://cdn.jsdelivr.net/npm/rollup@${rollupDep[1]}/dist/rollup.browser.js`);
 
   const fetchResults = await Promise.all([
     await fetch('/@stencil/core/internal/client/index.js'),

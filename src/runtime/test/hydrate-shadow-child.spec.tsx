@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('hydrate, shadow child', () => {
@@ -102,7 +102,6 @@ describe('hydrate, shadow child', () => {
           <mock:shadow-root>
             <slot></slot>
           </mock:shadow-root>
-          <!---->
           light-dom
         </cmp-b>
       </cmp-a>
@@ -285,7 +284,6 @@ describe('hydrate, shadow child', () => {
             <header></header>
             <slot></slot>
           </mock:shadow-root>
-          <!---->
           light-dom
         </cmp-b>
       </cmp-a>
@@ -417,7 +415,6 @@ describe('hydrate, shadow child', () => {
             <slot></slot>
             <footer></footer>
           </mock:shadow-root>
-          <!---->
           light-dom
         </cmp-b>
       </cmp-a>
@@ -428,7 +425,11 @@ describe('hydrate, shadow child', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       render() {
-        return <Host></Host>;
+        return (
+          <Host>
+            <slot />
+          </Host>
+        );
       }
     }
     @Component({ tag: 'cmp-b', shadow: true })
@@ -453,7 +454,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    // @ts-ignore
+
     const serverHydrated = await newSpecPage({
       components: [CmpA, CmpB, CmpC],
       html: `
@@ -466,18 +467,21 @@ describe('hydrate, shadow child', () => {
       `,
       hydrateServerSide: true,
     });
+
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <cmp-b class="hydrated" s-id="2">
+        <!--o.0.2-->
+        <!--s.1.0.0.0.-->
+        <cmp-b c-id="0.2" class="hydrated" s-id="2" s-sn="">
           <!--r.2-->
-          <!--o.0.1.-->
-          <!--o.0.2.-->
+          <!--o.0.4.-->
+          <!--o.0.5.-->
           <section c-id="2.0.0.0">
             <!--s.2.1.1.0.-->
-            <!--t.0.1-->
+            <!--t.0.4-->
             cmp-b-top-text
-            <cmp-c class="hydrated" c-id="0.2" s-id="3">
+            <cmp-c c-id="0.5" class="hydrated" s-id="3" s-sn="">
               <!--r.3-->
               <article c-id="3.0.0.0">
                 <!--t.3.1.1.0-->
@@ -497,18 +501,17 @@ describe('hydrate, shadow child', () => {
     });
 
     expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a class="hydrated">
+      <cmp-a class=\"hydrated\">
         <!--r.1-->
-        <cmp-b class="hydrated">
+        <!--s.1.0.0.0.-->
+        <cmp-b class=\"hydrated\">
           <mock:shadow-root>
             <section>
               <slot></slot>
             </section>
           </mock:shadow-root>
-          <!---->
           cmp-b-top-text
-          <!---->
-          <cmp-c class="hydrated">
+          <cmp-c class=\"hydrated\">
             <mock:shadow-root>
               <article>
                 cmp-c
@@ -520,35 +523,78 @@ describe('hydrate, shadow child', () => {
     `);
   });
 
-  it('test shadow root innerHTML', async () => {
+  it('preserves all nodes', async () => {
     @Component({
       tag: 'cmp-a',
       shadow: true,
     })
     class CmpA {
       render() {
-        return <div>Shadow Content</div>;
+        return <slot>Shadow Content</slot>;
       }
     }
 
-    const page = await newSpecPage({
+    const serverHydrated = await newSpecPage({
       components: [CmpA],
       html: `
         <cmp-a>
-          Light Content
+          A text node
+          <!-- a comment -->
+          <div>An element</div>
+          <!-- another comment -->
+          Another text node
         </cmp-a>
       `,
+      hydrateServerSide: true,
     });
 
-    expect(page.root).toEqualHtml(`
-      <cmp-a>
+    expect(serverHydrated.root).toEqualHtml(`
+      <cmp-a class=\"hydrated\" s-id=\"1\">
+        <!--r.1-->
+        <!--o.0.1.-->
+        <!--o.0.2.-->
+        <!--o.0.4.-->
+        <!--o.0.6.-->
+        <!--o.0.7.-->
+        <slot-fb c-id=\"1.0.0.0\" hidden=\"\" s-sn=\"\">
+          <!--t.1.1.1.0-->
+          Shadow Content
+        </slot-fb>
+        <!--t.0.1-->
+        A text node
+        <!--c.0.2-->
+        <!-- a comment -->
+        <div c-id=\"0.4\" s-sn=\"\">
+          An element
+        </div>
+        <!--c.0.6-->
+        <!-- another comment -->
+        <!--t.0.7-->
+        Another text node
+      </cmp-a>  
+    `);
+
+    const clientHydrated = await newSpecPage({
+      components: [CmpA],
+      html: serverHydrated.root.outerHTML,
+      hydrateClientSide: true,
+    });
+
+    expect(clientHydrated.root).toEqualHtml(`
+      <cmp-a class=\"hydrated\">
         <mock:shadow-root>
-          <div>
+          <slot>
             Shadow Content
-          </div>
+          </slot>
         </mock:shadow-root>
-        Light Content
-      </cmp-a>
+        A text node
+        <!-- a comment -->
+        <div>
+          An element
+        </div>
+        <!-- another comment -->
+        Another text node
+      </cmp-a>  
     `);
   });
 });

@@ -1,6 +1,17 @@
 export const HYDRATE_APP_CLOSURE_START = `/*hydrateAppClosure start*/`;
 
+export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
+
+/**
+ * This is the entry point for the hydrate factory.
+ *
+ * __Note:__ the `modeResolutionChain` will be uncommented in the
+ * `src/compiler/output-targets/dist-hydrate-script/write-hydrate-outputs.ts` file. This enables us to use
+ * one module resolution chain across hydrate and core runtime.
+ */
 export const HYDRATE_FACTORY_INTRO = `
+// const ${MODE_RESOLUTION_CHAIN_DECLARATION}
+
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
   var self = $stencilWindow;
@@ -31,7 +42,9 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
   var CharacterData = $stencilWindow.CharacterData;
   var CSS = $stencilWindow.CSS;
   var CustomEvent = $stencilWindow.CustomEvent;
+  var CSSStyleSheet = $stencilWindow.CSSStyleSheet;
   var Document = $stencilWindow.Document;
+  var ShadowRoot = $stencilWindow.ShadowRoot;
   var DocumentFragment = $stencilWindow.DocumentFragment;
   var DocumentType = $stencilWindow.DocumentType;
   var DOMTokenList = $stencilWindow.DOMTokenList;
@@ -52,6 +65,7 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
   var HTMLTemplateElement = $stencilWindow.HTMLTemplateElement;
   var HTMLTitleElement = $stencilWindow.HTMLTitleElement;
   var IntersectionObserver = $stencilWindow.IntersectionObserver;
+  var ResizeObserver = $stencilWindow.ResizeObserver;
   var KeyboardEvent = $stencilWindow.KeyboardEvent;
   var MouseEvent = $stencilWindow.MouseEvent;
   var Node = $stencilWindow.Node;

@@ -1,53 +1,86 @@
-import type * as d from '../../declarations';
-import { COLLECTION_MANIFEST_FILE_NAME, buildJsonFileError, isGlob, normalizePath, isString } from '@utils';
-import { dirname, join, relative } from 'path';
 import {
-  getComponentsDtsTypesFilePath,
+  COLLECTION_MANIFEST_FILE_NAME,
+  isGlob,
   isOutputTargetDistCollection,
-  isOutputTargetDistCustomElementsBundle,
-  isOutputTargetDistTypes,
-} from '../output-targets/output-utils';
+  isString,
+  join,
+  normalizePath,
+  relative,
+} from '@utils';
+import { dirname } from 'path';
 
-export const validateBuildPackageJson = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
-  if (config.watch) {
-    return;
-  }
-  if (buildCtx.packageJson == null) {
-    return;
-  }
+import type * as d from '../../declarations';
+import { packageJsonError, packageJsonWarn } from './package-json-log-utils';
+import { validatePrimaryPackageOutputTarget } from './validate-primary-package-output-target';
 
-  const outputTargets = config.outputTargets.filter(isOutputTargetDistCollection);
-  const typesOutputTargets = config.outputTargets.filter(isOutputTargetDistTypes);
-  await Promise.all([
-    ...outputTargets.map((outputsTarget) => {
-      return validatePackageJsonOutput(config, compilerCtx, buildCtx, outputsTarget);
-    }),
-    ...typesOutputTargets.map((outputTarget) => {
-      return validateTypes(config, compilerCtx, buildCtx, outputTarget);
-    }),
-  ]);
-};
-
-const validatePackageJsonOutput = async (
-  config: d.Config,
+/**
+ * Validate the package.json file for a project, checking that various fields
+ * are set correctly for the currently-configured output targets.
+ *
+ * @param config the project's Stencil config
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @returns an empty Promise
+ */
+export const validateBuildPackageJson = async (
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection
+): Promise<void> => {
+  if (config.watch || buildCtx.packageJson == null) {
+    return;
+  }
+
+  // Validate any output target that the user has designated as the "primary"
+  // target that is bundled with their distribution
+  validatePrimaryPackageOutputTarget(config, compilerCtx, buildCtx);
+
+  const distCollectionOutputTargets = config.outputTargets.filter(isOutputTargetDistCollection);
+  await Promise.all(
+    distCollectionOutputTargets.map((distCollectionOT) =>
+      validateDistCollectionPkgJson(config, compilerCtx, buildCtx, distCollectionOT),
+    ),
+  );
+};
+
+/**
+ * Validate package.json contents for the `DIST_COLLECTION` output target,
+ * checking that various fields like `files`, `main`, and so on are set
+ * correctly.
+ *
+ * @param config the stencil config
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ * @param outputTarget a DIST_COLLECTION output target
+ */
+const validateDistCollectionPkgJson = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  outputTarget: d.OutputTargetDistCollection,
 ) => {
   await Promise.all([
     validatePackageFiles(config, compilerCtx, buildCtx, outputTarget),
     validateMain(config, compilerCtx, buildCtx, outputTarget),
-    validateModule(config, compilerCtx, buildCtx, outputTarget),
     validateCollection(config, compilerCtx, buildCtx, outputTarget),
     validateBrowser(config, compilerCtx, buildCtx),
   ]);
 };
 
+/**
+ * Validate that the `files` field in `package.json` contains directories and
+ * files that are necessary for the `DIST_COLLECTION` output target.
+ *
+ * @param config the stencil config
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ * @param outputTarget a DIST_COLLECTION output target
+ */
 export const validatePackageFiles = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection
+  outputTarget: d.OutputTargetDistCollection,
 ) => {
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
@@ -55,7 +88,7 @@ export const validatePackageFiles = async (
     const validPaths = [`${actualDistDir}`, `${actualDistDir}/`, `./${actualDistDir}`, `./${actualDistDir}/`];
 
     const containsDistDir = buildCtx.packageJson.files.some((userPath) =>
-      validPaths.some((validPath) => normalizePath(userPath) === validPath)
+      validPaths.some((validPath) => normalizePath(userPath) === validPath),
     );
 
     if (!containsDistDir) {
@@ -76,16 +109,25 @@ export const validatePackageFiles = async (
             packageJsonError(config, compilerCtx, buildCtx, msg, `"${pkgFile}"`);
           }
         }
-      })
+      }),
     );
   }
 };
 
+/**
+ * Check that the `main` field is set correctly in `package.json` for the
+ * `DIST_COLLECTION` output target.
+ *
+ * @param config the stencil config
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ * @param outputTarget a DIST_COLLECTION output target
+ */
 export const validateMain = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection
+  outputTarget: d.OutputTargetDistCollection,
 ) => {
   const mainAbs = join(outputTarget.dir, 'index.cjs.js');
   const mainRel = relative(config.rootDir, mainAbs);
@@ -99,106 +141,44 @@ export const validateMain = (
   }
 };
 
-export const validateModule = (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection
-) => {
-  const customElementsOutput = config.outputTargets.find(isOutputTargetDistCustomElementsBundle);
-  const currentModule = buildCtx.packageJson.module;
-  const distAbs = join(outputTarget.dir, 'index.js');
-  const distRel = relative(config.rootDir, distAbs);
-
-  let recommendedRelPath = distRel;
-  if (customElementsOutput) {
-    const customElementsAbs = join(customElementsOutput.dir, 'index.js');
-    recommendedRelPath = relative(config.rootDir, customElementsAbs);
-  }
-
-  if (!isString(currentModule)) {
-    const msg = `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${recommendedRelPath}`;
-    packageJsonWarn(config, compilerCtx, buildCtx, msg, `"module"`);
-  } else if (
-    normalizePath(currentModule) !== normalizePath(recommendedRelPath) &&
-    normalizePath(currentModule) !== normalizePath(distRel)
-  ) {
-    const msg = `package.json "module" property is set to "${currentModule}". It's recommended to set the "module" property to: ${recommendedRelPath}`;
-    packageJsonWarn(config, compilerCtx, buildCtx, msg, `"module"`);
-  }
-};
-
-export const validateTypes = async (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistTypes
-) => {
-  const typesAbs = getComponentsDtsTypesFilePath(outputTarget);
-  const recommendedPath = relative(config.rootDir, typesAbs);
-
-  if (!isString(buildCtx.packageJson.types) || buildCtx.packageJson.types === '') {
-    const msg = `package.json "types" property is required when generating a distribution. It's recommended to set the "types" property to: ${recommendedPath}`;
-    packageJsonWarn(config, compilerCtx, buildCtx, msg, `"types"`);
-  } else if (!buildCtx.packageJson.types.endsWith('.d.ts')) {
-    const msg = `package.json "types" file must have a ".d.ts" extension: ${buildCtx.packageJson.types}`;
-    packageJsonWarn(config, compilerCtx, buildCtx, msg, `"types"`);
-  } else {
-    const typesFile = join(config.rootDir, buildCtx.packageJson.types);
-    const typesFileExists = await compilerCtx.fs.access(typesFile);
-    if (!typesFileExists) {
-      let msg = `package.json "types" property is set to "${buildCtx.packageJson.types}" but cannot be found.`;
-      if (normalizePath(buildCtx.packageJson.types) !== normalizePath(recommendedPath)) {
-        msg += ` It's recommended to set the "types" property to: ${recommendedPath}`;
-      }
-      packageJsonError(config, compilerCtx, buildCtx, msg, `"types"`);
-    }
-  }
-};
-
+/**
+ * Check that the `collection` field is set correctly in `package.json` for the
+ * `DIST_COLLECTION` output target.
+ *
+ * @param config the stencil config
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ * @param outputTarget a DIST_COLLECTION output target
+ */
 export const validateCollection = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection
+  outputTarget: d.OutputTargetDistCollection,
 ) => {
   if (outputTarget.collectionDir) {
-    const collectionRel = join(relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME);
-    if (!buildCtx.packageJson.collection || normalizePath(buildCtx.packageJson.collection) !== collectionRel) {
+    const collectionRel = normalizePath(
+      join(relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME),
+      false,
+    );
+    if (!buildCtx.packageJson.collection || normalizePath(buildCtx.packageJson.collection, false) !== collectionRel) {
       const msg = `package.json "collection" property is required when generating a distribution and must be set to: ${collectionRel}`;
       packageJsonWarn(config, compilerCtx, buildCtx, msg, `"collection"`);
     }
   }
 };
 
-export const validateBrowser = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+/**
+ * Check that the `browser` field is set correctly in `package.json` for the
+ * `DIST_COLLECTION` output target.
+ *
+ * @param config the stencil config
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ */
+export const validateBrowser = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (isString(buildCtx.packageJson.browser)) {
     const msg = `package.json "browser" property is set to "${buildCtx.packageJson.browser}". However, for maximum compatibility with all bundlers it's recommended to not set the "browser" property and instead ensure both "module" and "main" properties are set.`;
     packageJsonWarn(config, compilerCtx, buildCtx, msg, `"browser"`);
   }
-};
-
-const packageJsonError = (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  msg: string,
-  warnKey: string
-) => {
-  const err = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, warnKey);
-  err.header = `Package Json`;
-  return err;
-};
-
-const packageJsonWarn = (
-  config: d.Config,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  msg: string,
-  warnKey: string
-) => {
-  const warn = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, warnKey);
-  warn.header = `Package Json`;
-  warn.level = 'warn';
-  return warn;
 };

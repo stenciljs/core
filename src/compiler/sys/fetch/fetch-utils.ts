@@ -1,9 +1,18 @@
-import type * as d from '../../../declarations';
-import { isCommonDirModuleFile, isTsFile, isTsxFile } from '../resolve/resolve-utils';
-import { isFunction, normalizePath } from '@utils';
+import { isFunction, isTsFile, isTsxFile, normalizePath } from '@utils';
 
+import type * as d from '../../../declarations';
+import { isCommonDirModuleFile } from '../resolve/resolve-utils';
+
+/**
+ * A fetch wrapper which dispatches to `sys.fetch` if present, and otherwise
+ * uses `global.fetch`.
+ *
+ * @param sys a compiler system object
+ * @param input a `RequestInfo` object
+ * @param init an optional `RequestInit` object
+ * @returns a Promise wrapping a response
+ */
 export const httpFetch = (sys: d.CompilerSystem, input: RequestInfo, init?: RequestInit): Promise<Response> => {
-  console.trace(input);
   if (sys && isFunction(sys.fetch)) {
     return sys.fetch(input, init);
   }
@@ -13,11 +22,16 @@ export const httpFetch = (sys: d.CompilerSystem, input: RequestInfo, init?: Requ
 export const packageVersions = new Map<string, string>();
 export const known404Urls = new Set<string>();
 
-export const getStencilRootUrl = (compilerExe: string) => new URL('../', compilerExe).href;
-
-export const getStencilModuleUrl = (compilerExe: string, p: string) => {
-  p = normalizePath(p);
-  let parts = p.split('/');
+/**
+ * Get the URL for a Stencil module given the path to the compiler
+ *
+ * @param compilerExe the path to the compiler executable
+ * @param path the path to the module or file in question
+ * @returns a URL for the file of interest
+ */
+export const getStencilModuleUrl = (compilerExe: string, path: string): string => {
+  path = normalizePath(path);
+  let parts = path.split('/');
   const nmIndex = parts.lastIndexOf('node_modules');
   if (nmIndex > -1 && nmIndex < parts.length - 1) {
     parts = parts.slice(nmIndex + 1);
@@ -26,50 +40,10 @@ export const getStencilModuleUrl = (compilerExe: string, p: string) => {
     } else {
       parts = parts.slice(1);
     }
-    p = parts.join('/');
+    path = parts.join('/');
   }
-  return new URL('./' + p, getStencilRootUrl(compilerExe)).href;
-};
-
-export const getStencilInternalDtsUrl = (compilerExe: string) =>
-  getStencilModuleUrl(compilerExe, 'internal/index.d.ts');
-
-export const getCommonDirUrl = (
-  sys: d.CompilerSystem,
-  pkgVersions: Map<string, string>,
-  dirPath: string,
-  fileName: string
-) => getNodeModuleFetchUrl(sys, pkgVersions, dirPath) + '/' + fileName;
-
-export const getNodeModuleFetchUrl = (sys: d.CompilerSystem, pkgVersions: Map<string, string>, filePath: string) => {
-  // /node_modules/lodash/package.json
-  filePath = normalizePath(filePath);
-
-  // ["node_modules", "lodash", "package.json"]
-  let pathParts = filePath.split('/').filter((p) => p.length);
-
-  const nmIndex = pathParts.lastIndexOf('node_modules');
-  if (nmIndex > -1 && nmIndex < pathParts.length - 1) {
-    pathParts = pathParts.slice(nmIndex + 1);
-  }
-
-  let moduleId = pathParts.shift();
-
-  if (moduleId.startsWith('@')) {
-    moduleId += '/' + pathParts.shift();
-  }
-
-  const path = pathParts.join('/');
-  if (moduleId === '@stencil/core') {
-    const compilerExe = sys.getCompilerExecutingPath();
-    return getStencilModuleUrl(compilerExe, path);
-  }
-
-  return sys.getRemoteModuleUrl({
-    moduleId,
-    version: pkgVersions.get(moduleId),
-    path,
-  });
+  const stencilRootUrl = new URL('../', compilerExe).href;
+  return new URL('./' + path, stencilRootUrl).href;
 };
 
 export const skipFilePathFetch = (filePath: string) => {

@@ -1,8 +1,10 @@
-import type * as d from '../../declarations';
-import { connectedCallback, insertVdomAnnotations } from '@runtime';
-import { doc, getHostRef, loadModule, plt, registerHost } from '@platform';
-import { proxyHostElement } from './proxy-host-element';
 import { globalScripts } from '@app-globals';
+import { addHostEventListeners, getHostRef, loadModule, plt, registerHost } from '@platform';
+import { connectedCallback, insertVdomAnnotations } from '@runtime';
+import { CMP_FLAGS } from '@utils';
+
+import type * as d from '../../declarations';
+import { proxyHostElement } from './proxy-host-element';
 
 export function hydrateApp(
   win: Window & typeof globalThis,
@@ -12,9 +14,9 @@ export function hydrateApp(
     win: Window,
     opts: d.HydrateFactoryOptions,
     results: d.HydrateResults,
-    resolve: (results: d.HydrateResults) => void
+    resolve: (results: d.HydrateResults) => void,
   ) => void,
-  resolve: (results: d.HydrateResults) => void
+  resolve: (results: d.HydrateResults) => void,
 ) {
   const connectedElements = new Set<any>();
   const createdElements = new Set<HTMLElement>();
@@ -27,7 +29,7 @@ export function hydrateApp(
   let ranCompleted = false;
 
   function hydratedComplete() {
-    global.clearTimeout(tmrId);
+    globalThis.clearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
 
@@ -78,11 +80,29 @@ export function hydrateApp(
               $tagName$: elm.nodeName.toLowerCase(),
               $flags$: null,
             },
-            null
+            null,
           ) as d.ComponentConstructor;
 
           if (Cstr != null && Cstr.cmpMeta != null) {
             // we found valid component metadata
+
+            if (
+              opts.serializeShadowRoot !== false &&
+              !!(Cstr.cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+              tagRequiresScoped(elm.tagName, opts.serializeShadowRoot)
+            ) {
+              // this component requires scoped css encapsulation during SSR
+              const cmpMeta = Cstr.cmpMeta;
+              cmpMeta.$flags$ |= CMP_FLAGS.shadowNeedsScopedCss;
+
+              // 'cmpMeta' is a getter only, so needs redefining
+              Object.defineProperty(Cstr as any, 'cmpMeta', {
+                get: function (this: any) {
+                  return cmpMeta;
+                },
+              });
+            }
+
             createdElements.add(elm);
             elm.connectedCallback = patchedConnectedCallback;
 
@@ -90,7 +110,7 @@ export function hydrateApp(
             registerHost(elm, Cstr.cmpMeta);
 
             // proxy the host element with the component's metadata
-            proxyHostElement(elm, Cstr.cmpMeta);
+            proxyHostElement(elm, Cstr);
           }
         }
       }
@@ -119,7 +139,7 @@ export function hydrateApp(
 
           // add it to our Set so we know it's already being connected
           connectedElements.add(elm);
-          return hydrateComponent(win, results, elm.nodeName, elm, waitingElements);
+          return hydrateComponent.call(elm, win, results, elm.nodeName, elm, waitingElements);
         }
       }
 
@@ -142,14 +162,14 @@ export function hydrateApp(
 
     win.document.createElementNS = function patchedCreateElement(namespaceURI: string, tagName: string) {
       const elm = orgDocumentCreateElementNS.call(win.document, namespaceURI, tagName);
-      patchElement(elm);
+      patchElement(elm as d.HostElement);
       return elm;
-    };
+    } as (typeof window)['document']['createElementNS'];
 
-    // ensure we use nodejs's native setTimeout, not the mocked hydrate app scoped one
-    tmrId = global.setTimeout(timeoutExceeded, opts.timeout);
+    // ensure we use NodeJS's native setTimeout, not the mocked hydrate app scoped one
+    tmrId = globalThis.setTimeout(timeoutExceeded, opts.timeout);
 
-    plt.$resourcesUrl$ = new URL(opts.resourcesUrl || './', doc.baseURI).href;
+    plt.$resourcesUrl$ = new URL(opts.resourcesUrl || './', win.document.baseURI).href;
 
     globalScripts();
 
@@ -162,11 +182,12 @@ export function hydrateApp(
 }
 
 async function hydrateComponent(
+  this: HTMLElement,
   win: Window & typeof globalThis,
   results: d.HydrateResults,
   tagName: string,
   elm: d.HostElement,
-  waitingElements: Set<HTMLElement>
+  waitingElements: Set<HTMLElement>,
 ) {
   tagName = tagName.toLowerCase();
   const Cstr = loadModule(
@@ -174,7 +195,7 @@ async function hydrateComponent(
       $tagName$: tagName,
       $flags$: null,
     },
-    null
+    null,
   ) as d.ComponentConstructor;
 
   if (Cstr != null) {
@@ -182,6 +203,9 @@ async function hydrateComponent(
 
     if (cmpMeta != null) {
       waitingElements.add(elm);
+      const hostRef = getHostRef(this);
+      addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
+
       try {
         connectedCallback(elm);
         await elm.componentOnReady();
@@ -262,8 +286,8 @@ function renderCatchError(opts: d.HydrateFactoryOptions, results: d.HydrateResul
     type: 'build',
     header: 'Hydrate Error',
     messageText: '',
-    relFilePath: null,
-    absFilePath: null,
+    relFilePath: undefined,
+    absFilePath: undefined,
     lines: [],
   };
 
@@ -327,4 +351,42 @@ function waitingOnElementMsg(waitingElement: HTMLElement) {
 
 function waitingOnElementsMsg(waitingElements: Set<HTMLElement>) {
   return Array.from(waitingElements).map(waitingOnElementMsg);
+}
+
+/**
+ * Determines if the tag requires a declarative shadow dom
+ * or a scoped / light dom during SSR.
+ *
+ * @param tagName - component tag name
+ * @param opts - serializeShadowRoot options
+ * @returns `true` when the tag requires a scoped / light dom during SSR
+ */
+export function tagRequiresScoped(tagName: string, opts: d.HydrateFactoryOptions['serializeShadowRoot']) {
+  if (typeof opts === 'string') {
+    return opts === 'scoped';
+  }
+
+  if (typeof opts === 'boolean') {
+    return opts === true ? false : true;
+  }
+
+  if (typeof opts === 'object') {
+    tagName = tagName.toLowerCase();
+
+    if (Array.isArray(opts['declarative-shadow-dom']) && opts['declarative-shadow-dom'].includes(tagName)) {
+      // if the tag is in the dsd array, return dsd
+      return false;
+    } else if (
+      (!Array.isArray(opts.scoped) || !opts.scoped.includes(tagName)) &&
+      opts.default === 'declarative-shadow-dom'
+    ) {
+      // if the tag is not in the scoped array and the default is dsd, return dsd
+      return false;
+    } else {
+      // otherwise, return scoped
+      return true;
+    }
+  }
+
+  return false;
 }

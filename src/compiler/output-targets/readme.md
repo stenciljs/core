@@ -13,11 +13,11 @@ Stencil is able to generate components into various formats so they can be best 
 
 `lazy-loaded`: A lazy-loaded webapp creates all the proxied host custom elements up front, but only downloads the component implementation on-demand. Lazy-loaded components work by having a proxied "host" custom element, and lazy-loads the component class and css, and rather than the host element having the "instance", such as a traditional custom element, the instance is of the lazy-loaded component class. If a Stencil library has a low number of components, then having them all packaged into a single-file would be best. But for a very large library of components, such as Ionic, it'd be best to have them lazy-loaded instead. Part of the configuration can decide when to make a library either lazy-loaded or single-file.
 
-`module`: Component code meant to be imported by other bundlers in order for them to be intergrated within other apps.
+`module`: Component code meant to be imported by other bundlers in order for them to be integrated within other apps.
 
 `native`: Lazy-loaded components split the host custom element and the component implementation apart. A "native" component is a traditional custom element in that the instance and host element are the same. 
 
-`custom-element`: Individual custom elements packaged up into stand-alone, self-contained code. Each component imports shared runtime from `@stencil/core`. Opposite of lazy-loaded components that define themselves and load on deman, the custom elements builds must be imported and defined by the consumer, and any lazy-loaded depends on the consumer's bundling methods.
+`custom-element`: Individual custom elements packaged up into stand-alone, self-contained code. Each component imports shared runtime from `@stencil/core`. Opposite of lazy-loaded components that define themselves and load on demand, the custom elements builds must be imported and defined by the consumer, and any lazy-loaded depends on the consumer's bundling methods.
 
 
 ## Output Target Types
@@ -36,24 +36,17 @@ Stencil is able to generate components into various formats so they can be best 
 - Generates a `collection` into the `dist/collection/` directory to be used by other projects.
 
 
-### `dist-custom-elements-bundle`
-
-- Generates a single, tree-shakable, bundle of all the components.
-- Does not define the custom elements.
-- Consumers importing individual components from the bundle must define each custom element.
-
-
 ### `angular`
 
 - Generates a wrapper Angular component proxy.
-- Web componets themselves work fine within Angular, but you loose out on many of Angular's features, such as types or `@ViewChild`. In order for a Stencil project to fit right into the Angular ecosystem, this output target generates thin wrapper that can be imported by Angular.
+- Web components themselves work fine within Angular, but you loose out on many of Angular's features, such as types or `@ViewChild`. In order for a Stencil project to fit right into the Angular ecosystem, this output target generates thin wrapper that can be imported by Angular.
 
 
 ### `dist-hydrate-script`
 
 - Used by NodeJS to do Static Site Generation (SSG) and/or Server Side Rendering (SSR). 
 - Used by Stencil prerendering commands.
-- Formats the componets so that the server can generate new global window environments that are scoped to each rendering, rather than having global information bleed between each URL rendered.
+- Formats the components so that the server can generate new global window environments that are scoped to each rendering, rather than having global information bleed between each URL rendered.
 
 
 ## Output Folder Structure Defaults

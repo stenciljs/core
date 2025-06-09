@@ -18,7 +18,7 @@ describe('parse component tags', () => {
     expect(t.cmp.potentialCmpRefs[0]).toBe('some-cmp');
   });
 
-  it('createElement', () => {
+  it('createElementNS', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
       export class CmpA {

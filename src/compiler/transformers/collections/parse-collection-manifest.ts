@@ -1,15 +1,15 @@
+import { join, normalizePath } from '@utils';
+
 import type * as d from '../../../declarations';
-import { join } from 'path';
-import { normalizePath } from '@utils';
 import { parseCollectionComponents, transpileCollectionModule } from './parse-collection-components';
 
 export const parseCollectionManifest = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   collectionName: string,
   collectionDir: string,
-  collectionJsonStr: string
+  collectionJsonStr: string,
 ) => {
   const collectionManifest: d.CollectionManifest = JSON.parse(collectionJsonStr);
 
@@ -18,6 +18,7 @@ export const parseCollectionManifest = (
   const collection: d.CollectionCompilerMeta = {
     collectionName: collectionName,
     moduleId: collectionName,
+    moduleDir: collectionDir,
     moduleFiles: [],
     dependencies: parseCollectionDependencies(collectionManifest),
     compiler: {
@@ -39,12 +40,12 @@ export const parseCollectionDependencies = (collectionManifest: d.CollectionMani
 };
 
 export const parseGlobal = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   collectionDir: string,
   collectionManifest: d.CollectionManifest,
-  collection: d.CollectionCompilerMeta
+  collection: d.CollectionCompilerMeta,
 ) => {
   if (typeof collectionManifest.global !== 'string') {
     return;

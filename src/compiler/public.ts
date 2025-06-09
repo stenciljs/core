@@ -1,9 +1,9 @@
 import {
-  CompileScriptMinifyOptions,
-  CompilerBuildResults,
   Compiler,
+  CompilerBuildResults,
   CompilerSystem,
   CompilerWatcher,
+  CompileScriptMinifyOptions,
   Config,
   Diagnostic,
   LoadConfigInit,
@@ -13,41 +13,18 @@ import {
   OptimizeJsInput,
   OptimizeJsOutput,
   PlatformPath,
+  PrerenderResults,
+  PrerenderStartOptions,
   TranspileOptions,
   TranspileResults,
-  PrerenderStartOptions,
-  PrerenderResults,
 } from '@stencil/core/internal';
 
-/**
- * The `transpile()` function inputs source code as a string, with various options
- * within the second argument. The function is stateless and returns a `Promise` of the
- * results, including diagnostics and the transpiled code. The `transpile()` function
- * does not handle any bundling, minifying, or precompiling any CSS preprocessing like
- * Sass or Less. The `transpileSync()` equivalent is available so the same function
- * it can be called synchronously. However, TypeScript must be already loaded within
- * the global for it to work, where as the async `transpile()` function will load
- * TypeScript automatically.
- *
- * Since TypeScript is used, the source code will transpile from TypeScript to JavaScript,
- * and does not require Babel presets. Additionally, the results includes an `imports`
- * array of all the import paths found in the source file. The transpile options can be
- * used to set the `module` format, such as `cjs`, and JavaScript `target` version, such
- * as `es2017`.
- */
-export declare const transpile: (code: string, opts?: TranspileOptions) => Promise<TranspileResults>;
-
-/**
- * Synchronous equivalent of the `transpile()` function. When used in a browser
- * environment, TypeScript must already be available globally, where as the async
- * `transpile()` function will load TypeScript automatically.
- */
-export declare const transpileSync: (code: string, opts?: TranspileOptions) => TranspileResults;
+export { transpile, transpileSync } from './transpile';
 
 /**
  * The compiler is the utility that brings together many tools to build optimized components,
  * such as a transpiler, bundler, and minifier, along with many internal optimizations to
- * create small efficient compoennts. When using the CLI, the `stencil build` command uses
+ * create small efficient components. When using the CLI, the `stencil build` command uses
  * the compiler for the various builds, such as a production build, or watch mode during
  * development. If only one file should be transformed then the `transpile()` function
  * should be used instead.
@@ -58,7 +35,7 @@ export declare const transpileSync: (code: string, opts?: TranspileOptions) => T
 export declare const createCompiler: (config: Config) => Promise<Compiler>;
 
 export declare const createPrerenderer: (
-  config: Config
+  config: Config,
 ) => Promise<{ start: (opts: PrerenderStartOptions) => Promise<PrerenderResults> }>;
 
 /**
@@ -100,7 +77,7 @@ export declare const optimizeCss: (cssInput?: OptimizeCssInput) => Promise<Optim
 export declare const optimizeJs: (jsInput?: OptimizeJsInput) => Promise<OptimizeJsOutput>;
 
 /**
- * Utility of the `path` API providied by NodeJS, but capable of running in any environment.
+ * Utility of the `path` API provided by NodeJS, but capable of running in any environment.
  */
 export declare const path: PlatformPath;
 
@@ -127,11 +104,11 @@ export declare const vermoji: string;
 export declare const buildId: string;
 
 export {
-  CompileScriptMinifyOptions,
-  CompilerBuildResults,
-  CompilerWatcher,
   Compiler,
+  CompilerBuildResults,
   CompilerSystem,
+  CompilerWatcher,
+  CompileScriptMinifyOptions,
   Config,
   Diagnostic,
   LoadConfigInit,

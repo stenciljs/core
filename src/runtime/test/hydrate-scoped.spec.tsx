@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('hydrate scoped', () => {
@@ -44,7 +44,6 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated">
         <!--r.1-->
-        <!---->
         <article>
           <!--s.1.1.1.0.-->
           88mph
@@ -95,10 +94,9 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root['s-cr']['s-cn']).toBe(true);
 
     expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a class="hydrated">
+      <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <!---->
-        <article>
+        <article class="sc-cmp-a sc-cmp-a-s">
           <!--s.1.1.1.0.-->
           88mph
         </article>
@@ -133,7 +131,6 @@ describe('hydrate scoped', () => {
       </cmp-a>
     `);
 
-    // @ts-ignore
     const clientHydrated = await newSpecPage({
       components: [CmpA],
       html: serverHydrated.root.outerHTML,
@@ -144,12 +141,61 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root['s-cr']['s-cn']).toBe(true);
 
     expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a class="hydrated">
+      <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <p class="hi">
+        <p class="hi sc-cmp-a">
           Hello
         </p>
       </cmp-a>
     `);
+  });
+
+  it('adds a scoped-slot class to the slot parent element', async () => {
+    @Component({ tag: 'cmp-a', scoped: true })
+    class CmpA {
+      render() {
+        return (
+          <Host>
+            <div class="wrapper">
+              <p class="hi">
+                <slot />
+              </p>
+            </div>
+          </Host>
+        );
+      }
+    }
+    // @ts-ignore
+    const serverHydrated = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+      hydrateServerSide: true,
+    });
+    expect(serverHydrated.root).toEqualHtml(`
+      <cmp-a class=\"hydrated\" s-id=\"1\">
+        <!--r.1-->
+        <div c-id=\"1.0.0.0\" class=\"wrapper\">
+          <p c-id=\"1.1.1.0\" class=\"hi\">
+            <!--s.1.2.2.0.-->
+          </p>
+        </div>
+      </cmp-a>`);
+
+    const clientHydrated = await newSpecPage({
+      components: [CmpA],
+      html: serverHydrated.root.outerHTML,
+      hydrateClientSide: true,
+    });
+    expect(clientHydrated.root.querySelector('p').className).toBe('hi sc-cmp-a-s sc-cmp-a');
+
+    expect(clientHydrated.root).toEqualHtml(`
+      <cmp-a class=\"hydrated sc-cmp-a-h\">
+        <!--r.1-->
+        <div class=\"sc-cmp-a wrapper\">
+          <p class=\"hi sc-cmp-a sc-cmp-a-s\">
+            <!--s.1.2.2.0.-->
+          </p>
+        </div>
+      </cmp-a>`);
   });
 });

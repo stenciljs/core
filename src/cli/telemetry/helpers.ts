@@ -1,4 +1,5 @@
 import type * as d from '../../declarations';
+import { ConfigFlags } from '../config-flags';
 
 export const tryFn = async <T extends (...args: any[]) => Promise<R>, R>(fn: T, ...args: any[]): Promise<R | null> => {
   try {
@@ -10,17 +11,15 @@ export const tryFn = async <T extends (...args: any[]) => Promise<R>, R>(fn: T, 
   return null;
 };
 
-export declare const TERMINAL_INFO: d.TerminalInfo;
-
-export const isInteractive = (sys: d.CompilerSystem, config: d.Config, object?: d.TerminalInfo): boolean => {
+export const isInteractive = (sys: d.CompilerSystem, flags: ConfigFlags, object?: d.TerminalInfo): boolean => {
   const terminalInfo =
     object ||
     Object.freeze({
       tty: sys.isTTY() ? true : false,
       ci:
         ['CI', 'BUILD_ID', 'BUILD_NUMBER', 'BITBUCKET_COMMIT', 'CODEBUILD_BUILD_ARN'].filter(
-          (v) => !!sys.getEnvironmentVar(v)
-        ).length > 0 || !!config.flags?.ci,
+          (v) => !!sys.getEnvironmentVar?.(v),
+        ).length > 0 || !!flags.ci,
     });
 
   return terminalInfo.tty && !terminalInfo.ci;
@@ -51,18 +50,18 @@ export async function readJson(sys: d.CompilerSystem, path: string): Promise<any
 
 /**
  * Does the command have the debug flag?
- * @param config The config passed into the Stencil command
+ * @param flags The configuration flags passed into the Stencil command
  * @returns true if --debug has been passed, otherwise false
  */
-export function hasDebug(config: d.Config) {
-  return config.flags.debug;
+export function hasDebug(flags: ConfigFlags): boolean {
+  return !!flags.debug;
 }
 
 /**
  * Does the command have the verbose and debug flags?
- * @param config The config passed into the Stencil command
+ * @param flags The configuration flags passed into the Stencil command
  * @returns true if both --debug and --verbose have been passed, otherwise false
  */
-export function hasVerbose(config: d.Config) {
-  return config.flags.verbose && hasDebug(config);
+export function hasVerbose(flags: ConfigFlags): boolean {
+  return !!flags.verbose && hasDebug(flags);
 }

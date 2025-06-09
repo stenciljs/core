@@ -1,24 +1,30 @@
-import type * as d from '../../../declarations';
-import { buildError, isFunction, isString } from '@utils';
-import { isAbsolute, join } from 'path';
 import {
+  buildError,
+  DOCS_JSON,
+  DOCS_README,
+  isFunction,
   isOutputTargetDocsCustom,
   isOutputTargetDocsJson,
   isOutputTargetDocsReadme,
   isOutputTargetDocsVscode,
-} from '../../output-targets/output-utils';
+  isString,
+  join,
+} from '@utils';
+import { isAbsolute } from 'path';
+
+import type * as d from '../../../declarations';
 import { NOTE } from '../../docs/constants';
 
-export const validateDocs = (config: d.Config, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
+export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
   const docsOutputs: d.OutputTarget[] = [];
 
   // json docs flag
   if (isString(config.flags.docsJson)) {
     docsOutputs.push(
       validateJsonDocsOutputTarget(config, diagnostics, {
-        type: 'docs-json',
+        type: DOCS_JSON,
         file: config.flags.docsJson,
-      })
+      }),
     );
   }
 
@@ -32,7 +38,7 @@ export const validateDocs = (config: d.Config, diagnostics: d.Diagnostic[], user
   if (config.flags.docs || config.flags.task === 'docs') {
     if (!userOutputs.some(isOutputTargetDocsReadme)) {
       // didn't provide a docs config, so let's add one
-      docsOutputs.push(validateReadmeOutputTarget(config, { type: 'docs-readme' }));
+      docsOutputs.push(validateReadmeOutputTarget(config, { type: DOCS_README }));
     }
   }
 
@@ -56,7 +62,7 @@ export const validateDocs = (config: d.Config, diagnostics: d.Diagnostic[], user
   return docsOutputs;
 };
 
-const validateReadmeOutputTarget = (config: d.Config, outputTarget: d.OutputTargetDocsReadme) => {
+const validateReadmeOutputTarget = (config: d.ValidatedConfig, outputTarget: d.OutputTargetDocsReadme) => {
   if (!isString(outputTarget.dir)) {
     outputTarget.dir = config.srcDir;
   }
@@ -73,9 +79,9 @@ const validateReadmeOutputTarget = (config: d.Config, outputTarget: d.OutputTarg
 };
 
 const validateJsonDocsOutputTarget = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
-  outputTarget: d.OutputTargetDocsJson
+  outputTarget: d.OutputTargetDocsJson,
 ) => {
   if (!isString(outputTarget.file)) {
     const err = buildError(diagnostics);

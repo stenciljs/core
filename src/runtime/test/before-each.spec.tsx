@@ -1,4 +1,5 @@
 import { newSpecPage } from '@stencil/core/testing';
+
 import { CmpA } from './fixtures/cmp-a';
 
 describe('newSpecPage, spec testing', () => {
@@ -58,19 +59,19 @@ describe('newSpecPage, spec testing', () => {
     expect(div.textContent).toEqual(`Hello, World! I'm Doc Emmett Brown`);
   });
 
-  it('should emit "initevent" on init ', async () => {
+  it('should emit "initevent" on init', async () => {
     root.addEventListener(
       'initevent',
       (ev: CustomEvent) => {
         expect(ev.detail.init).toBeTruthy();
       },
-      false
+      false,
     );
     root.init();
     await page.waitForChanges();
   });
 
-  it('should respond to "testevent" ', async () => {
+  it('should respond to "testevent"', async () => {
     const myevent = new CustomEvent('testevent', {
       detail: {
         last: 'Jeep',

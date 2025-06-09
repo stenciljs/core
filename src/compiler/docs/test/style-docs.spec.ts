@@ -1,4 +1,6 @@
 import type * as d from '@stencil/core/declarations';
+import { DEFAULT_STYLE_MODE } from '@utils';
+
 import { parseStyleDocs } from '../style-docs';
 
 describe('style-docs', () => {
@@ -129,8 +131,55 @@ describe('style-docs', () => {
   });
 
   it('null styleText', () => {
-    const styleText = null;
+    const styleText: null = null;
     parseStyleDocs(styleDocs, styleText);
     expect(styleDocs).toEqual([]);
+  });
+
+  it('works with sass loud comments', () => {
+    const styleText = `
+      /*!
+       * @prop --max-width: Max width of the alert
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([{ name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' }]);
+  });
+
+  it('works with multiple, mixed comment types', () => {
+    const styleText = `
+      /**
+       * @prop --max-width: Max width of the alert
+       */
+      /*!
+       * @prop --max-width-loud: Max width of the alert (loud)
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' },
+      { name: `--max-width-loud`, docs: `Max width of the alert (loud)`, annotation: 'prop' },
+    ]);
+  });
+
+  it.each(['ios', 'md', undefined, '', DEFAULT_STYLE_MODE])("attaches mode metadata for a style mode '%s'", (mode) => {
+    const styleText = `
+    /*!
+     * @prop --max-width: Max width of the alert
+     */
+    body {
+      color: red;
+    }
+  `;
+
+    parseStyleDocs(styleDocs, styleText, mode);
+
+    expect(styleDocs).toEqual([{ name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop', mode }]);
   });
 });

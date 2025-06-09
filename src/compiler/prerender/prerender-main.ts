@@ -1,19 +1,19 @@
+import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '@utils';
+import { isAbsolute } from 'path';
+
 import type * as d from '../../declarations';
-import { buildError, catchError, hasError, isString } from '@utils';
 import { createHydrateBuildId } from '../../hydrate/runner/render-utils';
-import { createWorkerContext } from '../worker/worker-thread';
+import { getAbsoluteBuildDir } from '../html/html-utils';
 import { createWorkerMainContext } from '../worker/main-thread';
+import { createWorkerContext } from '../worker/worker-thread';
+import { getPrerenderConfig } from './prerender-config';
+import { getHydrateOptions } from './prerender-hydrate-options';
 import { drainPrerenderQueue, initializePrerenderEntryUrls } from './prerender-queue';
+import { generateTemplateHtml } from './prerender-template-html';
 import { generateRobotsTxt } from './robots-txt';
 import { generateSitemapXml } from './sitemap-xml';
-import { generateTemplateHtml } from './prerender-template-html';
-import { getAbsoluteBuildDir } from '../html/html-utils';
-import { getHydrateOptions } from './prerender-hydrate-options';
-import { getPrerenderConfig } from './prerender-config';
-import { isAbsolute, join } from 'path';
-import { isOutputTargetWww } from '../output-targets/output-utils';
 
-export const createPrerenderer = async (config: d.Config) => {
+export const createPrerenderer = async (config: d.ValidatedConfig) => {
   const start = (opts: d.PrerenderStartOptions) => {
     return runPrerender(config, opts.hydrateAppFilePath, opts.componentGraph, opts.srcIndexHtmlPath, opts.buildId);
   };
@@ -23,11 +23,11 @@ export const createPrerenderer = async (config: d.Config) => {
 };
 
 const runPrerender = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   hydrateAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
-  buildId: string
+  buildId: string,
 ) => {
   const startTime = Date.now();
   const diagnostics: d.Diagnostic[] = [];
@@ -70,8 +70,15 @@ const runPrerender = async (
     let workerCtrl: d.WorkerMainController;
 
     if (config.sys.createWorkerController == null || config.maxConcurrentWorkers < 1) {
+      // we don't have a `maxConcurrentWorkers` setting which makes it
+      // necessary to actually use threaded workers, so we create a
+      // single-threaded worker context here
       workerCtx = createWorkerContext(config.sys);
     } else {
+      // we want to stand up the full threaded worker setup, so we first need
+      // to build a worker controller and then we create an appropriate worker
+      // context for it (this will mean that when methods are called on
+      // `workerCtx` they're dispatched to workers in other threads)
       workerCtrl = config.sys.createWorkerController(config.maxConcurrentWorkers);
       workerCtx = createWorkerMainContext(workerCtrl);
     }
@@ -98,9 +105,9 @@ const runPrerender = async (
             hydrateAppFilePath,
             componentGraph,
             srcIndexHtmlPath,
-            outputTarget
+            outputTarget,
           );
-        })
+        }),
       );
     } catch (e: any) {
       catchError(diagnostics, e);
@@ -126,12 +133,12 @@ const runPrerenderOutputTarget = async (
   workerCtx: d.CompilerWorkerContext,
   results: d.PrerenderResults,
   diagnostics: d.Diagnostic[],
-  config: d.Config,
+  config: d.ValidatedConfig,
   devServer: d.DevServer,
   hydrateAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
-  outputTarget: d.OutputTargetWww
+  outputTarget: d.OutputTargetWww,
 ) => {
   try {
     const timeSpan = config.logger.createTimeSpan(`prerendering started`);
@@ -192,7 +199,7 @@ const runPrerenderOutputTarget = async (
       srcIndexHtmlPath,
       outputTarget,
       hydrateOpts,
-      manager
+      manager,
     );
     if (diagnostics.length > 0 || !templateData || !isString(templateData.html)) {
       return;
@@ -252,7 +259,7 @@ const runPrerenderOutputTarget = async (
   }
 };
 
-const createPrerenderTemplate = async (config: d.Config, templateHtml: string) => {
+const createPrerenderTemplate = async (config: d.ValidatedConfig, templateHtml: string) => {
   const hash = await config.sys.generateContentHash(templateHtml, 12);
   const templateFileName = `prerender-${hash}.html`;
   const templateId = join(config.sys.tmpDirSync(), templateFileName);
@@ -262,9 +269,9 @@ const createPrerenderTemplate = async (config: d.Config, templateHtml: string) =
 };
 
 const createComponentGraphPath = async (
-  config: d.Config,
+  config: d.ValidatedConfig,
   componentGraph: d.BuildResultsComponentGraph,
-  outputTarget: d.OutputTargetWww
+  outputTarget: d.OutputTargetWww,
 ) => {
   if (componentGraph) {
     const content = getComponentPathContent(componentGraph, outputTarget);

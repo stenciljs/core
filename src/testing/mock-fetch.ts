@@ -1,4 +1,4 @@
-import { MockHeaders, MockRequestInfo, MockResponse } from '../mock-doc';
+import { MockHeaders, MockRequestInfo, MockResponse } from '@stencil/core/mock-doc';
 
 const mockedResponses = new Map<string, MockedResponseData>();
 
@@ -103,7 +103,7 @@ export function mockFetchReset() {
 }
 
 export const mockFetch = {
-  json(data: any, url?: string) {
+  json(data: any, url: string) {
     const rsp = new MockResponse(JSON.stringify(data, null, 2), {
       headers: new MockHeaders({
         'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export const mockFetch = {
     setMockedResponse(rsp, url, false);
   },
 
-  text(data: string, url?: string) {
+  text(data: string, url: string) {
     const rsp = new MockResponse(data, {
       headers: new MockHeaders({
         'Content-Type': 'text/plain',
@@ -121,11 +121,11 @@ export const mockFetch = {
     setMockedResponse(rsp, url, false);
   },
 
-  response(rsp: MockResponse, url?: string) {
+  response(rsp: MockResponse, url: string) {
     setMockedResponse(rsp, url, false);
   },
 
-  reject(rsp?: MockResponse, url?: string) {
+  reject(rsp: MockResponse, url: string) {
     setMockedResponse(rsp, url, true);
   },
 
@@ -161,8 +161,8 @@ const FETCH_DEFAULT_PATH = '/mock-fetch-data';
 export {
   MockHeaders,
   MockRequest,
-  MockRequestInit,
   MockRequestInfo,
+  MockRequestInit,
   MockResponse,
   MockResponseInit,
-} from '../mock-doc';
+} from '@stencil/core/mock-doc';

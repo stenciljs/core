@@ -1,514 +1,471 @@
-import type * as d from '../../declarations';
-import { parseFlags } from '../parse-flags';
+import { toDashCase } from '@utils';
+
+import { LogLevel } from '../../declarations';
+import {
+  BOOLEAN_CLI_FLAGS,
+  BOOLEAN_STRING_CLI_FLAGS,
+  BooleanStringCLIFlag,
+  ConfigFlags,
+  NUMBER_CLI_FLAGS,
+  STRING_ARRAY_CLI_FLAGS,
+  STRING_CLI_FLAGS,
+  StringArrayCLIFlag,
+} from '../config-flags';
+import { Empty, parseEqualsArg, parseFlags } from '../parse-flags';
 
 describe('parseFlags', () => {
-  const args: string[] = [];
-  let sys: d.CompilerSystem = {} as any;
-
-  beforeEach(() => {
-    args.length = 0;
-    sys = {
-      name: 'node',
-    } as any;
-  });
-
   it('should get known and unknown args', () => {
-    args.push('serve', '--address', '127.0.0.1', '--coverage', '--reporters', 'test.spec.ts');
+    const args = ['serve', '--address', '127.0.0.1', '--potatoArgument', '--flimflammery', 'test.spec.ts'];
 
-    const flags = parseFlags(args, sys);
+    const flags = parseFlags(args);
     expect(flags.task).toBe('serve');
     expect(flags.args[0]).toBe('--address');
     expect(flags.args[1]).toBe('127.0.0.1');
-    expect(flags.args[2]).toBe('--coverage');
-    expect(flags.args[3]).toBe('--reporters');
+    expect(flags.args[2]).toBe('--potatoArgument');
+    expect(flags.args[3]).toBe('--flimflammery');
     expect(flags.args[4]).toBe('test.spec.ts');
     expect(flags.knownArgs).toEqual(['--address', '127.0.0.1']);
-    expect(flags.unknownArgs[0]).toBe('--coverage');
-    expect(flags.unknownArgs[1]).toBe('--reporters');
+    expect(flags.unknownArgs[0]).toBe('--potatoArgument');
+    expect(flags.unknownArgs[1]).toBe('--flimflammery');
     expect(flags.unknownArgs[2]).toBe('test.spec.ts');
   });
 
-  it('should use cli args, no npm cmds', () => {
+  it('should parse cli for dev server', () => {
     // user command line args
     // $ npm run serve --port 4444
 
     // args.slice(2)
     // [ 'serve', '--address', '127.0.0.1', '--port', '4444' ]
 
-    args.push('serve', '--address', '127.0.0.1', '--port', '4444');
+    const args = ['serve', '--address', '127.0.0.1', '--port', '4444'];
 
-    const flags = parseFlags(args, sys);
+    const flags = parseFlags(args);
     expect(flags.task).toBe('serve');
     expect(flags.address).toBe('127.0.0.1');
     expect(flags.port).toBe(4444);
-  });
-
-  it('should use cli args first, then npm cmds', () => {
-    // user command line args
-    // $ npm run serve --port 4444
-
-    // npm script
-    // "serve": "stencil serve --address 127.0.0.1 --port 8888"
-
-    // args.slice(2)
-    // [ 'serve', '--address', '127.0.0.1', '--port', '8888', '4444' ]
-
-    // process.env.npm_config_argv
-    // {"remain":["4444"],"cooked":["run","serve","--port","4444"],"original":["run","serve","--port","4444"]}
-
-    args.push('serve', '--address', '127.0.0.1', '--port', '8888', '4444');
-
-    sys.getEnvironmentVar = (key) => {
-      if (key === 'npm_config_argv') {
-        return JSON.stringify({
-          original: ['run', 'serve', '--port', '4444'],
-        });
-      }
-    };
-
-    const flags = parseFlags(args, sys);
-    expect(flags.task).toBe('serve');
-    expect(flags.address).toBe('127.0.0.1');
-    expect(flags.port).toBe(4444);
-  });
-
-  it('run stencil cmd from npm scripts', () => {
-    // user command line args
-    // $ npm run dev
-
-    // npm script
-    // "dev": "stencil build --dev --watch --serve"
-
-    // args.slice(2)
-    // [ 'build', '--dev', '--watch', '--serve' ]
-
-    // process.env.npm_config_argv
-    // {"remain":[],"cooked":["run","dev"],"original":["run","dev"]}
-
-    args.push('build', '--dev', '--watch', '--serve');
-
-    process.env = {
-      npm_config_argv: JSON.stringify({
-        original: ['run', 'dev'],
-      }),
-    };
-
-    const flags = parseFlags(args, sys);
-    expect(flags.task).toBe('build');
-    expect(flags.dev).toBe(true);
-    expect(flags.watch).toBe(true);
-    expect(flags.serve).toBe(true);
+    expect(flags.knownArgs).toEqual(['--address', '127.0.0.1', '--port', '4444']);
   });
 
   it('should parse task', () => {
-    args[0] = 'build';
-    const flags = parseFlags(args, sys);
+    const flags = parseFlags(['build']);
     expect(flags.task).toBe('build');
   });
 
   it('should parse no task', () => {
-    args[0] = '--flag';
-    const flags = parseFlags(args, sys);
+    const flags = parseFlags(['--flag']);
     expect(flags.task).toBe(null);
   });
 
-  it('should parse build flag to true', () => {
-    args[0] = 'test';
-    args[1] = '--build';
-    const flags = parseFlags(args, sys);
-    expect(flags.build).toBe(true);
+  /**
+   * these comprehensive tests of all the supported boolean args serve as
+   * regression tests against duplicating any of the arguments in the arrays.
+   * Because of the way that the arg parsing algorithm works having a dupe
+   * will result in a value like `[true, true]` being set on ConfigFlags, which
+   * will cause these tests to start failing.
+   */
+  describe.each(BOOLEAN_CLI_FLAGS)('should parse boolean flag %s', (cliArg) => {
+    it('should parse arg', () => {
+      const flags = parseFlags([`--${cliArg}`]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`]);
+      expect(flags[cliArg]).toBe(true);
+    });
+
+    it(`should parse --no${cliArg}`, () => {
+      const negativeFlag = '--no' + cliArg.charAt(0).toUpperCase() + cliArg.slice(1);
+      const flags = parseFlags([negativeFlag]);
+      expect(flags.knownArgs).toEqual([negativeFlag]);
+      expect(flags[cliArg]).toBe(false);
+    });
+
+    it(`should override --${cliArg} with --no${cliArg}`, () => {
+      const negativeFlag = '--no' + cliArg.charAt(0).toUpperCase() + cliArg.slice(1);
+      const flags = parseFlags([`--${cliArg}`, negativeFlag]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, negativeFlag]);
+      expect(flags[cliArg]).toBe(false);
+    });
+
+    it('should not set value if not present', () => {
+      const flags = parseFlags([]);
+      expect(flags.knownArgs).toEqual([]);
+      expect(flags[cliArg]).toBe(undefined);
+    });
+
+    it.each([true, false])(`should set the value with --${cliArg}=%p`, (value) => {
+      const flags = parseFlags([`--${cliArg}=${value}`]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, String(value)]);
+      expect(flags[cliArg]).toBe(value);
+    });
   });
 
-  it('should parse build flag to false', () => {
-    args[0] = 'test';
-    args[1] = '--no-build';
-    const flags = parseFlags(args, sys);
-    expect(flags.build).toBe(false);
+  describe.each(STRING_CLI_FLAGS)('should parse string flag %s', (cliArg) => {
+    it(`should parse "--${cliArg} value"`, () => {
+      const flags = parseFlags([`--${cliArg}`, 'test-value']);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'test-value']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toBe('test-value');
+    });
+
+    it(`should parse "--${cliArg}=value"`, () => {
+      const flags = parseFlags([`--${cliArg}=path/to/file.js`]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toBe('path/to/file.js');
+    });
+
+    it(`should parse "--${toDashCase(cliArg)} value"`, () => {
+      const flags = parseFlags([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.knownArgs).toEqual([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toBe('path/to/file.js');
+    });
+
+    it(`should parse "--${toDashCase(cliArg)}=value"`, () => {
+      const flags = parseFlags([`--${toDashCase(cliArg)}=path/to/file.js`]);
+      expect(flags.knownArgs).toEqual([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toBe('path/to/file.js');
+    });
   });
 
-  it('should not parse build flag, default null', () => {
-    args[0] = 'test';
-    const flags = parseFlags(args, sys);
-    expect(flags.build).toBe(null);
-  });
-
-  it('should parse --cache', () => {
-    args[0] = '--cache';
-    const flags = parseFlags(args, sys);
-    expect(flags.cache).toBe(true);
-  });
-
-  it('should parse --no-cache', () => {
-    args[0] = '--no-cache';
-    const flags = parseFlags(args, sys);
-    expect(flags.cache).toBe(false);
-  });
-
-  it('should not parse --cache', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.cache).toBe(null);
-  });
-
-  it('should parse --ci', () => {
-    args[0] = '--ci';
-    const flags = parseFlags(args, sys);
-    expect(flags.ci).toBe(true);
-  });
-
-  it('should parse --compare', () => {
-    args[0] = '--compare';
-    const flags = parseFlags(args, sys);
-    expect(flags.compare).toBe(true);
-  });
-
-  it('should not parse --compare', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.compare).toBe(null);
+  it.each(NUMBER_CLI_FLAGS)('should parse number flag %s', (cliArg) => {
+    const flags = parseFlags([`--${cliArg}`, '42']);
+    expect(flags.knownArgs).toEqual([`--${cliArg}`, '42']);
+    expect(flags.unknownArgs).toEqual([]);
+    expect(flags[cliArg]).toBe(42);
   });
 
   it('should override --config with second --config', () => {
-    args[0] = '--config';
-    args[1] = '/config-1.js';
-    args[2] = '--config';
-    args[3] = '/config-2.js';
-    const flags = parseFlags(args, sys);
+    const args = ['--config', '/config-1.js', '--config', '/config-2.js'];
+    const flags = parseFlags(args);
     expect(flags.config).toBe('/config-2.js');
   });
 
-  it('should parse --config', () => {
-    args[0] = '--config';
-    args[1] = '/my-config.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.config).toBe('/my-config.js');
+  describe.each(BOOLEAN_STRING_CLI_FLAGS)('boolean-string flag - %s', (cliArg: BooleanStringCLIFlag) => {
+    it('parses a boolean-string flag as a boolean with no arg', () => {
+      const args = [`--${cliArg}`];
+      const flags = parseFlags(args);
+      expect(flags.headless).toBe(true);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`]);
+    });
+
+    it(`parses a boolean-string flag as a falsy boolean with "no" arg - --no-${cliArg}`, () => {
+      const args = [`--no-${cliArg}`];
+      const flags = parseFlags(args);
+      expect(flags.headless).toBe(false);
+      expect(flags.knownArgs).toEqual([`--no-${cliArg}`]);
+    });
+
+    it(`parses a boolean-string flag as a falsy boolean with "no" arg - --no${
+      cliArg.charAt(0).toUpperCase() + cliArg.slice(1)
+    }`, () => {
+      const negativeFlag = '--no' + cliArg.charAt(0).toUpperCase() + cliArg.slice(1);
+      const flags = parseFlags([negativeFlag]);
+      expect(flags.headless).toBe(false);
+      expect(flags.knownArgs).toEqual([negativeFlag]);
+    });
+
+    it('parses a boolean-string flag as a string with a string arg', () => {
+      const args = [`--${cliArg}`, 'shell'];
+      const flags = parseFlags(args);
+      expect(flags.headless).toBe('shell');
+      expect(flags.knownArgs).toEqual(['--headless', 'shell']);
+    });
+
+    it('parses a boolean-string flag as a string with a string arg using equality', () => {
+      const args = [`--${cliArg}=shell`];
+      const flags = parseFlags(args);
+      expect(flags.headless).toBe('shell');
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'shell']);
+    });
   });
 
-  it('should parse --config=/my-config.js', () => {
-    args[0] = '--config=/my-config.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.config).toBe('/my-config.js');
+  describe.each<LogLevel>(['info', 'warn', 'error', 'debug'])('logLevel %s', (level) => {
+    it("should parse '--logLevel %s'", () => {
+      const args = ['--logLevel', level];
+      const flags = parseFlags(args);
+      expect(flags.logLevel).toBe(level);
+    });
+
+    it('should parse --logLevel=%s', () => {
+      const args = [`--logLevel=${level}`];
+      const flags = parseFlags(args);
+      expect(flags.logLevel).toBe(level);
+    });
+
+    it("should parse '--log-level %s'", () => {
+      const flags = parseFlags(['--log-level', level]);
+      expect(flags.logLevel).toBe(level);
+    });
+
+    it('should parse --log-level=%s', () => {
+      const flags = parseFlags([`--log-level=${level}`]);
+      expect(flags.logLevel).toBe(level);
+    });
   });
 
-  it('should parse -c', () => {
-    args[0] = '-c';
-    args[1] = '/my-config.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.config).toBe('/my-config.js');
+  /**
+   * maxWorkers is (as of this writing) our only StringNumberCLIArg, meaning it
+   * may be a string (like "50%") or a number (like 4). For this reason we have
+   * some tests just for it.
+   */
+  describe('maxWorkers', () => {
+    it.each([
+      ['--maxWorkers', '4'],
+      ['--maxWorkers=4'],
+      ['--max-workers', '4'],
+      ['--maxWorkers', '4e+0'],
+      ['--maxWorkers', '40e-1'],
+    ])('should parse %p, %p', (...args) => {
+      const flags = parseFlags(args);
+      expect(flags.maxWorkers).toBe(4);
+    });
+
+    it('should parse --maxWorkers 4', () => {
+      const flags = parseFlags(['--maxWorkers', '4']);
+      expect(flags.maxWorkers).toBe(4);
+    });
+
+    it('should parse --maxWorkers=4', () => {
+      const flags = parseFlags(['--maxWorkers=4']);
+      expect(flags.maxWorkers).toBe(4);
+    });
+
+    it('should parse --max-workers 4', () => {
+      const flags = parseFlags(['--max-workers', '4']);
+      expect(flags.maxWorkers).toBe(4);
+    });
+
+    it('should parse --maxWorkers=50%', function () {
+      // see https://jestjs.io/docs/27.x/cli#--maxworkersnumstring
+      const flags = parseFlags(['--maxWorkers=50%']);
+      expect(flags.maxWorkers).toBe('50%');
+    });
+
+    it('should parse --max-workers=1', () => {
+      const flags = parseFlags(['--max-workers=1']);
+      expect(flags.maxWorkers).toBe(1);
+    });
+
+    it('should not parse --max-workers', () => {
+      const flags = parseFlags([]);
+      expect(flags.maxWorkers).toBe(undefined);
+    });
   });
 
-  it('should parse -c=/my-config.js', () => {
-    args[0] = '-c=/my-config.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.config).toBe('/my-config.js');
-  });
+  describe('aliases', () => {
+    describe('-p (alias for port)', () => {
+      it('should parse -p=4444', () => {
+        const flags = parseFlags(['-p=4444']);
+        expect(flags.port).toBe(4444);
+      });
+      it('should parse -p 4444', () => {
+        const flags = parseFlags(['-p', '4444']);
+        expect(flags.port).toBe(4444);
+      });
+    });
 
-  it('should parse --debug', () => {
-    args[0] = '--debug';
-    const flags = parseFlags(args, sys);
-    expect(flags.debug).toBe(true);
-  });
+    it('should parse -h (alias for help)', () => {
+      const flags = parseFlags(['-h']);
+      expect(flags.help).toBe(true);
+    });
 
-  it('should parse --dev', () => {
-    args[0] = '--dev';
-    const flags = parseFlags(args, sys);
-    expect(flags.dev).toBe(true);
-  });
+    it('should parse -v (alias for version)', () => {
+      const flags = parseFlags(['-v']);
+      expect(flags.version).toBe(true);
+    });
 
-  it('should override --no-docs flag with --docs', () => {
-    args[0] = '--no-docs';
-    args[1] = '--docs';
-    const flags = parseFlags(args, sys);
-    expect(flags.docs).toBe(true);
-  });
+    describe('-c alias for config', () => {
+      it('should parse -c /my-config.js', () => {
+        const flags = parseFlags(['-c', '/my-config.js']);
+        expect(flags.config).toBe('/my-config.js');
+        expect(flags.knownArgs).toEqual(['--config', '/my-config.js']);
+      });
 
-  it('should override --docs flag with --no-docs', () => {
-    args[0] = '--docs';
-    args[1] = '--no-docs';
-    const flags = parseFlags(args, sys);
-    expect(flags.docs).toBe(false);
-  });
+      it('should parse -c=/my-config.js', () => {
+        const flags = parseFlags(['-c=/my-config.js']);
+        expect(flags.config).toBe('/my-config.js');
+        expect(flags.knownArgs).toEqual(['--config', '/my-config.js']);
+      });
+    });
 
-  it('should parse --docs', () => {
-    args[0] = '--docs';
-    const flags = parseFlags(args, sys);
-    expect(flags.docs).toBe(true);
-  });
+    describe('Jest aliases', () => {
+      it.each([
+        ['w', 'maxWorkers', '4'],
+        ['t', 'testNamePattern', 'testname'],
+      ])('should support the string Jest alias %p for %p', (alias, fullArgument, value) => {
+        const flags = parseFlags([`-${alias}`, value]);
+        expect(flags.knownArgs).toEqual([`--${fullArgument}`, value]);
+        expect(flags.unknownArgs).toHaveLength(0);
+      });
 
-  it('should parse --docs-json', () => {
-    args[0] = '--docs-json';
-    args[1] = 'some/path/docs.json';
-    const flags = parseFlags(args, sys);
-    expect(flags.docsJson).toBe('some/path/docs.json');
-  });
+      it.each([
+        ['w', 'maxWorkers', '4'],
+        ['t', 'testNamePattern', 'testname'],
+      ])('should support the string Jest alias %p for %p in an AliasEqualsArg', (alias, fullArgument, value) => {
+        const flags = parseFlags([`-${alias}=${value}`]);
+        expect(flags.knownArgs).toEqual([`--${fullArgument}`, value]);
+        expect(flags.unknownArgs).toHaveLength(0);
+      });
 
-  it('should parse --docs-json w/ =', () => {
-    args[0] = '--docs-json=some/path/docs.json';
-    const flags = parseFlags(args, sys);
-    expect(flags.docsJson).toBe('some/path/docs.json');
-  });
-
-  it('should parse --e2e', () => {
-    args[0] = '--e2e';
-    const flags = parseFlags(args, sys);
-    expect(flags.e2e).toBe(true);
-  });
-
-  it('should parse --emulate=android', () => {
-    args[0] = '--emulate=android';
-    const flags = parseFlags(args, sys);
-    expect(flags.emulate).toBe('android');
-  });
-
-  it('should parse --emulate android', () => {
-    args[0] = '--emulate';
-    args[1] = 'android';
-    const flags = parseFlags(args, sys);
-    expect(flags.emulate).toBe('android');
-  });
-
-  it('should not parse --emulate', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.emulate).toBe(null);
-  });
-
-  it('should parse --es5', () => {
-    args[0] = '--es5';
-    const flags = parseFlags(args, sys);
-    expect(flags.es5).toBe(true);
-  });
-
-  it('should parse --help', () => {
-    args[0] = '--help';
-    const flags = parseFlags(args, sys);
-    expect(flags.help).toBe(true);
-  });
-
-  it('should parse -h', () => {
-    args[0] = '-h';
-    const flags = parseFlags(args, sys);
-    expect(flags.help).toBe(true);
-  });
-
-  it('should parse --no-headless', () => {
-    args[0] = '--no-headless';
-    const flags = parseFlags(args, sys);
-    expect(flags.headless).toBe(false);
-  });
-
-  it('should parse --headless', () => {
-    args[0] = '--headless';
-    const flags = parseFlags(args, sys);
-    expect(flags.headless).toBe(true);
-  });
-
-  it('should parse --logLevel', () => {
-    args[0] = '--logLevel';
-    args[1] = 'error';
-    const flags = parseFlags(args, sys);
-    expect(flags.logLevel).toBe('error');
-  });
-
-  it('should parse --logLevel=error', () => {
-    args[0] = '--logLevel=error';
-    const flags = parseFlags(args, sys);
-    expect(flags.logLevel).toBe('error');
-  });
-
-  it('should parse --log-level', () => {
-    args[0] = '--log-level';
-    args[1] = 'error';
-    const flags = parseFlags(args, sys);
-    expect(flags.logLevel).toBe('error');
-  });
-
-  it('should parse --log', () => {
-    args[0] = '--log';
-    const flags = parseFlags(args, sys);
-    expect(flags.log).toBe(true);
-  });
-
-  it('should parse --maxWorkers 4', () => {
-    args[0] = '--maxWorkers';
-    args[1] = '4';
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(4);
-  });
-
-  it('should parse --maxWorkers=4', () => {
-    args[0] = '--maxWorkers=4';
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(4);
-  });
-
-  it('should parse --max-workers 4', () => {
-    args[0] = '--max-workers';
-    args[1] = '4';
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(4);
-  });
-
-  it('should parse --max-workers=1', () => {
-    args[0] = '--max-workers=1';
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(1);
-  });
-
-  it('should not parse --max-workers', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(null);
-  });
-
-  it('should parse --no-open', () => {
-    args[0] = '--no-open';
-    const flags = parseFlags(args, sys);
-    expect(flags.open).toBe(false);
-  });
-
-  it('should parse --port', () => {
-    args[0] = '--port';
-    args[1] = '8888';
-    const flags = parseFlags(args, sys);
-    expect(flags.port).toBe(8888);
-  });
-
-  it('should parse -p', () => {
-    args[0] = '-p';
-    args[1] = '4444';
-    const flags = parseFlags(args, sys);
-    expect(flags.port).toBe(4444);
-  });
-
-  it('should parse --prod', () => {
-    args[0] = '--prod';
-    const flags = parseFlags(args, sys);
-    expect(flags.prod).toBe(true);
-  });
-
-  it('should parse --profile', () => {
-    args[0] = '--profile';
-    const flags = parseFlags(args, sys);
-    expect(flags.profile).toBe(true);
-  });
-
-  it('should parse --prerender', () => {
-    args[0] = '--prerender';
-    const flags = parseFlags(args, sys);
-    expect(flags.prerender).toBe(true);
-  });
-
-  it('should parse --root', () => {
-    args[0] = '--root';
-    args[1] = 'custom-www';
-    const flags = parseFlags(args, sys);
-    expect(flags.root).toBe('custom-www');
-  });
-
-  it('should parse --screenshot', () => {
-    args[0] = '--screenshot';
-    const flags = parseFlags(args, sys);
-    expect(flags.screenshot).toBe(true);
-  });
-
-  it('should parse --screenshot-connector scripts/connector.js', () => {
-    args[0] = '--screenshot-connector';
-    args[1] = 'scripts/connector.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.screenshotConnector).toBe('scripts/connector.js');
-  });
-
-  it('should parse --screenshot-connector=scripts/connector.js', () => {
-    args[0] = '--screenshot-connector=scripts/connector.js';
-    const flags = parseFlags(args, sys);
-    expect(flags.screenshotConnector).toBe('scripts/connector.js');
-  });
-
-  it('should not parse --screenshot-connector', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.maxWorkers).toBe(null);
-  });
-
-  it('should parse --serve', () => {
-    args[0] = '--serve';
-    const flags = parseFlags(args, sys);
-    expect(flags.serve).toBe(true);
-  });
-
-  it('should parse --service-worker', () => {
-    args[0] = '--service-worker';
-    const flags = parseFlags(args, sys);
-    expect(flags.serviceWorker).toBe(true);
-  });
-
-  it('should parse --spec', () => {
-    args[0] = '--spec';
-    const flags = parseFlags(args, sys);
-    expect(flags.spec).toBe(true);
-  });
-
-  it('should parse --stats', () => {
-    args[0] = '--stats';
-    const flags = parseFlags(args, sys);
-    expect(flags.stats).toBe(true);
-  });
-
-  it('should parse --noUpdateScreenshot', () => {
-    args[0] = '--noUpdateScreenshot';
-    const flags = parseFlags(args, sys);
-    expect(flags.updateScreenshot).toBe(false);
-  });
-
-  it('should parse --updateScreenshot', () => {
-    args[0] = '--updateScreenshot';
-    const flags = parseFlags(args, sys);
-    expect(flags.updateScreenshot).toBe(true);
-  });
-
-  it('should parse --update-screenshot', () => {
-    args[0] = '--update-screenshot';
-    const flags = parseFlags(args, sys);
-    expect(flags.updateScreenshot).toBe(true);
-  });
-
-  it('should not parse --update-screenshot', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.updateScreenshot).toBe(null);
-  });
-
-  it('should parse --version', () => {
-    args[0] = '--version';
-    const flags = parseFlags(args, sys);
-    expect(flags.version).toBe(true);
-  });
-
-  it('should parse -v', () => {
-    args[0] = '-v';
-    const flags = parseFlags(args, sys);
-    expect(flags.version).toBe(true);
-  });
-
-  it('should set null version', () => {
-    const flags = parseFlags(args, sys);
-    expect(flags.version).toBe(null);
-  });
-
-  it('should parse --watch', () => {
-    args[0] = '--watch';
-    const flags = parseFlags(args, sys);
-    expect(flags.watch).toBe(true);
-  });
-
-  it('should parse --ssr', () => {
-    args[0] = '--ssr';
-    const flags = parseFlags(args, sys);
-    expect(flags.ssr).toBe(true);
+      it.each<[string, keyof ConfigFlags]>([
+        ['b', 'bail'],
+        ['e', 'expand'],
+        ['o', 'onlyChanged'],
+        ['f', 'onlyFailures'],
+        ['i', 'runInBand'],
+        ['u', 'updateSnapshot'],
+      ])('should support the boolean Jest alias %p for %p', (alias, fullArgument) => {
+        const flags = parseFlags([`-${alias}`]);
+        expect(flags.knownArgs).toEqual([`--${fullArgument}`]);
+        expect(flags[fullArgument]).toBe(true);
+        expect(flags.unknownArgs).toHaveLength(0);
+      });
+    });
   });
 
   it('should parse many', () => {
-    args[0] = '-v';
-    args[1] = '--help';
-    args[2] = '-c=./myconfig.json';
-    const flags = parseFlags(args, sys);
+    const args = ['-v', '--help', '-c=./myconfig.json'];
+    const flags = parseFlags(args);
     expect(flags.version).toBe(true);
     expect(flags.help).toBe(true);
     expect(flags.config).toBe('./myconfig.json');
+  });
+
+  describe('parseEqualsArg', () => {
+    it.each([
+      ['--fooBar=baz', '--fooBar', 'baz'],
+      ['--foo-bar=4', '--foo-bar', '4'],
+      ['--fooBar=twenty=3*4', '--fooBar', 'twenty=3*4'],
+      ['--fooBar', '--fooBar', Empty],
+      ['--foo-bar', '--foo-bar', Empty],
+      ['--foo-bar=""', '--foo-bar', '""'],
+    ])('should parse %s correctly', (testArg, expectedArg, expectedValue) => {
+      const [arg, value] = parseEqualsArg(testArg);
+      expect(arg).toBe(expectedArg);
+      expect(value).toEqual(expectedValue);
+    });
+  });
+
+  describe.each(STRING_ARRAY_CLI_FLAGS)('should parse string flag %s', (cliArg: StringArrayCLIFlag) => {
+    it(`should parse single value: "--${cliArg} test-value"`, () => {
+      const flags = parseFlags([`--${cliArg}`, 'test-value']);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'test-value']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['test-value']);
+    });
+
+    it(`should parse multiple values: "--${cliArg} test-value"`, () => {
+      const flags = parseFlags([`--${cliArg}`, 'test-value', `--${cliArg}`, 'second-test-value']);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'test-value', `--${cliArg}`, 'second-test-value']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['test-value', 'second-test-value']);
+    });
+
+    it(`should parse "--${cliArg}=value"`, () => {
+      const flags = parseFlags([`--${cliArg}=path/to/file.js`]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['path/to/file.js']);
+    });
+
+    it(`should parse multiple values: "--${cliArg}=test-value"`, () => {
+      const flags = parseFlags([`--${cliArg}=test-value`, `--${cliArg}=second-test-value`]);
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'test-value', `--${cliArg}`, 'second-test-value']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['test-value', 'second-test-value']);
+    });
+
+    it(`should parse "--${toDashCase(cliArg)} value"`, () => {
+      const flags = parseFlags([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.knownArgs).toEqual([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['path/to/file.js']);
+    });
+
+    it(`should parse multiple values: "--${toDashCase(cliArg)} test-value"`, () => {
+      const flags = parseFlags([
+        `--${toDashCase(cliArg)}`,
+        'test-value',
+        `--${toDashCase(cliArg)}`,
+        'second-test-value',
+      ]);
+      expect(flags.knownArgs).toEqual([
+        `--${toDashCase(cliArg)}`,
+        'test-value',
+        `--${toDashCase(cliArg)}`,
+        'second-test-value',
+      ]);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['test-value', 'second-test-value']);
+    });
+
+    it(`should parse "--${toDashCase(cliArg)}=value"`, () => {
+      const flags = parseFlags([`--${toDashCase(cliArg)}=path/to/file.js`]);
+      expect(flags.knownArgs).toEqual([`--${toDashCase(cliArg)}`, 'path/to/file.js']);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['path/to/file.js']);
+    });
+
+    it(`should parse multiple values: "--${toDashCase(cliArg)}=test-value"`, () => {
+      const flags = parseFlags([`--${toDashCase(cliArg)}=test-value`, `--${toDashCase(cliArg)}=second-test-value`]);
+      expect(flags.knownArgs).toEqual([
+        `--${toDashCase(cliArg)}`,
+        'test-value',
+        `--${toDashCase(cliArg)}`,
+        'second-test-value',
+      ]);
+      expect(flags.unknownArgs).toEqual([]);
+      expect(flags[cliArg]).toEqual(['test-value', 'second-test-value']);
+    });
+  });
+
+  describe('error reporting', () => {
+    it('should throw if you pass no argument to a string flag', () => {
+      expect(() => {
+        parseFlags(['--cacheDirectory', '--someOtherFlag']);
+      }).toThrow('when parsing CLI flag "--cacheDirectory": expected a string argument but received nothing');
+    });
+
+    it('should throw if you pass no argument to a string array flag', () => {
+      expect(() => {
+        parseFlags(['--reporters', '--someOtherFlag']);
+      }).toThrow('when parsing CLI flag "--reporters": expected a string argument but received nothing');
+    });
+
+    it('should throw if you pass no argument to a number flag', () => {
+      expect(() => {
+        parseFlags(['--port', '--someOtherFlag']);
+      }).toThrow('when parsing CLI flag "--port": expected a number argument but received nothing');
+    });
+
+    it('should throw if you pass a non-number argument to a number flag', () => {
+      expect(() => {
+        parseFlags(['--port', 'stringy']);
+      }).toThrow('when parsing CLI flag "--port": expected a number but received "stringy"');
+    });
+
+    it('should throw if you pass a bad number argument to a number flag', () => {
+      expect(() => {
+        parseFlags(['--port=NaN']);
+      }).toThrow('when parsing CLI flag "--port": expected a number but received "NaN"');
+    });
+
+    it('should throw if you pass no argument to a string/number flag', () => {
+      expect(() => {
+        parseFlags(['--maxWorkers']);
+      }).toThrow('when parsing CLI flag "--maxWorkers": expected a string or a number but received nothing');
+    });
+
+    it('should throw if you pass an invalid log level for --logLevel', () => {
+      expect(() => {
+        parseFlags(['--logLevel', 'potato']);
+      }).toThrow('when parsing CLI flag "--logLevel": expected to receive a valid log level but received "potato"');
+    });
+
+    it('should throw if you pass no argument to --logLevel', () => {
+      expect(() => {
+        parseFlags(['--logLevel']);
+      }).toThrow('when parsing CLI flag "--logLevel": expected to receive a valid log level but received nothing');
+    });
   });
 });

@@ -1,10 +1,12 @@
-import type * as d from '../../../declarations';
+// @ts-nocheck
 import { createCompiler } from '@stencil/core/compiler';
 import { mockConfig } from '@stencil/core/testing';
 import { normalizePath } from '@utils';
 import path from 'path';
 
-xdescribe('plugin', () => {
+import type * as d from '../../../declarations';
+
+describe.skip('plugin', () => {
   jest.setTimeout(20000);
   let compiler: d.Compiler;
   let config: d.Config;
@@ -38,7 +40,7 @@ xdescribe('plugin', () => {
         }
       `,
       },
-      { clearFileCache: true }
+      { clearFileCache: true },
     );
     await compiler.fs.commit();
 
@@ -72,7 +74,7 @@ xdescribe('plugin', () => {
         }
       `,
       },
-      { clearFileCache: true }
+      { clearFileCache: true },
     );
     await compiler.fs.commit();
 
@@ -114,7 +116,7 @@ xdescribe('plugin', () => {
         }
       `,
       },
-      { clearFileCache: true }
+      { clearFileCache: true },
     );
     await compiler.fs.commit();
 
@@ -158,7 +160,7 @@ xdescribe('plugin', () => {
         }
       `,
       },
-      { clearFileCache: true }
+      { clearFileCache: true },
     );
     await compiler.fs.commit();
 

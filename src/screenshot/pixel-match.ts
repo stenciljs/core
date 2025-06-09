@@ -17,6 +17,10 @@ function getMismatchedPixels(pixelMatchInput: d.PixelMatchInput) {
       includeAA: false,
     });
 
+    if (typeof process.send !== 'function') {
+      throw new Error('`getMismatchedPixels` must be run in a child process.');
+    }
+
     process.send(mismatchedPixels);
   }
 }

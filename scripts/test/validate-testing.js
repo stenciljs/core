@@ -1,6 +1,6 @@
-var testing = require('../../testing/index.js');
+const testing = require('../../testing/index.js');
 
-var input = `
+const input = `
 import { Component, Prop } from '@stencil/core';
 @Component({
   tag: 'my-cmp'
@@ -10,10 +10,10 @@ export class MyCmp {
 }
 `;
 
-var output = testing.transpile(input);
+const output = testing.transpile(input);
 
 if (output.diagnostics.length > 0) {
-  var msg = output.diagnostics.map((d) => d.messageText).join('\n');
+  const msg = output.diagnostics.map((d) => d.messageText).join('\n');
   throw new Error('Testing transpile error: \n' + msg);
 }
 

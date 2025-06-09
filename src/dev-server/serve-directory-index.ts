@@ -1,14 +1,15 @@
-import type * as d from '../declarations';
 import type { ServerResponse } from 'http';
+import path from 'path';
+
+import type * as d from '../declarations';
 import { responseHeaders } from './dev-server-utils';
 import { serveFile } from './serve-file';
-import path from 'path';
 
 export async function serveDirectoryIndex(
   devServerConfig: d.DevServerConfig,
   serverCtx: d.DevServerContext,
   req: d.HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ) {
   const indexFilePath = path.join(req.filePath, 'index.html');
   req.stats = await serverCtx.sys.stat(indexFilePath);
@@ -43,7 +44,7 @@ export async function serveDirectoryIndex(
         responseHeaders({
           'content-type': 'text/html; charset=utf-8',
           'x-directory-index': req.pathname,
-        })
+        }),
       );
 
       res.write(templateHtml);
@@ -94,7 +95,7 @@ async function getDirectoryItems(sys: d.CompilerSystem, baseUrl: URL, dirFilePat
       };
 
       return item;
-    })
+    }),
   );
   return items;
 }

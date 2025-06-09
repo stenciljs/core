@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 
-var minimumVersion = '12.10';
-var futureDeprecationMinVersion = '14.0';
-var recommendedVersion = '14.5';
+var minimumVersion = '16.0';
+var futureDeprecationMinVersion = '16.0';
+var recommendedVersion = '18.16';
 var currentVersion = process.versions.node;
 
 function isNodeLT(v) {
@@ -18,14 +18,14 @@ if (isNodeLT(minimumVersion)) {
       currentVersion +
       ', however Stencil requires v' +
       minimumVersion +
-      '.0 or greater. It is recommended to use an Active LTS version of Node (https://nodejs.org/en/about/releases/).\n'
+      '.0 or greater. It is recommended to use an Active LTS version of Node (https://nodejs.org/en/about/releases/).\n',
   );
   process.exit(1);
 }
 
 if (isNodeLT(futureDeprecationMinVersion)) {
   console.warn(
-    '\nIn an upcoming major release of Stencil, Node v' + recommendedVersion + '.0 or higher will be required.\n'
+    '\nIn an upcoming major release of Stencil, Node v' + recommendedVersion + '.0 or higher will be required.\n',
   );
 } else if (isNodeLT(recommendedVersion)) {
   console.warn(
@@ -33,13 +33,13 @@ if (isNodeLT(futureDeprecationMinVersion)) {
       currentVersion +
       ", however Stencil's recommendation is v" +
       recommendedVersion +
-      '.0 or greater. Note that future versions of Stencil will eventually remove support for non-LTS Node versions and an Active LTS version is recommended (https://nodejs.org/en/about/releases/).\n'
+      '.0 or greater. Note that future versions of Stencil will eventually remove support for older Node versions and an Active LTS version is recommended (https://nodejs.org/en/about/releases/).\n',
   );
 }
 
 var cli = require('../cli/index.cjs');
 var nodeApi = require('../sys/node/index.js');
-var nodeLogger = nodeApi.createNodeLogger({ process: process });
+var nodeLogger = nodeApi.createNodeLogger();
 var nodeSys = nodeApi.createNodeSys({ process: process, logger: nodeLogger });
 
 nodeApi.setupNodeProcess({ process: process, logger: nodeLogger });

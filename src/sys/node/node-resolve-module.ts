@@ -1,7 +1,8 @@
-import type * as d from '../../declarations';
+import { normalizePath } from '@utils';
 import fs from 'graceful-fs';
 import path from 'path';
-import { normalizePath } from '@utils';
+
+import type * as d from '../../declarations';
 
 export class NodeResolveModule {
   private resolveModuleCache = new Map<string, string>();
@@ -32,7 +33,7 @@ export class NodeResolveModule {
         id: fromFile,
         filename: fromFile,
         paths: Module._nodeModulePaths(fromDir),
-      })
+      }),
     );
 
     const root = normalizePath(path.parse(fromDir).root);

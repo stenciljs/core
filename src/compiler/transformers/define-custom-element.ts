@@ -1,20 +1,21 @@
-import type * as d from '../../declarations';
-import { convertValueToLiteral } from './transform-utils';
-import { DEFINE_CUSTOM_ELEMENT, RUNTIME_APIS, addCoreRuntimeApi } from './core-runtime-apis';
 import { formatComponentRuntimeMeta } from '@utils';
 import ts from 'typescript';
+
+import type * as d from '../../declarations';
+import { addCoreRuntimeApi, DEFINE_CUSTOM_ELEMENT, RUNTIME_APIS } from './core-runtime-apis';
+import { convertValueToLiteral } from './transform-utils';
 
 export const defineCustomElement = (
   tsSourceFile: ts.SourceFile,
   moduleFile: d.Module,
-  transformOpts: d.TransformOptions
+  transformOpts: d.TransformOptions,
 ) => {
   let statements = tsSourceFile.statements.slice();
 
   statements.push(
     ...moduleFile.cmps.map((cmp) => {
       return addDefineCustomElement(moduleFile, cmp);
-    })
+    }),
   );
 
   if (transformOpts.module === 'cjs') {
@@ -22,29 +23,39 @@ export const defineCustomElement = (
     statements = removeComponentCjsExport(statements, moduleFile);
   }
 
-  return ts.updateSourceFileNode(tsSourceFile, statements);
+  return ts.factory.updateSourceFile(tsSourceFile, statements);
 };
 
 const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentCompilerMeta) => {
   if (compilerMeta.isPlain) {
     // add customElements.define('cmp-a', CmpClass);
-    return ts.createStatement(
-      ts.createCall(
-        ts.createPropertyAccess(ts.createIdentifier('customElements'), ts.createIdentifier('define')),
+    return ts.factory.createExpressionStatement(
+      ts.factory.createCallExpression(
+        ts.factory.createPropertyAccessExpression(
+          ts.factory.createIdentifier('customElements'),
+          ts.factory.createIdentifier('define'),
+        ),
         [],
-        [ts.createLiteral(compilerMeta.tagName), ts.createIdentifier(compilerMeta.componentClassName)]
-      )
+        [
+          ts.factory.createStringLiteral(compilerMeta.tagName),
+          ts.factory.createIdentifier(compilerMeta.componentClassName),
+        ],
+      ),
     );
   }
 
   addCoreRuntimeApi(moduleFile, RUNTIME_APIS.defineCustomElement);
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(compilerMeta, true);
 
-  const liternalCmpClassName = ts.createIdentifier(compilerMeta.componentClassName);
+  const liternalCmpClassName = ts.factory.createIdentifier(compilerMeta.componentClassName);
   const liternalMeta = convertValueToLiteral(compactMeta);
 
-  return ts.createStatement(
-    ts.createCall(ts.createIdentifier(DEFINE_CUSTOM_ELEMENT), [], [liternalCmpClassName, liternalMeta])
+  return ts.factory.createExpressionStatement(
+    ts.factory.createCallExpression(
+      ts.factory.createIdentifier(DEFINE_CUSTOM_ELEMENT),
+      [],
+      [liternalCmpClassName, liternalMeta],
+    ),
   );
 };
 

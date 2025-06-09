@@ -1,21 +1,34 @@
-import type * as d from '../../declarations';
-import { convertValueToLiteral, createStaticGetter } from './transform-utils';
 import ts from 'typescript';
 
-export const addComponentMetaStatic = (cmpNode: ts.ClassDeclaration, cmpMeta: d.ComponentCompilerMeta) => {
+import type * as d from '../../declarations';
+import { convertValueToLiteral, createStaticGetter, retrieveModifierLike } from './transform-utils';
+
+/**
+ * Update an instance of TypeScript's Intermediate Representation (IR) for a
+ * class declaration ({@link ts.ClassDeclaration}) with a static getter for the
+ * compiler metadata that we produce as part of the compilation process.
+ *
+ * @param cmpNode an instance of the TypeScript IR for a class declaration (i.e.
+ * a stencil component) to be updated
+ * @param cmpMeta the component metadata corresponding to that component
+ * @returns the updated typescript class declaration
+ */
+export const addComponentMetaStatic = (
+  cmpNode: ts.ClassDeclaration,
+  cmpMeta: d.ComponentCompilerMeta,
+): ts.ClassDeclaration => {
   const publicCompilerMeta = getPublicCompilerMeta(cmpMeta);
 
   const cmpMetaStaticProp = createStaticGetter('COMPILER_META', convertValueToLiteral(publicCompilerMeta));
   const classMembers = [...cmpNode.members, cmpMetaStaticProp];
 
-  return ts.updateClassDeclaration(
+  return ts.factory.updateClassDeclaration(
     cmpNode,
-    cmpNode.decorators,
-    cmpNode.modifiers,
+    retrieveModifierLike(cmpNode),
     cmpNode.name,
     cmpNode.typeParameters,
     cmpNode.heritageClauses,
-    classMembers
+    classMembers,
   );
 };
 

@@ -12,8 +12,8 @@ describe('message-utils', () => {
           type: 'build',
           header: 'Build Error',
           messageText: 'build error',
-          relFilePath: null,
-          absFilePath: null,
+          relFilePath: undefined,
+          absFilePath: undefined,
           lines: [],
         });
       });
@@ -46,8 +46,8 @@ describe('message-utils', () => {
             type: 'build',
             header: 'Build Error',
             messageText: stackTrace,
-            relFilePath: null,
-            absFilePath: null,
+            relFilePath: undefined,
+            absFilePath: undefined,
             lines: [],
           });
         });
@@ -76,8 +76,8 @@ describe('message-utils', () => {
               type: 'build',
               header: 'Build Error',
               messageText: taskCanceledMessage,
-              relFilePath: null,
-              absFilePath: null,
+              relFilePath: undefined,
+              absFilePath: undefined,
               lines: [],
             });
           });
@@ -110,8 +110,8 @@ describe('message-utils', () => {
             type: 'build',
             header: 'Build Error',
             messageText: message,
-            relFilePath: null,
-            absFilePath: null,
+            relFilePath: undefined,
+            absFilePath: undefined,
             lines: [],
           });
         });
@@ -134,8 +134,8 @@ describe('message-utils', () => {
             type: 'build',
             header: 'Build Error',
             messageText: 'UNKNOWN ERROR',
-            relFilePath: null,
-            absFilePath: null,
+            relFilePath: undefined,
+            absFilePath: undefined,
             lines: [],
           });
         });
@@ -155,8 +155,8 @@ describe('message-utils', () => {
               type: 'build',
               header: 'Build Error',
               messageText: taskCanceledMessage,
-              relFilePath: null,
-              absFilePath: null,
+              relFilePath: undefined,
+              absFilePath: undefined,
               lines: [],
             });
           });
@@ -176,7 +176,8 @@ describe('message-utils', () => {
 
         beforeEach(() => {
           err = new Error();
-          err.message = undefined;
+          // this test explicitly checks for a bad value for the `message` property, hence the type assertion
+          err.message = undefined as unknown as string;
           err.stack = undefined;
         });
 
@@ -188,8 +189,8 @@ describe('message-utils', () => {
             type: 'build',
             header: 'Build Error',
             messageText: 'Error',
-            relFilePath: null,
-            absFilePath: null,
+            relFilePath: undefined,
+            absFilePath: undefined,
             lines: [],
           });
         });
@@ -216,8 +217,8 @@ describe('message-utils', () => {
           type: 'build',
           header: 'Build Error',
           messageText: message,
-          relFilePath: null,
-          absFilePath: null,
+          relFilePath: undefined,
+          absFilePath: undefined,
           lines: [],
         });
       });
@@ -239,8 +240,8 @@ describe('message-utils', () => {
           type: 'build',
           header: 'Build Error',
           messageText: 'UNKNOWN ERROR',
-          relFilePath: null,
-          absFilePath: null,
+          relFilePath: undefined,
+          absFilePath: undefined,
           lines: [],
         });
       });
@@ -256,8 +257,8 @@ describe('message-utils', () => {
             type: 'build',
             header: 'Build Error',
             messageText: taskCanceledMessage,
-            relFilePath: null,
-            absFilePath: null,
+            relFilePath: undefined,
+            absFilePath: undefined,
             lines: [],
           });
         });

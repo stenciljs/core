@@ -1,18 +1,22 @@
-import type * as d from '../../declarations';
-import { outputAngular } from './output-angular';
-import { outputCopy } from './copy/output-copy';
-import { outputCustomElements } from './dist-custom-elements';
-import { outputCustomElementsBundle } from './dist-custom-elements-bundle';
-import { outputDocs } from './output-docs';
-import { outputHydrateScript } from './dist-hydrate-script';
-import { outputLazy } from './dist-lazy/lazy-output';
-import { outputLazyLoader } from './output-lazy-loader';
-import { outputWww } from './output-www';
-import { outputCollection } from './dist-collection';
-import { outputTypes } from './output-types';
 import type { RollupCache } from 'rollup';
 
-export const generateOutputTargets = async (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+import type * as d from '../../declarations';
+import { outputCopy } from './copy/output-copy';
+import { outputCollection } from './dist-collection';
+import { outputCustomElements } from './dist-custom-elements';
+import { outputHydrateScript } from './dist-hydrate-script';
+import { outputLazy } from './dist-lazy/lazy-output';
+import { outputCustom } from './output-custom';
+import { outputDocs } from './output-docs';
+import { outputLazyLoader } from './output-lazy-loader';
+import { outputTypes } from './output-types';
+import { outputWww } from './output-www';
+
+export const generateOutputTargets = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   const timeSpan = buildCtx.createTimeSpan('generate outputs started', true);
 
   const changedModuleFiles = Array.from(compilerCtx.changedModules)
@@ -24,21 +28,30 @@ export const generateOutputTargets = async (config: d.Config, compilerCtx: d.Com
   invalidateRollupCaches(compilerCtx);
 
   await Promise.all([
-    outputAngular(config, compilerCtx, buildCtx),
-    outputCopy(config, compilerCtx, buildCtx),
     outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
     outputCustomElements(config, compilerCtx, buildCtx),
-    outputCustomElementsBundle(config, compilerCtx, buildCtx),
     outputHydrateScript(config, compilerCtx, buildCtx),
     outputLazyLoader(config, compilerCtx),
     outputLazy(config, compilerCtx, buildCtx),
-    outputWww(config, compilerCtx, buildCtx),
   ]);
 
-  // must run after all the other outputs
-  // since it validates files were created
-  await outputDocs(config, compilerCtx, buildCtx);
-  await outputTypes(config, compilerCtx, buildCtx);
+  await Promise.all([
+    // the user may want to copy compiled assets which requires above tasks to
+    // have finished first
+    outputCopy(config, compilerCtx, buildCtx),
+
+    // the www output target depends on the output of the lazy output target
+    // since it attempts to inline the lazy build entry point into `index.html`
+    // so we want to ensure that the lazy OT has already completed and written
+    // all of its files before the www OT runs.
+    outputWww(config, compilerCtx, buildCtx),
+
+    // must run after all the other outputs
+    // since it validates files were created
+    outputDocs(config, compilerCtx, buildCtx),
+    outputTypes(config, compilerCtx, buildCtx),
+    outputCustom(config, compilerCtx, buildCtx),
+  ]);
 
   timeSpan.finish('generate outputs finished');
 };

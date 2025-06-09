@@ -1,0 +1,67 @@
+name: 'Stencil Production Release'
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: false
+        default: latest
+        type: choice
+        description: Which npm tag should this be published to?
+        options:
+          - dev
+          - latest
+          - use_pkg_json_version
+      base:
+        required: true
+        type: choice
+        description: Which base branch should be targeted?
+        default: main
+        options:
+          - main
+          - v3-maintenance
+
+jobs:
+  release-stencil-production-build:
+    name: Publish Stencil (Production)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      # Log the input from GitHub Actions for easy traceability
+      - name: Log GitHub Workflow UI Input
+        run: |
+          echo "Tag: ${{ inputs.tag }}"
+          echo "Base Branch: ${{ inputs.base }}"
+        shell: bash
+
+      - name: Verify that the 'latest' tag is applied only to the 'main' branch
+        run: |
+          echo "The 'latest' tag can only be published from the 'main' branch. Exiting."
+          exit 1
+        shell: bash
+        if: ${{ inputs.base != 'main' && inputs.tag == 'latest' }}
+
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          # A depth of 0 gets the entire git history, which we'll want for things like checking all git history/tags.
+          # We need git history to generate the changelog; however, we don't know how deep to go.
+          # Since publishing is a one-off activity, just get everything.
+          fetch-depth: 0
+          ref: ${{ inputs.base }}
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Prepare NPM Token
+        run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
+        shell: bash
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run Publish Scripts
+        # pass the generated version number instead of the input, since we've already incremented it in the prerelease
+        # step
+        run: npm run release.ci -- --tag ${{ inputs.tag }}
+        shell: bash

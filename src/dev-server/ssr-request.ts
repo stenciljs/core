@@ -1,15 +1,16 @@
-import type * as d from '../declarations';
-import type { ServerResponse } from 'http';
-import { responseHeaders, getSsrStaticDataPath } from './dev-server-utils';
-import { appendDevServerClientScript } from './serve-file';
 import { catchError, isFunction, isString } from '@utils';
+import type { ServerResponse } from 'http';
 import path from 'path';
+
+import type * as d from '../declarations';
+import { getSsrStaticDataPath, responseHeaders } from './dev-server-utils';
+import { appendDevServerClientScript } from './serve-file';
 
 export async function ssrPageRequest(
   devServerConfig: d.DevServerConfig,
   serverCtx: d.DevServerContext,
   req: d.HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ) {
   try {
     let status = 500;
@@ -47,7 +48,7 @@ export async function ssrPageRequest(
       responseHeaders({
         'content-type': 'text/html; charset=utf-8',
         'content-length': Buffer.byteLength(content, 'utf8'),
-      })
+      }),
     );
     res.write(content);
     res.end();
@@ -60,7 +61,7 @@ export async function ssrStaticDataRequest(
   devServerConfig: d.DevServerConfig,
   serverCtx: d.DevServerContext,
   req: d.HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ) {
   try {
     const data: any = {};
@@ -108,8 +109,8 @@ export async function ssrStaticDataRequest(
           'content-type': 'application/json; charset=utf-8',
           'content-length': Buffer.byteLength(content, 'utf8'),
         },
-        httpCache && status === 200
-      )
+        httpCache && status === 200,
+      ),
     );
     res.write(content);
     res.end();
@@ -136,22 +137,23 @@ async function setupHydrateApp(devServerConfig: d.DevServerConfig, serverCtx: d.
   }
 
   if (!isString(buildResults.hydrateAppFilePath)) {
-    diagnostics.push({ messageText: `Missing hydrateAppFilePath`, level: `error`, type: `ssr` });
+    diagnostics.push({ messageText: `Missing hydrateAppFilePath`, level: `error`, type: `ssr`, lines: [] });
   } else if (!isString(devServerConfig.srcIndexHtml)) {
-    diagnostics.push({ messageText: `Missing srcIndexHtml`, level: `error`, type: `ssr` });
+    diagnostics.push({ messageText: `Missing srcIndexHtml`, level: `error`, type: `ssr`, lines: [] });
   } else {
     srcIndexHtml = await serverCtx.sys.readFile(devServerConfig.srcIndexHtml);
     if (!isString(srcIndexHtml)) {
       diagnostics.push({
-        messageText: `Unable to load src index html: ${devServerConfig.srcIndexHtml}`,
         level: `error`,
+        lines: [],
+        messageText: `Unable to load src index html: ${devServerConfig.srcIndexHtml}`,
         type: `ssr`,
       });
     } else {
       // ensure we cleared out node's internal require() cache for this file
       const hydrateAppFilePath = path.resolve(buildResults.hydrateAppFilePath);
 
-      // brute force way of clearning node's module cache
+      // brute force way of clearing node's module cache
       // not using `delete require.cache[id]` since it'll cause memory leaks
       require.cache = {};
       const Module = require('module');
@@ -230,7 +232,7 @@ function getSsrErrorContent(diagnostics: d.Diagnostic[]) {
   <p>
     ${diagnostic.messageText}
   </p>
-  `
+  `,
   )}
 </body>
 </html>`;

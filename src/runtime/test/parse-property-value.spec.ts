@@ -1,5 +1,5 @@
-import { parsePropertyValue } from '../parse-property-value';
 import { MEMBER_FLAGS } from '../../utils';
+import { parsePropertyValue } from '../parse-property-value';
 
 describe('parse-property-value', () => {
   describe('parsePropertyValue', () => {

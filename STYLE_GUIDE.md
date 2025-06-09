@@ -37,7 +37,7 @@ Example from ionic-core:
 ### HTML tag
 
 #### Prefix
-The prefix has a major role when you are creating a collection of components intended to be used across diferent projects, like [@ionic/core](https://www.npmjs.com/package/@ionic/core). Web Components are not scoped because they are globally declared within the webpage, which means an "unique" prefix is needed to prevent collisions. The prefix is also able help to quickly indentify the collection of a component. Additionally, web components are required to contain a "-" dash within the tag name, so using the first section to namespace your components is a natural fit.
+The prefix has a major role when you are creating a collection of components intended to be used across different projects, like [@ionic/core](https://www.npmjs.com/package/@ionic/core). Web Components are not scoped because they are globally declared within the webpage, which means an "unique" prefix is needed to prevent collisions. The prefix is also able help to quickly identify the collection of a component. Additionally, web components are required to contain a "-" dash within the tag name, so using the first section to namespace your components is a natural fit.
 
 We do not recommend using "stencil" as prefix, since Stencil DOES NOT emit stencil components, but rather the output is simply standards compliant web components.
 
@@ -111,9 +111,9 @@ onClick() {
 }
 ```
 
-4. **Use private variables and methods as much possible:** They are useful to detect deadcode and enforce encapsulation. Note that this is a feature which TypeScript provides to help harden your code, but using `private`, `public` or `protected` does not make a difference in the actual JavaScript output.
+4. **Use private variables and methods as much possible:** They are useful to detect dead code and enforce encapsulation. Note that this is a feature which TypeScript provides to help harden your code, but using `private`, `public` or `protected` does not make a difference in the actual JavaScript output.
 
-5. **Code with Method/Prop/Event/Component decorators should have jsdocs:** This allows for documentation generation and for better user experience in an editor that has TypeScript intellisense
+5. **Code with Method/Prop/Event/Component decorators should have JSDocs:** This allows for documentation generation and for better user experience in an editor that has TypeScript intellisense
 
 ## Code organization
 
@@ -164,14 +164,7 @@ export class Something {
   @State() status = 0;
 
   /**
-   * 4. Internal props (context and connect)
-   * Inlined decorator, alphabetical order.
-   */
-  @Prop({ context: 'config' }) config: Config;
-  @Prop({ connect: 'ion-menu-controller' }) lazyMenuCtrl: Lazy<MenuController>;
-
-  /**
-   * 5. Public Property API
+   * 4. Public Property API
    * Inlined decorator, alphabetical order. These are
    * different than "own properties" in that public props
    * are exposed as properties and attributes on the host element.
@@ -196,7 +189,7 @@ export class Something {
   }
 
   /**
-   * 6. Events section
+   * 5. Events section
    * Inlined decorator, alphabetical order.
    * Requires JSDocs for public API documentation.
    */
@@ -205,7 +198,7 @@ export class Something {
   @Event() ionOpen: EventEmitter;
 
   /**
-   * 7. Component lifecycle events
+   * 6. Component lifecycle events
    * Ordered by their natural call order, for example
    * WillLoad should go before DidLoad.
    */
@@ -215,7 +208,7 @@ export class Something {
   disconnectedCallback() {}
 
   /**
-   * 8. Listeners
+   * 7. Listeners
    * It is ok to place them in a different location
    * if makes more sense in the context. Recommend
    * starting a listener method with "on".
@@ -227,7 +220,7 @@ export class Something {
   }
 
   /**
-   * 9. Public methods API
+   * 8. Public methods API
    * These methods are exposed on the host element.
    * Always use two lines.
    * Requires JSDocs for public API documentation.
@@ -243,7 +236,7 @@ export class Something {
   }
 
   /**
-   * 10. Local methods
+   * 9. Local methods
    * Internal business logic. These methods cannot be
    * called from the host element.
    */
@@ -256,7 +249,7 @@ export class Something {
   }
 
   /**
-   * 11. hostData() function
+   * 10. hostData() function
    * Used to dynamically set host element attributes.
    * Should be placed directly above render()
    */
@@ -272,7 +265,7 @@ export class Something {
   }
 
   /**
-   * 12. render() function
+   * 11. render() function
    * Always the last one in the class.
    */
   render() {

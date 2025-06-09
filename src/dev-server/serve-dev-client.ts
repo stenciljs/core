@@ -1,16 +1,17 @@
-import type * as d from '../declarations';
 import type { ServerResponse } from 'http';
+import path from 'path';
+
+import type * as d from '../declarations';
 import { DEV_SERVER_URL } from './dev-server-constants';
 import { isDevServerClient, isInitialDevServerLoad, isOpenInEditor, responseHeaders } from './dev-server-utils';
+import { getEditors, serveOpenInEditor } from './open-in-editor';
 import { serveFile } from './serve-file';
-import { serveOpenInEditor, getEditors } from './open-in-editor';
-import path from 'path';
 
 export async function serveDevClient(
   devServerConfig: d.DevServerConfig,
   serverCtx: d.DevServerContext,
   req: d.HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ) {
   try {
     if (isOpenInEditor(req.pathname)) {
@@ -46,7 +47,7 @@ async function serveDevClientScript(
   devServerConfig: d.DevServerConfig,
   serverCtx: d.DevServerContext,
   req: d.HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ) {
   try {
     if (serverCtx.connectorHtml == null) {
@@ -65,7 +66,7 @@ async function serveDevClientScript(
 
       serverCtx.connectorHtml = serverCtx.connectorHtml.replace(
         'window.__DEV_CLIENT_CONFIG__',
-        JSON.stringify(devClientConfig)
+        JSON.stringify(devClientConfig),
       );
     }
 
@@ -73,7 +74,7 @@ async function serveDevClientScript(
       200,
       responseHeaders({
         'content-type': 'text/html; charset=utf-8',
-      })
+      }),
     );
     res.write(serverCtx.connectorHtml);
     res.end();

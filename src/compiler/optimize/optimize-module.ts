@@ -1,9 +1,10 @@
+import sourceMapMerge from 'merge-source-map';
+import type { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOptions, SourceMapOptions } from 'terser';
+import ts from 'typescript';
+
+import type { CompilerCtx, Config, OptimizeJsResult, SourceMap, SourceTarget } from '../../declarations';
 import { minfyJsId } from '../../version';
 import { minifyJs } from './minify-js';
-import type { CompilerCtx, Config, OptimizeJsResult, SourceTarget, SourceMap } from '../../declarations';
-import type { CompressOptions, MangleOptions, MinifyOptions, SourceMapOptions } from 'terser';
-import sourceMapMerge from 'merge-source-map';
-import ts from 'typescript';
 
 interface OptimizeModuleOptions {
   input: string;
@@ -25,7 +26,7 @@ interface OptimizeModuleOptions {
 export const optimizeModule = async (
   config: Config,
   compilerCtx: CompilerCtx,
-  opts: OptimizeModuleOptions
+  opts: OptimizeModuleOptions,
 ): Promise<OptimizeJsResult> => {
   if ((!opts.minify && opts.sourceTarget !== 'es5') || opts.input === '') {
     return {
@@ -50,7 +51,7 @@ export const optimizeModule = async (
   let minifyOpts: MinifyOptions;
   let code = opts.input;
   if (opts.isCore) {
-    // IS_ESM_BUILD is replaced at build time so systemjs and esm builds have diff values
+    // IS_ESM_BUILD is replaced at build time so SystemJS and esm builds have diff values
     // not using the BUILD conditional since rollup would input the same value
     code = code.replace(/\/\* IS_ESM_BUILD \*\//g, '&& false /* IS_SYSTEM_JS_BUILD */');
   }
@@ -58,7 +59,18 @@ export const optimizeModule = async (
   if (opts.sourceTarget === 'es5' || opts.minify) {
     minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
     if (config.sourceMap) {
-      minifyOpts.sourceMap = { content: opts.sourceMap };
+      minifyOpts.sourceMap = {
+        content:
+          // We need to loosely check for a source map definition
+          // so we don't spread a `null`/`undefined` value into the object
+          // which results in invalid source maps during minification
+          opts.sourceMap != null
+            ? {
+                ...opts.sourceMap,
+                version: 3,
+              }
+            : undefined,
+      };
     }
 
     const compressOpts = minifyOpts.compress as CompressOptions;
@@ -69,15 +81,14 @@ export const optimizeModule = async (
         compressOpts.passes = 2;
         compressOpts.global_defs = {
           supportsListenerOptions: true,
-          'plt.$cssShim$': false,
         };
         compressOpts.pure_funcs = compressOpts.pure_funcs || [];
         compressOpts.pure_funcs = ['getHostRef', ...compressOpts.pure_funcs];
       }
 
       mangleOptions.properties = {
-        regex: '^\\$.+\\$$',
         debug: isDebug,
+        ...getTerserManglePropertiesConfig(),
       };
 
       compressOpts.inline = 1;
@@ -87,7 +98,7 @@ export const optimizeModule = async (
   }
 
   const shouldTranspile = opts.sourceTarget === 'es5';
-  const results = await compilerCtx.worker.prepareModule(code, minifyOpts, shouldTranspile, opts.inlineHelpers);
+  const results = await compilerCtx.worker.prepareModule(code, minifyOpts, shouldTranspile, !!opts.inlineHelpers);
   if (
     results != null &&
     typeof results.output === 'string' &&
@@ -116,7 +127,7 @@ export const optimizeModule = async (
 export const getTerserOptions = (config: Config, sourceTarget: SourceTarget, prettyOutput: boolean): MinifyOptions => {
   const opts: MinifyOptions = {
     ie8: false,
-    safari10: !!config.extras.safari10,
+    safari10: false,
     format: {},
     sourceMap: config.sourceMap,
   };
@@ -124,12 +135,12 @@ export const getTerserOptions = (config: Config, sourceTarget: SourceTarget, pre
   if (sourceTarget === 'es5') {
     opts.ecma = opts.format.ecma = 5;
     opts.compress = false;
-    opts.mangle = true;
+    opts.mangle = {
+      properties: getTerserManglePropertiesConfig(),
+    };
   } else {
     opts.mangle = {
-      properties: {
-        regex: '^\\$.+\\$$',
-      },
+      properties: getTerserManglePropertiesConfig(),
     };
     opts.compress = {
       pure_getters: true,
@@ -147,7 +158,10 @@ export const getTerserOptions = (config: Config, sourceTarget: SourceTarget, pre
   }
 
   if (prettyOutput) {
-    opts.mangle = { keep_fnames: true };
+    opts.mangle = {
+      keep_fnames: true,
+      properties: getTerserManglePropertiesConfig(),
+    };
     opts.compress = {};
     opts.compress.drop_console = false;
     opts.compress.drop_debugger = false;
@@ -159,6 +173,23 @@ export const getTerserOptions = (config: Config, sourceTarget: SourceTarget, pre
 
   return opts;
 };
+
+/**
+ * Get baseline configuration for the 'properties' option for terser's mangle
+ * configuration.
+ *
+ * @returns an object with our baseline property mangling configuration
+ */
+function getTerserManglePropertiesConfig(): ManglePropertiesOptions {
+  const options = {
+    regex: '^\\$.+\\$$',
+    // we need to reserve this name so that it can be accessed on `hostRef`
+    // at runtime
+    reserved: ['$hostElement$'],
+  } satisfies ManglePropertiesOptions;
+
+  return options;
+}
 
 /**
  * This method is likely to be called by a worker on the compiler context, rather than directly.
@@ -173,7 +204,7 @@ export const prepareModule = async (
   input: string,
   minifyOpts: MinifyOptions,
   transpileToEs5: boolean,
-  inlineHelpers: boolean
+  inlineHelpers: boolean,
 ): Promise<OptimizeJsResult> => {
   const results: OptimizeJsResult = {
     output: input,
@@ -203,9 +234,18 @@ export const prepareModule = async (
       // need to merge sourcemaps at this point
       const mergeMap = sourceMapMerge(
         (minifyOpts.sourceMap as SourceMapOptions)?.content as SourceMap,
-        JSON.parse(tsResults.sourceMapText)
+        JSON.parse(tsResults.sourceMapText),
       );
-      minifyOpts.sourceMap = { content: mergeMap };
+
+      if (mergeMap != null) {
+        minifyOpts.sourceMap = {
+          content: {
+            ...mergeMap,
+            sources: mergeMap.sources ?? [],
+            version: 3,
+          },
+        };
+      }
     }
   }
 

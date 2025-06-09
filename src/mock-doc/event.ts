@@ -1,6 +1,7 @@
+import { NODE_NAMES } from './constants';
 import { MockDocument } from './document';
 import { MockElement } from './node';
-import { NODE_NAMES } from './constants';
+import { MockWindow } from './window';
 
 export class MockEvent {
   bubbles = false;
@@ -38,6 +39,10 @@ export class MockEvent {
     this.cancelBubble = true;
   }
 
+  /**
+   * @ref https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
+   * @returns a composed path of the event
+   */
   composedPath(): MockElement[] {
     const composedPath: MockElement[] = [];
 
@@ -53,7 +58,16 @@ export class MockEvent {
         break;
       }
 
-      currentElement = currentElement.parentElement;
+      /**
+       * bubble up the parent chain until we arrive to the HTML element. Here we continue
+       * with the document object instead of the parent element since the parent element
+       * is `null` for HTML elements.
+       */
+      if (currentElement.parentElement == null && currentElement.tagName === 'HTML') {
+        currentElement = currentElement.ownerDocument;
+      } else {
+        currentElement = currentElement.parentElement;
+      }
     }
 
     return composedPath;
@@ -109,6 +123,31 @@ export class MockMouseEvent extends MockEvent {
 
     if (mouseEventInitDic != null) {
       Object.assign(this, mouseEventInitDic);
+    }
+  }
+}
+
+export class MockUIEvent extends MockEvent {
+  detail: number | null = null;
+  view: MockWindow | null = null;
+
+  constructor(type: string, uiEventInitDic?: UIEventInit) {
+    super(type);
+
+    if (uiEventInitDic != null) {
+      Object.assign(this, uiEventInitDic);
+    }
+  }
+}
+
+export class MockFocusEvent extends MockUIEvent {
+  relatedTarget: EventTarget | null = null;
+
+  constructor(type: 'blur' | 'focus', focusEventInitDic?: FocusEventInit) {
+    super(type);
+
+    if (focusEventInitDic != null) {
+      Object.assign(this, focusEventInitDic);
     }
   }
 }
@@ -176,6 +215,8 @@ function triggerEventListener(elm: any, ev: MockEvent) {
 
   if (elm.nodeName === NODE_NAMES.DOCUMENT_NODE) {
     triggerEventListener((elm as MockDocument).defaultView, ev);
+  } else if (elm.parentElement == null && elm.tagName === 'HTML') {
+    triggerEventListener(elm.ownerDocument, ev);
   } else {
     triggerEventListener(elm.parentElement, ev);
   }

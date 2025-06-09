@@ -1,12 +1,12 @@
 import { MockDocument } from '../document';
-import { MockWindow, cloneWindow } from '../window';
+import { MockAnchorElement, MockMetaElement, MockSVGElement, MockUListElement } from '../element';
 import { MockElement, MockHTMLElement } from '../node';
-import { MockSVGElement } from '../element';
+import { cloneWindow, MockWindow } from '../window';
 
 describe('element', () => {
   let doc: MockDocument;
   beforeEach(() => {
-    doc = new MockDocument();
+    doc = new MockDocument('');
   });
 
   it('document.documentElement dir', () => {
@@ -141,19 +141,24 @@ describe('element', () => {
 
     const clonedWin = cloneWindow(win as any);
 
+    if (!clonedWin) {
+      throw new Error('The Window was not successfully cloned!');
+    }
+
     const elm = clonedWin.document.getElementById('test') as any;
     expect((elm as HTMLMetaElement).content).toBe('');
     expect(elm).toEqualHtml(`<meta id="test">`);
 
     (elm as HTMLMetaElement).content = 'value';
     expect((elm as HTMLMetaElement).content).toBe('value');
-    expect(elm).toEqualHtml(`<meta content="value" id="test">`);
+    expect(elm).toEqualHtml(`<meta id="test" content="value">`);
 
     clonedWin.document.title = 'Hello Title!';
     const titleElm = clonedWin.document.head.querySelector('title');
     expect(titleElm).toEqualHtml(`<title>Hello Title!</title>`);
 
-    titleElm.text = 'Hello Text!';
+    // we just asserted that this object isn't falsy, allowing us to use the bang operator here
+    titleElm!.text = 'Hello Text!';
     expect(titleElm).toEqualHtml(`<title>Hello Text!</title>`);
   });
 
@@ -164,7 +169,7 @@ describe('element', () => {
     doc.head.appendChild(metaElm);
     expect(metaElm).toEqualHtml(`<meta content="value" id="test">`);
 
-    const elm = doc.getElementById('test');
+    const elm = doc.getElementById('test') as MockMetaElement;
     expect(elm).toEqualHtml(`<meta content="value" id="test">`);
 
     elm['content'] = 'updated';
@@ -209,6 +214,11 @@ describe('element', () => {
       expect(document.title).toBe('Hello Title');
 
       const titleElm = document.head.querySelector('title');
+
+      if (!titleElm) {
+        throw new Error('Unable to find title element in the DOM.');
+      }
+
       expect(titleElm.textContent).toBe('Hello Title');
       expect(titleElm.text).toBe('Hello Title');
 
@@ -231,10 +241,44 @@ describe('element', () => {
       expect(win.document.URL).toBe('http://stenciljs.com/path/to/page');
       expect(win.document.location.href).toBe('http://stenciljs.com/path/to/page');
 
-      win.document.querySelector('base').remove();
+      // use the bang operator here to fail in case 'base' can't be found
+      win.document.querySelector('base')!.remove();
       expect(win.document.baseURI).toBe('http://stenciljs.com/path/to/page');
       expect(win.document.URL).toBe('http://stenciljs.com/path/to/page');
       expect(win.document.location.href).toBe('http://stenciljs.com/path/to/page');
+    });
+  });
+
+  describe('contains', () => {
+    it('returns true when a node is an direct child of a given node', () => {
+      const root = document.createElement('div');
+      const span = document.createElement('span');
+
+      root.appendChild(span);
+
+      expect(root.contains(span)).toEqual(true);
+    });
+
+    it('returns true when a node is an indirect child of a given node', () => {
+      const root = document.createElement('div');
+      const span = document.createElement('span');
+      const h1 = document.createElement('h1');
+
+      root.appendChild(span);
+      span.appendChild(h1);
+
+      expect(root.contains(h1)).toEqual(true);
+    });
+
+    it('returns true when a node is the given node itself', () => {
+      const root = document.createElement('div');
+      expect(root.contains(root)).toEqual(true);
+    });
+
+    it('returns false when a node is not the given node itself or not a descendant of the given node', () => {
+      const root = document.createElement('div');
+      const span = document.createElement('span');
+      expect(root.contains(span)).toEqual(false);
     });
   });
 
@@ -294,11 +338,12 @@ describe('element', () => {
       const elm = doc.createElement('div') as Element;
       const child = doc.createElement('div') as Element;
 
-      elm.append('text', 12 as any, child, null);
+      elm.append('text', 12 as any, child, null as unknown as Node);
       expect(elm.childNodes.length).toEqual(4);
       expect((elm.childNodes[0] as Text).data).toEqual('text');
       expect((elm.childNodes[1] as Text).data).toEqual('12');
       expect(elm.childNodes[2]).toEqual(child);
+      // we used type assertions above to verify that `null`'s text reads a 'null'
       expect((elm.childNodes[3] as Text).data).toEqual('null');
     });
   });
@@ -411,6 +456,13 @@ describe('element', () => {
     });
   });
 
+  describe('parentElement', () => {
+    it('returns `null` for when accessing the parent element of an html node', () => {
+      const element = new MockHTMLElement(doc, 'myElement');
+      expect(element.parentElement).toEqual(null);
+    });
+  });
+
   describe('input', () => {
     it('list is readonly prop', () => {
       const input = doc.createElement('input');
@@ -444,6 +496,113 @@ describe('element', () => {
       const elm: MockAnchorElement = doc.createElement('a');
       elm.href = 'http://stenciljs.com/path/to/page';
       expect(elm.pathname).toBe('/path/to/page');
+    });
+  });
+
+  describe('ul', () => {
+    it('textContent', () => {
+      const elm: MockUListElement = doc.createElement('ul');
+      elm.textContent = 'this is an item in an unordered list';
+      expect(elm.textContent).toBe('this is an item in an unordered list');
+    });
+  });
+
+  it('provides a localName', () => {
+    expect(doc.createElement('input').localName).toBe('input');
+    expect(doc.createElement('a').localName).toBe('a');
+    expect(doc.createElement('datalist').localName).toBe('datalist');
+    expect(doc.createElement('svg').localName).toBe('svg');
+    expect((document.childNodes[1] as any).localName).toBe('html');
+  });
+
+  it('has provides a canvas object with getContext', () => {
+    const canvas = doc.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+    expect(ctx.toDataURL()).toBe('data:,');
+  });
+
+  describe('slot', () => {
+    it('returns no nodes via `assignedNodes` / `assignedElements` when not within a custom element', () => {
+      const slot = doc.createElement('slot');
+      slot.innerHTML = 'invisible <div>Something</div> <!-- not here -->';
+      expect(slot.assignedNodes().length).toEqual(0);
+      expect(slot.assignedElements().length).toEqual(0);
+    });
+
+    it('returns correct nodes with `assignedNodes`', () => {
+      const elm = doc.createElement('cmp-a');
+      const shadowRoot = elm.attachShadow({ mode: 'open' });
+      const slot = doc.createElement('slot');
+      shadowRoot.appendChild(slot);
+      slot.innerHTML = '<slot name="nested-slot">Fallback content</slot>';
+
+      elm.innerHTML = `
+        text node 
+        <div>light dom</div>
+        <!-- comment node -->
+        <div slot="nested-slot">nested slot</div>
+      `;
+
+      expect(slot.assignedNodes().length).toEqual(5);
+      expect(slot.assignedNodes()[0].textContent.trim()).toEqual('text node');
+      expect(slot.assignedNodes()[1].textContent.trim()).toEqual('light dom');
+      expect(slot.assignedNodes()[3].textContent.trim()).toEqual('comment node');
+      expect(slot.assignedNodes()[4].textContent.trim()).toEqual('');
+      expect(slot.assignedNodes({ flatten: true }).length).toEqual(5);
+
+      elm.innerHTML = '<div slot="nested-slot">nested slot</div>';
+
+      expect(slot.assignedNodes().length).toEqual(0);
+      expect(slot.assignedNodes({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedNodes({ flatten: true })[0].textContent.trim()).toEqual('nested slot');
+
+      elm.innerHTML = 'text node <div slot="nested-slot">nested slot</div>';
+
+      expect(slot.assignedNodes().length).toEqual(1);
+      expect(slot.assignedNodes({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedNodes()[0].textContent.trim()).toEqual('text node');
+
+      elm.innerHTML = '';
+      expect(slot.assignedNodes().length).toEqual(0);
+      expect(slot.assignedNodes({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedNodes({ flatten: true })[0].textContent.trim()).toEqual('Fallback content');
+    });
+
+    it('returns correct elements with `assignedElements`', () => {
+      const elm = doc.createElement('cmp-a');
+      const shadowRoot = elm.attachShadow({ mode: 'open' });
+      const slot = doc.createElement('slot');
+      shadowRoot.appendChild(slot);
+      slot.innerHTML = '<slot name="nested-slot"><div>Fallback content</div></slot>';
+
+      elm.innerHTML = `
+        text node 
+        <div>light dom</div>
+        <!-- comment node -->
+        <div slot="nested-slot">nested slot</div>
+      `;
+
+      expect(slot.assignedElements().length).toEqual(1);
+      expect(slot.assignedElements()[0].textContent.trim()).toEqual('light dom');
+      expect(slot.assignedElements({ flatten: true }).length).toEqual(1);
+
+      elm.innerHTML = '<div slot="nested-slot">nested slot</div>';
+
+      expect(slot.assignedElements().length).toEqual(0);
+      expect(slot.assignedElements({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual('nested slot');
+
+      elm.innerHTML = 'text node <div slot="nested-slot">nested slot</div>';
+
+      expect(slot.assignedElements().length).toEqual(0);
+      expect(slot.assignedElements({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual('nested slot');
+
+      elm.innerHTML = '';
+      expect(slot.assignedElements().length).toEqual(0);
+      expect(slot.assignedElements({ flatten: true }).length).toEqual(1);
+      expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual('Fallback content');
     });
   });
 });

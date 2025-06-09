@@ -1,4 +1,4 @@
-import { MockDocument, createDocument } from '../document';
+import { createDocument, MockDocument } from '../document';
 import { cloneDocument } from '../window';
 
 describe('cloneNode', () => {

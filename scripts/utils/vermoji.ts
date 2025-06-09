@@ -338,3 +338,34 @@ export function getVermoji(changelogPath: string) {
     }
   }
 }
+
+/**
+ * Pull the most recently used vermoji for the provided changelog path
+ * @param changelogPath the path to the changelog to parse
+ * @returns the vermoji found in the changelog, otherwise use a default value.
+ */
+export function getLatestVermoji(changelogPath: string) {
+  let changelogContents = null;
+  try {
+    changelogContents = fs.readFileSync(changelogPath, 'utf8');
+  } catch (err: unknown) {
+    console.error(`Unable to read the changelog at path '${changelogPath}' - ${err}.`);
+    console.error(`Defaulting to ${UNKNOWN_VERMOJI}`);
+    return UNKNOWN_VERMOJI;
+  }
+
+  if (!changelogContents) {
+    console.error(`The changelog at '${changelogPath}' was empty!`);
+    console.error(`Defaulting to ${UNKNOWN_VERMOJI}`);
+    return UNKNOWN_VERMOJI;
+  }
+
+  // grab the first line of the changelog
+  const firstLine = changelogContents.trimStart().split('\n')[0];
+  // match the first line of the changelog with a string that has:
+  // - one or more pound signs (#), followed by a space
+  // - capture the first non-space character(s)
+  const match = firstLine.match(/^#+\s(\S+)/);
+  // if a match was found, return the value in the first capture group. otherwise, use the default vermoji
+  return match ? match[1] : UNKNOWN_VERMOJI;
+}

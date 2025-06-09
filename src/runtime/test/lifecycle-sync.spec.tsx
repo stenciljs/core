@@ -1,4 +1,4 @@
-import { Component, Element, Host, Method, Prop, Watch, h, forceUpdate } from '@stencil/core';
+import { Component, Element, forceUpdate, h, Host, Method, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('lifecycle sync', () => {
@@ -134,7 +134,7 @@ describe('lifecycle sync', () => {
 
     expect(root.textContent).toBe('connectedCallback componentWillLoad componentWillRender render');
     expect(log.trim()).toEqual(
-      'connectedCallback componentWillLoad componentWillRender render componentDidRender componentDidLoad'
+      'connectedCallback componentWillLoad componentWillRender render componentDidRender componentDidLoad',
     );
 
     log = '';
@@ -144,7 +144,7 @@ describe('lifecycle sync', () => {
     expect(root.textContent).toBe('propDidChange componentWillUpdate componentWillRender render');
 
     expect(log.trim()).toBe(
-      'propDidChange componentWillUpdate componentWillRender render componentDidRender componentDidUpdate'
+      'propDidChange componentWillUpdate componentWillRender render componentDidRender componentDidUpdate',
     );
   });
 
@@ -299,8 +299,8 @@ describe('lifecycle sync', () => {
 
     @Component({ tag: 'cmp-root' })
     class CmpRoot {
-      @Prop() value = 100;
-      @Prop() value2 = 100;
+      @Prop({ mutable: true }) value = 100;
+      @Prop({ mutable: true }) value2 = 100;
 
       @Method()
       next() {
@@ -345,5 +345,79 @@ describe('lifecycle sync', () => {
         </cmp-child>
       </cmp-root>
     `);
+  });
+
+  it('call disconnectedCallback even if the element is immediately removed', async () => {
+    let connected = 0;
+    let disconnected = 0;
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      connectedCallback() {
+        connected++;
+      }
+
+      disconnectedCallback() {
+        disconnected++;
+      }
+
+      render() {
+        return <Host></Host>;
+      }
+    }
+
+    const { doc, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+    });
+
+    const a1 = doc.createElement('cmp-a');
+    doc.body.appendChild(a1);
+    a1.remove();
+
+    await waitForChanges();
+
+    expect(connected).toEqual(1);
+    expect(disconnected).toEqual(1);
+  });
+
+  it('calls disconnect and connect when an element is moved in the DOM', async () => {
+    let connected = 0;
+    let disconnected = 0;
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      connectedCallback() {
+        connected++;
+      }
+
+      disconnectedCallback() {
+        disconnected++;
+      }
+
+      render() {
+        return <Host></Host>;
+      }
+    }
+
+    const { doc, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+    });
+
+    const cmp = doc.createElement('cmp-a');
+    doc.body.appendChild(cmp);
+
+    await waitForChanges();
+
+    // Create a container we will move the component to
+    const container = doc.createElement('div');
+    doc.body.appendChild(container);
+
+    // Move the component
+    container.appendChild(cmp);
+
+    container.remove();
+
+    expect(connected).toEqual(2);
+    expect(disconnected).toEqual(2);
   });
 });

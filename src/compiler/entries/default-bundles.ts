@@ -1,5 +1,6 @@
-import type * as d from '../../declarations';
 import { buildError, buildWarn, flatOne, unique, validateComponentTag } from '@utils';
+
+import type * as d from '../../declarations';
 import { getUsedComponents } from '../html/used-components';
 
 /**
@@ -10,9 +11,9 @@ import { getUsedComponents } from '../html/used-components';
  * @returns the component bundling data
  */
 export function getDefaultBundles(
-  config: d.Config,
+  config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
-  cmps: d.ComponentCompilerMeta[]
+  cmps: d.ComponentCompilerMeta[],
 ): readonly d.ComponentCompilerMeta[][] {
   // get all of the user defined bundles in the Stencil config file
   const userConfigEntryPoints = getUserConfigBundles(config, buildCtx, cmps);
@@ -50,9 +51,9 @@ export function getDefaultBundles(
  * @returns a three dimensional array with the compiler metadata for each component used
  */
 export function getUserConfigBundles(
-  config: d.Config,
+  config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
-  cmps: d.ComponentCompilerMeta[]
+  cmps: d.ComponentCompilerMeta[],
 ): readonly d.ComponentCompilerMeta[][] {
   const definedTags = new Set<string>();
   const entryTags = config.bundles.map((b: d.ConfigBundle) => {

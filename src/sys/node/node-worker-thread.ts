@@ -1,14 +1,22 @@
 import type * as d from '../../declarations';
 
-export const initNodeWorkerThread = (prcs: NodeJS.Process, msgHandler: d.WorkerMsgHandler) => {
+/**
+ * Initialize a worker thread, setting up various machinery for managing
+ * communication between the child process (worker) and the main thread.
+ *
+ * @param process a NodeJS process
+ * @param msgHandler a worker message handler, which processes incoming
+ * messages
+ */
+export const initNodeWorkerThread = (process: NodeJS.Process, msgHandler: d.WorkerMsgHandler) => {
   const sendHandle = (err: NodeJS.ErrnoException) => {
     if (err && err.code === 'ERR_IPC_CHANNEL_CLOSED') {
-      prcs.exit(0);
+      process.exit(0);
     }
   };
 
   const errorHandler = (stencilMsgId: number, err: any) => {
-    const errMsgBackToMain: d.MsgFromWorker = {
+    const errMsgBackToMain: d.MsgFromWorker<any> = {
       stencilId: stencilMsgId,
       stencilRtnValue: null,
       stencilRtnError: 'Error',
@@ -22,22 +30,22 @@ export const initNodeWorkerThread = (prcs: NodeJS.Process, msgHandler: d.WorkerM
         errMsgBackToMain.stencilRtnError += ':' + err.message;
       }
     }
-    prcs.send(errMsgBackToMain, sendHandle);
+    process.send(errMsgBackToMain, sendHandle);
   };
 
-  prcs.on('message', async (msgToWorker: d.MsgToWorker) => {
+  process.on('message', async <T extends d.WorkerContextMethod>(msgToWorker: d.MsgToWorker<T>) => {
     // message from the main thread
     if (msgToWorker && typeof msgToWorker.stencilId === 'number') {
       try {
         // run the handler to get the data
-        const msgFromWorker: d.MsgFromWorker = {
+        const msgFromWorker: d.MsgFromWorker<T> = {
           stencilId: msgToWorker.stencilId,
           stencilRtnValue: await msgHandler(msgToWorker),
           stencilRtnError: null,
         };
 
         // send response data from the worker to the main thread
-        prcs.send(msgFromWorker, sendHandle);
+        process.send(msgFromWorker, sendHandle);
       } catch (e) {
         // error occurred while running the task
         errorHandler(msgToWorker.stencilId, e);
@@ -45,7 +53,7 @@ export const initNodeWorkerThread = (prcs: NodeJS.Process, msgHandler: d.WorkerM
     }
   });
 
-  prcs.on(`unhandledRejection`, (e: any) => {
+  process.on(`unhandledRejection`, (e: any) => {
     errorHandler(-1, e);
   });
 };

@@ -1,5 +1,5 @@
-import { MockNode } from './node';
 import { NODE_NAMES, NODE_TYPES } from './constants';
+import { MockNode } from './node';
 
 export class MockComment extends MockNode {
   constructor(ownerDocument: any, data: string) {

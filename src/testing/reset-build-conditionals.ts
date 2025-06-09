@@ -1,5 +1,15 @@
 import type * as d from '@stencil/core/internal';
 
+/**
+ * Reset build conditionals used for testing to a known "good state".
+ *
+ * This function does not return a value, but rather mutates its argument in place.
+ * Certain values are set to `true` or `false` for testing purpose (see this function's implementation for the full
+ * list). Build conditional options _not_ in that list that are set to `true` when this function is invoked will remain
+ * set to `true`.
+ *
+ * @param b the build conditionals to reset.
+ */
 export function resetBuildConditionals(b: d.BuildConditionals) {
   Object.keys(b).forEach((key) => {
     (b as any)[key] = true;
@@ -36,12 +46,18 @@ export function resetBuildConditionals(b: d.BuildConditionals) {
   b.hydratedAttribute = false;
   b.hydratedClass = true;
   b.invisiblePrehydration = true;
+  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.appendChildSlotFix = false;
   b.cloneNodeFix = false;
-  b.dynamicImportShim = false;
   b.hotModuleReplacement = false;
-  b.safari10 = false;
+  // TODO(STENCIL-1305): remove this option
   b.scriptDataOpts = false;
+  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.scopedSlotTextContentFix = false;
+  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.slotChildNodesFix = false;
+  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
+  b.experimentalSlotFixes = false;
+  // TODO(STENCIL-1086): remove this option when it's the default behavior
+  b.experimentalScopedSlotChanges = false;
 }
