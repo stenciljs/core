@@ -114,8 +114,7 @@ describe('scoped', () => {
       @State() slotChangeCount: number = 0;
       @State() lastChangeTime: string = '';
 
-      setSectionSeparator = (event: Event): void => {
-        // Update state to show visual feedback
+      setSectionSeparator = (): void => {
         this.slotChangeCount++;
         this.lastChangeTime = new Date().toLocaleTimeString();
       };
