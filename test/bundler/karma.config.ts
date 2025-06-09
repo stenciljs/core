@@ -37,6 +37,7 @@ module.exports = function (config: Config): void {
   config.set({
     browsers: Object.keys(localLaunchers),
     colors: true,
+    customLaunchers: localLaunchers,
     files: [
       // general utilities for running Stencil + Karma
       'karma-stencil-utils.ts',
