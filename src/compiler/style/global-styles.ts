@@ -41,18 +41,35 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
     const transformResults = await runPluginTransforms(config, compilerCtx, buildCtx, globalStylePath);
 
     if (transformResults) {
+      let cssCode: string;
+      let dependencies: string[] | undefined;
+
+      if (typeof transformResults === 'string') {
+        // Handle case where transformResults is a string (the CSS code directly)
+        cssCode = transformResults;
+        dependencies = undefined;
+      } else if (typeof transformResults === 'object' && transformResults.code) {
+        // Handle case where transformResults is a PluginTransformationDescriptor object
+        cssCode = transformResults.code;
+        dependencies = transformResults.dependencies;
+      } else {
+        // Invalid transformResults
+        compilerCtx.cachedGlobalStyle = null;
+        return null;
+      }
+
       const optimizedCss = await optimizeCss(
         config,
         compilerCtx,
         buildCtx.diagnostics,
-        transformResults.code,
+        cssCode,
         globalStylePath,
       );
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
-      if (Array.isArray(transformResults.dependencies)) {
+      if (Array.isArray(dependencies)) {
         const cssModuleImports = compilerCtx.cssModuleImports.get(globalStylePath) || [];
-        transformResults.dependencies.forEach((dep) => {
+        dependencies.forEach((dep: string) => {
           compilerCtx.addWatchFile(dep);
           if (!cssModuleImports.includes(dep)) {
             cssModuleImports.push(dep);
