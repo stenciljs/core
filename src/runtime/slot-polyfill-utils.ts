@@ -197,12 +197,28 @@ export const getSlotName = (node: d.PatchedSlotNode) =>
     : (node.nodeType === 1 && (node as Element).getAttribute('slot')) || undefined;
 
 /**
+ * Enhanced slot node type with additional properties
+ * for event listeners, assignedElements, and assignedNodes
+ */
+type EnhancedStencilSlotElement = HTMLSlotElement & {
+  __eventListeners: { type: string; listener: EventListenerOrEventListenerObject }[];
+};
+
+/**
  * Add `assignedElements` and `assignedNodes` methods on a fake slot node
  *
  * @param node - slot node to patch
  */
 export function patchSlotNode(node: d.RenderNode) {
-  if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) return;
+  const slotNode = node as HTMLSlotElement & EnhancedStencilSlotElement;
+
+  /**
+   * If the slot node already has assignedElements or assignedNodes,
+   * we don't need to patch it again.
+   */
+  if (slotNode.assignedElements || slotNode.assignedNodes || !node['s-sr']) {
+    return;
+  }
 
   const assignedFactory = (elementsOnly: boolean) =>
     function (opts?: { flatten: boolean }) {
@@ -211,7 +227,7 @@ export function patchSlotNode(node: d.RenderNode) {
 
       if (opts?.flatten) {
         console.error(`
-          Flattening is not supported for Stencil non-shadow slots. 
+          Flattening is not supported for Stencil non-shadow slots.
           You can use \`.childNodes\` to nested slot fallback content.
           If you have a particular use case, please open an issue on the Stencil repo.
         `);
@@ -234,8 +250,48 @@ export function patchSlotNode(node: d.RenderNode) {
       return toReturn;
     }.bind(node);
 
-  (node as any).assignedElements = assignedFactory(true);
-  (node as any).assignedNodes = assignedFactory(false);
+  slotNode.assignedElements = assignedFactory(true);
+  slotNode.assignedNodes = assignedFactory(false);
+
+  // Add event listener support for slot nodes
+  // Store event listeners on the node
+  slotNode.__eventListeners = slotNode.__eventListeners ?? [];
+
+  // Only add event listener methods if they don't already exist
+  if (!slotNode.addEventListener) {
+    slotNode.addEventListener = function (type: string, listener: EventListenerOrEventListenerObject) {
+      this.__eventListeners = this.__eventListeners || [];
+      this.__eventListeners.push({ type, listener });
+    };
+  }
+
+  if (!slotNode.removeEventListener) {
+    slotNode.removeEventListener = function (type: string, listener: EventListenerOrEventListenerObject) {
+      if (!this.__eventListeners) return;
+      this.__eventListeners = this.__eventListeners.filter((l: any) => !(l.type === type && l.listener === listener));
+    };
+  }
+
+  if (!slotNode.dispatchEvent) {
+    slotNode.dispatchEvent = function (event: Event) {
+      if (!this.__eventListeners) return true;
+
+      const listeners = this.__eventListeners.filter((l: any) => l.type === event.type);
+      for (const { listener } of listeners) {
+        try {
+          if (typeof listener === 'function') {
+            listener.call(this, event);
+          } else if (listener && typeof listener.handleEvent === 'function') {
+            listener.handleEvent(event);
+          }
+        } catch (err) {
+          console.error('Error in slot event listener:', err);
+        }
+      }
+
+      return !event.defaultPrevented;
+    };
+  }
 }
 
 /**

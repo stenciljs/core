@@ -81,6 +81,16 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       BUILD.isDebug || BUILD.hydrateServerSide
         ? slotReferenceDebugNode(newVNode)
         : (win.document.createTextNode('') as any);
+
+    // Set slot node properties before calling updateElement so that addEventListener is available
+    elm['s-sr'] = true;
+    elm['s-cr'] = contentRef;
+    elm['s-sn'] = newVNode.$name$ || '';
+    elm['s-rf'] = newVNode.$attrs$?.ref;
+
+    // Patch the slot node immediately to add addEventListener support
+    patchSlotNode(elm);
+
     // add css classes, attrs, props, listeners, etc.
     if (BUILD.vdomAttribute) {
       updateElement(null, newVNode, isSvgMode);
@@ -159,20 +169,23 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
   elm['s-hn'] = hostTagName;
   if (BUILD.slotRelocation) {
     if (newVNode.$flags$ & (VNODE_FLAGS.isSlotFallback | VNODE_FLAGS.isSlotReference)) {
-      // remember the content reference comment
-      elm['s-sr'] = true;
+      // For slot reference nodes, these properties were already set earlier
+      if (!(newVNode.$flags$ & VNODE_FLAGS.isSlotReference)) {
+        // remember the content reference comment
+        elm['s-sr'] = true;
 
-      // remember the content reference comment
-      elm['s-cr'] = contentRef;
+        // remember the content reference comment
+        elm['s-cr'] = contentRef;
 
-      // remember the slot name, or empty string for default slot
-      elm['s-sn'] = newVNode.$name$ || '';
+        // remember the slot name, or empty string for default slot
+        elm['s-sn'] = newVNode.$name$ || '';
 
-      // remember the ref callback function
-      elm['s-rf'] = newVNode.$attrs$?.ref;
+        // remember the ref callback function
+        elm['s-rf'] = newVNode.$attrs$?.ref;
 
-      // give this node `assignedElements` and `assignedNodes` methods
-      patchSlotNode(elm);
+        // give this node `assignedElements` and `assignedNodes` methods
+        patchSlotNode(elm);
+      }
 
       // check if we've got an old vnode for this slot
       oldVNode = oldParentVNode && oldParentVNode.$children$ && oldParentVNode.$children$[childIndex];
