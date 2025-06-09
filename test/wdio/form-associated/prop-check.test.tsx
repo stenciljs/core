@@ -20,14 +20,20 @@ describe('form associated prop check', function () {
           <div class="demo-section expected">
             <h2>✅ Expected Behavior (disabled=true)</h2>
             <p>This component should be disabled and not emit click events.</p>
-            <form-associated-prop-check disabled='true' first="Disabled" last="Component"></form-associated-prop-check>
+            <form-associated-prop-check disabled="true" first="Disabled" last="Component"></form-associated-prop-check>
           </div>
 
           <div class="demo-section problem">
             <h2>❌ Problem (disabled=false)</h2>
-            <p><strong>BUG:</strong> This component should NOT be disabled, but because it's form-associated,
-            the presence of the disabled attribute (even with value='false') disables it according to HTML standards.</p>
-            <form-associated-prop-check disabled='false' first="Should Not Be" last="Disabled"></form-associated-prop-check>
+            <p>
+              <strong>BUG:</strong> This component should NOT be disabled, but because it's form-associated, the
+              presence of the disabled attribute (even with value='false') disables it according to HTML standards.
+            </p>
+            <form-associated-prop-check
+              disabled="false"
+              first="Should Not Be"
+              last="Disabled"
+            ></form-associated-prop-check>
           </div>
         </section>
       ),
