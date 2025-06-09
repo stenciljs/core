@@ -157,7 +157,7 @@ export const proxyComponent = (
               }
               // this sets the value via the `set()` function which
               // *might* not end up changing the underlying value
-              origSetter.apply(this, [parsePropertyValue(newValue, memberFlags)]);
+              origSetter.apply(this, [parsePropertyValue(newValue, memberFlags, BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated))]);
               // if it's a State property, we need to get the value from the instance
               newValue =
                 memberFlags & MEMBER_FLAGS.State
@@ -215,7 +215,7 @@ export const proxyComponent = (
                 }
                 // this sets the value via the `set()` function which
                 // might not end up changing the underlying value
-                ref.$lazyInstance$[memberName] = parsePropertyValue(newValue, memberFlags);
+                ref.$lazyInstance$[memberName] = parsePropertyValue(newValue, memberFlags, BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
                 setValue(this, memberName, ref.$lazyInstance$[memberName], cmpMeta);
               };
 
