@@ -58,13 +58,7 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         return null;
       }
 
-      const optimizedCss = await optimizeCss(
-        config,
-        compilerCtx,
-        buildCtx.diagnostics,
-        cssCode,
-        globalStylePath,
-      );
+      const optimizedCss = await optimizeCss(config, compilerCtx, buildCtx.diagnostics, cssCode, globalStylePath);
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
       if (Array.isArray(dependencies)) {
