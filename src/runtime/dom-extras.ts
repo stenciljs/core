@@ -296,7 +296,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
      * Fixes an issue where slotted elements are dynamically relocated in React, such as after data fetch.
      *
      * When a slotted element is passed to another scoped component (e.g., <A><C slot="header"/></A>),
-     * the child’s __parentNode (original parent node property) does not match this.
+     * the child's __parentNode (original parent node property) does not match this.
      *
      * To prevent errors, this checks if the current child's parent node differs from this.
      * If so, appendChild(newChild) is called to ensure the child is correctly inserted,
@@ -433,6 +433,7 @@ export const patchSlottedNode = (node: Node) => {
   if (node.nodeType === Node.ELEMENT_NODE) {
     patchNextElementSibling(node as Element);
     patchPreviousElementSibling(node as Element);
+    patchParentElement(node as Element);
   }
 };
 
@@ -533,7 +534,8 @@ export const patchParentNode = (node: Node) => {
   patchHostOriginalAccessor('parentNode', node);
   Object.defineProperty(node, 'parentNode', {
     get: function () {
-      return this['s-ol']?.parentNode || this.__parentNode;
+      // Return the actual DOM parent (wrapper element) instead of the slot original location parent
+      return this.__parentNode;
     },
     set: function (value) {
       // mock-doc sets parentNode?
@@ -542,9 +544,30 @@ export const patchParentNode = (node: Node) => {
   });
 };
 
+/**
+ * Patches the `parentElement` accessor of a non-shadow slotted node
+ *
+ * @param element the slotted element node to be patched
+ */
+const patchParentElement = (element: Element) => {
+  if (!element || (element as any).__parentElement) return;
+
+  patchHostOriginalAccessor('parentElement', element);
+  Object.defineProperty(element, 'parentElement', {
+    get: function () {
+      // Return the actual DOM parent (wrapper element) to match parentNode behavior
+      return this.__parentElement;
+    },
+    set: function (value) {
+      // mock-doc sets parentElement?
+      this.__parentElement = value;
+    },
+  });
+};
+
 /// UTILS ///
 
-const validElementPatches = ['children', 'nextElementSibling', 'previousElementSibling'] as const;
+const validElementPatches = ['children', 'nextElementSibling', 'previousElementSibling', 'parentElement'] as const;
 const validNodesPatches = [
   'childNodes',
   'firstChild',
