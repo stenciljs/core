@@ -1,3 +1,24 @@
+# ⛑ [4.34.0](https://github.com/stenciljs/core/compare/v4.33.1...v4.34.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* **compiler:** Prevent `extTransformsPlugin` from outputting collection dependency css ([#3306](https://github.com/stenciljs/core/issues/3306)) ([28e2a06](https://github.com/stenciljs/core/commit/28e2a062f6c0e107c0a8d25c18304b5db79f0fb4))
+* **declarations:** update PluginTransformResults after Rollup update ([#6232](https://github.com/stenciljs/core/issues/6232)) ([6ff8075](https://github.com/stenciljs/core/commit/6ff8075a8561b1e548ee437a887714599bf2ac39))
+* **mock-doc:** move slot event listener support from runtime to MockDoc ([#6287](https://github.com/stenciljs/core/issues/6287)) ([f2dd25d](https://github.com/stenciljs/core/commit/f2dd25d7e0e49b170d8683904e6e3219fa902cb0))
+* resolve TypeScript interface conflicts between component methods and HTMLElement ([#6282](https://github.com/stenciljs/core/issues/6282)) ([614d305](https://github.com/stenciljs/core/commit/614d305b1db84f2b2c0b9b1525fa97bc6508a081))
+* **runtime:** add addEventListener support for slot elements in scope components ([#6281](https://github.com/stenciljs/core/issues/6281)) ([32f66bd](https://github.com/stenciljs/core/commit/32f66bd1cf08694b4fe9abc70e076a68e1d2d731))
+* **runtime:** correct boolean attribute handling for form-associated components ([#6280](https://github.com/stenciljs/core/issues/6280)) ([7fe6372](https://github.com/stenciljs/core/commit/7fe6372c2a203b13e50a6d480ad39c8a4289adde))
+* **ssr:** mixed ssr methods styles ([#6289](https://github.com/stenciljs/core/issues/6289)) ([e253ceb](https://github.com/stenciljs/core/commit/e253cebf547cb98831cea8afb01a5bf9fe0a3d36))
+* update `CHANGELOG.md` location ([#6283](https://github.com/stenciljs/core/issues/6283)) ([36fca61](https://github.com/stenciljs/core/commit/36fca61886161df0f06f95a76e0f60b16952dcdc))
+
+
+### Features
+
+* **compiler:** improve file watching architecture and add external d… ([#6279](https://github.com/stenciljs/core/issues/6279)) ([0844538](https://github.com/stenciljs/core/commit/0844538a04f47d10f6a6d9e3c019808dfccf376b))
+
+
+
 ## 🥃 [4.33.1](https://github.com/stenciljs/core/compare/v4.33.0...v4.33.1) (2025-06-03)
 
 
