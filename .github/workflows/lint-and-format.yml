@@ -9,7 +9,7 @@ on:
 jobs:
   format:
     name: Check
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout Code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
