@@ -29,7 +29,7 @@ export const generateComponentTypes = (
   const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(cmp, typeImportData);
 
   // Check for method conflicts with HTMLElement
-  const conflictingMethods = methodAttributes.filter(method => HTML_ELEMENT_METHODS.has(method.name));
+  const conflictingMethods = methodAttributes.filter((method) => HTML_ELEMENT_METHODS.has(method.name));
   const hasMethodConflicts = conflictingMethods.length > 0;
 
   const componentAttributes = attributesToMultiLineString(
@@ -47,14 +47,9 @@ export const generateComponentTypes = (
         tagNameAsPascal,
         conflictingMethods,
         htmlElementEventListenerProperties,
-        cmp.docs
+        cmp.docs,
       )
-    : generateStandardElementInterface(
-        htmlElementName,
-        tagNameAsPascal,
-        htmlElementEventListenerProperties,
-        cmp.docs
-      );
+    : generateStandardElementInterface(htmlElementName, tagNameAsPascal, htmlElementEventListenerProperties, cmp.docs);
 
   const element = [
     ...htmlElementEventMap,
@@ -87,7 +82,7 @@ function generateStandardElementInterface(
   htmlElementName: string,
   tagNameAsPascal: string,
   htmlElementEventListenerProperties: string[],
-  docs: d.CompilerJsDoc | undefined
+  docs: d.CompilerJsDoc | undefined,
 ): string[] {
   return [
     addDocBlock(
@@ -114,24 +109,24 @@ function generateElementInterfaceWithConflictResolution(
   tagNameAsPascal: string,
   conflictingMethods: d.TypeInfo,
   htmlElementEventListenerProperties: string[],
-  docs: d.CompilerJsDoc | undefined
+  docs: d.CompilerJsDoc | undefined,
 ): string[] {
-  const methodOverrides = conflictingMethods.map(method => {
-    const optional = method.optional ? '?' : '';
-    let docBlock = '';
-    if (method.jsdoc) {
-      docBlock = [
-        `        /**`,
-        ...method.jsdoc.split('\n').map((line) => '          * ' + line),
-        `         */`,
-      ].join('\n') + '\n';
-    }
-    return `${docBlock}        "${method.name}"${optional}: ${method.type};`;
-  }).join('\n');
+  const methodOverrides = conflictingMethods
+    .map((method) => {
+      const optional = method.optional ? '?' : '';
+      let docBlock = '';
+      if (method.jsdoc) {
+        docBlock =
+          [`        /**`, ...method.jsdoc.split('\n').map((line) => '          * ' + line), `         */`].join('\n') +
+          '\n';
+      }
+      return `${docBlock}        "${method.name}"${optional}: ${method.type};`;
+    })
+    .join('\n');
 
   return [
     addDocBlock(
-      `    interface ${htmlElementName} extends Omit<Components.${tagNameAsPascal}, ${conflictingMethods.map(m => `"${m.name}"`).join(' | ')}>, HTMLStencilElement {`,
+      `    interface ${htmlElementName} extends Omit<Components.${tagNameAsPascal}, ${conflictingMethods.map((m) => `"${m.name}"`).join(' | ')}>, HTMLStencilElement {`,
       docs,
       4,
     ),

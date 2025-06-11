@@ -25,9 +25,7 @@ describe('generateComponentTypes', () => {
 
       const result = generateComponentTypes(cmpMeta, {}, false);
 
-      expect(result.element).toContain(
-        'interface HTMLMyButtonElement extends Components.MyButton, HTMLStencilElement'
-      );
+      expect(result.element).toContain('interface HTMLMyButtonElement extends Components.MyButton, HTMLStencilElement');
       expect(result.element).not.toContain('Omit');
     });
 
@@ -105,7 +103,7 @@ describe('generateComponentTypes', () => {
 
       console.log(result.element);
       expect(result.element).toMatch(
-        /interface HTMLMyButtonElement extends Omit<Components\.MyButton, (?=.*"blur")(?=.*"click")(?=.*"focus").*>, HTMLStencilElement \{/
+        /interface HTMLMyButtonElement extends Omit<Components\.MyButton, (?=.*"blur")(?=.*"click")(?=.*"focus").*>, HTMLStencilElement \{/,
       );
       expect(result.element).toContain('"focus": () => Promise<void>;');
       expect(result.element).toContain('"blur": () => Promise<void>;');
@@ -175,19 +173,46 @@ describe('generateComponentTypes', () => {
 
     it('should handle comprehensive list of HTMLElement method conflicts', () => {
       const htmlElementMethods = [
-        'animate', 'getAttribute', 'setAttribute', 'removeAttribute', 'hasAttribute',
-        'addEventListener', 'removeEventListener', 'appendChild', 'removeChild',
-        'insertBefore', 'querySelector', 'querySelectorAll', 'closest', 'matches',
-        'getBoundingClientRect', 'getClientRects', 'scrollIntoView', 'scroll',
-        'scrollBy', 'scrollTo', 'requestFullscreen', 'attachShadow', 'cloneNode',
-        'contains', 'normalize', 'replaceChild', 'append', 'prepend', 'before',
-        'after', 'remove', 'replaceWith', 'dispatchEvent', 'toggleAttribute'
+        'animate',
+        'getAttribute',
+        'setAttribute',
+        'removeAttribute',
+        'hasAttribute',
+        'addEventListener',
+        'removeEventListener',
+        'appendChild',
+        'removeChild',
+        'insertBefore',
+        'querySelector',
+        'querySelectorAll',
+        'closest',
+        'matches',
+        'getBoundingClientRect',
+        'getClientRects',
+        'scrollIntoView',
+        'scroll',
+        'scrollBy',
+        'scrollTo',
+        'requestFullscreen',
+        'attachShadow',
+        'cloneNode',
+        'contains',
+        'normalize',
+        'replaceChild',
+        'append',
+        'prepend',
+        'before',
+        'after',
+        'remove',
+        'replaceWith',
+        'dispatchEvent',
+        'toggleAttribute',
       ];
 
       const cmpMeta: ComponentCompilerMeta = {
         ...stubComponentCompilerMeta(),
         tagName: 'comprehensive-test',
-        methods: htmlElementMethods.slice(0, 5).map(methodName => ({
+        methods: htmlElementMethods.slice(0, 5).map((methodName) => ({
           ...stubComponentCompilerMethod(),
           name: methodName,
           complexType: {
@@ -202,10 +227,12 @@ describe('generateComponentTypes', () => {
       const result = generateComponentTypes(cmpMeta, {}, false);
 
       // Should use Omit for conflicting methods
-      expect(result.element).toMatch(/Omit<Components\.ComprehensiveTest, (?=.*"animate")(?=.*"getAttribute")(?=.*"setAttribute")(?=.*"removeAttribute")(?=.*"hasAttribute").*>/);
+      expect(result.element).toMatch(
+        /Omit<Components\.ComprehensiveTest, (?=.*"animate")(?=.*"getAttribute")(?=.*"setAttribute")(?=.*"removeAttribute")(?=.*"hasAttribute").*>/,
+      );
 
       // Should re-declare the methods with component signatures
-      htmlElementMethods.slice(0, 5).forEach(methodName => {
+      htmlElementMethods.slice(0, 5).forEach((methodName) => {
         expect(result.element).toContain(`"${methodName}": () => Promise<void>;`);
       });
     });
