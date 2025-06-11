@@ -75,8 +75,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           // This is only happening on native shadow-dom, do not needs CSS var shim
           styleElm.innerHTML = style;
         } else {
-          styleElm =
-            document.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`) || win.document.createElement('style');
+          styleElm = win.document.createElement('style');
           styleElm.innerHTML = style;
 
           // Apply CSP nonce to the style tag if it exists
