@@ -77,8 +77,8 @@ describe('Sanity check SSR > Client hydration', () => {
         await expect(getNodeNames(ele.shadowRoot.childNodes)).toBe(eles);
 
         // Checking styling
-        await expect(getComputedStyle(ele).color).toBe('rgb(255, 0, 0)');
-        await expect(getComputedStyle(ele).backgroundColor).toBe('rgb(255, 255, 0)');
+        await expect(getComputedStyle(ele).color).toBe('rgb(255, 0, 0)'); // red
+        await expect(getComputedStyle(ele).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
       },
 
       slots: async () => {
@@ -246,5 +246,49 @@ describe('Sanity check SSR > Client hydration', () => {
     performance.mark('end-scoped');
     renderTime = performance.measure('render', 'start-scoped', 'end-scoped').duration;
     await expect(renderTime).toBeLessThan(50);
+  });
+
+  it("renders the styles of scoped components when they're embedded in a shadow root", async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(
+      `
+      <div>
+        <wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+        <ssr-shadow-cmp>Outside shadowroot</ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: {
+          default: 'declarative-shadow-dom',
+          scoped: ['ssr-shadow-cmp'],
+        },
+      },
+    );
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('ssr-shadow-cmp'));
+    expect(typeof customElements.get('ssr-shadow-cmp')).toBe('function');
+
+    const wrapCmp = document.querySelector('wrap-ssr-shadow-cmp');
+    const scopedCmp = document.querySelector('ssr-shadow-cmp');
+    const scopedNestCmp = wrapCmp.shadowRoot.querySelector('ssr-shadow-cmp');
+
+    await expect(getComputedStyle(wrapCmp).color).toBe('rgb(255, 255, 255)'); // white
+    await expect(getComputedStyle(wrapCmp).backgroundColor).toBe('rgb(0, 0, 255)'); // blue
+    await expect(getComputedStyle(scopedCmp).color).toBe('rgb(255, 0, 0)'); // red
+    await expect(getComputedStyle(scopedCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+    await expect(getComputedStyle(scopedNestCmp).color).toBe('rgb(255, 0, 0)'); // red
+    await expect(getComputedStyle(scopedNestCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
   });
 });
