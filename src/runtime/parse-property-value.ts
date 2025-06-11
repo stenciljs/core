@@ -22,9 +22,10 @@ import { deserializeProperty, isComplexType, MEMBER_FLAGS, SERIALIZED_PREFIX } f
  *
  * @param propValue the new value to coerce to some type
  * @param propType the type of the prop, expressed as a binary number
+ * @param isFormAssociated whether the component is form-associated (optional)
  * @returns the parsed/coerced value
  */
-export const parsePropertyValue = (propValue: unknown, propType: number): any => {
+export const parsePropertyValue = (propValue: unknown, propType: number, isFormAssociated?: boolean): any => {
   /**
    * Allow hydrate parameters that contain a simple object, e.g.
    * ```ts
@@ -64,10 +65,17 @@ export const parsePropertyValue = (propValue: unknown, propType: number): any =>
      */
     if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
       /**
-       * per the HTML spec, any string value means it is a boolean true value
-       * but we'll cheat here and say that the string "false" is the boolean false
+       * For form-associated components, according to HTML spec, the presence of any boolean attribute
+       * (regardless of its value, even "false") should make the property true.
+       * For non-form-associated components, we maintain the legacy behavior where "false" becomes false.
        */
-      return propValue === 'false' ? false : propValue === '' || !!propValue;
+      if (BUILD.formAssociated && isFormAssociated && typeof propValue === 'string') {
+        // For form-associated components, any string attribute value (including "false") means true
+        return propValue === '' || !!propValue;
+      } else {
+        // Legacy behavior: string "false" becomes boolean false
+        return propValue === 'false' ? false : propValue === '' || !!propValue;
+      }
     }
 
     /**

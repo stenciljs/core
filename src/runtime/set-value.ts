@@ -1,6 +1,6 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, consoleError, getHostRef } from '@platform';
-import { HOST_FLAGS } from '@utils';
+import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
 import { parsePropertyValue } from './parse-property-value';
@@ -36,7 +36,11 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;
   const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
-  newVal = parsePropertyValue(newVal, cmpMeta.$members$[propName][0]);
+  newVal = parsePropertyValue(
+    newVal,
+    cmpMeta.$members$[propName][0],
+    BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+  );
 
   // explicitly check for NaN on both sides, as `NaN === NaN` is always false
   const areBothNaN = Number.isNaN(oldVal) && Number.isNaN(newVal);

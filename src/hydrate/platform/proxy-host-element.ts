@@ -46,7 +46,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
 
         if (attrValue != null) {
           // incoming value from `an-attribute=....`. Convert from string to correct type
-          attrPropVal = parsePropertyValue(attrValue, memberFlags);
+          attrPropVal = parsePropertyValue(attrValue, memberFlags, !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
         }
 
         if (propValue !== undefined) {
