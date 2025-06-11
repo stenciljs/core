@@ -202,6 +202,18 @@ export class MockNode {
     this._nodeValue = String(value);
   }
 
+  addEventListener(type: string, handler: (ev?: any) => void) {
+    addEventListener(this, type, handler);
+  }
+
+  removeEventListener(type: string, handler: any) {
+    removeEventListener(this, type, handler);
+  }
+
+  dispatchEvent(ev: MockEvent) {
+    return dispatchEvent(this, ev);
+  }
+
   static ELEMENT_NODE = 1;
   static TEXT_NODE = 3;
   static PROCESSING_INSTRUCTION_NODE = 7;
@@ -254,7 +266,7 @@ export class MockElement extends MockNode {
     this.__attributeMap = null;
   }
 
-  addEventListener(type: string, handler: (ev?: any) => void) {
+  override addEventListener(type: string, handler: (ev?: any) => void) {
     addEventListener(this, type, handler);
   }
 
@@ -379,7 +391,7 @@ export class MockElement extends MockNode {
     this.setAttributeNS(null, 'dir', value);
   }
 
-  dispatchEvent(ev: MockEvent) {
+  override dispatchEvent(ev: MockEvent) {
     return dispatchEvent(this, ev);
   }
 
@@ -674,7 +686,7 @@ export class MockElement extends MockNode {
     }
   }
 
-  removeEventListener(type: string, handler: any) {
+  override removeEventListener(type: string, handler: any) {
     removeEventListener(this, type, handler);
   }
 
