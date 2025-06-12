@@ -60,6 +60,7 @@ describe('hydrate, shadow in shadow', () => {
             <mock:shadow-root>
               <slot></slot>
             </mock:shadow-root>
+            <!---->
             <slot></slot>
           </cmp-b>
         </mock:shadow-root>
