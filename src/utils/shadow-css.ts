@@ -16,6 +16,15 @@ const safeSelector = (selector: string) => {
   const placeholders: string[] = [];
   let index = 0;
 
+  // Replaces [part=~"..."] attribute selectors with placeholders.
+  // As we do not want to add the scoped selector to these selectors
+  selector = selector.replace(/(\[\s*part~=\s*("[^"]*"|'[^']*')\s*\])/g, (_, keep) => {
+    const replaceBy = `__part-${index}__`;
+    placeholders.push(keep);
+    index++;
+    return replaceBy;
+  });
+
   // Replaces attribute selectors with placeholders.
   // The WS in [attr="va lue"] would otherwise be interpreted as a selector separator.
   selector = selector.replace(/(\[[^\]]*\])/g, (_, keep) => {
@@ -42,6 +51,7 @@ const safeSelector = (selector: string) => {
 };
 
 const restoreSafeSelector = (placeholders: string[], content: string) => {
+  content = content.replace(/__part-(\d+)__/g, (_, index) => placeholders[+index]);
   return content.replace(/__ph-(\d+)__/g, (_, index) => placeholders[+index]);
 };
 
@@ -71,6 +81,7 @@ const _cssColonSlottedRe = new RegExp('(' + _polyfillSlotted + _parenSuffix, 'gi
 const _polyfillHostNoCombinator = _polyfillHost + '-no-combinator';
 const _polyfillHostNoCombinatorRe = /-shadowcsshost-no-combinator([^\s]*)/;
 const _shadowDOMSelectorsRe = [/::shadow/g, /::content/g];
+const _safePartRe = /__part-(\d+)__/g;
 
 const _selectorReSuffix = '([>\\s~+[.,{:][\\s\\S]*)?$';
 const _polyfillHostRe = /-shadowcsshost/gim;
@@ -408,7 +419,7 @@ const applyStrictSelectorScope = (selector: string, scopeSelector: string, hostS
   let scopedSelector = '';
   let startIndex = 0;
   let res: RegExpExecArray | null;
-  const sep = /( |>|\+|~(?!=))\s*/g;
+  const sep = /( |>|\+|~(?!=))(?=(?:[^()]*\([^()]*\))*[^()]*$)\s*/g;
 
   // If a selector appears before :host it should not be shimmed as it
   // matches on ancestor elements and not on elements in the host's shadow
@@ -435,7 +446,7 @@ const applyStrictSelectorScope = (selector: string, scopeSelector: string, hostS
   }
 
   const part = selector.substring(startIndex);
-  shouldScope = shouldScope || part.indexOf(_polyfillHostNoCombinator) > -1;
+  shouldScope = !part.match(_safePartRe) && (shouldScope || part.indexOf(_polyfillHostNoCombinator) > -1);
   scopedSelector += shouldScope ? _scopeSelectorPart(part) : part;
 
   // replace the placeholders with their original values
@@ -533,6 +544,58 @@ const replaceShadowCssHost = (cssText: string, hostScopeId: string) => {
   return cssText.replace(/-shadowcsshost-no-combinator/g, `.${hostScopeId}`);
 };
 
+/**
+ * Expands selectors with ::part(...) to also include [part~="..."] selectors.
+ * For example:
+ * ```css
+ *   selectors-like-this::part(demo) { ... }
+ *   .something .selectors::part(demo demo2):hover { ... }
+ * ```
+ * Becomes:
+ * ```
+ * selectors-like-this::part(demo), selectors-like-this [part~="demo"] { ... }
+ * .something .selectors::part(demo demo2):hover, .something .selectors [part~="demo"][part~="demo2"]:hover { ... }
+ * ```
+ *
+ * @param cssText The CSS text to process
+ * @returns The CSS text with expanded ::part(...) selectors
+ */
+export const expandPartSelectors = (cssText: string) => {
+  // Regex matches: (selector before)::part(part names)(pseudo after)
+  const partSelectorRe = /([^\s,{][^,{]*?)::part\(\s*([^)]+?)\s*\)((?:[:.][^,{]*)*)/g;
+  return processRules(cssText, (rule: CssRule) => {
+    if (rule.selector[0] === '@') {
+      return rule;
+    }
+    // Split by comma, process each selector
+    const selectors = rule.selector.split(',').map((sel) => {
+      const out = [sel.trim()];
+      let m;
+      // For each ::part(...) in the selector, add the expanded version
+      while ((m = partSelectorRe.exec(sel)) !== null) {
+        const before = m[1].trimEnd();
+        const partNames = m[2].trim().split(/\s+/);
+        const after = m[3] || '';
+        const partAttr = partNames
+          .flatMap((p: string): string[] => {
+            if (!rule.selector.includes(`[part~="${p}"]`)) {
+              return [`[part~="${p}"]`];
+            }
+            return [];
+          })
+          .join('');
+        const expanded = `${before} ${partAttr}${after}`;
+        if (!!partAttr && expanded !== sel.trim()) {
+          out.push(expanded);
+        }
+      }
+      return out.join(', ');
+    });
+    rule.selector = selectors.join(', ');
+    return rule;
+  });
+};
+
 export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelector: boolean) => {
   const hostScopeId = scopeId + '-h';
   const slotScopeId = scopeId + '-s';
@@ -584,6 +647,9 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
     const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector), 'g');
     cssText = cssText.replace(regex, slottedSelector.updatedSelector);
   });
+
+  // Expand ::part(...) selectors
+  cssText = expandPartSelectors(cssText);
 
   return cssText;
 };

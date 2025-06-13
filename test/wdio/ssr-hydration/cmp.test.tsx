@@ -322,4 +322,68 @@ describe('Sanity check SSR > Client hydration', () => {
     childComponent.childNodes[0].textContent = 'Should be first';
     childComponent.childNodes[1].textContent = 'Should be second';
   });
+
+  it('correctly renders ::part css selectors for scoped components', async () => {
+    // purposefully load in the iframe where these components are not defined
+    // so we get only render static HTML
+
+    await setupIFrameTest('/ssr-hydration/custom-element.html', 'dsd-custom-elements');
+    const frameEle: HTMLIFrameElement = document.querySelector('iframe#dsd-custom-elements');
+    const doc = frameEle.contentDocument;
+
+    // scoped in dsd component
+
+    let result = await renderToString(
+      `
+      <div>
+        <part-wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: {
+          default: 'declarative-shadow-dom',
+          scoped: ['part-ssr-shadow-cmp'],
+        },
+      },
+    );
+    let stage = doc.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(result.html);
+    doc.body.appendChild(stage);
+
+    let childComponentPart = doc
+      .querySelector('part-wrap-ssr-shadow-cmp')
+      .shadowRoot.querySelector('part-ssr-shadow-cmp [part="container"]');
+    await browser.waitUntil(async () => !!childComponentPart);
+    await browser.pause(100);
+
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+
+    // scoped in scoped component
+
+    // clear the stage
+    doc.querySelector('#stage')?.remove();
+    await browser.waitUntil(async () => !doc.querySelector('#stage'));
+
+    result = await renderToString(
+      `
+      <div>
+        <part-wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    stage = doc.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(result.html);
+    doc.body.appendChild(stage);
+
+    childComponentPart = doc.querySelector('part-wrap-ssr-shadow-cmp part-ssr-shadow-cmp [part="container"]');
+    await browser.waitUntil(async () => !!childComponentPart);
+    await browser.pause(100);
+
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+  });
 });
