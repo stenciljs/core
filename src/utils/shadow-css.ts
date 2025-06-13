@@ -547,10 +547,18 @@ const replaceShadowCssHost = (cssText: string, hostScopeId: string) => {
 /**
  * Expands selectors with ::part(...) to also include [part~="..."] selectors.
  * For example:
- *   selectors-like-this::part(demo) =>
- *     selectors-like-this::part(demo), selectors-like-this [part~="demo"]
- *   .something .selectors::part(demo demo2):hover =>
- *     .something .selectors::part(demo demo2):hover, .something .selectors [part~="demo"][part~="demo2"]:hover
+ * ```css
+ *   selectors-like-this::part(demo) { ... }
+ *   .something .selectors::part(demo demo2):hover { ... }
+ * ```
+ * Becomes:
+ * ```
+ * selectors-like-this::part(demo), selectors-like-this [part~="demo"] { ... }
+ * .something .selectors::part(demo demo2):hover, .something .selectors [part~="demo"][part~="demo2"]:hover { ... }
+ * ```
+ *
+ * @param cssText The CSS text to process
+ * @returns The CSS text with expanded ::part(...) selectors
  */
 export const expandPartSelectors = (cssText: string) => {
   // Regex matches: (selector before)::part(part names)(pseudo after)
@@ -561,7 +569,7 @@ export const expandPartSelectors = (cssText: string) => {
     }
     // Split by comma, process each selector
     const selectors = rule.selector.split(',').map((sel) => {
-      let out = [sel.trim()];
+      const out = [sel.trim()];
       let m;
       // For each ::part(...) in the selector, add the expanded version
       while ((m = partSelectorRe.exec(sel)) !== null) {

@@ -1,5 +1,5 @@
 import { globalScripts } from '@app-globals';
-import { addHostEventListeners, setScopedSSR, getHostRef, loadModule, plt, registerHost } from '@platform';
+import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from '@platform';
 import { connectedCallback, insertVdomAnnotations } from '@runtime';
 import { CMP_FLAGS } from '@utils';
 
