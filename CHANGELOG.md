@@ -1,3 +1,17 @@
+# 🌝 [4.35.0](https://github.com/stenciljs/core/compare/v4.34.0...v4.35.0) (2025-06-13)
+
+
+### Bug Fixes
+
+* **ssr:** retain slotted node order in serializeShadowRoot: `scoped` ([#6294](https://github.com/stenciljs/core/issues/6294)) ([c1e032d](https://github.com/stenciljs/core/commit/c1e032d562c2ef8f93248317c01186a366a12442)), closes [#6293](https://github.com/stenciljs/core/issues/6293)
+
+
+### Features
+
+* **global-styles:** add new `addGlobalStyleToComponents` extras config option to "opt-out" of new globalStyle behaviour ([#6292](https://github.com/stenciljs/core/issues/6292)) ([cd9778a](https://github.com/stenciljs/core/commit/cd9778a2ac934944b4b76d720d0ff73a6d5d1b05))
+
+
+
 # ⛑ [4.34.0](https://github.com/stenciljs/core/compare/v4.33.1...v4.34.0) (2025-06-11)
 
 
