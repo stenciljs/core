@@ -374,10 +374,21 @@ interface ConfigExtrasBase {
    * Experimental flag.
    * Updates the behavior of scoped components to align more closely with the behavior of the native
    * Shadow DOM when using `slot`s.
-   *
    * Defaults to `false`.
    */
   experimentalScopedSlotChanges?: boolean;
+
+  /**
+   * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
+   * and adds it to each component which can be useful for sharing styles efficiently across components.
+   * In some cases this can be undesirable:
+   * - If `globalStyle` is intended to configure the lightDOM only
+   * - If `globalStyle` is large it can bloat the size of SSR output when using declarative-shadow-dom
+   * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
+   *
+   * Defaults to `true`.
+   */
+  addGlobalStyleToComponents?: boolean;
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior

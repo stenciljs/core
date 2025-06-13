@@ -393,6 +393,7 @@ describe('validation', () => {
     expect(config.extras.initializeNextTick).toBe(false);
     expect(config.extras.tagNameTransform).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
+    expect(config.extras.addGlobalStyleToComponents).toBe(true);
   });
 
   it('should set slot config based on `experimentalSlotFixes`', () => {

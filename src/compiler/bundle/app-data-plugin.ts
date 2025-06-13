@@ -202,7 +202,10 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
  * @param s the MagicString to append the global styles onto
  */
 const appendGlobalStyles = async (buildCtx: d.BuildCtx, s: MagicString) => {
-  const globalStyles = buildCtx.config.globalStyle ? await buildCtx.stylesPromise : '';
+  const globalStyles =
+    buildCtx.config.globalStyle && buildCtx.config.extras.addGlobalStyleToComponents !== false
+      ? await buildCtx.stylesPromise
+      : '';
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 
