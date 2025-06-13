@@ -3,7 +3,7 @@
 
 ### Bug Fixes
 
-* **ssr:** retain slotted node order in serializeShadowRoot: `scoped` ([#6294](https://github.com/stenciljs/core/issues/6294)) ([c1e032d](https://github.com/stenciljs/core/commit/c1e032d562c2ef8f93248317c01186a366a12442))
+* **ssr:** retain slotted node order in serializeShadowRoot: `scoped` ([#6294](https://github.com/stenciljs/core/issues/6294)) ([c1e032d](https://github.com/stenciljs/core/commit/c1e032d562c2ef8f93248317c01186a366a12442)), closes [#6293](https://github.com/stenciljs/core/issues/6293)
 
 
 ### Features
