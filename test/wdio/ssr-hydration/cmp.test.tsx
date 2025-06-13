@@ -248,7 +248,7 @@ describe('Sanity check SSR > Client hydration', () => {
     await expect(renderTime).toBeLessThan(50);
   });
 
-  it("renders the styles of scoped components when they're embedded in a shadow root", async () => {
+  it("renders the styles of serializeShadowRoot `scoped` components when they're embedded in a shadow root", async () => {
     if (document.querySelector('#stage')) {
       document.querySelector('#stage')?.remove();
       await browser.waitUntil(async () => !document.querySelector('#stage'));
@@ -290,5 +290,36 @@ describe('Sanity check SSR > Client hydration', () => {
     await expect(getComputedStyle(scopedCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
     await expect(getComputedStyle(scopedNestCmp).color).toBe('rgb(255, 0, 0)'); // red
     await expect(getComputedStyle(scopedNestCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+  });
+
+  it('retains the order of slotted nodes in serializeShadowRoot `scoped` components', async () => {
+    await setupIFrameTest('/ssr-hydration/custom-element.html', 'dsd-custom-elements');
+    const frameEle: HTMLIFrameElement = document.querySelector('iframe#dsd-custom-elements');
+    const doc = frameEle.contentDocument;
+
+    const { html } = await renderToString(
+      `<wrap-ssr-shadow-cmp>
+          <ssr-shadow-cmp>
+            <span>Should be first</span>
+            <span slot="top">Should be second</span>
+          </ssr-shadow-cmp>
+        </wrap-ssr-shadow-cmp>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+        prettyHTML: false,
+      },
+    );
+    const stage = doc.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    doc.body.appendChild(stage);
+
+    const childComponent = doc.querySelector('ssr-shadow-cmp');
+    await browser.waitUntil(async () => !!childComponent.childNodes);
+    await browser.pause(100);
+
+    childComponent.childNodes[0].textContent = 'Should be first';
+    childComponent.childNodes[1].textContent = 'Should be second';
   });
 });

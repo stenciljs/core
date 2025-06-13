@@ -248,7 +248,8 @@ export const initializeClientHydrate = (
       }
 
       Array.from(hostElm.childNodes).forEach((node) => {
-        if (typeof (node as d.RenderNode)['s-sn'] !== 'string') {
+        // don't remove slotted or original location nodes
+        if (typeof (node as d.RenderNode)['s-en'] !== 'string' && typeof (node as d.RenderNode)['s-sn'] !== 'string') {
           if (node.nodeType === NODE_TYPE.ElementNode && (node as HTMLElement).slot && (node as HTMLElement).hidden) {
             // this is a slotted node that doesn't have a home ... yet.
             // we can safely leave it be, native behavior will mean it's hidden
