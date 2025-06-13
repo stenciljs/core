@@ -1,9 +1,9 @@
 import { BUILD } from '@app-data';
-import { consoleError, loadModule, styles } from '@platform';
+import { consoleError, loadModule, styles, needsScopedSSR } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
-import { scopeCss } from '../utils/shadow-css';
+import { scopeCss, expandPartSelectors } from '../utils/shadow-css';
 import { computeMode } from './mode';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
@@ -156,8 +156,12 @@ export const initializeComponent = async (
       if (!styles.has(scopeId)) {
         const endRegisterStyles = createTime('registerStyles', cmpMeta.$tagName$);
 
-        if (BUILD.hydrateServerSide && BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
-          style = scopeCss(style, scopeId, true);
+        if (BUILD.hydrateServerSide && BUILD.shadowDom) {
+          if (cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
+            style = scopeCss(style, scopeId, true);
+          } else if (needsScopedSSR()) {
+            style = expandPartSelectors(style);
+          }
         }
         registerStyle(scopeId, style, !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation));
         endRegisterStyles();

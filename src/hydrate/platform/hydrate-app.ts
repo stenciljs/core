@@ -1,5 +1,5 @@
 import { globalScripts } from '@app-globals';
-import { addHostEventListeners, getHostRef, loadModule, plt, registerHost } from '@platform';
+import { addHostEventListeners, setScopedSSR, getHostRef, loadModule, plt, registerHost } from '@platform';
 import { connectedCallback, insertVdomAnnotations } from '@runtime';
 import { CMP_FLAGS } from '@utils';
 
@@ -24,6 +24,7 @@ export function hydrateApp(
   const orgDocumentCreateElement = win.document.createElement;
   const orgDocumentCreateElementNS = win.document.createElementNS;
   const resolved = Promise.resolve();
+  setScopedSSR(opts);
 
   let tmrId: any;
   let ranCompleted = false;

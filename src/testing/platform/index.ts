@@ -20,3 +20,9 @@ export { flushAll, flushLoadModule, flushQueue, loadModule, nextTick, readTask, 
 export { win } from './testing-window';
 export { Env } from '@app-data';
 export * from '@runtime';
+export const setScopedSSR = (scoped?: boolean) => {
+  if (typeof scoped !== undefined) scopedSSR = scoped;
+  return scopedSSR;
+};
+
+let scopedSSR = false;
