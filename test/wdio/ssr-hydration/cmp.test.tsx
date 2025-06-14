@@ -322,4 +322,105 @@ describe('Sanity check SSR > Client hydration', () => {
     childComponent.childNodes[0].textContent = 'Should be first';
     childComponent.childNodes[1].textContent = 'Should be second';
   });
+
+  it('correctly renders ::part css selectors for scoped components', async () => {
+    // purposefully load in the iframe where these components are not defined
+    // so we get only render static HTML
+
+    await setupIFrameTest('/ssr-hydration/custom-element.html', 'dsd-custom-elements');
+    const frameEle: HTMLIFrameElement = document.querySelector('iframe#dsd-custom-elements');
+    const doc = frameEle.contentDocument;
+
+    // scoped in dsd component
+
+    let result = await renderToString(
+      `
+      <div>
+        <part-wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: {
+          default: 'declarative-shadow-dom',
+          scoped: ['part-ssr-shadow-cmp'],
+        },
+      },
+    );
+    let stage = doc.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(result.html);
+    doc.body.appendChild(stage);
+
+    let childComponentPart = doc
+      .querySelector('part-wrap-ssr-shadow-cmp')
+      .shadowRoot.querySelector('part-ssr-shadow-cmp [part="container"]');
+    await browser.waitUntil(async () => !!childComponentPart);
+    await browser.pause(100);
+
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+
+    // scoped in scoped component
+
+    // clear the stage
+    doc.querySelector('#stage')?.remove();
+    await browser.waitUntil(async () => !doc.querySelector('#stage'));
+
+    result = await renderToString(
+      `
+      <div>
+        <part-wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    stage = doc.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(result.html);
+    doc.body.appendChild(stage);
+
+    childComponentPart = doc.querySelector('part-wrap-ssr-shadow-cmp part-ssr-shadow-cmp [part="container"]');
+    await browser.waitUntil(async () => !!childComponentPart);
+    await browser.pause(100);
+
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+  });
+
+  it('renders named slots in the correct order in the DOM in scoped components', async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(
+      `
+      <div>
+        <ssr-order-wrap-cmp>
+          <div slot="things">one</div>
+          <div slot="things">2</div>
+          <div slot="things">3</div>
+        </ssr-order-wrap-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('ssr-order-wrap-cmp'));
+    expect(typeof customElements.get('ssr-order-wrap-cmp')).toBe('function');
+
+    const nestedCmp = document.querySelector('ssr-order-wrap-cmp').shadowRoot.querySelector('ssr-order-cmp');
+    expect((nestedCmp.childNodes[0] as HTMLElement).tagName).toBe('SLOT');
+    expect(nestedCmp.childNodes[1].textContent).toBe('after');
+  });
 });

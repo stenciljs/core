@@ -619,7 +619,7 @@ function addSlot(
       parentVNode.$elm$.insertBefore(slot, parentVNode.$elm$.children[0]);
     } else {
       // Insert the new slot element before the slot comment
-      node.parentNode.insertBefore(childVNode.$elm$, node);
+      node.parentNode.insertBefore(slot, node);
     }
     addSlottedNodes(slottedNodes, slotId, slotName, node, childVNode.$hostId$);
 
@@ -645,9 +645,9 @@ function addSlot(
       // Move slot comment node (to after any other comment nodes)
       parentVNode.$elm$.insertBefore(slot, parentVNode.$elm$.children[0]);
     }
-    childRenderNodes.push(childVNode);
   }
 
+  childRenderNodes.push(childVNode);
   slotNodes.push(childVNode);
 
   if (!parentVNode.$children$) {
