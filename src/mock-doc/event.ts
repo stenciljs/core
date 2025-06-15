@@ -218,8 +218,28 @@ function triggerEventListener(elm: any, ev: MockEvent) {
   } else if (elm.parentElement == null && elm.tagName === 'HTML') {
     triggerEventListener(elm.ownerDocument, ev);
   } else {
-    triggerEventListener(elm.parentElement, ev);
+    const nextTarget = getNextEventTarget(elm, ev);
+    triggerEventListener(nextTarget, ev);
   }
+}
+
+function getNextEventTarget(elm: any, ev: MockEvent) {
+  // If current element has a parent, bubble to parent
+  if (elm.parentElement) {
+    return elm.parentElement;
+  }
+
+  // If current element is a Shadow Root (has host property), bubble to the host
+  if (elm.host && ev.composed) {
+    return elm.host;
+  }
+
+  // If we're at a Shadow Root boundary and event is composed, bubble to Shadow Host
+  if (ev.composed && elm.parentNode && elm.parentNode.host) {
+    return elm.parentNode.host;
+  }
+
+  return null;
 }
 
 export function dispatchEvent(currentTarget: any, ev: MockEvent) {
