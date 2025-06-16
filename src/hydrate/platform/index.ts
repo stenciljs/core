@@ -170,6 +170,18 @@ export const Build: d.UserBuildConditionals = {
 export const styles: d.StyleMap = new Map();
 export const modeResolutionChain: d.ResolutionHandler[] = [];
 
+/**
+ * Checks to see any components are rendered with `scoped`
+ * @param opts - SSR options
+ */
+export const setScopedSSR = (opts: d.HydrateFactoryOptions) => {
+  scopedSSR =
+    BUILD.shadowDom && opts.serializeShadowRoot !== false && opts.serializeShadowRoot !== 'declarative-shadow-dom';
+};
+export const needsScopedSSR = () => scopedSSR;
+
+let scopedSSR = false;
+
 export { hAsync as h } from './h-async';
 export { hydrateApp } from './hydrate-app';
 export { BUILD, Env, NAMESPACE } from '@app-data';
