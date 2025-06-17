@@ -27,6 +27,9 @@ jobs:
   create-stencil-release-pull-request:
     name: Generate Stencil Release PR
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       # Log the input from GitHub Actions for easy traceability
       - name: Log GitHub Input

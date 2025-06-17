@@ -5,6 +5,9 @@ on:
   # Make this a reusable workflow, no value needed
   # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
+permissions:
+  contents: read
+
 jobs:
   build_core:
     name: Core
