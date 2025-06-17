@@ -22,6 +22,11 @@ export function createRequestHandler(devServerConfig: d.DevServerConfig, serverC
       try {
         const req = normalizeHttpRequest(devServerConfig, incomingReq);
 
+        // check for directory traversal
+        if (!normalizePath(req.filePath).startsWith(normalizePath(devServerConfig.root))) {
+          return serverCtx.serve404(req, res, `invalid path`, `404 File Not Found`);
+        }
+
         if (!req.url) {
           return serverCtx.serve302(req, res);
         }

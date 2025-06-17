@@ -5,6 +5,9 @@ on:
     # Make this a reusable workflow, no value needed
     # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
+permissions:
+  contents: read
+
 jobs:
   analysis_test:
     name: (${{ matrix.os }}.${{ matrix.node }})
