@@ -386,4 +386,41 @@ describe('Sanity check SSR > Client hydration', () => {
 
     await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
   });
+
+  it('renders named slots in the correct order in the DOM in scoped components', async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(
+      `
+      <div>
+        <ssr-order-wrap-cmp>
+          <div slot="things">one</div>
+          <div slot="things">2</div>
+          <div slot="things">3</div>
+        </ssr-order-wrap-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('ssr-order-wrap-cmp'));
+    expect(typeof customElements.get('ssr-order-wrap-cmp')).toBe('function');
+
+    const nestedCmp = document.querySelector('ssr-order-wrap-cmp').shadowRoot.querySelector('ssr-order-cmp');
+    expect((nestedCmp.childNodes[0] as HTMLElement).tagName).toBe('SLOT');
+    expect(nestedCmp.childNodes[1].textContent).toBe('after');
+  });
 });
