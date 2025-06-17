@@ -1,3 +1,14 @@
+## 🦄 [4.35.1](https://github.com/stenciljs/core/compare/v4.35.0...v4.35.1) (2025-06-17)
+
+
+### Bug Fixes
+
+* **mock-doc:** ensure event bubbling follows shadow DOM boundaries ([#6301](https://github.com/stenciljs/core/issues/6301)) ([1304ffc](https://github.com/stenciljs/core/commit/1304ffcbfec3ff981ffabe26f8cda6eedc784c52)), closes [#5676](https://github.com/stenciljs/core/issues/5676)
+* **ssr:** expand `::part` css selectors for ssr `scoped` components ([#6298](https://github.com/stenciljs/core/issues/6298)) ([da24af6](https://github.com/stenciljs/core/commit/da24af6f5c5211a26e03a3132bc7281346d8ccee)), closes [#6297](https://github.com/stenciljs/core/issues/6297)
+* **ssr:** named slot dom order with `serializeShadowRoot: 'scoped'` components ([#6300](https://github.com/stenciljs/core/issues/6300)) ([96c0f13](https://github.com/stenciljs/core/commit/96c0f13b061ee45ed4596c44dd0e2abd701b6605)), closes [#6299](https://github.com/stenciljs/core/issues/6299)
+
+
+
 # 🌝 [4.35.0](https://github.com/stenciljs/core/compare/v4.34.0...v4.35.0) (2025-06-13)
 
 
