@@ -30,7 +30,7 @@ import ts from 'typescript';
  * @returns an expression statement syntax tree node
  */
 export function createNativeAttachInternalsBinding(cmp: d.ComponentCompilerMeta): ts.ExpressionStatement[] {
-  if (cmp.formAssociated && cmp.attachInternalsMemberName) {
+  if (cmp.attachInternalsMemberName) {
     return [
       ts.factory.createExpressionStatement(
         ts.factory.createBinaryExpression(
