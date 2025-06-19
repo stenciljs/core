@@ -65,11 +65,10 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
       channel: config.testing.browserChannel,
       headless: config.testing.browserHeadless,
       devtools: config.testing.browserDevtools,
+      executablePath:
+        process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH || puppeteer.puppeteerExecutablePath(),
       ...connectOpts,
     };
-    if (config.testing.browserExecutablePath) {
-      launchOpts.executablePath = config.testing.browserExecutablePath;
-    }
     browser = await puppeteer.launch({ ...launchOpts });
   }
 
