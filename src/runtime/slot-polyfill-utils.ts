@@ -227,8 +227,6 @@ export function patchSlotNode(node: d.RenderNode) {
         // find all the nodes assigned to slots we care about
         if (slotName === getSlotName(n)) {
           toReturn.push(n);
-          // Patch slotted shadow DOM components to prevent duplicate focus/blur events
-          patchSlottedShadowDomEvents(n, parent);
         }
       });
 
@@ -240,63 +238,6 @@ export function patchSlotNode(node: d.RenderNode) {
 
   (node as any).assignedElements = assignedFactory(true);
   (node as any).assignedNodes = assignedFactory(false);
-}
-
-/**
- * Patches focus and blur events for shadow DOM components that are slotted into non-shadow components
- * to prevent duplicate event handling.
- *
- * @param slottedNode the slotted node to patch
- * @param parentHost the parent host element (non-shadow component)
- */
-function patchSlottedShadowDomEvents(slottedNode: d.RenderNode, parentHost: d.RenderNode) {
-  if (slottedNode.nodeType !== NODE_TYPE.ElementNode) {
-    return;
-  }
-
-  const element = slottedNode as HTMLElement;
-
-  // Only patch if this is a shadow DOM component slotted into a non-shadow component
-  if (!element.tagName?.includes('-') || !element.shadowRoot || parentHost.shadowRoot) {
-    return;
-  }
-
-  // Check if already patched
-  if ((element as any).__stencilSlotEventPatched) {
-    return;
-  }
-
-  (element as any).__stencilSlotEventPatched = true;
-
-  const originalDispatchEvent = element.dispatchEvent;
-
-  element.dispatchEvent = function (event: Event) {
-    // For focus and blur events, prevent them from bubbling beyond the shadow DOM boundary
-    // when the component is slotted into a non-shadow component
-    if ((event.type === 'focus' || event.type === 'blur') && event.bubbles) {
-      // Create a new event that doesn't bubble to prevent duplicate handling
-      const nonBubblingEvent = new (event.constructor as any)(event.type, {
-        ...event,
-        bubbles: false,
-        composed: event.composed,
-      });
-
-      // Copy over any custom properties
-      Object.keys(event).forEach((key) => {
-        if (key !== 'bubbles' && key !== 'type') {
-          try {
-            (nonBubblingEvent as any)[key] = (event as any)[key];
-          } catch (e) {
-            // Some properties might be read-only
-          }
-        }
-      });
-
-      return originalDispatchEvent.call(this, nonBubblingEvent);
-    }
-
-    return originalDispatchEvent.call(this, event);
-  };
 }
 
 /**
