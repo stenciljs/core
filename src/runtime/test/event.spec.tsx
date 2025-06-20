@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, Listen, Method, State } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, h, Listen, Method, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('event', () => {
@@ -316,4 +316,77 @@ describe('event', () => {
       `);
     });
   });
+
+  it('should prevent infinite recursion when blur event handler calls blur', async () => {
+    @Component({ tag: 'cmp-blur-recursion' })
+    class CmpBlurRecursion {
+      @Element() el!: HTMLElement;
+
+      @State() blurCount = 0;
+      @State() inputValue = '';
+
+      @Listen('blur')
+      handleBlur() {
+        this.blurCount++;
+        // This simulates the scenario where a blur handler
+        // tries to blur an input element
+        const input = this.el.querySelector('input');
+        if (input && this.blurCount < 5) {
+          // Only try to blur if we haven't reached our limit
+          // This prevents the test from running forever if the fix doesn't work
+          input.blur();
+        }
+      }
+
+      @Method()
+      async triggerBlur() {
+        const input = this.el.querySelector('input');
+        if (input) {
+          input.blur();
+        }
+      }
+
+      render() {
+        return (
+          h('div', null,
+            h('input', {
+              value: this.inputValue,
+              onInput: (e: any) => this.inputValue = (e.target as HTMLInputElement).value
+            }),
+            h('div', null, `Blur count: ${this.blurCount}`)
+          )
+        );
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpBlurRecursion],
+      html: `<cmp-blur-recursion></cmp-blur-recursion>`,
+    });
+
+    expect(root).toEqualHtml(`
+      <cmp-blur-recursion>
+        <div>
+          <input value="">
+          <div>Blur count: 0</div>
+        </div>
+      </cmp-blur-recursion>
+    `);
+
+    // Trigger the blur event that should NOT cause infinite recursion
+    await root.triggerBlur();
+    await waitForChanges();
+
+    // The blur count should be 1, not cause infinite recursion
+    expect(root).toEqualHtml(`
+      <cmp-blur-recursion>
+        <div>
+          <input value="">
+          <div>Blur count: 1</div>
+        </div>
+      </cmp-blur-recursion>
+    `);
+  });
+
+
 });
