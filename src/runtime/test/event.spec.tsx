@@ -347,14 +347,14 @@ describe('event', () => {
       }
 
       render() {
-        return (
-          h('div', null,
-            h('input', {
-              value: this.inputValue,
-              onInput: (e: any) => this.inputValue = (e.target as HTMLInputElement).value
-            }),
-            h('div', null, `Blur count: ${this.blurCount}`)
-          )
+        return h(
+          'div',
+          null,
+          h('input', {
+            value: this.inputValue,
+            onInput: (e: any) => (this.inputValue = (e.target as HTMLInputElement).value),
+          }),
+          h('div', null, `Blur count: ${this.blurCount}`),
         );
       }
     }
@@ -387,6 +387,4 @@ describe('event', () => {
       </cmp-blur-recursion>
     `);
   });
-
-
 });
