@@ -47,7 +47,7 @@ export const patchGlobalAppendChild = () => {
 
   const originalAppendChild = Element.prototype.appendChild;
 
-      Element.prototype.appendChild = function<T extends Node>(this: Element, newChild: T): T {
+  Element.prototype.appendChild = function <T extends Node>(this: Element, newChild: T): T {
     // Check if we're adding a shadow DOM element (custom element with hyphen) to a non-shadow parent
     if (newChild && (newChild as any).tagName && (newChild as any).tagName.includes('-')) {
       patchParentNode(newChild);
@@ -580,12 +580,8 @@ export const patchParentNode = (node: Node) => {
   if (node.nodeType === NODE_TYPE.ELEMENT_NODE) {
     const element = node as HTMLElement;
 
-
-
     // Check if this is a shadow DOM component (has hyphen in tag name and shadowRoot)
     if (element.tagName?.includes('-')) {
-
-
       const originalFocus = element.focus.bind(element);
       const originalDispatchEvent = element.dispatchEvent.bind(element);
       const originalAddEventListener = element.addEventListener.bind(element);
@@ -594,42 +590,42 @@ export const patchParentNode = (node: Node) => {
       const blurSuppressionWindow = 200; // 200ms window to suppress blur after focus
       const blurListeners: Array<{ listener: EventListener; options?: boolean | AddEventListenerOptions }> = [];
 
-              // Add global focus tracking as a fallback
-        const globalFocusHandler = (event: Event) => {
-          if (event.target === element) {
-            recordFocusTime();
-          }
-        };
-        const globalClickHandler = (event: Event) => {
-          if (event.target === element) {
-            recordFocusTime();
-          }
-        };
+      // Add global focus tracking as a fallback
+      const globalFocusHandler = (event: Event) => {
+        if (event.target === element) {
+          recordFocusTime();
+        }
+      };
+      const globalClickHandler = (event: Event) => {
+        if (event.target === element) {
+          recordFocusTime();
+        }
+      };
 
       // Add global listeners to catch focus/click events that bypass our patches
       document.addEventListener('focus', globalFocusHandler, true);
       document.addEventListener('click', globalClickHandler, true);
 
       // Helper function to record focus time
-              const recordFocusTime = () => {
-          lastFocusTime = Date.now();
-        };
+      const recordFocusTime = () => {
+        lastFocusTime = Date.now();
+      };
 
-              element.focus = function (options?: FocusOptions) {
-          // Record the time when focus is called
-          recordFocusTime();
+      element.focus = function (options?: FocusOptions) {
+        // Record the time when focus is called
+        recordFocusTime();
 
-          // Call the original focus method
-          originalFocus(options);
-        };
+        // Call the original focus method
+        originalFocus(options);
+      };
 
-              element.click = function () {
-          // Record focus time when click is called, as click often triggers focus
-          recordFocusTime();
+      element.click = function () {
+        // Record focus time when click is called, as click often triggers focus
+        recordFocusTime();
 
-          // Call the original click method
-          originalClick();
-        };
+        // Call the original click method
+        originalClick();
+      };
 
       // Intercept addEventListener to wrap blur event listeners and add click/focus tracking
       element.addEventListener = function (

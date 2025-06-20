@@ -62,7 +62,6 @@ export class TestRadioGroup {
    */
   @Event() ionValueChange!: EventEmitter<any>;
 
-
   @Watch('value')
   valueChanged(value: any | undefined) {
     this.setRadioTabindex(value);
@@ -162,15 +161,12 @@ export class TestRadioGroup {
 
   render() {
     return (
-    <Host
-      role="radiogroup"
-      onClick={this.onClick}
-    >
-      {this.renderHintText()}
+      <Host role="radiogroup" onClick={this.onClick}>
+        {this.renderHintText()}
 
-      {/* Change this to be wrapped in a <div> to fix the issue */}
-      <slot></slot>
-    </Host>
+        {/* Change this to be wrapped in a <div> to fix the issue */}
+        <slot></slot>
+      </Host>
     );
   }
 }

@@ -153,7 +153,7 @@ export class Radio {
           <div class="native-wrapper">{this.renderRadioControl()}</div>
         </label>
       </Host>
-    )
+    );
   }
 }
 

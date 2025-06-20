@@ -9,7 +9,6 @@ import { disconnectedCallback } from './disconnected-callback';
 import {
   patchChildSlotNodes,
   patchCloneNode,
-  patchGlobalAppendChild,
   patchPseudoShadowDom,
   patchSlotAppendChild,
   patchTextContent,
@@ -62,12 +61,6 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   }
 
   let hasSlotRelocation = false;
-
-  // Initialize global appendChild patching for blur event suppression
-  if (BUILD.experimentalSlotFixes) {
-    patchGlobalAppendChild();
-  }
-
   lazyBundles.map((lazyBundle) => {
     lazyBundle[1].map((compactMeta) => {
       const cmpMeta: d.ComponentRuntimeMeta = {
