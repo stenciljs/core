@@ -1,5 +1,6 @@
 import { BUILD } from '@app-data';
 import { supportsShadow } from '@platform';
+import { NODE_TYPES as NODE_TYPE } from '@utils';
 
 import type * as d from '../declarations';
 import {
@@ -296,7 +297,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
      * Fixes an issue where slotted elements are dynamically relocated in React, such as after data fetch.
      *
      * When a slotted element is passed to another scoped component (e.g., <A><C slot="header"/></A>),
-     * the child’s __parentNode (original parent node property) does not match this.
+     * the child's __parentNode (original parent node property) does not match this.
      *
      * To prevent errors, this checks if the current child's parent node differs from this.
      * If so, appendChild(newChild) is called to ensure the child is correctly inserted,
@@ -540,6 +541,80 @@ export const patchParentNode = (node: Node) => {
       this.__parentNode = value;
     },
   });
+
+  // Patch focus method for shadow DOM components slotted into non-shadow components
+  // to prevent duplicate blur events
+  if (node.nodeType === NODE_TYPE.ELEMENT_NODE) {
+    const element = node as HTMLElement;
+
+    // Check if this is a shadow DOM component (has hyphen in tag name and shadowRoot)
+    if (element.tagName?.includes('-') && element.shadowRoot) {
+      if (BUILD.isDev) {
+        console.log('🔧 Patching focus method for slotted shadow DOM element:', element.tagName);
+      }
+
+      const originalFocus = element.focus.bind(element);
+      const originalDispatchEvent = element.dispatchEvent.bind(element);
+      const originalAddEventListener = element.addEventListener.bind(element);
+      let lastFocusTime = 0;
+      const blurSuppressionWindow = 200; // 200ms window to suppress blur after focus
+      const blurListeners: Array<{ listener: EventListener; options?: boolean | AddEventListenerOptions }> = [];
+
+      element.focus = function (options?: FocusOptions) {
+        // Record the time when focus is called
+        lastFocusTime = Date.now();
+
+        // Call the original focus method
+        originalFocus(options);
+      };
+
+      // Intercept addEventListener to wrap blur event listeners
+      element.addEventListener = function (
+        type: string,
+        listener: EventListener,
+        options?: boolean | AddEventListenerOptions,
+      ) {
+        if (type === 'blur') {
+          const wrappedListener = function (event: Event) {
+            const now = Date.now();
+            const timeSinceFocus = now - lastFocusTime;
+
+            // If blur happens within the suppression window after focus, suppress it
+            // This prevents the erroneous blur events that occur when shadow DOM components
+            // are slotted into non-shadow components
+            if (timeSinceFocus < blurSuppressionWindow && lastFocusTime > 0) {
+              if (BUILD.isDev) {
+                console.log('🛑 Suppressing erroneous blur event - happened too soon after focus');
+              }
+              return;
+            }
+
+            listener.call(this, event);
+          };
+          blurListeners.push({ listener, options });
+          return originalAddEventListener.call(this, type, wrappedListener, options);
+        }
+        return originalAddEventListener.call(this, type, listener, options);
+      };
+
+      element.dispatchEvent = function (event: Event) {
+        // Also check dispatchEvent for blur events
+        if (event.type === 'blur') {
+          const now = Date.now();
+          const timeSinceFocus = now - lastFocusTime;
+
+          if (timeSinceFocus < blurSuppressionWindow && lastFocusTime > 0) {
+            if (BUILD.isDev) {
+              console.log('🛑 Preventing erroneous blur dispatchEvent - happened too soon after focus');
+            }
+            return true;
+          }
+        }
+
+        return originalDispatchEvent(event);
+      };
+    }
+  }
 };
 
 /// UTILS ///
