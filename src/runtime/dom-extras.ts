@@ -28,6 +28,33 @@ export const patchPseudoShadowDom = (hostElementPrototype: HTMLElement) => {
   patchTextContent(hostElementPrototype);
   patchChildSlotNodes(hostElementPrototype);
   patchSlotRemoveChild(hostElementPrototype);
+
+  // Patch global appendChild for dynamic shadow DOM element detection
+  patchGlobalAppendChild();
+};
+
+let globalAppendChildPatched = false;
+
+/**
+ * Patches the global Element.prototype.appendChild to detect when shadow DOM elements
+ * are being added to non-shadow parents, so we can apply blur event suppression.
+ */
+export const patchGlobalAppendChild = () => {
+  if (globalAppendChildPatched) {
+    return;
+  }
+  globalAppendChildPatched = true;
+
+  const originalAppendChild = Element.prototype.appendChild;
+
+      Element.prototype.appendChild = function<T extends Node>(this: Element, newChild: T): T {
+    // Check if we're adding a shadow DOM element (custom element with hyphen) to a non-shadow parent
+    if (newChild && (newChild as any).tagName && (newChild as any).tagName.includes('-')) {
+      patchParentNode(newChild);
+    }
+
+    return originalAppendChild.call(this, newChild) as T;
+  };
 };
 
 /**
@@ -111,6 +138,12 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
 
       return insertedNode;
     }
+
+    // Patch dynamically added shadow DOM elements for blur event suppression
+    if (newChild && newChild.tagName && newChild.tagName.includes('-')) {
+      patchParentNode(newChild);
+    }
+
     return (this as any).__appendChild(newChild);
   };
 };
@@ -547,28 +580,58 @@ export const patchParentNode = (node: Node) => {
   if (node.nodeType === NODE_TYPE.ELEMENT_NODE) {
     const element = node as HTMLElement;
 
+
+
     // Check if this is a shadow DOM component (has hyphen in tag name and shadowRoot)
-    if (element.tagName?.includes('-') && element.shadowRoot) {
-      if (BUILD.isDev) {
-        console.log('🔧 Patching focus method for slotted shadow DOM element:', element.tagName);
-      }
+    if (element.tagName?.includes('-')) {
+
 
       const originalFocus = element.focus.bind(element);
       const originalDispatchEvent = element.dispatchEvent.bind(element);
       const originalAddEventListener = element.addEventListener.bind(element);
+      const originalClick = element.click.bind(element);
       let lastFocusTime = 0;
       const blurSuppressionWindow = 200; // 200ms window to suppress blur after focus
       const blurListeners: Array<{ listener: EventListener; options?: boolean | AddEventListenerOptions }> = [];
 
-      element.focus = function (options?: FocusOptions) {
-        // Record the time when focus is called
-        lastFocusTime = Date.now();
+              // Add global focus tracking as a fallback
+        const globalFocusHandler = (event: Event) => {
+          if (event.target === element) {
+            recordFocusTime();
+          }
+        };
+        const globalClickHandler = (event: Event) => {
+          if (event.target === element) {
+            recordFocusTime();
+          }
+        };
 
-        // Call the original focus method
-        originalFocus(options);
-      };
+      // Add global listeners to catch focus/click events that bypass our patches
+      document.addEventListener('focus', globalFocusHandler, true);
+      document.addEventListener('click', globalClickHandler, true);
 
-      // Intercept addEventListener to wrap blur event listeners
+      // Helper function to record focus time
+              const recordFocusTime = () => {
+          lastFocusTime = Date.now();
+        };
+
+              element.focus = function (options?: FocusOptions) {
+          // Record the time when focus is called
+          recordFocusTime();
+
+          // Call the original focus method
+          originalFocus(options);
+        };
+
+              element.click = function () {
+          // Record focus time when click is called, as click often triggers focus
+          recordFocusTime();
+
+          // Call the original click method
+          originalClick();
+        };
+
+      // Intercept addEventListener to wrap blur event listeners and add click/focus tracking
       element.addEventListener = function (
         type: string,
         listener: EventListener,
@@ -583,15 +646,19 @@ export const patchParentNode = (node: Node) => {
             // This prevents the erroneous blur events that occur when shadow DOM components
             // are slotted into non-shadow components
             if (timeSinceFocus < blurSuppressionWindow && lastFocusTime > 0) {
-              if (BUILD.isDev) {
-                console.log('🛑 Suppressing erroneous blur event - happened too soon after focus');
-              }
               return;
             }
 
             listener.call(this, event);
           };
           blurListeners.push({ listener, options });
+          return originalAddEventListener.call(this, type, wrappedListener, options);
+        } else if (type === 'click' || type === 'focus') {
+          // Also intercept click and focus events to track when focus might happen
+          const wrappedListener = function (event: Event) {
+            recordFocusTime();
+            listener.call(this, event);
+          };
           return originalAddEventListener.call(this, type, wrappedListener, options);
         }
         return originalAddEventListener.call(this, type, listener, options);
@@ -604,9 +671,6 @@ export const patchParentNode = (node: Node) => {
           const timeSinceFocus = now - lastFocusTime;
 
           if (timeSinceFocus < blurSuppressionWindow && lastFocusTime > 0) {
-            if (BUILD.isDev) {
-              console.log('🛑 Preventing erroneous blur dispatchEvent - happened too soon after focus');
-            }
             return true;
           }
         }

@@ -202,23 +202,12 @@ export const getSlotName = (node: d.PatchedSlotNode) =>
  * @param node - slot node to patch
  */
 export function patchSlotNode(node: d.RenderNode) {
-  console.log('🔧 patchSlotNode called for:', node);
-
   if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) {
-    console.log('❌ patchSlotNode: already patched or not a slot reference');
     return;
   }
 
-  console.log('✅ patchSlotNode: proceeding with patching');
-
   const assignedFactory = (elementsOnly: boolean) =>
     function (opts?: { flatten: boolean }) {
-      console.log('🏭 assignedFactory called:', {
-        elementsOnly,
-        slotName: this['s-sn'],
-        parentElement: this['s-cr']?.parentElement?.tagName,
-      });
-
       const toReturn: d.RenderNode[] = [];
       const slotName = this['s-sn'];
 
@@ -234,34 +223,13 @@ export function patchSlotNode(node: d.RenderNode) {
       // get all light dom nodes
       const slottedNodes = parent.__childNodes ? parent.childNodes : getSlottedChildNodes(parent.childNodes);
 
-      console.log('🔍 Processing slotted nodes:', {
-        count: slottedNodes.length,
-        nodes: Array.from(slottedNodes).map((n) => ({ tagName: (n as any).tagName, nodeType: n.nodeType })),
-      });
-
       (slottedNodes as d.RenderNode[]).forEach((n) => {
-        console.log('🔍 Checking node:', {
-          tagName: (n as any).tagName,
-          nodeType: n.nodeType,
-          slotName: getSlotName(n),
-          targetSlotName: slotName,
-        });
-
         // find all the nodes assigned to slots we care about
         if (slotName === getSlotName(n)) {
-          console.log('✅ Node matches slot, adding to return array');
           toReturn.push(n);
           // Patch slotted shadow DOM components to prevent duplicate focus/blur events
           patchSlottedShadowDomEvents(n, parent);
-        } else {
-          console.log('❌ Node does not match slot');
         }
-      });
-
-      console.log('🏭 assignedFactory returning:', {
-        count: toReturn.length,
-        elementsOnly,
-        nodes: toReturn.map((n) => ({ tagName: (n as any).tagName, nodeType: n.nodeType })),
       });
 
       if (elementsOnly) {
@@ -282,61 +250,30 @@ export function patchSlotNode(node: d.RenderNode) {
  * @param parentHost the parent host element (non-shadow component)
  */
 function patchSlottedShadowDomEvents(slottedNode: d.RenderNode, parentHost: d.RenderNode) {
-  console.log('🔍 patchSlottedShadowDomEvents called:', {
-    slottedNode: slottedNode.tagName,
-    parentHost: parentHost.tagName,
-    nodeType: slottedNode.nodeType,
-    isElement: slottedNode.nodeType === NODE_TYPE.ElementNode,
-  });
-
   if (slottedNode.nodeType !== NODE_TYPE.ElementNode) {
-    console.log('❌ Not an element node, skipping');
     return;
   }
 
   const element = slottedNode as HTMLElement;
 
-  console.log('🔍 Element details:', {
-    tagName: element.tagName,
-    hasHyphen: element.tagName?.includes('-'),
-    hasShadowRoot: !!element.shadowRoot,
-    parentHasShadowRoot: !!parentHost.shadowRoot,
-  });
-
   // Only patch if this is a shadow DOM component slotted into a non-shadow component
   if (!element.tagName?.includes('-') || !element.shadowRoot || parentHost.shadowRoot) {
-    console.log('❌ Conditions not met for patching:', {
-      hasHyphen: element.tagName?.includes('-'),
-      hasShadowRoot: !!element.shadowRoot,
-      parentHasShadowRoot: !!parentHost.shadowRoot,
-    });
     return;
   }
 
   // Check if already patched
   if ((element as any).__stencilSlotEventPatched) {
-    console.log('⚠️ Already patched, skipping');
     return;
   }
 
-  console.log('✅ Patching element:', element.tagName);
   (element as any).__stencilSlotEventPatched = true;
 
   const originalDispatchEvent = element.dispatchEvent;
 
   element.dispatchEvent = function (event: Event) {
-    console.log('🎯 dispatchEvent called:', {
-      type: event.type,
-      target: (event.target as any)?.tagName,
-      bubbles: event.bubbles,
-      composed: event.composed,
-    });
-
     // For focus and blur events, prevent them from bubbling beyond the shadow DOM boundary
     // when the component is slotted into a non-shadow component
     if ((event.type === 'focus' || event.type === 'blur') && event.bubbles) {
-      console.log('🛑 Intercepting focus/blur event, creating non-bubbling version');
-
       // Create a new event that doesn't bubble to prevent duplicate handling
       const nonBubblingEvent = new (event.constructor as any)(event.type, {
         ...event,
@@ -355,11 +292,9 @@ function patchSlottedShadowDomEvents(slottedNode: d.RenderNode, parentHost: d.Re
         }
       });
 
-      console.log('📤 Dispatching non-bubbling event');
       return originalDispatchEvent.call(this, nonBubblingEvent);
     }
 
-    console.log('📤 Dispatching original event');
     return originalDispatchEvent.call(this, event);
   };
 }
