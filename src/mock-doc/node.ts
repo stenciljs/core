@@ -277,10 +277,21 @@ export class MockElement extends MockNode {
   }
 
   blur() {
-    dispatchEvent(
-      this,
-      new MockFocusEvent('blur', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
-    );
+    // Prevent infinite recursion when blur event handlers call blur()
+    // on the same element while it's already processing a blur event
+    if (isCurrentlyDispatching(this, 'blur')) {
+      return;
+    }
+
+    markAsDispatching(this, 'blur');
+    try {
+      dispatchEvent(
+        this,
+        new MockFocusEvent('blur', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
+      );
+    } finally {
+      unmarkAsDispatching(this, 'blur');
+    }
   }
 
   get localName() {
@@ -1232,4 +1243,44 @@ function setTextContent(elm: MockElement, text: string) {
   }
   const textNode = new MockTextNode(elm.ownerDocument, text);
   elm.appendChild(textNode);
+}
+
+// Track currently dispatching events to prevent infinite recursion
+const currentlyDispatching = new WeakMap<any, Set<string>>();
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ * @returns True if the element is currently dispatching the event, false otherwise.
+ */
+export function isCurrentlyDispatching(target: any, eventType: string): boolean {
+  const dispatchingEvents = currentlyDispatching.get(target);
+  return dispatchingEvents != null && dispatchingEvents.has(eventType);
+}
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ */
+export function markAsDispatching(target: any, eventType: string): void {
+  let dispatchingEvents = currentlyDispatching.get(target);
+  if (dispatchingEvents == null) {
+    dispatchingEvents = new Set<string>();
+    currentlyDispatching.set(target, dispatchingEvents);
+  }
+  dispatchingEvents.add(eventType);
+}
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ */
+export function unmarkAsDispatching(target: any, eventType: string): void {
+  const dispatchingEvents = currentlyDispatching.get(target);
+  if (dispatchingEvents != null) {
+    dispatchingEvents.delete(eventType);
+    if (dispatchingEvents.size === 0) {
+      currentlyDispatching.delete(target);
+    }
+  }
 }
