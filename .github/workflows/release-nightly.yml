@@ -9,6 +9,9 @@ on:
   workflow_dispatch:
     # Allow this workflow to be run on-demand
 
+permissions:
+  contents: read
+
 jobs:
   build_core:
     name: Build
@@ -59,6 +62,7 @@ jobs:
     needs: [get-nightly-version, build_core]
     runs-on: ubuntu-22.04
     permissions:
+      contents: read
       id-token: write
     steps:
       - name: Checkout Code

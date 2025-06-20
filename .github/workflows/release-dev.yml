@@ -10,6 +10,9 @@ on:
         description: The version that was just published to npm.
         value: ${{ jobs.get-dev-version.outputs.dev-version }}
 
+permissions:
+  contents: read
+
 jobs:
   build_core:
     name: Build
@@ -57,6 +60,7 @@ jobs:
     needs: [get-dev-version, build_core]
     runs-on: ubuntu-22.04
     permissions:
+      contents: read
       id-token: write
     steps:
       - name: Checkout Code
