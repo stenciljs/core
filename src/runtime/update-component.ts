@@ -407,6 +407,13 @@ export const appDidLoad = (who: string) => {
     plt.$flags$ |= PLATFORM_FLAGS.appLoaded;
   }
   nextTick(() => emitEvent(win, 'appload', { detail: { namespace: NAMESPACE } }));
+  if (BUILD.hydrateClientSide) {
+    // we can now clear out the original location map 
+    // used by SSR so as to not cause memory leaks
+    if (plt.$orgLocNodes$?.size) {
+      plt.$orgLocNodes$.clear();
+    }
+  }
 
   if (BUILD.profile && performance.measure) {
     performance.measure(`[Stencil] ${NAMESPACE} initial load (by ${who})`, 'st:app:start');
