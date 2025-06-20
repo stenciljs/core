@@ -195,12 +195,24 @@ describe('validateTesting', () => {
       expect(config.testing.browserArgs).toEqual(['--unique', '--font-render-hinting=medium', '--incognito']);
     });
 
-    it('adds default browser args', () => {
-      userConfig.flags = { ...flags, e2e: true };
+    describe('adds default browser args', () => {
+      const originalCI = process.env.CI;
 
-      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      beforeAll(() => {
+        delete process.env.CI;
+      });
 
-      expect(config.testing.browserArgs).toEqual(['--font-render-hinting=medium', '--incognito']);
+      afterAll(() => {
+        process.env.CI = originalCI;
+      });
+
+      it('adds default browser args when not in CI', () => {
+        userConfig.flags = { ...flags, e2e: true };
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+
+        expect(config.testing.browserArgs).toEqual(['--font-render-hinting=medium', '--incognito']);
+      });
     });
 
     it("adds additional browser args when the 'ci' flag is set", () => {
@@ -213,6 +225,29 @@ describe('validateTesting', () => {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
       ]);
+    });
+
+    describe("adds additional browser args when process.env.CI is set", () => {
+      const originalCI = process.env.CI;
+      beforeAll(() => {
+        process.env.CI = 'true';
+      });
+
+      afterAll(() => {
+        process.env.CI = originalCI;
+      });
+
+      it('adds default browser args when CI is set', () => {
+        userConfig.flags = { ...flags, ci: true, e2e: true };
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        expect(config.testing.browserArgs).toEqual([
+          '--font-render-hinting=medium',
+          '--incognito',
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ]);
+      });
     });
   });
 

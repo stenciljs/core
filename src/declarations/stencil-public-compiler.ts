@@ -2055,6 +2055,7 @@ export interface TestingConfig extends JestConfig {
 
   /**
    * Path to a Chromium or Chrome executable to run instead of the bundled Chromium.
+   * @default env.PUPPETEER_EXECUTABLE_PATH || env.CHROME_PATH || puppeteer.computeExecutablePath()
    */
   browserExecutablePath?: string;
 
