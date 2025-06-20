@@ -408,7 +408,7 @@ export const appDidLoad = (who: string) => {
   }
   nextTick(() => emitEvent(win, 'appload', { detail: { namespace: NAMESPACE } }));
   if (BUILD.hydrateClientSide) {
-    // we can now clear out the original location map 
+    // we can now clear out the original location map
     // used by SSR so as to not cause memory leaks
     if (plt.$orgLocNodes$?.size) {
       plt.$orgLocNodes$.clear();
