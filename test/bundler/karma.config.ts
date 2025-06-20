@@ -16,6 +16,11 @@ const localLaunchers = {
       '--disable-gpu',
       // without a remote debugging port, Chrome exits immediately.
       '--remote-debugging-port=9333',
+      // Fix for Ubuntu 24.04+ AppArmor restrictions
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      // Additional flags for CI environments
+      '--disable-dev-shm-usage',
     ],
   },
 };
@@ -32,6 +37,7 @@ module.exports = function (config: Config): void {
   config.set({
     browsers: Object.keys(localLaunchers),
     colors: true,
+    customLaunchers: localLaunchers,
     files: [
       // general utilities for running Stencil + Karma
       'karma-stencil-utils.ts',
