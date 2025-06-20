@@ -632,6 +632,9 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
   // Store reference to original methods
   const originalAddEventListener = element.addEventListener.bind(element);
   const originalDispatchEvent = element.dispatchEvent.bind(element);
+  const htmlElement = element as HTMLElement;
+  const originalFocus = htmlElement.focus?.bind(htmlElement);
+  const originalClick = htmlElement.click?.bind(htmlElement);
 
   const focusState = {
     lastFocusTime: 0,
@@ -643,24 +646,71 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
   const updateFocusState = () => {
     const now = Date.now();
     focusState.lastFocusTime = now;
-    focusState.suppressBlurUntil = now + 50; // 50ms suppression window
+    focusState.suppressBlurUntil = now + 100; // 100ms suppression window
     focusState.pendingFocus = true;
 
-    // Clear pending focus after a short delay
+    // Clear pending focus after a delay
     setTimeout(() => {
       focusState.pendingFocus = false;
-    }, 100);
+    }, 150);
   };
 
-  // Override addEventListener to intercept blur events and focus tracking
+  // Helper to determine if an event is blur-related based on its characteristics
+  const isBlurRelatedEvent = (event: Event): boolean => {
+    // Check if event type contains 'blur' (case insensitive)
+    if (event.type.toLowerCase().includes('blur')) {
+      return true;
+    }
+
+    // For custom events, check if they have blur-like characteristics
+    if (event instanceof CustomEvent) {
+      const detail = event.detail;
+      // Check if the event detail suggests it's a blur event
+      if (detail && typeof detail === 'object') {
+        return detail.type === 'blur' || detail.event === 'blur' || detail.action === 'blur';
+      }
+    }
+
+    return false;
+  };
+
+  // Helper to determine if an event is focus-related
+  const isFocusRelatedEvent = (event: Event): boolean => {
+    const type = event.type.toLowerCase();
+    return type.includes('focus') || type === 'click' || type === 'mousedown' || type === 'touchstart';
+  };
+
+  // Patch focus method to track focus state
+  if (originalFocus) {
+    htmlElement.focus = function (options?: FocusOptions) {
+      updateFocusState();
+      return originalFocus(options);
+    };
+  }
+
+  // Patch click method to track focus state (clicks often trigger focus)
+  if (originalClick) {
+    htmlElement.click = function () {
+      updateFocusState();
+      return originalClick();
+    };
+  }
+
+  // Override addEventListener to intercept blur events and track focus
   element.addEventListener = function (
     type: string,
     listener: EventListener | EventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ) {
-    if (type === 'blur' || type === 'ionBlur') {
-      // Wrap blur listeners to prevent erroneous blur events
-      const wrappedListener = function (this: Element, event: Event) {
+    // Create a wrapped listener that handles both blur suppression and focus tracking
+    const wrappedListener = function (this: Element, event: Event) {
+      // Track focus-related events
+      if (isFocusRelatedEvent(event)) {
+        updateFocusState();
+      }
+
+      // Handle blur-related events
+      if (isBlurRelatedEvent(event)) {
         const now = Date.now();
 
         // Suppress blur events that happen too close to focus events
@@ -672,38 +722,28 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
         if (element === document.activeElement || element.contains(document.activeElement as Element)) {
           return;
         }
+      }
 
-        // Call the original listener for legitimate blur events
-        if (typeof listener === 'function') {
-          listener.call(this, event);
-        } else if (listener && typeof listener.handleEvent === 'function') {
-          listener.handleEvent(event);
-        }
-      };
+      // Call the original listener
+      if (typeof listener === 'function') {
+        listener.call(this, event);
+      } else if (listener && typeof listener.handleEvent === 'function') {
+        listener.handleEvent(event);
+      }
+    };
 
-      return originalAddEventListener.call(this, type, wrappedListener, options);
-    } else if (type === 'focus' || type === 'ionFocus' || type === 'click') {
-      // Track focus events to update our focus state
-      const wrappedListener = function (this: Element, event: Event) {
-        updateFocusState();
-
-        if (typeof listener === 'function') {
-          listener.call(this, event);
-        } else if (listener && typeof listener.handleEvent === 'function') {
-          listener.handleEvent(event);
-        }
-      };
-
-      return originalAddEventListener.call(this, type, wrappedListener, options);
-    }
-
-    // For non-blur events, use original behavior
-    return originalAddEventListener.call(this, type, listener, options);
+    return originalAddEventListener.call(this, type, wrappedListener, options);
   };
 
   // Override dispatchEvent to catch blur events being dispatched
   element.dispatchEvent = function (event: Event) {
-    if (event.type === 'blur' || event.type === 'ionBlur') {
+    // Track focus-related events
+    if (isFocusRelatedEvent(event)) {
+      updateFocusState();
+    }
+
+    // Handle blur-related events
+    if (isBlurRelatedEvent(event)) {
       const now = Date.now();
 
       // Suppress blur events that happen too close to focus events
@@ -715,8 +755,6 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
       if (element === document.activeElement || element.contains(document.activeElement as Element)) {
         return true;
       }
-    } else if (event.type === 'focus' || event.type === 'ionFocus') {
-      updateFocusState();
     }
 
     return originalDispatchEvent(event);
