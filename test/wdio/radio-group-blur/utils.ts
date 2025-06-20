@@ -45,7 +45,7 @@ type CompareFn = (currentValue: any, compareValue: any) => boolean;
 export const compareOptions = (
   currentValue: any,
   compareValue: any,
-  compareWith?: string | CompareFn | null
+  compareWith?: string | CompareFn | null,
 ): boolean => {
   if (typeof compareWith === 'function') {
     return compareWith(currentValue, compareValue);
@@ -67,7 +67,7 @@ export const compareOptions = (
 export const isOptionSelected = (
   currentValue: any[] | any,
   compareValue: any,
-  compareWith?: string | CompareFn | null
+  compareWith?: string | CompareFn | null,
 ) => {
   if (currentValue === undefined) {
     return false;
