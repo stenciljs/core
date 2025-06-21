@@ -633,21 +633,20 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
   const originalAddEventListener = element.addEventListener.bind(element);
   const originalDispatchEvent = element.dispatchEvent.bind(element);
 
-  // Track when this element was slotted (just added to DOM)
+  // Track when this element was slotted and focus timing
   const slottedTime = Date.now();
-  const NEW_ELEMENT_GRACE_PERIOD = 100; // 100ms grace period for newly slotted elements
+  const NEW_ELEMENT_GRACE_PERIOD = 200; // 200ms grace period for newly slotted elements
+  let lastFocusTime = 0; // Track when focus events happen
+  const IMMEDIATE_BLUR_WINDOW = 25; // Very tight window to catch only the immediate erroneous blur
 
-  // Helper to determine if an event is blur-related based on its characteristics
+  // Helper to determine if an event is blur-related
   const isBlurRelatedEvent = (event: Event): boolean => {
-    // Check if event type contains 'blur' (case insensitive)
     if (event.type.toLowerCase().includes('blur')) {
       return true;
     }
 
-    // For custom events, check if they have blur-like characteristics
     if (event instanceof CustomEvent) {
       const detail = event.detail;
-      // Check if the event detail suggests it's a blur event
       if (detail && typeof detail === 'object') {
         return detail.type === 'blur' || detail.event === 'blur' || detail.action === 'blur';
       }
@@ -656,23 +655,26 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
     return false;
   };
 
-  // Helper to check if blur should be suppressed for newly slotted elements
-  const shouldSuppressBlurForNewElement = (): boolean => {
+  // Helper to determine if an event is focus-related
+  const isFocusRelatedEvent = (event: Event): boolean => {
+    const type = event.type.toLowerCase();
+    return type === 'click' || type === 'focus' || type === 'mousedown' || type === 'touchstart';
+  };
+
+  // Helper to record focus events
+  const recordFocusEvent = () => {
+    lastFocusTime = Date.now();
+  };
+
+  // Helper to check if blur should be suppressed
+  const shouldSuppressBlur = (): boolean => {
     const now = Date.now();
     const elementAge = now - slottedTime;
+    const timeSinceFocus = now - lastFocusTime;
 
-    // Only suppress blur events for very recently slotted elements
-    if (elementAge < NEW_ELEMENT_GRACE_PERIOD) {
-      const activeElement = document.activeElement;
-
-      // Only suppress if this element still has focus (erroneous blur)
-      // Don't suppress if focus has legitimately moved elsewhere
-      if (activeElement === element || element.contains(activeElement)) {
-        return true;
-      }
-    }
-
-    return false;
+    // Only suppress blur for very recently added elements where blur happens immediately after focus
+    // Use a tighter window to avoid interfering with legitimate fast user interactions
+    return elementAge < NEW_ELEMENT_GRACE_PERIOD && timeSinceFocus < IMMEDIATE_BLUR_WINDOW && lastFocusTime > 0;
   };
 
   // Override addEventListener to intercept events
@@ -681,12 +683,16 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
     listener: EventListener | EventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ) {
-    // Create a wrapped listener
     const wrappedListener = function (this: Element, event: Event) {
-      // Handle blur events with suppression for newly slotted elements
+      // Track focus-related events
+      if (isFocusRelatedEvent(event)) {
+        recordFocusEvent();
+      }
+
+      // Handle blur events with suppression
       if (isBlurRelatedEvent(event)) {
-        if (shouldSuppressBlurForNewElement()) {
-          // Suppress this blur event for newly slotted element
+        if (shouldSuppressBlur()) {
+          // Suppress this erroneous blur event
           return;
         }
       }
@@ -704,10 +710,15 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
 
   // Override dispatchEvent to catch dispatched blur events
   element.dispatchEvent = function (event: Event) {
-    // Handle blur events with suppression for newly slotted elements
+    // Track focus-related events
+    if (isFocusRelatedEvent(event)) {
+      recordFocusEvent();
+    }
+
+    // Handle blur events with suppression
     if (isBlurRelatedEvent(event)) {
-      if (shouldSuppressBlurForNewElement()) {
-        // Suppress this blur event for newly slotted element
+      if (shouldSuppressBlur()) {
+        // Suppress this erroneous blur event
         return true;
       }
     }
