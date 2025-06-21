@@ -66,7 +66,6 @@ export class Radio {
     this.updateState();
   }
 
-  /** @internal */
   @Method()
   async setFocus(ev?: globalThis.Event) {
     if (ev !== undefined) {
@@ -77,7 +76,6 @@ export class Radio {
     this.el.focus();
   }
 
-  /** @internal */
   @Method()
   async setButtonTabindex(value: number) {
     this.buttonTabindex = value;
