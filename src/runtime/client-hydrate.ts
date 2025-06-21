@@ -138,7 +138,7 @@ export const initializeClientHydrate = (
         cmpMeta.$cmpMeta$,
         BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
       );
-      const styleSheet = win.document.head.querySelector(`style[sty-id="${scopeId}"]`);
+      const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
 
       if (styleSheet) {
         hostElm.shadowRoot.append(styleSheet.cloneNode(true));
@@ -217,16 +217,18 @@ export const initializeClientHydrate = (
       if (!hostEle.shadowRoot || !shadowRoot) {
         // Try to set an appropriate Content-position Reference (CR) node for this host element
 
-        // Is a CR already set on the host?
-        slottedItem.slot['s-cr'] = hostEle['s-cr'];
+        if (!slottedItem.slot['s-cr']) {
+          // Is a CR already set on the host?
+          slottedItem.slot['s-cr'] = hostEle['s-cr'];
 
-        if (!slottedItem.slot['s-cr'] && hostEle.shadowRoot) {
-          // Host has shadowDOM - just use the host itself as the CR for native slotting
-          slottedItem.slot['s-cr'] = hostEle;
-        } else {
-          // If all else fails - just set the CR as the first child
-          // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
-          slottedItem.slot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
+          if (!slottedItem.slot['s-cr'] && hostEle.shadowRoot) {
+            // Host has shadowDOM - just use the host itself as the CR for native slotting
+            slottedItem.slot['s-cr'] = hostEle;
+          } else {
+            // If all else fails - just set the CR as the first child
+            // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
+            slottedItem.slot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
+          }
         }
         // Create our 'Original Location' node
         addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
@@ -697,7 +699,9 @@ const addSlottedNodes = (
     (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
       (slotName === '' &&
         !slottedNode['s-sn'] &&
-        (slottedNode.nodeType === NODE_TYPE.CommentNode || slottedNode.nodeType === NODE_TYPE.TextNode)))
+        (slottedNode.nodeType === NODE_TYPE.CommentNode ||
+          slottedNode.nodeType === NODE_TYPE.TextNode ||
+          slottedNode.tagName === 'SLOT')))
   ) {
     slottedNode['s-sn'] = slotName;
     slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });

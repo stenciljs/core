@@ -423,4 +423,82 @@ describe('Sanity check SSR > Client hydration', () => {
     expect((nestedCmp.childNodes[0] as HTMLElement).tagName).toBe('SLOT');
     expect(nestedCmp.childNodes[1].textContent).toBe('after');
   });
+
+  it('renders slots nodes appropriately in a `scoped: true` child with `serializeShadowRoot: "scoped"` parent', async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(
+      `
+      <div>
+        <shadow-ssr-parent-cmp>
+          <div slot="things">one</div>
+          <div slot="things">2</div>
+          <div slot="things">3</div>
+        </shadow-ssr-parent-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('shadow-ssr-parent-cmp'));
+    expect(typeof customElements.get('shadow-ssr-parent-cmp')).toBe('function');
+
+    const wrapCmp = document.querySelector('shadow-ssr-parent-cmp');
+    const nestedCmp = wrapCmp.shadowRoot.querySelector('scoped-ssr-child-cmp');
+    expect(nestedCmp.childNodes.length).toBe(1);
+    expect((nestedCmp.childNodes[0] as HTMLElement).tagName).toBe('SLOT');
+
+    // check that <style> tag for `scoped-cmp` gets added
+    expect(wrapCmp.shadowRoot.querySelector('style[sty-id="sc-scoped-ssr-child-cmp"]')).toBeTruthy();
+  });
+
+  it('slots nodes appropriately in a `scoped: true` parent with `serializeShadowRoot: "scoped"` child', async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(
+      `
+      <div>
+        <scoped-ssr-parent-cmp>
+          <div slot="things">one</div>
+          <div slot="things">2</div>
+          <div slot="things">3</div>
+        </scoped-ssr-parent-cmp>
+      </div>`,
+      {
+        fullDocument: true,
+        serializeShadowRoot: 'scoped',
+      },
+    );
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('scoped-ssr-parent-cmp'));
+    expect(typeof customElements.get('scoped-ssr-parent-cmp')).toBe('function');
+
+    const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
+    expect(wrapCmp.childNodes.length).toBe(3);
+    expect(wrapCmp.textContent).toBe('one23');
+  });
 });
