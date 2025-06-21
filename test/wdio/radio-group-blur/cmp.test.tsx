@@ -1,6 +1,6 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
-import { $, browser, expect } from '@wdio/globals';
+import { $, $$, browser, expect } from '@wdio/globals';
 
 describe('radio-group-blur', function () {
   beforeEach(async () => {
@@ -15,5 +15,12 @@ describe('radio-group-blur', function () {
     await expect($('#blur-count')).toHaveText('0');
     await $('ion-radio').click();
     await expect($('#blur-count')).toHaveText('0');
+  });
+
+  it('should allow blur events after fast focus change', async () => {
+    const [radio1, radio2] = await $$('ion-radio');
+    await radio1.click();
+    await radio2.click();
+    await expect($('#blur-count')).toHaveText('1');
   });
 });
