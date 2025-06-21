@@ -68,12 +68,6 @@ export class TestRadioGroup {
     this.ionValueChange.emit({ value });
   }
 
-  /**
-   * Emits an `ionChange` event.
-   *
-   * This API should be called for user committed changes.
-   * This API should not be used for external value changes.
-   */
   private emitValueChange(event?: Event) {
     const { value } = this;
     this.ionChange.emit({ value, event });
