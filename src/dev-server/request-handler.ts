@@ -20,12 +20,10 @@ export function createRequestHandler(devServerConfig: d.DevServerConfig, serverC
   return async function (incomingReq: IncomingMessage, res: ServerResponse) {
     async function defaultHandler() {
       try {
+        /**
+         * normalize the request path and ensures it's within the root directory of the project
+         */
         const req = normalizeHttpRequest(devServerConfig, incomingReq);
-
-        // check for directory traversal
-        if (!normalizePath(req.filePath).startsWith(normalizePath(devServerConfig.root))) {
-          return serverCtx.serve404(req, res, `invalid path`, `404 File Not Found`);
-        }
 
         if (!req.url) {
           return serverCtx.serve302(req, res);
