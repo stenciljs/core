@@ -2,7 +2,6 @@ import { BUILD } from '@app-data';
 import { supportsShadow } from '@platform';
 
 import type * as d from '../declarations';
-import { NODE_TYPE } from './runtime-constants';
 import {
   addSlotRelocateNode,
   dispatchSlotChangeEvent,
@@ -19,50 +18,15 @@ import {
 export const patchPseudoShadowDom = (hostElementPrototype: HTMLElement) => {
   patchCloneNode(hostElementPrototype);
   patchSlotAppendChild(hostElementPrototype);
+  patchSlotAppend(hostElementPrototype);
+  patchSlotPrepend(hostElementPrototype);
   patchSlotInsertAdjacentElement(hostElementPrototype);
   patchSlotInsertAdjacentHTML(hostElementPrototype);
   patchSlotInsertAdjacentText(hostElementPrototype);
-  patchSlotPrepend(hostElementPrototype);
-  patchSlotAppend(hostElementPrototype);
   patchInsertBefore(hostElementPrototype);
   patchTextContent(hostElementPrototype);
   patchChildSlotNodes(hostElementPrototype);
   patchSlotRemoveChild(hostElementPrototype);
-
-  // Patch global appendChild to catch dynamically added shadow DOM elements
-  patchGlobalAppendChildForBlurFix();
-};
-
-let globalAppendChildPatched = false;
-
-/**
- * Patches the global Element.prototype.appendChild to detect when shadow DOM elements
- * are being added to non-shadow parents, so we can apply blur event fix.
- * This is more targeted than the original global patch.
- */
-const patchGlobalAppendChildForBlurFix = () => {
-  if (globalAppendChildPatched) {
-    return;
-  }
-  globalAppendChildPatched = true;
-
-  const originalAppendChild = Element.prototype.appendChild;
-
-  Element.prototype.appendChild = function <T extends Node>(this: Element, newChild: T): T {
-    const result = originalAppendChild.call(this, newChild) as T;
-
-    // Apply blur fix only to shadow DOM elements being added to non-shadow parents
-    if (
-      newChild &&
-      newChild.nodeType === NODE_TYPE.ElementNode &&
-      (newChild as unknown as Element).tagName?.includes('-') &&
-      !this.shadowRoot
-    ) {
-      patchSlottedShadowElementBlurEvents(newChild as unknown as Element);
-    }
-
-    return result;
-  };
 };
 
 /**
@@ -144,14 +108,8 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
       // Check if there is fallback content that should be hidden
       updateFallbackSlotVisibility(this);
 
-      // Apply targeted blur fix for shadow DOM elements being slotted
-      if (BUILD.slot && newChild.nodeType === 1 && (newChild as unknown as Element).tagName?.includes('-')) {
-        patchSlottedShadowElementBlurEvents(newChild as unknown as Element);
-      }
-
       return insertedNode;
     }
-
     return (this as any).__appendChild(newChild);
   };
 };
@@ -206,16 +164,6 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
         const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
         const toReturn = internalCall(parent, 'insertBefore')(newChild, internalCall(appendAfter, 'nextSibling'));
         dispatchSlotChangeEvent(slotNode);
-
-        // Apply targeted blur fix for shadow DOM elements being slotted
-        if (
-          BUILD.slot &&
-          newChild.nodeType === NODE_TYPE.ElementNode &&
-          (newChild as unknown as Element).tagName?.includes('-')
-        ) {
-          patchSlottedShadowElementBlurEvents(newChild as unknown as Element);
-        }
-
         return toReturn;
       }
 
@@ -337,15 +285,6 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
             internalCall(parent, 'insertBefore')(newChild, currentChild);
 
             dispatchSlotChangeEvent(slotNode);
-
-            // Apply targeted blur fix for shadow DOM elements being slotted
-            if (
-              BUILD.slot &&
-              newChild.nodeType === NODE_TYPE.ElementNode &&
-              (newChild as unknown as Element).tagName?.includes('-')
-            ) {
-              patchSlottedShadowElementBlurEvents(newChild as unknown as Element);
-            }
           }
           return;
         }
@@ -357,7 +296,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
      * Fixes an issue where slotted elements are dynamically relocated in React, such as after data fetch.
      *
      * When a slotted element is passed to another scoped component (e.g., <A><C slot="header"/></A>),
-     * the child's __parentNode (original parent node property) does not match this.
+     * the child’s __parentNode (original parent node property) does not match this.
      *
      * To prevent errors, this checks if the current child's parent node differs from this.
      * If so, appendChild(newChild) is called to ensure the child is correctly inserted,
@@ -601,144 +540,6 @@ export const patchParentNode = (node: Node) => {
       this.__parentNode = value;
     },
   });
-
-  // Apply targeted blur fix for shadow DOM elements being slotted
-  if (node.nodeType === NODE_TYPE.ElementNode) {
-    const element = node as HTMLElement;
-
-    // Check if this is a shadow DOM component (has hyphen in tag name and shadowRoot)
-    if (element.tagName?.includes('-')) {
-      patchSlottedShadowElementBlurEvents(element);
-    }
-  }
-};
-
-// Global flag to temporarily disable blur events during specific VDOM insertBefore operations
-let isVDOMInsertBeforeInProgress = false;
-
-/**
- * Temporarily disables blur events during VDOM insertBefore operations to prevent erroneous blur events
- * when elements are moved during slot relocation.
- *
- * @param operation - The insertBefore operation to execute with blur suppression enabled
- * @returns The result of the operation
- */
-export const withVDOMBlurSuppression = <T>(operation: () => T): T => {
-  const wasInProgress = isVDOMInsertBeforeInProgress;
-  isVDOMInsertBeforeInProgress = true;
-  try {
-    return operation();
-  } finally {
-    isVDOMInsertBeforeInProgress = wasInProgress;
-  }
-};
-
-/**
- * Applies a targeted fix for blur events on shadow DOM elements that are slotted
- * into non-shadow DOM parents. This addresses the specific issue where blur events
- * are incorrectly fired during VDOM insertBefore operations when focusing shadow DOM components in slots.
- *
- * @param element the shadow DOM element that has been slotted
- */
-const patchSlottedShadowElementBlurEvents = (element: Element) => {
-  // Only patch if this is a custom element (has hyphen in tagName)
-  if (!element.tagName?.includes('-') || (element as any).__slottedBlurPatched) {
-    return;
-  }
-
-  // Mark as patched to avoid duplicate patching
-  (element as any).__slottedBlurPatched = true;
-
-  // Store reference to original methods
-  const originalAddEventListener = element.addEventListener.bind(element);
-  const originalDispatchEvent = element.dispatchEvent.bind(element);
-
-  // Track when this element was patched (indicating it was just slotted)
-  const patchedTime = Date.now();
-  const NEWLY_SLOTTED_GRACE_PERIOD = 500; // 500ms grace period for newly slotted elements
-  let isInitialVDOMOperation = true; // Track if this is the initial VDOM operation after slotting
-
-  // Helper to determine if an event is blur-related
-  const isBlurRelatedEvent = (event: Event): boolean => {
-    if (event.type.toLowerCase().includes('blur')) {
-      return true;
-    }
-
-    if (event instanceof CustomEvent) {
-      const detail = event.detail;
-      if (detail && typeof detail === 'object') {
-        return detail.type === 'blur' || detail.event === 'blur' || detail.action === 'blur';
-      }
-    }
-
-    return false;
-  };
-
-  // Helper to check if this element was recently slotted
-  const isRecentlySlotted = (): boolean => {
-    const age = Date.now() - patchedTime;
-    const isRecent = age < NEWLY_SLOTTED_GRACE_PERIOD;
-    console.log(`[DEBUG] ${element.tagName} age: ${age}ms, isRecent: ${isRecent}, isVDOMInsertBefore: ${isVDOMInsertBeforeInProgress}`);
-    return isRecent;
-  };
-
-  // Override addEventListener to intercept events
-  element.addEventListener = function (
-    type: string,
-    listener: EventListener | EventListenerObject,
-    options?: boolean | AddEventListenerOptions,
-  ) {
-    const wrappedListener = function (this: Element, event: Event) {
-      // Handle blur events with suppression for recently slotted elements during VDOM operations
-      if (isBlurRelatedEvent(event)) {
-        // Only suppress blur for recently slotted elements during their initial VDOM operation
-        // This prevents erroneous blur events triggered by slot relocation during initial render
-        const shouldSuppress = isRecentlySlotted() && isVDOMInsertBeforeInProgress && isInitialVDOMOperation;
-        console.log(`[DEBUG] Blur event on ${element.tagName}, event: ${event.type}, shouldSuppress: ${shouldSuppress}, isInitialVDOMOperation: ${isInitialVDOMOperation}`);
-        if (shouldSuppress) {
-          console.log(`[DEBUG] SUPPRESSING blur event for ${element.tagName} (initial VDOM operation - erroneous)`);
-          return;
-        }
-        console.log(`[DEBUG] ALLOWING blur event for ${element.tagName}`);
-      }
-
-      // After processing any event during VDOM operation, mark initial operation as complete
-      if (isVDOMInsertBeforeInProgress) {
-        isInitialVDOMOperation = false;
-      }
-
-      // Call the original listener
-      if (typeof listener === 'function') {
-        listener.call(this, event);
-      } else if (listener && typeof listener.handleEvent === 'function') {
-        listener.handleEvent(event);
-      }
-    };
-
-    return originalAddEventListener.call(this, type, wrappedListener, options);
-  };
-
-  // Override dispatchEvent to catch dispatched blur events
-  element.dispatchEvent = function (event: Event) {
-    // Handle blur events with suppression for recently slotted elements during VDOM operations
-    if (isBlurRelatedEvent(event)) {
-      // Only suppress blur for recently slotted elements during their initial VDOM operation
-      const shouldSuppress = isRecentlySlotted() && isVDOMInsertBeforeInProgress && isInitialVDOMOperation;
-      console.log(`[DEBUG] DispatchEvent blur on ${element.tagName}, event: ${event.type}, shouldSuppress: ${shouldSuppress}, isInitialVDOMOperation: ${isInitialVDOMOperation}`);
-      if (shouldSuppress) {
-        console.log(`[DEBUG] SUPPRESSING dispatched blur event for ${element.tagName} (initial VDOM operation - erroneous)`);
-        return true;
-      }
-      console.log(`[DEBUG] ALLOWING dispatched blur event for ${element.tagName}`);
-    }
-
-    // After processing any event during VDOM operation, mark initial operation as complete
-    if (isVDOMInsertBeforeInProgress) {
-      isInitialVDOMOperation = false;
-    }
-
-    return originalDispatchEvent(event);
-  };
 };
 
 /// UTILS ///

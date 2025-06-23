@@ -202,9 +202,7 @@ export const getSlotName = (node: d.PatchedSlotNode) =>
  * @param node - slot node to patch
  */
 export function patchSlotNode(node: d.RenderNode) {
-  if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) {
-    return;
-  }
+  if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) return;
 
   const assignedFactory = (elementsOnly: boolean) =>
     function (opts?: { flatten: boolean }) {

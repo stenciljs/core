@@ -1,9 +1,11 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('slot-nested-order', function () {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <slot-nested-order-parent>
           <cmp-1>1</cmp-1>

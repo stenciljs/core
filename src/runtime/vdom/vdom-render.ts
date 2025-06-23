@@ -11,7 +11,7 @@ import { consoleDevError, plt, supportsShadow, win } from '@platform';
 import { CMP_FLAGS, HTML_NS, isDef, NODE_TYPES, SVG_NS } from '@utils';
 
 import type * as d from '../../declarations';
-import { patchParentNode, withVDOMBlurSuppression } from '../dom-extras';
+import { patchParentNode } from '../dom-extras';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
@@ -906,10 +906,7 @@ export const insertBefore = (
       patchParentNode(newNode);
     }
     // potentially use the patched insertBefore method. This will correctly slot the new node
-    // Wrap the native insertBefore with blur suppression to prevent erroneous blur events
-    withVDOMBlurSuppression(() => {
-      parent.insertBefore(newNode, reference);
-    });
+    parent.insertBefore(newNode, reference);
 
     // if we find a corresponding slot node, dispatch a slotchange event now
     const { slotNode } = findSlotFromSlottedNode(newNode);
