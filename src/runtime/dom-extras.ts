@@ -613,10 +613,30 @@ export const patchParentNode = (node: Node) => {
   }
 };
 
+// Global flag to temporarily disable blur events during specific VDOM insertBefore operations
+let isVDOMInsertBeforeInProgress = false;
+
+/**
+ * Temporarily disables blur events during VDOM insertBefore operations to prevent erroneous blur events
+ * when elements are moved during slot relocation.
+ *
+ * @param operation - The insertBefore operation to execute with blur suppression enabled
+ * @returns The result of the operation
+ */
+export const withVDOMBlurSuppression = <T>(operation: () => T): T => {
+  const wasInProgress = isVDOMInsertBeforeInProgress;
+  isVDOMInsertBeforeInProgress = true;
+  try {
+    return operation();
+  } finally {
+    isVDOMInsertBeforeInProgress = wasInProgress;
+  }
+};
+
 /**
  * Applies a targeted fix for blur events on shadow DOM elements that are slotted
  * into non-shadow DOM parents. This addresses the specific issue where blur events
- * are incorrectly fired when focusing shadow DOM components in slots.
+ * are incorrectly fired during VDOM insertBefore operations when focusing shadow DOM components in slots.
  *
  * @param element the shadow DOM element that has been slotted
  */
@@ -633,11 +653,10 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
   const originalAddEventListener = element.addEventListener.bind(element);
   const originalDispatchEvent = element.dispatchEvent.bind(element);
 
-  // Track when this element was slotted and focus timing
-  const slottedTime = Date.now();
-  const NEW_ELEMENT_GRACE_PERIOD = 200; // 200ms grace period for newly slotted elements
-  let lastFocusTime = 0; // Track when focus events happen
-  const IMMEDIATE_BLUR_WINDOW = 25; // Very tight window to catch only the immediate erroneous blur
+  // Track when this element was patched (indicating it was just slotted)
+  const patchedTime = Date.now();
+  const NEWLY_SLOTTED_GRACE_PERIOD = 500; // 500ms grace period for newly slotted elements
+  let isInitialVDOMOperation = true; // Track if this is the initial VDOM operation after slotting
 
   // Helper to determine if an event is blur-related
   const isBlurRelatedEvent = (event: Event): boolean => {
@@ -655,26 +674,12 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
     return false;
   };
 
-  // Helper to determine if an event is focus-related
-  const isFocusRelatedEvent = (event: Event): boolean => {
-    const type = event.type.toLowerCase();
-    return type === 'click' || type === 'focus' || type === 'mousedown' || type === 'touchstart';
-  };
-
-  // Helper to record focus events
-  const recordFocusEvent = () => {
-    lastFocusTime = Date.now();
-  };
-
-  // Helper to check if blur should be suppressed
-  const shouldSuppressBlur = (): boolean => {
-    const now = Date.now();
-    const elementAge = now - slottedTime;
-    const timeSinceFocus = now - lastFocusTime;
-
-    // Only suppress blur for very recently added elements where blur happens immediately after focus
-    // Use a tighter window to avoid interfering with legitimate fast user interactions
-    return elementAge < NEW_ELEMENT_GRACE_PERIOD && timeSinceFocus < IMMEDIATE_BLUR_WINDOW && lastFocusTime > 0;
+  // Helper to check if this element was recently slotted
+  const isRecentlySlotted = (): boolean => {
+    const age = Date.now() - patchedTime;
+    const isRecent = age < NEWLY_SLOTTED_GRACE_PERIOD;
+    console.log(`[DEBUG] ${element.tagName} age: ${age}ms, isRecent: ${isRecent}, isVDOMInsertBefore: ${isVDOMInsertBeforeInProgress}`);
+    return isRecent;
   };
 
   // Override addEventListener to intercept events
@@ -684,17 +689,22 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
     options?: boolean | AddEventListenerOptions,
   ) {
     const wrappedListener = function (this: Element, event: Event) {
-      // Track focus-related events
-      if (isFocusRelatedEvent(event)) {
-        recordFocusEvent();
-      }
-
-      // Handle blur events with suppression
+      // Handle blur events with suppression for recently slotted elements during VDOM operations
       if (isBlurRelatedEvent(event)) {
-        if (shouldSuppressBlur()) {
-          // Suppress this erroneous blur event
+        // Only suppress blur for recently slotted elements during their initial VDOM operation
+        // This prevents erroneous blur events triggered by slot relocation during initial render
+        const shouldSuppress = isRecentlySlotted() && isVDOMInsertBeforeInProgress && isInitialVDOMOperation;
+        console.log(`[DEBUG] Blur event on ${element.tagName}, event: ${event.type}, shouldSuppress: ${shouldSuppress}, isInitialVDOMOperation: ${isInitialVDOMOperation}`);
+        if (shouldSuppress) {
+          console.log(`[DEBUG] SUPPRESSING blur event for ${element.tagName} (initial VDOM operation - erroneous)`);
           return;
         }
+        console.log(`[DEBUG] ALLOWING blur event for ${element.tagName}`);
+      }
+
+      // After processing any event during VDOM operation, mark initial operation as complete
+      if (isVDOMInsertBeforeInProgress) {
+        isInitialVDOMOperation = false;
       }
 
       // Call the original listener
@@ -710,17 +720,21 @@ const patchSlottedShadowElementBlurEvents = (element: Element) => {
 
   // Override dispatchEvent to catch dispatched blur events
   element.dispatchEvent = function (event: Event) {
-    // Track focus-related events
-    if (isFocusRelatedEvent(event)) {
-      recordFocusEvent();
-    }
-
-    // Handle blur events with suppression
+    // Handle blur events with suppression for recently slotted elements during VDOM operations
     if (isBlurRelatedEvent(event)) {
-      if (shouldSuppressBlur()) {
-        // Suppress this erroneous blur event
+      // Only suppress blur for recently slotted elements during their initial VDOM operation
+      const shouldSuppress = isRecentlySlotted() && isVDOMInsertBeforeInProgress && isInitialVDOMOperation;
+      console.log(`[DEBUG] DispatchEvent blur on ${element.tagName}, event: ${event.type}, shouldSuppress: ${shouldSuppress}, isInitialVDOMOperation: ${isInitialVDOMOperation}`);
+      if (shouldSuppress) {
+        console.log(`[DEBUG] SUPPRESSING dispatched blur event for ${element.tagName} (initial VDOM operation - erroneous)`);
         return true;
       }
+      console.log(`[DEBUG] ALLOWING dispatched blur event for ${element.tagName}`);
+    }
+
+    // After processing any event during VDOM operation, mark initial operation as complete
+    if (isVDOMInsertBeforeInProgress) {
+      isInitialVDOMOperation = false;
     }
 
     return originalDispatchEvent(event);
