@@ -180,7 +180,9 @@ export const initializeClientHydrate = (
       }
     }
     // Remove the original location from the map
-    if (orgLocationNode && !orgLocationNode['s-id']) plt.$orgLocNodes$.delete(orgLocationId);
+    if (orgLocationNode && !orgLocationNode['s-id']) {
+      plt.$orgLocNodes$.delete(orgLocationId);
+    }
   }
 
   const hosts: d.HostElement[] = [];
