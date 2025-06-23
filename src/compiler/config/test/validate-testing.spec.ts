@@ -64,6 +64,15 @@ describe('validateTesting', () => {
   });
 
   describe('browserHeadless', () => {
+    const originalCI = process.env.CI;
+    beforeEach(() => {
+      delete process.env.CI;
+    });
+
+    afterEach(() => {
+      process.env.CI = originalCI;
+    });
+
     describe("using 'headless' value from cli", () => {
       it.each([false, 'shell'])('sets browserHeadless to %s', (headless) => {
         userConfig.flags = { ...flags, e2e: true, headless };
@@ -129,6 +138,15 @@ describe('validateTesting', () => {
   });
 
   describe('devTools', () => {
+    const originalCI = process.env.CI;
+    beforeEach(() => {
+      delete process.env.CI;
+    });
+
+    afterEach(() => {
+      process.env.CI = originalCI;
+    });
+
     it('ignores devTools settings if CI is enabled', () => {
       userConfig.flags = { ...flags, ci: true, devtools: true, e2e: true };
       userConfig.testing = {};
@@ -184,6 +202,15 @@ describe('validateTesting', () => {
   });
 
   describe('browserArgs', () => {
+    const originalCI = process.env.CI;
+    beforeEach(() => {
+      delete process.env.CI;
+    });
+
+    afterEach(() => {
+      process.env.CI = originalCI;
+    });
+
     it('does not add duplicate default fields', () => {
       userConfig.flags = { ...flags, e2e: true };
       userConfig.testing = {
@@ -227,7 +254,7 @@ describe('validateTesting', () => {
       ]);
     });
 
-    describe("adds additional browser args when process.env.CI is set", () => {
+    describe('adds additional browser args when process.env.CI is set', () => {
       const originalCI = process.env.CI;
       beforeAll(() => {
         process.env.CI = 'true';
@@ -248,6 +275,35 @@ describe('validateTesting', () => {
           '--disable-dev-shm-usage',
         ]);
       });
+    });
+  });
+
+  describe('browserArgs in CI', () => {
+    const originalCI = process.env.CI;
+    beforeEach(() => {
+      process.env.CI = 'true';
+    });
+
+    afterEach(() => {
+      process.env.CI = originalCI;
+    });
+
+    it("adds additional browser args when 'CI' environment variable is set", () => {
+      userConfig.flags = { ...flags, e2e: true };
+      userConfig.testing = {
+        browserArgs: ['--unique', '--font-render-hinting=medium'],
+      };
+
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+
+      expect(config.testing.browserArgs).toEqual([
+        '--unique',
+        '--font-render-hinting=medium',
+        '--incognito',
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ]);
     });
   });
 
