@@ -60,15 +60,16 @@ describe('hydrate, shadow in shadow', () => {
             <mock:shadow-root>
               <slot></slot>
             </mock:shadow-root>
-            <slot></slot>
           </cmp-b>
         </mock:shadow-root>
         light-dom
+        <slot></slot>
       </cmp-a>
     `);
     expect(clientHydrated.root).toEqualLightHtml(`
       <cmp-a class="hydrated">
         light-dom
+        <slot></slot>
       </cmp-a>
     `);
   });
