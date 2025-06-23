@@ -5,11 +5,16 @@ on:
     # Make this a reusable workflow, no value needed
     # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
+permissions:
+  contents: read
+
 jobs:
   unit_test:
     name: Type Tests
     strategy:
       fail-fast: false
+      matrix:
+        node: ['18', '20', '22']
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
