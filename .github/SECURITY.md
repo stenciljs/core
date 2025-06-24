@@ -8,7 +8,7 @@ The Stencil team and community take all security vulnerabilities seriously. If y
 
 **DO NOT report security vulnerabilities through public GitHub issues.**
 
-Please email us at [security@outsystems.com](mailto:security@outsystems.com) with a description of the vulnerability and steps to reproduce it. You should receive a response within 48 hours. If for some reason you do not, please follow up via the same email to ensure we received your original message.
+Please email us at [product.security@outsystems.com](mailto:product.security@outsystems.com) with a description of the vulnerability and steps to reproduce it. You should receive a response within 48 hours. If for some reason you do not, please follow up via the same email to ensure we received your original message.
 
 ## Threat Model
 
