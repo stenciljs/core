@@ -41,7 +41,7 @@ describe('parse attachInternals', function () {
     expect(t.cmp!.attachInternalsMemberName).toBe('myProp');
   });
 
-    it('should set attachInternalsMemberName even if formAssociated is false', async () => {
+  it('should set attachInternalsMemberName even if formAssociated is false', async () => {
     const t = transpileModule(`
     @Component({
       tag: 'cmp-a',
