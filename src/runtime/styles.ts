@@ -120,7 +120,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                  */
                 const stylesheet = new CSSStyleSheet();
                 stylesheet.replaceSync(style);
-                styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
+
+                /**
+                 * > If the array needs to be modified, use in-place mutations like push().
+                 * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+                 */
+                styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
               } else {
                 /**
                  * If a scoped component is used within a shadow root and constructable stylesheets are
@@ -162,7 +167,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         }
       }
     } else if (BUILD.constructableCSS && !styleContainerNode.adoptedStyleSheets.includes(style)) {
-      styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, style];
+      /**
+       * > If the array needs to be modified, use in-place mutations like push().
+       * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+       */
+      styleContainerNode.adoptedStyleSheets.push(style);
     }
   }
   return scopeId;
