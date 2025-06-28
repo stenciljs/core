@@ -191,9 +191,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
 
       // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
       if (BUILD.experimentalSlotFixes) {
-        // This check is intentionally not combined with the surrounding `experimentalSlotFixes` check
-        // since, moving forward, we only want to patch the pseudo shadow DOM when the component is scoped
-        if (BUILD.scoped && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+        if ((BUILD.scoped || BUILD.slot) && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
           patchPseudoShadowDom(HostElement.prototype);
         }
       } else {

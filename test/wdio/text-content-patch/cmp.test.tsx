@@ -1,9 +1,11 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, browser, expect } from '@wdio/globals';
 
 describe('textContent patch', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           <text-content-patch-scoped></text-content-patch-scoped>
