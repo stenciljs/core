@@ -10,8 +10,26 @@ import { createStyleSheetIfNeededAndSupported } from './style';
  *
  * This singleton avoids the performance and memory hit of
  * creating a new CSSStyleSheet every time a shadow root is created.
+ *
+ * Lazy getter due to "ReferenceError: Cannot access 'globalStyles'
+ * before initialization" if setup is run at root level
+ *
+ * internal state:
+ * - undefined: not yet computed
+ * - null: computed and cached, but stylesheet not needed/supported
+ * - CSSStyleSheet: computed and cached
+ *
+ * @returns CSSStyleSheet | null
  */
-export const globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles);
+const getLazyGlobalStyleSheet = (() => {
+  let value: CSSStyleSheet | null | undefined;
+
+  return () => {
+    if (value === undefined) value = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;
+
+    return value;
+  };
+})();
 
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
   const shadowRoot = BUILD.shadowDelegatesFocus
@@ -21,5 +39,6 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
       })
     : this.attachShadow({ mode: 'open' });
 
+  const globalStyleSheet = getLazyGlobalStyleSheet();
   if (globalStyleSheet) shadowRoot.adoptedStyleSheets.push(globalStyleSheet);
 }
