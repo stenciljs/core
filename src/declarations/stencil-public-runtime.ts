@@ -942,7 +942,7 @@ export namespace JSXBase {
   export interface DetailsHTMLAttributes<T> extends HTMLAttributes<T> {
     open?: boolean;
     name?: string;
-    onToggle?: (event: Event) => void;
+    onToggle?: (event: ToggleEvent) => void;
   }
 
   export interface DelHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1739,6 +1739,12 @@ export namespace JSXBase {
     onCompositionupdate?: (event: CompositionEvent) => void;
     onCompositionupdateCapture?: (event: CompositionEvent) => void;
 
+    // Disclosure Events
+    onBeforeToggle?: (event: ToggleEvent) => void;
+    onBeforeToggleCapture?: (event: ToggleEvent) => void;
+    onToggle?: (event: ToggleEvent) => void;
+    onToggleCapture?: (event: ToggleEvent) => void;
+
     // Focus Events
     onFocus?: (event: FocusEvent) => void;
     onFocusCapture?: (event: FocusEvent) => void;
@@ -1760,10 +1766,6 @@ export namespace JSXBase {
     onSubmitCapture?: (event: Event) => void;
     onInvalid?: (event: Event) => void;
     onInvalidCapture?: (event: Event) => void;
-    onBeforeToggle?: (event: Event) => void;
-    onBeforeToggleCapture?: (event: Event) => void;
-    onToggle?: (event: Event) => void;
-    onToggleCapture?: (event: Event) => void;
 
     // Image Events
     onLoad?: (event: Event) => void;
