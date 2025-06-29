@@ -1,9 +1,11 @@
 import { BUILD } from '@app-data';
 import { globalStyles } from '@app-globals';
-import { supportsConstructableStylesheets } from '@platform';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { createStyleSheetIfNeededAndSupported } from './style';
+
+let globalStyleSheet: CSSStyleSheet | null | undefined;
 
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
   const shadowRoot = BUILD.shadowDelegatesFocus
@@ -13,13 +15,9 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
       })
     : this.attachShadow({ mode: 'open' });
 
-  /**
-   * If constructable stylesheets are supported, we can use them to
-   * add the global styles to the shadow root.
-   */
-  if (supportsConstructableStylesheets) {
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(globalStyles);
-    shadowRoot.adoptedStyleSheets.push(sheet);
-  }
+  // Initialize if undefined, set to CSSStyleSheet or null
+  if (globalStyleSheet === undefined) globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;
+
+  // Use initialized global stylesheet if available
+  if (globalStyleSheet) shadowRoot.adoptedStyleSheets.push(globalStyleSheet);
 }
