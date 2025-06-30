@@ -533,7 +533,6 @@ describe('Sanity check SSR > Client hydration', () => {
     setTimeout(() => {
       slowCmp.anArray = ['one', 'two', 'three', 'four'];
     }, 400);
-    await browser.waitUntil(async () => !!slowCmp.childNodes);
     await browser.pause(600);
 
     expect(slowCmp.shadowRoot.querySelector('div').textContent).toBe('An array component:onetwothreefour');
