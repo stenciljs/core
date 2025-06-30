@@ -424,7 +424,7 @@ describe('Sanity check SSR > Client hydration', () => {
     expect(nestedCmp.childNodes[1].textContent).toBe('after');
   });
 
-  it('renders slots nodes appropriately in a `scoped: true` child with `serializeShadowRoot: "scoped"` parent', async () => {
+  it('renders slot nodes appropriately in a `scoped: true` child with `serializeShadowRoot: "scoped"` parent', async () => {
     if (document.querySelector('#stage')) {
       document.querySelector('#stage')?.remove();
       await browser.waitUntil(async () => !document.querySelector('#stage'));
@@ -500,5 +500,41 @@ describe('Sanity check SSR > Client hydration', () => {
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     expect(wrapCmp.childNodes.length).toBe(3);
     expect(wrapCmp.textContent).toBe('one23');
+  });
+
+  it('correctly renders a slow to hydrate component with a prop', async () => {
+    if (document.querySelector('#stage')) {
+      document.querySelector('#stage')?.remove();
+      await browser.waitUntil(async () => !document.querySelector('#stage'));
+    }
+    const { html } = await renderToString(`<slow-ssr-prop></slow-ssr-prop>`, {
+      fullDocument: true,
+      serializeShadowRoot: 'declarative-shadow-dom',
+      beforeHydrate: (doc) => {
+        // simulate a slow prop update
+        const slowCmp = doc.querySelector('slow-ssr-prop');
+        slowCmp.anArray = ['one', 'two', 'three'];
+      },
+    });
+    const stage = document.createElement('div');
+    stage.setAttribute('id', 'stage');
+    stage.setHTMLUnsafe(html);
+    document.body.appendChild(stage);
+
+    // @ts-expect-error resolved through WDIO
+    const { defineCustomElements } = await import('/dist/loader/index.js');
+    defineCustomElements().catch(console.error);
+
+    // wait for Stencil to take over and reconcile
+    await browser.waitUntil(async () => customElements.get('slow-ssr-prop'));
+    expect(typeof customElements.get('slow-ssr-prop')).toBe('function');
+
+    const slowCmp: any = document.querySelector('slow-ssr-prop');
+    setTimeout(() => {
+      slowCmp.anArray = ['one', 'two', 'three', 'four'];
+    }, 400);
+    await browser.pause(600);
+
+    expect(slowCmp.shadowRoot.querySelector('div').textContent).toBe('An array component:onetwothreefour');
   });
 });
