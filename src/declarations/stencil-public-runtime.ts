@@ -1718,6 +1718,14 @@ export namespace JSXBase {
     zoomAndPan?: string;
   }
 
+  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent) */
+  export interface ToggleEvent extends Event {
+      /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent/newState) */
+      readonly newState: string;
+      /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent/oldState) */
+      readonly oldState: string;
+  }
+
   export interface DOMAttributes<T> extends JSXAttributes<T> {
     slot?: string;
     part?: string;
