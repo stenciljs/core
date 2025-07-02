@@ -1,6 +1,6 @@
 import { flatOne, normalizePath, sortBy } from '@utils';
 import { join } from '@utils';
-import { basename, dirname, relative } from 'path';
+import { basename, dirname, relative } from 'node:path';
 
 import type * as d from '../declarations';
 import {
