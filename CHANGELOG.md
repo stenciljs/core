@@ -4,18 +4,14 @@
 ### Bug Fixes
 
 * **ci:** hardening security of GH actions ([#6305](https://github.com/stenciljs/core/issues/6305)) ([3f80413](https://github.com/stenciljs/core/commit/3f80413171fadd150da36ff7abdad865226a54ae))
-* **compiler:** fix attachInternals should be usable without formAssoc… ([#6286](https://github.com/stenciljs/core/issues/6286)) ([7132259](https://github.com/stenciljs/core/commit/7132259c40d231f03f521c6cbe19083a467795de))
-* **declarations:** update toggle event handler types ([#6323](https://github.com/stenciljs/core/issues/6323)) ([5925974](https://github.com/stenciljs/core/commit/5925974d857c8d2a7b8b85e21478c7e3942888e8))
+* **compiler:** fix attachInternals should be usable without formAssoc… ([#6286](https://github.com/stenciljs/core/issues/6286)) ([7132259](https://github.com/stenciljs/core/commit/7132259c40d231f03f521c6cbe19083a467795de)), closes [#6285](https://github.com/stenciljs/core/issues/6285)
+* **declarations:** update toggle event handler types ([#6323](https://github.com/stenciljs/core/issues/6323)) ([5925974](https://github.com/stenciljs/core/commit/5925974d857c8d2a7b8b85e21478c7e3942888e8)), closes [#6322](https://github.com/stenciljs/core/issues/6322)
 * **mock-doc:** prevent infinite recursion in blur event handlers ([#6310](https://github.com/stenciljs/core/issues/6310)) ([092cacd](https://github.com/stenciljs/core/commit/092cacda99b318ee8ccc7ad51591da07c869c366)), closes [#6307](https://github.com/stenciljs/core/issues/6307)
 * **security:** update email for outreach ([9da2c90](https://github.com/stenciljs/core/commit/9da2c907af4012a4c006279870b04e7a9bae73b2))
-* **ssr:** fixes for `scoped: true` components during SSR ([#6311](https://github.com/stenciljs/core/issues/6311)) ([b07dda6](https://github.com/stenciljs/core/commit/b07dda6c94a8f9c0262ebbd303582ba5ee209648))
-* **ssr:** slow property hydration, incorrect rendering ([#6325](https://github.com/stenciljs/core/issues/6325)) ([f018c73](https://github.com/stenciljs/core/commit/f018c7349c38dbb467e5cdcebceefa3bd0e392cc))
+* **ssr:** fixes for `scoped: true` components during SSR ([#6311](https://github.com/stenciljs/core/issues/6311)) ([b07dda6](https://github.com/stenciljs/core/commit/b07dda6c94a8f9c0262ebbd303582ba5ee209648)), closes [#6313](https://github.com/stenciljs/core/issues/6313)
+* **ssr:** slow property hydration, incorrect rendering ([#6325](https://github.com/stenciljs/core/issues/6325)) ([f018c73](https://github.com/stenciljs/core/commit/f018c7349c38dbb467e5cdcebceefa3bd0e392cc)), closes [#6324](https://github.com/stenciljs/core/issues/6324)
 * **utils:** single global stylesheet instance for performance ([#6320](https://github.com/stenciljs/core/issues/6320)) ([fe5d130](https://github.com/stenciljs/core/commit/fe5d1301270e21203009f8f6efece32fb491936d))
-
-
-### Features
-
-* **testing:** support browser executable path detection via environm… ([#6308](https://github.com/stenciljs/core/issues/6308)) ([b7e2b50](https://github.com/stenciljs/core/commit/b7e2b50120b1e69d797160a27f8d31c674f0ac13))
+* **testing:** support browser executable path detection via environm… ([#6308](https://github.com/stenciljs/core/issues/6308)) ([b7e2b50](https://github.com/stenciljs/core/commit/b7e2b50120b1e69d797160a27f8d31c674f0ac13)), closes [#6213](https://github.com/stenciljs/core/issues/6213)
 
 
 
