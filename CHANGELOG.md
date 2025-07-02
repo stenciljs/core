@@ -1,3 +1,12 @@
+## 🎹 [4.35.3](https://github.com/stenciljs/core/compare/v4.35.2...v4.35.3) (2025-07-02)
+
+
+### Bug Fixes
+
+* **declarations:** add ToggleEvent type ([ac92210](https://github.com/stenciljs/core/commit/ac9221076c0dd25aefc02b85f22bd0cb7216203c))
+
+
+
 ## 🍓 [4.35.2](https://github.com/stenciljs/core/compare/v4.35.1...v4.35.2) (2025-07-02)
 
 
