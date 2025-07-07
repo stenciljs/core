@@ -37,7 +37,7 @@ export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean) => {
   // has already fired off its lifecycle update then
   // fire off the initial update
   const dispatch = () => dispatchHooks(hostRef, isInitialLoad);
-  return BUILD.taskQueue ? writeTask(dispatch) : dispatch();
+  return BUILD.taskQueue && !isInitialLoad ? writeTask(dispatch) : dispatch();
 };
 
 /**
