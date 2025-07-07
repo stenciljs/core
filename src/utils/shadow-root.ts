@@ -1,5 +1,6 @@
 import { BUILD } from '@app-data';
 import { globalStyles } from '@app-globals';
+import { supportsMutableAdoptedStyleSheets } from '@platform';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -19,5 +20,11 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
   if (globalStyleSheet === undefined) globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;
 
   // Use initialized global stylesheet if available
-  if (globalStyleSheet) shadowRoot.adoptedStyleSheets.push(globalStyleSheet);
+  if (globalStyleSheet) {
+    if (supportsMutableAdoptedStyleSheets) {
+      shadowRoot.adoptedStyleSheets.push(globalStyleSheet);
+    } else {
+      shadowRoot.adoptedStyleSheets = [...shadowRoot.adoptedStyleSheets, globalStyleSheet];
+    }
+  }
 }

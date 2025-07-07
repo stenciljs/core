@@ -1,5 +1,12 @@
 import { BUILD } from '@app-data';
-import { plt, styles, supportsConstructableStylesheets, supportsShadow, win } from '@platform';
+import {
+  plt,
+  styles,
+  supportsConstructableStylesheets,
+  supportsMutableAdoptedStyleSheets,
+  supportsShadow,
+  win,
+} from '@platform';
 import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
@@ -125,7 +132,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                  * > If the array needs to be modified, use in-place mutations like push().
                  * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
                  */
-                styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
+                if (supportsMutableAdoptedStyleSheets) {
+                  styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
+                } else {
+                  styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
+                }
               } else {
                 /**
                  * If a scoped component is used within a shadow root and constructable stylesheets are
@@ -171,7 +182,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
        * > If the array needs to be modified, use in-place mutations like push().
        * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
        */
-      styleContainerNode.adoptedStyleSheets.push(style);
+      if (supportsMutableAdoptedStyleSheets) {
+        styleContainerNode.adoptedStyleSheets.push(style);
+      } else {
+        styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, style];
+      }
     }
   }
   return scopeId;

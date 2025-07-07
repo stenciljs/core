@@ -14,6 +14,7 @@ export {
   stopAutoApplyChanges,
   supportsConstructableStylesheets,
   supportsListenerOptions,
+  supportsMutableAdoptedStyleSheets,
   supportsShadow,
 } from './testing-platform';
 export { flushAll, flushLoadModule, flushQueue, loadModule, nextTick, readTask, writeTask } from './testing-task-queue';

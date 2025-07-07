@@ -124,6 +124,7 @@ export const supportsShadow = BUILD.shadowDom;
 export const supportsListenerOptions = false;
 
 export const supportsConstructableStylesheets = false;
+export const supportsMutableAdoptedStyleSheets = false;
 
 export const getHostRef = (ref: d.RuntimeRef) => {
   if (ref.__stencil__getHostRef) {
