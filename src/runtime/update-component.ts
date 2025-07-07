@@ -23,7 +23,7 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
   }
 };
 
-export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean) => {
+export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void> | void => {
   if (BUILD.taskQueue && BUILD.updatable) {
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
@@ -37,7 +37,15 @@ export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean) => {
   // has already fired off its lifecycle update then
   // fire off the initial update
   const dispatch = () => dispatchHooks(hostRef, isInitialLoad);
-  return BUILD.taskQueue && !isInitialLoad ? writeTask(dispatch) : dispatch();
+
+  if (isInitialLoad) {
+    queueMicrotask(() => {
+      dispatch();
+    });
+    return;
+  }
+
+  return BUILD.taskQueue ? writeTask(dispatch) : dispatch();
 };
 
 /**
