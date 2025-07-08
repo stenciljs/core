@@ -44,6 +44,8 @@ export namespace Components {
          */
         "initialCounter": number;
     }
+    interface CmpDsdFocus {
+    }
     interface CmpServerVsClient {
     }
     interface CmpWithSlot {
@@ -319,6 +321,12 @@ declare global {
         prototype: HTMLCmpDsdElement;
         new (): HTMLCmpDsdElement;
     };
+    interface HTMLCmpDsdFocusElement extends Components.CmpDsdFocus, HTMLStencilElement {
+    }
+    var HTMLCmpDsdFocusElement: {
+        prototype: HTMLCmpDsdFocusElement;
+        new (): HTMLCmpDsdFocusElement;
+    };
     interface HTMLCmpServerVsClientElement extends Components.CmpServerVsClient, HTMLStencilElement {
     }
     var HTMLCmpServerVsClientElement: {
@@ -573,6 +581,7 @@ declare global {
         "cmp-b": HTMLCmpBElement;
         "cmp-c": HTMLCmpCElement;
         "cmp-dsd": HTMLCmpDsdElement;
+        "cmp-dsd-focus": HTMLCmpDsdFocusElement;
         "cmp-server-vs-client": HTMLCmpServerVsClientElement;
         "cmp-with-slot": HTMLCmpWithSlotElement;
         "dom-api": HTMLDomApiElement;
@@ -649,6 +658,8 @@ declare namespace LocalJSX {
           * @default 0
          */
         "initialCounter"?: number;
+    }
+    interface CmpDsdFocus {
     }
     interface CmpServerVsClient {
     }
@@ -805,6 +816,7 @@ declare namespace LocalJSX {
         "cmp-b": CmpB;
         "cmp-c": CmpC;
         "cmp-dsd": CmpDsd;
+        "cmp-dsd-focus": CmpDsdFocus;
         "cmp-server-vs-client": CmpServerVsClient;
         "cmp-with-slot": CmpWithSlot;
         "dom-api": DomApi;
@@ -863,6 +875,7 @@ declare module "@stencil/core" {
             "cmp-b": LocalJSX.CmpB & JSXBase.HTMLAttributes<HTMLCmpBElement>;
             "cmp-c": LocalJSX.CmpC & JSXBase.HTMLAttributes<HTMLCmpCElement>;
             "cmp-dsd": LocalJSX.CmpDsd & JSXBase.HTMLAttributes<HTMLCmpDsdElement>;
+            "cmp-dsd-focus": LocalJSX.CmpDsdFocus & JSXBase.HTMLAttributes<HTMLCmpDsdFocusElement>;
             "cmp-server-vs-client": LocalJSX.CmpServerVsClient & JSXBase.HTMLAttributes<HTMLCmpServerVsClientElement>;
             "cmp-with-slot": LocalJSX.CmpWithSlot & JSXBase.HTMLAttributes<HTMLCmpWithSlotElement>;
             "dom-api": LocalJSX.DomApi & JSXBase.HTMLAttributes<HTMLDomApiElement>;

@@ -54,6 +54,8 @@ exports[`renderToString can render nested components 1`] = `
 </another-car-list>"
 `;
 
+exports[`renderToString renders server-side components with delegated focus 1`] = `"<cmp-dsd-focus class=\\"sc-cmp-dsd-focus-h\\" custom-hydrate-flag=\\"\\" s-id=\\"32\\"><template shadowrootmode=\\"open\\" shadowrootdelegatesfocus><div class=\\"sc-cmp-dsd-focus\\" c-id=\\"32.0.0.0\\"><!--t.32.1.1.0-->Clickable shadow DOM text</div><button class=\\"sc-cmp-dsd-focus\\" c-id=\\"32.2.0.1\\"><!--t.32.3.1.0-->Click me!</button></template><!--r.32--></cmp-dsd-focus>"`;
+
 exports[`renderToString supports passing props to components 1`] = `
 "<another-car-detail car=\\"{&quot;year&quot;:2024, &quot;make&quot;: &quot;VW&quot;, &quot;model&quot;: &quot;Vento&quot;}\\" class=\\"sc-another-car-detail-h\\" custom-hydrate-flag=\\"\\" s-id=\\"2\\">
   <template shadowrootmode=\\"open\\">

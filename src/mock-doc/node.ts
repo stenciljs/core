@@ -272,6 +272,7 @@ export class MockElement extends MockNode {
 
   attachShadow(_opts: ShadowRootInit) {
     const shadowRoot = this.ownerDocument.createDocumentFragment();
+    shadowRoot.delegatesFocus = _opts.delegatesFocus ?? false;
     this.shadowRoot = shadowRoot;
     return shadowRoot;
   }

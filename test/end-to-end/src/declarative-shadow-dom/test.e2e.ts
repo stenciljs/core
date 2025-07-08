@@ -382,6 +382,22 @@ describe('renderToString', () => {
 </nested-cmp-parent>`);
   });
 
+  it('renders server-side components with delegated focus', async () => {
+    const { html } = await renderToString('<cmp-dsd-focus></cmp-dsd-focus>', {
+      serializeShadowRoot: true,
+      fullDocument: false,
+    });
+
+    expect(html).toContain('<template shadowrootmode="open" shadowrootdelegatesfocus>');
+    expect(html).toMatchSnapshot();
+
+    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    const div = await page.find('cmp-dsd-focus >>> div');
+    await div.click();
+
+    expect(await page.evaluate(() => document.activeElement.outerHTML)).toContain('cmp-dsd-focus');
+  });
+
   describe('hydrateDocument', () => {
     it('can hydrate components with open shadow dom by default', async () => {
       const template = `<another-car-detail></another-car-detail>`;
