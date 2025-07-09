@@ -1,9 +1,11 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('computed-properties-watch-decorator', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           <computed-properties-watch-decorator></computed-properties-watch-decorator>
@@ -19,7 +21,7 @@ describe('computed-properties-watch-decorator', () => {
   });
 
   it('triggers the watch callback when the associated prop changes', async () => {
-    const el = document.querySelector('computed-properties-watch-decorator');
+    const el = $('computed-properties-watch-decorator').$('div');
     await expect(el).toHaveText(['First name called with: not yet', 'Last name called with: not yet'].join('\n'));
 
     const button = document.querySelector('button');

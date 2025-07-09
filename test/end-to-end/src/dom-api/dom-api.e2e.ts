@@ -241,7 +241,7 @@ describe('dom api e2e tests', () => {
     await page.waitForChanges();
 
     expect(elm).toEqualText(`
-      updated text content
+      dom apiupdated text content
     `);
 
     expect(elm).toEqualHtml(`

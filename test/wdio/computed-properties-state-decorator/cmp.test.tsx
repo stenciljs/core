@@ -1,9 +1,11 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('computed-properties-state-decorator', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           <computed-properties-state-decorator></computed-properties-state-decorator>
@@ -18,14 +20,14 @@ describe('computed-properties-state-decorator', () => {
   });
 
   it('correctly sets computed property `@State()`s and triggers re-renders', async () => {
-    const el: HTMLElement = document.querySelector('computed-properties-state-decorator');
-    await expect($(el)).toHaveText(['Has rendered: false', 'Mode: default'].join('\n'));
+    const el = $('computed-properties-state-decorator').$('div');
+    await expect(el).toHaveText(['Has rendered: false', 'Mode: default'].join('\n'));
 
     const button = document.querySelector('button');
     expect(button).toBeDefined();
 
     await $(button).click();
 
-    await expect($(el)).toHaveText(['Has rendered: true', 'Mode: super'].join('\n'));
+    await expect(el).toHaveText(['Has rendered: true', 'Mode: super'].join('\n'));
   });
 });

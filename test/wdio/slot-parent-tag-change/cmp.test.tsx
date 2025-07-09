@@ -1,5 +1,6 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, browser, expect } from '@wdio/globals'
 
 /**
  * Tests the cases where a node is slotted in and the slot's parent element dynamically changes
@@ -8,6 +9,7 @@ import { render } from '@wdio/browser-runner/stencil';
 describe('slot-parent-tag-change', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           {/*Test "top-level" slot*/}
@@ -37,36 +39,38 @@ describe('slot-parent-tag-change', () => {
 
   describe('direct slot', () => {
     it('should relocate the text node to the slot after the parent tag changes', async () => {
-      const root = document.querySelector('#top-level');
+      let root = document.querySelectorAll('#top-level > *');
 
-      expect(root.children.length).toBe(1);
-      expect(root.children[0].tagName).toBe('P');
-      expect(root.children[0].textContent.trim()).toBe('Hello');
+      expect(root.length).toBe(1);
+      expect(root[0].tagName).toBe('P');
+      expect(root[0].textContent.trim()).toBe('Hello');
 
       await $('#top-level-button').click();
-      await browser.pause();
+      await browser.pause(100);
 
-      expect(root.children.length).toBe(1);
-      expect(root.children[0].tagName).toBe('SPAN');
-      expect(root.children[0].textContent.trim()).toBe('Hello');
+      root = document.querySelectorAll('#top-level > *');
+      expect(root.length).toBe(1);
+      expect(root[0].tagName).toBe('SPAN');
+      expect(root[0].textContent.trim()).toBe('Hello');
     });
   });
 
   describe('nested slot', () => {
     it('should relocate the text node to the slot after the parent tag changes', async () => {
-      const root = document.querySelector('slot-parent-tag-change-root slot-parent-tag-change');
+      let root = document.querySelectorAll('slot-parent-tag-change-root slot-parent-tag-change > *');
 
       expect(root).not.toBeNull();
-      expect(root.children.length).toBe(1);
-      expect(root.children[0].tagName).toBe('P');
-      expect(root.children[0].textContent.trim()).toBe('World');
+      expect(root.length).toBe(1);
+      expect(root[0].tagName).toBe('P');
+      expect(root[0].textContent.trim()).toBe('World');
 
       await $('#nested-button').click();
-      await browser.pause();
+      await browser.pause(100);
 
-      expect(root.children.length).toBe(1);
-      expect(root.children[0].tagName).toBe('SPAN');
-      expect(root.children[0].textContent.trim()).toBe('World');
+      root = document.querySelectorAll('slot-parent-tag-change-root slot-parent-tag-change > *');
+      expect(root.length).toBe(1);
+      expect(root[0].tagName).toBe('SPAN');
+      expect(root[0].textContent.trim()).toBe('World');
     });
   });
 });
