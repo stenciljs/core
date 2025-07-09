@@ -18,6 +18,13 @@ describe('radio-group-blur', function () {
   });
 
   it('should allow blur events after fast focus change', async () => {
+    await browser.waitUntil(async () => {
+      const [radio1, radio2] = await $$('ion-radio');
+      return radio1 && radio2;
+    }, {
+      timeout: 5000,
+      timeoutMsg: 'Radio elements not found',
+    });
     const [radio1, radio2] = await $$('ion-radio');
     await radio1.click();
     await radio2.click();
