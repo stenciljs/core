@@ -1,6 +1,6 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
-import { $, browser, expect } from '@wdio/globals'
+import { $, browser, expect } from '@wdio/globals';
 
 /**
  * Tests the cases where a node is slotted in and the slot's parent element dynamically changes

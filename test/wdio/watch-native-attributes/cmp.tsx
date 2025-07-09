@@ -14,9 +14,11 @@ export class WatchNativeAttributes {
   }
 
   render() {
-    return <div>
-      <p>Label: {this.el.getAttribute('aria-label')}</p>
-      <p>Callback triggered: {`${this.callbackTriggered}`}</p>
-    </div>;
+    return (
+      <div>
+        <p>Label: {this.el.getAttribute('aria-label')}</p>
+        <p>Callback triggered: {`${this.callbackTriggered}`}</p>
+      </div>
+    );
   }
 }
