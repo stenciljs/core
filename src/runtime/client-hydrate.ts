@@ -1,10 +1,10 @@
 import { BUILD } from '@app-data';
-import { getHostRef, plt, win } from '@platform';
+import { plt, win } from '@platform';
 import { parsePropertyValue } from '@runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
-import { internalCall, patchSlottedNode } from './dom-extras';
+import { patchSlottedNode } from './dom-extras';
 import { createTime } from './profile';
 import {
   COMMENT_NODE_ID,
@@ -18,7 +18,6 @@ import {
   VNODE_FLAGS,
 } from './runtime-constants';
 import { addSlotRelocateNode, patchSlotNode } from './slot-polyfill-utils';
-import { getScopeId } from './styles';
 import { newVNode } from './vdom/h';
 
 /**
@@ -130,19 +129,6 @@ export const initializeClientHydrate = (
         // If we don't, `vdom-render.ts` will try to add nodes to it (and because it may be a comment node, it will error)
         node['s-cr'] = hostElm['s-cr'];
       }
-    } else if (childRenderNode.$tag$?.toString().includes('-') && !childRenderNode.$elm$.shadowRoot) {
-      // if this child is a non-shadow component being added to a shadowDOM,
-      // let's find and add its styles to the shadowRoot, so we don't get a visual flicker
-      const cmpMeta = getHostRef(childRenderNode.$elm$);
-      const scopeId = getScopeId(
-        cmpMeta.$cmpMeta$,
-        BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
-      );
-      const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
-
-      if (styleSheet) {
-        hostElm.shadowRoot.append(styleSheet.cloneNode(true));
-      }
     }
 
     if (childRenderNode.$tag$ === 'slot') {
@@ -164,7 +150,7 @@ export const initializeClientHydrate = (
     }
 
     if (orgLocationNode && orgLocationNode.isConnected) {
-      if (orgLocationNode.parentElement.shadowRoot && orgLocationNode['s-en'] === '') {
+      if (shadowRoot && orgLocationNode['s-en'] === '') {
         // if this node is within a shadowDOM, with an original location home
         // we're safe to move it now
         orgLocationNode.parentNode.insertBefore(node, orgLocationNode.nextSibling);
@@ -180,9 +166,7 @@ export const initializeClientHydrate = (
       }
     }
     // Remove the original location from the map
-    if (orgLocationNode && !orgLocationNode['s-id']) {
-      plt.$orgLocNodes$.delete(orgLocationId);
-    }
+    plt.$orgLocNodes$.delete(orgLocationId);
   }
 
   const hosts: d.HostElement[] = [];
@@ -219,18 +203,16 @@ export const initializeClientHydrate = (
       if (!hostEle.shadowRoot || !shadowRoot) {
         // Try to set an appropriate Content-position Reference (CR) node for this host element
 
-        if (!slottedItem.slot['s-cr']) {
-          // Is a CR already set on the host?
-          slottedItem.slot['s-cr'] = hostEle['s-cr'];
+        // Is a CR already set on the host?
+        slottedItem.slot['s-cr'] = hostEle['s-cr'];
 
-          if (!slottedItem.slot['s-cr'] && hostEle.shadowRoot) {
-            // Host has shadowDOM - just use the host itself as the CR for native slotting
-            slottedItem.slot['s-cr'] = hostEle;
-          } else {
-            // If all else fails - just set the CR as the first child
-            // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
-            slottedItem.slot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
-          }
+        if (!slottedItem.slot['s-cr'] && hostEle.shadowRoot) {
+          // Host has shadowDOM - just use the host itself as the CR for native slotting
+          slottedItem.slot['s-cr'] = hostEle;
+        } else {
+          // If all else fails - just set the CR as the first child
+          // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
+          slottedItem.slot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
         }
         // Create our 'Original Location' node
         addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
@@ -255,7 +237,7 @@ export const initializeClientHydrate = (
     });
   }
 
-  if (BUILD.shadowDom && shadowRoot) {
+  if (BUILD.shadowDom && shadowRoot && !shadowRoot.childNodes.length) {
     // For `scoped` shadowDOM rendering (not DSD);
     // Add all the root nodes in the shadowDOM (a root node can have a whole nested DOM tree)
     let rnIdex = 0;
@@ -273,7 +255,7 @@ export const initializeClientHydrate = (
             // we can safely leave it be, native behavior will mean it's hidden
             (node as HTMLElement).removeAttribute('hidden');
           } else if (
-            (node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue) ||
+            node.nodeType === NODE_TYPE.CommentNode ||
             (node.nodeType === NODE_TYPE.TextNode && !(node as Text).wholeText.trim())
           ) {
             // During `scoped` shadowDOM rendering, there's a bunch of comment nodes used for positioning / empty text nodes.
@@ -285,6 +267,7 @@ export const initializeClientHydrate = (
     }
   }
 
+  plt.$orgLocNodes$.delete(hostElm['s-id']);
   hostRef.$hostElement$ = hostElm;
   endHydrate();
 };
@@ -353,7 +336,7 @@ const clientHydrate = (
           parentVNode.$children$ = [];
         }
 
-        if (BUILD.scoped && scopeId && childIdSplt[0] === hostId) {
+        if (BUILD.scoped && scopeId) {
           // Host is `scoped: true` - add that flag to the child.
           // It's used in 'set-accessor.ts' to make sure our scoped class is present
           node['s-si'] = scopeId;
@@ -526,7 +509,7 @@ const clientHydrate = (
     vnode.$index$ = '0';
     parentVNode.$children$ = [vnode];
   } else {
-    if (node.nodeType === NODE_TYPE.TextNode && !(node as unknown as Text).wholeText.trim() && !node['s-nr']) {
+    if (node.nodeType === NODE_TYPE.TextNode && !(node as unknown as Text).wholeText.trim()) {
       // empty white space is never accounted for from SSR so there's
       // no corresponding comment node giving it a position in the DOM.
       // It therefore gets slotted / clumped together at the end of the host.
@@ -630,13 +613,13 @@ function addSlot(
       childVNode.$elm$.setAttribute('name', slotName);
     }
 
-    if (parentVNode.$elm$.shadowRoot && parentNodeId && parentNodeId !== childVNode.$hostId$) {
+    if (parentNodeId && parentNodeId !== childVNode.$hostId$) {
       // Shadow component's slot is placed inside a nested component's shadowDOM; it doesn't belong to this host - it was forwarded by the SSR markup.
       // Insert it in the root of this host; it's lightDOM. It doesn't really matter where in the host root; the component will take care of it.
-      internalCall(parentVNode.$elm$, 'insertBefore')(slot, internalCall(parentVNode.$elm$, 'children')[0]);
+      parentVNode.$elm$.insertBefore(slot, parentVNode.$elm$.children[0]);
     } else {
       // Insert the new slot element before the slot comment
-      internalCall(internalCall(node, 'parentNode') as d.RenderNode, 'insertBefore')(slot, node);
+      node.parentNode.insertBefore(slot, node);
     }
     addSlottedNodes(slottedNodes, slotId, slotName, node, childVNode.$hostId$);
 
@@ -701,9 +684,8 @@ const addSlottedNodes = (
     (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
       (slotName === '' &&
         !slottedNode['s-sn'] &&
-        (slottedNode.nodeType === NODE_TYPE.CommentNode ||
-          slottedNode.nodeType === NODE_TYPE.TextNode ||
-          slottedNode.tagName === 'SLOT')))
+        ((slottedNode.nodeType === NODE_TYPE.CommentNode && slottedNode.nodeValue.indexOf('.') !== 1) ||
+          slottedNode.nodeType === NODE_TYPE.TextNode)))
   ) {
     slottedNode['s-sn'] = slotName;
     slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });
