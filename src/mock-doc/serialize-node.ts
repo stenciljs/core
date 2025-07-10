@@ -1,3 +1,4 @@
+import { BUILD } from '@platform';
 import {
   CONTENT_REF_ID,
   HYDRATE_ID,
@@ -63,12 +64,32 @@ export function serializeNodeToHtml(elm: Node | MockNode, serializationOptions: 
   };
 
   let renderedNode = '';
+
   const children =
     !opts.fullDocument && (elm as MockDocument).body
       ? Array.from((elm as MockDocument).body.childNodes)
       : opts.outerHtml
         ? [elm]
         : Array.from(getChildNodes(elm));
+
+  // If we are not serializing the full document and we're not exclusively using declarative shadow dom
+  // we need to make sure we also include the style element for any components that are being hydrated
+  if (
+    !opts.fullDocument &&
+    (BUILD.scoped || (opts.serializeShadowRoot !== 'declarative-shadow-dom' && opts.serializeShadowRoot !== true))
+  ) {
+    for (let i = 0, ii = children.length; i < ii; i++) {
+      const child = children[i] as HTMLElement;
+      if (child.tagName) {
+        const styleTag = (elm as Element).querySelector(
+          `style[sty-id="sc-${(child as Element).tagName.toLowerCase()}"]`
+        );
+        if (styleTag) {
+          child.prepend(styleTag);
+        }
+      }
+    }
+  }
 
   for (let i = 0, ii = children.length; i < ii; i++) {
     const child = children[i];
