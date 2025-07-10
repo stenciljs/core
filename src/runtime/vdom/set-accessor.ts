@@ -50,15 +50,14 @@ export const setAccessor = (
     const oldClasses = parseClassList(oldValue);
     let newClasses = parseClassList(newValue);
 
-    if (BUILD.hydrateClientSide && (elm['s-si'] || elm['s-sc']) && initialRender) {
+    if (BUILD.hydrateClientSide && elm['s-si'] && initialRender) {
       // for `scoped: true` components, new nodes after initial hydration
       // from SSR don't have the slotted class added. Let's add that now
-      const scopeId = elm['s-sc'] || elm['s-si'];
-      newClasses.push(scopeId);
+      newClasses.push(elm['s-si']);
       oldClasses.forEach((c) => {
-        if (c.startsWith(scopeId)) newClasses.push(c);
+        if (c.startsWith(elm['s-si'])) newClasses.push(c);
       });
-      newClasses = [...new Set(newClasses)].filter((c) => c);
+      newClasses = [...new Set(newClasses)];
       classList.add(...newClasses);
     } else {
       classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c)));
