@@ -734,17 +734,6 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
     ) {
       // no new child vnodes, but there are old child vnodes to remove
       removeVnodes(oldChildren, 0, oldChildren.length - 1);
-    } else if (
-      BUILD.hydrateClientSide &&
-      isInitialRender &&
-      BUILD.updatable &&
-      oldChildren !== null &&
-      newChildren === null
-    ) {
-      // initial render and we have old children from SSR but
-      // no initial client-side children. Store the old children
-      // on the new vnode so they can be resolved later (i.e. updated or removed)
-      newVNode.$children$ = oldChildren;
     }
 
     if (BUILD.svg && isSvgMode && tag === 'svg') {
