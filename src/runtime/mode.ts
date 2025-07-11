@@ -7,4 +7,4 @@ export const computeMode = (elm: d.HostElement) => modeResolutionChain.map((h) =
 
 // Public
 export const setMode = (handler: d.ResolutionHandler) => modeResolutionChain.push(handler);
-export const getMode = (ref: d.RuntimeRef) => getHostRef(ref).$modeName$;
+export const getMode = (ref: d.RuntimeRef) => getHostRef(ref)?.$modeName$;

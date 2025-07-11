@@ -21,6 +21,9 @@ import { initializeComponent } from './initialize-component';
 export const hmrStart = (hostElement: d.HostElement, cmpMeta: d.ComponentRuntimeMeta, hmrVersionId: string) => {
   // ¯\_(ツ)_/¯
   const hostRef = getHostRef(hostElement);
+  if (!hostRef) {
+    return;
+  }
 
   // reset state flags to only have been connected
   hostRef.$flags$ = HOST_FLAGS.hasConnected;

@@ -17,7 +17,7 @@ export const disconnectedCallback = async (elm: d.HostElement) => {
     const hostRef = getHostRef(elm);
 
     if (BUILD.hostListener) {
-      if (hostRef.$rmListeners$) {
+      if (hostRef?.$rmListeners$) {
         hostRef.$rmListeners$.map((rmListener) => rmListener());
         hostRef.$rmListeners$ = undefined;
       }

@@ -11,6 +11,9 @@ export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref)
 export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMeta: d.ComponentRuntimeMeta) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
+  if (!hostRef) {
+    return;
+  }
 
   /**
    * If the host element is not found, let's fail with a better error message and provide

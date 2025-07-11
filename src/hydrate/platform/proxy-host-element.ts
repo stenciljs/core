@@ -87,7 +87,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
             get: function (this: any) {
               const ref = getHostRef(this);
               // incoming value from a attr / prop?
-              const attrPropVal = ref.$instanceValues$?.get(memberName);
+              const attrPropVal = ref?.$instanceValues$?.get(memberName);
 
               if (origGetter && attrPropVal === undefined && !getValue(this, memberName)) {
                 // if the initial value comes from an instance getter

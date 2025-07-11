@@ -136,6 +136,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
 
         connectedCallback() {
           const hostRef = getHostRef(this);
+          if (!hostRef) {
+            return;
+          }
 
           /**
            * The `connectedCallback` lifecycle event can potentially be fired multiple times
@@ -174,6 +177,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
            */
           plt.raf(() => {
             const hostRef = getHostRef(this);
+            if (!hostRef) {
+              return;
+            }
             const i = deferredConnectedCallbacks.findIndex((host) => host === this);
             if (i > -1) {
               deferredConnectedCallbacks.splice(i, 1);
@@ -185,7 +191,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         }
 
         componentOnReady() {
-          return getHostRef(this).$onReadyPromise$;
+          return getHostRef(this)?.$onReadyPromise$;
         }
       };
 
