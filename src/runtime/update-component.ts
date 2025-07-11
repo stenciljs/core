@@ -397,7 +397,7 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
 export const forceUpdate = (ref: any) => {
   if (BUILD.updatable && (Build.isBrowser || Build.isTesting)) {
     const hostRef = getHostRef(ref);
-    const isConnected = hostRef.$hostElement$.isConnected;
+    const isConnected = hostRef?.$hostElement$?.isConnected;
     if (
       isConnected &&
       (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered

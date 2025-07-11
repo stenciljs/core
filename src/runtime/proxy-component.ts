@@ -47,9 +47,9 @@ export const proxyComponent = (
       Object.defineProperty(prototype, cbName, {
         value(this: d.HostElement, ...args: any[]) {
           const hostRef = getHostRef(this);
-          const instance: d.ComponentInterface = BUILD.lazyLoad ? hostRef.$lazyInstance$ : this;
+          const instance: d.ComponentInterface = BUILD.lazyLoad ? hostRef?.$lazyInstance$ : this;
           if (!instance) {
-            hostRef.$onReadyPromise$.then((asyncInstance: d.ComponentInterface) => {
+            hostRef?.$onReadyPromise$?.then((asyncInstance: d.ComponentInterface) => {
               const cb = asyncInstance[cbName];
               typeof cb === 'function' && cb.call(asyncInstance, ...args);
             });
@@ -110,6 +110,9 @@ export const proxyComponent = (
         Object.defineProperty(prototype, memberName, {
           set(this: d.RuntimeRef, newValue) {
             const ref = getHostRef(this);
+            if (!ref) {
+              return;
+            }
 
             // only during dev
             if (BUILD.isDev) {
@@ -318,6 +321,7 @@ export const proxyComponent = (
             // 2. The watchers are ready
             // 3. The value has changed
             if (
+              hostRef &&
               flags &&
               !(flags & HOST_FLAGS.isConstructingInstance) &&
               flags & HOST_FLAGS.isWatchReady &&

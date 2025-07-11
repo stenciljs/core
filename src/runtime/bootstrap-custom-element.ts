@@ -77,6 +77,9 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     connectedCallback() {
       if (!this.__hasHostListenerAttached) {
         const hostRef = getHostRef(this);
+        if (!hostRef) {
+          return;
+        }
         addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
         this.__hasHostListenerAttached = true;
       }
@@ -121,7 +124,7 @@ export const forceModeUpdate = (elm: d.RenderNode) => {
     const mode = computeMode(elm);
     const hostRef = getHostRef(elm);
 
-    if (hostRef.$modeName$ !== mode) {
+    if (hostRef && hostRef.$modeName$ !== mode) {
       const cmpMeta = hostRef.$cmpMeta$;
       const oldScopeId = elm['s-sc'];
       const scopeId = getScopeId(cmpMeta, mode);
