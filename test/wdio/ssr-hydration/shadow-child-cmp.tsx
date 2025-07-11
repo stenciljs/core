@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'shadow-ssr-child-cmp',
-  scoped: true,
+  shadow: true,
   styles: `
     :host {
       display: block;
@@ -15,6 +15,7 @@ export class MyApp {
     return (
       <Host>
         <div>
+          Shadow Child 1.
           <ssr-order-cmp>
             <slot />
           </ssr-order-cmp>

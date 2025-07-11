@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'scoped-ssr-parent-cmp',
-  shadow: true,
+  scoped: true,
   styles: `
     :host {
       display: block;
@@ -15,6 +15,7 @@ export class MyApp {
     return (
       <Host>
         <div>
+          Scoped parent with named slot.
           <shadow-ssr-child-cmp>
             <slot />
             <slot name="things" />

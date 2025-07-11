@@ -501,6 +501,7 @@ describe('Sanity check SSR > Client hydration', () => {
     expect(children[0].nodeValue).toBe(' 1 ');
     expect(children[1].textContent).toBe(' 2 ');
     expect(children[2].textContent).toBe('3');
+    expect((children[2] as Element).checkVisibility()).toBe(true);
     expect(children[3].nodeValue).toBe(' 4 ');
   });
 
@@ -510,14 +511,11 @@ describe('Sanity check SSR > Client hydration', () => {
       await browser.waitUntil(async () => !document.querySelector('#stage'));
     }
     const { html } = await renderToString(
-      `
-      <div>
-        <scoped-ssr-parent-cmp>
+      `<scoped-ssr-parent-cmp>
           <div slot="things">one</div>
           <div slot="things">2</div>
           <div slot="things">3</div>
-        </scoped-ssr-parent-cmp>
-      </div>`,
+        </scoped-ssr-parent-cmp>`,
       {
         fullDocument: true,
         serializeShadowRoot: 'scoped',
@@ -539,6 +537,9 @@ describe('Sanity check SSR > Client hydration', () => {
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     expect(wrapCmp.childNodes.length).toBe(3);
     expect(wrapCmp.textContent).toBe('one23');
+    expect(wrapCmp.children[0].checkVisibility()).toBe(true);
+    expect(wrapCmp.children[1].checkVisibility()).toBe(true);
+    expect(wrapCmp.children[2].checkVisibility()).toBe(true);
   });
 
   it('correctly renders a slow to hydrate component with a prop', async () => {

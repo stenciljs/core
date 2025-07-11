@@ -244,7 +244,11 @@ export const initializeClientHydrate = (
         // Create our 'Original Location' node
         addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
 
-        if (slottedItem.node['getAttribute'] && slottedItem.node.getAttribute('slot')) {
+        if (
+          slottedItem.node.parentElement?.shadowRoot &&
+          slottedItem.node['getAttribute'] &&
+          slottedItem.node.getAttribute('slot')
+        ) {
           // Remove the `slot` attribute from the slotted node:
           // if it's projected from a scoped component into a shadowRoot it's slot attribute will cause it to be hidden.
           // scoped components use the `s-sn` attribute to identify slotted nodes
@@ -704,6 +708,7 @@ const addSlottedNodes = (
   let slottedNode = slotNode.nextSibling as d.RenderNode;
   slottedNodes[slotNodeId as any] = slottedNodes[slotNodeId as any] || [];
 
+  // stop if we find another slot node (as subsequent nodes will belong to that slot)
   if (!slottedNode || slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.')) return;
 
   // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
@@ -723,6 +728,7 @@ const addSlottedNodes = (
       slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });
     }
     slottedNode = slottedNode?.nextSibling as d.RenderNode;
+    // continue *unless* we find another slot node (as subsequent nodes will belong to that slot)
   } while (slottedNode && !slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.'));
 };
 
