@@ -130,7 +130,11 @@ export const initializeClientHydrate = (
         // If we don't, `vdom-render.ts` will try to add nodes to it (and because it may be a comment node, it will error)
         node['s-cr'] = hostElm['s-cr'];
       }
-    } else if (childRenderNode.$tag$?.toString().includes('-') && !childRenderNode.$elm$.shadowRoot) {
+    } else if (
+      childRenderNode.$tag$?.toString().includes('-') &&
+      childRenderNode.$tag$ !== 'slot-fb' &&
+      !childRenderNode.$elm$.shadowRoot
+    ) {
       // if this child is a non-shadow component being added to a shadowDOM,
       // let's find and add its styles to the shadowRoot, so we don't get a visual flicker
       const cmpMeta = getHostRef(childRenderNode.$elm$);
@@ -215,6 +219,11 @@ export const initializeClientHydrate = (
 
       const hostEle = hosts[slottedItem.hostId as any];
 
+      if (hostEle.shadowRoot && slottedItem.node.parentElement !== hostEle) {
+        // shadowDOM - move the item to the element root for native slotting
+        hostEle.appendChild(slottedItem.node);
+      }
+
       // This node is either slotted in a non-shadow host, OR *that* host is nested in a non-shadow host
       if (!hostEle.shadowRoot || !shadowRoot) {
         // Try to set an appropriate Content-position Reference (CR) node for this host element
@@ -235,15 +244,17 @@ export const initializeClientHydrate = (
         // Create our 'Original Location' node
         addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
 
+        if (slottedItem.node['getAttribute'] && slottedItem.node.getAttribute('slot')) {
+          // Remove the `slot` attribute from the slotted node:
+          // if it's projected from a scoped component into a shadowRoot it's slot attribute will cause it to be hidden.
+          // scoped components use the `s-sn` attribute to identify slotted nodes
+          slottedItem.node.removeAttribute('slot');
+        }
+
         if (BUILD.experimentalSlotFixes) {
           // patch this node for accessors like `nextSibling` (et al)
           patchSlottedNode(slottedItem.node);
         }
-      }
-
-      if (hostEle.shadowRoot && slottedItem.node.parentElement !== hostEle) {
-        // shadowDOM - move the item to the element root for native slotting
-        hostEle.appendChild(slottedItem.node);
       }
     }
   }
@@ -693,22 +704,26 @@ const addSlottedNodes = (
   let slottedNode = slotNode.nextSibling as d.RenderNode;
   slottedNodes[slotNodeId as any] = slottedNodes[slotNodeId as any] || [];
 
-  // Looking for nodes that match this slot's name,
-  // OR are text / comment nodes and the slot is a default slot (no name) - text / comments cannot be direct descendants of *named* slots.
-  // Also ignore slot fallback nodes - they're not part of the lightDOM
-  while (
-    slottedNode &&
-    (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
-      (slotName === '' &&
-        !slottedNode['s-sn'] &&
-        (slottedNode.nodeType === NODE_TYPE.CommentNode ||
-          slottedNode.nodeType === NODE_TYPE.TextNode ||
-          slottedNode.tagName === 'SLOT')))
-  ) {
-    slottedNode['s-sn'] = slotName;
-    slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });
-    slottedNode = slottedNode.nextSibling as d.RenderNode;
-  }
+  if (!slottedNode || slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.')) return;
+
+  // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
+  do {
+    if (
+      slottedNode &&
+      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
+        (slotName === '' &&
+          !slottedNode['s-sn'] &&
+          (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&
+          (slottedNode.nodeType === NODE_TYPE.CommentNode || slottedNode.nodeType === NODE_TYPE.TextNode)))
+    ) {
+      // Looking for nodes that match this slot's name,
+      // OR are text / comment nodes and the slot is a default slot (no name) - text / comments cannot be direct descendants of *named* slots.
+      // Also ignore slot fallback nodes - they're not part of the lightDOM
+      slottedNode['s-sn'] = slotName;
+      slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });
+    }
+    slottedNode = slottedNode?.nextSibling as d.RenderNode;
+  } while (slottedNode && !slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.'));
 };
 
 /**

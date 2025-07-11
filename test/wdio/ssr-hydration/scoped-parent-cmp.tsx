@@ -16,11 +16,9 @@ export class MyApp {
       <Host>
         <div>
           <shadow-ssr-child-cmp>
+            <slot />
             <slot name="things" />
           </shadow-ssr-child-cmp>
-          <div>
-            <slot />
-          </div>
         </div>
       </Host>
     );

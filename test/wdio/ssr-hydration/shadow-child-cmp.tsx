@@ -15,7 +15,9 @@ export class MyApp {
     return (
       <Host>
         <div>
-          <slot />
+          <ssr-order-cmp>
+            <slot />
+          </ssr-order-cmp>
         </div>
       </Host>
     );
