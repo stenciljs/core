@@ -14,9 +14,8 @@ export class MyApp {
   render() {
     return (
       <Host>
-        <div>
-          <slot />
-        </div>
+        Order component. Shadow.
+        <slot />
       </Host>
     );
   }
