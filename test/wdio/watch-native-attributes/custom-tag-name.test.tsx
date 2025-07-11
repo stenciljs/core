@@ -1,5 +1,6 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 import { WatchNativeAttributes } from '../test-components/watch-native-attributes.js';
 
@@ -7,12 +8,13 @@ describe('watch native attributes', () => {
   beforeEach(() => {
     customElements.define('some-custom-element', WatchNativeAttributes);
     render({
+      components: [],
       template: () => <some-custom-element aria-label="myStartingLabel"></some-custom-element>,
     });
   });
 
   it('triggers the callback for the watched attribute', async () => {
-    const $cmp = $('some-custom-element');
+    const $cmp = $('some-custom-element').$('div');
     await $cmp.waitForExist();
 
     await expect($cmp).toHaveText('Label: myStartingLabel\nCallback triggered: false');

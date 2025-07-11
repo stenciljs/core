@@ -1,9 +1,11 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, expect } from '@wdio/globals';
 
 describe('computed-properties-prop-decorator', () => {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <>
           <computed-properties-prop-decorator></computed-properties-prop-decorator>
@@ -22,12 +24,12 @@ describe('computed-properties-prop-decorator', () => {
   });
 
   it('correctly sets computed property `@Prop()`s and triggers re-renders', async () => {
-    await expect($('computed-properties-prop-decorator')).toHaveText('no content');
+    await expect($('computed-properties-prop-decorator').$('div')).toHaveText('no content');
 
     const button = $('button');
     await button.click();
 
-    await expect($('computed-properties-prop-decorator')).toHaveText('These are my props');
+    await expect($('computed-properties-prop-decorator').$('div')).toHaveText('These are my props');
   });
 
   it('has the default value reflected to the correct attribute on the host', async () => {

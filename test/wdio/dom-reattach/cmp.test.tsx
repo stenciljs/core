@@ -32,18 +32,19 @@ describe('dom-reattach', function () {
 componentDidLoad: 1
 disconnectedCallback: ${disconnectCount}`;
 
-    await expect($('dom-reattach')).toHaveText(lifecycleTextWithDisconnectCount(0));
+    const $cmp = $('dom-reattach').$('div');
+    await expect($cmp).toHaveText(lifecycleTextWithDisconnectCount(0));
 
     await $('button').click();
-    await expect($('dom-reattach')).not.toExist();
+    await expect($cmp).not.toExist();
 
     await $('button').click();
-    await expect($('dom-reattach')).toHaveText(lifecycleTextWithDisconnectCount(1));
+    await expect($cmp).toHaveText(lifecycleTextWithDisconnectCount(1));
 
     await $('button').click();
-    await expect($('dom-reattach')).not.toExist();
+    await expect($cmp).not.toExist();
 
     await $('button').click();
-    await expect($('dom-reattach')).toHaveText(lifecycleTextWithDisconnectCount(2));
+    await expect($cmp).toHaveText(lifecycleTextWithDisconnectCount(2));
   });
 });

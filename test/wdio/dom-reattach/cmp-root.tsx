@@ -1,4 +1,4 @@
-import { Component, h, Host, Prop } from '@stencil/core';
+import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'dom-reattach',
@@ -22,11 +22,11 @@ export class DomReattach {
 
   render() {
     return (
-      <Host>
+      <div>
         <p>componentWillLoad: {this.willLoad}</p>
         <p>componentDidLoad: {this.didLoad}</p>
         <p>disconnectedCallback: {this.didUnload}</p>
-      </Host>
+      </div>
     );
   }
 }
