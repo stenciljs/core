@@ -138,14 +138,16 @@ export const initializeClientHydrate = (
       // if this child is a non-shadow component being added to a shadowDOM,
       // let's find and add its styles to the shadowRoot, so we don't get a visual flicker
       const cmpMeta = getHostRef(childRenderNode.$elm$);
-      const scopeId = getScopeId(
-        cmpMeta.$cmpMeta$,
-        BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
-      );
-      const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
+      if (cmpMeta) {
+        const scopeId = getScopeId(
+          cmpMeta.$cmpMeta$,
+          BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
+        );
+        const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
 
-      if (styleSheet) {
-        hostElm.shadowRoot.append(styleSheet.cloneNode(true));
+        if (styleSheet) {
+          hostElm.shadowRoot.append(styleSheet.cloneNode(true));
+        }
       }
     }
 

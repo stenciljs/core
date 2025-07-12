@@ -205,6 +205,9 @@ async function hydrateComponent(
     if (cmpMeta != null) {
       waitingElements.add(elm);
       const hostRef = getHostRef(this);
+      if (!hostRef) {
+        return;
+      }
       addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
 
       try {
@@ -214,7 +217,7 @@ async function hydrateComponent(
         results.hydratedCount++;
 
         const ref = getHostRef(elm);
-        const modeName = !ref.$modeName$ ? '$' : ref.$modeName$;
+        const modeName = !ref?.$modeName$ ? '$' : ref?.$modeName$;
         if (!results.components.some((c) => c.tag === tagName && c.mode === modeName)) {
           results.components.push({
             tag: tagName,
