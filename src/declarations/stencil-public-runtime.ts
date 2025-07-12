@@ -1886,7 +1886,6 @@ export namespace JSXBase {
 
     // WAI-ARIA Attributes
     [key: `aria-${string}`]: string | boolean | undefined;
-    [key: `aria${string}`]: string | boolean | undefined;
   }
 }
 
