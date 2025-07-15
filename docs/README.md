@@ -23,9 +23,9 @@ graph TB
     end
     
     subgraph "Runtime"
-        Runtime[Component Runtime] --> VDOM[Virtual DOM]
-        Runtime --> LC[Lifecycle Manager]
-        Runtime --> PS[Proxy State]
+        ComponentRuntime[Component Runtime] --> VDOM[Virtual DOM]
+        ComponentRuntime --> LC[Lifecycle Manager]
+        ComponentRuntime --> PS[Proxy State]
     end
     
     subgraph "Server Side"
@@ -34,7 +34,7 @@ graph TB
     end
     
     CLI -.-> DevServer
-    Compiler --> Runtime
+    Compiler --> ComponentRuntime
     Compiler --> Hydrate
 ```
 
