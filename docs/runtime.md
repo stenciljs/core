@@ -62,6 +62,8 @@ The compiler scans your component and realizes:
 At the heart of this optimization is the `BUILD` object - a compile-time constant that acts as feature flags throughout the runtime:
 
 ```typescript
+// Default BUILD object structure
+// See: src/app-data/index.ts
 export const BUILD = {
   allRenderFn: false,    // Do all components have render()?
   asyncLoading: true,    // Enable async component loading?
@@ -96,11 +98,13 @@ export const BUILD = {
 Here's where the magic happens. Throughout the runtime, you'll see code like:
 
 ```typescript
+// From src/runtime/update-component.ts
 if (BUILD.updatable) {
   // This entire block is removed if no components update
   scheduleUpdate(hostRef, false);
 }
 
+// From src/runtime/initialize-component.ts
 if (BUILD.member && BUILD.lazyLoad) {
   // Property handling only included if needed
   initializeComponent(elm, hostRef, cmpMeta);
@@ -125,7 +129,7 @@ The journey begins in the TypeScript transformer pipeline. Let's trace how your 
 When the compiler encounters your component, it extracts metadata:
 
 ```typescript
-// src/compiler/transformers/component-build-conditionals.ts
+// src/compiler/transformers/component-build-conditionals.ts:5-48
 export const setComponentBuildConditionals = (cmpMeta: ComponentCompilerMeta) => {
   if (cmpMeta.properties.length > 0) {
     cmpMeta.hasProp = true;
@@ -153,8 +157,12 @@ export const setComponentBuildConditionals = (cmpMeta: ComponentCompilerMeta) =>
 The compiler then aggregates features across ALL components:
 
 ```typescript
-// src/compiler/app-core/app-data.ts
+// src/compiler/app-core/app-data.ts:20-76
 export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures => {
+  const slot = cmps.some((c) => c.htmlTagNames.includes('slot'));
+  const shadowDom = cmps.some((c) => c.encapsulation === 'shadow');
+  const slotRelocation = cmps.some((c) => c.encapsulation !== 'shadow' && c.htmlTagNames.includes('slot'));
+  
   return {
     allRenderFn: cmps.every(c => c.hasRenderFn),
     prop: cmps.some(c => c.hasProp),
@@ -188,17 +196,25 @@ export const BUILD = {
 The real optimization happens in the bundling phase. The compiler configures Terser with aggressive optimizations:
 
 ```typescript
-// src/compiler/optimize/optimize-module.ts
-if (opts.isCore) {
-  compressOpts.global_defs = {
-    'BUILD.member': false,  // Terser replaces these with literals
-    'BUILD.reflect': false,
-    // ...
+// src/compiler/optimize/optimize-module.ts:60-80
+if (opts.sourceTarget !== 'es5' && opts.isCore) {
+  if (!isDebug) {
+    compressOpts.passes = 2;
+    compressOpts.global_defs = {
+      supportsListenerOptions: true,
+    };
+    compressOpts.pure_funcs = compressOpts.pure_funcs || [];
+    compressOpts.pure_funcs = ['getHostRef', ...compressOpts.pure_funcs];
+  }
+
+  mangleOptions.properties = {
+    debug: isDebug,
+    ...getTerserManglePropertiesConfig(),
   };
-  
-  compressOpts.pure_funcs = ['getHostRef', ...];  // Remove unused functions
-  compressOpts.passes = 2;  // Multiple optimization passes
-  compressOpts.unsafe = true;  // Aggressive optimizations
+
+  compressOpts.inline = 1;
+  compressOpts.unsafe = true;
+  compressOpts.unsafe_undefined = true;
 }
 ```
 
@@ -368,6 +384,8 @@ Components follow a strict lifecycle order, especially important for nested comp
 When element is added to DOM:
 
 ```typescript
+// Simplified version - see full implementation at:
+// src/runtime/connected-callback.ts
 connectedCallback() {
   const hostRef = getHostRef(this);
   
@@ -391,6 +409,7 @@ Notice how even the `connectedCallback` is optimized! If your app doesn't use `@
 #### Component Initialization
 
 ```typescript
+// src/runtime/initialize-component.ts:23-90
 const initializeComponent = async (elm, hostRef, cmpMeta) => {
   if ((hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0) {
     hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
@@ -437,6 +456,7 @@ The initialization is heavily optimized:
 State management is one of the most optimized parts of Stencil. If your components don't use `@State` or `@Prop`, the entire reactive system is eliminated!
 
 ```typescript
+// src/runtime/proxy-component.ts:24-89
 const proxyComponent = (Cstr, cmpMeta, flags) => {
   // This entire function is removed if BUILD.member is false!
   if (BUILD.member) {
@@ -460,6 +480,7 @@ const proxyComponent = (Cstr, cmpMeta, flags) => {
 Stencil even optimizes based on property types:
 
 ```typescript
+// src/runtime/set-value.ts:getValue
 const getValue = (ref, propName) => {
   // Type-specific optimizations
   if (BUILD.propBoolean && isBooleanProp) {
@@ -484,6 +505,7 @@ const getValue = (ref, propName) => {
 Batches multiple updates:
 
 ```typescript
+// src/runtime/set-value.ts:setValue
 const setValue = (ref, propName, newVal, cmpMeta) => {
   const hostRef = getHostRef(ref);
   const oldVal = hostRef.$instanceValues$.get(propName);
@@ -504,6 +526,7 @@ const setValue = (ref, propName, newVal, cmpMeta) => {
 ### VNode Structure
 
 ```typescript
+// src/declarations/vdom.ts
 interface VNode {
   $tag$: string | Function;  // Element tag or component
   $elm$: Element;           // DOM reference
@@ -519,6 +542,9 @@ interface VNode {
 Components return VNodes:
 
 ```typescript
+// Example component render function
+// The h() function is imported from @stencil/core
+// See: src/runtime/vdom/h.ts
 render() {
   return h('div', { class: 'container' },
     h('h1', null, this.title),
@@ -535,6 +561,8 @@ render() {
 Efficient patching of DOM:
 
 ```typescript
+// Simplified version of the VDOM diff algorithm
+// Full implementation: src/runtime/vdom/vdom-render.ts
 const patch = (oldVNode, newVNode) => {
   if (oldVNode.$tag$ !== newVNode.$tag$) {
     // Replace entire node
@@ -556,6 +584,7 @@ const patch = (oldVNode, newVNode) => {
 Updates are batched and scheduled:
 
 ```typescript
+// src/runtime/update-component.ts:scheduleUpdate
 const scheduleUpdate = (hostRef, isInitialLoad) => {
   if (hostRef.$flags$ & HOST_FLAGS.isQueuedForUpdate) {
     return;
@@ -578,6 +607,7 @@ const scheduleUpdate = (hostRef, isInitialLoad) => {
 Custom task scheduling:
 
 ```typescript
+// src/runtime/task-queue.ts
 const writeTask = (cb) => {
   if (!pendingWriteTask) {
     pendingWriteTask = true;
@@ -598,6 +628,7 @@ const writeTask = (cb) => {
 ### Component Registration
 
 ```typescript
+// src/runtime/bootstrap-lazy.ts:24-98
 const bootstrapLazy = (lazyBundles) => {
   lazyBundles.forEach(([bundleId, components]) => {
     components.forEach(compactMeta => {
@@ -624,6 +655,7 @@ const bootstrapLazy = (lazyBundles) => {
 Components loaded on demand:
 
 ```typescript
+// src/client/client-load-module.ts
 const loadModule = async (cmpMeta, hostRef) => {
   const bundleId = cmpMeta.$lazyBundleId$;
   
@@ -660,6 +692,7 @@ Markers for hydration:
 Reuses server-rendered DOM:
 
 ```typescript
+// src/runtime/client-hydrate.ts
 const clientHydrate = (hostElm, tagName, hostId, hostRef) => {
   const serverHostRef = serverSideConnected.get(hostId);
   
@@ -689,6 +722,7 @@ emitEvent() {
 ### Event Implementation
 
 ```typescript
+// src/runtime/event-emitter.ts
 const createEvent = (ref, name, flags) => {
   const elm = getHostRef(ref).$hostElement$;
   
@@ -722,6 +756,7 @@ async getData() {
 ### Method Proxying
 
 ```typescript
+// Implementation found in proxy-component.ts
 const proxyMethods = (hostRef, cmpMeta) => {
   cmpMeta.$methods$.forEach(methodName => {
     hostRef.$hostElement$[methodName] = function(...args) {
@@ -766,6 +801,7 @@ if (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
 Centralized component data:
 
 ```typescript
+// src/declarations/stencil-private.ts
 interface HostRef {
   $flags$: number;
   $hostElement$: d.HostElement;
@@ -784,6 +820,7 @@ interface HostRef {
 Bit flags for memory efficiency:
 
 ```typescript
+// src/utils/constants.ts
 const enum HOST_FLAGS {
   hasConnected = 1 << 0,
   hasRendered = 1 << 1,
@@ -804,6 +841,7 @@ const enum HOST_FLAGS {
 The platform abstraction layer (`plt`) is designed for optimal minification:
 
 ```typescript
+// src/client/index.ts
 const plt = {
   $flags$: 0,
   // Short property names for better minification
