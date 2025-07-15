@@ -1,3 +1,24 @@
+# 🎊 [4.36.0](https://github.com/stenciljs/core/compare/v4.35.3...v4.36.0) (2025-07-15)
+
+
+### Bug Fixes
+
+* contructable stylesheets with older immutable spec (chrome <99) ([#6332](https://github.com/stenciljs/core/issues/6332)) ([2f363dd](https://github.com/stenciljs/core/commit/2f363dd130101bfef566cec88209f13233f7e8e3))
+* **runtime:** check shadow root nodes before appending them ([#6342](https://github.com/stenciljs/core/issues/6342)) ([c63f25d](https://github.com/stenciljs/core/commit/c63f25d0b40a3b9a2b51d1c66ab6b95154acc34a))
+* **runtime:** do not remove first comment - can break frameworks ([#6343](https://github.com/stenciljs/core/issues/6343)) ([188e7db](https://github.com/stenciljs/core/commit/188e7dbfd785174dfe87a8c9ebffd75ffa8a7208))
+* **runtime:** double check hostRef value ([#6341](https://github.com/stenciljs/core/issues/6341)) ([051522f](https://github.com/stenciljs/core/commit/051522f59851c7502ea2574abb7e0b0ded7f39bb))
+* **runtime:** fix blur handling of non-scoped elements ([#6314](https://github.com/stenciljs/core/issues/6314)) ([bfbd683](https://github.com/stenciljs/core/commit/bfbd683efdd50ba56c9c3536c9a983209dec5d9c))
+* **runtime:** fix prettier ([d84f9e7](https://github.com/stenciljs/core/commit/d84f9e7e5f2bf1ded5ff8d46ed5a71f9f74ad42d))
+* **ssr:** `scoped: true` components forwarded slots ([#6340](https://github.com/stenciljs/core/issues/6340)) ([fd4b892](https://github.com/stenciljs/core/commit/fd4b892a73a593cac4939c98ebc2d9fa6f91fbdc))
+
+
+### Features
+
+* **moc-doc:** serialize `delegatesFocus` shadow DOM property ([#6333](https://github.com/stenciljs/core/issues/6333)) ([56fe6e3](https://github.com/stenciljs/core/commit/56fe6e35a3638eb50c1a74db754b4893f86172f5))
+* **runtime:** skip initial task queue to improve first time rendering ([#6331](https://github.com/stenciljs/core/issues/6331)) ([6106c70](https://github.com/stenciljs/core/commit/6106c70aa3aae10b7de920ae94fc569293aac8c9))
+
+
+
 ## 🎹 [4.35.3](https://github.com/stenciljs/core/compare/v4.35.2...v4.35.3) (2025-07-02)
 
 
