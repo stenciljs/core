@@ -108,7 +108,7 @@ graph TD
     Compiler --> Dev[Development Features]
     
     Transform --> Decorators[Decorator Processing]
-    Transform --> JSX[JSX to h() calls]
+    Transform --> JSX["JSX to h() calls"]
     Transform --> Types[Type Checking]
     
     Bundle --> Rollup[Rollup Integration]
@@ -792,7 +792,7 @@ sequenceDiagram
     Loader->>Loader: Create proxy element
     Note over Loader: Proxy handles all interactions<br/>until real component loads
     
-    Loader->>Network: import('./my-component-hash.js')
+    Loader->>Network: "import('./my-component-hash.js')"
     Network-->>Loader: Component module
     
     Loader->>Component: Initialize component class
