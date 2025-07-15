@@ -37,7 +37,7 @@ graph TD
 
 The main configuration interface for Stencil projects:
 
-**Location:** `src/declarations/stencil-public-compiler.ts`
+**Location:** [`src/declarations/stencil-public-compiler.ts`](../src/declarations/stencil-public-compiler.ts)
 
 Key interfaces:
 - `Config` - Main configuration interface
@@ -60,7 +60,7 @@ export const config: Config = {
 
 Component metadata and decorator types:
 
-**Location:** `src/declarations/stencil-public-runtime.ts`
+**Location:** [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
 
 Key interfaces:
 - `ComponentOptions` - Options for `@Component()` decorator
@@ -74,7 +74,7 @@ Key interfaces:
 
 #### Component Interface
 
-**Location:** `src/declarations/stencil-public-runtime.ts`
+**Location:** [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
 
 - `ComponentInterface` - Base interface all components implement
 - `ComponentWillLoad`, `ComponentDidLoad`, etc. - Lifecycle method interfaces
@@ -85,14 +85,14 @@ Core runtime type definitions:
 
 #### Host Reference
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `HostRef` - Component instance data structure
 - `HostElement` - Enhanced HTMLElement with Stencil properties
 
 #### Virtual DOM
 
-**Location:** `src/declarations/vdom.ts`
+**Location:** [`src/declarations/vdom.ts`](../src/declarations/vdom.ts)
 
 - `VNode` - Virtual DOM node representation
 - `VNodeData` - Virtual node attributes and properties
@@ -100,7 +100,7 @@ Core runtime type definitions:
 
 #### Component Runtime Metadata
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `ComponentRuntimeMeta` - Runtime component metadata
 - `ComponentRuntimeMembers` - Member definitions
@@ -112,7 +112,7 @@ Build process type definitions:
 
 #### Build Context
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `BuildCtx` - Build state and results
 - `CompilerBuildResults` - Build output data
@@ -120,7 +120,7 @@ Build process type definitions:
 
 #### Compiler Context
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `CompilerCtx` - Persistent compiler state
 - `CompilerWorkerContext` - Worker thread context
@@ -128,7 +128,7 @@ Build process type definitions:
 
 #### Module Types
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `Module` - Compiled module representation
 - `ComponentCompilerMeta` - Component metadata during compilation
@@ -138,7 +138,7 @@ Build process type definitions:
 
 Different output target configurations:
 
-**Location:** `src/declarations/stencil-public-compiler.ts`
+**Location:** [`src/declarations/stencil-public-compiler.ts`](../src/declarations/stencil-public-compiler.ts)
 
 - `OutputTarget` - Base output target interface
 - `OutputTargetDist` - Distribution output (`type: 'dist'`)
@@ -152,14 +152,14 @@ Different output target configurations:
 
 JSX and element type definitions:
 
-**Location:** `src/declarations/jsx.ts`
+**Location:** [`src/declarations/jsx.ts`](../src/declarations/jsx.ts)
 
 - `JSX.IntrinsicElements` - HTML element types
 - `JSX.Element` - JSX element type
 - `HTMLAttributes` - HTML attribute types
 - `DOMAttributes` - DOM event handlers
 
-**Additional JSX types:** `src/declarations/stencil-public-runtime.ts`
+**Additional JSX types:** [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
 - `LocalJSX` - Component-specific JSX namespace
 - `LibraryManagedAttributes` - Attribute management
 
@@ -167,7 +167,7 @@ JSX and element type definitions:
 
 #### Compiler System
 
-**Location:** `src/declarations/stencil-private.ts`
+**Location:** [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
 
 - `CompilerSystem` - File system abstraction
 - `Logger` - Logging interface
@@ -175,7 +175,7 @@ JSX and element type definitions:
 
 #### Diagnostics
 
-**Location:** `src/declarations/stencil-public-compiler.ts`
+**Location:** [`src/declarations/stencil-public-compiler.ts`](../src/declarations/stencil-public-compiler.ts)
 
 - `Diagnostic` - Error/warning representation
 - `DiagnosticLevel` - Error severity levels
@@ -185,7 +185,7 @@ JSX and element type definitions:
 
 ### Member Flags
 
-**Location:** `src/utils/constants.ts`
+**Location:** [`src/utils/constants.ts`](../src/utils/constants.ts)
 
 - `MEMBER_FLAGS` - Bitwise flags for component members
 - `HOST_FLAGS` - Component instance state flags
@@ -193,7 +193,7 @@ JSX and element type definitions:
 
 ### Platform Features
 
-**Location:** `src/utils/constants.ts`
+**Location:** [`src/utils/constants.ts`](../src/utils/constants.ts)
 
 - `PLATFORM_FLAGS` - Platform capability flags
 - `BUILD` - Build conditionals object
@@ -202,14 +202,14 @@ JSX and element type definitions:
 
 ### TypeScript Integration
 
-**Location:** `src/declarations/typescript.ts`
+**Location:** [`src/declarations/typescript.ts`](../src/declarations/typescript.ts)
 
 - TypeScript compiler API type imports
 - Custom TypeScript transformer types
 
 ### Rollup Plugin Types
 
-**Location:** `src/declarations/rollup.ts`
+**Location:** [`src/declarations/rollup.ts`](../src/declarations/rollup.ts)
 
 - Rollup plugin interfaces
 - Bundle configuration types
@@ -226,7 +226,7 @@ JSX and element type definitions:
 
 Test framework type definitions:
 
-**Location:** `src/declarations/testing.ts`
+**Location:** [`src/declarations/testing.ts`](../src/declarations/testing.ts)
 
 - `SpecPage` - Unit test page interface
 - `E2EPage` - E2E test page interface
@@ -238,14 +238,14 @@ Test framework type definitions:
 
 Runtime type checking utilities:
 
-**Location:** `src/utils/output-target.ts`
+**Location:** [`src/utils/output-target.ts`](../src/utils/output-target.ts)
 
 - `isOutputTargetDist()`
 - `isOutputTargetWww()`
 - `isOutputTargetCustom()`
 - `isOutputTargetHydrate()`
 
-**Location:** `src/utils/helpers.ts`
+**Location:** [`src/utils/helpers.ts`](../src/utils/helpers.ts)
 
 - Various type guard functions
 - Type assertion utilities
@@ -262,10 +262,10 @@ Runtime type checking utilities:
 
 ### Finding Type Definitions
 
-1. **Public API**: Start in `src/declarations/stencil-public-*.ts`
-2. **Internal API**: Look in `src/declarations/stencil-private.ts`
-3. **Component Types**: Check `src/declarations/stencil-public-runtime.ts`
-4. **Build Types**: See `src/declarations/stencil-public-compiler.ts`
+1. **Public API**: Start in [`src/declarations/stencil-public-*.ts`](../src/declarations/)
+2. **Internal API**: Look in [`src/declarations/stencil-private.ts`](../src/declarations/stencil-private.ts)
+3. **Component Types**: Check [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
+4. **Build Types**: See [`src/declarations/stencil-public-compiler.ts`](../src/declarations/stencil-public-compiler.ts)
 5. **Use IDE**: "Go to Definition" to find actual types
 
 ### Type Evolution
