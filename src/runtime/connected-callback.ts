@@ -61,19 +61,7 @@ export const connectedCallback = (elm: d.HostElement) => {
             cmpMeta.$flags$ & (CMP_FLAGS.hasSlotRelocation | CMP_FLAGS.needsShadowDomShim))
         ) {
           setContentReference(elm);
-        } else if (BUILD.hydrateClientSide && !(cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation)) {
-          const commendPlaceholder = elm.firstChild as d.RenderNode;
-          if (
-            commendPlaceholder?.nodeType === NODE_TYPE.CommentNode &&
-            !commendPlaceholder['s-cn'] &&
-            !commendPlaceholder.nodeValue
-          ) {
-            // if the first child is a comment node that was created by the
-            // setContentReference() function during SSR, remove it now as
-            // this component does not need slot relocation and can cause hydration issues
-            elm.removeChild(commendPlaceholder);
-          }
-        }
+        } 
       }
 
       if (BUILD.asyncLoading) {
