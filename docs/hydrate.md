@@ -2,6 +2,8 @@
 
 The Hydrate module enables server-side rendering (SSR) and static site generation (SSG) for Stencil components. It provides a Node.js environment for rendering components to HTML strings with hydration markers.
 
+**Location:** [`src/hydrate/`](../src/hydrate/)
+
 ## Architecture Overview
 
 ```mermaid
@@ -25,9 +27,141 @@ graph TD
     end
 ```
 
+## User-Facing API
+
+### Generating the Hydrate App
+
+Users configure the hydrate output target in their `stencil.config.ts`:
+
+```typescript
+export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-hydrate-script',
+      dir: './hydrate',
+    },
+  ],
+};
+```
+
+This generates a hydrate module that can be imported in Node.js:
+
+```typescript
+import { 
+  hydrateDocument, 
+  renderToString, 
+  streamToString,
+  createWindowFromHtml 
+} from 'yourpackage/hydrate';
+```
+
+### Core User APIs
+
+#### hydrateDocument
+Takes a DOM document and returns hydrated HTML:
+
+```typescript
+import { hydrateDocument, createWindowFromHtml } from 'yourpackage/hydrate';
+
+export async function hydrateComponents(template: string) {
+  const win = createWindowFromHtml(template, Math.random().toString())
+  
+  const results = await hydrateDocument(win.document, {
+    url: 'https://example.com',
+    userAgent: 'Node.js',
+    cookie: 'session=abc123',
+    direction: 'ltr',
+    language: 'en',
+  });
+  
+  return results.html;
+}
+```
+
+#### renderToString
+Takes an HTML string and returns hydrated HTML:
+
+```typescript
+const results = await renderToString(
+  `<my-component name="Test"></my-component>`,
+  {
+    fullDocument: false,
+    prettyHtml: true,
+    serializeShadowRoot: 'declarative-shadow-dom',
+  }
+);
+
+console.log(results.html);
+```
+
+#### streamToString
+Returns a readable stream for progressive rendering:
+
+```typescript
+const stream = streamToString(htmlString, {
+  serializeShadowRoot: 'scoped',
+  beforeHydrate: (doc) => {
+    // Modify document before hydration
+  }
+});
+
+// Use with Node.js response
+stream.pipe(response);
+```
+
+### SSR Approaches
+
+Stencil provides two strategies for SSR integration:
+
+#### 1. Compiler Approach (Build-Time)
+Used with `@stencil/ssr` package for Vite/Webpack:
+
+```typescript
+// vite.config.ts
+import { stencilSSR } from '@stencil/ssr';
+
+export default defineConfig({
+  plugins: [
+    stencilSSR({
+      module: import('component-library-react'),
+      from: 'component-library-react', 
+      hydrateModule: import('component-library/hydrate'),
+      serializeShadowRoot: {
+        'scoped': ['my-button'],
+        default: 'declarative-shadow-dom',
+      },
+    }),
+  ],
+});
+```
+
+#### 2. Runtime Approach (Next.js Server Components)
+Generates separate client and server components:
+
+```typescript
+// stencil.config.ts
+reactOutputTarget({
+  outDir: '../component-library-react/src',
+  hydrateModule: 'component-library/hydrate',
+  clientModule: 'component-library-react',
+});
+```
+
+Usage in Next.js:
+```typescript
+// Import server-optimized component
+import { MyComponent } from 'component-library-react/next';
+
+export default function Page() {
+  return <MyComponent prop={dynamicValue()} />;
+}
+```
+
 ## Hydrate App Generation
 
 ### Build Process
+
+**Location:** [`src/compiler/output-targets/dist-hydrate-script/`](../src/compiler/output-targets/dist-hydrate-script/)
 
 The compiler generates a special hydrate app:
 
@@ -77,6 +211,8 @@ module.exports = {
 
 ### hydrateDocument
 
+**Location:** [`src/hydrate/runner/hydrate-document.ts`](../src/hydrate/runner/hydrate-document.ts)
+
 Hydrates an entire document:
 
 ```typescript
@@ -123,6 +259,8 @@ export const hydrateDocument = async (
 
 ### renderToString
 
+**Location:** [`src/hydrate/runner/render-to-string.ts`](../src/hydrate/runner/render-to-string.ts)
+
 Renders a component to HTML string:
 
 ```typescript
@@ -146,6 +284,8 @@ export const renderToString = async (
 ## Hydration Process
 
 ### Component Discovery
+
+**Location:** [`src/hydrate/runner/hydrate-component.ts`](../src/hydrate/runner/hydrate-component.ts)
 
 Finding components to hydrate:
 
@@ -452,6 +592,8 @@ const clientHydrate = (
 
 ### Hydrate Options
 
+**Location:** [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
+
 ```typescript
 interface HydrateDocumentOptions {
   url?: string;
@@ -472,6 +614,8 @@ interface HydrateDocumentOptions {
 ```
 
 ### Prerender Config
+
+**Location:** [`src/declarations/stencil-public-compiler.ts`](../src/declarations/stencil-public-compiler.ts)
 
 ```typescript
 interface PrerenderConfig {
@@ -518,6 +662,8 @@ describe('hydrate', () => {
 
 ### Memory Leaks
 
+**Location:** [`src/hydrate/runner/window-finalize.ts`](../src/hydrate/runner/window-finalize.ts)
+
 Proper cleanup:
 
 ```typescript
@@ -558,6 +704,60 @@ const hydrateWithDepthCheck = async (
   await hydrateComponent(element, context);
 };
 ```
+
+## User Limitations and Best Practices
+
+### Performance Considerations
+
+When using SSR with Shadow DOM, styles are duplicated for each component instance:
+
+```typescript
+// Avoid rendering many instances of components with large styles
+// Instead, use scoped mode for frequently used components:
+export default stencilSSR({
+  serializeShadowRoot: {
+    scoped: ['my-button', 'my-icon'], // Render as scoped
+    default: 'declarative-shadow-dom'
+  },
+});
+```
+
+### Non-Primitive Parameters
+
+Avoid complex objects in SSR unless using runtime approach:
+
+```typescript
+// ❌ Won't work with compiler-based SSR
+const menu = generateMenuData();
+<MyComponent data={menu} />
+
+// ✅ Use static data or runtime SSR
+const menu = { items: ['Home', 'About'] };
+<MyComponent data={menu} />
+```
+
+### Cross-Component State
+
+Components rendered in SSR shouldn't depend on parent state:
+
+```typescript
+// ❌ Child won't have access to parent context in SSR
+<ParentComponent>
+  <ChildComponent />
+</ParentComponent>
+
+// ✅ Pass data explicitly
+<ParentComponent>
+  <ChildComponent data={parentData} />
+</ParentComponent>
+```
+
+### Slot Limitations
+
+Slots can be problematic with certain SSR approaches:
+- Compiler-based SSR may have issues with complex slot content
+- Runtime SSR handles slots better but with performance cost
+- Consider using props instead of slots for SSR-heavy components
 
 ## Future Improvements
 

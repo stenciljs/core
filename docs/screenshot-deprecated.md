@@ -2,6 +2,8 @@
 
 > **⚠️ DEPRECATED**: Screenshot testing is deprecated and will be removed in the next major version. Please migrate to modern visual regression testing tools.
 
+**Location:** [`src/screenshot/`](../src/screenshot/)
+
 ## Migration Paths
 
 ### Recommended Alternatives

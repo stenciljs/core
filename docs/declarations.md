@@ -2,6 +2,8 @@
 
 The Declarations module defines all TypeScript types and interfaces used throughout Stencil. It serves as the contract between different parts of the system and provides type safety for both internal and external APIs.
 
+**Location:** [`src/declarations/`](../src/declarations/)
+
 ## Architecture Overview
 
 ```mermaid

@@ -2,6 +2,8 @@
 
 > **⚠️ DEPRECATED**: The built-in Stencil test runner is deprecated and only supports Jest v27-29. Please migrate to one of the recommended alternatives below.
 
+**Location:** [`src/testing/`](../src/testing/)
+
 ## Migration Paths
 
 ### Recommended Alternatives

@@ -2,6 +2,8 @@
 
 Mock Doc provides a lightweight DOM implementation for server-side rendering in Node.js environments. It implements just enough of the DOM and Web APIs to enable Stencil components to render without a real browser.
 
+**Location:** [`src/mock-doc/`](../src/mock-doc/)
+
 ## Architecture Overview
 
 ```mermaid
@@ -28,6 +30,8 @@ graph TD
 ## Core Implementation
 
 ### Mock Window
+
+**Location:** [`src/mock-doc/window.ts`](../src/mock-doc/window.ts)
 
 Global object with browser APIs:
 
@@ -67,6 +71,8 @@ export class MockWindow implements Window {
 ```
 
 ### Mock Document
+
+**Location:** [`src/mock-doc/document.ts`](../src/mock-doc/document.ts)
 
 Document implementation:
 
@@ -120,6 +126,8 @@ export class MockDocument extends MockNode implements Document {
 
 ### Base Element
 
+**Location:** [`src/mock-doc/element.ts`](../src/mock-doc/element.ts)
+
 Core element functionality:
 
 ```typescript
@@ -169,6 +177,8 @@ export class MockElement extends MockNode implements Element {
 
 #### Input Element
 
+**Location:** [`src/mock-doc/forms.ts`](../src/mock-doc/forms.ts)
+
 Form control implementation:
 
 ```typescript
@@ -206,6 +216,8 @@ export class MockInputElement extends MockHTMLElement implements HTMLInputElemen
 
 #### Style Element
 
+**Location:** [`src/mock-doc/css-style-declaration.ts`](../src/mock-doc/css-style-declaration.ts)
+
 CSS handling:
 
 ```typescript
@@ -232,6 +244,8 @@ export class MockStyleElement extends MockHTMLElement {
 ## Node Operations
 
 ### Tree Manipulation
+
+**Location:** [`src/mock-doc/node.ts`](../src/mock-doc/node.ts)
 
 DOM tree operations:
 
@@ -302,6 +316,8 @@ export abstract class MockNode implements Node {
 
 ### Style Sheet
 
+**Location:** [`src/mock-doc/css-style-sheet.ts`](../src/mock-doc/css-style-sheet.ts)
+
 Basic CSS parsing:
 
 ```typescript
@@ -326,6 +342,8 @@ export class MockCSSStyleSheet {
 
 ### Computed Styles
 
+**Location:** [`src/mock-doc/window.ts`](../src/mock-doc/window.ts) (getComputedStyle function)
+
 Style calculation:
 
 ```typescript
@@ -348,6 +366,8 @@ const getComputedStyle = (element: MockElement): CSSStyleDeclaration => {
 ## Event System
 
 ### Event Dispatcher
+
+**Location:** [`src/mock-doc/event.ts`](../src/mock-doc/event.ts)
 
 Event propagation:
 
@@ -384,6 +404,8 @@ const dispatchEvent = (target: EventTarget, event: Event): boolean => {
 ## HTML Parser
 
 ### Parse Implementation
+
+**Location:** [`src/mock-doc/parse-html.ts`](../src/mock-doc/parse-html.ts)
 
 Convert HTML to DOM:
 
@@ -437,6 +459,8 @@ class MockHTMLParser {
 ## HTML Serializer
 
 ### Serialize to String
+
+**Location:** [`src/mock-doc/serialize-node.ts`](../src/mock-doc/serialize-node.ts)
 
 Convert DOM to HTML:
 
@@ -493,6 +517,8 @@ const serializeElement = (element: Element, opts: SerializeOptions): string => {
 
 ### String Building
 
+**Location:** [`src/mock-doc/serialize-node.ts`](../src/mock-doc/serialize-node.ts)
+
 Efficient HTML generation:
 
 ```typescript
@@ -526,6 +552,8 @@ interface CachedNodeData {
 ## Testing
 
 ### Mock Doc Tests
+
+**Location:** [`src/mock-doc/test/`](../src/mock-doc/test/)
 
 ```typescript
 describe('MockDocument', () => {
@@ -576,11 +604,3 @@ Features not in Mock Doc:
 - Simplified event loop
 - Basic CSS parsing
 - No rendering pipeline
-
-## Future Improvements
-
-1. **Better CSS Support**: Full CSSOM implementation
-2. **More APIs**: Add missing Web APIs
-3. **Performance**: Optimize serialization
-4. **Streaming**: Stream HTML generation
-5. **Worker Support**: Web Worker mocking 

@@ -2,6 +2,8 @@
 
 The Scripts directory contains the build system used to develop and build Stencil itself. This is separate from Stencil's compiler that builds user projects - this is specifically for building the Stencil compiler and its related modules.
 
+**Location:** [`scripts/`](../scripts/)
+
 ## Overview
 
 The build system uses **esbuild** as its primary bundler to create all the distributable packages that make up Stencil. It handles bundling, minification, TypeScript compilation, and packaging of various Stencil components.
@@ -38,32 +40,32 @@ scripts/
 ├── index.ts                    # Entry point
 ├── release.ts                  # Release automation
 ├── release-tasks.ts            # Release task definitions
-├── tsconfig.json              # TypeScript config for scripts
+├── tsconfig.json               # TypeScript config for scripts
 ├── updateSelectorEngine.ts     # Playwright selector engine updater
 │
 ├── esbuild/                    # ESBuild configurations
-│   ├── cli.ts                 # CLI bundle config
-│   ├── compiler.ts            # Compiler bundle config
-│   ├── dev-server.ts          # Dev server bundle config
-│   ├── internal.ts            # Internal packages bundle config
-│   ├── mock-doc.ts            # Mock DOM bundle config
-│   ├── screenshot.ts          # Screenshot bundle config
-│   ├── sys-node.ts            # Node system bundle config
-│   ├── testing.ts             # Testing bundle config
-│   └── utils/                 # Build utilities
+│   ├── cli.ts                  # CLI bundle config
+│   ├── compiler.ts             # Compiler bundle config
+│   ├── dev-server.ts           # Dev server bundle config
+│   ├── internal.ts             # Internal packages bundle config
+│   ├── mock-doc.ts             # Mock DOM bundle config
+│   ├── screenshot.ts           # Screenshot bundle config
+│   ├── sys-node.ts             # Node system bundle config
+│   ├── testing.ts              # Testing bundle config
+│   └── utils/                  # Build utilities
 │       ├── typescript-source.ts
 │       ├── terser.ts
 │       ├── parse5.ts
 │       └── ...
 │
 ├── utils/                      # General utilities
-│   ├── options.ts             # Build options
-│   ├── banner.ts              # File banners
-│   ├── bundle-dts.ts          # TypeScript declarations bundler
+│   ├── options.ts              # Build options
+│   ├── banner.ts               # File banners
+│   ├── bundle-dts.ts           # TypeScript declarations bundler
 │   └── ...
 │
 └── test/                       # Build validation
-    └── validate-build.ts      # Post-build validation
+    └── validate-build.ts       # Post-build validation
 ```
 
 ## Build Process

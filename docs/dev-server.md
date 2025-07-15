@@ -2,6 +2,8 @@
 
 The Stencil Dev Server provides a fast development experience with hot module replacement (HMR), automatic rebuilding, and browser synchronization. It runs as a separate process to ensure stability and performance.
 
+**Location:** [`src/dev-server/`](../src/dev-server/)
+
 ## Architecture Overview
 
 ```mermaid

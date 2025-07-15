@@ -2,6 +2,11 @@
 
 The Stencil Runtime is the client-side engine that powers components in the browser. It handles component initialization, lifecycle management, rendering, and state updates with minimal overhead.
 
+**Location:**
+- [`src/client/`](../src/client/)
+- [`src/runtime/`](../src/runtime/)
+- [`src/internal/`](../src/internal/)
+
 ## Architecture Overview
 
 ```mermaid

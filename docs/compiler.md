@@ -2,6 +2,8 @@
 
 The Stencil Compiler is the core engine that transforms TypeScript/JSX components into optimized web components. It orchestrates the entire build pipeline from source code to production-ready output.
 
+**Location:** [`src/compiler/`](../src/compiler/)
+
 ## Architecture Overview
 
 ```mermaid

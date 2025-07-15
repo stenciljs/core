@@ -2,6 +2,8 @@
 
 The Stencil CLI is the primary entry point for developers interacting with Stencil. It provides a comprehensive command-line interface for building, serving, testing, and managing Stencil projects.
 
+**Location:** [`src/cli/`](../src/cli/)
+
 ## Architecture Overview
 
 ```mermaid
