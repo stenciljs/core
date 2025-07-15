@@ -279,7 +279,17 @@ export const initializeClientHydrate = (
     const rnLen = shadowRootNodes.length;
     if (rnLen) {
       for (rnIdex; rnIdex < rnLen; rnIdex++) {
-        shadowRoot.appendChild(shadowRootNodes[rnIdex]);
+        const node = shadowRootNodes[rnIdex];
+
+        /**
+         * in apps with a lot of components the `shadowRootNodes` array can be modified while iterating over it
+         * so we need to check if the node is still in the array before appending it to avoid any errors like:
+         *
+         *   TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'
+         */
+        if (node) {
+          shadowRoot.appendChild(node);
+        }
       }
 
       Array.from(hostElm.childNodes).forEach((node) => {
