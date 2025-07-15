@@ -523,59 +523,260 @@ const setValue = (ref, propName, newVal, cmpMeta) => {
 
 ## Virtual DOM
 
+Stencil's Virtual DOM implementation is based on the excellent [Snabbdom](https://github.com/snabbdom/snabbdom) library, but heavily optimized for Stencil's specific use cases. The VDOM allows Stencil to efficiently update only the parts of the DOM that have actually changed, rather than re-rendering entire component trees.
+
+### History and Evolution
+
+Stencil's VDOM started as a fork of Snabbdom, chosen for its:
+- Small size (~3KB)
+- Simplicity and performance
+- Modular architecture
+- Proven track record in production
+
+However, Stencil has significantly modified it to:
+- Use shorter property names for better minification (`$tag$` vs `tag`)
+- Remove unused features based on BUILD conditionals
+- Integrate tightly with the component lifecycle
+- Add Stencil-specific optimizations
+
 ### VNode Structure
 
 ```typescript
 // src/declarations/vdom.ts
 interface VNode {
-  $tag$: string | Function;  // Element tag or component
-  $elm$: Element;           // DOM reference
-  $text$: string;          // Text content
-  $children$: VNode[];     // Child nodes
-  $attrs$: any;            // Attributes
-  $key$: string | number;  // Unique key
+  $tag$: string | Function;  // Element tag or component constructor
+  $elm$: Element;           // Reference to actual DOM element
+  $text$: string;          // Text content for text nodes
+  $children$: VNode[];     // Array of child VNodes
+  $attrs$: any;            // HTML attributes (id, class, etc.)
+  $key$: string | number;  // Unique key for efficient list updates
 }
+```
+
+The property names might look unusual, but they're optimized for minification. After compression, `$tag$` becomes just `t`, saving precious bytes.
+
+### Creating VNodes with h()
+
+The `h()` function (short for "hyperscript") creates VNode objects:
+
+```typescript
+// src/runtime/vdom/h.ts
+export const h = (tag, vnodeData, ...children) => {
+  const vnode: VNode = {
+    $tag$: tag,
+    $children$: null,
+    $elm$: null,
+    $text$: null,
+    $attrs$: vnodeData,
+    $key$: vnodeData?.key
+  };
+  
+  // Process children - flatten arrays, convert primitives to text nodes
+  if (children.length > 0) {
+    vnode.$children$ = [];
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      if (Array.isArray(child)) {
+        // Flatten arrays (common with .map())
+        vnode.$children$.push(...child);
+      } else if (isPrimitive(child)) {
+        // Convert strings/numbers to text nodes
+        vnode.$children$.push({ $text$: String(child) });
+      } else {
+        vnode.$children$.push(child);
+      }
+    }
+  }
+  
+  return vnode;
+};
 ```
 
 ### Render Function
 
-Components return VNodes:
+Components use JSX which compiles to `h()` calls:
 
 ```typescript
-// Example component render function
-// The h() function is imported from @stencil/core
-// See: src/runtime/vdom/h.ts
+// JSX in your component:
+render() {
+  return (
+    <div class="container">
+      <h1>{this.title}</h1>
+      <button onClick={() => this.handleClick()}>
+        Click me
+      </button>
+      <ul>
+        {this.items.map(item => 
+          <li key={item.id}>{item.name}</li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
+// Compiles to:
 render() {
   return h('div', { class: 'container' },
     h('h1', null, this.title),
-    h('button', { onClick: this.handleClick }, 'Click me'),
-    this.items.map(item => 
-      h('li', { key: item.id }, item.name)
+    h('button', { onClick: () => this.handleClick() }, 'Click me'),
+    h('ul', null,
+      this.items.map(item => 
+        h('li', { key: item.id }, item.name)
+      )
     )
   );
 }
 ```
 
-### Diff Algorithm
+### The Diff Algorithm
 
-Efficient patching of DOM:
+The heart of the VDOM is the diffing algorithm that determines what changed:
 
 ```typescript
-// Simplified version of the VDOM diff algorithm
-// Full implementation: src/runtime/vdom/vdom-render.ts
-const patch = (oldVNode, newVNode) => {
+// src/runtime/vdom/vdom-render.ts
+const patch = (oldVNode: VNode, newVNode: VNode, isInitialRender = false) => {
+  const elm = oldVNode.$elm$;
+  
+  // Different tags? Replace the whole element
   if (oldVNode.$tag$ !== newVNode.$tag$) {
-    // Replace entire node
-    replaceNode(oldVNode, newVNode);
-  } else {
-    // Update attributes
-    updateElement(oldVNode, newVNode);
+    const newElm = createElm(newVNode, null);
+    elm.parentNode.replaceChild(newElm, elm);
+    return;
+  }
+  
+  // Same tag - update the existing element
+  newVNode.$elm$ = elm;
+  
+  // Update attributes (only if BUILD.vdomAttribute is true)
+  if (BUILD.vdomAttribute) {
+    updateElement(elm, oldVNode.$attrs$, newVNode.$attrs$);
+  }
+  
+  // Update children
+  updateChildren(elm, oldVNode.$children$, newVNode.$children$);
+};
+```
+
+### Optimized Attribute Updates
+
+Stencil optimizes attribute updates based on what features you use:
+
+```typescript
+// src/runtime/vdom/update-element.ts
+const updateElement = (elm: Element, oldAttrs = {}, newAttrs = {}) => {
+  // Only included if components use attributes
+  if (BUILD.vdomAttribute) {
+    // Remove old attributes
+    for (const name in oldAttrs) {
+      if (!(name in newAttrs)) {
+        removeAttribute(elm, name);
+      }
+    }
     
-    // Patch children
-    patchChildren(oldVNode.$children$, newVNode.$children$);
+    // Add/update new attributes
+    for (const name in newAttrs) {
+      if (oldAttrs[name] !== newAttrs[name]) {
+        setAttribute(elm, name, newAttrs[name]);
+      }
+    }
+  }
+  
+  // Class handling only if used
+  if (BUILD.vdomClass && oldAttrs.class !== newAttrs.class) {
+    elm.className = newAttrs.class || '';
+  }
+  
+  // Style handling only if used
+  if (BUILD.vdomStyle && oldAttrs.style !== newAttrs.style) {
+    updateStyle(elm, oldAttrs.style, newAttrs.style);
+  }
+  
+  // Event listeners only if used
+  if (BUILD.vdomListener) {
+    updateListeners(elm, oldAttrs, newAttrs);
   }
 };
 ```
+
+### Key-based Reordering
+
+One of the most important optimizations is key-based list reconciliation:
+
+```typescript
+// When rendering lists, always use keys!
+render() {
+  return (
+    <ul>
+      {this.items.map(item => (
+        <li key={item.id}>  {/* Key enables efficient reordering */}
+          {item.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Without keys, Stencil has to update each list item in place. With keys, it can:
+1. Identify which items were added/removed/moved
+2. Reuse existing DOM nodes by moving them
+3. Preserve component state during reorders
+
+### VDOM Optimizations
+
+Stencil applies several optimizations to the VDOM:
+
+#### 1. Static Hoisting
+```typescript
+// The compiler can detect static vnodes and hoist them
+const STATIC_HEADER = h('h1', { class: 'header' }, 'Welcome');
+
+render() {
+  return h('div', null,
+    STATIC_HEADER,  // Reused, not recreated
+    h('p', null, this.dynamicContent)
+  );
+}
+```
+
+#### 2. Conditional Features
+```typescript
+// If no components use refs, this code is eliminated
+if (BUILD.vdomRef && vnode.$attrs$.ref) {
+  vnode.$attrs$.ref(elm);
+}
+
+// If no components use keys, key handling is removed
+if (BUILD.vdomKey && vnode.$key$) {
+  elm.key = vnode.$key$;
+}
+```
+
+#### 3. Text Node Optimization
+```typescript
+// Direct text content optimization
+if (BUILD.vdomText && children.length === 1 && children[0].$text$) {
+  // Fast path: set textContent directly
+  elm.textContent = children[0].$text$;
+} else {
+  // Slow path: full child reconciliation
+  updateChildren(elm, oldChildren, newChildren);
+}
+```
+
+### VDOM vs Direct DOM Manipulation
+
+While VDOM provides a clean programming model, Stencil knows when to bypass it:
+
+```typescript
+// For simple text updates, Stencil can use direct DOM
+if (BUILD.allRenderFn && !BUILD.vdomRender) {
+  // No VDOM needed - direct textContent update
+  elm.textContent = instance.render();
+}
+```
+
+This is another example of Stencil's philosophy: use the right tool for the job, not one-size-fits-all.
 
 ## Render Scheduling
 
