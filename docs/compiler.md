@@ -470,20 +470,11 @@ graph TD
     Bundles --> WwwOutput[www Output]
     Bundles --> CustomElements[Custom Elements]
     
-    DistOutput --> DistFiles[/dist/
-    • esm/
-    • cjs/
-    • loader/
-    • types/]
+    DistOutput --> DistFiles["/dist/<br/>- esm/<br/>- cjs/<br/>- loader/<br/>- types/"]
     
-    WwwOutput --> WwwFiles[/www/
-    • build/
-    • index.html
-    • host.config.json]
+    WwwOutput --> WwwFiles["/www/<br/>- build/<br/>- index.html<br/>- host.config.json"]
     
-    CustomElements --> CEFiles[/dist/components/
-    • individual files
-    • tree-shakeable]
+    CustomElements --> CEFiles["/dist/components/<br/>- individual files<br/>- tree-shakeable"]
 ```
 
 Each output target has its own generator:
