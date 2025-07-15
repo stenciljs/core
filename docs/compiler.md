@@ -271,7 +271,7 @@ export const createCompiler = async (userConfig: Config): Promise<Compiler> => {
   compilerCtx.cache = new Cache(config, createInMemoryFs(sys));
   
   // Patch TypeScript for Stencil's needs
-  patchTypescript(config, compilerCtx.fs);
+  patchTypeScript(config, compilerCtx.fs);
   
   return {
     build: () => createFullBuild(config, compilerCtx),
@@ -482,7 +482,7 @@ Each output target has its own generator:
 **WWW Output** ([`src/compiler/output-targets/output-www.ts`](../src/compiler/output-targets/output-www.ts)):
 - Generates an `index.html` that loads your app
 - Copies and optimizes assets
-- Inlines critical CSS
+- Embeds critical CSS inline
 - Adds preload hints
 
 **Dist Output** ([`src/compiler/output-targets/dist-lazy/`](../src/compiler/output-targets/dist-lazy/)):
@@ -543,7 +543,7 @@ export const createCompiler = async (userConfig: Config): Promise<Compiler> => {
   compilerCtx.worker = createSysWorker(config);
   
   // Patch TypeScript for Stencil
-  patchTypescript(config, compilerCtx.fs);
+  patchTypeScript(config, compilerCtx.fs);
   
   return {
     build: () => createFullBuild(config, compilerCtx),

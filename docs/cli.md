@@ -331,7 +331,7 @@ stencil build --debug
 Enables:
 - Verbose logging
 - Source maps
-- Unminified output
+- Non-minified output
 - Performance timing
 
 ### Node Debugging

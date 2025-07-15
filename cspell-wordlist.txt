@@ -43,6 +43,7 @@ codebases
 contentful
 cssnano
 cstrs
+Cstr
 declutter
 decorees
 deoptimized
@@ -56,6 +57,7 @@ docstrings
 dups
 endtoend
 expressjs
+extname
 filesize
 flexbox
 focusability
@@ -73,9 +75,12 @@ keydown
 kthxbai
 lcov
 lifecycles
+microedge
 microtask
+microtasks
 minifier
 myapp
+mycomponent
 myprop
 namespace
 nocheck
@@ -118,16 +123,19 @@ subdir
 templating
 timespan
 tmpl
+toplevel
 transpiles
 transpiling
 typedefs
 unshift
+Unminified
 unvalidated
 upvote
 vattrs
 vchildren
 vdom
 vermoji
+viewports
 vkey
 vname
 vnode
@@ -136,3 +144,4 @@ vtag
 wdio
 webapps
 xlink
+yourpackage
