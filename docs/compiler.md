@@ -298,8 +298,8 @@ graph TD
     end
     
     subgraph "Component Discovery"
-        SourceFiles[.tsx/.ts files] --> AST[TypeScript AST]
-        AST --> Decorators[@Component]
+        SourceFiles[".tsx/.ts files"] --> AST[TypeScript AST]
+        AST --> Decorators["@Component"]
         Decorators --> Metadata[Component Metadata]
     end
     
@@ -308,7 +308,7 @@ graph TD
         T1 --> T2[Prop Transform]
         T2 --> T3[Style Transform]  
         T3 --> T4[JSX Transform]
-        T4 --> Output[JavaScript + Metadata]
+        T4 --> Output["JavaScript + Metadata"]
     end
 ```
 
@@ -659,17 +659,17 @@ graph TD
         AST --> Visitor[AST Visitor]
         
         Visitor --> ClassDecl{Class Declaration?}
-        ClassDecl -->|Yes| HasDecorator{Has @Component?}
+        ClassDecl -->|Yes| HasDecorator{"Has @Component?"}
         ClassDecl -->|No| NextNode[Next Node]
         
         HasDecorator -->|Yes| ExtractMeta[Extract Metadata]
         HasDecorator -->|No| NextNode
         
-        ExtractMeta --> Props[Extract @Prop]
-        ExtractMeta --> States[Extract @State]
-        ExtractMeta --> Methods[Extract @Method]
-        ExtractMeta --> Events[Extract @Event]
-        ExtractMeta --> Listeners[Extract @Listen]
+        ExtractMeta --> Props["Extract @Prop"]
+        ExtractMeta --> States["Extract @State"]
+        ExtractMeta --> Methods["Extract @Method"]
+        ExtractMeta --> Events["Extract @Event"]
+        ExtractMeta --> Listeners["Extract @Listen"]
         
         Props --> BuildMeta[Build Component Metadata]
         States --> BuildMeta
