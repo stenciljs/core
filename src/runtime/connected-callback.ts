@@ -61,7 +61,7 @@ export const connectedCallback = (elm: d.HostElement) => {
             cmpMeta.$flags$ & (CMP_FLAGS.hasSlotRelocation | CMP_FLAGS.needsShadowDomShim))
         ) {
           setContentReference(elm);
-        } 
+        }
       }
 
       if (BUILD.asyncLoading) {
