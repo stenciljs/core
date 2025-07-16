@@ -7,11 +7,13 @@ BUILDID
 Brotli
 Brunelle
 Compi
+CSSOM
 Deno
 Deoptimization
 Descript
 FOUC
 Friis
+funcs
 Holowaychuk
 IIFE
 Ionicons
@@ -68,6 +70,7 @@ helloworld
 href
 hrefs
 hyperscript
+imgs
 importee
 inputmode
 jsnext
