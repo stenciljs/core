@@ -1,4 +1,4 @@
-import { $, browser, expect } from '@wdio/globals';
+import { browser, expect } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 import { setupIFrameTest } from '../util.js';
