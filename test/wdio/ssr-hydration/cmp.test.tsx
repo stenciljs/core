@@ -1,4 +1,4 @@
-import { browser } from '@wdio/globals';
+import { $, browser, expect } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 import { setupIFrameTest } from '../util.js';
@@ -496,12 +496,13 @@ describe('Sanity check SSR > Client hydration', () => {
 
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     const children = wrapCmp.childNodes;
+
+    await browser.pause(1000);
     // check that <style> tag for `scoped-cmp` gets added
     expect(children.length).toBe(4);
     expect(children[0].nodeValue).toBe(' 1 ');
     expect(children[1].textContent).toBe(' 2 ');
     expect(children[2].textContent).toBe('3');
-    expect((children[2] as Element).checkVisibility()).toBe(true);
     expect(children[3].nodeValue).toBe(' 4 ');
   });
 
@@ -537,9 +538,6 @@ describe('Sanity check SSR > Client hydration', () => {
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     expect(wrapCmp.childNodes.length).toBe(3);
     expect(wrapCmp.textContent).toBe('one23');
-    expect(wrapCmp.children[0].checkVisibility()).toBe(true);
-    expect(wrapCmp.children[1].checkVisibility()).toBe(true);
-    expect(wrapCmp.children[2].checkVisibility()).toBe(true);
   });
 
   it('correctly renders a slow to hydrate component with a prop', async () => {

@@ -1,5 +1,6 @@
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { browser, expect } from '@wdio/globals';
 
 import { defineCustomElement as defineCustomElementChildCmp } from '../test-components/custom-elements-hierarchy-lifecycle-child.js';
 import { defineCustomElement as defineCustomElementParentCmp } from '../test-components/custom-elements-hierarchy-lifecycle-parent.js';
@@ -15,6 +16,7 @@ describe('custom-elements-hierarchy-lifecycle', () => {
     expect(customElements.get('custom-elements-hierarchy-lifecycle-parent')).toBeDefined();
 
     render({
+      components: [],
       template: () => (
         <>
           <custom-elements-hierarchy-lifecycle-parent></custom-elements-hierarchy-lifecycle-parent>

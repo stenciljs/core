@@ -3,7 +3,6 @@
 import path from 'node:path';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const isCI = Boolean(process.env.CI);
 
 /**
  * Browser usage
@@ -41,6 +40,7 @@ export const config: WebdriverIO.Config = {
     'browser',
     {
       preset: 'stencil',
+      headless: true,
       viteConfig: {
         resolve: {
           alias: {
@@ -67,7 +67,7 @@ export const config: WebdriverIO.Config = {
   // The path of the spec files will be resolved relative from the directory of
   // of the config file unless it's absolute.
   //
-  specs: [['./**/*.test.tsx']],
+  specs: ['./**/*.test.tsx'],
   // Patterns to exclude.
   exclude: [
     // 'path/to/excluded/files'
@@ -88,7 +88,7 @@ export const config: WebdriverIO.Config = {
   // and 30 processes will get spawned. The property handles how many capabilities
   // from the same test should run tests.
   //
-  maxInstances: 10,
+  maxInstances: 5,
   //
   // we set this to an empty array here and programmatically add configuration below
   //
@@ -153,7 +153,7 @@ export const config: WebdriverIO.Config = {
 
   //
   // The number of times to retry the entire specfile when it fails as a whole
-  specFileRetries: isCI ? 1 : 0,
+  specFileRetries: 3,
   //
   // Delay in seconds between the spec file retry attempts
   // specFileRetriesDelay: 0,

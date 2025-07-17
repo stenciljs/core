@@ -29,7 +29,7 @@
     "normalize.css": "^8.0.1",
     "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.2",
-    "webdriverio": "^9.18.0",
+    "webdriverio": "^9.18.1",
     "workbox-build": "^4.3.1"
   },
   "volta": {
