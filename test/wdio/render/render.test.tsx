@@ -36,7 +36,7 @@ describe('Render VDOM', () => {
       "<div>
         <complex-properties class="hydrated">
           <template shadowrootmode="open">
-            <style>h2 { font-size: 16px; color: red; }h2::after { content: ": from global-css-entry.css"; }:host { display: block; margin: 10px; padding: 20px; border: 5px dotted red; }h1 { font-size: 18px; color: maroon; display: flex; }h1::after { content: ": from global-sass-entry.scss"; }</style>
+            <style>h2 { font-size: 16px; color: red; }h2::after { content: ": from global-css-entry.css"; }:host { display: block; margin: 10px; padding: 20px; border: 5px dotted red; }h1 { font-size: 18px; color: maroon; display: flex; }h1::after { content:": from global-sass-entry.scss"; }</style>
             <ul>
               <li>this.foo.bar: 123</li>
               <li>this.foo.loo: 1, 2, 3</li>
