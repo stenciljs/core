@@ -2,7 +2,7 @@ import './variables.css';
 
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
-import { $, browser, expect } from '@wdio/globals';
+import { browser } from '@wdio/globals';
 
 const css = `:root {
   --global-background: black;
@@ -17,7 +17,6 @@ body {
 describe('css-variables', () => {
   beforeEach(() => {
     render({
-      components: [],
       template: () => (
         <>
           <style>{css}</style>

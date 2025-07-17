@@ -1,4 +1,4 @@
-import { browser, expect } from '@wdio/globals';
+import { browser } from '@wdio/globals';
 
 import { renderToString } from '../hydrate/index.mjs';
 import { setupIFrameTest } from '../util.js';
@@ -496,7 +496,6 @@ describe('Sanity check SSR > Client hydration', () => {
 
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     const children = wrapCmp.childNodes;
-
     // check that <style> tag for `scoped-cmp` gets added
     expect(children.length).toBe(4);
     expect(children[0].nodeValue).toBe(' 1 ');
