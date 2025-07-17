@@ -197,8 +197,10 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
 
       if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
         // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
-        if (BUILD.experimentalSlotFixes && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-          patchPseudoShadowDom(HostElement.prototype);
+        if (BUILD.experimentalSlotFixes) {
+          if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
+            patchPseudoShadowDom(HostElement.prototype);
+          }
         } else {
           if (BUILD.slotChildNodesFix) {
             patchChildSlotNodes(HostElement.prototype);

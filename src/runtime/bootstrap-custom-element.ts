@@ -45,8 +45,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
 
   // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
   if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
-    if (BUILD.experimentalSlotFixes && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-      patchPseudoShadowDom(Cstr.prototype);
+    if (BUILD.experimentalSlotFixes) {
+      if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
+        patchPseudoShadowDom(Cstr.prototype);
+      }
     } else {
       if (BUILD.slotChildNodesFix) {
         patchChildSlotNodes(Cstr.prototype);
