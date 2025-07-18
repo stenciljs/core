@@ -44,7 +44,6 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
   }
 
   if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasRenderFn) {
-    // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
     if (BUILD.experimentalSlotFixes) {
       patchPseudoShadowDom(Cstr.prototype);
     } else {
