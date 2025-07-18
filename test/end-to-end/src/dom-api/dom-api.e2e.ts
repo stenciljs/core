@@ -240,10 +240,15 @@ describe('dom api e2e tests', () => {
 
     await page.waitForChanges();
 
-    expect(elm).toEqualText(`updated text content`);
+    expect(elm).toEqualText(`
+      dom apiupdated text content
+    `);
 
     expect(elm).toEqualHtml(`
       <dom-api custom-hydrate-flag="">
+        <span class="blue green red" data-a="a" data-z="z">
+          dom api
+        </span>
         updated text content
       </dom-api>
     `);
