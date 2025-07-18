@@ -35,6 +35,9 @@ export const formatComponentRuntimeMeta = (
   if (compilerMeta.encapsulation !== 'shadow' && compilerMeta.htmlTagNames.includes('slot')) {
     flags |= CMP_FLAGS.hasSlotRelocation;
   }
+  if (compilerMeta.hasRenderFn) {
+    flags |= CMP_FLAGS.hasRenderFn;
+  }
   if (compilerMeta.hasMode) {
     flags |= CMP_FLAGS.hasMode;
   }

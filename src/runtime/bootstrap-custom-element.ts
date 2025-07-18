@@ -43,12 +43,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
   }
 
-  // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
-  if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
+  if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasRenderFn) {
+    // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
     if (BUILD.experimentalSlotFixes) {
-      if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-        patchPseudoShadowDom(Cstr.prototype);
-      }
+      patchPseudoShadowDom(Cstr.prototype);
     } else {
       if (BUILD.slotChildNodesFix) {
         patchChildSlotNodes(Cstr.prototype);
