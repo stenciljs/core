@@ -90,5 +90,5 @@ In many cases, Stencil can be used as a drop in replacement for traditional fron
 ### Contributing
 
 Thanks for your interest in contributing!
-Please take a moment to read up on our guidelines for [contributing](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md).
+Please take a moment to read up on our guidelines for [contributing](https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md). We've created comprehensive technical documentation for contributors that explains Stencil's internal architecture, including the compiler, runtime, build system, and other core components in the [/docs](/docs/) directory.
 Please note that this project is released with a [Contributor Code of Conduct](https://github.com/stenciljs/core/blob/main/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
