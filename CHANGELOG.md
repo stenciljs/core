@@ -1,3 +1,13 @@
+## 🍺 [4.36.1](https://github.com/stenciljs/core/compare/v4.36.0...v4.36.1) (2025-07-18)
+
+
+### Bug Fixes
+
+* **runtime:** only patch non-shadow components with <slot>s ([#6348](https://github.com/stenciljs/core/issues/6348)) ([827b7f0](https://github.com/stenciljs/core/commit/827b7f0d553cde6afe5f9816c4907641d16f8c0f))
+* **runtime:** stop applying patches to non-shadow / non-render() components ([#6349](https://github.com/stenciljs/core/issues/6349)) ([3a18a37](https://github.com/stenciljs/core/commit/3a18a377850a332cc70cfe756d663d9cc4d23872))
+
+
+
 # 🎊 [4.36.0](https://github.com/stenciljs/core/compare/v4.35.3...v4.36.0) (2025-07-15)
 
 
