@@ -27,28 +27,8 @@ import { deserializeProperty, isComplexType, MEMBER_FLAGS, SERIALIZED_PREFIX } f
  */
 export const parsePropertyValue = (propValue: unknown, propType: number, isFormAssociated?: boolean): any => {
   /**
-   * Allow hydrate parameters that contain a simple object, e.g.
-   * ```ts
-   * import { renderToString } from 'component-library/hydrate';
-   * await renderToString(`<car-detail car=${JSON.stringify({ year: 1234 })}></car-detail>`);
-   * ```
-   * @deprecated
-   */
-  if (
-    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
-    typeof propValue === 'string' &&
-    ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
-  ) {
-    try {
-      propValue = JSON.parse(propValue);
-      return propValue;
-    } catch (e) {
-      /* ignore */
-    }
-  }
-
-  /**
    * Allow hydrate parameters that contain a complex non-serialized values.
+   * This is SSR-specific and should only run during hydration.
    */
   if (
     (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
@@ -57,6 +37,23 @@ export const parsePropertyValue = (propValue: unknown, propType: number, isFormA
   ) {
     propValue = deserializeProperty(propValue);
     return propValue;
+  }
+
+  /**
+   * For custom types (Unknown) and Any types, attempt JSON parsing if the value looks like JSON.
+   * This provides consistent behavior between SSR and non-SSR for complex types.
+   * We do this before the primitive type checks to ensure custom types get object parsing.
+   */
+  if (
+    typeof propValue === 'string' &&
+    (propType & MEMBER_FLAGS.Unknown || propType & MEMBER_FLAGS.Any) &&
+    ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
+  ) {
+    try {
+      return JSON.parse(propValue);
+    } catch (e) {
+      // If JSON parsing fails, continue with normal processing
+    }
   }
 
   if (propValue != null && !isComplexType(propValue)) {
