@@ -212,14 +212,16 @@ describe('prop', () => {
   it('should demonstrate JSON parsing for complex object props', async () => {
     @Component({ tag: 'simple-demo' })
     class SimpleDemo {
-      @Prop() message: {text: string} = {text: 'default'};
-      @Prop() messageAny: any = {text: 'default'};
+      @Prop() message: { text: string } = { text: 'default' };
+      @Prop() messageAny: any = { text: 'default' };
 
       render() {
-        return <div>
-          <div>{this.message.text}</div>
-          <div>{this.messageAny.text}</div>
-        </div>;
+        return (
+          <div>
+            <div>{this.message.text}</div>
+            <div>{this.messageAny.text}</div>
+          </div>
+        );
       }
     }
 
