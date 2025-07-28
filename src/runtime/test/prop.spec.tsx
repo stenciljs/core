@@ -208,4 +208,35 @@ describe('prop', () => {
       <cmp-a>4</cmp-a>
     `);
   });
+
+  it('should demonstrate JSON parsing for complex object props', async () => {
+    @Component({ tag: 'simple-demo' })
+    class SimpleDemo {
+      @Prop() message: { text: string } = { text: 'default' };
+      @Prop() messageAny: any = { text: 'default' };
+
+      render() {
+        return (
+          <div>
+            <div>{this.message.text}</div>
+            <div>{this.messageAny.text}</div>
+          </div>
+        );
+      }
+    }
+
+    const { root } = await newSpecPage({
+      components: [SimpleDemo],
+      html: `<simple-demo message='{"text": "Hello World"}' message-any='{"text": "Hello World"}'></simple-demo>`,
+    });
+
+    expect(root).toEqualHtml(`
+      <simple-demo message='{"text": "Hello World"}' message-any='{"text": "Hello World"}'>
+        <div>
+          <div>Hello World</div>
+          <div>Hello World</div>
+        </div>
+      </simple-demo>
+    `);
+  });
 });
