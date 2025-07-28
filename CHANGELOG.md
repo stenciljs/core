@@ -1,3 +1,12 @@
+## 💚 [4.36.2](https://github.com/stenciljs/core/compare/v4.36.1...v4.36.2) (2025-07-28)
+
+
+### Bug Fixes
+
+* **bundle:** remove post order of node-resolve ([#6353](https://github.com/stenciljs/core/issues/6353)) ([19b56d1](https://github.com/stenciljs/core/commit/19b56d19772b2f113cdc87837305b55eedea0361)), closes [#6335](https://github.com/stenciljs/core/issues/6335)
+
+
+
 ## 🍺 [4.36.1](https://github.com/stenciljs/core/compare/v4.36.0...v4.36.1) (2025-07-18)
 
 
