@@ -17,7 +17,7 @@ export const enum MEMBER_FLAGS {
   Setter = 1 << 12,
 
   Prop = String | Number | Boolean | Any | Unknown,
-  HasAttribute = String | Number | Boolean | Any,
+  HasAttribute = String | Number | Boolean | Any | Unknown,
   PropLike = Prop | State,
 }
 
