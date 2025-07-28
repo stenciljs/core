@@ -71,18 +71,38 @@ export const getRollupOptions = (
     // Investigate if we can use this to leverage Stencil's in-memory fs
   };
 
+  // @ts-expect-error - this is required now.
+  nodeResolvePlugin.warn = (log) => {
+    const onWarn = createOnWarnFn(buildCtx.diagnostics);
+    if (typeof log === 'string') {
+      onWarn({ message: log });
+    } else if (typeof log === 'function') {
+      const result = log();
+      if (typeof result === 'string') {
+        onWarn({ message: result });
+      } else {
+        onWarn(result);
+      }
+    } else {
+      onWarn(log);
+    }
+  };
+
   assertIsObjectHook(nodeResolvePlugin.resolveId);
   // remove default 'post' order
   nodeResolvePlugin.resolveId.order = null;
   const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
+
   const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (importee: string, importer: string) {
     const [realImportee, query] = importee.split('?');
     const resolved = await orgNodeResolveId.call(
       nodeResolvePlugin as unknown as PluginContext,
       realImportee,
       importer,
-      // @ts-expect-error - missing required properties but works in practice
-      {},
+      {
+        attributes: {},
+        isEntry: true,
+      },
     );
     if (resolved) {
       if (isString(resolved)) {
