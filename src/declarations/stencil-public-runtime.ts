@@ -118,6 +118,21 @@ export interface EventDecorator {
 export interface EventOptions {
   /**
    * A string custom event name to override the default.
+   * Can be a string literal, const variable, or nested object constant.
+   *
+   * @example
+   * ```typescript
+   * // String literal
+   * @Event({ eventName: 'myEvent' })
+   *
+   * // Const variable
+   * const EVENT_NAME = 'myEvent';
+   * @Event({ eventName: EVENT_NAME })
+   *
+   * // Nested object constant
+   * const EVENTS = { USER: { LOGIN: 'userLogin' } } as const;
+   * @Event({ eventName: EVENTS.USER.LOGIN })
+   * ```
    */
   eventName?: string;
   /**
@@ -141,6 +156,24 @@ export interface AttachInternalsDecorator {
 }
 
 export interface ListenDecorator {
+  /**
+   * @param eventName - The event name to listen for. Can be a string literal,
+   * const variable, or nested object constant.
+   *
+   * @example
+   * ```typescript
+   * // String literal
+   * @Listen('click')
+   *
+   * // Const variable
+   * const EVENT_NAME = 'customEvent';
+   * @Listen(EVENT_NAME)
+   *
+   * // Nested object constant
+   * const EVENTS = { USER: { LOGIN: 'userLogin' } } as const;
+   * @Listen(EVENTS.USER.LOGIN)
+   * ```
+   */
   (eventName: string, opts?: ListenOptions): CustomMethodDecorator<any>;
 }
 export interface ListenOptions {

@@ -281,6 +281,13 @@ export const arrayLiteralToArray = (arr: ts.ArrayLiteralExpression) => {
   });
 };
 
+/**
+ * Convert a TypeScript object literal expression to a JavaScript object map.
+ * Preserves variable references as identifiers for style processing.
+ *
+ * @param objectLiteral - The TypeScript object literal expression to convert
+ * @returns JavaScript object with preserved variable references
+ */
 export const objectLiteralToObjectMap = (objectLiteral: ts.ObjectLiteralExpression) => {
   const properties = objectLiteral.properties;
   const final: ObjectMap = {};
@@ -330,11 +337,117 @@ export const objectLiteralToObjectMap = (objectLiteral: ts.ObjectLiteralExpressi
           } else if (escapedText === 'null') {
             val = null;
           } else {
-            val = getIdentifierValue((propAssignment.initializer as ts.Identifier).escapedText);
+            val = getIdentifierValue(escapedText);
           }
           break;
 
         case ts.SyntaxKind.PropertyAccessExpression:
+          val = propAssignment.initializer;
+          break;
+
+        default:
+          val = propAssignment.initializer;
+      }
+    }
+    final[propName] = val;
+  }
+
+  return final;
+};
+
+/**
+ * Enhanced version of objectLiteralToObjectMap that resolves constants using TypeScript type checker.
+ * Used specifically for decorator parameter resolution where we want to resolve constants to their values.
+ *
+ * @param objectLiteral - The TypeScript object literal expression to convert
+ * @param typeChecker - TypeScript type checker for resolving constants
+ * @returns JavaScript object with resolved constant values
+ */
+export const objectLiteralToObjectMapWithConstants = (
+  objectLiteral: ts.ObjectLiteralExpression,
+  typeChecker: ts.TypeChecker,
+) => {
+  const properties = objectLiteral.properties;
+  const final: ObjectMap = {};
+
+  for (const propAssignment of properties) {
+    const propName = getTextOfPropertyName(propAssignment.name);
+    let val: any;
+
+    if (ts.isShorthandPropertyAssignment(propAssignment)) {
+      val = getIdentifierValue(propName);
+    } else if (ts.isPropertyAssignment(propAssignment)) {
+      switch (propAssignment.initializer.kind) {
+        case ts.SyntaxKind.ArrayLiteralExpression:
+          val = arrayLiteralToArray(propAssignment.initializer as ts.ArrayLiteralExpression);
+          break;
+
+        case ts.SyntaxKind.ObjectLiteralExpression:
+          val = objectLiteralToObjectMapWithConstants(
+            propAssignment.initializer as ts.ObjectLiteralExpression,
+            typeChecker,
+          );
+          break;
+
+        case ts.SyntaxKind.StringLiteral:
+          val = (propAssignment.initializer as ts.StringLiteral).text;
+          break;
+
+        case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
+          val = (propAssignment.initializer as ts.StringLiteral).text;
+          break;
+
+        case ts.SyntaxKind.TrueKeyword:
+          val = true;
+          break;
+
+        case ts.SyntaxKind.FalseKeyword:
+          val = false;
+          break;
+
+        case ts.SyntaxKind.Identifier:
+          const escapedText = (propAssignment.initializer as ts.Identifier).escapedText;
+          if (escapedText === 'String') {
+            val = String;
+          } else if (escapedText === 'Number') {
+            val = Number;
+          } else if (escapedText === 'Boolean') {
+            val = Boolean;
+          } else if (escapedText === 'undefined') {
+            val = undefined;
+          } else if (escapedText === 'null') {
+            val = null;
+          } else {
+            // Enhanced: Use TypeScript type checker to resolve constants
+            try {
+              const type = typeChecker.getTypeAtLocation(propAssignment.initializer);
+              if (type && type.isLiteral()) {
+                val = type.value;
+              } else {
+                val = getIdentifierValue(escapedText);
+              }
+            } catch {
+              // Fall back to original behavior if type checking fails
+              val = getIdentifierValue(escapedText);
+            }
+          }
+          break;
+
+        case ts.SyntaxKind.PropertyAccessExpression:
+          // Enhanced: Use TypeScript type checker to resolve property access expressions like EVENTS.USER.LOGIN
+          try {
+            const type = typeChecker.getTypeAtLocation(propAssignment.initializer);
+            if (type && type.isLiteral()) {
+              val = type.value;
+            } else {
+              val = propAssignment.initializer;
+            }
+          } catch {
+            // Fall back to original behavior if type checking fails
+            val = propAssignment.initializer;
+          }
+          break;
+
         default:
           val = propAssignment.initializer;
       }
