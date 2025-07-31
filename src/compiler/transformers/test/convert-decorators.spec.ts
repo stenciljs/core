@@ -194,6 +194,9 @@ describe('convert-decorators', () => {
           this.count = 0;
           super();
         }
+        static get is() {
+          return 'cmp-a';
+        }
         static get states() {
           return { "count": {} };
         }}`,

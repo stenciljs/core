@@ -950,6 +950,20 @@ export const retrieveTsModifiers = (node: ts.Node): ReadonlyArray<ts.Modifier> |
 };
 
 /**
+ * Helper method for finding a `super()` call in a constructor body.
+ * @param constructorBodyStatements the body statements of a constructor
+ * @returns the first statement in the constructor body that is a call to `super()`
+ */
+function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>) {
+  return constructorBodyStatements?.find(
+    (s) =>
+      ts.isExpressionStatement(s) &&
+      ts.isCallExpression(s.expression) &&
+      s.expression.expression.kind === ts.SyntaxKind.SuperKeyword,
+  );
+}
+
+/**
  * Helper util for updating the constructor on a class declaration AST node.
  *
  * @param classNode the class node whose constructor will be updated
@@ -971,11 +985,9 @@ export const updateConstructor = (
   if (constructorIndex < 0 && !statements?.length && !needsSuper(classNode)) return classMembers;
 
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
-    const constructorBodyStatements: ts.NodeArray<ts.Statement> =
-      constructorMethod.body?.statements ?? ts.factory.createNodeArray();
-    const hasSuper = constructorBodyStatements.some((s) => s.kind === ts.SyntaxKind.SuperKeyword);
+    const constructorBodyStatements = constructorMethod.body?.statements;
 
-    if (!hasSuper && needsSuper(classNode)) {
+    if (!foundSuper(constructorBodyStatements) && needsSuper(classNode)) {
       // if there is no super and it needs one the statements comprising the
       // body of the constructor should be:
       //
@@ -984,11 +996,17 @@ export const updateConstructor = (
       // 3. the statements currently comprising the body of the constructor
       statements = [createConstructorBodyWithSuper(), ...statements, ...constructorBodyStatements];
     } else {
-      // if no super is needed then the body of the constructor should be:
-      //
-      // 1. the new statements we've created
-      // 2. the statements currently comprising the body of the constructor
-      statements = [...statements, ...constructorBodyStatements];
+      const superCall = foundSuper(constructorBodyStatements);
+      const updatedStatements = constructorBodyStatements.filter((s) => s !== superCall);
+      // if no new super is needed. The body of the constructor should be:
+      // 1. Any current super call
+      // 2. the new statements we've created
+      // 3. the statements currently comprising the body of the constructor
+      if (superCall) {
+        statements = [superCall, ...statements, ...updatedStatements];
+      } else {
+        statements = [...statements, ...updatedStatements];
+      }
     }
 
     classMembers[constructorIndex] = ts.factory.updateConstructorDeclaration(
@@ -1010,7 +1028,6 @@ export const updateConstructor = (
       ts.factory.createConstructorDeclaration(undefined, parameters ?? [], ts.factory.createBlock(statements, true)),
     );
   }
-
   return classMembers;
 };
 
