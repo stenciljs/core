@@ -46,13 +46,16 @@ export const updateLazyComponentConstructor = (
  * @param moduleFile information about a module containing a Stencil component
  * @returns an expression statement for a call to the `registerInstance` helper
  */
-const registerInstanceStatement = (moduleFile: d.Module): ts.ExpressionStatement => {
+const registerInstanceStatement = (moduleFile: d.Module) => {
   addCoreRuntimeApi(moduleFile, RUNTIME_APIS.registerInstance);
 
-  return ts.factory.createExpressionStatement(
-    ts.factory.createCallExpression(ts.factory.createIdentifier(REGISTER_INSTANCE), undefined, [
-      ts.factory.createThis(),
-      ts.factory.createIdentifier(HOST_REF_ARG),
-    ]),
+  return ts.factory.createIfStatement(
+    ts.factory.createIdentifier(HOST_REF_ARG),
+    ts.factory.createExpressionStatement(
+      ts.factory.createCallExpression(ts.factory.createIdentifier(REGISTER_INSTANCE), undefined, [
+        ts.factory.createThis(),
+        ts.factory.createIdentifier(HOST_REF_ARG),
+      ]),
+    ),
   );
 };

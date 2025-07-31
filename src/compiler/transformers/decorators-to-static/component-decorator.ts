@@ -95,16 +95,6 @@ const validateComponent = (
   cmpNode: ts.ClassDeclaration,
   componentDecorator: ts.Decorator,
 ) => {
-  const extendNode =
-    cmpNode.heritageClauses && cmpNode.heritageClauses.find((c) => c.token === ts.SyntaxKind.ExtendsKeyword);
-  if (extendNode) {
-    const err = buildError(diagnostics);
-    err.messageText = `Classes decorated with @Component can not extend from a base class.
-    Stencil needs to be able to switch between different base classes in order to implement the different output targets such as: lazy and raw web components.`;
-    augmentDiagnosticWithNode(err, extendNode);
-    return false;
-  }
-
   if (componentOptions.shadow && componentOptions.scoped) {
     const err = buildError(diagnostics);
     err.messageText = `Components cannot be "scoped" and "shadow" at the same time, they are mutually exclusive configurations.`;
