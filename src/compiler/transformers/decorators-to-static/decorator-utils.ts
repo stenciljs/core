@@ -36,6 +36,9 @@ const getDecoratorParameter = (arg: ts.Expression, typeChecker: ts.TypeChecker):
 /**
  * Enhanced version of getDecoratorParameter that resolves constants in object literals.
  * Used specifically for @Event and @Listen decorators where we want to resolve constants.
+ * @param arg - The expression to get the parameter for.
+ * @param typeChecker - The type checker to use to resolve constants.
+ * @returns The parameter value.
  */
 const getDecoratorParameterWithConstants = (arg: ts.Expression, typeChecker: ts.TypeChecker): any => {
   if (ts.isObjectLiteralExpression(arg)) {
@@ -62,6 +65,9 @@ const getDecoratorParameterWithConstants = (arg: ts.Expression, typeChecker: ts.
 /**
  * Enhanced version of getDecoratorParameters that resolves constants.
  * Used specifically for @Event and @Listen decorators where we want to resolve constants to their values.
+ * @param decorator - The decorator to get the parameters for.
+ * @param typeChecker - The type checker to use to resolve constants.
+ * @returns The parameters value.
  */
 export const getDecoratorParametersWithConstants: GetDecoratorParameters = (
   decorator: ts.Decorator,
