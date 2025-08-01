@@ -10,7 +10,7 @@ import {
   retrieveTsDecorators,
   serializeSymbol,
 } from '../transform-utils';
-import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
+import { getDecoratorParametersWithConstants, isDecoratorNamed } from './decorator-utils';
 
 export const eventDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
@@ -60,7 +60,7 @@ const parseEventDecorator = (
     return null;
   }
 
-  const [eventOpts] = getDecoratorParameters<d.EventOptions>(eventDecorator, typeChecker);
+  const [eventOpts] = getDecoratorParametersWithConstants<d.EventOptions>(eventDecorator, typeChecker);
   const symbol = typeChecker.getSymbolAtLocation(prop.name);
   const eventName = getEventName(eventOpts, memberName);
 

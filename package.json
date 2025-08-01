@@ -104,7 +104,7 @@
     "clean": "rimraf --max-retries=2 build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/node/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
     "clean.screenshots": "rimraf test/end-to-end/screenshot/builds test/end-to-end/screenshot/images",
     "clean:scripts": "rimraf scripts/build",
-    "lint": "eslint 'bin/*' 'scripts/*.ts' 'scripts/**/*.ts' 'src/*.ts' 'src/**/*.ts' 'src/**/*.tsx' 'test/wdio/**/*.tsx'",
+    "lint": "eslint bin/* scripts/*.ts scripts/**/*.ts src/*.ts src/**/*.ts src/**/*.tsx test/wdio/**/*.tsx",
     "install.jest": "npx tsx ./src/testing/jest/install-dependencies.mts",
     "prettier": "npm run prettier.base -- --write",
     "prettier.base": "prettier --cache \"./({bin,scripts,src,test}/**/*.{ts,tsx,js,jsx})|bin/stencil|.github/(**/)?*.(yml|yaml)|*.js\"",

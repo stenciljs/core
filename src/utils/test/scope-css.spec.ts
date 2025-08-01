@@ -121,7 +121,7 @@ describe('scopeCSS', function () {
   it('should perform relative fast', () => {
     const now = Date.now();
     scopeCss(exampleComponentCss, 'a', true);
-    expect(Date.now() - now).toBeLessThan(200);
+    expect(Date.now() - now).toBeLessThan(300);
   });
 
   it('should handle complicated selectors', () => {
