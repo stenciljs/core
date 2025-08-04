@@ -1013,8 +1013,9 @@ export const updateConstructor = (
 
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
     const constructorBodyStatements = constructorMethod.body?.statements;
+    const foundSuperCall = foundSuper(constructorBodyStatements);
 
-    if (!foundSuper(constructorBodyStatements) && needsSuper(classNode)) {
+    if (!foundSuperCall && needsSuper(classNode)) {
       // if there is no super and it needs one the statements comprising the
       // body of the constructor should be:
       //
@@ -1023,14 +1024,13 @@ export const updateConstructor = (
       // 3. the statements currently comprising the body of the constructor
       statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements, ...constructorBodyStatements];
     } else {
-      const superCall = foundSuper(constructorBodyStatements);
-      const updatedStatements = constructorBodyStatements.filter((s) => s !== superCall);
+      const updatedStatements = constructorBodyStatements.filter((s) => s !== foundSuperCall);
       // if no new super is needed. The body of the constructor should be:
       // 1. Any current super call
       // 2. the new statements we've created
       // 3. the statements currently comprising the body of the constructor
-      if (superCall) {
-        statements = [superCall, ...statements, ...updatedStatements];
+      if (foundSuperCall) {
+        statements = [foundSuperCall, ...statements, ...updatedStatements];
       } else {
         statements = [...statements, ...updatedStatements];
       }
