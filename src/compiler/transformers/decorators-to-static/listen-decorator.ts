@@ -3,7 +3,7 @@ import ts from 'typescript';
 
 import type * as d from '../../../declarations';
 import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
-import { getDecoratorParametersWithConstants, isDecoratorNamed } from './decorator-utils';
+import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
 export const listenDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
@@ -22,6 +22,25 @@ export const listenDecoratorsToStatic = (
   }
 };
 
+/**
+ * Parses the listen decorator and returns the event name and the listen options
+ * Allows for the event name to be a string literal, constant, or property access expression
+ * @param decorator - The decorator to parse
+ * @param typeChecker - The type checker to use
+ * @returns A tuple containing the event name and the listen options
+ */
+const getListenDecoratorOptions = (decorator: ts.Decorator, typeChecker: ts.TypeChecker): [string, d.ListenOptions] => {
+  if (!ts.isCallExpression(decorator.expression)) {
+    return ['', {}];
+  }
+
+  const [eventName, options] = getDecoratorParameters<string, d.ListenOptions>(decorator, typeChecker);
+
+  // If options is provided, it's already parsed by getDecoratorParameters
+  // If eventName is resolved but options is undefined, return empty options
+  return [eventName || '', options || {}];
+};
+
 const parseListenDecorators = (
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
@@ -35,10 +54,7 @@ const parseListenDecorators = (
 
   return listenDecorators.map((listenDecorator) => {
     const methodName = method.name.getText();
-    const [listenText, listenOptions] = getDecoratorParametersWithConstants<string, d.ListenOptions>(
-      listenDecorator,
-      typeChecker,
-    );
+    const [listenText, listenOptions] = getListenDecoratorOptions(listenDecorator, typeChecker);
 
     const eventNames = listenText.split(',');
     if (eventNames.length > 1) {

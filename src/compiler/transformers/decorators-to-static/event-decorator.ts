@@ -6,11 +6,12 @@ import {
   convertValueToLiteral,
   createStaticGetter,
   getAttributeTypeInfo,
+  objectLiteralToObjectMapWithConstants,
   resolveType,
   retrieveTsDecorators,
   serializeSymbol,
 } from '../transform-utils';
-import { getDecoratorParametersWithConstants, isDecoratorNamed } from './decorator-utils';
+import { isDecoratorNamed } from './decorator-utils';
 
 export const eventDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
@@ -28,6 +29,17 @@ export const eventDecoratorsToStatic = (
   if (events.length > 0) {
     newMembers.push(createStaticGetter('events', convertValueToLiteral(events)));
   }
+};
+
+const getEventDecoratorOptions = (decorator: ts.Decorator, typeChecker: ts.TypeChecker): [d.EventOptions] => {
+  if (!ts.isCallExpression(decorator.expression)) {
+    return [{}];
+  }
+  const [arg] = decorator.expression.arguments;
+  if (arg && ts.isObjectLiteralExpression(arg)) {
+    return [objectLiteralToObjectMapWithConstants(arg, typeChecker)];
+  }
+  return [{}];
 };
 
 /**
@@ -60,7 +72,7 @@ const parseEventDecorator = (
     return null;
   }
 
-  const [eventOpts] = getDecoratorParametersWithConstants<d.EventOptions>(eventDecorator, typeChecker);
+  const [eventOpts] = getEventDecoratorOptions(eventDecorator, typeChecker);
   const symbol = typeChecker.getSymbolAtLocation(prop.name);
   const eventName = getEventName(eventOpts, memberName);
 
