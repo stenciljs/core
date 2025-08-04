@@ -32,12 +32,12 @@ describe('Render VDOM', () => {
       </div>
     );
     render(vdom, document.body);
-    
+
     // Use separate assertions instead of inline snapshot to avoid framework issues
     const component = await $('complex-properties');
     await expect(component).toExist();
     await expect(component).toHaveElementClass('hydrated');
-    
+
     // Verify each prop value is rendered correctly
     const listItems = await component.$$('li');
     await expect(listItems[0]).toHaveText('this.foo.bar: 123');
