@@ -24,9 +24,7 @@ describe('textContent patch', () => {
   describe('scoped encapsulation', () => {
     it('should return the content of all slots', async () => {
       const elm = $('text-content-patch-scoped-with-slot');
-      await expect(elm.getText()).toMatchInlineSnapshot(`
-        "Slot content
-Suffix content"`);
+      await expect(await elm.getText()).toBe('Slot content\nSuffix content');
     });
 
     it('should return an empty string if there is no slotted content', async () => {
@@ -43,7 +41,7 @@ Suffix content"`);
         elm as any as HTMLElement,
       );
 
-      await expect(elm.getText()).toMatchInlineSnapshot(`"New slot content"`);
+      await expect(await elm.getText()).toBe('New slot content');
     });
 
     it('should not insert the text node if there is no default slot', async () => {
