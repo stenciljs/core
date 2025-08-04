@@ -1247,6 +1247,8 @@ export type ModuleMap = Map<string, Module>;
  */
 export interface Module {
   cmps: ComponentCompilerMeta[];
+  isMixin: boolean;
+  isExtended: boolean;
   /**
    * A collection of modules that a component will need. The modules in this list must have import statements generated
    * in order for the component to function.
