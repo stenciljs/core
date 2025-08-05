@@ -192,6 +192,7 @@ export const parseStaticComponentMeta = (
   let events = parseStaticEvents(staticMembers);
   let watchers = parseStaticWatchers(staticMembers);
   let hasMixin = false;
+  let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
 
   const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, config);
   tree.map((extendedClass) => {
@@ -210,6 +211,7 @@ export const parseStaticComponentMeta = (
     listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];
     events = [...deDupeMembers(parseStaticEvents(extendedStaticMembers) ?? [], events), ...events];
     watchers = [...(parseStaticWatchers(extendedStaticMembers) ?? []), ...watchers];
+    classMethods = [...classMethods, ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? [])];
 
     if (isMixin) {
       hasMixin = true;
@@ -304,18 +306,18 @@ export const parseStaticComponentMeta = (
     directDependencies: [],
   };
 
-  const visitComponentChildNode = (node: ts.Node) => {
-    validateComponentMembers(node);
+  const visitComponentChildNode = (node: ts.Node, buildCtx: d.BuildCtx) => {
+    validateComponentMembers(node, buildCtx);
 
     if (ts.isCallExpression(node)) {
       parseCallExpression(cmp, node);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }
-    node.forEachChild(visitComponentChildNode);
+    node.forEachChild((child) => visitComponentChildNode(child, buildCtx));
   };
-  visitComponentChildNode(cmpNode);
-  parseClassMethods(cmpNode, cmp);
+  visitComponentChildNode(cmpNode, buildCtx);
+  parseClassMethods(classMethods, cmp);
   const hasModernPropertyDecls = detectModernPropDeclarations(cmpNode, cmp);
 
   if (!hasModernPropertyDecls && hasMixin) {
@@ -347,7 +349,7 @@ export const parseStaticComponentMeta = (
   return cmpNode;
 };
 
-const validateComponentMembers = (node: ts.Node) => {
+const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
   /**
    * validate if:
    */
@@ -379,9 +381,10 @@ const validateComponentMembers = (node: ts.Node) => {
       )
     ) {
       const componentName = node.parent.name.getText();
-      throw new Error(
-        `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`,
-      );
+      const err = buildError(buildCtx.diagnostics);
+      err.messageText = `The component "${componentName}" has a getter called "${propName}". 
+      This getter is reserved for use by Stencil components and should not be defined by the user.`;
+      augmentDiagnosticWithNode(err, node);
     }
   }
 };
