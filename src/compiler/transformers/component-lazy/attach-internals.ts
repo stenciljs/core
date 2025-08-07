@@ -42,6 +42,9 @@ import { HOST_REF_ARG } from './constants';
  * @returns a list of expression statements
  */
 export function createLazyAttachInternalsBinding(cmp: d.ComponentCompilerMeta): ts.Statement[] {
+  if (!cmp?.attachInternalsMemberName) {
+    return [];
+  }
   if (cmp.attachInternalsMemberName) {
     return [
       ts.factory.createIfStatement(

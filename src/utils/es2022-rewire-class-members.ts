@@ -41,19 +41,23 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
       const ogValue = instance[memberName];
 
       // Get the original Stencil prototype `get` / `set`
-      const ogDescriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), memberName);
+      const ogDescriptor =
+        Object.getOwnPropertyDescriptor(Object.getPrototypeOf(instance), memberName) ||
+        Object.getOwnPropertyDescriptor(instance, memberName);
 
-      // Re-wire original accessors to the new instance
-      Object.defineProperty(instance, memberName, {
-        get() {
-          return ogDescriptor.get.call(this);
-        },
-        set(newValue) {
-          ogDescriptor.set.call(this, newValue);
-        },
-        configurable: true,
-        enumerable: true,
-      });
+      if (ogDescriptor) {
+        // Re-wire original accessors to the new instance
+        Object.defineProperty(instance, memberName, {
+          get() {
+            return ogDescriptor.get.call(this);
+          },
+          set(newValue) {
+            ogDescriptor.set.call(this, newValue);
+          },
+          configurable: true,
+          enumerable: true,
+        });
+      }
 
       instance[memberName] = hostRef.$instanceValues$.has(memberName)
         ? hostRef.$instanceValues$.get(memberName)

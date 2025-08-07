@@ -127,9 +127,11 @@ describe('nativeComponentTransform', () => {
 
       expect(await formatCode(transpiledModule.outputText)).toContain(
         await c`const CmpA = class extends HTMLElement {
-          constructor() {
+          constructor(registerHost) {
             super();
-            this.__registerHost();
+            if (registerHost !== false) {
+              this.__registerHost();
+            }
           }
           static get formAssociated() {
             return true;
@@ -154,9 +156,11 @@ describe('nativeComponentTransform', () => {
 
       expect(await formatCode(transpiledModule.outputText)).toContain(
         await c`const CmpA = class extends HTMLElement {
-          constructor() {
+          constructor(registerHost) {
             super();
-            this.__registerHost();
+            if (registerHost !== false) {
+              this.__registerHost();
+            }
             this.internals = this.attachInternals();
           }
           static get formAssociated() {
@@ -197,9 +201,11 @@ describe('nativeComponentTransform', () => {
         await formatCode(`import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from '@stencil/core';
           ${expectedImport}
           const CmpA = class extends HTMLElement {
-            constructor() {
+            constructor(registerHost) {
               super();
-              this.__registerHost();
+              if (registerHost !== false) {
+                this.__registerHost();
+              }
             }
             static get style() {
               return ${expectedStyleReturn};

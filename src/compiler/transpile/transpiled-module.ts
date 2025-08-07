@@ -31,6 +31,8 @@ export const createModule = (
   staticSourceFile,
   staticSourceFileText,
   cmps: [],
+  isExtended: false,
+  isMixin: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: null,
