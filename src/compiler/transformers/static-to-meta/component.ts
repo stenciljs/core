@@ -39,7 +39,6 @@ const BLACKLISTED_COMPONENT_METHODS = [
  * @param classDeclaration a class declaration to analyze
  * @param dependentClasses a flat array tree of classes that extend from each other
  * @param typeChecker the TypeScript type checker
- * @param config the Stencil configuration
  * @returns a flat array of classes that extend from each other, including the current class
  */
 const buildExtendsTree = (
@@ -47,7 +46,7 @@ const buildExtendsTree = (
   classDeclaration: ts.ClassDeclaration,
   dependentClasses: { classNode: ts.ClassDeclaration; fileName: string }[],
   typeChecker: ts.TypeChecker,
-  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
 ) => {
   const hasHeritageClauses = classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
   if (!hasHeritageClauses) return dependentClasses;
@@ -73,7 +72,7 @@ const buildExtendsTree = (
           source.statements.forEach((statement) => {
             if (ts.isClassDeclaration(statement)) {
               dependentClasses.push({ classNode: statement, fileName: source.fileName });
-              buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, config);
+              buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
             }
           });
         }
@@ -81,40 +80,58 @@ const buildExtendsTree = (
     } catch (e) {
       // sad path (normally >1 levels deep): the extends type does not resolve so let's find it manually:
       const currentSource = classDeclaration.getSourceFile();
-      classDeclaration.getSourceFile()?.statements.forEach((statement) => {
-        if (ts.isImportDeclaration(statement)) {
-          // 1) loop through import declarations in the current source file
-          if (ts.isNamedImports(statement.importClause?.namedBindings)) {
-            statement.importClause?.namedBindings.elements.forEach((element) => {
-              // 2) loop through the named bindings of the import declaration
-              if (element.name.getText() === type.expression.getText()) {
-                // 3) check the name matches the `extends` type expression
-                const className = element.propertyName?.getText() || element.name.getText();
-                const foundFile = tsResolveModuleName(
-                  config,
-                  compilerCtx,
-                  statement.moduleSpecifier.getText().replaceAll(/['"]/g, ''),
-                  currentSource.fileName,
-                );
-                if (foundFile) {
-                  // 4) resolve the module name to a file
-                  const foundModule = compilerCtx.moduleMap.get(foundFile.resolvedModule.resolvedFileName);
-                  (foundModule?.staticSourceFile as ts.SourceFile).statements.forEach((statement) => {
-                    if (
-                      ts.isClassDeclaration(statement) &&
-                      statement.name?.getText() === className &&
-                      !dependentClasses.some((dc) => dc.classNode === statement)
-                    ) {
-                      // 5) find the class declaration
-                      dependentClasses.push({ classNode: statement, fileName: foundModule.staticSourceFile.fileName });
-                      // 6) check if the class declaration extends from another class
-                      buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, config);
-                    }
-                  });
-                }
-              }
-            });
+      const importStatements = currentSource.statements.filter(ts.isImportDeclaration);
+      const classDeclarations = currentSource.statements.filter(ts.isClassDeclaration);
+      let found = false;
+
+      // let's first check if the class is in the current source file
+      if (classDeclarations.length > 1) {
+        classDeclarations.forEach((statement) => {
+          if (
+            statement.name?.getText() === type.expression.getText() &&
+            !dependentClasses.some((dc) => dc.classNode === statement)
+          ) {
+            found = true;
+            dependentClasses.push({ classNode: statement, fileName: currentSource.fileName });
+            buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
           }
+        });
+      }
+      if (found) return;
+
+      // if not found, let's check the import statements
+      importStatements.forEach((statement) => {
+        // 1) loop through import declarations in the current source file
+        if (ts.isNamedImports(statement.importClause?.namedBindings)) {
+          statement.importClause?.namedBindings.elements.forEach((element) => {
+            // 2) loop through the named bindings of the import declaration
+            if (element.name.getText() === type.expression.getText()) {
+              // 3) check the name matches the `extends` type expression
+              const className = element.propertyName?.getText() || element.name.getText();
+              const foundFile = tsResolveModuleName(
+                buildCtx.config,
+                compilerCtx,
+                statement.moduleSpecifier.getText().replaceAll(/['"]/g, ''),
+                currentSource.fileName,
+              );
+              if (foundFile) {
+                // 4) resolve the module name to a file
+                const foundModule = compilerCtx.moduleMap.get(foundFile.resolvedModule.resolvedFileName);
+                (foundModule?.staticSourceFile as ts.SourceFile).statements.forEach((statement) => {
+                  if (
+                    ts.isClassDeclaration(statement) &&
+                    statement.name?.getText() === className &&
+                    !dependentClasses.some((dc) => dc.classNode === statement)
+                  ) {
+                    // 5) find the class declaration
+                    dependentClasses.push({ classNode: statement, fileName: foundModule.staticSourceFile.fileName });
+                    // 6) check if the class declaration extends from another class
+                    buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
+                  }
+                });
+              }
+            }
+          });
         }
       });
     }
@@ -128,7 +145,8 @@ type DeDupeMember =
   | d.ComponentCompilerState
   | d.ComponentCompilerMethod
   | d.ComponentCompilerListener
-  | d.ComponentCompilerEvent;
+  | d.ComponentCompilerEvent
+  | d.ComponentCompilerWatch;
 
 /**
  * Given two arrays of static members, return a new array containing only the
@@ -140,7 +158,15 @@ type DeDupeMember =
  * @returns an array of static members that are not present in the second array
  */
 const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers: T[]) => {
-  return dedupeMembers.filter((s) => !staticMembers.some((d) => d.name === s.name));
+  return dedupeMembers.filter(
+    (s) =>
+      !staticMembers.some((d) => {
+        if ((d as d.ComponentCompilerWatch).methodName) {
+          return (d as any).methodName === (s as any).methodName;
+        }
+        return (d as any).name === (s as any).name;
+      }),
+  );
 };
 
 /**
@@ -163,7 +189,6 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
  * @param buildCtx the current build context, used to surface diagnostics
  * @param transformOpts options which control various aspects of the
  * transformation
- * @param config stencil configuration
  * @returns the TypeScript class declaration IR instance with which the
  * function was called
  */
@@ -174,7 +199,6 @@ export const parseStaticComponentMeta = (
   moduleFile: d.Module,
   buildCtx: d.BuildCtx,
   transformOpts?: d.TransformOptions,
-  config?: d.ValidatedConfig,
 ): ts.ClassDeclaration => {
   if (cmpNode.members == null) {
     return cmpNode;
@@ -194,7 +218,7 @@ export const parseStaticComponentMeta = (
   let hasMixin = false;
   let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
 
-  const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, config);
+  const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, buildCtx);
   tree.map((extendedClass) => {
     const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
     const mixinProps = parseStaticProps(extendedStaticMembers) ?? [];
@@ -210,7 +234,7 @@ export const parseStaticComponentMeta = (
     methods = [...deDupeMembers(parseStaticMethods(extendedStaticMembers) ?? [], methods), ...methods];
     listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];
     events = [...deDupeMembers(parseStaticEvents(extendedStaticMembers) ?? [], events), ...events];
-    watchers = [...(parseStaticWatchers(extendedStaticMembers) ?? []), ...watchers];
+    watchers = [...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers), ...watchers];
     classMethods = [...classMethods, ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? [])];
 
     if (isMixin) {
@@ -322,9 +346,10 @@ export const parseStaticComponentMeta = (
 
   if (!hasModernPropertyDecls && hasMixin) {
     const err = buildError(buildCtx.diagnostics);
+    const target = buildCtx.config.tsCompilerOptions?.target;
     err.messageText = `Component classes can only extend from other Stencil decorated base classes when targetting more modern JavaScript (ES2022 and above).
-    Your current TypeScript configuration is set to target \`${ts.ScriptTarget[config.tsCompilerOptions.target]}\` - please amend your tsconfig.json.`;
-    augmentDiagnosticWithNode(err, cmpNode);
+    ${target ? `Your current TypeScript configuration is set to target \`${ts.ScriptTarget[target]}\`.` : ''} Please amend your tsconfig.json.`;
+    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, cmpNode);
   }
 
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
@@ -382,8 +407,7 @@ const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
     ) {
       const componentName = node.parent.name.getText();
       const err = buildError(buildCtx.diagnostics);
-      err.messageText = `The component "${componentName}" has a getter called "${propName}". 
-      This getter is reserved for use by Stencil components and should not be defined by the user.`;
+      err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
       augmentDiagnosticWithNode(err, node);
     }
   }
