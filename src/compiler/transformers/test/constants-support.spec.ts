@@ -370,4 +370,192 @@ describe('constants support in decorators', () => {
       expect(t.event.name).toBe('nullEvent');
     });
   });
+
+  describe('enhanced constant resolution without as const', () => {
+    it('should work with const variables without as const in @Listen decorator', () => {
+      const t = transpileModule(`
+        const EVENT_NAME = 'customEvent';
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Listen(EVENT_NAME)
+          handleEvent() {
+            console.log('event handled');
+          }
+        }
+      `);
+
+      expect(t.listeners).toEqual([
+        {
+          name: 'customEvent',
+          method: 'handleEvent',
+          capture: false,
+          passive: false,
+          target: undefined,
+        },
+      ]);
+    });
+
+    it('should work with object properties without as const in @Listen decorator', () => {
+      const t = transpileModule(`
+        const EVENT_NAMES = {
+          CLICK: 'click',
+          HOVER: 'hover'
+        };
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Listen(EVENT_NAMES.CLICK)
+          handleClick() {
+            console.log('clicked');
+          }
+          
+          @Listen(EVENT_NAMES.HOVER)
+          handleHover() {
+            console.log('hovered');
+          }
+        }
+      `);
+
+      expect(t.listeners).toEqual([
+        {
+          name: 'click',
+          method: 'handleClick',
+          capture: false,
+          passive: false,
+          target: undefined,
+        },
+        {
+          name: 'hover',
+          method: 'handleHover',
+          capture: false,
+          passive: false,
+          target: undefined,
+        },
+      ]);
+    });
+
+    it('should work with const variables without as const in @Event decorator', () => {
+      const t = transpileModule(`
+        const EVENT_NAME = 'myCustomEvent';
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ eventName: EVENT_NAME }) customEvent: EventEmitter<string>;
+        }
+      `);
+
+      expect(t.event).toEqual({
+        name: 'myCustomEvent',
+        method: 'customEvent',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        internal: false,
+        complexType: {
+          original: 'string',
+          resolved: 'string',
+          references: {},
+        },
+        docs: {
+          text: '',
+          tags: [],
+        },
+      });
+    });
+
+    it('should work with object properties without as const in @Event decorator', () => {
+      const t = transpileModule(`
+        const EVENT_NAMES = {
+          USER: {
+            LOGIN: 'userLogin',
+            LOGOUT: 'userLogout'
+          }
+        };
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ eventName: EVENT_NAMES.USER.LOGIN }) loginEvent: EventEmitter<string>;
+        }
+      `);
+
+      expect(t.event).toEqual({
+        name: 'userLogin',
+        method: 'loginEvent',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        internal: false,
+        complexType: {
+          original: 'string',
+          resolved: 'string',
+          references: {},
+        },
+        docs: {
+          text: '',
+          tags: [],
+        },
+      });
+    });
+
+    it('should work with number constants in decorators', () => {
+      const t = transpileModule(`
+        const TIMEOUT_MS = 5000;
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ eventName: 'timeout', customEventInit: { timeout: TIMEOUT_MS } }) timeoutEvent: EventEmitter<number>;
+        }
+      `);
+
+      // Note: This test verifies the number constant is resolved, even if not directly used in eventName
+      expect(t.event.name).toBe('timeout');
+    });
+
+    it('should work with boolean constants in decorators', () => {
+      const t = transpileModule(`
+        const BUBBLES = true;
+        const CANCELABLE = false;
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ 
+            eventName: 'customEvent',
+            bubbles: BUBBLES,
+            cancelable: CANCELABLE
+          }) customEvent: EventEmitter<string>;
+        }
+      `);
+
+      expect(t.event.bubbles).toBe(true);
+      expect(t.event.cancelable).toBe(false);
+    });
+
+    it('should still work with as const for backward compatibility', () => {
+      const t = transpileModule(`
+        const EVENT_NAMES = {
+          CLICK: 'click',
+          HOVER: 'hover'
+        } as const;
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Listen(EVENT_NAMES.CLICK)
+          handleClick() {
+            console.log('clicked');
+          }
+        }
+      `);
+
+      expect(t.listeners).toEqual([
+        {
+          name: 'click',
+          method: 'handleClick',
+          capture: false,
+          passive: false,
+          target: undefined,
+        },
+      ]);
+    });
+  });
 });

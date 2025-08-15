@@ -1,6 +1,8 @@
 import { Component, Element, Event, EventEmitter, h, Listen, State } from '@stencil/core';
 
-import { EVENT_NAMES, SHARED_EVENT } from './event-constants';
+// Import from TypeScript file using .js extension (Node16/NodeNext module resolution)
+// The source file is event-constants.ts, but we use .js to reference the compiled output
+import { EVENT_NAMES, SHARED_EVENT } from './event-constants.js';
 
 @Component({
   tag: 'sibling-c',

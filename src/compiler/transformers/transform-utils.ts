@@ -2,6 +2,7 @@ import { normalizePath } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';
+import { tryResolveConstantValue, tryResolveImportedConstant } from './decorators-to-static/constant-resolution-utils';
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 
@@ -418,32 +419,60 @@ export const objectLiteralToObjectMapWithConstants = (
           } else if (escapedText === 'null') {
             val = null;
           } else {
-            // Enhanced: Use TypeScript type checker to resolve constants
+            // Enhanced: Use our advanced constant resolution from decorator-utils
             try {
+              // First try basic literal type check
               const type = typeChecker.getTypeAtLocation(propAssignment.initializer);
               if (type && type.isLiteral()) {
                 val = type.value;
               } else {
-                val = getIdentifierValue(escapedText);
+                // Try enhanced constant resolution
+                const constantValue = tryResolveConstantValue(propAssignment.initializer, typeChecker);
+                if (constantValue !== undefined) {
+                  val = constantValue;
+                } else {
+                  // Try imported constant resolution
+                  const importValue = tryResolveImportedConstant(propAssignment.initializer, typeChecker);
+                  if (importValue !== undefined) {
+                    val = importValue;
+                  } else {
+                    // Fall back to original behavior
+                    val = getIdentifierValue(escapedText);
+                  }
+                }
               }
             } catch {
-              // Fall back to original behavior if type checking fails
+              // Fall back to original behavior if enhanced resolution fails
               val = getIdentifierValue(escapedText);
             }
           }
           break;
 
         case ts.SyntaxKind.PropertyAccessExpression:
-          // Enhanced: Use TypeScript type checker to resolve property access expressions like EVENTS.USER.LOGIN
+          // Enhanced: Use our advanced constant resolution from decorator-utils
           try {
+            // First try basic literal type check
             const type = typeChecker.getTypeAtLocation(propAssignment.initializer);
             if (type && type.isLiteral()) {
               val = type.value;
             } else {
-              val = propAssignment.initializer;
+              // Try enhanced constant resolution
+              const constantValue = tryResolveConstantValue(propAssignment.initializer, typeChecker);
+              if (constantValue !== undefined) {
+                val = constantValue;
+              } else {
+                // Try imported constant resolution
+                const importValue = tryResolveImportedConstant(propAssignment.initializer, typeChecker);
+                if (importValue !== undefined) {
+                  val = importValue;
+                } else {
+                  // Fall back to original behavior
+                  val = propAssignment.initializer;
+                }
+              }
             }
           } catch {
-            // Fall back to original behavior if type checking fails
+            // Fall back to original behavior if enhanced resolution fails
             val = propAssignment.initializer;
           }
           break;
