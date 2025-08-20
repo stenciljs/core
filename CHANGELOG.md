@@ -1,3 +1,13 @@
+## 🐈 [4.36.3](https://github.com/stenciljs/core/compare/v4.36.2...v4.36.3) (2025-08-20)
+
+
+### Bug Fixes
+
+* **rollup:** proper `warn` handling ([#6357](https://github.com/stenciljs/core/issues/6357)) ([0831d2c](https://github.com/stenciljs/core/commit/0831d2c35bc16cdc27640353f141ebb2681cb925))
+* **runtime:** fixed parsing of complex attributes that contains JSON strings ([#6359](https://github.com/stenciljs/core/issues/6359)) ([7047196](https://github.com/stenciljs/core/commit/7047196b877f48812783a4d158ac5b3149bcd839))
+
+
+
 ## 💚 [4.36.2](https://github.com/stenciljs/core/compare/v4.36.1...v4.36.2) (2025-07-28)
 
 
