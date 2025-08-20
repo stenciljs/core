@@ -3,16 +3,11 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { isMethod } from '../transform-utils';
 
-export const parseClassMethods = (cmpNode: ts.ClassDeclaration, cmpMeta: d.ComponentCompilerMeta) => {
-  const classMembers = cmpNode.members;
-  if (!classMembers || classMembers.length === 0) {
+export const parseClassMethods = (classMethods: ts.MethodDeclaration[], cmpMeta: d.ComponentCompilerMeta) => {
+  if (!classMethods?.length) {
     return;
   }
 
-  const classMethods = classMembers.filter((m) => ts.isMethodDeclaration(m));
-  if (classMethods.length === 0) {
-    return;
-  }
   const hasHostData = classMethods.some((m) => isMethod(m, 'hostData'));
 
   cmpMeta.hasAttributeChangedCallbackFn = classMethods.some((m) => isMethod(m, 'attributeChangedCallback'));

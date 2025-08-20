@@ -4,7 +4,7 @@ import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile } from '../transform-utils';
+import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
 import { updateHydrateComponentClass } from './hydrate-component';
 
 export const hydrateComponentTransform = (
@@ -20,6 +20,8 @@ export const hydrateComponentTransform = (
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
             return updateHydrateComponentClass(node, moduleFile, cmp);
+          } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isMixin) {
+            return updateMixin(node, moduleFile, cmp, transformOpts);
           }
         }
 

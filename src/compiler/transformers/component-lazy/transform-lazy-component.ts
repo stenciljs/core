@@ -4,7 +4,7 @@ import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile } from '../transform-utils';
+import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
 import { updateLazyComponentClass } from './lazy-component';
 
 /**
@@ -34,6 +34,8 @@ export const lazyComponentTransform = (
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp);
+          } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isMixin) {
+            return updateMixin(node, moduleFile, cmp, transformOpts);
           }
         }
         return ts.visitEachChild(node, visitNode, transformCtx);
