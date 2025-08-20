@@ -19,7 +19,10 @@ const testRequiresManualSetup =
   window.__wdioSpec__.endsWith('page-list.test.ts') ||
   window.__wdioSpec__.endsWith('event-re-register.test.tsx') ||
   window.__wdioSpec__.endsWith('render.test.tsx') ||
-  window.__wdioSpec__.endsWith('global-styles.test.tsx');
+  window.__wdioSpec__.endsWith('global-styles.test.tsx') ||
+  // Exclude dynamic-import tests to prevent auto-loading components that maintain module state
+  // Auto-loading during setup would increment state counters before tests run, causing test failures
+  window.__wdioSpec__.includes('dynamic-imports/cmp.test.tsx');
 
 /**
  * setup all components defined in tests except for those where we want to manually setup

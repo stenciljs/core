@@ -61,30 +61,72 @@ describe('prerender', () => {
 
   it('server componentWillLoad Order', async () => {
     const elm = await browser.waitUntil(() => iframe.querySelector<HTMLElement>('#server-componentWillLoad'));
-    expect(elm.innerText).toMatchInlineSnapshot(`
-      "CmpA server componentWillLoad
-      CmpD - a1-child server componentWillLoad
-      CmpD - a2-child server componentWillLoad
-      CmpD - a3-child server componentWillLoad
-      CmpD - a4-child server componentWillLoad
-      CmpB server componentWillLoad
-      CmpC server componentWillLoad
-      CmpD - c-child server componentWillLoad"
-    `);
+
+    // Verify the element exists and has content
+    expect(elm).toBeTruthy();
+    expect(elm.innerText).toContain('CmpA server componentWillLoad');
+
+    // Verify component hierarchy - parent loads before children
+    const loadOrder = elm.innerText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    // CmpA should load first (root component)
+    expect(loadOrder[0]).toBe('CmpA server componentWillLoad');
+
+    // CmpA's children (CmpD instances) should load next
+    const cmpAChildren = loadOrder.slice(1, 5);
+    cmpAChildren.forEach((child, index) => {
+      expect(child).toBe(`CmpD - a${index + 1}-child server componentWillLoad`);
+    });
+
+    // CmpB should load after CmpA's children
+    expect(loadOrder[5]).toBe('CmpB server componentWillLoad');
+
+    // CmpC should load after CmpB
+    expect(loadOrder[6]).toBe('CmpC server componentWillLoad');
+
+    // CmpC's child should load last
+    expect(loadOrder[7]).toBe('CmpD - c-child server componentWillLoad');
+
+    // Verify total count matches expected structure
+    expect(loadOrder).toHaveLength(8);
   });
 
   it('server componentDidLoad Order', async () => {
     const elm = await browser.waitUntil(() => iframe.querySelector<HTMLElement>('#server-componentDidLoad'));
-    expect(elm.innerText).toMatchInlineSnapshot(`
-      "CmpD - a1-child server componentDidLoad
-      CmpD - a2-child server componentDidLoad
-      CmpD - a3-child server componentDidLoad
-      CmpD - a4-child server componentDidLoad
-      CmpD - c-child server componentDidLoad
-      CmpC server componentDidLoad
-      CmpB server componentDidLoad
-      CmpA server componentDidLoad"
-    `);
+
+    // Verify the element exists and has content
+    expect(elm).toBeTruthy();
+    expect(elm.innerText).toContain('componentDidLoad');
+
+    // Verify component hierarchy - children load before parents (reverse of componentWillLoad)
+    const loadOrder = elm.innerText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    // CmpA's children (CmpD instances) should load first
+    const cmpAChildren = loadOrder.slice(0, 4);
+    cmpAChildren.forEach((child, index) => {
+      expect(child).toBe(`CmpD - a${index + 1}-child server componentDidLoad`);
+    });
+
+    // CmpC's child should load next
+    expect(loadOrder[4]).toBe('CmpD - c-child server componentDidLoad');
+
+    // CmpC should load after its child
+    expect(loadOrder[5]).toBe('CmpC server componentDidLoad');
+
+    // CmpB should load after CmpC
+    expect(loadOrder[6]).toBe('CmpB server componentDidLoad');
+
+    // CmpA should load last (root component)
+    expect(loadOrder[7]).toBe('CmpA server componentDidLoad');
+
+    // Verify total count matches expected structure
+    expect(loadOrder).toHaveLength(8);
   });
 
   it('correct scoped styles applied after scripts kick in', async () => {
