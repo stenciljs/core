@@ -448,6 +448,54 @@ describe('convert-decorators', () => {
     expect(t.cmp.hasConnectedCallbackFn).toBe(true);
   });
 
+  it('should derive `isExtended` and `isMixin`', async () => {
+    let t = transpileModule(
+      `
+    @Component({tag: 'cmp-a'})
+      class CmpA extends Parent {
+        @Prop() foo: string;
+      }
+      class Parent extends GrandParent {
+        render() {}
+      }
+      class GrandParent {
+        connectedCallback() {}
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ES2022 },
+    );
+
+    expect(t.isExtended).toBe(true);
+    expect(t.isMixin).toBe(false);
+
+    t = transpileModule(
+      `
+      @Component({tag: 'cmp-a'})
+      class CmpA {
+        @Prop() foo: string;
+      }
+      @Component({tag: 'cmp-b'})
+      class CmpB extends CmpA {
+        @Prop() foo: string;
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ES2022 },
+    );
+
+    expect(t.isExtended).toBe(true);
+    expect(t.isMixin).toBe(true);
+  });
+
   it('should throw error if target is less than es2022', async () => {
     try {
       transpileModule(
@@ -481,9 +529,11 @@ describe('convert-decorators', () => {
       }
       class Parent extends GrandParent {
         @Prop() foo: string = 'parent foo';
+        @Prop() bar: string = 'parent bar';
       }
       class GrandParent {
         @Prop() bar: string = 'grandparent bar';
+        @Prop() baz: string = 'grandparent baz';
       }
     `,
       undefined,
@@ -496,13 +546,35 @@ describe('convert-decorators', () => {
 
     expect(t.properties).toEqual([
       {
+        attribute: 'baz',
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        defaultValue: "'grandparent baz'",
+        docs: {
+          tags: [],
+          text: '',
+        },
+        getter: false,
+        internal: false,
+        mutable: false,
+        name: 'baz',
+        optional: false,
+        reflect: false,
+        required: false,
+        setter: false,
+        type: 'string',
+      },
+      {
         attribute: 'bar',
         complexType: {
           original: 'string',
           references: {},
           resolved: 'string',
         },
-        defaultValue: "'grandparent bar'",
+        defaultValue: "'parent bar'",
         docs: {
           tags: [],
           text: '',

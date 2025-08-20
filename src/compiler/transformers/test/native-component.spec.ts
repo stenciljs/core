@@ -1,3 +1,4 @@
+import * as ts from 'typescript';
 import * as d from '@stencil/core/declarations';
 import { mockCompilerCtx } from '@stencil/core/testing';
 
@@ -42,6 +43,61 @@ describe('nativeComponentTransform', () => {
           }
         };
         customElements.define("cmp-a", CmpA);`,
+    );
+  });
+
+  it('passes false to super calls', async () => {
+    const code = `
+    class PlainClass {
+      @Prop() baz: number;
+    }
+    @Component({
+      tag: 'cmp-b',
+    })
+    export class CmpB extends PlainClass {
+      @Prop() bar: number;
+    }
+    @Component({
+      tag: 'cmp-a',
+    })
+    export class CmpA extends CmpB {
+      @Prop() foo: number;
+    }
+    `;
+
+    const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+    const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer], [], {
+      target: ts.ScriptTarget.ESNext,
+    });
+
+    expect(await formatCode(transpiledModule.outputText)).toContain(
+      await c`__stencil_defineCustomElement(CmpA, [0, 'cmp-a', { baz: [2], bar: [2], foo: [2] }])`,
+    );
+
+    expect(await formatCode(transpiledModule.outputText)).toContain(
+      await c`const CmpB = class extends PlainClass {
+        constructor(registerHost) {
+          super(false);
+          if (registerHost !== false) {
+            this.__registerHost();
+          }
+          super();
+        }
+        bar;
+      };`,
+    );
+
+    expect(await formatCode(transpiledModule.outputText)).toContain(
+      await c`const CmpA = class extends CmpB {
+        constructor(registerHost) {
+          super(false);
+          if (registerHost !== false) {
+            this.__registerHost();
+          }
+          super();
+        }
+        foo;
+      };`,
     );
   });
 

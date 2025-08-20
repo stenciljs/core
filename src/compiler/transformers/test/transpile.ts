@@ -153,6 +153,8 @@ export function transpileModule(
   const method = methods ? methods[0] : null;
   const elementRef = cmp ? cmp.elementRef : null;
   const watchers = cmp ? cmp.watchers : null;
+  const isMixin = cmp ? moduleFile.isMixin : false;
+  const isExtended = cmp ? moduleFile.isExtended : false;
 
   if (buildCtx.hasError) {
     throw new Error(buildCtx.diagnostics[0].messageText as string);
@@ -182,6 +184,8 @@ export function transpileModule(
     states,
     tagName,
     virtualProperties,
+    isMixin,
+    isExtended,
   };
 }
 
