@@ -195,10 +195,11 @@ const generateCustomElementType = (componentsDtsRelPath: string, cmp: d.Componen
     `    prototype: ${tagNameAsPascal};`,
     `    new (): ${tagNameAsPascal};`,
     `};`,
+    `type TagNameTransformer = (tagName: string) => string;`,
     `/**`,
     ` * Used to define this component and all nested components recursively.`,
     ` */`,
-    `export const defineCustomElement: () => void;`,
+    `export const defineCustomElement: (tagNameTransformer?: TagNameTransformer) => void;`,
     ``,
   ];
 
