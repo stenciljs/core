@@ -205,11 +205,11 @@ describe('constant-resolution-utils', () => {
     it('should handle null and undefined keywords', () => {
       const mockTypeChecker = createMockTypeChecker();
 
-      // Create null token (keyword)
-      const nullToken = ts.factory.createToken(ts.SyntaxKind.NullKeyword) as ts.Expression;
+      // Create null literal expression
+      const nullToken = ts.factory.createNull();
 
-      // Create undefined token (keyword)
-      const undefinedToken = ts.factory.createToken(ts.SyntaxKind.UndefinedKeyword) as ts.Expression;
+      // Create undefined expression (void 0)
+      const undefinedToken = ts.factory.createVoidZero();
 
       expect(tryResolveConstantValue(nullToken, mockTypeChecker)).toBe(null);
       expect(tryResolveConstantValue(undefinedToken, mockTypeChecker)).toBe(undefined);
@@ -243,8 +243,8 @@ describe('constant-resolution-utils', () => {
 
       const mockSymbol = {
         flags: ts.SymbolFlags.Alias,
-        valueDeclaration: null,
-      };
+        valueDeclaration: undefined,
+      } as ts.Symbol;
 
       mockTypeChecker.getSymbolAtLocation = jest.fn().mockReturnValue(mockSymbol);
       mockTypeChecker.getAliasedSymbol = jest.fn().mockReturnValue(mockAliasedSymbol);
