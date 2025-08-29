@@ -6,10 +6,28 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface SiblingExtended {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
     interface SiblingRoot {
     }
 }
 declare global {
+    interface HTMLSiblingExtendedElement extends Components.SiblingExtended, HTMLStencilElement {
+    }
+    var HTMLSiblingExtendedElement: {
+        prototype: HTMLSiblingExtendedElement;
+        new (): HTMLSiblingExtendedElement;
+    };
     interface HTMLSiblingRootElement extends Components.SiblingRoot, HTMLStencilElement {
     }
     var HTMLSiblingRootElement: {
@@ -17,13 +35,25 @@ declare global {
         new (): HTMLSiblingRootElement;
     };
     interface HTMLElementTagNameMap {
+        "sibling-extended": HTMLSiblingExtendedElement;
         "sibling-root": HTMLSiblingRootElement;
     }
 }
 declare namespace LocalJSX {
+    interface SiblingExtended {
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
     interface SiblingRoot {
     }
     interface IntrinsicElements {
+        "sibling-extended": SiblingExtended;
         "sibling-root": SiblingRoot;
     }
 }
@@ -31,6 +61,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "sibling-extended": LocalJSX.SiblingExtended & JSXBase.HTMLAttributes<HTMLSiblingExtendedElement>;
             "sibling-root": LocalJSX.SiblingRoot & JSXBase.HTMLAttributes<HTMLSiblingRootElement>;
         }
     }

@@ -18,6 +18,7 @@ export const stubComponentCompilerMeta = (
   directDependencies: [],
   directDependents: [],
   docs: { text: 'docs', tags: [] },
+  doesExtend: false,
   elementRef: '',
   encapsulation: 'none',
   events: [],

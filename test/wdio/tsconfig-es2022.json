@@ -1,9 +1,8 @@
 {
   "extends": "./tsconfig-stencil.json",
   "compilerOptions": {
-    "target": "es2022",
-    "useDefineForClassFields": true
+    "target": "es2022"
   },
-  "include": ["ts-target-props"],
-  "exclude": ["ts-target-props/*.test.tsx"]
+  "include": ["ts-target"],
+  "exclude": ["ts-target/**/*.test.tsx", "ts-target/**/*.test.ts"]
 }

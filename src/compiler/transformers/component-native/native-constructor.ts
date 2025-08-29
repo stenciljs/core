@@ -26,8 +26,6 @@ export const updateNativeConstructor = (
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
   classNode: ts.ClassDeclaration,
-  compilerCtx: d.CompilerCtx,
-  tsSourceFile: ts.SourceFile,
 ): void => {
   if (cmp.isPlain) {
     return;
@@ -42,9 +40,7 @@ export const updateNativeConstructor = (
     ...addCreateEvents(moduleFile, cmp),
     ...createNativeAttachInternalsBinding(cmp),
   ];
-
-  const requiresSuperOptout = compilerCtx?.moduleMap.get(tsSourceFile.fileName)?.isExtended;
-  updateConstructor(classNode, classMembers, nativeCstrStatements, cstrMethodArgs, requiresSuperOptout);
+  updateConstructor(classNode, classMembers, nativeCstrStatements, cstrMethodArgs, cmp.doesExtend);
 };
 
 /**

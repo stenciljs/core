@@ -45,7 +45,7 @@ export const nativeComponentTransform = (
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
-            return updateNativeComponentClass(transformOpts, node, moduleFile, cmp, compilerCtx, tsSourceFile);
+            return updateNativeComponentClass(transformOpts, node, moduleFile, cmp);
           } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isExtended) {
             return updateNativeExtendedClass(node, moduleFile, transformOpts);
           }

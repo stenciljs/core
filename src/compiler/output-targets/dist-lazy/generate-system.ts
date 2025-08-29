@@ -5,6 +5,7 @@ import type * as d from '../../../declarations';
 import { getAppBrowserCorePolyfills } from '../../app-core/app-polyfills';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
+import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
 export const generateSystem = async (
   config: d.ValidatedConfig,
@@ -23,6 +24,7 @@ export const generateSystem = async (
       chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
+      plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '.system')],
     };
     const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
     if (results != null) {
@@ -38,7 +40,6 @@ export const generateSystem = async (
         results,
         'es5',
         true,
-        '.system',
       );
 
       await generateSystemLoaders(config, compilerCtx, results, systemOutputs);

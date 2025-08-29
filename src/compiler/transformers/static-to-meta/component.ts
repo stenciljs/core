@@ -1,4 +1,4 @@
-import { augmentDiagnosticWithNode, buildError, join, normalizePath, relative, unique } from '@utils';
+import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '@utils';
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 
@@ -217,6 +217,7 @@ export const parseStaticComponentMeta = (
   let watchers = parseStaticWatchers(staticMembers);
   let hasMixin = false;
   let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
+  let doesExtend = false;
 
   const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, buildCtx);
   tree.map((extendedClass) => {
@@ -228,6 +229,7 @@ export const parseStaticComponentMeta = (
 
     module.isMixin = isMixin;
     module.isExtended = true;
+    doesExtend = true;
 
     properties = [...deDupeMembers(mixinProps, properties), ...properties];
     states = [...deDupeMembers(mixinStates, states), ...states];
@@ -263,6 +265,7 @@ export const parseStaticComponentMeta = (
     listeners,
     events,
     watchers,
+    doesExtend,
     styles: parseStaticStyles(compilerCtx, tagName, moduleFile.sourceFilePath, isCollectionDependency, staticMembers),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
@@ -345,7 +348,7 @@ export const parseStaticComponentMeta = (
   const hasModernPropertyDecls = detectModernPropDeclarations(cmpNode, cmp);
 
   if (!hasModernPropertyDecls && hasMixin) {
-    const err = buildError(buildCtx.diagnostics);
+    const err = buildWarn(buildCtx.diagnostics);
     const target = buildCtx.config.tsCompilerOptions?.target;
     err.messageText = `Component classes can only extend from other Stencil decorated base classes when targetting more modern JavaScript (ES2022 and above).
     ${target ? `Your current TypeScript configuration is set to target \`${ts.ScriptTarget[target]}\`.` : ''} Please amend your tsconfig.json.`;
@@ -406,7 +409,7 @@ const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
       )
     ) {
       const componentName = node.parent.name.getText();
-      const err = buildError(buildCtx.diagnostics);
+      const err = buildWarn(buildCtx.diagnostics);
       err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
       augmentDiagnosticWithNode(err, node);
     }

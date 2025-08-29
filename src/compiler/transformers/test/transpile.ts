@@ -156,7 +156,7 @@ export function transpileModule(
   const isMixin = cmp ? moduleFile.isMixin : false;
   const isExtended = cmp ? moduleFile.isExtended : false;
 
-  if (buildCtx.hasError) {
+  if (buildCtx.hasError || buildCtx.hasWarning) {
     throw new Error(buildCtx.diagnostics[0].messageText as string);
   }
 

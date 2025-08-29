@@ -4,6 +4,7 @@
     "alwaysStrict": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
+    "allowJs": true,
     "declaration": false,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
@@ -24,7 +25,7 @@
     "baseUrl": ".",
     "skipLibCheck": true,
     "paths": {
-      "@test-sibling": ["./test-sibling"]
+      "test-sibling": ["./test-sibling"]
     }
   },
   "include": ["./src/components.d.ts", "./**/*.spec.ts", "./**/*.tsx", "./util.ts", "./global.ts"],

@@ -37,18 +37,9 @@ export const updateNativeComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
-  compilerCtx: d.CompilerCtx,
-  tsSourceFile: ts.SourceFile,
 ): ts.ClassDeclaration | ts.VariableStatement => {
   const withHeritageClauses = updateNativeHostComponentHeritageClauses(classNode, moduleFile);
-  const members = updateNativeHostComponentMembers(
-    transformOpts,
-    withHeritageClauses,
-    moduleFile,
-    cmp,
-    compilerCtx,
-    tsSourceFile,
-  );
+  const members = updateNativeHostComponentMembers(transformOpts, withHeritageClauses, moduleFile, cmp);
   return updateComponentClass(transformOpts, withHeritageClauses, withHeritageClauses.heritageClauses, members);
 };
 
@@ -148,12 +139,10 @@ const updateNativeHostComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
-  compilerCtx: d.CompilerCtx,
-  tsSourceFile: ts.SourceFile,
 ): ts.ClassElement[] => {
   const classMembers = removeStaticMetaProperties(classNode);
 
-  updateNativeConstructor(classMembers, moduleFile, cmp, classNode, compilerCtx, tsSourceFile);
+  updateNativeConstructor(classMembers, moduleFile, cmp, classNode);
   addNativeConnectedCallback(classMembers, cmp);
   addNativeElementGetter(classMembers, cmp);
   addWatchers(classMembers, cmp);

@@ -633,6 +633,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    */
   directDependents: string[];
   docs: CompilerJsDoc;
+  doesExtend: boolean;
   elementRef: string;
   encapsulation: Encapsulation;
   events: ComponentCompilerEvent[];

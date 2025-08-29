@@ -67,7 +67,7 @@ export const config: WebdriverIO.Config = {
   // The path of the spec files will be resolved relative from the directory of
   // of the config file unless it's absolute.
   //
-  specs: [['./**/*.test.tsx']],
+  specs: [['./**/*.test.tsx', './**/*.test.ts']],
   // Patterns to exclude.
   exclude: [
     // 'path/to/excluded/files'
@@ -341,11 +341,11 @@ if (['CHROME', 'ALL'].includes(BROWSER_CONFIGURATION)) {
 /**
  * Disable FF tests due to issues in the WebDriver protocol
  */
-// if (['FIREFOX', 'ALL'].includes(BROWSER_CONFIGURATION)) {
-//   (config.capabilities as WebdriverIO.Capabilities[]).push({
-//     browserName: 'firefox'
-//   });
-// }
+if (['FIREFOX'].includes(BROWSER_CONFIGURATION)) {
+  (config.capabilities as WebdriverIO.Capabilities[]).push({
+    browserName: 'firefox',
+  });
+}
 
 if (['EDGE', 'ALL'].includes(BROWSER_CONFIGURATION)) {
   (config.capabilities as WebdriverIO.Capabilities[]).push({
