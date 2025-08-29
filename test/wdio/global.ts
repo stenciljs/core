@@ -4,7 +4,7 @@
 import 'test-sibling';
 import { setMode } from '@stencil/core';
 // @ts-expect-error - tests that rollup warnings don't break the build
-import { setAssetPath } from '@stencil/core/internal/client/index';
+import { setAssetPath } from '@stencil/core/internal/client/index/something';
 
 const globalScript = () => {
   setMode((elm) => {
