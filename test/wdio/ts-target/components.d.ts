@@ -18,6 +18,18 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendedCmpCmp {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
     interface ExtendsCmpCmp {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -74,6 +86,12 @@ declare global {
         prototype: HTMLExtendedCmpElement;
         new (): HTMLExtendedCmpElement;
     };
+    interface HTMLExtendedCmpCmpElement extends Components.ExtendedCmpCmp, HTMLStencilElement {
+    }
+    var HTMLExtendedCmpCmpElement: {
+        prototype: HTMLExtendedCmpCmpElement;
+        new (): HTMLExtendedCmpCmpElement;
+    };
     interface HTMLExtendsCmpCmpElement extends Components.ExtendsCmpCmp, HTMLStencilElement {
     }
     var HTMLExtendsCmpCmpElement: {
@@ -100,6 +118,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "extended-cmp": HTMLExtendedCmpElement;
+        "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
         "extends-external": HTMLExtendsExternalElement;
         "extends-mixin": HTMLExtendsMixinElement;
@@ -108,6 +127,16 @@ declare global {
 }
 declare namespace LocalJSX {
     interface ExtendedCmp {
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendedCmpCmp {
         /**
           * @default 'ExtendedCmp text'
          */
@@ -161,6 +190,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "extended-cmp": ExtendedCmp;
+        "extended-cmp-cmp": ExtendedCmpCmp;
         "extends-cmp-cmp": ExtendsCmpCmp;
         "extends-external": ExtendsExternal;
         "extends-mixin": ExtendsMixin;
@@ -172,6 +202,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "extended-cmp": LocalJSX.ExtendedCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
+            "extended-cmp-cmp": LocalJSX.ExtendedCmpCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
             "extends-mixin": LocalJSX.ExtendsMixin & JSXBase.HTMLAttributes<HTMLExtendsMixinElement>;
