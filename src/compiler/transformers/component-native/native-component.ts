@@ -5,6 +5,7 @@ import type * as d from '../../../declarations';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
 import { transformHostData } from '../host-data-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
+import { foundSuper, updateConstructor } from '../transform-utils';
 import { updateComponentClass } from '../update-component-class';
 import { addWatchers } from '../watcher-meta-transform';
 import { addNativeConnectedCallback } from './native-connected-callback';
@@ -27,6 +28,8 @@ import { addNativeStaticStyle } from './native-static-style';
  * @param classNode the class to transform
  * @param moduleFile information about the class' home module
  * @param cmp metadata about the stencil component of interest
+ * @param compilerCtx the compiler context
+ * @param tsSourceFile the TypeScript source file containing the class
  * @returns an updated class
  */
 export const updateNativeComponentClass = (
@@ -38,6 +41,46 @@ export const updateNativeComponentClass = (
   const withHeritageClauses = updateNativeHostComponentHeritageClauses(classNode, moduleFile);
   const members = updateNativeHostComponentMembers(transformOpts, withHeritageClauses, moduleFile, cmp);
   return updateComponentClass(transformOpts, withHeritageClauses, withHeritageClauses.heritageClauses, members);
+};
+
+/**
+ * Updates classes that are extended by Stencil components:
+ * - extend `HTMLElement` if necessary
+ * - ensure the constructor has a `super()` call
+ * - remove static metadata properties
+ *
+ * @param node the class node to update
+ * @param moduleFile the module file containing the class
+ * @param transformOpts transformation options
+ * @returns the updated class node
+ */
+export const updateNativeExtendedClass = (
+  node: ts.ClassDeclaration,
+  moduleFile: d.Module,
+  transformOpts: d.TransformOptions,
+) => {
+  let withHeritageClauses = updateNativeHostComponentHeritageClauses(node, moduleFile);
+  const ctor = withHeritageClauses.members.find(ts.isConstructorDeclaration);
+
+  if (!foundSuper(ctor?.body?.statements)) {
+    const params: ts.ParameterDeclaration[] = Array.from(ctor?.parameters ?? []);
+
+    withHeritageClauses = ts.factory.updateClassDeclaration(
+      withHeritageClauses,
+      withHeritageClauses.modifiers,
+      withHeritageClauses.name,
+      withHeritageClauses.typeParameters,
+      withHeritageClauses.heritageClauses,
+      updateConstructor(withHeritageClauses, Array.from(withHeritageClauses.members), [], params, true),
+    );
+  }
+
+  return updateComponentClass(
+    transformOpts,
+    withHeritageClauses,
+    withHeritageClauses.heritageClauses,
+    removeStaticMetaProperties(withHeritageClauses),
+  );
 };
 
 /**
@@ -57,10 +100,8 @@ const updateNativeHostComponentHeritageClauses = (
     return classNode;
   }
 
-  if (moduleFile.cmps.length >= 1) {
-    // we'll need to import `HTMLElement` in order to extend it
-    addOutputTargetCoreRuntimeApi(moduleFile, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.HTMLElement);
-  }
+  // we'll need to import `HTMLElement` in order to extend it
+  addOutputTargetCoreRuntimeApi(moduleFile, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.HTMLElement);
 
   const heritageClause = ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
     ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier(HTML_ELEMENT), []),
@@ -89,6 +130,8 @@ const updateNativeHostComponentHeritageClauses = (
  * @param classNode the class to transform
  * @param moduleFile information about the class' home module
  * @param cmp metadata about the stencil component of interest
+ * @param compilerCtx the compiler context
+ * @param tsSourceFile the TypeScript source file containing the class
  * @returns an updated list of class elements
  */
 const updateNativeHostComponentMembers = (

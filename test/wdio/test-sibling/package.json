@@ -4,6 +4,12 @@
   "module": "dist/index.js",
   "collection": "dist/collection/collection-manifest.json",
   "types": "dist/types/components.d.ts",
+  "exports": {
+    "./dist/collection/sibling-extended/sibling-extended": {
+      "import": "./dist/collection/sibling-extended/sibling-extended.js",
+      "types": "./dist/types/sibling-extended/sibling-extended.d.ts"
+    }
+  },
   "volta": {
     "extends": "../package.json"
   },

@@ -2,8 +2,11 @@ import { normalizePath } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';
+import { updateLazyComponentConstructor } from './component-lazy/lazy-constructor';
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
+import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
+import { updateComponentClass } from './update-component-class';
 
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup
@@ -732,6 +735,27 @@ export const getComponentMeta = (
 };
 
 /**
+ * Updates a mixin class; cleans up static metadata properties and
+ * adds the `registerInstance` method to the constructor
+ *
+ * @param classNode the class node to update
+ * @param moduleFile the module file containing the class node
+ * @param cmp the component metadata to update
+ * @param transformOpts the transformation options to use
+ * @returns the updated class node
+ */
+export const updateMixin = (
+  classNode: ts.ClassDeclaration,
+  moduleFile: d.Module,
+  cmp: d.ComponentCompilerMeta,
+  transformOpts: d.TransformOptions,
+) => {
+  const classMembers = removeStaticMetaProperties(classNode);
+  updateLazyComponentConstructor(classMembers, classNode, moduleFile, cmp);
+  return updateComponentClass(transformOpts, classNode, classNode.heritageClauses, classMembers);
+};
+
+/**
  * Retrieves the tag name associated with a Stencil component, based on the 'is' static getter assigned to the class at compile time
  * @param staticMembers the static getters belonging to the Stencil component class
  * @returns the tag name, or null if one cannot be found
@@ -950,6 +974,20 @@ export const retrieveTsModifiers = (node: ts.Node): ReadonlyArray<ts.Modifier> |
 };
 
 /**
+ * Helper method for finding a `super()` call in a constructor body.
+ * @param constructorBodyStatements the body statements of a constructor
+ * @returns the first statement in the constructor body that is a call to `super()`
+ */
+export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>) {
+  return constructorBodyStatements?.find(
+    (s) =>
+      ts.isExpressionStatement(s) &&
+      ts.isCallExpression(s.expression) &&
+      s.expression.expression.kind === ts.SyntaxKind.SuperKeyword,
+  );
+}
+
+/**
  * Helper util for updating the constructor on a class declaration AST node.
  *
  * @param classNode the class node whose constructor will be updated
@@ -957,6 +995,8 @@ export const retrieveTsModifiers = (node: ts.Node): ReadonlyArray<ts.Modifier> |
  * @param statements a list of statements which should be added to the
  * constructor
  * @param parameters an optional list of parameters for the constructor
+ * @param includeFalseArg whether to include a `false` argument in the `super()` call.
+ * This is used in native Stencil components which extend other Stencil components to stop the base component from being initialized.
  * @returns a list of updated class elements
  */
 export const updateConstructor = (
@@ -964,6 +1004,7 @@ export const updateConstructor = (
   classMembers: ts.ClassElement[],
   statements: ts.Statement[],
   parameters?: ts.ParameterDeclaration[],
+  includeFalseArg?: boolean,
 ): ts.ClassElement[] => {
   const constructorIndex = classMembers.findIndex((m) => m.kind === ts.SyntaxKind.Constructor);
   const constructorMethod = classMembers[constructorIndex];
@@ -971,24 +1012,31 @@ export const updateConstructor = (
   if (constructorIndex < 0 && !statements?.length && !needsSuper(classNode)) return classMembers;
 
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
-    const constructorBodyStatements: ts.NodeArray<ts.Statement> =
-      constructorMethod.body?.statements ?? ts.factory.createNodeArray();
-    const hasSuper = constructorBodyStatements.some((s) => s.kind === ts.SyntaxKind.SuperKeyword);
+    const constructorBodyStatements = constructorMethod.body?.statements;
+    let foundSuperCall = foundSuper(constructorBodyStatements);
 
-    if (!hasSuper && needsSuper(classNode)) {
+    if (!foundSuperCall && needsSuper(classNode)) {
       // if there is no super and it needs one the statements comprising the
       // body of the constructor should be:
       //
       // 1. the `super()` call
       // 2. the new statements we've created to initialize fields
       // 3. the statements currently comprising the body of the constructor
-      statements = [createConstructorBodyWithSuper(), ...statements, ...constructorBodyStatements];
+      statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements, ...constructorBodyStatements];
     } else {
-      // if no super is needed then the body of the constructor should be:
-      //
-      // 1. the new statements we've created
-      // 2. the statements currently comprising the body of the constructor
-      statements = [...statements, ...constructorBodyStatements];
+      const updatedStatements = constructorBodyStatements.filter((s) => s !== foundSuperCall);
+      // if no new super is needed. The body of the constructor should be:
+      // 1. Any current super call
+      // 2. the new statements we've created
+      // 3. the statements currently comprising the body of the constructor
+      if (foundSuperCall) {
+        if (includeFalseArg) {
+          foundSuperCall = createConstructorBodyWithSuper(includeFalseArg);
+        }
+        statements = [foundSuperCall, ...statements, ...updatedStatements];
+      } else {
+        statements = [...statements, ...updatedStatements];
+      }
     }
 
     classMembers[constructorIndex] = ts.factory.updateConstructorDeclaration(
@@ -1001,7 +1049,7 @@ export const updateConstructor = (
     // we don't seem to have a constructor, so let's create one and stick it
     // into the array of class elements
     if (needsSuper(classNode)) {
-      statements = [createConstructorBodyWithSuper(), ...statements];
+      statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements];
     }
 
     // add the new constructor to the class members, putting it at the
@@ -1010,7 +1058,6 @@ export const updateConstructor = (
       ts.factory.createConstructorDeclaration(undefined, parameters ?? [], ts.factory.createBlock(statements, true)),
     );
   }
-
   return classMembers;
 };
 
@@ -1039,11 +1086,17 @@ const needsSuper = (classDeclaration: ts.ClassDeclaration): boolean => {
 
 /**
  * Create a statement with a call to `super()` suitable for including in the body of a constructor.
+ * @param includeFalseArg whether to include a `false` argument in the `super()` call.
+ * This is used in native Stencil components which extend other Stencil components to stop the base component from being initialized.
  * @returns a {@link ts.ExpressionStatement} node equivalent to `super()`
  */
-const createConstructorBodyWithSuper = (): ts.ExpressionStatement => {
+const createConstructorBodyWithSuper = (includeFalseArg?: boolean): ts.ExpressionStatement => {
   return ts.factory.createExpressionStatement(
-    ts.factory.createCallExpression(ts.factory.createIdentifier('super'), undefined, undefined),
+    ts.factory.createCallExpression(
+      ts.factory.createIdentifier('super'),
+      undefined,
+      includeFalseArg ? [ts.factory.createFalse()] : undefined,
+    ),
   );
 };
 

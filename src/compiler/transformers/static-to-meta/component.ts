@@ -1,8 +1,9 @@
-import { join, normalizePath, relative, unique } from '@utils';
+import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '@utils';
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
+import { tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
 import { addComponentMetaStatic } from '../add-component-meta-static';
 import { setComponentBuildConditionals } from '../component-build-conditionals';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
@@ -31,6 +32,144 @@ const BLACKLISTED_COMPONENT_METHODS = [
 ];
 
 /**
+ * A recursive function that builds a tree of classes that extend from each other.
+ * Ensures that the current component class in-question receives all the static meta-data required at runtime.
+ *
+ * @param compilerCtx the current compiler context
+ * @param classDeclaration a class declaration to analyze
+ * @param dependentClasses a flat array tree of classes that extend from each other
+ * @param typeChecker the TypeScript type checker
+ * @returns a flat array of classes that extend from each other, including the current class
+ */
+const buildExtendsTree = (
+  compilerCtx: d.CompilerCtx,
+  classDeclaration: ts.ClassDeclaration,
+  dependentClasses: { classNode: ts.ClassDeclaration; fileName: string }[],
+  typeChecker: ts.TypeChecker,
+  buildCtx: d.BuildCtx,
+) => {
+  const hasHeritageClauses = classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
+  if (!hasHeritageClauses) return dependentClasses;
+
+  const extendsClause = classDeclaration.heritageClauses.find(
+    (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  if (!extendsClause) {
+    return dependentClasses;
+  }
+
+  extendsClause.types.forEach((type) => {
+    try {
+      // happy path (normally 1 level deep): the extends type resolves to a class declaration in another file
+      const aliasedSymbol = typeChecker.getAliasedSymbol(typeChecker.getSymbolAtLocation(type.expression));
+      classDeclaration = aliasedSymbol?.declarations?.find(ts.isClassDeclaration);
+
+      if (classDeclaration && !dependentClasses.some((dc) => dc.classNode === classDeclaration)) {
+        const foundModule = compilerCtx.moduleMap.get(classDeclaration.getSourceFile().fileName);
+
+        if (foundModule) {
+          const source = foundModule.staticSourceFile as ts.SourceFile;
+          source.statements.forEach((statement) => {
+            if (ts.isClassDeclaration(statement)) {
+              dependentClasses.push({ classNode: statement, fileName: source.fileName });
+              buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      // sad path (normally >1 levels deep): the extends type does not resolve so let's find it manually:
+      const currentSource = classDeclaration.getSourceFile();
+      const importStatements = currentSource.statements.filter(ts.isImportDeclaration);
+      const classDeclarations = currentSource.statements.filter(ts.isClassDeclaration);
+      let found = false;
+
+      // let's first check if the class is in the current source file
+      if (classDeclarations.length > 1) {
+        classDeclarations.forEach((statement) => {
+          if (
+            statement.name?.getText() === type.expression.getText() &&
+            !dependentClasses.some((dc) => dc.classNode === statement)
+          ) {
+            found = true;
+            dependentClasses.push({ classNode: statement, fileName: currentSource.fileName });
+            buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
+          }
+        });
+      }
+      if (found) return;
+
+      // if not found, let's check the import statements
+      importStatements.forEach((statement) => {
+        // 1) loop through import declarations in the current source file
+        if (ts.isNamedImports(statement.importClause?.namedBindings)) {
+          statement.importClause?.namedBindings.elements.forEach((element) => {
+            // 2) loop through the named bindings of the import declaration
+            if (element.name.getText() === type.expression.getText()) {
+              // 3) check the name matches the `extends` type expression
+              const className = element.propertyName?.getText() || element.name.getText();
+              const foundFile = tsResolveModuleName(
+                buildCtx.config,
+                compilerCtx,
+                statement.moduleSpecifier.getText().replaceAll(/['"]/g, ''),
+                currentSource.fileName,
+              );
+              if (foundFile) {
+                // 4) resolve the module name to a file
+                const foundModule = compilerCtx.moduleMap.get(foundFile.resolvedModule.resolvedFileName);
+                (foundModule?.staticSourceFile as ts.SourceFile).statements.forEach((statement) => {
+                  if (
+                    ts.isClassDeclaration(statement) &&
+                    statement.name?.getText() === className &&
+                    !dependentClasses.some((dc) => dc.classNode === statement)
+                  ) {
+                    // 5) find the class declaration
+                    dependentClasses.push({ classNode: statement, fileName: foundModule.staticSourceFile.fileName });
+                    // 6) check if the class declaration extends from another class
+                    buildExtendsTree(compilerCtx, statement, dependentClasses, typeChecker, buildCtx);
+                  }
+                });
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+
+  return dependentClasses;
+};
+
+type DeDupeMember =
+  | d.ComponentCompilerProperty
+  | d.ComponentCompilerState
+  | d.ComponentCompilerMethod
+  | d.ComponentCompilerListener
+  | d.ComponentCompilerEvent
+  | d.ComponentCompilerWatch;
+
+/**
+ * Given two arrays of static members, return a new array containing only the
+ * members from the first array that are not present in the second array.
+ * This is used to de-dupe static members that are inherited from a parent class.
+ *
+ * @param dedupeMembers the array of static members to de-dupe
+ * @param staticMembers the array of static members to compare against
+ * @returns an array of static members that are not present in the second array
+ */
+const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers: T[]) => {
+  return dedupeMembers.filter(
+    (s) =>
+      !staticMembers.some((d) => {
+        if ((d as d.ComponentCompilerWatch).methodName) {
+          return (d as any).methodName === (s as any).methodName;
+        }
+        return (d as any).name === (s as any).name;
+      }),
+  );
+};
+
+/**
  * Given a {@see ts.ClassDeclaration} which represents a Stencil component
  * class declaration, parse and format various pieces of data about static class
  * members which we use in the compilation process.
@@ -47,6 +186,7 @@ const BLACKLISTED_COMPONENT_METHODS = [
  * @param typeChecker a TypeScript type checker instance
  * @param cmpNode the TypeScript class declaration for the component
  * @param moduleFile Stencil's IR for a module, used here as an out param
+ * @param buildCtx the current build context, used to surface diagnostics
  * @param transformOpts options which control various aspects of the
  * transformation
  * @returns the TypeScript class declaration IR instance with which the
@@ -57,6 +197,7 @@ export const parseStaticComponentMeta = (
   typeChecker: ts.TypeChecker,
   cmpNode: ts.ClassDeclaration,
   moduleFile: d.Module,
+  buildCtx: d.BuildCtx,
   transformOpts?: d.TransformOptions,
 ): ts.ClassDeclaration => {
   if (cmpNode.members == null) {
@@ -67,6 +208,41 @@ export const parseStaticComponentMeta = (
   if (tagName == null) {
     return cmpNode;
   }
+
+  let properties = parseStaticProps(staticMembers);
+  let states = parseStaticStates(staticMembers);
+  let methods = parseStaticMethods(staticMembers);
+  let listeners = parseStaticListeners(staticMembers);
+  let events = parseStaticEvents(staticMembers);
+  let watchers = parseStaticWatchers(staticMembers);
+  let hasMixin = false;
+  let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
+  let doesExtend = false;
+
+  const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, buildCtx);
+  tree.map((extendedClass) => {
+    const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
+    const mixinProps = parseStaticProps(extendedStaticMembers) ?? [];
+    const mixinStates = parseStaticStates(extendedStaticMembers) ?? [];
+    const isMixin = mixinProps.length > 0 || mixinStates.length > 0;
+    const module = compilerCtx.moduleMap.get(extendedClass.fileName);
+
+    module.isMixin = isMixin;
+    module.isExtended = true;
+    doesExtend = true;
+
+    properties = [...deDupeMembers(mixinProps, properties), ...properties];
+    states = [...deDupeMembers(mixinStates, states), ...states];
+    methods = [...deDupeMembers(parseStaticMethods(extendedStaticMembers) ?? [], methods), ...methods];
+    listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];
+    events = [...deDupeMembers(parseStaticEvents(extendedStaticMembers) ?? [], events), ...events];
+    watchers = [...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers), ...watchers];
+    classMethods = [...classMethods, ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? [])];
+
+    if (isMixin) {
+      hasMixin = true;
+    }
+  });
 
   const symbol = typeChecker ? typeChecker.getSymbolAtLocation(cmpNode.name) : undefined;
   const docs = serializeSymbol(typeChecker, symbol);
@@ -82,13 +258,14 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
-    properties: parseStaticProps(staticMembers),
+    properties,
     virtualProperties: parseVirtualProps(docs),
-    states: parseStaticStates(staticMembers),
-    methods: parseStaticMethods(staticMembers),
-    listeners: parseStaticListeners(staticMembers),
-    events: parseStaticEvents(staticMembers),
-    watchers: parseStaticWatchers(staticMembers),
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    doesExtend,
     styles: parseStaticStyles(compilerCtx, tagName, moduleFile.sourceFilePath, isCollectionDependency, staticMembers),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
@@ -156,19 +333,27 @@ export const parseStaticComponentMeta = (
     directDependencies: [],
   };
 
-  const visitComponentChildNode = (node: ts.Node) => {
-    validateComponentMembers(node);
+  const visitComponentChildNode = (node: ts.Node, buildCtx: d.BuildCtx) => {
+    validateComponentMembers(node, buildCtx);
 
     if (ts.isCallExpression(node)) {
       parseCallExpression(cmp, node);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }
-    node.forEachChild(visitComponentChildNode);
+    node.forEachChild((child) => visitComponentChildNode(child, buildCtx));
   };
-  visitComponentChildNode(cmpNode);
-  parseClassMethods(cmpNode, cmp);
-  detectModernPropDeclarations(cmpNode, cmp);
+  visitComponentChildNode(cmpNode, buildCtx);
+  parseClassMethods(classMethods, cmp);
+  const hasModernPropertyDecls = detectModernPropDeclarations(cmpNode, cmp);
+
+  if (!hasModernPropertyDecls && hasMixin) {
+    const err = buildWarn(buildCtx.diagnostics);
+    const target = buildCtx.config.tsCompilerOptions?.target;
+    err.messageText = `Component classes can only extend from other Stencil decorated base classes when targetting more modern JavaScript (ES2022 and above).
+    ${target ? `Your current TypeScript configuration is set to target \`${ts.ScriptTarget[target]}\`.` : ''} Please amend your tsconfig.json.`;
+    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, cmpNode);
+  }
 
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
@@ -192,7 +377,7 @@ export const parseStaticComponentMeta = (
   return cmpNode;
 };
 
-const validateComponentMembers = (node: ts.Node) => {
+const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
   /**
    * validate if:
    */
@@ -224,9 +409,9 @@ const validateComponentMembers = (node: ts.Node) => {
       )
     ) {
       const componentName = node.parent.name.getText();
-      throw new Error(
-        `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`,
-      );
+      const err = buildWarn(buildCtx.diagnostics);
+      err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
+      augmentDiagnosticWithNode(err, node);
     }
   }
 };

@@ -21,7 +21,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "pretty": true,
-    "target": "es2017",
+    "target": "es2022",
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
     "paths": {

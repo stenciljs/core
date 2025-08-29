@@ -57,7 +57,7 @@ export const typescriptPlugin = (
       if (isAbsolute(id)) {
         const fsFilePath = normalizeFsPath(id);
         const mod = getModule(compilerCtx, fsFilePath);
-        if (mod && mod.cmps.length > 0) {
+        if (mod?.cmps) {
           const tsResult = ts.transpileModule(mod.staticSourceFileText, {
             compilerOptions: config.tsCompilerOptions,
             fileName: mod.sourceFilePath,

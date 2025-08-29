@@ -135,6 +135,7 @@ export const getHostRef = (ref: d.RuntimeRef) => {
 };
 
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
+  if (!hostRef) return undefined;
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 

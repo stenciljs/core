@@ -4,6 +4,7 @@ import type { OutputOptions, RollupBuild } from 'rollup';
 import type * as d from '../../../declarations';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
+import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
 export const generateCjs = async (
   config: d.ValidatedConfig,
@@ -22,6 +23,7 @@ export const generateCjs = async (
       entryFileNames: '[name].cjs.js',
       assetFileNames: '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
+      plugins: [lazyBundleIdPlugin(buildCtx, config, false, '.cjs')],
     };
 
     if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
@@ -44,7 +46,6 @@ export const generateCjs = async (
         results,
         'es2017',
         false,
-        '.cjs',
       );
 
       await generateShortcuts(compilerCtx, results, cjsOutputs);

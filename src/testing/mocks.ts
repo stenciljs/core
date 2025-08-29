@@ -241,6 +241,8 @@ export function mockWindow(html?: string) {
  */
 export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   cmps: [],
+  isExtended: false,
+  isMixin: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: '',

@@ -116,6 +116,19 @@ export function transpileModule(
       ...beforeTransformers,
     ],
     after: [
+      (context) => {
+        let newSource: ts.SourceFile;
+        const visitNode = (node: ts.Node): ts.Node => {
+          // just a patch for testing - source file resolution gets
+          // lost in the after transform phase
+          node.getSourceFile = () => newSource;
+          return ts.visitEachChild(node, visitNode, context);
+        };
+        return (sourceFile: ts.SourceFile): ts.SourceFile => {
+          newSource = sourceFile;
+          return visitNode(sourceFile) as ts.SourceFile;
+        };
+      },
       convertStaticToMeta(config, compilerCtx, buildCtx, tsTypeChecker, null, transformOpts),
       ...afterTransformers,
     ],
@@ -139,6 +152,13 @@ export function transpileModule(
   const methods = cmp ? cmp.methods : null;
   const method = methods ? methods[0] : null;
   const elementRef = cmp ? cmp.elementRef : null;
+  const watchers = cmp ? cmp.watchers : null;
+  const isMixin = cmp ? moduleFile.isMixin : false;
+  const isExtended = cmp ? moduleFile.isExtended : false;
+
+  if (buildCtx.hasError || buildCtx.hasWarning) {
+    throw new Error(buildCtx.diagnostics[0].messageText as string);
+  }
 
   return {
     buildCtx,
@@ -158,11 +178,14 @@ export function transpileModule(
     moduleFile,
     outputText,
     properties,
+    watchers,
     property,
     state,
     states,
     tagName,
     virtualProperties,
+    isMixin,
+    isExtended,
   };
 }
 

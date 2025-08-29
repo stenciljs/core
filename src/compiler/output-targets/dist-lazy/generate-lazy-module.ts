@@ -21,7 +21,6 @@ export const generateLazyModules = async (
   results: d.RollupResult[],
   sourceTarget: d.SourceTarget,
   isBrowserBuild: boolean,
-  sufix: string,
 ): Promise<d.BundleModule[]> => {
   if (!Array.isArray(destinations) || destinations.length === 0) {
     return [];
@@ -43,7 +42,6 @@ export const generateLazyModules = async (
         sourceTarget,
         shouldMinify,
         isBrowserBuild,
-        sufix,
       );
     }),
   );
@@ -190,10 +188,8 @@ const generateLazyEntryModule = async (
   sourceTarget: d.SourceTarget,
   shouldMinify: boolean,
   isBrowserBuild: boolean,
-  sufix: string,
 ): Promise<d.BundleModule> => {
   const entryModule = buildCtx.entryModules.find((entryModule) => entryModule.entryKey === rollupResult.entryKey);
-  const shouldHash = config.hashFileNames && isBrowserBuild;
 
   const { code, sourceMap } = await convertChunk(
     config,
@@ -207,17 +203,7 @@ const generateLazyEntryModule = async (
     rollupResult.map,
   );
 
-  const output = await writeLazyModule(
-    config,
-    compilerCtx,
-    outputTargetType,
-    destinations,
-    entryModule,
-    shouldHash,
-    code,
-    sourceMap,
-    sufix,
-  );
+  const output = await writeLazyModule(compilerCtx, outputTargetType, destinations, code, sourceMap, rollupResult);
 
   return {
     rollupResult,
