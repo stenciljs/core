@@ -1,5 +1,5 @@
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
-import { SiblingExtended } from 'test-sibling/dist/collection/sibling-extended/sibling-extended.js';
+import { SiblingExtended } from 'test-sibling/dist/collection/sibling-extended/sibling-extended';
 
 @Component({
   tag: 'extends-external',

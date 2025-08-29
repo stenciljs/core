@@ -32,9 +32,11 @@ export const lazyComponentTransform = (
       const visitNode = (node: ts.Node): any => {
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
+          const module = compilerCtx.moduleMap.get(tsSourceFile.fileName);
+
           if (cmp != null) {
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp);
-          } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isMixin) {
+          } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           }
         }

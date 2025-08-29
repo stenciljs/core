@@ -69,9 +69,7 @@ export const config: WebdriverIO.Config = {
   //
   specs: [['./**/*.test.tsx', './**/*.test.ts']],
   // Patterns to exclude.
-  exclude: [
-    // 'path/to/excluded/files'
-  ],
+  exclude: ['./node_modules/**'],
   //
   // ============
   // Capabilities

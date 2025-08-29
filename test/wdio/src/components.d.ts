@@ -5,10 +5,89 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { SomeTypes } from "../util.js";
+import { TestEventDetail } from "../event-custom-type/cmp";
+import { RadioGroupCompareFn } from "../radio-group-blur/test-radio-group";
+import { Item } from "../scoped-add-remove-classes/cmp";
+export { SomeTypes } from "../util.js";
+export { TestEventDetail } from "../event-custom-type/cmp";
+export { RadioGroupCompareFn } from "../radio-group-blur/test-radio-group";
+export { Item } from "../scoped-add-remove-classes/cmp";
 export namespace Components {
     interface AppRoot {
     }
+    interface AsyncRerender {
+    }
+    interface AttributeBasic {
+        /**
+          * @default 'my-custom-attr'
+         */
+        "customAttr": string;
+        /**
+          * @default 'getter'
+         */
+        "getter": string;
+        /**
+          * @default 'multiWord'
+         */
+        "multiWord": string;
+        /**
+          * @default 'single'
+         */
+        "single": string;
+    }
+    interface AttributeBasicRoot {
+    }
+    interface AttributeBoolean {
+        "boolState"?: boolean;
+        "noreflect"?: boolean;
+        "strState"?: string;
+    }
+    interface AttributeBooleanRoot {
+        "toggleState": () => Promise<void>;
+    }
+    interface AttributeComplex {
+        /**
+          * @default true
+         */
+        "bool0": boolean;
+        "bool1"?: boolean;
+        "bool2"?: boolean;
+        "getInstance": () => Promise<this>;
+        /**
+          * @default 1
+         */
+        "nu0": number;
+        "nu1"?: number;
+        "nu2"?: SomeTypes.Number;
+        "obj": string;
+        /**
+          * @default 'hello'
+         */
+        "str0": string;
+        "str1"?: string;
+        "str2"?: SomeTypes.String;
+    }
+    interface AttributeHost {
+    }
+    interface AttributeHtmlRoot {
+        "anyAttr"?: any;
+        "nuAttr"?: number;
+        "strAttr"?: string;
+    }
+    interface BadSharedJsx {
+    }
+    interface BuildData {
+    }
+    interface ChildReflectNanAttribute {
+        "val": number;
+    }
+    interface ChildWithReflection {
+        "val": number | any;
+    }
     interface CmpA {
+    }
+    interface CmpAvatar {
     }
     interface CmpB {
     }
@@ -24,16 +103,767 @@ export namespace Components {
          */
         "uniqueId": string;
     }
+    interface CmpLabel {
+    }
+    interface CmpLabelWithSlotSibling {
+    }
+    interface CmpLevel1 {
+    }
+    interface CmpLevel2 {
+    }
+    interface CmpLevel3 {
+    }
     interface CmpScopedA {
     }
     interface CmpScopedB {
+    }
+    interface CmpSlottedParentnode {
     }
     interface CmpTextBlue {
     }
     interface CmpTextGreen {
     }
+    interface ComplexProperties {
+        /**
+          * map objects
+         */
+        "baz": Map<string, { qux: symbol }>;
+        /**
+          * basic object
+         */
+        "foo": { bar: string; loo: number[]; qux: { quux: symbol } };
+        /**
+          * infinity
+         */
+        "grault": typeof Infinity;
+        /**
+          * basic array
+         */
+        "kidsNames": string[];
+        /**
+          * set objects
+         */
+        "quux": Set<string>;
+        /**
+          * null
+         */
+        "waldo": null;
+    }
+    interface ComputedPropertiesPropDecorator {
+        /**
+          * @default 'no'
+         */
+        "first": string;
+        /**
+          * @default 'content'
+         */
+        "last": string;
+        /**
+          * @default ''
+         */
+        "middle": string;
+    }
+    interface ComputedPropertiesPropDecoratorReflect {
+        /**
+          * @default 'no'
+         */
+        "first": string;
+        /**
+          * @default 'content'
+         */
+        "last": string;
+        /**
+          * @default ''
+         */
+        "middle": string;
+    }
+    interface ComputedPropertiesStateDecorator {
+        "changeStates": () => Promise<void>;
+    }
+    interface ComputedPropertiesWatchDecorator {
+        /**
+          * @default 'no'
+         */
+        "first": string;
+        /**
+          * @default 'content'
+         */
+        "last": string;
+    }
+    interface ConditionalBasic {
+    }
+    interface ConditionalRerender {
+    }
+    interface ConditionalRerenderRoot {
+    }
+    interface CssCmp {
+    }
+    interface CssVariablesNoEncapsulation {
+    }
+    interface CssVariablesShadowDom {
+    }
+    interface CustomElementChild {
+    }
+    interface CustomElementChildDifferentNameThanClass {
+    }
+    interface CustomElementNestedChild {
+    }
+    interface CustomElementRoot {
+    }
+    interface CustomElementRootDifferentNameThanClass {
+    }
+    interface CustomElementsDelegatesFocus {
+    }
+    interface CustomElementsHierarchyLifecycleChild {
+    }
+    interface CustomElementsHierarchyLifecycleParent {
+    }
+    interface CustomElementsNoDelegatesFocus {
+    }
+    interface CustomEventRoot {
+    }
+    interface CustomSvgElement {
+    }
+    interface DelegatesFocus {
+    }
+    interface DomReattach {
+        /**
+          * @default 0
+         */
+        "didLoad": number;
+        /**
+          * @default 0
+         */
+        "didUnload": number;
+        /**
+          * @default 0
+         */
+        "willLoad": number;
+    }
+    interface DomReattachClone {
+    }
+    interface DomReattachCloneDeepSlot {
+    }
+    interface DomReattachCloneHost {
+    }
+    interface DsdCmp {
+    }
+    interface DynamicCssVariable {
+    }
+    interface DynamicImport {
+        "update": () => Promise<void>;
+    }
+    interface Es5AddclassSvg {
+    }
+    interface EsmImport {
+        /**
+          * @default 0
+         */
+        "propVal": number;
+        "someMethod": () => Promise<void>;
+    }
+    interface EventBasic {
+    }
+    interface EventCustomType {
+    }
+    interface EventListenerCapture {
+    }
+    interface EventReRegister {
+    }
+    interface ExtendedCmp {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsCmpCmp {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsExternal {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsMixin {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExternalImportA {
+    }
+    interface ExternalImportB {
+    }
+    interface ExternalImportC {
+    }
+    interface FactoryJsx {
+    }
+    interface FormAssociated {
+    }
+    interface FormAssociatedPropCheck {
+        "disabled": boolean;
+    }
+    interface GlobalStyles {
+    }
+    interface HostAttrOverride {
+    }
+    interface ImageImport {
+    }
+    interface ImportAliasing {
+        "myMethod": () => Promise<HTMLElement>;
+        "user": string;
+    }
+    interface InitCssRoot {
+    }
+    interface InputBasicRoot {
+        "value"?: string;
+    }
+    interface IonChild {
+    }
+    interface IonHost {
+    }
+    interface IonParent {
+    }
+    interface IonRadio {
+        /**
+          * The name of the control, which is submitted with the form data.
+          * @default this.inputId
+         */
+        "name": string;
+        "setButtonTabindex": (value: number) => Promise<void>;
+        "setFocus": (ev?: globalThis.Event) => Promise<void>;
+        /**
+          * the value of the radio.
+         */
+        "value"?: any | null;
+    }
+    interface IonRadioGroup {
+        /**
+          * If `true`, the radios can be deselected.
+          * @default false
+         */
+        "allowEmptySelection": boolean;
+        /**
+          * This property allows developers to specify a custom function or property name for comparing objects when determining the selected option in the ion-radio-group. When not specified, the default behavior will use strict equality (===) for comparison.
+         */
+        "compareWith"?: string | RadioGroupCompareFn | null;
+        /**
+          * The error text to display at the top of the radio group.
+         */
+        "errorText"?: string;
+        /**
+          * The helper text to display at the top of the radio group.
+         */
+        "helperText"?: string;
+        /**
+          * The name of the control, which is submitted with the form data.
+          * @default this.inputId
+         */
+        "name": string;
+        /**
+          * the value of the radio group.
+         */
+        "value"?: any | null;
+    }
+    interface JsonBasic {
+    }
+    interface KeyReorder {
+    }
+    interface LifecycleAsyncA {
+    }
+    interface LifecycleAsyncB {
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface LifecycleAsyncC {
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface LifecycleBasicA {
+    }
+    interface LifecycleBasicB {
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface LifecycleBasicC {
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface LifecycleNestedA {
+    }
+    interface LifecycleNestedB {
+    }
+    interface LifecycleNestedC {
+    }
+    interface LifecycleUnloadA {
+    }
+    interface LifecycleUnloadB {
+    }
+    interface LifecycleUnloadRoot {
+    }
+    interface LifecycleUpdateA {
+    }
+    interface LifecycleUpdateB {
+        /**
+          * @default 0
+         */
+        "value": number;
+    }
+    interface LifecycleUpdateC {
+        /**
+          * @default 0
+         */
+        "value": number;
+    }
+    interface ListenJsx {
+    }
+    interface ListenJsxRoot {
+    }
+    interface ListenReattach {
+    }
+    interface ListenWindow {
+    }
+    interface MultipleStylesCmp {
+    }
+    interface MyComponent {
+    }
+    interface NoDelegatesFocus {
+    }
+    interface NodeResolution {
+    }
+    interface PageList {
+        /**
+          * @default null
+         */
+        "lastPage": number | null;
+    }
+    interface PageListItem {
+        /**
+          * Set the number to be displayed.
+          * @default false
+         */
+        "active": boolean;
+        /**
+          * Set the number to be displayed.
+         */
+        "label": number;
+    }
+    interface ParentReflectNanAttribute {
+    }
+    interface ParentWithReflectChild {
+    }
+    interface PartSsrShadowCmp {
+        "selected": boolean;
+    }
+    interface PartWrapSsrShadowCmp {
+        "selected": boolean;
+    }
+    interface RadioGroupBlurTest {
+    }
+    interface RefAttrOrder {
+    }
+    interface ReflectNanAttribute {
+        "val": number;
+    }
+    interface ReflectNanAttributeHyphen {
+        "valNum": number;
+    }
+    interface ReflectToAttr {
+        /**
+          * @default false
+         */
+        "bool": boolean;
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+        "dynamicNu"?: number;
+        "dynamicStr"?: string;
+        /**
+          * @default 2
+         */
+        "nu": number;
+        /**
+          * @default null
+         */
+        "null": string | null;
+        /**
+          * @default true
+         */
+        "otherBool": boolean;
+        /**
+          * @default 'single'
+         */
+        "str": string;
+        "undef"?: string;
+    }
+    interface RemoveChildPatch {
+    }
+    interface ReparentStyleNoVars {
+    }
+    interface ReparentStyleWithVars {
+    }
+    interface SassCmp {
+    }
+    interface ScopedAddRemoveClasses {
+        "items": Item[];
+        "selectedItems": number[];
+    }
+    interface ScopedBasic {
+    }
+    interface ScopedBasicRoot {
+    }
+    interface ScopedConditional {
+        /**
+          * @default false
+         */
+        "renderHello": boolean;
+    }
+    interface ScopedSlotAppendAndPrepend {
+    }
+    interface ScopedSlotAssignedMethods {
+        "getSlotAssignedElements": (opts?: { flatten: boolean; }, getPlainSlot?: boolean) => Promise<Element[]>;
+        "getSlotAssignedNodes": (opts?: { flatten: boolean; }, getPlainSlot?: boolean) => Promise<Node[]>;
+    }
+    interface ScopedSlotChildInsertAdjacent {
+    }
+    interface ScopedSlotChildren {
+    }
+    interface ScopedSlotInsertbefore {
+    }
+    interface ScopedSlotInsertionOrderAfterInteraction {
+    }
+    interface ScopedSlotSlotchange {
+        /**
+          * @default []
+         */
+        "slotEventCatch": { event: Event; assignedNodes: Node[] }[];
+    }
+    interface ScopedSlotSlotchangeWrap {
+        /**
+          * @default false
+         */
+        "swapSlotContent": boolean;
+    }
+    interface ScopedSsrChildCmp {
+    }
+    interface ScopedSsrParentCmp {
+    }
+    interface ShadowDomArray {
+        /**
+          * @default []
+         */
+        "values": number[];
+    }
+    interface ShadowDomArrayRoot {
+    }
+    interface ShadowDomBasic {
+    }
+    interface ShadowDomBasicRoot {
+    }
+    interface ShadowDomMode {
+        /**
+          * The mode determines which platform styles to use.
+         */
+        "colormode"?: string;
+    }
+    interface ShadowDomSlotNested {
+        "i"?: number;
+    }
+    interface ShadowDomSlotNestedRoot {
+    }
+    interface ShadowSsrChildCmp {
+    }
+    interface ShadowSsrParentCmp {
+    }
+    interface SlotArrayBasic {
+    }
+    interface SlotArrayComplex {
+    }
+    interface SlotArrayComplexRoot {
+    }
+    interface SlotArrayTop {
+    }
+    interface SlotBasic {
+    }
+    interface SlotBasicOrder {
+    }
+    interface SlotBasicOrderRoot {
+    }
+    interface SlotBasicRoot {
+    }
+    interface SlotChildrenRoot {
+    }
+    interface SlotConditionalRendering {
+    }
+    interface SlotDynamicNameChangeScoped {
+        /**
+          * @default 'greeting'
+         */
+        "slotName": string;
+    }
+    interface SlotDynamicNameChangeShadow {
+        /**
+          * @default 'greeting'
+         */
+        "slotName": string;
+    }
+    interface SlotDynamicScopedList {
+        /**
+          * @default []
+         */
+        "items": Array<string>;
+    }
+    interface SlotDynamicShadowList {
+        /**
+          * @default []
+         */
+        "items": Array<string>;
+    }
+    interface SlotDynamicWrapper {
+        /**
+          * @default 'section'
+         */
+        "tag": string;
+    }
+    interface SlotDynamicWrapperRoot {
+    }
+    interface SlotFallback {
+        /**
+          * @default 0
+         */
+        "inc": number;
+    }
+    interface SlotFallbackRoot {
+    }
+    interface SlotForwardChildFallback {
+        "label": string;
+    }
+    interface SlotForwardRoot {
+        "label": string;
+    }
+    interface SlotHideContentOpen {
+        /**
+          * @default false
+         */
+        "enabled": boolean;
+    }
+    interface SlotHideContentScoped {
+        /**
+          * @default false
+         */
+        "enabled": boolean;
+    }
+    interface SlotHtml {
+        /**
+          * @default 0
+         */
+        "inc": number;
+    }
+    interface SlotLightDomContent {
+    }
+    interface SlotLightDomRoot {
+    }
+    interface SlotLightList {
+    }
+    interface SlotLightScopedList {
+    }
+    interface SlotListLightRoot {
+        /**
+          * @default []
+         */
+        "items": string[];
+    }
+    interface SlotListLightScopedRoot {
+        /**
+          * @default []
+         */
+        "items": string[];
+    }
+    interface SlotMapOrder {
+    }
+    interface SlotMapOrderRoot {
+    }
+    interface SlotNestedDefaultOrderChild {
+        "state": boolean;
+    }
+    interface SlotNestedDefaultOrderParent {
+    }
+    interface SlotNestedDynamicChild {
+    }
+    interface SlotNestedDynamicParent {
+    }
+    interface SlotNestedDynamicWrapper {
+    }
+    interface SlotNestedOrderChild {
+    }
+    interface SlotNestedOrderParent {
+    }
+    interface SlotNgIf {
+    }
+    interface SlotNoDefault {
+    }
+    interface SlotParentTagChange {
+        /**
+          * @default 'p'
+         */
+        "element": string;
+    }
+    interface SlotParentTagChangeRoot {
+        /**
+          * @default 'p'
+         */
+        "element": string;
+    }
+    interface SlotReorder {
+        /**
+          * @default false
+         */
+        "reordered": boolean;
+    }
+    interface SlotReorderRoot {
+    }
+    interface SlotReplaceWrapper {
+        "href"?: string;
+    }
+    interface SlotReplaceWrapperRoot {
+    }
+    interface SlottedCss {
+    }
+    interface SlowSsrProp {
+        /**
+          * @default []
+         */
+        "anArray": never[];
+    }
+    interface SsrOrderCmp {
+    }
+    interface SsrOrderWrapCmp {
+    }
+    interface SsrShadowCmp {
+        "selected": boolean;
+    }
+    interface StaticDecoratedMembers {
+    }
+    interface StaticMembers {
+    }
+    interface StaticMembersSeparateExport {
+    }
+    interface StaticMembersSeparateInitializer {
+    }
+    interface StaticStyles {
+    }
+    interface StencilSibling {
+    }
+    interface SvgAttr {
+    }
+    interface SvgClass {
+    }
+    interface Tag3dComponent {
+    }
+    interface Tag88 {
+    }
     interface TestSvg {
     }
+    interface TextContentPatchScoped {
+    }
+    interface TextContentPatchScopedWithSlot {
+    }
+    interface TsTargetProps {
+        /**
+          * @default 'basicProp'
+         */
+        "basicProp": string;
+        "decoratedGetterSetterProp": number;
+        /**
+          * @default -10
+         */
+        "decoratedProp": number;
+        "dynamicLifecycle": string[];
+    }
+    interface WatchNativeAttributes {
+    }
+    interface WatchNativeAttributesNoMembers {
+    }
+    interface WrapSsrShadowCmp {
+        "selected": boolean;
+    }
+}
+export interface EsmImportCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLEsmImportElement;
+}
+export interface EventBasicCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLEventBasicElement;
+}
+export interface EventCustomTypeCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLEventCustomTypeElement;
+}
+export interface ImportAliasingCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLImportAliasingElement;
+}
+export interface IonRadioCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIonRadioElement;
+}
+export interface IonRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIonRadioGroupElement;
+}
+export interface LifecycleAsyncBCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLLifecycleAsyncBElement;
+}
+export interface LifecycleAsyncCCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLLifecycleAsyncCElement;
+}
+export interface LifecycleBasicBCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLLifecycleBasicBElement;
+}
+export interface LifecycleBasicCCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLLifecycleBasicCElement;
 }
 declare global {
     interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {
@@ -42,11 +872,89 @@ declare global {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
     };
+    interface HTMLAsyncRerenderElement extends Components.AsyncRerender, HTMLStencilElement {
+    }
+    var HTMLAsyncRerenderElement: {
+        prototype: HTMLAsyncRerenderElement;
+        new (): HTMLAsyncRerenderElement;
+    };
+    interface HTMLAttributeBasicElement extends Components.AttributeBasic, HTMLStencilElement {
+    }
+    var HTMLAttributeBasicElement: {
+        prototype: HTMLAttributeBasicElement;
+        new (): HTMLAttributeBasicElement;
+    };
+    interface HTMLAttributeBasicRootElement extends Components.AttributeBasicRoot, HTMLStencilElement {
+    }
+    var HTMLAttributeBasicRootElement: {
+        prototype: HTMLAttributeBasicRootElement;
+        new (): HTMLAttributeBasicRootElement;
+    };
+    interface HTMLAttributeBooleanElement extends Components.AttributeBoolean, HTMLStencilElement {
+    }
+    var HTMLAttributeBooleanElement: {
+        prototype: HTMLAttributeBooleanElement;
+        new (): HTMLAttributeBooleanElement;
+    };
+    interface HTMLAttributeBooleanRootElement extends Components.AttributeBooleanRoot, HTMLStencilElement {
+    }
+    var HTMLAttributeBooleanRootElement: {
+        prototype: HTMLAttributeBooleanRootElement;
+        new (): HTMLAttributeBooleanRootElement;
+    };
+    interface HTMLAttributeComplexElement extends Components.AttributeComplex, HTMLStencilElement {
+    }
+    var HTMLAttributeComplexElement: {
+        prototype: HTMLAttributeComplexElement;
+        new (): HTMLAttributeComplexElement;
+    };
+    interface HTMLAttributeHostElement extends Components.AttributeHost, HTMLStencilElement {
+    }
+    var HTMLAttributeHostElement: {
+        prototype: HTMLAttributeHostElement;
+        new (): HTMLAttributeHostElement;
+    };
+    interface HTMLAttributeHtmlRootElement extends Components.AttributeHtmlRoot, HTMLStencilElement {
+    }
+    var HTMLAttributeHtmlRootElement: {
+        prototype: HTMLAttributeHtmlRootElement;
+        new (): HTMLAttributeHtmlRootElement;
+    };
+    interface HTMLBadSharedJsxElement extends Components.BadSharedJsx, HTMLStencilElement {
+    }
+    var HTMLBadSharedJsxElement: {
+        prototype: HTMLBadSharedJsxElement;
+        new (): HTMLBadSharedJsxElement;
+    };
+    interface HTMLBuildDataElement extends Components.BuildData, HTMLStencilElement {
+    }
+    var HTMLBuildDataElement: {
+        prototype: HTMLBuildDataElement;
+        new (): HTMLBuildDataElement;
+    };
+    interface HTMLChildReflectNanAttributeElement extends Components.ChildReflectNanAttribute, HTMLStencilElement {
+    }
+    var HTMLChildReflectNanAttributeElement: {
+        prototype: HTMLChildReflectNanAttributeElement;
+        new (): HTMLChildReflectNanAttributeElement;
+    };
+    interface HTMLChildWithReflectionElement extends Components.ChildWithReflection, HTMLStencilElement {
+    }
+    var HTMLChildWithReflectionElement: {
+        prototype: HTMLChildWithReflectionElement;
+        new (): HTMLChildWithReflectionElement;
+    };
     interface HTMLCmpAElement extends Components.CmpA, HTMLStencilElement {
     }
     var HTMLCmpAElement: {
         prototype: HTMLCmpAElement;
         new (): HTMLCmpAElement;
+    };
+    interface HTMLCmpAvatarElement extends Components.CmpAvatar, HTMLStencilElement {
+    }
+    var HTMLCmpAvatarElement: {
+        prototype: HTMLCmpAvatarElement;
+        new (): HTMLCmpAvatarElement;
     };
     interface HTMLCmpBElement extends Components.CmpB, HTMLStencilElement {
     }
@@ -78,6 +986,36 @@ declare global {
         prototype: HTMLCmpDElement;
         new (): HTMLCmpDElement;
     };
+    interface HTMLCmpLabelElement extends Components.CmpLabel, HTMLStencilElement {
+    }
+    var HTMLCmpLabelElement: {
+        prototype: HTMLCmpLabelElement;
+        new (): HTMLCmpLabelElement;
+    };
+    interface HTMLCmpLabelWithSlotSiblingElement extends Components.CmpLabelWithSlotSibling, HTMLStencilElement {
+    }
+    var HTMLCmpLabelWithSlotSiblingElement: {
+        prototype: HTMLCmpLabelWithSlotSiblingElement;
+        new (): HTMLCmpLabelWithSlotSiblingElement;
+    };
+    interface HTMLCmpLevel1Element extends Components.CmpLevel1, HTMLStencilElement {
+    }
+    var HTMLCmpLevel1Element: {
+        prototype: HTMLCmpLevel1Element;
+        new (): HTMLCmpLevel1Element;
+    };
+    interface HTMLCmpLevel2Element extends Components.CmpLevel2, HTMLStencilElement {
+    }
+    var HTMLCmpLevel2Element: {
+        prototype: HTMLCmpLevel2Element;
+        new (): HTMLCmpLevel2Element;
+    };
+    interface HTMLCmpLevel3Element extends Components.CmpLevel3, HTMLStencilElement {
+    }
+    var HTMLCmpLevel3Element: {
+        prototype: HTMLCmpLevel3Element;
+        new (): HTMLCmpLevel3Element;
+    };
     interface HTMLCmpScopedAElement extends Components.CmpScopedA, HTMLStencilElement {
     }
     var HTMLCmpScopedAElement: {
@@ -89,6 +1027,12 @@ declare global {
     var HTMLCmpScopedBElement: {
         prototype: HTMLCmpScopedBElement;
         new (): HTMLCmpScopedBElement;
+    };
+    interface HTMLCmpSlottedParentnodeElement extends Components.CmpSlottedParentnode, HTMLStencilElement {
+    }
+    var HTMLCmpSlottedParentnodeElement: {
+        prototype: HTMLCmpSlottedParentnodeElement;
+        new (): HTMLCmpSlottedParentnodeElement;
     };
     interface HTMLCmpTextBlueElement extends Components.CmpTextBlue, HTMLStencilElement {
     }
@@ -102,31 +1046,1544 @@ declare global {
         prototype: HTMLCmpTextGreenElement;
         new (): HTMLCmpTextGreenElement;
     };
+    interface HTMLComplexPropertiesElement extends Components.ComplexProperties, HTMLStencilElement {
+    }
+    var HTMLComplexPropertiesElement: {
+        prototype: HTMLComplexPropertiesElement;
+        new (): HTMLComplexPropertiesElement;
+    };
+    interface HTMLComputedPropertiesPropDecoratorElement extends Components.ComputedPropertiesPropDecorator, HTMLStencilElement {
+    }
+    var HTMLComputedPropertiesPropDecoratorElement: {
+        prototype: HTMLComputedPropertiesPropDecoratorElement;
+        new (): HTMLComputedPropertiesPropDecoratorElement;
+    };
+    interface HTMLComputedPropertiesPropDecoratorReflectElement extends Components.ComputedPropertiesPropDecoratorReflect, HTMLStencilElement {
+    }
+    var HTMLComputedPropertiesPropDecoratorReflectElement: {
+        prototype: HTMLComputedPropertiesPropDecoratorReflectElement;
+        new (): HTMLComputedPropertiesPropDecoratorReflectElement;
+    };
+    interface HTMLComputedPropertiesStateDecoratorElement extends Components.ComputedPropertiesStateDecorator, HTMLStencilElement {
+    }
+    var HTMLComputedPropertiesStateDecoratorElement: {
+        prototype: HTMLComputedPropertiesStateDecoratorElement;
+        new (): HTMLComputedPropertiesStateDecoratorElement;
+    };
+    interface HTMLComputedPropertiesWatchDecoratorElement extends Components.ComputedPropertiesWatchDecorator, HTMLStencilElement {
+    }
+    var HTMLComputedPropertiesWatchDecoratorElement: {
+        prototype: HTMLComputedPropertiesWatchDecoratorElement;
+        new (): HTMLComputedPropertiesWatchDecoratorElement;
+    };
+    interface HTMLConditionalBasicElement extends Components.ConditionalBasic, HTMLStencilElement {
+    }
+    var HTMLConditionalBasicElement: {
+        prototype: HTMLConditionalBasicElement;
+        new (): HTMLConditionalBasicElement;
+    };
+    interface HTMLConditionalRerenderElement extends Components.ConditionalRerender, HTMLStencilElement {
+    }
+    var HTMLConditionalRerenderElement: {
+        prototype: HTMLConditionalRerenderElement;
+        new (): HTMLConditionalRerenderElement;
+    };
+    interface HTMLConditionalRerenderRootElement extends Components.ConditionalRerenderRoot, HTMLStencilElement {
+    }
+    var HTMLConditionalRerenderRootElement: {
+        prototype: HTMLConditionalRerenderRootElement;
+        new (): HTMLConditionalRerenderRootElement;
+    };
+    interface HTMLCssCmpElement extends Components.CssCmp, HTMLStencilElement {
+    }
+    var HTMLCssCmpElement: {
+        prototype: HTMLCssCmpElement;
+        new (): HTMLCssCmpElement;
+    };
+    interface HTMLCssVariablesNoEncapsulationElement extends Components.CssVariablesNoEncapsulation, HTMLStencilElement {
+    }
+    var HTMLCssVariablesNoEncapsulationElement: {
+        prototype: HTMLCssVariablesNoEncapsulationElement;
+        new (): HTMLCssVariablesNoEncapsulationElement;
+    };
+    interface HTMLCssVariablesShadowDomElement extends Components.CssVariablesShadowDom, HTMLStencilElement {
+    }
+    var HTMLCssVariablesShadowDomElement: {
+        prototype: HTMLCssVariablesShadowDomElement;
+        new (): HTMLCssVariablesShadowDomElement;
+    };
+    interface HTMLCustomElementChildElement extends Components.CustomElementChild, HTMLStencilElement {
+    }
+    var HTMLCustomElementChildElement: {
+        prototype: HTMLCustomElementChildElement;
+        new (): HTMLCustomElementChildElement;
+    };
+    interface HTMLCustomElementChildDifferentNameThanClassElement extends Components.CustomElementChildDifferentNameThanClass, HTMLStencilElement {
+    }
+    var HTMLCustomElementChildDifferentNameThanClassElement: {
+        prototype: HTMLCustomElementChildDifferentNameThanClassElement;
+        new (): HTMLCustomElementChildDifferentNameThanClassElement;
+    };
+    interface HTMLCustomElementNestedChildElement extends Components.CustomElementNestedChild, HTMLStencilElement {
+    }
+    var HTMLCustomElementNestedChildElement: {
+        prototype: HTMLCustomElementNestedChildElement;
+        new (): HTMLCustomElementNestedChildElement;
+    };
+    interface HTMLCustomElementRootElement extends Components.CustomElementRoot, HTMLStencilElement {
+    }
+    var HTMLCustomElementRootElement: {
+        prototype: HTMLCustomElementRootElement;
+        new (): HTMLCustomElementRootElement;
+    };
+    interface HTMLCustomElementRootDifferentNameThanClassElement extends Components.CustomElementRootDifferentNameThanClass, HTMLStencilElement {
+    }
+    var HTMLCustomElementRootDifferentNameThanClassElement: {
+        prototype: HTMLCustomElementRootDifferentNameThanClassElement;
+        new (): HTMLCustomElementRootDifferentNameThanClassElement;
+    };
+    interface HTMLCustomElementsDelegatesFocusElement extends Components.CustomElementsDelegatesFocus, HTMLStencilElement {
+    }
+    var HTMLCustomElementsDelegatesFocusElement: {
+        prototype: HTMLCustomElementsDelegatesFocusElement;
+        new (): HTMLCustomElementsDelegatesFocusElement;
+    };
+    interface HTMLCustomElementsHierarchyLifecycleChildElement extends Components.CustomElementsHierarchyLifecycleChild, HTMLStencilElement {
+    }
+    var HTMLCustomElementsHierarchyLifecycleChildElement: {
+        prototype: HTMLCustomElementsHierarchyLifecycleChildElement;
+        new (): HTMLCustomElementsHierarchyLifecycleChildElement;
+    };
+    interface HTMLCustomElementsHierarchyLifecycleParentElement extends Components.CustomElementsHierarchyLifecycleParent, HTMLStencilElement {
+    }
+    var HTMLCustomElementsHierarchyLifecycleParentElement: {
+        prototype: HTMLCustomElementsHierarchyLifecycleParentElement;
+        new (): HTMLCustomElementsHierarchyLifecycleParentElement;
+    };
+    interface HTMLCustomElementsNoDelegatesFocusElement extends Components.CustomElementsNoDelegatesFocus, HTMLStencilElement {
+    }
+    var HTMLCustomElementsNoDelegatesFocusElement: {
+        prototype: HTMLCustomElementsNoDelegatesFocusElement;
+        new (): HTMLCustomElementsNoDelegatesFocusElement;
+    };
+    interface HTMLCustomEventRootElement extends Components.CustomEventRoot, HTMLStencilElement {
+    }
+    var HTMLCustomEventRootElement: {
+        prototype: HTMLCustomEventRootElement;
+        new (): HTMLCustomEventRootElement;
+    };
+    interface HTMLCustomSvgElementElement extends Components.CustomSvgElement, HTMLStencilElement {
+    }
+    var HTMLCustomSvgElementElement: {
+        prototype: HTMLCustomSvgElementElement;
+        new (): HTMLCustomSvgElementElement;
+    };
+    interface HTMLDelegatesFocusElement extends Components.DelegatesFocus, HTMLStencilElement {
+    }
+    var HTMLDelegatesFocusElement: {
+        prototype: HTMLDelegatesFocusElement;
+        new (): HTMLDelegatesFocusElement;
+    };
+    interface HTMLDomReattachElement extends Components.DomReattach, HTMLStencilElement {
+    }
+    var HTMLDomReattachElement: {
+        prototype: HTMLDomReattachElement;
+        new (): HTMLDomReattachElement;
+    };
+    interface HTMLDomReattachCloneElement extends Components.DomReattachClone, HTMLStencilElement {
+    }
+    var HTMLDomReattachCloneElement: {
+        prototype: HTMLDomReattachCloneElement;
+        new (): HTMLDomReattachCloneElement;
+    };
+    interface HTMLDomReattachCloneDeepSlotElement extends Components.DomReattachCloneDeepSlot, HTMLStencilElement {
+    }
+    var HTMLDomReattachCloneDeepSlotElement: {
+        prototype: HTMLDomReattachCloneDeepSlotElement;
+        new (): HTMLDomReattachCloneDeepSlotElement;
+    };
+    interface HTMLDomReattachCloneHostElement extends Components.DomReattachCloneHost, HTMLStencilElement {
+    }
+    var HTMLDomReattachCloneHostElement: {
+        prototype: HTMLDomReattachCloneHostElement;
+        new (): HTMLDomReattachCloneHostElement;
+    };
+    interface HTMLDsdCmpElement extends Components.DsdCmp, HTMLStencilElement {
+    }
+    var HTMLDsdCmpElement: {
+        prototype: HTMLDsdCmpElement;
+        new (): HTMLDsdCmpElement;
+    };
+    interface HTMLDynamicCssVariableElement extends Components.DynamicCssVariable, HTMLStencilElement {
+    }
+    var HTMLDynamicCssVariableElement: {
+        prototype: HTMLDynamicCssVariableElement;
+        new (): HTMLDynamicCssVariableElement;
+    };
+    interface HTMLDynamicImportElement extends Components.DynamicImport, HTMLStencilElement {
+    }
+    var HTMLDynamicImportElement: {
+        prototype: HTMLDynamicImportElement;
+        new (): HTMLDynamicImportElement;
+    };
+    interface HTMLEs5AddclassSvgElement extends Components.Es5AddclassSvg, HTMLStencilElement {
+    }
+    var HTMLEs5AddclassSvgElement: {
+        prototype: HTMLEs5AddclassSvgElement;
+        new (): HTMLEs5AddclassSvgElement;
+    };
+    interface HTMLEsmImportElementEventMap {
+        "someEvent": any;
+    }
+    interface HTMLEsmImportElement extends Components.EsmImport, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLEsmImportElementEventMap>(type: K, listener: (this: HTMLEsmImportElement, ev: EsmImportCustomEvent<HTMLEsmImportElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLEsmImportElementEventMap>(type: K, listener: (this: HTMLEsmImportElement, ev: EsmImportCustomEvent<HTMLEsmImportElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLEsmImportElement: {
+        prototype: HTMLEsmImportElement;
+        new (): HTMLEsmImportElement;
+    };
+    interface HTMLEventBasicElementEventMap {
+        "testEvent": any;
+    }
+    interface HTMLEventBasicElement extends Components.EventBasic, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLEventBasicElementEventMap>(type: K, listener: (this: HTMLEventBasicElement, ev: EventBasicCustomEvent<HTMLEventBasicElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLEventBasicElementEventMap>(type: K, listener: (this: HTMLEventBasicElement, ev: EventBasicCustomEvent<HTMLEventBasicElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLEventBasicElement: {
+        prototype: HTMLEventBasicElement;
+        new (): HTMLEventBasicElement;
+    };
+    interface HTMLEventCustomTypeElementEventMap {
+        "testEvent": TestEventDetail;
+    }
+    interface HTMLEventCustomTypeElement extends Components.EventCustomType, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLEventCustomTypeElementEventMap>(type: K, listener: (this: HTMLEventCustomTypeElement, ev: EventCustomTypeCustomEvent<HTMLEventCustomTypeElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLEventCustomTypeElementEventMap>(type: K, listener: (this: HTMLEventCustomTypeElement, ev: EventCustomTypeCustomEvent<HTMLEventCustomTypeElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLEventCustomTypeElement: {
+        prototype: HTMLEventCustomTypeElement;
+        new (): HTMLEventCustomTypeElement;
+    };
+    interface HTMLEventListenerCaptureElement extends Components.EventListenerCapture, HTMLStencilElement {
+    }
+    var HTMLEventListenerCaptureElement: {
+        prototype: HTMLEventListenerCaptureElement;
+        new (): HTMLEventListenerCaptureElement;
+    };
+    interface HTMLEventReRegisterElement extends Components.EventReRegister, HTMLStencilElement {
+    }
+    var HTMLEventReRegisterElement: {
+        prototype: HTMLEventReRegisterElement;
+        new (): HTMLEventReRegisterElement;
+    };
+    interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
+    }
+    var HTMLExtendedCmpElement: {
+        prototype: HTMLExtendedCmpElement;
+        new (): HTMLExtendedCmpElement;
+    };
+    interface HTMLExtendsCmpCmpElement extends Components.ExtendsCmpCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsCmpCmpElement: {
+        prototype: HTMLExtendsCmpCmpElement;
+        new (): HTMLExtendsCmpCmpElement;
+    };
+    interface HTMLExtendsExternalElement extends Components.ExtendsExternal, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalElement: {
+        prototype: HTMLExtendsExternalElement;
+        new (): HTMLExtendsExternalElement;
+    };
+    interface HTMLExtendsMixinElement extends Components.ExtendsMixin, HTMLStencilElement {
+    }
+    var HTMLExtendsMixinElement: {
+        prototype: HTMLExtendsMixinElement;
+        new (): HTMLExtendsMixinElement;
+    };
+    interface HTMLExternalImportAElement extends Components.ExternalImportA, HTMLStencilElement {
+    }
+    var HTMLExternalImportAElement: {
+        prototype: HTMLExternalImportAElement;
+        new (): HTMLExternalImportAElement;
+    };
+    interface HTMLExternalImportBElement extends Components.ExternalImportB, HTMLStencilElement {
+    }
+    var HTMLExternalImportBElement: {
+        prototype: HTMLExternalImportBElement;
+        new (): HTMLExternalImportBElement;
+    };
+    interface HTMLExternalImportCElement extends Components.ExternalImportC, HTMLStencilElement {
+    }
+    var HTMLExternalImportCElement: {
+        prototype: HTMLExternalImportCElement;
+        new (): HTMLExternalImportCElement;
+    };
+    interface HTMLFactoryJsxElement extends Components.FactoryJsx, HTMLStencilElement {
+    }
+    var HTMLFactoryJsxElement: {
+        prototype: HTMLFactoryJsxElement;
+        new (): HTMLFactoryJsxElement;
+    };
+    interface HTMLFormAssociatedElement extends Components.FormAssociated, HTMLStencilElement {
+    }
+    var HTMLFormAssociatedElement: {
+        prototype: HTMLFormAssociatedElement;
+        new (): HTMLFormAssociatedElement;
+    };
+    interface HTMLFormAssociatedPropCheckElement extends Components.FormAssociatedPropCheck, HTMLStencilElement {
+    }
+    var HTMLFormAssociatedPropCheckElement: {
+        prototype: HTMLFormAssociatedPropCheckElement;
+        new (): HTMLFormAssociatedPropCheckElement;
+    };
+    interface HTMLGlobalStylesElement extends Components.GlobalStyles, HTMLStencilElement {
+    }
+    var HTMLGlobalStylesElement: {
+        prototype: HTMLGlobalStylesElement;
+        new (): HTMLGlobalStylesElement;
+    };
+    interface HTMLHostAttrOverrideElement extends Components.HostAttrOverride, HTMLStencilElement {
+    }
+    var HTMLHostAttrOverrideElement: {
+        prototype: HTMLHostAttrOverrideElement;
+        new (): HTMLHostAttrOverrideElement;
+    };
+    interface HTMLImageImportElement extends Components.ImageImport, HTMLStencilElement {
+    }
+    var HTMLImageImportElement: {
+        prototype: HTMLImageImportElement;
+        new (): HTMLImageImportElement;
+    };
+    interface HTMLImportAliasingElementEventMap {
+        "myEvent": void;
+    }
+    interface HTMLImportAliasingElement extends Components.ImportAliasing, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLImportAliasingElementEventMap>(type: K, listener: (this: HTMLImportAliasingElement, ev: ImportAliasingCustomEvent<HTMLImportAliasingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLImportAliasingElementEventMap>(type: K, listener: (this: HTMLImportAliasingElement, ev: ImportAliasingCustomEvent<HTMLImportAliasingElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLImportAliasingElement: {
+        prototype: HTMLImportAliasingElement;
+        new (): HTMLImportAliasingElement;
+    };
+    interface HTMLInitCssRootElement extends Components.InitCssRoot, HTMLStencilElement {
+    }
+    var HTMLInitCssRootElement: {
+        prototype: HTMLInitCssRootElement;
+        new (): HTMLInitCssRootElement;
+    };
+    interface HTMLInputBasicRootElement extends Components.InputBasicRoot, HTMLStencilElement {
+    }
+    var HTMLInputBasicRootElement: {
+        prototype: HTMLInputBasicRootElement;
+        new (): HTMLInputBasicRootElement;
+    };
+    interface HTMLIonChildElement extends Components.IonChild, HTMLStencilElement {
+    }
+    var HTMLIonChildElement: {
+        prototype: HTMLIonChildElement;
+        new (): HTMLIonChildElement;
+    };
+    interface HTMLIonHostElement extends Components.IonHost, HTMLStencilElement {
+    }
+    var HTMLIonHostElement: {
+        prototype: HTMLIonHostElement;
+        new (): HTMLIonHostElement;
+    };
+    interface HTMLIonParentElement extends Components.IonParent, HTMLStencilElement {
+    }
+    var HTMLIonParentElement: {
+        prototype: HTMLIonParentElement;
+        new (): HTMLIonParentElement;
+    };
+    interface HTMLIonRadioElementEventMap {
+        "ionFocus": void;
+        "ionBlur": void;
+    }
+    interface HTMLIonRadioElement extends Components.IonRadio, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLIonRadioElementEventMap>(type: K, listener: (this: HTMLIonRadioElement, ev: IonRadioCustomEvent<HTMLIonRadioElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLIonRadioElementEventMap>(type: K, listener: (this: HTMLIonRadioElement, ev: IonRadioCustomEvent<HTMLIonRadioElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLIonRadioElement: {
+        prototype: HTMLIonRadioElement;
+        new (): HTMLIonRadioElement;
+    };
+    interface HTMLIonRadioGroupElementEventMap {
+        "ionChange": any;
+        "ionValueChange": any;
+    }
+    interface HTMLIonRadioGroupElement extends Components.IonRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLIonRadioGroupElementEventMap>(type: K, listener: (this: HTMLIonRadioGroupElement, ev: IonRadioGroupCustomEvent<HTMLIonRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLIonRadioGroupElementEventMap>(type: K, listener: (this: HTMLIonRadioGroupElement, ev: IonRadioGroupCustomEvent<HTMLIonRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLIonRadioGroupElement: {
+        prototype: HTMLIonRadioGroupElement;
+        new (): HTMLIonRadioGroupElement;
+    };
+    interface HTMLJsonBasicElement extends Components.JsonBasic, HTMLStencilElement {
+    }
+    var HTMLJsonBasicElement: {
+        prototype: HTMLJsonBasicElement;
+        new (): HTMLJsonBasicElement;
+    };
+    interface HTMLKeyReorderElement extends Components.KeyReorder, HTMLStencilElement {
+    }
+    var HTMLKeyReorderElement: {
+        prototype: HTMLKeyReorderElement;
+        new (): HTMLKeyReorderElement;
+    };
+    interface HTMLLifecycleAsyncAElement extends Components.LifecycleAsyncA, HTMLStencilElement {
+    }
+    var HTMLLifecycleAsyncAElement: {
+        prototype: HTMLLifecycleAsyncAElement;
+        new (): HTMLLifecycleAsyncAElement;
+    };
+    interface HTMLLifecycleAsyncBElementEventMap {
+        "lifecycleLoad": any;
+        "lifecycleUpdate": any;
+    }
+    interface HTMLLifecycleAsyncBElement extends Components.LifecycleAsyncB, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLLifecycleAsyncBElementEventMap>(type: K, listener: (this: HTMLLifecycleAsyncBElement, ev: LifecycleAsyncBCustomEvent<HTMLLifecycleAsyncBElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLLifecycleAsyncBElementEventMap>(type: K, listener: (this: HTMLLifecycleAsyncBElement, ev: LifecycleAsyncBCustomEvent<HTMLLifecycleAsyncBElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLLifecycleAsyncBElement: {
+        prototype: HTMLLifecycleAsyncBElement;
+        new (): HTMLLifecycleAsyncBElement;
+    };
+    interface HTMLLifecycleAsyncCElementEventMap {
+        "lifecycleLoad": any;
+        "lifecycleUpdate": any;
+    }
+    interface HTMLLifecycleAsyncCElement extends Components.LifecycleAsyncC, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLLifecycleAsyncCElementEventMap>(type: K, listener: (this: HTMLLifecycleAsyncCElement, ev: LifecycleAsyncCCustomEvent<HTMLLifecycleAsyncCElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLLifecycleAsyncCElementEventMap>(type: K, listener: (this: HTMLLifecycleAsyncCElement, ev: LifecycleAsyncCCustomEvent<HTMLLifecycleAsyncCElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLLifecycleAsyncCElement: {
+        prototype: HTMLLifecycleAsyncCElement;
+        new (): HTMLLifecycleAsyncCElement;
+    };
+    interface HTMLLifecycleBasicAElement extends Components.LifecycleBasicA, HTMLStencilElement {
+    }
+    var HTMLLifecycleBasicAElement: {
+        prototype: HTMLLifecycleBasicAElement;
+        new (): HTMLLifecycleBasicAElement;
+    };
+    interface HTMLLifecycleBasicBElementEventMap {
+        "lifecycleLoad": any;
+        "lifecycleUpdate": any;
+    }
+    interface HTMLLifecycleBasicBElement extends Components.LifecycleBasicB, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLLifecycleBasicBElementEventMap>(type: K, listener: (this: HTMLLifecycleBasicBElement, ev: LifecycleBasicBCustomEvent<HTMLLifecycleBasicBElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLLifecycleBasicBElementEventMap>(type: K, listener: (this: HTMLLifecycleBasicBElement, ev: LifecycleBasicBCustomEvent<HTMLLifecycleBasicBElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLLifecycleBasicBElement: {
+        prototype: HTMLLifecycleBasicBElement;
+        new (): HTMLLifecycleBasicBElement;
+    };
+    interface HTMLLifecycleBasicCElementEventMap {
+        "lifecycleLoad": any;
+        "lifecycleUpdate": any;
+    }
+    interface HTMLLifecycleBasicCElement extends Components.LifecycleBasicC, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLLifecycleBasicCElementEventMap>(type: K, listener: (this: HTMLLifecycleBasicCElement, ev: LifecycleBasicCCustomEvent<HTMLLifecycleBasicCElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLLifecycleBasicCElementEventMap>(type: K, listener: (this: HTMLLifecycleBasicCElement, ev: LifecycleBasicCCustomEvent<HTMLLifecycleBasicCElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLLifecycleBasicCElement: {
+        prototype: HTMLLifecycleBasicCElement;
+        new (): HTMLLifecycleBasicCElement;
+    };
+    interface HTMLLifecycleNestedAElement extends Components.LifecycleNestedA, HTMLStencilElement {
+    }
+    var HTMLLifecycleNestedAElement: {
+        prototype: HTMLLifecycleNestedAElement;
+        new (): HTMLLifecycleNestedAElement;
+    };
+    interface HTMLLifecycleNestedBElement extends Components.LifecycleNestedB, HTMLStencilElement {
+    }
+    var HTMLLifecycleNestedBElement: {
+        prototype: HTMLLifecycleNestedBElement;
+        new (): HTMLLifecycleNestedBElement;
+    };
+    interface HTMLLifecycleNestedCElement extends Components.LifecycleNestedC, HTMLStencilElement {
+    }
+    var HTMLLifecycleNestedCElement: {
+        prototype: HTMLLifecycleNestedCElement;
+        new (): HTMLLifecycleNestedCElement;
+    };
+    interface HTMLLifecycleUnloadAElement extends Components.LifecycleUnloadA, HTMLStencilElement {
+    }
+    var HTMLLifecycleUnloadAElement: {
+        prototype: HTMLLifecycleUnloadAElement;
+        new (): HTMLLifecycleUnloadAElement;
+    };
+    interface HTMLLifecycleUnloadBElement extends Components.LifecycleUnloadB, HTMLStencilElement {
+    }
+    var HTMLLifecycleUnloadBElement: {
+        prototype: HTMLLifecycleUnloadBElement;
+        new (): HTMLLifecycleUnloadBElement;
+    };
+    interface HTMLLifecycleUnloadRootElement extends Components.LifecycleUnloadRoot, HTMLStencilElement {
+    }
+    var HTMLLifecycleUnloadRootElement: {
+        prototype: HTMLLifecycleUnloadRootElement;
+        new (): HTMLLifecycleUnloadRootElement;
+    };
+    interface HTMLLifecycleUpdateAElement extends Components.LifecycleUpdateA, HTMLStencilElement {
+    }
+    var HTMLLifecycleUpdateAElement: {
+        prototype: HTMLLifecycleUpdateAElement;
+        new (): HTMLLifecycleUpdateAElement;
+    };
+    interface HTMLLifecycleUpdateBElement extends Components.LifecycleUpdateB, HTMLStencilElement {
+    }
+    var HTMLLifecycleUpdateBElement: {
+        prototype: HTMLLifecycleUpdateBElement;
+        new (): HTMLLifecycleUpdateBElement;
+    };
+    interface HTMLLifecycleUpdateCElement extends Components.LifecycleUpdateC, HTMLStencilElement {
+    }
+    var HTMLLifecycleUpdateCElement: {
+        prototype: HTMLLifecycleUpdateCElement;
+        new (): HTMLLifecycleUpdateCElement;
+    };
+    interface HTMLListenJsxElement extends Components.ListenJsx, HTMLStencilElement {
+    }
+    var HTMLListenJsxElement: {
+        prototype: HTMLListenJsxElement;
+        new (): HTMLListenJsxElement;
+    };
+    interface HTMLListenJsxRootElement extends Components.ListenJsxRoot, HTMLStencilElement {
+    }
+    var HTMLListenJsxRootElement: {
+        prototype: HTMLListenJsxRootElement;
+        new (): HTMLListenJsxRootElement;
+    };
+    interface HTMLListenReattachElement extends Components.ListenReattach, HTMLStencilElement {
+    }
+    var HTMLListenReattachElement: {
+        prototype: HTMLListenReattachElement;
+        new (): HTMLListenReattachElement;
+    };
+    interface HTMLListenWindowElement extends Components.ListenWindow, HTMLStencilElement {
+    }
+    var HTMLListenWindowElement: {
+        prototype: HTMLListenWindowElement;
+        new (): HTMLListenWindowElement;
+    };
+    interface HTMLMultipleStylesCmpElement extends Components.MultipleStylesCmp, HTMLStencilElement {
+    }
+    var HTMLMultipleStylesCmpElement: {
+        prototype: HTMLMultipleStylesCmpElement;
+        new (): HTMLMultipleStylesCmpElement;
+    };
+    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
+    }
+    var HTMLMyComponentElement: {
+        prototype: HTMLMyComponentElement;
+        new (): HTMLMyComponentElement;
+    };
+    interface HTMLNoDelegatesFocusElement extends Components.NoDelegatesFocus, HTMLStencilElement {
+    }
+    var HTMLNoDelegatesFocusElement: {
+        prototype: HTMLNoDelegatesFocusElement;
+        new (): HTMLNoDelegatesFocusElement;
+    };
+    interface HTMLNodeResolutionElement extends Components.NodeResolution, HTMLStencilElement {
+    }
+    var HTMLNodeResolutionElement: {
+        prototype: HTMLNodeResolutionElement;
+        new (): HTMLNodeResolutionElement;
+    };
+    interface HTMLPageListElement extends Components.PageList, HTMLStencilElement {
+    }
+    var HTMLPageListElement: {
+        prototype: HTMLPageListElement;
+        new (): HTMLPageListElement;
+    };
+    interface HTMLPageListItemElement extends Components.PageListItem, HTMLStencilElement {
+    }
+    var HTMLPageListItemElement: {
+        prototype: HTMLPageListItemElement;
+        new (): HTMLPageListItemElement;
+    };
+    interface HTMLParentReflectNanAttributeElement extends Components.ParentReflectNanAttribute, HTMLStencilElement {
+    }
+    var HTMLParentReflectNanAttributeElement: {
+        prototype: HTMLParentReflectNanAttributeElement;
+        new (): HTMLParentReflectNanAttributeElement;
+    };
+    interface HTMLParentWithReflectChildElement extends Components.ParentWithReflectChild, HTMLStencilElement {
+    }
+    var HTMLParentWithReflectChildElement: {
+        prototype: HTMLParentWithReflectChildElement;
+        new (): HTMLParentWithReflectChildElement;
+    };
+    interface HTMLPartSsrShadowCmpElement extends Components.PartSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLPartSsrShadowCmpElement: {
+        prototype: HTMLPartSsrShadowCmpElement;
+        new (): HTMLPartSsrShadowCmpElement;
+    };
+    interface HTMLPartWrapSsrShadowCmpElement extends Components.PartWrapSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLPartWrapSsrShadowCmpElement: {
+        prototype: HTMLPartWrapSsrShadowCmpElement;
+        new (): HTMLPartWrapSsrShadowCmpElement;
+    };
+    interface HTMLRadioGroupBlurTestElement extends Components.RadioGroupBlurTest, HTMLStencilElement {
+    }
+    var HTMLRadioGroupBlurTestElement: {
+        prototype: HTMLRadioGroupBlurTestElement;
+        new (): HTMLRadioGroupBlurTestElement;
+    };
+    interface HTMLRefAttrOrderElement extends Components.RefAttrOrder, HTMLStencilElement {
+    }
+    var HTMLRefAttrOrderElement: {
+        prototype: HTMLRefAttrOrderElement;
+        new (): HTMLRefAttrOrderElement;
+    };
+    interface HTMLReflectNanAttributeElement extends Components.ReflectNanAttribute, HTMLStencilElement {
+    }
+    var HTMLReflectNanAttributeElement: {
+        prototype: HTMLReflectNanAttributeElement;
+        new (): HTMLReflectNanAttributeElement;
+    };
+    interface HTMLReflectNanAttributeHyphenElement extends Components.ReflectNanAttributeHyphen, HTMLStencilElement {
+    }
+    var HTMLReflectNanAttributeHyphenElement: {
+        prototype: HTMLReflectNanAttributeHyphenElement;
+        new (): HTMLReflectNanAttributeHyphenElement;
+    };
+    interface HTMLReflectToAttrElement extends Components.ReflectToAttr, HTMLStencilElement {
+    }
+    var HTMLReflectToAttrElement: {
+        prototype: HTMLReflectToAttrElement;
+        new (): HTMLReflectToAttrElement;
+    };
+    interface HTMLRemoveChildPatchElement extends Components.RemoveChildPatch, HTMLStencilElement {
+    }
+    var HTMLRemoveChildPatchElement: {
+        prototype: HTMLRemoveChildPatchElement;
+        new (): HTMLRemoveChildPatchElement;
+    };
+    interface HTMLReparentStyleNoVarsElement extends Components.ReparentStyleNoVars, HTMLStencilElement {
+    }
+    var HTMLReparentStyleNoVarsElement: {
+        prototype: HTMLReparentStyleNoVarsElement;
+        new (): HTMLReparentStyleNoVarsElement;
+    };
+    interface HTMLReparentStyleWithVarsElement extends Components.ReparentStyleWithVars, HTMLStencilElement {
+    }
+    var HTMLReparentStyleWithVarsElement: {
+        prototype: HTMLReparentStyleWithVarsElement;
+        new (): HTMLReparentStyleWithVarsElement;
+    };
+    interface HTMLSassCmpElement extends Components.SassCmp, HTMLStencilElement {
+    }
+    var HTMLSassCmpElement: {
+        prototype: HTMLSassCmpElement;
+        new (): HTMLSassCmpElement;
+    };
+    interface HTMLScopedAddRemoveClassesElement extends Components.ScopedAddRemoveClasses, HTMLStencilElement {
+    }
+    var HTMLScopedAddRemoveClassesElement: {
+        prototype: HTMLScopedAddRemoveClassesElement;
+        new (): HTMLScopedAddRemoveClassesElement;
+    };
+    interface HTMLScopedBasicElement extends Components.ScopedBasic, HTMLStencilElement {
+    }
+    var HTMLScopedBasicElement: {
+        prototype: HTMLScopedBasicElement;
+        new (): HTMLScopedBasicElement;
+    };
+    interface HTMLScopedBasicRootElement extends Components.ScopedBasicRoot, HTMLStencilElement {
+    }
+    var HTMLScopedBasicRootElement: {
+        prototype: HTMLScopedBasicRootElement;
+        new (): HTMLScopedBasicRootElement;
+    };
+    interface HTMLScopedConditionalElement extends Components.ScopedConditional, HTMLStencilElement {
+    }
+    var HTMLScopedConditionalElement: {
+        prototype: HTMLScopedConditionalElement;
+        new (): HTMLScopedConditionalElement;
+    };
+    interface HTMLScopedSlotAppendAndPrependElement extends Components.ScopedSlotAppendAndPrepend, HTMLStencilElement {
+    }
+    var HTMLScopedSlotAppendAndPrependElement: {
+        prototype: HTMLScopedSlotAppendAndPrependElement;
+        new (): HTMLScopedSlotAppendAndPrependElement;
+    };
+    interface HTMLScopedSlotAssignedMethodsElement extends Components.ScopedSlotAssignedMethods, HTMLStencilElement {
+    }
+    var HTMLScopedSlotAssignedMethodsElement: {
+        prototype: HTMLScopedSlotAssignedMethodsElement;
+        new (): HTMLScopedSlotAssignedMethodsElement;
+    };
+    interface HTMLScopedSlotChildInsertAdjacentElement extends Components.ScopedSlotChildInsertAdjacent, HTMLStencilElement {
+    }
+    var HTMLScopedSlotChildInsertAdjacentElement: {
+        prototype: HTMLScopedSlotChildInsertAdjacentElement;
+        new (): HTMLScopedSlotChildInsertAdjacentElement;
+    };
+    interface HTMLScopedSlotChildrenElement extends Components.ScopedSlotChildren, HTMLStencilElement {
+    }
+    var HTMLScopedSlotChildrenElement: {
+        prototype: HTMLScopedSlotChildrenElement;
+        new (): HTMLScopedSlotChildrenElement;
+    };
+    interface HTMLScopedSlotInsertbeforeElement extends Components.ScopedSlotInsertbefore, HTMLStencilElement {
+    }
+    var HTMLScopedSlotInsertbeforeElement: {
+        prototype: HTMLScopedSlotInsertbeforeElement;
+        new (): HTMLScopedSlotInsertbeforeElement;
+    };
+    interface HTMLScopedSlotInsertionOrderAfterInteractionElement extends Components.ScopedSlotInsertionOrderAfterInteraction, HTMLStencilElement {
+    }
+    var HTMLScopedSlotInsertionOrderAfterInteractionElement: {
+        prototype: HTMLScopedSlotInsertionOrderAfterInteractionElement;
+        new (): HTMLScopedSlotInsertionOrderAfterInteractionElement;
+    };
+    interface HTMLScopedSlotSlotchangeElement extends Components.ScopedSlotSlotchange, HTMLStencilElement {
+    }
+    var HTMLScopedSlotSlotchangeElement: {
+        prototype: HTMLScopedSlotSlotchangeElement;
+        new (): HTMLScopedSlotSlotchangeElement;
+    };
+    interface HTMLScopedSlotSlotchangeWrapElement extends Components.ScopedSlotSlotchangeWrap, HTMLStencilElement {
+    }
+    var HTMLScopedSlotSlotchangeWrapElement: {
+        prototype: HTMLScopedSlotSlotchangeWrapElement;
+        new (): HTMLScopedSlotSlotchangeWrapElement;
+    };
+    interface HTMLScopedSsrChildCmpElement extends Components.ScopedSsrChildCmp, HTMLStencilElement {
+    }
+    var HTMLScopedSsrChildCmpElement: {
+        prototype: HTMLScopedSsrChildCmpElement;
+        new (): HTMLScopedSsrChildCmpElement;
+    };
+    interface HTMLScopedSsrParentCmpElement extends Components.ScopedSsrParentCmp, HTMLStencilElement {
+    }
+    var HTMLScopedSsrParentCmpElement: {
+        prototype: HTMLScopedSsrParentCmpElement;
+        new (): HTMLScopedSsrParentCmpElement;
+    };
+    interface HTMLShadowDomArrayElement extends Components.ShadowDomArray, HTMLStencilElement {
+    }
+    var HTMLShadowDomArrayElement: {
+        prototype: HTMLShadowDomArrayElement;
+        new (): HTMLShadowDomArrayElement;
+    };
+    interface HTMLShadowDomArrayRootElement extends Components.ShadowDomArrayRoot, HTMLStencilElement {
+    }
+    var HTMLShadowDomArrayRootElement: {
+        prototype: HTMLShadowDomArrayRootElement;
+        new (): HTMLShadowDomArrayRootElement;
+    };
+    interface HTMLShadowDomBasicElement extends Components.ShadowDomBasic, HTMLStencilElement {
+    }
+    var HTMLShadowDomBasicElement: {
+        prototype: HTMLShadowDomBasicElement;
+        new (): HTMLShadowDomBasicElement;
+    };
+    interface HTMLShadowDomBasicRootElement extends Components.ShadowDomBasicRoot, HTMLStencilElement {
+    }
+    var HTMLShadowDomBasicRootElement: {
+        prototype: HTMLShadowDomBasicRootElement;
+        new (): HTMLShadowDomBasicRootElement;
+    };
+    interface HTMLShadowDomModeElement extends Components.ShadowDomMode, HTMLStencilElement {
+    }
+    var HTMLShadowDomModeElement: {
+        prototype: HTMLShadowDomModeElement;
+        new (): HTMLShadowDomModeElement;
+    };
+    interface HTMLShadowDomSlotNestedElement extends Components.ShadowDomSlotNested, HTMLStencilElement {
+    }
+    var HTMLShadowDomSlotNestedElement: {
+        prototype: HTMLShadowDomSlotNestedElement;
+        new (): HTMLShadowDomSlotNestedElement;
+    };
+    interface HTMLShadowDomSlotNestedRootElement extends Components.ShadowDomSlotNestedRoot, HTMLStencilElement {
+    }
+    var HTMLShadowDomSlotNestedRootElement: {
+        prototype: HTMLShadowDomSlotNestedRootElement;
+        new (): HTMLShadowDomSlotNestedRootElement;
+    };
+    interface HTMLShadowSsrChildCmpElement extends Components.ShadowSsrChildCmp, HTMLStencilElement {
+    }
+    var HTMLShadowSsrChildCmpElement: {
+        prototype: HTMLShadowSsrChildCmpElement;
+        new (): HTMLShadowSsrChildCmpElement;
+    };
+    interface HTMLShadowSsrParentCmpElement extends Components.ShadowSsrParentCmp, HTMLStencilElement {
+    }
+    var HTMLShadowSsrParentCmpElement: {
+        prototype: HTMLShadowSsrParentCmpElement;
+        new (): HTMLShadowSsrParentCmpElement;
+    };
+    interface HTMLSlotArrayBasicElement extends Components.SlotArrayBasic, HTMLStencilElement {
+    }
+    var HTMLSlotArrayBasicElement: {
+        prototype: HTMLSlotArrayBasicElement;
+        new (): HTMLSlotArrayBasicElement;
+    };
+    interface HTMLSlotArrayComplexElement extends Components.SlotArrayComplex, HTMLStencilElement {
+    }
+    var HTMLSlotArrayComplexElement: {
+        prototype: HTMLSlotArrayComplexElement;
+        new (): HTMLSlotArrayComplexElement;
+    };
+    interface HTMLSlotArrayComplexRootElement extends Components.SlotArrayComplexRoot, HTMLStencilElement {
+    }
+    var HTMLSlotArrayComplexRootElement: {
+        prototype: HTMLSlotArrayComplexRootElement;
+        new (): HTMLSlotArrayComplexRootElement;
+    };
+    interface HTMLSlotArrayTopElement extends Components.SlotArrayTop, HTMLStencilElement {
+    }
+    var HTMLSlotArrayTopElement: {
+        prototype: HTMLSlotArrayTopElement;
+        new (): HTMLSlotArrayTopElement;
+    };
+    interface HTMLSlotBasicElement extends Components.SlotBasic, HTMLStencilElement {
+    }
+    var HTMLSlotBasicElement: {
+        prototype: HTMLSlotBasicElement;
+        new (): HTMLSlotBasicElement;
+    };
+    interface HTMLSlotBasicOrderElement extends Components.SlotBasicOrder, HTMLStencilElement {
+    }
+    var HTMLSlotBasicOrderElement: {
+        prototype: HTMLSlotBasicOrderElement;
+        new (): HTMLSlotBasicOrderElement;
+    };
+    interface HTMLSlotBasicOrderRootElement extends Components.SlotBasicOrderRoot, HTMLStencilElement {
+    }
+    var HTMLSlotBasicOrderRootElement: {
+        prototype: HTMLSlotBasicOrderRootElement;
+        new (): HTMLSlotBasicOrderRootElement;
+    };
+    interface HTMLSlotBasicRootElement extends Components.SlotBasicRoot, HTMLStencilElement {
+    }
+    var HTMLSlotBasicRootElement: {
+        prototype: HTMLSlotBasicRootElement;
+        new (): HTMLSlotBasicRootElement;
+    };
+    interface HTMLSlotChildrenRootElement extends Components.SlotChildrenRoot, HTMLStencilElement {
+    }
+    var HTMLSlotChildrenRootElement: {
+        prototype: HTMLSlotChildrenRootElement;
+        new (): HTMLSlotChildrenRootElement;
+    };
+    interface HTMLSlotConditionalRenderingElement extends Components.SlotConditionalRendering, HTMLStencilElement {
+    }
+    var HTMLSlotConditionalRenderingElement: {
+        prototype: HTMLSlotConditionalRenderingElement;
+        new (): HTMLSlotConditionalRenderingElement;
+    };
+    interface HTMLSlotDynamicNameChangeScopedElement extends Components.SlotDynamicNameChangeScoped, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicNameChangeScopedElement: {
+        prototype: HTMLSlotDynamicNameChangeScopedElement;
+        new (): HTMLSlotDynamicNameChangeScopedElement;
+    };
+    interface HTMLSlotDynamicNameChangeShadowElement extends Components.SlotDynamicNameChangeShadow, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicNameChangeShadowElement: {
+        prototype: HTMLSlotDynamicNameChangeShadowElement;
+        new (): HTMLSlotDynamicNameChangeShadowElement;
+    };
+    interface HTMLSlotDynamicScopedListElement extends Components.SlotDynamicScopedList, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicScopedListElement: {
+        prototype: HTMLSlotDynamicScopedListElement;
+        new (): HTMLSlotDynamicScopedListElement;
+    };
+    interface HTMLSlotDynamicShadowListElement extends Components.SlotDynamicShadowList, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicShadowListElement: {
+        prototype: HTMLSlotDynamicShadowListElement;
+        new (): HTMLSlotDynamicShadowListElement;
+    };
+    interface HTMLSlotDynamicWrapperElement extends Components.SlotDynamicWrapper, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicWrapperElement: {
+        prototype: HTMLSlotDynamicWrapperElement;
+        new (): HTMLSlotDynamicWrapperElement;
+    };
+    interface HTMLSlotDynamicWrapperRootElement extends Components.SlotDynamicWrapperRoot, HTMLStencilElement {
+    }
+    var HTMLSlotDynamicWrapperRootElement: {
+        prototype: HTMLSlotDynamicWrapperRootElement;
+        new (): HTMLSlotDynamicWrapperRootElement;
+    };
+    interface HTMLSlotFallbackElement extends Components.SlotFallback, HTMLStencilElement {
+    }
+    var HTMLSlotFallbackElement: {
+        prototype: HTMLSlotFallbackElement;
+        new (): HTMLSlotFallbackElement;
+    };
+    interface HTMLSlotFallbackRootElement extends Components.SlotFallbackRoot, HTMLStencilElement {
+    }
+    var HTMLSlotFallbackRootElement: {
+        prototype: HTMLSlotFallbackRootElement;
+        new (): HTMLSlotFallbackRootElement;
+    };
+    interface HTMLSlotForwardChildFallbackElement extends Components.SlotForwardChildFallback, HTMLStencilElement {
+    }
+    var HTMLSlotForwardChildFallbackElement: {
+        prototype: HTMLSlotForwardChildFallbackElement;
+        new (): HTMLSlotForwardChildFallbackElement;
+    };
+    interface HTMLSlotForwardRootElement extends Components.SlotForwardRoot, HTMLStencilElement {
+    }
+    var HTMLSlotForwardRootElement: {
+        prototype: HTMLSlotForwardRootElement;
+        new (): HTMLSlotForwardRootElement;
+    };
+    interface HTMLSlotHideContentOpenElement extends Components.SlotHideContentOpen, HTMLStencilElement {
+    }
+    var HTMLSlotHideContentOpenElement: {
+        prototype: HTMLSlotHideContentOpenElement;
+        new (): HTMLSlotHideContentOpenElement;
+    };
+    interface HTMLSlotHideContentScopedElement extends Components.SlotHideContentScoped, HTMLStencilElement {
+    }
+    var HTMLSlotHideContentScopedElement: {
+        prototype: HTMLSlotHideContentScopedElement;
+        new (): HTMLSlotHideContentScopedElement;
+    };
+    interface HTMLSlotHtmlElement extends Components.SlotHtml, HTMLStencilElement {
+    }
+    var HTMLSlotHtmlElement: {
+        prototype: HTMLSlotHtmlElement;
+        new (): HTMLSlotHtmlElement;
+    };
+    interface HTMLSlotLightDomContentElement extends Components.SlotLightDomContent, HTMLStencilElement {
+    }
+    var HTMLSlotLightDomContentElement: {
+        prototype: HTMLSlotLightDomContentElement;
+        new (): HTMLSlotLightDomContentElement;
+    };
+    interface HTMLSlotLightDomRootElement extends Components.SlotLightDomRoot, HTMLStencilElement {
+    }
+    var HTMLSlotLightDomRootElement: {
+        prototype: HTMLSlotLightDomRootElement;
+        new (): HTMLSlotLightDomRootElement;
+    };
+    interface HTMLSlotLightListElement extends Components.SlotLightList, HTMLStencilElement {
+    }
+    var HTMLSlotLightListElement: {
+        prototype: HTMLSlotLightListElement;
+        new (): HTMLSlotLightListElement;
+    };
+    interface HTMLSlotLightScopedListElement extends Components.SlotLightScopedList, HTMLStencilElement {
+    }
+    var HTMLSlotLightScopedListElement: {
+        prototype: HTMLSlotLightScopedListElement;
+        new (): HTMLSlotLightScopedListElement;
+    };
+    interface HTMLSlotListLightRootElement extends Components.SlotListLightRoot, HTMLStencilElement {
+    }
+    var HTMLSlotListLightRootElement: {
+        prototype: HTMLSlotListLightRootElement;
+        new (): HTMLSlotListLightRootElement;
+    };
+    interface HTMLSlotListLightScopedRootElement extends Components.SlotListLightScopedRoot, HTMLStencilElement {
+    }
+    var HTMLSlotListLightScopedRootElement: {
+        prototype: HTMLSlotListLightScopedRootElement;
+        new (): HTMLSlotListLightScopedRootElement;
+    };
+    interface HTMLSlotMapOrderElement extends Components.SlotMapOrder, HTMLStencilElement {
+    }
+    var HTMLSlotMapOrderElement: {
+        prototype: HTMLSlotMapOrderElement;
+        new (): HTMLSlotMapOrderElement;
+    };
+    interface HTMLSlotMapOrderRootElement extends Components.SlotMapOrderRoot, HTMLStencilElement {
+    }
+    var HTMLSlotMapOrderRootElement: {
+        prototype: HTMLSlotMapOrderRootElement;
+        new (): HTMLSlotMapOrderRootElement;
+    };
+    interface HTMLSlotNestedDefaultOrderChildElement extends Components.SlotNestedDefaultOrderChild, HTMLStencilElement {
+    }
+    var HTMLSlotNestedDefaultOrderChildElement: {
+        prototype: HTMLSlotNestedDefaultOrderChildElement;
+        new (): HTMLSlotNestedDefaultOrderChildElement;
+    };
+    interface HTMLSlotNestedDefaultOrderParentElement extends Components.SlotNestedDefaultOrderParent, HTMLStencilElement {
+    }
+    var HTMLSlotNestedDefaultOrderParentElement: {
+        prototype: HTMLSlotNestedDefaultOrderParentElement;
+        new (): HTMLSlotNestedDefaultOrderParentElement;
+    };
+    interface HTMLSlotNestedDynamicChildElement extends Components.SlotNestedDynamicChild, HTMLStencilElement {
+    }
+    var HTMLSlotNestedDynamicChildElement: {
+        prototype: HTMLSlotNestedDynamicChildElement;
+        new (): HTMLSlotNestedDynamicChildElement;
+    };
+    interface HTMLSlotNestedDynamicParentElement extends Components.SlotNestedDynamicParent, HTMLStencilElement {
+    }
+    var HTMLSlotNestedDynamicParentElement: {
+        prototype: HTMLSlotNestedDynamicParentElement;
+        new (): HTMLSlotNestedDynamicParentElement;
+    };
+    interface HTMLSlotNestedDynamicWrapperElement extends Components.SlotNestedDynamicWrapper, HTMLStencilElement {
+    }
+    var HTMLSlotNestedDynamicWrapperElement: {
+        prototype: HTMLSlotNestedDynamicWrapperElement;
+        new (): HTMLSlotNestedDynamicWrapperElement;
+    };
+    interface HTMLSlotNestedOrderChildElement extends Components.SlotNestedOrderChild, HTMLStencilElement {
+    }
+    var HTMLSlotNestedOrderChildElement: {
+        prototype: HTMLSlotNestedOrderChildElement;
+        new (): HTMLSlotNestedOrderChildElement;
+    };
+    interface HTMLSlotNestedOrderParentElement extends Components.SlotNestedOrderParent, HTMLStencilElement {
+    }
+    var HTMLSlotNestedOrderParentElement: {
+        prototype: HTMLSlotNestedOrderParentElement;
+        new (): HTMLSlotNestedOrderParentElement;
+    };
+    interface HTMLSlotNgIfElement extends Components.SlotNgIf, HTMLStencilElement {
+    }
+    var HTMLSlotNgIfElement: {
+        prototype: HTMLSlotNgIfElement;
+        new (): HTMLSlotNgIfElement;
+    };
+    interface HTMLSlotNoDefaultElement extends Components.SlotNoDefault, HTMLStencilElement {
+    }
+    var HTMLSlotNoDefaultElement: {
+        prototype: HTMLSlotNoDefaultElement;
+        new (): HTMLSlotNoDefaultElement;
+    };
+    interface HTMLSlotParentTagChangeElement extends Components.SlotParentTagChange, HTMLStencilElement {
+    }
+    var HTMLSlotParentTagChangeElement: {
+        prototype: HTMLSlotParentTagChangeElement;
+        new (): HTMLSlotParentTagChangeElement;
+    };
+    interface HTMLSlotParentTagChangeRootElement extends Components.SlotParentTagChangeRoot, HTMLStencilElement {
+    }
+    var HTMLSlotParentTagChangeRootElement: {
+        prototype: HTMLSlotParentTagChangeRootElement;
+        new (): HTMLSlotParentTagChangeRootElement;
+    };
+    interface HTMLSlotReorderElement extends Components.SlotReorder, HTMLStencilElement {
+    }
+    var HTMLSlotReorderElement: {
+        prototype: HTMLSlotReorderElement;
+        new (): HTMLSlotReorderElement;
+    };
+    interface HTMLSlotReorderRootElement extends Components.SlotReorderRoot, HTMLStencilElement {
+    }
+    var HTMLSlotReorderRootElement: {
+        prototype: HTMLSlotReorderRootElement;
+        new (): HTMLSlotReorderRootElement;
+    };
+    interface HTMLSlotReplaceWrapperElement extends Components.SlotReplaceWrapper, HTMLStencilElement {
+    }
+    var HTMLSlotReplaceWrapperElement: {
+        prototype: HTMLSlotReplaceWrapperElement;
+        new (): HTMLSlotReplaceWrapperElement;
+    };
+    interface HTMLSlotReplaceWrapperRootElement extends Components.SlotReplaceWrapperRoot, HTMLStencilElement {
+    }
+    var HTMLSlotReplaceWrapperRootElement: {
+        prototype: HTMLSlotReplaceWrapperRootElement;
+        new (): HTMLSlotReplaceWrapperRootElement;
+    };
+    interface HTMLSlottedCssElement extends Components.SlottedCss, HTMLStencilElement {
+    }
+    var HTMLSlottedCssElement: {
+        prototype: HTMLSlottedCssElement;
+        new (): HTMLSlottedCssElement;
+    };
+    interface HTMLSlowSsrPropElement extends Components.SlowSsrProp, HTMLStencilElement {
+    }
+    var HTMLSlowSsrPropElement: {
+        prototype: HTMLSlowSsrPropElement;
+        new (): HTMLSlowSsrPropElement;
+    };
+    interface HTMLSsrOrderCmpElement extends Components.SsrOrderCmp, HTMLStencilElement {
+    }
+    var HTMLSsrOrderCmpElement: {
+        prototype: HTMLSsrOrderCmpElement;
+        new (): HTMLSsrOrderCmpElement;
+    };
+    interface HTMLSsrOrderWrapCmpElement extends Components.SsrOrderWrapCmp, HTMLStencilElement {
+    }
+    var HTMLSsrOrderWrapCmpElement: {
+        prototype: HTMLSsrOrderWrapCmpElement;
+        new (): HTMLSsrOrderWrapCmpElement;
+    };
+    interface HTMLSsrShadowCmpElement extends Components.SsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLSsrShadowCmpElement: {
+        prototype: HTMLSsrShadowCmpElement;
+        new (): HTMLSsrShadowCmpElement;
+    };
+    interface HTMLStaticDecoratedMembersElement extends Components.StaticDecoratedMembers, HTMLStencilElement {
+    }
+    var HTMLStaticDecoratedMembersElement: {
+        prototype: HTMLStaticDecoratedMembersElement;
+        new (): HTMLStaticDecoratedMembersElement;
+    };
+    interface HTMLStaticMembersElement extends Components.StaticMembers, HTMLStencilElement {
+    }
+    var HTMLStaticMembersElement: {
+        prototype: HTMLStaticMembersElement;
+        new (): HTMLStaticMembersElement;
+    };
+    interface HTMLStaticMembersSeparateExportElement extends Components.StaticMembersSeparateExport, HTMLStencilElement {
+    }
+    var HTMLStaticMembersSeparateExportElement: {
+        prototype: HTMLStaticMembersSeparateExportElement;
+        new (): HTMLStaticMembersSeparateExportElement;
+    };
+    interface HTMLStaticMembersSeparateInitializerElement extends Components.StaticMembersSeparateInitializer, HTMLStencilElement {
+    }
+    var HTMLStaticMembersSeparateInitializerElement: {
+        prototype: HTMLStaticMembersSeparateInitializerElement;
+        new (): HTMLStaticMembersSeparateInitializerElement;
+    };
+    interface HTMLStaticStylesElement extends Components.StaticStyles, HTMLStencilElement {
+    }
+    var HTMLStaticStylesElement: {
+        prototype: HTMLStaticStylesElement;
+        new (): HTMLStaticStylesElement;
+    };
+    interface HTMLStencilSiblingElement extends Components.StencilSibling, HTMLStencilElement {
+    }
+    var HTMLStencilSiblingElement: {
+        prototype: HTMLStencilSiblingElement;
+        new (): HTMLStencilSiblingElement;
+    };
+    interface HTMLSvgAttrElement extends Components.SvgAttr, HTMLStencilElement {
+    }
+    var HTMLSvgAttrElement: {
+        prototype: HTMLSvgAttrElement;
+        new (): HTMLSvgAttrElement;
+    };
+    interface HTMLSvgClassElement extends Components.SvgClass, HTMLStencilElement {
+    }
+    var HTMLSvgClassElement: {
+        prototype: HTMLSvgClassElement;
+        new (): HTMLSvgClassElement;
+    };
+    interface HTMLTag3dComponentElement extends Components.Tag3dComponent, HTMLStencilElement {
+    }
+    var HTMLTag3dComponentElement: {
+        prototype: HTMLTag3dComponentElement;
+        new (): HTMLTag3dComponentElement;
+    };
+    interface HTMLTag88Element extends Components.Tag88, HTMLStencilElement {
+    }
+    var HTMLTag88Element: {
+        prototype: HTMLTag88Element;
+        new (): HTMLTag88Element;
+    };
     interface HTMLTestSvgElement extends Components.TestSvg, HTMLStencilElement {
     }
     var HTMLTestSvgElement: {
         prototype: HTMLTestSvgElement;
         new (): HTMLTestSvgElement;
     };
+    interface HTMLTextContentPatchScopedElement extends Components.TextContentPatchScoped, HTMLStencilElement {
+    }
+    var HTMLTextContentPatchScopedElement: {
+        prototype: HTMLTextContentPatchScopedElement;
+        new (): HTMLTextContentPatchScopedElement;
+    };
+    interface HTMLTextContentPatchScopedWithSlotElement extends Components.TextContentPatchScopedWithSlot, HTMLStencilElement {
+    }
+    var HTMLTextContentPatchScopedWithSlotElement: {
+        prototype: HTMLTextContentPatchScopedWithSlotElement;
+        new (): HTMLTextContentPatchScopedWithSlotElement;
+    };
+    interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
+    }
+    var HTMLTsTargetPropsElement: {
+        prototype: HTMLTsTargetPropsElement;
+        new (): HTMLTsTargetPropsElement;
+    };
+    interface HTMLWatchNativeAttributesElement extends Components.WatchNativeAttributes, HTMLStencilElement {
+    }
+    var HTMLWatchNativeAttributesElement: {
+        prototype: HTMLWatchNativeAttributesElement;
+        new (): HTMLWatchNativeAttributesElement;
+    };
+    interface HTMLWatchNativeAttributesNoMembersElement extends Components.WatchNativeAttributesNoMembers, HTMLStencilElement {
+    }
+    var HTMLWatchNativeAttributesNoMembersElement: {
+        prototype: HTMLWatchNativeAttributesNoMembersElement;
+        new (): HTMLWatchNativeAttributesNoMembersElement;
+    };
+    interface HTMLWrapSsrShadowCmpElement extends Components.WrapSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLWrapSsrShadowCmpElement: {
+        prototype: HTMLWrapSsrShadowCmpElement;
+        new (): HTMLWrapSsrShadowCmpElement;
+    };
     interface HTMLElementTagNameMap {
         "app-root": HTMLAppRootElement;
+        "async-rerender": HTMLAsyncRerenderElement;
+        "attribute-basic": HTMLAttributeBasicElement;
+        "attribute-basic-root": HTMLAttributeBasicRootElement;
+        "attribute-boolean": HTMLAttributeBooleanElement;
+        "attribute-boolean-root": HTMLAttributeBooleanRootElement;
+        "attribute-complex": HTMLAttributeComplexElement;
+        "attribute-host": HTMLAttributeHostElement;
+        "attribute-html-root": HTMLAttributeHtmlRootElement;
+        "bad-shared-jsx": HTMLBadSharedJsxElement;
+        "build-data": HTMLBuildDataElement;
+        "child-reflect-nan-attribute": HTMLChildReflectNanAttributeElement;
+        "child-with-reflection": HTMLChildWithReflectionElement;
         "cmp-a": HTMLCmpAElement;
+        "cmp-avatar": HTMLCmpAvatarElement;
         "cmp-b": HTMLCmpBElement;
         "cmp-c": HTMLCmpCElement;
         "cmp-client-scoped": HTMLCmpClientScopedElement;
         "cmp-client-shadow": HTMLCmpClientShadowElement;
         "cmp-d": HTMLCmpDElement;
+        "cmp-label": HTMLCmpLabelElement;
+        "cmp-label-with-slot-sibling": HTMLCmpLabelWithSlotSiblingElement;
+        "cmp-level-1": HTMLCmpLevel1Element;
+        "cmp-level-2": HTMLCmpLevel2Element;
+        "cmp-level-3": HTMLCmpLevel3Element;
         "cmp-scoped-a": HTMLCmpScopedAElement;
         "cmp-scoped-b": HTMLCmpScopedBElement;
+        "cmp-slotted-parentnode": HTMLCmpSlottedParentnodeElement;
         "cmp-text-blue": HTMLCmpTextBlueElement;
         "cmp-text-green": HTMLCmpTextGreenElement;
+        "complex-properties": HTMLComplexPropertiesElement;
+        "computed-properties-prop-decorator": HTMLComputedPropertiesPropDecoratorElement;
+        "computed-properties-prop-decorator-reflect": HTMLComputedPropertiesPropDecoratorReflectElement;
+        "computed-properties-state-decorator": HTMLComputedPropertiesStateDecoratorElement;
+        "computed-properties-watch-decorator": HTMLComputedPropertiesWatchDecoratorElement;
+        "conditional-basic": HTMLConditionalBasicElement;
+        "conditional-rerender": HTMLConditionalRerenderElement;
+        "conditional-rerender-root": HTMLConditionalRerenderRootElement;
+        "css-cmp": HTMLCssCmpElement;
+        "css-variables-no-encapsulation": HTMLCssVariablesNoEncapsulationElement;
+        "css-variables-shadow-dom": HTMLCssVariablesShadowDomElement;
+        "custom-element-child": HTMLCustomElementChildElement;
+        "custom-element-child-different-name-than-class": HTMLCustomElementChildDifferentNameThanClassElement;
+        "custom-element-nested-child": HTMLCustomElementNestedChildElement;
+        "custom-element-root": HTMLCustomElementRootElement;
+        "custom-element-root-different-name-than-class": HTMLCustomElementRootDifferentNameThanClassElement;
+        "custom-elements-delegates-focus": HTMLCustomElementsDelegatesFocusElement;
+        "custom-elements-hierarchy-lifecycle-child": HTMLCustomElementsHierarchyLifecycleChildElement;
+        "custom-elements-hierarchy-lifecycle-parent": HTMLCustomElementsHierarchyLifecycleParentElement;
+        "custom-elements-no-delegates-focus": HTMLCustomElementsNoDelegatesFocusElement;
+        "custom-event-root": HTMLCustomEventRootElement;
+        "custom-svg-element": HTMLCustomSvgElementElement;
+        "delegates-focus": HTMLDelegatesFocusElement;
+        "dom-reattach": HTMLDomReattachElement;
+        "dom-reattach-clone": HTMLDomReattachCloneElement;
+        "dom-reattach-clone-deep-slot": HTMLDomReattachCloneDeepSlotElement;
+        "dom-reattach-clone-host": HTMLDomReattachCloneHostElement;
+        "dsd-cmp": HTMLDsdCmpElement;
+        "dynamic-css-variable": HTMLDynamicCssVariableElement;
+        "dynamic-import": HTMLDynamicImportElement;
+        "es5-addclass-svg": HTMLEs5AddclassSvgElement;
+        "esm-import": HTMLEsmImportElement;
+        "event-basic": HTMLEventBasicElement;
+        "event-custom-type": HTMLEventCustomTypeElement;
+        "event-listener-capture": HTMLEventListenerCaptureElement;
+        "event-re-register": HTMLEventReRegisterElement;
+        "extended-cmp": HTMLExtendedCmpElement;
+        "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
+        "extends-external": HTMLExtendsExternalElement;
+        "extends-mixin": HTMLExtendsMixinElement;
+        "external-import-a": HTMLExternalImportAElement;
+        "external-import-b": HTMLExternalImportBElement;
+        "external-import-c": HTMLExternalImportCElement;
+        "factory-jsx": HTMLFactoryJsxElement;
+        "form-associated": HTMLFormAssociatedElement;
+        "form-associated-prop-check": HTMLFormAssociatedPropCheckElement;
+        "global-styles": HTMLGlobalStylesElement;
+        "host-attr-override": HTMLHostAttrOverrideElement;
+        "image-import": HTMLImageImportElement;
+        "import-aliasing": HTMLImportAliasingElement;
+        "init-css-root": HTMLInitCssRootElement;
+        "input-basic-root": HTMLInputBasicRootElement;
+        "ion-child": HTMLIonChildElement;
+        "ion-host": HTMLIonHostElement;
+        "ion-parent": HTMLIonParentElement;
+        "ion-radio": HTMLIonRadioElement;
+        "ion-radio-group": HTMLIonRadioGroupElement;
+        "json-basic": HTMLJsonBasicElement;
+        "key-reorder": HTMLKeyReorderElement;
+        "lifecycle-async-a": HTMLLifecycleAsyncAElement;
+        "lifecycle-async-b": HTMLLifecycleAsyncBElement;
+        "lifecycle-async-c": HTMLLifecycleAsyncCElement;
+        "lifecycle-basic-a": HTMLLifecycleBasicAElement;
+        "lifecycle-basic-b": HTMLLifecycleBasicBElement;
+        "lifecycle-basic-c": HTMLLifecycleBasicCElement;
+        "lifecycle-nested-a": HTMLLifecycleNestedAElement;
+        "lifecycle-nested-b": HTMLLifecycleNestedBElement;
+        "lifecycle-nested-c": HTMLLifecycleNestedCElement;
+        "lifecycle-unload-a": HTMLLifecycleUnloadAElement;
+        "lifecycle-unload-b": HTMLLifecycleUnloadBElement;
+        "lifecycle-unload-root": HTMLLifecycleUnloadRootElement;
+        "lifecycle-update-a": HTMLLifecycleUpdateAElement;
+        "lifecycle-update-b": HTMLLifecycleUpdateBElement;
+        "lifecycle-update-c": HTMLLifecycleUpdateCElement;
+        "listen-jsx": HTMLListenJsxElement;
+        "listen-jsx-root": HTMLListenJsxRootElement;
+        "listen-reattach": HTMLListenReattachElement;
+        "listen-window": HTMLListenWindowElement;
+        "multiple-styles-cmp": HTMLMultipleStylesCmpElement;
+        "my-component": HTMLMyComponentElement;
+        "no-delegates-focus": HTMLNoDelegatesFocusElement;
+        "node-resolution": HTMLNodeResolutionElement;
+        "page-list": HTMLPageListElement;
+        "page-list-item": HTMLPageListItemElement;
+        "parent-reflect-nan-attribute": HTMLParentReflectNanAttributeElement;
+        "parent-with-reflect-child": HTMLParentWithReflectChildElement;
+        "part-ssr-shadow-cmp": HTMLPartSsrShadowCmpElement;
+        "part-wrap-ssr-shadow-cmp": HTMLPartWrapSsrShadowCmpElement;
+        "radio-group-blur-test": HTMLRadioGroupBlurTestElement;
+        "ref-attr-order": HTMLRefAttrOrderElement;
+        "reflect-nan-attribute": HTMLReflectNanAttributeElement;
+        "reflect-nan-attribute-hyphen": HTMLReflectNanAttributeHyphenElement;
+        "reflect-to-attr": HTMLReflectToAttrElement;
+        "remove-child-patch": HTMLRemoveChildPatchElement;
+        "reparent-style-no-vars": HTMLReparentStyleNoVarsElement;
+        "reparent-style-with-vars": HTMLReparentStyleWithVarsElement;
+        "sass-cmp": HTMLSassCmpElement;
+        "scoped-add-remove-classes": HTMLScopedAddRemoveClassesElement;
+        "scoped-basic": HTMLScopedBasicElement;
+        "scoped-basic-root": HTMLScopedBasicRootElement;
+        "scoped-conditional": HTMLScopedConditionalElement;
+        "scoped-slot-append-and-prepend": HTMLScopedSlotAppendAndPrependElement;
+        "scoped-slot-assigned-methods": HTMLScopedSlotAssignedMethodsElement;
+        "scoped-slot-child-insert-adjacent": HTMLScopedSlotChildInsertAdjacentElement;
+        "scoped-slot-children": HTMLScopedSlotChildrenElement;
+        "scoped-slot-insertbefore": HTMLScopedSlotInsertbeforeElement;
+        "scoped-slot-insertion-order-after-interaction": HTMLScopedSlotInsertionOrderAfterInteractionElement;
+        "scoped-slot-slotchange": HTMLScopedSlotSlotchangeElement;
+        "scoped-slot-slotchange-wrap": HTMLScopedSlotSlotchangeWrapElement;
+        "scoped-ssr-child-cmp": HTMLScopedSsrChildCmpElement;
+        "scoped-ssr-parent-cmp": HTMLScopedSsrParentCmpElement;
+        "shadow-dom-array": HTMLShadowDomArrayElement;
+        "shadow-dom-array-root": HTMLShadowDomArrayRootElement;
+        "shadow-dom-basic": HTMLShadowDomBasicElement;
+        "shadow-dom-basic-root": HTMLShadowDomBasicRootElement;
+        "shadow-dom-mode": HTMLShadowDomModeElement;
+        "shadow-dom-slot-nested": HTMLShadowDomSlotNestedElement;
+        "shadow-dom-slot-nested-root": HTMLShadowDomSlotNestedRootElement;
+        "shadow-ssr-child-cmp": HTMLShadowSsrChildCmpElement;
+        "shadow-ssr-parent-cmp": HTMLShadowSsrParentCmpElement;
+        "slot-array-basic": HTMLSlotArrayBasicElement;
+        "slot-array-complex": HTMLSlotArrayComplexElement;
+        "slot-array-complex-root": HTMLSlotArrayComplexRootElement;
+        "slot-array-top": HTMLSlotArrayTopElement;
+        "slot-basic": HTMLSlotBasicElement;
+        "slot-basic-order": HTMLSlotBasicOrderElement;
+        "slot-basic-order-root": HTMLSlotBasicOrderRootElement;
+        "slot-basic-root": HTMLSlotBasicRootElement;
+        "slot-children-root": HTMLSlotChildrenRootElement;
+        "slot-conditional-rendering": HTMLSlotConditionalRenderingElement;
+        "slot-dynamic-name-change-scoped": HTMLSlotDynamicNameChangeScopedElement;
+        "slot-dynamic-name-change-shadow": HTMLSlotDynamicNameChangeShadowElement;
+        "slot-dynamic-scoped-list": HTMLSlotDynamicScopedListElement;
+        "slot-dynamic-shadow-list": HTMLSlotDynamicShadowListElement;
+        "slot-dynamic-wrapper": HTMLSlotDynamicWrapperElement;
+        "slot-dynamic-wrapper-root": HTMLSlotDynamicWrapperRootElement;
+        "slot-fallback": HTMLSlotFallbackElement;
+        "slot-fallback-root": HTMLSlotFallbackRootElement;
+        "slot-forward-child-fallback": HTMLSlotForwardChildFallbackElement;
+        "slot-forward-root": HTMLSlotForwardRootElement;
+        "slot-hide-content-open": HTMLSlotHideContentOpenElement;
+        "slot-hide-content-scoped": HTMLSlotHideContentScopedElement;
+        "slot-html": HTMLSlotHtmlElement;
+        "slot-light-dom-content": HTMLSlotLightDomContentElement;
+        "slot-light-dom-root": HTMLSlotLightDomRootElement;
+        "slot-light-list": HTMLSlotLightListElement;
+        "slot-light-scoped-list": HTMLSlotLightScopedListElement;
+        "slot-list-light-root": HTMLSlotListLightRootElement;
+        "slot-list-light-scoped-root": HTMLSlotListLightScopedRootElement;
+        "slot-map-order": HTMLSlotMapOrderElement;
+        "slot-map-order-root": HTMLSlotMapOrderRootElement;
+        "slot-nested-default-order-child": HTMLSlotNestedDefaultOrderChildElement;
+        "slot-nested-default-order-parent": HTMLSlotNestedDefaultOrderParentElement;
+        "slot-nested-dynamic-child": HTMLSlotNestedDynamicChildElement;
+        "slot-nested-dynamic-parent": HTMLSlotNestedDynamicParentElement;
+        "slot-nested-dynamic-wrapper": HTMLSlotNestedDynamicWrapperElement;
+        "slot-nested-order-child": HTMLSlotNestedOrderChildElement;
+        "slot-nested-order-parent": HTMLSlotNestedOrderParentElement;
+        "slot-ng-if": HTMLSlotNgIfElement;
+        "slot-no-default": HTMLSlotNoDefaultElement;
+        "slot-parent-tag-change": HTMLSlotParentTagChangeElement;
+        "slot-parent-tag-change-root": HTMLSlotParentTagChangeRootElement;
+        "slot-reorder": HTMLSlotReorderElement;
+        "slot-reorder-root": HTMLSlotReorderRootElement;
+        "slot-replace-wrapper": HTMLSlotReplaceWrapperElement;
+        "slot-replace-wrapper-root": HTMLSlotReplaceWrapperRootElement;
+        "slotted-css": HTMLSlottedCssElement;
+        "slow-ssr-prop": HTMLSlowSsrPropElement;
+        "ssr-order-cmp": HTMLSsrOrderCmpElement;
+        "ssr-order-wrap-cmp": HTMLSsrOrderWrapCmpElement;
+        "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
+        "static-decorated-members": HTMLStaticDecoratedMembersElement;
+        "static-members": HTMLStaticMembersElement;
+        "static-members-separate-export": HTMLStaticMembersSeparateExportElement;
+        "static-members-separate-initializer": HTMLStaticMembersSeparateInitializerElement;
+        "static-styles": HTMLStaticStylesElement;
+        "stencil-sibling": HTMLStencilSiblingElement;
+        "svg-attr": HTMLSvgAttrElement;
+        "svg-class": HTMLSvgClassElement;
+        "tag-3d-component": HTMLTag3dComponentElement;
+        "tag-88": HTMLTag88Element;
         "test-svg": HTMLTestSvgElement;
+        "text-content-patch-scoped": HTMLTextContentPatchScopedElement;
+        "text-content-patch-scoped-with-slot": HTMLTextContentPatchScopedWithSlotElement;
+        "ts-target-props": HTMLTsTargetPropsElement;
+        "watch-native-attributes": HTMLWatchNativeAttributesElement;
+        "watch-native-attributes-no-members": HTMLWatchNativeAttributesNoMembersElement;
+        "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
     }
 }
 declare namespace LocalJSX {
     interface AppRoot {
     }
+    interface AsyncRerender {
+    }
+    interface AttributeBasic {
+        /**
+          * @default 'my-custom-attr'
+         */
+        "customAttr"?: string;
+        /**
+          * @default 'getter'
+         */
+        "getter"?: string;
+        /**
+          * @default 'multiWord'
+         */
+        "multiWord"?: string;
+        /**
+          * @default 'single'
+         */
+        "single"?: string;
+    }
+    interface AttributeBasicRoot {
+    }
+    interface AttributeBoolean {
+        "boolState"?: boolean;
+        "noreflect"?: boolean;
+        "strState"?: string;
+    }
+    interface AttributeBooleanRoot {
+    }
+    interface AttributeComplex {
+        /**
+          * @default true
+         */
+        "bool0"?: boolean;
+        "bool1"?: boolean;
+        "bool2"?: boolean;
+        /**
+          * @default 1
+         */
+        "nu0"?: number;
+        "nu1"?: number;
+        "nu2"?: SomeTypes.Number;
+        "obj"?: string;
+        /**
+          * @default 'hello'
+         */
+        "str0"?: string;
+        "str1"?: string;
+        "str2"?: SomeTypes.String;
+    }
+    interface AttributeHost {
+    }
+    interface AttributeHtmlRoot {
+        "anyAttr"?: any;
+        "nuAttr"?: number;
+        "strAttr"?: string;
+    }
+    interface BadSharedJsx {
+    }
+    interface BuildData {
+    }
+    interface ChildReflectNanAttribute {
+        "val"?: number;
+    }
+    interface ChildWithReflection {
+        "val"?: number | any;
+    }
     interface CmpA {
+    }
+    interface CmpAvatar {
     }
     interface CmpB {
     }
@@ -142,29 +2599,958 @@ declare namespace LocalJSX {
          */
         "uniqueId"?: string;
     }
+    interface CmpLabel {
+    }
+    interface CmpLabelWithSlotSibling {
+    }
+    interface CmpLevel1 {
+    }
+    interface CmpLevel2 {
+    }
+    interface CmpLevel3 {
+    }
     interface CmpScopedA {
     }
     interface CmpScopedB {
+    }
+    interface CmpSlottedParentnode {
     }
     interface CmpTextBlue {
     }
     interface CmpTextGreen {
     }
+    interface ComplexProperties {
+        /**
+          * map objects
+         */
+        "baz"?: Map<string, { qux: symbol }>;
+        /**
+          * basic object
+         */
+        "foo"?: { bar: string; loo: number[]; qux: { quux: symbol } };
+        /**
+          * infinity
+         */
+        "grault"?: typeof Infinity;
+        /**
+          * basic array
+         */
+        "kidsNames"?: string[];
+        /**
+          * set objects
+         */
+        "quux"?: Set<string>;
+        /**
+          * null
+         */
+        "waldo"?: null;
+    }
+    interface ComputedPropertiesPropDecorator {
+        /**
+          * @default 'no'
+         */
+        "first"?: string;
+        /**
+          * @default 'content'
+         */
+        "last"?: string;
+        /**
+          * @default ''
+         */
+        "middle"?: string;
+    }
+    interface ComputedPropertiesPropDecoratorReflect {
+        /**
+          * @default 'no'
+         */
+        "first"?: string;
+        /**
+          * @default 'content'
+         */
+        "last"?: string;
+        /**
+          * @default ''
+         */
+        "middle"?: string;
+    }
+    interface ComputedPropertiesStateDecorator {
+    }
+    interface ComputedPropertiesWatchDecorator {
+        /**
+          * @default 'no'
+         */
+        "first"?: string;
+        /**
+          * @default 'content'
+         */
+        "last"?: string;
+    }
+    interface ConditionalBasic {
+    }
+    interface ConditionalRerender {
+    }
+    interface ConditionalRerenderRoot {
+    }
+    interface CssCmp {
+    }
+    interface CssVariablesNoEncapsulation {
+    }
+    interface CssVariablesShadowDom {
+    }
+    interface CustomElementChild {
+    }
+    interface CustomElementChildDifferentNameThanClass {
+    }
+    interface CustomElementNestedChild {
+    }
+    interface CustomElementRoot {
+    }
+    interface CustomElementRootDifferentNameThanClass {
+    }
+    interface CustomElementsDelegatesFocus {
+    }
+    interface CustomElementsHierarchyLifecycleChild {
+    }
+    interface CustomElementsHierarchyLifecycleParent {
+    }
+    interface CustomElementsNoDelegatesFocus {
+    }
+    interface CustomEventRoot {
+    }
+    interface CustomSvgElement {
+    }
+    interface DelegatesFocus {
+    }
+    interface DomReattach {
+        /**
+          * @default 0
+         */
+        "didLoad"?: number;
+        /**
+          * @default 0
+         */
+        "didUnload"?: number;
+        /**
+          * @default 0
+         */
+        "willLoad"?: number;
+    }
+    interface DomReattachClone {
+    }
+    interface DomReattachCloneDeepSlot {
+    }
+    interface DomReattachCloneHost {
+    }
+    interface DsdCmp {
+    }
+    interface DynamicCssVariable {
+    }
+    interface DynamicImport {
+    }
+    interface Es5AddclassSvg {
+    }
+    interface EsmImport {
+        "onSomeEvent"?: (event: EsmImportCustomEvent<any>) => void;
+        /**
+          * @default 0
+         */
+        "propVal"?: number;
+    }
+    interface EventBasic {
+        "onTestEvent"?: (event: EventBasicCustomEvent<any>) => void;
+    }
+    interface EventCustomType {
+        "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
+    }
+    interface EventListenerCapture {
+    }
+    interface EventReRegister {
+    }
+    interface ExtendedCmp {
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsCmpCmp {
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsExternal {
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsMixin {
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExternalImportA {
+    }
+    interface ExternalImportB {
+    }
+    interface ExternalImportC {
+    }
+    interface FactoryJsx {
+    }
+    interface FormAssociated {
+    }
+    interface FormAssociatedPropCheck {
+        "disabled"?: boolean;
+    }
+    interface GlobalStyles {
+    }
+    interface HostAttrOverride {
+    }
+    interface ImageImport {
+    }
+    interface ImportAliasing {
+        "onMyEvent"?: (event: ImportAliasingCustomEvent<void>) => void;
+        "user"?: string;
+    }
+    interface InitCssRoot {
+    }
+    interface InputBasicRoot {
+        "value"?: string;
+    }
+    interface IonChild {
+    }
+    interface IonHost {
+    }
+    interface IonParent {
+    }
+    interface IonRadio {
+        /**
+          * The name of the control, which is submitted with the form data.
+          * @default this.inputId
+         */
+        "name"?: string;
+        /**
+          * Emitted when the radio button loses focus.
+         */
+        "onIonBlur"?: (event: IonRadioCustomEvent<void>) => void;
+        /**
+          * Emitted when the radio button has focus.
+         */
+        "onIonFocus"?: (event: IonRadioCustomEvent<void>) => void;
+        /**
+          * the value of the radio.
+         */
+        "value"?: any | null;
+    }
+    interface IonRadioGroup {
+        /**
+          * If `true`, the radios can be deselected.
+          * @default false
+         */
+        "allowEmptySelection"?: boolean;
+        /**
+          * This property allows developers to specify a custom function or property name for comparing objects when determining the selected option in the ion-radio-group. When not specified, the default behavior will use strict equality (===) for comparison.
+         */
+        "compareWith"?: string | RadioGroupCompareFn | null;
+        /**
+          * The error text to display at the top of the radio group.
+         */
+        "errorText"?: string;
+        /**
+          * The helper text to display at the top of the radio group.
+         */
+        "helperText"?: string;
+        /**
+          * The name of the control, which is submitted with the form data.
+          * @default this.inputId
+         */
+        "name"?: string;
+        /**
+          * Emitted when the value has changed.  This event will not emit when programmatically setting the `value` property.
+         */
+        "onIonChange"?: (event: IonRadioGroupCustomEvent<any>) => void;
+        /**
+          * Emitted when the `value` property has changed. This is used to ensure that `ion-radio` can respond to any value property changes from the group.
+         */
+        "onIonValueChange"?: (event: IonRadioGroupCustomEvent<any>) => void;
+        /**
+          * the value of the radio group.
+         */
+        "value"?: any | null;
+    }
+    interface JsonBasic {
+    }
+    interface KeyReorder {
+    }
+    interface LifecycleAsyncA {
+    }
+    interface LifecycleAsyncB {
+        "onLifecycleLoad"?: (event: LifecycleAsyncBCustomEvent<any>) => void;
+        "onLifecycleUpdate"?: (event: LifecycleAsyncBCustomEvent<any>) => void;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    interface LifecycleAsyncC {
+        "onLifecycleLoad"?: (event: LifecycleAsyncCCustomEvent<any>) => void;
+        "onLifecycleUpdate"?: (event: LifecycleAsyncCCustomEvent<any>) => void;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    interface LifecycleBasicA {
+    }
+    interface LifecycleBasicB {
+        "onLifecycleLoad"?: (event: LifecycleBasicBCustomEvent<any>) => void;
+        "onLifecycleUpdate"?: (event: LifecycleBasicBCustomEvent<any>) => void;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    interface LifecycleBasicC {
+        "onLifecycleLoad"?: (event: LifecycleBasicCCustomEvent<any>) => void;
+        "onLifecycleUpdate"?: (event: LifecycleBasicCCustomEvent<any>) => void;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    interface LifecycleNestedA {
+    }
+    interface LifecycleNestedB {
+    }
+    interface LifecycleNestedC {
+    }
+    interface LifecycleUnloadA {
+    }
+    interface LifecycleUnloadB {
+    }
+    interface LifecycleUnloadRoot {
+    }
+    interface LifecycleUpdateA {
+    }
+    interface LifecycleUpdateB {
+        /**
+          * @default 0
+         */
+        "value"?: number;
+    }
+    interface LifecycleUpdateC {
+        /**
+          * @default 0
+         */
+        "value"?: number;
+    }
+    interface ListenJsx {
+    }
+    interface ListenJsxRoot {
+    }
+    interface ListenReattach {
+    }
+    interface ListenWindow {
+    }
+    interface MultipleStylesCmp {
+    }
+    interface MyComponent {
+    }
+    interface NoDelegatesFocus {
+    }
+    interface NodeResolution {
+    }
+    interface PageList {
+        /**
+          * @default null
+         */
+        "lastPage"?: number | null;
+    }
+    interface PageListItem {
+        /**
+          * Set the number to be displayed.
+          * @default false
+         */
+        "active"?: boolean;
+        /**
+          * Set the number to be displayed.
+         */
+        "label": number;
+    }
+    interface ParentReflectNanAttribute {
+    }
+    interface ParentWithReflectChild {
+    }
+    interface PartSsrShadowCmp {
+        "selected"?: boolean;
+    }
+    interface PartWrapSsrShadowCmp {
+        "selected"?: boolean;
+    }
+    interface RadioGroupBlurTest {
+    }
+    interface RefAttrOrder {
+    }
+    interface ReflectNanAttribute {
+        "val"?: number;
+    }
+    interface ReflectNanAttributeHyphen {
+        "valNum"?: number;
+    }
+    interface ReflectToAttr {
+        /**
+          * @default false
+         */
+        "bool"?: boolean;
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        "dynamicNu"?: number;
+        "dynamicStr"?: string;
+        /**
+          * @default 2
+         */
+        "nu"?: number;
+        /**
+          * @default null
+         */
+        "null"?: string | null;
+        /**
+          * @default true
+         */
+        "otherBool"?: boolean;
+        /**
+          * @default 'single'
+         */
+        "str"?: string;
+        "undef"?: string;
+    }
+    interface RemoveChildPatch {
+    }
+    interface ReparentStyleNoVars {
+    }
+    interface ReparentStyleWithVars {
+    }
+    interface SassCmp {
+    }
+    interface ScopedAddRemoveClasses {
+        "items"?: Item[];
+        "selectedItems"?: number[];
+    }
+    interface ScopedBasic {
+    }
+    interface ScopedBasicRoot {
+    }
+    interface ScopedConditional {
+        /**
+          * @default false
+         */
+        "renderHello"?: boolean;
+    }
+    interface ScopedSlotAppendAndPrepend {
+    }
+    interface ScopedSlotAssignedMethods {
+    }
+    interface ScopedSlotChildInsertAdjacent {
+    }
+    interface ScopedSlotChildren {
+    }
+    interface ScopedSlotInsertbefore {
+    }
+    interface ScopedSlotInsertionOrderAfterInteraction {
+    }
+    interface ScopedSlotSlotchange {
+        /**
+          * @default []
+         */
+        "slotEventCatch"?: { event: Event; assignedNodes: Node[] }[];
+    }
+    interface ScopedSlotSlotchangeWrap {
+        /**
+          * @default false
+         */
+        "swapSlotContent"?: boolean;
+    }
+    interface ScopedSsrChildCmp {
+    }
+    interface ScopedSsrParentCmp {
+    }
+    interface ShadowDomArray {
+        /**
+          * @default []
+         */
+        "values"?: number[];
+    }
+    interface ShadowDomArrayRoot {
+    }
+    interface ShadowDomBasic {
+    }
+    interface ShadowDomBasicRoot {
+    }
+    interface ShadowDomMode {
+        /**
+          * The mode determines which platform styles to use.
+         */
+        "colormode"?: string;
+    }
+    interface ShadowDomSlotNested {
+        "i"?: number;
+    }
+    interface ShadowDomSlotNestedRoot {
+    }
+    interface ShadowSsrChildCmp {
+    }
+    interface ShadowSsrParentCmp {
+    }
+    interface SlotArrayBasic {
+    }
+    interface SlotArrayComplex {
+    }
+    interface SlotArrayComplexRoot {
+    }
+    interface SlotArrayTop {
+    }
+    interface SlotBasic {
+    }
+    interface SlotBasicOrder {
+    }
+    interface SlotBasicOrderRoot {
+    }
+    interface SlotBasicRoot {
+    }
+    interface SlotChildrenRoot {
+    }
+    interface SlotConditionalRendering {
+    }
+    interface SlotDynamicNameChangeScoped {
+        /**
+          * @default 'greeting'
+         */
+        "slotName"?: string;
+    }
+    interface SlotDynamicNameChangeShadow {
+        /**
+          * @default 'greeting'
+         */
+        "slotName"?: string;
+    }
+    interface SlotDynamicScopedList {
+        /**
+          * @default []
+         */
+        "items"?: Array<string>;
+    }
+    interface SlotDynamicShadowList {
+        /**
+          * @default []
+         */
+        "items"?: Array<string>;
+    }
+    interface SlotDynamicWrapper {
+        /**
+          * @default 'section'
+         */
+        "tag"?: string;
+    }
+    interface SlotDynamicWrapperRoot {
+    }
+    interface SlotFallback {
+        /**
+          * @default 0
+         */
+        "inc"?: number;
+    }
+    interface SlotFallbackRoot {
+    }
+    interface SlotForwardChildFallback {
+        "label"?: string;
+    }
+    interface SlotForwardRoot {
+        "label"?: string;
+    }
+    interface SlotHideContentOpen {
+        /**
+          * @default false
+         */
+        "enabled"?: boolean;
+    }
+    interface SlotHideContentScoped {
+        /**
+          * @default false
+         */
+        "enabled"?: boolean;
+    }
+    interface SlotHtml {
+        /**
+          * @default 0
+         */
+        "inc"?: number;
+    }
+    interface SlotLightDomContent {
+    }
+    interface SlotLightDomRoot {
+    }
+    interface SlotLightList {
+    }
+    interface SlotLightScopedList {
+    }
+    interface SlotListLightRoot {
+        /**
+          * @default []
+         */
+        "items"?: string[];
+    }
+    interface SlotListLightScopedRoot {
+        /**
+          * @default []
+         */
+        "items"?: string[];
+    }
+    interface SlotMapOrder {
+    }
+    interface SlotMapOrderRoot {
+    }
+    interface SlotNestedDefaultOrderChild {
+        "state"?: boolean;
+    }
+    interface SlotNestedDefaultOrderParent {
+    }
+    interface SlotNestedDynamicChild {
+    }
+    interface SlotNestedDynamicParent {
+    }
+    interface SlotNestedDynamicWrapper {
+    }
+    interface SlotNestedOrderChild {
+    }
+    interface SlotNestedOrderParent {
+    }
+    interface SlotNgIf {
+    }
+    interface SlotNoDefault {
+    }
+    interface SlotParentTagChange {
+        /**
+          * @default 'p'
+         */
+        "element"?: string;
+    }
+    interface SlotParentTagChangeRoot {
+        /**
+          * @default 'p'
+         */
+        "element"?: string;
+    }
+    interface SlotReorder {
+        /**
+          * @default false
+         */
+        "reordered"?: boolean;
+    }
+    interface SlotReorderRoot {
+    }
+    interface SlotReplaceWrapper {
+        "href"?: string;
+    }
+    interface SlotReplaceWrapperRoot {
+    }
+    interface SlottedCss {
+    }
+    interface SlowSsrProp {
+        /**
+          * @default []
+         */
+        "anArray"?: never[];
+    }
+    interface SsrOrderCmp {
+    }
+    interface SsrOrderWrapCmp {
+    }
+    interface SsrShadowCmp {
+        "selected"?: boolean;
+    }
+    interface StaticDecoratedMembers {
+    }
+    interface StaticMembers {
+    }
+    interface StaticMembersSeparateExport {
+    }
+    interface StaticMembersSeparateInitializer {
+    }
+    interface StaticStyles {
+    }
+    interface StencilSibling {
+    }
+    interface SvgAttr {
+    }
+    interface SvgClass {
+    }
+    interface Tag3dComponent {
+    }
+    interface Tag88 {
+    }
     interface TestSvg {
+    }
+    interface TextContentPatchScoped {
+    }
+    interface TextContentPatchScopedWithSlot {
+    }
+    interface TsTargetProps {
+        /**
+          * @default 'basicProp'
+         */
+        "basicProp"?: string;
+        "decoratedGetterSetterProp"?: number;
+        /**
+          * @default -10
+         */
+        "decoratedProp"?: number;
+        "dynamicLifecycle"?: string[];
+    }
+    interface WatchNativeAttributes {
+    }
+    interface WatchNativeAttributesNoMembers {
+    }
+    interface WrapSsrShadowCmp {
+        "selected"?: boolean;
     }
     interface IntrinsicElements {
         "app-root": AppRoot;
+        "async-rerender": AsyncRerender;
+        "attribute-basic": AttributeBasic;
+        "attribute-basic-root": AttributeBasicRoot;
+        "attribute-boolean": AttributeBoolean;
+        "attribute-boolean-root": AttributeBooleanRoot;
+        "attribute-complex": AttributeComplex;
+        "attribute-host": AttributeHost;
+        "attribute-html-root": AttributeHtmlRoot;
+        "bad-shared-jsx": BadSharedJsx;
+        "build-data": BuildData;
+        "child-reflect-nan-attribute": ChildReflectNanAttribute;
+        "child-with-reflection": ChildWithReflection;
         "cmp-a": CmpA;
+        "cmp-avatar": CmpAvatar;
         "cmp-b": CmpB;
         "cmp-c": CmpC;
         "cmp-client-scoped": CmpClientScoped;
         "cmp-client-shadow": CmpClientShadow;
         "cmp-d": CmpD;
+        "cmp-label": CmpLabel;
+        "cmp-label-with-slot-sibling": CmpLabelWithSlotSibling;
+        "cmp-level-1": CmpLevel1;
+        "cmp-level-2": CmpLevel2;
+        "cmp-level-3": CmpLevel3;
         "cmp-scoped-a": CmpScopedA;
         "cmp-scoped-b": CmpScopedB;
+        "cmp-slotted-parentnode": CmpSlottedParentnode;
         "cmp-text-blue": CmpTextBlue;
         "cmp-text-green": CmpTextGreen;
+        "complex-properties": ComplexProperties;
+        "computed-properties-prop-decorator": ComputedPropertiesPropDecorator;
+        "computed-properties-prop-decorator-reflect": ComputedPropertiesPropDecoratorReflect;
+        "computed-properties-state-decorator": ComputedPropertiesStateDecorator;
+        "computed-properties-watch-decorator": ComputedPropertiesWatchDecorator;
+        "conditional-basic": ConditionalBasic;
+        "conditional-rerender": ConditionalRerender;
+        "conditional-rerender-root": ConditionalRerenderRoot;
+        "css-cmp": CssCmp;
+        "css-variables-no-encapsulation": CssVariablesNoEncapsulation;
+        "css-variables-shadow-dom": CssVariablesShadowDom;
+        "custom-element-child": CustomElementChild;
+        "custom-element-child-different-name-than-class": CustomElementChildDifferentNameThanClass;
+        "custom-element-nested-child": CustomElementNestedChild;
+        "custom-element-root": CustomElementRoot;
+        "custom-element-root-different-name-than-class": CustomElementRootDifferentNameThanClass;
+        "custom-elements-delegates-focus": CustomElementsDelegatesFocus;
+        "custom-elements-hierarchy-lifecycle-child": CustomElementsHierarchyLifecycleChild;
+        "custom-elements-hierarchy-lifecycle-parent": CustomElementsHierarchyLifecycleParent;
+        "custom-elements-no-delegates-focus": CustomElementsNoDelegatesFocus;
+        "custom-event-root": CustomEventRoot;
+        "custom-svg-element": CustomSvgElement;
+        "delegates-focus": DelegatesFocus;
+        "dom-reattach": DomReattach;
+        "dom-reattach-clone": DomReattachClone;
+        "dom-reattach-clone-deep-slot": DomReattachCloneDeepSlot;
+        "dom-reattach-clone-host": DomReattachCloneHost;
+        "dsd-cmp": DsdCmp;
+        "dynamic-css-variable": DynamicCssVariable;
+        "dynamic-import": DynamicImport;
+        "es5-addclass-svg": Es5AddclassSvg;
+        "esm-import": EsmImport;
+        "event-basic": EventBasic;
+        "event-custom-type": EventCustomType;
+        "event-listener-capture": EventListenerCapture;
+        "event-re-register": EventReRegister;
+        "extended-cmp": ExtendedCmp;
+        "extends-cmp-cmp": ExtendsCmpCmp;
+        "extends-external": ExtendsExternal;
+        "extends-mixin": ExtendsMixin;
+        "external-import-a": ExternalImportA;
+        "external-import-b": ExternalImportB;
+        "external-import-c": ExternalImportC;
+        "factory-jsx": FactoryJsx;
+        "form-associated": FormAssociated;
+        "form-associated-prop-check": FormAssociatedPropCheck;
+        "global-styles": GlobalStyles;
+        "host-attr-override": HostAttrOverride;
+        "image-import": ImageImport;
+        "import-aliasing": ImportAliasing;
+        "init-css-root": InitCssRoot;
+        "input-basic-root": InputBasicRoot;
+        "ion-child": IonChild;
+        "ion-host": IonHost;
+        "ion-parent": IonParent;
+        "ion-radio": IonRadio;
+        "ion-radio-group": IonRadioGroup;
+        "json-basic": JsonBasic;
+        "key-reorder": KeyReorder;
+        "lifecycle-async-a": LifecycleAsyncA;
+        "lifecycle-async-b": LifecycleAsyncB;
+        "lifecycle-async-c": LifecycleAsyncC;
+        "lifecycle-basic-a": LifecycleBasicA;
+        "lifecycle-basic-b": LifecycleBasicB;
+        "lifecycle-basic-c": LifecycleBasicC;
+        "lifecycle-nested-a": LifecycleNestedA;
+        "lifecycle-nested-b": LifecycleNestedB;
+        "lifecycle-nested-c": LifecycleNestedC;
+        "lifecycle-unload-a": LifecycleUnloadA;
+        "lifecycle-unload-b": LifecycleUnloadB;
+        "lifecycle-unload-root": LifecycleUnloadRoot;
+        "lifecycle-update-a": LifecycleUpdateA;
+        "lifecycle-update-b": LifecycleUpdateB;
+        "lifecycle-update-c": LifecycleUpdateC;
+        "listen-jsx": ListenJsx;
+        "listen-jsx-root": ListenJsxRoot;
+        "listen-reattach": ListenReattach;
+        "listen-window": ListenWindow;
+        "multiple-styles-cmp": MultipleStylesCmp;
+        "my-component": MyComponent;
+        "no-delegates-focus": NoDelegatesFocus;
+        "node-resolution": NodeResolution;
+        "page-list": PageList;
+        "page-list-item": PageListItem;
+        "parent-reflect-nan-attribute": ParentReflectNanAttribute;
+        "parent-with-reflect-child": ParentWithReflectChild;
+        "part-ssr-shadow-cmp": PartSsrShadowCmp;
+        "part-wrap-ssr-shadow-cmp": PartWrapSsrShadowCmp;
+        "radio-group-blur-test": RadioGroupBlurTest;
+        "ref-attr-order": RefAttrOrder;
+        "reflect-nan-attribute": ReflectNanAttribute;
+        "reflect-nan-attribute-hyphen": ReflectNanAttributeHyphen;
+        "reflect-to-attr": ReflectToAttr;
+        "remove-child-patch": RemoveChildPatch;
+        "reparent-style-no-vars": ReparentStyleNoVars;
+        "reparent-style-with-vars": ReparentStyleWithVars;
+        "sass-cmp": SassCmp;
+        "scoped-add-remove-classes": ScopedAddRemoveClasses;
+        "scoped-basic": ScopedBasic;
+        "scoped-basic-root": ScopedBasicRoot;
+        "scoped-conditional": ScopedConditional;
+        "scoped-slot-append-and-prepend": ScopedSlotAppendAndPrepend;
+        "scoped-slot-assigned-methods": ScopedSlotAssignedMethods;
+        "scoped-slot-child-insert-adjacent": ScopedSlotChildInsertAdjacent;
+        "scoped-slot-children": ScopedSlotChildren;
+        "scoped-slot-insertbefore": ScopedSlotInsertbefore;
+        "scoped-slot-insertion-order-after-interaction": ScopedSlotInsertionOrderAfterInteraction;
+        "scoped-slot-slotchange": ScopedSlotSlotchange;
+        "scoped-slot-slotchange-wrap": ScopedSlotSlotchangeWrap;
+        "scoped-ssr-child-cmp": ScopedSsrChildCmp;
+        "scoped-ssr-parent-cmp": ScopedSsrParentCmp;
+        "shadow-dom-array": ShadowDomArray;
+        "shadow-dom-array-root": ShadowDomArrayRoot;
+        "shadow-dom-basic": ShadowDomBasic;
+        "shadow-dom-basic-root": ShadowDomBasicRoot;
+        "shadow-dom-mode": ShadowDomMode;
+        "shadow-dom-slot-nested": ShadowDomSlotNested;
+        "shadow-dom-slot-nested-root": ShadowDomSlotNestedRoot;
+        "shadow-ssr-child-cmp": ShadowSsrChildCmp;
+        "shadow-ssr-parent-cmp": ShadowSsrParentCmp;
+        "slot-array-basic": SlotArrayBasic;
+        "slot-array-complex": SlotArrayComplex;
+        "slot-array-complex-root": SlotArrayComplexRoot;
+        "slot-array-top": SlotArrayTop;
+        "slot-basic": SlotBasic;
+        "slot-basic-order": SlotBasicOrder;
+        "slot-basic-order-root": SlotBasicOrderRoot;
+        "slot-basic-root": SlotBasicRoot;
+        "slot-children-root": SlotChildrenRoot;
+        "slot-conditional-rendering": SlotConditionalRendering;
+        "slot-dynamic-name-change-scoped": SlotDynamicNameChangeScoped;
+        "slot-dynamic-name-change-shadow": SlotDynamicNameChangeShadow;
+        "slot-dynamic-scoped-list": SlotDynamicScopedList;
+        "slot-dynamic-shadow-list": SlotDynamicShadowList;
+        "slot-dynamic-wrapper": SlotDynamicWrapper;
+        "slot-dynamic-wrapper-root": SlotDynamicWrapperRoot;
+        "slot-fallback": SlotFallback;
+        "slot-fallback-root": SlotFallbackRoot;
+        "slot-forward-child-fallback": SlotForwardChildFallback;
+        "slot-forward-root": SlotForwardRoot;
+        "slot-hide-content-open": SlotHideContentOpen;
+        "slot-hide-content-scoped": SlotHideContentScoped;
+        "slot-html": SlotHtml;
+        "slot-light-dom-content": SlotLightDomContent;
+        "slot-light-dom-root": SlotLightDomRoot;
+        "slot-light-list": SlotLightList;
+        "slot-light-scoped-list": SlotLightScopedList;
+        "slot-list-light-root": SlotListLightRoot;
+        "slot-list-light-scoped-root": SlotListLightScopedRoot;
+        "slot-map-order": SlotMapOrder;
+        "slot-map-order-root": SlotMapOrderRoot;
+        "slot-nested-default-order-child": SlotNestedDefaultOrderChild;
+        "slot-nested-default-order-parent": SlotNestedDefaultOrderParent;
+        "slot-nested-dynamic-child": SlotNestedDynamicChild;
+        "slot-nested-dynamic-parent": SlotNestedDynamicParent;
+        "slot-nested-dynamic-wrapper": SlotNestedDynamicWrapper;
+        "slot-nested-order-child": SlotNestedOrderChild;
+        "slot-nested-order-parent": SlotNestedOrderParent;
+        "slot-ng-if": SlotNgIf;
+        "slot-no-default": SlotNoDefault;
+        "slot-parent-tag-change": SlotParentTagChange;
+        "slot-parent-tag-change-root": SlotParentTagChangeRoot;
+        "slot-reorder": SlotReorder;
+        "slot-reorder-root": SlotReorderRoot;
+        "slot-replace-wrapper": SlotReplaceWrapper;
+        "slot-replace-wrapper-root": SlotReplaceWrapperRoot;
+        "slotted-css": SlottedCss;
+        "slow-ssr-prop": SlowSsrProp;
+        "ssr-order-cmp": SsrOrderCmp;
+        "ssr-order-wrap-cmp": SsrOrderWrapCmp;
+        "ssr-shadow-cmp": SsrShadowCmp;
+        "static-decorated-members": StaticDecoratedMembers;
+        "static-members": StaticMembers;
+        "static-members-separate-export": StaticMembersSeparateExport;
+        "static-members-separate-initializer": StaticMembersSeparateInitializer;
+        "static-styles": StaticStyles;
+        "stencil-sibling": StencilSibling;
+        "svg-attr": SvgAttr;
+        "svg-class": SvgClass;
+        "tag-3d-component": Tag3dComponent;
+        "tag-88": Tag88;
         "test-svg": TestSvg;
+        "text-content-patch-scoped": TextContentPatchScoped;
+        "text-content-patch-scoped-with-slot": TextContentPatchScopedWithSlot;
+        "ts-target-props": TsTargetProps;
+        "watch-native-attributes": WatchNativeAttributes;
+        "watch-native-attributes-no-members": WatchNativeAttributesNoMembers;
+        "wrap-ssr-shadow-cmp": WrapSsrShadowCmp;
     }
 }
 export { LocalJSX as JSX };
@@ -172,17 +3558,223 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "async-rerender": LocalJSX.AsyncRerender & JSXBase.HTMLAttributes<HTMLAsyncRerenderElement>;
+            "attribute-basic": LocalJSX.AttributeBasic & JSXBase.HTMLAttributes<HTMLAttributeBasicElement>;
+            "attribute-basic-root": LocalJSX.AttributeBasicRoot & JSXBase.HTMLAttributes<HTMLAttributeBasicRootElement>;
+            "attribute-boolean": LocalJSX.AttributeBoolean & JSXBase.HTMLAttributes<HTMLAttributeBooleanElement>;
+            "attribute-boolean-root": LocalJSX.AttributeBooleanRoot & JSXBase.HTMLAttributes<HTMLAttributeBooleanRootElement>;
+            "attribute-complex": LocalJSX.AttributeComplex & JSXBase.HTMLAttributes<HTMLAttributeComplexElement>;
+            "attribute-host": LocalJSX.AttributeHost & JSXBase.HTMLAttributes<HTMLAttributeHostElement>;
+            "attribute-html-root": LocalJSX.AttributeHtmlRoot & JSXBase.HTMLAttributes<HTMLAttributeHtmlRootElement>;
+            "bad-shared-jsx": LocalJSX.BadSharedJsx & JSXBase.HTMLAttributes<HTMLBadSharedJsxElement>;
+            "build-data": LocalJSX.BuildData & JSXBase.HTMLAttributes<HTMLBuildDataElement>;
+            "child-reflect-nan-attribute": LocalJSX.ChildReflectNanAttribute & JSXBase.HTMLAttributes<HTMLChildReflectNanAttributeElement>;
+            "child-with-reflection": LocalJSX.ChildWithReflection & JSXBase.HTMLAttributes<HTMLChildWithReflectionElement>;
             "cmp-a": LocalJSX.CmpA & JSXBase.HTMLAttributes<HTMLCmpAElement>;
+            "cmp-avatar": LocalJSX.CmpAvatar & JSXBase.HTMLAttributes<HTMLCmpAvatarElement>;
             "cmp-b": LocalJSX.CmpB & JSXBase.HTMLAttributes<HTMLCmpBElement>;
             "cmp-c": LocalJSX.CmpC & JSXBase.HTMLAttributes<HTMLCmpCElement>;
             "cmp-client-scoped": LocalJSX.CmpClientScoped & JSXBase.HTMLAttributes<HTMLCmpClientScopedElement>;
             "cmp-client-shadow": LocalJSX.CmpClientShadow & JSXBase.HTMLAttributes<HTMLCmpClientShadowElement>;
             "cmp-d": LocalJSX.CmpD & JSXBase.HTMLAttributes<HTMLCmpDElement>;
+            "cmp-label": LocalJSX.CmpLabel & JSXBase.HTMLAttributes<HTMLCmpLabelElement>;
+            "cmp-label-with-slot-sibling": LocalJSX.CmpLabelWithSlotSibling & JSXBase.HTMLAttributes<HTMLCmpLabelWithSlotSiblingElement>;
+            "cmp-level-1": LocalJSX.CmpLevel1 & JSXBase.HTMLAttributes<HTMLCmpLevel1Element>;
+            "cmp-level-2": LocalJSX.CmpLevel2 & JSXBase.HTMLAttributes<HTMLCmpLevel2Element>;
+            "cmp-level-3": LocalJSX.CmpLevel3 & JSXBase.HTMLAttributes<HTMLCmpLevel3Element>;
             "cmp-scoped-a": LocalJSX.CmpScopedA & JSXBase.HTMLAttributes<HTMLCmpScopedAElement>;
             "cmp-scoped-b": LocalJSX.CmpScopedB & JSXBase.HTMLAttributes<HTMLCmpScopedBElement>;
+            "cmp-slotted-parentnode": LocalJSX.CmpSlottedParentnode & JSXBase.HTMLAttributes<HTMLCmpSlottedParentnodeElement>;
             "cmp-text-blue": LocalJSX.CmpTextBlue & JSXBase.HTMLAttributes<HTMLCmpTextBlueElement>;
             "cmp-text-green": LocalJSX.CmpTextGreen & JSXBase.HTMLAttributes<HTMLCmpTextGreenElement>;
+            "complex-properties": LocalJSX.ComplexProperties & JSXBase.HTMLAttributes<HTMLComplexPropertiesElement>;
+            "computed-properties-prop-decorator": LocalJSX.ComputedPropertiesPropDecorator & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorElement>;
+            "computed-properties-prop-decorator-reflect": LocalJSX.ComputedPropertiesPropDecoratorReflect & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorReflectElement>;
+            "computed-properties-state-decorator": LocalJSX.ComputedPropertiesStateDecorator & JSXBase.HTMLAttributes<HTMLComputedPropertiesStateDecoratorElement>;
+            "computed-properties-watch-decorator": LocalJSX.ComputedPropertiesWatchDecorator & JSXBase.HTMLAttributes<HTMLComputedPropertiesWatchDecoratorElement>;
+            "conditional-basic": LocalJSX.ConditionalBasic & JSXBase.HTMLAttributes<HTMLConditionalBasicElement>;
+            "conditional-rerender": LocalJSX.ConditionalRerender & JSXBase.HTMLAttributes<HTMLConditionalRerenderElement>;
+            "conditional-rerender-root": LocalJSX.ConditionalRerenderRoot & JSXBase.HTMLAttributes<HTMLConditionalRerenderRootElement>;
+            "css-cmp": LocalJSX.CssCmp & JSXBase.HTMLAttributes<HTMLCssCmpElement>;
+            "css-variables-no-encapsulation": LocalJSX.CssVariablesNoEncapsulation & JSXBase.HTMLAttributes<HTMLCssVariablesNoEncapsulationElement>;
+            "css-variables-shadow-dom": LocalJSX.CssVariablesShadowDom & JSXBase.HTMLAttributes<HTMLCssVariablesShadowDomElement>;
+            "custom-element-child": LocalJSX.CustomElementChild & JSXBase.HTMLAttributes<HTMLCustomElementChildElement>;
+            "custom-element-child-different-name-than-class": LocalJSX.CustomElementChildDifferentNameThanClass & JSXBase.HTMLAttributes<HTMLCustomElementChildDifferentNameThanClassElement>;
+            "custom-element-nested-child": LocalJSX.CustomElementNestedChild & JSXBase.HTMLAttributes<HTMLCustomElementNestedChildElement>;
+            "custom-element-root": LocalJSX.CustomElementRoot & JSXBase.HTMLAttributes<HTMLCustomElementRootElement>;
+            "custom-element-root-different-name-than-class": LocalJSX.CustomElementRootDifferentNameThanClass & JSXBase.HTMLAttributes<HTMLCustomElementRootDifferentNameThanClassElement>;
+            "custom-elements-delegates-focus": LocalJSX.CustomElementsDelegatesFocus & JSXBase.HTMLAttributes<HTMLCustomElementsDelegatesFocusElement>;
+            "custom-elements-hierarchy-lifecycle-child": LocalJSX.CustomElementsHierarchyLifecycleChild & JSXBase.HTMLAttributes<HTMLCustomElementsHierarchyLifecycleChildElement>;
+            "custom-elements-hierarchy-lifecycle-parent": LocalJSX.CustomElementsHierarchyLifecycleParent & JSXBase.HTMLAttributes<HTMLCustomElementsHierarchyLifecycleParentElement>;
+            "custom-elements-no-delegates-focus": LocalJSX.CustomElementsNoDelegatesFocus & JSXBase.HTMLAttributes<HTMLCustomElementsNoDelegatesFocusElement>;
+            "custom-event-root": LocalJSX.CustomEventRoot & JSXBase.HTMLAttributes<HTMLCustomEventRootElement>;
+            "custom-svg-element": LocalJSX.CustomSvgElement & JSXBase.HTMLAttributes<HTMLCustomSvgElementElement>;
+            "delegates-focus": LocalJSX.DelegatesFocus & JSXBase.HTMLAttributes<HTMLDelegatesFocusElement>;
+            "dom-reattach": LocalJSX.DomReattach & JSXBase.HTMLAttributes<HTMLDomReattachElement>;
+            "dom-reattach-clone": LocalJSX.DomReattachClone & JSXBase.HTMLAttributes<HTMLDomReattachCloneElement>;
+            "dom-reattach-clone-deep-slot": LocalJSX.DomReattachCloneDeepSlot & JSXBase.HTMLAttributes<HTMLDomReattachCloneDeepSlotElement>;
+            "dom-reattach-clone-host": LocalJSX.DomReattachCloneHost & JSXBase.HTMLAttributes<HTMLDomReattachCloneHostElement>;
+            "dsd-cmp": LocalJSX.DsdCmp & JSXBase.HTMLAttributes<HTMLDsdCmpElement>;
+            "dynamic-css-variable": LocalJSX.DynamicCssVariable & JSXBase.HTMLAttributes<HTMLDynamicCssVariableElement>;
+            "dynamic-import": LocalJSX.DynamicImport & JSXBase.HTMLAttributes<HTMLDynamicImportElement>;
+            "es5-addclass-svg": LocalJSX.Es5AddclassSvg & JSXBase.HTMLAttributes<HTMLEs5AddclassSvgElement>;
+            "esm-import": LocalJSX.EsmImport & JSXBase.HTMLAttributes<HTMLEsmImportElement>;
+            "event-basic": LocalJSX.EventBasic & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
+            "event-custom-type": LocalJSX.EventCustomType & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
+            "event-listener-capture": LocalJSX.EventListenerCapture & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "event-re-register": LocalJSX.EventReRegister & JSXBase.HTMLAttributes<HTMLEventReRegisterElement>;
+            "extended-cmp": LocalJSX.ExtendedCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
+            "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            "extends-mixin": LocalJSX.ExtendsMixin & JSXBase.HTMLAttributes<HTMLExtendsMixinElement>;
+            "external-import-a": LocalJSX.ExternalImportA & JSXBase.HTMLAttributes<HTMLExternalImportAElement>;
+            "external-import-b": LocalJSX.ExternalImportB & JSXBase.HTMLAttributes<HTMLExternalImportBElement>;
+            "external-import-c": LocalJSX.ExternalImportC & JSXBase.HTMLAttributes<HTMLExternalImportCElement>;
+            "factory-jsx": LocalJSX.FactoryJsx & JSXBase.HTMLAttributes<HTMLFactoryJsxElement>;
+            "form-associated": LocalJSX.FormAssociated & JSXBase.HTMLAttributes<HTMLFormAssociatedElement>;
+            "form-associated-prop-check": LocalJSX.FormAssociatedPropCheck & JSXBase.HTMLAttributes<HTMLFormAssociatedPropCheckElement>;
+            "global-styles": LocalJSX.GlobalStyles & JSXBase.HTMLAttributes<HTMLGlobalStylesElement>;
+            "host-attr-override": LocalJSX.HostAttrOverride & JSXBase.HTMLAttributes<HTMLHostAttrOverrideElement>;
+            "image-import": LocalJSX.ImageImport & JSXBase.HTMLAttributes<HTMLImageImportElement>;
+            "import-aliasing": LocalJSX.ImportAliasing & JSXBase.HTMLAttributes<HTMLImportAliasingElement>;
+            "init-css-root": LocalJSX.InitCssRoot & JSXBase.HTMLAttributes<HTMLInitCssRootElement>;
+            "input-basic-root": LocalJSX.InputBasicRoot & JSXBase.HTMLAttributes<HTMLInputBasicRootElement>;
+            "ion-child": LocalJSX.IonChild & JSXBase.HTMLAttributes<HTMLIonChildElement>;
+            "ion-host": LocalJSX.IonHost & JSXBase.HTMLAttributes<HTMLIonHostElement>;
+            "ion-parent": LocalJSX.IonParent & JSXBase.HTMLAttributes<HTMLIonParentElement>;
+            "ion-radio": LocalJSX.IonRadio & JSXBase.HTMLAttributes<HTMLIonRadioElement>;
+            "ion-radio-group": LocalJSX.IonRadioGroup & JSXBase.HTMLAttributes<HTMLIonRadioGroupElement>;
+            "json-basic": LocalJSX.JsonBasic & JSXBase.HTMLAttributes<HTMLJsonBasicElement>;
+            "key-reorder": LocalJSX.KeyReorder & JSXBase.HTMLAttributes<HTMLKeyReorderElement>;
+            "lifecycle-async-a": LocalJSX.LifecycleAsyncA & JSXBase.HTMLAttributes<HTMLLifecycleAsyncAElement>;
+            "lifecycle-async-b": LocalJSX.LifecycleAsyncB & JSXBase.HTMLAttributes<HTMLLifecycleAsyncBElement>;
+            "lifecycle-async-c": LocalJSX.LifecycleAsyncC & JSXBase.HTMLAttributes<HTMLLifecycleAsyncCElement>;
+            "lifecycle-basic-a": LocalJSX.LifecycleBasicA & JSXBase.HTMLAttributes<HTMLLifecycleBasicAElement>;
+            "lifecycle-basic-b": LocalJSX.LifecycleBasicB & JSXBase.HTMLAttributes<HTMLLifecycleBasicBElement>;
+            "lifecycle-basic-c": LocalJSX.LifecycleBasicC & JSXBase.HTMLAttributes<HTMLLifecycleBasicCElement>;
+            "lifecycle-nested-a": LocalJSX.LifecycleNestedA & JSXBase.HTMLAttributes<HTMLLifecycleNestedAElement>;
+            "lifecycle-nested-b": LocalJSX.LifecycleNestedB & JSXBase.HTMLAttributes<HTMLLifecycleNestedBElement>;
+            "lifecycle-nested-c": LocalJSX.LifecycleNestedC & JSXBase.HTMLAttributes<HTMLLifecycleNestedCElement>;
+            "lifecycle-unload-a": LocalJSX.LifecycleUnloadA & JSXBase.HTMLAttributes<HTMLLifecycleUnloadAElement>;
+            "lifecycle-unload-b": LocalJSX.LifecycleUnloadB & JSXBase.HTMLAttributes<HTMLLifecycleUnloadBElement>;
+            "lifecycle-unload-root": LocalJSX.LifecycleUnloadRoot & JSXBase.HTMLAttributes<HTMLLifecycleUnloadRootElement>;
+            "lifecycle-update-a": LocalJSX.LifecycleUpdateA & JSXBase.HTMLAttributes<HTMLLifecycleUpdateAElement>;
+            "lifecycle-update-b": LocalJSX.LifecycleUpdateB & JSXBase.HTMLAttributes<HTMLLifecycleUpdateBElement>;
+            "lifecycle-update-c": LocalJSX.LifecycleUpdateC & JSXBase.HTMLAttributes<HTMLLifecycleUpdateCElement>;
+            "listen-jsx": LocalJSX.ListenJsx & JSXBase.HTMLAttributes<HTMLListenJsxElement>;
+            "listen-jsx-root": LocalJSX.ListenJsxRoot & JSXBase.HTMLAttributes<HTMLListenJsxRootElement>;
+            "listen-reattach": LocalJSX.ListenReattach & JSXBase.HTMLAttributes<HTMLListenReattachElement>;
+            "listen-window": LocalJSX.ListenWindow & JSXBase.HTMLAttributes<HTMLListenWindowElement>;
+            "multiple-styles-cmp": LocalJSX.MultipleStylesCmp & JSXBase.HTMLAttributes<HTMLMultipleStylesCmpElement>;
+            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "no-delegates-focus": LocalJSX.NoDelegatesFocus & JSXBase.HTMLAttributes<HTMLNoDelegatesFocusElement>;
+            "node-resolution": LocalJSX.NodeResolution & JSXBase.HTMLAttributes<HTMLNodeResolutionElement>;
+            "page-list": LocalJSX.PageList & JSXBase.HTMLAttributes<HTMLPageListElement>;
+            "page-list-item": LocalJSX.PageListItem & JSXBase.HTMLAttributes<HTMLPageListItemElement>;
+            "parent-reflect-nan-attribute": LocalJSX.ParentReflectNanAttribute & JSXBase.HTMLAttributes<HTMLParentReflectNanAttributeElement>;
+            "parent-with-reflect-child": LocalJSX.ParentWithReflectChild & JSXBase.HTMLAttributes<HTMLParentWithReflectChildElement>;
+            "part-ssr-shadow-cmp": LocalJSX.PartSsrShadowCmp & JSXBase.HTMLAttributes<HTMLPartSsrShadowCmpElement>;
+            "part-wrap-ssr-shadow-cmp": LocalJSX.PartWrapSsrShadowCmp & JSXBase.HTMLAttributes<HTMLPartWrapSsrShadowCmpElement>;
+            "radio-group-blur-test": LocalJSX.RadioGroupBlurTest & JSXBase.HTMLAttributes<HTMLRadioGroupBlurTestElement>;
+            "ref-attr-order": LocalJSX.RefAttrOrder & JSXBase.HTMLAttributes<HTMLRefAttrOrderElement>;
+            "reflect-nan-attribute": LocalJSX.ReflectNanAttribute & JSXBase.HTMLAttributes<HTMLReflectNanAttributeElement>;
+            "reflect-nan-attribute-hyphen": LocalJSX.ReflectNanAttributeHyphen & JSXBase.HTMLAttributes<HTMLReflectNanAttributeHyphenElement>;
+            "reflect-to-attr": LocalJSX.ReflectToAttr & JSXBase.HTMLAttributes<HTMLReflectToAttrElement>;
+            "remove-child-patch": LocalJSX.RemoveChildPatch & JSXBase.HTMLAttributes<HTMLRemoveChildPatchElement>;
+            "reparent-style-no-vars": LocalJSX.ReparentStyleNoVars & JSXBase.HTMLAttributes<HTMLReparentStyleNoVarsElement>;
+            "reparent-style-with-vars": LocalJSX.ReparentStyleWithVars & JSXBase.HTMLAttributes<HTMLReparentStyleWithVarsElement>;
+            "sass-cmp": LocalJSX.SassCmp & JSXBase.HTMLAttributes<HTMLSassCmpElement>;
+            "scoped-add-remove-classes": LocalJSX.ScopedAddRemoveClasses & JSXBase.HTMLAttributes<HTMLScopedAddRemoveClassesElement>;
+            "scoped-basic": LocalJSX.ScopedBasic & JSXBase.HTMLAttributes<HTMLScopedBasicElement>;
+            "scoped-basic-root": LocalJSX.ScopedBasicRoot & JSXBase.HTMLAttributes<HTMLScopedBasicRootElement>;
+            "scoped-conditional": LocalJSX.ScopedConditional & JSXBase.HTMLAttributes<HTMLScopedConditionalElement>;
+            "scoped-slot-append-and-prepend": LocalJSX.ScopedSlotAppendAndPrepend & JSXBase.HTMLAttributes<HTMLScopedSlotAppendAndPrependElement>;
+            "scoped-slot-assigned-methods": LocalJSX.ScopedSlotAssignedMethods & JSXBase.HTMLAttributes<HTMLScopedSlotAssignedMethodsElement>;
+            "scoped-slot-child-insert-adjacent": LocalJSX.ScopedSlotChildInsertAdjacent & JSXBase.HTMLAttributes<HTMLScopedSlotChildInsertAdjacentElement>;
+            "scoped-slot-children": LocalJSX.ScopedSlotChildren & JSXBase.HTMLAttributes<HTMLScopedSlotChildrenElement>;
+            "scoped-slot-insertbefore": LocalJSX.ScopedSlotInsertbefore & JSXBase.HTMLAttributes<HTMLScopedSlotInsertbeforeElement>;
+            "scoped-slot-insertion-order-after-interaction": LocalJSX.ScopedSlotInsertionOrderAfterInteraction & JSXBase.HTMLAttributes<HTMLScopedSlotInsertionOrderAfterInteractionElement>;
+            "scoped-slot-slotchange": LocalJSX.ScopedSlotSlotchange & JSXBase.HTMLAttributes<HTMLScopedSlotSlotchangeElement>;
+            "scoped-slot-slotchange-wrap": LocalJSX.ScopedSlotSlotchangeWrap & JSXBase.HTMLAttributes<HTMLScopedSlotSlotchangeWrapElement>;
+            "scoped-ssr-child-cmp": LocalJSX.ScopedSsrChildCmp & JSXBase.HTMLAttributes<HTMLScopedSsrChildCmpElement>;
+            "scoped-ssr-parent-cmp": LocalJSX.ScopedSsrParentCmp & JSXBase.HTMLAttributes<HTMLScopedSsrParentCmpElement>;
+            "shadow-dom-array": LocalJSX.ShadowDomArray & JSXBase.HTMLAttributes<HTMLShadowDomArrayElement>;
+            "shadow-dom-array-root": LocalJSX.ShadowDomArrayRoot & JSXBase.HTMLAttributes<HTMLShadowDomArrayRootElement>;
+            "shadow-dom-basic": LocalJSX.ShadowDomBasic & JSXBase.HTMLAttributes<HTMLShadowDomBasicElement>;
+            "shadow-dom-basic-root": LocalJSX.ShadowDomBasicRoot & JSXBase.HTMLAttributes<HTMLShadowDomBasicRootElement>;
+            "shadow-dom-mode": LocalJSX.ShadowDomMode & JSXBase.HTMLAttributes<HTMLShadowDomModeElement>;
+            "shadow-dom-slot-nested": LocalJSX.ShadowDomSlotNested & JSXBase.HTMLAttributes<HTMLShadowDomSlotNestedElement>;
+            "shadow-dom-slot-nested-root": LocalJSX.ShadowDomSlotNestedRoot & JSXBase.HTMLAttributes<HTMLShadowDomSlotNestedRootElement>;
+            "shadow-ssr-child-cmp": LocalJSX.ShadowSsrChildCmp & JSXBase.HTMLAttributes<HTMLShadowSsrChildCmpElement>;
+            "shadow-ssr-parent-cmp": LocalJSX.ShadowSsrParentCmp & JSXBase.HTMLAttributes<HTMLShadowSsrParentCmpElement>;
+            "slot-array-basic": LocalJSX.SlotArrayBasic & JSXBase.HTMLAttributes<HTMLSlotArrayBasicElement>;
+            "slot-array-complex": LocalJSX.SlotArrayComplex & JSXBase.HTMLAttributes<HTMLSlotArrayComplexElement>;
+            "slot-array-complex-root": LocalJSX.SlotArrayComplexRoot & JSXBase.HTMLAttributes<HTMLSlotArrayComplexRootElement>;
+            "slot-array-top": LocalJSX.SlotArrayTop & JSXBase.HTMLAttributes<HTMLSlotArrayTopElement>;
+            "slot-basic": LocalJSX.SlotBasic & JSXBase.HTMLAttributes<HTMLSlotBasicElement>;
+            "slot-basic-order": LocalJSX.SlotBasicOrder & JSXBase.HTMLAttributes<HTMLSlotBasicOrderElement>;
+            "slot-basic-order-root": LocalJSX.SlotBasicOrderRoot & JSXBase.HTMLAttributes<HTMLSlotBasicOrderRootElement>;
+            "slot-basic-root": LocalJSX.SlotBasicRoot & JSXBase.HTMLAttributes<HTMLSlotBasicRootElement>;
+            "slot-children-root": LocalJSX.SlotChildrenRoot & JSXBase.HTMLAttributes<HTMLSlotChildrenRootElement>;
+            "slot-conditional-rendering": LocalJSX.SlotConditionalRendering & JSXBase.HTMLAttributes<HTMLSlotConditionalRenderingElement>;
+            "slot-dynamic-name-change-scoped": LocalJSX.SlotDynamicNameChangeScoped & JSXBase.HTMLAttributes<HTMLSlotDynamicNameChangeScopedElement>;
+            "slot-dynamic-name-change-shadow": LocalJSX.SlotDynamicNameChangeShadow & JSXBase.HTMLAttributes<HTMLSlotDynamicNameChangeShadowElement>;
+            "slot-dynamic-scoped-list": LocalJSX.SlotDynamicScopedList & JSXBase.HTMLAttributes<HTMLSlotDynamicScopedListElement>;
+            "slot-dynamic-shadow-list": LocalJSX.SlotDynamicShadowList & JSXBase.HTMLAttributes<HTMLSlotDynamicShadowListElement>;
+            "slot-dynamic-wrapper": LocalJSX.SlotDynamicWrapper & JSXBase.HTMLAttributes<HTMLSlotDynamicWrapperElement>;
+            "slot-dynamic-wrapper-root": LocalJSX.SlotDynamicWrapperRoot & JSXBase.HTMLAttributes<HTMLSlotDynamicWrapperRootElement>;
+            "slot-fallback": LocalJSX.SlotFallback & JSXBase.HTMLAttributes<HTMLSlotFallbackElement>;
+            "slot-fallback-root": LocalJSX.SlotFallbackRoot & JSXBase.HTMLAttributes<HTMLSlotFallbackRootElement>;
+            "slot-forward-child-fallback": LocalJSX.SlotForwardChildFallback & JSXBase.HTMLAttributes<HTMLSlotForwardChildFallbackElement>;
+            "slot-forward-root": LocalJSX.SlotForwardRoot & JSXBase.HTMLAttributes<HTMLSlotForwardRootElement>;
+            "slot-hide-content-open": LocalJSX.SlotHideContentOpen & JSXBase.HTMLAttributes<HTMLSlotHideContentOpenElement>;
+            "slot-hide-content-scoped": LocalJSX.SlotHideContentScoped & JSXBase.HTMLAttributes<HTMLSlotHideContentScopedElement>;
+            "slot-html": LocalJSX.SlotHtml & JSXBase.HTMLAttributes<HTMLSlotHtmlElement>;
+            "slot-light-dom-content": LocalJSX.SlotLightDomContent & JSXBase.HTMLAttributes<HTMLSlotLightDomContentElement>;
+            "slot-light-dom-root": LocalJSX.SlotLightDomRoot & JSXBase.HTMLAttributes<HTMLSlotLightDomRootElement>;
+            "slot-light-list": LocalJSX.SlotLightList & JSXBase.HTMLAttributes<HTMLSlotLightListElement>;
+            "slot-light-scoped-list": LocalJSX.SlotLightScopedList & JSXBase.HTMLAttributes<HTMLSlotLightScopedListElement>;
+            "slot-list-light-root": LocalJSX.SlotListLightRoot & JSXBase.HTMLAttributes<HTMLSlotListLightRootElement>;
+            "slot-list-light-scoped-root": LocalJSX.SlotListLightScopedRoot & JSXBase.HTMLAttributes<HTMLSlotListLightScopedRootElement>;
+            "slot-map-order": LocalJSX.SlotMapOrder & JSXBase.HTMLAttributes<HTMLSlotMapOrderElement>;
+            "slot-map-order-root": LocalJSX.SlotMapOrderRoot & JSXBase.HTMLAttributes<HTMLSlotMapOrderRootElement>;
+            "slot-nested-default-order-child": LocalJSX.SlotNestedDefaultOrderChild & JSXBase.HTMLAttributes<HTMLSlotNestedDefaultOrderChildElement>;
+            "slot-nested-default-order-parent": LocalJSX.SlotNestedDefaultOrderParent & JSXBase.HTMLAttributes<HTMLSlotNestedDefaultOrderParentElement>;
+            "slot-nested-dynamic-child": LocalJSX.SlotNestedDynamicChild & JSXBase.HTMLAttributes<HTMLSlotNestedDynamicChildElement>;
+            "slot-nested-dynamic-parent": LocalJSX.SlotNestedDynamicParent & JSXBase.HTMLAttributes<HTMLSlotNestedDynamicParentElement>;
+            "slot-nested-dynamic-wrapper": LocalJSX.SlotNestedDynamicWrapper & JSXBase.HTMLAttributes<HTMLSlotNestedDynamicWrapperElement>;
+            "slot-nested-order-child": LocalJSX.SlotNestedOrderChild & JSXBase.HTMLAttributes<HTMLSlotNestedOrderChildElement>;
+            "slot-nested-order-parent": LocalJSX.SlotNestedOrderParent & JSXBase.HTMLAttributes<HTMLSlotNestedOrderParentElement>;
+            "slot-ng-if": LocalJSX.SlotNgIf & JSXBase.HTMLAttributes<HTMLSlotNgIfElement>;
+            "slot-no-default": LocalJSX.SlotNoDefault & JSXBase.HTMLAttributes<HTMLSlotNoDefaultElement>;
+            "slot-parent-tag-change": LocalJSX.SlotParentTagChange & JSXBase.HTMLAttributes<HTMLSlotParentTagChangeElement>;
+            "slot-parent-tag-change-root": LocalJSX.SlotParentTagChangeRoot & JSXBase.HTMLAttributes<HTMLSlotParentTagChangeRootElement>;
+            "slot-reorder": LocalJSX.SlotReorder & JSXBase.HTMLAttributes<HTMLSlotReorderElement>;
+            "slot-reorder-root": LocalJSX.SlotReorderRoot & JSXBase.HTMLAttributes<HTMLSlotReorderRootElement>;
+            "slot-replace-wrapper": LocalJSX.SlotReplaceWrapper & JSXBase.HTMLAttributes<HTMLSlotReplaceWrapperElement>;
+            "slot-replace-wrapper-root": LocalJSX.SlotReplaceWrapperRoot & JSXBase.HTMLAttributes<HTMLSlotReplaceWrapperRootElement>;
+            "slotted-css": LocalJSX.SlottedCss & JSXBase.HTMLAttributes<HTMLSlottedCssElement>;
+            "slow-ssr-prop": LocalJSX.SlowSsrProp & JSXBase.HTMLAttributes<HTMLSlowSsrPropElement>;
+            "ssr-order-cmp": LocalJSX.SsrOrderCmp & JSXBase.HTMLAttributes<HTMLSsrOrderCmpElement>;
+            "ssr-order-wrap-cmp": LocalJSX.SsrOrderWrapCmp & JSXBase.HTMLAttributes<HTMLSsrOrderWrapCmpElement>;
+            "ssr-shadow-cmp": LocalJSX.SsrShadowCmp & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;
+            "static-decorated-members": LocalJSX.StaticDecoratedMembers & JSXBase.HTMLAttributes<HTMLStaticDecoratedMembersElement>;
+            "static-members": LocalJSX.StaticMembers & JSXBase.HTMLAttributes<HTMLStaticMembersElement>;
+            "static-members-separate-export": LocalJSX.StaticMembersSeparateExport & JSXBase.HTMLAttributes<HTMLStaticMembersSeparateExportElement>;
+            "static-members-separate-initializer": LocalJSX.StaticMembersSeparateInitializer & JSXBase.HTMLAttributes<HTMLStaticMembersSeparateInitializerElement>;
+            "static-styles": LocalJSX.StaticStyles & JSXBase.HTMLAttributes<HTMLStaticStylesElement>;
+            "stencil-sibling": LocalJSX.StencilSibling & JSXBase.HTMLAttributes<HTMLStencilSiblingElement>;
+            "svg-attr": LocalJSX.SvgAttr & JSXBase.HTMLAttributes<HTMLSvgAttrElement>;
+            "svg-class": LocalJSX.SvgClass & JSXBase.HTMLAttributes<HTMLSvgClassElement>;
+            "tag-3d-component": LocalJSX.Tag3dComponent & JSXBase.HTMLAttributes<HTMLTag3dComponentElement>;
+            "tag-88": LocalJSX.Tag88 & JSXBase.HTMLAttributes<HTMLTag88Element>;
             "test-svg": LocalJSX.TestSvg & JSXBase.HTMLAttributes<HTMLTestSvgElement>;
+            "text-content-patch-scoped": LocalJSX.TextContentPatchScoped & JSXBase.HTMLAttributes<HTMLTextContentPatchScopedElement>;
+            "text-content-patch-scoped-with-slot": LocalJSX.TextContentPatchScopedWithSlot & JSXBase.HTMLAttributes<HTMLTextContentPatchScopedWithSlotElement>;
+            "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
+            "watch-native-attributes": LocalJSX.WatchNativeAttributes & JSXBase.HTMLAttributes<HTMLWatchNativeAttributesElement>;
+            "watch-native-attributes-no-members": LocalJSX.WatchNativeAttributesNoMembers & JSXBase.HTMLAttributes<HTMLWatchNativeAttributesNoMembersElement>;
+            "wrap-ssr-shadow-cmp": LocalJSX.WrapSsrShadowCmp & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;
         }
     }
 }

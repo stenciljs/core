@@ -28,8 +28,6 @@ export const generateEsmBrowser = async (
 
     const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
 
-    // console.log(`generateEsmBrowser, output:`, output);
-
     if (output != null) {
       const es2017destinations = esmOutputs
         .map((o) => o.esmDir)

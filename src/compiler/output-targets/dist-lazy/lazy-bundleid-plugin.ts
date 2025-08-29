@@ -3,6 +3,14 @@ import MagicString from 'magic-string';
 import type { OutputChunk, Plugin } from 'rollup';
 import type * as d from '../../../declarations';
 
+/**
+ * A Rollup plugin to generate unique bundle IDs for lazy-loaded modules.
+ * @param buildCtx The build context
+ * @param config The validated configuration
+ * @param shouldHash Whether to hash the bundle ID
+ * @param suffix The suffix to append to the bundle ID
+ * @returns A Rollup plugin
+ */
 export const lazyBundleIdPlugin = (
   buildCtx: d.BuildCtx,
   config: d.ValidatedConfig,
