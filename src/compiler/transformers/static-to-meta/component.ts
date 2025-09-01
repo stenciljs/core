@@ -48,20 +48,32 @@ const buildExtendsTree = (
   typeChecker: ts.TypeChecker,
   buildCtx: d.BuildCtx,
 ) => {
-  const hasHeritageClauses = classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
-  if (!hasHeritageClauses) return dependentClasses;
+  const hasHeritageClauses = classDeclaration.heritageClauses;
+  if (!hasHeritageClauses?.length) return dependentClasses;
 
-  const extendsClause = classDeclaration.heritageClauses.find(
+  const extendsClause = hasHeritageClauses.find(
     (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
   );
-  if (!extendsClause) {
-    return dependentClasses;
-  }
+  if (!extendsClause) return dependentClasses;
+
+  let classIdentifiers: ts.Identifier[] = [];
 
   extendsClause.types.forEach((type) => {
+    if (
+      ts.isExpressionWithTypeArguments(type) && 
+      ts.isCallExpression(type.expression) && 
+      type.expression.expression.getText() === 'Mixin'
+    ) {
+      classIdentifiers = type.expression.arguments.filter(ts.isIdentifier);
+    } else if (ts.isIdentifier(type.expression)) {
+      classIdentifiers = [type.expression];
+    }
+  }); 
+
+  classIdentifiers.forEach((extendee) => {
     try {
       // happy path (normally 1 level deep): the extends type resolves to a class declaration in another file
-      const aliasedSymbol = typeChecker.getAliasedSymbol(typeChecker.getSymbolAtLocation(type.expression));
+      const aliasedSymbol = typeChecker.getAliasedSymbol(typeChecker.getSymbolAtLocation(extendee));
       classDeclaration = aliasedSymbol?.declarations?.find(ts.isClassDeclaration);
 
       if (classDeclaration && !dependentClasses.some((dc) => dc.classNode === classDeclaration)) {
@@ -88,7 +100,7 @@ const buildExtendsTree = (
       if (classDeclarations.length > 1) {
         classDeclarations.forEach((statement) => {
           if (
-            statement.name?.getText() === type.expression.getText() &&
+            statement.name?.getText() === extendee.getText() &&
             !dependentClasses.some((dc) => dc.classNode === statement)
           ) {
             found = true;
@@ -105,7 +117,7 @@ const buildExtendsTree = (
         if (ts.isNamedImports(statement.importClause?.namedBindings)) {
           statement.importClause?.namedBindings.elements.forEach((element) => {
             // 2) loop through the named bindings of the import declaration
-            if (element.name.getText() === type.expression.getText()) {
+            if (element.name.getText() === extendee.getText()) {
               // 3) check the name matches the `extends` type expression
               const className = element.propertyName?.getText() || element.name.getText();
               const foundFile = tsResolveModuleName(
@@ -218,8 +230,8 @@ export const parseStaticComponentMeta = (
   let hasMixin = false;
   let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
   let doesExtend = false;
-
   const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, buildCtx);
+
   tree.map((extendedClass) => {
     const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
     const mixinProps = parseStaticProps(extendedStaticMembers) ?? [];

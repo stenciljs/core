@@ -4,6 +4,21 @@ declare type CustomMethodDecorator<T> = (
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
+type ClassConstructor<T = {}> = new (...args: any[]) => T;
+
+// A utility to turn a list of constructors into their instance types
+type InstanceTypes<T extends ClassConstructor[]> = {
+  [K in keyof T]: T[K] extends ClassConstructor<infer U> ? U : never;
+};
+
+// Intersection of all instance types
+type MergedClasses<T extends ClassConstructor[]> = UnionToIntersection<InstanceTypes<T>[number]>;
+
+// Convert union -> intersection
+type UnionToIntersection<U> =
+  (U extends any ? (arg: U) => void : never) extends
+  (arg: infer I) => void ? I : never;
+
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;
 }
@@ -400,6 +415,12 @@ export declare function readTask(task: RafCallback): void;
  * Unhandled exception raised while rendering, during event handling, or lifecycles will trigger the custom event handler.
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
+
+/**
+ * Mixes in multiple classes into one.
+ * @returns a class which extends all the given classes
+ */
+export declare function Mixin<T extends ClassConstructor[]>(...bases: T): new (...args: any[]) => MergedClasses<T>;
 
 /**
  * This file gets copied to all distributions of stencil component collections.

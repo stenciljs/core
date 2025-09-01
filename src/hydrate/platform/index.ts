@@ -204,6 +204,7 @@ export {
   getValue,
   Host,
   insertVdomAnnotations,
+  Mixin,
   parsePropertyValue,
   postUpdateComponent,
   proxyComponent,
