@@ -15,9 +15,7 @@ type InstanceTypes<T extends ClassConstructor[]> = {
 type MergedClasses<T extends ClassConstructor[]> = UnionToIntersection<InstanceTypes<T>[number]>;
 
 // Convert union -> intersection
-type UnionToIntersection<U> =
-  (U extends any ? (arg: U) => void : never) extends
-  (arg: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
 
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;

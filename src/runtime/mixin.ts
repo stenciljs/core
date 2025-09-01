@@ -1,4 +1,3 @@
-
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 export function Mixin(...bases: Constructor[]) {

@@ -51,24 +51,22 @@ const buildExtendsTree = (
   const hasHeritageClauses = classDeclaration.heritageClauses;
   if (!hasHeritageClauses?.length) return dependentClasses;
 
-  const extendsClause = hasHeritageClauses.find(
-    (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
-  );
+  const extendsClause = hasHeritageClauses.find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword);
   if (!extendsClause) return dependentClasses;
 
   let classIdentifiers: ts.Identifier[] = [];
 
   extendsClause.types.forEach((type) => {
     if (
-      ts.isExpressionWithTypeArguments(type) && 
-      ts.isCallExpression(type.expression) && 
+      ts.isExpressionWithTypeArguments(type) &&
+      ts.isCallExpression(type.expression) &&
       type.expression.expression.getText() === 'Mixin'
     ) {
       classIdentifiers = type.expression.arguments.filter(ts.isIdentifier);
     } else if (ts.isIdentifier(type.expression)) {
       classIdentifiers = [type.expression];
     }
-  }); 
+  });
 
   classIdentifiers.forEach((extendee) => {
     try {
