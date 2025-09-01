@@ -416,6 +416,14 @@ export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
 /**
  * Mixes in multiple classes into one.
+ * @param {...any} bases the classes to mix-in from left to right.
+ * e.g. `class X extends Mixin(A, B, C)`
+ * results in
+ * ```
+ * class X extends A {};
+ * class A extends B {};
+ * class B extends C {};
+ * ```
  * @returns a class which extends all the given classes
  */
 export declare function Mixin<T extends ClassConstructor[]>(...bases: T): new (...args: any[]) => MergedClasses<T>;

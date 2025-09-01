@@ -7,6 +7,7 @@ export { getElement } from './element';
 export { createEvent } from './event-emitter';
 export { Fragment } from './fragment';
 export { addHostEventListeners } from './host-listener';
+export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';
 export { parsePropertyValue } from './parse-property-value';
@@ -19,4 +20,3 @@ export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-comp
 export { h, Host } from './vdom/h';
 export { insertVdomAnnotations } from './vdom/vdom-annotations';
 export { renderVdom } from './vdom/vdom-render';
-export { Mixin } from './mixin';
