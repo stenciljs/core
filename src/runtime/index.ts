@@ -7,6 +7,7 @@ export { getElement } from './element';
 export { createEvent } from './event-emitter';
 export { Fragment } from './fragment';
 export { addHostEventListeners } from './host-listener';
+export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';
 export { parsePropertyValue } from './parse-property-value';
