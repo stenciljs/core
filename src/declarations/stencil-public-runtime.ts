@@ -408,25 +408,22 @@ export declare function readTask(task: RafCallback): void;
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
 /**
- * Compose multiple mixins into a single constructor.
- * The resulting class has the combined instance types of all mixins.
+ * Compose multiple mixin classes into a single constructor.
+ * The resulting class has the combined instance types of all mixed-in classes.
  *
- * @param mixinFactories mixin factory functions that return a class extending the provided base class.
- * The resulting classes mix-in from left to right.
  * Example:
  * ```
- * const AWrap = (Base) => {class A extends Base {}; return A;}
- * const BWrap = (Base) => {class B extends Base {}; return B;}
- * const CWrap = (Base) => {class C extends Base {}; return C;}
+ * const AWrap = (Base) => {class A extends Base { propA = A }; return A;}
+ * const BWrap = (Base) => {class B extends Base { propB = B }; return B;}
+ * const CWrap = (Base) => {class C extends Base { propC = C }; return C;}
  *
- * class X extends Mixin(AWrap, BWrap, CWrap) {}
+ * class X extends Mixin(AWrap, BWrap, CWrap) {
+ *   render() { return <div>{this.propA} {this.propB} {this.propC}</div>; }
+ * }
  * ```
- * results in
- * ```
- * class X extends A {};
- * class A extends B {};
- * class B extends C {};
- * ```
+ *
+ * @param mixinFactories mixin factory functions that return a class which extends from the provided class.
+ * @returns a class that that is composed from extending each of the provided classes in the order they were provided.
  */
 export declare function Mixin<TMixins extends readonly MixinFactory[]>(
   ...mixinFactories: TMixins
