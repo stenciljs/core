@@ -119,7 +119,7 @@ function buildExtendsTree(
   let classIdentifiers: ts.Identifier[] = [];
   let foundClassDeclaration: ts.ClassDeclaration | undefined;
   // used when the class we found is wrapped in a mixin factory function -
-  // the extendee ctor will be from a dynamic function argument - so we stop recursing
+  // the extender ctor will be from a dynamic function argument - so we stop recursing
   let keepLooking = true;
 
   extendsClause.types.forEach((type) => {
