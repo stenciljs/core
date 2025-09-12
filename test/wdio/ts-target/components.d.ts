@@ -83,30 +83,6 @@ export namespace Components {
          */
         "prop3": string;
     }
-    interface SiblingExtended {
-        "method1": () => Promise<void>;
-        "method2": () => Promise<void>;
-        /**
-          * @default 'ExtendedCmp text'
-         */
-        "prop1": string;
-        /**
-          * @default 'ExtendedCmp prop2 text'
-         */
-        "prop2": string;
-    }
-    interface SiblingExtendedBase {
-        "method1": () => Promise<void>;
-        "method2": () => Promise<void>;
-        /**
-          * @default 'ExtendedCmp text'
-         */
-        "prop1": string;
-        /**
-          * @default 'ExtendedCmp prop2 text'
-         */
-        "prop2": string;
-    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -157,18 +133,6 @@ declare global {
         prototype: HTMLExtendsMixinCmpElement;
         new (): HTMLExtendsMixinCmpElement;
     };
-    interface HTMLSiblingExtendedElement extends Components.SiblingExtended, HTMLStencilElement {
-    }
-    var HTMLSiblingExtendedElement: {
-        prototype: HTMLSiblingExtendedElement;
-        new (): HTMLSiblingExtendedElement;
-    };
-    interface HTMLSiblingExtendedBaseElement extends Components.SiblingExtendedBase, HTMLStencilElement {
-    }
-    var HTMLSiblingExtendedBaseElement: {
-        prototype: HTMLSiblingExtendedBaseElement;
-        new (): HTMLSiblingExtendedBaseElement;
-    };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
     var HTMLTsTargetPropsElement: {
@@ -182,8 +146,6 @@ declare global {
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
         "extends-external": HTMLExtendsExternalElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
-        "sibling-extended": HTMLSiblingExtendedElement;
-        "sibling-extended-base": HTMLSiblingExtendedBaseElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
@@ -252,26 +214,6 @@ declare namespace LocalJSX {
          */
         "prop3"?: string;
     }
-    interface SiblingExtended {
-        /**
-          * @default 'ExtendedCmp text'
-         */
-        "prop1"?: string;
-        /**
-          * @default 'ExtendedCmp prop2 text'
-         */
-        "prop2"?: string;
-    }
-    interface SiblingExtendedBase {
-        /**
-          * @default 'ExtendedCmp text'
-         */
-        "prop1"?: string;
-        /**
-          * @default 'ExtendedCmp prop2 text'
-         */
-        "prop2"?: string;
-    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -291,8 +233,6 @@ declare namespace LocalJSX {
         "extends-cmp-cmp": ExtendsCmpCmp;
         "extends-external": ExtendsExternal;
         "extends-mixin-cmp": ExtendsMixinCmp;
-        "sibling-extended": SiblingExtended;
-        "sibling-extended-base": SiblingExtendedBase;
         "ts-target-props": TsTargetProps;
     }
 }
@@ -306,8 +246,6 @@ declare module "@stencil/core" {
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
-            "sibling-extended": LocalJSX.SiblingExtended & JSXBase.HTMLAttributes<HTMLSiblingExtendedElement>;
-            "sibling-extended-base": LocalJSX.SiblingExtendedBase & JSXBase.HTMLAttributes<HTMLSiblingExtendedBaseElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
