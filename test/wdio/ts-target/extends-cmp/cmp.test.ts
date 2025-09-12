@@ -3,8 +3,8 @@ import { setupIFrameTest } from '../../util.js';
 import { testSuites } from '../extends-test-suite.test.js';
 
 /**
- * Smoke tests for extending component classes.
- *  `tsconfig.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
+ * Smoke tests for extending component classes. Built with
+ *  `tsconfig-es2022.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
  */
 
 describe('Checks component classes can extend from other component classes', () => {

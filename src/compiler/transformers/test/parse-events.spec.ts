@@ -1,3 +1,5 @@
+import * as ts from 'typescript';
+
 import { transpileModule } from './transpile';
 
 describe('parse events', () => {
@@ -110,5 +112,65 @@ describe('parse events', () => {
         },
       },
     });
+  });
+
+  it('should merge extended class events meta', async () => {
+    const t = transpileModule(
+      `
+      @Component({tag: 'cmp-a'})
+      class CmpA extends Parent {
+        @Event({bubbles: true}) anEvent: EventEmitter<string>; 
+      }
+      class Parent extends GrandParent {
+        @Event({bubbles: false}) anEvent: EventEmitter<string>; 
+      }
+      class GrandParent {
+        @Event({bubbles: false}) anGrandParentEvent: EventEmitter<string>; 
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ESNext },
+    );
+
+    expect(t.events).toEqual([
+      {
+        bubbles: false,
+        cancelable: true,
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        composed: true,
+        docs: {
+          tags: [],
+          text: '',
+        },
+        internal: false,
+        method: 'anGrandParentEvent',
+        name: 'anGrandParentEvent',
+      },
+      {
+        bubbles: true,
+        cancelable: true,
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        composed: true,
+        docs: {
+          tags: [],
+          text: '',
+        },
+        internal: false,
+        method: 'anEvent',
+        name: 'anEvent',
+      },
+    ]);
   });
 });

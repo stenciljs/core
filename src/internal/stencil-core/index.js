@@ -7,6 +7,7 @@ export {
   getRenderingRef,
   h,
   Host,
+  Mixin,
   readTask,
   render,
   setAssetPath,

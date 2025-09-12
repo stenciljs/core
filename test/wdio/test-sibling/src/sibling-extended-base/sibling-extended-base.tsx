@@ -1,9 +1,9 @@
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
 
 @Component({
-  tag: 'extended-cmp-cmp',
+  tag: 'sibling-extended-base',
 })
-export class ExtendedCmpCmp {
+export class SiblingExtendedBase {
   @Prop() prop1: string = 'ExtendedCmp text';
   @Watch('prop1')
   prop1Changed(newValue: string) {
