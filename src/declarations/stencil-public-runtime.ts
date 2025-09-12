@@ -4,18 +4,11 @@ declare type CustomMethodDecorator<T> = (
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
-type ClassConstructor<T = {}> = new (...args: any[]) => T;
+type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 
-// A utility to turn a list of constructors into their instance types
-type InstanceTypes<T extends ClassConstructor[]> = {
-  [K in keyof T]: T[K] extends ClassConstructor<infer U> ? U : never;
-};
-
-// Intersection of all instance types
-type MergedClasses<T extends ClassConstructor[]> = UnionToIntersection<InstanceTypes<T>[number]>;
-
-// Convert union -> intersection
-type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
+type MixinFactory = <TBase extends abstract new (...args: any[]) => any>(
+  base: TBase,
+) => abstract new (...args: ConstructorParameters<TBase>) => any;
 
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;
@@ -415,18 +408,29 @@ export declare function readTask(task: RafCallback): void;
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
 /**
- * Mixes in multiple classes into one.
- * @param {...any} bases the classes to mix-in from left to right.
- * e.g. `class X extends Mixin(A, B, C)`
+ * Compose multiple mixins into a single constructor.
+ * The resulting class has the combined instance types of all mixins.
+ *
+ * @param mixinFactories mixin factory functions that return a class extending the provided base class.
+ * The resulting classes mix-in from left to right.
+ * Example:
+ * ```
+ * const AWrap = (Base) => {class A extends Base {}; return A;}
+ * const BWrap = (Base) => {class B extends Base {}; return B;}
+ * const CWrap = (Base) => {class C extends Base {}; return C;}
+ *
+ * class X extends Mixin(AWrap, BWrap, CWrap) {}
+ * ```
  * results in
  * ```
  * class X extends A {};
  * class A extends B {};
  * class B extends C {};
  * ```
- * @returns a class which extends all the given classes
  */
-export declare function Mixin<T extends ClassConstructor[]>(...bases: T): new (...args: any[]) => MergedClasses<T>;
+export declare function Mixin<TMixins extends readonly MixinFactory[]>(
+  ...mixinFactories: TMixins
+): abstract new (...args: any[]) => UnionToIntersection<InstanceType<ReturnType<TMixins[number]>>>;
 
 /**
  * This file gets copied to all distributions of stencil component collections.

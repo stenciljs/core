@@ -14,11 +14,13 @@ export const config: Config = {
       dir: './test-ts-target-output/custom-elements',
       customElementsExportBehavior: 'auto-define-custom-elements',
       externalRuntime: false,
+      minify: false,
     },
     {
       type: 'dist-hydrate-script',
       dir: './test-ts-target-output/hydrate',
     },
   ],
-  sourceMap: true,
+  sourceMap: false,
+  minifyJs: false,
 };

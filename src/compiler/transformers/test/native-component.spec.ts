@@ -46,7 +46,7 @@ describe('nativeComponentTransform', () => {
     );
   });
 
-  it('passes false to super calls', async () => {
+  it('passes false to super of stencil decorated class calls', async () => {
     const code = `
     class PlainClass {
       @Prop() baz: number;

@@ -1,3 +1,5 @@
+import * as ts from 'typescript';
+
 import { transpileModule } from './transpile';
 
 describe('parse listeners', () => {
@@ -132,6 +134,49 @@ describe('parse listeners', () => {
         capture: false,
         passive: true,
         target: 'document',
+      },
+    ]);
+  });
+
+  it('should merge extended class listeners meta', async () => {
+    const t = transpileModule(
+      `
+      @Component({tag: 'cmp-a'})
+      class CmpA extends Parent {
+        @Listen('foo', {target: 'body'}) 
+        fooHandler() {}
+      }
+      class Parent extends GrandParent {
+        @Listen('foo') 
+        fooHandler() {}
+      }
+      class GrandParent {
+        @Listen('bar') 
+        barHandler() {}
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ESNext },
+    );
+
+    expect(t.listeners).toEqual([
+      {
+        capture: false,
+        method: 'barHandler',
+        name: 'bar',
+        passive: false,
+        target: undefined,
+      },
+      {
+        capture: false,
+        method: 'fooHandler',
+        name: 'foo',
+        passive: false,
+        target: 'body',
       },
     ]);
   });

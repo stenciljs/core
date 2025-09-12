@@ -22,6 +22,7 @@
     "noUnusedParameters": false,
     "pretty": true,
     "target": "es2022",
+    "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
     "paths": {
