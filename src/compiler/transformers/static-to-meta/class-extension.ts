@@ -175,10 +175,10 @@ function buildExtendsTree(
 
       // let's see if we can find the class in the current source file first
       const matchedStatement = currentSource.statements.find(matchesNamedDeclaration(extendee.getText()));
-      if (!matchedStatement) return;
 
-      foundClassDeclaration = ts.isClassDeclaration(matchedStatement) ? matchedStatement : undefined;
-      if (!foundClassDeclaration && matchedStatement) {
+      if (matchedStatement && ts.isClassDeclaration(matchedStatement)) {
+        foundClassDeclaration = matchedStatement;
+      } else if (matchedStatement) {
         // the found `extends` type does not resolve to a class declaration;
         // if it's wrapped in a function - let's try and find it inside
         foundClassDeclaration = findClassWalk(matchedStatement);
@@ -186,6 +186,7 @@ function buildExtendsTree(
       }
 
       if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
+        // we found the class declaration in the current module
         dependentClasses.push({ classNode: foundClassDeclaration, fileName: currentSource.fileName });
         if (keepLooking) {
           buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx);
