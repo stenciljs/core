@@ -25,6 +25,8 @@ export const getCustomElementsBuildConditionals = (
   build.hydrateServerSide = false;
   build.asyncQueue = config.taskQueue === 'congestionAsync';
   build.taskQueue = config.taskQueue !== 'immediate';
+  build.initializeNextTick = config.extras.initializeNextTick;
+
   updateBuildConditionals(config, build);
   build.devTools = false;
 
