@@ -1,3 +1,25 @@
+# ⛴ [4.37.0](https://github.com/stenciljs/core/compare/v4.36.3...v4.37.0) (2025-09-13)
+
+
+### Bug Fixes
+
+* **dist-custom-elements:** apply `initializeNextTick` config ([dbcdeff](https://github.com/stenciljs/core/commit/dbcdeff26a9b258f860c5774497e31b84690c7af))
+* **dist-custom-elements:** apply `initializeNextTick` config setting ([#6382](https://github.com/stenciljs/core/issues/6382)) ([7bdf9fb](https://github.com/stenciljs/core/commit/7bdf9fbba0c84305cb7e0d749e0407ced5246b2f))
+* **runtime:** make sure watchers can fire immediately if the custom element is already defined ([#6381](https://github.com/stenciljs/core/issues/6381)) ([4fb9140](https://github.com/stenciljs/core/commit/4fb914024b7a3a760a60feb3ecee21bd3d2c2749))
+
+
+### Features
+
+* new core api - Mixin ([#6375](https://github.com/stenciljs/core/issues/6375)) ([08f6583](https://github.com/stenciljs/core/commit/08f65838787866ce8749489e9ede36bcdfe15f0a))
+* **runtime:** allow class extending ([#6362](https://github.com/stenciljs/core/issues/6362)) ([0456db1](https://github.com/stenciljs/core/commit/0456db148456911ba8cfb0af4af69ed2022763f9))
+
+
+### BREAKING CHANGES
+
+* **runtime:** Watchers will fire earlier than before, but this is the expected behavior
+
+
+
 ## 🐈 [4.36.3](https://github.com/stenciljs/core/compare/v4.36.2...v4.36.3) (2025-08-20)
 
 
