@@ -246,7 +246,7 @@ describe('parse-property-value', () => {
     });
 
     describe('JSON parsing for custom types', () => {
-      describe('MEMBER_FLAGS.Unknown (custom interfaces)', () => {
+      describe.skip('MEMBER_FLAGS.Unknown (custom interfaces)', () => {
         it('parses JSON object strings for Unknown types', () => {
           const jsonString = '{"param":"Foo Bar","count":42}';
           const result = parsePropertyValue(jsonString, MEMBER_FLAGS.Unknown);
@@ -278,7 +278,7 @@ describe('parse-property-value', () => {
         });
       });
 
-      describe('MEMBER_FLAGS.Any', () => {
+      describe.skip('MEMBER_FLAGS.Any', () => {
         it('parses JSON object strings for Any types', () => {
           const jsonString = '{"param":"Foo Bar","count":42}';
           const result = parsePropertyValue(jsonString, MEMBER_FLAGS.Any);

@@ -39,23 +39,6 @@ export const parsePropertyValue = (propValue: unknown, propType: number, isFormA
     return propValue;
   }
 
-  /**
-   * For custom types (Unknown) and Any types, attempt JSON parsing if the value looks like JSON.
-   * This provides consistent behavior between SSR and non-SSR for complex types.
-   * We do this before the primitive type checks to ensure custom types get object parsing.
-   */
-  if (
-    typeof propValue === 'string' &&
-    (propType & MEMBER_FLAGS.Unknown || propType & MEMBER_FLAGS.Any) &&
-    ((propValue.startsWith('{') && propValue.endsWith('}')) || (propValue.startsWith('[') && propValue.endsWith(']')))
-  ) {
-    try {
-      return JSON.parse(propValue);
-    } catch (e) {
-      // If JSON parsing fails, continue with normal processing
-    }
-  }
-
   if (propValue != null && !isComplexType(propValue)) {
     /**
      * ensure this value is of the correct prop type

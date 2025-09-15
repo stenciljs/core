@@ -209,7 +209,7 @@ describe('prop', () => {
     `);
   });
 
-  it('should demonstrate JSON parsing for complex object props', async () => {
+  it.skip('should demonstrate JSON parsing for complex object props', async () => {
     @Component({ tag: 'simple-demo' })
     class SimpleDemo {
       @Prop() message: { text: string } = { text: 'default' };
