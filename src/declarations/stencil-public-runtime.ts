@@ -188,7 +188,7 @@ export interface WatchDecorator {
 }
 
 export interface PropSerializeDecorator {
-  (propName: string): CustomMethodDecorator<(newValue?: unknown, propName?: string, ...args: any[]) => string>;
+  (propName: string): CustomMethodDecorator<(newValue?: unknown, propName?: string, ...args: any[]) => string | null>;
 }
 
 export interface AttrDeserializeDecorator {

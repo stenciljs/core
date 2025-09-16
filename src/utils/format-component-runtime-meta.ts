@@ -84,7 +84,7 @@ const formatComponentRuntimeReactiveHandlers = (
 ) => {
   const handlers: d.ComponentConstructorChangeHandlers = {};
 
-  compilerMeta[decorator].forEach(({ propName, methodName }) => {
+  compilerMeta[decorator]?.forEach(({ propName, methodName }) => {
     handlers[propName] = [...(handlers[propName] ?? []), methodName];
   });
 
