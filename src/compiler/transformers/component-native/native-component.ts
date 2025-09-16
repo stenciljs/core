@@ -7,7 +7,7 @@ import { transformHostData } from '../host-data-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { foundSuper, updateConstructor } from '../transform-utils';
 import { updateComponentClass } from '../update-component-class';
-import { addWatchers } from '../watcher-meta-transform';
+import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { addNativeConnectedCallback } from './native-connected-callback';
 import { updateNativeConstructor } from './native-constructor';
 import { addNativeElementGetter } from './native-element-getter';
@@ -145,7 +145,9 @@ const updateNativeHostComponentMembers = (
   updateNativeConstructor(classMembers, moduleFile, cmp, classNode);
   addNativeConnectedCallback(classMembers, cmp);
   addNativeElementGetter(classMembers, cmp);
-  addWatchers(classMembers, cmp);
+  addReactivePropHandlers(classMembers, cmp, 'watchers');
+  addReactivePropHandlers(classMembers, cmp, 'serializers');
+  addReactivePropHandlers(classMembers, cmp, 'deserializers');
 
   if (cmp.isPlain) {
     addNativeComponentMeta(classMembers, cmp);

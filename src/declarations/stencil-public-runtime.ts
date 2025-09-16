@@ -4,6 +4,8 @@ declare type CustomMethodDecorator<T> = (
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
+type NotVoid = {} | null | undefined; // anything but `void`
+
 type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 
 type MixinFactory = <TBase extends abstract new (...args: any[]) => any>(
@@ -182,7 +184,15 @@ export interface StateDecorator {
 }
 
 export interface WatchDecorator {
-  (propName: string): CustomMethodDecorator<any>;
+  (propName: string): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: string, ...args: any[]) => any>;
+}
+
+export interface PropSerializeDecorator {
+  (propName: string): CustomMethodDecorator<(newValue?: unknown, propName?: string, ...args: any[]) => string>;
+}
+
+export interface AttrDeserializeDecorator {
+  <T extends (newValue?: string, propName?: string, ...args: any[]) => NotVoid>(propName: string): CustomMethodDecorator<T>;
 }
 
 export interface UserBuildConditionals {
@@ -274,6 +284,16 @@ export declare const State: StateDecorator;
  * https://stenciljs.com/docs/reactive-data#watch-decorator
  */
 export declare const Watch: WatchDecorator;
+
+/**
+ * Decorator to serialize a property to an attribute.
+ */
+export declare const PropSerialize: PropSerializeDecorator;
+
+/**
+ * Decorator to deserialize an attribute to a property.
+ */
+export declare const AttrDeserialize: AttrDeserializeDecorator;
 
 export type ResolutionHandler = (elm: HTMLElement) => string | undefined | null;
 

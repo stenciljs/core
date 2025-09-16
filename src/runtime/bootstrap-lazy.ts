@@ -85,8 +85,10 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
       if (BUILD.reflect) {
         cmpMeta.$attrsToReflect$ = [];
       }
-      if (BUILD.watchCallback) {
+      if (BUILD.propChangeCallback) {
         cmpMeta.$watchers$ = compactMeta[4] ?? {};
+        cmpMeta.$serializers$ = compactMeta[5] ?? {};
+        cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }
       if (BUILD.shadowDom && !supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
         // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field

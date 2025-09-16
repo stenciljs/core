@@ -28,6 +28,7 @@ import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
  * @param program a {@link ts.Program} object
  * @param newMembers a collection that parsed `@Prop` annotated class members should be pushed to as a side effect of calling this function
  * @param decoratorName the name of the decorator to look for
+ * @param serializers a collection of serializers (from prop > attribute) used on `@Prop` annotated class members
  */
 export const propDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
@@ -36,10 +37,11 @@ export const propDecoratorsToStatic = (
   program: ts.Program,
   newMembers: ts.ClassElement[],
   decoratorName: string,
+  serializers: d.ComponentCompilerChangeHandler[],
 ): void => {
   const properties = decoratedProps
     .filter((prop) => ts.isPropertyDeclaration(prop) || ts.isGetAccessor(prop))
-    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers))
+    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers, serializers))
     .filter((prop): prop is ts.PropertyAssignment => prop != null);
 
   if (properties.length > 0) {
@@ -56,6 +58,7 @@ export const propDecoratorsToStatic = (
  * @param prop the TypeScript `PropertyDeclaration` to parse
  * @param decoratorName the name of the decorator to look for
  * @param newMembers a collection of parsed `@Prop` annotated class members. Used for `get()` decorated props to find a corresponding `set()`
+ * @param serializers a collection of serializers (from prop > attribute) used on `@Prop` annotated class members
  * @returns a property assignment expression to be added to the Stencil component's class
  */
 const parsePropDecorator = (
@@ -65,6 +68,7 @@ const parsePropDecorator = (
   prop: ts.PropertyDeclaration | ts.GetAccessorDeclaration,
   decoratorName: string,
   newMembers: ts.ClassElement[],
+  serializers: d.ComponentCompilerChangeHandler[],
 ): ts.PropertyAssignment | null => {
   const propDecorator = retrieveTsDecorators(prop)?.find(isDecoratorNamed(decoratorName));
   if (propDecorator == null) {
@@ -98,7 +102,6 @@ const parsePropDecorator = (
 
   const propMeta: d.ComponentCompilerStaticProperty = {
     type: typeStr,
-    attribute: getAttributeName(propName, propOptions),
     mutable: !!propOptions.mutable,
     complexType: getComplexType(typeChecker, prop, type, program),
     required: prop.exclamationToken !== undefined && propName !== 'mode',
@@ -111,9 +114,12 @@ const parsePropDecorator = (
     propMeta.ogPropName = ogPropName;
   }
 
+  const foundSerializer = !!serializers.find((s) => s.propName === propName);
+
   // prop can have an attribute if type is NOT "unknown"
-  if (typeStr !== 'unknown') {
-    propMeta.reflect = getReflect(diagnostics, propDecorator, propOptions);
+  if (typeStr !== 'unknown' || foundSerializer) {
+    propMeta.reflect = getReflect(diagnostics, propDecorator, propOptions) || foundSerializer;
+    propMeta.attribute = getAttributeName(propName, propOptions);
   }
 
   // extract default value

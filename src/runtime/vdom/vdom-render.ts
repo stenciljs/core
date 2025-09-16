@@ -1029,9 +1029,16 @@ render() {
 
   if (BUILD.reflect && cmpMeta.$attrsToReflect$) {
     rootVnode.$attrs$ = rootVnode.$attrs$ || {};
-    cmpMeta.$attrsToReflect$.map(
-      ([propName, attribute]) => (rootVnode.$attrs$[attribute] = (hostElm as any)[propName]),
-    );
+    cmpMeta.$attrsToReflect$.forEach(([propName, attribute]) => {
+      let propValue = (hostElm as any)[propName];
+      if (cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
+        for (const methodName of cmpMeta.$serializers$[propName]) {
+          const instance = hostRef.$lazyInstance$ || hostElm;
+          propValue = (instance as any)[methodName](propValue, propName);
+        }
+      }
+      rootVnode.$attrs$[attribute] = propValue;
+    });
   }
 
   // On the first render and *only* on the first render we want to check for

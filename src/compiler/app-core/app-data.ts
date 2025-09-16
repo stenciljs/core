@@ -41,9 +41,10 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     method: cmps.some((c) => c.hasMethod),
     mode: cmps.some((c) => c.hasMode),
     modernPropertyDecls: cmps.some((c) => c.hasModernPropertyDecls),
-    observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback),
+    observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback || c.hasDeserializer),
     prop: cmps.some((c) => c.hasProp),
     propBoolean: cmps.some((c) => c.hasPropBoolean),
+    propChangeCallback: cmps.some((c) => c.hasWatchCallback || c.hasDeserializer || c.hasSerializer),
     propNumber: cmps.some((c) => c.hasPropNumber),
     propString: cmps.some((c) => c.hasPropString),
     propMutable: cmps.some((c) => c.hasPropMutable),
@@ -68,7 +69,6 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomRender: cmps.some((c) => c.hasVdomRender),
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
     vdomText: cmps.some((c) => c.hasVdomText),
-    watchCallback: cmps.some((c) => c.hasWatchCallback),
     taskQueue: true,
   };
   f.vdomAttribute = f.vdomAttribute || f.reflect;

@@ -15,6 +15,7 @@ import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
 import { stateDecoratorsToStatic } from './state-decorator';
 import { watchDecoratorsToStatic } from './watch-decorator';
+import { serializeDecoratorsToStatic } from './serialize-decorators';
 
 /**
  * Create a {@link ts.TransformerFactory} which will handle converting any
@@ -118,6 +119,20 @@ const visitClassDeclaration = (
   // stores a reference to fields that should be watched for changes
   // parse member decorators (Prop, State, Listen, Event, Method, Element and Watch)
   if (decoratedMembers.length > 0) {
+    const serializers = serializeDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('PropSerialize'),
+      'PropSerialize',
+    );
+    serializeDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('AttrDeserialize'),
+      'AttrDeserialize',
+    );
     propDecoratorsToStatic(
       diagnostics,
       decoratedMembers,
@@ -125,6 +140,7 @@ const visitClassDeclaration = (
       program,
       filteredMethodsAndFields,
       importAliasMap.get('Prop'),
+      serializers,
     );
     stateDecoratorsToStatic(decoratedMembers, filteredMethodsAndFields, typeChecker, importAliasMap.get('State'));
     eventDecoratorsToStatic(

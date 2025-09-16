@@ -5,24 +5,31 @@ import type * as d from '../../../declarations';
 import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
 import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
-export const watchDecoratorsToStatic = (
+export const serializeDecoratorsToStatic = (
   typeChecker: ts.TypeChecker,
   decoratedProps: ts.ClassElement[],
   newMembers: ts.ClassElement[],
   decoratorName: string,
+  translateType: 'PropSerialize' | 'AttrDeserialize',
 ) => {
-  const watchers = decoratedProps
+  const serializers = decoratedProps
     .filter(ts.isMethodDeclaration)
-    .map((method) => parseWatchDecorator(typeChecker, method, decoratorName));
+    .map((method) => parseSerializeDecorator(typeChecker, method, decoratorName));
 
-  const flatWatchers = flatOne(watchers);
+  const flatSerializers = flatOne(serializers);
 
-  if (flatWatchers.length > 0) {
-    newMembers.push(createStaticGetter('watchers', convertValueToLiteral(flatWatchers)));
+  if (flatSerializers.length > 0) {
+    if (translateType === 'PropSerialize') {
+      newMembers.push(createStaticGetter('serializers', convertValueToLiteral(flatSerializers)));
+    } else {
+      newMembers.push(createStaticGetter('deserializers', convertValueToLiteral(flatSerializers)));
+    }
   }
+
+  return flatSerializers;
 };
 
-const parseWatchDecorator = (
+const parseSerializeDecorator = (
   typeChecker: ts.TypeChecker,
   method: ts.MethodDeclaration,
   decoratorName: string,
