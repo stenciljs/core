@@ -192,7 +192,9 @@ export interface PropSerializeDecorator {
 }
 
 export interface AttrDeserializeDecorator {
-  <T extends (newValue?: string, propName?: string, ...args: any[]) => NotVoid>(propName: string): CustomMethodDecorator<T>;
+  <T extends (newValue?: string, propName?: string, ...args: any[]) => NotVoid>(
+    propName: string,
+  ): CustomMethodDecorator<T>;
 }
 
 export interface UserBuildConditionals {
