@@ -314,21 +314,25 @@ export const proxyComponent = (
           }
 
           if (cmpMeta.$deserializers$ && cmpMeta.$deserializers$[propName]) {
-            const setVal = (methodName: string) => {
-              const deserializeVal = hostRef.$lazyInstance$?.[methodName](newValue, propName);
+            const setVal = (methodName: string, instance: any) => {
+              const deserializeVal = instance?.[methodName](newValue, propName);
               if (deserializeVal !== this[propName]) {
                 this[propName] = deserializeVal;
               }
             };
 
             for (const methodName of cmpMeta.$deserializers$[propName]) {
-              if (hostRef.$lazyInstance$) {
-                setVal(methodName);
+              if (BUILD.lazyLoad) {
+                if (hostRef.$lazyInstance$) {
+                  setVal(methodName, hostRef.$lazyInstance$);
+                } else {
+                  // If the instance is not ready, we can queue the update
+                  hostRef.$onReadyPromise$.then(() => {
+                    setVal(methodName, hostRef.$lazyInstance$);
+                  });
+                }
               } else {
-                // If the instance is not ready, we can queue the update
-                hostRef.$onReadyPromise$.then(() => {
-                  setVal(methodName);
-                });
+                setVal(methodName, this);
               }
             }
             return;

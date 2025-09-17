@@ -3,6 +3,7 @@ import type { ScriptListLocalValue, ScriptLocalValue, ScriptRegExpValue } from '
 
 /**
  * RemoteValue class for deserializing LocalValue serialized objects back into their original form
+ * @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead.
  */
 export class RemoteValue {
   /**

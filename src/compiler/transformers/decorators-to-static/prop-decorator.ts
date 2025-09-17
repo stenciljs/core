@@ -116,9 +116,16 @@ const parsePropDecorator = (
 
   const foundSerializer = !!serializers.find((s) => s.propName === propName);
 
-  // prop can have an attribute if type is NOT "unknown"
+  // a `@Prop` can reflect if the type is *not* `unknown` (i.e. string, number, boolean, any)
+  // or if a serializer has been provided (a fn that can convert a complex type to a string)
   if (typeStr !== 'unknown' || foundSerializer) {
-    propMeta.reflect = getReflect(diagnostics, propDecorator, propOptions) || foundSerializer;
+    propMeta.reflect = foundSerializer || getReflect(diagnostics, propDecorator, propOptions);
+  }
+
+  // a `@Prop` is allowed to have an attribute if:
+  // - the type is *not* `unknown` (i.e. string, number, boolean, any)
+  // - the prop is reflected (because reflected props must have an attribute)
+  if (typeStr !== 'unknown' || propMeta.reflect) {
     propMeta.attribute = getAttributeName(propName, propOptions);
   }
 

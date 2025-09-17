@@ -4,6 +4,7 @@ import type { LocalValueParam, ScriptLocalValue, Serializeable } from './types';
 /**
  * Represents a local value with a specified type and optional value.
  * Described in https://w3c.github.io/webdriver-bidi/#type-script-LocalValue
+ * @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead.
  */
 export class LocalValue {
   type: PrimitiveType | NonPrimitiveType;
