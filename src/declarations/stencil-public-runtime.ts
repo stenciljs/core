@@ -403,7 +403,7 @@ export declare function readTask(task: RafCallback): void;
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
-export type MixinFactory = <TBase extends abstract new (...args: any[]) => any>(
+export type MixinFactory = <TBase extends new (...args: any[]) => any>(
   base: TBase,
 ) => abstract new (...args: ConstructorParameters<TBase>) => any;
 
