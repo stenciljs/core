@@ -38,10 +38,11 @@ export const propDecoratorsToStatic = (
   newMembers: ts.ClassElement[],
   decoratorName: string,
   serializers: d.ComponentCompilerChangeHandler[],
+  deserializers: d.ComponentCompilerChangeHandler[],
 ): void => {
   const properties = decoratedProps
     .filter((prop) => ts.isPropertyDeclaration(prop) || ts.isGetAccessor(prop))
-    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers, serializers))
+    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers, serializers, deserializers))
     .filter((prop): prop is ts.PropertyAssignment => prop != null);
 
   if (properties.length > 0) {
@@ -59,6 +60,7 @@ export const propDecoratorsToStatic = (
  * @param decoratorName the name of the decorator to look for
  * @param newMembers a collection of parsed `@Prop` annotated class members. Used for `get()` decorated props to find a corresponding `set()`
  * @param serializers a collection of serializers (from prop > attribute) used on `@Prop` annotated class members
+ * @param deserializers a collection of deserializers (from attribute > prop) used on `@Prop` annotated class members
  * @returns a property assignment expression to be added to the Stencil component's class
  */
 const parsePropDecorator = (
@@ -69,6 +71,7 @@ const parsePropDecorator = (
   decoratorName: string,
   newMembers: ts.ClassElement[],
   serializers: d.ComponentCompilerChangeHandler[],
+  deserializers: d.ComponentCompilerChangeHandler[],
 ): ts.PropertyAssignment | null => {
   const propDecorator = retrieveTsDecorators(prop)?.find(isDecoratorNamed(decoratorName));
   if (propDecorator == null) {
@@ -115,17 +118,21 @@ const parsePropDecorator = (
   }
 
   const foundSerializer = !!serializers.find((s) => s.propName === propName);
+  const foundDeserializer = !!deserializers.find((s) => s.propName === propName);
 
   // a `@Prop` can reflect if the type is *not* `unknown` (i.e. string, number, boolean, any)
-  // or if a serializer has been provided (a fn that can convert a complex type to a string)
+  // or `@Prop` has a serializer (a fn that can convert a complex type to a string)
   if (typeStr !== 'unknown' || foundSerializer) {
-    propMeta.reflect = foundSerializer || getReflect(diagnostics, propDecorator, propOptions);
+    const explicitReflect = getReflect(diagnostics, propDecorator, propOptions);
+    // an explicit reflect argument always wins over inferred
+    propMeta.reflect = explicitReflect === null ? foundSerializer : explicitReflect;
   }
 
   // a `@Prop` is allowed to have an attribute if:
   // - the type is *not* `unknown` (i.e. string, number, boolean, any)
   // - the prop is reflected (because reflected props must have an attribute)
-  if (typeStr !== 'unknown' || propMeta.reflect) {
+  // - a deserializer has been provided (it doesn't make sense to have a deserializer without an attribute)
+  if (typeStr !== 'unknown' || propMeta.reflect || foundDeserializer) {
     propMeta.attribute = getAttributeName(propName, propOptions);
   }
 
@@ -190,7 +197,7 @@ const getAttributeName = (propName: string, propOptions: d.PropOptions): string 
  * @param propOptions the options passed in to the `@Prop` call expression
  * @returns `true` if the prop should be reflected in the DOM, `false` otherwise
  */
-const getReflect = (diagnostics: d.Diagnostic[], propDecorator: ts.Decorator, propOptions: d.PropOptions): boolean => {
+const getReflect = (diagnostics: d.Diagnostic[], propDecorator: ts.Decorator, propOptions: d.PropOptions) => {
   if (typeof propOptions.reflect === 'boolean') {
     return propOptions.reflect;
   }
@@ -199,9 +206,9 @@ const getReflect = (diagnostics: d.Diagnostic[], propDecorator: ts.Decorator, pr
     err.header = `Rename "reflectToAttr" to "reflect"`;
     err.messageText = `@Prop option "reflectToAttr" should be renamed to "reflect".`;
     augmentDiagnosticWithNode(err, propDecorator);
-    return (propOptions as any).reflectToAttr;
+    return (propOptions as any).reflectToAttr as boolean;
   }
-  return false;
+  return null;
 };
 
 const getComplexType = (
