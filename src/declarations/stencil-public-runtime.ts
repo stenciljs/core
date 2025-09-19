@@ -414,7 +414,7 @@ export type MixinFactory = <TBase extends abstract new (...args: any[]) => any>(
  * Example:
  * ```
  * import { Mixin, MixinFactory } from '@stencil/core';
- * 
+ *
  * const AWrap: MixinFactory = (Base) => {class A extends Base { propA = A }; return A;}
  * const BWrap: MixinFactory = (Base) => {class B extends Base { propB = B }; return B;}
  * const CWrap: MixinFactory = (Base) => {class C extends Base { propC = C }; return C;}
