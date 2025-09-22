@@ -116,6 +116,19 @@ describe('validation', () => {
     });
   });
 
+  describe('suppressReservedPublicNameWarnings', () => {
+    it.each([true, false])('sets suppressReservedPublicNameWarnings to %p when provided', (bool) => {
+      userConfig.suppressReservedPublicNameWarnings = bool;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.suppressReservedPublicNameWarnings).toBe(bool);
+    });
+
+    it('defaults suppressReservedPublicNameWarnings to false', () => {
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.suppressReservedPublicNameWarnings).toBe(false);
+    });
+  });
+
   describe('enableCache', () => {
     it('set enableCache true', () => {
       userConfig.enableCache = true;
