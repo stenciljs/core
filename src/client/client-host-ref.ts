@@ -49,6 +49,7 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     $hostElement$: hostElement,
     $cmpMeta$: cmpMeta,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
   };
   if (BUILD.isDev) {
     hostRef.$renderCount$ = 0;

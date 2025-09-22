@@ -42,7 +42,18 @@ export const propDecoratorsToStatic = (
 ): void => {
   const properties = decoratedProps
     .filter((prop) => ts.isPropertyDeclaration(prop) || ts.isGetAccessor(prop))
-    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers, serializers, deserializers))
+    .map((prop) =>
+      parsePropDecorator(
+        diagnostics,
+        typeChecker,
+        program,
+        prop,
+        decoratorName,
+        newMembers,
+        serializers,
+        deserializers,
+      ),
+    )
     .filter((prop): prop is ts.PropertyAssignment => prop != null);
 
   if (properties.length > 0) {

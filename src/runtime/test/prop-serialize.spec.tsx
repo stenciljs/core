@@ -1,10 +1,10 @@
-import { AttrDeserialize, Component, Element, Prop, State } from '@stencil/core';
+import { Component, Element, Prop, PropSerialize, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 import { withSilentWarn } from '../../testing/testing-utils';
 
-describe('attribute deserialization', () => {
-  it('deserializer is called each time a attribute changes', async () => {
+describe('attribute serialization', () => {
+  it('serializer is called each time a attribute changes', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       method1Called = 0;
@@ -13,22 +13,22 @@ describe('attribute deserialization', () => {
       @Prop() prop1 = 1;
       @State() someState = 'hello';
 
-      @AttrDeserialize('prop1')
-      @AttrDeserialize('someState')
+      @PropSerialize('prop1')
+      @PropSerialize('someState')
       method1(newValue: any) {
         this.method1Called++;
         return newValue;
       }
 
-      @AttrDeserialize('prop1')
+      @PropSerialize('prop1')
       method2(newValue: any) {
         this.method2Called++;
         return newValue;
       }
 
       componentDidLoad() {
-        expect(this.method1Called).toBe(0);
-        expect(this.method2Called).toBe(0);
+        expect(this.method1Called).toBe(1);
+        expect(this.method2Called).toBe(1);
         expect(this.prop1).toBe(1);
         expect(this.someState).toBe('hello');
       }
@@ -36,33 +36,32 @@ describe('attribute deserialization', () => {
 
     const { root, rootInstance, waitForChanges } = await newSpecPage({
       components: [CmpA],
-      html: `<cmp-a prop-1="123"></cmp-a>`,
+      html: `<cmp-a></cmp-a>`,
     });
     jest.spyOn(rootInstance, 'method1');
     jest.spyOn(rootInstance, 'method2');
 
-    // spies were wired up after initial load
     expect(rootInstance.method1Called).toBe(1);
     expect(rootInstance.method2Called).toBe(1);
 
-    // prop changes should not call deserializers
-    root.prop1 = 100;
+    // attr changes should not call serializers
+    root.setAttribute('prop1', '100');
     await waitForChanges();
-
     expect(rootInstance.method1Called).toBe(1);
     expect(rootInstance.method2Called).toBe(1);
 
     // attribute change
-    root.setAttribute('prop-1', '200');
+    root.prop1 = 200;
+    await waitForChanges();
 
     expect(rootInstance.method1Called).toBe(2);
     expect(rootInstance.method2Called).toBe(2);
-    expect(rootInstance.method1).toHaveBeenLastCalledWith('200', 'prop1');
-    expect(rootInstance.method2).toHaveBeenLastCalledWith('200', 'prop1');
+    expect(rootInstance.method1).toHaveBeenLastCalledWith(200, 'prop1');
+    expect(rootInstance.method2).toHaveBeenLastCalledWith(200, 'prop1');
     expect(root.prop1).toBe(200);
 
-    // deserializer should not be called on state change
-    rootInstance.someState = 'bye';
+    // serializer doesn't get called during general re-render
+    rootInstance.someState = 'bye??';
     await waitForChanges();
 
     expect(rootInstance.method1Called).toBe(2);
@@ -78,67 +77,74 @@ describe('attribute deserialization', () => {
       @Prop() prop = 10;
       @Prop() value = 10;
 
-      @AttrDeserialize('prop')
-      @AttrDeserialize('value')
-      method() {
+      @PropSerialize('prop')
+      @PropSerialize('value')
+      method(newValue: number) {
         this.watchCalled++;
+        return newValue.toString();
       }
 
       componentWillLoad() {
-        expect(this.watchCalled).toBe(0);
-        this.host.setAttribute('prop', '1');
-        expect(this.watchCalled).toBe(1);
-        this.host.setAttribute('value', '1');
+        // initial render
+        this.prop = 1;
         expect(this.watchCalled).toBe(2);
+        this.value = 1;
+        expect(this.watchCalled).toBe(3);
       }
 
       componentDidLoad() {
-        expect(this.watchCalled).toBe(2);
-        // setting the same value should not trigger the deserializer
-        this.host.setAttribute('prop', '1');
-        this.host.setAttribute('value', '1');
-        expect(this.watchCalled).toBe(2);
-        this.host.setAttribute('prop', '20');
-        this.host.setAttribute('value', '30');
-        expect(this.watchCalled).toBe(4);
+        // setting the same value should not trigger the serializer
+        this.prop = 1;
+        this.value = 1;
+        expect(this.watchCalled).toBe(3);
+        this.prop = 20;
+        this.value = 30;
+        expect(this.watchCalled).toBe(5);
       }
     }
 
-    const { root, rootInstance } = await withSilentWarn(() =>
+    const { root, rootInstance, waitForChanges } = await withSilentWarn(() =>
       newSpecPage({
         components: [CmpA],
         html: `<cmp-a prop="123"></cmp-a>`,
       }),
     );
 
+    await waitForChanges();
     expect(rootInstance.watchCalled).toBe(5);
     jest.spyOn(rootInstance, 'method');
 
     // trigger updates in element
-    root.setAttribute('prop', '1000');
-    expect(rootInstance.method).toHaveBeenLastCalledWith('1000', 'prop');
+    root.prop = 1000;
+    await waitForChanges();
+    expect(rootInstance.method).toHaveBeenLastCalledWith(1000, 'prop');
+    expect(rootInstance.watchCalled).toBe(6);
+    expect(root.getAttribute('prop')).toBe('1000');
 
-    root.setAttribute('value', '1300');
-    expect(rootInstance.method).toHaveBeenLastCalledWith('1300', 'value');
+    root.value = 1300;
+    await waitForChanges();
+    expect(rootInstance.method).toHaveBeenLastCalledWith(1300, 'value');
+    expect(rootInstance.watchCalled).toBe(7);
+    expect(root.getAttribute('value')).toBe('1300');
   });
 
-  it('deserializer correctly changes the property', async () => {
+  it('serializer correctly changes the attribute', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
-      @Prop({ reflect: true }) prop1 = 1;
+      @Prop() prop1: number | string = 1;
       @Prop() jsonProp = { a: 1, b: 'hello' };
 
-      @AttrDeserialize('prop1')
+      @PropSerialize('prop1')
       method1(newValue: any) {
         if (newValue === 'something') {
-          return 1000;
+          return '1000';
         }
-        return newValue;
+        return newValue.toString();
       }
 
-      @AttrDeserialize('jsonProp')
+      @PropSerialize('jsonProp')
       method2(newValue: any) {
-        return JSON.parse(newValue);
+        return JSON.stringify(newValue);
       }
     }
 
@@ -149,32 +155,30 @@ describe('attribute deserialization', () => {
     jest.spyOn(rootInstance, 'method1');
     jest.spyOn(rootInstance, 'method2');
 
-    // set same values, deserializer should not be called ('cos the prop is reflected)
-    root.setAttribute('prop-1', '1');
+    // set same values, serializer should not be called ('cos the prop is reflected)
+    root.prop1 = 1;
+    await waitForChanges();
     expect(rootInstance.method1).toHaveBeenCalledTimes(0);
     expect(rootInstance.method2).toHaveBeenCalledTimes(0);
-    expect(root.prop1).toBe(1);
+    expect(root.getAttribute('prop-1')).toBe('1');
 
     // set different values
-    root.setAttribute('prop-1', '100');
+    root.prop1 = 100;
     await waitForChanges();
-
     expect(rootInstance.method1).toHaveBeenCalledTimes(1);
-    expect(root.prop1).toBe(100);
+    expect(root.getAttribute('prop-1')).toBe('100');
 
-    // special handling by deserializer
-    root.setAttribute('prop-1', 'something');
+    // special handling by serializer
+    root.prop1 = 'something';
     await waitForChanges();
+    expect(rootInstance.method1).toHaveBeenCalledTimes(2);
+    expect(root.getAttribute('prop-1')).toBe('1000');
+    expect(root.prop1).toBe('something');
 
-    // because the special handling returns a different value (1000) and the prop is reflected
-    // the deserializer is called again to reflect the new value
-    expect(rootInstance.method1).toHaveBeenCalledTimes(3);
-    expect(root.prop1).toBe(1000);
-
-    root.setAttribute('json-prop', '{"a":99,"b":"bye"}');
+    root.jsonProp = { a: 99, b: 'bye' };
     await waitForChanges();
-
     expect(rootInstance.method2).toHaveBeenCalledTimes(1);
+    expect(root.getAttribute('json-prop')).toEqual('{"a":99,"b":"bye"}');
     expect(root.jsonProp).toEqual({ a: 99, b: 'bye' });
   });
 });

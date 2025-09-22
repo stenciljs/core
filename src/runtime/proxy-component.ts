@@ -275,6 +275,14 @@ export const proxyComponent = (
         plt.jmp(() => {
           const propName = attrNameToPropName.get(attrName);
           const hostRef = getHostRef(this);
+
+          if (hostRef.$serializerValues$.has(propName) && hostRef.$serializerValues$.get(propName) === newValue) {
+            // The newValue is the same as a saved serialized value from a prop update.
+            // The prop can be intentionally different from the attribute;
+            //  updating the underlying prop here can cause an infinite loop.
+            return;
+          }
+
           //  In a web component lifecycle the attributeChangedCallback runs prior to connectedCallback
           //  in the case where an attribute was set inline.
           //  ```html

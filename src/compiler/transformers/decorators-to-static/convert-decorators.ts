@@ -125,13 +125,15 @@ const visitClassDeclaration = (
       filteredMethodsAndFields,
       importAliasMap.get('PropSerialize'),
       'PropSerialize',
+      importAliasMap.get('Prop'),
     );
-    serializeDecoratorsToStatic(
+    const deserializers = serializeDecoratorsToStatic(
       typeChecker,
       decoratedMembers,
       filteredMethodsAndFields,
       importAliasMap.get('AttrDeserialize'),
       'AttrDeserialize',
+      importAliasMap.get('Prop'),
     );
     propDecoratorsToStatic(
       diagnostics,
@@ -141,6 +143,7 @@ const visitClassDeclaration = (
       filteredMethodsAndFields,
       importAliasMap.get('Prop'),
       serializers,
+      deserializers,
     );
     stateDecoratorsToStatic(decoratedMembers, filteredMethodsAndFields, typeChecker, importAliasMap.get('State'));
     eventDecoratorsToStatic(

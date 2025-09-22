@@ -1757,6 +1757,7 @@ export interface HostRef {
   $cmpMeta$: ComponentRuntimeMeta;
   $hostElement$: HostElement;
   $instanceValues$?: Map<string, any>;
+  $serializerValues$?: Map<string, string>;
   $lazyInstance$?: ComponentInterface;
   /**
    * A promise that gets resolved if `BUILD.asyncLoading` is enabled and after the `componentDidLoad`

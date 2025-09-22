@@ -151,6 +151,7 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
     $cmpMeta$: cmpMeta,
     $hostElement$: elm,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
     $renderCount$: 0,
   };
   hostRef.$onInstancePromise$ = new Promise((r) => (hostRef.$onInstanceResolve$ = r));

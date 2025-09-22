@@ -58,6 +58,7 @@ const inspect = (ref: any) => {
       needsRerender: !!(flags & HOST_FLAGS.needsRerender),
     },
     instanceValues: hostRef.$instanceValues$,
+    serializerValues: hostRef.$serializerValues$,
     ancestorComponent: hostRef.$ancestorComponent$,
     hostElement,
     lazyInstance: hostRef.$lazyInstance$,
