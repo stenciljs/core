@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, h, Prop } from '@stencil/core';
+import { Component, Event, EventEmitter, h, Prop, AttrDeserialize } from '@stencil/core';
 
 import { CarData } from './car-data';
 
@@ -15,6 +15,10 @@ import { CarData } from './car-data';
 })
 export class CarList {
   @Prop() cars: CarData[];
+  @AttrDeserialize('cars')
+  parseCars(newValue: string) {
+    return JSON.parse(newValue);
+  }
   @Prop({ mutable: true }) selected: CarData;
   @Event() carSelected: EventEmitter<CarData>;
 

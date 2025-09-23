@@ -138,7 +138,11 @@ describe('attribute deserialization', () => {
 
       @AttrDeserialize('jsonProp')
       method2(newValue: any) {
-        return JSON.parse(newValue);
+        try {
+          return JSON.parse(newValue);
+        } catch (e) {
+          return newValue;
+        }
       }
     }
 
@@ -176,5 +180,25 @@ describe('attribute deserialization', () => {
 
     expect(rootInstance.method2).toHaveBeenCalledTimes(1);
     expect(root.jsonProp).toEqual({ a: 99, b: 'bye' });
+
+    root.setAttribute('json-prop', '["item1","item2","item3"]');
+    await waitForChanges();
+
+    expect(rootInstance.method2).toHaveBeenCalledTimes(2);
+    expect(root.jsonProp).toEqual(['item1', 'item2', 'item3']);
+
+    const invalidJson = '{"invalid": json}';
+    root.setAttribute('json-prop', invalidJson);
+    await waitForChanges();
+
+    expect(rootInstance.method2).toHaveBeenCalledTimes(3);
+    expect(root.jsonProp).toEqual(invalidJson);
+
+    const regularString = 'hello world';
+    root.setAttribute('json-prop', regularString);
+    await waitForChanges();
+
+    expect(rootInstance.method2).toHaveBeenCalledTimes(4);
+    expect(root.jsonProp).toEqual(regularString);
   });
 });

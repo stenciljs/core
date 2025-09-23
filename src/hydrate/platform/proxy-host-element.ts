@@ -4,7 +4,7 @@ import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
-export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
+export async function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): Promise<void> {
   const cmpMeta = cstr.cmpMeta;
 
   if (typeof elm.componentOnReady !== 'function') {
@@ -45,8 +45,17 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
 
         if (attrValue != null) {
-          // incoming value from `an-attribute=....`. Convert from string to correct type
-          attrPropVal = parsePropertyValue(attrValue, memberFlags, !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
+          // incoming value from `an-attribute=....`.
+
+          if (cstr.deserializers?.[memberName]) {
+            // we have a custom deserializer for this member
+            for (const methodName of cstr.deserializers[memberName]) {
+              attrPropVal = (cstr as any).prototype[methodName](attrValue, memberName);
+            }
+          } else {
+            // otherwise, convert from string to correct type
+            attrPropVal = parsePropertyValue(attrValue, memberFlags, !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
+          }
         }
 
         if (propValue !== undefined) {
