@@ -1,4 +1,4 @@
-import { AttrDeserialize,Component, h, Prop } from '@stencil/core';
+import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 function Clamp(lowerBound: number, upperBound: number): any {
