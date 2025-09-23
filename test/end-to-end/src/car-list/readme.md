@@ -13,7 +13,7 @@ Component that helps display a list of cars
 
 | Property   | Attribute | Description | Type        | Default     |
 | ---------- | --------- | ----------- | ----------- | ----------- |
-| `cars`     | --        |             | `CarData[]` | `undefined` |
+| `cars`     | `cars`    |             | `CarData[]` | `undefined` |
 | `selected` | --        |             | `CarData`   | `undefined` |
 
 
