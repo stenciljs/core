@@ -136,6 +136,7 @@ const visitClassDeclaration = (
       importAliasMap.get('Prop'),
     );
     propDecoratorsToStatic(
+      config,
       diagnostics,
       decoratedMembers,
       typeChecker,

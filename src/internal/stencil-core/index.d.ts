@@ -42,6 +42,7 @@ export {
   Listen,
   Method,
   Mixin,
+  MixinFactory,
   Prop,
   readTask,
   render,

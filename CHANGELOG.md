@@ -1,3 +1,14 @@
+## 🏰 [4.37.1](https://github.com/stenciljs/core/compare/v4.37.0...v4.37.1) (2025-09-19)
+
+
+### Bug Fixes
+
+* **dist-custom-elements:** revert [#6381](https://github.com/stenciljs/core/issues/6381) ([77cfdb3](https://github.com/stenciljs/core/commit/77cfdb3b704205ced93b7a265ea0881fa2dd19d0))
+* **Mixin:** export `MixinFactory` type for ease of use ([#6390](https://github.com/stenciljs/core/issues/6390)) ([a26114e](https://github.com/stenciljs/core/commit/a26114ee8a3d808ddb4731547842301628654312))
+* **runtime:** stop eager json parsing for unknown and any type bindings ([#6384](https://github.com/stenciljs/core/issues/6384)) ([ccae0d7](https://github.com/stenciljs/core/commit/ccae0d743cd4eb2766eb7e48cb6add854c9fd640))
+
+
+
 # ⛴ [4.37.0](https://github.com/stenciljs/core/compare/v4.36.3...v4.37.0) (2025-09-13)
 
 
