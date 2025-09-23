@@ -30,6 +30,7 @@ import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
  * @param decoratorName the name of the decorator to look for
  */
 export const propDecoratorsToStatic = (
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   decoratedProps: ts.ClassElement[],
   typeChecker: ts.TypeChecker,
@@ -39,7 +40,7 @@ export const propDecoratorsToStatic = (
 ): void => {
   const properties = decoratedProps
     .filter((prop) => ts.isPropertyDeclaration(prop) || ts.isGetAccessor(prop))
-    .map((prop) => parsePropDecorator(diagnostics, typeChecker, program, prop, decoratorName, newMembers))
+    .map((prop) => parsePropDecorator(config, diagnostics, typeChecker, program, prop, decoratorName, newMembers))
     .filter((prop): prop is ts.PropertyAssignment => prop != null);
 
   if (properties.length > 0) {
@@ -59,6 +60,7 @@ export const propDecoratorsToStatic = (
  * @returns a property assignment expression to be added to the Stencil component's class
  */
 const parsePropDecorator = (
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
   program: ts.Program,
@@ -88,7 +90,7 @@ const parsePropDecorator = (
     warn.messageText = `The @Prop() name "${propName}" looks like an event. Please use the "@Event()" decorator to expose events instead, not properties or methods.`;
     augmentDiagnosticWithNode(warn, prop.name);
   } else {
-    validatePublicName(diagnostics, propName, '@Prop()', 'prop', prop.name);
+    validatePublicName(config, diagnostics, propName, '@Prop()', 'prop', prop.name);
   }
 
   const symbol = typeChecker.getSymbolAtLocation(prop.name);

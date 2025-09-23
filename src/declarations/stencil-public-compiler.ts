@@ -153,6 +153,11 @@ export interface StencilConfig {
    */
   transformAliasedImportPaths?: boolean;
   /**
+   * When `true`, Stencil will suppress diagnostics which warn about public members using reserved names
+   * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
+   */
+  suppressReservedPublicNameWarnings?: boolean;
+  /**
    * When `true`, we will validate a project's `package.json` based on the output target the user has designated
    * as `isPrimaryPackageOutputTarget: true` in their Stencil config.
    */
