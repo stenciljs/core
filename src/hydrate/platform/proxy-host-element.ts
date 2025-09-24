@@ -4,7 +4,7 @@ import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
-export async function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): Promise<void> {
+export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;
 
   if (typeof elm.componentOnReady !== 'function') {
