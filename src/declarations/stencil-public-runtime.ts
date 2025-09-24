@@ -1,12 +1,12 @@
-declare type CustomMethodDecorator<T> = (
-  target: Object,
+type CustomMethodDecorator<T extends (...args: any[]) => any> = (
+  target: object,
   propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
-type NotVoid = {} | null | undefined; // anything but `void`
-
 type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
+
+type AttrDeserializeFn = (newValue?: string | null, propName?: string, ...args: any[]) => any;
 
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;
@@ -188,11 +188,8 @@ export interface PropSerializeDecorator {
 }
 
 export interface AttrDeserializeDecorator {
-  <T extends (newValue?: string, propName?: string, ...args: any[]) => NotVoid>(
-    propName: string,
-  ): CustomMethodDecorator<T>;
+  <T extends AttrDeserializeFn>(propName: string): ReturnType<T> extends void ? never : CustomMethodDecorator<T>;
 }
-
 export interface UserBuildConditionals {
   isDev: boolean;
   isBrowser: boolean;
@@ -284,12 +281,12 @@ export declare const State: StateDecorator;
 export declare const Watch: WatchDecorator;
 
 /**
- * Decorator to serialize a property to an attribute.
+ * Decorator to serialize a property to an attribute string.
  */
 export declare const PropSerialize: PropSerializeDecorator;
 
 /**
- * Decorator to deserialize an attribute to a property.
+ * Decorator to deserialize an attribute string to a property.
  */
 export declare const AttrDeserialize: AttrDeserializeDecorator;
 
