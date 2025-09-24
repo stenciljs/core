@@ -204,7 +204,7 @@ export const proxyComponent = (
                 // if this is a value set on an Element *before* the instance has initialized (e.g. via an html attr)...
                 if (flags & PROXY_FLAGS.isElementConstructor && !ref.$lazyInstance$) {
                   // wait for lazy instance...
-                  ref.$onReadyPromise$.then(() => {
+                  ref.$fetchedCbList$.push(() => {
                     // check if this instance member has a setter doesn't match what's already on the element
                     if (
                       cmpMeta.$members$[memberName][0] & MEMBER_FLAGS.Setter &&
@@ -246,8 +246,10 @@ export const proxyComponent = (
               if (ref.$lazyInstance$) {
                 setterSetVal();
               } else {
-                // the class is yet to be loaded / defined so queue an async call
-                ref.$onReadyPromise$.then(() => setterSetVal());
+                // the class is yet to be loaded / defined so queue the call
+                ref.$fetchedCbList$.push(() => {
+                  setterSetVal();
+                });
               }
             }
           },
@@ -276,7 +278,11 @@ export const proxyComponent = (
           const propName = attrNameToPropName.get(attrName);
           const hostRef = getHostRef(this);
 
-          if (hostRef.$serializerValues$.has(propName) && hostRef.$serializerValues$.get(propName) === newValue) {
+          if (
+            BUILD.serializer &&
+            hostRef.$serializerValues$.has(propName) &&
+            hostRef.$serializerValues$.get(propName) === newValue
+          ) {
             // The newValue is the same as a saved serialized value from a prop update.
             // The prop can be intentionally different from the attribute;
             //  updating the underlying prop here can cause an infinite loop.
@@ -321,7 +327,7 @@ export const proxyComponent = (
             delete this[propName];
           }
 
-          if (cmpMeta.$deserializers$ && cmpMeta.$deserializers$[propName]) {
+          if (BUILD.deserializer && cmpMeta.$deserializers$ && cmpMeta.$deserializers$[propName]) {
             const setVal = (methodName: string, instance: any) => {
               const deserializeVal = instance?.[methodName](newValue, propName);
               if (deserializeVal !== this[propName]) {
@@ -335,7 +341,7 @@ export const proxyComponent = (
                   setVal(methodName, hostRef.$lazyInstance$);
                 } else {
                   // If the instance is not ready, we can queue the update
-                  hostRef.$onReadyPromise$.then(() => {
+                  hostRef.$fetchedCbList$.push(() => {
                     setVal(methodName, hostRef.$lazyInstance$);
                   });
                 }

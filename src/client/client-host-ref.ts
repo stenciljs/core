@@ -62,6 +62,9 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     hostElement['s-p'] = [];
     hostElement['s-rc'] = [];
   }
+  if (BUILD.lazyLoad) {
+    hostRef.$fetchedCbList$ = [];
+  }
 
   const ref = hostRef;
   hostElement.__stencil__getHostRef = () => ref;

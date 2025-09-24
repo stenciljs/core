@@ -25,7 +25,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
   const f: BuildFeatures = {
     allRenderFn: cmps.every((c) => c.hasRenderFn),
     formAssociated: cmps.some((c) => c.formAssociated),
-
+    deserializer: cmps.some((c) => c.hasDeserializer),
     element: cmps.some((c) => c.hasElement),
     event: cmps.some((c) => c.hasEvent),
     hasRenderFn: cmps.some((c) => c.hasRenderFn),
@@ -50,6 +50,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     propMutable: cmps.some((c) => c.hasPropMutable),
     reflect: cmps.some((c) => c.hasReflect),
     scoped: cmps.some((c) => c.encapsulation === 'scoped'),
+    serializer: cmps.some((c) => c.hasSerializer),
     shadowDom,
     shadowDelegatesFocus: shadowDom && cmps.some((c) => c.shadowDelegatesFocus),
     slot,

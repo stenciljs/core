@@ -181,4 +181,36 @@ describe('attribute serialization', () => {
     expect(root.getAttribute('json-prop')).toEqual('{"a":99,"b":"bye"}');
     expect(root.jsonProp).toEqual({ a: 99, b: 'bye' });
   });
+
+  it('removes handles boolean attributes correctly', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop({ reflect: true }) boolProp = false;
+
+      @PropSerialize('boolProp')
+      method(newValue: any) {
+        return newValue ? '' : null;
+      }
+    }
+
+    const { root, rootInstance, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    jest.spyOn(rootInstance, 'method');
+
+    expect(rootInstance.method).toHaveBeenCalledTimes(0);
+    expect(root.hasAttribute('bool-prop')).toBe(false);
+
+    root.boolProp = true;
+    await waitForChanges();
+    expect(rootInstance.method).toHaveBeenCalledTimes(1);
+    expect(root.hasAttribute('bool-prop')).toBe(true);
+    expect(root.getAttribute('bool-prop')).toBe('');
+
+    root.boolProp = false;
+    await waitForChanges();
+    expect(rootInstance.method).toHaveBeenCalledTimes(2);
+    expect(root.hasAttribute('bool-prop')).toBe(false);
+  });
 });

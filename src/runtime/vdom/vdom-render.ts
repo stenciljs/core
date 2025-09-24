@@ -1030,7 +1030,7 @@ render() {
   if (BUILD.reflect && cmpMeta.$attrsToReflect$) {
     rootVnode.$attrs$ = rootVnode.$attrs$ || {};
     cmpMeta.$attrsToReflect$.forEach(([propName, attribute]) => {
-      if (hostRef.$serializerValues$.has(propName)) {
+      if (BUILD.serializer && hostRef.$serializerValues$.has(propName)) {
         rootVnode.$attrs$[attribute] = hostRef.$serializerValues$.get(propName);
       } else {
         rootVnode.$attrs$[attribute] = (hostElm as any)[propName];

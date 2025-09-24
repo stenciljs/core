@@ -64,6 +64,7 @@ const inspect = (ref: any) => {
     lazyInstance: hostRef.$lazyInstance$,
     vnode: hostRef.$vnode$,
     modeName: hostRef.$modeName$,
+    fetchedCbList: hostRef.$fetchedCbList$,
     onReadyPromise: hostRef.$onReadyPromise$,
     onReadyResolve: hostRef.$onReadyResolve$,
     onInstancePromise: hostRef.$onInstancePromise$,

@@ -27,9 +27,10 @@ describe('attribute deserialization', () => {
       }
 
       componentDidLoad() {
-        expect(this.method1Called).toBe(0);
-        expect(this.method2Called).toBe(0);
-        expect(this.prop1).toBe(1);
+        // deserializer called during component load as prop is set via attribute
+        expect(this.method1Called).toBe(1);
+        expect(this.method2Called).toBe(1);
+        expect(this.prop1).toBe(123);
         expect(this.someState).toBe('hello');
       }
     }
@@ -85,22 +86,23 @@ describe('attribute deserialization', () => {
       }
 
       componentWillLoad() {
-        expect(this.watchCalled).toBe(0);
-        this.host.setAttribute('prop', '1');
+        // deserializer called during component load as prop is set via attribute
         expect(this.watchCalled).toBe(1);
-        this.host.setAttribute('value', '1');
+        this.host.setAttribute('prop', '1');
         expect(this.watchCalled).toBe(2);
+        this.host.setAttribute('value', '1');
+        expect(this.watchCalled).toBe(3);
       }
 
       componentDidLoad() {
-        expect(this.watchCalled).toBe(2);
+        expect(this.watchCalled).toBe(3);
         // setting the same value should not trigger the deserializer
         this.host.setAttribute('prop', '1');
         this.host.setAttribute('value', '1');
-        expect(this.watchCalled).toBe(2);
+        expect(this.watchCalled).toBe(3);
         this.host.setAttribute('prop', '20');
         this.host.setAttribute('value', '30');
-        expect(this.watchCalled).toBe(4);
+        expect(this.watchCalled).toBe(5);
       }
     }
 

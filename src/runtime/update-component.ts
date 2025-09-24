@@ -97,11 +97,16 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
   let maybePromise: Promise<void> | undefined;
 
   if (isInitialLoad) {
-    if (BUILD.lazyLoad && BUILD.hostListener) {
-      hostRef.$flags$ |= HOST_FLAGS.isListenReady;
-      if (hostRef.$queuedListeners$) {
-        hostRef.$queuedListeners$.map(([methodName, event]) => safeCall(instance, methodName, event, elm));
-        hostRef.$queuedListeners$ = undefined;
+    if (BUILD.lazyLoad) {
+      if (BUILD.hostListener) {
+        hostRef.$flags$ |= HOST_FLAGS.isListenReady;
+        if (hostRef.$queuedListeners$) {
+          hostRef.$queuedListeners$.map(([methodName, event]) => safeCall(instance, methodName, event, elm));
+          hostRef.$queuedListeners$ = undefined;
+        }
+      }
+      if (hostRef.$fetchedCbList$.length) {
+        hostRef.$fetchedCbList$.forEach((cb) => cb(elm));
       }
     }
     emitLifecycleEvent(elm, 'componentWillLoad');

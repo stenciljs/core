@@ -53,7 +53,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
     // set our new value!
     hostRef.$instanceValues$.set(propName, newVal);
 
-    if (BUILD.reflect && cmpMeta.$attrsToReflect$) {
+    if (BUILD.serializer && BUILD.reflect && cmpMeta.$attrsToReflect$) {
       if (instance && cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
         // this property has a serializer method
 

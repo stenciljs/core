@@ -141,6 +141,8 @@ export interface BuildFeatures {
   propBoolean: boolean;
   propNumber: boolean;
   propString: boolean;
+  serializer: boolean;
+  deserializer: boolean;
 
   // lifecycle events
   lifecycle: boolean;
@@ -1759,6 +1761,10 @@ export interface HostRef {
   $instanceValues$?: Map<string, any>;
   $serializerValues$?: Map<string, string>;
   $lazyInstance$?: ComponentInterface;
+  /**
+   * A list of callback functions called immediately after a lazy component module has been fetched.
+   */
+  $fetchedCbList$?: ((elm: HostElement) => void)[];
   /**
    * A promise that gets resolved if `BUILD.asyncLoading` is enabled and after the `componentDidLoad`
    * and before the `componentDidUpdate` lifecycle events are triggered.
