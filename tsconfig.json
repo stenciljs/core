@@ -50,7 +50,8 @@
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "target": "es2018",
-    "useUnknownInCatchVariables": true
+    "useUnknownInCatchVariables": true,
+    "types": ["jest", "node"]
   },
   "files": [
     "src/app-data/index.ts",

@@ -1,4 +1,4 @@
-import { ComponentCompilerMeta } from '../../../declarations';
+import { ComponentCompilerMeta, ComponentCompilerMethod } from '../../../declarations';
 import { generateComponentTypes } from '../generate-component-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerMethod } from './ComponentCompilerMethod.stub';
@@ -212,7 +212,7 @@ describe('generateComponentTypes', () => {
       const cmpMeta: ComponentCompilerMeta = {
         ...stubComponentCompilerMeta(),
         tagName: 'comprehensive-test',
-        methods: htmlElementMethods.slice(0, 5).map((methodName) => ({
+        methods: htmlElementMethods.slice(0, 5).map((methodName):ComponentCompilerMethod => ({
           ...stubComponentCompilerMethod(),
           name: methodName,
           complexType: {

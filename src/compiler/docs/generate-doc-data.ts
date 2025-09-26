@@ -216,7 +216,7 @@ const getRealProperties = (properties: d.ComponentCompilerProperty[]): d.JsonDoc
  * @returns the derived metadata
  */
 const getVirtualProperties = (virtualProps: d.ComponentCompilerVirtualProperty[]): d.JsonDocsProp[] => {
-  return virtualProps.map((member) => ({
+  return virtualProps.map((member):d.JsonDocsProp => ({
     name: member.name,
     type: member.type,
     mutable: false,

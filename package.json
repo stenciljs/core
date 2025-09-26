@@ -197,19 +197,19 @@
     "semver": "^7.3.7",
     "terser": "5.37.0",
     "tsx": "^4.19.2",
-    "typescript": "~5.5.4",
+    "typescript": "5.9.2",
     "webpack": "^5.75.0",
     "ws": "8.17.1"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.34.9",
-    "@rollup/rollup-linux-x64-musl": "4.34.9",
-    "@rollup/rollup-linux-arm64-gnu": "4.34.9",
-    "@rollup/rollup-linux-arm64-musl": "4.34.9",
     "@rollup/rollup-darwin-arm64": "4.34.9",
     "@rollup/rollup-darwin-x64": "4.34.9",
-    "@rollup/rollup-win32-x64-msvc": "4.34.9",
-    "@rollup/rollup-win32-arm64-msvc": "4.34.9"
+    "@rollup/rollup-linux-arm64-gnu": "4.34.9",
+    "@rollup/rollup-linux-arm64-musl": "4.34.9",
+    "@rollup/rollup-linux-x64-gnu": "4.34.9",
+    "@rollup/rollup-linux-x64-musl": "4.34.9",
+    "@rollup/rollup-win32-arm64-msvc": "4.34.9",
+    "@rollup/rollup-win32-x64-msvc": "4.34.9"
   },
   "engines": {
     "node": ">=16.0.0",
