@@ -1,4 +1,4 @@
-import { Component, h,Prop, Watch } from '@stencil/core';
+import { Component, h, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 declare global {
