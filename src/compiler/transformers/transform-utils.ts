@@ -1014,20 +1014,6 @@ export const updateConstructor = (
 
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
     const constructorBodyStatements = constructorMethod.body?.statements;
-
-    const printer: ts.Printer = ts.createPrinter();
-    let sourceFile = ts.createSourceFile('dummy.ts', '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
-
-    // const dummyClass = ts.factory.createClassDeclaration(
-    //   undefined,
-    //   'DummyClass',
-    //   undefined,
-    //   undefined,
-    //   classMembers
-    // );
-    sourceFile = ts.factory.updateSourceFile(sourceFile, ts.factory.createNodeArray(constructorBodyStatements));
-    console.log('incoming????', printer.printFile(sourceFile));
-
     let foundSuperCall = foundSuper(constructorBodyStatements);
 
     if (!foundSuperCall && needsSuper(classNode)) {
