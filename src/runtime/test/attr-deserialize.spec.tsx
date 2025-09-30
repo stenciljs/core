@@ -55,6 +55,7 @@ describe('attribute deserialization', () => {
 
     // attribute change
     root.setAttribute('prop-1', '200');
+    await waitForChanges();
 
     expect(rootInstance.method1Called).toBe(2);
     expect(rootInstance.method2Called).toBe(2);

@@ -48,7 +48,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     propNumber: cmps.some((c) => c.hasPropNumber),
     propString: cmps.some((c) => c.hasPropString),
     propMutable: cmps.some((c) => c.hasPropMutable),
-    reflect: cmps.some((c) => c.hasReflect),
+    reflect: cmps.some((c) => c.hasReflect || c.hasSerializer),
     scoped: cmps.some((c) => c.encapsulation === 'scoped'),
     serializer: cmps.some((c) => c.hasSerializer),
     shadowDom,

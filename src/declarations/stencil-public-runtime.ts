@@ -1,12 +1,10 @@
-type CustomMethodDecorator<T extends (...args: any[]) => any> = (
+type CustomMethodDecorator<T> = (
   target: object,
   propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
 type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
-
-type AttrDeserializeFn = (newValue?: string | null, propName?: string, ...args: any[]) => any;
 
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;
@@ -180,16 +178,19 @@ export interface StateDecorator {
 }
 
 export interface WatchDecorator {
-  (propName: string): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: string, ...args: any[]) => any>;
+  (
+    propName: any,
+  ): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void>;
 }
 
 export interface PropSerializeDecorator {
-  (propName: string): CustomMethodDecorator<(newValue?: unknown, propName?: string, ...args: any[]) => string | null>;
+  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => string | null>;
 }
 
 export interface AttrDeserializeDecorator {
-  <T extends AttrDeserializeFn>(propName: string): ReturnType<T> extends void ? never : CustomMethodDecorator<T>;
+  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => any>;
 }
+
 export interface UserBuildConditionals {
   isDev: boolean;
   isBrowser: boolean;

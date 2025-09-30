@@ -35,6 +35,17 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
     );
   }
 
+  if (
+    BUILD.serializer &&
+    hostRef.$serializerValues$.has(propName) &&
+    hostRef.$serializerValues$.get(propName) === newVal
+  ) {
+    // The newValue is the same as a saved serialized value from a prop update.
+    // The prop can be intentionally different from the attribute;
+    // updating the underlying prop here can cause an infinite loop.
+    return;
+  }
+
   const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;

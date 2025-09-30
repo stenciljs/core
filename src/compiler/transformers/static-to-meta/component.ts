@@ -182,8 +182,12 @@ export const parseStaticComponentMeta = (
   };
   visitComponentChildNode(cmpNode, buildCtx);
   parseClassMethods(classMethods, cmp);
-  const hasModernPropertyDecls = detectModernPropDeclarations(cmpNode);
-  cmp.hasModernPropertyDecls = hasModernPropertyDecls;
+
+  if (!moduleFile.isCollectionDependency) {
+    // collection dependencies can cause 'modern class prop declaration' false positives;
+    // the end result will be compiled by rollup and the modern class props will be stripped
+    cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode);
+  }
 
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);

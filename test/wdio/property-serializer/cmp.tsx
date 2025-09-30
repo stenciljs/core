@@ -1,22 +1,24 @@
-import { AttrDeserialize, Component, h, Method, Prop, Watch } from '@stencil/core';
+import { Component, h, Method, Prop, PropSerialize, Watch } from '@stencil/core';
 
 @Component({
-  tag: 'attribute-deserializer',
+  tag: 'prop-serializer',
 })
-export class AttributeDeserializer {
+export class PropSerializer {
   // boolean
 
-  @Prop() bool: boolean;
+  @Prop() boolOrSomething: boolean | string | number;
 
-  @AttrDeserialize('bool')
-  boolDeserialze(newVal: string | null) {
-    if (newVal === null || newVal.match(/^(null|false|undefined)$/)) return false;
-    return true;
+  @PropSerialize('boolOrSomething')
+  boolOrSomethingSerialize(newVal: any) {
+    if (newVal === false || newVal === 'false' || newVal === 0 || newVal === '0') {
+      return null;
+    }
+    if (newVal) return newVal.toString();
   }
 
-  private boolStates: boolean[] = [];
+  private boolStates: (boolean | string | number)[] = [];
 
-  @Watch('bool')
+  @Watch('boolOrSomething')
   boolWatcher(newVal: any) {
     this.boolStates.push(newVal);
   }
@@ -26,13 +28,23 @@ export class AttributeDeserializer {
     return this.boolStates;
   }
 
+  // non-reflect
+  @Prop({ reflect: false }) nonReflect: string;
+  @PropSerialize('nonReflect')
+  nonReflectSerialize(newVal: any) {
+    // should never be called
+    return newVal ? newVal.toString().toUpperCase() : null;
+  }
+
+  // array / json
+
   @Prop() array: string[];
   @Prop() json: { foo: string };
-  @AttrDeserialize('json')
-  @AttrDeserialize('array')
-  jsonDeserialize(newVal: string) {
+  @PropSerialize('json')
+  @PropSerialize('array')
+  jsonSerialize(newVal: any) {
     try {
-      return JSON.parse(newVal);
+      return JSON.stringify(newVal);
     } catch (e) {
       return null;
     }
@@ -66,15 +78,15 @@ export class AttributeDeserializer {
     return this._getSet;
   }
   set getSet(v: { [key: string]: string }) {
-    this.getSetOrder.push('2.', v);
+    this.getSetOrder.push('1.', v);
     this._getSet = v;
   }
 
-  @AttrDeserialize('getSet')
-  getSetDeserialize(newVal: string) {
-    this.getSetOrder.push('1.', newVal);
+  @PropSerialize('getSet')
+  getSetSerialize(newVal: any) {
+    this.getSetOrder.push('2.', newVal);
     try {
-      return JSON.parse(newVal);
+      return JSON.stringify(newVal);
     } catch (e) {
       return null;
     }
@@ -88,6 +100,14 @@ export class AttributeDeserializer {
   @Method()
   async getGetSet() {
     return this.getSetOrder;
+  }
+
+  @Method()
+  async reset() {
+    this.boolStates = [];
+    this.jsonStates = [];
+    this.arrayStates = [];
+    this.getSetOrder = [];
   }
 
   render() {

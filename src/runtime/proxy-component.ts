@@ -63,10 +63,7 @@ export const proxyComponent = (
     });
   }
 
-  if (
-    (BUILD.member && cmpMeta.$members$) ||
-    (BUILD.propChangeCallback && (cmpMeta.$watchers$ || Cstr.watchers || Cstr.deserializers || cmpMeta.$deserializers$))
-  ) {
+  if ((BUILD.member && cmpMeta.$members$) || BUILD.propChangeCallback) {
     if (BUILD.propChangeCallback) {
       if (Cstr.watchers && !cmpMeta.$watchers$) {
         cmpMeta.$watchers$ = Cstr.watchers;
@@ -160,14 +157,6 @@ export const proxyComponent = (
                 // this means the setter was added at run-time (e.g. via a decorator).
                 // We want any value set on the element to override the default class instance value.
                 newValue = ref.$instanceValues$.get(memberName);
-              } else if (!ref.$instanceValues$.get(memberName) && currentValue) {
-                // on init get make sure the hostRef matches the element (via prop / attr)
-
-                // the prop `set()` doesn't necessarily fire during `constructor()`,
-                // so no initial value gets set in the hostRef.
-                // This means watchers fire even though the value hasn't changed.
-                // So if there's a current value and no initial value, let's set it now.
-                ref.$instanceValues$.set(memberName, currentValue);
               }
               // this sets the value via the `set()` function which
               // *might* not end up changing the underlying value
