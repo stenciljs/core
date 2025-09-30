@@ -170,13 +170,19 @@ function buildExtendsTree(
     } catch (_e) {
       // sad path (normally >1 levels removed): the extends type does not resolve so let's find it manually:
 
-      const currentSource: ts.SourceFile =
-        classDeclaration.getSourceFile() || compilerCtx.moduleMap.entries().next()?.value[1]?.staticSourceFile; // < fallback for jest tests where getSourceFile() is undefined
+      let currentSource: ts.SourceFile = classDeclaration.getSourceFile();
+      // try to see if we can find the class in the current source file first
+      let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
+
+      if (!currentSource) {
+        // fallback for jest tests where getSourceFile() is undefined
+        currentSource = compilerCtx.moduleMap.entries().next()?.value[1]?.staticSourceFile;
+        matchedStatement = findClassWalk(currentSource, extendee.getText());
+      } else {
+        matchedStatement = currentSource.statements.find(matchesNamedDeclaration(extendee.getText()));
+      }
 
       if (!currentSource) return;
-
-      // let's see if we can find the class in the current source file first
-      const matchedStatement = findClassWalk(currentSource, extendee.getText());
 
       if (matchedStatement && ts.isClassDeclaration(matchedStatement)) {
         foundClassDeclaration = matchedStatement;
