@@ -212,16 +212,18 @@ describe('generateComponentTypes', () => {
       const cmpMeta: ComponentCompilerMeta = {
         ...stubComponentCompilerMeta(),
         tagName: 'comprehensive-test',
-        methods: htmlElementMethods.slice(0, 5).map((methodName):ComponentCompilerMethod => ({
-          ...stubComponentCompilerMethod(),
-          name: methodName,
-          complexType: {
-            signature: '() => Promise<void>',
-            parameters: [],
-            references: {},
-            return: 'Promise<void>',
-          },
-        })),
+        methods: htmlElementMethods.slice(0, 5).map(
+          (methodName): ComponentCompilerMethod => ({
+            ...stubComponentCompilerMethod(),
+            name: methodName,
+            complexType: {
+              signature: '() => Promise<void>',
+              parameters: [],
+              references: {},
+              return: 'Promise<void>',
+            },
+          }),
+        ),
       };
 
       const result = generateComponentTypes(cmpMeta, {}, false);

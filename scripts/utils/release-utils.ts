@@ -59,7 +59,7 @@ export function getNewVersion(oldVersion: string, input: any): string {
   const incrementedSemverString = semver.inc(oldVersion, input);
 
   if (isValidSemverName) return input;
-  if (incrementedSemverString!==null) return incrementedSemverString;
+  if (incrementedSemverString !== null) return incrementedSemverString;
   throw new Error(`Version should be either ${SEMVER_INCREMENTS.join(', ')} or a valid semver version.`);
 }
 
