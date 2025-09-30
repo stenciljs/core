@@ -1,4 +1,4 @@
-import { AttrDeserialize, Build,Component, h, Method, Prop, PropSerialize, Watch } from '@stencil/core';
+import { AttrDeserialize, Build, Component, h, Method, Prop, PropSerialize, Watch } from '@stencil/core';
 
 @Component({
   tag: 'serialize-deserializer',
