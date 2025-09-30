@@ -81,7 +81,6 @@ describe('nativeComponentTransform', () => {
           if (registerHost !== false) {
             this.__registerHost();
           }
-          super();
         }
         bar;
       };`,
@@ -94,7 +93,6 @@ describe('nativeComponentTransform', () => {
           if (registerHost !== false) {
             this.__registerHost();
           }
-          super();
         }
         foo;
       };`,
