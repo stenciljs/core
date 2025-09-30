@@ -1025,7 +1025,6 @@ export const updateConstructor = (
       // 3. the statements currently comprising the body of the constructor
       statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements, ...constructorBodyStatements];
     } else {
-      console.log('SUPER FOUND!');
       const updatedStatements = constructorBodyStatements.filter((s) => s !== foundSuperCall);
       // if no new super is needed. The body of the constructor should be:
       // 1. Any current super call
