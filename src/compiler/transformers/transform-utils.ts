@@ -983,7 +983,8 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
     (s) =>
       ts.isExpressionStatement(s) &&
       ts.isCallExpression(s.expression) &&
-      s.expression.expression.kind === ts.SyntaxKind.SuperKeyword,
+      (s.expression.expression.kind === ts.SyntaxKind.SuperKeyword ||
+        (ts.isIdentifier(s.expression.expression) && s.expression.expression.escapedText === 'super')),
   );
 }
 
@@ -1013,6 +1014,20 @@ export const updateConstructor = (
 
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
     const constructorBodyStatements = constructorMethod.body?.statements;
+
+    const printer: ts.Printer = ts.createPrinter();
+    let sourceFile = ts.createSourceFile('dummy.ts', '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
+
+    // const dummyClass = ts.factory.createClassDeclaration(
+    //   undefined,
+    //   'DummyClass',
+    //   undefined,
+    //   undefined,
+    //   classMembers
+    // );
+    sourceFile = ts.factory.updateSourceFile(sourceFile, ts.factory.createNodeArray(constructorBodyStatements));
+    console.log('incoming????', printer.printFile(sourceFile));
+
     let foundSuperCall = foundSuper(constructorBodyStatements);
 
     if (!foundSuperCall && needsSuper(classNode)) {
@@ -1022,8 +1037,23 @@ export const updateConstructor = (
       // 1. the `super()` call
       // 2. the new statements we've created to initialize fields
       // 3. the statements currently comprising the body of the constructor
+      console.log('SUPER NOT FOUND');
+
+      //      const printer: ts.Printer = ts.createPrinter();
+      //     let sourceFile = ts.createSourceFile(
+      //       'dummy.ts',
+      //       '',
+      //       ts.ScriptTarget.ESNext,
+      //       false,
+      //       ts.ScriptKind.TS
+      //     );
+
+      //     sourceFile = ts.factory.updateSourceFile(sourceFile, ts.factory.createNodeArray(statements));
+      // console.log('decorators to static getters????', printer.printFile(sourceFile));
+
       statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements, ...constructorBodyStatements];
     } else {
+      console.log('SUPER FOUND!');
       const updatedStatements = constructorBodyStatements.filter((s) => s !== foundSuperCall);
       // if no new super is needed. The body of the constructor should be:
       // 1. Any current super call
