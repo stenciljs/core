@@ -71,6 +71,7 @@ export const parseStaticComponentMeta = (
     buildCtx,
     cmpNode,
     staticMembers,
+    moduleFile,
   );
   const symbol = typeChecker ? typeChecker.getSymbolAtLocation(cmpNode.name) : undefined;
   const docs = serializeSymbol(typeChecker, symbol);
