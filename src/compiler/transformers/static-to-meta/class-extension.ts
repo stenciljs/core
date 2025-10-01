@@ -111,7 +111,7 @@ function buildExtendsTree(
   dependentClasses: { classNode: ts.ClassDeclaration; fileName: string }[],
   typeChecker: ts.TypeChecker,
   buildCtx: d.BuildCtx,
-  ogModule?: d.Module,
+  ogModule: d.Module,
 ) {
   const hasHeritageClauses = classDeclaration.heritageClauses;
   if (!hasHeritageClauses?.length) return dependentClasses;
@@ -165,7 +165,7 @@ function buildExtendsTree(
           if (sourceClass) {
             dependentClasses.push({ classNode: sourceClass, fileName: source.fileName });
             if (keepLooking) {
-              buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx);
+              buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
             }
           }
         }
@@ -200,7 +200,7 @@ function buildExtendsTree(
         // we found the class declaration in the current module
         dependentClasses.push({ classNode: foundClassDeclaration, fileName: currentSource.fileName });
         if (keepLooking) {
-          buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx);
+          buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
         }
         return;
       }
@@ -248,7 +248,14 @@ function buildExtendsTree(
                   // 6) if we found the class declaration, push it and check if it itself extends from another class
                   dependentClasses.push({ classNode: foundClassDeclaration, fileName: currentSource.fileName });
                   if (keepLooking) {
-                    buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx);
+                    buildExtendsTree(
+                      compilerCtx,
+                      foundClassDeclaration,
+                      dependentClasses,
+                      typeChecker,
+                      buildCtx,
+                      ogModule,
+                    );
                   }
                   return;
                 }
