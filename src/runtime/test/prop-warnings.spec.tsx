@@ -129,7 +129,7 @@ describe('prop', () => {
   it('should not show warning setting reflected prop to undefined', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
-      @Prop({reflect: true}) a = 1;
+      @Prop({ reflect: true }) a = 1;
 
       render() {
         return `${this.a ? this.a : ''}`;
