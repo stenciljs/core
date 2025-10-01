@@ -66,6 +66,18 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendsLocal {
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
     interface ExtendsMixinCmp {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -95,6 +107,10 @@ export namespace Components {
         "decoratedProp": number;
         "dynamicLifecycle": string[];
     }
+}
+export interface ExtendsLocalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLExtendsLocalElement;
 }
 declare global {
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
@@ -127,6 +143,23 @@ declare global {
         prototype: HTMLExtendsExternalElement;
         new (): HTMLExtendsExternalElement;
     };
+    interface HTMLExtendsLocalElementEventMap {
+        "myEvent": string;
+    }
+    interface HTMLExtendsLocalElement extends Components.ExtendsLocal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLExtendsLocalElementEventMap>(type: K, listener: (this: HTMLExtendsLocalElement, ev: ExtendsLocalCustomEvent<HTMLExtendsLocalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLExtendsLocalElementEventMap>(type: K, listener: (this: HTMLExtendsLocalElement, ev: ExtendsLocalCustomEvent<HTMLExtendsLocalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLExtendsLocalElement: {
+        prototype: HTMLExtendsLocalElement;
+        new (): HTMLExtendsLocalElement;
+    };
     interface HTMLExtendsMixinCmpElement extends Components.ExtendsMixinCmp, HTMLStencilElement {
     }
     var HTMLExtendsMixinCmpElement: {
@@ -145,6 +178,7 @@ declare global {
         "extends-abstract": HTMLExtendsAbstractElement;
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
         "extends-external": HTMLExtendsExternalElement;
+        "extends-local": HTMLExtendsLocalElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
@@ -200,6 +234,17 @@ declare namespace LocalJSX {
          */
         "prop2"?: string;
     }
+    interface ExtendsLocal {
+        "onMyEvent"?: (event: ExtendsLocalCustomEvent<string>) => void;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
     interface ExtendsMixinCmp {
         /**
           * @default 'default text'
@@ -232,6 +277,7 @@ declare namespace LocalJSX {
         "extends-abstract": ExtendsAbstract;
         "extends-cmp-cmp": ExtendsCmpCmp;
         "extends-external": ExtendsExternal;
+        "extends-local": ExtendsLocal;
         "extends-mixin-cmp": ExtendsMixinCmp;
         "ts-target-props": TsTargetProps;
     }
@@ -245,6 +291,7 @@ declare module "@stencil/core" {
             "extends-abstract": LocalJSX.ExtendsAbstract & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }

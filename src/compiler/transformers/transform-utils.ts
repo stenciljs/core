@@ -983,7 +983,8 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
     (s) =>
       ts.isExpressionStatement(s) &&
       ts.isCallExpression(s.expression) &&
-      s.expression.expression.kind === ts.SyntaxKind.SuperKeyword,
+      (s.expression.expression.kind === ts.SyntaxKind.SuperKeyword ||
+        (ts.isIdentifier(s.expression.expression) && s.expression.expression.escapedText === 'super')),
   );
 }
 

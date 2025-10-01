@@ -46,7 +46,10 @@ export const convertStaticToMeta = (
         moduleFile.isCollectionDependency = false;
         moduleFile.collectionName = null;
       }
-
+      if (!moduleFile.staticSourceFile) {
+        moduleFile.staticSourceFile = tsSourceFile;
+        moduleFile.staticSourceFileText = tsSourceFile.getFullText();
+      }
       return visitNode(tsSourceFile) as ts.SourceFile;
     };
   };

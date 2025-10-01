@@ -125,4 +125,28 @@ describe('prop', () => {
 
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it('should not show warning setting reflected prop to undefined', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop({ reflect: true }) a = 1;
+
+      render() {
+        return `${this.a ? this.a : ''}`;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+
+    expect(root).toEqualHtml('<cmp-a a="1">1</cmp-a>');
+
+    root.a = undefined;
+    await waitForChanges();
+
+    expect(root).toEqualHtml('<cmp-a></cmp-a>');
+    expect(spy).not.toHaveBeenCalled();
+  });
 });

@@ -382,7 +382,7 @@ export const proxyComponent = (
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
           newValue = newValue === null && typeof this[propName] === 'boolean' ? (false as any) : newValue;
-          if (newValue !== this[propName] && (!propDesc.get || !!propDesc.set)) {
+          if (newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
             this[propName] = newValue;
           }
         });
