@@ -1,7 +1,6 @@
 import { BUILD } from '@app-data';
 import { getHostRef, plt, win } from '@platform';
-import { parsePropertyValue } from '@runtime';
-import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
+import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
 import { internalCall, patchSlottedNode } from './dom-extras';
@@ -54,28 +53,6 @@ export const initializeClientHydrate = (
   // The root VNode for this component
   const vnode: d.VNode = newVNode(tagName, null);
   vnode.$elm$ = hostElm;
-
-  /**
-   * The following forEach loop attaches properties from the element's attributes to the VNode.
-   * This is used to hydrate the VNode with the initial values of the element's attributes.
-   */
-  const members = Object.entries(hostRef.$cmpMeta$?.$members$ || {});
-  members.forEach(([memberName, [memberFlags, metaAttributeName]]) => {
-    if (!(memberFlags & MEMBER_FLAGS.Prop)) {
-      return;
-    }
-    const attributeName = metaAttributeName || memberName;
-    const attrVal = hostElm.getAttribute(attributeName);
-
-    if (attrVal !== null) {
-      const attrPropVal = parsePropertyValue(
-        attrVal,
-        memberFlags,
-        BUILD.formAssociated && !!(hostRef.$cmpMeta$?.$flags$ & CMP_FLAGS.formAssociated),
-      );
-      hostRef?.$instanceValues$?.set(memberName, attrPropVal);
-    }
-  });
 
   let scopeId: string;
   if (BUILD.scoped) {

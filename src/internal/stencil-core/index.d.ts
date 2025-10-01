@@ -23,6 +23,8 @@ export type {
   VNodeData,
 } from '../stencil-public-runtime';
 export {
+  AttrDeserialize,
+  PropSerialize,
   AttachInternals,
   Build,
   Component,

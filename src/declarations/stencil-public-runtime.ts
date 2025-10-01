@@ -1,5 +1,5 @@
-declare type CustomMethodDecorator<T> = (
-  target: Object,
+type CustomMethodDecorator<T> = (
+  target: object,
   propertyKey: string | symbol,
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
@@ -178,7 +178,17 @@ export interface StateDecorator {
 }
 
 export interface WatchDecorator {
-  (propName: string): CustomMethodDecorator<any>;
+  (
+    propName: any,
+  ): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void>;
+}
+
+export interface PropSerializeDecorator {
+  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => string | null>;
+}
+
+export interface AttrDeserializeDecorator {
+  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => any>;
 }
 
 export interface UserBuildConditionals {
@@ -270,6 +280,16 @@ export declare const State: StateDecorator;
  * https://stenciljs.com/docs/reactive-data#watch-decorator
  */
 export declare const Watch: WatchDecorator;
+
+/**
+ * Decorator to serialize a property to an attribute string.
+ */
+export declare const PropSerialize: PropSerializeDecorator;
+
+/**
+ * Decorator to deserialize an attribute string to a property.
+ */
+export declare const AttrDeserialize: AttrDeserializeDecorator;
 
 export type ResolutionHandler = (elm: HTMLElement) => string | undefined | null;
 

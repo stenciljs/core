@@ -49,6 +49,7 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     $hostElement$: hostElement,
     $cmpMeta$: cmpMeta,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
   };
   if (BUILD.isDev) {
     hostRef.$renderCount$ = 0;
@@ -60,6 +61,9 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
     hostElement['s-p'] = [];
     hostElement['s-rc'] = [];
+  }
+  if (BUILD.lazyLoad) {
+    hostRef.$fetchedCbList$ = [];
   }
 
   const ref = hostRef;

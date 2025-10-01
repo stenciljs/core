@@ -32,8 +32,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
   if (BUILD.hostListener) {
     cmpMeta.$listeners$ = compactMeta[3];
   }
-  if (BUILD.watchCallback) {
+  if (BUILD.propChangeCallback) {
     cmpMeta.$watchers$ = Cstr.$watchers$;
+    cmpMeta.$deserializers$ = Cstr.$deserializers$;
+    cmpMeta.$serializers$ = Cstr.$serializers$;
   }
   if (BUILD.reflect) {
     cmpMeta.$attrsToReflect$ = [];

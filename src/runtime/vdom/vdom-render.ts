@@ -1029,9 +1029,13 @@ render() {
 
   if (BUILD.reflect && cmpMeta.$attrsToReflect$) {
     rootVnode.$attrs$ = rootVnode.$attrs$ || {};
-    cmpMeta.$attrsToReflect$.map(
-      ([propName, attribute]) => (rootVnode.$attrs$[attribute] = (hostElm as any)[propName]),
-    );
+    cmpMeta.$attrsToReflect$.forEach(([propName, attribute]) => {
+      if (BUILD.serializer && hostRef.$serializerValues$.has(propName)) {
+        rootVnode.$attrs$[attribute] = hostRef.$serializerValues$.get(propName);
+      } else {
+        rootVnode.$attrs$[attribute] = (hostElm as any)[propName];
+      }
+    });
   }
 
   // On the first render and *only* on the first render we want to check for

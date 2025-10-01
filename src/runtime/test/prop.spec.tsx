@@ -1,4 +1,4 @@
-import { Component, h, Prop } from '@stencil/core';
+import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 function Clamp(lowerBound: number, upperBound: number): any {
@@ -209,11 +209,16 @@ describe('prop', () => {
     `);
   });
 
-  it.skip('should demonstrate JSON parsing for complex object props', async () => {
+  it('should demonstrate JSON parsing for complex object props', async () => {
     @Component({ tag: 'simple-demo' })
     class SimpleDemo {
       @Prop() message: { text: string } = { text: 'default' };
       @Prop() messageAny: any = { text: 'default' };
+      @AttrDeserialize('message')
+      @AttrDeserialize('messageAny')
+      parseMessage(newValue: string) {
+        return JSON.parse(newValue);
+      }
 
       render() {
         return (

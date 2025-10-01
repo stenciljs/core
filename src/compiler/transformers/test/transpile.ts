@@ -155,6 +155,8 @@ export function transpileModule(
   const watchers = cmp ? cmp.watchers : null;
   const isMixin = cmp ? moduleFile.isMixin : false;
   const isExtended = cmp ? moduleFile.isExtended : false;
+  const serializers = cmp ? cmp.serializers : null;
+  const deserializers = cmp ? cmp.deserializers : null;
 
   if (buildCtx.hasError || buildCtx.hasWarning) {
     throw new Error(buildCtx.diagnostics[0].messageText as string);
@@ -167,6 +169,7 @@ export function transpileModule(
     compilerCtx,
     componentClassName,
     declarationOutputText,
+    deserializers,
     diagnostics: buildCtx.diagnostics,
     elementRef,
     event,
@@ -180,6 +183,7 @@ export function transpileModule(
     properties,
     watchers,
     property,
+    serializers,
     state,
     states,
     tagName,

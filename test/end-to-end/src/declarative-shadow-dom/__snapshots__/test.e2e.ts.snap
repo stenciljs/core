@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renderToString can render a scoped component within a shadow component 1`] = `"<car-list cars=\\"[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]\\" class=\\"sc-car-list-h\\" custom-hydrate-flag=\\"\\" s-id=\\"7\\"><template shadowrootmode=\\"open\\"><style>:host{display:block;margin:10px;padding:10px;border:1px solid blue}ul{display:block;margin:0;padding:0}li{list-style:none;margin:0;padding:20px}.selected{font-weight:bold;background:rgb(255, 255, 210)}</style></template><!--r.7--></car-list>"`;
+exports[`renderToString can render a scoped component within a shadow component 1`] = `"<car-list cars=\\"[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]\\" class=\\"sc-car-list-h\\" custom-hydrate-flag=\\"\\" s-id=\\"9\\"><template shadowrootmode=\\"open\\"><style>:host{display:block;margin:10px;padding:10px;border:1px solid blue}ul{display:block;margin:0;padding:0}li{list-style:none;margin:0;padding:20px}.selected{font-weight:bold;background:rgb(255, 255, 210)}</style><ul class=\\"sc-car-list\\" c-id=\\"9.0.0.0\\"><li class=\\"sc-car-list\\" c-id=\\"9.1.1.0\\"><car-detail class=\\"sc-car-list\\" custom-hydrate-flag=\\"\\" c-id=\\"9.2.2.0\\" s-id=\\"10\\"><!--r.10--><section c-id=\\"10.0.0.0\\"><!--t.10.1.1.0-->2024 VW Vento</section></car-detail></li><li class=\\"sc-car-list\\" c-id=\\"9.3.1.1\\"><car-detail class=\\"sc-car-list\\" custom-hydrate-flag=\\"\\" c-id=\\"9.4.2.0\\" s-id=\\"11\\"><!--r.11--><section c-id=\\"11.0.0.0\\"><!--t.11.1.1.0-->2023 VW Beetle</section></car-detail></li></ul></template><!--r.9--></car-list>"`;
 
 exports[`renderToString can render a simple shadow component 1`] = `
 "<another-car-detail class=\\"sc-another-car-detail-h\\" custom-hydrate-flag=\\"\\" s-id=\\"1\\">
@@ -19,12 +19,42 @@ exports[`renderToString can render nested components 1`] = `
     <style>
       :host{display:block;margin:10px;padding:10px;border:1px solid blue}ul{display:block;margin:0;padding:0}li{list-style:none;margin:0;padding:20px}.selected{font-weight:bold;background:rgb(255, 255, 210)}
     </style>
+    <ul c-id=\\"6.0.0.0\\" class=\\"sc-another-car-list\\">
+      <li c-id=\\"6.1.1.0\\" class=\\"sc-another-car-list\\">
+        <another-car-detail c-id=\\"6.2.2.0\\" class=\\"sc-another-car-detail-h sc-another-car-list\\" custom-hydrate-flag=\\"\\" s-id=\\"7\\">
+          <template shadowrootmode=\\"open\\">
+            <style>
+              section{color:green}
+            </style>
+            <section c-id=\\"7.0.0.0\\" class=\\"sc-another-car-detail\\">
+              <!--t.7.1.1.0-->
+              2024 VW Vento
+            </section>
+          </template>
+          <!--r.7-->
+        </another-car-detail>
+      </li>
+      <li c-id=\\"6.3.1.1\\" class=\\"sc-another-car-list\\">
+        <another-car-detail c-id=\\"6.4.2.0\\" class=\\"sc-another-car-detail-h sc-another-car-list\\" custom-hydrate-flag=\\"\\" s-id=\\"8\\">
+          <template shadowrootmode=\\"open\\">
+            <style>
+              section{color:green}
+            </style>
+            <section c-id=\\"8.0.0.0\\" class=\\"sc-another-car-detail\\">
+              <!--t.8.1.1.0-->
+              2023 VW Beetle
+            </section>
+          </template>
+          <!--r.8-->
+        </another-car-detail>
+      </li>
+    </ul>
   </template>
   <!--r.6-->
 </another-car-list>"
 `;
 
-exports[`renderToString renders server-side components with delegated focus 1`] = `"<cmp-dsd-focus class=\\"sc-cmp-dsd-focus-h\\" custom-hydrate-flag=\\"\\" s-id=\\"21\\"><template shadowrootmode=\\"open\\" shadowrootdelegatesfocus><div class=\\"sc-cmp-dsd-focus\\" c-id=\\"21.0.0.0\\"><!--t.21.1.1.0-->Clickable shadow DOM text</div><button class=\\"sc-cmp-dsd-focus\\" c-id=\\"21.2.0.1\\"><!--t.21.3.1.0-->Click me!</button></template><!--r.21--></cmp-dsd-focus>"`;
+exports[`renderToString renders server-side components with delegated focus 1`] = `"<cmp-dsd-focus class=\\"sc-cmp-dsd-focus-h\\" custom-hydrate-flag=\\"\\" s-id=\\"32\\"><template shadowrootmode=\\"open\\" shadowrootdelegatesfocus><div class=\\"sc-cmp-dsd-focus\\" c-id=\\"32.0.0.0\\"><!--t.32.1.1.0-->Clickable shadow DOM text</div><button class=\\"sc-cmp-dsd-focus\\" c-id=\\"32.2.0.1\\"><!--t.32.3.1.0-->Click me!</button></template><!--r.32--></cmp-dsd-focus>"`;
 
 exports[`renderToString supports passing props to components 1`] = `
 "<another-car-detail car=\\"{&quot;year&quot;:2024, &quot;make&quot;: &quot;VW&quot;, &quot;model&quot;: &quot;Vento&quot;}\\" class=\\"sc-another-car-detail-h\\" custom-hydrate-flag=\\"\\" s-id=\\"2\\">
@@ -34,6 +64,7 @@ exports[`renderToString supports passing props to components 1`] = `
     </style>
     <section c-id=\\"2.0.0.0\\" class=\\"sc-another-car-detail\\">
       <!--t.2.1.1.0-->
+      2024 VW Vento
     </section>
   </template>
   <!--r.2-->
@@ -48,6 +79,7 @@ exports[`renderToString supports passing props to components with a simple objec
     </style>
     <section c-id=\\"3.0.0.0\\" class=\\"sc-another-car-detail\\">
       <!--t.3.1.1.0-->
+      2024 VW Vento
     </section>
   </template>
   <!--r.3-->

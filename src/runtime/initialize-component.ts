@@ -57,8 +57,10 @@ export const initializeComponent = async (
         // we've never proxied this Constructor before
         // let's add the getters/setters to its prototype before
         // the first time we create an instance of the implementation
-        if (BUILD.watchCallback) {
+        if (BUILD.propChangeCallback) {
           cmpMeta.$watchers$ = Cstr.watchers;
+          cmpMeta.$serializers$ = Cstr.serializers;
+          cmpMeta.$deserializers$ = Cstr.deserializers;
         }
         proxyComponent(Cstr, cmpMeta, PROXY_FLAGS.proxyState);
         Cstr.isProxied = true;
@@ -84,7 +86,7 @@ export const initializeComponent = async (
       if (BUILD.member) {
         hostRef.$flags$ &= ~HOST_FLAGS.isConstructingInstance;
       }
-      if (BUILD.watchCallback) {
+      if (BUILD.propChangeCallback) {
         hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
       }
       endNewInstance();

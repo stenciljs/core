@@ -76,7 +76,7 @@ describe('renderToString', () => {
     expect(html).toMatchSnapshot();
   });
 
-  it.skip('supports passing props to components', async () => {
+  it('supports passing props to components', async () => {
     const { html } = await renderToString(
       '<another-car-detail car=\'{"year":2024, "make": "VW", "model": "Vento"}\'></another-car-detail>',
       {
@@ -85,11 +85,12 @@ describe('renderToString', () => {
         prettyHtml: true,
       },
     );
+
     expect(html).toMatchSnapshot();
     expect(html).toContain('2024 VW Vento');
   });
 
-  it.skip('supports passing props to components with a simple object', async () => {
+  it('supports passing props to components with a simple object', async () => {
     const { html } = await renderToString(`<another-car-detail car=${JSON.stringify(vento)}></another-car-detail>`, {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -99,7 +100,7 @@ describe('renderToString', () => {
     expect(html).toContain('2024 VW Vento');
   });
 
-  it.skip('does not fail if provided object is not a valid JSON', async () => {
+  it('does not fail if provided object is not a valid JSON', async () => {
     const { html } = await renderToString(
       `<another-car-detail car='{"year":2024, "make": "VW", "model": "Vento"'></another-car-detail>`,
       {
@@ -126,9 +127,9 @@ describe('renderToString', () => {
     expect(html).toBe('<div>Hello World</div>');
   });
 
-  it.skip('can render nested components', async () => {
+  it('can render nested components', async () => {
     const { html } = await renderToString(
-      `<another-car-list cars=${JSON.stringify([vento, beetle])}></another-car-list>`,
+      `<another-car-list cars='${JSON.stringify([vento, beetle])}'></another-car-list>`,
       {
         serializeShadowRoot: true,
         fullDocument: false,
@@ -140,8 +141,8 @@ describe('renderToString', () => {
     expect(html).toContain('2023 VW Beetle');
   });
 
-  it.skip('can render a scoped component within a shadow component', async () => {
-    const { html } = await renderToString(`<car-list cars=${JSON.stringify([vento, beetle])}></car-list>`, {
+  it('can render a scoped component within a shadow component', async () => {
+    const { html } = await renderToString(`<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`, {
       serializeShadowRoot: true,
       fullDocument: false,
     });
@@ -154,7 +155,7 @@ describe('renderToString', () => {
     );
   });
 
-  it.skip('can render a scoped component within a shadow component (sync)', async () => {
+  it('can render a scoped component within a shadow component (sync)', async () => {
     const input = `<car-list cars=${JSON.stringify([vento, beetle])}></car-list>`;
     const opts = {
       serializeShadowRoot: true,
@@ -216,7 +217,7 @@ describe('renderToString', () => {
     expect(button.shadowRoot.querySelector('div')).toEqualText('Server vs Client? Winner: Client');
   });
 
-  it.skip('can hydrate components with event listeners', async () => {
+  it('can hydrate components with event listeners', async () => {
     const { html } = await renderToString(
       `
       <dsd-listen-cmp>Hello World</dsd-listen-cmp>
@@ -281,7 +282,7 @@ describe('renderToString', () => {
     expect(html).toContain('<body><div>Hello Universe</div></body>');
   });
 
-  it.skip('does not render a shadow component if serializeShadowRoot is false', async () => {
+  it('does not render a shadow component if serializeShadowRoot is false', async () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: false,
       fullDocument: false,
@@ -291,7 +292,7 @@ describe('renderToString', () => {
     );
   });
 
-  it.skip('does not render a shadow component but its light dom', async () => {
+  it('does not render a shadow component but its light dom', async () => {
     const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
       serializeShadowRoot: false,
       fullDocument: false,
@@ -330,7 +331,7 @@ describe('renderToString', () => {
     });
   });
 
-  it.skip('does not render the shadow root twice', async () => {
+  it('does not render the shadow root twice', async () => {
     const { html } = await renderToString(
       `
       <nested-cmp-parent>
@@ -382,7 +383,7 @@ describe('renderToString', () => {
 </nested-cmp-parent>`);
   });
 
-  it.skip('renders server-side components with delegated focus', async () => {
+  it('renders server-side components with delegated focus', async () => {
     const { html } = await renderToString('<cmp-dsd-focus></cmp-dsd-focus>', {
       serializeShadowRoot: true,
       fullDocument: false,

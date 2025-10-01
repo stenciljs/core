@@ -33,7 +33,7 @@ export class ComplexProperties {
   /**
    * basic array
    */
-  @Prop() kidsNames: string[];
+  @Prop() kidsNames: any;
 
   render() {
     return (

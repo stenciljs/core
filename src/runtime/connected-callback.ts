@@ -91,7 +91,11 @@ export const connectedCallback = (elm: d.HostElement) => {
       // https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
       if (BUILD.prop && !BUILD.hydrateServerSide && cmpMeta.$members$) {
         Object.entries(cmpMeta.$members$).map(([memberName, [memberFlags]]) => {
-          if (memberFlags & MEMBER_FLAGS.Prop && elm.hasOwnProperty(memberName)) {
+          if (
+            memberFlags & MEMBER_FLAGS.Prop &&
+            memberName in elm &&
+            (elm as any)[memberName] !== (Object.prototype as any)[memberName]
+          ) {
             const value = (elm as any)[memberName];
             delete (elm as any)[memberName];
             (elm as any)[memberName] = value;

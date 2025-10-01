@@ -1,4 +1,4 @@
-import { Component, h, Prop } from '@stencil/core';
+import { Component, h, Prop, AttrDeserialize } from '@stencil/core';
 
 import { CarData } from '../car-list/car-data';
 
@@ -8,6 +8,10 @@ import { CarData } from '../car-list/car-data';
 })
 export class CarDetail {
   @Prop() car: CarData;
+  @AttrDeserialize('car')
+  parseCars(newValue: string) {
+    return JSON.parse(newValue);
+  }
 
   componentWillLoad() {
     return new Promise((resolve) => setTimeout(resolve, 20));

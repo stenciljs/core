@@ -8,6 +8,7 @@ import { parseStaticMethods } from './methods';
 import { parseStaticProps } from './props';
 import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
+import { parseStaticSerializers } from './serializers';
 
 import type * as d from '../../../declarations';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
@@ -18,7 +19,7 @@ type DeDupeMember =
   | d.ComponentCompilerMethod
   | d.ComponentCompilerListener
   | d.ComponentCompilerEvent
-  | d.ComponentCompilerWatch;
+  | d.ComponentCompilerChangeHandler;
 
 /**
  * Given two arrays of static members, return a new array containing only the
@@ -33,7 +34,7 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
   return dedupeMembers.filter(
     (s) =>
       !staticMembers.some((d) => {
-        if ((d as d.ComponentCompilerWatch).methodName) {
+        if ((d as d.ComponentCompilerChangeHandler).methodName) {
           return (d as any).methodName === (s as any).methodName;
         }
         return (d as any).name === (s as any).name;
@@ -301,6 +302,8 @@ export function mergeExtendedClassMeta(
   let events = parseStaticEvents(staticMembers);
   let watchers = parseStaticWatchers(staticMembers);
   let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
+  let serializers = parseStaticSerializers(staticMembers, 'serializers');
+  let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
 
   tree.forEach((extendedClass) => {
     const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
@@ -331,10 +334,30 @@ export function mergeExtendedClassMeta(
     events = [...deDupeMembers(mixinEvents, events), ...events];
     listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];
     watchers = [...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers), ...watchers];
+    serializers = [
+      ...deDupeMembers(parseStaticSerializers(extendedStaticMembers, 'serializers') ?? [], serializers),
+      ...serializers,
+    ];
+    deserializers = [
+      ...deDupeMembers(parseStaticSerializers(extendedStaticMembers, 'deserializers') ?? [], deserializers),
+      ...deserializers,
+    ];
     classMethods = [...classMethods, ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? [])];
 
     if (isMixin) hasMixin = true;
   });
 
-  return { hasMixin, doesExtend, properties, states, methods, listeners, events, watchers, classMethods };
+  return {
+    hasMixin,
+    doesExtend,
+    properties,
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    classMethods,
+    serializers,
+    deserializers,
+  };
 }
