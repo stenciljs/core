@@ -1,6 +1,6 @@
 import { Component, State, h, Host, Listen } from '@stencil/core';
 import _ from 'lodash';
-import _es from 'lodash-es';
+import * as _es from 'lodash-es';
 import videojs from 'video.js';
 import { css } from 'linaria';
 import { MeString } from './interfaces';

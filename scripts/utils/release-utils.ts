@@ -55,11 +55,12 @@ export const isPrereleaseVersion = (version: string): boolean =>
  * @returns new version's string
  */
 export function getNewVersion(oldVersion: string, input: any): string {
-  if (!isValidVersionInput(input)) {
-    throw new Error(`Version should be either ${SEMVER_INCREMENTS.join(', ')} or a valid semver version.`);
-  }
+  const isValidSemverName = SEMVER_INCREMENTS.indexOf(input) === -1;
+  const incrementedSemverString = semver.inc(oldVersion, input);
 
-  return SEMVER_INCREMENTS.indexOf(input) === -1 ? input : semver.inc(oldVersion, input);
+  if (isValidSemverName) return input;
+  if (incrementedSemverString !== null) return incrementedSemverString;
+  throw new Error(`Version should be either ${SEMVER_INCREMENTS.join(', ')} or a valid semver version.`);
 }
 
 /**

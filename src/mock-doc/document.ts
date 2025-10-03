@@ -61,7 +61,7 @@ export class MockDocument extends MockHTMLElement {
   }
   set location(val: Location) {
     if (this.defaultView != null) {
-      (this.defaultView as Window).location = val;
+      (this.defaultView as Window).location = val.href;
     }
   }
 
