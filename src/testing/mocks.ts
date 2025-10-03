@@ -12,6 +12,8 @@ import { createInMemoryFs } from '../compiler/sys/in-memory-fs';
 import { TestingLogger } from './testing-logger';
 import { createTestingSystem, TestingSystem } from './testing-sys';
 
+export { stubComponentCompilerMeta as mockComponent } from '../compiler/types/tests/ComponentCompilerMeta.stub';
+
 /**
  * Creates a mock instance of an internal, validated Stencil configuration object
  * the caller

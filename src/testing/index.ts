@@ -1,4 +1,3 @@
-export { stubComponentCompilerMeta } from '../compiler/types/tests/ComponentCompilerMeta.stub';
 export {
   getCreateJestPuppeteerEnvironment,
   getCreateJestTestRunner,
@@ -26,6 +25,7 @@ export {
   mockModule,
   mockValidatedConfig,
   mockWindow,
+  mockComponent
 } from './mocks';
 export { E2EElement, E2EPage, newE2EPage } from './puppeteer';
 export { newSpecPage } from './spec-page';
