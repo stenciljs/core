@@ -9,8 +9,11 @@ import { BuildContext } from '../compiler/build/build-ctx';
 import { Cache as CompilerCache } from '../compiler/cache';
 import { buildEvents } from '../compiler/events';
 import { createInMemoryFs } from '../compiler/sys/in-memory-fs';
+import { stubComponentCompilerMeta } from '../compiler/types/tests/ComponentCompilerMeta.stub';
 import { TestingLogger } from './testing-logger';
 import { createTestingSystem, TestingSystem } from './testing-sys';
+
+export const mockComponentMeta = stubComponentCompilerMeta;
 
 /**
  * Creates a mock instance of an internal, validated Stencil configuration object
