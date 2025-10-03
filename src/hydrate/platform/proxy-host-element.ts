@@ -1,12 +1,14 @@
-import { BUILD } from '@app-data';
 import { consoleError, getHostRef } from '@platform';
 import { getValue, parsePropertyValue, setValue } from '@runtime';
-import { CMP_FLAGS, MEMBER_FLAGS } from '@utils';
+import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;
+  cmpMeta.$watchers$ = cmpMeta.$watchers$ || cstr.watchers;
+  cmpMeta.$deserializers$ = cmpMeta.$deserializers$ || cstr.deserializers;
+  cmpMeta.$serializers$ = cmpMeta.$serializers$ || cstr.serializers;
 
   if (typeof elm.componentOnReady !== 'function') {
     elm.componentOnReady = componentOnReady;
@@ -24,14 +26,7 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
     !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
     !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
   ) {
-    if (BUILD.shadowDelegatesFocus) {
-      elm.attachShadow({
-        mode: 'open',
-        delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-      });
-    } else {
-      elm.attachShadow({ mode: 'open' });
-    }
+    createShadowRoot.call(elm, cmpMeta);
   }
 
   if (cmpMeta.$members$ != null) {
@@ -53,8 +48,17 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           Object.getOwnPropertyDescriptor((cstr as any).prototype, memberName) || {};
 
         if (attrValue != null) {
-          // incoming value from `an-attribute=....`. Convert from string to correct type
-          attrPropVal = parsePropertyValue(attrValue, memberFlags);
+          // incoming value from `an-attribute=....`.
+
+          if (cmpMeta.$deserializers$?.[memberName]) {
+            // we have a custom deserializer for this member
+            for (const methodName of cmpMeta.$deserializers$[memberName]) {
+              attrPropVal = (cstr as any).prototype[methodName](attrValue, memberName);
+            }
+          } else {
+            // otherwise, convert from string to correct type
+            attrPropVal = parsePropertyValue(attrValue, memberFlags, !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
+          }
         }
 
         if (propValue !== undefined) {
@@ -89,32 +93,17 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         Object.defineProperty(elm, memberName, getterSetterDescriptor);
         Object.defineProperty(elm, metaAttributeName, getterSetterDescriptor);
 
-        if (!(cstr as any).prototype.__stencilAugmented) {
-          // instance prototype
-          Object.defineProperty((cstr as any).prototype, memberName, {
-            get: function (this: any) {
-              const ref = getHostRef(this);
-              // incoming value from a attr / prop?
-              const attrPropVal = ref.$instanceValues$?.get(memberName);
-
-              if (origGetter && attrPropVal === undefined && !getValue(this, memberName)) {
-                // if the initial value comes from an instance getter
-                // the element will never have the value set. So let's do that now.
-                setValue(this, memberName, origGetter.apply(this), cmpMeta);
-              }
-
-              // if we have a parsed value from an attribute / or userland prop use that first.
-              // otherwise if we have a getter already applied, use that.
-              return attrPropVal !== undefined
-                ? attrPropVal
-                : origGetter
-                  ? origGetter.apply(this)
-                  : getValue(this, memberName);
-            },
-            configurable: true,
-            enumerable: true,
-          });
-        }
+        hostRef.$fetchedCbList$.push(() => {
+          if (!hostRef?.$instanceValues$?.has(memberName)) {
+            setValue(
+              elm,
+              memberName,
+              attrPropVal !== undefined ? attrPropVal : hostRef.$lazyInstance$[memberName],
+              cmpMeta,
+            );
+          }
+          Object.defineProperty(hostRef.$lazyInstance$, memberName, getterSetterDescriptor);
+        });
       } else if (memberFlags & MEMBER_FLAGS.Method) {
         Object.defineProperty(elm, memberName, {
           value(this: d.HostElement, ...args: any[]) {
@@ -128,8 +117,6 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         });
       }
     });
-    // instance prototype should only be processed once
-    (cstr as any).prototype.__stencilAugmented = true;
   }
 }
 

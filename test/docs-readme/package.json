@@ -6,11 +6,12 @@
     "dist/"
   ],
   "scripts": {
-    "build": "node ../../bin/stencil build",
-    "build.dev": "node ../../bin/stencil build --dev",
+    "prepare.readmes": "node ../../scripts/test/copy-readme.js",
+    "build": "npm run prepare.readmes && node ../../bin/stencil build",
+    "build.dev": "npm run prepare.readmes &&  node ../../bin/stencil build --dev",
     "start": "node ../../bin/stencil build --dev --watch --serve",
-    "test": "node ../../bin/stencil test --spec --e2e",
-    "test.watch": "node ../../bin/stencil test --spec --e2e --watch",
+    "test": "npm run prepare.readmes &&  node ../../bin/stencil test --spec --e2e",
+    "test.watch": "npm run prepare.readmes && node ../../bin/stencil test --spec --e2e --watch",
     "generate": "node ../../bin/stencil generate"
   },
   "license": "MIT"

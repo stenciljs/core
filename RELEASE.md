@@ -41,7 +41,7 @@ Manual releases should only be performed when there are extenuating circumstance
 1. Call a `code-freeze` in the Stencil team channel
 1. Run `npm run clean` locally to clear out any cached build artifacts.
 1. Run `npm run release.prepare`. This will install dependencies, bundle Stencil, run tests, etc.
-1. Check the [CHANGELOG.md](../CHANGELOG.md) and make sure it includes all the changes that have landed since the last 
+1. Check the [CHANGELOG.md](CHANGELOG.md) and make sure it includes all the changes that have landed since the last 
 release.
 1. Commit the changes - use the commit message '<emoji> v<VERSION>'. e.g. `git commit -m '🤦‍ v2.7.0'` (note the emoji is 
 used literally, as opposed to ':facepalm:').

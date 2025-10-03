@@ -13,14 +13,18 @@ import { convertValueToLiteral, createStaticGetter } from './transform-utils';
  * @param classMembers a list of class members
  * @param cmp metadata about the stencil component of interest
  */
-export const addWatchers = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta) => {
-  if (cmp.watchers.length > 0) {
-    const watcherObj: d.ComponentConstructorWatchers = {};
+export const addReactivePropHandlers = (
+  classMembers: ts.ClassElement[],
+  cmp: d.ComponentCompilerMeta,
+  decorator: 'watchers' | 'serializers' | 'deserializers',
+) => {
+  if (cmp[decorator].length > 0) {
+    const watcherObj: d.ComponentConstructorChangeHandlers = {};
 
-    cmp.watchers.forEach(({ propName, methodName }) => {
+    cmp[decorator].forEach(({ propName, methodName }) => {
       watcherObj[propName] = watcherObj[propName] || [];
       watcherObj[propName].push(methodName);
     });
-    classMembers.push(createStaticGetter('watchers', convertValueToLiteral(watcherObj)));
+    classMembers.push(createStaticGetter(decorator, convertValueToLiteral(watcherObj)));
   }
 };

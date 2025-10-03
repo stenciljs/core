@@ -1,3 +1,5 @@
+import * as ts from 'typescript';
+
 import { getStaticGetter, transpileModule } from './transpile';
 
 describe('parse watch', () => {
@@ -28,6 +30,58 @@ describe('parse watch', () => {
       { methodName: 'onUpdate', propName: 'prop2' },
       { methodName: 'onStateUpdated', propName: 'prop1' },
       { methodName: 'onStateUpdated', propName: 'state1' },
+    ]);
+  });
+
+  it('should merge extended class watchers meta', async () => {
+    const t = transpileModule(
+      `
+      @Component({tag: 'cmp-a'})
+      class CmpA extends Parent {
+        @Watch('foo') 
+        fooHandler() {
+          return 'CmpA';
+        }
+      }
+      class Parent extends GrandParent {
+        @Watch('foo') 
+        anotherFooHandler() {
+          return 'Parent';
+        }
+      }
+      class GrandParent {
+        @Watch('bar') 
+        barHandler() {
+          return 'GrandParent';
+        }
+
+        @Watch('foo') 
+        fooHandler() {
+          return 'GrandParent';
+        }
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ESNext },
+    );
+
+    expect(t.watchers).toEqual([
+      {
+        methodName: 'barHandler',
+        propName: 'bar',
+      },
+      {
+        methodName: 'anotherFooHandler',
+        propName: 'foo',
+      },
+      {
+        methodName: 'fooHandler',
+        propName: 'foo',
+      },
     ]);
   });
 });

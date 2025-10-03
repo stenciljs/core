@@ -1,7 +1,7 @@
 import { BUILD } from '@app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
-import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
+import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -85,8 +85,10 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
       if (BUILD.reflect) {
         cmpMeta.$attrsToReflect$ = [];
       }
-      if (BUILD.watchCallback) {
+      if (BUILD.propChangeCallback) {
         cmpMeta.$watchers$ = compactMeta[4] ?? {};
+        cmpMeta.$serializers$ = compactMeta[5] ?? {};
+        cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }
       if (BUILD.shadowDom && !supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
         // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
@@ -118,14 +120,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
               if (!self.shadowRoot) {
                 // we don't want to call `attachShadow` if there's already a shadow root
                 // attached to the component
-                if (BUILD.shadowDelegatesFocus) {
-                  self.attachShadow({
-                    mode: 'open',
-                    delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-                  });
-                } else {
-                  self.attachShadow({ mode: 'open' });
-                }
+                createShadowRoot.call(self, cmpMeta);
               } else {
                 // we want to check to make sure that the mode for the shadow
                 // root already attached to the element (i.e. created via DSD)
@@ -144,6 +139,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
 
         connectedCallback() {
           const hostRef = getHostRef(this);
+          if (!hostRef) {
+            return;
+          }
 
           /**
            * The `connectedCallback` lifecycle event can potentially be fired multiple times
@@ -182,6 +180,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
            */
           plt.raf(() => {
             const hostRef = getHostRef(this);
+            if (!hostRef) {
+              return;
+            }
             const i = deferredConnectedCallbacks.findIndex((host) => host === this);
             if (i > -1) {
               deferredConnectedCallbacks.splice(i, 1);
@@ -193,29 +194,26 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         }
 
         componentOnReady() {
-          return getHostRef(this).$onReadyPromise$;
+          return getHostRef(this)?.$onReadyPromise$;
         }
       };
 
-      // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
-      if (BUILD.experimentalSlotFixes) {
-        // This check is intentionally not combined with the surrounding `experimentalSlotFixes` check
-        // since, moving forward, we only want to patch the pseudo shadow DOM when the component is scoped
-        if (BUILD.scoped && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+      if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasRenderFn) {
+        if (BUILD.experimentalSlotFixes) {
           patchPseudoShadowDom(HostElement.prototype);
-        }
-      } else {
-        if (BUILD.slotChildNodesFix) {
-          patchChildSlotNodes(HostElement.prototype);
-        }
-        if (BUILD.cloneNodeFix) {
-          patchCloneNode(HostElement.prototype);
-        }
-        if (BUILD.appendChildSlotFix) {
-          patchSlotAppendChild(HostElement.prototype);
-        }
-        if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
-          patchTextContent(HostElement.prototype);
+        } else {
+          if (BUILD.slotChildNodesFix) {
+            patchChildSlotNodes(HostElement.prototype);
+          }
+          if (BUILD.cloneNodeFix) {
+            patchCloneNode(HostElement.prototype);
+          }
+          if (BUILD.appendChildSlotFix) {
+            patchSlotAppendChild(HostElement.prototype);
+          }
+          if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+            patchTextContent(HostElement.prototype);
+          }
         }
       }
 

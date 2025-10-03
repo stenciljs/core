@@ -25,6 +25,7 @@ export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => {
  * @param hostRef that instances `HostRef` object
  */
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
+  if (!hostRef) return;
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
@@ -48,6 +49,7 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     $hostElement$: hostElement,
     $cmpMeta$: cmpMeta,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
   };
   if (BUILD.isDev) {
     hostRef.$renderCount$ = 0;
@@ -59,6 +61,9 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
     hostElement['s-p'] = [];
     hostElement['s-rc'] = [];
+  }
+  if (BUILD.lazyLoad) {
+    hostRef.$fetchedCbList$ = [];
   }
 
   const ref = hostRef;

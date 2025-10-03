@@ -211,7 +211,7 @@ export function patchSlotNode(node: d.RenderNode) {
 
       if (opts?.flatten) {
         console.error(`
-          Flattening is not supported for Stencil non-shadow slots. 
+          Flattening is not supported for Stencil non-shadow slots.
           You can use \`.childNodes\` to nested slot fallback content.
           If you have a particular use case, please open an issue on the Stencil repo.
         `);

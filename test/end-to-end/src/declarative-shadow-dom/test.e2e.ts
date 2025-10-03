@@ -30,6 +30,7 @@ type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
 let hydrateDocument: HydrateModule['hydrateDocument'];
+let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
 
 describe('renderToString', () => {
   beforeAll(async () => {
@@ -38,6 +39,7 @@ describe('renderToString', () => {
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
     hydrateDocument = mod.hydrateDocument;
+    createWindowFromHtml = mod.createWindowFromHtml;
   });
 
   it('resolves to a Promise<HydrateResults> by default', async () => {
@@ -83,6 +85,7 @@ describe('renderToString', () => {
         prettyHtml: true,
       },
     );
+
     expect(html).toMatchSnapshot();
     expect(html).toContain('2024 VW Vento');
   });
@@ -126,7 +129,7 @@ describe('renderToString', () => {
 
   it('can render nested components', async () => {
     const { html } = await renderToString(
-      `<another-car-list cars=${JSON.stringify([vento, beetle])}></another-car-list>`,
+      `<another-car-list cars='${JSON.stringify([vento, beetle])}'></another-car-list>`,
       {
         serializeShadowRoot: true,
         fullDocument: false,
@@ -139,7 +142,7 @@ describe('renderToString', () => {
   });
 
   it('can render a scoped component within a shadow component', async () => {
-    const { html } = await renderToString(`<car-list cars=${JSON.stringify([vento, beetle])}></car-list>`, {
+    const { html } = await renderToString(`<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`, {
       serializeShadowRoot: true,
       fullDocument: false,
     });
@@ -378,5 +381,48 @@ describe('renderToString', () => {
     Hello World
   </nested-cmp-child>
 </nested-cmp-parent>`);
+  });
+
+  it('renders server-side components with delegated focus', async () => {
+    const { html } = await renderToString('<cmp-dsd-focus></cmp-dsd-focus>', {
+      serializeShadowRoot: true,
+      fullDocument: false,
+    });
+
+    expect(html).toContain('<template shadowrootmode="open" shadowrootdelegatesfocus>');
+    expect(html).toMatchSnapshot();
+
+    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    const div = await page.find('cmp-dsd-focus >>> div');
+    await div.click();
+
+    expect(await page.evaluate(() => document.activeElement.outerHTML)).toContain('cmp-dsd-focus');
+  });
+
+  describe('hydrateDocument', () => {
+    it('can hydrate components with open shadow dom by default', async () => {
+      const template = `<another-car-detail></another-car-detail>`;
+      const fullHTML = `<html><head></head><body>${template}</body></html>`;
+      const win = createWindowFromHtml(fullHTML, Math.random().toString());
+      const document = win.document;
+      await hydrateDocument(document);
+      const html = document.documentElement.outerHTML;
+
+      expect(html).toContain('shadowrootmode="open"');
+    });
+
+    it('can hydrate components with scoped shadow dom', async () => {
+      const template = `<another-car-detail></another-car-detail>`;
+      const fullHTML = `<html><head></head><body>${template}</body></html>`;
+      const win = createWindowFromHtml(fullHTML, Math.random().toString());
+      const document = win.document;
+      await hydrateDocument(document, {
+        serializeShadowRoot: 'scoped',
+      });
+      const html = document.documentElement.outerHTML;
+
+      expect(html).not.toContain('shadowrootmode="open"');
+      expect(html).toContain('sc-');
+    });
   });
 });

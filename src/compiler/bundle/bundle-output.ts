@@ -3,7 +3,7 @@ import rollupJsonPlugin from '@rollup/plugin-json';
 import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import rollupReplacePlugin from '@rollup/plugin-replace';
 import { createOnWarnFn, isString, loadRollupDiagnostics } from '@utils';
-import { PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
+import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
 
 import type * as d from '../../declarations';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
@@ -70,17 +70,39 @@ export const getRollupOptions = (
   nodeResolvePlugin.resolve = async function () {
     // Investigate if we can use this to leverage Stencil's in-memory fs
   };
-  // @ts-expect-error - handler is defined
+
+  // @ts-expect-error - this is required now.
+  nodeResolvePlugin.warn = (log) => {
+    const onWarn = createOnWarnFn(buildCtx.diagnostics);
+    if (typeof log === 'string') {
+      onWarn({ message: log });
+    } else if (typeof log === 'function') {
+      const result = log();
+      if (typeof result === 'string') {
+        onWarn({ message: result });
+      } else {
+        onWarn(result);
+      }
+    } else {
+      onWarn(log);
+    }
+  };
+
+  assertIsObjectHook(nodeResolvePlugin.resolveId);
+  // remove default 'post' order
+  nodeResolvePlugin.resolveId.order = null;
   const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
-  // @ts-expect-error - handler is defined
+
   const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (importee: string, importer: string) {
     const [realImportee, query] = importee.split('?');
-    // @ts-ignore
     const resolved = await orgNodeResolveId.call(
       nodeResolvePlugin as unknown as PluginContext,
       realImportee,
       importer,
-      {},
+      {
+        attributes: {},
+        isEntry: true,
+      },
     );
     if (resolved) {
       if (isString(resolved)) {
@@ -159,6 +181,8 @@ export const getRollupOptions = (
     cache: compilerCtx.rollupCache.get(bundleOpts.id),
 
     external: config.rollupConfig.inputOptions.external,
+
+    maxParallelFileOps: config.rollupConfig.inputOptions.maxParallelFileOps,
   };
 
   return rollupOptions;
@@ -181,3 +205,7 @@ const getTreeshakeOption = (config: d.ValidatedConfig, bundleOpts: BundleOptions
       : false;
   return treeshake;
 };
+
+function assertIsObjectHook<T>(hook: ObjectHook<T>): asserts hook is { handler: T; order?: 'pre' | 'post' | null } {
+  if (typeof hook !== 'object') throw new Error(`expected the rollup plugin hook ${hook} to be an object`);
+}

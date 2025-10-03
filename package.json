@@ -1,6 +1,6 @@
 {
   "name": "@stencil/core",
-  "version": "4.30.0",
+  "version": "4.38.0",
   "license": "MIT",
   "main": "./internal/stencil-core/index.cjs",
   "module": "./internal/stencil-core/index.js",
@@ -52,6 +52,10 @@
       "import": "./internal/app-data/index.js",
       "require": "./internal/app-data/index.cjs"
     },
+    "./internal/app-globals": {
+      "import": "./internal/app-globals/index.js",
+      "require": "./internal/app-globals/index.js"
+    },
     "./mock-doc": {
       "types": "./mock-doc/index.d.ts",
       "import": "./mock-doc/index.js",
@@ -97,10 +101,10 @@
     "build": "npm run clean && npm run tsc.prod && npm run ts scripts/index.ts -- --prod --ci",
     "build.watch": "npm run build -- --watch",
     "build.updateSelectorEngine": "npm run ts scripts/updateSelectorEngine.ts",
-    "clean": "rimraf build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
+    "clean": "rimraf --max-retries=2 build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/node/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
     "clean.screenshots": "rimraf test/end-to-end/screenshot/builds test/end-to-end/screenshot/images",
     "clean:scripts": "rimraf scripts/build",
-    "lint": "eslint 'bin/*' 'scripts/*.ts' 'scripts/**/*.ts' 'src/*.ts' 'src/**/*.ts' 'src/**/*.tsx' 'test/wdio/**/*.tsx'",
+    "lint": "eslint bin/* scripts/*.ts scripts/**/*.ts src/*.ts src/**/*.ts src/**/*.tsx test/wdio/**/*.tsx",
     "install.jest": "npx tsx ./src/testing/jest/install-dependencies.mts",
     "prettier": "npm run prettier.base -- --write",
     "prettier.base": "prettier --cache \"./({bin,scripts,src,test}/**/*.{ts,tsx,js,jsx})|bin/stencil|.github/(**/)?*.(yml|yaml)|*.js\"",
@@ -117,7 +121,7 @@
     "test.dist": "npm run ts scripts/index.ts -- --validate-build",
     "test.end-to-end": "cd test/end-to-end && npm ci && npm test && npm run test.dist",
     "test.jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-    "test.type-tests": "cd ./test/wdio && npm install && npm run build.main && cd ../../ && tsc -p test/type-tests/tsconfig.json",
+    "test.type-tests": "cd ./test/wdio && npm install && npm run build.test-sibling && npm run build.main && cd ../../ && tsc -p test/type-tests/tsconfig.json",
     "test.wdio": "cd test/wdio && npm ci && npm run test",
     "test.wdio.testOnly": "cd test/wdio && npm ci && npm run wdio",
     "test.prod": "npm run test.dist && npm run test.end-to-end && npm run test.jest && npm run test.wdio && npm run test.testing && npm run test.analysis",

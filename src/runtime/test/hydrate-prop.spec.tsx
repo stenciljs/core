@@ -66,7 +66,7 @@ describe('hydrate prop types', () => {
       <cmp-a class="hydrated" boolean="false" clamped="11" num="1" s-id="1" str="hello" accessor="1">
         <!--r.1-->
         <!--t.1.0.0.0-->
-        false-hello world world-201-101-10
+        true-hello world-101-101-10
       </cmp-a>
     `);
 
@@ -82,7 +82,7 @@ describe('hydrate prop types', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a accessor="1" boolean="false" clamped="11" class="hydrated" num="1" str="hello">
         <!--r.1-->
-        false-hello world world-201-101-10
+        true-hello world-101-101-10
       </cmp-a>
     `);
   });

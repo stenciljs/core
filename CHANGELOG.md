@@ -1,3 +1,229 @@
+# 🎿 [4.38.0](https://github.com/stenciljs/core/compare/v4.37.1...v4.38.0) (2025-10-02)
+
+
+### Bug Fixes
+
+* local (same-file) class inheritance search ([#6403](https://github.com/stenciljs/core/issues/6403)) ([695b1ac](https://github.com/stenciljs/core/commit/695b1acabd401bd0f7b6c945be3225e7896bbc14))
+* **runtime:** stop immediate re-renders for reflected props when null !== undefined ([#6404](https://github.com/stenciljs/core/issues/6404)) ([680b12e](https://github.com/stenciljs/core/commit/680b12ec7302f169e5d251066e522b81071f8c4e))
+* **test:** stop duplicate super calls in Jest ([#6401](https://github.com/stenciljs/core/issues/6401)) ([32160ad](https://github.com/stenciljs/core/commit/32160ad13beb1891f2cefbcf946f17fdb41aacf5))
+* **test:** trigger @Watch decorators on inherited classes in jest env ([#6402](https://github.com/stenciljs/core/issues/6402)) ([f277068](https://github.com/stenciljs/core/commit/f2770687f592782ce2ff234da933f603ca9e31bb))
+
+
+### Features
+
+* **config:** allow suppressing reserved public name warning ([#6389](https://github.com/stenciljs/core/issues/6389)) ([341fec4](https://github.com/stenciljs/core/commit/341fec4ed01662126fbe0d1dfc3b230612b57bba))
+* new core decorators `@PropSerialize` & `@AttrDeserialize` ([#6387](https://github.com/stenciljs/core/issues/6387)) ([967c234](https://github.com/stenciljs/core/commit/967c2346e9e736eabd16ed42495293b048b29431))
+
+
+
+## 🏰 [4.37.1](https://github.com/stenciljs/core/compare/v4.37.0...v4.37.1) (2025-09-19)
+
+
+### Bug Fixes
+
+* **dist-custom-elements:** revert [#6381](https://github.com/stenciljs/core/issues/6381) ([77cfdb3](https://github.com/stenciljs/core/commit/77cfdb3b704205ced93b7a265ea0881fa2dd19d0))
+* **Mixin:** export `MixinFactory` type for ease of use ([#6390](https://github.com/stenciljs/core/issues/6390)) ([a26114e](https://github.com/stenciljs/core/commit/a26114ee8a3d808ddb4731547842301628654312))
+* **runtime:** stop eager json parsing for unknown and any type bindings ([#6384](https://github.com/stenciljs/core/issues/6384)) ([ccae0d7](https://github.com/stenciljs/core/commit/ccae0d743cd4eb2766eb7e48cb6add854c9fd640))
+
+
+
+# ⛴ [4.37.0](https://github.com/stenciljs/core/compare/v4.36.3...v4.37.0) (2025-09-13)
+
+
+### Bug Fixes
+
+* **dist-custom-elements:** apply `initializeNextTick` config ([dbcdeff](https://github.com/stenciljs/core/commit/dbcdeff26a9b258f860c5774497e31b84690c7af))
+* **dist-custom-elements:** apply `initializeNextTick` config setting ([#6382](https://github.com/stenciljs/core/issues/6382)) ([7bdf9fb](https://github.com/stenciljs/core/commit/7bdf9fbba0c84305cb7e0d749e0407ced5246b2f))
+* **runtime:** make sure watchers can fire immediately if the custom element is already defined ([#6381](https://github.com/stenciljs/core/issues/6381)) ([4fb9140](https://github.com/stenciljs/core/commit/4fb914024b7a3a760a60feb3ecee21bd3d2c2749))
+
+
+### Features
+
+* new core api - Mixin ([#6375](https://github.com/stenciljs/core/issues/6375)) ([08f6583](https://github.com/stenciljs/core/commit/08f65838787866ce8749489e9ede36bcdfe15f0a))
+* **runtime:** allow class extending ([#6362](https://github.com/stenciljs/core/issues/6362)) ([0456db1](https://github.com/stenciljs/core/commit/0456db148456911ba8cfb0af4af69ed2022763f9))
+
+
+### BREAKING CHANGES
+
+* **runtime:** Watchers will fire earlier than before, but this is the expected behavior
+
+
+
+## 🐈 [4.36.3](https://github.com/stenciljs/core/compare/v4.36.2...v4.36.3) (2025-08-20)
+
+
+### Bug Fixes
+
+* **rollup:** proper `warn` handling ([#6357](https://github.com/stenciljs/core/issues/6357)) ([0831d2c](https://github.com/stenciljs/core/commit/0831d2c35bc16cdc27640353f141ebb2681cb925))
+* **runtime:** fixed parsing of complex attributes that contains JSON strings ([#6359](https://github.com/stenciljs/core/issues/6359)) ([7047196](https://github.com/stenciljs/core/commit/7047196b877f48812783a4d158ac5b3149bcd839))
+
+
+
+## 💚 [4.36.2](https://github.com/stenciljs/core/compare/v4.36.1...v4.36.2) (2025-07-28)
+
+
+### Bug Fixes
+
+* **bundle:** remove post order of node-resolve ([#6353](https://github.com/stenciljs/core/issues/6353)) ([19b56d1](https://github.com/stenciljs/core/commit/19b56d19772b2f113cdc87837305b55eedea0361)), closes [#6335](https://github.com/stenciljs/core/issues/6335)
+
+
+
+## 🍺 [4.36.1](https://github.com/stenciljs/core/compare/v4.36.0...v4.36.1) (2025-07-18)
+
+
+### Bug Fixes
+
+* **runtime:** only patch non-shadow components with <slot>s ([#6348](https://github.com/stenciljs/core/issues/6348)) ([827b7f0](https://github.com/stenciljs/core/commit/827b7f0d553cde6afe5f9816c4907641d16f8c0f))
+* **runtime:** stop applying patches to non-shadow / non-render() components ([#6349](https://github.com/stenciljs/core/issues/6349)) ([3a18a37](https://github.com/stenciljs/core/commit/3a18a377850a332cc70cfe756d663d9cc4d23872))
+
+
+
+# 🎊 [4.36.0](https://github.com/stenciljs/core/compare/v4.35.3...v4.36.0) (2025-07-15)
+
+
+### Bug Fixes
+
+* contructable stylesheets with older immutable spec (chrome <99) ([#6332](https://github.com/stenciljs/core/issues/6332)) ([2f363dd](https://github.com/stenciljs/core/commit/2f363dd130101bfef566cec88209f13233f7e8e3)), closes [#6326](https://github.com/stenciljs/core/issues/6326)
+* **runtime:** check shadow root nodes before appending them ([#6342](https://github.com/stenciljs/core/issues/6342)) ([c63f25d](https://github.com/stenciljs/core/commit/c63f25d0b40a3b9a2b51d1c66ab6b95154acc34a))
+* **runtime:** do not remove first comment - can break frameworks ([#6343](https://github.com/stenciljs/core/issues/6343)) ([188e7db](https://github.com/stenciljs/core/commit/188e7dbfd785174dfe87a8c9ebffd75ffa8a7208))
+* **runtime:** double check hostRef value ([#6341](https://github.com/stenciljs/core/issues/6341)) ([051522f](https://github.com/stenciljs/core/commit/051522f59851c7502ea2574abb7e0b0ded7f39bb))
+* **runtime:** fix blur handling of non-scoped elements ([#6314](https://github.com/stenciljs/core/issues/6314)) ([bfbd683](https://github.com/stenciljs/core/commit/bfbd683efdd50ba56c9c3536c9a983209dec5d9c))
+* **runtime:** fix prettier ([d84f9e7](https://github.com/stenciljs/core/commit/d84f9e7e5f2bf1ded5ff8d46ed5a71f9f74ad42d))
+* **ssr:** `scoped: true` components forwarded slots ([#6340](https://github.com/stenciljs/core/issues/6340)) ([fd4b892](https://github.com/stenciljs/core/commit/fd4b892a73a593cac4939c98ebc2d9fa6f91fbdc)), closes [#6337](https://github.com/stenciljs/core/issues/6337), closes [#6339](https://github.com/stenciljs/core/issues/6339)
+
+
+### Features
+
+* **moc-doc:** serialize `delegatesFocus` shadow DOM property ([#6333](https://github.com/stenciljs/core/issues/6333)) ([56fe6e3](https://github.com/stenciljs/core/commit/56fe6e35a3638eb50c1a74db754b4893f86172f5)), closes [#6265](https://github.com/stenciljs/core/issues/6265)
+* **runtime:** skip initial task queue to improve first time rendering ([#6331](https://github.com/stenciljs/core/issues/6331)) ([6106c70](https://github.com/stenciljs/core/commit/6106c70aa3aae10b7de920ae94fc569293aac8c9)), closes [#6317](https://github.com/stenciljs/core/issues/6317)
+
+
+
+## 🎹 [4.35.3](https://github.com/stenciljs/core/compare/v4.35.2...v4.35.3) (2025-07-02)
+
+
+### Bug Fixes
+
+* **declarations:** add ToggleEvent type ([ac92210](https://github.com/stenciljs/core/commit/ac9221076c0dd25aefc02b85f22bd0cb7216203c))
+
+
+
+## 🍓 [4.35.2](https://github.com/stenciljs/core/compare/v4.35.1...v4.35.2) (2025-07-02)
+
+
+### Bug Fixes
+
+* **ci:** hardening security of GH actions ([#6305](https://github.com/stenciljs/core/issues/6305)) ([3f80413](https://github.com/stenciljs/core/commit/3f80413171fadd150da36ff7abdad865226a54ae))
+* **compiler:** fix attachInternals should be usable without formAssoc… ([#6286](https://github.com/stenciljs/core/issues/6286)) ([7132259](https://github.com/stenciljs/core/commit/7132259c40d231f03f521c6cbe19083a467795de)), closes [#6285](https://github.com/stenciljs/core/issues/6285)
+* **declarations:** update toggle event handler types ([#6323](https://github.com/stenciljs/core/issues/6323)) ([5925974](https://github.com/stenciljs/core/commit/5925974d857c8d2a7b8b85e21478c7e3942888e8)), closes [#6322](https://github.com/stenciljs/core/issues/6322)
+* **mock-doc:** prevent infinite recursion in blur event handlers ([#6310](https://github.com/stenciljs/core/issues/6310)) ([092cacd](https://github.com/stenciljs/core/commit/092cacda99b318ee8ccc7ad51591da07c869c366)), closes [#6307](https://github.com/stenciljs/core/issues/6307)
+* **security:** update email for outreach ([9da2c90](https://github.com/stenciljs/core/commit/9da2c907af4012a4c006279870b04e7a9bae73b2))
+* **ssr:** fixes for `scoped: true` components during SSR ([#6311](https://github.com/stenciljs/core/issues/6311)) ([b07dda6](https://github.com/stenciljs/core/commit/b07dda6c94a8f9c0262ebbd303582ba5ee209648)), closes [#6313](https://github.com/stenciljs/core/issues/6313)
+* **ssr:** slow property hydration, incorrect rendering ([#6325](https://github.com/stenciljs/core/issues/6325)) ([f018c73](https://github.com/stenciljs/core/commit/f018c7349c38dbb467e5cdcebceefa3bd0e392cc)), closes [#6324](https://github.com/stenciljs/core/issues/6324)
+* **utils:** single global stylesheet instance for performance ([#6320](https://github.com/stenciljs/core/issues/6320)) ([fe5d130](https://github.com/stenciljs/core/commit/fe5d1301270e21203009f8f6efece32fb491936d))
+* **testing:** support browser executable path detection via environm… ([#6308](https://github.com/stenciljs/core/issues/6308)) ([b7e2b50](https://github.com/stenciljs/core/commit/b7e2b50120b1e69d797160a27f8d31c674f0ac13)), closes [#6213](https://github.com/stenciljs/core/issues/6213)
+
+
+
+## 🦄 [4.35.1](https://github.com/stenciljs/core/compare/v4.35.0...v4.35.1) (2025-06-17)
+
+
+### Bug Fixes
+
+* **mock-doc:** ensure event bubbling follows shadow DOM boundaries ([#6301](https://github.com/stenciljs/core/issues/6301)) ([1304ffc](https://github.com/stenciljs/core/commit/1304ffcbfec3ff981ffabe26f8cda6eedc784c52)), closes [#5676](https://github.com/stenciljs/core/issues/5676)
+* **ssr:** expand `::part` css selectors for ssr `scoped` components ([#6298](https://github.com/stenciljs/core/issues/6298)) ([da24af6](https://github.com/stenciljs/core/commit/da24af6f5c5211a26e03a3132bc7281346d8ccee)), closes [#6297](https://github.com/stenciljs/core/issues/6297)
+* **ssr:** named slot dom order with `serializeShadowRoot: 'scoped'` components ([#6300](https://github.com/stenciljs/core/issues/6300)) ([96c0f13](https://github.com/stenciljs/core/commit/96c0f13b061ee45ed4596c44dd0e2abd701b6605)), closes [#6299](https://github.com/stenciljs/core/issues/6299)
+
+
+
+# 🌝 [4.35.0](https://github.com/stenciljs/core/compare/v4.34.0...v4.35.0) (2025-06-13)
+
+
+### Bug Fixes
+
+* **ssr:** retain slotted node order in serializeShadowRoot: `scoped` ([#6294](https://github.com/stenciljs/core/issues/6294)) ([c1e032d](https://github.com/stenciljs/core/commit/c1e032d562c2ef8f93248317c01186a366a12442)), closes [#6293](https://github.com/stenciljs/core/issues/6293)
+
+
+### Features
+
+* **global-styles:** add new `addGlobalStyleToComponents` extras config option to "opt-out" of new globalStyle behaviour ([#6292](https://github.com/stenciljs/core/issues/6292)) ([cd9778a](https://github.com/stenciljs/core/commit/cd9778a2ac934944b4b76d720d0ff73a6d5d1b05))
+
+
+
+# ⛑ [4.34.0](https://github.com/stenciljs/core/compare/v4.33.1...v4.34.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* **compiler:** Prevent `extTransformsPlugin` from outputting collection dependency css ([#3306](https://github.com/stenciljs/core/issues/3306)) ([28e2a06](https://github.com/stenciljs/core/commit/28e2a062f6c0e107c0a8d25c18304b5db79f0fb4)), closes [#3305](https://github.com/stenciljs/core/issues/3305)
+* **declarations:** update PluginTransformResults after Rollup update ([#6232](https://github.com/stenciljs/core/issues/6232)) ([6ff8075](https://github.com/stenciljs/core/commit/6ff8075a8561b1e548ee437a887714599bf2ac39)), closes [#6231](https://github.com/stenciljs/core/issues/6231)
+* **mock-doc:** move slot event listener support from runtime to MockDoc ([#6287](https://github.com/stenciljs/core/issues/6287)) ([f2dd25d](https://github.com/stenciljs/core/commit/f2dd25d7e0e49b170d8683904e6e3219fa902cb0))
+* resolve TypeScript interface conflicts between component methods and HTMLElement ([#6282](https://github.com/stenciljs/core/issues/6282)) ([614d305](https://github.com/stenciljs/core/commit/614d305b1db84f2b2c0b9b1525fa97bc6508a081)), closes [#4467](https://github.com/stenciljs/core/issues/4467)
+* **runtime:** add addEventListener support for slot elements in scope components ([#6281](https://github.com/stenciljs/core/issues/6281)) ([32f66bd](https://github.com/stenciljs/core/commit/32f66bd1cf08694b4fe9abc70e076a68e1d2d731)), closes [#6269](https://github.com/stenciljs/core/issues/6269)
+* **runtime:** correct boolean attribute handling for form-associated components ([#6280](https://github.com/stenciljs/core/issues/6280)) ([7fe6372](https://github.com/stenciljs/core/commit/7fe6372c2a203b13e50a6d480ad39c8a4289adde)), closes [#5461](https://github.com/stenciljs/core/issues/5461)
+* **ssr:** mixed ssr methods styles ([#6289](https://github.com/stenciljs/core/issues/6289)) ([e253ceb](https://github.com/stenciljs/core/commit/e253cebf547cb98831cea8afb01a5bf9fe0a3d36)), closes [#6288](https://github.com/stenciljs/core/issues/6288)
+* update `CHANGELOG.md` location ([#6283](https://github.com/stenciljs/core/issues/6283)) ([36fca61](https://github.com/stenciljs/core/commit/36fca61886161df0f06f95a76e0f60b16952dcdc))
+
+
+### Features
+
+* **compiler:** improve file watching architecture and add external d… ([#6279](https://github.com/stenciljs/core/issues/6279)) ([0844538](https://github.com/stenciljs/core/commit/0844538a04f47d10f6a6d9e3c019808dfccf376b)), closes [#3151](https://github.com/stenciljs/core/issues/3151)
+
+
+
+## 🥃 [4.33.1](https://github.com/stenciljs/core/compare/v4.33.0...v4.33.1) (2025-06-03)
+
+
+### Bug Fixes
+
+* **runtime:** conditionally apply global styles using `supportsConstructableStylesheets` flag ([f4f815f](https://github.com/stenciljs/core/commit/f4f815f4624d8df7332ea9762e08a153a66a4c94))
+
+
+
+# 🐿 [4.33.0](https://github.com/stenciljs/core/compare/v4.32.0...v4.33.0) (2025-06-03)
+
+
+### Bug Fixes
+
+* **compiler:** enable rollup interop helpers for cjs when import injection is enabled ([#6272](https://github.com/stenciljs/core/issues/6272)) ([58d4ad0](https://github.com/stenciljs/core/commit/58d4ad010e7c2fc526ab9bf58177a83467fc994f)), closes [#6270](https://github.com/stenciljs/core/issues/6270)
+* **mock-doc:** onClick returns PointerEvent instead of MouseEvent ([#6267](https://github.com/stenciljs/core/issues/6267)) ([dc4bd52](https://github.com/stenciljs/core/commit/dc4bd52c9b52d684c644cf5db53577aa725609ad)), closes [#6217](https://github.com/stenciljs/core/issues/6217)
+
+
+### Features
+
+* **global-styles:** add global styles support to shadow DOM components ([#6268](https://github.com/stenciljs/core/issues/6268)) ([33363d4](https://github.com/stenciljs/core/commit/33363d4077728793e0c6f635a22dccbb5740be49))
+
+__Note:__ if you are using global styles this update may an impact on your Stencil shadow components, e.g. with `shadow: true` flag. Please validate visual correctness.
+
+
+# 🤖 [4.32.0](https://github.com/stenciljs/core/compare/v4.31.0...v4.32.0) (2025-05-28)
+
+
+### Features
+
+* **compiler:** Automatically add [@default](https://github.com/default) JSDoc to @Prop() declarations ([#6264](https://github.com/stenciljs/core/issues/6264)) ([9657927](https://github.com/stenciljs/core/commit/965792774858243ffbb866f01b6d8571f9dbb936))
+* **compiler:** support maxParallelFileOps in RollupInputOptions ([#6255](https://github.com/stenciljs/core/issues/6255)) ([71cf735](https://github.com/stenciljs/core/commit/71cf7358812fe7c4c65c95d28edd3a1e816de596))
+* **hydrate:** add `serializeShadowroot` to hydrateDocument ([#6259](https://github.com/stenciljs/core/issues/6259)) ([47f8845](https://github.com/stenciljs/core/commit/47f8845e967cbeb692b2f52687cf7f0e8454c0e0))
+* **hydrate:** export style content from hydrated scoped components ([#6260](https://github.com/stenciljs/core/issues/6260)) ([1bdcdb9](https://github.com/stenciljs/core/commit/1bdcdb904b77e93a01a58336125ef173fd83d88b))
+
+### Bug Fixes
+
+* **screenshot:** Changed hash algorithm in screenshot-compare to sha256 ([#6258](https://github.com/stenciljs/core/issues/6258)) ([bbbfb45](https://github.com/stenciljs/core/commit/bbbfb45989be8b8a423c49dd614155ed14db0e68)), closes [#6241](https://github.com/stenciljs/core/issues/6241)
+
+
+# 🐁 [4.31.0](https://github.com/stenciljs/core/compare/v4.30.0...v4.31.0) (2025-05-06)
+
+
+### Features
+
+* **docs:** add overwriteExisting option for flexible README overwrite behaviour ([#6249](https://github.com/stenciljs/core/issues/6249)) ([fa9a2cc](https://github.com/stenciljs/core/commit/fa9a2cca7816b39ad98d2874add00a02acd3112d)), closes [#6248](https://github.com/stenciljs/core/issues/6248)
+
+### Bug Fixes
+
+* **build:** fix build after dependency updates ([#6251](https://github.com/stenciljs/core/issues/6251)) ([d0c5ce5](https://github.com/stenciljs/core/commit/d0c5ce5ad0e0fcec4cf01262aec5641c6e3947d2))
+
+
+
 # 🌺 [4.30.0](https://github.com/stenciljs/core/compare/v4.29.3...v4.30.0) (2025-04-24)
 
 

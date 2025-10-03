@@ -23,7 +23,7 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
   }
 };
 
-export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean) => {
+export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void> | void => {
   if (BUILD.taskQueue && BUILD.updatable) {
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
@@ -37,6 +37,14 @@ export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean) => {
   // has already fired off its lifecycle update then
   // fire off the initial update
   const dispatch = () => dispatchHooks(hostRef, isInitialLoad);
+
+  if (isInitialLoad) {
+    queueMicrotask(() => {
+      dispatch();
+    });
+    return;
+  }
+
   return BUILD.taskQueue ? writeTask(dispatch) : dispatch();
 };
 
@@ -89,11 +97,16 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
   let maybePromise: Promise<void> | undefined;
 
   if (isInitialLoad) {
-    if (BUILD.lazyLoad && BUILD.hostListener) {
-      hostRef.$flags$ |= HOST_FLAGS.isListenReady;
-      if (hostRef.$queuedListeners$) {
-        hostRef.$queuedListeners$.map(([methodName, event]) => safeCall(instance, methodName, event, elm));
-        hostRef.$queuedListeners$ = undefined;
+    if (BUILD.lazyLoad) {
+      if (BUILD.hostListener) {
+        hostRef.$flags$ |= HOST_FLAGS.isListenReady;
+        if (hostRef.$queuedListeners$) {
+          hostRef.$queuedListeners$.map(([methodName, event]) => safeCall(instance, methodName, event, elm));
+          hostRef.$queuedListeners$ = undefined;
+        }
+      }
+      if (hostRef.$fetchedCbList$.length) {
+        hostRef.$fetchedCbList$.forEach((cb) => cb(elm));
       }
     }
     emitLifecycleEvent(elm, 'componentWillLoad');
@@ -389,7 +402,7 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
 export const forceUpdate = (ref: any) => {
   if (BUILD.updatable && (Build.isBrowser || Build.isTesting)) {
     const hostRef = getHostRef(ref);
-    const isConnected = hostRef.$hostElement$.isConnected;
+    const isConnected = hostRef?.$hostElement$?.isConnected;
     if (
       isConnected &&
       (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
@@ -407,6 +420,13 @@ export const appDidLoad = (who: string) => {
     plt.$flags$ |= PLATFORM_FLAGS.appLoaded;
   }
   nextTick(() => emitEvent(win, 'appload', { detail: { namespace: NAMESPACE } }));
+  if (BUILD.hydrateClientSide) {
+    // we can now clear out the original location map
+    // used by SSR so as to not cause memory leaks
+    if (plt.$orgLocNodes$?.size) {
+      plt.$orgLocNodes$.clear();
+    }
+  }
 
   if (BUILD.profile && performance.measure) {
     performance.measure(`[Stencil] ${NAMESPACE} initial load (by ${who})`, 'st:app:start');

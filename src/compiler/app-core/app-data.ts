@@ -25,7 +25,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
   const f: BuildFeatures = {
     allRenderFn: cmps.every((c) => c.hasRenderFn),
     formAssociated: cmps.some((c) => c.formAssociated),
-
+    deserializer: cmps.some((c) => c.hasDeserializer),
     element: cmps.some((c) => c.hasElement),
     event: cmps.some((c) => c.hasEvent),
     hasRenderFn: cmps.some((c) => c.hasRenderFn),
@@ -41,14 +41,16 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     method: cmps.some((c) => c.hasMethod),
     mode: cmps.some((c) => c.hasMode),
     modernPropertyDecls: cmps.some((c) => c.hasModernPropertyDecls),
-    observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback),
+    observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback || c.hasDeserializer),
     prop: cmps.some((c) => c.hasProp),
     propBoolean: cmps.some((c) => c.hasPropBoolean),
+    propChangeCallback: cmps.some((c) => c.hasWatchCallback || c.hasDeserializer || c.hasSerializer),
     propNumber: cmps.some((c) => c.hasPropNumber),
     propString: cmps.some((c) => c.hasPropString),
     propMutable: cmps.some((c) => c.hasPropMutable),
-    reflect: cmps.some((c) => c.hasReflect),
+    reflect: cmps.some((c) => c.hasReflect || c.hasSerializer),
     scoped: cmps.some((c) => c.encapsulation === 'scoped'),
+    serializer: cmps.some((c) => c.hasSerializer),
     shadowDom,
     shadowDelegatesFocus: shadowDom && cmps.some((c) => c.shadowDelegatesFocus),
     slot,
@@ -68,7 +70,6 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomRender: cmps.some((c) => c.hasVdomRender),
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
     vdomText: cmps.some((c) => c.hasVdomText),
-    watchCallback: cmps.some((c) => c.hasWatchCallback),
     taskQueue: true,
   };
   f.vdomAttribute = f.vdomAttribute || f.reflect;

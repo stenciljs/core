@@ -21,6 +21,14 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     cmpMeta.hasWatchCallback = true;
   }
 
+  if (cmpMeta.serializers.length > 0) {
+    cmpMeta.hasSerializer = true;
+  }
+
+  if (cmpMeta.deserializers.length > 0) {
+    cmpMeta.hasDeserializer = true;
+  }
+
   if (cmpMeta.methods.length > 0) {
     cmpMeta.hasMethod = true;
   }

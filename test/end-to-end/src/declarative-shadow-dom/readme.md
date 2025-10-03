@@ -11,10 +11,10 @@ Component that helps display a list of cars
 
 ## Properties
 
-| Property   | Attribute  | Description | Type        | Default     |
-| ---------- | ---------- | ----------- | ----------- | ----------- |
-| `cars`     | `cars`     |             | `CarData[]` | `undefined` |
-| `selected` | `selected` |             | `CarData`   | `undefined` |
+| Property   | Attribute | Description | Type        | Default     |
+| ---------- | --------- | ----------- | ----------- | ----------- |
+| `cars`     | `cars`    |             | `CarData[]` | `undefined` |
+| `selected` | --        |             | `CarData`   | `undefined` |
 
 
 ## Events

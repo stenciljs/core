@@ -7,12 +7,12 @@ class MockCSSRule {
 }
 
 export class MockCSSStyleSheet {
-  ownerNode: any;
+  ownerNode?: MockStyleElement;
   type = 'text/css';
   parentStyleSheet: MockCSSStyleSheet = null;
   cssRules: MockCSSRule[] = [];
 
-  constructor(ownerNode: MockStyleElement) {
+  constructor(ownerNode?: MockStyleElement) {
     this.ownerNode = ownerNode;
   }
 
@@ -26,7 +26,9 @@ export class MockCSSStyleSheet {
   deleteRule(index: number) {
     if (index >= 0 && index < this.cssRules.length) {
       this.cssRules.splice(index, 1);
-      updateStyleTextNode(this.ownerNode);
+      if (this.ownerNode) {
+        updateStyleTextNode(this.ownerNode);
+      }
     }
   }
 
@@ -43,8 +45,32 @@ export class MockCSSStyleSheet {
     const cssRule = new MockCSSRule(this);
     cssRule.cssText = rule;
     this.cssRules.splice(index, 0, cssRule);
-    updateStyleTextNode(this.ownerNode);
+    if (this.ownerNode) {
+      updateStyleTextNode(this.ownerNode);
+    }
     return index;
+  }
+
+  replaceSync(cssText: string) {
+    // Clear current rules
+    this.cssRules = [];
+
+    // Naive rule parser: split by `}` and restore closing bracket
+    const rules = cssText
+      .split('}')
+      .map((rule) => rule.trim())
+      .filter(Boolean)
+      .map((rule) => rule + '}');
+
+    for (const rule of rules) {
+      const cssRule = new MockCSSRule(this);
+      cssRule.cssText = rule;
+      this.cssRules.push(cssRule);
+    }
+
+    if (this.ownerNode) {
+      updateStyleTextNode(this.ownerNode);
+    }
   }
 }
 

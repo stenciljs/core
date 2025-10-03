@@ -20,6 +20,9 @@ export function createRequestHandler(devServerConfig: d.DevServerConfig, serverC
   return async function (incomingReq: IncomingMessage, res: ServerResponse) {
     async function defaultHandler() {
       try {
+        /**
+         * normalize the request path and ensures it's within the root directory of the project
+         */
         const req = normalizeHttpRequest(devServerConfig, incomingReq);
 
         if (!req.url) {

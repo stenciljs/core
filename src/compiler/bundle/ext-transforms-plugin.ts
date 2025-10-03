@@ -93,7 +93,7 @@ export const extTransformsPlugin = (
 
         if (data.tag) {
           cmp = buildCtx.components.find((c) => c.tagName === data.tag);
-          const moduleFile = cmp && compilerCtx.moduleMap.get(cmp.sourceFilePath);
+          const moduleFile = cmp && !cmp.isCollectionDependency && compilerCtx.moduleMap.get(cmp.sourceFilePath);
 
           if (moduleFile) {
             const collectionDirs = config.outputTargets.filter(isOutputTargetDistCollection);

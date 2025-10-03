@@ -2,7 +2,7 @@ import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
 import { $, browser } from '@wdio/globals';
 
-import { setupIFrameTest } from '../util.js';
+import { setupIFrameTest } from '../../util.js';
 
 /**
  * Smoke tests for `tsconfig.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.

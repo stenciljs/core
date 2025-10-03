@@ -1,5 +1,5 @@
 import { globalScripts } from '@app-globals';
-import { addHostEventListeners, getHostRef, loadModule, plt, registerHost } from '@platform';
+import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from '@platform';
 import { connectedCallback, insertVdomAnnotations } from '@runtime';
 import { CMP_FLAGS } from '@utils';
 
@@ -24,6 +24,7 @@ export function hydrateApp(
   const orgDocumentCreateElement = win.document.createElement;
   const orgDocumentCreateElementNS = win.document.createElementNS;
   const resolved = Promise.resolve();
+  setScopedSSR(opts);
 
   let tmrId: any;
   let ranCompleted = false;
@@ -204,6 +205,9 @@ async function hydrateComponent(
     if (cmpMeta != null) {
       waitingElements.add(elm);
       const hostRef = getHostRef(this);
+      if (!hostRef) {
+        return;
+      }
       addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
 
       try {
@@ -213,7 +217,7 @@ async function hydrateComponent(
         results.hydratedCount++;
 
         const ref = getHostRef(elm);
-        const modeName = !ref.$modeName$ ? '$' : ref.$modeName$;
+        const modeName = !ref?.$modeName$ ? '$' : ref?.$modeName$;
         if (!results.components.some((c) => c.tag === tagName && c.mode === modeName)) {
           results.components.push({
             tag: tagName,

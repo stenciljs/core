@@ -48,8 +48,10 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
     $hostElement$: elm,
     $cmpMeta$: cmpMeta,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
     $renderCount$: 0,
   };
+  hostRef.$fetchedCbList$ = [];
   hostRef.$onInstancePromise$ = new Promise((r) => (hostRef.$onInstanceResolve$ = r));
   hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
   elm['s-p'] = [];

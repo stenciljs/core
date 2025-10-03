@@ -9,8 +9,11 @@ import { BuildContext } from '../compiler/build/build-ctx';
 import { Cache as CompilerCache } from '../compiler/cache';
 import { buildEvents } from '../compiler/events';
 import { createInMemoryFs } from '../compiler/sys/in-memory-fs';
+import { stubComponentCompilerMeta } from '../compiler/types/tests/ComponentCompilerMeta.stub';
 import { TestingLogger } from './testing-logger';
 import { createTestingSystem, TestingSystem } from './testing-sys';
+
+export const mockComponentMeta = stubComponentCompilerMeta;
 
 /**
  * Creates a mock instance of an internal, validated Stencil configuration object
@@ -45,6 +48,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     rootDir,
     srcDir: '/src',
     srcIndexHtml: 'src/index.html',
+    suppressReservedPublicNameWarnings: false,
     sys: createTestingSystem(),
     testing: {},
     transformAliasedImportPaths: true,
@@ -102,6 +106,7 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     },
     rootDir,
     sourceMap: true,
+    suppressReservedPublicNameWarnings: false,
     sys,
     testing: null,
     validateTypes: false,
@@ -241,6 +246,8 @@ export function mockWindow(html?: string) {
  */
 export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   cmps: [],
+  isExtended: false,
+  isMixin: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: '',

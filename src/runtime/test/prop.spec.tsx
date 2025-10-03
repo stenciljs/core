@@ -1,4 +1,4 @@
-import { Component, h, Prop } from '@stencil/core';
+import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 function Clamp(lowerBound: number, upperBound: number): any {
@@ -206,6 +206,42 @@ describe('prop', () => {
     await waitForChanges();
     expect(root).toEqualHtml(`
       <cmp-a>4</cmp-a>
+    `);
+  });
+
+  it('should demonstrate JSON parsing for complex object props', async () => {
+    @Component({ tag: 'simple-demo' })
+    class SimpleDemo {
+      @Prop() message: { text: string } = { text: 'default' };
+      @Prop() messageAny: any = { text: 'default' };
+      @AttrDeserialize('message')
+      @AttrDeserialize('messageAny')
+      parseMessage(newValue: string) {
+        return JSON.parse(newValue);
+      }
+
+      render() {
+        return (
+          <div>
+            <div>{this.message.text}</div>
+            <div>{this.messageAny.text}</div>
+          </div>
+        );
+      }
+    }
+
+    const { root } = await newSpecPage({
+      components: [SimpleDemo],
+      html: `<simple-demo message='{"text": "Hello World"}' message-any='{"text": "Hello World"}'></simple-demo>`,
+    });
+
+    expect(root).toEqualHtml(`
+      <simple-demo message='{"text": "Hello World"}' message-any='{"text": "Hello World"}'>
+        <div>
+          <div>Hello World</div>
+          <div>Hello World</div>
+        </div>
+      </simple-demo>
     `);
   });
 });

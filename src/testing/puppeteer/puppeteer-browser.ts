@@ -1,6 +1,6 @@
 import * as d from '@stencil/core/declarations';
 import type { E2EProcessEnv, ValidatedConfig } from '@stencil/core/internal';
-import type * as puppeteer from 'puppeteer';
+import type { Browser, connect, ConnectOptions, executablePath, launch, LaunchOptions } from 'puppeteer';
 import semverMajor from 'semver/functions/major';
 
 export async function startPuppeteerBrowser(config: ValidatedConfig) {
@@ -49,28 +49,30 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
 
   // connection options will be used regardless whether a new browser instance is created or we attach to a
   // pre-existing instance
-  const connectOpts: puppeteer.ConnectOptions = {
+  const connectOpts: ConnectOptions = {
     slowMo: config.testing.browserSlowMo,
   };
 
-  let browser: puppeteer.Browser;
+  let browser: Browser;
   if (config.testing.browserWSEndpoint) {
-    browser = await puppeteer.connect({
+    browser = await (puppeteer.connect as typeof connect)({
       browserWSEndpoint: config.testing.browserWSEndpoint,
       ...connectOpts,
     });
   } else {
-    const launchOpts: puppeteer.LaunchOptions & puppeteer.ConnectOptions = {
+    const launchOpts: LaunchOptions & ConnectOptions = {
       args: config.testing.browserArgs,
       channel: config.testing.browserChannel,
       headless: config.testing.browserHeadless,
       devtools: config.testing.browserDevtools,
       ...connectOpts,
     };
-    if (config.testing.browserExecutablePath) {
-      launchOpts.executablePath = config.testing.browserExecutablePath;
-    }
-    browser = await puppeteer.launch({ ...launchOpts });
+    launchOpts.executablePath =
+      process.env.PUPPETEER_EXECUTABLE_PATH ||
+      process.env.CHROME_PATH ||
+      (puppeteer.executablePath as typeof executablePath)(launchOpts);
+
+    browser = await (puppeteer.launch as typeof launch)({ ...launchOpts });
   }
 
   env.__STENCIL_BROWSER_WS_ENDPOINT__ = browser.wsEndpoint();
@@ -94,16 +96,16 @@ export async function connectBrowser() {
     return null;
   }
 
-  const connectOpts: puppeteer.ConnectOptions = {
+  const connectOpts: ConnectOptions = {
     browserWSEndpoint: wsEndpoint,
   };
 
   const puppeteer = require(env.__STENCIL_PUPPETEER_MODULE__);
 
-  return await puppeteer.connect(connectOpts);
+  return await (puppeteer.connect as typeof connect)(connectOpts);
 }
 
-export async function disconnectBrowser(browser: puppeteer.Browser) {
+export async function disconnectBrowser(browser: Browser) {
   if (browser) {
     try {
       browser.disconnect();
@@ -111,6 +113,6 @@ export async function disconnectBrowser(browser: puppeteer.Browser) {
   }
 }
 
-export function newBrowserPage(browser: puppeteer.Browser) {
+export function newBrowserPage(browser: Browser) {
   return browser.newPage();
 }

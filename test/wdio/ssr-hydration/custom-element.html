@@ -2,8 +2,10 @@
 <head>
   <title>SSR testing dist-custom-elements output</title>
   <script type="module">
-    import { defineCustomElement } from '/test-components/ssr-shadow-cmp.js';
-    defineCustomElement()
+    import { defineCustomElement as childDefine } from '/test-components/ssr-shadow-cmp.js';
+    import { defineCustomElement as wrapDefine } from '/test-components/wrap-ssr-shadow-cmp.js';
+    wrapDefine();
+    childDefine();
   </script>
 </head>
 <body>

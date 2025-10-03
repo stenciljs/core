@@ -37,6 +37,7 @@ const STATIC_GETTERS_TO_REMOVE = [
   // step through to the `ComponentCompilerMeta` phase, but we want to keep the
   // `formAssociated` prop that we also set at the same time.
   'attachInternalsMemberName',
+  'deserializers',
   'elementRef',
   'encapsulation',
   'events',
@@ -45,6 +46,7 @@ const STATIC_GETTERS_TO_REMOVE = [
   'methods',
   'originalStyleUrls',
   'properties',
+  'serializers',
   'states',
   'style',
   'styleMode',

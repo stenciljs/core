@@ -18,6 +18,7 @@ export {
   mockBuildCtx,
   mockCompilerCtx,
   mockCompilerSystem,
+  mockComponentMeta,
   mockConfig,
   mockDocument,
   mockLoadConfigInit,

@@ -3,7 +3,7 @@ import type { Config } from '../../internal/index.js';
 export const config: Config = {
   namespace: 'TestTSTarget',
   tsconfig: 'tsconfig-es2022.json',
-  srcDir: 'ts-target-props',
+  srcDir: 'ts-target',
   outputTargets: [
     {
       type: 'dist',

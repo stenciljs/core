@@ -60,7 +60,7 @@ export const BUILD: BuildConditionals = {
   vdomRender: true,
   vdomStyle: true,
   vdomText: true,
-  watchCallback: true,
+  propChangeCallback: true,
   taskQueue: true,
   hotModuleReplacement: false,
   isDebug: false,

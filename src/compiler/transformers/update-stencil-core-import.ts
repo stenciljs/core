@@ -91,4 +91,5 @@ const KEEP_IMPORTS = new Set([
   'setErrorHandler',
   'setTagTransformer',
   'transformTag',
+  'Mixin',
 ]);

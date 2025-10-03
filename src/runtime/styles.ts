@@ -1,5 +1,12 @@
 import { BUILD } from '@app-data';
-import { plt, styles, supportsConstructableStylesheets, supportsShadow, win } from '@platform';
+import {
+  plt,
+  styles,
+  supportsConstructableStylesheets,
+  supportsMutableAdoptedStyleSheets,
+  supportsShadow,
+  win,
+} from '@platform';
 import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
@@ -75,8 +82,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           // This is only happening on native shadow-dom, do not needs CSS var shim
           styleElm.innerHTML = style;
         } else {
-          styleElm =
-            document.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`) || win.document.createElement('style');
+          styleElm = win.document.createElement('style');
           styleElm.innerHTML = style;
 
           // Apply CSP nonce to the style tag if it exists
@@ -121,7 +127,16 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                  */
                 const stylesheet = new CSSStyleSheet();
                 stylesheet.replaceSync(style);
-                styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
+
+                /**
+                 * > If the array needs to be modified, use in-place mutations like push().
+                 * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+                 */
+                if (supportsMutableAdoptedStyleSheets) {
+                  styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
+                } else {
+                  styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
+                }
               } else {
                 /**
                  * If a scoped component is used within a shadow root and constructable stylesheets are
@@ -163,7 +178,15 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         }
       }
     } else if (BUILD.constructableCSS && !styleContainerNode.adoptedStyleSheets.includes(style)) {
-      styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, style];
+      /**
+       * > If the array needs to be modified, use in-place mutations like push().
+       * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+       */
+      if (supportsMutableAdoptedStyleSheets) {
+        styleContainerNode.adoptedStyleSheets.push(style);
+      } else {
+        styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, style];
+      }
     }
   }
   return scopeId;

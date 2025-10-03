@@ -1,6 +1,6 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, consoleError, getHostRef } from '@platform';
-import { HOST_FLAGS } from '@utils';
+import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
 import { parsePropertyValue } from './parse-property-value';
@@ -11,6 +11,9 @@ export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref)
 export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMeta: d.ComponentRuntimeMeta) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
+  if (!hostRef) {
+    return;
+  }
 
   /**
    * If the host element is not found, let's fail with a better error message and provide
@@ -32,11 +35,26 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
     );
   }
 
+  if (
+    BUILD.serializer &&
+    hostRef.$serializerValues$.has(propName) &&
+    hostRef.$serializerValues$.get(propName) === newVal
+  ) {
+    // The newValue is the same as a saved serialized value from a prop update.
+    // The prop can be intentionally different from the attribute;
+    // updating the underlying prop here can cause an infinite loop.
+    return;
+  }
+
   const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;
   const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
-  newVal = parsePropertyValue(newVal, cmpMeta.$members$[propName][0]);
+  newVal = parsePropertyValue(
+    newVal,
+    cmpMeta.$members$[propName][0],
+    BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+  );
 
   // explicitly check for NaN on both sides, as `NaN === NaN` is always false
   const areBothNaN = Number.isNaN(oldVal) && Number.isNaN(newVal);
@@ -45,6 +63,21 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
     // gadzooks! the property's value has changed!!
     // set our new value!
     hostRef.$instanceValues$.set(propName, newVal);
+
+    if (BUILD.serializer && BUILD.reflect && cmpMeta.$attrsToReflect$) {
+      if (instance && cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
+        // this property has a serializer method
+
+        let attrVal = newVal;
+        for (const methodName of cmpMeta.$serializers$[propName]) {
+          // call the serializer methods
+          attrVal = (instance as any)[methodName](attrVal, propName);
+        }
+        // keep the serialized value - it's used in `renderVdom()` (vdom-render.ts)
+        // to set the attribute on the vnode
+        hostRef.$serializerValues$.set(propName, attrVal);
+      }
+    }
 
     if (BUILD.isDev) {
       if (hostRef.$flags$ & HOST_FLAGS.devOnRender) {
@@ -72,7 +105,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
 
     if (!BUILD.lazyLoad || instance) {
       // get an array of method names of watch functions to call
-      if (BUILD.watchCallback && cmpMeta.$watchers$ && flags & HOST_FLAGS.isWatchReady) {
+      if (BUILD.propChangeCallback && cmpMeta.$watchers$ && flags & HOST_FLAGS.isWatchReady) {
         const watchMethods = cmpMeta.$watchers$[propName];
 
         if (watchMethods) {
@@ -97,6 +130,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
             return;
           }
         }
+
         // looks like this value actually changed, so we've got work to do!
         // but only if we've already rendered, otherwise just chill out
         // queue that we need to do an update, but don't worry about queuing

@@ -60,4 +60,10 @@ export const supportsConstructableStylesheets = BUILD.constructableCSS
     })()
   : false;
 
+// https://github.com/salesforce/lwc/blob/5af18fdd904bc6cfcf7b76f3c539490ff11515b2/packages/%40lwc/engine-dom/src/renderer.ts#L41-L43
+export const supportsMutableAdoptedStyleSheets = supportsConstructableStylesheets
+  ? /*@__PURE__*/ (() =>
+      !!win.document && Object.getOwnPropertyDescriptor(win.document.adoptedStyleSheets, 'length')!.writable)()
+  : false;
+
 export { H as HTMLElement };

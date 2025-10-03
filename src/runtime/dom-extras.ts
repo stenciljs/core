@@ -566,6 +566,13 @@ function patchHostOriginalAccessor(
   accessorName: (typeof validElementPatches)[number] | (typeof validNodesPatches)[number],
   node: Node,
 ) {
+  /**
+   * skip this method if a component was imported from a non-browser environment
+   */
+  if (!globalThis.Node || !globalThis.Element) {
+    return;
+  }
+
   let accessor;
   if (validElementPatches.includes(accessorName as any)) {
     accessor = Object.getOwnPropertyDescriptor(Element.prototype, accessorName);

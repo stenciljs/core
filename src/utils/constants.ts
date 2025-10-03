@@ -17,7 +17,7 @@ export const enum MEMBER_FLAGS {
   Setter = 1 << 12,
 
   Prop = String | Number | Boolean | Any | Unknown,
-  HasAttribute = String | Number | Boolean | Any,
+  HasAttribute = String | Number | Boolean | Any | Unknown,
   PropLike = Prop | State,
 }
 
@@ -119,6 +119,11 @@ export const enum CMP_FLAGS {
    * to have its styles scoped during SSR as opposed to using DSD.
    */
   shadowNeedsScopedCss = 1 << 7,
+
+  /**
+   * Determines if a component has a render function.
+   */
+  hasRenderFn = 1 << 8,
 }
 
 /**
@@ -277,6 +282,7 @@ export enum PrimitiveType {
 /**
  * Represents a non-primitive type.
  * Described in https://w3c.github.io/webdriver-bidi/#type-script-RemoteValue.
+ * @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead.
  */
 export enum NonPrimitiveType {
   Array = 'array',
@@ -289,6 +295,9 @@ export enum NonPrimitiveType {
   Symbol = 'symbol',
 }
 
+/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
 export const TYPE_CONSTANT = 'type';
+/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
 export const VALUE_CONSTANT = 'value';
+/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
 export const SERIALIZED_PREFIX = 'serialized:';

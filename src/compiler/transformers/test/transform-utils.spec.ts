@@ -6,6 +6,7 @@ import {
   retrieveModifierLike,
   retrieveTsDecorators,
   retrieveTsModifiers,
+  updateConstructor,
 } from '../transform-utils';
 
 describe('transform-utils', () => {
@@ -198,6 +199,125 @@ describe('transform-utils', () => {
 
       expect(modifiers).toHaveLength(1);
       expect(modifiers![0]).toEqual(initialModifiers[0]);
+    });
+  });
+
+  describe('updateConstructor', () => {
+    function printClassMembers(classNode: ts.ClassDeclaration, classMembers: ts.ClassElement[]) {
+      const updatedClass = ts.factory.updateClassDeclaration(
+        classNode,
+        classNode.modifiers,
+        classNode.name,
+        classNode.typeParameters,
+        classNode.heritageClauses,
+        classMembers,
+      );
+      const printer: ts.Printer = ts.createPrinter();
+      let sourceFile = ts.createSourceFile('dummy.ts', '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
+      sourceFile = ts.factory.updateSourceFile(sourceFile, [updatedClass]);
+      return printer.printFile(sourceFile).replace(/\n/g, '').replace(/    /g, ' ');
+    }
+
+    it('returns the same constructor when no parameters are provided', () => {
+      const classNode = ts.factory.createClassDeclaration([], 'MyClass', undefined, undefined, [
+        ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], false)),
+      ]);
+      const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), []);
+
+      expect(printClassMembers(classNode, updatedMembers)).toBe(`class MyClass { constructor() { }}`);
+    });
+
+    it('adds a constructor when none is present and statements are provided', () => {
+      const ctorStatements = [ts.factory.createExpressionStatement(ts.factory.createIdentifier('someMethod()'))];
+
+      const classNode = ts.factory.createClassDeclaration([], 'MyClass', undefined, undefined, [
+        ts.factory.createMethodDeclaration(
+          [],
+          undefined,
+          ts.factory.createIdentifier('myMethod'),
+          undefined,
+          undefined,
+          [],
+          undefined,
+          ts.factory.createBlock([], false),
+        ),
+        ts.factory.createPropertyDeclaration(
+          [],
+          ts.factory.createIdentifier('myProperty'),
+          undefined,
+          undefined,
+          undefined,
+        ),
+      ]);
+
+      const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), ctorStatements);
+
+      expect(printClassMembers(classNode, updatedMembers)).toBe(
+        `class MyClass { constructor() {  someMethod(); } myMethod() { } myProperty;}`,
+      );
+    });
+
+    it('adds super call when class extends another class', () => {
+      const classNode = ts.factory.createClassDeclaration(
+        [],
+        'MyClass',
+        undefined,
+        [
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+          ]),
+        ],
+        [ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], false))],
+      );
+
+      expect(printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), []))).toBe(
+        `class MyClass extends BaseClass { constructor() { super(); }}`,
+      );
+    });
+
+    it('makes sure super call is the first statement in the constructor body', () => {
+      const classNode = ts.factory.createClassDeclaration(
+        [],
+        'MyClass',
+        undefined,
+        [
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+          ]),
+        ],
+        [
+          ts.factory.createConstructorDeclaration(
+            [],
+            [],
+            ts.factory.createBlock(
+              [ts.factory.createExpressionStatement(ts.factory.createIdentifier('someMethod()'))],
+              false,
+            ),
+          ),
+        ],
+      );
+
+      expect(printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), []))).toBe(
+        `class MyClass extends BaseClass { constructor() { super(); someMethod(); }}`,
+      );
+    });
+
+    it('adds false argument to super call when no parameters are provided', () => {
+      const classNode = ts.factory.createClassDeclaration(
+        [],
+        'MyClass',
+        undefined,
+        [
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+          ]),
+        ],
+        [ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], false))],
+      );
+
+      expect(
+        printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], true)),
+      ).toBe(`class MyClass extends BaseClass { constructor() { super(false); }}`);
     });
   });
 });

@@ -3,8 +3,8 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { getStaticValue } from '../transform-utils';
 
-export const parseStaticWatchers = (staticMembers: ts.ClassElement[]): d.ComponentCompilerWatch[] => {
-  const parsedWatchers: d.ComponentCompilerWatch[] = getStaticValue(staticMembers, 'watchers');
+export const parseStaticWatchers = (staticMembers: ts.ClassElement[]): d.ComponentCompilerChangeHandler[] => {
+  const parsedWatchers: d.ComponentCompilerChangeHandler[] = getStaticValue(staticMembers, 'watchers');
   if (!parsedWatchers || parsedWatchers.length === 0) {
     return [];
   }
