@@ -13,7 +13,7 @@ import { TestingLogger } from './testing-logger';
 import { createTestingSystem, TestingSystem } from './testing-sys';
 import { stubComponentCompilerMeta } from '../compiler/types/tests/ComponentCompilerMeta.stub';
 
-export const mockComponent = stubComponentCompilerMeta;
+export const mockComponentMeta = stubComponentCompilerMeta;
 
 /**
  * Creates a mock instance of an internal, validated Stencil configuration object

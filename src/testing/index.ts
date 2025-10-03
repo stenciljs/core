@@ -25,7 +25,7 @@ export {
   mockModule,
   mockValidatedConfig,
   mockWindow,
-  mockComponent
+  mockComponentMeta
 } from './mocks';
 export { E2EElement, E2EPage, newE2EPage } from './puppeteer';
 export { newSpecPage } from './spec-page';
