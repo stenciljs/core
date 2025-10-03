@@ -267,6 +267,7 @@ export const generateEntryPoint = (
 
   // Content related to the `bundle` export behavior
   if (outputTarget.customElementsExportBehavior === 'bundle') {
+    imports.push(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_ID}';`);
     imports.push(...cmpImports);
     body.push(
       'export const defineCustomElements = (opts) => {',
@@ -274,8 +275,8 @@ export const generateEntryPoint = (
       '        [',
       ...cmpNames.map((cmp) => `            ${cmp},`),
       '        ].forEach(cmp => {',
-      '            if (!customElements.get(cmp.is)) {',
-      '                customElements.define(cmp.is, cmp, opts);',
+      '            if (!customElements.get(transformTag(cmp.is))) {',
+      '                customElements.define(transformTag(cmp.is), cmp, opts);',
       '            }',
       '        });',
       '    }',
