@@ -18,15 +18,14 @@ export {
   mockBuildCtx,
   mockCompilerCtx,
   mockCompilerSystem,
+  mockComponentMeta,
   mockConfig,
   mockDocument,
   mockLoadConfigInit,
   mockLogger,
   mockModule,
   mockValidatedConfig,
-  mockWindow,
-  mockComponentMeta
-} from './mocks';
+  mockWindow} from './mocks';
 export { E2EElement, E2EPage, newE2EPage } from './puppeteer';
 export { newSpecPage } from './spec-page';
 export { transpile } from './test-transpile';
