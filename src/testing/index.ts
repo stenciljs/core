@@ -25,7 +25,8 @@ export {
   mockLogger,
   mockModule,
   mockValidatedConfig,
-  mockWindow} from './mocks';
+  mockWindow,
+} from './mocks';
 export { E2EElement, E2EPage, newE2EPage } from './puppeteer';
 export { newSpecPage } from './spec-page';
 export { transpile } from './test-transpile';
