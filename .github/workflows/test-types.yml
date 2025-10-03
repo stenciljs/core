@@ -1,0 +1,41 @@
+name: Type Tests
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+permissions:
+  contents: read
+
+jobs:
+  unit_test:
+    name: Type Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['18', '20', '22']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Type Tests
+        run: npm run test.type-tests
+        shell: bash

@@ -26,4 +26,33 @@ describe('parse attachInternals', function () {
     `);
     expect(t.cmp!.attachInternalsMemberName).toBe(null);
   });
+
+  it('should set attachInternalsMemberName even if formAssociated is not defined', async () => {
+    const t = transpileModule(`
+    @Component({
+      tag: 'cmp-a',
+    })
+    export class CmpA {
+      @AttachInternals()
+      myProp;
+    }
+    `);
+    expect(t.cmp!.formAssociated).toBe(false);
+    expect(t.cmp!.attachInternalsMemberName).toBe('myProp');
+  });
+
+  it('should set attachInternalsMemberName even if formAssociated is false', async () => {
+    const t = transpileModule(`
+    @Component({
+      tag: 'cmp-a',
+      formAssociated: false
+    })
+    export class CmpA {
+      @AttachInternals()
+      myProp;
+    }
+    `);
+    expect(t.cmp!.formAssociated).toBe(false);
+    expect(t.cmp!.attachInternalsMemberName).toBe('myProp');
+  });
 });

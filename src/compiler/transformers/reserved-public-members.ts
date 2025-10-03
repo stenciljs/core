@@ -14,12 +14,17 @@ import type * as d from '../../declarations';
  * @param node the TypeScript AST node at which the class member is defined
  */
 export const validatePublicName = (
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   memberName: string,
   decorator: string,
   memberType: string,
   node: ts.Node,
 ): void => {
+  if (config.suppressReservedPublicNameWarnings) {
+    return;
+  }
+
   if (RESERVED_PUBLIC_MEMBERS.has(memberName.toLowerCase())) {
     const warn = buildWarn(diagnostics);
     warn.messageText = [

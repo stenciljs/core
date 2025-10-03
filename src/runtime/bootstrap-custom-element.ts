@@ -1,6 +1,6 @@
 import { BUILD } from '@app-data';
 import { addHostEventListeners, forceUpdate, getHostRef, registerHost, styles, supportsShadow } from '@platform';
-import { CMP_FLAGS } from '@utils';
+import { CMP_FLAGS, createShadowRoot } from '@utils';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -32,8 +32,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
   if (BUILD.hostListener) {
     cmpMeta.$listeners$ = compactMeta[3];
   }
-  if (BUILD.watchCallback) {
+  if (BUILD.propChangeCallback) {
     cmpMeta.$watchers$ = Cstr.$watchers$;
+    cmpMeta.$deserializers$ = Cstr.$deserializers$;
+    cmpMeta.$serializers$ = Cstr.$serializers$;
   }
   if (BUILD.reflect) {
     cmpMeta.$attrsToReflect$ = [];
@@ -43,25 +45,22 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
   }
 
-  // TODO(STENCIL-914): this check and `else` block can go away and be replaced by just the `scoped` check
-  if (BUILD.experimentalSlotFixes) {
-    if (BUILD.scoped && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
-      // This check is intentionally not combined with the surrounding `experimentalSlotFixes` check
-      // since, moving forward, we only want to patch the pseudo shadow DOM when the component is scoped
+  if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasRenderFn) {
+    if (BUILD.experimentalSlotFixes) {
       patchPseudoShadowDom(Cstr.prototype);
-    }
-  } else {
-    if (BUILD.slotChildNodesFix) {
-      patchChildSlotNodes(Cstr.prototype);
-    }
-    if (BUILD.cloneNodeFix) {
-      patchCloneNode(Cstr.prototype);
-    }
-    if (BUILD.appendChildSlotFix) {
-      patchSlotAppendChild(Cstr.prototype);
-    }
-    if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
-      patchTextContent(Cstr.prototype);
+    } else {
+      if (BUILD.slotChildNodesFix) {
+        patchChildSlotNodes(Cstr.prototype);
+      }
+      if (BUILD.cloneNodeFix) {
+        patchCloneNode(Cstr.prototype);
+      }
+      if (BUILD.appendChildSlotFix) {
+        patchSlotAppendChild(Cstr.prototype);
+      }
+      if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+        patchTextContent(Cstr.prototype);
+      }
     }
   }
 
@@ -79,6 +78,9 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     connectedCallback() {
       if (!this.__hasHostListenerAttached) {
         const hostRef = getHostRef(this);
+        if (!hostRef) {
+          return;
+        }
         addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
         this.__hasHostListenerAttached = true;
       }
@@ -97,14 +99,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     __attachShadow() {
       if (supportsShadow) {
         if (!this.shadowRoot) {
-          if (BUILD.shadowDelegatesFocus) {
-            this.attachShadow({
-              mode: 'open',
-              delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-            });
-          } else {
-            this.attachShadow({ mode: 'open' });
-          }
+          createShadowRoot.call(this, cmpMeta);
         } else {
           // we want to check to make sure that the mode for the shadow
           // root already attached to the element (i.e. created via DSD)
@@ -130,7 +125,7 @@ export const forceModeUpdate = (elm: d.RenderNode) => {
     const mode = computeMode(elm);
     const hostRef = getHostRef(elm);
 
-    if (hostRef.$modeName$ !== mode) {
+    if (hostRef && hostRef.$modeName$ !== mode) {
       const cmpMeta = hostRef.$cmpMeta$;
       const oldScopeId = elm['s-sc'];
       const scopeId = getScopeId(cmpMeta, mode);

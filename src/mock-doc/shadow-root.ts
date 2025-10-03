@@ -5,14 +5,6 @@ export class MockShadowRoot extends MockDocumentFragment {
     return null;
   }
 
-  set adoptedStyleSheets(_adoptedStyleSheets: StyleSheet[]) {
-    throw new Error('Unimplemented');
-  }
-
-  get adoptedStyleSheets(): StyleSheet[] {
-    return [];
-  }
-
   get cloneable(): boolean {
     return false;
   }

@@ -142,6 +142,12 @@ function* streamToHtml(
         const mode = ` shadowrootmode="open"`;
         yield mode;
         output.currentLineWidth += mode.length;
+
+        if ((node as any).delegatesFocus) {
+          const delegatesFocusAttr = ' shadowrootdelegatesfocus';
+          yield delegatesFocusAttr;
+          output.currentLineWidth += delegatesFocusAttr.length;
+        }
       }
 
       const attrsLength = (node as HTMLElement).attributes.length;

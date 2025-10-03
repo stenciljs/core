@@ -12,13 +12,15 @@ export const generateGlobalStyles = async (
 ) => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistGlobalStyles);
   if (outputTargets.length === 0) {
-    return;
+    return '';
   }
 
   const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
   if (globalStyles) {
     await Promise.all(outputTargets.map((o) => compilerCtx.fs.writeFile(o.file, globalStyles)));
   }
+
+  return globalStyles;
 };
 
 const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
@@ -39,18 +41,29 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
     const transformResults = await runPluginTransforms(config, compilerCtx, buildCtx, globalStylePath);
 
     if (transformResults) {
-      const optimizedCss = await optimizeCss(
-        config,
-        compilerCtx,
-        buildCtx.diagnostics,
-        transformResults.code,
-        globalStylePath,
-      );
+      let cssCode: string;
+      let dependencies: string[] | undefined;
+
+      if (typeof transformResults === 'string') {
+        // Handle case where transformResults is a string (the CSS code directly)
+        cssCode = transformResults;
+        dependencies = undefined;
+      } else if (typeof transformResults === 'object' && transformResults.code) {
+        // Handle case where transformResults is a PluginTransformationDescriptor object
+        cssCode = transformResults.code;
+        dependencies = transformResults.dependencies;
+      } else {
+        // Invalid transformResults
+        compilerCtx.cachedGlobalStyle = null;
+        return null;
+      }
+
+      const optimizedCss = await optimizeCss(config, compilerCtx, buildCtx.diagnostics, cssCode, globalStylePath);
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
-      if (Array.isArray(transformResults.dependencies)) {
+      if (Array.isArray(dependencies)) {
         const cssModuleImports = compilerCtx.cssModuleImports.get(globalStylePath) || [];
-        transformResults.dependencies.forEach((dep) => {
+        dependencies.forEach((dep: string) => {
           compilerCtx.addWatchFile(dep);
           if (!cssModuleImports.includes(dep)) {
             cssModuleImports.push(dep);

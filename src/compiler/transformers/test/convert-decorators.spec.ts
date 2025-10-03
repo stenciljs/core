@@ -35,8 +35,8 @@ describe('convert-decorators', () => {
               "docs": { "tags": [], "text": "" },
               "getter": false, 
               "setter": false,
-              "attribute": "val",
               "reflect": false,
+               attribute: 'val',
               "defaultValue": "\\"initial value\\""
             }
           };
@@ -194,6 +194,9 @@ describe('convert-decorators', () => {
           this.count = 0;
           super();
         }
+        static get is() {
+          return 'cmp-a';
+        }
         static get states() {
           return { "count": {} };
         }}`,
@@ -269,7 +272,7 @@ describe('convert-decorators', () => {
   it('should preserve statements in an existing constructor w/ non-decorated field', async () => {
     const t = transpileModule(`
     @Component({
-      tag: 'example',
+      tag: 'example-tag',
     })
     export class Example implements FooBar {
       private classProps: Array<string>;
@@ -283,14 +286,18 @@ describe('convert-decorators', () => {
       await c`export class Example {
         constructor() {
           this.classProps = ["variant", "theme"];
-        }}`,
+        }
+        static get is() {
+          return 'example-tag';
+        }
+      }`,
     );
   });
 
   it('should preserve statements in an existing constructor super, decorated field', async () => {
     const t = transpileModule(`
     @Component({
-      tag: 'example',
+      tag: 'example-tag',
     })
     export class Example extends Parent {
       @Prop() foo: string = "bar";

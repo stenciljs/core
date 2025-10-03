@@ -1,3 +1,5 @@
+import * as ts from 'typescript';
+
 import { getStaticGetter, transpileModule } from './transpile';
 import { c, formatCode } from './utils';
 
@@ -826,8 +828,8 @@ describe('parse props', () => {
             docs: { tags: [], text: '' },
             getter: false,
             setter: false,
-            attribute: 'val',
             reflect: false,
+            attribute: 'val',
             defaultValue: \"'good'\",
           },
           val2: {
@@ -840,8 +842,8 @@ describe('parse props', () => {
             getter: false,
             setter: false,
             ogPropName: 'dynVal',
-            attribute: 'val-2',
             reflect: false,
+            attribute: 'val-2',
             defaultValue: \"'nice'\",
           },
         };
@@ -849,5 +851,99 @@ describe('parse props', () => {
     }
     _a = dynVal;`,
     );
+  });
+
+  it('should merge extended class property meta', async () => {
+    const t = transpileModule(
+      `
+      @Component({tag: 'cmp-a'})
+      class CmpA extends Parent {
+        @Prop() foo: string = 'cmp a foo';
+      }
+      class Parent extends GrandParent {
+        @Prop() foo: string = 'parent foo';
+        @Prop() bar: string = 'parent bar';
+      }
+      class GrandParent {
+        @Prop() bar: string = 'grandparent bar';
+        @Prop() baz: string = 'grandparent baz';
+      }
+    `,
+      undefined,
+      undefined,
+      [],
+      [],
+      [],
+      { target: ts.ScriptTarget.ESNext },
+    );
+
+    expect(t.properties).toEqual([
+      {
+        attribute: 'baz',
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        defaultValue: "'grandparent baz'",
+        docs: {
+          tags: [],
+          text: '',
+        },
+        getter: false,
+        internal: false,
+        mutable: false,
+        name: 'baz',
+        optional: false,
+        reflect: false,
+        required: false,
+        setter: false,
+        type: 'string',
+      },
+      {
+        attribute: 'bar',
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        defaultValue: "'parent bar'",
+        docs: {
+          tags: [],
+          text: '',
+        },
+        getter: false,
+        internal: false,
+        mutable: false,
+        name: 'bar',
+        optional: false,
+        reflect: false,
+        required: false,
+        setter: false,
+        type: 'string',
+      },
+      {
+        attribute: 'foo',
+        complexType: {
+          original: 'string',
+          references: {},
+          resolved: 'string',
+        },
+        defaultValue: "'cmp a foo'",
+        docs: {
+          tags: [],
+          text: '',
+        },
+        getter: false,
+        internal: false,
+        mutable: false,
+        name: 'foo',
+        optional: false,
+        reflect: false,
+        required: false,
+        setter: false,
+        type: 'string',
+      },
+    ]);
   });
 });

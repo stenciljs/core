@@ -4,6 +4,6 @@
     "target": "es2022",
     "useDefineForClassFields": true
   },
-  "include": ["ts-target-props"],
-  "exclude": ["ts-target-props/*.test.tsx"]
+  "include": ["ts-target"],
+  "exclude": ["ts-target/**/*.test.tsx", "ts-target/**/*.test.ts"]
 }

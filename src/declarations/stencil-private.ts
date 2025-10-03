@@ -133,15 +133,16 @@ export interface BuildFeatures {
   hostListenerTarget: boolean;
   method: boolean;
   prop: boolean;
+  propChangeCallback: boolean;
   propMutable: boolean;
   state: boolean;
-  watchCallback: boolean;
   member: boolean;
   updatable: boolean;
   propBoolean: boolean;
   propNumber: boolean;
   propString: boolean;
-  modernPropertyDecls: boolean;
+  serializer: boolean;
+  deserializer: boolean;
 
   // lifecycle events
   lifecycle: boolean;
@@ -152,6 +153,7 @@ export interface BuildFeatures {
   reflect: boolean;
 
   taskQueue: boolean;
+  modernPropertyDecls: boolean;
 }
 
 export interface BuildConditionals extends Partial<BuildFeatures> {
@@ -192,6 +194,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   experimentalSlotFixes?: boolean;
   // TODO(STENCIL-1086): remove this option when it's the default behavior
   experimentalScopedSlotChanges?: boolean;
+  addGlobalStyleToComponents?: boolean;
 }
 
 export type ModuleFormat =
@@ -273,7 +276,10 @@ export interface BuildCtx {
   scriptsDeleted: string[];
   startTime: number;
   styleBuildCount: number;
-  stylesPromise: Promise<void>;
+  /**
+   * A promise that resolves to the global styles for the current build.
+   */
+  stylesPromise: Promise<string>;
   stylesUpdated: BuildStyleUpdate[];
   timeSpan: LoggerTimeSpan;
   timestamp: string;
@@ -538,6 +544,7 @@ export interface ComponentCompilerFeatures {
   hasComponentWillRenderFn: boolean;
   hasComponentDidRenderFn: boolean;
   hasConnectedCallbackFn: boolean;
+  hasDeserializer: boolean;
   hasDisconnectedCallbackFn: boolean;
   hasElement: boolean;
   hasEvent: boolean;
@@ -562,6 +569,7 @@ export interface ComponentCompilerFeatures {
   hasPropMutable: boolean;
   hasReflect: boolean;
   hasRenderFn: boolean;
+  hasSerializer: boolean;
   hasState: boolean;
   hasStyle: boolean;
   hasVdomAttribute: boolean;
@@ -620,6 +628,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    * - indirectly/transitively reference the current component directly in their JSX/h() function
    */
   dependents: string[];
+  deserializers: ComponentCompilerChangeHandler[];
   /**
    * A list of web component tag names that are directly referenced in a Stencil component's JSX/h() function
    */
@@ -629,6 +638,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    */
   directDependents: string[];
   docs: CompilerJsDoc;
+  doesExtend: boolean;
   elementRef: string;
   encapsulation: Encapsulation;
   events: ComponentCompilerEvent[];
@@ -643,6 +653,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   listeners: ComponentCompilerListener[];
   methods: ComponentCompilerMethod[];
   properties: ComponentCompilerProperty[];
+  serializers: ComponentCompilerChangeHandler[];
   shadowDelegatesFocus: boolean;
   sourceFilePath: string;
   sourceMapPath: string;
@@ -651,7 +662,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   styles: StyleCompiler[];
   tagName: string;
   virtualProperties: ComponentCompilerVirtualProperty[];
-  watchers: ComponentCompilerWatch[];
+  watchers: ComponentCompilerChangeHandler[];
 }
 
 /**
@@ -810,7 +821,7 @@ export interface ComponentCompilerMethodComplexType {
   return: string;
 }
 
-export interface ComponentCompilerWatch {
+export interface ComponentCompilerChangeHandler {
   propName: string;
   methodName: string;
 }
@@ -894,7 +905,7 @@ export interface ComponentCompilerData {
 export interface ComponentConstructor {
   is?: string;
   properties?: ComponentConstructorProperties;
-  watchers?: ComponentConstructorWatchers;
+  watchers?: ComponentConstructorChangeHandlers;
   events?: ComponentConstructorEvent[];
   listeners?: ComponentConstructorListener[];
   style?: string;
@@ -904,13 +915,15 @@ export interface ComponentConstructor {
   cmpMeta?: ComponentRuntimeMeta;
   isProxied?: boolean;
   isStyleRegistered?: boolean;
+  serializers?: ComponentConstructorChangeHandlers;
+  deserializers?: ComponentConstructorChangeHandlers;
 }
 
 /**
  * A mapping from class member names to a list of methods which are watching
  * them.
  */
-export interface ComponentConstructorWatchers {
+export interface ComponentConstructorChangeHandlers {
   [propName: string]: string[];
 }
 
@@ -1196,7 +1209,9 @@ export interface HydrateScriptElement extends HydrateElement {
 }
 
 export interface HydrateStyleElement extends HydrateElement {
+  id?: string;
   href?: string;
+  content?: string;
 }
 
 export interface HydrateStaticData {
@@ -1241,6 +1256,8 @@ export type ModuleMap = Map<string, Module>;
  */
 export interface Module {
   cmps: ComponentCompilerMeta[];
+  isMixin: boolean;
+  isExtended: boolean;
   /**
    * A collection of modules that a component will need. The modules in this list must have import statements generated
    * in order for the component to function.
@@ -1294,10 +1311,12 @@ export interface Plugin {
     sourceText: string,
     id: string,
     context: PluginCtx,
-  ) => Promise<PluginTransformResults> | PluginTransformResults | string;
+  ) => Promise<PluginTransformResults> | PluginTransformResults;
 }
 
-export interface PluginTransformResults {
+export type PluginTransformResults = PluginTransformationDescriptor | string | null;
+
+export interface PluginTransformationDescriptor {
   code?: string;
   map?: string;
   id?: string;
@@ -1625,7 +1644,13 @@ export type ComponentRuntimeMetaCompact = [
   ComponentRuntimeHostListener[]?,
 
   /** watchers */
-  ComponentConstructorWatchers?,
+  ComponentConstructorChangeHandlers?,
+
+  /** serializers */
+  ComponentConstructorChangeHandlers?,
+
+  /** deserializers */
+  ComponentConstructorChangeHandlers?,
 ];
 
 /**
@@ -1661,11 +1686,19 @@ export interface ComponentRuntimeMeta {
   /**
    * Information about which class members have watchers attached on the component.
    */
-  $watchers$?: ComponentConstructorWatchers;
+  $watchers$?: ComponentConstructorChangeHandlers;
   /**
    * A bundle ID used for lazy loading.
    */
   $lazyBundleId$?: string;
+  /**
+   * Information about which class members have prop > attribute serializers attached on the component.
+   */
+  $serializers$?: ComponentConstructorChangeHandlers;
+  /**
+   * Information about which class members have attribute > prop deserializers attached on the component.
+   */
+  $deserializers$?: ComponentConstructorChangeHandlers;
 }
 
 /**
@@ -1726,7 +1759,12 @@ export interface HostRef {
   $cmpMeta$: ComponentRuntimeMeta;
   $hostElement$: HostElement;
   $instanceValues$?: Map<string, any>;
+  $serializerValues$?: Map<string, string>;
   $lazyInstance$?: ComponentInterface;
+  /**
+   * A list of callback functions called immediately after a lazy component module has been fetched.
+   */
+  $fetchedCbList$?: ((elm: HostElement) => void)[];
   /**
    * A promise that gets resolved if `BUILD.asyncLoading` is enabled and after the `componentDidLoad`
    * and before the `componentDidUpdate` lifecycle events are triggered.

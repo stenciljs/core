@@ -11,6 +11,10 @@ import { addCoreRuntimeApi, CREATE_EVENT, RUNTIME_APIS } from './core-runtime-ap
  * @returns the generated event creation code
  */
 export const addCreateEvents = (moduleFile: d.Module, cmp: d.ComponentCompilerMeta): ts.ExpressionStatement[] => {
+  if (!cmp?.events?.length) {
+    // no events to create, so return an empty array
+    return [];
+  }
   return cmp.events.map((ev) => {
     addCoreRuntimeApi(moduleFile, RUNTIME_APIS.createEvent);
 

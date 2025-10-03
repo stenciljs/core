@@ -15,6 +15,7 @@ import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
 import { stateDecoratorsToStatic } from './state-decorator';
 import { watchDecoratorsToStatic } from './watch-decorator';
+import { serializeDecoratorsToStatic } from './serialize-decorators';
 
 /**
  * Create a {@link ts.TransformerFactory} which will handle converting any
@@ -91,31 +92,59 @@ const visitClassDeclaration = (
   const importAliasMap = new ImportAliasMap(sourceFile);
 
   const componentDecorator = retrieveTsDecorators(classNode)?.find(isDecoratorNamed(importAliasMap.get('Component')));
-  if (!componentDecorator) {
-    return classNode;
-  }
-
   const classMembers = classNode.members;
   const decoratedMembers = classMembers.filter((member) => (retrieveTsDecorators(member)?.length ?? 0) > 0);
+
+  if (!decoratedMembers.length && !componentDecorator) {
+    return classNode;
+  }
 
   // create an array of all class members which are _not_ methods decorated
   // with a Stencil decorator. We do this here because we'll implement the
   // behavior specified for those decorated methods later on.
   const filteredMethodsAndFields = removeStencilMethodDecorators(Array.from(classMembers), diagnostics, importAliasMap);
 
-  // parse component decorator
-  componentDecoratorToStatic(config, typeChecker, diagnostics, classNode, filteredMethodsAndFields, componentDecorator);
+  if (componentDecorator) {
+    // parse component decorator
+    componentDecoratorToStatic(
+      config,
+      typeChecker,
+      diagnostics,
+      classNode,
+      filteredMethodsAndFields,
+      componentDecorator,
+    );
+  }
 
   // stores a reference to fields that should be watched for changes
   // parse member decorators (Prop, State, Listen, Event, Method, Element and Watch)
   if (decoratedMembers.length > 0) {
+    const serializers = serializeDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('PropSerialize'),
+      'PropSerialize',
+      importAliasMap.get('Prop'),
+    );
+    const deserializers = serializeDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('AttrDeserialize'),
+      'AttrDeserialize',
+      importAliasMap.get('Prop'),
+    );
     propDecoratorsToStatic(
+      config,
       diagnostics,
       decoratedMembers,
       typeChecker,
       program,
       filteredMethodsAndFields,
       importAliasMap.get('Prop'),
+      serializers,
+      deserializers,
     );
     stateDecoratorsToStatic(decoratedMembers, filteredMethodsAndFields, typeChecker, importAliasMap.get('State'));
     eventDecoratorsToStatic(

@@ -45,6 +45,7 @@ export class EsmImport {
     return (
       <div>
         <h1>esm-import</h1>
+        <span>text color defined by :host</span>
         <p id="propVal">propVal: {this.propVal}</p>
         <p id="stateVal">stateVal: {this.stateVal}</p>
         <p id="listenVal">listenVal: {this.listenVal}</p>

@@ -153,6 +153,11 @@ export interface StencilConfig {
    */
   transformAliasedImportPaths?: boolean;
   /**
+   * When `true`, Stencil will suppress diagnostics which warn about public members using reserved names
+   * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
+   */
+  suppressReservedPublicNameWarnings?: boolean;
+  /**
    * When `true`, we will validate a project's `package.json` based on the output target the user has designated
    * as `isPrimaryPackageOutputTarget: true` in their Stencil config.
    */
@@ -277,7 +282,6 @@ export interface StencilConfig {
 
   globalScript?: string;
   srcIndexHtml?: string;
-  watch?: boolean;
   testing?: TestingConfig;
   maxConcurrentWorkers?: number;
   preamble?: string;
@@ -298,12 +302,25 @@ export interface StencilConfig {
   sys?: CompilerSystem;
   tsconfig?: string;
   validateTypes?: boolean;
+
+  /**
+   * Sets whether Stencil will watch for changes in the source files and rebuild the project automatically.
+   * @default true
+   */
+  watch?: boolean;
+  /**
+   * External directories to watch for changes. By default, Stencil will watch the root and {@link StencilConfig.srcDir}
+   * directory for changes. If you want to watch additional directories, including e.g. `node_modules`, you can add them here.
+   * @default []
+   */
+  watchExternalDirs?: string[];
   /**
    * An array of RegExp patterns that are matched against all source files before adding
    * to the watch list in watch mode. If the file path matches any of the patterns, when it
    * is updated, it will not trigger a re-run of tests.
    */
   watchIgnoredRegex?: RegExp | RegExp[];
+
   /**
    * Set whether unused dependencies should be excluded from the built output.
    */
@@ -362,10 +379,21 @@ interface ConfigExtrasBase {
    * Experimental flag.
    * Updates the behavior of scoped components to align more closely with the behavior of the native
    * Shadow DOM when using `slot`s.
-   *
    * Defaults to `false`.
    */
   experimentalScopedSlotChanges?: boolean;
+
+  /**
+   * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
+   * and adds it to each component which can be useful for sharing styles efficiently across components.
+   * In some cases this can be undesirable:
+   * - If `globalStyle` is intended to configure the lightDOM only
+   * - If `globalStyle` is large it can bloat the size of SSR output when using declarative-shadow-dom
+   * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
+   *
+   * Defaults to `true`.
+   */
+  addGlobalStyleToComponents?: boolean;
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
@@ -902,6 +930,34 @@ export interface HydrateDocumentOptions {
    * Sets `navigator.userAgent`
    */
   userAgent?: string;
+  /**
+   * Configure how Stencil serializes the components shadow root.
+   * - If set to `declarative-shadow-dom` the component will be rendered within a Declarative Shadow DOM.
+   * - If set to `scoped` Stencil will render the contents of the shadow root as a `scoped: true` component
+   *   and the shadow DOM will be created during client-side hydration.
+   * - Alternatively you can mix and match the two by providing an object with `declarative-shadow-dom` and `scoped` keys,
+   * the value arrays containing the tag names of the components that should be rendered in that mode.
+   *
+   * Examples:
+   * - `{ 'declarative-shadow-dom': ['my-component-1', 'another-component'], default: 'scoped' }`
+   * Render all components as `scoped` apart from `my-component-1` and `another-component`
+   * -  `{ 'scoped': ['an-option-component'], default: 'declarative-shadow-dom' }`
+   * Render all components within `declarative-shadow-dom` apart from `an-option-component`
+   * - `'scoped'` Render all components as `scoped`
+   * - `false` disables shadow root serialization
+   *
+   * *NOTE* `true` has been deprecated in favor of `declarative-shadow-dom` and `scoped`
+   * @default 'declarative-shadow-dom'
+   */
+  serializeShadowRoot?:
+    | 'declarative-shadow-dom'
+    | 'scoped'
+    | {
+        'declarative-shadow-dom'?: string[];
+        scoped?: string[];
+        default: 'declarative-shadow-dom' | 'scoped';
+      }
+    | boolean;
 }
 
 export interface SerializeDocumentOptions extends HydrateDocumentOptions {
@@ -945,34 +1001,6 @@ export interface SerializeDocumentOptions extends HydrateDocumentOptions {
    * Remove HTML comments. Defaults to `true`.
    */
   removeHtmlComments?: boolean;
-  /**
-   * Configure how Stencil serializes the components shadow root.
-   * - If set to `declarative-shadow-dom` the component will be rendered within a Declarative Shadow DOM.
-   * - If set to `scoped` Stencil will render the contents of the shadow root as a `scoped: true` component
-   *   and the shadow DOM will be created during client-side hydration.
-   * - Alternatively you can mix and match the two by providing an object with `declarative-shadow-dom` and `scoped` keys,
-   * the value arrays containing the tag names of the components that should be rendered in that mode.
-   *
-   * Examples:
-   * - `{ 'declarative-shadow-dom': ['my-component-1', 'another-component'], default: 'scoped' }`
-   * Render all components as `scoped` apart from `my-component-1` and `another-component`
-   * -  `{ 'scoped': ['an-option-component'], default: 'declarative-shadow-dom' }`
-   * Render all components within `declarative-shadow-dom` apart from `an-option-component`
-   * - `'scoped'` Render all components as `scoped`
-   * - `false` disables shadow root serialization
-   *
-   * *NOTE* `true` has been deprecated in favor of `declarative-shadow-dom` and `scoped`
-   * @default 'declarative-shadow-dom'
-   */
-  serializeShadowRoot?:
-    | 'declarative-shadow-dom'
-    | 'scoped'
-    | {
-        'declarative-shadow-dom'?: string[];
-        scoped?: string[];
-        default: 'declarative-shadow-dom' | 'scoped';
-      }
-    | boolean;
   /**
    * The `fullDocument` flag determines the format of the rendered output. Set it to true to
    * generate a complete HTML document, or false to render only the component.
@@ -1334,7 +1362,7 @@ export interface ResolveModuleIdOptions {
   moduleId: string;
   containingFile?: string;
   exts?: string[];
-  packageFilter?: (pkg: any) => void;
+  packageFilter?: (pkg: any, pkgFile: string) => any;
 }
 
 export interface ResolveModuleIdResults {
@@ -1772,15 +1800,19 @@ export interface BundlingConfig {
 }
 
 export interface NodeResolveConfig {
-  module?: boolean;
-  jsnext?: boolean;
-  main?: boolean;
+  exportConditions?: string[];
   browser?: boolean;
-  extensions?: string[];
-  preferBuiltins?: boolean;
+  moduleDirectories?: string[];
+  modulePaths?: string[];
+  dedupe?: string[] | ((importee: string) => boolean);
+  extensions?: readonly string[];
   jail?: string;
-  only?: Array<string | RegExp>;
+  mainFields?: readonly string[];
   modulesOnly?: boolean;
+  preferBuiltins?: boolean | ((module: string) => boolean);
+  resolveOnly?: ReadonlyArray<string | RegExp> | null | ((module: string) => boolean);
+  rootDir?: string;
+  allowExportsFolderMapping?: boolean;
 
   // TODO(STENCIL-1107): Remove this field [BREAKING_CHANGE]
   /**
@@ -1813,6 +1845,7 @@ export interface RollupInputOptions {
   context?: string;
   moduleContext?: ((id: string) => string) | { [id: string]: string };
   treeshake?: boolean;
+  maxParallelFileOps?: number;
   external?:
     | (string | RegExp)[]
     | string
@@ -2027,6 +2060,7 @@ export interface TestingConfig extends JestConfig {
 
   /**
    * Path to a Chromium or Chrome executable to run instead of the bundled Chromium.
+   * @default env.PUPPETEER_EXECUTABLE_PATH || env.CHROME_PATH || puppeteer.computeExecutablePath()
    */
   browserExecutablePath?: string;
 
@@ -2378,6 +2412,17 @@ export interface OutputTargetDocsReadme extends OutputTargetBase {
    */
   dir?: string;
   dependencies?: boolean;
+  /**
+   * Controls how READMEs are written to the destination directory.
+   *
+   * - `true`: Always overwrite the destination README with the full content.
+   * - `false` (default): Only update the autogenerated content, preserving existing custom content above it.
+   * - `'if-missing'`: Write the full README only if no file exists at the destination.
+   *
+   * This option enables workflows requiring consistent, idempotent output across builds,
+   * and supports setups where custom documentation may need to coexist or vary between environments.
+   */
+  overwriteExisting?: boolean | 'if-missing';
   footer?: string;
   strict?: boolean;
 }

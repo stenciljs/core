@@ -234,4 +234,68 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
       },
     );
   });
+
+  describe('isTsFile', () => {
+    it.each(['.ts', 'foo.ts', 'foo.bar.ts', 'foo/bar.ts'])(
+      'returns true for a file ending with .ts (%s)',
+      (fileName) => {
+        expect(util.isTsFile(fileName)).toEqual(true);
+      },
+    );
+
+    it.each(['.tsx', 'foo.tsx', 'foo.bar.tsx', 'foo/bar.tsx'])(
+      'returns false for a file ending with .tsx (%s)',
+      (fileName) => {
+        expect(util.isTsFile(fileName)).toEqual(false);
+      },
+    );
+
+    it.each(['foo.js', 'foo.doc', 'foo.css', 'foo.html'])(
+      'returns false for other a file with another extension (%s)',
+      (fileName) => {
+        expect(util.isTsFile(fileName)).toEqual(false);
+      },
+    );
+
+    it('returns false for .d.ts and .d.tsx files', () => {
+      expect(util.isTsFile('foo/bar.d.ts')).toEqual(false);
+      expect(util.isTsFile('foo/bar.d.tsx')).toEqual(false);
+    });
+
+    it('returns true for a file named "spec.ts"', () => {
+      expect(util.isTsFile('spec.ts')).toEqual(true);
+    });
+
+    it('returns true for a file named "d.ts"', () => {
+      expect(util.isTsFile('d.ts')).toEqual(true);
+    });
+
+    it.each(['foo.tS', 'foo.Ts', 'foo.TS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
+      expect(util.isTsFile(fileName)).toEqual(true);
+    });
+  });
+
+  describe('isJsFile', () => {
+    it.each(['.js', 'foo.js', 'foo.bar.js', 'foo/bar.js'])(
+      'returns true for a file ending with .js (%s)',
+      (fileName) => {
+        expect(util.isJsFile(fileName)).toEqual(true);
+      },
+    );
+
+    it.each(['.jsx', 'foo.txt', 'foo/bar.css', 'foo.bar.html'])(
+      'returns false for other a file with another extension (%s)',
+      (fileName) => {
+        expect(util.isJsFile(fileName)).toEqual(false);
+      },
+    );
+
+    it('returns true for a file named "spec.js"', () => {
+      expect(util.isJsFile('spec.js')).toEqual(true);
+    });
+
+    it.each(['foo.jS', 'foo.Js', 'foo.JS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
+      expect(util.isJsFile(fileName)).toEqual(true);
+    });
+  });
 });

@@ -3,6 +3,8 @@
  */
 export const STENCIL_DECORATORS = [
   'AttachInternals',
+  'AttrDeserialize',
+  'PropSerialize',
   'Component',
   'Element',
   'Event',
@@ -27,6 +29,8 @@ export const CLASS_DECORATORS_TO_REMOVE = ['Component'] as const satisfies reado
  */
 export const MEMBER_DECORATORS_TO_REMOVE = [
   'AttachInternals',
+  'AttrDeserialize',
+  'PropSerialize',
   'Element',
   'Event',
   'Listen',
@@ -62,6 +66,8 @@ export const STATIC_GETTER_NAMES = [
   'styleUrls',
   'styles',
   'watchers',
+  'serializers',
+  'deserializers',
 ] as const;
 
 export type StencilStaticGetter = (typeof STATIC_GETTER_NAMES)[number];

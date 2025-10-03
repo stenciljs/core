@@ -123,7 +123,6 @@ export const bundleCustomElements = async (
         chunkFileNames: outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
         entryFileNames: '[name].js',
         hoistTransitiveImports: false,
-        preferConst: true,
       });
 
       // the output target should have been validated at this point - as a result, we expect this field
@@ -256,7 +255,7 @@ export const generateEntryPoint = (
 
   // Exports that are always present
   exports.push(
-    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
+    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 

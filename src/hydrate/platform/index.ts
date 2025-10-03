@@ -124,6 +124,7 @@ export const supportsShadow = BUILD.shadowDom;
 export const supportsListenerOptions = false;
 
 export const supportsConstructableStylesheets = false;
+export const supportsMutableAdoptedStyleSheets = false;
 
 export const getHostRef = (ref: d.RuntimeRef) => {
   if (ref.__stencil__getHostRef) {
@@ -134,6 +135,7 @@ export const getHostRef = (ref: d.RuntimeRef) => {
 };
 
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
+  if (!hostRef) return undefined;
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
@@ -149,8 +151,10 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
     $cmpMeta$: cmpMeta,
     $hostElement$: elm,
     $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
     $renderCount$: 0,
   };
+  hostRef.$fetchedCbList$ = [];
   hostRef.$onInstancePromise$ = new Promise((r) => (hostRef.$onInstanceResolve$ = r));
   hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
   elm['s-p'] = [];
@@ -169,6 +173,18 @@ export const Build: d.UserBuildConditionals = {
 
 export const styles: d.StyleMap = new Map();
 export const modeResolutionChain: d.ResolutionHandler[] = [];
+
+/**
+ * Checks to see any components are rendered with `scoped`
+ * @param opts - SSR options
+ */
+export const setScopedSSR = (opts: d.HydrateFactoryOptions) => {
+  scopedSSR =
+    BUILD.shadowDom && opts.serializeShadowRoot !== false && opts.serializeShadowRoot !== 'declarative-shadow-dom';
+};
+export const needsScopedSSR = () => scopedSSR;
+
+let scopedSSR = false;
 
 export { hAsync as h } from './h-async';
 export { hydrateApp } from './hydrate-app';
@@ -190,6 +206,7 @@ export {
   getValue,
   Host,
   insertVdomAnnotations,
+  Mixin,
   parsePropertyValue,
   postUpdateComponent,
   proxyComponent,

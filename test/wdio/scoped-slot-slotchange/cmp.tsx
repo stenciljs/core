@@ -7,8 +7,11 @@ import { Component, h, Prop } from '@stencil/core';
 export class ScopedSlotChange {
   @Prop({ mutable: true }) slotEventCatch: { event: Event; assignedNodes: Node[] }[] = [];
 
-  private handleSlotchange = (e) => {
-    this.slotEventCatch.push({ event: e, assignedNodes: e.target.assignedNodes() });
+  private handleSlotchange = (e: Event) => {
+    this.slotEventCatch.push({
+      event: e,
+      assignedNodes: (e as Event & { target: HTMLSlotElement }).target.assignedNodes(),
+    });
   };
 
   render() {

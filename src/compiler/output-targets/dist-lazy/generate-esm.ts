@@ -5,6 +5,7 @@ import type * as d from '../../../declarations';
 import type { RollupResult } from '../../../declarations';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
+import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
 export const generateEsm = async (
   config: d.ValidatedConfig,
@@ -21,8 +22,8 @@ export const generateEsm = async (
       format: 'es',
       entryFileNames: '[name].js',
       assetFileNames: '[name]-[hash][extname]',
-      preferConst: true,
       sourcemap: config.sourceMap,
+      plugins: [lazyBundleIdPlugin(buildCtx, config, false, '')],
     };
     const outputTargetType = esmOutputs[0].type;
     const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
@@ -40,7 +41,6 @@ export const generateEsm = async (
         output,
         'es2017',
         false,
-        '',
       );
 
       const es5destinations = esmEs5Outputs
@@ -55,7 +55,6 @@ export const generateEsm = async (
         output,
         'es5',
         false,
-        '',
       );
 
       if (config.buildEs5) {

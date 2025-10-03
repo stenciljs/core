@@ -35,19 +35,26 @@ export const formatComponentRuntimeMeta = (
   if (compilerMeta.encapsulation !== 'shadow' && compilerMeta.htmlTagNames.includes('slot')) {
     flags |= CMP_FLAGS.hasSlotRelocation;
   }
+  if (compilerMeta.hasRenderFn) {
+    flags |= CMP_FLAGS.hasRenderFn;
+  }
   if (compilerMeta.hasMode) {
     flags |= CMP_FLAGS.hasMode;
   }
 
   const members = formatComponentRuntimeMembers(compilerMeta, includeMethods);
   const hostListeners = formatHostListeners(compilerMeta);
-  const watchers = formatComponentRuntimeWatchers(compilerMeta);
+  const watchers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'watchers');
+  const serializers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'serializers');
+  const deserializers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'deserializers');
   return trimFalsy([
     flags,
     compilerMeta.tagName,
     Object.keys(members).length > 0 ? members : undefined,
     hostListeners.length > 0 ? hostListeners : undefined,
     Object.keys(watchers).length > 0 ? watchers : undefined,
+    Object.keys(serializers).length > 0 ? serializers : undefined,
+    Object.keys(deserializers).length > 0 ? deserializers : undefined,
   ]);
 };
 
@@ -63,21 +70,25 @@ export const stringifyRuntimeData = (data: any) => {
 
 /**
  * Transforms Stencil compiler metadata into a {@link d.ComponentCompilerMeta} object.
- * This handles processing any compiler metadata transformed from components' uses of `@Watch()`.
- * The map of watched attributes to their callback(s) will be immediately available
+ * This handles processing any compiler metadata transformed from components' uses of `@Watch()`, `@PropSerialize()`, and `@AttrDeserialize()`.
+ * The map of watched properties to their callback(s) will be immediately available
  * to the runtime at bootstrap.
  *
  * @param compilerMeta Component metadata gathered during compilation
- * @returns An object mapping watched attributes to their respective callback(s)
+ * @param decorator The decorator type to be processed: 'watchers', 'serializers', or 'deserializers'
+ * @returns An object mapping watched properties to their respective callback(s)
  */
-const formatComponentRuntimeWatchers = (compilerMeta: d.ComponentCompilerMeta) => {
-  const watchers: d.ComponentConstructorWatchers = {};
+const formatComponentRuntimeReactiveHandlers = (
+  compilerMeta: d.ComponentCompilerMeta,
+  decorator: 'watchers' | 'serializers' | 'deserializers',
+) => {
+  const handlers: d.ComponentConstructorChangeHandlers = {};
 
-  compilerMeta.watchers.forEach(({ propName, methodName }) => {
-    watchers[propName] = [...(watchers[propName] ?? []), methodName];
+  compilerMeta[decorator]?.forEach(({ propName, methodName }) => {
+    handlers[propName] = [...(handlers[propName] ?? []), methodName];
   });
 
-  return watchers;
+  return handlers;
 };
 
 const formatComponentRuntimeMembers = (
@@ -123,8 +134,16 @@ const formatFlags = (compilerProperty: d.ComponentCompilerProperty) => {
   return type;
 };
 
+/**
+ * We mainly add the alternative kebab-case attribute name because it might
+ * be used in an HTML environment (non JSX). Since we support hydration of
+ * complex types we provide a kebab-case attribute name for properties with
+ * these types.
+ */
+const kebabCaseSupportForTypes = ['string', 'unknown'];
+
 const formatAttrName = (compilerProperty: d.ComponentCompilerProperty) => {
-  if (typeof compilerProperty.attribute === 'string') {
+  if (kebabCaseSupportForTypes.includes(typeof compilerProperty.attribute)) {
     // string attr name means we should observe this attribute
     if (compilerProperty.name === compilerProperty.attribute) {
       // property name and attribute name are the exact same

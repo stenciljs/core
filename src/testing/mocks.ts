@@ -45,6 +45,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     rootDir,
     srcDir: '/src',
     srcIndexHtml: 'src/index.html',
+    suppressReservedPublicNameWarnings: false,
     sys: createTestingSystem(),
     testing: {},
     transformAliasedImportPaths: true,
@@ -102,6 +103,7 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     },
     rootDir,
     sourceMap: true,
+    suppressReservedPublicNameWarnings: false,
     sys,
     testing: null,
     validateTypes: false,
@@ -241,6 +243,8 @@ export function mockWindow(html?: string) {
  */
 export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   cmps: [],
+  isExtended: false,
+  isMixin: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: '',

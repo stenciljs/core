@@ -202,6 +202,18 @@ export class MockNode {
     this._nodeValue = String(value);
   }
 
+  addEventListener(type: string, handler: (ev?: any) => void) {
+    addEventListener(this, type, handler);
+  }
+
+  removeEventListener(type: string, handler: any) {
+    removeEventListener(this, type, handler);
+  }
+
+  dispatchEvent(ev: MockEvent) {
+    return dispatchEvent(this, ev);
+  }
+
   static ELEMENT_NODE = 1;
   static TEXT_NODE = 3;
   static PROCESSING_INSTRUCTION_NODE = 7;
@@ -254,21 +266,33 @@ export class MockElement extends MockNode {
     this.__attributeMap = null;
   }
 
-  addEventListener(type: string, handler: (ev?: any) => void) {
+  override addEventListener(type: string, handler: (ev?: any) => void) {
     addEventListener(this, type, handler);
   }
 
   attachShadow(_opts: ShadowRootInit) {
     const shadowRoot = this.ownerDocument.createDocumentFragment();
+    shadowRoot.delegatesFocus = _opts.delegatesFocus ?? false;
     this.shadowRoot = shadowRoot;
     return shadowRoot;
   }
 
   blur() {
-    dispatchEvent(
-      this,
-      new MockFocusEvent('blur', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
-    );
+    // Prevent infinite recursion when blur event handlers call blur()
+    // on the same element while it's already processing a blur event
+    if (isCurrentlyDispatching(this, 'blur')) {
+      return;
+    }
+
+    markAsDispatching(this, 'blur');
+    try {
+      dispatchEvent(
+        this,
+        new MockFocusEvent('blur', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
+      );
+    } finally {
+      unmarkAsDispatching(this, 'blur');
+    }
   }
 
   get localName() {
@@ -379,7 +403,7 @@ export class MockElement extends MockNode {
     this.setAttributeNS(null, 'dir', value);
   }
 
-  dispatchEvent(ev: MockEvent) {
+  override dispatchEvent(ev: MockEvent) {
     return dispatchEvent(this, ev);
   }
 
@@ -674,7 +698,7 @@ export class MockElement extends MockNode {
     }
   }
 
-  removeEventListener(type: string, handler: any) {
+  override removeEventListener(type: string, handler: any) {
     removeEventListener(this, type, handler);
   }
 
@@ -1220,4 +1244,44 @@ function setTextContent(elm: MockElement, text: string) {
   }
   const textNode = new MockTextNode(elm.ownerDocument, text);
   elm.appendChild(textNode);
+}
+
+// Track currently dispatching events to prevent infinite recursion
+const currentlyDispatching = new WeakMap<any, Set<string>>();
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ * @returns True if the element is currently dispatching the event, false otherwise.
+ */
+export function isCurrentlyDispatching(target: any, eventType: string): boolean {
+  const dispatchingEvents = currentlyDispatching.get(target);
+  return dispatchingEvents != null && dispatchingEvents.has(eventType);
+}
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ */
+export function markAsDispatching(target: any, eventType: string): void {
+  let dispatchingEvents = currentlyDispatching.get(target);
+  if (dispatchingEvents == null) {
+    dispatchingEvents = new Set<string>();
+    currentlyDispatching.set(target, dispatchingEvents);
+  }
+  dispatchingEvents.add(eventType);
+}
+
+/**
+ * @param target - The element that is currently dispatching an event.
+ * @param eventType - The type of event that is currently dispatching.
+ */
+export function unmarkAsDispatching(target: any, eventType: string): void {
+  const dispatchingEvents = currentlyDispatching.get(target);
+  if (dispatchingEvents != null) {
+    dispatchingEvents.delete(eventType);
+    if (dispatchingEvents.size === 0) {
+      currentlyDispatching.delete(target);
+    }
+  }
 }

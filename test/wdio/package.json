@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "run-s build.no-external-runtime build.test-sibling build.main build.global-script build.prerender build.invisible-prehydration build.es2022",
-    "build.main": "node ../../bin/stencil build --debug --es5",
+    "build.main": "node ../../bin/stencil build --debug --es5 && cp src/components.d.ts dist/components.d.ts",
     "build.es2022": "node ../../bin/stencil build --debug --config stencil.config-es2022.ts",
     "build.global-script": "node ../../bin/stencil build --debug --es5 --config global-script.stencil.config.ts",
     "build.test-sibling": "cd test-sibling && npm run build",
@@ -28,6 +28,7 @@
     "bootstrap": "^5.3.3",
     "normalize.css": "^8.0.1",
     "npm-run-all": "^4.1.5",
+    "test-sibling": "file:./test-sibling",
     "ts-node": "^10.9.2",
     "webdriverio": "^9.5.4",
     "workbox-build": "^4.3.1"

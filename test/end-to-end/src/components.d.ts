@@ -39,7 +39,12 @@ export namespace Components {
     interface CmpC {
     }
     interface CmpDsd {
+        /**
+          * @default 0
+         */
         "initialCounter": number;
+    }
+    interface CmpDsdFocus {
     }
     interface CmpServerVsClient {
     }
@@ -85,6 +90,9 @@ export namespace Components {
     interface ImportAssets {
     }
     interface ListenCmp {
+        /**
+          * @default false
+         */
         "opened": boolean;
     }
     interface MethodCmp {
@@ -100,13 +108,17 @@ export namespace Components {
           * @returns some string
          */
         "someMethodWithArgs": (unit: string, value: number) => Promise<string>;
+        /**
+          * @default 0
+         */
         "someProp": number;
     }
     interface MyCmp {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp": string;
         /**
@@ -122,7 +134,8 @@ export namespace Components {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp": string;
         /**
@@ -153,6 +166,9 @@ export namespace Components {
     interface PrerenderCmp {
     }
     interface PropCmp {
+        /**
+          * @default 'life preservers'
+         */
         "clothes": string;
         "first": string;
         /**
@@ -166,8 +182,14 @@ export namespace Components {
         "mode"?: any;
     }
     interface RuntimeDecorators {
+        /**
+          * @default 'basicProp'
+         */
         "basicProp": string;
         "decoratedGetterSetterProp": number;
+        /**
+          * @default -10
+         */
         "decoratedProp": number;
     }
     interface ScopedCarDetail {
@@ -298,6 +320,12 @@ declare global {
     var HTMLCmpDsdElement: {
         prototype: HTMLCmpDsdElement;
         new (): HTMLCmpDsdElement;
+    };
+    interface HTMLCmpDsdFocusElement extends Components.CmpDsdFocus, HTMLStencilElement {
+    }
+    var HTMLCmpDsdFocusElement: {
+        prototype: HTMLCmpDsdFocusElement;
+        new (): HTMLCmpDsdFocusElement;
     };
     interface HTMLCmpServerVsClientElement extends Components.CmpServerVsClient, HTMLStencilElement {
     }
@@ -553,6 +581,7 @@ declare global {
         "cmp-b": HTMLCmpBElement;
         "cmp-c": HTMLCmpCElement;
         "cmp-dsd": HTMLCmpDsdElement;
+        "cmp-dsd-focus": HTMLCmpDsdFocusElement;
         "cmp-server-vs-client": HTMLCmpServerVsClientElement;
         "cmp-with-slot": HTMLCmpWithSlotElement;
         "dom-api": HTMLDomApiElement;
@@ -625,7 +654,12 @@ declare namespace LocalJSX {
     interface CmpC {
     }
     interface CmpDsd {
+        /**
+          * @default 0
+         */
         "initialCounter"?: number;
+    }
+    interface CmpDsdFocus {
     }
     interface CmpServerVsClient {
     }
@@ -657,16 +691,23 @@ declare namespace LocalJSX {
     interface ImportAssets {
     }
     interface ListenCmp {
+        /**
+          * @default false
+         */
         "opened"?: boolean;
     }
     interface MethodCmp {
+        /**
+          * @default 0
+         */
         "someProp"?: number;
     }
     interface MyCmp {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp"?: string;
         /**
@@ -682,7 +723,8 @@ declare namespace LocalJSX {
         /**
           * bar prop
           * @returns bar
-          * @readonly
+          * @readonly 
+          * @default 'bar'
          */
         "barProp"?: string;
         /**
@@ -713,6 +755,9 @@ declare namespace LocalJSX {
     interface PrerenderCmp {
     }
     interface PropCmp {
+        /**
+          * @default 'life preservers'
+         */
         "clothes"?: string;
         "first"?: string;
         /**
@@ -726,8 +771,14 @@ declare namespace LocalJSX {
         "mode"?: any;
     }
     interface RuntimeDecorators {
+        /**
+          * @default 'basicProp'
+         */
         "basicProp"?: string;
         "decoratedGetterSetterProp"?: number;
+        /**
+          * @default -10
+         */
         "decoratedProp"?: number;
     }
     interface ScopedCarDetail {
@@ -765,6 +816,7 @@ declare namespace LocalJSX {
         "cmp-b": CmpB;
         "cmp-c": CmpC;
         "cmp-dsd": CmpDsd;
+        "cmp-dsd-focus": CmpDsdFocus;
         "cmp-server-vs-client": CmpServerVsClient;
         "cmp-with-slot": CmpWithSlot;
         "dom-api": DomApi;
@@ -823,6 +875,7 @@ declare module "@stencil/core" {
             "cmp-b": LocalJSX.CmpB & JSXBase.HTMLAttributes<HTMLCmpBElement>;
             "cmp-c": LocalJSX.CmpC & JSXBase.HTMLAttributes<HTMLCmpCElement>;
             "cmp-dsd": LocalJSX.CmpDsd & JSXBase.HTMLAttributes<HTMLCmpDsdElement>;
+            "cmp-dsd-focus": LocalJSX.CmpDsdFocus & JSXBase.HTMLAttributes<HTMLCmpDsdFocusElement>;
             "cmp-server-vs-client": LocalJSX.CmpServerVsClient & JSXBase.HTMLAttributes<HTMLCmpServerVsClientElement>;
             "cmp-with-slot": LocalJSX.CmpWithSlot & JSXBase.HTMLAttributes<HTMLCmpWithSlotElement>;
             "dom-api": LocalJSX.DomApi & JSXBase.HTMLAttributes<HTMLDomApiElement>;

@@ -1,6 +1,6 @@
 import { noop } from '@utils';
 import type { Server } from 'http';
-import ws from 'ws';
+import WebSocket, { type ServerOptions, WebSocketServer } from 'ws';
 
 import type * as d from '../declarations';
 
@@ -8,13 +8,13 @@ export function createWebSocket(
   httpServer: Server,
   onMessageFromClient: (msg: d.DevServerMessage) => void,
 ): DevWebSocket {
-  const wsConfig: ws.ServerOptions = {
+  const wsConfig: ServerOptions = {
     server: httpServer,
   };
 
-  const wsServer: ws.Server = new ws.Server(wsConfig);
+  const wsServer = new WebSocketServer(wsConfig);
 
-  function heartbeat(this: ws) {
+  function heartbeat(this: WebSocket) {
     // we need to coerce the `ws` type to our custom `DevWS` type here, since
     // this function is going to be passed in to `ws.on('pong'` which expects
     // to be passed a function where `this` is bound to `ws`.
@@ -84,6 +84,6 @@ export interface DevWebSocket {
   close: () => Promise<void>;
 }
 
-interface DevWS extends ws {
+interface DevWS extends WebSocket {
   isAlive: boolean;
 }

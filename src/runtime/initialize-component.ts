@@ -1,9 +1,9 @@
 import { BUILD } from '@app-data';
-import { consoleError, loadModule, styles } from '@platform';
+import { consoleError, loadModule, needsScopedSSR, styles } from '@platform';
 import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
-import { scopeCss } from '../utils/shadow-css';
+import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
@@ -57,8 +57,10 @@ export const initializeComponent = async (
         // we've never proxied this Constructor before
         // let's add the getters/setters to its prototype before
         // the first time we create an instance of the implementation
-        if (BUILD.watchCallback) {
+        if (BUILD.propChangeCallback) {
           cmpMeta.$watchers$ = Cstr.watchers;
+          cmpMeta.$serializers$ = Cstr.serializers;
+          cmpMeta.$deserializers$ = Cstr.deserializers;
         }
         proxyComponent(Cstr, cmpMeta, PROXY_FLAGS.proxyState);
         Cstr.isProxied = true;
@@ -84,7 +86,7 @@ export const initializeComponent = async (
       if (BUILD.member) {
         hostRef.$flags$ &= ~HOST_FLAGS.isConstructingInstance;
       }
-      if (BUILD.watchCallback) {
+      if (BUILD.propChangeCallback) {
         hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
       }
       endNewInstance();
@@ -156,8 +158,12 @@ export const initializeComponent = async (
       if (!styles.has(scopeId)) {
         const endRegisterStyles = createTime('registerStyles', cmpMeta.$tagName$);
 
-        if (BUILD.hydrateServerSide && BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
-          style = scopeCss(style, scopeId, true);
+        if (BUILD.hydrateServerSide && BUILD.shadowDom) {
+          if (cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
+            style = scopeCss(style, scopeId, true);
+          } else if (needsScopedSSR()) {
+            style = expandPartSelectors(style);
+          }
         }
         registerStyle(scopeId, style, !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation));
         endRegisterStyles();

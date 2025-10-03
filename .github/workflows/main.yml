@@ -14,6 +14,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   build_core:
     name: Build
@@ -22,6 +25,11 @@ jobs:
   lint_and_format:
     name: Lint and Format
     uses: ./.github/workflows/lint-and-format.yml
+
+  type_tests:
+    name: Type Tests
+    needs: [build_core]
+    uses: ./.github/workflows/test-types.yml
 
   analysis_tests:
     name: Analysis Tests

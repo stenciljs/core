@@ -60,3 +60,6 @@ test/wdio/www-global-script/
 test/wdio/www-prerender-script
 test/wdio/www-invisible-prehydration/
 test/wdio/test-ts-target-output
+
+# readme file from docs-readme that is expected to be missing so it will be emitted in full
+test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/styleurls-component/readme.md

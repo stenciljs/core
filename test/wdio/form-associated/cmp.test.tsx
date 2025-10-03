@@ -1,9 +1,11 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, browser, expect } from '@wdio/globals';
 
 describe('form associated', function () {
   beforeEach(async () => {
     render({
+      components: [],
       template: () => (
         <form>
           <form-associated name="test-input"></form-associated>

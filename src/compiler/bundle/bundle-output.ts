@@ -3,11 +3,10 @@ import rollupJsonPlugin from '@rollup/plugin-json';
 import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import rollupReplacePlugin from '@rollup/plugin-replace';
 import { createOnWarnFn, isString, loadRollupDiagnostics } from '@utils';
-import { PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
+import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
 
 import type * as d from '../../declarations';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
-import { createCustomResolverAsync } from '../sys/resolve/resolve-module-async';
 import { appDataPlugin } from './app-data-plugin';
 import type { BundleOptions } from './bundle-interface';
 import { coreResolvePlugin } from './core-resolve-plugin';
@@ -58,30 +57,52 @@ export const getRollupOptions = (
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
 ): RollupOptions => {
-  const customResolveOptions = createCustomResolverAsync(config.sys, compilerCtx.fs, [
-    '.tsx',
-    '.ts',
-    '.js',
-    '.mjs',
-    '.json',
-    '.d.ts',
-  ]);
   const nodeResolvePlugin = rollupNodeResolvePlugin({
     mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'],
-    customResolveOptions,
-    browser: true,
+    browser: bundleOpts.platform !== 'hydrate',
     rootDir: config.rootDir,
-    ...(config.nodeResolve as any),
+    exportConditions: ['default', 'module', 'import', 'require'],
+    extensions: ['.tsx', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '.json', '.d.ts', '.d.mts', '.d.cts'],
+    ...config.nodeResolve,
   });
 
-  const orgNodeResolveId = nodeResolvePlugin.resolveId;
-  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId = async function (importee: string, importer: string) {
+  // @ts-expect-error - this is required now.
+  nodeResolvePlugin.resolve = async function () {
+    // Investigate if we can use this to leverage Stencil's in-memory fs
+  };
+
+  // @ts-expect-error - this is required now.
+  nodeResolvePlugin.warn = (log) => {
+    const onWarn = createOnWarnFn(buildCtx.diagnostics);
+    if (typeof log === 'string') {
+      onWarn({ message: log });
+    } else if (typeof log === 'function') {
+      const result = log();
+      if (typeof result === 'string') {
+        onWarn({ message: result });
+      } else {
+        onWarn(result);
+      }
+    } else {
+      onWarn(log);
+    }
+  };
+
+  assertIsObjectHook(nodeResolvePlugin.resolveId);
+  // remove default 'post' order
+  nodeResolvePlugin.resolveId.order = null;
+  const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
+
+  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (importee: string, importer: string) {
     const [realImportee, query] = importee.split('?');
     const resolved = await orgNodeResolveId.call(
       nodeResolvePlugin as unknown as PluginContext,
       realImportee,
       importer,
-      {},
+      {
+        attributes: {},
+        isEntry: true,
+      },
     );
     if (resolved) {
       if (isString(resolved)) {
@@ -160,6 +181,8 @@ export const getRollupOptions = (
     cache: compilerCtx.rollupCache.get(bundleOpts.id),
 
     external: config.rollupConfig.inputOptions.external,
+
+    maxParallelFileOps: config.rollupConfig.inputOptions.maxParallelFileOps,
   };
 
   return rollupOptions;
@@ -182,3 +205,7 @@ const getTreeshakeOption = (config: d.ValidatedConfig, bundleOpts: BundleOptions
       : false;
   return treeshake;
 };
+
+function assertIsObjectHook<T>(hook: ObjectHook<T>): asserts hook is { handler: T; order?: 'pre' | 'post' | null } {
+  if (typeof hook !== 'object') throw new Error(`expected the rollup plugin hook ${hook} to be an object`);
+}

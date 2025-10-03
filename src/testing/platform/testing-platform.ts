@@ -28,6 +28,7 @@ export const setPlatformHelpers = (helpers: {
 
 export const supportsListenerOptions = true;
 export const supportsConstructableStylesheets = false;
+export const supportsMutableAdoptedStyleSheets = false;
 
 /**
  * Helper function to programmatically set shadow DOM support in testing scenarios.

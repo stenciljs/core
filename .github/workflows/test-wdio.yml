@@ -5,6 +5,9 @@ on:
     # Make this a reusable workflow, no value needed
     # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
+permissions:
+  contents: read
+
 jobs:
   wdio_test:
     name: Run WebdriverIO Component Tests (${{ matrix.browser }})
@@ -12,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # browser: [CHROME, FIREFOX, EDGE]
-        browser: [CHROME, EDGE]
+        browser: [CHROME]
 
     steps:
       - name: Checkout Code

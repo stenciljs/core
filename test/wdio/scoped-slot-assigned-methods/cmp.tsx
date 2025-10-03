@@ -27,10 +27,14 @@ export class ScopedSlotAssignedMethods {
   render() {
     return (
       <div>
-        <slot ref={(s: HTMLSlotElement) => (this.fbSlot = s)}>
+        <slot
+          ref={(slot) => {
+            this.fbSlot = slot as HTMLSlotElement;
+          }}
+        >
           <slot name="nested-slot">Fallback content</slot>
         </slot>
-        <slot name="plain-slot" ref={(s: HTMLSlotElement) => (this.plainSlot = s)} />
+        <slot name="plain-slot" ref={(s) => (this.plainSlot = s as HTMLSlotElement)} />
       </div>
     );
   }

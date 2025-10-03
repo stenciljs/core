@@ -47,9 +47,9 @@ export const proxyComponent = (
       Object.defineProperty(prototype, cbName, {
         value(this: d.HostElement, ...args: any[]) {
           const hostRef = getHostRef(this);
-          const instance: d.ComponentInterface = BUILD.lazyLoad ? hostRef.$lazyInstance$ : this;
+          const instance: d.ComponentInterface = BUILD.lazyLoad ? hostRef?.$lazyInstance$ : this;
           if (!instance) {
-            hostRef.$onReadyPromise$.then((asyncInstance: d.ComponentInterface) => {
+            hostRef?.$onReadyPromise$?.then((asyncInstance: d.ComponentInterface) => {
               const cb = asyncInstance[cbName];
               typeof cb === 'function' && cb.call(asyncInstance, ...args);
             });
@@ -63,9 +63,17 @@ export const proxyComponent = (
     });
   }
 
-  if ((BUILD.member && cmpMeta.$members$) || (BUILD.watchCallback && (cmpMeta.$watchers$ || Cstr.watchers))) {
-    if (BUILD.watchCallback && Cstr.watchers && !cmpMeta.$watchers$) {
-      cmpMeta.$watchers$ = Cstr.watchers;
+  if ((BUILD.member && cmpMeta.$members$) || BUILD.propChangeCallback) {
+    if (BUILD.propChangeCallback) {
+      if (Cstr.watchers && !cmpMeta.$watchers$) {
+        cmpMeta.$watchers$ = Cstr.watchers;
+      }
+      if (Cstr.deserializers && !cmpMeta.$deserializers$) {
+        cmpMeta.$deserializers$ = Cstr.deserializers;
+      }
+      if (Cstr.serializers && !cmpMeta.$serializers$) {
+        cmpMeta.$serializers$ = Cstr.serializers;
+      }
     }
     // It's better to have a const than two Object.entries()
     const members = Object.entries(cmpMeta.$members$ ?? {});
@@ -110,6 +118,9 @@ export const proxyComponent = (
         Object.defineProperty(prototype, memberName, {
           set(this: d.RuntimeRef, newValue) {
             const ref = getHostRef(this);
+            if (!ref) {
+              return;
+            }
 
             // only during dev
             if (BUILD.isDev) {
@@ -146,18 +157,16 @@ export const proxyComponent = (
                 // this means the setter was added at run-time (e.g. via a decorator).
                 // We want any value set on the element to override the default class instance value.
                 newValue = ref.$instanceValues$.get(memberName);
-              } else if (!ref.$instanceValues$.get(memberName) && currentValue) {
-                // on init get make sure the hostRef matches the element (via prop / attr)
-
-                // the prop `set()` doesn't necessarily fire during `constructor()`,
-                // so no initial value gets set in the hostRef.
-                // This means watchers fire even though the value hasn't changed.
-                // So if there's a current value and no initial value, let's set it now.
-                ref.$instanceValues$.set(memberName, currentValue);
               }
               // this sets the value via the `set()` function which
               // *might* not end up changing the underlying value
-              origSetter.apply(this, [parsePropertyValue(newValue, memberFlags)]);
+              origSetter.apply(this, [
+                parsePropertyValue(
+                  newValue,
+                  memberFlags,
+                  BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+                ),
+              ]);
               // if it's a State property, we need to get the value from the instance
               newValue =
                 memberFlags & MEMBER_FLAGS.State
@@ -184,7 +193,7 @@ export const proxyComponent = (
                 // if this is a value set on an Element *before* the instance has initialized (e.g. via an html attr)...
                 if (flags & PROXY_FLAGS.isElementConstructor && !ref.$lazyInstance$) {
                   // wait for lazy instance...
-                  ref.$onReadyPromise$.then(() => {
+                  ref.$fetchedCbList$.push(() => {
                     // check if this instance member has a setter doesn't match what's already on the element
                     if (
                       cmpMeta.$members$[memberName][0] & MEMBER_FLAGS.Setter &&
@@ -205,7 +214,7 @@ export const proxyComponent = (
               const setterSetVal = () => {
                 const currentValue = ref.$lazyInstance$[memberName];
                 if (!ref.$instanceValues$.get(memberName) && currentValue) {
-                  // on init get make sure the hostRef matches class instance
+                  // on init `get()` make sure the hostRef matches class instance
 
                   // the prop `set()` doesn't fire during `constructor()`:
                   // no initial value gets set in the hostRef.
@@ -215,15 +224,21 @@ export const proxyComponent = (
                 }
                 // this sets the value via the `set()` function which
                 // might not end up changing the underlying value
-                ref.$lazyInstance$[memberName] = parsePropertyValue(newValue, memberFlags);
+                ref.$lazyInstance$[memberName] = parsePropertyValue(
+                  newValue,
+                  memberFlags,
+                  BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+                );
                 setValue(this, memberName, ref.$lazyInstance$[memberName], cmpMeta);
               };
 
               if (ref.$lazyInstance$) {
                 setterSetVal();
               } else {
-                // the class is yet to be loaded / defined so queue an async call
-                ref.$onReadyPromise$.then(() => setterSetVal());
+                // the class is yet to be loaded / defined so queue the call
+                ref.$fetchedCbList$.push(() => {
+                  setterSetVal();
+                });
               }
             }
           },
@@ -250,6 +265,18 @@ export const proxyComponent = (
       prototype.attributeChangedCallback = function (attrName: string, oldValue: string, newValue: string) {
         plt.jmp(() => {
           const propName = attrNameToPropName.get(attrName);
+          const hostRef = getHostRef(this);
+
+          if (
+            BUILD.serializer &&
+            hostRef.$serializerValues$.has(propName) &&
+            hostRef.$serializerValues$.get(propName) === newValue
+          ) {
+            // The newValue is the same as a saved serialized value from a prop update.
+            // The prop can be intentionally different from the attribute;
+            //  updating the underlying prop here can cause an infinite loop.
+            return;
+          }
 
           //  In a web component lifecycle the attributeChangedCallback runs prior to connectedCallback
           //  in the case where an attribute was set inline.
@@ -287,6 +314,31 @@ export const proxyComponent = (
           if (this.hasOwnProperty(propName) && BUILD.lazyLoad) {
             newValue = this[propName];
             delete this[propName];
+          }
+
+          if (BUILD.deserializer && cmpMeta.$deserializers$ && cmpMeta.$deserializers$[propName]) {
+            const setVal = (methodName: string, instance: any) => {
+              const deserializeVal = instance?.[methodName](newValue, propName);
+              if (deserializeVal !== this[propName]) {
+                this[propName] = deserializeVal;
+              }
+            };
+
+            for (const methodName of cmpMeta.$deserializers$[propName]) {
+              if (BUILD.lazyLoad) {
+                if (hostRef.$lazyInstance$) {
+                  setVal(methodName, hostRef.$lazyInstance$);
+                } else {
+                  // If the instance is not ready, we can queue the update
+                  hostRef.$fetchedCbList$.push(() => {
+                    setVal(methodName, hostRef.$lazyInstance$);
+                  });
+                }
+              } else {
+                setVal(methodName, this);
+              }
+            }
+            return;
           } else if (
             prototype.hasOwnProperty(propName) &&
             typeof this[propName] === 'number' &&
@@ -300,7 +352,6 @@ export const proxyComponent = (
           } else if (propName == null) {
             // At this point we should know this is not a "member", so we can treat it like watching an attribute
             // on a vanilla web component
-            const hostRef = getHostRef(this);
             const flags = hostRef?.$flags$;
 
             // We only want to trigger the callback(s) if:
@@ -308,6 +359,7 @@ export const proxyComponent = (
             // 2. The watchers are ready
             // 3. The value has changed
             if (
+              hostRef &&
               flags &&
               !(flags & HOST_FLAGS.isConstructingInstance) &&
               flags & HOST_FLAGS.isWatchReady &&
@@ -330,7 +382,7 @@ export const proxyComponent = (
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
           newValue = newValue === null && typeof this[propName] === 'boolean' ? (false as any) : newValue;
-          if (newValue !== this[propName] && (!propDesc.get || !!propDesc.set)) {
+          if (newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
             this[propName] = newValue;
           }
         });

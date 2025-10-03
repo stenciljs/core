@@ -150,6 +150,7 @@ export const validateConfig = (
   validatedConfig.extras.scriptDataOpts = !!validatedConfig.extras.scriptDataOpts;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
   validatedConfig.extras.tagNameTransform = !!validatedConfig.extras.tagNameTransform;
+  validatedConfig.extras.addGlobalStyleToComponents = validatedConfig.extras.addGlobalStyleToComponents !== false;
 
   // TODO(STENCIL-914): remove when `experimentalSlotFixes` is the default behavior
   // If the user set `experimentalSlotFixes` and any individual slot fix flags to `false`, we need to log a warning
@@ -204,6 +205,7 @@ export const validateConfig = (
   setBooleanConfig(validatedConfig, 'autoprefixCss', null, validatedConfig.buildEs5);
   setBooleanConfig(validatedConfig, 'validateTypes', null, !validatedConfig._isTesting);
   setBooleanConfig(validatedConfig, 'allowInlineScripts', null, true);
+  setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', null, false);
 
   if (!isString(validatedConfig.taskQueue)) {
     validatedConfig.taskQueue = 'async';

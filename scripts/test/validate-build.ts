@@ -30,11 +30,9 @@ const pkgs: TestPackage[] = [
       'dev-server/templates/directory-index.html',
       'dev-server/templates/initial-load.html',
       'dev-server/connector.html',
-      'dev-server/open-in-editor-api.js',
       'dev-server/server-process.js',
       'dev-server/server-worker-thread.js',
       'dev-server/visualstudio.vbs',
-      'dev-server/ws.js',
       'dev-server/xdg-open',
     ],
   },
@@ -368,7 +366,7 @@ async function validateModuleTreeshake(opts: BuildOptions, moduleName: string, e
         },
         load(id) {
           if (id === '@stencil/core/internal/app-globals') {
-            return 'export const globalScripts = () => {};';
+            return 'export const globalScripts = () => {};\nexport const globalStyles = "";';
           }
           if (id === virtualInputId) {
             return `import "${entryId}";`;

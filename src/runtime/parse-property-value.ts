@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { isComplexType, MEMBER_FLAGS } from '@utils';
+import { deserializeProperty, isComplexType, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
 
 /**
  * Parse a new property value for a given property type.
@@ -22,34 +22,61 @@ import { isComplexType, MEMBER_FLAGS } from '@utils';
  *
  * @param propValue the new value to coerce to some type
  * @param propType the type of the prop, expressed as a binary number
+ * @param isFormAssociated whether the component is form-associated (optional)
  * @returns the parsed/coerced value
  */
-export const parsePropertyValue = (propValue: any, propType: number): any => {
-  // ensure this value is of the correct prop type
-
-  if (propValue != null && !isComplexType(propValue)) {
-    if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
-      // per the HTML spec, any string value means it is a boolean true value
-      // but we'll cheat here and say that the string "false" is the boolean false
-      return propValue === 'false' ? false : propValue === '' || !!propValue;
-    }
-
-    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-      // force it to be a number
-      return parseFloat(propValue);
-    }
-
-    if (BUILD.propString && propType & MEMBER_FLAGS.String) {
-      // could have been passed as a number or boolean
-      // but we still want it as a string
-      return String(propValue);
-    }
-
-    // redundant return here for better minification
+export const parsePropertyValue = (propValue: unknown, propType: number, isFormAssociated?: boolean): any => {
+  /**
+   * Allow hydrate parameters that contain a complex non-serialized values.
+   * This is SSR-specific and should only run during hydration.
+   */
+  if (
+    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
+    typeof propValue === 'string' &&
+    propValue.startsWith(SERIALIZED_PREFIX)
+  ) {
+    propValue = deserializeProperty(propValue);
     return propValue;
   }
 
-  // not sure exactly what type we want
-  // so no need to change to a different type
+  if (propValue != null && !isComplexType(propValue)) {
+    /**
+     * ensure this value is of the correct prop type
+     */
+    if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
+      /**
+       * For form-associated components, according to HTML spec, the presence of any boolean attribute
+       * (regardless of its value, even "false") should make the property true.
+       * For non-form-associated components, we maintain the legacy behavior where "false" becomes false.
+       */
+      if (BUILD.formAssociated && isFormAssociated && typeof propValue === 'string') {
+        // For form-associated components, any string attribute value (including "false") means true
+        return propValue === '' || !!propValue;
+      } else {
+        // Legacy behavior: string "false" becomes boolean false
+        return propValue === 'false' ? false : propValue === '' || !!propValue;
+      }
+    }
+
+    /**
+     * force it to be a number
+     */
+    if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
+      return typeof propValue === 'string' ? parseFloat(propValue) : typeof propValue === 'number' ? propValue : NaN;
+    }
+
+    /**
+     * could have been passed as a number or boolean but we still want it as a string
+     */
+    if (BUILD.propString && propType & MEMBER_FLAGS.String) {
+      return String(propValue);
+    }
+
+    return propValue;
+  }
+
+  /**
+   * not sure exactly what type we want so no need to change to a different type
+   */
   return propValue;
 };

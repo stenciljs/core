@@ -1,0 +1,16 @@
+<html>
+<head>
+  <title>ES2022 dist-custom-elements output</title>
+  <script type="module">
+    import { defineCustomElement as defineExtendedCmp } from '/test-ts-target-output/custom-elements/extends-external.js';
+    import { defineCustomElement as defineSiblingExtended } from '/test-ts-target-output/custom-elements/sibling-extended.js';
+    defineExtendedCmp();
+    defineSiblingExtended();
+  </script>
+</head>
+<body>
+  <h1>ES2022 dist-custom-elements output</h1>
+  <extends-external></extends-external>
+  <sibling-extended></sibling-extended>
+</body>
+</html>

@@ -2,43 +2,7 @@ import { normalizePath } from '@utils';
 
 import type * as d from '../../../declarations';
 
-const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mjs', '.js', '.jsx', '.json', '.md'];
-
-/**
- * Determine if a stringified file path is a TypeScript declaration file based on the extension at the end of the path.
- * @param p the path to evaluate
- * @returns `true` if the path ends in `.d.ts` (case-sensitive), `false` otherwise.
- */
-export const isDtsFile = (p: string) => p.endsWith('.d.ts');
-
-/**
- * Determine if a stringified file path is a TypeScript file based on the extension at the end of the path. This
- * function does _not_ consider type declaration files (`.d.ts` files) to be TypeScript files.
- * @param p the path to evaluate
- * @returns `true` if the path ends in `.ts` (case-sensitive) but does _not_ end in `.d.ts`, `false` otherwise.
- */
-export const isTsFile = (p: string) => !isDtsFile(p) && p.endsWith('.ts');
-
-/**
- * Determine if a stringified file path is a TSX file based on the extension at the end of the path
- * @param p the path to evaluate
- * @returns `true` if the path ends in `.tsx` (case-sensitive), `false` otherwise.
- */
-export const isTsxFile = (p: string) => p.endsWith('.tsx');
-
-/**
- * Determine if a stringified file path is a JSX file based on the extension at the end of the path
- * @param p the path to evaluate
- * @returns `true` if the path ends in `.jsx` (case-sensitive), `false` otherwise.
- */
-export const isJsxFile = (p: string) => p.endsWith('.jsx');
-
-/**
- * Determine if a stringified file path is a JavaScript file based on the extension at the end of the path
- * @param p the path to evaluate
- * @returns `true` if the path ends in `.js` (case-sensitive), `false` otherwise.
- */
-export const isJsFile = (p: string) => p.endsWith('.js');
+const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mts', '.cts', '.mjs', '.js', '.cjs', '.jsx', '.json', '.md'];
 
 export const isCommonDirModuleFile = (p: string) => COMMON_DIR_MODULE_EXTS.some((ext) => p.endsWith(ext));
 

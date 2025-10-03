@@ -1,1 +1,3 @@
-declare const Context: any;
+const Context: any = {};
+export { Context };
+export default () => {};

@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 
 import { hydrateFactory } from '@hydrate-factory';
 import { modeResolutionChain, setMode } from '@platform';
+import { HYDRATED_STYLE_ID } from '@runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
 import { hasError } from '@utils';
 
@@ -70,6 +71,11 @@ export function hydrateDocument(
   asStream?: boolean,
 ): Promise<HydrateResults> | Readable {
   const opts = normalizeHydrateOptions(options);
+  /**
+   * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
+   */
+  opts.serializeShadowRoot =
+    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
 
   let win: MockWindow | null = null;
   const results = generateHydrateResults(opts);
@@ -208,6 +214,17 @@ function finalizeHydrate(win: MockWindow, doc: Document, opts: HydrateFactoryOpt
 
     if (opts.removeScripts) {
       removeScripts(doc.documentElement);
+    }
+
+    const styles = doc.querySelectorAll('head style');
+    if (styles.length > 0) {
+      results.styles.push(
+        ...Array.from(styles).map((style) => ({
+          href: style.getAttribute('href'),
+          id: style.getAttribute(HYDRATED_STYLE_ID),
+          content: style.textContent,
+        })),
+      );
     }
 
     try {

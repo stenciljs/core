@@ -7,6 +7,7 @@ import { bundleDts, cleanDts } from '../utils/bundle-dts';
 import type { BuildOptions } from '../utils/options';
 import { writePkgJson } from '../utils/write-pkg-json';
 import { getInternalAppDataBundles } from './internal-app-data';
+import { getInternalAppGlobalsBundles } from './internal-app-globals';
 import { getInternalClientBundles } from './internal-platform-client';
 import { getInternalPlatformHydrateBundles } from './internal-platform-hydrate';
 import { getInternalTestingBundle } from './internal-platform-testing';
@@ -57,10 +58,18 @@ export async function buildInternal(opts: BuildOptions) {
   const clientPlatformBundles = await getInternalClientBundles(opts);
   const hydratePlatformBundles = await getInternalPlatformHydrateBundles(opts);
   const appDataBundles = await getInternalAppDataBundles(opts);
+  const appGlobalsBundles = await getInternalAppGlobalsBundles(opts);
   const internalTestingBundle = await getInternalTestingBundle(opts);
 
   return runBuilds(
-    [shadowCSSBundle, ...clientPlatformBundles, ...hydratePlatformBundles, internalTestingBundle, ...appDataBundles],
+    [
+      shadowCSSBundle,
+      ...clientPlatformBundles,
+      ...hydratePlatformBundles,
+      internalTestingBundle,
+      ...appDataBundles,
+      ...appGlobalsBundles,
+    ],
     opts,
   );
 }

@@ -89,7 +89,7 @@ const parseMethodDecorator = (
   }
 
   // Validate if the method name does not conflict with existing public names
-  validatePublicName(diagnostics, methodName, '@Method()', 'method', method.name);
+  validatePublicName(config, diagnostics, methodName, '@Method()', 'method', method.name);
 
   const methodMeta: d.ComponentCompilerStaticMethod = {
     complexType: {

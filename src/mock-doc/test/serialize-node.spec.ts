@@ -153,6 +153,18 @@ describe('serializeNodeToHtml', () => {
     `);
   });
 
+  it('shadow root to template with focus delegation', () => {
+    const elm = doc.createElement('cmp-a');
+    expect(elm.shadowRoot).toEqual(null);
+
+    const shadowRoot = elm.attachShadow({ mode: 'open', delegatesFocus: true });
+    expect(shadowRoot.nodeType).toEqual(11);
+    expect(elm.shadowRoot.nodeType).toEqual(11);
+
+    expect(shadowRoot.host).toEqual(elm);
+    expect(elm.outerHTML).toContain('<template shadowrootmode="open" shadowrootdelegatesfocus');
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;

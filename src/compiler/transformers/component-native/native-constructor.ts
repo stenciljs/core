@@ -18,6 +18,8 @@ import { createNativeAttachInternalsBinding } from './attach-internals';
  * @param moduleFile the Stencil module representation of the component class
  * @param cmp the component metadata generated for the component
  * @param classNode the TypeScript syntax tree node for the class
+ * @param compilerCtx the compiler context, which provides access to the module map
+ * @param tsSourceFile the TypeScript source file containing the class
  */
 export const updateNativeConstructor = (
   classMembers: ts.ClassElement[],
@@ -29,12 +31,16 @@ export const updateNativeConstructor = (
     return;
   }
 
+  const cstrMethodArgs = [
+    ts.factory.createParameterDeclaration(undefined, undefined, ts.factory.createIdentifier('registerHost')),
+  ];
+
   const nativeCstrStatements: ts.Statement[] = [
     ...nativeInit(cmp),
     ...addCreateEvents(moduleFile, cmp),
     ...createNativeAttachInternalsBinding(cmp),
   ];
-  updateConstructor(classNode, classMembers, nativeCstrStatements);
+  updateConstructor(classNode, classMembers, nativeCstrStatements, cstrMethodArgs, cmp.doesExtend);
 };
 
 /**
@@ -42,8 +48,8 @@ export const updateNativeConstructor = (
  * @param cmp the component's metadata
  * @returns the generated expression statements
  */
-const nativeInit = (cmp: d.ComponentCompilerMeta): ReadonlyArray<ts.ExpressionStatement> => {
-  const initStatements = [nativeRegisterHostStatement()];
+const nativeInit = (cmp: d.ComponentCompilerMeta): ReadonlyArray<ts.ExpressionStatement | ts.IfStatement> => {
+  const initStatements: (ts.ExpressionStatement | ts.IfStatement)[] = [nativeRegisterHostStatement()];
   if (cmp.encapsulation === 'shadow') {
     initStatements.push(nativeAttachShadowStatement());
   }
@@ -55,14 +61,26 @@ const nativeInit = (cmp: d.ComponentCompilerMeta): ReadonlyArray<ts.ExpressionSt
  * mapping.
  * @returns the generated expression statement
  */
-const nativeRegisterHostStatement = (): ts.ExpressionStatement => {
-  // Create an expression statement, `this.__registerHost();`
-  return ts.factory.createExpressionStatement(
-    ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('__registerHost')),
-      undefined,
-      undefined,
+const nativeRegisterHostStatement = (): ts.IfStatement => {
+  // Create an expression statement, `if (registerHost !== false) this.__registerHost();`
+  return ts.factory.createIfStatement(
+    ts.factory.createBinaryExpression(
+      ts.factory.createIdentifier('registerHost'),
+      ts.SyntaxKind.ExclamationEqualsEqualsToken,
+      ts.factory.createFalse(),
     ),
+    ts.factory.createBlock([
+      ts.factory.createExpressionStatement(
+        ts.factory.createCallExpression(
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createThis(),
+            ts.factory.createIdentifier('__registerHost'),
+          ),
+          undefined,
+          undefined,
+        ),
+      ),
+    ]),
   );
 };
 

@@ -42,6 +42,7 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
   var CharacterData = $stencilWindow.CharacterData;
   var CSS = $stencilWindow.CSS;
   var CustomEvent = $stencilWindow.CustomEvent;
+  var CSSStyleSheet = $stencilWindow.CSSStyleSheet;
   var Document = $stencilWindow.Document;
   var ShadowRoot = $stencilWindow.ShadowRoot;
   var DocumentFragment = $stencilWindow.DocumentFragment;

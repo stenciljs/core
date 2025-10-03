@@ -1,4 +1,4 @@
-import { join, normalizePath, relative, unique } from '@utils';
+import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '@utils';
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 
@@ -12,15 +12,10 @@ import { parseCallExpression } from './call-expression';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
 import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus } from './encapsulation';
-import { parseStaticEvents } from './events';
 import { parseFormAssociated } from './form-associated';
-import { parseStaticListeners } from './listeners';
-import { parseStaticMethods } from './methods';
-import { parseStaticProps } from './props';
-import { parseStaticStates } from './states';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
-import { parseStaticWatchers } from './watchers';
+import { mergeExtendedClassMeta } from './class-extension';
 
 const BLACKLISTED_COMPONENT_METHODS = [
   /**
@@ -47,6 +42,7 @@ const BLACKLISTED_COMPONENT_METHODS = [
  * @param typeChecker a TypeScript type checker instance
  * @param cmpNode the TypeScript class declaration for the component
  * @param moduleFile Stencil's IR for a module, used here as an out param
+ * @param buildCtx the current build context, used to surface diagnostics
  * @param transformOpts options which control various aspects of the
  * transformation
  * @returns the TypeScript class declaration IR instance with which the
@@ -57,6 +53,7 @@ export const parseStaticComponentMeta = (
   typeChecker: ts.TypeChecker,
   cmpNode: ts.ClassDeclaration,
   moduleFile: d.Module,
+  buildCtx: d.BuildCtx,
   transformOpts?: d.TransformOptions,
 ): ts.ClassDeclaration => {
   if (cmpNode.members == null) {
@@ -68,6 +65,18 @@ export const parseStaticComponentMeta = (
     return cmpNode;
   }
 
+  const {
+    doesExtend,
+    properties,
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    classMethods,
+    serializers,
+    deserializers,
+  } = mergeExtendedClassMeta(compilerCtx, typeChecker, buildCtx, cmpNode, staticMembers, moduleFile);
   const symbol = typeChecker ? typeChecker.getSymbolAtLocation(cmpNode.name) : undefined;
   const docs = serializeSymbol(typeChecker, symbol);
   const isCollectionDependency = moduleFile.isCollectionDependency;
@@ -82,13 +91,14 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
-    properties: parseStaticProps(staticMembers),
+    properties,
     virtualProperties: parseVirtualProps(docs),
-    states: parseStaticStates(staticMembers),
-    methods: parseStaticMethods(staticMembers),
-    listeners: parseStaticListeners(staticMembers),
-    events: parseStaticEvents(staticMembers),
-    watchers: parseStaticWatchers(staticMembers),
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    doesExtend,
     styles: parseStaticStyles(compilerCtx, tagName, moduleFile.sourceFilePath, isCollectionDependency, staticMembers),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
@@ -97,6 +107,8 @@ export const parseStaticComponentMeta = (
     jsFilePath: moduleFile.jsFilePath,
     sourceFilePath: moduleFile.sourceFilePath,
     sourceMapPath: moduleFile.sourceMapPath,
+    serializers,
+    deserializers,
 
     hasAttributeChangedCallbackFn: false,
     hasComponentWillLoadFn: false,
@@ -107,6 +119,7 @@ export const parseStaticComponentMeta = (
     hasComponentWillRenderFn: false,
     hasComponentDidRenderFn: false,
     hasConnectedCallbackFn: false,
+    hasDeserializer: false,
     hasDisconnectedCallbackFn: false,
     hasElement: false,
     hasEvent: false,
@@ -129,6 +142,7 @@ export const parseStaticComponentMeta = (
     hasPropMutable: false,
     hasReflect: false,
     hasRenderFn: false,
+    hasSerializer: false,
     hasState: false,
     hasStyle: false,
     hasVdomAttribute: false,
@@ -156,19 +170,24 @@ export const parseStaticComponentMeta = (
     directDependencies: [],
   };
 
-  const visitComponentChildNode = (node: ts.Node) => {
-    validateComponentMembers(node);
+  const visitComponentChildNode = (node: ts.Node, buildCtx: d.BuildCtx) => {
+    validateComponentMembers(node, buildCtx);
 
     if (ts.isCallExpression(node)) {
       parseCallExpression(cmp, node);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }
-    node.forEachChild(visitComponentChildNode);
+    node.forEachChild((child) => visitComponentChildNode(child, buildCtx));
   };
-  visitComponentChildNode(cmpNode);
-  parseClassMethods(cmpNode, cmp);
-  detectModernPropDeclarations(cmpNode, cmp);
+  visitComponentChildNode(cmpNode, buildCtx);
+  parseClassMethods(classMethods, cmp);
+
+  if (!moduleFile.isCollectionDependency) {
+    // collection dependencies can cause 'modern class prop declaration' false positives;
+    // the end result will be compiled by rollup and the modern class props will be stripped
+    cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode);
+  }
 
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
@@ -192,7 +211,7 @@ export const parseStaticComponentMeta = (
   return cmpNode;
 };
 
-const validateComponentMembers = (node: ts.Node) => {
+const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
   /**
    * validate if:
    */
@@ -224,9 +243,9 @@ const validateComponentMembers = (node: ts.Node) => {
       )
     ) {
       const componentName = node.parent.name.getText();
-      throw new Error(
-        `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`,
-      );
+      const err = buildWarn(buildCtx.diagnostics);
+      err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
+      augmentDiagnosticWithNode(err, node);
     }
   }
 };

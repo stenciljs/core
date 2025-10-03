@@ -22,7 +22,7 @@ export const convertStaticToMeta = (
 
     const visitNode = (node: ts.Node): ts.VisitResult<ts.Node> => {
       if (ts.isClassDeclaration(node)) {
-        return parseStaticComponentMeta(compilerCtx, typeChecker, node, moduleFile, transformOpts);
+        return parseStaticComponentMeta(compilerCtx, typeChecker, node, moduleFile, buildCtx, transformOpts);
       } else if (ts.isImportDeclaration(node)) {
         parseModuleImport(config, compilerCtx, buildCtx, moduleFile, dirPath, node, !transformOpts.isolatedModules);
       } else if (ts.isCallExpression(node)) {
@@ -46,7 +46,10 @@ export const convertStaticToMeta = (
         moduleFile.isCollectionDependency = false;
         moduleFile.collectionName = null;
       }
-
+      if (!moduleFile.staticSourceFile) {
+        moduleFile.staticSourceFile = tsSourceFile;
+        moduleFile.staticSourceFileText = tsSourceFile.getFullText();
+      }
       return visitNode(tsSourceFile) as ts.SourceFile;
     };
   };
