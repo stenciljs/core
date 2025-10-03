@@ -1,3 +1,4 @@
+export { stubComponentCompilerMeta } from '../compiler/types/tests/ComponentCompilerMeta.stub';
 export {
   getCreateJestPuppeteerEnvironment,
   getCreateJestTestRunner,
