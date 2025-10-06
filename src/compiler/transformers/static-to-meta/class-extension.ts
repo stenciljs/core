@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { augmentDiagnosticWithNode, buildWarn } from '@utils';
-import { tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
+import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
@@ -109,7 +109,7 @@ function matchesNamedDeclaration(name: string) {
 function buildExtendsTree(
   compilerCtx: d.CompilerCtx,
   classDeclaration: ts.ClassDeclaration,
-  dependentClasses: { classNode: ts.ClassDeclaration; fileName: string }[],
+  dependentClasses: { classNode: ts.ClassDeclaration; sourceFile: ts.SourceFile; fileName: string }[],
   typeChecker: ts.TypeChecker,
   buildCtx: d.BuildCtx,
   ogModule: d.Module,
@@ -164,7 +164,7 @@ function buildExtendsTree(
           const sourceClass = findClassWalk(source, foundClassDeclaration.name?.getText());
 
           if (sourceClass) {
-            dependentClasses.push({ classNode: sourceClass, fileName: source.fileName });
+            dependentClasses.push({ classNode: sourceClass, sourceFile: source, fileName: source.fileName });
             if (keepLooking) {
               buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
             }
@@ -199,7 +199,11 @@ function buildExtendsTree(
 
       if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
         // we found the class declaration in the current module
-        dependentClasses.push({ classNode: foundClassDeclaration, fileName: currentSource.fileName });
+        dependentClasses.push({
+          classNode: foundClassDeclaration,
+          sourceFile: currentSource,
+          fileName: currentSource.fileName,
+        });
         if (keepLooking) {
           buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
         }
@@ -226,12 +230,17 @@ function buildExtendsTree(
 
               if (foundFile?.resolvedModule && className) {
                 // 4) resolve the module name to a file
-                const foundModule = compilerCtx.moduleMap.get(foundFile.resolvedModule.resolvedFileName);
+                let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
+                  foundFile.resolvedModule.resolvedFileName,
+                )?.staticSourceFile;
+                if (!foundSource) {
+                  // Stencil only loads module entries from node_modules collections,
+                  // so if we didn't find the source file in the module map,
+                  // let's create a temporary program and get the source file from there
+                  foundSource = tsGetSourceFile(buildCtx.config, foundFile);
+                }
 
-                // 5) look for the corresponding resolved statement
-                const matchedStatement = (foundModule?.staticSourceFile as ts.SourceFile).statements.find(
-                  matchesNamedDeclaration(className),
-                );
+                const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
                 foundClassDeclaration = matchedStatement
                   ? ts.isClassDeclaration(matchedStatement)
                     ? matchedStatement
@@ -247,7 +256,12 @@ function buildExtendsTree(
 
                 if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
                   // 6) if we found the class declaration, push it and check if it itself extends from another class
-                  dependentClasses.push({ classNode: foundClassDeclaration, fileName: currentSource.fileName });
+                  dependentClasses.push({
+                    classNode: foundClassDeclaration,
+                    sourceFile: foundSource,
+                    fileName: currentSource.fileName,
+                  });
+
                   if (keepLooking) {
                     buildExtendsTree(
                       compilerCtx,
@@ -320,7 +334,10 @@ export function mergeExtendedClassMeta(
     module.isExtended = true;
     doesExtend = true;
 
-    if ((mixinProps.length > 0 || mixinStates.length > 0) && !detectModernPropDeclarations(extendedClass.classNode)) {
+    if (
+      (mixinProps.length > 0 || mixinStates.length > 0) &&
+      !detectModernPropDeclarations(extendedClass.classNode, extendedClass.sourceFile)
+    ) {
       const err = buildWarn(buildCtx.diagnostics);
       const target = buildCtx.config.tsCompilerOptions?.target;
       err.messageText = `Component classes can only extend from other Stencil decorated base classes when targetting more modern JavaScript (ES2022 and above).
