@@ -382,7 +382,7 @@ export const proxyComponent = (
           // everything else means true (including an empty string
           const propFlags = members.find(([m]) => m === propName);
           if (propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean) {
-            (newValue as any) = newValue === null ? false : true;
+            (newValue as any) = newValue === null || newValue === 'false' ? false : true;
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
