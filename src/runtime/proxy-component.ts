@@ -378,10 +378,16 @@ export const proxyComponent = (
             return;
           }
 
-          const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
+          // special handling of boolean attributes. Null (removal) means false.
+          // everything else means true (including an empty string
+          const propFlags = members.find(([m]) => m === propName);
+          if (propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean) {
+            (newValue as any) = newValue === null ? false : true;
+          }
+
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
-          newValue = newValue === null && typeof this[propName] === 'boolean' ? (false as any) : newValue;
+          const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
           if (newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
             this[propName] = newValue;
           }
