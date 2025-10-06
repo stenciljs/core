@@ -29,7 +29,7 @@ import { getStaticValue } from './transform-utils';
  * @param cmp metadata about the stencil component of interest
  * @returns true if the class has modern property declarations, false otherwise
  */
-export const detectModernPropDeclarations = (classNode: ts.ClassDeclaration) => {
+export const detectModernPropDeclarations = (classNode: ts.ClassDeclaration, sourceFile?: ts.SourceFile) => {
   const parsedProps: { [key: string]: d.ComponentCompilerProperty } = getStaticValue(classNode.members, 'properties');
   const parsedStates: { [key: string]: d.ComponentCompilerProperty } = getStaticValue(classNode.members, 'states');
 
@@ -48,8 +48,8 @@ export const detectModernPropDeclarations = (classNode: ts.ClassDeclaration) => 
     const prop = classNode.members.find((m) => {
       return (
         ts.isPropertyDeclaration(m) &&
-        ((ts.isComputedPropertyName(m.name) && m.name.expression.getText() === dynamicPropName) ||
-          m.name.getText() === propName)
+        ((ts.isComputedPropertyName(m.name) && m.name.expression.getText(sourceFile) === dynamicPropName) ||
+          m.name.getText(sourceFile) === propName)
       );
     }) as any as ts.PropertyDeclaration;
 
