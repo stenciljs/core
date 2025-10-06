@@ -1,4 +1,4 @@
-import * as path from 'path';
+const path = require('path');
 
 // we must use a relative path here instead of tsconfig#paths
 // see https://github.com/monounity/karma-typescript/issues/315

@@ -11,7 +11,7 @@
     "build.end-to-end": "cd ./end-to-end && npm ci && npm run build",
     "build.hello-world": "cd ./hello-world && npm run build",
     "build.hello-vdom": "cd ./hello-vdom && npm run build",
-    "build.ionic": "cd ./ionic-app && npm ci && npm run build",
+    "build.ionic": "cd ./ionic-app && npm ci && cp ../../internal/stencil-public-runtime.d.ts ./node_modules/@ionic/core/dist/types/ && npm run build",
     "build.todo": "cd ./todo-app && npm ci && npm run build",
     "build.docs-json": "cd ./docs-json && npm ci && npm run build",
     "build.docs-readme": "cd ./docs-readme && npm ci && npm run build"
