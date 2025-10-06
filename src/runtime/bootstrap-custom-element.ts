@@ -1,5 +1,13 @@
 import { BUILD } from '@app-data';
-import { addHostEventListeners, forceUpdate, getHostRef, registerHost, styles, supportsShadow, transformTag } from '@platform';
+import {
+  addHostEventListeners,
+  forceUpdate,
+  getHostRef,
+  registerHost,
+  styles,
+  supportsShadow,
+  transformTag,
+} from '@platform';
 import { CMP_FLAGS, createShadowRoot } from '@utils';
 
 import type * as d from '../declarations';
