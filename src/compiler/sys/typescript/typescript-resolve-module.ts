@@ -24,6 +24,16 @@ export const tsResolveModuleName = (
   return null;
 };
 
+export const tsGetSourceFile = (config: d.ValidatedConfig, module: ts.ResolvedModuleWithFailedLookupLocations) => {
+  if (!module || !module.resolvedModule) {
+    return null;
+  }
+  const compilerOptions: ts.CompilerOptions = { ...config.tsCompilerOptions };
+  const host = ts.createCompilerHost(compilerOptions);
+  const program = ts.createProgram([module.resolvedModule.resolvedFileName], compilerOptions, host);
+  return program.getSourceFile(module.resolvedModule.resolvedFileName);
+};
+
 export const tsResolveModuleNamePackageJsonPath = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
