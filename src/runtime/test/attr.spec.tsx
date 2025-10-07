@@ -67,6 +67,14 @@ describe('attribute', () => {
 
       expect(root.textContent).toBe('false');
       expect(root.bool).toBe(false);
+
+      // reset
+      root.setAttribute('bool', '');
+      expect(root.bool).toBe(true);
+
+      // check setAttribute
+      root.setAttribute('bool', 'false');
+      expect(root.bool).toBe(false);
     });
 
     it('set boolean, undefined when missing attribute', async () => {
@@ -111,6 +119,14 @@ describe('attribute', () => {
 
       expect(root.textContent).toBe('true');
       expect(root.bool).toBe(true);
+
+      // reset
+      root.removeAttribute('bool');
+      expect(root.bool).toBe(false);
+
+      // check setAttribute
+      root.setAttribute('bool', 'true');
+      expect(root.bool).toBe(true);
     });
 
     it('set boolean true from no attribute value', async () => {
@@ -133,6 +149,14 @@ describe('attribute', () => {
 
       expect(root.textContent).toBe('true');
       expect(root.bool).toBe(true);
+
+      // reset
+      root.removeAttribute('bool');
+      expect(root.bool).toBe(false);
+
+      // check setAttribute
+      (root as HTMLElement).setAttribute('bool', '');
+      expect(root.bool).toBe(true);
     });
 
     it('set boolean true from empty string', async () => {
@@ -154,6 +178,44 @@ describe('attribute', () => {
       `);
 
       expect(root.textContent).toBe('true');
+      expect(root.bool).toBe(true);
+
+      // reset
+      root.removeAttribute('bool');
+      expect(root.bool).toBe(false);
+
+      // check setAttribute
+      root.setAttribute('bool', '');
+      expect(root.bool).toBe(true);
+    });
+
+    it('set boolean true from any other string apart from "false"', async () => {
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Prop() bool: boolean;
+        render() {
+          return `${this.bool}`;
+        }
+      }
+
+      const { root } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a bool="nice"></cmp-a>`,
+      });
+
+      expect(root).toEqualHtml(`
+        <cmp-a bool="nice">true</cmp-a>
+      `);
+
+      expect(root.textContent).toBe('true');
+      expect(root.bool).toBe(true);
+
+      // reset
+      root.removeAttribute('bool');
+      expect(root.bool).toBe(false);
+
+      // check setAttribute
+      root.setAttribute('bool', 'anything');
       expect(root.bool).toBe(true);
     });
 
