@@ -187,6 +187,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   shadowDomShim?: boolean;
   asyncQueue?: boolean;
+  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
   transformTagName?: boolean;
   attachStyles?: boolean;
 
