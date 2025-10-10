@@ -11,12 +11,13 @@ It is intended that applications found in directories adjacent to this one consu
 ### vite-bundle-test/
 This directory contains a basic application that is bundled using Vite.
 It contains the Stencil component library found in the [component-library directory](#component-library).
-Tests for this application can be found in this directory as well.
 
-### karma.config.ts
-This file contains the Karma configuration for running tests.
-It also describes how Karma can serve all applications in the `bundler/` directory.
+### tests/
+This directory contains Playwright test specs for testing the bundled applications.
 
-### karma-stencil-utils.ts
-This file contains various utilities for setting up and tearing down tests.
-It may be used by an application test suite.
+### playwright.config.ts
+This file contains the Playwright configuration for running tests.
+It configures:
+- Test execution across multiple browsers (Chrome, Firefox, Safari)
+- Web server setup to serve the built Vite application
+- Cross-platform testing support for Windows, macOS, and Linux

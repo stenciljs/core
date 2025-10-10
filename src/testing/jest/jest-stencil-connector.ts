@@ -10,8 +10,6 @@
 import semverMajor from 'semver/functions/major';
 
 import { Jest27Stencil } from './jest-27-and-under/jest-facade';
-import { Jest28Stencil } from './jest-28/jest-facade';
-import { Jest29Stencil } from './jest-29/jest-facade';
 import { getJestMajorVersion, JestCliRunner, JestPresetConfig, JestScreenshotRunner } from './jest-apis';
 import { JestFacade } from './jest-facade';
 
@@ -43,8 +41,14 @@ const getJestFacade = (): JestFacade => {
     if (version <= 27) {
       JEST_STENCIL_FACADE = new Jest27Stencil();
     } else if (version === 28) {
+      // defer importing Jest 28 facade to avoid pulling its types into the TypeScript program when building with Jest 27
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Jest28Stencil } = require('./jest-28/jest-facade');
       JEST_STENCIL_FACADE = new Jest28Stencil() as JestFacade;
     } else if (version === 29) {
+      // defer importing Jest 29 facade to avoid pulling its types into the TypeScript program when building with Jest 27
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { Jest29Stencil } = require('./jest-29/jest-facade');
       JEST_STENCIL_FACADE = new Jest29Stencil() as JestFacade;
     } else {
       // in Stencil 4.X, defaulting to jest 27 infrastructure is the default behavior.

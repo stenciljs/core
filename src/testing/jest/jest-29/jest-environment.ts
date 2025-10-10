@@ -1,14 +1,15 @@
 import type { Circus } from '@jest/types';
 import type { E2EProcessEnv, JestEnvironmentGlobal } from '@stencil/core/internal';
-import { TestEnvironment as NodeEnvironment } from 'jest-environment-node';
+// import Node's Jest environment in a way that works with both CJS and ESM typings across versions
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const NodeEnvModule = require('jest-environment-node');
+const NodeEnvironment = (NodeEnvModule && (NodeEnvModule.TestEnvironment || NodeEnvModule.default)) as any;
 
 import { connectBrowser, disconnectBrowser, newBrowserPage } from '../../puppeteer/puppeteer-browser';
 import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
   const JestEnvironment = class extends NodeEnvironment {
-    // TODO(STENCIL-1023): Remove this @ts-expect-error
-    // @ts-expect-error - Stencil's Jest environment adds additional properties to the Jest global, but does not extend it
     global: JestEnvironmentGlobal;
     browser: any = null;
     pages: any[] = [];
@@ -19,7 +20,7 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
       this.testPath = context.testPath;
     }
 
-    override async setup() {
+    async setup() {
       if ((process.env as E2EProcessEnv).__STENCIL_E2E_TESTS__ === 'true') {
         this.global.__NEW_TEST_PAGE__ = this.newPuppeteerPage.bind(this);
         this.global.__CLOSE_OPEN_PAGES__ = this.closeOpenPages.bind(this);
@@ -90,14 +91,14 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
       this.pages.length = 0;
     }
 
-    override async teardown() {
+    async teardown() {
       await super.teardown();
       await this.closeOpenPages();
       await disconnectBrowser(this.browser);
       this.browser = null;
     }
 
-    override getVmContext() {
+    getVmContext() {
       return super.getVmContext();
     }
   };

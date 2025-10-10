@@ -75,12 +75,15 @@ export function createTestRunner(): JestTestRunnerConstructor {
           setScreenshotEmulateData(emulateConfig, env);
 
           // run the test for each emulate config
-          await super.runTests(tests, watcher, options);
+          // pass through full argument list for newer type definitions
+          // @ts-ignore - signature differences across Jest versions
+          await super.runTests(tests, watcher, undefined, undefined, undefined, options);
         }
       } else {
         // not doing e2e screenshot tests
         // so just run each test once
-        await super.runTests(tests, watcher, options);
+        // @ts-ignore - signature differences across Jest versions
+        await super.runTests(tests, watcher, undefined, undefined, undefined, options);
       }
     }
   }
