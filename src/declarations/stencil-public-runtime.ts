@@ -427,6 +427,14 @@ export declare function readTask(task: RafCallback): void;
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
+/** 
+ * @deprecated - Use `MixedInCtor` instead:
+ * ```ts
+ * import { MixedInCtor } from '@stencil/core';
+ *
+ * const AFactoryFn = <B extends MixedInCtor>(Base: B) => {class A extends Base { propA = A }; return A;}
+ * ```
+ */
 export type MixinFactory = (base: MixedInCtor) => MixedInCtor;
 
 export type MixedInCtor<T = {}> = new (...args: any[]) => T;
@@ -436,7 +444,7 @@ export type MixedInCtor<T = {}> = new (...args: any[]) => T;
  * The resulting class has the combined instance types of all mixed-in classes.
  *
  * Example:
- * ```
+ * ```ts
  * import { Mixin, MixedInCtor } from '@stencil/core';
  *
  * const AWrap = <B extends MixedInCtor>(Base: B) => {class A extends Base { propA = A }; return A;}
@@ -452,7 +460,7 @@ export type MixedInCtor<T = {}> = new (...args: any[]) => T;
  * @returns a class that is composed from extending each of the provided classes in the order they were provided.
  */
 export declare function Mixin<const TMixins extends readonly MixinFactory[]>(
-  ...mixins: TMixins
+  ...mixinFactories: TMixins
 ): abstract new (...args: any[]) => UnionToIntersection<MixinInstance<TMixins[number]>>;
 
 /**
