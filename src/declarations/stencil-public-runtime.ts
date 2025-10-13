@@ -427,7 +427,7 @@ export declare function readTask(task: RafCallback): void;
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
-/** 
+/**
  * @deprecated - Use `MixedInCtor` instead:
  * ```ts
  * import { MixedInCtor } from '@stencil/core';
