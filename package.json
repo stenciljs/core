@@ -189,6 +189,8 @@
     "parse5": "7.2.1",
     "pixelmatch": "5.3.0",
     "postcss": "^8.2.8",
+    "postcss-safe-parser": "^7.0.1",
+    "postcss-selector-parser": "^7.1.0",
     "prettier": "3.3.1",
     "prompts": "2.4.2",
     "puppeteer": "^24.1.0",
@@ -202,14 +204,14 @@
     "ws": "8.17.1"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.34.9",
-    "@rollup/rollup-linux-x64-musl": "4.34.9",
-    "@rollup/rollup-linux-arm64-gnu": "4.34.9",
-    "@rollup/rollup-linux-arm64-musl": "4.34.9",
     "@rollup/rollup-darwin-arm64": "4.34.9",
     "@rollup/rollup-darwin-x64": "4.34.9",
-    "@rollup/rollup-win32-x64-msvc": "4.34.9",
-    "@rollup/rollup-win32-arm64-msvc": "4.34.9"
+    "@rollup/rollup-linux-arm64-gnu": "4.34.9",
+    "@rollup/rollup-linux-arm64-musl": "4.34.9",
+    "@rollup/rollup-linux-x64-gnu": "4.34.9",
+    "@rollup/rollup-linux-x64-musl": "4.34.9",
+    "@rollup/rollup-win32-arm64-msvc": "4.34.9",
+    "@rollup/rollup-win32-x64-msvc": "4.34.9"
   },
   "engines": {
     "node": ">=16.0.0",

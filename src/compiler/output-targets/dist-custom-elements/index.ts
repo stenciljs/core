@@ -76,7 +76,7 @@ export const getBundleOptions = (
   id: 'customElements',
   platform: 'client',
   conditionals: getCustomElementsBuildConditionals(config, buildCtx.components),
-  customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx.components, outputTarget),
+  customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx.components, outputTarget, buildCtx),
   externalRuntime: !!outputTarget.externalRuntime,
   inlineWorkers: true,
   inputs: {
@@ -320,6 +320,7 @@ const getCustomBeforeTransformers = (
   compilerCtx: d.CompilerCtx,
   components: d.ComponentCompilerMeta[],
   outputTarget: d.OutputTargetDistCustomElements,
+  buildCtx: d.BuildCtx
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
     coreImportPath: STENCIL_INTERNAL_CLIENT_ID,
@@ -340,7 +341,7 @@ const getCustomBeforeTransformers = (
   }
 
   customBeforeTransformers.push(
-    nativeComponentTransform(compilerCtx, transformOpts),
+    nativeComponentTransform(compilerCtx, transformOpts, buildCtx),
     proxyCustomElement(compilerCtx, transformOpts),
     removeCollectionImports(compilerCtx),
   );

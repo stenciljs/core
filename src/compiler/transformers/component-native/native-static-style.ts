@@ -5,16 +5,16 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { getScopeId } from '../../style/scope-css';
 import { createStyleIdentifier } from '../add-static-style';
-import { createStaticGetter } from '../transform-utils';
+import { addTagTransformToCss, createStaticGetter } from '../transform-utils';
 
-export const addNativeStaticStyle = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta) => {
+export const addNativeStaticStyle = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
     if (cmp.styles.length > 1 || (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)) {
       // multiple style modes
-      addMultipleModeStyleGetter(classMembers, cmp, cmp.styles);
+      addMultipleModeStyleGetter(classMembers, cmp, cmp.styles, buildCtx);
     } else {
       // single style
-      addSingleStyleGetter(classMembers, cmp, cmp.styles[0]);
+      addSingleStyleGetter(classMembers, cmp, cmp.styles[0], buildCtx);
     }
   }
 };
@@ -23,6 +23,7 @@ const addMultipleModeStyleGetter = (
   classMembers: ts.ClassElement[],
   cmp: d.ComponentCompilerMeta,
   styles: d.StyleCompiler[],
+  buildCtx: d.BuildCtx
 ) => {
   const styleModes: ts.ObjectLiteralElementLike[] = [];
 
@@ -36,7 +37,7 @@ const addMultipleModeStyleGetter = (
     if (typeof style.styleStr === 'string') {
       // inline the style string
       // static get style() { return { "ios": "string" }; }
-      const styleLiteral = createStyleLiteral(cmp, style);
+      const styleLiteral = createStyleLiteral(cmp, style, buildCtx);
       const propStr = ts.factory.createPropertyAssignment(style.modeName, styleLiteral);
       styleModes.push(propStr);
     } else if (Array.isArray(style.externalStyles) && style.externalStyles.length > 0) {
@@ -65,6 +66,7 @@ const addSingleStyleGetter = (
   classMembers: ts.ClassElement[],
   cmp: d.ComponentCompilerMeta,
   style: d.StyleCompiler,
+  buildCtx: d.BuildCtx
 ) => {
   /**
    * the order of these if statements must match with
@@ -75,7 +77,7 @@ const addSingleStyleGetter = (
   if (typeof style.styleStr === 'string') {
     // inline the style string
     // static get style() { return "string"; }
-    const styleLiteral = createStyleLiteral(cmp, style);
+    const styleLiteral = createStyleLiteral(cmp, style, buildCtx);
     classMembers.push(createStaticGetter('style', styleLiteral));
   } else if (Array.isArray(style.externalStyles) && style.externalStyles.length > 0) {
     // import generated from @Component() styleUrls option
@@ -92,12 +94,18 @@ const addSingleStyleGetter = (
   }
 };
 
-const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler) => {
+const optionallyAddTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
+  const tagNames = buildCtx.components.map(c => c.tagName);
+  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCss(cssCode, tagNames));
+  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCss(cssCode, tagNames));
+};
+
+const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {
   if (cmp.encapsulation === 'scoped') {
     // scope the css first
     const scopeId = getScopeId(cmp.tagName, style.modeName);
-    return ts.factory.createStringLiteral(scopeCss(style.styleStr, scopeId, false));
+    return optionallyAddTagTransform(scopeCss(style.styleStr, scopeId, false), buildCtx);
   }
 
-  return ts.factory.createStringLiteral(style.styleStr);
+  return optionallyAddTagTransform(style.styleStr, buildCtx);
 };

@@ -23,6 +23,7 @@ import { updateLazyComponentClass } from './lazy-component';
 export const lazyComponentTransform = (
   compilerCtx: d.CompilerCtx,
   transformOpts: d.TransformOptions,
+  buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     return (tsSourceFile) => {
@@ -35,7 +36,7 @@ export const lazyComponentTransform = (
           const module = compilerCtx.moduleMap.get(tsSourceFile.fileName);
 
           if (cmp != null) {
-            return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp);
+            return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
           } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           }

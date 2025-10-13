@@ -173,7 +173,7 @@ const generateTransformCssToEsm = (
       s.append(`${cssImport.varName} + `);
     });
 
-    s.append(`${JSON.stringify(results.styleText)};\n`);
+    s.append(`\`${results.styleText}\`;\n`);
     s.append(`module.exports = ${results.defaultVarName};`);
   } else {
     // ESM
@@ -187,7 +187,7 @@ const generateTransformCssToEsm = (
       s.append(`${cssImport.varName} + `);
     });
 
-    s.append(`${JSON.stringify(results.styleText)};\n`);
+    s.append(`\`${results.styleText}\`;\n`);
     s.append(`export default ${results.defaultVarName};`);
   }
 

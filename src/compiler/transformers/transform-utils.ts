@@ -7,6 +7,10 @@ import { StencilStaticGetter } from './decorators-to-static/decorators-constants
 import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
+import postcss from 'postcss';
+// @ts-ignore
+import postcssSafeParser from 'postcss-safe-parser';
+import postcssSelectorParser from 'postcss-selector-parser';
 
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup
@@ -1179,4 +1183,26 @@ export function getExternalStyles(style: d.StyleCompiler) {
        */
       .reverse()
   );
+}
+
+export function addTagTransformToCss(cssCode: string, tagNames: string[]): string {
+  const result = postcss([
+    (root: postcss.Root) => {
+      root.walkRules((rule) => {
+        rule.selectors = rule.selectors.map((sel) => {
+          const parsedSelector = postcssSelectorParser().astSync(
+            sel,
+          ) as any;
+          parsedSelector.walkTags((tag: any) => {
+            if (tagNames.includes(tag.value)) {
+              tag.value = '${tagTransform("' + tag.value + '")}';
+            }
+          });
+          return parsedSelector.toString();
+        });
+      });
+    },
+  ]).process(cssCode, { parser: postcssSafeParser });
+  // @ts-ignore
+  return result.css;
 }

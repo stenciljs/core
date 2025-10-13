@@ -16,6 +16,7 @@ import {
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
+import { addTagTransformer } from '../../transformers/add-tag-transform'; 
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
@@ -43,7 +44,7 @@ export const outputLazy = async (
       id: 'lazy',
       platform: 'client',
       conditionals: getLazyBuildConditionals(config, buildCtx.components),
-      customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx),
+      customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       inlineWorkers: config.outputTargets.some(isOutputTargetDist),
       inputs: {
         [config.fsNamespace]: LAZY_BROWSER_ENTRY_ID,
@@ -110,6 +111,7 @@ export const outputLazy = async (
 const getCustomBeforeTransformers = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
+  buildCtx?: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
     coreImportPath: STENCIL_CORE_ID,
@@ -127,7 +129,8 @@ const getCustomBeforeTransformers = (
   }
 
   customBeforeTransformers.push(
-    lazyComponentTransform(compilerCtx, transformOpts),
+    addTagTransformer(compilerCtx, transformOpts),
+    lazyComponentTransform(compilerCtx, transformOpts, buildCtx),
     removeCollectionImports(compilerCtx),
   );
   return customBeforeTransformers;
