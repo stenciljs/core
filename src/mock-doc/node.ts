@@ -1,6 +1,7 @@
 import { createAttributeProxy, MockAttr, MockAttributeMap } from './attribute';
 import { MockClassList } from './class-list';
 import { NODE_NAMES, NODE_TYPES } from './constants';
+import { MockPartList } from './part-list';
 import { createCSSStyleDeclaration, MockCSSStyleDeclaration } from './css-style-declaration';
 import { attributeChanged, checkAttributeChanged, connectNode, disconnectNode } from './custom-element-registry';
 import { dataset } from './dataset';
@@ -369,6 +370,10 @@ export class MockElement extends MockNode {
 
   get classList() {
     return new MockClassList(this as any);
+  }
+
+  get part() {
+    return new MockPartList(this as any);
   }
 
   click() {
