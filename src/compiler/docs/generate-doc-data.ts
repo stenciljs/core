@@ -216,24 +216,26 @@ const getRealProperties = (properties: d.ComponentCompilerProperty[]): d.JsonDoc
  * @returns the derived metadata
  */
 const getVirtualProperties = (virtualProps: d.ComponentCompilerVirtualProperty[]): d.JsonDocsProp[] => {
-  return virtualProps.map((member) => ({
-    name: member.name,
-    type: member.type,
-    mutable: false,
-    attr: member.name,
-    reflectToAttr: false,
-    docs: member.docs,
-    docsTags: [],
-    default: undefined,
-    deprecation: undefined,
-    values: parseTypeIntoValues(member.type),
+  return virtualProps.map(
+    (member): d.JsonDocsProp => ({
+      name: member.name,
+      type: member.type,
+      mutable: false,
+      attr: member.name,
+      reflectToAttr: false,
+      docs: member.docs,
+      docsTags: [],
+      default: undefined,
+      deprecation: undefined,
+      values: parseTypeIntoValues(member.type),
 
-    optional: true,
-    required: false,
+      optional: true,
+      required: false,
 
-    getter: undefined,
-    setter: undefined,
-  }));
+      getter: undefined,
+      setter: undefined,
+    }),
+  );
 };
 
 const parseTypeIntoValues = (type: string): d.JsonDocsValue[] => {

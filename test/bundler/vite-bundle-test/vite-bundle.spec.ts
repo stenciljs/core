@@ -1,7 +1,7 @@
-import { setupDomTests } from '../karma-stencil-utils';
+const utils = require('../karma-stencil-utils');
 
 describe('vite-bundle', () => {
-  const { setupDom, tearDownDom } = setupDomTests(document);
+  const { setupDom, tearDownDom } = utils.setupDomTests(document);
   let app: HTMLElement;
 
   beforeEach(async () => {

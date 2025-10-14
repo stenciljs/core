@@ -167,7 +167,7 @@ function getParser(ownerDocument: MockDocument) {
     },
 
     getAttrList(element: MockElement) {
-      const attrs: Token.Attribute[] = element.attributes.__items.map((attr) => {
+      const attrs: Token.Attribute[] = element.attributes.__items.map((attr): Token.Attribute => {
         return {
           name: attr.name,
           value: attr.value,

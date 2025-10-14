@@ -125,6 +125,25 @@ describe('mapImportsToPathAliases', () => {
     expect(module.outputText).toContain('import { utils } from "./utils";');
   });
 
+  it('is not greedy with extension regex replacement', () => {
+    resolveModuleNameSpy.mockReturnValue({
+      resolvedModule: {
+        isExternalLibraryImport: false,
+        extension: Extension.Ts,
+        resolvedFileName: 'utils/something-ending-with-d.ts',
+      },
+    });
+    const inputText = `
+        import { utils } from "@utils/something-ending-with-d";
+
+        utils.test();
+    `;
+
+    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+
+    expect(module.outputText).toContain('import { utils } from "./utils/something-ending-with-d";');
+  });
+
   // The resolved module is not part of the output directory
   it('generates the correct relative path when the resolved module is outside the transpiled project', () => {
     config.srcDir = '/test-dir';

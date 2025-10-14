@@ -12,11 +12,12 @@
   },
   "devDependencies": {
     "@types/karma": "^6.3.3",
-    "@types/node": "^20.0.0",
+    "@types/node": "^24.6.2",
     "karma": "^6.4.1",
     "karma-chrome-launcher": "^3.1.1",
     "karma-jasmine": "^5.0.0",
     "karma-typescript": "^5.5.3",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.7.0",
+    "typescript": "5.9.2"
   }
 }

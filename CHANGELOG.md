@@ -1,3 +1,17 @@
+## 🚎 [4.38.1](https://github.com/stenciljs/core/compare/v4.38.0...v4.38.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* **build:** add extended class source in collection dependencies ([#6412](https://github.com/stenciljs/core/issues/6412)) ([40516ea](https://github.com/stenciljs/core/commit/40516ea2b75b24471bd8fc8f37e47f0945be4a0f))
+* **runtime:** better boolean attribute handling ([#6413](https://github.com/stenciljs/core/issues/6413)) ([06a2375](https://github.com/stenciljs/core/commit/06a2375f80f53d03c12859ef29ce27d40d8fec6b))
+
+
+### Features
+
+* **Test** Export internal `mockComponentMeta` object making writing custom output-target tests easier ([ef05b45](https://github.com/stenciljs/core/commit/ef05b4505a9313280bca5712dedcbc0444fa37a5))
+
+
 # 🎿 [4.38.0](https://github.com/stenciljs/core/compare/v4.37.1...v4.38.0) (2025-10-02)
 
 

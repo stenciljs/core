@@ -60,7 +60,7 @@ export const mapImportsToPathAliases = (
               // from the import path
               const extensionRegex = new RegExp(
                 Object.values(ts.Extension)
-                  .map((extension) => `${extension}$`)
+                  .map((extension) => `${extension.replace('.', '\\.')}$`)
                   .join('|'),
               );
 

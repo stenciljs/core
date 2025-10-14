@@ -53,15 +53,15 @@ export class MockDocument extends MockHTMLElement {
     throw new Error('Unimplemented');
   }
 
-  get location() {
+  get location(): Location | null {
     if (this.defaultView != null) {
       return (this.defaultView as Window).location;
     }
     return null;
   }
-  set location(val: Location) {
+  set location(val: string) {
     if (this.defaultView != null) {
-      (this.defaultView as Window).location = val;
+      (this.defaultView as Window).location.href = val;
     }
   }
 

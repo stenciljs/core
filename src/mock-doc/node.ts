@@ -1,5 +1,4 @@
 import { createAttributeProxy, MockAttr, MockAttributeMap } from './attribute';
-import { MockClassList } from './class-list';
 import { NODE_NAMES, NODE_TYPES } from './constants';
 import { createCSSStyleDeclaration, MockCSSStyleDeclaration } from './css-style-declaration';
 import { attributeChanged, checkAttributeChanged, connectNode, disconnectNode } from './custom-element-registry';
@@ -15,6 +14,7 @@ import {
 import { parseFragmentUtil } from './parse-util';
 import { matches, selectAll, selectOne } from './selector';
 import { NON_ESCAPABLE_CONTENT, serializeNodeToHtml, SerializeNodeToHtmlOptions } from './serialize-node';
+import { MockTokenList } from './token-list';
 
 export class MockNode {
   private _nodeValue: string | null;
@@ -368,7 +368,11 @@ export class MockElement extends MockNode {
   }
 
   get classList() {
-    return new MockClassList(this as any);
+    return new MockTokenList(this as any, 'class');
+  }
+
+  get part() {
+    return new MockTokenList(this as any, 'part');
   }
 
   click() {

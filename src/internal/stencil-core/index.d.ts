@@ -41,6 +41,7 @@ export {
   Host,
   Listen,
   Method,
+  MixedInCtor,
   Mixin,
   MixinFactory,
   Prop,

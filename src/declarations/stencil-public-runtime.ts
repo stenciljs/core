@@ -4,7 +4,9 @@ type CustomMethodDecorator<T> = (
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
-type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+
+type MixinInstance<F> = F extends (base: MixedInCtor) => MixedInCtor<infer I> ? I : never;
 
 export interface ComponentDecorator {
   (opts?: ComponentOptions): ClassDecorator;
@@ -393,8 +395,10 @@ export declare function forceUpdate(ref: any): void;
  */
 export declare function getRenderingRef(): any;
 
-export interface HTMLStencilElement extends HTMLElement {
+export interface HTMLStencilElement extends Omit<HTMLElement, 'autocorrect'> {
   componentOnReady(): Promise<this>;
+  // TODO: remove this when [added to typescript](https://github.com/microsoft/typescript/issues/62083)
+  autocorrect: 'on' | 'off';
 }
 
 /**
@@ -443,21 +447,32 @@ export declare function setTagTransformer(transformer: TagTransformer): void;
  * @returns the transformed tag e.g. `new-my-tag`
  */
 export declare function transformTag(tag: string): string;
-export type MixinFactory = <TBase extends new (...args: any[]) => any>(
-  base: TBase,
-) => abstract new (...args: ConstructorParameters<TBase>) => any;
+
+/**
+ * @deprecated - Use `MixedInCtor` instead:
+ * ```ts
+ * import { MixedInCtor } from '@stencil/core';
+ *
+ * const AFactoryFn = <B extends MixedInCtor>(Base: B) => {class A extends Base { propA = A }; return A;}
+ * ```
+ */
+export type MixinFactory = (base: MixedInCtor) => MixedInCtor;
+
+// TODO ^ do not remove. Just do not export when deprecated.
+
+export type MixedInCtor<T = {}> = new (...args: any[]) => T;
 
 /**
  * Compose multiple mixin classes into a single constructor.
  * The resulting class has the combined instance types of all mixed-in classes.
  *
  * Example:
- * ```
- * import { Mixin, MixinFactory } from '@stencil/core';
+ * ```ts
+ * import { Mixin, MixedInCtor } from '@stencil/core';
  *
- * const AWrap: MixinFactory = (Base) => {class A extends Base { propA = A }; return A;}
- * const BWrap: MixinFactory = (Base) => {class B extends Base { propB = B }; return B;}
- * const CWrap: MixinFactory = (Base) => {class C extends Base { propC = C }; return C;}
+ * const AWrap = <B extends MixedInCtor>(Base: B) => {class A extends Base { propA = A }; return A;}
+ * const BWrap = <B extends MixedInCtor>(Base: B) => {class B extends Base { propB = B }; return B;}
+ * const CWrap = <B extends MixedInCtor>(Base: B) => {class C extends Base { propC = C }; return C;}
  *
  * class X extends Mixin(AWrap, BWrap, CWrap) {
  *   render() { return <div>{this.propA} {this.propB} {this.propC}</div>; }
@@ -465,11 +480,11 @@ export type MixinFactory = <TBase extends new (...args: any[]) => any>(
  * ```
  *
  * @param mixinFactories mixin factory functions that return a class which extends from the provided class.
- * @returns a class that that is composed from extending each of the provided classes in the order they were provided.
+ * @returns a class that is composed from extending each of the provided classes in the order they were provided.
  */
-export declare function Mixin<TMixins extends readonly MixinFactory[]>(
+export declare function Mixin<const TMixins extends readonly MixinFactory[]>(
   ...mixinFactories: TMixins
-): abstract new (...args: any[]) => UnionToIntersection<InstanceType<ReturnType<TMixins[number]>>>;
+): abstract new (...args: any[]) => UnionToIntersection<MixinInstance<TMixins[number]>>;
 
 /**
  * This file gets copied to all distributions of stencil component collections.
