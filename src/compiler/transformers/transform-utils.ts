@@ -1185,7 +1185,7 @@ export function getExternalStyles(style: d.StyleCompiler) {
   );
 }
 
-export function addTagTransformToCss(cssCode: string, tagNames: string[]): string {
+export function addTagTransformToCssString(cssCode: string, tagNames: string[]): string {
   const result = postcss([
     (root: postcss.Root) => {
       root.walkRules((rule) => {
@@ -1205,4 +1205,10 @@ export function addTagTransformToCss(cssCode: string, tagNames: string[]): strin
   ]).process(cssCode, { parser: postcssSafeParser });
   // @ts-ignore
   return result.css;
+}
+
+
+export function addTagTransformToCssTsAST(cssCode: string, tagNames: string[]): ts.Expression {
+  const transformedCss = addTagTransformToCssString(cssCode, tagNames);
+  return ts.factory.createStringLiteral(transformedCss);
 }

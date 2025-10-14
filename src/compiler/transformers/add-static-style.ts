@@ -4,7 +4,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { getScopeId } from '../style/scope-css';
-import { addTagTransformToCss, createStaticGetter, getExternalStyles } from './transform-utils';
+import { addTagTransformToCssString, createStaticGetter, getExternalStyles } from './transform-utils';
 
 /**
  * Adds static "style" getter within the class
@@ -135,8 +135,8 @@ const getSingleStyle = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, bu
 
 const optionallyAddTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   const tagNames = buildCtx.components.map(c => c.tagName);
-  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCss(cssCode, tagNames));
-  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCss(cssCode, tagNames));
+  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCssString(cssCode, tagNames));
+  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCssString(cssCode, tagNames));
 };
 
 

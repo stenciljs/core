@@ -5,7 +5,7 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { getScopeId } from '../../style/scope-css';
 import { createStyleIdentifier } from '../add-static-style';
-import { addTagTransformToCss, createStaticGetter } from '../transform-utils';
+import { addTagTransformToCssString, createStaticGetter } from '../transform-utils';
 
 export const addNativeStaticStyle = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
@@ -96,8 +96,8 @@ const addSingleStyleGetter = (
 
 const optionallyAddTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   const tagNames = buildCtx.components.map(c => c.tagName);
-  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCss(cssCode, tagNames));
-  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCss(cssCode, tagNames));
+  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCssString(cssCode, tagNames));
+  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCssString(cssCode, tagNames));
 };
 
 const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {

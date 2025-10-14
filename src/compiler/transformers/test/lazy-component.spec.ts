@@ -1,4 +1,4 @@
-import { mockCompilerCtx } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing';
 
 import type * as d from '../../../declarations';
 import { lazyComponentTransform } from '../component-lazy/transform-lazy-component';
@@ -7,7 +7,8 @@ import { c, formatCode } from './utils';
 
 describe('lazy-component', () => {
   it('add registerInstance() to constructor w/ decorator on class', () => {
-    const compilerCtx = mockCompilerCtx();
+    const buildCtx = mockBuildCtx();
+    const compilerCtx = buildCtx.compilerCtx;
     const transformOpts: d.TransformOptions = {
       coreImportPath: '@stencil/core',
       componentExport: 'lazy',
@@ -27,7 +28,7 @@ describe('lazy-component', () => {
       }
     `;
 
-    const transformer = lazyComponentTransform(compilerCtx, transformOpts);
+    const transformer = lazyComponentTransform(compilerCtx, transformOpts, buildCtx);
 
     const t = transpileModule(code, null, compilerCtx, [], [transformer], []);
 
@@ -36,7 +37,8 @@ describe('lazy-component', () => {
   });
 
   it('adds a getter for an @Element() reference', () => {
-    const compilerCtx = mockCompilerCtx();
+    const buildCtx = mockBuildCtx();
+    const compilerCtx = buildCtx.compilerCtx;
     const transformOpts: d.TransformOptions = {
       coreImportPath: '@stencil/core',
       componentExport: 'lazy',
@@ -56,7 +58,7 @@ describe('lazy-component', () => {
       }
     `;
 
-    const transformer = lazyComponentTransform(compilerCtx, transformOpts);
+    const transformer = lazyComponentTransform(compilerCtx, transformOpts, buildCtx);
 
     const t = transpileModule(code, null, compilerCtx, [], [transformer]);
 
@@ -65,7 +67,8 @@ describe('lazy-component', () => {
   });
 
   it('adds an `attachInternals` call with a `@AttachInternals` decoration', async () => {
-    const compilerCtx = mockCompilerCtx();
+    const buildCtx = mockBuildCtx();
+    const compilerCtx = buildCtx.compilerCtx;
     const transformOpts: d.TransformOptions = {
       coreImportPath: '@stencil/core',
       componentExport: 'lazy',
@@ -86,7 +89,7 @@ describe('lazy-component', () => {
       }
     `;
 
-    const transformer = lazyComponentTransform(compilerCtx, transformOpts);
+    const transformer = lazyComponentTransform(compilerCtx, transformOpts, buildCtx);
     const t = transpileModule(code, null, compilerCtx, [], [transformer]);
 
     expect(await formatCode(t.outputText)).toBe(
@@ -111,7 +114,8 @@ describe('lazy-component', () => {
   describe('styling', () => {
     function verifyStylingUsingComponent(inputComponent: string, expectedOutput: string) {
       return async () => {
-        const compilerCtx = mockCompilerCtx();
+        const buildCtx = mockBuildCtx();
+        const compilerCtx = buildCtx.compilerCtx;
         const transformOpts: d.TransformOptions = {
           coreImportPath: '@stencil/core',
           componentExport: 'lazy',
@@ -122,7 +126,7 @@ describe('lazy-component', () => {
           styleImportData: null,
         };
 
-        const transformer = lazyComponentTransform(compilerCtx, transformOpts);
+        const transformer = lazyComponentTransform(compilerCtx, transformOpts, buildCtx);
         const t = transpileModule(inputComponent, null, compilerCtx, [], [transformer]);
         expect(await formatCode(t.outputText)).toBe(await formatCode(expectedOutput));
       };
