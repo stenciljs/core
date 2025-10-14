@@ -1,6 +1,5 @@
 import { createAttributeProxy, MockAttr, MockAttributeMap } from './attribute';
 import { NODE_NAMES, NODE_TYPES } from './constants';
-import { MockTokenList } from './token-list';
 import { createCSSStyleDeclaration, MockCSSStyleDeclaration } from './css-style-declaration';
 import { attributeChanged, checkAttributeChanged, connectNode, disconnectNode } from './custom-element-registry';
 import { dataset } from './dataset';
@@ -15,6 +14,7 @@ import {
 import { parseFragmentUtil } from './parse-util';
 import { matches, selectAll, selectOne } from './selector';
 import { NON_ESCAPABLE_CONTENT, serializeNodeToHtml, SerializeNodeToHtmlOptions } from './serialize-node';
+import { MockTokenList } from './token-list';
 
 export class MockNode {
   private _nodeValue: string | null;
