@@ -437,6 +437,8 @@ export declare const setErrorHandler: (handler: ErrorHandler) => void;
  */
 export type MixinFactory = (base: MixedInCtor) => MixedInCtor;
 
+// TODO ^ do not remove. Just do not export when deprecated.
+
 export type MixedInCtor<T = {}> = new (...args: any[]) => T;
 
 /**
