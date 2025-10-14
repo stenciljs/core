@@ -172,7 +172,7 @@ function buildExtendsTree(
         }
       }
     } catch (_e) {
-      // sad path (normally >1 levels removed): the extends type does not resolve so let's find it manually:
+      // sad path (>1 levels removed or node_modules): the extends type does not resolve so let's find it manually:
 
       let currentSource: ts.SourceFile = classDeclaration.getSourceFile();
       let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
@@ -185,7 +185,13 @@ function buildExtendsTree(
         matchedStatement = currentSource.statements.find(matchesNamedDeclaration(extendee.getText()));
       }
 
-      if (!currentSource) return;
+      if (!currentSource) {
+        // no source file :(
+        const err = buildWarn(buildCtx.diagnostics);
+        err.messageText = `Unable to find source file for class "${classDeclaration.name?.getText()}"`;
+        if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+        return;
+      }
 
       // try to see if we can find the class in the current source file first
       if (matchedStatement && ts.isClassDeclaration(matchedStatement)) {
@@ -233,14 +239,33 @@ function buildExtendsTree(
                 let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
                   foundFile.resolvedModule.resolvedFileName,
                 )?.staticSourceFile;
+
                 if (!foundSource) {
-                  // Stencil only loads module entries from node_modules collections,
+                  // Stencil only loads full-fledged component modules from node_modules collections,
                   // so if we didn't find the source file in the module map,
                   // let's create a temporary program and get the source file from there
                   foundSource = tsGetSourceFile(buildCtx.config, foundFile);
+
+                  if (!foundSource) {
+                    // ts could not resolve the module. Likely because `allowJs` is not set to `true`
+                    const err = buildWarn(buildCtx.diagnostics);
+                    err.messageText = `Unable to resolve import "${statement.moduleSpecifier.getText()}" from "${currentSource.fileName}". 
+                    This can happen when trying to resolve .js files and "allowJs" is not set to "true" in your tsconfig.json.`;
+                    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+                    return;
+                  }
                 }
 
                 const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+                if (!matchedStatement) {
+                  // we couldn't find the imported declaration as an exported statement in the module
+                  const err = buildWarn(buildCtx.diagnostics);
+                  err.messageText = `Unable to find "${className}" in the imported module "${statement.moduleSpecifier.getText()}". 
+                  Please import class / mixin-factory declarations directly and not via barrel files.`;
+                  if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+                  return;
+                }
+
                 foundClassDeclaration = matchedStatement
                   ? ts.isClassDeclaration(matchedStatement)
                     ? matchedStatement
