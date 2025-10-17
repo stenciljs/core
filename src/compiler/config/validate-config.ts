@@ -150,6 +150,7 @@ export const validateConfig = (
   validatedConfig.extras.scriptDataOpts = !!validatedConfig.extras.scriptDataOpts;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
   validatedConfig.extras.tagNameTransform = !!validatedConfig.extras.tagNameTransform;
+  validatedConfig.extras.additionalTagTransformers = validatedConfig.extras.additionalTagTransformers === true || (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
   validatedConfig.extras.addGlobalStyleToComponents = validatedConfig.extras.addGlobalStyleToComponents !== false;
 
   // TODO(STENCIL-914): remove when `experimentalSlotFixes` is the default behavior

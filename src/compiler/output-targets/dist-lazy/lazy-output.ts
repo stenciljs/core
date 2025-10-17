@@ -16,7 +16,6 @@ import {
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
-import { addTagTransformer } from '../../transformers/add-tag-transform'; 
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
@@ -129,7 +128,6 @@ const getCustomBeforeTransformers = (
   }
 
   customBeforeTransformers.push(
-    addTagTransformer(compilerCtx, transformOpts),
     lazyComponentTransform(compilerCtx, transformOpts, buildCtx),
     removeCollectionImports(compilerCtx),
   );

@@ -103,16 +103,3 @@ const normalizeStyleUrl = (style: string | string[] | undefined) => {
   }
   return [];
 };
-
-// const optionallyAddTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
-//   const tagNames: string[] = []
-//   buildCtx.compilerCtx.moduleMap.forEach((m) => {
-//     m.cmps.forEach(cmp => {
-//       if (cmp.tagName) {
-//         tagNames.push(cmp.tagName);
-//       }
-//     })
-//   })
-//   console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCssString(cssCode, tagNames));
-//   return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCssString(cssCode, tagNames));
-// };

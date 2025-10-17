@@ -5,7 +5,7 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { getScopeId } from '../../style/scope-css';
 import { createStyleIdentifier } from '../add-static-style';
-import { addTagTransformToCssString, createStaticGetter } from '../transform-utils';
+import { addTagTransformToCssTsAST, createStaticGetter } from '../transform-utils';
 
 export const addNativeStaticStyle = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
@@ -94,18 +94,20 @@ const addSingleStyleGetter = (
   }
 };
 
-const optionallyAddTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
+const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
+  if (!buildCtx.config.extras.additionalTagTransformers) {
+    return ts.factory.createNoSubstitutionTemplateLiteral(cssCode);
+  }
   const tagNames = buildCtx.components.map(c => c.tagName);
-  console.log('incoming', cssCode, 'tagNames!!!!!', tagNames, 'outgoing', addTagTransformToCssString(cssCode, tagNames));
-  return ts.factory.createNoSubstitutionTemplateLiteral(addTagTransformToCssString(cssCode, tagNames));
+  return addTagTransformToCssTsAST(cssCode, tagNames);
 };
 
 const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {
   if (cmp.encapsulation === 'scoped') {
     // scope the css first
     const scopeId = getScopeId(cmp.tagName, style.modeName);
-    return optionallyAddTagTransform(scopeCss(style.styleStr, scopeId, false), buildCtx);
+    return addTagTransform(scopeCss(style.styleStr, scopeId, false), buildCtx);
   }
 
-  return optionallyAddTagTransform(style.styleStr, buildCtx);
+  return addTagTransform(style.styleStr, buildCtx);
 };

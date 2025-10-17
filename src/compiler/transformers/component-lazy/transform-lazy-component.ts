@@ -2,7 +2,7 @@ import ts from 'typescript';
 
 import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
-import { addLegacyApis } from '../core-runtime-apis';
+import { addCoreRuntimeApi, addLegacyApis, RUNTIME_APIS } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
 import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
 import { updateLazyComponentClass } from './lazy-component';
@@ -30,6 +30,10 @@ export const lazyComponentTransform = (
       const styleStatements: ts.Statement[] = [];
       const moduleFile = getModuleFromSourceFile(compilerCtx, tsSourceFile);
 
+      if (buildCtx.config.extras.additionalTagTransformers) {
+        addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
+      }
+
       const visitNode = (node: ts.Node): any => {
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
@@ -53,6 +57,7 @@ export const lazyComponentTransform = (
       if (moduleFile.isLegacy) {
         addLegacyApis(moduleFile);
       }
+
       tsSourceFile = addImports(transformOpts, tsSourceFile, moduleFile.coreRuntimeApis, transformOpts.coreImportPath);
 
       if (styleStatements.length > 0) {

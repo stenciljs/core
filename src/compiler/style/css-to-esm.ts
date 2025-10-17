@@ -9,6 +9,9 @@ import { optimizeCss } from '../optimize/optimize-css';
 import { serializeImportPath } from '../transformers/stencil-import-path';
 import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
+import { addTagTransformToCssString } from '../transformers/transform-utils';
+import { RUNTIME_APIS, TRANSFORM_TAG } from '../transformers/core-runtime-apis';
+import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
  * A regular expression for matching CSS import statements
@@ -161,8 +164,15 @@ const generateTransformCssToEsm = (
 ): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
 
+  if (input.addTagTransformers) {
+    results.styleText = addTagTransformToCssString(results.styleText, input.tags);
+  }
+
   if (input.module === 'cjs') {
     // CommonJS
+    if (input.addTagTransformers) {
+      s.append(`const ${TRANSFORM_TAG} = require('${STENCIL_CORE_ID}').${RUNTIME_APIS.transformTag};\n`);
+    }
     results.imports.forEach((cssImport) => {
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
     });
@@ -177,6 +187,9 @@ const generateTransformCssToEsm = (
     s.append(`module.exports = ${results.defaultVarName};`);
   } else {
     // ESM
+    if (input.addTagTransformers) {
+      s.append(`import { transformTag as ${TRANSFORM_TAG}  } from '${STENCIL_CORE_ID}';\n`);
+    }
     results.imports.forEach((cssImport) => {
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
     });

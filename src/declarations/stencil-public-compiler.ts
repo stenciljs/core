@@ -375,6 +375,11 @@ interface ConfigExtrasBase {
    */
   tagNameTransform?: boolean;
 
+  /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean | 'prod';
+
   // TODO(STENCIL-1086): remove this option when it's the default behavior
   /**
    * Experimental flag.
@@ -3018,6 +3023,14 @@ export interface TranspileOptions {
    * `tsconfig.json` to relative paths.
    */
   transformAliasedImportPaths?: boolean;
+  /**
+   * List of tags to transform, by default only the incoming component tag is transformed
+   */
+  tagsToTransform?: string[];
+   /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean;
 }
 
 export type CompileTarget =

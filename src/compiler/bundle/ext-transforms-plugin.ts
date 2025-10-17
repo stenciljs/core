@@ -124,6 +124,8 @@ export const extTransformsPlugin = (
           file: pluginTransforms.id,
           input: pluginTransforms.code,
           tag: data.tag,
+          tags: buildCtx.components.map((c) => c.tagName),
+          addTagTransformers: !!buildCtx.config.extras.additionalTagTransformers,
           encapsulation: data.encapsulation,
           mode: data.mode,
           sourceMap: config.sourceMap,
@@ -199,8 +201,6 @@ export const extTransformsPlugin = (
             styleText,
           });
         }
-
-        // console.log('??????', cssTransformResults.output);
 
         return {
           code: cssTransformResults.output,
