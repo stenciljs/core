@@ -395,7 +395,6 @@ export declare function forceUpdate(ref: any): void;
  */
 export declare function getRenderingRef(): any;
 
-
 // TODO: remove `autocorrect` omission when this is properly typed in [in typescript](https://github.com/microsoft/typescript/issues/62083)
 export interface HTMLStencilElement extends Omit<HTMLElement, 'autocorrect'> {
   componentOnReady(): Promise<this>;
