@@ -163,7 +163,7 @@ export const getTranspileCssConfig = (
     file: results.inputFilePath,
     input: results.code,
     tag: importData && importData.tag,
-    tags: [...compileOpts.tagsToTransform || importData?.tag],
+    tags: [...(compileOpts.tagsToTransform || importData?.tag)],
     addTagTransformers: compileOpts && compileOpts.additionalTagTransformers === true,
     encapsulation: importData && importData.encapsulation,
     mode: importData && importData.mode,

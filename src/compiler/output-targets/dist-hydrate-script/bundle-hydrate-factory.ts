@@ -7,6 +7,7 @@ import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_HYDRATE_ID } from '../../bundle/entry-alias-ids';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
@@ -81,6 +82,10 @@ const getCustomBeforeTransformers = (
 
   if (config.transformAliasedImportPaths) {
     customBeforeTransformers.push(rewriteAliasedSourceFileImportPaths);
+  }
+
+  if (buildCtx.config.extras.additionalTagTransformers) {
+    customBeforeTransformers.push(addTagTransform(compilerCtx, buildCtx));
   }
 
   customBeforeTransformers.push(

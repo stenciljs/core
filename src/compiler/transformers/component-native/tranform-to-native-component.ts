@@ -4,7 +4,7 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { addModuleMetadataProxies } from '../add-component-meta-proxy';
 import { addImports } from '../add-imports';
-import { addCoreRuntimeApi, addLegacyApis, RUNTIME_APIS } from '../core-runtime-apis';
+import { addLegacyApis } from '../core-runtime-apis';
 import { defineCustomElement } from '../define-custom-element';
 import { updateStyleImports } from '../style-imports';
 import { getComponentMeta, getModuleFromSourceFile } from '../transform-utils';
@@ -35,10 +35,6 @@ export const nativeComponentTransform = (
   return (transformCtx: ts.TransformationContext) => {
     return (tsSourceFile: ts.SourceFile) => {
       const moduleFile = getModuleFromSourceFile(compilerCtx, tsSourceFile);
-
-      if (buildCtx.config.extras.additionalTagTransformers) {
-        addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
-      }
 
       /**
        * Helper function that recursively walks the concrete syntax tree. Upon finding a class declaration that Stencil

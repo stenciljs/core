@@ -2,7 +2,7 @@ import { dashToPascalCase } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { addCoreRuntimeApi } from '../core-runtime-apis';
+import { addCoreRuntimeApi, RUNTIME_APIS } from '../core-runtime-apis';
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
@@ -26,7 +26,7 @@ export const addDefineCustomElementFunctions = (
       const tagNames: string[] = [];
 
       if (moduleFile.cmps.length) {
-        addCoreRuntimeApi(moduleFile, 'transformTag');
+        addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
 
         const principalComponent = moduleFile.cmps[0];
         tagNames.push(principalComponent.tagName);

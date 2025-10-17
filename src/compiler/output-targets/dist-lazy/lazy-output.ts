@@ -24,6 +24,7 @@ import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
 import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 
 export const outputLazy = async (
   config: d.ValidatedConfig,
@@ -125,6 +126,10 @@ const getCustomBeforeTransformers = (
 
   if (config.transformAliasedImportPaths) {
     customBeforeTransformers.push(rewriteAliasedSourceFileImportPaths);
+  }
+
+  if (buildCtx.config.extras.additionalTagTransformers) {
+    customBeforeTransformers.push(addTagTransform(compilerCtx, buildCtx));
   }
 
   customBeforeTransformers.push(

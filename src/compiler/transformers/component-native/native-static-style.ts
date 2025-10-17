@@ -7,7 +7,11 @@ import { getScopeId } from '../../style/scope-css';
 import { createStyleIdentifier } from '../add-static-style';
 import { addTagTransformToCssTsAST, createStaticGetter } from '../transform-utils';
 
-export const addNativeStaticStyle = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
+export const addNativeStaticStyle = (
+  classMembers: ts.ClassElement[],
+  cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
+) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
     if (cmp.styles.length > 1 || (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)) {
       // multiple style modes
@@ -23,7 +27,7 @@ const addMultipleModeStyleGetter = (
   classMembers: ts.ClassElement[],
   cmp: d.ComponentCompilerMeta,
   styles: d.StyleCompiler[],
-  buildCtx: d.BuildCtx
+  buildCtx: d.BuildCtx,
 ) => {
   const styleModes: ts.ObjectLiteralElementLike[] = [];
 
@@ -66,7 +70,7 @@ const addSingleStyleGetter = (
   classMembers: ts.ClassElement[],
   cmp: d.ComponentCompilerMeta,
   style: d.StyleCompiler,
-  buildCtx: d.BuildCtx
+  buildCtx: d.BuildCtx,
 ) => {
   /**
    * the order of these if statements must match with
@@ -98,7 +102,7 @@ const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   if (!buildCtx.config.extras.additionalTagTransformers) {
     return ts.factory.createNoSubstitutionTemplateLiteral(cssCode);
   }
-  const tagNames = buildCtx.components.map(c => c.tagName);
+  const tagNames = buildCtx.components.map((c) => c.tagName);
   return addTagTransformToCssTsAST(cssCode, tagNames);
 };
 

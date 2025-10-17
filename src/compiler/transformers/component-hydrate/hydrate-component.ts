@@ -13,7 +13,7 @@ export const updateHydrateComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
-  buildCtx: d.BuildCtx
+  buildCtx: d.BuildCtx,
 ) => {
   return ts.factory.updateClassDeclaration(
     classNode,
@@ -29,7 +29,7 @@ const updateHydrateHostComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
-  buildCtx: d.BuildCtx
+  buildCtx: d.BuildCtx,
 ) => {
   const classMembers = removeStaticMetaProperties(classNode);
 

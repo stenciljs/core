@@ -39,7 +39,11 @@ export const addStaticStyleGetterWithinClass = (
  * @param styleStatements a list of statements containing style assignments to a class
  * @param cmp the metadata associated with the component being evaluated
  */
-export const addStaticStylePropertyToClass = (styleStatements: ts.Statement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx): void => {
+export const addStaticStylePropertyToClass = (
+  styleStatements: ts.Statement[],
+  cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
+): void => {
   const styleLiteral = getStyleLiteral(cmp, buildCtx);
   if (styleLiteral) {
     const statement = ts.factory.createExpressionStatement(
@@ -135,7 +139,7 @@ const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   if (!buildCtx.config.extras.additionalTagTransformers) {
     return ts.factory.createNoSubstitutionTemplateLiteral(cssCode);
   }
-  const tagNames = buildCtx.components.map(c => c.tagName);
+  const tagNames = buildCtx.components.map((c) => c.tagName);
   return addTagTransformToCssTsAST(cssCode, tagNames);
 };
 

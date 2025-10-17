@@ -8,7 +8,7 @@ import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
 import postcss from 'postcss';
-// @ts-ignore
+// @ts-expect-error - including `@types` for postcss-safe-parser breaks Stencil's type build
 import postcssSafeParser from 'postcss-safe-parser';
 import postcssSelectorParser from 'postcss-selector-parser';
 import { TRANSFORM_TAG } from './core-runtime-apis';
@@ -1189,7 +1189,7 @@ export function getExternalStyles(style: d.StyleCompiler) {
 /**
  * Adds tag transformation to a CSS string.
  * Turns `tag-name { ... }` into `${tagTransform('tag-name')} { ... }`
- * 
+ *
  * @param cssCode The CSS code to transform.
  * @param tagNames The tag names to transform.
  * @returns The transformed CSS code.
@@ -1199,9 +1199,7 @@ export function addTagTransformToCssString(cssCode: string, tagNames: string[]):
     (root: postcss.Root) => {
       root.walkRules((rule) => {
         rule.selectors = rule.selectors.map((sel) => {
-          const parsedSelector = postcssSelectorParser().astSync(
-            sel,
-          ) as any;
+          const parsedSelector = postcssSelectorParser().astSync(sel) as any;
           parsedSelector.walkTags((tag: any) => {
             if (tagNames.includes(tag.value)) {
               tag.value = '${' + TRANSFORM_TAG + '("' + tag.value + '")}';
@@ -1260,22 +1258,20 @@ export function addTagTransformToCssTsAST(
 
   // Split by placeholder tokens, preserving the index number ([literal, idx, literal, idx, literal...])
   const splitParts = transformed.split(/___EXPR_(\d+)___/);
-  const firstLiteral = splitParts[0] ?? "";
+  const firstLiteral = splitParts[0] ?? '';
 
   // Build spans array
   const spans: ts.TemplateSpan[] = [];
   for (let i = 1; i < splitParts.length; i += 2) {
     const idxStr = splitParts[i];
-    const literalAfter = splitParts[i + 1] ?? "";
+    const literalAfter = splitParts[i + 1] ?? '';
 
     const exprIndex = Number(idxStr);
     const tagName = placeholders[exprIndex];
     // build call expression: tagTransform("tag-name")
-    const expr = ts.factory.createCallExpression(
-      ts.factory.createIdentifier(TRANSFORM_TAG),
-      undefined,
-      [ts.factory.createStringLiteral(tagName)]
-    );
+    const expr = ts.factory.createCallExpression(ts.factory.createIdentifier(TRANSFORM_TAG), undefined, [
+      ts.factory.createStringLiteral(tagName),
+    ]);
 
     // Determine if this span is the last span -> TemplateTail else TemplateMiddle
     const isLastSpan = i + 1 >= splitParts.length - 1;

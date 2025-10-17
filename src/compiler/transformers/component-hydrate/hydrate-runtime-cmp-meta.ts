@@ -5,7 +5,11 @@ import type * as d from '../../../declarations';
 import { addStaticStyleGetterWithinClass } from '../add-static-style';
 import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
-export const addHydrateRuntimeCmpMeta = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
+export const addHydrateRuntimeCmpMeta = (
+  classMembers: ts.ClassElement[],
+  cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
+) => {
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(cmp, true);
   const cmpMeta: d.ComponentRuntimeMeta = {
     $flags$: compactMeta[0],
