@@ -8,7 +8,7 @@
  */
 
 import { BUILD } from '@app-data';
-import { consoleDevError, consoleDevWarn } from '@platform';
+import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
 import { isComplexType } from '@utils';
 
 import type * as d from '../../declarations';
@@ -29,7 +29,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
         walk(child);
       } else if (child != null && typeof child !== 'boolean') {
         if ((simple = typeof nodeName !== 'function' && !isComplexType(child))) {
-          child = String(child);
+          child = transformTag(String(child));
         } else if (BUILD.isDev && typeof nodeName !== 'function' && child.$flags$ === undefined) {
           consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.

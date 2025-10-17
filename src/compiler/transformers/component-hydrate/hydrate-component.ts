@@ -13,6 +13,7 @@ export const updateHydrateComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ) => {
   return ts.factory.updateClassDeclaration(
     classNode,
@@ -20,7 +21,7 @@ export const updateHydrateComponentClass = (
     classNode.name,
     classNode.typeParameters,
     classNode.heritageClauses,
-    updateHydrateHostComponentMembers(classNode, moduleFile, cmp),
+    updateHydrateHostComponentMembers(classNode, moduleFile, cmp, buildCtx),
   );
 };
 
@@ -28,6 +29,7 @@ const updateHydrateHostComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ) => {
   const classMembers = removeStaticMetaProperties(classNode);
 
@@ -36,7 +38,7 @@ const updateHydrateHostComponentMembers = (
   addReactivePropHandlers(classMembers, cmp, 'watchers');
   addReactivePropHandlers(classMembers, cmp, 'serializers');
   addReactivePropHandlers(classMembers, cmp, 'deserializers');
-  addHydrateRuntimeCmpMeta(classMembers, cmp);
+  addHydrateRuntimeCmpMeta(classMembers, cmp, buildCtx);
   transformHostData(classMembers, moduleFile);
 
   return classMembers;

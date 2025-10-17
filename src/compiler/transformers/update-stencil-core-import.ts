@@ -89,5 +89,7 @@ const KEEP_IMPORTS = new Set([
   'getRenderingRef',
   'forceModeUpdate',
   'setErrorHandler',
+  'setTagTransformer',
+  'transformTag',
   'Mixin',
 ]);

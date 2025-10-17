@@ -24,6 +24,7 @@ import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
 import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 
 export const outputLazy = async (
   config: d.ValidatedConfig,
@@ -43,7 +44,7 @@ export const outputLazy = async (
       id: 'lazy',
       platform: 'client',
       conditionals: getLazyBuildConditionals(config, buildCtx.components),
-      customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx),
+      customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       inlineWorkers: config.outputTargets.some(isOutputTargetDist),
       inputs: {
         [config.fsNamespace]: LAZY_BROWSER_ENTRY_ID,
@@ -110,6 +111,7 @@ export const outputLazy = async (
 const getCustomBeforeTransformers = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
+  buildCtx?: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
     coreImportPath: STENCIL_CORE_ID,
@@ -126,8 +128,12 @@ const getCustomBeforeTransformers = (
     customBeforeTransformers.push(rewriteAliasedSourceFileImportPaths);
   }
 
+  if (buildCtx.config.extras.additionalTagTransformers) {
+    customBeforeTransformers.push(addTagTransform(compilerCtx, buildCtx));
+  }
+
   customBeforeTransformers.push(
-    lazyComponentTransform(compilerCtx, transformOpts),
+    lazyComponentTransform(compilerCtx, transformOpts, buildCtx),
     removeCollectionImports(compilerCtx),
   );
   return customBeforeTransformers;

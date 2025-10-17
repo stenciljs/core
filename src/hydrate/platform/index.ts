@@ -46,9 +46,16 @@ export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
   for (const Cstr of Cstrs) {
     // using this format so it follows exactly how client-side modules work
     const exportName = Cstr.cmpMeta.$tagName$;
+    const transformedTagName = (global as any).tagTransform(exportName);
+
     cmpModules.set(exportName, {
       [exportName]: Cstr,
     });
+    if (transformedTagName !== exportName) {
+      cmpModules.set(transformedTagName, {
+        [transformedTagName]: Cstr,
+      });
+    }
   }
 };
 
@@ -215,5 +222,7 @@ export {
   setAssetPath,
   setMode,
   setNonce,
+  setTagTransformer,
   setValue,
+  transformTag,
 } from '@runtime';

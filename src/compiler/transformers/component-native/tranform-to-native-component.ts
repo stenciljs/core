@@ -30,6 +30,7 @@ import { updateNativeComponentClass, updateNativeExtendedClass } from './native-
 export const nativeComponentTransform = (
   compilerCtx: d.CompilerCtx,
   transformOpts: d.TransformOptions,
+  buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx: ts.TransformationContext) => {
     return (tsSourceFile: ts.SourceFile) => {
@@ -45,7 +46,7 @@ export const nativeComponentTransform = (
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
-            return updateNativeComponentClass(transformOpts, node, moduleFile, cmp);
+            return updateNativeComponentClass(transformOpts, node, moduleFile, cmp, buildCtx);
           } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isExtended) {
             return updateNativeExtendedClass(node, moduleFile, transformOpts);
           }

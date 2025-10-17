@@ -139,6 +139,26 @@ describe('build-conditionals', () => {
       expect(bc.transformTagName).toBe(true);
     });
 
+    it('additionalTagTransformers default', () => {
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps);
+      expect(bc.additionalTagTransformers).toBe(false);
+    });
+
+    it('additionalTagTransformers true', () => {
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps);
+      expect(bc.additionalTagTransformers).toBe(true);
+    });
+
+    it('additionalTagTransformers prod', () => {
+      userConfig.extras = { additionalTagTransformers: 'prod' };
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps);
+      expect(bc.additionalTagTransformers).toBe('prod');
+    });
+
     it('hydrateClientSide default', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       const bc = getLazyBuildConditionals(config, cmps);
