@@ -1,3 +1,15 @@
+## 🐎 [4.38.2](https://github.com/stenciljs/core/compare/v4.38.1...v4.38.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* **build:** absolute to relative path conversion: greedy extension replacement ([#6421](https://github.com/stenciljs/core/issues/6421)) ([5341bf4](https://github.com/stenciljs/core/commit/5341bf4109391a98282f96479f6a7c3ab0a9ee8c))
+* **mock-doc:** implement `part` API ([#6423](https://github.com/stenciljs/core/issues/6423)) ([a85d031](https://github.com/stenciljs/core/commit/a85d0312d6f199023e35c08bddea5a2da0c9f989))
+* **types:** new `MixedInCtor` type to make `Mixin` components type-safe ([#6422](https://github.com/stenciljs/core/issues/6422)) ([b191267](https://github.com/stenciljs/core/commit/b191267afca98b033c8f7eda4f348a908814055b))
+* **types:** temporary `autocorrect` fix ([#6426](https://github.com/stenciljs/core/issues/6426)) ([7044550](https://github.com/stenciljs/core/commit/70445506ed4e721db64b7e813fd9b8433c5ea957))
+
+
+
 ## 🚎 [4.38.1](https://github.com/stenciljs/core/compare/v4.38.0...v4.38.1) (2025-10-10)
 
 
