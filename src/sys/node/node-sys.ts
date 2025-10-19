@@ -667,8 +667,23 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     'workbox-build': { minVersion: '4.3.1', recommendedVersion: '4.3.1' },
   });
 
-  prcs.on('SIGINT', runInterruptsCallbacks);
-  prcs.on('exit', runInterruptsCallbacks);
+  // In test environments avoid attaching duplicate global process listeners
+  const isJest = !!process.env.JEST_WORKER_ID;
+  if (!isJest) {
+    prcs.on('SIGINT', runInterruptsCallbacks);
+    prcs.on('exit', runInterruptsCallbacks);
+  } else {
+    const sigintHandlers = prcs.listeners('SIGINT');
+    const exitHandlers = prcs.listeners('exit');
+    const alreadyHasSigint = sigintHandlers.includes(runInterruptsCallbacks as any);
+    const alreadyHasExit = exitHandlers.includes(runInterruptsCallbacks as any);
+    if (!alreadyHasSigint) {
+      prcs.on('SIGINT', runInterruptsCallbacks);
+    }
+    if (!alreadyHasExit) {
+      prcs.on('exit', runInterruptsCallbacks);
+    }
+  }
 
   return sys;
 }
