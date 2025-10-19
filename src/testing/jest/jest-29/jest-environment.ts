@@ -1,22 +1,20 @@
-import type { Circus } from '@jest/types';
+import type { Circus, Global as JestGlobal } from '@jest/types';
 import type { E2EProcessEnv, JestEnvironmentGlobal } from '@stencil/core/internal';
-import { TestEnvironment as NodeEnvironment } from 'jest-environment-node';
+import NodeEnvironment from 'jest-environment-node';
 
 import { connectBrowser, disconnectBrowser, newBrowserPage } from '../../puppeteer/puppeteer-browser';
 import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
   const JestEnvironment = class extends NodeEnvironment {
-    // TODO(STENCIL-1023): Remove this @ts-expect-error
-    // @ts-expect-error - Stencil's Jest environment adds additional properties to the Jest global, but does not extend it
-    global: JestEnvironmentGlobal;
+    override global: JestGlobal.Global & JestEnvironmentGlobal;
     browser: any = null;
     pages: any[] = [];
     testPath: string | null = null;
 
-    constructor(config: any, context: any) {
-      super(config, context);
-      this.testPath = context.testPath;
+    constructor(config: any, context?: any) {
+      super(config);
+      this.testPath = context?.testPath ?? null;
     }
 
     override async setup() {

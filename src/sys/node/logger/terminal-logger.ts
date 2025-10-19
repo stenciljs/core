@@ -95,8 +95,9 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
 
   const debug = (...msg: any[]) => {
     if (shouldLog(currentLogLevel, 'debug')) {
-      formatMemoryUsage(msg);
       const lines = wordWrap(msg, loggerSys.getColumns());
+      // append memory usage after wrapping to preserve expected spacing semantics
+      lines[0] = `${lines[0]} ${getFormattedMemoryUsage()}`;
       debugPrefix(lines);
       console.log(lines.join('\n'));
     }
@@ -115,8 +116,9 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
 
     if (debug) {
       if (shouldLog(currentLogLevel, 'debug')) {
-        formatMemoryUsage(msg);
         const lines = wordWrap(msg, loggerSys.getColumns());
+        // append memory usage after wrapping to preserve expected spacing semantics
+        lines[0] = `${lines[0]} ${getFormattedMemoryUsage()}`;
         debugPrefix(lines);
         console.log(lines.join('\n'));
         queueWriteLog('D', [`${startMsg} ...`]);
@@ -137,11 +139,12 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
    *
    * @param message an array to which the memory usage will be added
    */
-  const formatMemoryUsage = (message: string[]) => {
+  const getFormattedMemoryUsage = (): string => {
     const mem = loggerSys.memoryUsage();
     if (mem > 0) {
-      message.push(dim(` MEM: ${(mem / 1_000_000).toFixed(1)}MB`));
+      return dim(` MEM: ${(mem / 1_000_000).toFixed(1)}MB`);
     }
+    return '';
   };
 
   const timespanFinish = (
@@ -167,9 +170,9 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
     if (debug) {
       if (shouldLog(currentLogLevel, 'debug')) {
         const m = [msg];
-        formatMemoryUsage(m);
-
         const lines = wordWrap(m, loggerSys.getColumns());
+        // append memory usage after wrapping to preserve expected spacing semantics
+        lines[0] = `${lines[0]} ${getFormattedMemoryUsage()}`;
         debugPrefix(lines);
         console.log(lines.join('\n'));
       }
