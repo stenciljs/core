@@ -54,14 +54,10 @@ export async function runJest(config: d.ValidatedConfig, env: d.E2EProcessEnv) {
 export function createTestRunner(): JestTestRunnerConstructor {
   class StencilTestRunner extends TestRunner {
     override async runTests(...args: any[]) {
-      // Normalize to 6-arg shape used by jest-runner types
       const [testsArg, watcher] = args;
       let onStart: any, onResult: any, onFailure: any, options: any;
-      if (args.length === 3) {
-        // (tests, watcher, options)
-        onStart = undefined;
-        onResult = undefined;
-        onFailure = undefined;
+      const isThreeArg = args.length === 3;
+      if (isThreeArg) {
         options = args[2];
       } else {
         [, , onStart, onResult, onFailure, options] = args;
@@ -89,12 +85,14 @@ export function createTestRunner(): JestTestRunnerConstructor {
           setScreenshotEmulateData(emulateConfig, env);
 
           // run the test for each emulate config
-          await (super.runTests as any)(tests, watcher, onStart, onResult, onFailure, options);
+          const forwarded = isThreeArg ? [tests, watcher, options] : [tests, watcher, onStart, onResult, onFailure, options];
+          await (super.runTests as any).apply(this, forwarded);
         }
       } else {
         // not doing e2e screenshot tests
         // so just run each test once
-        await (super.runTests as any)(tests, watcher, onStart, onResult, onFailure, options);
+        const forwarded = isThreeArg ? [tests, watcher, options] : [tests, watcher, onStart, onResult, onFailure, options];
+        await (super.runTests as any).apply(this, forwarded);
       }
     }
   }
