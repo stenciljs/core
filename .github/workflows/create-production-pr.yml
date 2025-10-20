@@ -32,13 +32,13 @@ jobs:
       pull-requests: write
     steps:
       # Log the input from GitHub Actions for easy traceability
-      - name: Log GitHub Input
+      - name: 🔏Log GitHub Input
         run: |
           echo "Version: ${{ inputs.version }}"
         shell: bash
 
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           # A depth of 0 gets the entire git history, which we'll want for things like checking all git history/tags.
           # We need git history to generate the changelog; however, we don't know how deep to go.
@@ -46,19 +46,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.base }}
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
       # TODO(STENCIL-927): Backport changes to the v3 branch
-      - name: Run Publish Preparation Script
+      - name: 📦 Run Publish Preparation Script
         run: npm run release.ci.prepare -- --version ${{ inputs.version }}
         shell: bash
 
-      - name: Log Generated Changes
+      - name: 📝 Log Generated Changes
         run: git --no-pager diff
         shell: bash
 
-      - name: Generate Version String and Branch Name
+      - name: 🏷️ Generate Version String and Branch Name
         id: name_gen
         run: |
           VERSION_STR=$(jq '.version' package.json | sed s/\"//g)
@@ -66,13 +66,13 @@ jobs:
           echo "BRANCH_NAME=release/$VERSION_STR-run-${{ github.run_number }}-${{ github.run_attempt }}" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Print Version String and Branch Name
+      - name: 🖨️ Print Version String and Branch Name
         run: |
           echo Version: ${{ steps.name_gen.outputs.VERSION_STR }}
           echo Branch Name: ${{ steps.name_gen.outputs.BRANCH_NAME }}
         shell: bash
 
-      - name: Create the Pull Request
+      - name: 📤 Create the Pull Request
         uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
         with:
           # create a new pull request using the specified base branch

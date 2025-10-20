@@ -42,8 +42,8 @@ jobs:
         shell: bash
         if: ${{ inputs.base != 'main' && inputs.tag == 'latest' }}
 
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           # A depth of 0 gets the entire git history, which we'll want for things like checking all git history/tags.
           # We need git history to generate the changelog; however, we don't know how deep to go.
@@ -51,16 +51,16 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.base }}
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Prepare NPM Token
+      - name: 📦 Prepare NPM Token
         run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
         shell: bash
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Run Publish Scripts
+      - name: 📦 Run Publish Scripts
         # pass the generated version number instead of the input, since we've already incremented it in the prerelease
         # step
         run: npm run release.ci -- --tag ${{ inputs.tag }}

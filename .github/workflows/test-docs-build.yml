@@ -18,28 +18,28 @@ jobs:
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Use Node ${{ matrix.node }}
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      - name: 🟢 Use Node ${{ matrix.node }}
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
-      - name: Download Build Archive
+      - name: 📥 Download Build Archive
         uses: ./.github/workflows/actions/download-archive
         with:
           name: stencil-core
           path: .
           filename: stencil-core-build.zip
 
-      - name: Docs Build Tests
+      - name: 🧪 Docs Build Tests
         run: npm run test.docs-build
         shell: bash
 
-      - name: Check Git Context
+      - name: 📦 Check Git Context
         uses: ./.github/workflows/actions/check-git-context
