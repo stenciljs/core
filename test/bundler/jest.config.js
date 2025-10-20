@@ -2,9 +2,7 @@ const path = require('path');
 const base = require('../../jest.config.js');
 
 const rootDir = path.resolve(__dirname, '../..');
-const modulePathIgnorePatterns = (base.modulePathIgnorePatterns || []).filter(
-  (p) => !/\<rootDir\>\/test\//.test(p)
-);
+const modulePathIgnorePatterns = (base.modulePathIgnorePatterns || []).filter((p) => !/\<rootDir\>\/test\//.test(p));
 
 module.exports = {
   rootDir,
@@ -17,5 +15,3 @@ module.exports = {
   modulePathIgnorePatterns,
   testRegex: '/test/bundler/.*\\.spec\\.ts$',
 };
-
-

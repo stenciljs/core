@@ -53,11 +53,7 @@ export async function runJest(config: d.ValidatedConfig, env: d.E2EProcessEnv) {
  */
 export function createTestRunner(): JestTestRunnerConstructor {
   class StencilTestRunner extends TestRunner {
-    override async runTests(
-      tests: { context: any; path: string }[],
-      watcher: any,
-      options: any,
-    ) {
+    override async runTests(tests: { context: any; path: string }[], watcher: any, options: any) {
       const env = process.env as d.E2EProcessEnv;
 
       // filter out only the tests the flags said we should run

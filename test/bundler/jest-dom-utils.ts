@@ -83,5 +83,3 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
   return { setupDom, tearDownDom };
 }
-
-
