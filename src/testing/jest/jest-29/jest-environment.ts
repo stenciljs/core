@@ -13,7 +13,8 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
     testPath: string | null = null;
 
     constructor(config: any, context?: any) {
-      super(config, context);
+      // Use single-arg ctor to align with installed Jest 27 types during build
+      super(config as any);
       this.testPath = context?.testPath ?? null;
     }
 
