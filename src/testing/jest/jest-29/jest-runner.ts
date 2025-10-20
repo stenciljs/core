@@ -56,9 +56,6 @@ export function createTestRunner(): JestTestRunnerConstructor {
     override async runTests(
       tests: { context: any; path: string }[],
       watcher: any,
-      _onStart: any,
-      _onResult: any,
-      _onFailure: any,
       options: any,
     ) {
       const env = process.env as d.E2EProcessEnv;
@@ -82,12 +79,12 @@ export function createTestRunner(): JestTestRunnerConstructor {
           setScreenshotEmulateData(emulateConfig, env);
 
           // run the test for each emulate config
-          await (super.runTests as any)(tests, watcher, _onStart, _onResult, _onFailure, options);
+          await super.runTests(tests as any, watcher as any, options as any);
         }
       } else {
         // not doing e2e screenshot tests
         // so just run each test once
-        await (super.runTests as any)(tests, watcher, _onStart, _onResult, _onFailure, options);
+        await super.runTests(tests as any, watcher as any, options as any);
       }
     }
   }
