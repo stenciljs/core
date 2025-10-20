@@ -129,6 +129,8 @@
     "test.docs-build": "cd test && npm run build.docs-json && npm run build.docs-readme",
     "test.watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
     "test.watch-all": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watchAll --coverage",
+    "test.bundler": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js -c test/bundler/jest.config.js --passWithNoTests",
+    "ci.test": "npm run test.jest && npm run test.bundler",
     "tsc.prod": "tsc",
     "ts": "tsc --noEmit --project scripts/tsconfig.json && tsx"
   },
