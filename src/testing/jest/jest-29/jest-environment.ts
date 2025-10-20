@@ -6,13 +6,14 @@ import { connectBrowser, disconnectBrowser, newBrowserPage } from '../../puppete
 import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
-  const JestEnvironment = class extends NodeEnvironment {
+  const BaseEnv = NodeEnvironment as unknown as new (...args: any[]) => any;
+  const JestEnvironment = class extends BaseEnv {
     override global: JestGlobal.Global & JestEnvironmentGlobal;
     browser: any = null;
     pages: any[] = [];
     testPath: string | null = null;
 
-    constructor(config: any, context: any) {
+    constructor(config: any, context?: any) {
       super(config, context);
       this.testPath = context?.testPath ?? null;
     }
