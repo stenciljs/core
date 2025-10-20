@@ -37,6 +37,8 @@ jobs:
           cache: 'npm'
       - name: Install
         run: npm ci
+      - name: Build core (required by bundler job)
+        run: npm run build -- --ci
       - name: Build bundler artifacts
         run: npm run --prefix test/bundler build
       - name: Run Bundler tests
