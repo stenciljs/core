@@ -8,7 +8,7 @@ import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
   const BaseEnv = NodeEnvironment as unknown as new (...args: any[]) => any;
   const JestEnvironment = class extends BaseEnv {
-    override global: JestGlobal.Global & JestEnvironmentGlobal;
+    global: JestGlobal.Global & JestEnvironmentGlobal;
     browser: any = null;
     pages: any[] = [];
     testPath: string | null = null;
@@ -18,7 +18,7 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
       this.testPath = context?.testPath ?? null;
     }
 
-    override async setup() {
+    async setup() {
       if ((process.env as E2EProcessEnv).__STENCIL_E2E_TESTS__ === 'true') {
         this.global.__NEW_TEST_PAGE__ = this.newPuppeteerPage.bind(this);
         this.global.__CLOSE_OPEN_PAGES__ = this.closeOpenPages.bind(this);
@@ -89,14 +89,14 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
       this.pages.length = 0;
     }
 
-    override async teardown() {
+    async teardown() {
       await super.teardown();
       await this.closeOpenPages();
       await disconnectBrowser(this.browser);
       this.browser = null;
     }
 
-    override getVmContext() {
+    getVmContext() {
       return super.getVmContext();
     }
   };
