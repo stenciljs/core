@@ -85,13 +85,17 @@ export function createTestRunner(): JestTestRunnerConstructor {
           setScreenshotEmulateData(emulateConfig, env);
 
           // run the test for each emulate config
-          const forwarded = isThreeArg ? [tests, watcher, options] : [tests, watcher, onStart, onResult, onFailure, options];
+          const forwarded = isThreeArg
+            ? [tests, watcher, options]
+            : [tests, watcher, onStart, onResult, onFailure, options];
           await (super.runTests as any).apply(this, forwarded);
         }
       } else {
         // not doing e2e screenshot tests
         // so just run each test once
-        const forwarded = isThreeArg ? [tests, watcher, options] : [tests, watcher, onStart, onResult, onFailure, options];
+        const forwarded = isThreeArg
+          ? [tests, watcher, options]
+          : [tests, watcher, onStart, onResult, onFailure, options];
         await (super.runTests as any).apply(this, forwarded);
       }
     }
