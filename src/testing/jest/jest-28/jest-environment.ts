@@ -13,7 +13,7 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
     testPath: string | null = null;
 
     constructor(config: any, context?: any) {
-      super(config);
+      super(config, context);
       this.testPath = context?.testPath ?? null;
     }
 
