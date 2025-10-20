@@ -25,7 +25,7 @@ export const generateEventListenerTypes = (
     return { htmlElementEventMap: [], htmlElementEventListenerProperties: [] };
   }
   return {
-    htmlElementEventMap: getHtmlElementEventMap(cmpEvents, typeImportData, cmp.sourceFilePath, htmlElementEventMapName),
+    htmlElementEventMap: getHtmlElementEventMap(cmpEvents, typeImportData, cmp.sourceFilePath, htmlElementEventMapName, tagNameAsPascal),
     htmlElementEventListenerProperties: [
       `        addEventListener<K extends keyof ${htmlElementEventMapName}>(type: K, listener: (this: ${htmlElementName}, ev: ${cmpEventInterface}<${htmlElementEventMapName}[K]>) => any, options?: boolean | AddEventListenerOptions): void;`,
       '        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;',
@@ -47,6 +47,7 @@ export const generateEventListenerTypes = (
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
  * @param sourceFilePath the path to the source file being visited
  * @param htmlElementEventMapName the name of the component event map type
+ * @param tagNameAsPascal the name of the component in Pascal case
  * @returns map of event names and user implemented event type(s)
  */
 const getHtmlElementEventMap = (
@@ -54,10 +55,15 @@ const getHtmlElementEventMap = (
   typeImportData: d.TypesImportData,
   sourceFilePath: string,
   htmlElementEventMapName: string,
+  tagNameAsPascal: string
 ): string[] => {
   const eventMapProperties = cmpEvents.map((cmpEvent) => {
-    const type = getEventGenericType(cmpEvent, typeImportData, sourceFilePath);
-    return `        "${cmpEvent.name}": ${type};`;
+    const rawType = getEventGenericType(cmpEvent, typeImportData, sourceFilePath);
+    const maybePrefixedType = (rawType === tagNameAsPascal)
+      ? `Components.${rawType}`
+      : rawType;
+    return `        "${cmpEvent.name}": ${maybePrefixedType};`;
+
   });
   return [`    interface ${htmlElementEventMapName} {`, ...eventMapProperties, `    }`];
 };
