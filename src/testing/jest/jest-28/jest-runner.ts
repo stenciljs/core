@@ -53,14 +53,19 @@ export async function runJest(config: d.ValidatedConfig, env: d.E2EProcessEnv) {
  */
 export function createTestRunner(): JestTestRunnerConstructor {
   class StencilTestRunner extends TestRunner {
-    override async runTests(
-      tests: { context: any; path: string }[],
-      watcher: any,
-      onStart: any,
-      onResult: any,
-      onFailure: any,
-      options: any,
-    ) {
+    override async runTests(...args: any[]) {
+      // Normalize to 6-arg shape used by jest-runner types
+      const [tests, watcher] = args;
+      let onStart: any, onResult: any, onFailure: any, options: any;
+      if (args.length === 3) {
+        // (tests, watcher, options)
+        onStart = undefined;
+        onResult = undefined;
+        onFailure = undefined;
+        options = args[2];
+      } else {
+        [, , onStart, onResult, onFailure, options] = args;
+      }
       const env = process.env as d.E2EProcessEnv;
 
       // filter out only the tests the flags said we should run

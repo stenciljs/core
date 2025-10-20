@@ -12,9 +12,10 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
     pages: any[] = [];
     testPath: string | null = null;
 
-    constructor(config: any, context?: any) {
-      // Use single-arg ctor to align with vendored jest-environment-node types during build
-      super(config);
+    constructor(...args: any[]) {
+      // Support both (config) and (config, context) jest env ctors
+      super(...(args as [any] | [any, any]));
+      const context = args[1];
       this.testPath = context?.testPath ?? null;
     }
 
