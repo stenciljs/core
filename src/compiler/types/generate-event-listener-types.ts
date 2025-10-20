@@ -25,7 +25,13 @@ export const generateEventListenerTypes = (
     return { htmlElementEventMap: [], htmlElementEventListenerProperties: [] };
   }
   return {
-    htmlElementEventMap: getHtmlElementEventMap(cmpEvents, typeImportData, cmp.sourceFilePath, htmlElementEventMapName, tagNameAsPascal),
+    htmlElementEventMap: getHtmlElementEventMap(
+      cmpEvents,
+      typeImportData,
+      cmp.sourceFilePath,
+      htmlElementEventMapName,
+      tagNameAsPascal,
+    ),
     htmlElementEventListenerProperties: [
       `        addEventListener<K extends keyof ${htmlElementEventMapName}>(type: K, listener: (this: ${htmlElementName}, ev: ${cmpEventInterface}<${htmlElementEventMapName}[K]>) => any, options?: boolean | AddEventListenerOptions): void;`,
       '        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;',
@@ -55,15 +61,12 @@ const getHtmlElementEventMap = (
   typeImportData: d.TypesImportData,
   sourceFilePath: string,
   htmlElementEventMapName: string,
-  tagNameAsPascal: string
+  tagNameAsPascal: string,
 ): string[] => {
   const eventMapProperties = cmpEvents.map((cmpEvent) => {
     const rawType = getEventGenericType(cmpEvent, typeImportData, sourceFilePath);
-    const maybePrefixedType = (rawType === tagNameAsPascal)
-      ? `Components.${rawType}`
-      : rawType;
+    const maybePrefixedType = rawType === tagNameAsPascal ? `Components.${rawType}` : rawType;
     return `        "${cmpEvent.name}": ${maybePrefixedType};`;
-
   });
   return [`    interface ${htmlElementEventMapName} {`, ...eventMapProperties, `    }`];
 };

@@ -261,5 +261,36 @@ describe('generate-event-listener-types', () => {
 
       expect(generateEventListenerTypes(componentMeta, stubImportTypes)).toEqual(expectedEventListenerTypes);
     });
+
+    it('correctly prefixes event type with Components namespace when type matches component name', () => {
+      const stubImportTypes = stubTypesImportData();
+
+      const eventName = 'myEvent';
+      const componentName = 'StubCmp';
+      const stubEvent = stubComponentCompilerEvent({
+        name: eventName,
+        method: eventName,
+        complexType: {
+          original: componentName,
+          resolved: '',
+          references: {},
+        },
+      });
+
+      const componentMeta = stubComponentCompilerMeta({
+        tagName: 'stub-cmp',
+        events: [stubEvent],
+      });
+
+      const { htmlElementEventMap } = generateEventListenerTypes(componentMeta, stubImportTypes);
+
+      const expectedHtmlElementEventMap = [
+        `    interface HTML${componentName}ElementEventMap {`,
+        `        "${eventName}": Components.${componentName};`,
+        '    }',
+      ];
+
+      expect(htmlElementEventMap).toEqual(expectedHtmlElementEventMap);
+    });
   });
 });
