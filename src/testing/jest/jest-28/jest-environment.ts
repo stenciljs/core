@@ -13,9 +13,14 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
     testPath: string | null = null;
 
     constructor(...args: any[]) {
-      // Support both (config) and (config, context) jest env ctors
-      super(...(args as [any] | [any, any]));
+      // Support both (config) and (config, context) jest env ctors without spread typing issues
+      const config = args[0];
       const context = args[1];
+      if (args.length >= 2) {
+        super(config, context);
+      } else {
+        super(config);
+      }
       this.testPath = context?.testPath ?? null;
     }
 

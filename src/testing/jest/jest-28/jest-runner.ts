@@ -55,7 +55,7 @@ export function createTestRunner(): JestTestRunnerConstructor {
   class StencilTestRunner extends TestRunner {
     override async runTests(...args: any[]) {
       // Normalize to 6-arg shape used by jest-runner types
-      const [tests, watcher] = args;
+      const [testsArg, watcher] = args;
       let onStart: any, onResult: any, onFailure: any, options: any;
       if (args.length === 3) {
         // (tests, watcher, options)
@@ -69,7 +69,9 @@ export function createTestRunner(): JestTestRunnerConstructor {
       const env = process.env as d.E2EProcessEnv;
 
       // filter out only the tests the flags said we should run
-      tests = tests.filter((t) => includeTestFile(t.path, env));
+      const tests: { context: any; path: string }[] = (testsArg as { context: any; path: string }[]).filter(
+        (t: { context: any; path: string }) => includeTestFile(t.path, env),
+      );
 
       if (env.__STENCIL_SCREENSHOT__ === 'true' && env.__STENCIL_EMULATE_CONFIGS__) {
         // we're doing e2e screenshots, so let's loop through
