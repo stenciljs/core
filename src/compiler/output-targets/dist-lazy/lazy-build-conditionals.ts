@@ -18,7 +18,6 @@ export const getLazyBuildConditionals = (
 
   const hasHydrateOutputTargets = config.outputTargets.some(isOutputTargetHydrate);
   build.hydrateClientSide = hasHydrateOutputTargets;
-  build.modernPropertyDecls = cmps.some((c) => c.hasModernPropertyDecls);
 
   updateBuildConditionals(config, build);
 
