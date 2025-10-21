@@ -40,7 +40,6 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     member: cmps.some((c) => c.hasMember),
     method: cmps.some((c) => c.hasMethod),
     mode: cmps.some((c) => c.hasMode),
-    modernPropertyDecls: cmps.some((c) => c.hasModernPropertyDecls),
     observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback || c.hasDeserializer),
     prop: cmps.some((c) => c.hasProp),
     propBoolean: cmps.some((c) => c.hasPropBoolean),

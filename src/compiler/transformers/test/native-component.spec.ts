@@ -71,7 +71,7 @@ describe('nativeComponentTransform', () => {
     });
 
     expect(await formatCode(transpiledModule.outputText)).toContain(
-      await c`__stencil_defineCustomElement(CmpA, [0, 'cmp-a', { baz: [2], bar: [2], foo: [2] }])`,
+      await c`__stencil_defineCustomElement(CmpA, [512, 'cmp-a', { baz: [2], bar: [2], foo: [2] }])`,
     );
 
     expect(await formatCode(transpiledModule.outputText)).toContain(

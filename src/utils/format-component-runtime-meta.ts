@@ -41,12 +41,16 @@ export const formatComponentRuntimeMeta = (
   if (compilerMeta.hasMode) {
     flags |= CMP_FLAGS.hasMode;
   }
+  if (compilerMeta.hasModernPropertyDecls) {
+    flags |= CMP_FLAGS.hasModernPropertyDecls;
+  }
 
   const members = formatComponentRuntimeMembers(compilerMeta, includeMethods);
   const hostListeners = formatHostListeners(compilerMeta);
   const watchers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'watchers');
   const serializers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'serializers');
   const deserializers = formatComponentRuntimeReactiveHandlers(compilerMeta, 'deserializers');
+
   return trimFalsy([
     flags,
     compilerMeta.tagName,
