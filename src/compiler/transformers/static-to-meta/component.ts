@@ -183,7 +183,7 @@ export const parseStaticComponentMeta = (
   visitComponentChildNode(cmpNode, buildCtx);
   parseClassMethods(classMethods, cmp);
 
-  cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode);
+  cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode) || doesExtend;
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
   cmp.potentialCmpRefs = unique(cmp.potentialCmpRefs);
