@@ -78,7 +78,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
       }
     };
     waitForDidLoad(window.document.documentElement);
-    await Promise.all(promises).catch(() => undefined);
+    await Promise.all(promises).catch((e) => console.error(e));
   }
 
   return { setupDom, tearDownDom };
