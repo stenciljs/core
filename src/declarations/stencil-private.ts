@@ -153,7 +153,6 @@ export interface BuildFeatures {
   reflect: boolean;
 
   taskQueue: boolean;
-  modernPropertyDecls: boolean;
 }
 
 export interface BuildConditionals extends Partial<BuildFeatures> {

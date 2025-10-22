@@ -1,4 +1,5 @@
 import { BUILD } from '@app-data';
+import { CMP_FLAGS } from '@utils/constants';
 import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
 
 import type * as d from '../declarations';
@@ -29,7 +30,7 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
-  if (BUILD.modernPropertyDecls && (BUILD.state || BUILD.prop)) {
+  if (hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
     reWireGetterSetter(lazyInstance, hostRef);
   }
 };
@@ -69,7 +70,7 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
   const ref = hostRef;
   hostElement.__stencil__getHostRef = () => ref;
 
-  if (!BUILD.lazyLoad && BUILD.modernPropertyDecls && (BUILD.state || BUILD.prop)) {
+  if (!BUILD.lazyLoad && cmpMeta.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
     reWireGetterSetter(hostElement, hostRef);
   }
 
