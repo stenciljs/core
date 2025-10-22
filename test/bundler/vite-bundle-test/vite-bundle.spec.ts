@@ -1,13 +1,14 @@
-import puppeteer, { Browser } from 'puppeteer';
-import { createServer, Server } from 'node:http';
 import { createReadStream, statSync } from 'node:fs';
-import { join, extname } from 'node:path';
+import { createServer, Server } from 'node:http';
+import { extname, join } from 'node:path';
+
+import puppeteer, { Browser } from 'puppeteer';
 
 const PORT = 8765;
 const DIST_DIR = join(__dirname, 'dist');
 
 // Simple static file server for serving Vite-built files
-function startStaticServer(): Promise<Server> {
+function startStaticServer() {
   const mimeTypes: Record<string, string> = {
     '.html': 'text/html',
     '.js': 'application/javascript',
@@ -16,7 +17,7 @@ function startStaticServer(): Promise<Server> {
   };
 
   const server = createServer((req, res) => {
-    let filePath = join(DIST_DIR, req.url === '/' ? 'index.html' : req.url!);
+    const filePath = join(DIST_DIR, req.url === '/' ? 'index.html' : req.url!);
 
     try {
       const stat = statSync(filePath);
