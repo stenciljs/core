@@ -45,13 +45,27 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
     // wait for app readiness similar to Karma helper
     await new Promise<void>((resolve) => {
+      let resolved = false;
+
       const onAppLoad = () => {
-        window.removeEventListener('appload', onAppLoad);
-        resolve();
+        if (!resolved) {
+          resolved = true;
+          window.removeEventListener('appload', onAppLoad);
+          resolve();
+        }
       };
+
       window.addEventListener('appload', onAppLoad);
-      // if app already loaded synchronously, resolve on next tick
-      setTimeout(() => resolve(), 0);
+
+      // Fallback timeout in case the 'appload' event never fires
+      setTimeout(() => {
+        if (!resolved) {
+          console.warn('appload event did not fire within 5 seconds, continuing anyway');
+          resolved = true;
+          window.removeEventListener('appload', onAppLoad);
+          resolve();
+        }
+      }, 5000);
     });
 
     await allReady();
