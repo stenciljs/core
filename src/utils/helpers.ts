@@ -48,6 +48,39 @@ export const toCamelCase = (str: string) => {
 export const toTitleCase = (str: string): string => str.charAt(0).toUpperCase() + str.slice(1);
 
 /**
+ * Escapes all occurrences of a specified pattern in a string.
+ * @description This function replaces all matches of a given pattern in the input text with a specified replacement string.
+ * It can handle both string and regular expression patterns and allows toggling between global and single-match replacements.
+ * @param {string} text - The input string to process.
+ * @param {RegExp | string} pattern - The pattern to search for in the input string. Can be a regular expression or a string.
+ * @param {string} replacement - The string to replace each match with.
+ * @param {boolean} [replaceAll=true] - Whether to replace all occurrences (`true`) or just the first occurrence (`false`). Defaults to `true`.
+ * @returns {string} The processed string with the replacements applied.
+ * @example
+ * @see src\utils\util.ts
+ */
+export const escapeWithPattern = (
+  text: string,
+  pattern: RegExp | string,
+  replacement: string,
+  replaceAll: boolean = true,
+): string => {
+  let regex: RegExp;
+
+  if (typeof pattern === 'string') {
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    regex = new RegExp(escaped, replaceAll ? 'g' : '');
+  } else {
+    const flags = pattern.flags;
+    const hasG = flags.includes('g');
+    const newFlags = replaceAll ? (hasG ? flags : flags + 'g') : hasG ? flags.replace(/g/g, '') : flags;
+    regex = new RegExp(pattern.source, newFlags);
+  }
+
+  return text.replace(regex, replacement);
+};
+
+/**
  * This is just a no-op, don't expect it to do anything.
  */
 export const noop = (): any => {
