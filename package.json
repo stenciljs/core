@@ -121,6 +121,7 @@
     "test.dist": "npm run ts scripts/index.ts -- --validate-build",
     "test.end-to-end": "cd test/end-to-end && npm ci && npm test && npm run test.dist",
     "test.jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test.jest.lowmem": "node --max-old-space-size=8192 --experimental-vm-modules ./node_modules/jest/bin/jest.js --maxWorkers=50%",
     "test.type-tests": "cd ./test/wdio && npm install && npm run build.test-sibling && npm run build.main && cd ../../ && tsc -p test/type-tests/tsconfig.json",
     "test.wdio": "cd test/wdio && npm ci && npm run test",
     "test.wdio.testOnly": "cd test/wdio && npm ci && npm run wdio",
