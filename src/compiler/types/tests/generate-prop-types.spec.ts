@@ -245,5 +245,31 @@ describe('generate-prop-types', () => {
 
       expect(actualTypeInfo).toEqual(expectedTypeInfo);
     });
+
+    it('escapes "*/" in default values within jsdoc', () => {
+      const stubImportTypes = stubTypesImportData();
+      const componentMeta = stubComponentCompilerMeta({
+        properties: [
+          stubComponentCompilerProperty({
+            defaultValue: "'*/*'",
+          }),
+        ],
+      });
+
+      const expectedTypeInfo: d.TypeInfo = [
+        {
+          jsdoc: "@default '*\\/*'", // Editor will evaluate this as @default '*\/*'
+          internal: false,
+          name: 'propName',
+          optional: false,
+          required: false,
+          type: 'UserCustomPropType',
+        },
+      ];
+
+      const actualTypeInfo = generatePropTypes(componentMeta, stubImportTypes);
+
+      expect(actualTypeInfo).toEqual(expectedTypeInfo);
+    });
   });
 });
