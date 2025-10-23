@@ -160,6 +160,7 @@
     "autoprefixer": "10.4.19",
     "conventional-changelog-cli": "^5.0.0",
     "cspell": "^8.0.0",
+    "css-what": "^7.0.0",
     "dts-bundle-generator": "~9.5.0",
     "esbuild": "^0.25.0",
     "esbuild-plugin-replace": "^1.4.0",
