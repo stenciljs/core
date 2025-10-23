@@ -44,7 +44,7 @@ describe('nativeComponentTransform', () => {
             return 'cmp-a';
           }
         };
-        customElements.define("cmp-a", CmpA);`,
+        customElements.define(transformTag("cmp-a"), CmpA);`,
     );
   });
 
@@ -117,7 +117,7 @@ describe('nativeComponentTransform', () => {
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(transpiledModule.outputText).toContain(
-        `import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
+        `import { transformTag as __stencil_transformTag, defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
       );
       expect(transpiledModule.outputText).toContain(`this.__attachShadow()`);
     });
@@ -142,7 +142,7 @@ describe('nativeComponentTransform', () => {
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(transpiledModule.outputText).toContain(
-        `import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
+        `import { transformTag as __stencil_transformTag, defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
       );
       expect(transpiledModule.outputText).toContain(`this.__attachShadow()`);
     });
@@ -254,7 +254,11 @@ describe('nativeComponentTransform', () => {
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(await formatCode(transpiledModule.outputText)).toContain(
-        await formatCode(`import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from '@stencil/core';
+        await formatCode(`import { 
+          transformTag as __stencil_transformTag, 
+          defineCustomElement as __stencil_defineCustomElement, 
+          HTMLElement 
+        } from '@stencil/core';
           ${expectedImport}
           const CmpA = class extends HTMLElement {
             constructor(registerHost) {

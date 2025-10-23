@@ -11,8 +11,9 @@ export const addTagTransform = (
   return (transformCtx) => {
     return (tsSourceFile) => {
       const moduleFile = getModuleFromSourceFile(compilerCtx, tsSourceFile);
-      addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
       const tagNames = buildCtx.components.map((cmp) => cmp.tagName);
+
+      addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
 
       const visitNode = (node: ts.Node): any => {
         let newNode: ts.Node = node;
