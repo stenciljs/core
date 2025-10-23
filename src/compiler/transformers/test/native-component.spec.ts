@@ -44,7 +44,7 @@ describe('nativeComponentTransform', () => {
             return 'cmp-a';
           }
         };
-        customElements.define(transformTag("cmp-a"), CmpA);`,
+        customElements.define(__stencil_transformTag("cmp-a"), CmpA);`,
     );
   });
 
