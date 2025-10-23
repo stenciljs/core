@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '../../declarations';
 import { getModuleFromSourceFile } from './transform-utils';
-import { addCoreRuntimeApi, RUNTIME_APIS } from './core-runtime-apis';
+import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
 import { parse, SelectorType, stringify } from 'css-what';
 
 export const addTagTransform = (
@@ -105,7 +105,7 @@ export const addTagTransform = (
           if (tagNames.some((tag) => tag.toUpperCase() === tagName)) {
             // Replace "tagName" with transformTag("tagName")
             const transformedTagCall = ts.factory.createCallExpression(
-              ts.factory.createIdentifier('transformTag'),
+              ts.factory.createIdentifier(TRANSFORM_TAG),
               undefined,
               [ts.factory.createStringLiteral(tagName)],
             );
@@ -127,7 +127,7 @@ export const addTagTransform = (
             if (firstArg) {
               // Wrap the argument in transformTag(...)
               const newFirstArg = ts.factory.createCallExpression(
-                ts.factory.createIdentifier('transformTag'),
+                ts.factory.createIdentifier(TRANSFORM_TAG),
                 undefined,
                 [firstArg],
               );

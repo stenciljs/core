@@ -2,7 +2,7 @@ import { dashToPascalCase } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { addCoreRuntimeApi, RUNTIME_APIS } from '../core-runtime-apis';
+import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-apis';
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
@@ -37,7 +37,7 @@ export const addDefineCustomElementFunctions = (
           undefined,
           [
             ts.factory.createCallExpression(
-              ts.factory.createIdentifier('transformTag'),
+              ts.factory.createIdentifier(TRANSFORM_TAG),
               [],
               [ts.factory.createIdentifier('tagName')],
             ),
@@ -126,7 +126,7 @@ const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Ex
           undefined,
           [
             ts.factory.createCallExpression(
-              ts.factory.createIdentifier('transformTag'),
+              ts.factory.createIdentifier(TRANSFORM_TAG),
               [],
               [ts.factory.createIdentifier('tagName')],
             ),

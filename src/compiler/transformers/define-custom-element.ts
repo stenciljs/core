@@ -2,7 +2,7 @@ import { formatComponentRuntimeMeta } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';
-import { addCoreRuntimeApi, DEFINE_CUSTOM_ELEMENT, RUNTIME_APIS } from './core-runtime-apis';
+import { addCoreRuntimeApi, DEFINE_CUSTOM_ELEMENT, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
 import { convertValueToLiteral } from './transform-utils';
 
 export const defineCustomElement = (
@@ -38,7 +38,7 @@ const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentC
         [],
         [
           ts.factory.createCallExpression(
-            ts.factory.createIdentifier('transformTag'),
+            ts.factory.createIdentifier(TRANSFORM_TAG),
             [],
             [ts.factory.createStringLiteral(compilerMeta.tagName)],
           ),
