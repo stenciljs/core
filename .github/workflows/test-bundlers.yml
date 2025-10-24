@@ -26,6 +26,16 @@ jobs:
           path: .
           filename: stencil-core-build.zip
 
+      - name: 🧼 Sanitize npm config for public registry
+        shell: bash
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set always-auth false
+          npm config delete '//registry.npmjs.org/:_authToken' || true
+          echo "registry=https://registry.npmjs.org/" > ~/.npmrc
+        env:
+          NPM_TOKEN: ""
+
       - name: 🧪 Bundler Tests
         run: npm run test.bundlers
         shell: bash
