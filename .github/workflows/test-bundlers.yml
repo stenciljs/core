@@ -34,9 +34,22 @@ jobs:
         env:
           NPM_TOKEN: ''
 
+      - name: 🧾 Ensure local npmrc in bundler subfolders
+        shell: bash
+        run: |
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > test/bundler/.npmrc
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > test/bundler/vite-bundle-test/.npmrc
+
       - name: 🧪 Bundler Tests
         run: npm run test.bundlers
         shell: bash
+        env:
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+          NPM_CONFIG_ALWAYS_AUTH: 'false'
+          NPM_TOKEN: ''
+          NODE_AUTH_TOKEN: ''
+          NPM_CONFIG__AUTH: ''
+          NPM_CONFIG__AUTHTOKEN: ''
 
       - name: 🔍 Check Git Context
         uses: ./.github/workflows/actions/check-git-context
