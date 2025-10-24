@@ -32,7 +32,7 @@ jobs:
           # Write a clean npmrc for this job to avoid inherited auth on public registry
           printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > ~/.npmrc
         env:
-          NPM_TOKEN: ""
+          NPM_TOKEN: ''
 
       - name: 🧪 Bundler Tests
         run: npm run test.bundlers
