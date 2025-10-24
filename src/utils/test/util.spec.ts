@@ -1,6 +1,7 @@
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import * as util from '@utils';
 
+import { getTextDocs } from '@utils';
 import type * as d from '../../declarations';
 import { stubDiagnostic } from '../../dev-server/test/Diagnostic.stub';
 
@@ -296,6 +297,74 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
 
     it.each(['foo.jS', 'foo.Js', 'foo.JS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
       expect(util.isJsFile(fileName)).toEqual(true);
+    });
+  });
+
+  describe('getTextDocs', () => {
+    let docs: d.CompilerJsDoc;
+
+    beforeEach(() => {
+      docs = {
+        tags: [],
+        text: '',
+      };
+    });
+    it('returns empty string for null or undefined', () => {
+      expect(getTextDocs(null)).toBe('');
+      expect(getTextDocs(undefined)).toBe('');
+    });
+
+    it('returns only main text if no tags', () => {
+      docs = {
+        text: 'Some doc text.',
+        tags: [],
+      };
+      expect(getTextDocs(docs)).toBe('Some doc text.');
+    });
+
+    it('replaces line breaks in main text with spaces', () => {
+      docs = {
+        text: 'Line 1\nLine 2\r\nLine 3',
+        tags: [],
+      };
+      expect(getTextDocs(docs)).toBe('Line 1 Line 2 Line 3');
+    });
+
+    it('filters out internal tags and escapes "*/" in text and tags', () => {
+      docs = {
+        text: 'This text ends with */ sequence.',
+        tags: [
+          { name: 'internal', text: 'should be removed' },
+          { name: 'default', text: "'*/*'" },
+          { name: 'deprecated', text: 'Use something else' },
+        ],
+      };
+
+      const result = getTextDocs(docs);
+
+      // Should replace "*/" with "*\/" (single backslash)
+      expect(result).toContain('This text ends with *\\/ sequence.');
+
+      // @internal tag filtered out
+      expect(result).not.toContain('@internal');
+
+      // @default and @deprecated tags included and escaped
+      expect(result).toContain("@default '*\\/*'");
+      expect(result).toContain('@deprecated Use something else');
+
+      // Main text and tags separated by new lines
+      const lines = result.split('\n');
+      expect(lines[0]).toBe('This text ends with *\\/ sequence.');
+      expect(lines).toContain("@default '*\\/*'");
+      expect(lines).toContain('@deprecated Use something else');
+    });
+
+    it('trims the result', () => {
+      docs = {
+        text: '  Some text with spaces  ',
+        tags: [],
+      };
+      expect(getTextDocs(docs)).toBe('Some text with spaces');
     });
   });
 });
