@@ -13,6 +13,10 @@ export const HYDRATE_FACTORY_INTRO = `
 // const ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
+  var everywhere;
+  try { everywhere = global || globalThis; } 
+  catch (e) { everywhere = window || globalThis; }
+
   var globalThis = $stencilWindow;
   var self = $stencilWindow;
   var top = $stencilWindow;

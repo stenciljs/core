@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import * as d from '@stencil/core/declarations';
-import { mockCompilerCtx } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing';
 
 import { nativeComponentTransform } from '../component-native/tranform-to-native-component';
 import { transpileModule } from './transpile';
@@ -8,10 +8,12 @@ import { c, formatCode } from './utils';
 
 describe('nativeComponentTransform', () => {
   let compilerCtx: d.CompilerCtx;
+  let buildCtx: d.BuildCtx;
   let transformOpts: d.TransformOptions;
 
   beforeEach(() => {
-    compilerCtx = mockCompilerCtx();
+    buildCtx = mockBuildCtx();
+    compilerCtx = buildCtx.compilerCtx;
     transformOpts = {
       coreImportPath: '@stencil/core',
       componentExport: 'customelement',
@@ -32,7 +34,7 @@ describe('nativeComponentTransform', () => {
     }
     `;
 
-    const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+    const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
     const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
     expect(await formatCode(transpiledModule.outputText)).toBe(
@@ -42,7 +44,7 @@ describe('nativeComponentTransform', () => {
             return 'cmp-a';
           }
         };
-        customElements.define("cmp-a", CmpA);`,
+        customElements.define(__stencil_transformTag("cmp-a"), CmpA);`,
     );
   });
 
@@ -65,7 +67,7 @@ describe('nativeComponentTransform', () => {
     }
     `;
 
-    const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+    const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
     const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer], [], {
       target: ts.ScriptTarget.ESNext,
     });
@@ -111,11 +113,11 @@ describe('nativeComponentTransform', () => {
           }
         `;
 
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(transpiledModule.outputText).toContain(
-        `import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
+        `import { transformTag as __stencil_transformTag, defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
       );
       expect(transpiledModule.outputText).toContain(`this.__attachShadow()`);
     });
@@ -135,12 +137,12 @@ describe('nativeComponentTransform', () => {
           }
         `;
 
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
 
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(transpiledModule.outputText).toContain(
-        `import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
+        `import { transformTag as __stencil_transformTag, defineCustomElement as __stencil_defineCustomElement, HTMLElement } from "@stencil/core";`,
       );
       expect(transpiledModule.outputText).toContain(`this.__attachShadow()`);
     });
@@ -155,7 +157,7 @@ describe('nativeComponentTransform', () => {
         }
       `;
 
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
 
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
@@ -174,7 +176,7 @@ describe('nativeComponentTransform', () => {
         }
       `;
 
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
 
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
       await formatCode(transpiledModule.outputText);
@@ -204,7 +206,7 @@ describe('nativeComponentTransform', () => {
         }
       `;
 
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
 
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
@@ -248,11 +250,15 @@ describe('nativeComponentTransform', () => {
         }
         export class CmpA {}
       `;
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts);
+      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
       const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
       expect(await formatCode(transpiledModule.outputText)).toContain(
-        await formatCode(`import { defineCustomElement as __stencil_defineCustomElement, HTMLElement } from '@stencil/core';
+        await formatCode(`import { 
+          transformTag as __stencil_transformTag, 
+          defineCustomElement as __stencil_defineCustomElement, 
+          HTMLElement 
+        } from '@stencil/core';
           ${expectedImport}
           const CmpA = class extends HTMLElement {
             constructor(registerHost) {

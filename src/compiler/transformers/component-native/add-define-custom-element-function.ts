@@ -2,6 +2,7 @@ import { dashToPascalCase } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
+import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-apis';
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
@@ -25,14 +26,23 @@ export const addDefineCustomElementFunctions = (
       const tagNames: string[] = [];
 
       if (moduleFile.cmps.length) {
+        addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
+
         const principalComponent = moduleFile.cmps[0];
         tagNames.push(principalComponent.tagName);
 
-        // define the current component - `customElements.define(tagName, MyProxiedComponent);`
+        // define the current component - `customElements.define(transformTag(tagName), MyProxiedComponent);`
         const customElementsDefineCallExpression = ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'define'),
           undefined,
-          [ts.factory.createIdentifier('tagName'), ts.factory.createIdentifier(principalComponent.componentClassName)],
+          [
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(TRANSFORM_TAG),
+              [],
+              [ts.factory.createIdentifier('tagName')],
+            ),
+            ts.factory.createIdentifier(principalComponent.componentClassName),
+          ],
         );
         // create a `case` block that defines the current component. We'll add them to our switch statement later.
         caseStatements.push(
@@ -94,8 +104,8 @@ const setupComponentDependencies = (
  * Creates a case block which will be used to define components. e.g.
  * ``` javascript
  * case "my-component":
- *   if (!customElements.get(tagName)) {
- *     customElements.define(tagName, MyProxiedComponent);
+ *   if (!customElements.get(transformTag(tagName))) {
+ *     customElements.define(transformTag(tagName), MyProxiedComponent);
  *     // OR for dependent components
  *     defineCustomElement(tagName);
  *   }
@@ -114,7 +124,13 @@ const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Ex
         ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'get'),
           undefined,
-          [ts.factory.createIdentifier('tagName')],
+          [
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(TRANSFORM_TAG),
+              [],
+              [ts.factory.createIdentifier('tagName')],
+            ),
+          ],
         ),
       ),
       ts.factory.createBlock([ts.factory.createExpressionStatement(actionExpression)]),
@@ -134,8 +150,8 @@ const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Ex
  *   components.forEach(tagName => {
  *     switch (tagName) {
  *       case "my-component":
- *         if (!customElements.get(tagName)) {
- *           customElements.define(tagName, MyProxiedComponent);
+ *         if (!customElements.get(transformTag(tagName))) {
+ *           customElements.define(transformTag(tagName), MyProxiedComponent);
  *           // OR for dependent components
  *           defineCustomElement(tagName);
  *         }
