@@ -29,10 +29,8 @@ jobs:
       - name: 🧼 Sanitize npm config for public registry
         shell: bash
         run: |
-          npm config set registry https://registry.npmjs.org/
-          npm config set always-auth false
-          npm config delete '//registry.npmjs.org/:_authToken' || true
-          echo "registry=https://registry.npmjs.org/" > ~/.npmrc
+          # Write a clean npmrc for this job to avoid inherited auth on public registry
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > ~/.npmrc
         env:
           NPM_TOKEN: ""
 
