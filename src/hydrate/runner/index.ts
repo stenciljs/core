@@ -4,4 +4,10 @@ export { hydrateDocument, renderToString, serializeDocumentToString, streamToStr
 export { setTagTransformer, transformTag } from '@platform';
 export { deserializeProperty, serializeProperty } from '@utils';
 
-(global as any).tagTransform = transformTag;
+let everywhere: any;
+try {
+  everywhere = global || globalThis;
+} catch (e) {
+  everywhere = window || globalThis;
+}
+everywhere.tagTransform = transformTag;

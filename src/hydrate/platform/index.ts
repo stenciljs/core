@@ -47,7 +47,8 @@ export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
   for (const Cstr of Cstrs) {
     // using this format so it follows exactly how client-side modules work
     const exportName = Cstr.cmpMeta.$tagName$;
-    const transformedTagName = (global as any).tagTransform(exportName);
+    // @ts-expect-error this is due to a workaround to get / set the tagTransform function globally
+    const transformedTagName = everywhere.tagTransform(exportName);
 
     cmpModules.set(exportName, {
       [exportName]: Cstr,
