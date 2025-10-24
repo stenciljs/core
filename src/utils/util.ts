@@ -1,5 +1,5 @@
 import type * as d from '../declarations';
-import { dashToPascalCase, isString, toDashCase } from './helpers';
+import { dashToPascalCase, escapeWithPattern, isString, toDashCase } from './helpers';
 import { buildError } from './message-utils';
 
 /**
@@ -7,6 +7,8 @@ import { buildError } from './message-utils';
  * included in output typedefs.
  */
 const SUPPRESSED_JSDOC_TAGS: ReadonlyArray<string> = ['virtualProp', 'slot', 'part', 'internal'];
+
+const LINE_BREAK_REGEX: Readonly<RegExp> = /\r?\n|\r/g;
 
 /**
  * Create a stylistically-appropriate JS variable name from a filename
@@ -111,16 +113,21 @@ export const generatePreamble = (config: d.ValidatedConfig): string => {
   return preambleComment.join('\n');
 };
 
-const lineBreakRegex = /\r?\n|\r/g;
 export function getTextDocs(docs: d.CompilerJsDoc | undefined | null) {
   if (docs == null) {
     return '';
   }
-  return `${docs.text.replace(lineBreakRegex, ' ')}
-${docs.tags
-  .filter((tag) => tag.name !== 'internal')
-  .map((tag) => `@${tag.name} ${(tag.text || '').replace(lineBreakRegex, ' ')}`)
-  .join('\n')}`.trim();
+
+  const mainText = escapeWithPattern(docs.text.replace(LINE_BREAK_REGEX, ' '), /\*\//, '*\\/', true);
+
+  const tags = docs.tags
+    .filter((tag) => tag.name !== 'internal')
+    .map((tag) => {
+      const tagText = escapeWithPattern((tag.text || '').replace(LINE_BREAK_REGEX, ' '), /\*\//, '*\\/', true);
+      return `@${tag.name} ${tagText}`;
+    });
+
+  return [mainText, ...tags].join('\n').trim();
 }
 
 /**
@@ -163,10 +170,10 @@ function formatDocBlock(docs: d.CompilerJsDoc, indentation: number = 0): string 
  */
 function getDocBlockLines(docs: d.CompilerJsDoc): string[] {
   return [
-    ...docs.text.split(lineBreakRegex),
+    ...docs.text.split(LINE_BREAK_REGEX),
     ...docs.tags
       .filter((tag) => !SUPPRESSED_JSDOC_TAGS.includes(tag.name))
-      .map((tag) => `@${tag.name} ${tag.text || ''}`.split(lineBreakRegex)),
+      .map((tag) => `@${tag.name} ${tag.text || ''}`.split(LINE_BREAK_REGEX)),
   ]
     .flat()
     .filter(Boolean);
