@@ -26,38 +26,9 @@ jobs:
           path: .
           filename: stencil-core-build.zip
 
-      - name: 🧼 Sanitize npm config for public registry
-        shell: bash
-        run: |
-          # Write a clean npmrc for this job to avoid inherited auth on public registry
-          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > ~/.npmrc
-        env:
-          NPM_TOKEN: ''
-
-      - name: 🧾 Ensure local npmrc in bundler subfolders
-        shell: bash
-        run: |
-          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > test/bundler/.npmrc
-          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > test/bundler/vite-bundle-test/.npmrc
-
       - name: 🧪 Bundler Tests
+        run: npm run test.bundlers
         shell: bash
-        run: |
-          # Force a per-job npm user config pointing to public registry only
-          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > "$GITHUB_WORKSPACE/.npmrc-public"
-          export NPM_CONFIG_USERCONFIG="$GITHUB_WORKSPACE/.npmrc-public"
-          # Run bundler flow explicitly to inject registry on ci
-          cd test/bundler
-          npm ci --prefer-online --no-audit --registry=https://registry.npmjs.org/
-          npm run build
-          npm run test
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
-          NPM_CONFIG_ALWAYS_AUTH: 'false'
-          NPM_TOKEN: ''
-          NODE_AUTH_TOKEN: ''
-          NPM_CONFIG__AUTH: ''
-          NPM_CONFIG__AUTHTOKEN: ''
 
       - name: 🔍 Check Git Context
         uses: ./.github/workflows/actions/check-git-context

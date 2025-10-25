@@ -2,13 +2,13 @@
   "private": true,
   "scripts": {
     "build": "npm run build.component-lib && npm run build.vite",
-    "build.component-lib": "cd component-library && npm ci && npm run build && cd ..",
-    "build.vite": "cd vite-bundle-test && npm ci && npm run build && cd ..",
+    "build.component-lib": "cd component-library && npm run build && cd ..",
+    "build.vite": "cd vite-bundle-test && npm ci --prefer-online --no-audit --registry=https://registry.npmjs.org/ && npm run build && cd ..",
     "clean": "npm run clean.component-lib && npm run clean.vite",
     "clean.component-lib": "cd component-library && npm run clean && cd ../",
     "clean.vite": "cd vite-bundle-test && npm run clean && cd ../",
     "test": "cd vite-bundle-test && jest --config=../jest.config.js vite-bundle.spec.ts",
-    "start": "npm run clean && npm ci && npm run build && npm run test"
+    "start": "npm run clean && npm run build && npm run test"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
