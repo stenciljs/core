@@ -41,8 +41,16 @@ jobs:
           printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > test/bundler/vite-bundle-test/.npmrc
 
       - name: 🧪 Bundler Tests
-        run: npm run test.bundlers
         shell: bash
+        run: |
+          # Force a per-job npm user config pointing to public registry only
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > "$GITHUB_WORKSPACE/.npmrc-public"
+          export NPM_CONFIG_USERCONFIG="$GITHUB_WORKSPACE/.npmrc-public"
+          # Run bundler flow explicitly to inject registry on ci
+          cd test/bundler
+          npm ci --prefer-online --no-audit --registry=https://registry.npmjs.org/
+          npm run build
+          npm run test
         env:
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
           NPM_CONFIG_ALWAYS_AUTH: 'false'
