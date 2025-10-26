@@ -75,9 +75,9 @@ describe('vite-bundle', () => {
         // eslint-disable-next-line no-console
         console.log('[browser]', msg.type(), msg.text());
       });
-      page.on('pageerror', (err) => {
+      page.on('pageerror', (err: unknown) => {
         // eslint-disable-next-line no-console
-        console.log('[pageerror]', err?.message || String(err));
+        console.log('[pageerror]', String(err));
       });
       page.on('requestfailed', (req) => {
         // eslint-disable-next-line no-console
