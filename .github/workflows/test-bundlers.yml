@@ -28,7 +28,15 @@ jobs:
 
       - name: 📦 Install bundler dev deps (ts-jest, jest)
         shell: bash
-        run: npm ci --prefer-online --no-audit --registry=https://registry.npmjs.org/ --prefix test/bundler
+        run: |
+          # Use a temporary npmrc that points to the public registry only and has no tokens
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > "$RUNNER_TEMP/npmrc-public"
+          npm ci --prefer-online --no-audit --userconfig "$RUNNER_TEMP/npmrc-public" --prefix test/bundler
+        env:
+          NPM_TOKEN: ''
+          NODE_AUTH_TOKEN: ''
+          NPM_CONFIG__AUTH: ''
+          NPM_CONFIG__AUTHTOKEN: ''
 
       - name: 🧪 Bundler Tests
         run: npm run test.bundlers
