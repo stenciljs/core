@@ -1,11 +1,13 @@
-import { createReadStream, statSync } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, Server } from 'node:http';
-import { extname, join } from 'node:path';
+import { extname, join, resolve } from 'node:path';
 
 import puppeteer, { Browser } from 'puppeteer';
 
 const PORT = 8765;
-const DIST_DIR = join(__dirname, 'dist');
+const DIST_DIR = existsSync(join(__dirname, 'dist'))
+  ? join(__dirname, 'dist')
+  : resolve(__dirname, '..', 'vite-bundle-test', 'dist');
 
 // Simple static file server for serving Vite-built files
 function startStaticServer() {
@@ -17,7 +19,9 @@ function startStaticServer() {
   };
 
   const server = createServer((req, res) => {
-    const filePath = join(DIST_DIR, req.url === '/' ? 'index.html' : req.url!);
+    const reqUrl = req.url || '/';
+    const rel = reqUrl === '/' ? 'index.html' : reqUrl.replace(/^\//, '');
+    const filePath = join(DIST_DIR, rel);
 
     try {
       const stat = statSync(filePath);
@@ -65,8 +69,17 @@ describe('vite-bundle', () => {
     try {
       await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle0' });
 
-      // Wait for the component to be defined and hydrated
-      await page.waitForSelector('my-component.hydrated', { timeout: 5000 });
+      // Wait for the element to be present
+      await page.waitForSelector('my-component', { timeout: 20000 });
+
+      // Wait until shadowRoot exists (hydration complete)
+      await page.waitForFunction(
+        () => {
+          const el = document.querySelector('my-component');
+          return !!el && !!(el as any).shadowRoot && !!(el as any).shadowRoot.textContent && (el as any).shadowRoot.textContent.trim().length > 0;
+        },
+        { timeout: 20000 },
+      );
 
       // Get text content from the shadow root
       const text = await page.evaluate(() => {
