@@ -1,10 +1,11 @@
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { extname, join, resolve } from 'node:path';
 
 import puppeteer, { Browser } from 'puppeteer';
 
-const PORT = 8765;
+let BASE_URL = '';
 const DIST_DIR = existsSync(join(__dirname, 'dist'))
   ? join(__dirname, 'dist')
   : resolve(__dirname, '..', 'vite-bundle-test', 'dist');
@@ -42,7 +43,7 @@ function startStaticServer() {
   });
 
   return new Promise<Server>((resolve) => {
-    server.listen(PORT, () => resolve(server));
+    server.listen(0, '127.0.0.1', () => resolve(server));
   });
 }
 
@@ -52,6 +53,8 @@ describe('vite-bundle', () => {
 
   beforeAll(async () => {
     server = await startStaticServer();
+    const addr = server.address() as AddressInfo;
+    BASE_URL = `http://127.0.0.1:${addr.port}`;
     browser = await puppeteer.launch({
       headless: true,
       args: ['--disable-gpu', '--no-sandbox', '--headless=new'],
@@ -67,7 +70,7 @@ describe('vite-bundle', () => {
     const page = await browser.newPage();
 
     try {
-      await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle0' });
+      await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'networkidle0' });
 
       // Ensure the custom element is defined
       await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 20000 });
