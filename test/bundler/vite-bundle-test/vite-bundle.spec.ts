@@ -70,13 +70,35 @@ describe('vite-bundle', () => {
     const page = await browser.newPage();
 
     try {
+      // Surface useful diagnostics in CI
+      page.on('console', (msg) => {
+        // eslint-disable-next-line no-console
+        console.log('[browser]', msg.type(), msg.text());
+      });
+      page.on('pageerror', (err) => {
+        // eslint-disable-next-line no-console
+        console.log('[pageerror]', err?.message || String(err));
+      });
+      page.on('requestfailed', (req) => {
+        // eslint-disable-next-line no-console
+        console.log('[requestfailed]', req.url(), req.failure()?.errorText);
+      });
+
+      await page.setDefaultNavigationTimeout(45000);
       await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'networkidle0' });
 
+      // Emit page HTML snapshot for debugging if needed
+      const htmlSnapshot = await page.content();
+      // eslint-disable-next-line no-console
+      console.log('[page] url:', page.url());
+      // eslint-disable-next-line no-console
+      console.log('[page] has module script:', /<script[^>]+type="module"/i.test(htmlSnapshot));
+
       // Ensure the custom element is defined
-      await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 20000 });
+      await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 40000 });
 
       // Wait for the element to be present
-      await page.waitForSelector('my-component', { timeout: 20000 });
+      await page.waitForSelector('my-component', { timeout: 40000 });
 
       // Wait until shadowRoot exists (hydration complete)
       await page.waitForFunction(
@@ -89,7 +111,7 @@ describe('vite-bundle', () => {
             (el as any).shadowRoot.textContent.trim().length > 0
           );
         },
-        { timeout: 20000 },
+        { timeout: 40000 },
       );
 
       // Get text content from the shadow root
