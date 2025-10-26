@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { createServer, Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { extname, join, resolve } from 'node:path';
@@ -31,7 +31,14 @@ function startStaticServer() {
         const contentType = mimeTypes[ext] || 'application/octet-stream';
 
         res.writeHead(200, { 'Content-Type': contentType });
-        createReadStream(filePath).pipe(res);
+        if (ext === '.html') {
+          // Rewrite absolute asset URLs to relative to avoid any base path issues
+          let html = readFileSync(filePath, 'utf-8');
+          html = html.replace(/(src|href)="\/assets\//g, '$1="assets/');
+          res.end(html);
+        } else {
+          createReadStream(filePath).pipe(res);
+        }
       } else {
         res.writeHead(404);
         res.end('Not found');
