@@ -67,7 +67,10 @@ describe('vite-bundle', () => {
     const page = await browser.newPage();
 
     try {
-      await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'networkidle0' });
+      await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle0' });
+
+      // Ensure the custom element is defined
+      await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 20000 });
 
       // Wait for the element to be present
       await page.waitForSelector('my-component', { timeout: 20000 });
@@ -76,7 +79,12 @@ describe('vite-bundle', () => {
       await page.waitForFunction(
         () => {
           const el = document.querySelector('my-component');
-          return !!el && !!(el as any).shadowRoot && !!(el as any).shadowRoot.textContent && (el as any).shadowRoot.textContent.trim().length > 0;
+          return (
+            !!el &&
+            !!(el as any).shadowRoot &&
+            !!(el as any).shadowRoot.textContent &&
+            (el as any).shadowRoot.textContent.trim().length > 0
+          );
         },
         { timeout: 20000 },
       );
