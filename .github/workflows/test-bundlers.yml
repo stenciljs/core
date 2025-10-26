@@ -29,13 +29,11 @@ jobs:
       - name: 📦 Install bundler dev deps (ts-jest, jest)
         shell: bash
         run: |
-          # Use a clean, token-free npm user config and explicit registry
-          printf "registry=https://registry.npmjs.org/\n" > "$RUNNER_TEMP/npmrc-public"
-          export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/npmrc-public"
-          # Ensure no local npmrc shadows config
-          rm -f test/bundler/.npmrc || true
+          cd test/bundler
+          # local, token‑free npmrc for this subfolder
+          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > .npmrc
           # Install only what's needed for the preset (no lockfile, no scripts)
-          npm i -D ts-jest@29 jest@29 --no-audit --no-fund --ignore-scripts --prefer-online --registry=https://registry.npmjs.org/ --prefix test/bundler
+          npm i -D ts-jest@29 jest@29 --no-audit --no-fund --ignore-scripts --prefer-online
         env:
           NPM_TOKEN: ''
           NODE_AUTH_TOKEN: ''
