@@ -38,6 +38,12 @@ jobs:
           NPM_CONFIG__AUTH: ''
           NPM_CONFIG__AUTHTOKEN: ''
 
+      - name: 🧲 Download Chrome for Puppeteer
+        shell: bash
+        run: |
+          # Explicitly fetch Chromium/Chrome binaries required by Puppeteer
+          npx --yes puppeteer@24 browsers install chrome
+
       # Compile the TS bundler spec to JS to avoid installing ts-jest in CI
       - name: 🛠️ Compile bundler spec to JS
         shell: bash
