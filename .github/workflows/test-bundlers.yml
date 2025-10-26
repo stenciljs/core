@@ -26,6 +26,10 @@ jobs:
           path: .
           filename: stencil-core-build.zip
 
+      - name: 📦 Install bundler dev deps (ts-jest, jest)
+        shell: bash
+        run: npm ci --prefer-online --no-audit --registry=https://registry.npmjs.org/ --prefix test/bundler
+
       - name: 🧪 Bundler Tests
         run: npm run test.bundlers
         shell: bash
