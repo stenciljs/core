@@ -52,8 +52,15 @@ jobs:
         shell: bash
         run: |
           cd test/bundler
-          # Run Jest from repo root against compiled JS spec
-          node ../../node_modules/jest/bin/jest.js dist-spec/vite-bundle.spec.js --env=node --testTimeout=30000
+          # Create a minimal Jest config that does not use ts-jest
+          cat > jest.config.ci.js << 'EOF'
+          module.exports = {
+            testEnvironment: 'node',
+            testMatch: ['<rootDir>/dist-spec/vite-bundle.spec.js'],
+          };
+          EOF
+          # Run Jest from repo root against compiled JS using CI config
+          node ../../node_modules/jest/bin/jest.js --config=jest.config.ci.js --testTimeout=30000
 
       - name: 🔍 Check Git Context
         uses: ./.github/workflows/actions/check-git-context
