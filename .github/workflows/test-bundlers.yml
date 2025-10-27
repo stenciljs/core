@@ -26,23 +26,12 @@ jobs:
           path: .
           filename: stencil-core-build.zip
 
-      - name: 🧰 Install puppeteer runtime at root
-        shell: bash
-        run: |
-          # token‑free npmrc and explicit public registry
-          printf "registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=\nalways-auth=false\n" > "$RUNNER_TEMP/npmrc-public"
-          npm i -D puppeteer@24 --no-audit --no-fund --ignore-scripts --prefer-online --userconfig "$RUNNER_TEMP/npmrc-public"
-        env:
-          NPM_TOKEN: ''
-          NODE_AUTH_TOKEN: ''
-          NPM_CONFIG__AUTH: ''
-          NPM_CONFIG__AUTHTOKEN: ''
-
       - name: 🧲 Download Chrome for Puppeteer
         shell: bash
         run: |
-          # Explicitly fetch Chromium/Chrome binaries required by Puppeteer
-          npx --yes puppeteer@24 browsers install chrome
+          # Puppeteer is already installed via root package.json
+          # Just download the Chrome binary it needs
+          npx --yes puppeteer browsers install chrome
 
       - name: 🧱 Build bundler fixtures (component-lib + Vite app)
         shell: bash
