@@ -25,20 +25,20 @@ jobs:
     outputs:
       dev-version: ${{ steps.get-dev-version.outputs.DEV_VERSION }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
+      - name: 📥 Download Build Archive
         uses: ./.github/workflows/actions/download-archive
         with:
           name: stencil-core
           path: .
           filename: stencil-core-build.zip
 
-      - name: Get Version
+      - name: 🏷️ Get Version
         id: get-dev-version
         run: |
           # A unique string to publish Stencil under
@@ -56,15 +56,15 @@ jobs:
         shell: bash
 
   release-stencil-dev-build:
-    name: Publish Dev Build
+    name: 📦 Publish Dev Build
     needs: [get-dev-version, build_core]
     runs-on: ubuntu-22.04
     permissions:
       contents: read
       id-token: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: ./.github/workflows/actions/publish-npm
         with:
           tag: dev
