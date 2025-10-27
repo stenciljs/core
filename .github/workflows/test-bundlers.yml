@@ -44,6 +44,13 @@ jobs:
           # Explicitly fetch Chromium/Chrome binaries required by Puppeteer
           npx --yes puppeteer@24 browsers install chrome
 
+      - name: 🧱 Build bundler fixtures (component-lib + Vite app)
+        shell: bash
+        run: |
+          cd test/bundler
+          npm run build.component-lib
+          npm run build.vite
+
       # Compile the TS bundler spec to JS to avoid installing ts-jest in CI
       - name: 🛠️ Compile bundler spec to JS
         shell: bash
