@@ -1,4 +1,4 @@
-import type { BuildOptions as ESBuildOptions, Plugin } from 'esbuild';
+import type { BuildOptions as ESBuildOptions } from 'esbuild';
 import { replace } from 'esbuild-plugin-replace';
 import fs from 'fs-extra';
 import { glob } from 'glob';
@@ -47,9 +47,6 @@ export async function getInternalClientBundles(opts: BuildOptions): Promise<ESBu
     ...getBaseEsbuildOptions(),
     entryPoints: [join(inputClientDir, 'index.ts')],
     format: 'esm',
-    // we do 'write: false' here because we write the build to disk in our
-    // `findAndReplaceLoadModule` plugin below
-    write: false,
     outfile: join(outputInternalClientDir, 'index.js'),
     platform: 'node',
     external: clientExternal,
@@ -62,7 +59,6 @@ export async function getInternalClientBundles(opts: BuildOptions): Promise<ESBu
       externalAlias('@app-data', '@stencil/core/internal/app-data'),
       externalAlias('@app-globals', '@stencil/core/internal/app-globals'),
       externalAlias('@utils/shadow-css', './shadow-css.js'),
-      findAndReplaceLoadModule(),
     ],
   };
 
@@ -95,31 +91,6 @@ export async function getInternalClientBundles(opts: BuildOptions): Promise<ESBu
   };
 
   return [internalClientBundle, internalClientPatchBrowserBundle];
-}
-
-/**
- * We need to manually find-and-replace a bit of code in
- * `client-load-module.ts` in order to prevent Esbuild from analyzing /
- * transforming the input by ensuring it does not start with `"./"`. However
- * some _other_ bundlers will _not_ work with such an import if it _lacks_ a
- * leading `"./"`, so we thus we have to do a little dance where we manually
- * replace it here after it's been run through Esbuild.
- *
- * @returns an Esbuild plugin
- */
-export function findAndReplaceLoadModule(): Plugin {
-  return {
-    name: 'findAndReplaceLoadModule',
-    setup(build) {
-      build.onEnd(async (result) => {
-        for (const file of result.outputFiles!) {
-          const { path, text } = file;
-
-          await fs.writeFile(path, text.replace(/\${MODULE_IMPORT_PREFIX}/, './'));
-        }
-      });
-    },
-  };
 }
 
 async function copyPolyfills(opts: BuildOptions, outputInternalClientPolyfillsDir: string) {
