@@ -10,7 +10,7 @@ import { setAssetPath } from '@stencil/core/internal/client/index';
 // this doesn't do anything - just stops rollup removing the import
 setAssetPath('/base/path');
 
-export let thing: HTMLElement = window.document.createElement('div');
+export let thing: HTMLElement = globalThis.document ? document.createElement('div') : null;
 
 const globalScript = () => {
   setMode((elm) => {
