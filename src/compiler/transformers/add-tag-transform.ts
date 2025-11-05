@@ -30,70 +30,73 @@ export const addTagTransform = (
 
             if (ts.isStringLiteral(selectorArgument)) {
               const selectorText = selectorArgument.text;
-              const parsed = parse(selectorText); // from "css-what"
+              const parsed = parse(selectorText); // from css-what
 
+              const placeholders: string[] = [];
               let modified = false;
 
-              const transformedSelectors = parsed.map((subSelector) => {
-                return subSelector.map((token) => {
+              // Replace tag tokens with placeholder tokens and record tag names
+              const transformed = parsed.map((subSelector) =>
+                subSelector.map((token) => {
                   if (token.type === SelectorType.Tag && tagNames.includes(token.name)) {
+                    const idx = placeholders.length;
+                    placeholders.push(token.name);
                     modified = true;
-                    // Replace tag name with `${transformTag("tag")}`
-                    return {
-                      ...token,
-                      name: `\${transformTag("${token.name}")}`,
-                    };
+                    return { ...token, name: `___EXPR_${idx}___` }; // safe placeholder
                   }
                   return token;
-                });
-              });
+                }),
+              );
 
               if (modified) {
-                // Reconstruct the selector string, now containing embedded template pieces
-                const selectorWithTemplates = stringify(transformedSelectors);
+                // stringify will produce a selector like "div > ___EXPR_0___ + ___EXPR_1___[attr]"
+                const selectorWithPlaceholders = stringify(transformed);
 
-                // Split selector into static + dynamic template parts
-                // e.g. "div > ${transformTag("my-tag")} + ${transformTag("other-tag")}"
-                const templateRegex = /\$\{([^}]+)\}/g;
-                const parts: (string | ts.Expression)[] = [];
+                // Split into [literal, idx, literal, idx, literal, ...]
+                const splitParts = selectorWithPlaceholders.split(/___EXPR_(\d+)___/);
 
-                let lastIndex = 0;
-                let match: RegExpExecArray | null;
+                // If no placeholders for whatever reason, fallback to original literal
+                if (!splitParts || splitParts.length === 0) {
+                  // fallback — keep original string literal
+                  newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
+                    ts.factory.createStringLiteral(selectorText),
+                    ...node.arguments.slice(1),
+                  ]);
+                } else {
+                  // Build TemplateExpression: head + spans
+                  const firstLiteral = splitParts[0] ?? '';
+                  const head = ts.factory.createTemplateHead(firstLiteral);
 
-                while ((match = templateRegex.exec(selectorWithTemplates))) {
-                  const before = selectorWithTemplates.slice(lastIndex, match.index);
-                  if (before) parts.push(before);
-                  parts.push(ts.factory.createIdentifier(match[1].trim())); // expression inside ${...}
-                  lastIndex = match.index + match[0].length;
+                  const spans: ts.TemplateSpan[] = [];
+                  for (let i = 1; i < splitParts.length; i += 2) {
+                    const idxStr = splitParts[i];
+                    const literalAfter = splitParts[i + 1] ?? '';
+                    const exprIndex = Number(idxStr);
+                    const tagName = placeholders[exprIndex];
+
+                    // transformTag("tagName")
+                    const callExpr = ts.factory.createCallExpression(
+                      ts.factory.createIdentifier('transformTag'),
+                      undefined,
+                      [ts.factory.createStringLiteral(tagName)],
+                    );
+
+                    const isLast = i + 1 >= splitParts.length - 1;
+                    const literalNode = isLast
+                      ? ts.factory.createTemplateTail(literalAfter)
+                      : ts.factory.createTemplateMiddle(literalAfter);
+
+                    spans.push(ts.factory.createTemplateSpan(callExpr, literalNode));
+                  }
+
+                  const templateExpr = ts.factory.createTemplateExpression(head, spans);
+
+                  // Replace the original selector arg with the template expression
+                  newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
+                    templateExpr,
+                    ...node.arguments.slice(1),
+                  ]);
                 }
-
-                const after = selectorWithTemplates.slice(lastIndex);
-                if (after) parts.push(after);
-
-                // Convert to template literal: `...${...}...`
-                const templateHead = ts.factory.createTemplateHead(typeof parts[0] === 'string' ? parts[0] : '');
-
-                const templateSpans: ts.TemplateSpan[] = [];
-                for (let i = 1; i < parts.length; i += 2) {
-                  const expr = parts[i] as ts.Expression;
-                  const text = parts[i + 1] as string | undefined;
-                  templateSpans.push(
-                    ts.factory.createTemplateSpan(
-                      expr,
-                      i + 1 >= parts.length
-                        ? ts.factory.createTemplateTail(text || '')
-                        : ts.factory.createTemplateMiddle(text || ''),
-                    ),
-                  );
-                }
-
-                const templateExpr = ts.factory.createTemplateExpression(templateHead, templateSpans);
-
-                // Replace the argument with the new template expression
-                newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
-                  templateExpr,
-                  ...node.arguments.slice(1),
-                ]);
               }
             }
           }

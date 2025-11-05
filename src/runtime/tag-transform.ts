@@ -7,9 +7,9 @@ export let tagTransformer: d.TagTransformer | undefined = undefined;
  * @param tag - the tag to transform e.g. `my-tag`
  * @returns the transformed tag e.g. `new-my-tag`
  */
-export function transformTag(tag: string): string {
+export function transformTag<T extends string>(tag: T): T {
   if (!tagTransformer) return tag;
-  return tagTransformer(tag);
+  return tagTransformer(tag) as T;
 }
 
 /**

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`add-tag-transform does something 1`] = `
+"export class CmpA {
+  someMethod() {
+    const el = document.createElement(\`\${transformTag('cmp-a')}\`);
+    const queriedEl = document.querySelector(\`\${transformTag('cmp-b')}#id\`);
+    const queriedEls = document.querySelectorAll(
+      \`\${transformTag('cmp-a')}[data-attr], \${transformTag('cmp-b')}.class, cmp-left-alone\`,
+    );
+  }
+  static get is() {
+    return 'cmp-a';
+  }
+}
+"
+`;
