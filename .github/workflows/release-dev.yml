@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/build.yml
 
   get-dev-version:
-    name: 🔍 Get Dev Build Version 
+    name: 🔍 Get Dev Build Version
     needs: [build_core]
     runs-on: ubuntu-22.04
     outputs:
