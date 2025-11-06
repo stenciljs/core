@@ -1,3 +1,14 @@
+## 😋 [4.38.3](https://github.com/stenciljs/core/compare/v4.38.2...v4.38.3) (2025-11-05)
+
+
+### Bug Fixes
+
+* **runtime:** modern class props detected in collections ([#6431](https://github.com/stenciljs/core/issues/6431)) ([e790c24](https://github.com/stenciljs/core/commit/e790c24f2205677f1f0cd8251110a608c864c5bb))
+* **ts:** moduleResolution can now be `bundler`. Configurable module / noEmitOnError ([#6433](https://github.com/stenciljs/core/issues/6433)) ([5018e1e](https://github.com/stenciljs/core/commit/5018e1e3ebf03a4b560bba89a3642698ca3f2d9f))
+* **types:** revert autocorrect omission ([#6441](https://github.com/stenciljs/core/issues/6441)) ([4719427](https://github.com/stenciljs/core/commit/47194274cb4d68adb1acb8a37984e9119c78859c))
+
+
+
 ## 🐎 [4.38.2](https://github.com/stenciljs/core/compare/v4.38.1...v4.38.2) (2025-10-17)
 
 
