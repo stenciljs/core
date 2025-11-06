@@ -21,7 +21,8 @@
       "@stencil/core/mock-doc": [
         "../../mock-doc"
       ]
-    }
+    },
+    "skipLibCheck": true
   },
   "include": ["src"]
 }
