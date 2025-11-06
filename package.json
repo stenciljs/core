@@ -1,6 +1,6 @@
 {
   "name": "@stencil/core",
-  "version": "4.38.2",
+  "version": "4.38.3",
   "license": "MIT",
   "main": "./internal/stencil-core/index.cjs",
   "module": "./internal/stencil-core/index.js",
