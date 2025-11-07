@@ -171,7 +171,7 @@ const generateTransformCssToEsm = (
   if (input.module === 'cjs') {
     // CommonJS
     if (input.addTagTransformers) {
-      s.append(`const ${TRANSFORM_TAG} = require('${STENCIL_CORE_ID}').${RUNTIME_APIS.transformTag};\n`);
+      s.append(`const ${TRANSFORM_TAG} = require('${STENCIL_CORE_ID}').transformTag;\n`);
     }
     results.imports.forEach((cssImport) => {
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);

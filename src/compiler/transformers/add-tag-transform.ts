@@ -76,7 +76,7 @@ export const addTagTransform = (
 
                     // transformTag("tagName")
                     const callExpr = ts.factory.createCallExpression(
-                      ts.factory.createIdentifier('transformTag'),
+                      ts.factory.createIdentifier(TRANSFORM_TAG),
                       undefined,
                       [ts.factory.createStringLiteral(tagName)],
                     );
@@ -99,21 +99,6 @@ export const addTagTransform = (
                 }
               }
             }
-          }
-        }
-
-        // turns `"my-tag"` into `transformTag("my-tag")`
-        if (ts.isStringLiteral(node)) {
-          const tagName = node.text;
-          if (tagNames.some((tag) => tag.toUpperCase() === tagName)) {
-            // Replace "tagName" with transformTag("tagName")
-            const transformedTagCall = ts.factory.createCallExpression(
-              ts.factory.createIdentifier(TRANSFORM_TAG),
-              undefined,
-              [ts.factory.createStringLiteral(tagName)],
-            );
-
-            return transformedTagCall;
           }
         }
 
