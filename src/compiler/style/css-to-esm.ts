@@ -10,7 +10,7 @@ import { serializeImportPath } from '../transformers/stencil-import-path';
 import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
 import { addTagTransformToCssString } from '../transformers/transform-utils';
-import { RUNTIME_APIS, TRANSFORM_TAG } from '../transformers/core-runtime-apis';
+import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
