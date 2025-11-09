@@ -43,6 +43,6 @@ runs:
       run: npm version --no-git-tag-version ${{ inputs.version }}
       shell: bash
 
-    - name: 📦 Publish to NPM
+    - name: 🚀 Publish to NPM
       run: npm publish --tag ${{ inputs.tag }} --provenance
       shell: bash
