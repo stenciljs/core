@@ -1,0 +1,48 @@
+name: 'Release'
+description: 'Releases Stencil Core'
+inputs:
+  version:
+    description: 'The type of version to release.'
+  tag:
+    description: 'The tag to publish to on NPM.'
+  node-version:
+    description: 'Node.js version to use when publishing.'
+    required: false
+    default: '20'
+  registry-url:
+    description: 'Registry URL used for npm publish.'
+    required: false
+    default: 'https://registry.npmjs.org'
+runs:
+  using: 'composite'
+  steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+    - name: 🕸️ Get Core Dependencies
+      uses: ./.github/workflows/actions/get-core-dependencies
+
+    - name: 🟢 Configure Node for Publish
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: 🔄 Ensure Latest npm
+      run: npm install -g npm@latest
+      shell: bash
+
+    - name: 📥 Download Build Archive
+      uses: ./.github/workflows/actions/download-archive
+      with:
+        name: stencil-core
+        path: .
+        filename: stencil-core-build.zip
+
+    - name: 🏷️ Set Version
+      run: npm version --no-git-tag-version ${{ inputs.version }}
+      shell: bash
+
+    - name: 🚀 Publish to NPM
+      run: npm publish --tag ${{ inputs.tag }} --provenance
+      shell: bash
