@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: 'https://registry.npmjs.org'
+      scope:
+        description: 'npm scope that should use the trusted publisher auth.'
+        required: false
+        type: string
+        default: '@stencil'
 
 permissions:
   contents: read
@@ -41,6 +46,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           registry-url: ${{ inputs.registry-url }}
+          scope: ${{ inputs.scope }}
 
       - name: 🔄 Ensure Latest npm
         run: npm install -g npm@latest
