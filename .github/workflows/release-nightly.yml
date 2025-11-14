@@ -60,15 +60,7 @@ jobs:
   release-stencil-nightly-build:
     name: 🚀 Publish Nightly Build
     needs: [get-nightly-version, build_core]
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - name: 🚀 Publish to NPM
-        uses: ./.github/workflows/publish-npm.yml
-        with:
-          tag: nightly
-          version: ${{ needs.get-nightly-version.outputs.nightly-version }}
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      tag: nightly
+      version: ${{ needs.get-nightly-version.outputs.nightly-version }}

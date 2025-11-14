@@ -58,15 +58,7 @@ jobs:
   release-stencil-dev-build:
     name: 🚀 Publish Dev Build
     needs: [get-dev-version, build_core]
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - name: 📦 Publish to NPM
-        uses: ./.github/workflows/publish-npm.yml
-        with:
-          tag: dev
-          version: ${{ needs.get-dev-version.outputs.dev-version }}
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      tag: dev
+      version: ${{ needs.get-dev-version.outputs.dev-version }}
