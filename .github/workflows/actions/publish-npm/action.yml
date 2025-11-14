@@ -5,34 +5,44 @@ inputs:
     description: 'The type of version to release.'
   tag:
     description: 'The tag to publish to on NPM.'
-  token:
-    description: 'The NPM authentication token required to publish.'
+  node-version:
+    description: 'Node.js version to use when publishing.'
+    required: false
+    default: '20'
+  registry-url:
+    description: 'Registry URL used for npm publish.'
+    required: false
+    default: 'https://registry.npmjs.org'
 runs:
   using: 'composite'
   steps:
-    - name: Checkout Code
-      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - name: 📥 Checkout Code
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-    - name: Get Core Dependencies
+    - name: 🕸️ Get Core Dependencies
       uses: ./.github/workflows/actions/get-core-dependencies
 
-    - name: Download Build Archive
+    - name: 🟢 Configure Node for Publish
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: ${{ inputs.registry-url }}
+
+    - name: 🔄 Ensure Latest npm
+      run: npm install -g npm@latest
+      shell: bash
+
+    - name: 📥 Download Build Archive
       uses: ./.github/workflows/actions/download-archive
       with:
         name: stencil-core
         path: .
         filename: stencil-core-build.zip
 
-    - name: Set Version
+    - name: 🏷️ Set Version
       run: npm version --no-git-tag-version ${{ inputs.version }}
       shell: bash
 
-    - name: Prepare NPM Token
-      run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
-      shell: bash
-      env:
-        NPM_TOKEN: ${{ inputs.token }}
-
-    - name: Publish to NPM
+    - name: 🚀 Publish to NPM
       run: npm publish --tag ${{ inputs.tag }} --provenance
       shell: bash
