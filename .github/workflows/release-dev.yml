@@ -1,9 +1,6 @@
 name: 'Stencil Dev Release'
 
 on:
-  workflow_dispatch:
-    # Make this a reusable workflow, no value needed
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
   workflow_call:
     outputs:
       dev-version:
@@ -12,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   build_core:
