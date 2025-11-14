@@ -55,4 +55,3 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       base: ${{ inputs.base }}
-
