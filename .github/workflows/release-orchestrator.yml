@@ -34,7 +34,7 @@ on:
           - v3-maintenance
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
