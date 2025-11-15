@@ -8,7 +8,7 @@ on:
         value: ${{ jobs.get-dev-version.outputs.dev-version }}
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
