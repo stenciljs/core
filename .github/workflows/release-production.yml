@@ -1,6 +1,6 @@
 name: 'Stencil Production Release'
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag:
         required: false
