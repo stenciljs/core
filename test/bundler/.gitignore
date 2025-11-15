@@ -1,0 +1,5 @@
+# CI-generated artifacts
+dist-spec/
+jest.config.ci.js
+tsconfig.test.json
+
