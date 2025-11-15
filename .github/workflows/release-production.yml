@@ -1,24 +1,21 @@
 name: 'Stencil Production Release'
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag:
         required: false
         default: latest
-        type: choice
-        description: Which npm tag should this be published to?
-        options:
-          - dev
-          - latest
-          - use_pkg_json_version
+        type: string
+        description: Which npm tag should this be published to? (dev, latest, or use_pkg_json_version)
       base:
         required: true
-        type: choice
-        description: Which base branch should be targeted?
+        type: string
+        description: Which base branch should be targeted? (main or v3-maintenance)
         default: main
-        options:
-          - main
-          - v3-maintenance
+
+permissions:
+  contents: write
+  id-token: write
 
 jobs:
   release-stencil-production-build:
@@ -29,13 +26,13 @@ jobs:
       id-token: write
     steps:
       # Log the input from GitHub Actions for easy traceability
-      - name: 🔏Log GitHub Workflow UI Input
+      - name: 🔒 Log GitHub Workflow UI Input
         run: |
           echo "Tag: ${{ inputs.tag }}"
           echo "Base Branch: ${{ inputs.base }}"
         shell: bash
 
-      - name: 🏷️ Verify that the 'latest' tag is applied only to the 'main' branch
+      - name: 🔎 Verify that the 'latest' tag is applied only to the 'main' branch
         run: |
           echo "The 'latest' tag can only be published from the 'main' branch. Exiting."
           exit 1
@@ -54,11 +51,15 @@ jobs:
       - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: 📦 Prepare NPM Token
-        run: echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
+      - name: 🟢 Configure Node for Publish
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 🔄 Ensure Latest npm
+        run: npm install -g npm@latest
         shell: bash
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📦 Run Publish Scripts
         # pass the generated version number instead of the input, since we've already incremented it in the prerelease
