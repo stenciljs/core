@@ -9,3 +9,4 @@ runs:
       # and check if there are more than 0 lines in the output.
       run: if [[ $(git status --short | grep -c -v stencil-core-build.zip) -ne 0 ]]; then STATUS=$(git status --verbose); printf "%s" "$STATUS"; git diff | cat; exit 1; fi
       shell: bash
+

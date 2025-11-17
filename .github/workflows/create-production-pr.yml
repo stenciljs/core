@@ -87,3 +87,4 @@ jobs:
           title: 'Release v${{ steps.name_gen.outputs.VERSION_STR }}'
           # the body of the pull request summary can be empty
           body: ''
+

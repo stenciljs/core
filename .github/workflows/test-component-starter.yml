@@ -132,3 +132,4 @@ jobs:
         run: npm run test
         working-directory: ./tmp-component-starter
         shell: bash
+

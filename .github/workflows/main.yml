@@ -70,3 +70,4 @@ jobs:
     name: WebdriverIO Tests
     needs: [build_core]
     uses: ./.github/workflows/test-wdio.yml
+

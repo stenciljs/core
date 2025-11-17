@@ -60,3 +60,4 @@ jobs:
     with:
       tag: dev
       version: ${{ needs.get-dev-version.outputs.dev-version }}
+

@@ -59,3 +59,4 @@ jobs:
     with:
       tag: nightly
       version: ${{ needs.get-nightly-version.outputs.nightly-version }}
+
