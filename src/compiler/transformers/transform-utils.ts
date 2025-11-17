@@ -284,7 +284,12 @@ export const arrayLiteralToArray = (arr: ts.ArrayLiteralExpression) => {
   });
 };
 
-export const objectLiteralToObjectMap = (objectLiteral: ts.ObjectLiteralExpression) => {
+export const objectLiteralToObjectMap = (
+  objectLiteral: ts.ObjectLiteralExpression,
+  typeChecker?: ts.TypeChecker,
+  diagnostics?: any[],
+  errorNode?: ts.Node,
+) => {
   const properties = objectLiteral.properties;
   const final: ObjectMap = {};
 
@@ -295,57 +300,194 @@ export const objectLiteralToObjectMap = (objectLiteral: ts.ObjectLiteralExpressi
     if (ts.isShorthandPropertyAssignment(propAssignment)) {
       val = getIdentifierValue(propName);
     } else if (ts.isPropertyAssignment(propAssignment)) {
-      switch (propAssignment.initializer.kind) {
-        case ts.SyntaxKind.ArrayLiteralExpression:
-          val = arrayLiteralToArray(propAssignment.initializer as ts.ArrayLiteralExpression);
-          break;
-
-        case ts.SyntaxKind.ObjectLiteralExpression:
-          val = objectLiteralToObjectMap(propAssignment.initializer as ts.ObjectLiteralExpression);
-          break;
-
-        case ts.SyntaxKind.StringLiteral:
-          val = (propAssignment.initializer as ts.StringLiteral).text;
-          break;
-
-        case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
-          val = (propAssignment.initializer as ts.StringLiteral).text;
-          break;
-
-        case ts.SyntaxKind.TrueKeyword:
-          val = true;
-          break;
-
-        case ts.SyntaxKind.FalseKeyword:
-          val = false;
-          break;
-
-        case ts.SyntaxKind.Identifier:
-          const escapedText = (propAssignment.initializer as ts.Identifier).escapedText;
-          if (escapedText === 'String') {
-            val = String;
-          } else if (escapedText === 'Number') {
-            val = Number;
-          } else if (escapedText === 'Boolean') {
-            val = Boolean;
-          } else if (escapedText === 'undefined') {
-            val = undefined;
-          } else if (escapedText === 'null') {
-            val = null;
-          } else {
-            val = getIdentifierValue((propAssignment.initializer as ts.Identifier).escapedText);
-          }
-          break;
-
-        case ts.SyntaxKind.PropertyAccessExpression:
-        default:
+      // Check if the initializer is a resolveVar() call
+      if (
+        ts.isCallExpression(propAssignment.initializer) &&
+        typeChecker &&
+        ((ts.isIdentifier(propAssignment.initializer.expression) &&
+          propAssignment.initializer.expression.text === 'resolveVar') ||
+          (ts.isPropertyAccessExpression(propAssignment.initializer.expression) &&
+            ts.isIdentifier(propAssignment.initializer.expression.name) &&
+            propAssignment.initializer.expression.name.text === 'resolveVar'))
+      ) {
+        // Import resolveVariableValue from decorator-utils
+        // For now, we'll handle it inline to avoid circular dependencies
+        if (propAssignment.initializer.arguments.length === 1) {
+          val = resolveVarInObjectLiteral(
+            propAssignment.initializer.arguments[0],
+            typeChecker,
+            diagnostics,
+            propAssignment.initializer,
+          );
+        } else {
           val = propAssignment.initializer;
+        }
+      } else {
+        switch (propAssignment.initializer.kind) {
+          case ts.SyntaxKind.ArrayLiteralExpression:
+            val = arrayLiteralToArray(propAssignment.initializer as ts.ArrayLiteralExpression);
+            break;
+
+          case ts.SyntaxKind.ObjectLiteralExpression:
+            val = objectLiteralToObjectMap(
+              propAssignment.initializer as ts.ObjectLiteralExpression,
+              typeChecker,
+              diagnostics,
+              errorNode,
+            );
+            break;
+
+          case ts.SyntaxKind.StringLiteral:
+            val = (propAssignment.initializer as ts.StringLiteral).text;
+            break;
+
+          case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
+            val = (propAssignment.initializer as ts.StringLiteral).text;
+            break;
+
+          case ts.SyntaxKind.TrueKeyword:
+            val = true;
+            break;
+
+          case ts.SyntaxKind.FalseKeyword:
+            val = false;
+            break;
+
+          case ts.SyntaxKind.Identifier:
+            const escapedText = (propAssignment.initializer as ts.Identifier).escapedText;
+            if (escapedText === 'String') {
+              val = String;
+            } else if (escapedText === 'Number') {
+              val = Number;
+            } else if (escapedText === 'Boolean') {
+              val = Boolean;
+            } else if (escapedText === 'undefined') {
+              val = undefined;
+            } else if (escapedText === 'null') {
+              val = null;
+            } else {
+              val = getIdentifierValue((propAssignment.initializer as ts.Identifier).escapedText);
+            }
+            break;
+
+          case ts.SyntaxKind.PropertyAccessExpression:
+          default:
+            val = propAssignment.initializer;
+        }
       }
     }
     final[propName] = val;
   }
 
   return final;
+};
+
+/**
+ * Resolves a resolveVar() call within an object literal.
+ * This is a simplified version that handles the same cases as resolveVariableValue in decorator-utils.
+ */
+const resolveVarInObjectLiteral = (
+  node: ts.Expression,
+  typeChecker: ts.TypeChecker,
+  _diagnostics?: any[],
+  _errorNode?: ts.Node,
+): string => {
+  // Handle identifiers (const variables)
+  if (ts.isIdentifier(node)) {
+    const symbol = typeChecker.getSymbolAtLocation(node);
+    if (!symbol || !symbol.valueDeclaration) {
+      throw new Error(
+        `resolveVar() cannot resolve the value of "${node.text}" at compile time. Only const variables and object properties with string literal values are supported.`,
+      );
+    }
+
+    const declaration = symbol.valueDeclaration;
+
+    if (ts.isVariableDeclaration(declaration)) {
+      const type = typeChecker.getTypeAtLocation(node);
+      if (type && type.isLiteral() && typeof type.value === 'string') {
+        return type.value;
+      }
+
+      if (declaration.initializer) {
+        const value = extractStringFromExpressionInline(declaration.initializer, typeChecker);
+        if (value !== null) {
+          return value;
+        }
+      }
+    }
+
+    throw new Error(
+      `resolveVar() cannot resolve the value of "${node.text}" at compile time. Only const variables and object properties with string literal values are supported.`,
+    );
+  }
+
+  // Handle property access expressions (object properties)
+  if (ts.isPropertyAccessExpression(node)) {
+    const objectType = typeChecker.getTypeAtLocation(node.expression);
+    if (!objectType) {
+      throw new Error(`resolveVar() cannot resolve the object type for "${node.getText()}" at compile time.`);
+    }
+
+    const propertyName = node.name.text;
+    const property = typeChecker.getPropertyOfType(objectType, propertyName);
+    if (!property) {
+      throw new Error(
+        `resolveVar() cannot find property "${propertyName}" on object "${node.expression.getText()}" at compile time.`,
+      );
+    }
+
+    const propertyType = typeChecker.getTypeOfSymbolAtLocation(property, node);
+    if (propertyType && propertyType.isLiteral() && typeof propertyType.value === 'string') {
+      return propertyType.value;
+    }
+
+    if (property.valueDeclaration) {
+      if (ts.isPropertyDeclaration(property.valueDeclaration)) {
+        const initializer = property.valueDeclaration.initializer;
+        if (initializer) {
+          const value = extractStringFromExpressionInline(initializer, typeChecker);
+          if (value !== null) {
+            return value;
+          }
+        }
+      } else if (ts.isPropertySignature(property.valueDeclaration)) {
+        // PropertySignature doesn't have initializer, skip it
+        // The type-based resolution above should handle this case
+      } else if (ts.isVariableDeclaration(property.valueDeclaration)) {
+        const initializer = property.valueDeclaration.initializer;
+        if (initializer) {
+          const value = extractStringFromExpressionInline(initializer, typeChecker);
+          if (value !== null) {
+            return value;
+          }
+        }
+      }
+    }
+
+    throw new Error(
+      `resolveVar() cannot resolve the value of "${node.getText()}" at compile time. Only const variables and object properties with string literal values are supported.`,
+    );
+  }
+
+  throw new Error(`resolveVar() can only be used with const variables or object properties. "${node.getText()}" is not supported.`);
+};
+
+const extractStringFromExpressionInline = (expr: ts.Expression, typeChecker: ts.TypeChecker): string | null => {
+  if (ts.isStringLiteral(expr)) {
+    return expr.text;
+  }
+
+  if (ts.isNoSubstitutionTemplateLiteral(expr)) {
+    return expr.text;
+  }
+
+  const type = typeChecker.getTypeAtLocation(expr);
+  if (type && type.isLiteral() && typeof type.value === 'string') {
+    return type.value;
+  }
+
+  return null;
 };
 
 const getIdentifierValue = (escapedText: any) => {

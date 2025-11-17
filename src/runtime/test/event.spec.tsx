@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, h, Listen, Method, State } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, h, Listen, Method, resolveVar,State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('event', () => {
@@ -386,5 +386,89 @@ describe('event', () => {
         </div>
       </cmp-blur-recursion>
     `);
+  });
+
+  describe('resolveVar', () => {
+    it('should emit event with resolved const variable name', async () => {
+      const MY_EVENT = 'myEvent';
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Event({ eventName: resolveVar(MY_EVENT) }) myEvent: EventEmitter;
+        @State() counter = 0;
+
+        @Listen(resolveVar(MY_EVENT))
+        onMyEvent() {
+          this.counter++;
+        }
+
+        @Method()
+        emitEvent() {
+          this.myEvent.emit();
+        }
+
+        render() {
+          return `${this.counter}`;
+        }
+      }
+
+      const page = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      expect(page.root).toEqualHtml(`
+        <cmp-a>0</cmp-a>
+      `);
+
+      await page.root.emitEvent();
+      await page.waitForChanges();
+
+      expect(page.root).toEqualHtml(`
+        <cmp-a>1</cmp-a>
+      `);
+    });
+
+    it('should emit event with resolved object property name', async () => {
+      const EVENTS = {
+        MY_EVENT: 'myEvent',
+      } as const;
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Event({ eventName: resolveVar(EVENTS.MY_EVENT) }) myEvent: EventEmitter;
+        @State() counter = 0;
+
+        @Listen(resolveVar(EVENTS.MY_EVENT))
+        onMyEvent() {
+          this.counter++;
+        }
+
+        @Method()
+        emitEvent() {
+          this.myEvent.emit();
+        }
+
+        render() {
+          return `${this.counter}`;
+        }
+      }
+
+      const page = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      expect(page.root).toEqualHtml(`
+        <cmp-a>0</cmp-a>
+      `);
+
+      await page.root.emitEvent();
+      await page.waitForChanges();
+
+      expect(page.root).toEqualHtml(`
+        <cmp-a>1</cmp-a>
+      `);
+    });
   });
 });

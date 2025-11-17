@@ -147,6 +147,10 @@ export interface AttachInternalsDecorator {
 export interface ListenDecorator {
   (eventName: string, opts?: ListenOptions): CustomMethodDecorator<any>;
 }
+
+export interface ResolveVarFunction {
+  <T>(variable: T): string;
+}
 export interface ListenOptions {
   /**
    * Handlers can also be registered for an event other than the host itself.
@@ -245,6 +249,25 @@ export declare const AttachInternals: AttachInternalsDecorator;
  * https://stenciljs.com/docs/events#listen-decorator
  */
 export declare const Listen: ListenDecorator;
+
+/**
+ * The `resolveVar()` function is a compile-time utility that resolves const variables
+ * and object properties to their string literal values. This allows variables to be
+ * used in `@Listen` and `@Event` decorators instead of hardcoded strings.
+ * 
+ * @example
+ * ```ts
+ * const MY_EVENT = 'myEvent';
+ * @Listen(resolveVar(MY_EVENT))
+ * ```
+ * 
+ * @example
+ * ```ts
+ * const EVENTS = { MY_EVENT: 'myEvent' } as const;
+ * @Event({ eventName: resolveVar(EVENTS.MY_EVENT) })
+ * ```
+ */
+export declare const resolveVar: ResolveVarFunction;
 
 /**
  * The `@Method()` decorator is used to expose methods on the public API.

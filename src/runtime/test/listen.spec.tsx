@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, Listen, State } from '@stencil/core';
+import { Component, Event, EventEmitter, Listen, resolveVar,State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('listen', () => {
@@ -232,5 +232,77 @@ describe('listen', () => {
     // no event listeners have been added as the element is not connected to the DOM
     expect(doc.addEventListener.mock.calls.length).toBe(0);
     expect(doc.removeEventListener.mock.calls.length).toBe(0);
+  });
+
+  describe('resolveVar', () => {
+    it('should listen to event with resolved const variable', async () => {
+      const MY_EVENT = 'myEvent';
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @State() clicks = 0;
+
+        @Listen(resolveVar(MY_EVENT))
+        onMyEvent() {
+          this.clicks++;
+        }
+
+        render() {
+          return `${this.clicks}`;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      expect(root).toEqualHtml(`
+        <cmp-a>0</cmp-a>
+      `);
+
+      root.dispatchEvent(new CustomEvent('myEvent', { bubbles: true }));
+      await waitForChanges();
+
+      expect(root).toEqualHtml(`
+        <cmp-a>1</cmp-a>
+      `);
+    });
+
+    it('should listen to event with resolved object property', async () => {
+      const EVENTS = {
+        MY_EVENT: 'myEvent',
+      } as const;
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @State() clicks = 0;
+
+        @Listen(resolveVar(EVENTS.MY_EVENT))
+        onMyEvent() {
+          this.clicks++;
+        }
+
+        render() {
+          return `${this.clicks}`;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      expect(root).toEqualHtml(`
+        <cmp-a>0</cmp-a>
+      `);
+
+      root.dispatchEvent(new CustomEvent('myEvent', { bubbles: true }));
+      await waitForChanges();
+
+      expect(root).toEqualHtml(`
+        <cmp-a>1</cmp-a>
+      `);
+    });
   });
 });
