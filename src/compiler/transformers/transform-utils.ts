@@ -470,7 +470,9 @@ const resolveVarInObjectLiteral = (
     );
   }
 
-  throw new Error(`resolveVar() can only be used with const variables or object properties. "${node.getText()}" is not supported.`);
+  throw new Error(
+    `resolveVar() can only be used with const variables or object properties. "${node.getText()}" is not supported.`,
+  );
 };
 
 const extractStringFromExpressionInline = (expr: ts.Expression, typeChecker: ts.TypeChecker): string | null => {

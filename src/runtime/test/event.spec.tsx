@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, h, Listen, Method, resolveVar,State } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, h, Listen, Method, resolveVar, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('event', () => {

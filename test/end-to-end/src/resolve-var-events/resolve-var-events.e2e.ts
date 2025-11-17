@@ -61,4 +61,3 @@ describe('resolveVar with @Event and @Listen', () => {
     expect(await otherEventCount.textContent).toBe('1');
   });
 });
-

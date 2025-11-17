@@ -254,13 +254,13 @@ export declare const Listen: ListenDecorator;
  * The `resolveVar()` function is a compile-time utility that resolves const variables
  * and object properties to their string literal values. This allows variables to be
  * used in `@Listen` and `@Event` decorators instead of hardcoded strings.
- * 
+ *
  * @example
  * ```ts
  * const MY_EVENT = 'myEvent';
  * @Listen(resolveVar(MY_EVENT))
  * ```
- * 
+ *
  * @example
  * ```ts
  * const EVENTS = { MY_EVENT: 'myEvent' } as const;
