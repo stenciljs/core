@@ -27,9 +27,11 @@ export const loadModule = (
   }
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
 
-  // Esbuild will try to statically match a path string inside an import statement.
-  // By putting dynamicImportPath into a variable, it can stay dynamic.
-  // For details: https://esbuild.github.io/api/#non-analyzable-imports
+  /**
+   * Esbuild will try to statically match a path string inside an import statement.
+   * By putting dynamicImportPath into a variable, it can stay dynamic.
+   * For details: https://esbuild.github.io/api/#non-analyzable-imports
+   */
   const hmr = BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : '';
   const dynamicImportPath = `./${bundleId}.entry.js${hmr}`;
   return import(
