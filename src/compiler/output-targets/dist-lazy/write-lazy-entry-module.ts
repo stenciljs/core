@@ -21,10 +21,13 @@ export const writeLazyModule = async (
 
   await Promise.all(
     destinations.map((dst) => {
-      compilerCtx.fs.writeFile(join(dst, fileName), code, { outputTargetType });
+      const jsPath = join(dst, fileName);
+      const mapPath = jsPath + '.map';
+      const writes: Promise<any>[] = [compilerCtx.fs.writeFile(jsPath, code, { outputTargetType })];
       if (!!sourceMap) {
-        compilerCtx.fs.writeFile(join(dst, fileName) + '.map', JSON.stringify(sourceMap), { outputTargetType });
+        writes.push(compilerCtx.fs.writeFile(mapPath, JSON.stringify(sourceMap), { outputTargetType }));
       }
+      return Promise.all(writes);
     }),
   );
 
