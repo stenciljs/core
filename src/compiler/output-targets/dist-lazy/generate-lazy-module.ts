@@ -240,11 +240,13 @@ const writeLazyChunk = async (
     destinations.map((dst) => {
       const filePath = join(dst, rollupResult.fileName);
       let fileCode = code;
+      const writes: Promise<any>[] = [];
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rollupResult.fileName);
-        compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType });
+        writes.push(compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType }));
       }
-      compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType });
+      writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
+      return Promise.all(writes);
     }),
   );
 };
@@ -281,11 +283,13 @@ const writeLazyEntry = async (
     destinations.map((dst) => {
       const filePath = join(dst, rollupResult.fileName);
       let fileCode = code;
+      const writes: Promise<any>[] = [];
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rollupResult.fileName);
-        compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType });
+        writes.push(compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType }));
       }
-      return compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType });
+      writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
+      return Promise.all(writes);
     }),
   );
 };
