@@ -173,4 +173,71 @@ describe('parse events', () => {
       },
     ]);
   });
+
+  describe('resolveVar', () => {
+    it('should resolve const variable in @Event eventName', () => {
+      const t = transpileModule(`
+        import { Component, Event, resolveVar, EventEmitter } from '@stencil/core';
+        
+        const MY_EVENT = 'myEvent';
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ eventName: resolveVar(MY_EVENT) })
+          myEvent: EventEmitter<string>;
+        }
+      `);
+      expect(t.event).toEqual({
+        name: 'myEvent',
+        method: 'myEvent',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        internal: false,
+        complexType: {
+          original: 'string',
+          resolved: 'string',
+          references: {},
+        },
+        docs: {
+          text: '',
+          tags: [],
+        },
+      });
+    });
+
+    it('should resolve object property in @Event eventName', () => {
+      const t = transpileModule(`
+        import { Component, Event, resolveVar, EventEmitter } from '@stencil/core';
+        
+        const EVENTS = {
+          MY_EVENT: 'myEvent',
+          OTHER_EVENT: 'otherEvent'
+        } as const;
+        
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Event({ eventName: resolveVar(EVENTS.MY_EVENT) })
+          myEvent: EventEmitter<string>;
+        }
+      `);
+      expect(t.event).toEqual({
+        name: 'myEvent',
+        method: 'myEvent',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        internal: false,
+        complexType: {
+          original: 'string',
+          resolved: 'string',
+          references: {},
+        },
+        docs: {
+          text: '',
+          tags: [],
+        },
+      });
+    });
+  });
 });
