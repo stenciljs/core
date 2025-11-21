@@ -37,15 +37,16 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("const el = document.createElement(`${__stencil_transformTag('cmp-a')}`);");
+      expect(res).toContain("const el = document.createElement(__stencil_transformTag('cmp-a'));");
     });
 
-    it('should not transform createElement calls with non-component tags', async () => {
+    it('should not transform any createElement calls', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
           someMethod() {
-            const el = document.createElement('div');
+            const tag = 'div';
+            const el = document.createElement(tag);
           }
         }
       `;
@@ -54,11 +55,11 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("const el = document.createElement('div');");
+      expect(res).toContain('const el = document.createElement(__stencil_transformTag(tag));');
     });
   });
 
-  describe('document.querySelector', () => {
+  describe('document.querySelector, document.querySelectorAll, document.closest', () => {
     it('should transform querySelector calls with component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
@@ -92,9 +93,7 @@ describe('add-tag-transform', () => {
       expect(transpileResult.diagnostics).toHaveLength(0);
       expect(res).toContain("const queriedEl = document.querySelector('cmp-left-alone');");
     });
-  });
 
-  describe('document.querySelectorAll', () => {
     it('should transform querySelectorAll calls with mixed component and non-component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
@@ -129,6 +128,60 @@ describe('add-tag-transform', () => {
 
       expect(transpileResult.diagnostics).toHaveLength(0);
       expect(res).toContain("`${__stencil_transformTag('cmp-a')}, ${__stencil_transformTag('cmp-b')}`");
+    });
+
+    it('should transform closest calls with component tags', async () => {
+      const cmp = `
+        @Component({ tag: 'cmp-a' })
+        export class CmpA { 
+          someMethod() {
+            const el = document.querySelector('div');
+            const closestCmp = el.closest('cmp-b');
+          }
+        }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain("const closestCmp = el.closest(`${__stencil_transformTag('cmp-b')}`);");
+    });
+
+    it('should handle complex CSS selectors with multiple components', async () => {
+      const cmp = `
+        @Component({ tag: 'cmp-a' })
+        export class CmpA { 
+          someMethod() {
+            const el = document.querySelector('cmp-a > cmp-b + .some-class[attr="value"]');
+          }
+        }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain(
+        "`${__stencil_transformTag('cmp-a')} > ${__stencil_transformTag('cmp-b')} + .some-class[attr=\"value\"]`",
+      );
+    });
+
+    it('should handle pseudo-selectors with component tags', async () => {
+      const cmp = `
+        @Component({ tag: 'cmp-a' })
+        export class CmpA { 
+          someMethod() {
+            const el = document.querySelector('cmp-a:hover');
+          }
+        }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain("document.querySelector(`${__stencil_transformTag('cmp-a')}:hover`");
     });
   });
 
@@ -166,15 +219,38 @@ describe('add-tag-transform', () => {
       expect(transpileResult.diagnostics).toHaveLength(0);
       expect(res).toContain("customElements.define(__stencil_transformTag('cmp-a'), CmpA);");
     });
+
+    it('should transform customElements.whenDefined calls with component tags', async () => {
+      const cmp = `
+      @Component({ tag: 'cmp-a' })
+      export class CmpA { 
+        someMethod() {
+        customElements.whenDefined('cmp-a').then(() => console.log('defined'));
+        }
+      }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain("customElements.whenDefined(__stencil_transformTag('cmp-a'))");
+    });
   });
 
-  describe('complex selectors', () => {
-    it('should handle complex CSS selectors with multiple components', async () => {
+  describe('binary expressions', () => {
+    it('should transform tag name comparisons with component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
           someMethod() {
-            const el = document.querySelector('cmp-a > cmp-b + .some-class[attr="value"]');
+            const el = document.createElement('div');
+            if (el.tagName === 'cmp-a') {
+              console.log('is cmp-a');
+            }
+            if ('cmp-b' == el.tagName) {
+              console.log('is cmp-b');
+            }
           }
         }
       `;
@@ -183,26 +259,8 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain(
-        "`${__stencil_transformTag('cmp-a')} > ${__stencil_transformTag('cmp-b')} + .some-class[attr=\"value\"]`",
-      );
-    });
-
-    it('should handle pseudo-selectors with component tags', async () => {
-      const cmp = `
-        @Component({ tag: 'cmp-a' })
-        export class CmpA { 
-          someMethod() {
-            const el = document.querySelector('cmp-a:hover');
-          }
-        }
-      `;
-
-      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
-      const res = await formatCode(transpileResult.outputText);
-
-      expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("document.querySelector(`${__stencil_transformTag('cmp-a')}:hover`");
+      expect(res).toContain("if (el.tagName === __stencil_transformTag('cmp-a')) {");
+      expect(res).toContain("if (__stencil_transformTag('cmp-b') == el.tagName) {");
     });
   });
 });

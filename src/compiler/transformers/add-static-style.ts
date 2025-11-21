@@ -212,16 +212,20 @@ export const createStyleIdentifier = (cmp: d.ComponentCompilerMeta, style: d.Sty
 const createIdentifierFromStyleIdentifier = (
   styleIdentifier: string,
   externalStyleIds: string[],
-): ts.Identifier | ts.BinaryExpression => {
+): ts.CallExpression => {
   const id = externalStyleIds[0];
 
   if (externalStyleIds.length === 1) {
-    return ts.factory.createIdentifier(styleIdentifier + id);
+    return ts.factory.createCallExpression(ts.factory.createIdentifier(styleIdentifier + id), undefined, []);
   }
 
-  return ts.factory.createBinaryExpression(
-    createIdentifierFromStyleIdentifier(styleIdentifier, [id]),
-    ts.SyntaxKind.PlusToken,
-    createIdentifierFromStyleIdentifier(styleIdentifier, externalStyleIds.slice(1)),
+  return ts.factory.createCallExpression(
+    ts.factory.createBinaryExpression(
+      createIdentifierFromStyleIdentifier(styleIdentifier, [id]),
+      ts.SyntaxKind.PlusToken,
+      createIdentifierFromStyleIdentifier(styleIdentifier, externalStyleIds.slice(1)),
+    ),
+    undefined,
+    [],
   );
 };

@@ -37,7 +37,7 @@ describe('transformCssToEsm', () => {
     it('should transform basic CSS to ESM module', async () => {
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = `.my-class{color:red}`;');
+      expect(result.output).toContain('const mdMyComponentCss = () => `.my-class{color:red}`;');
       expect(result.output).toContain('export default mdMyComponentCss;');
       expect(result.diagnostics).toEqual([]);
       expect(result.imports).toEqual([]);
@@ -46,7 +46,7 @@ describe('transformCssToEsm', () => {
     it('should transform basic CSS to ESM module synchronously', () => {
       const result = transformCssToEsmSync(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = `.my-class { color: red; }`;');
+      expect(result.output).toContain('const mdMyComponentCss = () => `.my-class { color: red; }`;');
       expect(result.output).toContain('export default mdMyComponentCss;');
       expect(result.diagnostics).toEqual([]);
       expect(result.imports).toEqual([]);
@@ -57,7 +57,7 @@ describe('transformCssToEsm', () => {
 
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = `.my-class{color:red}`;');
+      expect(result.output).toContain('const mdMyComponentCss = () => `.my-class{color:red}`;');
       expect(result.output).toContain('module.exports = mdMyComponentCss;');
     });
   });
@@ -268,7 +268,7 @@ describe('transformCssToEsm', () => {
 
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = ``;');
+      expect(result.output).toContain('const mdMyComponentCss = () => ``;');
       expect(result.diagnostics).toEqual([]);
     });
 
@@ -277,7 +277,7 @@ describe('transformCssToEsm', () => {
 
       const result = transformCssToEsmSync(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = `/* This is just a comment */`;');
+      expect(result.output).toContain('const mdMyComponentCss = () => `/* This is just a comment */`;');
     });
   });
 

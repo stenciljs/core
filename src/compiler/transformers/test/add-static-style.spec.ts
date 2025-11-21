@@ -317,11 +317,11 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyComponentMdStyle');
-      expect(ts.isIdentifier(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentMdStyle0');
+      expect(output).toBe('MyComponentMdStyle0()');
     });
 
     it('should create style identifier with custom mode', () => {
@@ -333,7 +333,7 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyComponentIosStyle');
-      expect(ts.isIdentifier(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
     });
 
     it('should create binary expression for multiple external styles', () => {
@@ -345,11 +345,11 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyComponentMdStyle');
-      expect(ts.isBinaryExpression(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentMdStyle0 + MyComponentMdStyle1');
+      expect(output).toBe('(MyComponentMdStyle0() + MyComponentMdStyle1())()');
     });
 
     it('should handle component with dashes in tag name', () => {
@@ -362,7 +362,7 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyCustomComponentMdStyle');
-      expect(ts.isIdentifier(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
     });
 
     it('should handle component with uppercase tag name', () => {
@@ -375,7 +375,7 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyComponentMdStyle');
-      expect(ts.isIdentifier(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
     });
 
     it('should handle multiple external styles with complex binary expression', () => {
@@ -391,15 +391,45 @@ describe('add-static-style', () => {
       const result = createStyleIdentifier(mockComponent, style);
 
       expect(style.styleIdentifier).toBe('MyComponentIosStyle');
-      expect(ts.isBinaryExpression(result)).toBe(true);
+      expect(ts.isCallExpression(result)).toBe(true);
 
       // Should create nested binary expressions for multiple styles
-      const binaryExpr = result as ts.BinaryExpression;
+      // The argument is a call expression whose argument is a binary expression
+      // (MyComponentIosStyle0() + (MyComponentIosStyle1() + MyComponentIosStyle2()))
+
+      const outerCall = result;
+      expect(ts.isCallExpression(outerCall)).toBe(true);
+      // In some TS ASTs, the call expression is of the form (binaryExpr)()
+      // so the binary expression is the callee of a parenthesized expression
+      let binaryExpr = undefined;
+      if (ts.isParenthesizedExpression(outerCall.expression)) {
+        const inner = outerCall.expression.expression;
+        if (ts.isBinaryExpression(inner)) {
+          binaryExpr = inner;
+        }
+      }
+      expect(binaryExpr).toBeDefined();
       expect(binaryExpr.operatorToken.kind).toBe(ts.SyntaxKind.PlusToken);
+      // Check that the right side is also a binary expression (nested)
+      let rightBinary = binaryExpr.right;
+      // If rightBinary is a CallExpression, check if its callee is a ParenthesizedExpression wrapping a BinaryExpression
+      if (ts.isCallExpression(rightBinary)) {
+        const callExpr = rightBinary;
+        if (ts.isParenthesizedExpression(callExpr.expression)) {
+          const inner = callExpr.expression.expression;
+          if (ts.isBinaryExpression(inner)) {
+            rightBinary = inner;
+          }
+        }
+      }
+      expect(ts.isBinaryExpression(rightBinary)).toBe(true);
+      if (ts.isBinaryExpression(rightBinary)) {
+        expect(rightBinary.operatorToken.kind).toBe(ts.SyntaxKind.PlusToken);
+      }
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentIosStyle0 + (MyComponentIosStyle1 + MyComponentIosStyle2)');
+      expect(output).toBe('(MyComponentIosStyle0() + (MyComponentIosStyle1() + MyComponentIosStyle2())())()');
     });
   });
 

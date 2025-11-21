@@ -151,7 +151,7 @@ describe('lazy-component', () => {
             __stencil_registerInstance(this, hostRef);
           }
         };
-        CmpA.style = CmpAStyle0;
+        CmpA.style = CmpAStyle0();
       `,
       ),
     );
@@ -179,7 +179,7 @@ describe('lazy-component', () => {
             __stencil_registerInstance(this, hostRef);
           }
         };
-        CmpA.style = { bar: CmpABarStyle0, foo: CmpAFooStyle0 };
+        CmpA.style = { bar: CmpABarStyle0(), foo: CmpAFooStyle0() };
       `,
       ),
     );
@@ -204,7 +204,7 @@ describe('lazy-component', () => {
             __stencil_registerInstance(this, hostRef);
           }
         };
-        CmpA.style = CmpAStyle0 + CmpAStyle1;
+        CmpA.style = (CmpAStyle0() + CmpAStyle1())();
       `,
       ),
     );

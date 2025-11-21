@@ -16,6 +16,9 @@ import type * as d from '../../declarations';
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, child?: d.ChildType): d.VNode;
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;
 export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.VNode => {
+  if (typeof nodeName === 'string') {
+    nodeName = transformTag(nodeName);
+  }
   let child = null;
   let key: string = null;
   let slotName: string = null;
@@ -29,7 +32,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
         walk(child);
       } else if (child != null && typeof child !== 'boolean') {
         if ((simple = typeof nodeName !== 'function' && !isComplexType(child))) {
-          child = transformTag(String(child));
+          child = String(child);
         } else if (BUILD.isDev && typeof nodeName !== 'function' && child.$flags$ === undefined) {
           consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.

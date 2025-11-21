@@ -177,7 +177,7 @@ const generateTransformCssToEsm = (
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = `);
+    s.append(`const ${results.defaultVarName} = () => `);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);
@@ -194,7 +194,7 @@ const generateTransformCssToEsm = (
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = `);
+    s.append(`const ${results.defaultVarName} = () => `);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);

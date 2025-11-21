@@ -23,7 +23,7 @@ export const addTagTransform = (
           const methodName = node.expression.name.text;
 
           if (
-            (methodName === 'querySelector' || methodName === 'querySelectorAll' || methodName === 'createElement') &&
+            (methodName === 'querySelector' || methodName === 'querySelectorAll' || methodName === 'closest') &&
             node.arguments.length > 0
           ) {
             const selectorArgument = node.arguments[0];
@@ -107,9 +107,16 @@ export const addTagTransform = (
           const expression = node.expression;
           if (
             ts.isPropertyAccessExpression(expression) &&
-            (expression.name.text === 'get' || expression.name.text === 'define') &&
-            ts.isIdentifier(expression.expression) &&
-            expression.expression.text === 'customElements'
+            (// customElements.get / define / whenDefined
+            ((expression.name.text === 'get' ||
+              expression.name.text === 'define' ||
+              expression.name.text === 'whenDefined') &&
+              ts.isIdentifier(expression.expression) &&
+              expression.expression.text === 'customElements') ||
+              // document.createElement
+              (expression.name.text === 'createElement' &&
+                ts.isIdentifier(expression.expression) &&
+                expression.expression.text === 'document'))
           ) {
             const [firstArg, ...restArgs] = node.arguments;
             if (firstArg) {
@@ -125,6 +132,34 @@ export const addTagTransform = (
                 ...restArgs,
               ]);
             }
+          } else {
+            node.expression;
+          }
+        }
+
+        // turns el.tagName === 'my-tag' into el.tagName === transformTag('my-tag')
+        // or 'my-tag' == elTag into transformTag('my-tag') == elTag
+        if (ts.isBinaryExpression(node)) {
+          const { left, right, operatorToken } = node;
+          const stringLiteral = ts.isStringLiteral(left) ? left : ts.isStringLiteral(right) ? right : null;
+
+          if (stringLiteral && tagNames.includes(stringLiteral.text)) {
+            const transformedLiteral = ts.factory.createCallExpression(
+              ts.factory.createIdentifier(TRANSFORM_TAG),
+              undefined,
+              [ts.factory.createStringLiteral(stringLiteral.text)],
+            );
+
+            let newLeft = left;
+            let newRight = right;
+
+            if (stringLiteral === left) {
+              newLeft = transformedLiteral;
+            } else {
+              newRight = transformedLiteral;
+            }
+
+            newNode = ts.factory.updateBinaryExpression(node, newLeft, operatorToken, newRight);
           }
         }
 
