@@ -10,6 +10,7 @@ import { updateHydrateComponentClass } from './hydrate-component';
 export const hydrateComponentTransform = (
   compilerCtx: d.CompilerCtx,
   transformOpts: d.TransformOptions,
+  buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     return (tsSourceFile) => {
@@ -19,7 +20,7 @@ export const hydrateComponentTransform = (
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
-            return updateHydrateComponentClass(node, moduleFile, cmp);
+            return updateHydrateComponentClass(node, moduleFile, cmp, buildCtx);
           } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           }

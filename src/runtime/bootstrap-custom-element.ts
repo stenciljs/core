@@ -1,5 +1,13 @@
 import { BUILD } from '@app-data';
-import { addHostEventListeners, forceUpdate, getHostRef, registerHost, styles, supportsShadow } from '@platform';
+import {
+  addHostEventListeners,
+  forceUpdate,
+  getHostRef,
+  registerHost,
+  styles,
+  supportsShadow,
+  transformTag,
+} from '@platform';
 import { CMP_FLAGS, createShadowRoot } from '@utils';
 
 import type * as d from '../declarations';
@@ -18,7 +26,10 @@ import { PROXY_FLAGS } from './runtime-constants';
 import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
-  customElements.define(compactMeta[1], proxyCustomElement(Cstr, compactMeta) as CustomElementConstructor);
+  customElements.define(
+    transformTag(compactMeta[1]),
+    proxyCustomElement(Cstr, compactMeta) as CustomElementConstructor,
+  );
 };
 
 export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
