@@ -181,6 +181,10 @@ export namespace Components {
          */
         "mode"?: any;
     }
+    interface ResolveVarEvents {
+        "emitMyEvent": () => Promise<void>;
+        "emitOtherEvent": () => Promise<void>;
+    }
     interface RuntimeDecorators {
         /**
           * @default 'basicProp'
@@ -227,6 +231,10 @@ export interface CarListCustomEvent<T> extends CustomEvent<T> {
 export interface EventCmpCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventCmpElement;
+}
+export interface ResolveVarEventsCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLResolveVarEventsElement;
 }
 export interface ScopedCarListCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -502,6 +510,24 @@ declare global {
         prototype: HTMLPropCmpElement;
         new (): HTMLPropCmpElement;
     };
+    interface HTMLResolveVarEventsElementEventMap {
+        "myEvent": any;
+        "otherEvent": any;
+    }
+    interface HTMLResolveVarEventsElement extends Components.ResolveVarEvents, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLResolveVarEventsElement: {
+        prototype: HTMLResolveVarEventsElement;
+        new (): HTMLResolveVarEventsElement;
+    };
     interface HTMLRuntimeDecoratorsElement extends Components.RuntimeDecorators, HTMLStencilElement {
     }
     var HTMLRuntimeDecoratorsElement: {
@@ -609,6 +635,7 @@ declare global {
         "path-alias-cmp": HTMLPathAliasCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
         "prop-cmp": HTMLPropCmpElement;
+        "resolve-var-events": HTMLResolveVarEventsElement;
         "runtime-decorators": HTMLRuntimeDecoratorsElement;
         "scoped-car-detail": HTMLScopedCarDetailElement;
         "scoped-car-list": HTMLScopedCarListElement;
@@ -770,6 +797,10 @@ declare namespace LocalJSX {
          */
         "mode"?: any;
     }
+    interface ResolveVarEvents {
+        "onMyEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
+        "onOtherEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
+    }
     interface RuntimeDecorators {
         /**
           * @default 'basicProp'
@@ -844,6 +875,7 @@ declare namespace LocalJSX {
         "path-alias-cmp": PathAliasCmp;
         "prerender-cmp": PrerenderCmp;
         "prop-cmp": PropCmp;
+        "resolve-var-events": ResolveVarEvents;
         "runtime-decorators": RuntimeDecorators;
         "scoped-car-detail": ScopedCarDetail;
         "scoped-car-list": ScopedCarList;
@@ -903,6 +935,7 @@ declare module "@stencil/core" {
             "path-alias-cmp": LocalJSX.PathAliasCmp & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
             "prerender-cmp": LocalJSX.PrerenderCmp & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
             "prop-cmp": LocalJSX.PropCmp & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
+            "resolve-var-events": LocalJSX.ResolveVarEvents & JSXBase.HTMLAttributes<HTMLResolveVarEventsElement>;
             "runtime-decorators": LocalJSX.RuntimeDecorators & JSXBase.HTMLAttributes<HTMLRuntimeDecoratorsElement>;
             "scoped-car-detail": LocalJSX.ScopedCarDetail & JSXBase.HTMLAttributes<HTMLScopedCarDetailElement>;
             /**

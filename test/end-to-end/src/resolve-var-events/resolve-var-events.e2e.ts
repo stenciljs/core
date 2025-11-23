@@ -9,6 +9,8 @@ describe('resolveVar with @Event and @Listen', () => {
     });
 
     const elm = await page.find('resolve-var-events');
+    await page.waitForChanges();
+
     const eventSpy = await elm.spyOnEvent('myEvent');
 
     await elm.callMethod('emitMyEvent');
@@ -16,7 +18,7 @@ describe('resolveVar with @Event and @Listen', () => {
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEvent();
-    const myEventCount = await elm.find('.my-event-count');
+    const myEventCount = await page.find('resolve-var-events >>> .my-event-count');
     expect(await myEventCount.textContent).toBe('1');
   });
 
@@ -28,6 +30,8 @@ describe('resolveVar with @Event and @Listen', () => {
     });
 
     const elm = await page.find('resolve-var-events');
+    await page.waitForChanges();
+
     const eventSpy = await elm.spyOnEvent('otherEvent');
 
     await elm.callMethod('emitOtherEvent');
@@ -35,7 +39,7 @@ describe('resolveVar with @Event and @Listen', () => {
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEvent();
-    const otherEventCount = await elm.find('.other-event-count');
+    const otherEventCount = await page.find('resolve-var-events >>> .other-event-count');
     expect(await otherEventCount.textContent).toBe('1');
   });
 
@@ -47,6 +51,7 @@ describe('resolveVar with @Event and @Listen', () => {
     });
 
     const elm = await page.find('resolve-var-events');
+    await page.waitForChanges();
 
     await elm.callMethod('emitMyEvent');
     await page.waitForChanges();
@@ -54,8 +59,8 @@ describe('resolveVar with @Event and @Listen', () => {
     await elm.callMethod('emitOtherEvent');
     await page.waitForChanges();
 
-    const myEventCount = await elm.find('.my-event-count');
-    const otherEventCount = await elm.find('.other-event-count');
+    const myEventCount = await page.find('resolve-var-events >>> .my-event-count');
+    const otherEventCount = await page.find('resolve-var-events >>> .other-event-count');
 
     expect(await myEventCount.textContent).toBe('1');
     expect(await otherEventCount.textContent).toBe('1');

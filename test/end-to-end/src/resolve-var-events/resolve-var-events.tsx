@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, Listen, Method, State, resolveVar } from '@stencil/core';
+import { Component, Event, EventEmitter, Listen, Method, State, h, resolveVar } from '@stencil/core';
 
 const MY_EVENT = 'myEvent';
 const OTHER_EVENT = 'otherEvent';
@@ -10,6 +10,7 @@ const EVENTS = {
 
 @Component({
   tag: 'resolve-var-events',
+  shadow: true,
 })
 export class ResolveVarEvents {
   @State() myEventCount = 0;
@@ -23,7 +24,7 @@ export class ResolveVarEvents {
     this.myEventCount++;
   }
 
-  @Listen(resolveVar(EVENTS.OTHER_EVENT))
+  @Listen(resolveVar(OTHER_EVENT))
   onOtherEvent() {
     this.otherEventCount++;
   }

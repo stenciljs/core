@@ -1,8 +1,41 @@
 # resolve-var-events
 
-This component demonstrates the use of `resolveVar()` with `@Event` and `@Listen` decorators.
 
-## Usage
 
-This component uses `resolveVar()` to resolve const variables and object properties for event names in decorators, allowing for better type safety and refactoring support.
+<!-- Auto Generated Below -->
 
+
+## Events
+
+| Event        | Description | Type               |
+| ------------ | ----------- | ------------------ |
+| `myEvent`    |             | `CustomEvent<any>` |
+| `otherEvent` |             | `CustomEvent<any>` |
+
+
+## Methods
+
+### `emitMyEvent() => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+### `emitOtherEvent() => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+
+----------------------------------------------
+
+*Built with [StencilJS](https://stenciljs.com/)*
