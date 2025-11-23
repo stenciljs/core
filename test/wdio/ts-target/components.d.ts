@@ -54,6 +54,8 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendsDirectState {
+    }
     interface ExtendsExternal {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -78,6 +80,40 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendsMethods {
+        /**
+          * Base method that can be called by child components
+         */
+        "baseMethod": () => Promise<string>;
+        /**
+          * Child-specific method that uses parent's protected helper
+         */
+        "childMethod": () => Promise<string>;
+        /**
+          * Method that composes parent and child behavior
+         */
+        "composedMethod": () => Promise<string>;
+        /**
+          * Method to get the call log for testing
+         */
+        "getCallLog": () => Promise<string[]>;
+        /**
+          * Method to get internal value for testing
+         */
+        "getInternalValue": () => Promise<string>;
+        /**
+          * Override parent method with super() call
+         */
+        "overridableMethod": () => Promise<string>;
+        /**
+          * Method to reset state for testing
+         */
+        "reset": () => Promise<void>;
+        /**
+          * Method to trigger display update from test
+         */
+        "updateDisplay": (value: string) => Promise<void>;
+    }
     interface ExtendsMixinCmp {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -94,6 +130,46 @@ export namespace Components {
           * @default 'mixin b text'
          */
         "prop3": string;
+    }
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount": number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp": string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp": string;
+        "incrementBaseCount": () => Promise<void>;
+        "toggleBaseEnabled": () => Promise<void>;
+        "updateBaseState": (value: string) => Promise<void>;
+        "updateComponentState": (value: string) => Promise<void>;
+    }
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface ExtendsRender {
     }
     interface TsTargetProps {
         /**
@@ -137,6 +213,12 @@ declare global {
         prototype: HTMLExtendsCmpCmpElement;
         new (): HTMLExtendsCmpCmpElement;
     };
+    interface HTMLExtendsDirectStateElement extends Components.ExtendsDirectState, HTMLStencilElement {
+    }
+    var HTMLExtendsDirectStateElement: {
+        prototype: HTMLExtendsDirectStateElement;
+        new (): HTMLExtendsDirectStateElement;
+    };
     interface HTMLExtendsExternalElement extends Components.ExtendsExternal, HTMLStencilElement {
     }
     var HTMLExtendsExternalElement: {
@@ -160,11 +242,49 @@ declare global {
         prototype: HTMLExtendsLocalElement;
         new (): HTMLExtendsLocalElement;
     };
+    interface HTMLExtendsMethodsElement extends Components.ExtendsMethods, HTMLStencilElement {
+    }
+    var HTMLExtendsMethodsElement: {
+        prototype: HTMLExtendsMethodsElement;
+        new (): HTMLExtendsMethodsElement;
+    };
     interface HTMLExtendsMixinCmpElement extends Components.ExtendsMixinCmp, HTMLStencilElement {
     }
     var HTMLExtendsMixinCmpElement: {
         prototype: HTMLExtendsMixinCmpElement;
         new (): HTMLExtendsMixinCmpElement;
+    };
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface HTMLExtendsPropsStateElement extends Components.ExtendsPropsState, HTMLStencilElement {
+    }
+    var HTMLExtendsPropsStateElement: {
+        prototype: HTMLExtendsPropsStateElement;
+        new (): HTMLExtendsPropsStateElement;
+    };
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface HTMLExtendsRenderElement extends Components.ExtendsRender, HTMLStencilElement {
+    }
+    var HTMLExtendsRenderElement: {
+        prototype: HTMLExtendsRenderElement;
+        new (): HTMLExtendsRenderElement;
     };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
@@ -177,9 +297,13 @@ declare global {
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
+        "extends-direct-state": HTMLExtendsDirectStateElement;
         "extends-external": HTMLExtendsExternalElement;
         "extends-local": HTMLExtendsLocalElement;
+        "extends-methods": HTMLExtendsMethodsElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
+        "extends-props-state": HTMLExtendsPropsStateElement;
+        "extends-render": HTMLExtendsRenderElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
@@ -224,6 +348,8 @@ declare namespace LocalJSX {
          */
         "prop2"?: string;
     }
+    interface ExtendsDirectState {
+    }
     interface ExtendsExternal {
         /**
           * @default 'default text'
@@ -245,6 +371,8 @@ declare namespace LocalJSX {
          */
         "prop2"?: string;
     }
+    interface ExtendsMethods {
+    }
     interface ExtendsMixinCmp {
         /**
           * @default 'default text'
@@ -258,6 +386,42 @@ declare namespace LocalJSX {
           * @default 'mixin b text'
          */
         "prop3"?: string;
+    }
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount"?: number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp"?: string;
+    }
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface ExtendsRender {
     }
     interface TsTargetProps {
         /**
@@ -276,9 +440,13 @@ declare namespace LocalJSX {
         "extended-cmp-cmp": ExtendedCmpCmp;
         "extends-abstract": ExtendsAbstract;
         "extends-cmp-cmp": ExtendsCmpCmp;
+        "extends-direct-state": ExtendsDirectState;
         "extends-external": ExtendsExternal;
         "extends-local": ExtendsLocal;
+        "extends-methods": ExtendsMethods;
         "extends-mixin-cmp": ExtendsMixinCmp;
+        "extends-props-state": ExtendsPropsState;
+        "extends-render": ExtendsRender;
         "ts-target-props": TsTargetProps;
     }
 }
@@ -290,9 +458,33 @@ declare module "@stencil/core" {
             "extended-cmp-cmp": LocalJSX.ExtendedCmpCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             "extends-abstract": LocalJSX.ExtendsAbstract & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            "extends-direct-state": LocalJSX.ExtendsDirectState & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
             "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
+            "extends-methods": LocalJSX.ExtendsMethods & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
+            /**
+             * Test Case #3: Property & State Inheritance Basics
+             * This component extends PropsStateBase to test:
+             * -
+             * @Prop inheritance from base class
+             * -
+             * @State inheritance from base class
+             * - Additional
+             * @Prop and
+             * @State without conflicts
+             * - Property reactivity (inherited props/state trigger re-renders)
+             */
+            "extends-props-state": LocalJSX.ExtendsPropsState & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
+            /**
+             * Test Case #5: Render Method Inheritance
+             * This component extends RenderBase to test:
+             * - Render Inheritance: Component render() method calls super.render() to include parent template
+             * - Template Composition: Component composes parent template with additional content and structure
+             * - Slot Integration: Parent template slots work correctly when inherited and extended
+             * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+             */
+            "extends-render": LocalJSX.ExtendsRender & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
