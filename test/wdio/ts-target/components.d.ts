@@ -54,6 +54,8 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendsControllerUpdates {
+    }
     interface ExtendsDirectState {
     }
     interface ExtendsExternal {
@@ -67,6 +69,10 @@ export namespace Components {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2": string;
+    }
+    interface ExtendsLifecycleBasic {
+    }
+    interface ExtendsLifecycleMultilevel {
     }
     interface ExtendsLocal {
         "method1": () => Promise<void>;
@@ -171,6 +177,8 @@ export namespace Components {
      */
     interface ExtendsRender {
     }
+    interface ExtendsViaHostCmp {
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -213,6 +221,12 @@ declare global {
         prototype: HTMLExtendsCmpCmpElement;
         new (): HTMLExtendsCmpCmpElement;
     };
+    interface HTMLExtendsControllerUpdatesElement extends Components.ExtendsControllerUpdates, HTMLStencilElement {
+    }
+    var HTMLExtendsControllerUpdatesElement: {
+        prototype: HTMLExtendsControllerUpdatesElement;
+        new (): HTMLExtendsControllerUpdatesElement;
+    };
     interface HTMLExtendsDirectStateElement extends Components.ExtendsDirectState, HTMLStencilElement {
     }
     var HTMLExtendsDirectStateElement: {
@@ -224,6 +238,18 @@ declare global {
     var HTMLExtendsExternalElement: {
         prototype: HTMLExtendsExternalElement;
         new (): HTMLExtendsExternalElement;
+    };
+    interface HTMLExtendsLifecycleBasicElement extends Components.ExtendsLifecycleBasic, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleBasicElement: {
+        prototype: HTMLExtendsLifecycleBasicElement;
+        new (): HTMLExtendsLifecycleBasicElement;
+    };
+    interface HTMLExtendsLifecycleMultilevelElement extends Components.ExtendsLifecycleMultilevel, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleMultilevelElement: {
+        prototype: HTMLExtendsLifecycleMultilevelElement;
+        new (): HTMLExtendsLifecycleMultilevelElement;
     };
     interface HTMLExtendsLocalElementEventMap {
         "myEvent": string;
@@ -286,6 +312,12 @@ declare global {
         prototype: HTMLExtendsRenderElement;
         new (): HTMLExtendsRenderElement;
     };
+    interface HTMLExtendsViaHostCmpElement extends Components.ExtendsViaHostCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsViaHostCmpElement: {
+        prototype: HTMLExtendsViaHostCmpElement;
+        new (): HTMLExtendsViaHostCmpElement;
+    };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
     var HTMLTsTargetPropsElement: {
@@ -297,13 +329,17 @@ declare global {
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
+        "extends-controller-updates": HTMLExtendsControllerUpdatesElement;
         "extends-direct-state": HTMLExtendsDirectStateElement;
         "extends-external": HTMLExtendsExternalElement;
+        "extends-lifecycle-basic": HTMLExtendsLifecycleBasicElement;
+        "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
         "extends-local": HTMLExtendsLocalElement;
         "extends-methods": HTMLExtendsMethodsElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
         "extends-props-state": HTMLExtendsPropsStateElement;
         "extends-render": HTMLExtendsRenderElement;
+        "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
@@ -348,6 +384,8 @@ declare namespace LocalJSX {
          */
         "prop2"?: string;
     }
+    interface ExtendsControllerUpdates {
+    }
     interface ExtendsDirectState {
     }
     interface ExtendsExternal {
@@ -359,6 +397,10 @@ declare namespace LocalJSX {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2"?: string;
+    }
+    interface ExtendsLifecycleBasic {
+    }
+    interface ExtendsLifecycleMultilevel {
     }
     interface ExtendsLocal {
         "onMyEvent"?: (event: ExtendsLocalCustomEvent<string>) => void;
@@ -423,6 +465,8 @@ declare namespace LocalJSX {
      */
     interface ExtendsRender {
     }
+    interface ExtendsViaHostCmp {
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -440,13 +484,17 @@ declare namespace LocalJSX {
         "extended-cmp-cmp": ExtendedCmpCmp;
         "extends-abstract": ExtendsAbstract;
         "extends-cmp-cmp": ExtendsCmpCmp;
+        "extends-controller-updates": ExtendsControllerUpdates;
         "extends-direct-state": ExtendsDirectState;
         "extends-external": ExtendsExternal;
+        "extends-lifecycle-basic": ExtendsLifecycleBasic;
+        "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
         "extends-local": ExtendsLocal;
         "extends-methods": ExtendsMethods;
         "extends-mixin-cmp": ExtendsMixinCmp;
         "extends-props-state": ExtendsPropsState;
         "extends-render": ExtendsRender;
+        "extends-via-host-cmp": ExtendsViaHostCmp;
         "ts-target-props": TsTargetProps;
     }
 }
@@ -458,8 +506,11 @@ declare module "@stencil/core" {
             "extended-cmp-cmp": LocalJSX.ExtendedCmpCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             "extends-abstract": LocalJSX.ExtendsAbstract & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            "extends-controller-updates": LocalJSX.ExtendsControllerUpdates & JSXBase.HTMLAttributes<HTMLExtendsControllerUpdatesElement>;
             "extends-direct-state": LocalJSX.ExtendsDirectState & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            "extends-lifecycle-basic": LocalJSX.ExtendsLifecycleBasic & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
+            "extends-lifecycle-multilevel": LocalJSX.ExtendsLifecycleMultilevel & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
             "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
             "extends-methods": LocalJSX.ExtendsMethods & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
@@ -485,6 +536,7 @@ declare module "@stencil/core" {
              * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
              */
             "extends-render": LocalJSX.ExtendsRender & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
+            "extends-via-host-cmp": LocalJSX.ExtendsViaHostCmp & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
