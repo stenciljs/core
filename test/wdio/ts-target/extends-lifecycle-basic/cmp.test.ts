@@ -52,10 +52,13 @@ describe('Test Case #1 – Lifecycle inheritance (Load, Render, Update)', () => 
       button?.click();
 
       // Wait for update and check value changed
-      await browser.waitUntil(() => {
-        const valueEl = frameContent.querySelector('.current-value');
-        return valueEl?.textContent?.includes('updated');
-      }, { timeout: 3000 });
+      await browser.waitUntil(
+        () => {
+          const valueEl = frameContent.querySelector('.current-value');
+          return valueEl?.textContent?.includes('updated');
+        },
+        { timeout: 3000 },
+      );
 
       // Verify update lifecycle events were tracked to global array in iframe
       const updatedLifecycleCalls = await frameEle.execute((el) => (el.contentWindow as any).lifecycleCalls || []);
@@ -68,7 +71,10 @@ describe('Test Case #1 – Lifecycle inheritance (Load, Render, Update)', () => 
     let frameContent: HTMLElement;
 
     beforeEach(async () => {
-      frameContent = await setupIFrameTest('/extends-lifecycle-basic/es2022.custom-element.html', 'es2022-custom-elements');
+      frameContent = await setupIFrameTest(
+        '/extends-lifecycle-basic/es2022.custom-element.html',
+        'es2022-custom-elements',
+      );
       const frameEle = await browser.$('iframe#es2022-custom-elements');
       await frameEle.waitUntil(async () => !!frameContent.querySelector('.lifecycle-info'), { timeout: 5000 });
     });
@@ -76,7 +82,7 @@ describe('Test Case #1 – Lifecycle inheritance (Load, Render, Update)', () => 
     it('inherits lifecycle hooks in custom elements build', async () => {
       const frameEle = await browser.$('iframe#es2022-custom-elements');
       const lifecycleCalls = await frameEle.execute((el) => (el.contentWindow as any).lifecycleCalls || []);
-      
+
       // Verify all core lifecycle events are present
       expect(lifecycleCalls).toContain('componentWillLoad');
       expect(lifecycleCalls).toContain('componentDidLoad');

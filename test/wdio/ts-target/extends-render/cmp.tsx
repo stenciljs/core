@@ -3,7 +3,7 @@ import { RenderBase } from './render-base.js';
 
 /**
  * Test Case #5: Render Method Inheritance
- * 
+ *
  * This component extends RenderBase to test:
  * - Render Inheritance: Component render() method calls super.render() to include parent template
  * - Template Composition: Component composes parent template with additional content and structure
@@ -34,10 +34,10 @@ export class RenderCmp extends RenderBase {
         <div class="component-header">
           <h2 class="component-title">{this.componentTitle}</h2>
         </div>
-        
+
         {/* Include base render (with slots and CSS classes) - calls super.render() */}
         {super.render()}
-        
+
         {/* Additional component-specific content */}
         <div class="component-additional">
           <p class="additional-content">{this.additionalContent}</p>
@@ -46,4 +46,3 @@ export class RenderCmp extends RenderBase {
     );
   }
 }
-

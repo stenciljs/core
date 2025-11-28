@@ -29,5 +29,4 @@ export class LifecycleBase {
     (window as any).lifecycleCalls = (window as any).lifecycleCalls || [];
     (window as any).lifecycleCalls.push('componentDidUpdate');
   }
-
 }

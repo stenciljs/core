@@ -57,4 +57,3 @@ export class MethodBase {
     this.callLog = [];
   }
 }
-

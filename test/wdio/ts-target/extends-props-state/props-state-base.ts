@@ -7,14 +7,13 @@ import { Prop, State } from '@stencil/core';
 export class PropsStateBase {
   // Base @Prop - inherited by component
   @Prop() baseProp: string = 'base prop value';
-  
+
   // Base @Prop with different type
   @Prop() baseCount: number = 0;
-  
+
   // Base @State - inherited by component, should trigger reactivity
   @State() baseState: string = 'base state value';
-  
+
   // Base @State with boolean type
   @State() baseEnabled: boolean = true;
 }
-

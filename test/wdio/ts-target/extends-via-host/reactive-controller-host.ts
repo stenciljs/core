@@ -1,4 +1,4 @@
-import { forceUpdate, ComponentInterface } from "@stencil/core";
+import { forceUpdate, ComponentInterface } from '@stencil/core';
 
 export interface ReactiveController {
   hostConnected?(): void;

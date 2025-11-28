@@ -3,10 +3,10 @@ import { setupIFrameTest } from '../../util.js';
 
 /**
  * Test Case #5: Render Method Inheritance
- * 
+ *
  * Tests for extending Stencil-decorated classes with render() method inheritance.
  * Built with `tsconfig-es2022.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
- * 
+ *
  * Features tested:
  * - Render Inheritance: Component render() method calls super.render() to include parent template
  * - Template Composition: Component composes parent template with additional content and structure
@@ -28,13 +28,13 @@ describe('Test Case #5 – Render Method Inheritance', () => {
       // Verify base template structure is present (from super.render())
       const baseContainer = frameContent.querySelector('.base-container');
       expect(baseContainer).toBeTruthy();
-      
+
       const baseHeader = frameContent.querySelector('.base-header');
       expect(baseHeader).toBeTruthy();
-      
+
       const baseContent = frameContent.querySelector('.base-content');
       expect(baseContent).toBeTruthy();
-      
+
       const baseFooter = frameContent.querySelector('.base-footer');
       expect(baseFooter).toBeTruthy();
     });
@@ -43,19 +43,19 @@ describe('Test Case #5 – Render Method Inheritance', () => {
       // Verify child wrapper is present
       const componentWrapper = frameContent.querySelector('.component-wrapper');
       expect(componentWrapper).toBeTruthy();
-      
+
       // Verify child header is present
       const componentHeader = frameContent.querySelector('.component-header');
       expect(componentHeader).toBeTruthy();
-      
+
       const componentTitle = frameContent.querySelector('.component-title');
       expect(componentTitle).toBeTruthy();
       expect(componentTitle?.textContent).toBe('Extended Component');
-      
+
       // Verify base template is still present (composed)
       const baseContainer = frameContent.querySelector('.base-container');
       expect(baseContainer).toBeTruthy();
-      
+
       // Verify additional component content is present
       const componentAdditional = frameContent.querySelector('.component-additional');
       expect(componentAdditional).toBeTruthy();
@@ -67,13 +67,13 @@ describe('Test Case #5 – Render Method Inheritance', () => {
       expect(baseContainer).toBeTruthy();
       expect(baseContainer?.classList.contains('base-container')).toBe(true);
       expect(baseContainer?.classList.contains('extended')).toBe(true);
-      
+
       const baseHeader = frameContent.querySelector('.base-header');
       expect(baseHeader?.classList.contains('base-header')).toBe(true);
-      
+
       const baseTitle = frameContent.querySelector('.base-title');
       expect(baseTitle?.classList.contains('base-title')).toBe(true);
-      
+
       const baseFooter = frameContent.querySelector('.base-footer');
       expect(baseFooter?.classList.contains('base-footer')).toBe(true);
     });
@@ -110,15 +110,15 @@ describe('Test Case #5 – Render Method Inheritance', () => {
       // Verify base template structure is present
       const baseContainer = frameContent.querySelector('.base-container');
       expect(baseContainer).toBeTruthy();
-      
+
       // Verify child wrapper is present
       const componentWrapper = frameContent.querySelector('.component-wrapper');
       expect(componentWrapper).toBeTruthy();
-      
+
       // Verify composition works
       const baseHeader = frameContent.querySelector('.base-header');
       expect(baseHeader).toBeTruthy();
-      
+
       const componentTitle = frameContent.querySelector('.component-title');
       expect(componentTitle).toBeTruthy();
     });
@@ -144,7 +144,7 @@ describe('Test Case #5 – Render Method Inheritance', () => {
       // Verify slots exist in base template (inherited via super.render())
       const baseContent = frameContent.querySelector('.base-content');
       expect(baseContent).toBeTruthy();
-      
+
       // Slots are rendered as <slot> elements in the DOM
       // The base template should have slots that can be used
       // Note: Slots may not have visible content if no slotted content is provided
@@ -155,4 +155,3 @@ describe('Test Case #5 – Render Method Inheritance', () => {
     });
   });
 });
-

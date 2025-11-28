@@ -8,18 +8,18 @@ export class ControllerUpdatesCmp extends ClockControllerBase {
   // Component owns the @State - not the base class
   @State() currentTime: string = new Date().toLocaleTimeString();
   @State() isClockRunning: boolean = true;
-  
+
   constructor() {
     super(); // No parameters needed
   }
-  
+
   // Component implements the requestUpdate method (simulates Lit's this.host.requestUpdate())
   protected requestUpdate(): void {
     // Controller calls this method to request a re-render
     // Component updates its own @State which triggers re-render
     this.currentTime = this.getCurrentTimeValue();
   }
-  
+
   toggleClock() {
     if (this.isClockRunning) {
       this.stopClock();
@@ -29,23 +29,20 @@ export class ControllerUpdatesCmp extends ClockControllerBase {
       this.isClockRunning = true;
     }
   }
-  
+
   render() {
     return (
       <div>
         <h2>Controller-Initiated Updates Test</h2>
-        
+
         <div class="clock-section">
           <h3>Clock Controller (requestUpdate Pattern)</h3>
           <p class="current-time">Current Time: {this.currentTime}</p>
-          <button 
-            class="toggle-clock" 
-            onClick={() => this.toggleClock()}
-          >
+          <button class="toggle-clock" onClick={() => this.toggleClock()}>
             {this.isClockRunning ? 'Stop Clock' : 'Start Clock'}
           </button>
         </div>
-        
+
         <div class="status-info">
           <h3>How It Works</h3>
           <p class="clock-status">Clock Running: {this.isClockRunning ? 'Yes' : 'No'}</p>

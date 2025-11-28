@@ -1,15 +1,19 @@
-import { Component, h, Host, State } from "@stencil/core";
-import { ReactiveControllerHost } from "./reactive-controller-host.js";
-import { MouseController } from "./mouse-controller.js";
+import { Component, h, Host, State } from '@stencil/core';
+import { ReactiveControllerHost } from './reactive-controller-host.js';
+import { MouseController } from './mouse-controller.js';
 
 @Component({
-  tag: "extends-via-host-cmp",
+  tag: 'extends-via-host-cmp',
   scoped: true,
-  styles: `:host { display: block; }`,
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
 })
 export class MyComponent extends ReactiveControllerHost {
   private mouse = new MouseController(this);
-  
+
   // Track lifecycle calls for testing
   @State() lifecycleCalls: string[] = [];
 
