@@ -103,12 +103,12 @@ export const addTagTransform = (
         }
 
         // turns `customElements.get("my-tag")` into `customElements.get(transformTag("my-tag"))`
+
         if (ts.isCallExpression(node)) {
           const expression = node.expression;
           if (
-            ts.isPropertyAccessExpression(expression) &&
-            (// customElements.get / define / whenDefined
-            ((expression.name.text === 'get' ||
+            ts.isPropertyAccessExpression(expression) && // customElements.get / define / whenDefined
+            (((expression.name.text === 'get' ||
               expression.name.text === 'define' ||
               expression.name.text === 'whenDefined') &&
               ts.isIdentifier(expression.expression) &&
