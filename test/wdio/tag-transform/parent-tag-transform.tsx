@@ -1,4 +1,4 @@
-import { Component, Element,h, Method } from '@stencil/core';
+import { Component, Element, h, Method } from '@stencil/core';
 
 @Component({
   tag: 'parent-tag-transform',

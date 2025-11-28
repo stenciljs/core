@@ -234,7 +234,7 @@ describe('nativeComponentTransform', () => {
         `styleUrls: ['cmp-a.css', 'cmp-b.css', 'cmp-a.css']`,
         `import CmpAStyle0 from './cmp-b.css?tag=cmp-a';
          import CmpAStyle1 from './cmp-a.css?tag=cmp-a';`,
-        `(CmpAStyle0() + CmpAStyle1())()`,
+        `CmpAStyle0() + CmpAStyle1()`,
       ],
       [
         `styleUrls: { ios: 'cmp-a.ios.css', md: 'cmp-a.md.css' }`,

@@ -204,7 +204,7 @@ describe('lazy-component', () => {
             __stencil_registerInstance(this, hostRef);
           }
         };
-        CmpA.style = (CmpAStyle0() + CmpAStyle1())();
+        CmpA.style = CmpAStyle0() + CmpAStyle1();
       `,
       ),
     );

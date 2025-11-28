@@ -1,4 +1,4 @@
-import { h,setTagTransformer, transformTag } from '@stencil/core';
+import { h, setTagTransformer, transformTag } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
 import { browser } from '@wdio/globals';
 
@@ -135,7 +135,7 @@ describe('Tag Transformer', () => {
     `,
       {
         runtimeLogging: true,
-        beforeHydrate: (doc: Document) => {
+        afterHydrate: (doc: Document) => {
           const el = doc.querySelector<HTMLParentTagTransformElement>('parent-tag-is-transformed');
 
           it('basic', async () => {
@@ -162,7 +162,13 @@ describe('Tag Transformer', () => {
         },
       },
     ).then((result) => {
-      console.log(result.html);
+      it('applies styles using transformed css selectors', async () => {
+        expect(result.html).toContain('child-tag-is-transformed:hover {');
+        expect(result.html).toContain('child-tag-is-transformed.active {');
+        expect(result.html).toContain(
+          'child-tag-is-transformed{display:block;padding:10px;margin:5px;border:2px solid blue}',
+        );
+      });
     });
   });
 });
