@@ -1,43 +1,38 @@
 name: 'Stencil Nightly Release'
 
 on:
-  schedule:
-    # Run every Monday-Friday at 5:00 AM (UTC) (https://crontab.guru/#00_05_*_*_1-5)
-    # This is done to have a nightly build ready for the Ionic Framework/Stencil Eval Workflow:
-    # https://github.com/ionic-team/ionic-framework/blob/main/.github/workflows/stencil-eval.yml
-    - cron: '00 05 * * 1-5'
-  workflow_dispatch:
-    # Allow this workflow to be run on-demand
+  workflow_call:
 
 permissions:
-  contents: read
+  contents: write
+  id-token: write
 
 jobs:
   build_core:
-    name: Build
+    name: 🏗️ Build
     uses: ./.github/workflows/build.yml
 
   get-nightly-version:
-    name: Get Nightly Build Version
+    name: 🔍 Get Nightly Build Version
     needs: [build_core]
     runs-on: ubuntu-22.04
     outputs:
       nightly-version: ${{ steps.get-nightly-version.outputs.NIGHTLY_VERSION }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
+      - name: 📥 Download Build Archive
         uses: ./.github/workflows/actions/download-archive
         with:
           name: stencil-core
           path: .
           filename: stencil-core-build.zip
 
-      - name: Get Version
+      - name: 🔎 Get Version
         id: get-nightly-version
         run: |
           # A unique string to publish Stencil under
@@ -58,17 +53,9 @@ jobs:
         shell: bash
 
   release-stencil-nightly-build:
-    name: Publish Nightly Build
+    name: 🚀 Publish Nightly Build
     needs: [get-nightly-version, build_core]
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: ./.github/workflows/actions/publish-npm
-        with:
-          tag: nightly
-          version: ${{ needs.get-nightly-version.outputs.nightly-version }}
-          token: ${{ secrets.NPM_TOKEN }}
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      tag: nightly
+      version: ${{ needs.get-nightly-version.outputs.nightly-version }}
