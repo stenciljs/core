@@ -60,7 +60,7 @@ const parseEventDecorator = (
     return null;
   }
 
-  const [eventOpts] = getDecoratorParameters<d.EventOptions>(eventDecorator, typeChecker);
+  const [eventOpts] = getDecoratorParameters<d.EventOptions>(eventDecorator, typeChecker, diagnostics);
   const symbol = typeChecker.getSymbolAtLocation(prop.name);
   const eventName = getEventName(eventOpts, memberName);
 
