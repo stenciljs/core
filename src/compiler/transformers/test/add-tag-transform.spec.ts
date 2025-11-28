@@ -238,29 +238,31 @@ describe('add-tag-transform', () => {
     });
   });
 
-  describe('binary expressions', () => {
-    it('should transform tag name comparisons with component tags', async () => {
-      const cmp = `
-        @Component({ tag: 'cmp-a' })
-        export class CmpA { 
-          someMethod() {
-            const el = document.createElement('div');
-            if (el.tagName === 'cmp-a') {
-              console.log('is cmp-a');
-            }
-            if ('cmp-b' == el.tagName) {
-              console.log('is cmp-b');
-            }
-          }
-        }
-      `;
+  // feels a bit OTT(?)
 
-      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
-      const res = await formatCode(transpileResult.outputText);
+  // describe('binary expressions', () => {
+  //   it('should transform tag name comparisons with component tags', async () => {
+  //     const cmp = `
+  //       @Component({ tag: 'cmp-a' })
+  //       export class CmpA {
+  //         someMethod() {
+  //           const el = document.createElement('div');
+  //           if (el.tagName === 'cmp-a') {
+  //             console.log('is cmp-a');
+  //           }
+  //           if ('cmp-b' == el.tagName) {
+  //             console.log('is cmp-b');
+  //           }
+  //         }
+  //       }
+  //     `;
 
-      expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("if (el.tagName === __stencil_transformTag('cmp-a')) {");
-      expect(res).toContain("if (__stencil_transformTag('cmp-b') == el.tagName) {");
-    });
-  });
+  //     const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+  //     const res = await formatCode(transpileResult.outputText);
+
+  //     expect(transpileResult.diagnostics).toHaveLength(0);
+  //     expect(res).toContain("if (el.tagName === __stencil_transformTag('cmp-a')) {");
+  //     expect(res).toContain("if (__stencil_transformTag('cmp-b') == el.tagName) {");
+  //   });
+  // });
 });

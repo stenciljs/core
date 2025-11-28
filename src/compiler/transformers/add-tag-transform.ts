@@ -139,29 +139,31 @@ export const addTagTransform = (
 
         // turns el.tagName === 'my-tag' into el.tagName === transformTag('my-tag')
         // or 'my-tag' == elTag into transformTag('my-tag') == elTag
-        if (ts.isBinaryExpression(node)) {
-          const { left, right, operatorToken } = node;
-          const stringLiteral = ts.isStringLiteral(left) ? left : ts.isStringLiteral(right) ? right : null;
+        // ... this feels like a bit much?
 
-          if (stringLiteral && tagNames.includes(stringLiteral.text)) {
-            const transformedLiteral = ts.factory.createCallExpression(
-              ts.factory.createIdentifier(TRANSFORM_TAG),
-              undefined,
-              [ts.factory.createStringLiteral(stringLiteral.text)],
-            );
+        // if (ts.isBinaryExpression(node)) {
+        //   const { left, right, operatorToken } = node;
+        //   const stringLiteral = ts.isStringLiteral(left) ? left : ts.isStringLiteral(right) ? right : null;
 
-            let newLeft = left;
-            let newRight = right;
+        //   if (stringLiteral && tagNames.includes(stringLiteral.text)) {
+        //     const transformedLiteral = ts.factory.createCallExpression(
+        //       ts.factory.createIdentifier(TRANSFORM_TAG),
+        //       undefined,
+        //       [ts.factory.createStringLiteral(stringLiteral.text)],
+        //     );
 
-            if (stringLiteral === left) {
-              newLeft = transformedLiteral;
-            } else {
-              newRight = transformedLiteral;
-            }
+        //     let newLeft = left;
+        //     let newRight = right;
 
-            newNode = ts.factory.updateBinaryExpression(node, newLeft, operatorToken, newRight);
-          }
-        }
+        //     if (stringLiteral === left) {
+        //       newLeft = transformedLiteral;
+        //     } else {
+        //       newRight = transformedLiteral;
+        //     }
+
+        //     newNode = ts.factory.updateBinaryExpression(node, newLeft, operatorToken, newRight);
+        //   }
+        // }
 
         return ts.visitEachChild(newNode, visitNode, transformCtx);
       };
