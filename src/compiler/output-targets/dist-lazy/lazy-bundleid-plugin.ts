@@ -37,6 +37,20 @@ export const lazyBundleIdPlugin = (
     async generateBundle(_, bundle) {
       const files = Object.entries<OutputChunk>(bundle as any);
       const map = new Map<string, string>();
+      const filesToDelete: string[] = [];
+
+      // For browser builds, loader entries are skipped by writeLazyEntry
+      // So we need to delete their sourcemaps to avoid orphaned files
+      if (suffix && config.sourceMap) {
+        for (const [key, file] of files) {
+          if (file.type === 'chunk' && file.isEntry && file.name === 'loader') {
+            const mapFileName = key + '.map';
+            if (bundle[mapFileName]) {
+              filesToDelete.push(mapFileName);
+            }
+          }
+        }
+      }
 
       for (const [_key, file] of files) {
         if (!file.isEntry) continue;
@@ -44,7 +58,16 @@ export const lazyBundleIdPlugin = (
         const entryModule = buildCtx.entryModules.find((em) => em.entryKey === file.name);
         if (!entryModule) continue;
 
-        map.set(file.fileName, (await getBundleId(file.name, file.code, suffix)) + '.entry.js');
+        const newFileName = (await getBundleId(file.name, file.code, suffix)) + '.entry.js';
+        map.set(file.fileName, newFileName);
+
+        // If we're renaming the file, mark the old sourcemap for deletion
+        if (file.fileName !== newFileName && config.sourceMap) {
+          const oldMapFileName = file.fileName + '.map';
+          if (bundle[oldMapFileName]) {
+            filesToDelete.push(oldMapFileName);
+          }
+        }
       }
 
       if (!map.size) return;
@@ -52,8 +75,11 @@ export const lazyBundleIdPlugin = (
       for (const [_key, file] of files) {
         if (!file.isEntry) continue;
 
-        file.facadeModuleId = map.get(file.fileName) || file.facadeModuleId;
-        file.fileName = map.get(file.fileName) || file.fileName;
+        const newFileName = map.get(file.fileName);
+        if (!newFileName) continue;
+
+        file.facadeModuleId = newFileName;
+        file.fileName = newFileName;
 
         const magicString = new MagicString(file.code);
 
@@ -69,6 +95,11 @@ export const lazyBundleIdPlugin = (
         if (config.sourceMap) {
           file.map = magicString.generateMap();
         }
+      }
+
+      // Delete orphaned sourcemap files
+      for (const fileName of filesToDelete) {
+        delete bundle[fileName];
       }
     },
   };

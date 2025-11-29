@@ -1,0 +1,57 @@
+name: 'Stencil Release'
+
+on:
+  schedule:
+    # Run every Monday-Friday at 5:00 AM (UTC)
+    - cron: '00 05 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Which Stencil release workflow should run?'
+        required: true
+        type: choice
+        default: nightly
+        options:
+          - dev
+          - nightly
+          - production
+      tag:
+        description: 'npm tag for production releases.'
+        required: false
+        type: choice
+        default: latest
+        options:
+          - dev
+          - latest
+          - use_pkg_json_version
+      base:
+        description: 'Base branch for production releases.'
+        required: false
+        type: choice
+        default: main
+        options:
+          - main
+          - v3-maintenance
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  run-nightly:
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.release-type == 'nightly') }}
+    uses: ./.github/workflows/release-nightly.yml
+    secrets: inherit
+
+  run-dev:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release-type == 'dev' }}
+    uses: ./.github/workflows/release-dev.yml
+    secrets: inherit
+
+  run-production:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release-type == 'production' }}
+    uses: ./.github/workflows/release-production.yml
+    secrets: inherit
+    with:
+      tag: ${{ inputs.tag }}
+      base: ${{ inputs.base }}
