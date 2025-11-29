@@ -22,9 +22,6 @@ describe('attribute-host', () => {
     await expect(elm).not.toHaveAttribute('no-attr');
 
     let defaultBorderColor = getComputedStyle(document.body).borderColor.replaceAll(' ', '');
-    if (browser.isChromium) {
-      defaultBorderColor = defaultBorderColor.replace('rgb(', 'rgba(').replace(')', ',1)');
-    }
     await expect(elm).toHaveStyle({
       // get default border color from body element as it might differ between different OS
       'border-color': defaultBorderColor,
@@ -42,7 +39,7 @@ describe('attribute-host', () => {
     await button.click();
 
     await expect(elm).toHaveStyle({
-      'border-color': browser.isChromium ? 'rgba(0,0,0,1)' : 'rgb(0,0,0)',
+      'border-color': 'rgb(0,0,0)',
       display: 'block',
       'font-size': '24px',
     });
@@ -78,7 +75,7 @@ describe('attribute-host', () => {
     await button.click();
 
     await expect(elm).toHaveStyle({
-      'border-color': browser.isChromium ? 'rgba(0,0,0,1)' : 'rgb(0,0,0)',
+      'border-color': 'rgb(0,0,0)',
       display: 'block',
       'font-size': '24px',
     });
