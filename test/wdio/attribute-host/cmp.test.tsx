@@ -21,7 +21,7 @@ describe('attribute-host', () => {
     await expect(elm).not.toHaveAttribute('color');
     await expect(elm).not.toHaveAttribute('no-attr');
 
-    let defaultBorderColor = getComputedStyle(document.body).borderColor.replaceAll(' ', '');
+    const defaultBorderColor = getComputedStyle(document.body).borderColor.replaceAll(' ', '');
     await expect(elm).toHaveStyle({
       // get default border color from body element as it might differ between different OS
       'border-color': defaultBorderColor,

@@ -2,7 +2,6 @@ import './variables.css';
 
 import { Fragment, h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
-import { browser } from '@wdio/globals';
 
 const css = `:root {
   --global-background: black;
