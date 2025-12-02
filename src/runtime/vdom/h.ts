@@ -8,7 +8,7 @@
  */
 
 import { BUILD } from '@app-data';
-import { consoleDevError, consoleDevWarn } from '@platform';
+import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
 import { isComplexType } from '@utils';
 
 import type * as d from '../../declarations';
@@ -16,6 +16,9 @@ import type * as d from '../../declarations';
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, child?: d.ChildType): d.VNode;
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;
 export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.VNode => {
+  if (typeof nodeName === 'string') {
+    nodeName = transformTag(nodeName);
+  }
   let child = null;
   let key: string = null;
   let slotName: string = null;

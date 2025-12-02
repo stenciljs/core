@@ -37,9 +37,10 @@ export const updateNativeComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ): ts.ClassDeclaration | ts.VariableStatement => {
   const withHeritageClauses = updateNativeHostComponentHeritageClauses(classNode, moduleFile);
-  const members = updateNativeHostComponentMembers(transformOpts, withHeritageClauses, moduleFile, cmp);
+  const members = updateNativeHostComponentMembers(transformOpts, withHeritageClauses, moduleFile, cmp, buildCtx);
   return updateComponentClass(transformOpts, withHeritageClauses, withHeritageClauses.heritageClauses, members);
 };
 
@@ -139,6 +140,7 @@ const updateNativeHostComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ): ts.ClassElement[] => {
   const classMembers = removeStaticMetaProperties(classNode);
 
@@ -154,7 +156,7 @@ const updateNativeHostComponentMembers = (
   }
 
   if (transformOpts.style === 'static') {
-    addNativeStaticStyle(classMembers, cmp);
+    addNativeStaticStyle(classMembers, cmp, buildCtx);
   }
 
   transformHostData(classMembers, moduleFile);

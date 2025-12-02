@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { getHostRef, plt, registerHost, supportsShadow, win } from '@platform';
+import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
 import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
 
@@ -94,10 +94,11 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
         cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
       }
+      // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove `BUILD.transformTagName` & `transformTagName` in 5.0
       const tagName =
         BUILD.transformTagName && options.transformTagName
           ? options.transformTagName(cmpMeta.$tagName$)
-          : cmpMeta.$tagName$;
+          : transformTag(cmpMeta.$tagName$);
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];
