@@ -36,9 +36,7 @@ export const loadModule = (
   const dynamicImportPath = `./${bundleId}.entry.js${hmr}`;
   return import(
     /* @vite-ignore */
-    /* webpackInclude: /\.entry\.js$/ */
-    /* webpackExclude: /\.system\.entry\.js$/ */
-    /* webpackMode: "lazy" */
+    /* webpackIgnore: true */
     dynamicImportPath
   ).then(
     (importedModule) => {
