@@ -371,8 +371,14 @@ interface ConfigExtrasBase {
   /**
    * Enables the tagNameTransform option of `defineCustomElements()`, so the component tagName
    * can be customized at runtime. Defaults to `false`.
+   * @deprecated This option has been deprecated in favour of `setTagTransformer` and `transformTag`. It will be removed in a future major version of Stencil.
    */
   tagNameTransform?: boolean;
+
+  /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean | 'prod';
 
   // TODO(STENCIL-1086): remove this option when it's the default behavior
   /**
@@ -3017,6 +3023,14 @@ export interface TranspileOptions {
    * `tsconfig.json` to relative paths.
    */
   transformAliasedImportPaths?: boolean;
+  /**
+   * List of tags to transform, by default only the incoming component tag is transformed
+   */
+  tagsToTransform?: string[];
+  /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean;
 }
 
 export type CompileTarget =

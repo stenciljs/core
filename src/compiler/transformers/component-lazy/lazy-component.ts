@@ -28,8 +28,9 @@ export const updateLazyComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ): ts.VariableStatement | ts.ClassDeclaration => {
-  const members = updateLazyComponentMembers(transformOpts, styleStatements, classNode, moduleFile, cmp);
+  const members = updateLazyComponentMembers(transformOpts, styleStatements, classNode, moduleFile, cmp, buildCtx);
   return updateComponentClass(transformOpts, classNode, classNode.heritageClauses, members);
 };
 
@@ -49,6 +50,7 @@ const updateLazyComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
+  buildCtx: d.BuildCtx,
 ): ts.ClassElement[] => {
   const classMembers = removeStaticMetaProperties(classNode);
 
@@ -60,7 +62,7 @@ const updateLazyComponentMembers = (
   transformHostData(classMembers, moduleFile);
 
   if (transformOpts.style === 'static') {
-    addStaticStylePropertyToClass(styleStatements, cmp);
+    addStaticStylePropertyToClass(styleStatements, cmp, buildCtx);
   }
 
   return classMembers;

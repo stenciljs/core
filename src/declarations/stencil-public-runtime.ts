@@ -448,6 +448,30 @@ export declare function readTask(task: RafCallback): void;
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
 
+export type TagTransformer = (tag: string) => string;
+
+/**
+ * Sets a tag transformer to be used when rendering your custom elements.
+ * ```ts
+ * setTagTransformer((tag) => {
+ *  if (tag.startsWith('my-')) return `new-${tag}`
+ *  return tag;
+ * });
+ * ```
+ * Will mean all your components that start with `my-` are defined instead with `new-my-` prefix.
+ *
+ * @param transformer the transformer function to use which must return a string.
+ */
+export declare function setTagTransformer(transformer: TagTransformer): void;
+
+/**
+ * Transforms a tag name using a transformer set via `setTagTransformer`
+ *
+ * @param tag - the tag to transform e.g. `my-tag`
+ * @returns the transformed tag e.g. `new-my-tag`
+ */
+export declare function transformTag(tag: string): string;
+
 /**
  * @deprecated - Use `MixedInCtor` instead:
  * ```ts
@@ -1985,6 +2009,7 @@ export interface CustomElementsDefineOptions {
   exclude?: string[];
   resourcesUrl?: string;
   syncQueue?: boolean;
+  /** @deprecated in-favour of `setTagTransformer` and `transformTag` */
   transformTagName?: (tagName: string) => string;
   jmp?: (c: Function) => any;
   raf?: (c: FrameRequestCallback) => number;

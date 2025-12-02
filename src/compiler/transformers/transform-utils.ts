@@ -7,6 +7,11 @@ import { StencilStaticGetter } from './decorators-to-static/decorators-constants
 import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
+import postcss from 'postcss';
+// @ts-expect-error - including `@types` for postcss-safe-parser breaks Stencil's type build
+import postcssSafeParser from 'postcss-safe-parser';
+import postcssSelectorParser from 'postcss-selector-parser';
+import { TRANSFORM_TAG } from './core-runtime-apis';
 
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup
@@ -1323,4 +1328,105 @@ export function getExternalStyles(style: d.StyleCompiler) {
        */
       .reverse()
   );
+}
+
+/**
+ * Adds tag transformation to a CSS string.
+ * Turns `tag-name { ... }` into `${tagTransform('tag-name')} { ... }`
+ *
+ * @param cssCode The CSS code to transform.
+ * @param tagNames The tag names to transform.
+ * @returns The transformed CSS code.
+ */
+export function addTagTransformToCssString(cssCode: string, tagNames: string[]): string {
+  const result = postcss([
+    (root: postcss.Root) => {
+      root.walkRules((rule) => {
+        rule.selectors = rule.selectors.map((sel) => {
+          const parsedSelector = postcssSelectorParser().astSync(sel) as any;
+          parsedSelector.walkTags((tag: any) => {
+            if (tagNames.includes(tag.value)) {
+              tag.value = '${' + TRANSFORM_TAG + '("' + tag.value + '")}';
+            }
+          });
+          return parsedSelector.toString();
+        });
+      });
+    },
+  ]).process(cssCode, { parser: postcssSafeParser });
+  return result.css;
+}
+
+/**
+ * Transforms CSS code into a TypeScript AST TemplateExpression or NoSubstitutionTemplateLiteral,
+ * replacing specified tag names with `tagTransform("tag-name")` calls.
+ * Turns `tag-name { ... }` into `${tagTransform('tag-name')} { ... }`
+ *
+ * @param cssCode The CSS code to transform.
+ * @param tagNames The tag names to transform.
+ * @returns The transformed CSS code.
+ */
+export function addTagTransformToCssTsAST(
+  cssCode: string,
+  tagNames: string[],
+): ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral {
+  const placeholders: string[] = [];
+
+  const processor = postcss([
+    (root: postcss.Root) => {
+      root.walkRules((rule) => {
+        // parse the selector and replace tag nodes with placeholders
+        const parsed = postcssSelectorParser().astSync(rule.selector);
+        parsed.walkTags((tagNode: any) => {
+          if (tagNames.includes(tagNode.value)) {
+            const idx = placeholders.length;
+            const token = `___EXPR_${idx}___`;
+            placeholders.push(tagNode.value);
+            tagNode.value = token;
+          }
+        });
+
+        // overwrite the rule.selector with the selector that contains tokens
+        rule.selector = parsed.toString();
+      });
+    },
+  ]);
+
+  // populate selector placeholders
+  const transformed = processor.process(cssCode, { parser: postcssSafeParser }).css;
+
+  if (placeholders.length === 0) {
+    // no tag names found, return as-is
+    return ts.factory.createNoSubstitutionTemplateLiteral(transformed);
+  }
+
+  // Split by placeholder tokens, preserving the index number ([literal, idx, literal, idx, literal...])
+  const splitParts = transformed.split(/___EXPR_(\d+)___/);
+  const firstLiteral = splitParts[0] ?? '';
+
+  // Build spans array
+  const spans: ts.TemplateSpan[] = [];
+  for (let i = 1; i < splitParts.length; i += 2) {
+    const idxStr = splitParts[i];
+    const literalAfter = splitParts[i + 1] ?? '';
+
+    const exprIndex = Number(idxStr);
+    const tagName = placeholders[exprIndex];
+    // build call expression: tagTransform("tag-name")
+    const expr = ts.factory.createCallExpression(ts.factory.createIdentifier(TRANSFORM_TAG), undefined, [
+      ts.factory.createStringLiteral(tagName),
+    ]);
+
+    // Determine if this span is the last span -> TemplateTail else TemplateMiddle
+    const isLastSpan = i + 1 >= splitParts.length - 1;
+    const literalNode = isLastSpan
+      ? ts.factory.createTemplateTail(literalAfter)
+      : ts.factory.createTemplateMiddle(literalAfter);
+
+    spans.push(ts.factory.createTemplateSpan(expr, literalNode));
+  }
+
+  // Create TemplateHead from firstLiteral and return TemplateExpression
+  const head = ts.factory.createTemplateHead(firstLiteral);
+  return ts.factory.createTemplateExpression(head, spans);
 }

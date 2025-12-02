@@ -139,9 +139,9 @@ export const transpileModule = (
   }
 
   if (transformOpts.componentExport === 'customelement' || transformOpts.componentExport === 'module') {
-    transformers.after.push(nativeComponentTransform(compilerCtx, transformOpts));
+    transformers.after.push(nativeComponentTransform(compilerCtx, transformOpts, buildCtx));
   } else {
-    transformers.after.push(lazyComponentTransform(compilerCtx, transformOpts));
+    transformers.after.push(lazyComponentTransform(compilerCtx, transformOpts, buildCtx));
   }
 
   program.emit(undefined, undefined, undefined, false, transformers);

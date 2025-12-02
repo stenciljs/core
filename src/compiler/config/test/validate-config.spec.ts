@@ -405,8 +405,58 @@ describe('validation', () => {
     expect(config.extras.slotChildNodesFix).toBe(false);
     expect(config.extras.initializeNextTick).toBe(false);
     expect(config.extras.tagNameTransform).toBe(false);
+    expect(config.extras.additionalTagTransformers).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
     expect(config.extras.addGlobalStyleToComponents).toBe(true);
+    expect(config.extras.additionalTagTransformers).toBe(false);
+  });
+
+  describe('extras.additionalTagTransformers', () => {
+    it('set extras.additionalTagTransformers false', () => {
+      userConfig.extras = { additionalTagTransformers: false };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
+
+    it('set extras.additionalTagTransformers true', () => {
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('set extras.additionalTagTransformers true, dev mode', () => {
+      userConfig.devMode = true;
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('prod mode, set extras.additionalTagTransformers', () => {
+      userConfig.devMode = false;
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('build extras.additionalTagTransformers when set to "prod" and in prod', () => {
+      userConfig.devMode = false;
+      userConfig.extras = { additionalTagTransformers: 'prod' };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('do not build extras.additionalTagTransformers when set to "prod" and in dev', () => {
+      userConfig.devMode = true;
+      userConfig.extras = { additionalTagTransformers: 'prod' };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
+
+    it('prod mode default to only modern and not extras.additionalTagTransformers', () => {
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
   });
 
   it('should set slot config based on `experimentalSlotFixes`', () => {
