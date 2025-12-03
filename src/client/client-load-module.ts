@@ -5,6 +5,24 @@ import { consoleDevError, consoleError } from './client-log';
 
 export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();
 
+/**
+ * We need to separate out this prefix so that Esbuild doesn't try to resolve
+ * the below, but instead retains a dynamic `import()` statement in the
+ * emitted code.
+ *
+ * See here for details https://esbuild.github.io/api/#non-analyzable-imports
+ *
+ * We need to do this in order to prevent Esbuild from analyzing / transforming
+ * the input. However some _other_ bundlers will _not_ work with such an import
+ * if it _lacks_ a leading `"./"`, so we thus we have to do a little dance
+ * where here in the source code it must be like this, so that an undesirable
+ * transformation that Esbuild would otherwise carry out doesn't occur, but we
+ * actually need to then manually edit the bundled Esbuild code later on to fix
+ * that. We do this with plugins in the Esbuild and Rollup bundles which
+ * include this file.
+ */
+const MODULE_IMPORT_PREFIX = './';
+
 export const loadModule = (
   cmpMeta: d.ComponentRuntimeMeta,
   hostRef: d.HostRef,
@@ -26,20 +44,14 @@ export const loadModule = (
     return module[exportName];
   }
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
-
-  /**
-   * Esbuild will try to statically match a path string inside an import statement.
-   * By putting dynamicImportPath into a variable, it can stay dynamic.
-   * For details: https://esbuild.github.io/api/#non-analyzable-imports
-   */
-  const hmr = BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : '';
-  const dynamicImportPath = `./${bundleId}.entry.js${hmr}`;
   return import(
     /* @vite-ignore */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    dynamicImportPath
+    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${
+      BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''
+    }`
   ).then(
     (importedModule) => {
       if (!BUILD.hotModuleReplacement) {
