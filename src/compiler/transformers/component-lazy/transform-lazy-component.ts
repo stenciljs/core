@@ -37,7 +37,12 @@ export const lazyComponentTransform = (
 
           if (cmp != null) {
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
-          } else if (module?.isMixin) {
+          } else if (
+            module?.isMixin ||
+            // because (during spec tests) *only* the component class is added as a module
+            // let's tidy up all class nodes in testing mode
+            buildCtx.config._isTesting
+          ) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           }
         }
