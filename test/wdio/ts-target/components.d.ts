@@ -226,11 +226,6 @@ export namespace Components {
         "getMethodCallLog": () => Promise<string[]>;
         /**
           * Method that will conflict with
-          * @default 'component prop value'
-         */
-        "mixedMethodName": string;
-        /**
-          * Method that will conflict with
           * @Prop in component
          */
         "mixedMethodName": () => Promise<string>;
@@ -852,11 +847,6 @@ declare namespace LocalJSX {
           * @default 'base only prop value'
          */
         "baseOnlyProp"?: string;
-        /**
-          * Method that will conflict with
-          * @default 'component prop value'
-         */
-        "mixedMethodName"?: string;
         /**
           * @default 'base prop value'
          */

@@ -9,7 +9,6 @@ import { setupIFrameTest } from '../../util.js';
  * Features:
  * - @Prop in Base, @State in Component (mixedName)
  * - @State in Base, @Prop in Component (mixedStateName)
- * - @Method in Base, @Prop in Component (mixedMethodName)
  * - Runtime behavior verification
  */
 
@@ -155,88 +154,18 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       });
     });
 
-    describe('@Method in Base, @Prop in Component (mixedMethodName)', () => {
-      it('component @Prop initial value is used (not base @Method)', async () => {
-        const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-
-        expect(mixedMethodName?.textContent).toContain('Mixed Method Name: component prop value');
-        expect(mixedMethodName?.textContent).not.toContain('base method');
-      });
-
-      it('component @Prop conflicts with base @Method - attribute updates may not work', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators');
-        component?.setAttribute('mixed-method-name', 'updated via attribute');
-
-        // Wait to see if update occurs
-        await browser
-          .waitUntil(
-            () => {
-              const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-              return mixedMethodName?.textContent?.includes('updated via attribute');
-            },
-            { timeout: 3000 },
-          )
-          .catch(() => {
-            // If update doesn't occur, document this as runtime behavior
-            const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-            // Verify initial value is still present (conflict prevents update)
-            expect(mixedMethodName?.textContent).toContain('component prop value');
-          });
-      });
-
-      it('base @Method conflicts with component @Prop - property is read-only', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
-
-        // Verify component @Prop initial value is used (not base @Method)
-        const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-        expect(mixedMethodName?.textContent).toContain('component prop value');
-        expect(mixedMethodName?.textContent).not.toContain('base method');
-
-        // Document that base @Method makes property read-only
-        // This is the actual runtime behavior being tested
-        let assignmentFailed = false;
-        try {
-          component.mixedMethodName = 'updated via property';
-        } catch (e) {
-          assignmentFailed = true;
-        }
-        expect(assignmentFailed).toBe(true);
-      });
-
-      it('base @Method takes precedence - property cannot be assigned', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
-
-        // Verify initial value shows component prop
-        const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-        expect(mixedMethodName?.textContent).toContain('component prop value');
-
-        // Verify base @Method prevents property assignment
-        // This documents the runtime conflict behavior
-        let assignmentFailed = false;
-        try {
-          component.mixedMethodName = 'prop behavior verified';
-        } catch (e) {
-          assignmentFailed = true;
-        }
-        expect(assignmentFailed).toBe(true);
-      });
-    });
-
     describe('Runtime Behavior', () => {
       it('only one version exists in final component (component decorator type wins)', async () => {
         const mixedName = frameContent.querySelector('.mixed-name-value');
         const mixedStateName = frameContent.querySelector('.mixed-state-name-value');
-        const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
 
         // Verify component decorator types are active (not base)
         expect(mixedName?.textContent).toContain('component state value');
         expect(mixedStateName?.textContent).toContain('component prop value');
-        expect(mixedMethodName?.textContent).toContain('component prop value');
 
         // Verify base values are not present
         expect(mixedName?.textContent).not.toContain('base prop value');
         expect(mixedStateName?.textContent).not.toContain('base state value');
-        expect(mixedMethodName?.textContent).not.toContain('base method');
       });
 
       it('winning decorator types behave correctly', async () => {
@@ -267,15 +196,6 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
             const updated = frameContent.querySelector('.mixed-state-name-value');
             expect(updated?.textContent).toContain('component prop value');
           });
-
-        // Test @Prop behavior (mixedMethodName) - conflicts with base @Method
-        let assignmentFailed = false;
-        try {
-          component.mixedMethodName = 'prop method override verified';
-        } catch (e) {
-          assignmentFailed = true;
-        }
-        expect(assignmentFailed).toBe(true);
       });
 
       it('non-conflicting base decorators remain accessible', async () => {
@@ -324,21 +244,12 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       expect(mixedStateName?.textContent).not.toContain('base state value');
     });
 
-    it('component @Prop overrides base @Method in custom elements build', async () => {
-      const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
-
-      expect(mixedMethodName?.textContent).toContain('Mixed Method Name: component prop value');
-      expect(mixedMethodName?.textContent).not.toContain('base method');
-    });
-
     it('component decorator types take precedence in custom elements build', async () => {
       const mixedName = frameContent.querySelector('.mixed-name-value');
       const mixedStateName = frameContent.querySelector('.mixed-state-name-value');
-      const mixedMethodName = frameContent.querySelector('.mixed-method-name-value');
 
       expect(mixedName?.textContent).toContain('component state value');
       expect(mixedStateName?.textContent).toContain('component prop value');
-      expect(mixedMethodName?.textContent).toContain('component prop value');
     });
   });
 });

@@ -23,10 +23,6 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
   // Base has @State, component has @Prop - component @Prop should override base @State
   @Prop() mixedStateName: string = 'component prop value';
 
-  // Base has @Method, component has @Prop - component @Prop should override base @Method
-  // @ts-expect-error - Intentional mixed decorator type conflict for testing runtime behavior
-  @Prop() mixedMethodName: string = 'component prop value';
-
   // Component-specific properties for comparison
   @State() componentOnlyState: string = 'component only state';
 
@@ -63,12 +59,6 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
           <p class="mixed-state-name-type">Expected: component prop value (component @Prop overrides base @State)</p>
         </div>
 
-        <div class="method-prop-conflict">
-          <h3>@Method in Base, @Prop in Component (mixedMethodName)</h3>
-          <p class="mixed-method-name-value">Mixed Method Name: {this.mixedMethodName}</p>
-          <p class="mixed-method-name-type">Expected: component prop value (component @Prop overrides base @Method)</p>
-        </div>
-
         <div class="base-only-props">
           <h3>Base-Only Properties (Not Conflicted)</h3>
           <p class="base-only-prop-value">Base Only Prop: {this.baseOnlyProp}</p>
@@ -93,7 +83,7 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
         </div>
 
         <div class="test-info">
-          <p>Features: @Prop/@State conflicts | @State/@Prop conflicts | @Method/@Prop conflicts | Runtime behavior</p>
+          <p>Features: @Prop/@State conflicts | @State/@Prop conflicts | Runtime behavior</p>
         </div>
       </div>
     );
