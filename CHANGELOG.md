@@ -10,7 +10,7 @@
 ### Features
 
 * **runtime:** tag transformation - ([#6211](https://github.com/stenciljs/core/issues/6211)) ([be7d73e](https://github.com/stenciljs/core/commit/be7d73e695cfae678dacf8d6b3a1b42e967e8417))
-* **compiler:** variables as decorators arguments - ([#6360](https://github.com/stenciljs/core/issues/6360)) ([fa9a025](https://github.com/stenciljs/core/commit/fa9a025ac584997a702483ef53f2b6125c9d196e))
+* **compiler:** variables as decorators arguments - ([#6451](https://github.com/stenciljs/core/issues/6451)) ([fa9a025](https://github.com/stenciljs/core/commit/fa9a025ac584997a702483ef53f2b6125c9d196e))
   
 
 ## 😋 [4.38.3](https://github.com/stenciljs/core/compare/v4.38.2...v4.38.3) (2025-11-05)
