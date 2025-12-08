@@ -1,4 +1,4 @@
-import { ComponentInterface } from "@stencil/core";
+import { ComponentInterface } from '@stencil/core';
 
 export interface ReactiveController {
   hostConnected?(): void;
@@ -54,4 +54,3 @@ export class ReactiveControllerHost implements ComponentInterface {
     this.controllers.forEach((controller) => controller.hostDidUpdate?.());
   }
 }
-

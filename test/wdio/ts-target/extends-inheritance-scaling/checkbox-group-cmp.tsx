@@ -8,13 +8,13 @@ export class CheckboxGroupCmp extends FormFieldBase {
   @Element() el!: HTMLElement;
   @State() values: string[] = [];
   @State() helperText: string = 'Select at least one option';
-  
+
   @Event() valueChange!: EventEmitter<string[]>;
-  
+
   private inputId = `checkbox-group-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
   private errorTextId = `${this.inputId}-error-text`;
-  
+
   constructor() {
     super();
     // Set up validation callback
@@ -25,50 +25,45 @@ export class CheckboxGroupCmp extends FormFieldBase {
       return undefined;
     });
   }
-  
+
   componentDidLoad() {
     super.componentDidLoad();
   }
-  
+
   disconnectedCallback() {
     super.disconnectedCallback();
   }
-  
+
   private handleChange = (e: Event) => {
     const checkbox = e.target as HTMLInputElement;
     const value = checkbox.value;
-    
+
     if (checkbox.checked) {
       this.values = [...this.values, value];
     } else {
-      this.values = this.values.filter(v => v !== value);
+      this.values = this.values.filter((v) => v !== value);
     }
-    
+
     this.valueChange.emit(this.values);
     this.validate(this.values);
   };
-  
+
   private onFocus = () => {
     this.handleFocusEvent();
   };
-  
+
   private onBlur = () => {
     this.handleBlurEvent(this.values);
   };
-  
+
   render() {
     const focusState = this.getFocusState();
     const validationData = this.getValidationMessageData(this.helperTextId, this.errorTextId);
-    
+
     return (
       <div class="checkbox-group-container">
         <label>Select Options</label>
-        <div 
-          class="checkbox-group"
-          tabindex="0"
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        >
+        <div class="checkbox-group" tabindex="0" onFocus={this.onFocus} onBlur={this.onBlur}>
           <label>
             <input
               type="checkbox"
@@ -108,12 +103,10 @@ export class CheckboxGroupCmp extends FormFieldBase {
           </div>
         )}
         <div class="focus-info">
-          Focused: {focusState.isFocused ? 'Yes' : 'No'} | 
-          Focus Count: {focusState.focusCount} | 
-          Blur Count: {focusState.blurCount}
+          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} | Blur Count:{' '}
+          {focusState.blurCount}
         </div>
       </div>
     );
   }
 }
-

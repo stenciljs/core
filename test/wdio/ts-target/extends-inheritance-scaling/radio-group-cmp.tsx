@@ -8,13 +8,13 @@ export class RadioGroupCmp extends FormFieldBase {
   @Element() el!: HTMLElement;
   @State() value: string | undefined = undefined;
   @State() helperText: string = 'Select an option';
-  
+
   @Event() valueChange!: EventEmitter<string>;
-  
+
   private inputId = `radio-group-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
   private errorTextId = `${this.inputId}-error-text`;
-  
+
   constructor() {
     super();
     // Set up validation callback
@@ -25,15 +25,15 @@ export class RadioGroupCmp extends FormFieldBase {
       return undefined;
     });
   }
-  
+
   componentDidLoad() {
     super.componentDidLoad();
   }
-  
+
   disconnectedCallback() {
     super.disconnectedCallback();
   }
-  
+
   private handleChange = (e: Event) => {
     const radio = e.target as HTMLInputElement;
     if (radio.checked) {
@@ -42,28 +42,23 @@ export class RadioGroupCmp extends FormFieldBase {
       this.validate(this.value);
     }
   };
-  
+
   private onFocus = () => {
     this.handleFocusEvent();
   };
-  
+
   private onBlur = () => {
     this.handleBlurEvent(this.value);
   };
-  
+
   render() {
     const focusState = this.getFocusState();
     const validationData = this.getValidationMessageData(this.helperTextId, this.errorTextId);
-    
+
     return (
       <div class="radio-group-container">
         <label>Select Option</label>
-        <div 
-          class="radio-group"
-          tabindex="0"
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        >
+        <div class="radio-group" tabindex="0" onFocus={this.onFocus} onBlur={this.onBlur}>
           <label>
             <input
               type="radio"
@@ -103,12 +98,10 @@ export class RadioGroupCmp extends FormFieldBase {
           </div>
         )}
         <div class="focus-info">
-          Focused: {focusState.isFocused ? 'Yes' : 'No'} | 
-          Focus Count: {focusState.focusCount} | 
-          Blur Count: {focusState.blurCount}
+          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} | Blur Count:{' '}
+          {focusState.blurCount}
         </div>
       </div>
     );
   }
 }
-

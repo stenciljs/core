@@ -2,6 +2,7 @@ import { browser, expect } from '@wdio/globals';
 import { setupIFrameTest } from '../../util.js';
 
 /**
+ * Test Case #12a - Direct State Management
  * Tests for direct state management via extends. Built with
  * `tsconfig-es2022.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
  *
@@ -9,7 +10,7 @@ import { setupIFrameTest } from '../../util.js';
  * without needing requestUpdate patterns like Lit's ClockController
  */
 
-describe('Test Case #4 – Direct State Management (Simplified Pattern)', () => {
+describe('Test Case #12a – Direct State Management (Simplified Pattern)', () => {
   describe('es2022 dist output', () => {
     let frameContent: HTMLElement;
 

@@ -6,6 +6,7 @@ import { setupIFrameTest } from '../../util.js';
  * with automatic lifecycle hooking. Built with
  * `tsconfig-es2022.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
  *
+ * Test Case #14 - ReactiveControllerHost Pattern
  * This verifies that:
  * 1. Controllers are automatically called during lifecycle events
  * 2. Controllers can trigger component updates via requestUpdate()
@@ -13,7 +14,7 @@ import { setupIFrameTest } from '../../util.js';
  * 4. No super() calls needed for controller lifecycle methods
  */
 
-describe('Test Case – ReactiveControllerHost Pattern', () => {
+describe('Test Case #14 – ReactiveControllerHost Pattern', () => {
   describe('es2022 dist output', () => {
     let frameContent: HTMLElement;
 

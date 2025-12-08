@@ -1,6 +1,6 @@
 /**
  * FormFieldBase - combines ValidationControllerMixin and FocusControllerMixin
- * 
+ *
  * This base class demonstrates how multiple controllers can be combined
  * via Mixin (multiple inheritance). Components can extend this to get both
  * validation and focus management functionality.
@@ -14,10 +14,9 @@ export abstract class FormFieldBase extends Mixin(ValidationControllerMixin, Foc
   handleFocusEvent() {
     this.handleFocus(); // From FocusControllerMixin
   }
-  
+
   handleBlurEvent(value: any) {
     this.handleBlur(); // From FocusControllerMixin (no params)
     this.validate(value); // From ValidationControllerMixin
   }
 }
-
