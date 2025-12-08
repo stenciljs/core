@@ -4,7 +4,7 @@ import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
+import { getComponentMeta, getModuleFromSourceFile, updateConstructor, updateMixin } from '../transform-utils';
 import { updateLazyComponentClass } from './lazy-component';
 
 /**
@@ -37,13 +37,12 @@ export const lazyComponentTransform = (
 
           if (cmp != null) {
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
-          } else if (
-            module?.isMixin ||
+          } else if (module?.isMixin) {
+            return updateMixin(node, moduleFile, cmp, transformOpts);
+          } else if (buildCtx.config._isTesting && buildCtx.config.flags.spec) {
             // because (during spec tests) *only* the component class is added as a module
             // let's tidy up all class nodes in testing mode
-            buildCtx.config._isTesting
-          ) {
-            return updateMixin(node, moduleFile, cmp, transformOpts);
+            return updateConstructor(node, Array.from(node.members), [], []);
           }
         }
         return ts.visitEachChild(node, visitNode, transformCtx);

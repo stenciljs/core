@@ -131,8 +131,6 @@ function resolveAndProcessExtendedClass(
     keepLooking = false;
   }
 
-  console.log('Found class declaration:', !!foundClassDeclaration, !!matchedStatement);
-
   if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
     // 3) if we found the class declaration, push it and check if it itself extends from another class
     dependentClasses.push({
