@@ -1139,6 +1139,8 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
 
 /**
  * Helper util for updating the constructor on a class declaration AST node.
+ * - Adds a `super()` call if needed
+ * - Merges in any provided statements into the constructor body
  *
  * @param classNode the class node whose constructor will be updated
  * @param classMembers a list of class members for that class
@@ -1161,6 +1163,7 @@ export const updateConstructor = (
 
   if (constructorIndex < 0 && !statements?.length && !needsSuper(classNode)) return classMembers;
 
+  // we have a constructor; let's update it
   if (constructorIndex >= 0 && ts.isConstructorDeclaration(constructorMethod)) {
     const constructorBodyStatements = constructorMethod.body?.statements;
     let foundSuperCall = foundSuper(constructorBodyStatements);
@@ -1192,7 +1195,7 @@ export const updateConstructor = (
     classMembers[constructorIndex] = ts.factory.updateConstructorDeclaration(
       constructorMethod,
       retrieveTsModifiers(constructorMethod),
-      constructorMethod.parameters.concat(parameters ?? []),
+      [...[...(parameters ?? []), ...constructorMethod.parameters]],
       ts.factory.updateBlock(constructorMethod?.body ?? ts.factory.createBlock([]), statements),
     );
   } else {
