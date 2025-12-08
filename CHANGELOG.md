@@ -1,3 +1,18 @@
+# 🎭 [4.39.0](https://github.com/stenciljs/core/compare/v4.38.3...v4.39.0) (2025-12-08)
+
+
+### Bug Fixes
+
+* **lazyBundleIdPlugin:** fixed the issue with creation of orphaned '.map' files in the distribution directory ([#6455](https://github.com/stenciljs/core/issues/6455)) ([7155fe8](https://github.com/stenciljs/core/commit/7155fe8776fe25c6557188929c5a7e04f0212e97))
+* **mixin:** allow `args` as a ctor argument & fix super call order during spec tests ([#6467](https://github.com/stenciljs/core/issues/6467)) ([afa4c2d](https://github.com/stenciljs/core/commit/afa4c2d7e4cf3efa937d9e187478d1ee508bfe4c))
+
+
+### Features
+
+* **runtime:** tag transformation - ([#6211](https://github.com/stenciljs/core/issues/6211)) ([be7d73e](https://github.com/stenciljs/core/commit/be7d73e695cfae678dacf8d6b3a1b42e967e8417))
+* **compiler:** variables as decorators arguments - ([#6451](https://github.com/stenciljs/core/issues/6451)) ([fa9a025](https://github.com/stenciljs/core/commit/fa9a025ac584997a702483ef53f2b6125c9d196e))
+  
+
 ## 😋 [4.38.3](https://github.com/stenciljs/core/compare/v4.38.2...v4.38.3) (2025-11-05)
 
 
