@@ -11,7 +11,7 @@ describe('static-styles', function () {
   it('applies styles from static getter', async () => {
     await $('static-styles').waitForExist();
     await expect($('h1')).toHaveStyle({
-      color: browser.isChromium ? 'rgba(255,0,0,1)' : 'rgb(255,0,0)',
+      color: 'rgb(255,0,0)',
     });
   });
 });

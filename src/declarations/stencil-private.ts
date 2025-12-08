@@ -186,7 +186,9 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   shadowDomShim?: boolean;
   asyncQueue?: boolean;
+  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
   transformTagName?: boolean;
+  additionalTagTransformers?: boolean | 'prod';
   attachStyles?: boolean;
 
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
@@ -2112,6 +2114,8 @@ export interface TransformCssToEsmInput {
   module?: 'cjs' | 'esm' | string;
   file?: string;
   tag?: string;
+  tags?: string[];
+  addTagTransformers: boolean;
   encapsulation?: string;
   /**
    * The mode under which the CSS will be applied.

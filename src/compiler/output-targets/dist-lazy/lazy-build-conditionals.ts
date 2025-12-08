@@ -11,6 +11,7 @@ export const getLazyBuildConditionals = (
 
   build.lazyLoad = true;
   build.hydrateServerSide = false;
+  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
   build.transformTagName = config.extras.tagNameTransform;
   build.asyncQueue = config.taskQueue === 'congestionAsync';
   build.taskQueue = config.taskQueue !== 'immediate';

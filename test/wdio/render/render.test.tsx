@@ -39,7 +39,7 @@ describe('Render VDOM', () => {
     await expect(component).toHaveElementClass('hydrated');
 
     // Verify each prop value is rendered correctly
-    const listItems = await component.$$('li');
+    const listItems = await component.shadow$$('li');
     await expect(listItems[0]).toHaveText('this.foo.bar: 123');
     await expect(listItems[1]).toHaveText('this.foo.loo: 1, 2, 3');
     await expect(listItems[2]).toHaveText('this.foo.qux: symbol');

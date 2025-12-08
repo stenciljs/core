@@ -1,6 +1,6 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
-import { $$, expect } from '@wdio/globals';
+import { expect } from '@wdio/globals';
 
 describe('form associated prop check', function () {
   beforeEach(async () => {
@@ -45,8 +45,7 @@ describe('form associated prop check', function () {
     expect(components[0].disabled).toBe(true);
     expect(components[1].disabled).toBe(true);
 
-    const [expected, problem] = await $$('form-associated-prop-check').getElements();
-    await expect(expected.$('p')).toHaveText('Disabled prop value: true');
-    await expect(problem.$('p')).toHaveText('Disabled prop value: true');
+    await expect(components[0].shadowRoot.querySelector('p')).toHaveText('Disabled prop value: true');
+    await expect(components[1].shadowRoot.querySelector('p')).toHaveText('Disabled prop value: true');
   });
 });

@@ -35,7 +35,11 @@ const parseListenDecorators = (
 
   return listenDecorators.map((listenDecorator) => {
     const methodName = method.name.getText();
-    const [listenText, listenOptions] = getDecoratorParameters<string, d.ListenOptions>(listenDecorator, typeChecker);
+    const [listenText, listenOptions] = getDecoratorParameters<string, d.ListenOptions>(
+      listenDecorator,
+      typeChecker,
+      diagnostics,
+    );
 
     const eventNames = listenText.split(',');
     if (eventNames.length > 1) {

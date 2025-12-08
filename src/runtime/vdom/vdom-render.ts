@@ -1221,7 +1221,7 @@ render() {
   if (BUILD.experimentalScopedSlotChanges && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
     const children = rootVnode.$elm$.__childNodes || rootVnode.$elm$.childNodes;
     for (const childNode of children) {
-      if (childNode['s-hn'] !== hostTagName && !childNode['s-sh']) {
+      if (childNode['s-hn'] !== hostTagName && !childNode['s-sh'] && childNode.nodeType === NODE_TYPE.ElementNode) {
         // Store the initial value of `hidden` so we can reset it later when
         // moving nodes around.
         if (isInitialLoad && childNode['s-ih'] == null) {

@@ -30,5 +30,6 @@ export const config: Config = {
     scriptDataOpts: true,
     experimentalSlotFixes: true,
     experimentalScopedSlotChanges: true,
+    additionalTagTransformers: true,
   },
 };

@@ -92,6 +92,11 @@ export async function buildCompiler(opts: BuildOptions) {
     alias,
     plugins: [replace(replaceData)],
     outfile: join(opts.output.compilerDir, compilerFileName),
+    // workaround for fdir https://github.com/thecodrr/fdir/issues/163
+    inject: [join(opts.bundleHelpersDir, 'import-meta-url.js')],
+    define: {
+      'import.meta.url': 'import_meta_url',
+    },
   };
 
   // copy typescript default lib dts files
