@@ -1,17 +1,24 @@
 name: 'Stencil Production Release'
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       tag:
         required: false
         default: latest
-        type: string
-        description: Which npm tag should this be published to? (dev, latest, or use_pkg_json_version)
+        type: choice
+        description: Which npm tag should this be published to?
+        options:
+          - dev
+          - latest
+          - use_pkg_json_version
       base:
         required: true
-        type: string
-        description: Which base branch should be targeted? (main or v3-maintenance)
+        type: choice
+        description: Which base branch should be targeted?
         default: main
+        options:
+          - main
+          - v3-maintenance
 
 permissions:
   contents: write
