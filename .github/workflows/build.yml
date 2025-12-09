@@ -16,25 +16,25 @@ jobs:
         os: ['ubuntu-22.04', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Core Build
+      - name: 🏗️ Core Build
         run: npm run build -- --ci
         shell: bash
 
-      - name: Validate Build
+      - name: 🔬 Validate Build
         run: npm run test.dist
         shell: bash
 
-      - name: Validate Testing
+      - name: 🔬 Validate Testing
         run: npm run test.testing
         shell: bash
 
-      - name: Upload Build Artifacts
+      - name: 📤 Upload Build Artifacts
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         uses: ./.github/workflows/actions/upload-archive
         with:
