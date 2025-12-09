@@ -2097,6 +2097,7 @@ export interface CssImportData {
   filePath: string;
   altFilePath?: string;
   styleText?: string | null;
+  modifiers?: string;
 }
 
 export interface CssToEsmImportData {
