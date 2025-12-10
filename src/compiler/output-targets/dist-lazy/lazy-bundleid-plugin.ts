@@ -17,7 +17,7 @@ export const lazyBundleIdPlugin = (
   config: d.ValidatedConfig,
   shouldHash: boolean,
   suffix: string,
-  isBrowserBuild: boolean,
+  isBrowserBuild?: boolean,
 ): Plugin => {
   const getBundleId = async (entryKey: string, code: string, suffix: string): Promise<string> => {
     if (shouldHash && config.sys?.generateContentHash) {
