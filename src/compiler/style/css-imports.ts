@@ -176,12 +176,17 @@ export const getCssImports = async (
   const importeeExt = (filePath.split('.').pop() ?? '').toLowerCase();
 
   let r: RegExpExecArray | null;
-  const IMPORT_RE = /(@import)\s+(url\()?\s?(.*?)\s?\)?([^;]*);?/gi;
+  const IMPORT_RE = /@import\s+(?:url\()?\s*(['"]?)([^'"\)]+)\1\s*\)?([^;]*);?/gi;
+
   while ((r = IMPORT_RE.exec(styleText))) {
+    const urlMatch = r[2].trim();
+    const modifiers = r[3].trim();
+
     const cssImportData: d.CssImportData = {
       srcImport: r[0],
-      url: r[4].replace(/[\"\'\)]/g, ''),
+      url: urlMatch,
       filePath: '',
+      modifiers: modifiers || undefined,
     };
 
     if (!isLocalCssImport(cssImportData.srcImport)) {
@@ -247,7 +252,9 @@ export const resolveCssNodeModule = async (
     });
 
     cssImportData.filePath = resolved.resolveId;
-    cssImportData.updatedImport = `@import "${cssImportData.filePath}";`;
+    // Preserve modifiers (layer, supports, media queries) in the updated import
+    const modifiers = cssImportData.modifiers ? ` ${cssImportData.modifiers}` : '';
+    cssImportData.updatedImport = `@import "${cssImportData.filePath}"${modifiers};`;
   } catch (e) {
     const d = buildError(diagnostics);
     d.messageText = `Unable to resolve node module for CSS @import: ${cssImportData.url}`;
@@ -284,7 +291,68 @@ export const replaceImportDeclarations = (styleText: string, cssImports: d.CssIm
   for (const cssImport of cssImports) {
     if (isCssEntry) {
       if (typeof cssImport.styleText === 'string') {
-        styleText = styleText.replace(cssImport.srcImport, cssImport.styleText);
+        // For CSS entries, inline the imported CSS content
+        // If there are modifiers (layer, supports, media queries), wrap the content appropriately
+        let replacement = cssImport.styleText;
+
+        if (cssImport.modifiers) {
+          let modifiers = cssImport.modifiers;
+          let layerName = '';
+          let supportsCondition = '';
+          let mediaQuery = '';
+
+          // Extract layer() - innermost wrapper
+          const layerMatch = modifiers.match(/layer\(([^)]+)\)/);
+          if (layerMatch) {
+            layerName = layerMatch[1].trim();
+            modifiers = modifiers.replace(/layer\([^)]+\)/, '').trim();
+          }
+
+          // Extract supports() - handles nested parentheses with a more robust approach
+          // This regex matches supports() and captures content with balanced parentheses
+          let depth = 0;
+          let startIdx = -1;
+          let endIdx = -1;
+          const supportsIdx = modifiers.indexOf('supports(');
+
+          if (supportsIdx !== -1) {
+            startIdx = supportsIdx + 9; // length of 'supports('
+            for (let i = startIdx; i < modifiers.length; i++) {
+              if (modifiers[i] === '(') depth++;
+              if (modifiers[i] === ')') {
+                if (depth === 0) {
+                  endIdx = i;
+                  break;
+                }
+                depth--;
+              }
+            }
+
+            if (endIdx !== -1) {
+              supportsCondition = modifiers.substring(startIdx, endIdx).trim();
+              modifiers = modifiers.substring(0, supportsIdx) + modifiers.substring(endIdx + 1);
+              modifiers = modifiers.trim();
+            }
+          }
+
+          // Anything remaining should be media queries
+          mediaQuery = modifiers.trim();
+
+          // Apply wrappers in correct order: layer (innermost) -> media -> supports (outermost)
+          if (layerName) {
+            replacement = `@layer ${layerName} {\n${replacement}\n}`;
+          }
+
+          if (mediaQuery) {
+            replacement = `@media ${mediaQuery} {\n${replacement}\n}`;
+          }
+
+          if (supportsCondition) {
+            replacement = `@supports (${supportsCondition}) {\n${replacement}\n}`;
+          }
+        }
+
+        styleText = styleText.replace(cssImport.srcImport, replacement);
       }
     } else if (typeof cssImport.updatedImport === 'string') {
       styleText = styleText.replace(cssImport.srcImport, cssImport.updatedImport);

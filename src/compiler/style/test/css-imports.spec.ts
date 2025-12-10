@@ -100,6 +100,134 @@ describe('css-imports', () => {
       const output = replaceImportDeclarations(styleText, cssImports, true);
       expect(output).toBe(``);
     });
+
+    describe('with CSS import modifiers', () => {
+      it('should wrap imported styles with @layer modifier', () => {
+        const styleText = `@import "theme.css" layer(utilities);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/theme.css`,
+            srcImport: `@import "theme.css" layer(utilities);`,
+            url: `theme.css`,
+            styleText: `.btn { color: blue; }`,
+            modifiers: 'layer(utilities)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(`@layer utilities {\n.btn { color: blue; }\n}`);
+      });
+
+      it('should wrap imported styles with @supports modifier', () => {
+        const styleText = `@import "grid.css" supports(display: grid);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/grid.css`,
+            srcImport: `@import "grid.css" supports(display: grid);`,
+            url: `grid.css`,
+            styleText: `.grid { display: grid; }`,
+            modifiers: 'supports(display: grid)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(`@supports (display: grid) {\n.grid { display: grid; }\n}`);
+      });
+
+      it('should wrap imported styles with media query modifier', () => {
+        const styleText = `@import "mobile.css" screen and (max-width: 768px);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/mobile.css`,
+            srcImport: `@import "mobile.css" screen and (max-width: 768px);`,
+            url: `mobile.css`,
+            styleText: `.mobile { font-size: 14px; }`,
+            modifiers: 'screen and (max-width: 768px)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(`@media screen and (max-width: 768px) {\n.mobile { font-size: 14px; }\n}`);
+      });
+
+      it('should wrap imported styles with layer and media query modifiers', () => {
+        const styleText = `@import "utilities.css" layer(utils) screen and (min-width: 1024px);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/utilities.css`,
+            srcImport: `@import "utilities.css" layer(utils) screen and (min-width: 1024px);`,
+            url: `utilities.css`,
+            styleText: `.util { padding: 1rem; }`,
+            modifiers: 'layer(utils) screen and (min-width: 1024px)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(`@media screen and (min-width: 1024px) {\n@layer utils {\n.util { padding: 1rem; }\n}\n}`);
+      });
+
+      it('should wrap imported styles with supports and media query modifiers', () => {
+        const styleText = `@import "flex.css" supports(display: flex) screen and (width <= 400px);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/flex.css`,
+            srcImport: `@import "flex.css" supports(display: flex) screen and (width <= 400px);`,
+            url: `flex.css`,
+            styleText: `.flex { display: flex; }`,
+            modifiers: 'supports(display: flex) screen and (width <= 400px)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(
+          `@supports (display: flex) {\n@media screen and (width <= 400px) {\n.flex { display: flex; }\n}\n}`,
+        );
+      });
+
+      it('should wrap imported styles with layer, supports, and media query modifiers in correct order', () => {
+        const styleText = `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px);`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/style.css`,
+            srcImport: `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px);`,
+            url: `style.css`,
+            styleText: `p { margin-bottom: 24px; }`,
+            modifiers:
+              'layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px)',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(
+          `@supports ((not (display: grid)) and (display: flex)) {\n@media screen and (width <= 400px) {\n@layer typography {\np { margin-bottom: 24px; }\n}\n}\n}`,
+        );
+      });
+
+      it('should handle complex nested parentheses in supports modifier', () => {
+        const styleText = `@import "advanced.css" supports((selector(h2 > p)) and (font-tech(color-COLRv1)));`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/advanced.css`,
+            srcImport: `@import "advanced.css" supports((selector(h2 > p)) and (font-tech(color-COLRv1)));`,
+            url: `advanced.css`,
+            styleText: `h2 > p { color: red; }`,
+            modifiers: 'supports((selector(h2 > p)) and (font-tech(color-COLRv1)))',
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(
+          `@supports ((selector(h2 > p)) and (font-tech(color-COLRv1))) {\nh2 > p { color: red; }\n}`,
+        );
+      });
+
+      it('should not wrap when no modifiers present', () => {
+        const styleText = `@import "simple.css";`;
+        const cssImports: d.CssImportData[] = [
+          {
+            filePath: `/src/simple.css`,
+            srcImport: `@import "simple.css";`,
+            url: `simple.css`,
+            styleText: `div { color: blue; }`,
+          },
+        ];
+        const output = replaceImportDeclarations(styleText, cssImports, true);
+        expect(output).toBe(`div { color: blue; }`);
+      });
+    });
   });
 
   describe('isLocalCssImport', () => {
@@ -440,6 +568,154 @@ describe('css-imports', () => {
       const content = `body { color: red; }`;
       const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
       expect(results).toEqual([]);
+    });
+
+    describe('parsing CSS import modifiers', () => {
+      it('should parse @import with layer() modifier', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "theme.css" layer(utilities);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'theme.css')),
+            srcImport: `@import "theme.css" layer(utilities);`,
+            url: `theme.css`,
+            modifiers: 'layer(utilities)',
+          },
+        ]);
+      });
+
+      it('should parse @import with supports() modifier', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "grid.css" supports(display: grid);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'grid.css')),
+            srcImport: `@import "grid.css" supports(display: grid);`,
+            url: `grid.css`,
+            modifiers: 'supports(display: grid)',
+          },
+        ]);
+      });
+
+      it('should parse @import with nested parentheses in supports() modifier', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "flex.css" supports((not (display: grid)) and (display: flex));`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'flex.css')),
+            srcImport: `@import "flex.css" supports((not (display: grid)) and (display: flex));`,
+            url: `flex.css`,
+            modifiers: 'supports((not (display: grid)) and (display: flex))',
+          },
+        ]);
+      });
+
+      it('should parse @import with media query modifier', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "mobile.css" screen and (max-width: 768px);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'mobile.css')),
+            srcImport: `@import "mobile.css" screen and (max-width: 768px);`,
+            url: `mobile.css`,
+            modifiers: 'screen and (max-width: 768px)',
+          },
+        ]);
+      });
+
+      it('should parse @import with layer, supports, and media query modifiers', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'style.css')),
+            srcImport: `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px);`,
+            url: `style.css`,
+            modifiers:
+              'layer(typography) supports((not (display: grid)) and (display: flex)) screen and (width <= 400px)',
+          },
+        ]);
+      });
+
+      it('should parse @import with url() and modifiers', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import url("theme.css") layer(base) screen;`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'theme.css')),
+            srcImport: `@import url("theme.css") layer(base) screen;`,
+            url: `theme.css`,
+            modifiers: 'layer(base) screen',
+          },
+        ]);
+      });
+
+      it('should parse @import with complex supports() containing selector and font-tech', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "advanced.css" supports((selector(h2 > p)) and (font-tech(color-COLRv1)));`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'advanced.css')),
+            srcImport: `@import "advanced.css" supports((selector(h2 > p)) and (font-tech(color-COLRv1)));`,
+            url: `advanced.css`,
+            modifiers: 'supports((selector(h2 > p)) and (font-tech(color-COLRv1)))',
+          },
+        ]);
+      });
+
+      it('should parse @import with multiline modifiers', async () => {
+        const filePath = normalizePath(path.join(root, 'src', 'file-a.css'));
+        const content = `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen
+  and (width <= 400px);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'src', 'style.css')),
+            srcImport: `@import "style.css" layer(typography) supports((not (display: grid)) and (display: flex)) screen
+  and (width <= 400px);`,
+            url: `style.css`,
+            modifiers:
+              'layer(typography) supports((not (display: grid)) and (display: flex)) screen\n  and (width <= 400px)',
+          },
+        ]);
+      });
+
+      it('should preserve modifiers when resolving node modules', async () => {
+        const files = new Map<string, string>();
+        const nodeModulePkgPath = path.join(root, 'node_modules', '@ionic', 'core', 'package.json');
+        files.set(nodeModulePkgPath, JSON.stringify({ name: '@ionic/core' }));
+
+        const nodeModuleMainPath = path.join(root, 'node_modules', '@ionic', 'core', 'index.js');
+        files.set(nodeModuleMainPath, `// index.js`);
+
+        const nodeModuleCss = path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css');
+        files.set(nodeModuleCss, `/*ionic.css*/`);
+
+        await compilerCtx.fs.writeFiles(files);
+        await compilerCtx.fs.commit();
+
+        const filePath = normalizePath(path.join(root, 'src', 'cmp', 'file-a.css'));
+        const content = `@import '~@ionic/core/dist/ionic/ionic.css' layer(framework);`;
+        const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
+        expect(results).toEqual([
+          {
+            filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
+            srcImport: `@import '~@ionic/core/dist/ionic/ionic.css' layer(framework);`,
+            updatedImport: `@import "${normalizePath(
+              path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
+            )}" layer(framework);`,
+            url: `~@ionic/core/dist/ionic/ionic.css`,
+            modifiers: 'layer(framework)',
+          },
+        ]);
+      });
     });
   });
 
