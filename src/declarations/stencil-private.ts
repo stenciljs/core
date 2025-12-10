@@ -44,7 +44,7 @@ export interface SourceMap {
   names: string[];
   sourceRoot?: string;
   sources: string[];
-  sourcesContent?: string[];
+  sourcesContent?: (string | null)[];
   version: number;
 }
 
