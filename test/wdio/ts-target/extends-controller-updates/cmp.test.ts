@@ -2,6 +2,7 @@ import { browser, expect } from '@wdio/globals';
 import { setupIFrameTest } from '../../util.js';
 
 /**
+ * Test Case #12 - Controller-Initiated Updates
  * Tests for controller-initiated updates. Built with
  * `tsconfig-es2022.json` > `"target": "es2022"` `dist` and `dist-custom-elements` outputs.
  *
@@ -9,7 +10,7 @@ import { setupIFrameTest } from '../../util.js';
  * Modeled after Lit's ClockController: https://lit.dev/docs/composition/controllers/
  */
 
-describe('Test Case #3 – Controller-Initiated Updates (ClockController pattern)', () => {
+describe('Test Case #12 – Controller-Initiated Updates (ClockController pattern)', () => {
   describe('es2022 dist output', () => {
     let frameContent: HTMLElement;
 
