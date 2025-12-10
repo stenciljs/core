@@ -9,6 +9,7 @@ import type * as d from '../../../declarations';
  * @param config The validated configuration
  * @param shouldHash Whether to hash the bundle ID
  * @param suffix The suffix to append to the bundle ID
+ * @param isBrowserBuild Whether this is a browser build
  * @returns A Rollup plugin
  */
 export const lazyBundleIdPlugin = (
@@ -16,6 +17,7 @@ export const lazyBundleIdPlugin = (
   config: d.ValidatedConfig,
   shouldHash: boolean,
   suffix: string,
+  isBrowserBuild: boolean,
 ): Plugin => {
   const getBundleId = async (entryKey: string, code: string, suffix: string): Promise<string> => {
     if (shouldHash && config.sys?.generateContentHash) {
@@ -41,7 +43,7 @@ export const lazyBundleIdPlugin = (
 
       // For browser builds, loader entries are skipped by writeLazyEntry
       // So we need to delete their sourcemaps to avoid orphaned files
-      if (suffix && config.sourceMap) {
+      if (isBrowserBuild && config.sourceMap) {
         for (const [key, file] of files) {
           if (file.type === 'chunk' && file.isEntry && file.name === 'loader') {
             const mapFileName = key + '.map';
@@ -92,8 +94,10 @@ export const lazyBundleIdPlugin = (
         });
         file.code = magicString.toString();
 
-        if (config.sourceMap) {
-          file.map = magicString.generateMap();
+        if (config.sourceMap && file.map) {
+          // update the file name in the existing sourcemap,
+          // preserving the original mappings
+          file.map.file = newFileName;
         }
       }
 
