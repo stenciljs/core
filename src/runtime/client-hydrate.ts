@@ -530,14 +530,6 @@ const clientHydrate = (
     vnode.$elm$ = node;
     vnode.$index$ = '0';
     parentVNode.$children$ = [vnode];
-  } else {
-    // if (node.nodeType === NODE_TYPE.TextNode && !(node as unknown as Text).wholeText.trim() && !node['s-nr']) {
-    //   // empty white space is never accounted for from SSR so there's
-    //   // no corresponding comment node giving it a position in the DOM.
-    //   // It therefore gets slotted / clumped together at the end of the host.
-    //   // It's cleaner to remove. Ideally, SSR is rendered with `prettyHtml: false`
-    //   node.remove();
-    // }
   }
 
   return parentVNode;
