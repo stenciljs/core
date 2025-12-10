@@ -280,9 +280,7 @@ export const initializeClientHydrate = (
             // this is a slotted node that doesn't have a home ... yet.
             // we can safely leave it be, native behavior will mean it's hidden
             (node as HTMLElement).removeAttribute('hidden');
-          } else if (
-            node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue
-          ) {
+          } else if (node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue) {
             // During `scoped` shadowDOM rendering, there's a bunch of comment nodes used for positioning / empty text nodes.
             // Let's tidy them up now to stop frameworks complaining about DOM mismatches.
             node.parentNode.removeChild(node);
