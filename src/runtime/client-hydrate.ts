@@ -175,6 +175,7 @@ export const initializeClientHydrate = (
   let snGroupIdx: number;
   let snGroupLen: number;
   let slottedItem: SlottedNodes[0];
+  let currentPos = 0;
 
   // Loops through all the slotted nodes we found while stepping through this component.
   // creates slot relocation nodes (non-shadow) or moves nodes to their new home (shadow)
@@ -221,7 +222,7 @@ export const initializeClientHydrate = (
           }
         }
         // Create our 'Original Location' node
-        addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
+        addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo'] || currentPos);
 
         if (
           slottedItem.node.parentElement?.shadowRoot &&
@@ -239,6 +240,9 @@ export const initializeClientHydrate = (
           patchSlottedNode(slottedItem.node);
         }
       }
+      // Empty text nodes are never accounted on the server (they don't get a comment node, or a positional id)
+      // So let's manually increment their position counter for them, keeping them in the correct order in the slot
+      currentPos = (slottedItem.node['s-oo'] || currentPos) + 1;
     }
   }
 
@@ -277,8 +281,7 @@ export const initializeClientHydrate = (
             // we can safely leave it be, native behavior will mean it's hidden
             (node as HTMLElement).removeAttribute('hidden');
           } else if (
-            (node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue) ||
-            (node.nodeType === NODE_TYPE.TextNode && !(node as Text).wholeText.trim())
+            node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue
           ) {
             // During `scoped` shadowDOM rendering, there's a bunch of comment nodes used for positioning / empty text nodes.
             // Let's tidy them up now to stop frameworks complaining about DOM mismatches.
