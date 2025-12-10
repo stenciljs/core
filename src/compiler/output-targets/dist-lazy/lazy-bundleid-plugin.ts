@@ -72,6 +72,11 @@ export const lazyBundleIdPlugin = (
         }
       }
 
+      // Delete orphaned sourcemap files before early return
+      for (const fileName of filesToDelete) {
+        delete bundle[fileName];
+      }
+
       if (!map.size) return;
 
       for (const [_key, file] of files) {
@@ -95,15 +100,10 @@ export const lazyBundleIdPlugin = (
         file.code = magicString.toString();
 
         if (config.sourceMap && file.map) {
-          // update the file name in the existing sourcemap,
+          // Update the file name in the existing sourcemap,
           // preserving the original mappings
           file.map.file = newFileName;
         }
-      }
-
-      // Delete orphaned sourcemap files
-      for (const fileName of filesToDelete) {
-        delete bundle[fileName];
       }
     },
   };
