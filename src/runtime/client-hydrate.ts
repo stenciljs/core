@@ -200,8 +200,10 @@ export const initializeClientHydrate = (
       const hostEle = hosts[slottedItem.hostId as any];
 
       if (hostEle.shadowRoot && slottedItem.node.parentElement !== hostEle) {
-        // shadowDOM - move the item to the element root for native slotting
-        hostEle.appendChild(slottedItem.node);
+        // shadowDOM. This slotted node got left behind.
+        // Move the item to the element root for native slotting
+        // insert node after the previous node in the slotGroup
+        hostEle.insertBefore(slottedItem.node, slotGroup[snGroupIdx - 1]?.node?.nextSibling);
       }
 
       // This node is either slotted in a non-shadow host, OR *that* host is nested in a non-shadow host

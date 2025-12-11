@@ -88,9 +88,45 @@ describe('Sanity check SSR > Client hydration', () => {
         }
         const { html } = await renderToString(
           `
+          <ssr-shadow-cmp><p>Default slot content</p> <p slot="client-only">Client-only slot content</p></ssr-shadow-cmp>
+        `,
+          {
+            fullDocument: true,
+            serializeShadowRoot: method,
+            constrainTimeouts: false,
+            prettyHTML: false,
+          },
+        );
+        const stage = root.createElement('div');
+        stage.setAttribute('id', 'stage');
+        stage.setHTMLUnsafe(html);
+        root.body.appendChild(stage);
+
+        if (renderType === 'dist') {
+          // @ts-expect-error resolved through WDIO
+          const { defineCustomElements } = await import('/dist/loader/index.js');
+          defineCustomElements().catch(console.error);
+
+          // wait for Stencil to take over and reconcile
+          await browser.waitUntil(async () => customElements.get('ssr-shadow-cmp'));
+          expect(typeof customElements.get('ssr-shadow-cmp')).toBe('function');
+        }
+
+        await browser.waitUntil(async () => root.querySelector('ssr-shadow-cmp [slot="client-only"]:not([hidden])'));
+        await expect(root.querySelector('ssr-shadow-cmp').textContent).toContain(
+          'Default slot content Client-only slot content',
+        );
+      },
+
+      whiteSpace: async () => {
+        if (root.querySelector('#stage')) {
+          root.querySelector('#stage')?.remove();
+          await browser.waitUntil(async () => !root.querySelector('#stage'));
+        }
+        const { html } = await renderToString(
+          `
           <ssr-shadow-cmp>
-            <p>Default slot content</p>
-            <p slot="client-only">Client-only slot content</p>
+            <i>Chocolate</i> <a href="#">bonbon</a> <strong>lollipop</strong>
           </ssr-shadow-cmp>
         `,
           {
@@ -115,10 +151,7 @@ describe('Sanity check SSR > Client hydration', () => {
           expect(typeof customElements.get('ssr-shadow-cmp')).toBe('function');
         }
 
-        await browser.waitUntil(async () => root.querySelector('ssr-shadow-cmp [slot="client-only"]'));
-        await expect(root.querySelector('ssr-shadow-cmp').textContent).toBe(
-          'Default slot contentClient-only slot content',
-        );
+        await expect(root.querySelector('ssr-shadow-cmp').textContent).toContain('Chocolate bonbon lollipop');
       },
     };
   };
@@ -136,6 +169,10 @@ describe('Sanity check SSR > Client hydration', () => {
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
     });
+
+    it('retains whitespace correctly during client-side hydration', async () => {
+      await testSuite.whiteSpace();
+    });
   });
 
   describe('dist / scoped', () => {
@@ -150,6 +187,10 @@ describe('Sanity check SSR > Client hydration', () => {
 
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
+    });
+
+    it('retains whitespace correctly during client-side hydration', async () => {
+      await testSuite.whiteSpace();
     });
 
     it('checks renderToString adds scoped class names', async () => {
@@ -190,6 +231,10 @@ describe('Sanity check SSR > Client hydration', () => {
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
     });
+
+    it('retains whitespace correctly during client-side hydration', async () => {
+      await testSuite.whiteSpace();
+    });
   });
 
   describe('custom-elements / scoped', () => {
@@ -209,6 +254,10 @@ describe('Sanity check SSR > Client hydration', () => {
 
     it('resolves slots correctly during client-side hydration', async () => {
       await testSuite.slots();
+    });
+
+    it('retains whitespace correctly during client-side hydration', async () => {
+      await testSuite.whiteSpace();
     });
   });
 
@@ -470,10 +519,7 @@ describe('Sanity check SSR > Client hydration', () => {
       `
       <div>
         <scoped-ssr-parent-cmp>
-          <!-- 1 -->
-          2
-          <div>3</div>
-          <!-- 4 -->
+          <!-- 1 --> 2 <div>3</div> <!-- 4 -->
         </scoped-ssr-parent-cmp
       </div>`,
       {
@@ -497,12 +543,12 @@ describe('Sanity check SSR > Client hydration', () => {
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
     const children = wrapCmp.childNodes;
     // check that <style> tag for `scoped-cmp` gets added
-    expect(children.length).toBe(4);
-    expect(children[0].nodeValue).toBe(' 1 ');
-    expect(children[1].textContent).toBe(' 2 ');
-    expect(children[2].textContent).toBe('3');
-    expect((children[2] as Element).checkVisibility()).toBe(true);
-    expect(children[3].nodeValue).toBe(' 4 ');
+    expect(children.length).toBe(7);
+    expect(children[1].nodeValue).toBe(' 1 ');
+    expect(children[2].textContent).toBe(' 2 ');
+    expect(children[3].textContent).toBe('3');
+    expect((children[3] as Element).checkVisibility()).toBe(true);
+    expect(children[5].nodeValue).toBe(' 4 ');
   });
 
   it('slots nodes appropriately in a `scoped: true` parent with `serializeShadowRoot: "scoped"` child', async () => {
@@ -535,8 +581,8 @@ describe('Sanity check SSR > Client hydration', () => {
     expect(typeof customElements.get('scoped-ssr-parent-cmp')).toBe('function');
 
     const wrapCmp = document.querySelector('scoped-ssr-parent-cmp');
-    expect(wrapCmp.childNodes.length).toBe(3);
-    expect(wrapCmp.textContent).toBe('one23');
+    expect(wrapCmp.childNodes.length).toBe(4);
+    expect(wrapCmp.textContent.trim()).toBe('one23');
     expect(wrapCmp.children[0].checkVisibility()).toBe(true);
     expect(wrapCmp.children[1].checkVisibility()).toBe(true);
     expect(wrapCmp.children[2].checkVisibility()).toBe(true);
