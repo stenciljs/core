@@ -132,7 +132,7 @@ describe('`scoped: true` hydration checks', () => {
     const page = await newE2EPage({ html, url: 'https://stencil.com' });
 
     expect(await page.evaluate(() => document.querySelector('non-shadow-forwarded-slot').textContent.trim())).toContain(
-      'Text node 1 Comment 1 Slotted element 1 Slotted element 2 Comment 2 Text node 2',
+      'Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2',
     );
   });
 
@@ -157,18 +157,25 @@ describe('`scoped: true` hydration checks', () => {
     expect(await page.evaluate(() => root.firstChild.textContent)).toBe('First slot element');
     expect(await page.evaluate(() => root.firstChild.nextSibling.textContent)).toBe(' Default slot text node  ');
     expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.textContent)).toBe('Second slot element');
-    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.nextSibling.textContent)).toBe(
+    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.textContent)).toBe(
       ' Default slot comment node  ',
     );
 
-    expect(await page.evaluate(() => root.lastChild.textContent)).toBe(' Default slot comment node  ');
-    expect(await page.evaluate(() => root.lastChild.previousSibling.textContent)).toBe('Second slot element');
-    expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.textContent)).toBe(
-      ' Default slot text node  ',
-    );
+    expect(await page.evaluate(() => root.lastChild.previousSibling.textContent)).toBe(' Default slot comment node  ');
     expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.previousSibling.textContent)).toBe(
-      'First slot element',
+      'Second slot element',
     );
+    expect(
+      await page.evaluate(
+        () => root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
+      ),
+    ).toBe(' Default slot text node  ');
+    expect(
+      await page.evaluate(
+        () =>
+          root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
+      ),
+    ).toBe('First slot element');
   });
 
   it('Steps through only "lightDOM" elements', async () => {
