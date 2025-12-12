@@ -60,7 +60,7 @@ jobs:
           filename: stencil-core-build.zip
 
       - name: 🏷️ Set Version
-        run: npm version --no-git-tag-version ${{ inputs.version }}
+        run: npm version --no-git-tag-version --allow-same-version ${{ inputs.version }}
         shell: bash
 
       - name: 🚀 Publish to NPM
