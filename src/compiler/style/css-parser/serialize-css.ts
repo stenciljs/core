@@ -2,9 +2,9 @@ import { CssNode, CssNodeType, SerializeCssOptions, SerializeOpts } from './css-
 import { getCssSelectors } from './get-css-selectors';
 
 /**
- * Serializes CSS AST back into a minified CSS string, 
+ * Serializes CSS AST back into a minified CSS string,
  * possibly filtering by used selectors (used during SSR / prerendering)
- * 
+ *
  * @param stylesheet The CSS AST to serialize.
  * @param serializeOpts Options for serialization, including used selectors for filtering.
  * @returns The serialized CSS string.
