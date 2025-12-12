@@ -1,7 +1,7 @@
 import type * as d from '../../../declarations';
 import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
 
-// (note - We can't use like postcss / lightningCSS here
+// (note - We can't use something like postcss / lightningCSS here
 // because it would be bundled in the user's hydrate-script)
 
 /**
