@@ -1,6 +1,16 @@
 import type * as d from '../../../declarations';
 import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
 
+/**
+ * Parses CSS string input into an AST representation.
+ * Used for minification and, during SSR / prerendering resolving URLs and removing unused styles.
+ * We cannot use something like postcss / lightningCSS
+ * here because it would be bundled in the user's hydrate-script
+ *
+ * @param css The CSS string to parse
+ * @param filePath Optional file path for diagnostic reporting
+ * @returns The results of the CSS parsing, including the AST and any diagnostics
+ */
 export const parseCss = (css: string, filePath?: string): ParseCssResults => {
   let lineno = 1;
   let column = 1;
