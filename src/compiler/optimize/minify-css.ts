@@ -6,8 +6,7 @@ import { serializeCss } from '../style/css-parser/serialize-css';
 
 /**
  * Minifies a given CSS string by parsing it into an AST,
- * optionally resolve URLs (mainly during SSR / prerendering),
- * and serializing it back to a string.
+ * optionally resolving URLs, and serializing it back to a string.
  *
  * @param input An object containing the CSS string and an optional resolveUrl function to handle URL resolution.
  * @returns A promise that resolves to the minified CSS string.

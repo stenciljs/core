@@ -1,6 +1,14 @@
 import { CssNode, CssNodeType, SerializeCssOptions, SerializeOpts } from './css-parse-declarations';
 import { getCssSelectors } from './get-css-selectors';
 
+/**
+ * Serializes CSS AST back into a minified CSS string, 
+ * possibly filtering by used selectors (used during SSR / prerendering)
+ * 
+ * @param stylesheet The CSS AST to serialize.
+ * @param serializeOpts Options for serialization, including used selectors for filtering.
+ * @returns The serialized CSS string.
+ */
 export const serializeCss = (stylesheet: CssNode, serializeOpts: SerializeCssOptions) => {
   const usedSelectors = serializeOpts.usedSelectors || null;
   const opts: SerializeOpts = {
