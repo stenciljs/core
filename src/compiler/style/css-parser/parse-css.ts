@@ -489,24 +489,24 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
     // Parse declarations and nested rules
     if (!open()) return error(`missing '{'`);
-    
+
     const decls: CssNode[] = [];
     const nestedRules: CssNode[] = [];
-    
+
     comments(decls);
 
     // Loop through the block, parsing declarations and nested rules
     while (css.length && css.charAt(0) !== '}') {
       // Consume any whitespace before trying to parse
       whitespace();
-      
+
       // Check if we've reached the end
       if (!css.length || css.charAt(0) === '}') {
         break;
       }
-      
+
       const nextChar = css.charAt(0);
-      
+
       // Check for nested at-rules first
       if (nextChar === '@') {
         const nestedAt = nestedAtrule();
@@ -516,7 +516,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
           continue;
         }
       }
-      
+
       // Check if this looks like a nested rule (look ahead for '{')
       // Nested rules can start with &, :, or be selectors (class, id, element, attribute)
       if (nextChar === '&' || nextChar === ':' || /[a-zA-Z\.\#\[]/.test(nextChar)) {
@@ -533,7 +533,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
           const lookAhead = css.match(/^[^{}:;]+/);
           hasOpenBrace = lookAhead && css[lookAhead[0].length] === '{';
         }
-        
+
         if (hasOpenBrace) {
           // This is a nested rule
           const nestedRule = rule();
@@ -544,7 +544,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
           }
         }
       }
-      
+
       // Try to parse as a declaration
       const decl = declaration();
       if (decl) {
@@ -552,7 +552,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
         comments(decls);
         continue;
       }
-      
+
       // If we couldn't parse either, we might be at the end or have invalid CSS
       break;
     }

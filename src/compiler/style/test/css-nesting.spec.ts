@@ -13,11 +13,11 @@ describe('CSS Nesting', () => {
     `;
 
     const result = parseCss(css);
-    
+
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.card');
     expect(serialized).toContain('padding:10px');
     expect(serialized).toContain('& .title');
@@ -36,9 +36,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.parent');
     expect(serialized).toContain('.child');
   });
@@ -58,9 +58,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.level1');
     expect(serialized).toContain('.level2');
     expect(serialized).toContain('.level3');
@@ -79,9 +79,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.component');
     expect(serialized).toContain('@media');
     expect(serialized).toContain('padding:10px');
@@ -100,9 +100,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.feature');
     expect(serialized).toContain('@supports');
     expect(serialized).toContain('display:block');
@@ -124,9 +124,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('font-size:14px');
     expect(serialized).toContain('font-size:16px');
     expect(serialized).toContain('padding:20px');
@@ -144,9 +144,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.button');
     expect(serialized).toContain('&:hover');
   });
@@ -168,9 +168,9 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
-    
+
     expect(serialized).toContain('.card');
     expect(serialized).toContain('padding:10px');
     expect(serialized).toContain('.header');
@@ -186,10 +186,10 @@ describe('CSS Nesting', () => {
 
     const result = parseCss(css);
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const rule = result.stylesheet.rules?.[0];
     expect(rule?.rules).toBeNull();
-    
+
     const serialized = serializeCss(result.stylesheet, {});
     expect(serialized).toBe('.parent{color:red}');
   });

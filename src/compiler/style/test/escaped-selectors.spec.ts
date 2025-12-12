@@ -11,9 +11,9 @@ describe('Escaped CSS Selectors', () => {
 
     const result = parseCss(css);
     console.log('Diagnostics:', result.diagnostics);
-    
+
     expect(result.diagnostics).toHaveLength(0);
-    
+
     const serialized = serializeCss(result.stylesheet, {});
     expect(serialized).toContain('min-width-\\[150px\\]');
     expect(serialized).toContain('min-width:150px');
@@ -33,7 +33,7 @@ describe('Escaped CSS Selectors', () => {
 
     const result = parseCss(css);
     console.log('Nested diagnostics:', result.diagnostics);
-    
+
     expect(result.diagnostics).toHaveLength(0);
   });
 
@@ -98,7 +98,7 @@ describe('Escaped CSS Selectors', () => {
 
     const result = parseCss(css);
     console.log('With comments:', JSON.stringify(result.diagnostics, null, 2));
-    
+
     expect(result.diagnostics).toHaveLength(0);
   });
 
@@ -124,7 +124,7 @@ describe('Escaped CSS Selectors', () => {
 
     const result = parseCss(css);
     console.log('Full CSS diagnostics:', JSON.stringify(result.diagnostics, null, 2));
-    
+
     expect(result.diagnostics).toHaveLength(0);
   });
 });

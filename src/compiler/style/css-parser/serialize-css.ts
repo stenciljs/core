@@ -88,7 +88,7 @@ const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
   // A rule needs either declarations or nested rules to be serialized
   const hasDecls = decls != null && decls.length > 0;
   const hasNestedRules = node.rules != null && node.rules.length > 0;
-  
+
   if (!hasDecls && !hasNestedRules) {
     return '';
   }
@@ -175,15 +175,15 @@ const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
 
   // Serialize declarations (if any)
   let declsCss = decls && decls.length > 0 ? serializeCssMapVisit(opts, decls) : '';
-  
+
   // Serialize nested rules if any
   const nestedRulesCss = node.rules ? serializeCssMapVisit(opts, node.rules) : '';
-  
+
   // Add semicolon after last declaration if there are nested rules
   if (declsCss && nestedRulesCss && declsCss.length > 0) {
     declsCss += ';';
   }
-  
+
   return `${cleanedSelectors}{${declsCss}${nestedRulesCss}}`;
 };
 

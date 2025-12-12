@@ -5,10 +5,8 @@ import { parseCss } from '../style/css-parser/parse-css';
 import { serializeCss } from '../style/css-parser/serialize-css';
 
 export const minifyCss = async (input: { css: string; resolveUrl?: (url: string) => Promise<string> | string }) => {
-  console.log('minify time')
+  console.log('minify time');
   const parseResults = parseCss(input.css);
-
-  console.log('parse results:', parseResults)
 
   if (hasError(parseResults.diagnostics)) {
     return input.css;
@@ -17,7 +15,6 @@ export const minifyCss = async (input: { css: string; resolveUrl?: (url: string)
     await resolveStylesheetUrl(parseResults.stylesheet.rules, input.resolveUrl, new Map());
   }
 
-  console.log('minify done?', parseResults.stylesheet)
   return serializeCss(parseResults.stylesheet, {});
 };
 
