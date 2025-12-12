@@ -85,7 +85,11 @@ const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
   const usedSelectors = opts.usedSelectors;
   const selectors = node.selectors?.slice() ?? [];
 
-  if (decls == null || decls.length === 0) {
+  // A rule needs either declarations or nested rules to be serialized
+  const hasDecls = decls != null && decls.length > 0;
+  const hasNestedRules = node.rules != null && node.rules.length > 0;
+  
+  if (!hasDecls && !hasNestedRules) {
     return '';
   }
 
@@ -169,7 +173,18 @@ const serializeCssRule = (opts: SerializeOpts, node: CssNode) => {
     }
   }
 
-  return `${cleanedSelectors}{${serializeCssMapVisit(opts, decls)}}`;
+  // Serialize declarations (if any)
+  let declsCss = decls && decls.length > 0 ? serializeCssMapVisit(opts, decls) : '';
+  
+  // Serialize nested rules if any
+  const nestedRulesCss = node.rules ? serializeCssMapVisit(opts, node.rules) : '';
+  
+  // Add semicolon after last declaration if there are nested rules
+  if (declsCss && nestedRulesCss && declsCss.length > 0) {
+    declsCss += ';';
+  }
+  
+  return `${cleanedSelectors}{${declsCss}${nestedRulesCss}}`;
 };
 
 const serializeCssDeclaration = (node: CssNode, index: number, len: number) => {
@@ -183,7 +198,10 @@ const serializeCssDeclaration = (node: CssNode, index: number, len: number) => {
 };
 
 const serializeCssMedia = (opts: SerializeOpts, node: CssNode) => {
-  const mediaCss = serializeCssMapVisit(opts, node.rules);
+  // Nested @media can have either rules OR declarations
+  const mediaCss = node.declarations
+    ? serializeCssMapVisit(opts, node.declarations)
+    : serializeCssMapVisit(opts, node.rules);
   if (mediaCss === '') {
     return '';
   }
@@ -211,7 +229,10 @@ const serializeCssFontFace = (opts: SerializeOpts, node: CssNode) => {
 };
 
 const serializeCssSupports = (opts: SerializeOpts, node: CssNode) => {
-  const supportsCss = serializeCssMapVisit(opts, node.rules);
+  // Nested @supports can have either rules OR declarations
+  const supportsCss = node.declarations
+    ? serializeCssMapVisit(opts, node.declarations)
+    : serializeCssMapVisit(opts, node.rules);
   if (supportsCss === '') {
     return '';
   }
