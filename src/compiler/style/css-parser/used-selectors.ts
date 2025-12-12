@@ -2,8 +2,8 @@
  * Collects all used selectors (tags, class names, ids, attributes) from a given DOM element and its children.
  * Mainly used during SSR / prerendering to determine which CSS rules are necessary.
  *
- * @param elm
- * @returns
+ * @param elm The root element from which to start collecting used selectors.
+ * @returns The set of used selectors found within the element and its descendants.
  */
 export const getUsedSelectors = (elm: Element) => {
   const usedSelectors: UsedSelectors = {
