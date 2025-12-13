@@ -70,7 +70,6 @@ const writeHydrateOutput = async (
           `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
         );
 
-        console.log('Bundle hydrate app:', minify);
         if (minify) {
           const optimizeResults = await optimizeModule(config, compilerCtx, {
             input: code,
