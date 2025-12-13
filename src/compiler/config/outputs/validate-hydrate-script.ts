@@ -57,6 +57,10 @@ export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.
       outputTarget.empty = true;
     }
 
+    if (!isBoolean(outputTarget.minify)) {
+      outputTarget.minify = false;
+    }
+
     outputTarget.external = outputTarget.external || [];
 
     outputTarget.external.push('fs');

@@ -2370,6 +2370,7 @@ export interface OutputTargetHydrate extends OutputTargetBase {
    */
   external?: string[];
   empty?: boolean;
+  minify?: boolean;
 }
 
 export interface OutputTargetCustom extends OutputTargetBase {
