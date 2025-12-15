@@ -27,9 +27,10 @@ describe('textContent patch', () => {
       await expect(await elm.getText()).toBe('Slot content\nSuffix content');
     });
 
-    it('should return an empty string if there is no slotted content', async () => {
+    it('should have default behaviour when there is no default slot', async () => {
       const elm = $('text-content-patch-scoped');
-      await expect(await elm.getText()).toBe(``);
+      await expect(await elm.getText()).toBe(`Top content
+Bottom content`);
     });
 
     it('should overwrite the default slot content', async () => {
@@ -44,7 +45,7 @@ describe('textContent patch', () => {
       await expect(await elm.getText()).toBe('New slot content');
     });
 
-    it('should not insert the text node if there is no default slot', async () => {
+    it('should insert text node if there is no default slot', async () => {
       const elm = await $('text-content-patch-scoped');
       await browser.execute(
         (elm) => {
@@ -53,7 +54,7 @@ describe('textContent patch', () => {
         elm as any as HTMLElement,
       );
 
-      await expect(await elm.getText()).toBe(``);
+      await expect(await elm.getText()).toBe(`New slot content`);
     });
   });
 });
