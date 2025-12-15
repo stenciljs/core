@@ -571,6 +571,7 @@ export interface ComponentCompilerFeatures {
   hasReflect: boolean;
   hasRenderFn: boolean;
   hasSerializer: boolean;
+  hasSlot: boolean;
   hasState: boolean;
   hasStyle: boolean;
   hasVdomAttribute: boolean;
