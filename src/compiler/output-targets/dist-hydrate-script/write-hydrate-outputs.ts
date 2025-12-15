@@ -1,8 +1,9 @@
-import { join } from '@utils';
+import { hasError, join } from '@utils';
 import { basename } from 'path';
 import type { RollupOutput } from 'rollup';
 
 import type * as d from '../../../declarations';
+import { optimizeModule } from '../../optimize/optimize-module';
 import { MODE_RESOLUTION_CHAIN_DECLARATION } from './hydrate-factory-closure';
 import { relocateHydrateContextConst } from './relocate-hydrate-context';
 
@@ -54,22 +55,36 @@ const writeHydrateOutput = async (
 
   // always remember a path to the hydrate app that the prerendering may need later on
   buildCtx.hydrateAppFilePath = hydrateCoreIndexPath;
+  const minify = outputTarget.minify === true;
 
   await Promise.all(
     rollupOutput.output.map(async (output) => {
       if (output.type === 'chunk') {
-        output.code = relocateHydrateContextConst(config, compilerCtx, output.code);
+        let code = relocateHydrateContextConst(config, compilerCtx, output.code);
 
         /**
          * Enable the line where we define `modeResolutionChain` for the hydrate module.
          */
-        output.code = output.code.replace(
+        code = code.replace(
           `// const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
           `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
         );
 
+        if (minify) {
+          const optimizeResults = await optimizeModule(config, compilerCtx, {
+            input: code,
+            isCore: output.isEntry,
+            minify,
+          });
+
+          buildCtx.diagnostics.push(...optimizeResults.diagnostics);
+          if (!hasError(optimizeResults.diagnostics) && typeof optimizeResults.output === 'string') {
+            code = optimizeResults.output;
+          }
+        }
+
         const filePath = join(hydrateAppDirPath, output.fileName);
-        await compilerCtx.fs.writeFile(filePath, output.code, { immediateWrite: true });
+        await compilerCtx.fs.writeFile(filePath, code, { immediateWrite: true });
       }
     }),
   );
