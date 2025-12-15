@@ -198,7 +198,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         }
       };
 
-      if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasRenderFn) {
+      if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasSlot) {
         if (BUILD.experimentalSlotFixes) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
