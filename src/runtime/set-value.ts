@@ -1,6 +1,6 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, consoleError, getHostRef } from '@platform';
-import { CMP_FLAGS, HOST_FLAGS } from '@utils';
+import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
 import { parsePropertyValue } from './parse-property-value';
@@ -69,7 +69,8 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
         // this property has a serializer method
 
         let attrVal = newVal;
-        for (const methodName of cmpMeta.$serializers$[propName]) {
+        for (const serializer of cmpMeta.$serializers$[propName]) {
+          const [[methodName]] = Object.entries(serializer);
           // call the serializer methods
           attrVal = (instance as any)[methodName](attrVal, propName);
         }
@@ -105,15 +106,18 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
 
     if (!BUILD.lazyLoad || instance) {
       // get an array of method names of watch functions to call
-      if (BUILD.propChangeCallback && cmpMeta.$watchers$ && flags & HOST_FLAGS.isWatchReady) {
+      if (BUILD.propChangeCallback && cmpMeta.$watchers$) {
         const watchMethods = cmpMeta.$watchers$[propName];
 
         if (watchMethods) {
           // this instance is watching for when this property changed
-          watchMethods.map((watchMethodName) => {
+          watchMethods.map((watcher) => {
             try {
-              // fire off each of the watch methods that are watching this property
-              instance[watchMethodName](newVal, oldVal, propName);
+              const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
+              if ((flags & HOST_FLAGS.isWatchReady) || (watcherFlags & WATCH_FLAGS.Immediate)) {
+                // fire off each of the watch methods that are watching this property
+                instance[watchMethodName](newVal, oldVal, propName);
+              }
             } catch (e) {
               consoleError(e, elm);
             }

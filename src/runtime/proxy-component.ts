@@ -3,7 +3,7 @@ import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from '@platform';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
-import { HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
+import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
 
@@ -324,7 +324,8 @@ export const proxyComponent = (
               }
             };
 
-            for (const methodName of cmpMeta.$deserializers$[propName]) {
+            for (const deserializer of cmpMeta.$deserializers$[propName]) {
+              const [[methodName]] = Object.entries(deserializer);
               if (BUILD.lazyLoad) {
                 if (hostRef.$lazyInstance$) {
                   setVal(methodName, hostRef.$lazyInstance$);
@@ -362,15 +363,18 @@ export const proxyComponent = (
               hostRef &&
               flags &&
               !(flags & HOST_FLAGS.isConstructingInstance) &&
-              flags & HOST_FLAGS.isWatchReady &&
               newValue !== oldValue
             ) {
               const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : this;
               const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
               const entry = cmpMeta.$watchers$?.[attrName];
-              entry?.forEach((callbackName) => {
-                if (instance[callbackName] != null) {
-                  instance[callbackName].call(instance, newValue, oldValue, attrName);
+              entry?.forEach((watcher) => {
+                const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
+                if (
+                  instance[watchMethodName] != null &&
+                  ((flags & HOST_FLAGS.isWatchReady) || (watcherFlags & WATCH_FLAGS.Immediate))
+                ) {
+                  instance[watchMethodName].call(instance, newValue, oldValue, attrName);
                 }
               });
             }

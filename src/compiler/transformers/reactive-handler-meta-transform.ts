@@ -2,6 +2,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { convertValueToLiteral, createStaticGetter } from './transform-utils';
+import { WATCH_FLAGS } from '@utils';
 
 /**
  * Add a getter to a class for a static representation of the watchers
@@ -20,10 +21,16 @@ export const addReactivePropHandlers = (
 ) => {
   if (cmp[decorator].length > 0) {
     const watcherObj: d.ComponentConstructorChangeHandlers = {};
+    
 
-    cmp[decorator].forEach(({ propName, methodName }) => {
+    cmp[decorator].forEach(({ propName, methodName, handlerOptions }) => {
       watcherObj[propName] = watcherObj[propName] || [];
-      watcherObj[propName].push(methodName);
+      
+      let watcherFlags = 0;
+      if (handlerOptions?.immediate) {
+        watcherFlags |= WATCH_FLAGS.Immediate;
+      }
+      watcherObj[propName].push({[methodName]: watcherFlags});
     });
     classMembers.push(createStaticGetter(decorator, convertValueToLiteral(watcherObj)));
   }

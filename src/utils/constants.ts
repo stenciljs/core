@@ -21,6 +21,10 @@ export const enum MEMBER_FLAGS {
   PropLike = Prop | State,
 }
 
+export const enum WATCH_FLAGS {
+  Immediate = 1 << 0,
+}
+
 export const enum EVENT_FLAGS {
   Cancellable = 1 << 0,
   Composed = 1 << 1,
