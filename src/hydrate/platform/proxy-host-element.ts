@@ -52,7 +52,8 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
 
           if (cmpMeta.$deserializers$?.[memberName]) {
             // we have a custom deserializer for this member
-            for (const methodName of cmpMeta.$deserializers$[memberName]) {
+            for (const deserializer of cmpMeta.$deserializers$[memberName]) {
+              const [[methodName]] = Object.entries(deserializer);
               attrPropVal = (cstr as any).prototype[methodName](attrValue, memberName);
             }
           } else {
