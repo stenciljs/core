@@ -359,12 +359,7 @@ export const proxyComponent = (
             // 1. The instance is ready
             // 2. The watchers are ready
             // 3. The value has changed
-            if (
-              hostRef &&
-              flags &&
-              !(flags & HOST_FLAGS.isConstructingInstance) &&
-              newValue !== oldValue
-            ) {
+            if (hostRef && flags && !(flags & HOST_FLAGS.isConstructingInstance) && newValue !== oldValue) {
               const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : this;
               const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
               const entry = cmpMeta.$watchers$?.[attrName];
@@ -372,7 +367,7 @@ export const proxyComponent = (
                 const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
                 if (
                   instance[watchMethodName] != null &&
-                  ((flags & HOST_FLAGS.isWatchReady) || (watcherFlags & WATCH_FLAGS.Immediate))
+                  (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate)
                 ) {
                   instance[watchMethodName].call(instance, newValue, oldValue, attrName);
                 }

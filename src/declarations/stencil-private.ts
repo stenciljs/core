@@ -825,9 +825,9 @@ export interface ComponentCompilerMethodComplexType {
 export interface ComponentCompilerChangeHandler {
   propName: string;
   methodName: string;
-  handlerOptions?: { 
+  handlerOptions?: {
     immediate?: boolean;
-  }
+  };
 }
 
 export interface ComponentCompilerMethod extends ComponentCompilerStaticMethod {

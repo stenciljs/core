@@ -21,16 +21,15 @@ export const addReactivePropHandlers = (
 ) => {
   if (cmp[decorator].length > 0) {
     const watcherObj: d.ComponentConstructorChangeHandlers = {};
-    
 
     cmp[decorator].forEach(({ propName, methodName, handlerOptions }) => {
       watcherObj[propName] = watcherObj[propName] || [];
-      
+
       let watcherFlags = 0;
       if (handlerOptions?.immediate) {
         watcherFlags |= WATCH_FLAGS.Immediate;
       }
-      watcherObj[propName].push({[methodName]: watcherFlags});
+      watcherObj[propName].push({ [methodName]: watcherFlags });
     });
     classMembers.push(createStaticGetter(decorator, convertValueToLiteral(watcherObj)));
   }

@@ -188,7 +188,7 @@ export interface WatchDecorator {
     propName: any,
     watchOptions?: {
       immediate?: boolean;
-    }
+    },
   ): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void>;
 }
 

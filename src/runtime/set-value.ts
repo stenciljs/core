@@ -114,7 +114,7 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
           watchMethods.map((watcher) => {
             try {
               const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
-              if ((flags & HOST_FLAGS.isWatchReady) || (watcherFlags & WATCH_FLAGS.Immediate)) {
+              if (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate) {
                 // fire off each of the watch methods that are watching this property
                 instance[watchMethodName](newVal, oldVal, propName);
               }
