@@ -4,6 +4,7 @@ import {
   generatePreamble,
   getSourceMappingUrlForEndOfFile,
   hasError,
+  isBoolean,
   isOutputTargetDistCustomElements,
   isString,
   join,
@@ -147,7 +148,7 @@ export const bundleCustomElements = async (
         return;
       }
 
-      const minify = outputTarget.externalRuntime || outputTarget.minify !== true ? false : config.minifyJs;
+      const minify = isBoolean(outputTarget.minify) ? outputTarget.minify : config.minifyJs;
       const files = rollupOutput.output.map(async (bundle) => {
         if (bundle.type === 'chunk') {
           let code = bundle.code;
