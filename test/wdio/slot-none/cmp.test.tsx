@@ -24,5 +24,7 @@ describe('slot-none', () => {
     expect(slotNone.children[0].tagName).toBe('LI');
     expect(slotNone.childNodes.length).toBe(3);
     expect((slotNone.childNodes[2] as HTMLElement).tagName).toBe('LI');
+    expect((slotNone as any).__children).toBeFalsy();
+    expect((slotNone as any).__childNodes).toBeFalsy();
   });
 });
