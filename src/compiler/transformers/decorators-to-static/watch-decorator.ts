@@ -32,10 +32,17 @@ const parseWatchDecorator = (
   return decorators.filter(isDecoratorNamed(decoratorName)).map((decorator) => {
     const [propName, handlerOptions] = getDecoratorParameters<string, { immediate?: boolean }>(decorator, typeChecker);
 
+    if (handlerOptions) {
+      return {
+        propName,
+        methodName,
+        handlerOptions,
+      };
+    }
+
     return {
       propName,
       methodName,
-      handlerOptions,
     };
   });
 };

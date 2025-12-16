@@ -104,43 +104,47 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
       }
     }
 
-    if (!BUILD.lazyLoad || instance) {
-      // get an array of method names of watch functions to call
-      if (BUILD.propChangeCallback && cmpMeta.$watchers$) {
-        const watchMethods = cmpMeta.$watchers$[propName];
+    // get an array of method names of watch functions to call
+    if (BUILD.propChangeCallback && cmpMeta.$watchers$) {
+      const watchMethods = cmpMeta.$watchers$[propName];
 
-        if (watchMethods) {
-          // this instance is watching for when this property changed
-          watchMethods.map((watcher) => {
-            try {
-              const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
-              if (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate) {
-                // fire off each of the watch methods that are watching this property
+      if (watchMethods) {
+        // this instance is watching for when this property changed
+        watchMethods.map((watcher) => {
+          try {
+            const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
+            if (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate) {
+              // fire off each of the watch methods that are watching this property
+              if (!instance) {
+                hostRef.$fetchedCbList$.push(() => {
+                  hostRef.$lazyInstance$[watchMethodName](newVal, oldVal, propName);
+                });
+              } else {
                 instance[watchMethodName](newVal, oldVal, propName);
               }
-            } catch (e) {
-              consoleError(e, elm);
             }
-          });
-        }
-      }
-
-      if (
-        BUILD.updatable &&
-        (flags & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
-      ) {
-        if (instance.componentShouldUpdate) {
-          if (instance.componentShouldUpdate(newVal, oldVal, propName) === false) {
-            return;
+          } catch (e) {
+            consoleError(e, elm);
           }
-        }
-
-        // looks like this value actually changed, so we've got work to do!
-        // but only if we've already rendered, otherwise just chill out
-        // queue that we need to do an update, but don't worry about queuing
-        // up millions cuz this function ensures it only runs once
-        scheduleUpdate(hostRef, false);
+        });
       }
+    }
+
+    if (
+      BUILD.updatable &&
+      (flags & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
+    ) {
+      if (instance.componentShouldUpdate) {
+        if (instance.componentShouldUpdate(newVal, oldVal, propName) === false) {
+          return;
+        }
+      }
+
+      // looks like this value actually changed, so we've got work to do!
+      // but only if we've already rendered, otherwise just chill out
+      // queue that we need to do an update, but don't worry about queuing
+      // up millions cuz this function ensures it only runs once
+      scheduleUpdate(hostRef, false);
     }
   }
 };

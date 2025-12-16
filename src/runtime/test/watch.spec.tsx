@@ -222,4 +222,66 @@ describe('watch', () => {
     expect(rootInstance.method1).toHaveBeenCalledTimes(1);
     expect(rootInstance.method1).toHaveBeenLastCalledWith(100, 1, 'prop1');
   });
+
+  it('can immediately call watch method with default value', async () => {
+    const called: number[] = [];
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() prop1 = 1;
+
+      @Watch('prop1', { immediate: true })
+      methodImmediate(incomingValue: number) {
+        called.push(incomingValue);
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    await waitForChanges();
+    expect(called.length).toBe(1);
+    expect(called[0]).toBe(1);
+
+    // set same values, watch should not be called
+    root.prop1 = 1;
+    expect(called.length).toBe(1);
+
+    // // set different values
+    root.prop1 = 100;
+    await waitForChanges();
+    expect(called.length).toBe(2);
+    expect(called[1]).toBe(100);
+  });
+
+  it('can immediately call watch method with incoming attribute value', async () => {
+    const called: number[] = [];
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() prop1 = 1;
+
+      @Watch('prop1', { immediate: true })
+      methodImmediate(incomingValue: number) {
+        called.push(incomingValue);
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a prop-1="2"></cmp-a>`,
+    });
+    await waitForChanges();
+    expect(called.length).toBe(1);
+    expect(called[0]).toBe(2);
+
+    // set same values, watch should not be called
+    root.prop1 = 2;
+    expect(called.length).toBe(1);
+
+    // // set different values
+    root.prop1 = 100;
+    await waitForChanges();
+    expect(called.length).toBe(2);
+    expect(called[1]).toBe(100);
+  });
 });

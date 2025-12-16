@@ -22,6 +22,12 @@ describe('parse watch', () => {
         onStateUpdated() {
           console.log('state updated');
         }
+
+        @Watch('state1')
+        @Watch('prop2', {immediate: true})
+        onUpdateImmediate() {
+          console.log('update');
+        }
       }
     `);
 
@@ -30,6 +36,8 @@ describe('parse watch', () => {
       { methodName: 'onUpdate', propName: 'prop2' },
       { methodName: 'onStateUpdated', propName: 'prop1' },
       { methodName: 'onStateUpdated', propName: 'state1' },
+      { methodName: 'onUpdateImmediate', propName: 'state1' },
+      { methodName: 'onUpdateImmediate', propName: 'prop2', handlerOptions: { immediate: true } },
     ]);
   });
 
@@ -50,7 +58,7 @@ describe('parse watch', () => {
         }
       }
       class GrandParent {
-        @Watch('bar') 
+        @Watch('bar', {immediate: true}) 
         barHandler() {
           return 'GrandParent';
         }
@@ -73,6 +81,7 @@ describe('parse watch', () => {
       {
         methodName: 'barHandler',
         propName: 'bar',
+        handlerOptions: { immediate: true },
       },
       {
         methodName: 'anotherFooHandler',
