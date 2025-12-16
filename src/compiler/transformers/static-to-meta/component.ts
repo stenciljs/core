@@ -143,6 +143,7 @@ export const parseStaticComponentMeta = (
     hasReflect: false,
     hasRenderFn: false,
     hasSerializer: false,
+    hasSlot: false,
     hasState: false,
     hasStyle: false,
     hasVdomAttribute: false,
@@ -186,6 +187,7 @@ export const parseStaticComponentMeta = (
   cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode) || doesExtend;
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
+  cmp.hasSlot = cmp.hasSlot || cmp.htmlTagNames.includes('slot');
   cmp.potentialCmpRefs = unique(cmp.potentialCmpRefs);
   setComponentBuildConditionals(cmp);
 

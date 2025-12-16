@@ -125,9 +125,9 @@ export const enum CMP_FLAGS {
   shadowNeedsScopedCss = 1 << 7,
 
   /**
-   * Determines if a component has a render function.
+   * Determines if a component has a `<slot>` in its template.
    */
-  hasRenderFn = 1 << 8,
+  hasSlot = 1 << 8,
 
   /**
    * Determines if a component uses modern class property declarations.

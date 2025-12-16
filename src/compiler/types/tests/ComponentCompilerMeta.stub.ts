@@ -58,6 +58,7 @@ export const stubComponentCompilerMeta = (
   hasReflect: false,
   hasRenderFn: false,
   hasSerializer: false,
+  hasSlot: false,
   hasState: false,
   hasStyle: false,
   hasVdomAttribute: false,
