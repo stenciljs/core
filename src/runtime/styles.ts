@@ -73,101 +73,101 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       if (!appliedStyles) {
         rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
       }
-      if (!appliedStyles.has(scopeId)) {
+
+      // Check if style element already exists (for HMR updates)
+      const existingStyleElm =
+        (BUILD.hydrateClientSide || BUILD.hotModuleReplacement) &&
+        styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
+
+      if (existingStyleElm) {
+        // Update existing style element (for hydration or HMR)
+        existingStyleElm.innerHTML = style;
+      } else if (!appliedStyles.has(scopeId)) {
+        styleElm = win.document.createElement('style');
+        styleElm.innerHTML = style;
+
+        // Apply CSP nonce to the style tag if it exists
+        const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(win.document);
+        if (nonce != null) {
+          styleElm.setAttribute('nonce', nonce);
+        }
+
         if (
-          BUILD.hydrateClientSide &&
-          styleContainerNode.host &&
-          (styleElm = styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`))
+          (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
+          (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
+            cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
+            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
         ) {
-          // This is only happening on native shadow-dom, do not needs CSS var shim
-          styleElm.innerHTML = style;
-        } else {
-          styleElm = win.document.createElement('style');
-          styleElm.innerHTML = style;
+          styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
+        }
 
-          // Apply CSP nonce to the style tag if it exists
-          const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(win.document);
-          if (nonce != null) {
-            styleElm.setAttribute('nonce', nonce);
-          }
-
-          if (
-            (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-            (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
-              cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
-              cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
-          ) {
-            styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
-          }
-
-          /**
-           * attach styles at the end of the head tag if we render scoped components
-           */
-          if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
-            if (styleContainerNode.nodeName === 'HEAD') {
+        /**
+         * attach styles at the end of the head tag if we render scoped components
+         */
+        if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) {
+          if (styleContainerNode.nodeName === 'HEAD') {
+            /**
+             * if the page contains preconnect links, we want to insert the styles
+             * after the last preconnect link to ensure the styles are preloaded
+             */
+            const preconnectLinks = styleContainerNode.querySelectorAll('link[rel=preconnect]');
+            const referenceNode =
+              preconnectLinks.length > 0
+                ? preconnectLinks[preconnectLinks.length - 1].nextSibling
+                : styleContainerNode.querySelector('style');
+            (styleContainerNode as HTMLElement).insertBefore(
+              styleElm,
+              referenceNode?.parentNode === styleContainerNode ? referenceNode : null,
+            );
+          } else if ('host' in styleContainerNode) {
+            if (supportsConstructableStylesheets) {
               /**
-               * if the page contains preconnect links, we want to insert the styles
-               * after the last preconnect link to ensure the styles are preloaded
+               * If a scoped component is used within a shadow root then turn the styles into a
+               * constructable stylesheet and add it to the shadow root's adopted stylesheets.
+               *
+               * Note: order of how styles are adopted is important. The new stylesheet should be
+               * adopted before the existing styles.
                */
-              const preconnectLinks = styleContainerNode.querySelectorAll('link[rel=preconnect]');
-              const referenceNode =
-                preconnectLinks.length > 0
-                  ? preconnectLinks[preconnectLinks.length - 1].nextSibling
-                  : styleContainerNode.querySelector('style');
-              (styleContainerNode as HTMLElement).insertBefore(
-                styleElm,
-                referenceNode?.parentNode === styleContainerNode ? referenceNode : null,
-              );
-            } else if ('host' in styleContainerNode) {
-              if (supportsConstructableStylesheets) {
-                /**
-                 * If a scoped component is used within a shadow root then turn the styles into a
-                 * constructable stylesheet and add it to the shadow root's adopted stylesheets.
-                 *
-                 * Note: order of how styles are adopted is important. The new stylesheet should be
-                 * adopted before the existing styles.
-                 */
-                const stylesheet = new CSSStyleSheet();
-                stylesheet.replaceSync(style);
+              const stylesheet = new CSSStyleSheet();
+              stylesheet.replaceSync(style);
 
-                /**
-                 * > If the array needs to be modified, use in-place mutations like push().
-                 * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
-                 */
-                if (supportsMutableAdoptedStyleSheets) {
-                  styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
-                } else {
-                  styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
-                }
+              /**
+               * > If the array needs to be modified, use in-place mutations like push().
+               * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+               */
+              if (supportsMutableAdoptedStyleSheets) {
+                styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
               } else {
-                /**
-                 * If a scoped component is used within a shadow root and constructable stylesheets are
-                 * not supported, we want to insert the styles at the beginning of the shadow root node.
-                 *
-                 * However, if there is already a style node in the shadow root, we just append
-                 * the styles to the existing node.
-                 *
-                 * Note: order of how styles are applied is important. The new style node
-                 * should be inserted before the existing style node.
-                 */
-                const existingStyleContainer = styleContainerNode.querySelector('style');
-                if (existingStyleContainer) {
-                  existingStyleContainer.innerHTML = style + existingStyleContainer.innerHTML;
-                } else {
-                  (styleContainerNode as HTMLElement).prepend(styleElm);
-                }
+                styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
               }
             } else {
-              styleContainerNode.append(styleElm);
+              /**
+               * If a scoped component is used within a shadow root and constructable stylesheets are
+               * not supported, we want to insert the styles at the beginning of the shadow root node.
+               *
+               * However, if there is already a style node in the shadow root, we just append
+               * the styles to the existing node.
+               *
+               * Note: order of how styles are applied is important. The new style node
+               * should be inserted before the existing style node.
+               */
+              const existingStyleContainer = styleContainerNode.querySelector('style');
+              if (existingStyleContainer) {
+                existingStyleContainer.innerHTML = style + existingStyleContainer.innerHTML;
+              } else {
+                (styleContainerNode as HTMLElement).prepend(styleElm);
+              }
             }
+          } else {
+            styleContainerNode.append(styleElm);
           }
+        }
 
-          /**
-           * attach styles at the beginning of a shadow root node if we render shadow components
-           */
-          if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
-            styleContainerNode.insertBefore(styleElm, null);
-          }
+        /**
+         * attach styles at the beginning of a shadow root node if we render shadow components
+         */
+        if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
+          styleContainerNode.insertBefore(styleElm, null);
         }
 
         // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
