@@ -1,4 +1,5 @@
 import {
+  filterExcludedComponents,
   getComponentsFromModules,
   isOutputTargetDistTypes,
   join,
@@ -102,7 +103,12 @@ export const runTsProgram = async (
 
   // Finalize components metadata
   buildCtx.moduleFiles = Array.from(compilerCtx.moduleMap.values());
-  buildCtx.components = getComponentsFromModules(buildCtx.moduleFiles);
+  let allComponents = getComponentsFromModules(buildCtx.moduleFiles);
+
+  // Filter out excluded components based on config patterns
+  allComponents = filterExcludedComponents(allComponents, config);
+
+  buildCtx.components = allComponents;
 
   updateComponentBuildConditionals(compilerCtx.moduleMap, buildCtx.components);
   resolveComponentDependencies(buildCtx.components);

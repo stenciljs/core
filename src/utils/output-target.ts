@@ -1,5 +1,6 @@
-import { flatOne, normalizePath, sortBy } from '@utils';
+import { flatOne, isGlob, normalizePath, sortBy } from '@utils';
 import { join } from '@utils';
+import { minimatch } from 'minimatch';
 import { basename, dirname, relative } from 'path';
 
 import type * as d from '../declarations';
@@ -23,6 +24,74 @@ import {
   VALID_CONFIG_OUTPUT_TARGETS,
   WWW,
 } from './constants';
+
+/**
+ * Checks if a component tag name matches any of the exclude patterns.
+ * Supports glob patterns using minimatch.
+ *
+ * @param tagName The component's tag name to check
+ * @param excludePatterns Array of patterns to match against (supports globs)
+ * @returns true if the component should be excluded, false otherwise
+ */
+export const shouldExcludeComponent = (tagName: string, excludePatterns: string[] | undefined): boolean => {
+  if (!excludePatterns || excludePatterns.length === 0) {
+    return false;
+  }
+
+  return excludePatterns.some((pattern) => {
+    if (isGlob(pattern)) {
+      return minimatch(tagName, pattern);
+    }
+    return pattern === tagName;
+  });
+};
+
+/**
+ * Filters out components that match the excludeComponents patterns from the config.
+ * Only applies filtering when the --prod flag is explicitly set - dev builds include all components.
+ *
+ * @param components Array of component metadata
+ * @param config The validated Stencil configuration
+ * @returns Filtered array of components with excluded ones removed (or all components unless --prod is set)
+ */
+export const filterExcludedComponents = (
+  components: d.ComponentCompilerMeta[],
+  config: d.ValidatedConfig,
+): d.ComponentCompilerMeta[] => {
+  // Only apply exclusion logic when --prod flag is explicitly set
+  if (!config.flags?.prod) {
+    return components;
+  }
+
+  const excludePatterns = config.excludeComponents;
+
+  if (!excludePatterns || excludePatterns.length === 0) {
+    return components;
+  }
+
+  const excludedTags: string[] = [];
+
+  const filtered = components.filter((cmp) => {
+    const shouldExclude = shouldExcludeComponent(cmp.tagName, excludePatterns);
+
+    if (shouldExclude) {
+      excludedTags.push(cmp.tagName);
+      config.logger.debug(`Excluding component from build: ${cmp.tagName}`);
+    }
+
+    return !shouldExclude;
+  });
+
+  // Log summary of excluded components for production builds
+  if (excludedTags.length > 0) {
+    const tagList = excludedTags.join(', ');
+    config.logger.info(
+      `Excluding ${excludedTags.length} component${excludedTags.length === 1 ? '' : 's'} from production build: ${tagList}`,
+    );
+  }
+
+  return filtered;
+};
 
 export const relativeImport = (pathFrom: string, pathTo: string, ext?: string, addPrefix = true) => {
   let relativePath = relative(dirname(pathFrom), dirname(pathTo));
