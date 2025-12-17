@@ -1,5 +1,5 @@
 import type * as d from '../declarations';
-import { CMP_FLAGS, LISTENER_FLAGS, MEMBER_FLAGS } from './constants';
+import { CMP_FLAGS, LISTENER_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from './constants';
 
 export const formatLazyBundleRuntimeMeta = (
   bundleId: any,
@@ -87,9 +87,12 @@ const formatComponentRuntimeReactiveHandlers = (
   decorator: 'watchers' | 'serializers' | 'deserializers',
 ) => {
   const handlers: d.ComponentConstructorChangeHandlers = {};
-
-  compilerMeta[decorator]?.forEach(({ propName, methodName }) => {
-    handlers[propName] = [...(handlers[propName] ?? []), methodName];
+  compilerMeta[decorator]?.forEach(({ propName, methodName, handlerOptions }) => {
+    let watcherFlags = 0;
+    if (handlerOptions?.immediate) {
+      watcherFlags |= WATCH_FLAGS.Immediate;
+    }
+    handlers[propName] = [...(handlers[propName] ?? []), { [methodName]: watcherFlags }];
   });
 
   return handlers;

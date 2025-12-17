@@ -826,6 +826,9 @@ export interface ComponentCompilerMethodComplexType {
 export interface ComponentCompilerChangeHandler {
   propName: string;
   methodName: string;
+  handlerOptions?: {
+    immediate?: boolean;
+  };
 }
 
 export interface ComponentCompilerMethod extends ComponentCompilerStaticMethod {
@@ -926,7 +929,7 @@ export interface ComponentConstructor {
  * them.
  */
 export interface ComponentConstructorChangeHandlers {
-  [propName: string]: string[];
+  [propName: string]: { [methodName: string]: number }[];
 }
 
 export interface ComponentTestingConstructor extends ComponentConstructor {

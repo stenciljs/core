@@ -30,7 +30,15 @@ const parseWatchDecorator = (
   const methodName = method.name.getText();
   const decorators = retrieveTsDecorators(method) ?? [];
   return decorators.filter(isDecoratorNamed(decoratorName)).map((decorator) => {
-    const [propName] = getDecoratorParameters<string>(decorator, typeChecker);
+    const [propName, handlerOptions] = getDecoratorParameters<string, { immediate?: boolean }>(decorator, typeChecker);
+
+    if (handlerOptions) {
+      return {
+        propName,
+        methodName,
+        handlerOptions,
+      };
+    }
 
     return {
       propName,
