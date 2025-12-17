@@ -277,7 +277,23 @@ describe('transformCssToEsm', () => {
 
       const result = transformCssToEsmSync(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = () => `/* This is just a comment */`;');
+      // Comments are stripped to prevent Rollup parse errors when CSS is embedded in template literals
+      expect(result.output).toContain('const mdMyComponentCss = () => ``;');
+    });
+
+    it('should strip Sass loud comments to prevent Rollup errors', () => {
+      mockInput.input = `/*! Sass loud comment */
+.my-class {
+  color: red;
+}`;
+
+      const result = transformCssToEsmSync(mockInput);
+
+      // Loud comments (/*! */) should be stripped like regular comments
+      expect(result.output).not.toContain('/*');
+      expect(result.output).not.toContain('*/');
+      expect(result.output).toContain('.my-class');
+      expect(result.output).toContain('color: red');
     });
   });
 

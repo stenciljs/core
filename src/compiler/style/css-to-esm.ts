@@ -168,6 +168,11 @@ const generateTransformCssToEsm = (
     results.styleText = addTagTransformToCssString(results.styleText, input.tags);
   }
 
+  // Strip CSS comments before embedding in template literal
+  // This includes /** */ and /*! */ comments (Sass loud comments)
+  // Note: Style docs have already been parsed in transformCssToEsmModule
+  results.styleText = stripCssComments(results.styleText);
+
   if (input.module === 'cjs') {
     // CommonJS
     if (input.addTagTransformers) {
