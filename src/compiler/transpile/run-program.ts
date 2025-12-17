@@ -106,9 +106,24 @@ export const runTsProgram = async (
   let allComponents = getComponentsFromModules(buildCtx.moduleFiles);
 
   // Filter out excluded components based on config patterns
-  allComponents = filterExcludedComponents(allComponents, config);
+  const { components: filteredComponents, excludedComponents } = filterExcludedComponents(allComponents, config);
+  buildCtx.components = filteredComponents;
 
-  buildCtx.components = allComponents;
+  // Remove .d.ts files for excluded components
+  if (excludedComponents.length > 0) {
+    await Promise.all(
+      excludedComponents.map(async (cmp) => {
+        // Derive the .d.ts file path from the source file path
+        const dtsPath = cmp.sourceFilePath.replace(/\.tsx?$/, '.d.ts');
+        try {
+          await compilerCtx.fs.remove(dtsPath);
+          config.logger.debug(`Removed .d.ts file for excluded component: ${dtsPath}`);
+        } catch (e) {
+          // Ignore errors if file doesn't exist
+        }
+      }),
+    );
+  }
 
   updateComponentBuildConditionals(compilerCtx.moduleMap, buildCtx.components);
   resolveComponentDependencies(buildCtx.components);

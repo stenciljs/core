@@ -117,8 +117,9 @@ describe('output-utils tests', () => {
 
       const result = filterExcludedComponents(components, config);
 
-      expect(result).toHaveLength(3);
-      expect(result).toEqual(components);
+      expect(result.components).toHaveLength(3);
+      expect(result.components).toEqual(components);
+      expect(result.excludedComponents).toHaveLength(0);
     });
 
     it('should filter out components matching exact names', () => {
@@ -129,14 +130,16 @@ describe('output-utils tests', () => {
       ];
       const config = {
         ...createMockConfig(['demo-widget']),
-        flags: { prod: true },
+        devMode: false,
         logger: { debug: jest.fn(), info: jest.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
 
-      expect(result).toHaveLength(2);
-      expect(result.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.components).toHaveLength(2);
+      expect(result.components.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.excludedComponents).toHaveLength(1);
+      expect(result.excludedComponents[0].tagName).toBe('demo-widget');
     });
 
     it('should filter out components matching glob patterns', () => {
@@ -148,14 +151,15 @@ describe('output-utils tests', () => {
       ];
       const config = {
         ...createMockConfig(['demo-*']),
-        flags: { prod: true },
+        devMode: false,
         logger: { debug: jest.fn(), info: jest.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
 
-      expect(result).toHaveLength(2);
-      expect(result.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.components).toHaveLength(2);
+      expect(result.components.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.excludedComponents).toHaveLength(2);
     });
 
     it('should filter out components matching multiple patterns', () => {
@@ -168,21 +172,22 @@ describe('output-utils tests', () => {
       ];
       const config = {
         ...createMockConfig(['demo-*', '*-test', 'specific-exclude']),
-        flags: { prod: true },
+        devMode: false,
         logger: { debug: jest.fn(), info: jest.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
 
-      expect(result).toHaveLength(2);
-      expect(result.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.components).toHaveLength(2);
+      expect(result.components.map((c) => c.tagName)).toEqual(['my-button', 'my-card']);
+      expect(result.excludedComponents).toHaveLength(3);
     });
 
     it('should log debug messages for excluded components', () => {
       const components = [createMockComponent('my-button'), createMockComponent('demo-widget')];
       const config = {
         ...createMockConfig(['demo-*']),
-        flags: { prod: true },
+        devMode: false,
         logger: { debug: jest.fn(), info: jest.fn() },
       } as any;
 
@@ -195,13 +200,14 @@ describe('output-utils tests', () => {
       const components = [createMockComponent('demo-widget'), createMockComponent('demo-card')];
       const config = {
         ...createMockConfig(['demo-*']),
-        flags: { prod: true },
+        devMode: false,
         logger: { debug: jest.fn(), info: jest.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
 
-      expect(result).toHaveLength(0);
+      expect(result.components).toHaveLength(0);
+      expect(result.excludedComponents).toHaveLength(2);
     });
 
     it('should log info message for production builds with excluded components', () => {
@@ -212,7 +218,7 @@ describe('output-utils tests', () => {
       ];
       const config = {
         ...createMockConfig(['demo-*']),
-        flags: { prod: true },
+        devMode: false,
         logger: {
           debug: jest.fn(),
           info: jest.fn(),
@@ -230,7 +236,7 @@ describe('output-utils tests', () => {
       const components = [createMockComponent('my-button'), createMockComponent('demo-widget')];
       const config = {
         ...createMockConfig(['demo-widget']),
-        flags: { prod: true },
+        devMode: false,
         logger: {
           debug: jest.fn(),
           info: jest.fn(),
@@ -242,11 +248,11 @@ describe('output-utils tests', () => {
       expect(config.logger.info).toHaveBeenCalledWith('Excluding 1 component from production build: demo-widget');
     });
 
-    it('should not exclude components without --prod flag', () => {
+    it('should not exclude components in dev mode', () => {
       const components = [createMockComponent('my-button'), createMockComponent('demo-widget')];
       const config = {
         ...createMockConfig(['demo-widget']),
-        flags: {},
+        devMode: true,
         logger: {
           debug: jest.fn(),
           info: jest.fn(),
@@ -255,9 +261,10 @@ describe('output-utils tests', () => {
 
       const result = filterExcludedComponents(components, config);
 
-      // All components should be included when --prod flag is not set
-      expect(result).toHaveLength(2);
-      expect(result.map((c) => c.tagName)).toEqual(['my-button', 'demo-widget']);
+      // All components should be included in dev mode
+      expect(result.components).toHaveLength(2);
+      expect(result.components.map((c) => c.tagName)).toEqual(['my-button', 'demo-widget']);
+      expect(result.excludedComponents).toHaveLength(0);
       expect(config.logger.info).not.toHaveBeenCalled();
       expect(config.logger.debug).not.toHaveBeenCalled();
     });
@@ -266,15 +273,17 @@ describe('output-utils tests', () => {
       const components = [createMockComponent('my-button'), createMockComponent('my-card')];
       const config = {
         ...createMockConfig(['demo-*']),
-        flags: { prod: true },
+        devMode: false,
         logger: {
           debug: jest.fn(),
           info: jest.fn(),
         },
       } as any as d.ValidatedConfig;
 
-      filterExcludedComponents(components, config);
+      const result = filterExcludedComponents(components, config);
 
+      expect(result.components).toHaveLength(2);
+      expect(result.excludedComponents).toHaveLength(0);
       expect(config.logger.info).not.toHaveBeenCalled();
     });
   });

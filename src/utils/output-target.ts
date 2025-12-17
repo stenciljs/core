@@ -46,35 +46,42 @@ export const shouldExcludeComponent = (tagName: string, excludePatterns: string[
   });
 };
 
+export interface FilterComponentsResult {
+  components: d.ComponentCompilerMeta[];
+  excludedComponents: d.ComponentCompilerMeta[];
+}
+
 /**
  * Filters out components that match the excludeComponents patterns from the config.
- * Only applies filtering when the --prod flag is explicitly set - dev builds include all components.
+ * Only applies filtering to production builds (when devMode is false) - dev builds include all components.
  *
  * @param components Array of component metadata
  * @param config The validated Stencil configuration
- * @returns Filtered array of components with excluded ones removed (or all components unless --prod is set)
+ * @returns Object containing filtered components and excluded components
  */
 export const filterExcludedComponents = (
   components: d.ComponentCompilerMeta[],
   config: d.ValidatedConfig,
-): d.ComponentCompilerMeta[] => {
-  // Only apply exclusion logic when --prod flag is explicitly set
-  if (!config.flags?.prod) {
-    return components;
+): FilterComponentsResult => {
+  // Only apply exclusion logic in production builds (devMode === false)
+  if (config.devMode) {
+    return { components, excludedComponents: [] };
   }
 
   const excludePatterns = config.excludeComponents;
 
   if (!excludePatterns || excludePatterns.length === 0) {
-    return components;
+    return { components, excludedComponents: [] };
   }
 
+  const excludedComponents: d.ComponentCompilerMeta[] = [];
   const excludedTags: string[] = [];
 
   const filtered = components.filter((cmp) => {
     const shouldExclude = shouldExcludeComponent(cmp.tagName, excludePatterns);
 
     if (shouldExclude) {
+      excludedComponents.push(cmp);
       excludedTags.push(cmp.tagName);
       config.logger.debug(`Excluding component from build: ${cmp.tagName}`);
     }
@@ -90,7 +97,7 @@ export const filterExcludedComponents = (
     );
   }
 
-  return filtered;
+  return { components: filtered, excludedComponents };
 };
 
 export const relativeImport = (pathFrom: string, pathTo: string, ext?: string, addPrefix = true) => {
