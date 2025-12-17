@@ -116,7 +116,9 @@ describe('renderToString', () => {
       serializeShadowRoot: true,
       fullDocument: false,
     });
-    expect(html).toContain('<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>');
+    expect(html).toContain(
+      '<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>',
+    );
   });
 
   it('only returns the element if we render to DSD', async () => {
