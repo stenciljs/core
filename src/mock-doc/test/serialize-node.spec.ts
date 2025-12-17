@@ -169,7 +169,7 @@ describe('serializeNodeToHtml', () => {
     const elm = doc.createElement('my-tag');
     elm.setAttribute('tabindex', '0');
     const shadowRoot = elm.attachShadow({ mode: 'open', delegatesFocus: true });
-    
+
     const div = doc.createElement('div');
     div.innerHTML = 'test content';
     shadowRoot.appendChild(div);
