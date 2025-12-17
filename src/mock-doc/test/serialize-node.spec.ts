@@ -165,6 +165,26 @@ describe('serializeNodeToHtml', () => {
     expect(elm.outerHTML).toContain('<template shadowrootmode="open" shadowrootdelegatesfocus');
   });
 
+  it('shadow root with focus delegation matches toEqualHtml', () => {
+    const elm = doc.createElement('my-tag');
+    elm.setAttribute('tabindex', '0');
+    const shadowRoot = elm.attachShadow({ mode: 'open', delegatesFocus: true });
+    
+    const div = doc.createElement('div');
+    div.innerHTML = 'test content';
+    shadowRoot.appendChild(div);
+
+    // Test that the serialized output matches the expected format
+    // This ensures shadowrootdelegatesfocus appears without ="" when compared
+    expect(elm).toEqualHtml(`
+      <my-tag tabindex="0">
+        <mock:shadow-root shadowrootdelegatesfocus>
+          <div>test content</div>
+        </mock:shadow-root>
+      </my-tag>
+    `);
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;
