@@ -149,3 +149,5 @@ webapps
 xlink
 yourpackage
 fdir
+shadowrootmode
+shadowrootdelegatesfocus
