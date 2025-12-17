@@ -93,7 +93,9 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
 
           if (
             (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-            (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation || cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
+            (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
+              cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
+              cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
           ) {
             styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
           }

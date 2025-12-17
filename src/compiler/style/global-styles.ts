@@ -4,6 +4,7 @@ import type * as d from '../../declarations';
 import { runPluginTransforms } from '../plugin/plugin';
 import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';
+import { BUILD } from '@app-data';
 
 export const generateGlobalStyles = async (
   config: d.ValidatedConfig,
@@ -71,6 +72,16 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         });
         compilerCtx.cssModuleImports.set(globalStylePath, cssModuleImports);
       }
+
+      // Track global style changes for HMR
+      if (BUILD.hotModuleReplacement && buildCtx.isRebuild && config.devServer?.reloadStrategy === 'hmr') {
+        buildCtx.stylesUpdated.push({
+          styleTag: 'global',
+          styleMode: undefined,
+          styleText: optimizedCss,
+        });
+      }
+
       return optimizedCss;
     }
   } catch (e: any) {
