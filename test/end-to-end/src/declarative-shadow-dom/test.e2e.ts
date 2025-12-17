@@ -116,7 +116,7 @@ describe('renderToString', () => {
       serializeShadowRoot: true,
       fullDocument: false,
     });
-    expect(html).toContain('<template shadowrootmode="open"><style>section{color:green}</style>');
+    expect(html).toContain('<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>');
   });
 
   it('only returns the element if we render to DSD', async () => {
@@ -245,7 +245,7 @@ describe('renderToString', () => {
      * ```
      */
     expect(html).toContain(
-      `<dsd-listen-cmp class=\"sc-dsd-listen-cmp-h\" custom-hydrate-flag=\"\" s-id=\"21\"><template shadowrootmode=\"open\"><style>:host{display:block}</style><slot class=\"sc-dsd-listen-cmp\" c-id=\"21.0.0.0\"></slot></template><!--r.21-->Hello World</dsd-listen-cmp>`,
+      `<dsd-listen-cmp class=\"sc-dsd-listen-cmp-h\" custom-hydrate-flag=\"\" s-id=\"21\"><template shadowrootmode=\"open\"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot class=\"sc-dsd-listen-cmp\" c-id=\"21.0.0.0\"></slot></template><!--r.21-->Hello World</dsd-listen-cmp>`,
     );
 
     /**
@@ -309,7 +309,7 @@ describe('renderToString', () => {
         prettyHtml: true,
         modes: [() => 'ios'],
       });
-      expect(html).toContain('<style>');
+      expect(html).toContain('<style sty-id="sc-prop-cmp-ios">');
       expect(html).toContain(';color:white;');
       const page = await newE2EPage({ html, url: 'https://stencil.com' });
       const div = await page.find('>>>div');
@@ -353,7 +353,7 @@ describe('renderToString', () => {
     );
     expect(html).toBe(`<nested-cmp-parent class="sc-nested-cmp-parent-h" custom-hydrate-flag="" s-id="29">
   <template shadowrootmode="open">
-    <style>
+    <style sty-id="sc-nested-cmp-parent">
       .sc-nested-scope-cmp-h{color:green}:host{display:inline-block}
     </style>
     <div c-id="29.0.0.0" class="sc-nested-cmp-parent some-class">
@@ -370,7 +370,7 @@ describe('renderToString', () => {
   <!--r.29-->
   <nested-cmp-child class="sc-nested-cmp-child-h" custom-hydrate-flag="" s-id="30">
     <template shadowrootmode="open">
-      <style>
+      <style sty-id="sc-nested-cmp-child">
         :host{display:block}
       </style>
       <div c-id="30.0.0.0" class="sc-nested-cmp-child some-other-class">
