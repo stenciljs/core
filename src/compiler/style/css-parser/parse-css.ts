@@ -539,10 +539,16 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
           const lookAhead = css.match(/^[^{}]+/);
           hasOpenBrace = lookAhead && css[lookAhead[0].length] === '{';
         } else {
-          // For other starts, look for '{' before a property declaration ':'
-          // Match everything that could be a selector (up to but not including property ':')
-          const lookAhead = css.match(/^[^{}:;]+/);
-          hasOpenBrace = lookAhead && css[lookAhead[0].length] === '{';
+          // For other starts, check if this is a selector (not a declaration)
+          // A selector will have a '{' relatively soon without a declaration-style ':' first
+          // Match up to ';' or '{', whichever comes first
+          const lookAhead = css.match(/^[^{};]+/);
+          if (lookAhead) {
+            const nextSigChar = css[lookAhead[0].length];
+            // If the next significant character is '{', this is a nested rule
+            // If it's ';', this is likely a declaration
+            hasOpenBrace = nextSigChar === '{';
+          }
         }
 
         if (hasOpenBrace) {

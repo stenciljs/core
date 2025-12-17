@@ -1,5 +1,5 @@
-import { parseCss } from '../css-parser/parse-css';
-import { serializeCss } from '../css-parser/serialize-css';
+import { parseCss } from '../parse-css';
+import { serializeCss } from '../serialize-css';
 
 describe('CSS Nesting', () => {
   it('should parse and serialize basic nested rules', () => {
@@ -192,5 +192,45 @@ describe('CSS Nesting', () => {
 
     const serialized = serializeCss(result.stylesheet, {});
     expect(serialized).toBe('.parent{color:red}');
+  });
+
+  it('should parse @media with deeply nested rules', () => {
+    const css = `@media (min-width: 640px) {
+  article {
+    section:first-of-type {
+      flex: 1;
+    }
+  }
+}`;
+
+    const result = parseCss(css);
+    expect(result.diagnostics).toHaveLength(0);
+
+    // Should have one @media rule
+    expect(result.stylesheet.rules).toHaveLength(1);
+    const mediaRule = result.stylesheet.rules?.[0];
+    expect(mediaRule?.type).toBe(10); // CssNodeType.Media
+    expect(mediaRule?.media).toBe('(min-width: 640px)');
+
+    // @media should contain one rule (article)
+    expect(mediaRule?.rules).toHaveLength(1);
+    const articleRule = mediaRule?.rules?.[0];
+    expect(articleRule?.selectors).toEqual(['article']);
+    expect(articleRule?.declarations).toHaveLength(0);
+
+    // article should contain one nested rule (section:first-of-type)
+    expect(articleRule?.rules).toHaveLength(1);
+    const sectionRule = articleRule?.rules?.[0];
+    expect(sectionRule?.selectors).toEqual(['section:first-of-type']);
+    expect(sectionRule?.declarations).toHaveLength(1);
+    expect(sectionRule?.declarations?.[0].property).toBe('flex');
+    expect(sectionRule?.declarations?.[0].value).toBe('1');
+
+    // Verify serialization
+    const serialized = serializeCss(result.stylesheet, {});
+    expect(serialized).toContain('@media (min-width: 640px)');
+    expect(serialized).toContain('article');
+    expect(serialized).toContain('section:first-of-type');
+    expect(serialized).toContain('flex:1');
   });
 });
