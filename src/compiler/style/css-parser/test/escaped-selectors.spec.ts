@@ -1,5 +1,5 @@
-import { parseCss } from '../css-parser/parse-css';
-import { serializeCss } from '../css-parser/serialize-css';
+import { parseCss } from '../parse-css';
+import { serializeCss } from '../serialize-css';
 
 describe('Escaped CSS Selectors', () => {
   it('should parse selectors with escaped brackets (Tailwind-style)', () => {
