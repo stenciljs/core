@@ -252,7 +252,7 @@ export const validateConfig = (
     validatedConfig.bundles = [];
   }
 
-  // excludeComponents
+  // exclude components (tag list)
   if (!Array.isArray(validatedConfig.excludeComponents)) {
     validatedConfig.excludeComponents = [];
   }
