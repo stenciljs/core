@@ -324,7 +324,7 @@ export interface StencilConfig {
   /**
    * An array of component tag names to exclude from production builds.
    * Useful to remove test, demo or experimental components from final output.
-   * 
+   *
    * **Note:** Exclusion only applies to production builds (`--prod` flag set).
    * Development builds will include all components to support local testing.
    *
