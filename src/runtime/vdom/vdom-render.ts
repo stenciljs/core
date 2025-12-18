@@ -131,6 +131,8 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       elm.classList.add((elm['s-si'] = scopeId));
     }
     if (newVNode.$children$) {
+      // For template elements, children should be appended to the content DocumentFragment
+      const appendTarget = newVNode.$tag$ === 'template' ? (elm as HTMLTemplateElement).content : elm;
       for (i = 0; i < newVNode.$children$.length; ++i) {
         // create the node
         childNode = createElm(oldParentVNode, newVNode, i);
@@ -138,7 +140,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
         // return node could have been null
         if (childNode) {
           // append our new node
-          elm.appendChild(childNode);
+          appendTarget.appendChild(childNode);
         }
       }
     }
@@ -310,6 +312,11 @@ const addVnodes = (
     containerElm = (containerElm as any).shadowRoot;
   }
 
+  // For template elements, children should be added to the content DocumentFragment
+  if (parentVNode.$tag$ === 'template') {
+    containerElm = (containerElm as HTMLTemplateElement).content;
+  }
+
   for (; startIdx <= endIdx; ++startIdx) {
     if (vnodes[startIdx]) {
       childNode = createElm(null, parentVNode, startIdx);
@@ -451,6 +458,9 @@ const updateChildren = (
   let node: Node;
   let elmToMove: d.VNode;
 
+  // For template elements, we need to work with the content DocumentFragment
+  const containerElm = newVNode.$tag$ === 'template' ? (parentElm as HTMLTemplateElement).content : parentElm;
+
   while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
     if (oldStartVnode == null) {
       // VNode might have been moved left
@@ -509,10 +519,10 @@ const updateChildren = (
       //
       // If instead `oldEndVnode.$elm$` has no sibling then we just want to put
       // the node for `oldStartVnode` at the end of the children of
-      // `parentElm`. Luckily, `Node.nextSibling` will return `null` if there
+      // `containerElm`. Luckily, `Node.nextSibling` will return `null` if there
       // aren't any siblings, and passing `null` to `Node.insertBefore` will
       // append it to the children of the parent element.
-      insertBefore(parentElm, oldStartVnode.$elm$, oldEndVnode.$elm$.nextSibling as any);
+      insertBefore(containerElm, oldStartVnode.$elm$, oldEndVnode.$elm$.nextSibling as any);
       oldStartVnode = oldCh[++oldStartIdx];
       newEndVnode = newCh[--newEndIdx];
     } else if (isSameVnode(oldEndVnode, newStartVnode, isInitialRender)) {
@@ -540,7 +550,7 @@ const updateChildren = (
       // can move the element for `oldEndVnode` _before_ the element for
       // `oldStartVnode`, leaving `oldStartVnode` to be reconciled in the
       // future.
-      insertBefore(parentElm, oldEndVnode.$elm$, oldStartVnode.$elm$);
+      insertBefore(containerElm, oldEndVnode.$elm$, oldStartVnode.$elm$);
       oldEndVnode = oldCh[--oldEndIdx];
       newStartVnode = newCh[++newStartIdx];
     } else {
