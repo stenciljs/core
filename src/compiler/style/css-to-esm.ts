@@ -133,6 +133,7 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCs
           tag: input.tag,
           encapsulation: input.encapsulation,
           mode: input.mode,
+          isNodeModule: cssImport.isNodeModule,
         },
         input.styleImportData,
       );
@@ -246,14 +247,17 @@ const getCssToEsmImports = (
       url: r[4].replace(/[\"\'\)]/g, ''),
       filePath: null,
       varName: null,
+      isNodeModule: false,
     };
 
     if (!isLocalCssImport(cssImportData.srcImportText)) {
       // do nothing for @import url(http://external.css)
       continue;
     } else if (isCssNodeModule(cssImportData.url)) {
-      // do not resolve this path cuz it starts with node resolve id ~
-      continue;
+      // Node module import with ~ prefix
+      // Strip the ~ and use the path as-is for module resolution
+      cssImportData.filePath = cssImportData.url.substring(1);
+      cssImportData.isNodeModule = true;
     } else if (path.isAbsolute(cssImportData.url)) {
       // absolute path already
       cssImportData.filePath = normalizePath(cssImportData.url);

@@ -78,6 +78,11 @@ export interface ImportData {
 export interface SerializeImportData extends ImportData {
   importeePath: string;
   importerPath?: string;
+  /**
+   * True if this is a node module import (e.g. using ~ prefix like ~foo/style.css)
+   * These should be treated as bare module specifiers and not have ./ prepended
+   */
+  isNodeModule?: boolean;
 }
 
 export interface BuildFeatures {
@@ -2109,6 +2114,11 @@ export interface CssToEsmImportData {
   varName: string;
   url: string;
   filePath: string;
+  /**
+   * True if this is a node module import (e.g. using ~ prefix like ~foo/style.css)
+   * These should be treated as bare module specifiers and not have ./ prepended
+   */
+  isNodeModule?: boolean;
 }
 
 /**
