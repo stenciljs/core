@@ -37,6 +37,6 @@ describe('exclude-component', () => {
     const excludedElement = await $('exclude-component-root');
     const hasHydratedClass = await excludedElement.getAttribute('class');
 
-    expect(hasHydratedClass).not.toContain('hydrated');
+    expect(hasHydratedClass).toBeFalsy();
   });
 });
