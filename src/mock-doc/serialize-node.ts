@@ -164,6 +164,16 @@ function* streamToHtml(
           continue;
         }
 
+        // Skip shadowrootmode and shadowrootdelegatesfocus attributes when they've already been
+        // added from the shadow root's properties (to avoid duplication)
+        if (
+          tag === 'template' &&
+          isShadowRoot &&
+          (attrName === 'shadowrootmode' || attrName === 'shadowrootdelegatesfocus')
+        ) {
+          continue;
+        }
+
         let attrValue = attr.value;
         if (opts.removeEmptyAttributes && attrValue === '' && REMOVE_EMPTY_ATTR.has(attrName)) {
           continue;
@@ -211,6 +221,10 @@ function* streamToHtml(
         }
 
         if (attrValue === '') {
+          // shadowrootdelegatesfocus should always be rendered as a boolean attribute (no value)
+          if (attrName === 'shadowrootdelegatesfocus') {
+            continue;
+          }
           if (opts.removeBooleanAttributeQuotes && BOOLEAN_ATTR.has(attrName)) {
             continue;
           }
@@ -645,6 +659,7 @@ function getChildNodes(node: Node | MockNode) {
   'scoped',
   'seamless',
   'selected',
+  'shadowrootdelegatesfocus',
   'sortable',
   'truespeed',
   'typemustmatch',
