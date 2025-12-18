@@ -322,6 +322,31 @@ export interface StencilConfig {
   watchIgnoredRegex?: RegExp | RegExp[];
 
   /**
+   * An array of component tag names to exclude from production builds.
+   * Useful to remove test, demo or experimental components from final output.
+   *
+   * **Note:** Exclusion only applies to production builds (default, or when `--prod` is used).
+   * Development builds (with `--dev` flag) will include all components to support local testing.
+   *
+   * Supports glob patterns for matching multiple components:
+   * - `['demo-*']` - Excludes all components starting with "demo-"
+   * - `['*-test', '*-demo']` - Excludes components ending with "-test" or "-demo"
+   * - `['my-component']` - Excludes a specific component
+   *
+   * Components matching these patterns will be completely excluded from all output targets.
+   *
+   * @example
+   * ```ts
+   * export const config: Config = {
+   *   excludeComponents: ['demo-*', 'test-component', '*-internal'],
+   * };
+   * ```
+   *
+   * @default []
+   */
+  excludeComponents?: string[];
+
+  /**
    * Set whether unused dependencies should be excluded from the built output.
    */
   excludeUnusedDependencies?: boolean;

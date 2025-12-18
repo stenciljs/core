@@ -1,4 +1,5 @@
 import {
+  filterExcludedComponents,
   getComponentsFromModules,
   isOutputTargetDistTypes,
   join,
@@ -42,6 +43,7 @@ export const runTsProgram = async (
   const tsTypeChecker = tsProgram.getTypeChecker();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
   const emittedDts: string[] = [];
+
   const emitCallback: ts.WriteFileCallback = (emitFilePath, data, _w, _e, tsSourceFiles) => {
     if (
       emitFilePath.includes('e2e.') ||
@@ -102,7 +104,31 @@ export const runTsProgram = async (
 
   // Finalize components metadata
   buildCtx.moduleFiles = Array.from(compilerCtx.moduleMap.values());
-  buildCtx.components = getComponentsFromModules(buildCtx.moduleFiles);
+  const allComponents = getComponentsFromModules(buildCtx.moduleFiles);
+
+  // Filter out excluded components based on config patterns
+  const { components: filteredComponents, excludedComponents } = filterExcludedComponents(allComponents, config);
+  buildCtx.components = filteredComponents;
+
+  // Queue deletion of .d.ts files for excluded components in the in-memory FS
+  // These deletions will be committed when compilerCtx.fs.commit() is called during writeBuild
+  if (excludedComponents.length > 0 && typesOutputTarget.length > 0) {
+    excludedComponents.forEach((cmp) => {
+      const srcPath = normalizePath(cmp.sourceFilePath);
+      const relativeToSrc = relative(config.srcDir, srcPath);
+      const dtsRelativePath = relativeToSrc.replace(/\.tsx?$/, '.d.ts');
+
+      typesOutputTarget.forEach((outputTarget) => {
+        const outputDtsPath = join(outputTarget.typesDir, dtsRelativePath);
+
+        // The file may have been queued for writing during emit
+        // We need to cancel the write and queue it for deletion instead
+        const item = compilerCtx.fs.getItem(outputDtsPath);
+        item.queueWriteToDisk = false;
+        item.queueDeleteFromDisk = true;
+      });
+    });
+  }
 
   updateComponentBuildConditionals(compilerCtx.moduleMap, buildCtx.components);
   resolveComponentDependencies(buildCtx.components);

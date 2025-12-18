@@ -252,6 +252,11 @@ export const validateConfig = (
     validatedConfig.bundles = [];
   }
 
+  // exclude components (tag list)
+  if (!Array.isArray(validatedConfig.excludeComponents)) {
+    validatedConfig.excludeComponents = [];
+  }
+
   // validate how many workers we can use
   validateWorkers(validatedConfig);
 
