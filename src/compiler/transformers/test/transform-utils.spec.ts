@@ -5,6 +5,8 @@ import {
   addTagTransformToCssTsAST,
   isMemberPrivate,
   mapJSDocTagInfo,
+  parseDocsType,
+  resolveType,
   retrieveModifierLike,
   retrieveTsDecorators,
   retrieveTsModifiers,
@@ -544,6 +546,131 @@ describe('transform-utils', () => {
       } else {
         fail('Expected TemplateExpression but got different node type');
       }
+    });
+  });
+
+  describe('resolveType and parseDocsType', () => {
+    /**
+     * Helper to create a minimal compiler host for testing
+     */
+    const createTestCompilerHost = (sourceFile: ts.SourceFile): ts.CompilerHost => ({
+      getSourceFile: (fileName) => (fileName === 'test.ts' ? sourceFile : undefined),
+      writeFile: () => {},
+      getCurrentDirectory: () => '',
+      getDirectories: () => [],
+      fileExists: () => true,
+      readFile: () => '',
+      getCanonicalFileName: (fileName) => fileName,
+      useCaseSensitiveFileNames: () => true,
+      getNewLine: () => '\n',
+      getDefaultLibFileName: () => 'lib.d.ts',
+    });
+
+    describe('type alias expansion', () => {
+      it('should expand non-generic type aliases to their literal values', () => {
+        // Create a simple type alias: type ColorName = "red" | "green" | "blue"
+        const sourceCode = `
+          type ColorName = "red" | "green" | "blue";
+          const color: ColorName = "red";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'color' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to the literal values
+        expect(result).toBe('"blue" | "green" | "red"');
+      });
+
+      it('should expand generic type aliases to their literal values', () => {
+        // Create a generic type alias: type AllowedValues<T> = T
+        const sourceCode = `
+          type AllowedValues<T> = T;
+          const value: AllowedValues<"a" | "b" | "c"> = "a";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'value' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to the literal values
+        expect(result).toBe('"a" | "b" | "c"');
+      });
+
+      it('should expand unions of type aliases with more than 20 members', () => {
+        // Create a union type with 21 string literal values (3 + 18)
+        const sourceCode = `
+          type ColorName = "Lavender" | "Mint" | "Rose";
+          type ColorShadeName = "100" | "200" | "300" | "400" | "500" | "600";
+          type AllowedColors<T> = T;
+          const color: ColorName | AllowedColors<\`\${ColorName}-\${ColorShadeName}\`> = "Lavender";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'color' variable
+        const variableStatement = sourceFile.statements[3] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to all 21 literal values (3 base colors + 18 combinations)
+        const parts = result.split(' | ');
+        expect(parts.length).toBe(21);
+        expect(parts).toContain('"Lavender"');
+        expect(parts).toContain('"Mint"');
+        expect(parts).toContain('"Rose"');
+        expect(parts).toContain('"Lavender-100"');
+        expect(parts).toContain('"Mint-600"');
+        expect(parts).toContain('"Rose-600"');
+
+        // Verify no malformed entries (should not contain type alias names or angle brackets)
+        expect(result).not.toContain('ColorName');
+        expect(result).not.toContain('AllowedColors');
+        expect(result).not.toContain('<');
+        expect(result).not.toContain('>');
+      });
+
+      it('should handle parseDocsType correctly for union types', () => {
+        // Test that parseDocsType properly expands union types
+        const sourceCode = `
+          type Status = "active" | "inactive";
+          const status: Status = "active";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'status' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const parts = new Set<string>();
+        parseDocsType(checker, type, parts);
+
+        expect(parts.size).toBe(2);
+        expect(parts.has('"active"')).toBe(true);
+        expect(parts.has('"inactive"')).toBe(true);
+      });
     });
   });
 });

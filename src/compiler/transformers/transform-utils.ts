@@ -780,15 +780,10 @@ export const resolveType = (checker: ts.TypeChecker, type: ts.Type): string => {
   }
 
   let parts = Array.from(set.keys()).sort();
-  // TODO(STENCIL-366): Get this section of code under tests that directly exercise this behavior
   if (parts.length > 1) {
     parts = parts.map((p) => (p.indexOf('=>') >= 0 ? `(${p})` : p));
   }
-  if (parts.length > 20) {
-    return typeToString(checker, type);
-  } else {
-    return parts.join(' | ');
-  }
+  return parts.join(' | ');
 };
 
 /**
@@ -826,8 +821,35 @@ export const parseDocsType = (checker: ts.TypeChecker, type: ts.Type, parts: Set
       parseDocsType(checker, t, parts);
     });
   } else {
-    const text = typeToString(checker, type);
-    parts.add(text);
+    // Check if this is a type alias (generic or non-generic) that should be expanded
+    // For documentation purposes, we want to show the actual literal values
+    // rather than type alias names like "ColorName" or "AllowedColors<...>"
+    if (type.aliasSymbol) {
+      if (type.aliasTypeArguments && type.aliasTypeArguments.length > 0) {
+        // Generic type alias: recursively parse each type argument
+        // This handles cases like: type Foo<T> = T; where Foo<"a" | "b"> should become "a" | "b"
+        type.aliasTypeArguments.forEach((argType) => {
+          parseDocsType(checker, argType, parts);
+        });
+      } else if (type.aliasSymbol.declarations && type.aliasSymbol.declarations.length > 0) {
+        // Non-generic type alias: get the aliased type and recurse
+        // This handles cases like: type ColorName = "a" | "b" | "c"
+        const aliasedType = checker.getTypeAtLocation(type.aliasSymbol.declarations[0]);
+        if (aliasedType && aliasedType !== type) {
+          parseDocsType(checker, aliasedType, parts);
+        } else {
+          const text = typeToString(checker, type);
+          parts.add(text);
+        }
+      } else {
+        // Type alias but no declarations (e.g., global or external types)
+        const text = typeToString(checker, type);
+        parts.add(text);
+      }
+    } else {
+      const text = typeToString(checker, type);
+      parts.add(text);
+    }
   }
 };
 
