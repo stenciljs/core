@@ -24,7 +24,9 @@ export const serializeImportPath = (data: SerializeImportData, styleImportData: 
     if (isString(data.importerPath) && isAbsolute(data.importeePath)) {
       p = relative(dirname(data.importerPath), data.importeePath);
     }
-    if (!p.startsWith('.')) {
+    // Don't add ./ prefix for node module imports (bare module specifiers)
+    // They should be resolved by the bundler's module resolution
+    if (!p.startsWith('.') && !data.isNodeModule) {
       p = './' + p;
     }
 

@@ -137,7 +137,7 @@ describe('transformCssToEsm', () => {
       expect(result.styleText).toContain('https://fonts.googleapis.com');
     });
 
-    it('should ignore node module imports with ~', async () => {
+    it('should handle node module imports with ~', async () => {
       mockInput.input = `
         @import '~normalize.css/normalize.css';
         .my-class { color: red; }
@@ -145,8 +145,36 @@ describe('transformCssToEsm', () => {
 
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.imports).toHaveLength(0);
-      expect(result.styleText).toContain('~normalize.css');
+      expect(result.imports).toHaveLength(1);
+      expect(result.imports[0].importPath).toContain('normalize.css/normalize.css');
+      expect(result.output).toContain('import');
+      expect(result.output).toContain('normalize.css/normalize.css');
+      expect(result.styleText).not.toContain('@import');
+      expect(result.styleText).not.toContain('~normalize.css');
+    });
+
+    it('should handle multiple imports including node modules', async () => {
+      mockInput.input = `
+        @import './debug/style.css';
+        @import '~foo/style.css';
+        .my-class { color: red; }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.imports).toHaveLength(2);
+
+      // First import should be relative path
+      expect(result.imports[0].importPath).toBe('./debug/style.css');
+
+      // Second import should be bare module specifier (no ./ prefix)
+      expect(result.imports[1].importPath).toBe('foo/style.css');
+
+      expect(result.output).toContain("import mdStyleCss from './debug/style.css'");
+      expect(result.output).toContain("import mdStyleCss2 from 'foo/style.css'");
+      expect(result.output).toContain('mdStyleCss + mdStyleCss2');
+      expect(result.styleText).not.toContain('@import');
+      expect(result.styleText).not.toContain('~');
     });
 
     it('should handle imports with CommonJS module', async () => {
