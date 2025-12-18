@@ -1036,7 +1036,7 @@ export namespace JSXBase {
     popoverTargetAction?: string;
     popoverTargetElement?: Element | null;
     popoverTarget?: string;
-    
+
     // invoker commands
     command?: string;
     commandFor?: string;
