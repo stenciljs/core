@@ -1036,6 +1036,11 @@ export namespace JSXBase {
     popoverTargetAction?: string;
     popoverTargetElement?: Element | null;
     popoverTarget?: string;
+
+    // invoker commands
+    command?: string;
+    commandFor?: string;
+    commandfor?: string;
   }
 
   export interface CanvasHTMLAttributes<T> extends HTMLAttributes<T> {
