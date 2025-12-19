@@ -135,7 +135,8 @@ export const validateConfig = (
     minifyJs: config.minifyJs ?? !devMode,
     outputTargets: config.outputTargets ?? [],
     rollupConfig: validateRollupConfig(config),
-    sourceMap: config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
+    sourceMap:
+      config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
     testing: config.testing ?? {},
     docs: validateDocs(config, logger),
