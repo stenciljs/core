@@ -21,11 +21,12 @@ const globalScript = () => {
   setTagTransformer(tagTransformer);
 
   setMode((elm) => {
+    if (!elm) return null;
     // this should be valid as HTMLElement and HTMLStencilElement should be compatible
     thing = elm as HTMLAttributeBasicElement;
     return (elm as any).colormode || elm.getAttribute('colormode');
   });
 };
 
-export let thing: HTMLElement = globalThis.document ? document.createElement('div') : null;
+export let thing: null | HTMLElement = globalThis.document ? document.createElement('div') : null;
 export default globalScript;

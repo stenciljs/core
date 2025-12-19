@@ -75,6 +75,12 @@ export interface ShadowRootOptions {
    * focusable part is given focus, and the shadow host is given any available `:focus` styling.
    */
   delegatesFocus?: boolean;
+  /**
+   * Sets the slot assignment mode for the shadow root. When set to `'manual'`, enables imperative
+   * slotting using the `HTMLSlotElement.assign()` method. Defaults to `'named'` for standard
+   * declarative slotting behavior.
+   */
+  slotAssignment?: 'manual' | 'named';
 }
 
 export interface ModeStyles {
@@ -798,7 +804,7 @@ export { LocalJSX as JSX };
 export namespace JSXBase {
   export interface IntrinsicElements {
     // Stencil elements
-    slot: JSXBase.SlotAttributes;
+    slot: JSXBase.SlotAttributes<HTMLSlotElement>;
 
     // HTML
     a: JSXBase.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -973,7 +979,7 @@ export namespace JSXBase {
     view: JSXBase.SVGAttributes;
   }
 
-  export interface SlotAttributes extends JSXAttributes {
+  export interface SlotAttributes<T = HTMLSlotElement> extends JSXAttributes<T> {
     name?: string;
     slot?: string;
     onSlotchange?: (event: Event) => void;

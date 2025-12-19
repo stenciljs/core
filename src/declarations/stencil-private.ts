@@ -94,6 +94,7 @@ export interface BuildFeatures {
   // dom
   shadowDom: boolean;
   shadowDelegatesFocus: boolean;
+  shadowSlotAssignmentManual: boolean;
   scoped: boolean;
 
   // render
@@ -662,6 +663,11 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   properties: ComponentCompilerProperty[];
   serializers: ComponentCompilerChangeHandler[];
   shadowDelegatesFocus: boolean;
+  /**
+   * Slot assignment mode for shadow DOM. 'manual', enables imperative slotting
+   * using HTMLSlotElement.assign(). Only applicable when encapsulation is 'shadow'.
+   */
+  slotAssignment: 'manual' | null;
   sourceFilePath: string;
   sourceMapPath: string;
   states: ComponentCompilerState[];

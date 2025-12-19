@@ -93,6 +93,7 @@ export const BUILD: BuildConditionals = {
   constructableCSS: true,
   devTools: false,
   shadowDelegatesFocus: true,
+  shadowSlotAssignmentManual: false,
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,

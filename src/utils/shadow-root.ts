@@ -13,12 +13,20 @@ let globalStyleSheet: CSSStyleSheet | null | undefined;
 const GLOBAL_STYLE_ID = 'sc-global';
 
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
-  const shadowRoot = BUILD.shadowDelegatesFocus
-    ? this.attachShadow({
-        mode: 'open',
-        delegatesFocus: !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus),
-      })
-    : this.attachShadow({ mode: 'open' });
+  const opts: ShadowRootInit = { mode: 'open' };
+
+  if (BUILD.shadowDelegatesFocus) {
+    opts.delegatesFocus = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus);
+  }
+
+  if (BUILD.shadowSlotAssignmentManual) {
+    const isManual = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowSlotAssignmentManual);
+    if (isManual) {
+      opts.slotAssignment = 'manual';
+    }
+  }
+
+  const shadowRoot = this.attachShadow(opts);
 
   // Initialize if undefined, set to CSSStyleSheet or null
   if (globalStyleSheet === undefined) globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;

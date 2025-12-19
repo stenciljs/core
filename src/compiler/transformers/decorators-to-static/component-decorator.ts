@@ -53,6 +53,9 @@ export const componentDecoratorToStatic = (
       if (componentOptions.shadow.delegatesFocus === true) {
         newMembers.push(createStaticGetter('delegatesFocus', convertValueToLiteral(true)));
       }
+      if (componentOptions.shadow.slotAssignment === 'manual') {
+        newMembers.push(createStaticGetter('slotAssignment', convertValueToLiteral('manual')));
+      }
     }
   } else if (componentOptions.scoped) {
     newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
@@ -100,6 +103,16 @@ const validateComponent = (
     err.messageText = `Components cannot be "scoped" and "shadow" at the same time, they are mutually exclusive configurations.`;
     augmentDiagnosticWithNode(err, findTagNode('scoped', componentDecorator));
     return false;
+  }
+
+  // Validate slotAssignment is only used with shadow: true
+  if (typeof componentOptions.shadow === 'object' && componentOptions.shadow.slotAssignment) {
+    if (componentOptions.shadow.slotAssignment !== 'manual' && componentOptions.shadow.slotAssignment !== 'named') {
+      const err = buildError(diagnostics);
+      err.messageText = `The "slotAssignment" option must be either "manual" or "named".`;
+      augmentDiagnosticWithNode(err, findTagNode('slotAssignment', componentDecorator));
+      return false;
+    }
   }
 
   const constructor = cmpNode.members.find(ts.isConstructorDeclaration);

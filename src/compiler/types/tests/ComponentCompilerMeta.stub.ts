@@ -87,6 +87,7 @@ export const stubComponentCompilerMeta = (
   properties: [],
   serializers: [],
   shadowDelegatesFocus: false,
+  slotAssignment: null,
   sourceFilePath: '/some/stubbed/path/my-component.tsx',
   sourceMapPath: '/some/stubbed/path/my-component.js.map',
   states: [],

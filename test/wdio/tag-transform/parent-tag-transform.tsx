@@ -10,12 +10,12 @@ export class TagTransformParent {
 
   @Method()
   async querySelectorAllChildTags() {
-    return this.el.shadowRoot.querySelectorAll('child-tag-transform');
+    return this.el.shadowRoot?.querySelectorAll('child-tag-transform');
   }
 
   @Method()
   async querySelectorChildTags() {
-    return this.el.shadowRoot.querySelector('child-tag-transform');
+    return this.el.shadowRoot?.querySelector('child-tag-transform');
   }
 
   @Method()
@@ -32,7 +32,7 @@ export class TagTransformParent {
     return (
       <div>
         <h2>Parent Component</h2>
-        <child-tag-transform message="Hello from Parent!" special></child-tag-transform>
+        <child-tag-transform message="Hello from Parent!"></child-tag-transform>
         <child-tag-transform message="Another Child"></child-tag-transform>
       </div>
     );

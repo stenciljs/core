@@ -133,6 +133,12 @@ export const enum CMP_FLAGS {
    * Determines if a component uses modern class property declarations.
    */
   hasModernPropertyDecls = 1 << 9,
+
+  /**
+   * Determines if `slotAssignment` is set to `'manual'` for a component that uses the shadow DOM.
+   * e.g. `shadow: { slotAssignment: 'manual' }` is set on the `@Component()` decorator
+   */
+  shadowSlotAssignmentManual = 1 << 10,
 }
 
 /**
