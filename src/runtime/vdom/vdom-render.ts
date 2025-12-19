@@ -1121,6 +1121,12 @@ render() {
         const nodeToRelocate = relocateData.$nodeToRelocate$;
         const slotRefNode = relocateData.$slotRefNode$;
 
+        if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode && isInitialLoad) {
+          // Store the initial value of `hidden` so we can reset it later when
+          // moving nodes around.
+          nodeToRelocate['s-ih'] = nodeToRelocate.hidden ?? false;
+        }
+
         if (slotRefNode) {
           const parentNodeRef = slotRefNode.parentNode;
           // When determining where to insert content, the most simple case would be
@@ -1198,17 +1204,9 @@ render() {
             }
           }
           nodeToRelocate && typeof slotRefNode['s-rf'] === 'function' && slotRefNode['s-rf'](slotRefNode);
-        } else {
+        } else if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
           // this node doesn't have a slot home to go to, so let's hide it
-          if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
-            // Store the initial value of `hidden` so we can reset it later when
-            // moving nodes around.
-            if (isInitialLoad) {
-              nodeToRelocate['s-ih'] = nodeToRelocate.hidden ?? false;
-            }
-
-            nodeToRelocate.hidden = true;
-          }
+          nodeToRelocate.hidden = true;
         }
       }
     }
