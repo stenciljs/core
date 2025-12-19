@@ -135,9 +135,12 @@ export interface StencilConfig {
   plugins?: any[];
 
   /**
-   * Generate js source map files for all bundles
+   * Generate js source map files for all bundles.
+   * Set to `true` to always generate source maps, `false` to never generate source maps.
+   * Set to `'dev'` to only generate source maps when the `--dev` flag is passed.
+   * Defaults to `'dev'`.
    */
-  sourceMap?: boolean;
+  sourceMap?: boolean | 'dev';
 
   /**
    * The srcDir config specifies the directory which should contain the source typescript files

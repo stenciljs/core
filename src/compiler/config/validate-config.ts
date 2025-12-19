@@ -135,6 +135,7 @@ export const validateConfig = (
     minifyJs: config.minifyJs ?? !devMode,
     outputTargets: config.outputTargets ?? [],
     rollupConfig: validateRollupConfig(config),
+    sourceMap: config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
     testing: config.testing ?? {},
     docs: validateDocs(config, logger),
@@ -193,12 +194,6 @@ export const validateConfig = (
     validatedConfig.extras.experimentalScopedSlotChanges = !!validatedConfig.extras.experimentalScopedSlotChanges;
   }
 
-  setBooleanConfig(
-    validatedConfig,
-    'sourceMap',
-    null,
-    typeof validatedConfig.sourceMap === 'undefined' ? true : validatedConfig.sourceMap,
-  );
   setBooleanConfig(validatedConfig, 'watch', 'watch', false);
   setBooleanConfig(validatedConfig, 'buildDocs', 'docs', !validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'buildDist', 'esm', !validatedConfig.devMode || !!validatedConfig.buildEs5);

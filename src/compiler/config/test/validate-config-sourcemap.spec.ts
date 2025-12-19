@@ -55,7 +55,7 @@ describe('stencil config - sourceMap option', () => {
 
   it('sets sourceMap options to true in tsconfig', async () => {
     const testConfig = getLoadConfigForTests({ config: { sourceMap: true } });
-    mockTsConfigParser(testConfig.config!.sourceMap!);
+    mockTsConfigParser(true);
 
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -66,7 +66,7 @@ describe('stencil config - sourceMap option', () => {
 
   it('sets sourceMap options to false in tsconfig', async () => {
     const testConfig = getLoadConfigForTests({ config: { sourceMap: false } });
-    mockTsConfigParser(testConfig.config!.sourceMap!);
+    mockTsConfigParser(false);
 
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -75,14 +75,47 @@ describe('stencil config - sourceMap option', () => {
     expect(inlineSources).toBe(false);
   });
 
-  it('sets the sourceMap options to true in tsconfig by default', async () => {
-    const testConfig = getLoadConfigForTests();
-    mockTsConfigParser(testConfig.config!.sourceMap!);
+  it('defaults to "dev" behavior (false in prod mode)', async () => {
+    const testConfig = getLoadConfigForTests({ config: { devMode: false } });
+    mockTsConfigParser(false);
+
+    const loadConfigResults = await loadConfig(testConfig);
+
+    const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
+    expect(sourceMap).toBe(false);
+    expect(inlineSources).toBe(false);
+  });
+
+  it('defaults to "dev" behavior (true in dev mode)', async () => {
+    const testConfig = getLoadConfigForTests({ config: { devMode: true } });
+    mockTsConfigParser(true);
 
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
     expect(sourceMap).toBe(true);
     expect(inlineSources).toBe(true);
+  });
+
+  it('sets sourceMap options to true in tsconfig when set to "dev" and devMode is true', async () => {
+    const testConfig = getLoadConfigForTests({ config: { sourceMap: 'dev', devMode: true } });
+    mockTsConfigParser(true);
+
+    const loadConfigResults = await loadConfig(testConfig);
+
+    const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
+    expect(sourceMap).toBe(true);
+    expect(inlineSources).toBe(true);
+  });
+
+  it('sets sourceMap options to false in tsconfig when set to "dev" and devMode is false', async () => {
+    const testConfig = getLoadConfigForTests({ config: { sourceMap: 'dev', devMode: false } });
+    mockTsConfigParser(false);
+
+    const loadConfigResults = await loadConfig(testConfig);
+
+    const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
+    expect(sourceMap).toBe(false);
+    expect(inlineSources).toBe(false);
   });
 });

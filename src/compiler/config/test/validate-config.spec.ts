@@ -546,9 +546,44 @@ describe('validation', () => {
       expect(config.sourceMap).toBe(false);
     });
 
-    it('defaults the field to true when not set in the config', () => {
+    it('defaults to "dev" behavior when not set (true in dev mode)', () => {
+      userConfig.devMode = true;
       const { config } = validateConfig(userConfig, bootstrapConfig);
       expect(config.sourceMap).toBe(true);
+    });
+
+    it('defaults to "dev" behavior when not set (false in prod mode)', () => {
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
+    });
+
+    it('sets the field to true when set to "dev" and devMode is true', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.devMode = true;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(true);
+    });
+
+    it('sets the field to false when set to "dev" and devMode is false', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
+    });
+
+    it('sets the field to true when set to "dev" and --dev flag is passed', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.flags = createConfigFlags({ dev: true });
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(true);
+    });
+
+    it('sets the field to false when set to "dev" and --prod flag is passed', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.flags = createConfigFlags({ prod: true });
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
     });
   });
 
