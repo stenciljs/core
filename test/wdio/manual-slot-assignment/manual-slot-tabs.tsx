@@ -98,7 +98,11 @@ export class ManualSlotTabs {
   render() {
     return [
       <div class="tabs">
-        <button ref={(el) => (this.btns[0] = el as HTMLButtonElement)} class="active" onClick={() => this.handleTabClick(0)}>
+        <button
+          ref={(el) => (this.btns[0] = el as HTMLButtonElement)}
+          class="active"
+          onClick={() => this.handleTabClick(0)}
+        >
           Tab 1
         </button>
         <button ref={(el) => (this.btns[1] = el as HTMLButtonElement)} onClick={() => this.handleTabClick(1)}>
