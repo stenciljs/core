@@ -57,7 +57,7 @@ export class ManualSlotFilter {
 
   @State() filter: string = 'all';
 
-  private contentSlot!: HTMLSlotElement;
+  private contentSlot?: HTMLSlotElement;
 
   componentDidLoad() {
     this.updateSlotAssignment();

@@ -60,7 +60,7 @@ import { Component, Element, h, Method } from '@stencil/core';
 export class ManualSlotTabs {
   @Element() el: HTMLElement;
 
-  private activeSlot!: HTMLSlotElement;
+  private activeSlot?: HTMLSlotElement;
   private btns: HTMLButtonElement[] = [];
   private activeTab: number = 0;
 
@@ -98,13 +98,13 @@ export class ManualSlotTabs {
   render() {
     return [
       <div class="tabs">
-        <button ref={(el) => (this.btns[0] = el)} class="active" onClick={() => this.handleTabClick(0)}>
+        <button ref={(el) => (this.btns[0] = el as HTMLButtonElement)} class="active" onClick={() => this.handleTabClick(0)}>
           Tab 1
         </button>
-        <button ref={(el) => (this.btns[1] = el)} onClick={() => this.handleTabClick(1)}>
+        <button ref={(el) => (this.btns[1] = el as HTMLButtonElement)} onClick={() => this.handleTabClick(1)}>
           Tab 2
         </button>
-        <button ref={(el) => (this.btns[2] = el)} onClick={() => this.handleTabClick(2)}>
+        <button ref={(el) => (this.btns[2] = el as HTMLButtonElement)} onClick={() => this.handleTabClick(2)}>
           Tab 3
         </button>
       </div>,
