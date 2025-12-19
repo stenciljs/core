@@ -2,7 +2,7 @@ import sourceMapMerge from 'merge-source-map';
 import type { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOptions, SourceMapOptions } from 'terser';
 import ts from 'typescript';
 
-import type { CompilerCtx, Config, OptimizeJsResult, SourceMap, SourceTarget } from '../../declarations';
+import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedConfig } from '../../declarations';
 import { minfyJsId } from '../../version';
 import { minifyJs } from './minify-js';
 
@@ -24,7 +24,7 @@ interface OptimizeModuleOptions {
  * @returns the minified JavaScript result
  */
 export const optimizeModule = async (
-  config: Config,
+  config: ValidatedConfig,
   compilerCtx: CompilerCtx,
   opts: OptimizeModuleOptions,
 ): Promise<OptimizeJsResult> => {
@@ -124,7 +124,11 @@ export const optimizeModule = async (
  * @param prettyOutput if true, set the necessary flags to beautify the output of terser
  * @returns the minification options
  */
-export const getTerserOptions = (config: Config, sourceTarget: SourceTarget, prettyOutput: boolean): MinifyOptions => {
+export const getTerserOptions = (
+  config: ValidatedConfig,
+  sourceTarget: SourceTarget,
+  prettyOutput: boolean,
+): MinifyOptions => {
   const opts: MinifyOptions = {
     ie8: false,
     safari10: false,

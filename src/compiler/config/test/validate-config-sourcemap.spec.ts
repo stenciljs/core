@@ -3,10 +3,11 @@ import ts from 'typescript';
 
 import type * as d from '../../../declarations';
 import { loadConfig } from '../load-config';
+import { validateConfig } from '../validate-config';
 
 describe('stencil config - sourceMap option', () => {
   const configPath = require.resolve('./fixtures/stencil.config.ts');
-  let sys: d.CompilerSystem;
+  let sys = mockCompilerSystem();
 
   /**
    * Test helper for generating default `d.LoadConfigInit` objects.
@@ -18,7 +19,7 @@ describe('stencil config - sourceMap option', () => {
   const getLoadConfigForTests = (overrides?: Partial<d.LoadConfigInit>): d.LoadConfigInit => {
     const defaults: d.LoadConfigInit = {
       configPath,
-      sys,
+      sys: sys as any,
       config: {},
       initTsConfig: true,
     };
@@ -53,10 +54,13 @@ describe('stencil config - sourceMap option', () => {
     jest.clearAllMocks();
   });
 
-  it('sets sourceMap options to true in tsconfig', async () => {
-    const testConfig = getLoadConfigForTests({ config: { sourceMap: true } });
-    mockTsConfigParser(true);
+  it('sets sourceMap to true when explicitly set to true', async () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: true };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(true);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
@@ -64,10 +68,13 @@ describe('stencil config - sourceMap option', () => {
     expect(inlineSources).toBe(true);
   });
 
-  it('sets sourceMap options to false in tsconfig', async () => {
-    const testConfig = getLoadConfigForTests({ config: { sourceMap: false } });
-    mockTsConfigParser(false);
+  it('sets sourceMap to false when explicitly set to false', async () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(false);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
@@ -76,9 +83,12 @@ describe('stencil config - sourceMap option', () => {
   });
 
   it('defaults to "dev" behavior (false in prod mode)', async () => {
-    const testConfig = getLoadConfigForTests({ config: { devMode: false } });
-    mockTsConfigParser(false);
+    const userConfig: d.UnvalidatedConfig = { devMode: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(false);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
@@ -87,9 +97,12 @@ describe('stencil config - sourceMap option', () => {
   });
 
   it('defaults to "dev" behavior (true in dev mode)', async () => {
-    const testConfig = getLoadConfigForTests({ config: { devMode: true } });
-    mockTsConfigParser(true);
+    const userConfig: d.UnvalidatedConfig = { devMode: true };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(true);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
@@ -97,10 +110,13 @@ describe('stencil config - sourceMap option', () => {
     expect(inlineSources).toBe(true);
   });
 
-  it('sets sourceMap options to true in tsconfig when set to "dev" and devMode is true', async () => {
-    const testConfig = getLoadConfigForTests({ config: { sourceMap: 'dev', devMode: true } });
-    mockTsConfigParser(true);
+  it('resolves "dev" to true when devMode is true', async () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: 'dev', devMode: true };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(true);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
@@ -108,10 +124,13 @@ describe('stencil config - sourceMap option', () => {
     expect(inlineSources).toBe(true);
   });
 
-  it('sets sourceMap options to false in tsconfig when set to "dev" and devMode is false', async () => {
-    const testConfig = getLoadConfigForTests({ config: { sourceMap: 'dev', devMode: false } });
-    mockTsConfigParser(false);
+  it('resolves "dev" to false when devMode is false', async () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: 'dev', devMode: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+    expect(validatedConfig.sourceMap).toBe(false);
 
+    mockTsConfigParser(validatedConfig.sourceMap);
+    const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;

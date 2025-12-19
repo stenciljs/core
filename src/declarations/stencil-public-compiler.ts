@@ -581,7 +581,9 @@ type StrictConfigFields = keyof Pick<
  * about the data from a type-safety perspective, this type is intended to be used throughout the codebase once
  * validations have occurred at runtime.
  */
-export type ValidatedConfig = RequireFields<Config, StrictConfigFields>;
+export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
+  sourceMap: boolean;
+};
 
 export interface HydratedFlag {
   /**
