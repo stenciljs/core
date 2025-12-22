@@ -6,6 +6,18 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface CompositionCheckboxGroup {
+    }
+    interface CompositionRadioGroup {
+    }
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface CompositionScalingDemo {
+    }
+    interface CompositionTextInput {
+    }
     interface ExtendedCmp {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -54,6 +66,81 @@ export namespace Components {
          */
         "prop2": string;
     }
+    /**
+     * ConflictsCmp - Demonstrates decorator conflicts in inheritance chains
+     * This component:
+     * 1. Extends ConflictsBase (inherits base decorators)
+     * 2. Defines duplicate decorators with same names but different values/behavior
+     * 3. Verifies component decorators override base decorators
+     * 4. Renders UI showing which version is active (component should win)
+     */
+    interface ExtendsConflicts {
+        /**
+          * Non-duplicate method for comparison
+         */
+        "baseOnlyMethod": () => Promise<string>;
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp": string;
+        /**
+          * Duplicate method - same name as base, should override Component version should be called, not base version
+         */
+        "duplicateMethod": () => Promise<string>;
+        /**
+          * @default 'component prop value'
+         */
+        "duplicateProp": string;
+        /**
+          * Method to get combined call log (base + component)
+         */
+        "getCombinedMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method to get component method call log
+         */
+        "getComponentMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method to get the call log for testing
+         */
+        "getMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method to reset all call logs
+         */
+        "resetAllCallLogs": () => Promise<void>;
+        /**
+          * Method to reset component call log
+         */
+        "resetComponentMethodCallLog": () => Promise<void>;
+        /**
+          * Method to reset call log for testing
+         */
+        "resetMethodCallLog": () => Promise<void>;
+        /**
+          * Method to update component-only state
+         */
+        "updateComponentOnlyState": (value: string) => Promise<void>;
+        /**
+          * Method to update duplicate state for testing
+         */
+        "updateDuplicateState": (value: string) => Promise<void>;
+    }
+    interface ExtendsControllerUpdates {
+    }
+    interface ExtendsDirectState {
+    }
+    /**
+     * EventsCmp - Demonstrates
+     * @Listen decorator inheritance
+     * This component:
+     * 1. Extends EventBase (inherits base
+     * @Listen decorators)
+     * 2. Adds additional
+     * @Listen decorators
+     * 3. Overrides base event handler
+     * 4. Demonstrates event bubbling and propagation
+     */
+    interface ExtendsEvents {
+    }
     interface ExtendsExternal {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -66,6 +153,10 @@ export namespace Components {
          */
         "prop2": string;
     }
+    interface ExtendsLifecycleBasic {
+    }
+    interface ExtendsLifecycleMultilevel {
+    }
     interface ExtendsLocal {
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
@@ -77,6 +168,87 @@ export namespace Components {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2": string;
+    }
+    interface ExtendsMethods {
+        /**
+          * Base method that can be called by child components
+         */
+        "baseMethod": () => Promise<string>;
+        /**
+          * Child-specific method that uses parent's protected helper
+         */
+        "childMethod": () => Promise<string>;
+        /**
+          * Method that composes parent and child behavior
+         */
+        "composedMethod": () => Promise<string>;
+        /**
+          * Method to get the call log for testing
+         */
+        "getCallLog": () => Promise<string[]>;
+        /**
+          * Method to get internal value for testing
+         */
+        "getInternalValue": () => Promise<string>;
+        /**
+          * Override parent method with super() call
+         */
+        "overridableMethod": () => Promise<string>;
+        /**
+          * Method to reset state for testing
+         */
+        "reset": () => Promise<void>;
+        /**
+          * Method to trigger display update from test
+         */
+        "updateDisplay": (value: string) => Promise<void>;
+    }
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends MixedDecoratorsBase (inherits base decorators)
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface ExtendsMixedDecorators {
+        /**
+          * Non-conflicting method for comparison
+         */
+        "baseOnlyMethod": () => Promise<string>;
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp": string;
+        /**
+          * Method to get the call log for testing
+         */
+        "getMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method that will conflict with
+          * @Prop in component
+         */
+        "mixedMethodName": () => Promise<string>;
+        /**
+          * @default 'base prop value'
+         */
+        "mixedName": string;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName": string;
+        /**
+          * Method to reset call log for testing
+         */
+        "resetMethodCallLog": () => Promise<void>;
+        /**
+          * Method to update component-only state
+         */
+        "updateComponentOnlyState": (value: string) => Promise<void>;
+        /**
+          * Method to update mixedName state for testing
+         */
+        "updateMixedName": (value: string) => Promise<void>;
     }
     interface ExtendsMixinCmp {
         "method1": () => Promise<void>;
@@ -95,6 +267,101 @@ export namespace Components {
          */
         "prop3": string;
     }
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount": number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp": string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp": string;
+        "incrementBaseCount": () => Promise<void>;
+        "toggleBaseEnabled": () => Promise<void>;
+        "updateBaseState": (value: string) => Promise<void>;
+        "updateComponentState": (value: string) => Promise<void>;
+    }
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface ExtendsRender {
+    }
+    interface ExtendsViaHostCmp {
+    }
+    /**
+     * WatchCmp - Demonstrates
+     * @Watch decorator inheritance
+     * This component:
+     * 1. Extends WatchBase (inherits base
+     * @Watch decorators)
+     * 2. Adds additional
+     * @Watch decorators
+     * 3. Overrides base watch handler (overrideProp)
+     * 4. Demonstrates watch execution order
+     * 5. Demonstrates reactive property chains
+     */
+    interface ExtendsWatch {
+        /**
+          * @default 0
+         */
+        "baseCount": number;
+        /**
+          * @default 'base prop initial'
+         */
+        "baseProp": string;
+        /**
+          * @default 'child prop initial'
+         */
+        "childProp": string;
+        "incrementBaseCount": () => Promise<void>;
+        "incrementBaseCounter": () => Promise<void>;
+        "incrementChildCounter": () => Promise<void>;
+        /**
+          * @default 'override prop initial'
+         */
+        "overrideProp": string;
+        "resetWatchLogs": () => Promise<void>;
+        "updateBaseCount": (value: number) => Promise<void>;
+        "updateBaseCounter": (value: number) => Promise<void>;
+        "updateBaseProp": (value: string) => Promise<void>;
+        "updateBaseState": (value: string) => Promise<void>;
+        "updateChildCounter": (value: number) => Promise<void>;
+        "updateChildProp": (value: string) => Promise<void>;
+        "updateOverrideProp": (value: string) => Promise<void>;
+    }
+    interface InheritanceCheckboxGroup {
+    }
+    interface InheritanceRadioGroup {
+    }
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface InheritanceScalingDemo {
+    }
+    interface InheritanceTextInput {
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -108,11 +375,77 @@ export namespace Components {
         "dynamicLifecycle": string[];
     }
 }
+export interface CompositionCheckboxGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCompositionCheckboxGroupElement;
+}
+export interface CompositionRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCompositionRadioGroupElement;
+}
 export interface ExtendsLocalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLExtendsLocalElement;
 }
+export interface InheritanceCheckboxGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLInheritanceCheckboxGroupElement;
+}
+export interface InheritanceRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLInheritanceRadioGroupElement;
+}
 declare global {
+    interface HTMLCompositionCheckboxGroupElementEventMap {
+        "valueChange": string[];
+    }
+    interface HTMLCompositionCheckboxGroupElement extends Components.CompositionCheckboxGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCompositionCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLCompositionCheckboxGroupElement, ev: CompositionCheckboxGroupCustomEvent<HTMLCompositionCheckboxGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCompositionCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLCompositionCheckboxGroupElement, ev: CompositionCheckboxGroupCustomEvent<HTMLCompositionCheckboxGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCompositionCheckboxGroupElement: {
+        prototype: HTMLCompositionCheckboxGroupElement;
+        new (): HTMLCompositionCheckboxGroupElement;
+    };
+    interface HTMLCompositionRadioGroupElementEventMap {
+        "valueChange": string;
+    }
+    interface HTMLCompositionRadioGroupElement extends Components.CompositionRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCompositionRadioGroupElementEventMap>(type: K, listener: (this: HTMLCompositionRadioGroupElement, ev: CompositionRadioGroupCustomEvent<HTMLCompositionRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCompositionRadioGroupElementEventMap>(type: K, listener: (this: HTMLCompositionRadioGroupElement, ev: CompositionRadioGroupCustomEvent<HTMLCompositionRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCompositionRadioGroupElement: {
+        prototype: HTMLCompositionRadioGroupElement;
+        new (): HTMLCompositionRadioGroupElement;
+    };
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface HTMLCompositionScalingDemoElement extends Components.CompositionScalingDemo, HTMLStencilElement {
+    }
+    var HTMLCompositionScalingDemoElement: {
+        prototype: HTMLCompositionScalingDemoElement;
+        new (): HTMLCompositionScalingDemoElement;
+    };
+    interface HTMLCompositionTextInputElement extends Components.CompositionTextInput, HTMLStencilElement {
+    }
+    var HTMLCompositionTextInputElement: {
+        prototype: HTMLCompositionTextInputElement;
+        new (): HTMLCompositionTextInputElement;
+    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -137,11 +470,66 @@ declare global {
         prototype: HTMLExtendsCmpCmpElement;
         new (): HTMLExtendsCmpCmpElement;
     };
+    /**
+     * ConflictsCmp - Demonstrates decorator conflicts in inheritance chains
+     * This component:
+     * 1. Extends ConflictsBase (inherits base decorators)
+     * 2. Defines duplicate decorators with same names but different values/behavior
+     * 3. Verifies component decorators override base decorators
+     * 4. Renders UI showing which version is active (component should win)
+     */
+    interface HTMLExtendsConflictsElement extends Components.ExtendsConflicts, HTMLStencilElement {
+    }
+    var HTMLExtendsConflictsElement: {
+        prototype: HTMLExtendsConflictsElement;
+        new (): HTMLExtendsConflictsElement;
+    };
+    interface HTMLExtendsControllerUpdatesElement extends Components.ExtendsControllerUpdates, HTMLStencilElement {
+    }
+    var HTMLExtendsControllerUpdatesElement: {
+        prototype: HTMLExtendsControllerUpdatesElement;
+        new (): HTMLExtendsControllerUpdatesElement;
+    };
+    interface HTMLExtendsDirectStateElement extends Components.ExtendsDirectState, HTMLStencilElement {
+    }
+    var HTMLExtendsDirectStateElement: {
+        prototype: HTMLExtendsDirectStateElement;
+        new (): HTMLExtendsDirectStateElement;
+    };
+    /**
+     * EventsCmp - Demonstrates
+     * @Listen decorator inheritance
+     * This component:
+     * 1. Extends EventBase (inherits base
+     * @Listen decorators)
+     * 2. Adds additional
+     * @Listen decorators
+     * 3. Overrides base event handler
+     * 4. Demonstrates event bubbling and propagation
+     */
+    interface HTMLExtendsEventsElement extends Components.ExtendsEvents, HTMLStencilElement {
+    }
+    var HTMLExtendsEventsElement: {
+        prototype: HTMLExtendsEventsElement;
+        new (): HTMLExtendsEventsElement;
+    };
     interface HTMLExtendsExternalElement extends Components.ExtendsExternal, HTMLStencilElement {
     }
     var HTMLExtendsExternalElement: {
         prototype: HTMLExtendsExternalElement;
         new (): HTMLExtendsExternalElement;
+    };
+    interface HTMLExtendsLifecycleBasicElement extends Components.ExtendsLifecycleBasic, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleBasicElement: {
+        prototype: HTMLExtendsLifecycleBasicElement;
+        new (): HTMLExtendsLifecycleBasicElement;
+    };
+    interface HTMLExtendsLifecycleMultilevelElement extends Components.ExtendsLifecycleMultilevel, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleMultilevelElement: {
+        prototype: HTMLExtendsLifecycleMultilevelElement;
+        new (): HTMLExtendsLifecycleMultilevelElement;
     };
     interface HTMLExtendsLocalElementEventMap {
         "myEvent": string;
@@ -160,11 +548,137 @@ declare global {
         prototype: HTMLExtendsLocalElement;
         new (): HTMLExtendsLocalElement;
     };
+    interface HTMLExtendsMethodsElement extends Components.ExtendsMethods, HTMLStencilElement {
+    }
+    var HTMLExtendsMethodsElement: {
+        prototype: HTMLExtendsMethodsElement;
+        new (): HTMLExtendsMethodsElement;
+    };
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends MixedDecoratorsBase (inherits base decorators)
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface HTMLExtendsMixedDecoratorsElement extends Components.ExtendsMixedDecorators, HTMLStencilElement {
+    }
+    var HTMLExtendsMixedDecoratorsElement: {
+        prototype: HTMLExtendsMixedDecoratorsElement;
+        new (): HTMLExtendsMixedDecoratorsElement;
+    };
     interface HTMLExtendsMixinCmpElement extends Components.ExtendsMixinCmp, HTMLStencilElement {
     }
     var HTMLExtendsMixinCmpElement: {
         prototype: HTMLExtendsMixinCmpElement;
         new (): HTMLExtendsMixinCmpElement;
+    };
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface HTMLExtendsPropsStateElement extends Components.ExtendsPropsState, HTMLStencilElement {
+    }
+    var HTMLExtendsPropsStateElement: {
+        prototype: HTMLExtendsPropsStateElement;
+        new (): HTMLExtendsPropsStateElement;
+    };
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface HTMLExtendsRenderElement extends Components.ExtendsRender, HTMLStencilElement {
+    }
+    var HTMLExtendsRenderElement: {
+        prototype: HTMLExtendsRenderElement;
+        new (): HTMLExtendsRenderElement;
+    };
+    interface HTMLExtendsViaHostCmpElement extends Components.ExtendsViaHostCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsViaHostCmpElement: {
+        prototype: HTMLExtendsViaHostCmpElement;
+        new (): HTMLExtendsViaHostCmpElement;
+    };
+    /**
+     * WatchCmp - Demonstrates
+     * @Watch decorator inheritance
+     * This component:
+     * 1. Extends WatchBase (inherits base
+     * @Watch decorators)
+     * 2. Adds additional
+     * @Watch decorators
+     * 3. Overrides base watch handler (overrideProp)
+     * 4. Demonstrates watch execution order
+     * 5. Demonstrates reactive property chains
+     */
+    interface HTMLExtendsWatchElement extends Components.ExtendsWatch, HTMLStencilElement {
+    }
+    var HTMLExtendsWatchElement: {
+        prototype: HTMLExtendsWatchElement;
+        new (): HTMLExtendsWatchElement;
+    };
+    interface HTMLInheritanceCheckboxGroupElementEventMap {
+        "valueChange": string[];
+    }
+    interface HTMLInheritanceCheckboxGroupElement extends Components.InheritanceCheckboxGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLInheritanceCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceCheckboxGroupElement, ev: InheritanceCheckboxGroupCustomEvent<HTMLInheritanceCheckboxGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLInheritanceCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceCheckboxGroupElement, ev: InheritanceCheckboxGroupCustomEvent<HTMLInheritanceCheckboxGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLInheritanceCheckboxGroupElement: {
+        prototype: HTMLInheritanceCheckboxGroupElement;
+        new (): HTMLInheritanceCheckboxGroupElement;
+    };
+    interface HTMLInheritanceRadioGroupElementEventMap {
+        "valueChange": string;
+    }
+    interface HTMLInheritanceRadioGroupElement extends Components.InheritanceRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLInheritanceRadioGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceRadioGroupElement, ev: InheritanceRadioGroupCustomEvent<HTMLInheritanceRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLInheritanceRadioGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceRadioGroupElement, ev: InheritanceRadioGroupCustomEvent<HTMLInheritanceRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLInheritanceRadioGroupElement: {
+        prototype: HTMLInheritanceRadioGroupElement;
+        new (): HTMLInheritanceRadioGroupElement;
+    };
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface HTMLInheritanceScalingDemoElement extends Components.InheritanceScalingDemo, HTMLStencilElement {
+    }
+    var HTMLInheritanceScalingDemoElement: {
+        prototype: HTMLInheritanceScalingDemoElement;
+        new (): HTMLInheritanceScalingDemoElement;
+    };
+    interface HTMLInheritanceTextInputElement extends Components.InheritanceTextInput, HTMLStencilElement {
+    }
+    var HTMLInheritanceTextInputElement: {
+        prototype: HTMLInheritanceTextInputElement;
+        new (): HTMLInheritanceTextInputElement;
     };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
@@ -173,17 +687,51 @@ declare global {
         new (): HTMLTsTargetPropsElement;
     };
     interface HTMLElementTagNameMap {
+        "composition-checkbox-group": HTMLCompositionCheckboxGroupElement;
+        "composition-radio-group": HTMLCompositionRadioGroupElement;
+        "composition-scaling-demo": HTMLCompositionScalingDemoElement;
+        "composition-text-input": HTMLCompositionTextInputElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
         "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
+        "extends-conflicts": HTMLExtendsConflictsElement;
+        "extends-controller-updates": HTMLExtendsControllerUpdatesElement;
+        "extends-direct-state": HTMLExtendsDirectStateElement;
+        "extends-events": HTMLExtendsEventsElement;
         "extends-external": HTMLExtendsExternalElement;
+        "extends-lifecycle-basic": HTMLExtendsLifecycleBasicElement;
+        "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
         "extends-local": HTMLExtendsLocalElement;
+        "extends-methods": HTMLExtendsMethodsElement;
+        "extends-mixed-decorators": HTMLExtendsMixedDecoratorsElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
+        "extends-props-state": HTMLExtendsPropsStateElement;
+        "extends-render": HTMLExtendsRenderElement;
+        "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
+        "extends-watch": HTMLExtendsWatchElement;
+        "inheritance-checkbox-group": HTMLInheritanceCheckboxGroupElement;
+        "inheritance-radio-group": HTMLInheritanceRadioGroupElement;
+        "inheritance-scaling-demo": HTMLInheritanceScalingDemoElement;
+        "inheritance-text-input": HTMLInheritanceTextInputElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
 declare namespace LocalJSX {
+    interface CompositionCheckboxGroup {
+        "onValueChange"?: (event: CompositionCheckboxGroupCustomEvent<string[]>) => void;
+    }
+    interface CompositionRadioGroup {
+        "onValueChange"?: (event: CompositionRadioGroupCustomEvent<string>) => void;
+    }
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface CompositionScalingDemo {
+    }
+    interface CompositionTextInput {
+    }
     interface ExtendedCmp {
         /**
           * @default 'ExtendedCmp text'
@@ -224,6 +772,41 @@ declare namespace LocalJSX {
          */
         "prop2"?: string;
     }
+    /**
+     * ConflictsCmp - Demonstrates decorator conflicts in inheritance chains
+     * This component:
+     * 1. Extends ConflictsBase (inherits base decorators)
+     * 2. Defines duplicate decorators with same names but different values/behavior
+     * 3. Verifies component decorators override base decorators
+     * 4. Renders UI showing which version is active (component should win)
+     */
+    interface ExtendsConflicts {
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "duplicateProp"?: string;
+    }
+    interface ExtendsControllerUpdates {
+    }
+    interface ExtendsDirectState {
+    }
+    /**
+     * EventsCmp - Demonstrates
+     * @Listen decorator inheritance
+     * This component:
+     * 1. Extends EventBase (inherits base
+     * @Listen decorators)
+     * 2. Adds additional
+     * @Listen decorators
+     * 3. Overrides base event handler
+     * 4. Demonstrates event bubbling and propagation
+     */
+    interface ExtendsEvents {
+    }
     interface ExtendsExternal {
         /**
           * @default 'default text'
@@ -233,6 +816,10 @@ declare namespace LocalJSX {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2"?: string;
+    }
+    interface ExtendsLifecycleBasic {
+    }
+    interface ExtendsLifecycleMultilevel {
     }
     interface ExtendsLocal {
         "onMyEvent"?: (event: ExtendsLocalCustomEvent<string>) => void;
@@ -244,6 +831,30 @@ declare namespace LocalJSX {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2"?: string;
+    }
+    interface ExtendsMethods {
+    }
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends MixedDecoratorsBase (inherits base decorators)
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface ExtendsMixedDecorators {
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp"?: string;
+        /**
+          * @default 'base prop value'
+         */
+        "mixedName"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName"?: string;
     }
     interface ExtendsMixinCmp {
         /**
@@ -259,6 +870,88 @@ declare namespace LocalJSX {
          */
         "prop3"?: string;
     }
+    /**
+     * Test Case #3: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount"?: number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp"?: string;
+    }
+    /**
+     * Test Case #5: Render Method Inheritance
+     * This component extends RenderBase to test:
+     * - Render Inheritance: Component render() method calls super.render() to include parent template
+     * - Template Composition: Component composes parent template with additional content and structure
+     * - Slot Integration: Parent template slots work correctly when inherited and extended
+     * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+     */
+    interface ExtendsRender {
+    }
+    interface ExtendsViaHostCmp {
+    }
+    /**
+     * WatchCmp - Demonstrates
+     * @Watch decorator inheritance
+     * This component:
+     * 1. Extends WatchBase (inherits base
+     * @Watch decorators)
+     * 2. Adds additional
+     * @Watch decorators
+     * 3. Overrides base watch handler (overrideProp)
+     * 4. Demonstrates watch execution order
+     * 5. Demonstrates reactive property chains
+     */
+    interface ExtendsWatch {
+        /**
+          * @default 0
+         */
+        "baseCount"?: number;
+        /**
+          * @default 'base prop initial'
+         */
+        "baseProp"?: string;
+        /**
+          * @default 'child prop initial'
+         */
+        "childProp"?: string;
+        /**
+          * @default 'override prop initial'
+         */
+        "overrideProp"?: string;
+    }
+    interface InheritanceCheckboxGroup {
+        "onValueChange"?: (event: InheritanceCheckboxGroupCustomEvent<string[]>) => void;
+    }
+    interface InheritanceRadioGroup {
+        "onValueChange"?: (event: InheritanceRadioGroupCustomEvent<string>) => void;
+    }
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface InheritanceScalingDemo {
+    }
+    interface InheritanceTextInput {
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -272,13 +965,33 @@ declare namespace LocalJSX {
         "dynamicLifecycle"?: string[];
     }
     interface IntrinsicElements {
+        "composition-checkbox-group": CompositionCheckboxGroup;
+        "composition-radio-group": CompositionRadioGroup;
+        "composition-scaling-demo": CompositionScalingDemo;
+        "composition-text-input": CompositionTextInput;
         "extended-cmp": ExtendedCmp;
         "extended-cmp-cmp": ExtendedCmpCmp;
         "extends-abstract": ExtendsAbstract;
         "extends-cmp-cmp": ExtendsCmpCmp;
+        "extends-conflicts": ExtendsConflicts;
+        "extends-controller-updates": ExtendsControllerUpdates;
+        "extends-direct-state": ExtendsDirectState;
+        "extends-events": ExtendsEvents;
         "extends-external": ExtendsExternal;
+        "extends-lifecycle-basic": ExtendsLifecycleBasic;
+        "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
         "extends-local": ExtendsLocal;
+        "extends-methods": ExtendsMethods;
+        "extends-mixed-decorators": ExtendsMixedDecorators;
         "extends-mixin-cmp": ExtendsMixinCmp;
+        "extends-props-state": ExtendsPropsState;
+        "extends-render": ExtendsRender;
+        "extends-via-host-cmp": ExtendsViaHostCmp;
+        "extends-watch": ExtendsWatch;
+        "inheritance-checkbox-group": InheritanceCheckboxGroup;
+        "inheritance-radio-group": InheritanceRadioGroup;
+        "inheritance-scaling-demo": InheritanceScalingDemo;
+        "inheritance-text-input": InheritanceTextInput;
         "ts-target-props": TsTargetProps;
     }
 }
@@ -286,13 +999,100 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "composition-checkbox-group": LocalJSX.CompositionCheckboxGroup & JSXBase.HTMLAttributes<HTMLCompositionCheckboxGroupElement>;
+            "composition-radio-group": LocalJSX.CompositionRadioGroup & JSXBase.HTMLAttributes<HTMLCompositionRadioGroupElement>;
+            /**
+             * Main component that demonstrates composition-based scaling
+             * with 3 components and 2 controllers (ValidationController and FocusController)
+             */
+            "composition-scaling-demo": LocalJSX.CompositionScalingDemo & JSXBase.HTMLAttributes<HTMLCompositionScalingDemoElement>;
+            "composition-text-input": LocalJSX.CompositionTextInput & JSXBase.HTMLAttributes<HTMLCompositionTextInputElement>;
             "extended-cmp": LocalJSX.ExtendedCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.ExtendedCmpCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             "extends-abstract": LocalJSX.ExtendsAbstract & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
             "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            /**
+             * ConflictsCmp - Demonstrates decorator conflicts in inheritance chains
+             * This component:
+             * 1. Extends ConflictsBase (inherits base decorators)
+             * 2. Defines duplicate decorators with same names but different values/behavior
+             * 3. Verifies component decorators override base decorators
+             * 4. Renders UI showing which version is active (component should win)
+             */
+            "extends-conflicts": LocalJSX.ExtendsConflicts & JSXBase.HTMLAttributes<HTMLExtendsConflictsElement>;
+            "extends-controller-updates": LocalJSX.ExtendsControllerUpdates & JSXBase.HTMLAttributes<HTMLExtendsControllerUpdatesElement>;
+            "extends-direct-state": LocalJSX.ExtendsDirectState & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
+            /**
+             * EventsCmp - Demonstrates
+             * @Listen decorator inheritance
+             * This component:
+             * 1. Extends EventBase (inherits base
+             * @Listen decorators)
+             * 2. Adds additional
+             * @Listen decorators
+             * 3. Overrides base event handler
+             * 4. Demonstrates event bubbling and propagation
+             */
+            "extends-events": LocalJSX.ExtendsEvents & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
             "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            "extends-lifecycle-basic": LocalJSX.ExtendsLifecycleBasic & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
+            "extends-lifecycle-multilevel": LocalJSX.ExtendsLifecycleMultilevel & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
             "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
+            "extends-methods": LocalJSX.ExtendsMethods & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
+            /**
+             * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+             * This component:
+             * 1. Extends MixedDecoratorsBase (inherits base decorators)
+             * 2. Defines conflicting decorators with same names but different decorator types
+             * 3. Verifies runtime behavior when mixed decorator types exist
+             * 4. Renders UI showing which decorator type is active (component decorator type should win)
+             */
+            "extends-mixed-decorators": LocalJSX.ExtendsMixedDecorators & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
+            /**
+             * Test Case #3: Property & State Inheritance Basics
+             * This component extends PropsStateBase to test:
+             * -
+             * @Prop inheritance from base class
+             * -
+             * @State inheritance from base class
+             * - Additional
+             * @Prop and
+             * @State without conflicts
+             * - Property reactivity (inherited props/state trigger re-renders)
+             */
+            "extends-props-state": LocalJSX.ExtendsPropsState & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
+            /**
+             * Test Case #5: Render Method Inheritance
+             * This component extends RenderBase to test:
+             * - Render Inheritance: Component render() method calls super.render() to include parent template
+             * - Template Composition: Component composes parent template with additional content and structure
+             * - Slot Integration: Parent template slots work correctly when inherited and extended
+             * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
+             */
+            "extends-render": LocalJSX.ExtendsRender & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
+            "extends-via-host-cmp": LocalJSX.ExtendsViaHostCmp & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
+            /**
+             * WatchCmp - Demonstrates
+             * @Watch decorator inheritance
+             * This component:
+             * 1. Extends WatchBase (inherits base
+             * @Watch decorators)
+             * 2. Adds additional
+             * @Watch decorators
+             * 3. Overrides base watch handler (overrideProp)
+             * 4. Demonstrates watch execution order
+             * 5. Demonstrates reactive property chains
+             */
+            "extends-watch": LocalJSX.ExtendsWatch & JSXBase.HTMLAttributes<HTMLExtendsWatchElement>;
+            "inheritance-checkbox-group": LocalJSX.InheritanceCheckboxGroup & JSXBase.HTMLAttributes<HTMLInheritanceCheckboxGroupElement>;
+            "inheritance-radio-group": LocalJSX.InheritanceRadioGroup & JSXBase.HTMLAttributes<HTMLInheritanceRadioGroupElement>;
+            /**
+             * Main component that demonstrates inheritance-based scaling
+             * with 3 components and 2 controllers (ValidationController and FocusController)
+             */
+            "inheritance-scaling-demo": LocalJSX.InheritanceScalingDemo & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
+            "inheritance-text-input": LocalJSX.InheritanceTextInput & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }

@@ -135,6 +135,8 @@ export const validateConfig = (
     minifyJs: config.minifyJs ?? !devMode,
     outputTargets: config.outputTargets ?? [],
     rollupConfig: validateRollupConfig(config),
+    sourceMap:
+      config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
     testing: config.testing ?? {},
     docs: validateDocs(config, logger),
@@ -150,6 +152,9 @@ export const validateConfig = (
   validatedConfig.extras.scriptDataOpts = !!validatedConfig.extras.scriptDataOpts;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
   validatedConfig.extras.tagNameTransform = !!validatedConfig.extras.tagNameTransform;
+  validatedConfig.extras.additionalTagTransformers =
+    validatedConfig.extras.additionalTagTransformers === true ||
+    (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
   validatedConfig.extras.addGlobalStyleToComponents = validatedConfig.extras.addGlobalStyleToComponents !== false;
 
   // TODO(STENCIL-914): remove when `experimentalSlotFixes` is the default behavior
@@ -190,12 +195,6 @@ export const validateConfig = (
     validatedConfig.extras.experimentalScopedSlotChanges = !!validatedConfig.extras.experimentalScopedSlotChanges;
   }
 
-  setBooleanConfig(
-    validatedConfig,
-    'sourceMap',
-    null,
-    typeof validatedConfig.sourceMap === 'undefined' ? true : validatedConfig.sourceMap,
-  );
   setBooleanConfig(validatedConfig, 'watch', 'watch', false);
   setBooleanConfig(validatedConfig, 'buildDocs', 'docs', !validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'buildDist', 'esm', !validatedConfig.devMode || !!validatedConfig.buildEs5);
@@ -247,6 +246,11 @@ export const validateConfig = (
     validatedConfig.bundles = sortBy(validatedConfig.bundles, (a: ConfigBundle) => a.components.length);
   } else {
     validatedConfig.bundles = [];
+  }
+
+  // exclude components (tag list)
+  if (!Array.isArray(validatedConfig.excludeComponents)) {
+    validatedConfig.excludeComponents = [];
   }
 
   // validate how many workers we can use

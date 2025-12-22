@@ -71,6 +71,16 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         });
         compilerCtx.cssModuleImports.set(globalStylePath, cssModuleImports);
       }
+
+      // Track global style changes for HMR
+      if (buildCtx.isRebuild && config.devServer?.reloadStrategy === 'hmr') {
+        buildCtx.stylesUpdated.push({
+          styleTag: 'global',
+          styleMode: undefined,
+          styleText: optimizedCss,
+        });
+      }
+
       return optimizedCss;
     }
   } catch (e: any) {

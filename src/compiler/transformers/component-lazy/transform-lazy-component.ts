@@ -4,7 +4,7 @@ import type * as d from '../../../declarations';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
+import { getComponentMeta, getModuleFromSourceFile, updateConstructor, updateMixin } from '../transform-utils';
 import { updateLazyComponentClass } from './lazy-component';
 
 /**
@@ -23,6 +23,7 @@ import { updateLazyComponentClass } from './lazy-component';
 export const lazyComponentTransform = (
   compilerCtx: d.CompilerCtx,
   transformOpts: d.TransformOptions,
+  buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     return (tsSourceFile) => {
@@ -35,9 +36,13 @@ export const lazyComponentTransform = (
           const module = compilerCtx.moduleMap.get(tsSourceFile.fileName);
 
           if (cmp != null) {
-            return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp);
+            return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
           } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
+          } else if (buildCtx.config._isTesting && buildCtx.config.flags.spec) {
+            // because (during spec tests) *only* the component class is added as a module
+            // let's tidy up all class nodes in testing mode
+            return updateConstructor(node, Array.from(node.members), [], []);
           }
         }
         return ts.visitEachChild(node, visitNode, transformCtx);
@@ -52,6 +57,7 @@ export const lazyComponentTransform = (
       if (moduleFile.isLegacy) {
         addLegacyApis(moduleFile);
       }
+
       tsSourceFile = addImports(transformOpts, tsSourceFile, moduleFile.coreRuntimeApis, transformOpts.coreImportPath);
 
       if (styleStatements.length > 0) {

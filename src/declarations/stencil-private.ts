@@ -44,7 +44,7 @@ export interface SourceMap {
   names: string[];
   sourceRoot?: string;
   sources: string[];
-  sourcesContent?: string[];
+  sourcesContent?: (string | null)[];
   version: number;
 }
 
@@ -78,6 +78,11 @@ export interface ImportData {
 export interface SerializeImportData extends ImportData {
   importeePath: string;
   importerPath?: string;
+  /**
+   * True if this is a node module import (e.g. using ~ prefix like ~foo/style.css)
+   * These should be treated as bare module specifiers and not have ./ prepended
+   */
+  isNodeModule?: boolean;
 }
 
 export interface BuildFeatures {
@@ -89,6 +94,7 @@ export interface BuildFeatures {
   // dom
   shadowDom: boolean;
   shadowDelegatesFocus: boolean;
+  shadowSlotAssignmentManual: boolean;
   scoped: boolean;
 
   // render
@@ -186,7 +192,9 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   shadowDomShim?: boolean;
   asyncQueue?: boolean;
+  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
   transformTagName?: boolean;
+  additionalTagTransformers?: boolean | 'prod';
   attachStyles?: boolean;
 
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
@@ -569,6 +577,7 @@ export interface ComponentCompilerFeatures {
   hasReflect: boolean;
   hasRenderFn: boolean;
   hasSerializer: boolean;
+  hasSlot: boolean;
   hasState: boolean;
   hasStyle: boolean;
   hasVdomAttribute: boolean;
@@ -654,6 +663,11 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   properties: ComponentCompilerProperty[];
   serializers: ComponentCompilerChangeHandler[];
   shadowDelegatesFocus: boolean;
+  /**
+   * Slot assignment mode for shadow DOM. 'manual', enables imperative slotting
+   * using HTMLSlotElement.assign(). Only applicable when encapsulation is 'shadow'.
+   */
+  slotAssignment: 'manual' | null;
   sourceFilePath: string;
   sourceMapPath: string;
   states: ComponentCompilerState[];
@@ -823,6 +837,9 @@ export interface ComponentCompilerMethodComplexType {
 export interface ComponentCompilerChangeHandler {
   propName: string;
   methodName: string;
+  handlerOptions?: {
+    immediate?: boolean;
+  };
 }
 
 export interface ComponentCompilerMethod extends ComponentCompilerStaticMethod {
@@ -923,7 +940,7 @@ export interface ComponentConstructor {
  * them.
  */
 export interface ComponentConstructorChangeHandlers {
-  [propName: string]: string[];
+  [propName: string]: { [methodName: string]: number }[];
 }
 
 export interface ComponentTestingConstructor extends ComponentConstructor {
@@ -2095,6 +2112,7 @@ export interface CssImportData {
   filePath: string;
   altFilePath?: string;
   styleText?: string | null;
+  modifiers?: string;
 }
 
 export interface CssToEsmImportData {
@@ -2102,6 +2120,11 @@ export interface CssToEsmImportData {
   varName: string;
   url: string;
   filePath: string;
+  /**
+   * True if this is a node module import (e.g. using ~ prefix like ~foo/style.css)
+   * These should be treated as bare module specifiers and not have ./ prepended
+   */
+  isNodeModule?: boolean;
 }
 
 /**
@@ -2112,6 +2135,8 @@ export interface TransformCssToEsmInput {
   module?: 'cjs' | 'esm' | string;
   file?: string;
   tag?: string;
+  tags?: string[];
+  addTagTransformers: boolean;
   encapsulation?: string;
   /**
    * The mode under which the CSS will be applied.

@@ -135,9 +135,12 @@ export interface StencilConfig {
   plugins?: any[];
 
   /**
-   * Generate js source map files for all bundles
+   * Generate js source map files for all bundles.
+   * Set to `true` to always generate source maps, `false` to never generate source maps.
+   * Set to `'dev'` to only generate source maps when the `--dev` flag is passed.
+   * Defaults to `'dev'`.
    */
-  sourceMap?: boolean;
+  sourceMap?: boolean | 'dev';
 
   /**
    * The srcDir config specifies the directory which should contain the source typescript files
@@ -322,6 +325,31 @@ export interface StencilConfig {
   watchIgnoredRegex?: RegExp | RegExp[];
 
   /**
+   * An array of component tag names to exclude from production builds.
+   * Useful to remove test, demo or experimental components from final output.
+   *
+   * **Note:** Exclusion only applies to production builds (default, or when `--prod` is used).
+   * Development builds (with `--dev` flag) will include all components to support local testing.
+   *
+   * Supports glob patterns for matching multiple components:
+   * - `['demo-*']` - Excludes all components starting with "demo-"
+   * - `['*-test', '*-demo']` - Excludes components ending with "-test" or "-demo"
+   * - `['my-component']` - Excludes a specific component
+   *
+   * Components matching these patterns will be completely excluded from all output targets.
+   *
+   * @example
+   * ```ts
+   * export const config: Config = {
+   *   excludeComponents: ['demo-*', 'test-component', '*-internal'],
+   * };
+   * ```
+   *
+   * @default []
+   */
+  excludeComponents?: string[];
+
+  /**
    * Set whether unused dependencies should be excluded from the built output.
    */
   excludeUnusedDependencies?: boolean;
@@ -371,8 +399,14 @@ interface ConfigExtrasBase {
   /**
    * Enables the tagNameTransform option of `defineCustomElements()`, so the component tagName
    * can be customized at runtime. Defaults to `false`.
+   * @deprecated This option has been deprecated in favour of `setTagTransformer` and `transformTag`. It will be removed in a future major version of Stencil.
    */
   tagNameTransform?: boolean;
+
+  /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean | 'prod';
 
   // TODO(STENCIL-1086): remove this option when it's the default behavior
   /**
@@ -547,7 +581,9 @@ type StrictConfigFields = keyof Pick<
  * about the data from a type-safety perspective, this type is intended to be used throughout the codebase once
  * validations have occurred at runtime.
  */
-export type ValidatedConfig = RequireFields<Config, StrictConfigFields>;
+export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
+  sourceMap: boolean;
+};
 
 export interface HydratedFlag {
   /**
@@ -2364,6 +2400,7 @@ export interface OutputTargetHydrate extends OutputTargetBase {
    */
   external?: string[];
   empty?: boolean;
+  minify?: boolean;
 }
 
 export interface OutputTargetCustom extends OutputTargetBase {
@@ -3017,6 +3054,14 @@ export interface TranspileOptions {
    * `tsconfig.json` to relative paths.
    */
   transformAliasedImportPaths?: boolean;
+  /**
+   * List of tags to transform, by default only the incoming component tag is transformed
+   */
+  tagsToTransform?: string[];
+  /**
+   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   */
+  additionalTagTransformers?: boolean;
 }
 
 export type CompileTarget =

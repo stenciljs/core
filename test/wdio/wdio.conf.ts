@@ -333,6 +333,8 @@ export const config: WebdriverIO.Config = {
 if (['CHROME', 'ALL'].includes(BROWSER_CONFIGURATION)) {
   (config.capabilities as WebdriverIO.Capabilities[]).push({
     browserName: 'chrome',
+    browserVersion: 'stable',
+    'wdio:enforceWebDriverClassic': true, // < this is 3x faster?
   });
 }
 

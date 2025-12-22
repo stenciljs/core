@@ -5,6 +5,13 @@ import { parseCss } from '../style/css-parser/parse-css';
 import { serializeCss } from '../style/css-parser/serialize-css';
 import { getUsedSelectors, UsedSelectors } from '../style/css-parser/used-selectors';
 
+/**
+ * Removes unused CSS styles from the document's style elements based on the selectors used in the document.
+ * Primarily used during SSR / prerendering to optimize CSS delivery.
+ *
+ * @param doc The HTML document to process.
+ * @param diagnostics An array to collect diagnostic messages.
+ */
 export const removeUnusedStyles = (doc: Document, diagnostics: d.Diagnostic[]) => {
   try {
     const styleElms = doc.head.querySelectorAll<HTMLStyleElement>(`style[data-styles]`);

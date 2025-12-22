@@ -405,8 +405,58 @@ describe('validation', () => {
     expect(config.extras.slotChildNodesFix).toBe(false);
     expect(config.extras.initializeNextTick).toBe(false);
     expect(config.extras.tagNameTransform).toBe(false);
+    expect(config.extras.additionalTagTransformers).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
     expect(config.extras.addGlobalStyleToComponents).toBe(true);
+    expect(config.extras.additionalTagTransformers).toBe(false);
+  });
+
+  describe('extras.additionalTagTransformers', () => {
+    it('set extras.additionalTagTransformers false', () => {
+      userConfig.extras = { additionalTagTransformers: false };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
+
+    it('set extras.additionalTagTransformers true', () => {
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('set extras.additionalTagTransformers true, dev mode', () => {
+      userConfig.devMode = true;
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('prod mode, set extras.additionalTagTransformers', () => {
+      userConfig.devMode = false;
+      userConfig.extras = { additionalTagTransformers: true };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('build extras.additionalTagTransformers when set to "prod" and in prod', () => {
+      userConfig.devMode = false;
+      userConfig.extras = { additionalTagTransformers: 'prod' };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(true);
+    });
+
+    it('do not build extras.additionalTagTransformers when set to "prod" and in dev', () => {
+      userConfig.devMode = true;
+      userConfig.extras = { additionalTagTransformers: 'prod' };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
+
+    it('prod mode default to only modern and not extras.additionalTagTransformers', () => {
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.extras.additionalTagTransformers).toBe(false);
+    });
   });
 
   it('should set slot config based on `experimentalSlotFixes`', () => {
@@ -496,9 +546,44 @@ describe('validation', () => {
       expect(config.sourceMap).toBe(false);
     });
 
-    it('defaults the field to true when not set in the config', () => {
+    it('defaults to "dev" behavior when not set (true in dev mode)', () => {
+      userConfig.devMode = true;
       const { config } = validateConfig(userConfig, bootstrapConfig);
       expect(config.sourceMap).toBe(true);
+    });
+
+    it('defaults to "dev" behavior when not set (false in prod mode)', () => {
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
+    });
+
+    it('sets the field to true when set to "dev" and devMode is true', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.devMode = true;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(true);
+    });
+
+    it('sets the field to false when set to "dev" and devMode is false', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.devMode = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
+    });
+
+    it('sets the field to true when set to "dev" and --dev flag is passed', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.flags = createConfigFlags({ dev: true });
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(true);
+    });
+
+    it('sets the field to false when set to "dev" and --prod flag is passed', () => {
+      userConfig.sourceMap = 'dev';
+      userConfig.flags = createConfigFlags({ prod: true });
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.sourceMap).toBe(false);
     });
   });
 

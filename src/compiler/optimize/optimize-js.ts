@@ -1,6 +1,6 @@
 import { catchError } from '@utils';
 
-import { Config, OptimizeJsInput, OptimizeJsOutput } from '../../declarations';
+import { ValidatedConfig, OptimizeJsInput, OptimizeJsOutput } from '../../declarations';
 import { minifyJs } from './minify-js';
 import { getTerserOptions } from './optimize-module';
 
@@ -22,9 +22,8 @@ export const optimizeJs = async (inputOpts: OptimizeJsInput) => {
 
   try {
     const prettyOutput = !!inputOpts.pretty;
-    const config: Config = {};
     const sourceTarget = inputOpts.target === 'es5' ? 'es5' : 'latest';
-    const minifyOpts = getTerserOptions(config, sourceTarget, prettyOutput);
+    const minifyOpts = getTerserOptions({} as ValidatedConfig, sourceTarget, prettyOutput);
 
     const minifyResults = await minifyJs(inputOpts.input, minifyOpts);
     if (minifyResults.diagnostics.length > 0) {

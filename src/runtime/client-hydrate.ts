@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { getHostRef, plt, win } from '@platform';
+import { getHostRef, plt, transformTag, win } from '@platform';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
@@ -100,7 +100,7 @@ export const initializeClientHydrate = (
     const node = childRenderNode.$elm$ as d.RenderNode;
 
     if (!shadowRoot) {
-      node['s-hn'] = tagName.toUpperCase();
+      node['s-hn'] = transformTag(tagName).toUpperCase();
 
       if (childRenderNode.$tag$ === 'slot') {
         // If this is a virtual 'slot', add it's Content-position Reference now.
@@ -175,6 +175,7 @@ export const initializeClientHydrate = (
   let snGroupIdx: number;
   let snGroupLen: number;
   let slottedItem: SlottedNodes[0];
+  let currentPos = 0;
 
   // Loops through all the slotted nodes we found while stepping through this component.
   // creates slot relocation nodes (non-shadow) or moves nodes to their new home (shadow)
@@ -199,8 +200,10 @@ export const initializeClientHydrate = (
       const hostEle = hosts[slottedItem.hostId as any];
 
       if (hostEle.shadowRoot && slottedItem.node.parentElement !== hostEle) {
-        // shadowDOM - move the item to the element root for native slotting
-        hostEle.appendChild(slottedItem.node);
+        // shadowDOM. This slotted node got left behind.
+        // Move the item to the element root for native slotting
+        // insert node after the previous node in the slotGroup
+        hostEle.insertBefore(slottedItem.node, slotGroup[snGroupIdx - 1]?.node?.nextSibling);
       }
 
       // This node is either slotted in a non-shadow host, OR *that* host is nested in a non-shadow host
@@ -221,7 +224,7 @@ export const initializeClientHydrate = (
           }
         }
         // Create our 'Original Location' node
-        addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo']);
+        addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo'] || currentPos);
 
         if (
           slottedItem.node.parentElement?.shadowRoot &&
@@ -239,6 +242,9 @@ export const initializeClientHydrate = (
           patchSlottedNode(slottedItem.node);
         }
       }
+      // Empty text nodes are never accounted on the server (they don't get a comment node, or a positional id)
+      // So let's manually increment their position counter for them, keeping them in the correct order in the slot
+      currentPos = (slottedItem.node['s-oo'] || currentPos) + 1;
     }
   }
 
@@ -276,10 +282,7 @@ export const initializeClientHydrate = (
             // this is a slotted node that doesn't have a home ... yet.
             // we can safely leave it be, native behavior will mean it's hidden
             (node as HTMLElement).removeAttribute('hidden');
-          } else if (
-            (node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue) ||
-            (node.nodeType === NODE_TYPE.TextNode && !(node as Text).wholeText.trim())
-          ) {
+          } else if (node.nodeType === NODE_TYPE.CommentNode && !node.nodeValue) {
             // During `scoped` shadowDOM rendering, there's a bunch of comment nodes used for positioning / empty text nodes.
             // Let's tidy them up now to stop frameworks complaining about DOM mismatches.
             node.parentNode.removeChild(node);
@@ -529,14 +532,6 @@ const clientHydrate = (
     vnode.$elm$ = node;
     vnode.$index$ = '0';
     parentVNode.$children$ = [vnode];
-  } else {
-    if (node.nodeType === NODE_TYPE.TextNode && !(node as unknown as Text).wholeText.trim() && !node['s-nr']) {
-      // empty white space is never accounted for from SSR so there's
-      // no corresponding comment node giving it a position in the DOM.
-      // It therefore gets slotted / clumped together at the end of the host.
-      // It's cleaner to remove. Ideally, SSR is rendered with `prettyHtml: false`
-      node.remove();
-    }
   }
 
   return parentVNode;

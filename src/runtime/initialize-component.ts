@@ -155,7 +155,8 @@ export const initializeComponent = async (
         }
       }
       const scopeId = getScopeId(cmpMeta, hostRef.$modeName$);
-      if (!styles.has(scopeId)) {
+      // Always re-register styles during HMR to pick up inline style changes
+      if (!styles.has(scopeId) || (BUILD.hotModuleReplacement && hmrVersionId)) {
         const endRegisterStyles = createTime('registerStyles', cmpMeta.$tagName$);
 
         if (BUILD.hydrateServerSide && BUILD.shadowDom) {

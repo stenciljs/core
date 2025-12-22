@@ -75,6 +75,12 @@ export interface ShadowRootOptions {
    * focusable part is given focus, and the shadow host is given any available `:focus` styling.
    */
   delegatesFocus?: boolean;
+  /**
+   * Sets the slot assignment mode for the shadow root. When set to `'manual'`, enables imperative
+   * slotting using the `HTMLSlotElement.assign()` method. Defaults to `'named'` for standard
+   * declarative slotting behavior.
+   */
+  slotAssignment?: 'manual' | 'named';
 }
 
 export interface ModeStyles {
@@ -147,6 +153,10 @@ export interface AttachInternalsDecorator {
 export interface ListenDecorator {
   (eventName: string, opts?: ListenOptions): CustomMethodDecorator<any>;
 }
+
+export interface ResolveVarFunction {
+  <T>(variable: T): string;
+}
 export interface ListenOptions {
   /**
    * Handlers can also be registered for an event other than the host itself.
@@ -182,6 +192,9 @@ export interface StateDecorator {
 export interface WatchDecorator {
   (
     propName: any,
+    watchOptions?: {
+      immediate?: boolean;
+    },
   ): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void>;
 }
 
@@ -245,6 +258,25 @@ export declare const AttachInternals: AttachInternalsDecorator;
  * https://stenciljs.com/docs/events#listen-decorator
  */
 export declare const Listen: ListenDecorator;
+
+/**
+ * The `resolveVar()` function is a compile-time utility that resolves const variables
+ * and object properties to their string literal values. This allows variables to be
+ * used in `@Listen` and `@Event` decorators instead of hardcoded strings.
+ *
+ * @example
+ * ```ts
+ * const MY_EVENT = 'myEvent';
+ * @Listen(resolveVar(MY_EVENT))
+ * ```
+ *
+ * @example
+ * ```ts
+ * const EVENTS = { MY_EVENT: 'myEvent' } as const;
+ * @Event({ eventName: resolveVar(EVENTS.MY_EVENT) })
+ * ```
+ */
+export declare const resolveVar: ResolveVarFunction;
 
 /**
  * The `@Method()` decorator is used to expose methods on the public API.
@@ -424,6 +456,30 @@ export declare function readTask(task: RafCallback): void;
  * Unhandled exception raised while rendering, during event handling, or lifecycles will trigger the custom event handler.
  */
 export declare const setErrorHandler: (handler: ErrorHandler) => void;
+
+export type TagTransformer = (tag: string) => string;
+
+/**
+ * Sets a tag transformer to be used when rendering your custom elements.
+ * ```ts
+ * setTagTransformer((tag) => {
+ *  if (tag.startsWith('my-')) return `new-${tag}`
+ *  return tag;
+ * });
+ * ```
+ * Will mean all your components that start with `my-` are defined instead with `new-my-` prefix.
+ *
+ * @param transformer the transformer function to use which must return a string.
+ */
+export declare function setTagTransformer(transformer: TagTransformer): void;
+
+/**
+ * Transforms a tag name using a transformer set via `setTagTransformer`
+ *
+ * @param tag - the tag to transform e.g. `my-tag`
+ * @returns the transformed tag e.g. `new-my-tag`
+ */
+export declare function transformTag(tag: string): string;
 
 /**
  * @deprecated - Use `MixedInCtor` instead:
@@ -748,7 +804,7 @@ export { LocalJSX as JSX };
 export namespace JSXBase {
   export interface IntrinsicElements {
     // Stencil elements
-    slot: JSXBase.SlotAttributes;
+    slot: JSXBase.SlotAttributes<HTMLSlotElement>;
 
     // HTML
     a: JSXBase.AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -923,7 +979,7 @@ export namespace JSXBase {
     view: JSXBase.SVGAttributes;
   }
 
-  export interface SlotAttributes extends JSXAttributes {
+  export interface SlotAttributes<T = HTMLSlotElement> extends JSXAttributes<T> {
     name?: string;
     slot?: string;
     onSlotchange?: (event: Event) => void;
@@ -986,6 +1042,11 @@ export namespace JSXBase {
     popoverTargetAction?: string;
     popoverTargetElement?: Element | null;
     popoverTarget?: string;
+
+    // invoker commands
+    command?: string;
+    commandFor?: string;
+    commandfor?: string;
   }
 
   export interface CanvasHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1962,6 +2023,7 @@ export interface CustomElementsDefineOptions {
   exclude?: string[];
   resourcesUrl?: string;
   syncQueue?: boolean;
+  /** @deprecated in-favour of `setTagTransformer` and `transformTag` */
   transformTagName?: (tagName: string) => string;
   jmp?: (c: Function) => any;
   raf?: (c: FrameRequestCallback) => number;

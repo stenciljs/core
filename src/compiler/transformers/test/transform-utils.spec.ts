@@ -1,8 +1,12 @@
 import * as ts from 'typescript';
 
 import {
+  addTagTransformToCssString,
+  addTagTransformToCssTsAST,
   isMemberPrivate,
   mapJSDocTagInfo,
+  parseDocsType,
+  resolveType,
   retrieveModifierLike,
   retrieveTsDecorators,
   retrieveTsModifiers,
@@ -318,6 +322,355 @@ describe('transform-utils', () => {
       expect(
         printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], true)),
       ).toBe(`class MyClass extends BaseClass { constructor() { super(false); }}`);
+    });
+  });
+
+  describe('addTagTransformToCssString', () => {
+    it('should transform tag selectors to placeholder syntax', () => {
+      const cssCode = 'my-component { color: red; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe('${__stencil_transformTag("my-component")} { color: red; }');
+    });
+
+    it('should transform multiple tag selectors', () => {
+      const cssCode = 'my-component { color: red; } other-component { color: blue; }';
+      const tagNames = ['my-component', 'other-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe(
+        '${__stencil_transformTag("my-component")} { color: red; } ${__stencil_transformTag("other-component")} { color: blue; }',
+      );
+    });
+
+    it('should only transform specified tag names', () => {
+      const cssCode = 'my-component { color: red; } other-component { color: blue; } .class { color: green; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe(
+        '${__stencil_transformTag("my-component")} { color: red; } other-component { color: blue; } .class { color: green; }',
+      );
+    });
+
+    it('should handle complex selectors with tag names', () => {
+      const cssCode = 'my-component.active { color: red; } my-component:hover { color: blue; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe(
+        '${__stencil_transformTag("my-component")}.active { color: red; } ${__stencil_transformTag("my-component")}:hover { color: blue; }',
+      );
+    });
+
+    it('should handle descendant selectors', () => {
+      const cssCode = 'parent-component my-component { color: red; }';
+      const tagNames = ['my-component', 'parent-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe(
+        '${__stencil_transformTag("parent-component")} ${__stencil_transformTag("my-component")} { color: red; }',
+      );
+    });
+
+    it('should return original CSS when no tag names match', () => {
+      const cssCode = '.class { color: red; } #id { color: blue; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe('.class { color: red; } #id { color: blue; }');
+    });
+
+    it('should handle empty tag names array', () => {
+      const cssCode = 'my-component { color: red; }';
+      const tagNames: string[] = [];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe('my-component { color: red; }');
+    });
+
+    it('should handle attribute selectors with tag names', () => {
+      const cssCode = 'my-component[active] { color: red; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssString(cssCode, tagNames);
+
+      expect(result).toBe('${__stencil_transformTag("my-component")}[active] { color: red; }');
+    });
+  });
+
+  describe('addTagTransformToCssTsAST', () => {
+    let printer: ts.Printer;
+    let sourceFile: ts.SourceFile;
+
+    beforeEach(() => {
+      printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+      sourceFile = ts.createSourceFile('test.ts', '', ts.ScriptTarget.ES2015);
+    });
+
+    it('should return NoSubstitutionTemplateLiteral when no tags are found', () => {
+      const cssCode = '.class { color: red; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isNoSubstitutionTemplateLiteral(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe('`.class { color: red; }`');
+    });
+
+    it('should return TemplateExpression with tag transform calls', () => {
+      const cssCode = 'my-component { color: red; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe('`${__stencil_transformTag("my-component")} { color: red; }`');
+    });
+
+    it('should handle multiple tag transformations', () => {
+      const cssCode = 'my-component { color: red; } other-component { color: blue; }';
+      const tagNames = ['my-component', 'other-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe(
+        '`${__stencil_transformTag("my-component")} { color: red; } ${__stencil_transformTag("other-component")} { color: blue; }`',
+      );
+    });
+
+    it('should handle complex selectors with mixed content', () => {
+      const cssCode = '.class { color: green; } my-component:hover { color: red; } #id { color: yellow; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe(
+        '`.class { color: green; } ${__stencil_transformTag("my-component")}:hover { color: red; } #id { color: yellow; }`',
+      );
+    });
+
+    it('should handle descendant selectors', () => {
+      const cssCode = 'parent-component my-component { color: red; }';
+      const tagNames = ['my-component', 'parent-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe(
+        '`${__stencil_transformTag("parent-component")} ${__stencil_transformTag("my-component")} { color: red; }`',
+      );
+    });
+
+    it('should handle tag names that appear multiple times', () => {
+      const cssCode = 'my-component { color: red; } my-component.active { color: blue; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe(
+        '`${__stencil_transformTag("my-component")} { color: red; } ${__stencil_transformTag("my-component")}.active { color: blue; }`',
+      );
+    });
+
+    it('should handle empty tag names array', () => {
+      const cssCode = 'my-component { color: red; }';
+      const tagNames: string[] = [];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isNoSubstitutionTemplateLiteral(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toBe('`my-component { color: red; }`');
+    });
+
+    it('should handle CSS with newlines and formatting', () => {
+      const cssCode = `my-component {
+  color: red;
+  margin: 10px;
+}`;
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      expect(ts.isTemplateExpression(result)).toBe(true);
+
+      const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
+      expect(output).toContain('__stencil_transformTag("my-component")');
+      expect(output).toContain('color: red');
+      expect(output).toContain('margin: 10px');
+    });
+
+    it('should create proper TemplateSpan structure', () => {
+      const cssCode = 'my-component { color: red; }';
+      const tagNames = ['my-component'];
+
+      const result = addTagTransformToCssTsAST(cssCode, tagNames);
+
+      if (ts.isTemplateExpression(result)) {
+        expect(result.templateSpans).toHaveLength(1);
+
+        const span = result.templateSpans[0];
+        expect(ts.isCallExpression(span.expression)).toBe(true);
+
+        const callExpr = span.expression as ts.CallExpression;
+        expect(ts.isIdentifier(callExpr.expression)).toBe(true);
+        expect((callExpr.expression as ts.Identifier).text).toBe('__stencil_transformTag');
+        expect(callExpr.arguments).toHaveLength(1);
+        expect(ts.isStringLiteral(callExpr.arguments[0])).toBe(true);
+        expect((callExpr.arguments[0] as ts.StringLiteral).text).toBe('my-component');
+      } else {
+        fail('Expected TemplateExpression but got different node type');
+      }
+    });
+  });
+
+  describe('resolveType and parseDocsType', () => {
+    /**
+     * Helper to create a minimal compiler host for testing
+     */
+    const createTestCompilerHost = (sourceFile: ts.SourceFile): ts.CompilerHost => ({
+      getSourceFile: (fileName) => (fileName === 'test.ts' ? sourceFile : undefined),
+      writeFile: () => {},
+      getCurrentDirectory: () => '',
+      getDirectories: () => [],
+      fileExists: () => true,
+      readFile: () => '',
+      getCanonicalFileName: (fileName) => fileName,
+      useCaseSensitiveFileNames: () => true,
+      getNewLine: () => '\n',
+      getDefaultLibFileName: () => 'lib.d.ts',
+    });
+
+    describe('type alias expansion', () => {
+      it('should expand non-generic type aliases to their literal values', () => {
+        // Create a simple type alias: type ColorName = "red" | "green" | "blue"
+        const sourceCode = `
+          type ColorName = "red" | "green" | "blue";
+          const color: ColorName = "red";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'color' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to the literal values
+        expect(result).toBe('"blue" | "green" | "red"');
+      });
+
+      it('should expand generic type aliases to their literal values', () => {
+        // Create a generic type alias: type AllowedValues<T> = T
+        const sourceCode = `
+          type AllowedValues<T> = T;
+          const value: AllowedValues<"a" | "b" | "c"> = "a";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'value' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to the literal values
+        expect(result).toBe('"a" | "b" | "c"');
+      });
+
+      it('should expand unions of type aliases with more than 20 members', () => {
+        // Create a union type with 21 string literal values (3 + 18)
+        const sourceCode = `
+          type ColorName = "Lavender" | "Mint" | "Rose";
+          type ColorShadeName = "100" | "200" | "300" | "400" | "500" | "600";
+          type AllowedColors<T> = T;
+          const color: ColorName | AllowedColors<\`\${ColorName}-\${ColorShadeName}\`> = "Lavender";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'color' variable
+        const variableStatement = sourceFile.statements[3] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const result = resolveType(checker, type);
+
+        // Should expand to all 21 literal values (3 base colors + 18 combinations)
+        const parts = result.split(' | ');
+        expect(parts.length).toBe(21);
+        expect(parts).toContain('"Lavender"');
+        expect(parts).toContain('"Mint"');
+        expect(parts).toContain('"Rose"');
+        expect(parts).toContain('"Lavender-100"');
+        expect(parts).toContain('"Mint-600"');
+        expect(parts).toContain('"Rose-600"');
+
+        // Verify no malformed entries (should not contain type alias names or angle brackets)
+        expect(result).not.toContain('ColorName');
+        expect(result).not.toContain('AllowedColors');
+        expect(result).not.toContain('<');
+        expect(result).not.toContain('>');
+      });
+
+      it('should handle parseDocsType correctly for union types', () => {
+        // Test that parseDocsType properly expands union types
+        const sourceCode = `
+          type Status = "active" | "inactive";
+          const status: Status = "active";
+        `;
+
+        const sourceFile = ts.createSourceFile('test.ts', sourceCode, ts.ScriptTarget.ES2015, true);
+        const program = ts.createProgram(['test.ts'], {}, createTestCompilerHost(sourceFile));
+        const checker = program.getTypeChecker();
+
+        // Get the type of the 'status' variable
+        const variableStatement = sourceFile.statements[1] as ts.VariableStatement;
+        const variableDeclaration = variableStatement.declarationList.declarations[0];
+        const type = checker.getTypeAtLocation(variableDeclaration);
+
+        const parts = new Set<string>();
+        parseDocsType(checker, type, parts);
+
+        expect(parts.size).toBe(2);
+        expect(parts.has('"active"')).toBe(true);
+        expect(parts.has('"inactive"')).toBe(true);
+      });
     });
   });
 });

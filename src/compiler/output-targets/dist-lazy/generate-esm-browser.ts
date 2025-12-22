@@ -23,7 +23,7 @@ export const generateEsmBrowser = async (
       chunkFileNames: config.hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '')],
+      plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '', true)],
     };
 
     const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);

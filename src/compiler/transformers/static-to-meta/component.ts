@@ -11,7 +11,7 @@ import { parseAttachInternals } from './attach-internals';
 import { parseCallExpression } from './call-expression';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
-import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus } from './encapsulation';
+import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus, parseStaticSlotAssignment } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
@@ -91,6 +91,7 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
+    slotAssignment: parseStaticSlotAssignment(encapsulation, staticMembers),
     properties,
     virtualProperties: parseVirtualProps(docs),
     states,
@@ -143,6 +144,7 @@ export const parseStaticComponentMeta = (
     hasReflect: false,
     hasRenderFn: false,
     hasSerializer: false,
+    hasSlot: false,
     hasState: false,
     hasStyle: false,
     hasVdomAttribute: false,
@@ -186,6 +188,7 @@ export const parseStaticComponentMeta = (
   cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode) || doesExtend;
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
+  cmp.hasSlot = cmp.hasSlot || cmp.htmlTagNames.includes('slot');
   cmp.potentialCmpRefs = unique(cmp.potentialCmpRefs);
   setComponentBuildConditionals(cmp);
 

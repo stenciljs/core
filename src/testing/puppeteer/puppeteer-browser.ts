@@ -67,11 +67,16 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
       devtools: config.testing.browserDevtools,
       ...connectOpts,
     };
-    launchOpts.executablePath =
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      process.env.CHROME_PATH ||
-      (puppeteer.executablePath as typeof executablePath)(launchOpts);
-
+    try {
+      // puppeteer >= 23
+      launchOpts.executablePath =
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        process.env.CHROME_PATH ||
+        (puppeteer.executablePath as typeof executablePath)(launchOpts);
+    } catch (_) {
+      // puppeteer <= 22
+      launchOpts.executablePath = puppeteer.executablePath(launchOpts.channel);
+    }
     browser = await (puppeteer.launch as typeof launch)({ ...launchOpts });
   }
 

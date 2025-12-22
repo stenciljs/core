@@ -46,3 +46,18 @@ export const parseStaticShadowDelegatesFocus = (
   }
   return null;
 };
+
+/**
+ * Find and return the `slotAssignment` mode for a component.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns `manual` if explicitly set. Otherwise `null`.
+ */
+export const parseStaticSlotAssignment = (encapsulation: string, staticMembers: ts.ClassElement[]): 'manual' | null => {
+  if (encapsulation === 'shadow') {
+    const slotAssignment: string = getStaticValue(staticMembers, 'slotAssignment');
+    return slotAssignment === 'manual' ? 'manual' : null;
+  }
+  return null;
+};

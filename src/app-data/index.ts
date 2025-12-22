@@ -93,9 +93,11 @@ export const BUILD: BuildConditionals = {
   constructableCSS: true,
   devTools: false,
   shadowDelegatesFocus: true,
+  shadowSlotAssignmentManual: false,
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
+  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
   transformTagName: false,
   attachStyles: true,
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior

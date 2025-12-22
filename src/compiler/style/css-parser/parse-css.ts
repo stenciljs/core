@@ -1,6 +1,17 @@
 import type * as d from '../../../declarations';
 import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
 
+// (note - We can't use something like postcss / lightningCSS here
+// because it would be bundled in the user's hydrate-script)
+
+/**
+ * Parses CSS string input into an AST representation.
+ * Used for minification, finding & resolving URLs and during SSR / prerendering, removing unused selectors.
+ *
+ * @param css The CSS string to parse
+ * @param filePath Optional file path for diagnostic reporting
+ * @returns The results of the CSS parsing, including the AST and any diagnostics
+ */
 export const parseCss = (css: string, filePath?: string): ParseCssResults => {
   let lineno = 1;
   let column = 1;
@@ -314,6 +325,54 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     });
   };
 
+  /**
+   * Parse nested @media rule that contains declarations instead of rules
+   */
+  const nestedAtmedia = () => {
+    const pos = position();
+    const m = match(/^@media *([^{]+)/);
+
+    if (!m) return null;
+    const media = trim(m[1]);
+
+    const decls = declarations();
+    if (!decls) return null;
+
+    return pos({
+      type: CssNodeType.Media,
+      media: media,
+      declarations: decls,
+    });
+  };
+
+  /**
+   * Parse nested @supports rule that contains declarations instead of rules
+   */
+  const nestedAtsupports = () => {
+    const pos = position();
+    const m = match(/^@supports *([^{]+)/);
+
+    if (!m) return null;
+    const supports = trim(m[1]);
+
+    const decls = declarations();
+    if (!decls) return null;
+
+    return pos({
+      type: CssNodeType.Supports,
+      supports: supports,
+      declarations: decls,
+    });
+  };
+
+  /**
+   * Try to parse a nested at-rule (one that contains declarations, not rules)
+   */
+  const nestedAtrule = () => {
+    if (css[0] !== '@') return null;
+    return nestedAtmedia() || nestedAtsupports();
+  };
+
   const atcustommedia = () => {
     const pos = position();
     const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
@@ -439,10 +498,89 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     if (!sel) return error('selector missing');
     comments();
 
+    // Parse declarations and nested rules
+    if (!open()) return error(`missing '{'`);
+
+    const decls: CssNode[] = [];
+    const nestedRules: CssNode[] = [];
+
+    comments(decls);
+
+    // Loop through the block, parsing declarations and nested rules
+    while (css.length && css.charAt(0) !== '}') {
+      // Consume any whitespace before trying to parse
+      whitespace();
+
+      // Check if we've reached the end
+      if (!css.length || css.charAt(0) === '}') {
+        break;
+      }
+
+      const nextChar = css.charAt(0);
+
+      // Check for nested at-rules first
+      if (nextChar === '@') {
+        const nestedAt = nestedAtrule();
+        if (nestedAt) {
+          nestedRules.push(nestedAt);
+          comments(nestedRules);
+          continue;
+        }
+      }
+
+      // Check if this looks like a nested rule (look ahead for '{')
+      // Nested rules can start with &, :, or be selectors (class, id, element, attribute)
+      if (nextChar === '&' || nextChar === ':' || /[a-zA-Z\.\#\[]/.test(nextChar)) {
+        // Look ahead to see if there's a '{' before a declaration-style ':'
+        // For selectors starting with '&' or ':', we need special handling
+        let hasOpenBrace = false;
+        if (nextChar === '&' || nextChar === ':') {
+          // These definitely start selectors, look for '{'
+          const lookAhead = css.match(/^[^{}]+/);
+          hasOpenBrace = lookAhead && css[lookAhead[0].length] === '{';
+        } else {
+          // For other starts, check if this is a selector (not a declaration)
+          // A selector will have a '{' relatively soon without a declaration-style ':' first
+          // Match up to ';' or '{', whichever comes first
+          const lookAhead = css.match(/^[^{};]+/);
+          if (lookAhead) {
+            const nextSigChar = css[lookAhead[0].length];
+            // If the next significant character is '{', this is a nested rule
+            // If it's ';', this is likely a declaration
+            hasOpenBrace = nextSigChar === '{';
+          }
+        }
+
+        if (hasOpenBrace) {
+          // This is a nested rule
+          const nestedRule = rule();
+          if (nestedRule) {
+            nestedRules.push(nestedRule);
+            comments(nestedRules);
+            continue;
+          }
+        }
+      }
+
+      // Try to parse as a declaration
+      const decl = declaration();
+      if (decl) {
+        decls.push(decl);
+        comments(decls);
+        continue;
+      }
+
+      // If we couldn't parse either, we might be at the end or have invalid CSS
+      break;
+    }
+
+    if (!close()) return error(`missing '}'`);
+
     return pos({
       type: CssNodeType.Rule,
       selectors: sel,
-      declarations: declarations(),
+      declarations: decls,
+      rules: nestedRules.length > 0 ? nestedRules : null,
     });
   };
 

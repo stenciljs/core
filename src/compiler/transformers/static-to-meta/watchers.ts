@@ -13,6 +13,7 @@ export const parseStaticWatchers = (staticMembers: ts.ClassElement[]): d.Compone
     return {
       propName: parsedWatch.propName,
       methodName: parsedWatch.methodName,
+      handlerOptions: parsedWatch.handlerOptions,
     };
   });
 };

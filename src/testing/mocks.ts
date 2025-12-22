@@ -46,6 +46,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     outputTargets: baseConfig.outputTargets ?? [],
     packageJsonFilePath: path.join(rootDir, 'package.json'),
     rootDir,
+    sourceMap: true,
     srcDir: '/src',
     srcIndexHtml: 'src/index.html',
     suppressReservedPublicNameWarnings: false,

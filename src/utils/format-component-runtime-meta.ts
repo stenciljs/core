@@ -1,5 +1,5 @@
 import type * as d from '../declarations';
-import { CMP_FLAGS, LISTENER_FLAGS, MEMBER_FLAGS } from './constants';
+import { CMP_FLAGS, LISTENER_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from './constants';
 
 export const formatLazyBundleRuntimeMeta = (
   bundleId: any,
@@ -26,6 +26,9 @@ export const formatComponentRuntimeMeta = (
     if (compilerMeta.shadowDelegatesFocus) {
       flags |= CMP_FLAGS.shadowDelegatesFocus;
     }
+    if (compilerMeta.slotAssignment === 'manual') {
+      flags |= CMP_FLAGS.shadowSlotAssignmentManual;
+    }
   } else if (compilerMeta.encapsulation === 'scoped') {
     flags |= CMP_FLAGS.scopedCssEncapsulation;
   }
@@ -35,8 +38,8 @@ export const formatComponentRuntimeMeta = (
   if (compilerMeta.encapsulation !== 'shadow' && compilerMeta.htmlTagNames.includes('slot')) {
     flags |= CMP_FLAGS.hasSlotRelocation;
   }
-  if (compilerMeta.hasRenderFn) {
-    flags |= CMP_FLAGS.hasRenderFn;
+  if (compilerMeta.hasSlot) {
+    flags |= CMP_FLAGS.hasSlot;
   }
   if (compilerMeta.hasMode) {
     flags |= CMP_FLAGS.hasMode;
@@ -87,9 +90,12 @@ const formatComponentRuntimeReactiveHandlers = (
   decorator: 'watchers' | 'serializers' | 'deserializers',
 ) => {
   const handlers: d.ComponentConstructorChangeHandlers = {};
-
-  compilerMeta[decorator]?.forEach(({ propName, methodName }) => {
-    handlers[propName] = [...(handlers[propName] ?? []), methodName];
+  compilerMeta[decorator]?.forEach(({ propName, methodName, handlerOptions }) => {
+    let watcherFlags = 0;
+    if (handlerOptions?.immediate) {
+      watcherFlags |= WATCH_FLAGS.Immediate;
+    }
+    handlers[propName] = [...(handlers[propName] ?? []), { [methodName]: watcherFlags }];
   });
 
   return handlers;

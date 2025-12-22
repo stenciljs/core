@@ -10,20 +10,20 @@ describe('dynamic-css-variables', () => {
 
   it('should dynamically change the inline css variable', async () => {
     await expect($('header')).toHaveStyle({
-      color: browser.isChromium ? 'rgba(0,0,255,1)' : 'rgb(0,0,255)',
+      color: 'rgb(0,0,255)',
     });
 
     const button = $('button');
     await button.click();
 
     await expect($('header')).toHaveStyle({
-      color: browser.isChromium ? 'rgba(255,255,255,1)' : 'rgb(255,255,255)',
+      color: 'rgb(255,255,255)',
     });
 
     await button.click();
 
     await expect($('header')).toHaveStyle({
-      color: browser.isChromium ? 'rgba(0,0,255,1)' : 'rgb(0,0,255)',
+      color: 'rgb(0,0,255)',
     });
   });
 });

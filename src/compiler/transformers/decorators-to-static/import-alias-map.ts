@@ -15,7 +15,7 @@ export class ImportAliasMap extends Map<StencilDecorator, string> {
    * @param sourceFile The source file to parse
    */
   private generateImportAliasMap(sourceFile: ts.SourceFile) {
-    const importDeclarations = sourceFile.statements.filter(ts.isImportDeclaration);
+    const importDeclarations = sourceFile?.statements.filter(ts.isImportDeclaration) ?? [];
 
     for (const importDeclaration of importDeclarations) {
       if (importDeclaration.moduleSpecifier.getText().includes('@stencil/core')) {

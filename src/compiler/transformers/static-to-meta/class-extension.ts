@@ -21,6 +21,12 @@ type DeDupeMember =
   | d.ComponentCompilerEvent
   | d.ComponentCompilerChangeHandler;
 
+type DependentClass = {
+  classNode: ts.ClassDeclaration;
+  sourceFile: ts.SourceFile;
+  fileName: string;
+};
+
 /**
  * Given two arrays of static members, return a new array containing only the
  * members from the first array that are not present in the second array.
@@ -43,6 +49,105 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
 };
 
 /**
+ * Helper function to resolve and process an extended class from a module.
+ * This handles:
+ * 1. Resolving the module path
+ * 2. Getting the source file
+ * 3. Finding the class declaration
+ * 4. Adding to dependent classes tree
+ *
+ * @param compilerCtx
+ * @param buildCtx
+ * @param classDeclaration the current class being analyzed
+ * @param currentSource the source file of the current class
+ * @param moduleSpecifier the module path to resolve
+ * @param className the name of the class to find in the resolved module
+ * @param dependentClasses the array to add found classes to
+ * @param keepLooking whether to continue recursively looking for more extended classes
+ * @param typeChecker
+ * @param ogModule
+ * @returns the found class declaration or undefined
+ */
+function resolveAndProcessExtendedClass(
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  classDeclaration: ts.ClassDeclaration,
+  currentSource: ts.SourceFile,
+  moduleSpecifier: string,
+  className: string,
+  dependentClasses: DependentClass[],
+  keepLooking: boolean,
+  typeChecker: ts.TypeChecker,
+  ogModule: d.Module,
+): ts.ClassDeclaration | undefined {
+  const foundFile = tsResolveModuleName(buildCtx.config, compilerCtx, moduleSpecifier, currentSource.fileName);
+
+  if (!foundFile?.resolvedModule || !className) {
+    return undefined;
+  }
+
+  // 1) resolve the module name to a file
+  let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
+    foundFile.resolvedModule.resolvedFileName,
+  )?.staticSourceFile;
+
+  if (!foundSource) {
+    // Stencil only loads full-fledged component modules from node_modules collections,
+    // so if we didn't find the source file in the module map,
+    // let's create a temporary program and get the source file from there
+    foundSource = tsGetSourceFile(buildCtx.config, foundFile);
+
+    if (!foundSource) {
+      // ts could not resolve the module. Likely because `allowJs` is not set to `true`
+      const err = buildWarn(buildCtx.diagnostics);
+      err.messageText = `Unable to resolve import "${moduleSpecifier}" from "${currentSource.fileName}". 
+                    This can happen when trying to resolve .js files and "allowJs" is not set to "true" in your tsconfig.json.`;
+      if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+      return undefined;
+    }
+  }
+
+  // 2) get the exported declaration from the module
+  const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+  if (!matchedStatement) {
+    // we couldn't find the imported declaration as an exported statement in the module
+    const err = buildWarn(buildCtx.diagnostics);
+    err.messageText = `Unable to find "${className}" in the imported module "${moduleSpecifier}". 
+                  Please import class / mixin-factory declarations directly and not via barrel files.`;
+    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+    return undefined;
+  }
+
+  let foundClassDeclaration = matchedStatement
+    ? ts.isClassDeclaration(matchedStatement)
+      ? matchedStatement
+      : undefined
+    : undefined;
+
+  if (!foundClassDeclaration && matchedStatement) {
+    // the found `extends` type does not resolve to a class declaration;
+    // if it's wrapped in a function - let's try and find it inside
+    foundClassDeclaration = findClassWalk(matchedStatement);
+    keepLooking = false;
+  }
+
+  if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
+    // 3) if we found the class declaration, push it and check if it itself extends from another class
+    dependentClasses.push({
+      classNode: foundClassDeclaration,
+      sourceFile: foundSource,
+      fileName: foundFile.resolvedModule.resolvedFileName,
+    });
+
+    if (keepLooking) {
+      buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
+    }
+  }
+
+  return foundClassDeclaration;
+}
+
+/**
  * A recursive function that walks the AST to find a class declaration.
  * @param node the current AST node
  * @param depth the current depth in the AST
@@ -53,6 +158,21 @@ function findClassWalk(node?: ts.Node, name?: string): ts.ClassDeclaration | und
   if (!node) return undefined;
   if (node && ts.isClassDeclaration(node) && (!name || node.name?.text === name)) {
     return node;
+  } else if (
+    node &&
+    ts.isVariableDeclaration(node) &&
+    // @ts-ignore
+    (!name || name === (node.name?.text || node.name?.escapedText)) &&
+    node.initializer &&
+    ts.isArrowFunction(node.initializer)
+  ) {
+    // handle case where class is wrapped in a mixin factory function
+    let found: ts.ClassDeclaration | undefined;
+    ts.forEachChild(node.initializer.body, (child) => {
+      if (found) return;
+      if (ts.isClassDeclaration(child)) found = child;
+    });
+    return found;
   }
   let found: ts.ClassDeclaration | undefined;
 
@@ -109,7 +229,7 @@ function matchesNamedDeclaration(name: string) {
 function buildExtendsTree(
   compilerCtx: d.CompilerCtx,
   classDeclaration: ts.ClassDeclaration,
-  dependentClasses: { classNode: ts.ClassDeclaration; sourceFile: ts.SourceFile; fileName: string }[],
+  dependentClasses: DependentClass[],
   typeChecker: ts.TypeChecker,
   buildCtx: d.BuildCtx,
   ogModule: d.Module,
@@ -153,6 +273,9 @@ function buildExtendsTree(
         // if it's wrapped in a function - let's try and find it inside
         const node = aliasedSymbol?.declarations?.[0];
         foundClassDeclaration = findClassWalk(node);
+        if (!node) {
+          throw 'revert to sad path';
+        }
         keepLooking = false;
       }
 
@@ -227,83 +350,57 @@ function buildExtendsTree(
             if (element.name.getText() === extendee.getText()) {
               // 3) check the name matches the `extends` type expression
               const className = element.propertyName?.getText() || element.name.getText();
-              const foundFile = tsResolveModuleName(
-                buildCtx.config,
+              const moduleSpecifier = statement.moduleSpecifier.getText().replaceAll(/['"]/g, '');
+
+              resolveAndProcessExtendedClass(
                 compilerCtx,
-                statement.moduleSpecifier.getText().replaceAll(/['"]/g, ''),
-                currentSource.fileName,
+                buildCtx,
+                classDeclaration,
+                currentSource,
+                moduleSpecifier,
+                className,
+                dependentClasses,
+                keepLooking,
+                typeChecker,
+                ogModule,
               );
-
-              if (foundFile?.resolvedModule && className) {
-                // 4) resolve the module name to a file
-                let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
-                  foundFile.resolvedModule.resolvedFileName,
-                )?.staticSourceFile;
-
-                if (!foundSource) {
-                  // Stencil only loads full-fledged component modules from node_modules collections,
-                  // so if we didn't find the source file in the module map,
-                  // let's create a temporary program and get the source file from there
-                  foundSource = tsGetSourceFile(buildCtx.config, foundFile);
-
-                  if (!foundSource) {
-                    // ts could not resolve the module. Likely because `allowJs` is not set to `true`
-                    const err = buildWarn(buildCtx.diagnostics);
-                    err.messageText = `Unable to resolve import "${statement.moduleSpecifier.getText()}" from "${currentSource.fileName}". 
-                    This can happen when trying to resolve .js files and "allowJs" is not set to "true" in your tsconfig.json.`;
-                    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
-                    return;
-                  }
-                }
-
-                const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
-                if (!matchedStatement) {
-                  // we couldn't find the imported declaration as an exported statement in the module
-                  const err = buildWarn(buildCtx.diagnostics);
-                  err.messageText = `Unable to find "${className}" in the imported module "${statement.moduleSpecifier.getText()}". 
-                  Please import class / mixin-factory declarations directly and not via barrel files.`;
-                  if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
-                  return;
-                }
-
-                foundClassDeclaration = matchedStatement
-                  ? ts.isClassDeclaration(matchedStatement)
-                    ? matchedStatement
-                    : undefined
-                  : undefined;
-
-                if (!foundClassDeclaration && matchedStatement) {
-                  // 5.b) the found `extends` type does not resolve to a class declaration;
-                  // if it's wrapped in a function - let's try and find it inside
-                  foundClassDeclaration = findClassWalk(matchedStatement);
-                  keepLooking = false;
-                }
-
-                if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
-                  // 6) if we found the class declaration, push it and check if it itself extends from another class
-                  dependentClasses.push({
-                    classNode: foundClassDeclaration,
-                    sourceFile: foundSource,
-                    fileName: currentSource.fileName,
-                  });
-
-                  if (keepLooking) {
-                    buildExtendsTree(
-                      compilerCtx,
-                      foundClassDeclaration,
-                      dependentClasses,
-                      typeChecker,
-                      buildCtx,
-                      ogModule,
-                    );
-                  }
-                  return;
-                }
-              }
             }
           });
         }
       });
+
+      if (!importStatements.length) {
+        // we're in a cjs module (probably in a Jest test) - loop through require modules statements
+        const requireStatements = currentSource.statements.filter(ts.isVariableStatement);
+        requireStatements.forEach((statement) => {
+          statement.declarationList.declarations.forEach((declaration) => {
+            if (
+              declaration.initializer &&
+              ts.isCallExpression(declaration.initializer) &&
+              ts.isIdentifier(declaration.initializer.expression) &&
+              declaration.initializer.expression.escapedText === 'require' &&
+              declaration.initializer.arguments.length === 1 &&
+              ts.isStringLiteral(declaration.initializer.arguments[0])
+            ) {
+              const moduleSpecifier = declaration.initializer.arguments[0].text.replaceAll(/['"]/g, '');
+              const className = extendee.getText();
+
+              resolveAndProcessExtendedClass(
+                compilerCtx,
+                buildCtx,
+                classDeclaration,
+                currentSource,
+                moduleSpecifier,
+                className,
+                dependentClasses,
+                keepLooking,
+                typeChecker,
+                ogModule,
+              );
+            }
+          });
+        });
+      }
     }
   });
 

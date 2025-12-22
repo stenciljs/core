@@ -1,3 +1,4 @@
+import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
 
 describe('es5 $addClass svg', () => {
