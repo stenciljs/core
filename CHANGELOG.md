@@ -24,7 +24,6 @@
 
 ### Features
 
-* **api:** manual slot assignment ([fd3fa01](https://github.com/stenciljs/core/commit/fd3fa018c3e87f65b8d1ed0a3818a552ac42841a))
 * **api:** manual slot assignment ([#6497](https://github.com/stenciljs/core/issues/6497)) ([92097e4](https://github.com/stenciljs/core/commit/92097e492ded87c4d5f8bf9d8ee0add8ff178d1d))
 * **compiler:** `sourceMap: "dev"` ([#6498](https://github.com/stenciljs/core/issues/6498)) ([0be1ea1](https://github.com/stenciljs/core/commit/0be1ea125c50d30ee0a1f36c79bb116633bf091f))
 * **compiler:** new `excludeComponents` config option ([#6491](https://github.com/stenciljs/core/issues/6491)) ([f60693e](https://github.com/stenciljs/core/commit/f60693ed698cf10e801ed315fc742de79eb8062d))
