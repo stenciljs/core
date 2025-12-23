@@ -305,32 +305,33 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     });
   };
 
-  const atmedia = () => {
+  const atquery = (name: 'media' | 'container') => {
     const pos = position();
-    const m = match(/^@media *([^{]+)/);
+    const regex = new RegExp('^@' + name + ' *([^{]+)');
+    const m = match(regex);
 
     if (!m) return null;
     const media = trim(m[1]);
 
-    if (!open()) return error(`@media missing '{'`);
+    if (!open()) return error(`@${name} missing '{'`);
 
     const style = comments().concat(rules());
 
-    if (!close()) return error(`@media missing '}'`);
-
+    if (!close()) return error(`@${name} missing '}'`);
     return pos({
-      type: CssNodeType.Media,
+      type: name === 'media' ? CssNodeType.Media : CssNodeType.Container,
       media: media,
       rules: style,
     });
   };
 
   /**
-   * Parse nested @media rule that contains declarations instead of rules
+   * Parse nested @ rule that contains declarations instead of rules
    */
-  const nestedAtmedia = () => {
+  const nestedAtQuery = (name: 'media' | 'container' | 'supports') => {
     const pos = position();
-    const m = match(/^@media *([^{]+)/);
+    const regex = new RegExp('^@' + name + ' *([^{]+)');
+    const m = match(regex);
 
     if (!m) return null;
     const media = trim(m[1]);
@@ -339,28 +340,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     if (!decls) return null;
 
     return pos({
-      type: CssNodeType.Media,
+      type: name === 'media' ? CssNodeType.Media : name === 'container' ? CssNodeType.Container : CssNodeType.Supports,
       media: media,
-      declarations: decls,
-    });
-  };
-
-  /**
-   * Parse nested @supports rule that contains declarations instead of rules
-   */
-  const nestedAtsupports = () => {
-    const pos = position();
-    const m = match(/^@supports *([^{]+)/);
-
-    if (!m) return null;
-    const supports = trim(m[1]);
-
-    const decls = declarations();
-    if (!decls) return null;
-
-    return pos({
-      type: CssNodeType.Supports,
-      supports: supports,
       declarations: decls,
     });
   };
@@ -370,7 +351,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
    */
   const nestedAtrule = () => {
     if (css[0] !== '@') return null;
-    return nestedAtmedia() || nestedAtsupports();
+    return nestedAtQuery('media') || nestedAtQuery('supports') || nestedAtQuery('container');
   };
 
   const atcustommedia = () => {
@@ -478,7 +459,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     if (css[0] !== '@') return null;
     return (
       atkeyframes() ||
-      atmedia() ||
+      atquery('media') ||
+      atquery('container') ||
       atcustommedia() ||
       atsupports() ||
       atimport() ||

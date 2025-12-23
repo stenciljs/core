@@ -52,6 +52,9 @@ const serializeCssVisitNode = (opts: SerializeOpts, node: CssNode, index: number
   if (nodeType === CssNodeType.Media) {
     return serializeCssMedia(opts, node);
   }
+  if (nodeType === CssNodeType.Container) {
+    return serializeCssContainer(opts, node);
+  }
   if (nodeType === CssNodeType.KeyFrames) {
     return serializeCssKeyframes(opts, node);
   }
@@ -245,6 +248,17 @@ const serializeCssSupports = (opts: SerializeOpts, node: CssNode) => {
     return '';
   }
   return '@supports ' + node.supports + '{' + supportsCss + '}';
+};
+
+const serializeCssContainer = (opts: SerializeOpts, node: CssNode) => {
+  // Nested @container can have either rules OR declarations
+  const containerCss = node.declarations
+    ? serializeCssMapVisit(opts, node.declarations)
+    : serializeCssMapVisit(opts, node.rules);
+  if (containerCss === '') {
+    return '';
+  }
+  return '@container ' + removeMediaWhitespace(node.media) + '{' + containerCss + '}';
 };
 
 const serializeCssPage = (opts: SerializeOpts, node: CssNode) => {
