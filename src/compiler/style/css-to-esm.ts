@@ -165,6 +165,19 @@ const generateTransformCssToEsm = (
 ): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
 
+  // Double existing backslashes; so `\\f101` parses to `\f101` at runtime
+  // handles plain css string or js variable input (i.e from testing)
+  results.styleText = results.styleText
+    .replace(/`/g, '\\`')
+    .replace(/\u000c/g, '\\f')
+    .replace(/\u0008/g, '\\b')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(/\u000b/g, '\\v')
+    .replace(/\0/g, '\\0')
+    .replace(/\\/g, '\\\\');
+
   if (input.addTagTransformers) {
     results.styleText = addTagTransformToCssString(results.styleText, input.tags);
   }
