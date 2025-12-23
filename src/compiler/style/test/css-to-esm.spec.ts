@@ -336,7 +336,7 @@ describe('transformCssToEsm', () => {
     });
   });
 
-  it('escapes backslashes and backticks while preserving ${} placeholders', () => {
+  it('escapes backslashes', () => {
     // const css = `.icon::before { content: "\f101"; } .icon2::before { content: '\f102'; }`;
     const result = transformCssToEsmSync({
       input: '.icon::before { content: "\f101"; } .icon2::before { content: \'\f102\'; }',
