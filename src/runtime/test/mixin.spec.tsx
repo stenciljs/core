@@ -1,4 +1,4 @@
-import { Component, h, MixedInCtor, Mixin, Prop, State } from '@stencil/core';
+import { Component, h, MixedInCtor, Mixin, Prop, State, Event, EventEmitter } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('mixin', () => {
@@ -61,6 +61,37 @@ describe('mixin', () => {
       <mixin-test>
         <code>ABC</code>
       </mixin-test>
+    `);
+  });
+
+  it('can initialize with an @Event', async () => {
+    const MyMixin = <B extends MixedInCtor>(Base: B) => {
+      class Test extends Base {
+       @Event() test: EventEmitter;
+
+        public emitTest(){
+          this.test.emit();
+        }
+      }
+      return Test;
+    };
+
+    @Component({
+      tag: 'mixin-test',
+    })
+    class MixinTest extends Mixin(MyMixin) {
+      componentDidLoad() {
+        this.emitTest();
+      }
+    }
+
+    const { root } = await newSpecPage({
+      components: [MyMixin, MixinTest],
+      html: `<mixin-test></mixin-test>`,
+    });
+
+    expect(root).toEqualHtml(`
+      <mixin-test></mixin-test>
     `);
   });
 });
