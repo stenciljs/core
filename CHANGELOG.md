@@ -1,3 +1,38 @@
+# 🍌 [4.40.0](https://github.com/stenciljs/core/compare/v4.39.0...v4.40.0) (2025-12-23)
+
+
+### Bug Fixes
+
+* **compiler:** minify dist-custom-elements and hydrate-script ([#6482](https://github.com/stenciljs/core/issues/6482)) ([ec043cd](https://github.com/stenciljs/core/commit/ec043cdd0fc0fe5179e7b125039afbd034ea41a6))
+* **compiler:** resolve node_modules css imports ([#6493](https://github.com/stenciljs/core/issues/6493)) ([84ac5b8](https://github.com/stenciljs/core/commit/84ac5b8cbe85be26cdf01bfa5d34fe455b853e6e))
+* **css:** css imports with functions and media queries ([#6474](https://github.com/stenciljs/core/issues/6474)) ([249f84a](https://github.com/stenciljs/core/commit/249f84aab3f3597d132563907732b80d6ae1aade))
+* **css:** enable parsing of native, nested css selectors ([#6480](https://github.com/stenciljs/core/issues/6480)) ([3506686](https://github.com/stenciljs/core/commit/35066867e13669ac1d19fb168e3ae85dc4dd42b6))
+* **css:** pseudo-element selectors in nested media queries ([#6486](https://github.com/stenciljs/core/issues/6486)) ([20ce1ce](https://github.com/stenciljs/core/commit/20ce1ce3d5dd801f3648e5052891efff4965212b))
+* **css:** strip comments before adding css to js ([#6487](https://github.com/stenciljs/core/issues/6487)) ([2892b4f](https://github.com/stenciljs/core/commit/2892b4f486f79db7ba19ab54b9c500e210cda926))
+* **css:** vanilla css live-reload & added globalStyles to dev `<style>` ([#6488](https://github.com/stenciljs/core/issues/6488)) ([34cb672](https://github.com/stenciljs/core/commit/34cb672380b1e1b1b8818181e176dfe93dfca3cf))
+* **dist-custom-elements:** index / default entry types ([#6489](https://github.com/stenciljs/core/issues/6489)) ([7b89b5c](https://github.com/stenciljs/core/commit/7b89b5c118facc6134c15ed5a9bc989cac227361))
+* **runtime:** malformed `<template>` elements ([#6492](https://github.com/stenciljs/core/issues/6492)) ([8608bd9](https://github.com/stenciljs/core/commit/8608bd9f9041b495991da120dc72668c91d78437))
+* **runtime:** respect slotted element initial 'hidden' property (non-shadow) ([#6499](https://github.com/stenciljs/core/issues/6499)) ([d3b8b7a](https://github.com/stenciljs/core/commit/d3b8b7ad437318b95f0842b77df9ed489c53f784))
+* **runtime:** stop patching non-shadow components without `<slot>` ([#6483](https://github.com/stenciljs/core/issues/6483)) ([44fb8de](https://github.com/stenciljs/core/commit/44fb8deac59bd4d6f592ce88129ed1b377dca340))
+* **sourcemaps:** generate entry sourcemaps during a dev build ([#6476](https://github.com/stenciljs/core/issues/6476)) ([e678159](https://github.com/stenciljs/core/commit/e67815968e67584aab0c50d4f8e43214c503d121))
+* **ssr:** stop removing slotted whitespace ([#6477](https://github.com/stenciljs/core/issues/6477)) ([b4c5886](https://github.com/stenciljs/core/commit/b4c58864aef709bc40f183bd101123a6f209f3c8))
+* **styles:** support rendering across documents ([#6481](https://github.com/stenciljs/core/issues/6481)) ([b73a44b](https://github.com/stenciljs/core/commit/b73a44b4c7bbfc8da783f37f012be709a0f7f19d)), closes [#6479](https://github.com/stenciljs/core/issues/6479)
+* **testing:** always render `shadowrootdelegatesfocus` as a boolean ([#6490](https://github.com/stenciljs/core/issues/6490)) ([8f266de](https://github.com/stenciljs/core/commit/8f266dedc6429a669833576d0ab68cb2a6b9dccd))
+* **testing:** puppeteer <= 22 executable path ([#6478](https://github.com/stenciljs/core/issues/6478)) ([ecb279a](https://github.com/stenciljs/core/commit/ecb279a393bb6dea57fa431db1cc605ea046f72a))
+* **types:** correctly expand and resolve `type | generic<type>` ([#6495](https://github.com/stenciljs/core/issues/6495)) ([d43e29b](https://github.com/stenciljs/core/commit/d43e29b17c0f68b85b23bafba44504100e98a2d9))
+
+
+### Features
+
+* **api:** manual slot assignment ([fd3fa01](https://github.com/stenciljs/core/commit/fd3fa018c3e87f65b8d1ed0a3818a552ac42841a))
+* **api:** manual slot assignment ([#6497](https://github.com/stenciljs/core/issues/6497)) ([92097e4](https://github.com/stenciljs/core/commit/92097e492ded87c4d5f8bf9d8ee0add8ff178d1d))
+* **compiler:** `sourceMap: "dev"` ([#6498](https://github.com/stenciljs/core/issues/6498)) ([0be1ea1](https://github.com/stenciljs/core/commit/0be1ea125c50d30ee0a1f36c79bb116633bf091f))
+* **compiler:** new `excludeComponents` config option ([#6491](https://github.com/stenciljs/core/issues/6491)) ([f60693e](https://github.com/stenciljs/core/commit/f60693ed698cf10e801ed315fc742de79eb8062d))
+* **runtime:** add Invoker Commands API attributes to button ([#6494](https://github.com/stenciljs/core/issues/6494)) ([792acf5](https://github.com/stenciljs/core/commit/792acf5deb485e16013723844c3437543abc87ea))
+* **watch:** new handler option `immediate` ([#6484](https://github.com/stenciljs/core/issues/6484)) ([7cc22f6](https://github.com/stenciljs/core/commit/7cc22f687b36b2af215c39b3577c5b8d1c5095d8))
+
+
+
 # 🎭 [4.39.0](https://github.com/stenciljs/core/compare/v4.38.3...v4.39.0) (2025-12-08)
 
 
