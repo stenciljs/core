@@ -134,8 +134,8 @@ const buildDocsDepGraph = (
   function walk(tagName: string): void {
     if (!dependencies[tagName]) {
       const cmp = cmps.find((c) => c.tagName === tagName);
-      const deps = cmp.directDependencies;
-      if (deps.length > 0) {
+      const deps = cmp?.directDependencies;
+      if (deps?.length > 0) {
         dependencies[tagName] = deps;
         deps.forEach(walk);
       }
