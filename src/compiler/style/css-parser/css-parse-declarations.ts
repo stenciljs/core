@@ -18,6 +18,7 @@ export const enum CssNodeType {
   KeyFrames,
   KeyFrame,
   Media,
+  Container,
   Namespace,
   Page,
   Rule,

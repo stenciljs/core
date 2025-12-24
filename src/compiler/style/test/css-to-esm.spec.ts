@@ -335,4 +335,26 @@ describe('transformCssToEsm', () => {
       expect(result.map).toBeNull(); // Before optimization
     });
   });
+
+  it('escapes backslashes', () => {
+    // const css = `.icon::before { content: "\f101"; } .icon2::before { content: '\f102'; }`;
+    const result = transformCssToEsmSync({
+      input: '.icon::before { content: "\f101"; } .icon2::before { content: \'\f102\'; }',
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // The generated output should contain a template literal with a literal
+    // double-backslash so the runtime CSS string contains a single backslash
+    // (i.e. the generated source shows "\\f101").
+    expect(result.output).toContain('"\\\\f101"');
+    expect(result.output).toContain("'\\\\f102'");
+  });
 });

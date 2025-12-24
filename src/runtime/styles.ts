@@ -127,8 +127,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                *
                * Note: order of how styles are adopted is important. The new stylesheet should be
                * adopted before the existing styles.
+               *
+               * Note: constructable stylesheets can't be shared between windows,
+               * we need to create a new one for the current window if necessary
                */
-              const stylesheet = new CSSStyleSheet();
+              const currentWindow = styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView;
+              const stylesheet = new currentWindow.CSSStyleSheet();
               stylesheet.replaceSync(style);
 
               /**
@@ -179,15 +183,37 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           appliedStyles.add(scopeId);
         }
       }
-    } else if (BUILD.constructableCSS && !styleContainerNode.adoptedStyleSheets.includes(style)) {
-      /**
-       * > If the array needs to be modified, use in-place mutations like push().
-       * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
-       */
-      if (supportsMutableAdoptedStyleSheets) {
-        styleContainerNode.adoptedStyleSheets.push(style);
-      } else {
-        styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, style];
+    } else if (BUILD.constructableCSS) {
+      let appliedStyles = rootAppliedStyles.get(styleContainerNode);
+      if (!appliedStyles) {
+        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
+      }
+      if (!appliedStyles.has(scopeId)) {
+        /**
+         * Constructable stylesheets can't be shared between windows,
+         * we need to create a new one for the current window if necessary
+         */
+        const currentWindow = styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView;
+        let stylesheet: CSSStyleSheet;
+        if (style.constructor === currentWindow.CSSStyleSheet) {
+          stylesheet = style;
+        } else {
+          stylesheet = new currentWindow.CSSStyleSheet();
+          for (let i = 0; i < style.cssRules.length; i++) {
+            stylesheet.insertRule(style.cssRules[i].cssText, i);
+          }
+        }
+        /**
+         * > If the array needs to be modified, use in-place mutations like push().
+         * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
+         */
+        if (supportsMutableAdoptedStyleSheets) {
+          styleContainerNode.adoptedStyleSheets.push(stylesheet);
+        } else {
+          styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, stylesheet];
+        }
+
+        appliedStyles.add(scopeId);
       }
     }
   }
