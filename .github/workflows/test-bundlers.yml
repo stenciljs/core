@@ -29,8 +29,8 @@ jobs:
       - name: 🧲 Install Puppeteer and Download Chrome
         shell: bash
         run: |
-          # Reinstall puppeteer to ensure puppeteer-core is properly installed
-          # (sometimes npm ci doesn't install peer deps correctly in CI)
+          # Reinstall the full puppeteer package to ensure its CLI and dependencies
+          # are properly installed (sometimes npm ci doesn't install peer deps correctly in CI)
           npm install --no-save puppeteer
           # Download the Chrome binary
           npx puppeteer browsers install chrome
