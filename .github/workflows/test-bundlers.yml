@@ -74,10 +74,11 @@ jobs:
           module.exports = {
             testEnvironment: 'node',
             testMatch: ['<rootDir>/dist-spec/vite-bundle.spec.js'],
+            testTimeout: 30000,
           };
           EOF
           # Run Jest from repo root against compiled JS using CI config
-          node ../../node_modules/jest/bin/jest.js --config=jest.config.ci.js --testTimeout=30000
+          node ../../node_modules/jest/bin/jest.js --config=jest.config.ci.js
 
       - name: 🔍 Check Git Context
         uses: ./.github/workflows/actions/check-git-context
