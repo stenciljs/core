@@ -17,6 +17,8 @@ export const addTagTransform = (
 
       const visitNode = (node: ts.Node): any => {
         let newNode: ts.Node = node;
+        const isStringLiteralLike = (expr: ts.Expression): expr is ts.StringLiteral | ts.NoSubstitutionTemplateLiteral =>
+          ts.isStringLiteral(expr) || ts.isNoSubstitutionTemplateLiteral(expr);
 
         // turns `element.querySelector("my-tag")` into `element.querySelector(`${transformTag("my-tag")}`)`
         if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
@@ -121,11 +123,9 @@ export const addTagTransform = (
             const [firstArg, ...restArgs] = node.arguments;
             if (firstArg) {
               // Wrap the argument in transformTag(...)
-              const newFirstArg = ts.factory.createCallExpression(
-                ts.factory.createIdentifier(TRANSFORM_TAG),
-                undefined,
-                [firstArg],
-              );
+              const newFirstArg = isStringLiteralLike(firstArg)
+                ? firstArg
+                : ts.factory.createCallExpression(ts.factory.createIdentifier(TRANSFORM_TAG), undefined, [firstArg]);
 
               newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
                 newFirstArg,
