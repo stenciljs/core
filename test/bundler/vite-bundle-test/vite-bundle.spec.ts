@@ -1,14 +1,12 @@
-import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
+import { createReadStream, readFileSync, statSync } from 'node:fs';
 import { createServer, Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { extname, join, resolve } from 'node:path';
+import { extname, join } from 'node:path';
 
 import puppeteer, { Browser } from 'puppeteer';
 
 let BASE_URL = '';
-const DIST_DIR = existsSync(join(__dirname, 'dist'))
-  ? join(__dirname, 'dist')
-  : resolve(__dirname, '..', 'vite-bundle-test', 'dist');
+const DIST_DIR = join(__dirname, 'dist');
 
 // Simple static file server for serving Vite-built files
 function startStaticServer() {
