@@ -55,6 +55,7 @@ jobs:
               "lib": ["ES2020", "DOM"],
               "esModuleInterop": true,
               "skipLibCheck": true,
+              "moduleResolution": "node",
               "outDir": "./dist-spec"
             },
             "include": [
