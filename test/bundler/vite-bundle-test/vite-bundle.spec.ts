@@ -22,8 +22,14 @@ function startStaticServer() {
   const server = createServer((req, res) => {
     const reqUrl = req.url || '/';
     const rel = reqUrl === '/' ? 'index.html' : reqUrl.replace(/^\//, '');
-    const filePath = join(DIST_DIR, rel);
+    const filePath = resolve(DIST_DIR, rel);
 
+    // Basic path traversal protection: ensure resolved path is within DIST_DIR
+    if (!filePath.startsWith(DIST_DIR)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
     try {
       const stat = statSync(filePath);
       if (stat.isFile()) {
