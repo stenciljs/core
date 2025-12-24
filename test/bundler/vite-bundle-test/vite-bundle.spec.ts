@@ -37,7 +37,14 @@ function startStaticServer() {
           html = html.replace(/(src|href)="\/assets\//g, '$1="assets/');
           res.end(html);
         } else {
-          createReadStream(filePath).pipe(res);
+          const stream = createReadStream(filePath);
+          stream.on('error', () => {
+            if (!res.headersSent) {
+              res.writeHead(500);
+            }
+            res.end('Internal server error');
+          });
+          stream.pipe(res);
         }
       } else {
         res.writeHead(404);
