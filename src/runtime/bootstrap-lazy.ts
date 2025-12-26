@@ -18,7 +18,6 @@ import { createTime, installDevTools } from './profile';
 import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS, SLOT_FB_CSS } from './runtime-constants';
 import { hydrateScopedToShadow } from './styles';
-import { runWithTagTransformDisabled } from './tag-transform';
 import { appDidLoad } from './update-component';
 export { setNonce } from '@platform';
 
@@ -99,7 +98,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
       const tagName =
         BUILD.transformTagName && options.transformTagName
           ? options.transformTagName(cmpMeta.$tagName$)
-          : runWithTagTransformDisabled(() => transformTag(cmpMeta.$tagName$));
+          : transformTag(cmpMeta.$tagName$);
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];

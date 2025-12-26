@@ -23,7 +23,7 @@ describe('add-tag-transform', () => {
   });
 
   describe('document.createElement', () => {
-    it('should leave literal createElement calls untouched', async () => {
+    it('should transform createElement calls with component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
@@ -37,10 +37,10 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("const el = document.createElement('cmp-a');");
+      expect(res).toContain("const el = document.createElement(__stencil_transformTag('cmp-a'));");
     });
 
-    it('should transform non-literal createElement arguments', async () => {
+    it('should not transform any createElement calls', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
@@ -186,7 +186,7 @@ describe('add-tag-transform', () => {
   });
 
   describe('customElements', () => {
-    it('should leave literal customElements.get calls untouched', async () => {
+    it('should transform customElements.get calls with component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
@@ -200,28 +200,10 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("customElements.get('cmp-a');");
+      expect(res).toContain("customElements.get(__stencil_transformTag('cmp-a'));");
     });
 
-    it('should transform non-literal customElements.get arguments', async () => {
-      const cmp = `
-        @Component({ tag: 'cmp-a' })
-        export class CmpA { 
-          someMethod() {
-            const tag = 'cmp-a';
-            const currentDefinition = customElements.get(tag);
-          }
-        }
-      `;
-
-      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
-      const res = await formatCode(transpileResult.outputText);
-
-      expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain('customElements.get(__stencil_transformTag(tag));');
-    });
-
-    it('should leave literal customElements.define calls untouched', async () => {
+    it('should transform customElements.define calls with component tags', async () => {
       const cmp = `
         @Component({ tag: 'cmp-a' })
         export class CmpA { 
@@ -235,28 +217,10 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("customElements.define('cmp-a', CmpA);");
+      expect(res).toContain("customElements.define(__stencil_transformTag('cmp-a'), CmpA);");
     });
 
-    it('should transform non-literal customElements.define arguments', async () => {
-      const cmp = `
-        @Component({ tag: 'cmp-a' })
-        export class CmpA { 
-          someMethod() {
-            const tag = 'cmp-a';
-            customElements.define(tag, CmpA);
-          }
-        }
-      `;
-
-      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
-      const res = await formatCode(transpileResult.outputText);
-
-      expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain('customElements.define(__stencil_transformTag(tag), CmpA);');
-    });
-
-    it('should leave literal customElements.whenDefined calls untouched', async () => {
+    it('should transform customElements.whenDefined calls with component tags', async () => {
       const cmp = `
       @Component({ tag: 'cmp-a' })
       export class CmpA { 
@@ -270,25 +234,7 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("customElements.whenDefined('cmp-a')");
-    });
-
-    it('should transform non-literal customElements.whenDefined arguments', async () => {
-      const cmp = `
-      @Component({ tag: 'cmp-a' })
-      export class CmpA { 
-        someMethod() {
-        const tag = 'cmp-a';
-        customElements.whenDefined(tag).then(() => console.log('defined'));
-        }
-      }
-      `;
-
-      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
-      const res = await formatCode(transpileResult.outputText);
-
-      expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain('customElements.whenDefined(__stencil_transformTag(tag))');
+      expect(res).toContain("customElements.whenDefined(__stencil_transformTag('cmp-a'))");
     });
   });
 
