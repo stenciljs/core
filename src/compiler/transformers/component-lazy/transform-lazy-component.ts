@@ -18,6 +18,7 @@ import { updateLazyComponentClass } from './lazy-component';
  *
  * @param compilerCtx a Stencil compiler context object
  * @param transformOpts transform options
+ * @param buildCtx the current build context for the compilation
  * @returns a {@link ts.TransformerFactory} for carrying out necessary transformations
  */
 export const lazyComponentTransform = (

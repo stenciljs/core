@@ -1,4 +1,5 @@
-import { Component, h, State, Element, Event, EventEmitter } from '@stencil/core';
+import { Component, Element, Event, EventEmitter,h, State } from '@stencil/core';
+
 import { FormFieldBase } from './form-field-base.js';
 
 @Component({

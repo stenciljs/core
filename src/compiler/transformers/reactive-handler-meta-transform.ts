@@ -1,8 +1,8 @@
+import { WATCH_FLAGS } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { convertValueToLiteral, createStaticGetter } from './transform-utils';
-import { WATCH_FLAGS } from '@utils';
 
 /**
  * Add a getter to a class for a static representation of the watchers
@@ -13,6 +13,7 @@ import { WATCH_FLAGS } from '@utils';
  *
  * @param classMembers a list of class members
  * @param cmp metadata about the stencil component of interest
+ * @param decorator the handler collection to emit (watchers, serializers, or deserializers)
  */
 export const addReactivePropHandlers = (
   classMembers: ts.ClassElement[],

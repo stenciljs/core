@@ -1,7 +1,8 @@
-import { Component, h, State, Element } from '@stencil/core';
+import { Component, Element,h, State } from '@stencil/core';
+
+import { FocusController } from './focus-controller.js';
 import { ReactiveControllerHost } from './reactive-controller-host.js';
 import { ValidationController } from './validation-controller.js';
-import { FocusController } from './focus-controller.js';
 
 @Component({
   tag: 'composition-text-input',

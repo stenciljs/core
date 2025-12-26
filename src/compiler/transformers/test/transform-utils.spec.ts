@@ -544,7 +544,7 @@ describe('transform-utils', () => {
         expect(ts.isStringLiteral(callExpr.arguments[0])).toBe(true);
         expect((callExpr.arguments[0] as ts.StringLiteral).text).toBe('my-component');
       } else {
-        fail('Expected TemplateExpression but got different node type');
+        throw new Error('Expected TemplateExpression but got different node type');
       }
     });
   });
@@ -552,6 +552,8 @@ describe('transform-utils', () => {
   describe('resolveType and parseDocsType', () => {
     /**
      * Helper to create a minimal compiler host for testing
+     * @param sourceFile the TypeScript source file under test
+     * @returns a minimal compiler host for the provided source file
      */
     const createTestCompilerHost = (sourceFile: ts.SourceFile): ts.CompilerHost => ({
       getSourceFile: (fileName) => (fileName === 'test.ts' ? sourceFile : undefined),

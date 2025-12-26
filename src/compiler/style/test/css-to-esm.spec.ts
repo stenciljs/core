@@ -10,8 +10,8 @@ jest.mock('@utils/shadow-css', () => {
   };
 });
 
-import { transformCssToEsm, transformCssToEsmSync } from '../css-to-esm';
 import type * as d from '../../../declarations';
+import { transformCssToEsm, transformCssToEsmSync } from '../css-to-esm';
 
 describe('transformCssToEsm', () => {
   let mockInput: d.TransformCssToEsmInput;

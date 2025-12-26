@@ -23,9 +23,8 @@ export type {
   VNodeData,
 } from '../stencil-public-runtime';
 export {
-  AttrDeserialize,
-  PropSerialize,
   AttachInternals,
+  AttrDeserialize,
   Build,
   Component,
   Element,
@@ -45,6 +44,7 @@ export {
   Mixin,
   MixinFactory,
   Prop,
+  PropSerialize,
   readTask,
   render,
   setAssetPath,

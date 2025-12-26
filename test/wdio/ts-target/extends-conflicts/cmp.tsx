@@ -1,4 +1,5 @@
 import { Component, Element, h, Method, Prop, State } from '@stencil/core';
+
 import { ConflictsBase } from './conflicts-base.js';
 
 /**
@@ -31,6 +32,7 @@ export class ConflictsCmp extends ConflictsBase {
   /**
    * Duplicate method - same name as base, should override
    * Component version should be called, not base version
+    * @returns the component override response
    */
   @Method()
   async duplicateMethod(): Promise<string> {
@@ -40,6 +42,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to update duplicate state for testing
+   * @param value new duplicate state value
    */
   @Method()
   async updateDuplicateState(value: string): Promise<void> {
@@ -48,6 +51,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to update component-only state
+   * @param value new component-only state value
    */
   @Method()
   async updateComponentOnlyState(value: string): Promise<void> {
@@ -56,6 +60,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to get component method call log
+   * @returns a copy of the component call log
    */
   @Method()
   async getComponentMethodCallLog(): Promise<string[]> {
@@ -64,6 +69,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to reset component call log
+   * @returns void when reset completes
    */
   @Method()
   async resetComponentMethodCallLog(): Promise<void> {
@@ -72,6 +78,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to get combined call log (base + component)
+   * @returns merged call logs from base and component
    */
   @Method()
   async getCombinedMethodCallLog(): Promise<string[]> {
@@ -81,6 +88,7 @@ export class ConflictsCmp extends ConflictsBase {
 
   /**
    * Method to reset all call logs
+   * @returns void when reset completes
    */
   @Method()
   async resetAllCallLogs(): Promise<void> {

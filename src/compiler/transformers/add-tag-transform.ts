@@ -1,8 +1,9 @@
-import ts from 'typescript';
-import type * as d from '../../declarations';
-import { getModuleFromSourceFile } from './transform-utils';
-import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
 import { parse, SelectorType, stringify } from 'css-what';
+import ts from 'typescript';
+
+import type * as d from '../../declarations';
+import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
+import { getModuleFromSourceFile } from './transform-utils';
 
 export const addTagTransform = (
   compilerCtx: d.CompilerCtx,

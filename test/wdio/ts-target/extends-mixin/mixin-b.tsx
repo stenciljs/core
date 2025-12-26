@@ -1,4 +1,4 @@
-import { h, Prop, State, Method, Watch } from '@stencil/core';
+import { h, Method, Prop, State, Watch } from '@stencil/core';
 
 export const MixinBFactory = (Base: any) => {
   class MixinB extends Base {
