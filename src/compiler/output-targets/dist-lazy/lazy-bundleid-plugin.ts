@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
-
 import type { OutputChunk, Plugin } from 'rollup';
+
 import type * as d from '../../../declarations';
 
 /**
@@ -54,7 +54,7 @@ export const lazyBundleIdPlugin = (
         }
       }
 
-      for (const [_key, file] of files) {
+      for (const [, file] of files) {
         if (!file.isEntry) continue;
 
         const entryModule = buildCtx.entryModules.find((em) => em.entryKey === file.name);
@@ -79,7 +79,7 @@ export const lazyBundleIdPlugin = (
 
       if (!map.size) return;
 
-      for (const [_key, file] of files) {
+      for (const [, file] of files) {
         if (!file.isEntry) continue;
 
         const newFileName = map.get(file.fileName);
