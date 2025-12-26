@@ -17,7 +17,9 @@ export const addTagTransform = (
 
       const visitNode = (node: ts.Node): any => {
         let newNode: ts.Node = node;
-        const isStringLiteralLike = (expr: ts.Expression): expr is ts.StringLiteral | ts.NoSubstitutionTemplateLiteral =>
+        const isStringLiteralLike = (
+          expr: ts.Expression,
+        ): expr is ts.StringLiteral | ts.NoSubstitutionTemplateLiteral =>
           ts.isStringLiteral(expr) || ts.isNoSubstitutionTemplateLiteral(expr);
 
         // turns `element.querySelector("my-tag")` into `element.querySelector(`${transformTag("my-tag")}`)`
