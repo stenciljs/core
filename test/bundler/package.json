@@ -13,6 +13,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^24.6.2",
+    "baseline-browser-mapping": "^2.9.11",
     "jest": "^29.5.0",
     "puppeteer": "^24.1.0",
     "ts-jest": "^29.1.0",
