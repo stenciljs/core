@@ -126,7 +126,11 @@ export const addTagTransform = (
               // leave them unchanged to keep the public-facing tag stable. Non-literals still get wrapped.
               const newFirstArg = isStringLiteralLike(firstArg)
                 ? firstArg
-                : ts.factory.createCallExpression(ts.factory.createIdentifier(TRANSFORM_TAG), undefined, [firstArg]);
+                : ts.factory.createCallExpression(
+                    ts.factory.createIdentifier(TRANSFORM_TAG),
+                    undefined,
+                    [firstArg],
+                  );
 
               newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
                 newFirstArg,
