@@ -29,6 +29,8 @@ export function setTagTransformer(transformer: d.TagTransformer) {
 
 /**
  * Temporarily disable tag transformation within a scope.
+ * @param fn callback to run while tag transforms are suppressed
+ * @returns the value returned by the callback
  */
 export const runWithTagTransformDisabled = <T>(fn: () => T): T => {
   transformSuppressed++;

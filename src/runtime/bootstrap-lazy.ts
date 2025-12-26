@@ -2,7 +2,6 @@ import { BUILD } from '@app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
 import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
-import { runWithTagTransformDisabled } from './tag-transform';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -19,6 +18,7 @@ import { createTime, installDevTools } from './profile';
 import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS, SLOT_FB_CSS } from './runtime-constants';
 import { hydrateScopedToShadow } from './styles';
+import { runWithTagTransformDisabled } from './tag-transform';
 import { appDidLoad } from './update-component';
 export { setNonce } from '@platform';
 
