@@ -2,6 +2,7 @@ import { BUILD } from '@app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
 import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
+import { runWithTagTransformDisabled } from './tag-transform';
 
 import type * as d from '../declarations';
 import { connectedCallback } from './connected-callback';
@@ -98,7 +99,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
       const tagName =
         BUILD.transformTagName && options.transformTagName
           ? options.transformTagName(cmpMeta.$tagName$)
-          : transformTag(cmpMeta.$tagName$);
+          : runWithTagTransformDisabled(() => transformTag(cmpMeta.$tagName$));
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];

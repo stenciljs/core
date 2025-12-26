@@ -1,6 +1,7 @@
 import type * as d from '../declarations';
 
 export let tagTransformer: d.TagTransformer | undefined = undefined;
+let transformSuppressed = 0;
 
 /**
  * Transforms a tag name using the current tag transformer
@@ -8,7 +9,7 @@ export let tagTransformer: d.TagTransformer | undefined = undefined;
  * @returns the transformed tag e.g. `new-my-tag`
  */
 export function transformTag<T extends string>(tag: T): T {
-  if (!tagTransformer) return tag;
+  if (!tagTransformer || transformSuppressed > 0) return tag;
   return tagTransformer(tag) as T;
 }
 
@@ -25,3 +26,15 @@ export function setTagTransformer(transformer: d.TagTransformer) {
   }
   tagTransformer = transformer;
 }
+
+/**
+ * Temporarily disable tag transformation within a scope.
+ */
+export const runWithTagTransformDisabled = <T>(fn: () => T): T => {
+  transformSuppressed++;
+  try {
+    return fn();
+  } finally {
+    transformSuppressed--;
+  }
+};
