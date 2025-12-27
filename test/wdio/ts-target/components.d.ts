@@ -85,6 +85,7 @@ export namespace Components {
         "baseOnlyProp": string;
         /**
           * Duplicate method - same name as base, should override Component version should be called, not base version
+          * @returns the component override response
          */
         "duplicateMethod": () => Promise<string>;
         /**
@@ -93,10 +94,12 @@ export namespace Components {
         "duplicateProp": string;
         /**
           * Method to get combined call log (base + component)
+          * @returns merged call logs from base and component
          */
         "getCombinedMethodCallLog": () => Promise<string[]>;
         /**
           * Method to get component method call log
+          * @returns a copy of the component call log
          */
         "getComponentMethodCallLog": () => Promise<string[]>;
         /**
@@ -105,10 +108,12 @@ export namespace Components {
         "getMethodCallLog": () => Promise<string[]>;
         /**
           * Method to reset all call logs
+          * @returns void when reset completes
          */
         "resetAllCallLogs": () => Promise<void>;
         /**
           * Method to reset component call log
+          * @returns void when reset completes
          */
         "resetComponentMethodCallLog": () => Promise<void>;
         /**
@@ -117,10 +122,12 @@ export namespace Components {
         "resetMethodCallLog": () => Promise<void>;
         /**
           * Method to update component-only state
+          * @param value new component-only state value
          */
         "updateComponentOnlyState": (value: string) => Promise<void>;
         /**
           * Method to update duplicate state for testing
+          * @param value new duplicate state value
          */
         "updateDuplicateState": (value: string) => Promise<void>;
     }
@@ -176,10 +183,12 @@ export namespace Components {
         "baseMethod": () => Promise<string>;
         /**
           * Child-specific method that uses parent's protected helper
+          * @returns text indicating child invocation
          */
         "childMethod": () => Promise<string>;
         /**
           * Method that composes parent and child behavior
+          * @returns composed string after parent and child updates
          */
         "composedMethod": () => Promise<string>;
         /**
@@ -192,6 +201,7 @@ export namespace Components {
         "getInternalValue": () => Promise<string>;
         /**
           * Override parent method with super() call
+          * @returns combined result from base and child override
          */
         "overridableMethod": () => Promise<string>;
         /**
@@ -200,55 +210,9 @@ export namespace Components {
         "reset": () => Promise<void>;
         /**
           * Method to trigger display update from test
+          * @param value new display value
          */
         "updateDisplay": (value: string) => Promise<void>;
-    }
-    /**
-     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
-     * This component:
-     * 1. Extends MixedDecoratorsBase (inherits base decorators)
-     * 2. Defines conflicting decorators with same names but different decorator types
-     * 3. Verifies runtime behavior when mixed decorator types exist
-     * 4. Renders UI showing which decorator type is active (component decorator type should win)
-     */
-    interface ExtendsMixedDecorators {
-        /**
-          * Non-conflicting method for comparison
-         */
-        "baseOnlyMethod": () => Promise<string>;
-        /**
-          * @default 'base only prop value'
-         */
-        "baseOnlyProp": string;
-        /**
-          * Method to get the call log for testing
-         */
-        "getMethodCallLog": () => Promise<string[]>;
-        /**
-          * Method that will conflict with
-          * @Prop in component
-         */
-        "mixedMethodName": () => Promise<string>;
-        /**
-          * @default 'base prop value'
-         */
-        "mixedName": string;
-        /**
-          * @default 'component prop value'
-         */
-        "mixedStateName": string;
-        /**
-          * Method to reset call log for testing
-         */
-        "resetMethodCallLog": () => Promise<void>;
-        /**
-          * Method to update component-only state
-         */
-        "updateComponentOnlyState": (value: string) => Promise<void>;
-        /**
-          * Method to update mixedName state for testing
-         */
-        "updateMixedName": (value: string) => Promise<void>;
     }
     interface ExtendsMixinCmp {
         "method1": () => Promise<void>;
@@ -361,6 +325,55 @@ export namespace Components {
     interface InheritanceScalingDemo {
     }
     interface InheritanceTextInput {
+    }
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends a base class with existing decorators
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface TsTargetExtendsMixedDecorators {
+        /**
+          * Non-conflicting method for comparison
+         */
+        "baseOnlyMethod": () => Promise<string>;
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp": string;
+        /**
+          * Method to get the call log for testing
+         */
+        "getMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method that will conflict with
+          * @Prop in component
+         */
+        "mixedMethodName": () => Promise<string>;
+        /**
+          * @default 'base prop value'
+         */
+        "mixedName": string;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName": string;
+        /**
+          * Method to reset call log for testing
+         */
+        "resetMethodCallLog": () => Promise<void>;
+        /**
+          * Method to update component-only state
+          * @param value new component-only state value
+         */
+        "updateComponentOnlyState": (value: string) => Promise<void>;
+        /**
+          * Method to update mixedName state for testing
+          * @param value new mixedName value
+         */
+        "updateMixedName": (value: string) => Promise<void>;
     }
     interface TsTargetProps {
         /**
@@ -554,20 +567,6 @@ declare global {
         prototype: HTMLExtendsMethodsElement;
         new (): HTMLExtendsMethodsElement;
     };
-    /**
-     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
-     * This component:
-     * 1. Extends MixedDecoratorsBase (inherits base decorators)
-     * 2. Defines conflicting decorators with same names but different decorator types
-     * 3. Verifies runtime behavior when mixed decorator types exist
-     * 4. Renders UI showing which decorator type is active (component decorator type should win)
-     */
-    interface HTMLExtendsMixedDecoratorsElement extends Components.ExtendsMixedDecorators, HTMLStencilElement {
-    }
-    var HTMLExtendsMixedDecoratorsElement: {
-        prototype: HTMLExtendsMixedDecoratorsElement;
-        new (): HTMLExtendsMixedDecoratorsElement;
-    };
     interface HTMLExtendsMixinCmpElement extends Components.ExtendsMixinCmp, HTMLStencilElement {
     }
     var HTMLExtendsMixinCmpElement: {
@@ -680,6 +679,20 @@ declare global {
         prototype: HTMLInheritanceTextInputElement;
         new (): HTMLInheritanceTextInputElement;
     };
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends a base class with existing decorators
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface HTMLTsTargetExtendsMixedDecoratorsElement extends Components.TsTargetExtendsMixedDecorators, HTMLStencilElement {
+    }
+    var HTMLTsTargetExtendsMixedDecoratorsElement: {
+        prototype: HTMLTsTargetExtendsMixedDecoratorsElement;
+        new (): HTMLTsTargetExtendsMixedDecoratorsElement;
+    };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
     var HTMLTsTargetPropsElement: {
@@ -704,7 +717,6 @@ declare global {
         "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
         "extends-local": HTMLExtendsLocalElement;
         "extends-methods": HTMLExtendsMethodsElement;
-        "extends-mixed-decorators": HTMLExtendsMixedDecoratorsElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
         "extends-props-state": HTMLExtendsPropsStateElement;
         "extends-render": HTMLExtendsRenderElement;
@@ -714,6 +726,7 @@ declare global {
         "inheritance-radio-group": HTMLInheritanceRadioGroupElement;
         "inheritance-scaling-demo": HTMLInheritanceScalingDemoElement;
         "inheritance-text-input": HTMLInheritanceTextInputElement;
+        "ts-target-extends-mixed-decorators": HTMLTsTargetExtendsMixedDecoratorsElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
@@ -834,28 +847,6 @@ declare namespace LocalJSX {
     }
     interface ExtendsMethods {
     }
-    /**
-     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
-     * This component:
-     * 1. Extends MixedDecoratorsBase (inherits base decorators)
-     * 2. Defines conflicting decorators with same names but different decorator types
-     * 3. Verifies runtime behavior when mixed decorator types exist
-     * 4. Renders UI showing which decorator type is active (component decorator type should win)
-     */
-    interface ExtendsMixedDecorators {
-        /**
-          * @default 'base only prop value'
-         */
-        "baseOnlyProp"?: string;
-        /**
-          * @default 'base prop value'
-         */
-        "mixedName"?: string;
-        /**
-          * @default 'component prop value'
-         */
-        "mixedStateName"?: string;
-    }
     interface ExtendsMixinCmp {
         /**
           * @default 'default text'
@@ -952,6 +943,28 @@ declare namespace LocalJSX {
     }
     interface InheritanceTextInput {
     }
+    /**
+     * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+     * This component:
+     * 1. Extends a base class with existing decorators
+     * 2. Defines conflicting decorators with same names but different decorator types
+     * 3. Verifies runtime behavior when mixed decorator types exist
+     * 4. Renders UI showing which decorator type is active (component decorator type should win)
+     */
+    interface TsTargetExtendsMixedDecorators {
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp"?: string;
+        /**
+          * @default 'base prop value'
+         */
+        "mixedName"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName"?: string;
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -982,7 +995,6 @@ declare namespace LocalJSX {
         "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
         "extends-local": ExtendsLocal;
         "extends-methods": ExtendsMethods;
-        "extends-mixed-decorators": ExtendsMixedDecorators;
         "extends-mixin-cmp": ExtendsMixinCmp;
         "extends-props-state": ExtendsPropsState;
         "extends-render": ExtendsRender;
@@ -992,6 +1004,7 @@ declare namespace LocalJSX {
         "inheritance-radio-group": InheritanceRadioGroup;
         "inheritance-scaling-demo": InheritanceScalingDemo;
         "inheritance-text-input": InheritanceTextInput;
+        "ts-target-extends-mixed-decorators": TsTargetExtendsMixedDecorators;
         "ts-target-props": TsTargetProps;
     }
 }
@@ -1039,15 +1052,6 @@ declare module "@stencil/core" {
             "extends-lifecycle-multilevel": LocalJSX.ExtendsLifecycleMultilevel & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
             "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
             "extends-methods": LocalJSX.ExtendsMethods & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
-            /**
-             * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
-             * This component:
-             * 1. Extends MixedDecoratorsBase (inherits base decorators)
-             * 2. Defines conflicting decorators with same names but different decorator types
-             * 3. Verifies runtime behavior when mixed decorator types exist
-             * 4. Renders UI showing which decorator type is active (component decorator type should win)
-             */
-            "extends-mixed-decorators": LocalJSX.ExtendsMixedDecorators & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
             "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
             /**
              * Test Case #3: Property & State Inheritance Basics
@@ -1093,6 +1097,15 @@ declare module "@stencil/core" {
              */
             "inheritance-scaling-demo": LocalJSX.InheritanceScalingDemo & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
             "inheritance-text-input": LocalJSX.InheritanceTextInput & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
+            /**
+             * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
+             * This component:
+             * 1. Extends a base class with existing decorators
+             * 2. Defines conflicting decorators with same names but different decorator types
+             * 3. Verifies runtime behavior when mixed decorator types exist
+             * 4. Renders UI showing which decorator type is active (component decorator type should win)
+             */
+            "ts-target-extends-mixed-decorators": LocalJSX.TsTargetExtendsMixedDecorators & JSXBase.HTMLAttributes<HTMLTsTargetExtendsMixedDecoratorsElement>;
             "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
