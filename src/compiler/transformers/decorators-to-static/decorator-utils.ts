@@ -1,7 +1,7 @@
+import { augmentDiagnosticWithNode, buildError } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { augmentDiagnosticWithNode, buildError } from '@utils';
 import { objectLiteralToObjectMap } from '../transform-utils';
 
 export const getDecoratorParameters: GetDecoratorParameters = (
@@ -70,6 +70,11 @@ const getDecoratorParameter = (
 /**
  * Resolves a variable or object property to its string literal value at compile time.
  * Supports const variables and object properties with string literal values.
+ * @param node the AST expression to resolve
+ * @param typeChecker the TypeScript type checker
+ * @param diagnostics optional diagnostics collector to report errors
+ * @param errorNode optional node to annotate diagnostics with
+ * @returns the resolved string literal value
  */
 const resolveVariableValue = (
   node: ts.Expression,
@@ -188,6 +193,9 @@ const resolveVariableValue = (
 /**
  * Extracts a string value from a TypeScript expression.
  * Returns null if the expression doesn't represent a string literal.
+ * @param expr the expression to inspect
+ * @param typeChecker the TypeScript type checker
+ * @returns the string literal value, or null if not resolvable
  */
 const extractStringFromExpression = (expr: ts.Expression, typeChecker: ts.TypeChecker): string | null => {
   // String literal

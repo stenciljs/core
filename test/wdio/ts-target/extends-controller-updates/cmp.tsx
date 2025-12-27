@@ -1,4 +1,5 @@
 import { Component, h, State } from '@stencil/core';
+
 import { ClockControllerBase } from './clock-controller-base.js';
 
 @Component({

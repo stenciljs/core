@@ -9,11 +9,11 @@ permissions:
 
 jobs:
   build_core:
-    name: 🏗️ Build
+    name: Build
     uses: ./.github/workflows/build.yml
 
   get-nightly-version:
-    name: 🔍 Get Nightly Build Version
+    name: Get Nightly Build Version
     needs: [build_core]
     runs-on: ubuntu-22.04
     outputs:
@@ -53,7 +53,7 @@ jobs:
         shell: bash
 
   release-stencil-nightly-build:
-    name: 🚀 Publish Nightly Build
+    name: Publish Nightly Build
     needs: [get-nightly-version, build_core]
     uses: ./.github/workflows/publish-npm.yml
     with:

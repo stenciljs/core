@@ -9,13 +9,13 @@ import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { getComponentTagName, getStaticValue, isInternal, isStaticGetter, serializeSymbol } from '../transform-utils';
 import { parseAttachInternals } from './attach-internals';
 import { parseCallExpression } from './call-expression';
+import { mergeExtendedClassMeta } from './class-extension';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
 import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus, parseStaticSlotAssignment } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
-import { mergeExtendedClassMeta } from './class-extension';
 
 const BLACKLISTED_COMPONENT_METHODS = [
   /**

@@ -1,4 +1,5 @@
 import { Component, h } from '@stencil/core';
+
 import { SiblingExtendedBase } from '../sibling-extended-base/sibling-extended-base.js';
 
 // used as a test (within `test/wdio/ts-target/extends-external/cmp.test.ts`) to verify Stencil components can

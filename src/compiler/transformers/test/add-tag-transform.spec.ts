@@ -1,4 +1,5 @@
 import { mockBuildCtx } from '@stencil/core/testing';
+
 import { addTagTransform } from '../add-tag-transform';
 import { transpileModule } from './transpile';
 import { formatCode } from './utils';
@@ -239,8 +240,9 @@ describe('add-tag-transform', () => {
   });
 
   // feels a bit OTT(?)
-
+  // eslint-disable-next-line jest/no-commented-out-tests
   // describe('binary expressions', () => {
+  //   eslint-disable-next-line jest/no-commented-out-tests
   //   it('should transform tag name comparisons with component tags', async () => {
   //     const cmp = `
   //       @Component({ tag: 'cmp-a' })

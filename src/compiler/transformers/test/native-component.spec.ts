@@ -1,6 +1,6 @@
-import * as ts from 'typescript';
 import * as d from '@stencil/core/declarations';
 import { mockBuildCtx } from '@stencil/core/testing';
+import * as ts from 'typescript';
 
 import { nativeComponentTransform } from '../component-native/tranform-to-native-component';
 import { transpileModule } from './transpile';

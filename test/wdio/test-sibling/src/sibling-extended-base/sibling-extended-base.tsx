@@ -1,4 +1,4 @@
-import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
+import { Component, h, Method, Prop, State, Watch } from '@stencil/core';
 
 @Component({
   tag: 'sibling-extended-base',
