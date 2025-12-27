@@ -11,8 +11,7 @@ import { MixedDecoratorsBase } from './mixed-decorators-base.js';
  * 3. Verifies runtime behavior when mixed decorator types exist
  * 4. Renders UI showing which decorator type is active (component decorator type should win)
  */
-@Component({
-})
+@Component({})
 export class MixedDecoratorsCmp extends MixedDecoratorsBase {
   @Element() el!: HTMLElement;
 
@@ -28,7 +27,7 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
 
   /**
    * Method to update mixedName state for testing
-    * @param value new mixedName value
+   * @param value new mixedName value
    */
   @Method()
   async updateMixedName(value: string): Promise<void> {
@@ -37,7 +36,7 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
 
   /**
    * Method to update component-only state
-    * @param value new component-only state value
+   * @param value new component-only state value
    */
   @Method()
   async updateComponentOnlyState(value: string): Promise<void> {

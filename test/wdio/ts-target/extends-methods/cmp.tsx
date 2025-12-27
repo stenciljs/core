@@ -10,7 +10,7 @@ export class MethodsCmp extends MethodBase {
 
   /**
    * Child-specific method that uses parent's protected helper
-    * @returns text indicating child invocation
+   * @returns text indicating child invocation
    */
   @Method()
   async childMethod(): Promise<string> {
@@ -22,7 +22,7 @@ export class MethodsCmp extends MethodBase {
 
   /**
    * Override parent method with super() call
-    * @returns combined result from base and child override
+   * @returns combined result from base and child override
    */
   @Method()
   async overridableMethod(): Promise<string> {
@@ -39,7 +39,7 @@ export class MethodsCmp extends MethodBase {
 
   /**
    * Method that composes parent and child behavior
-    * @returns composed string after parent and child updates
+   * @returns composed string after parent and child updates
    */
   @Method()
   async composedMethod(): Promise<string> {
@@ -57,7 +57,7 @@ export class MethodsCmp extends MethodBase {
 
   /**
    * Method to trigger display update from test
-    * @param value new display value
+   * @param value new display value
    */
   @Method()
   async updateDisplay(value: string): Promise<void> {

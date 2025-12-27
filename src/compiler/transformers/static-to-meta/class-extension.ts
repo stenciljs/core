@@ -2,7 +2,7 @@ import { augmentDiagnosticWithNode, buildWarn } from '@utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { tsGetSourceFile,tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
+import { tsGetSourceFile, tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';

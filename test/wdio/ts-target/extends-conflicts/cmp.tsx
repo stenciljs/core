@@ -32,7 +32,7 @@ export class ConflictsCmp extends ConflictsBase {
   /**
    * Duplicate method - same name as base, should override
    * Component version should be called, not base version
-    * @returns the component override response
+   * @returns the component override response
    */
   @Method()
   async duplicateMethod(): Promise<string> {
