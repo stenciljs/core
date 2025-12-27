@@ -6,6 +6,7 @@
     "jsx": "react",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
+    "target": "ES2022",
     "lib": [
       "dom",
       "ES2021"
