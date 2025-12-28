@@ -53,6 +53,9 @@ export const promiseResolve = (v?: any) => Promise.resolve(v);
 export const supportsConstructableStylesheets = BUILD.constructableCSS
   ? /*@__PURE__*/ (() => {
       try {
+        if (!win.document.adoptedStyleSheets) {
+          return false;
+        }
         new CSSStyleSheet();
         return typeof new CSSStyleSheet().replaceSync === 'function';
       } catch (e) {}
