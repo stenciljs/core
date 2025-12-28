@@ -34,8 +34,9 @@ export const patchPseudoShadowDom = (hostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype The Stencil component to be patched
  */
-export const patchCloneNode = (HostElementPrototype: HTMLElement) => {
-  const orgCloneNode = HostElementPrototype.cloneNode;
+export const patchCloneNode = (HostElementPrototype: any) => {
+  if (HostElementPrototype.__cloneNode) return;
+  const orgCloneNode = (HostElementPrototype.__cloneNode = HostElementPrototype.cloneNode);
 
   HostElementPrototype.cloneNode = function (deep?: boolean) {
     const srcNode = this;
@@ -91,6 +92,7 @@ export const patchCloneNode = (HostElementPrototype: HTMLElement) => {
  * @param HostElementPrototype The Stencil component to be patched
  */
 export const patchSlotAppendChild = (HostElementPrototype: any) => {
+  if (HostElementPrototype.__appendChild) return;
   HostElementPrototype.__appendChild = HostElementPrototype.appendChild;
 
   HostElementPrototype.appendChild = function (this: d.RenderNode, newChild: d.RenderNode) {
@@ -122,6 +124,7 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
  * @param ElementPrototype The Stencil component to be patched
  */
 const patchSlotRemoveChild = (ElementPrototype: any) => {
+  if (ElementPrototype.__removeChild) return;
   ElementPrototype.__removeChild = ElementPrototype.removeChild;
 
   ElementPrototype.removeChild = function (this: d.RenderNode, toRemove: d.RenderNode) {
@@ -146,6 +149,7 @@ const patchSlotRemoveChild = (ElementPrototype: any) => {
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__prepend) return;
   (HostElementPrototype as any).__prepend = HostElementPrototype.prepend;
 
   HostElementPrototype.prepend = function (this: d.HostElement, ...newChildren: (d.RenderNode | string)[]) {
@@ -183,6 +187,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__append) return;
   (HostElementPrototype as any).__append = HostElementPrototype.append;
   HostElementPrototype.append = function (this: d.HostElement, ...newChildren: (d.RenderNode | string)[]) {
     newChildren.forEach((newChild: d.RenderNode | string) => {
@@ -202,6 +207,7 @@ export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__insertAdjacentHTML) return;
   const originalInsertAdjacentHtml = HostElementPrototype.insertAdjacentHTML;
 
   HostElementPrototype.insertAdjacentHTML = function (this: d.HostElement, position: InsertPosition, text: string) {
@@ -249,6 +255,7 @@ export const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) =
  * @param HostElementPrototype the custom element prototype to patch
  */
 const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__insertBefore) return;
   const eleProto: d.RenderNode = HostElementPrototype;
   if (eleProto.__insertBefore) return;
 
@@ -318,6 +325,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotInsertAdjacentElement = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__insertAdjacentElement) return;
   const originalInsertAdjacentElement = HostElementPrototype.insertAdjacentElement;
 
   HostElementPrototype.insertAdjacentElement = function (
