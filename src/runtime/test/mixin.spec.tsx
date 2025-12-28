@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter,h, MixedInCtor, Mixin, Prop, State } from '@stencil/core';
+import { Component, Event, EventEmitter, h, MixedInCtor, Mixin, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('mixin', () => {
