@@ -1,3 +1,15 @@
+## 🐂 [4.40.1](https://github.com/stenciljs/core/compare/v4.40.0...v4.40.1) (2025-12-23)
+
+
+### Bug Fixes
+
+* **compiler:** docs generation when using `excludedComponents` ([#6509](https://github.com/stenciljs/core/issues/6509)) ([4209437](https://github.com/stenciljs/core/commit/4209437ff371671a13fd0085611ab92abb73c1f5))
+* **css:** `@container` query parsing ([#6508](https://github.com/stenciljs/core/issues/6508)) ([208a105](https://github.com/stenciljs/core/commit/208a1050c23d6de985c33d4f4a273d93e7b39a3b))
+* **css:** escape backslashes ([#6506](https://github.com/stenciljs/core/issues/6506)) ([758b8ee](https://github.com/stenciljs/core/commit/758b8ee024a26da938dd335bf3c96be7269d9317))
+* **runtime:** more robust `supportsConstructableStylesheets` test ([#6510](https://github.com/stenciljs/core/issues/6510)) ([484b1b8](https://github.com/stenciljs/core/commit/484b1b8682bc0ff9becedb5f180afa66e50c46fb))
+
+
+
 # 🍌 [4.40.0](https://github.com/stenciljs/core/compare/v4.39.0...v4.40.0) (2025-12-23)
 
 
