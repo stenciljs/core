@@ -7,10 +7,6 @@ import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
   const JestEnvironment = class extends NodeEnvironment {
-    // Note: With ES2022+ target, we must NOT declare instance fields that override parent properties
-    // because even a declaration without an initializer will overwrite the parent's value with undefined.
-    // The parent NodeEnvironment class sets this.global in its constructor.
-    // We access it via (this.global as unknown as JestEnvironmentGlobal) when needed for proper typing.
     browser: any;
     pages: any[];
     testPath: string | null;
