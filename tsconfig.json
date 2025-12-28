@@ -49,7 +49,7 @@
     "sourceMap": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
-    "target": "es2018",
+    "target": "es2022",
     "useUnknownInCatchVariables": true,
     "types": ["jest", "node"]
   },

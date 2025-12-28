@@ -39,9 +39,10 @@ export const lazyComponentTransform = (
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
           } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
-          } else if (buildCtx.config._isTesting && buildCtx.config.flags.spec) {
+          } else if (buildCtx.config._isTesting && buildCtx.config.flags.spec && !buildCtx.config.flags.e2e) {
             // because (during spec tests) *only* the component class is added as a module
-            // let's tidy up all class nodes in testing mode
+            // let's tidy up all class nodes in testing mode, but only when running spec tests alone
+            // (not when running both spec and e2e, as e2e builds will handle transformation differently)
             return updateConstructor(node, Array.from(node.members), [], []);
           }
         }
