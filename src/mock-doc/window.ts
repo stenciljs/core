@@ -75,12 +75,12 @@ export class MockWindow {
   scrollY: number;
 
   // event handlers
-  CustomEvent: typeof MockCustomEvent;
-  Event: typeof MockEvent;
-  Headers: typeof MockHeaders;
-  FocusEvent: typeof MockFocusEvent;
-  KeyboardEvent: typeof MockKeyboardEvent;
-  MouseEvent: typeof MockMouseEvent;
+  declare CustomEvent: typeof MockCustomEvent;
+  declare Event: typeof MockEvent;
+  declare Headers: typeof MockHeaders;
+  declare FocusEvent: typeof MockFocusEvent;
+  declare KeyboardEvent: typeof MockKeyboardEvent;
+  declare MouseEvent: typeof MockMouseEvent;
 
   constructor(html: string | boolean = null) {
     if (html !== false) {

@@ -215,6 +215,8 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
             patchTextContent(HostElement.prototype);
           }
         }
+      } else if (BUILD.cloneNodeFix) {
+        patchCloneNode(HostElement.prototype);
       }
 
       // if the component is formAssociated we need to set that on the host
