@@ -101,14 +101,10 @@ describe('vite-bundle', () => {
       });
 
       // Ensure the custom element is defined
-      await page.waitForFunction(
-        () => (window as any).__STENCIL_COMPONENT_LIBRARY_READY__ === true,
-        { timeout: 15000 },
-      );
-      await page.waitForFunction(
-        () => !!customElements.get('my-component'),
-        { timeout: 15000 },
-      );
+      await page.waitForFunction(() => (window as any).__STENCIL_COMPONENT_LIBRARY_READY__ === true, {
+        timeout: 15000,
+      });
+      await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 15000 });
 
       // Wait for the element to be present
       await page.waitForSelector('my-component', { timeout: 10000 });
