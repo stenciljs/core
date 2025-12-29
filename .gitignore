@@ -12,6 +12,7 @@ log.txt
 .DS_Store
 .idea/
 .vscode/
+.claude
 .history/
 .sass-cache/
 .versions/

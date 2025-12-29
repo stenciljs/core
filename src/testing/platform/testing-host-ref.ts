@@ -1,4 +1,6 @@
 import type * as d from '@stencil/core/internal';
+import { createEvent } from '../../runtime/event-emitter';
+import { EVENT_FLAGS } from '@utils';
 
 /**
  * Retrieve the data structure tracking the component by its runtime reference
@@ -35,6 +37,54 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef | null | 
 
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
+
+  // Create EventEmitters for all events from the component and its parent classes/mixins
+  // This is necessary to support events defined in mixins that may not have been included
+  // in the component's compiled constructor
+  const Cstr = lazyInstance.constructor as d.ComponentTestingConstructor;
+
+  // Collect all events from the component and its prototype chain
+  const allEvents: d.ComponentCompilerEvent[] = [];
+  const seenEventMethods = new Set<string>();
+
+  // First, add events from the component's COMPILER_META
+  if (Cstr.COMPILER_META && Cstr.COMPILER_META.events) {
+    Cstr.COMPILER_META.events.forEach((event: d.ComponentCompilerEvent) => {
+      if (!seenEventMethods.has(event.method)) {
+        allEvents.push(event);
+        seenEventMethods.add(event.method);
+      }
+    });
+  }
+
+  // Then, walk the prototype chain to find events from parent classes/mixins
+  let currentProto = Object.getPrototypeOf(Cstr);
+  while (currentProto && currentProto !== Function.prototype && currentProto.name) {
+    // Check if this parent class has a static events getter
+    if (typeof currentProto.events === 'object' && Array.isArray(currentProto.events)) {
+      currentProto.events.forEach((event: d.ComponentCompilerEvent) => {
+        if (!seenEventMethods.has(event.method)) {
+          allEvents.push(event);
+          seenEventMethods.add(event.method);
+        }
+      });
+    }
+    currentProto = Object.getPrototypeOf(currentProto);
+  }
+
+  // Create EventEmitters for all collected events
+  allEvents.forEach((eventMeta: d.ComponentCompilerEvent) => {
+    // Only create the event emitter if it doesn't already exist on the instance
+    // (it might already exist if it was created by the compiled constructor)
+    if (!lazyInstance[eventMeta.method]) {
+      let flags = 0;
+      if (eventMeta.bubbles) flags |= EVENT_FLAGS.Bubbles;
+      if (eventMeta.composed) flags |= EVENT_FLAGS.Composed;
+      if (eventMeta.cancelable) flags |= EVENT_FLAGS.Cancellable;
+
+      lazyInstance[eventMeta.method] = createEvent(lazyInstance, eventMeta.name, flags);
+    }
+  });
 };
 
 /**

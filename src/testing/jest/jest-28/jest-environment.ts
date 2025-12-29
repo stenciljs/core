@@ -7,22 +7,24 @@ import { JestPuppeteerEnvironmentConstructor } from '../jest-apis';
 
 export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstructor {
   const JestEnvironment = class extends NodeEnvironment {
-    // TODO(STENCIL-1023): Remove this @ts-expect-error
-    // @ts-expect-error - Stencil's Jest environment adds additional properties to the Jest global, but does not extend it
-    global: JestEnvironmentGlobal;
-    browser: any = null;
-    pages: any[] = [];
-    testPath: string | null = null;
+    browser: any;
+    pages: any[];
+    testPath: string | null;
 
     constructor(config: any, context: any) {
       super(config, context);
+      // Initialize fields after super() to ensure parent's global is not overwritten
+      // (required for ES2022+ target where field initializers run after super())
+      this.browser = null;
+      this.pages = [];
       this.testPath = context.testPath;
     }
 
     override async setup() {
       if ((process.env as E2EProcessEnv).__STENCIL_E2E_TESTS__ === 'true') {
-        this.global.__NEW_TEST_PAGE__ = this.newPuppeteerPage.bind(this);
-        this.global.__CLOSE_OPEN_PAGES__ = this.closeOpenPages.bind(this);
+        const globalContext = this.global as unknown as JestEnvironmentGlobal;
+        globalContext.__NEW_TEST_PAGE__ = this.newPuppeteerPage.bind(this);
+        globalContext.__CLOSE_OPEN_PAGES__ = this.closeOpenPages.bind(this);
       }
     }
 
@@ -56,7 +58,8 @@ export function createJestPuppeteerEnvironment(): JestPuppeteerEnvironmentConstr
           currentParent = currentParent.parent;
         }
         // Set the current spec for us to inspect for using the default reporter in screenshot tests.
-        this.global.currentSpec = {
+        const globalContext = this.global as unknown as JestEnvironmentGlobal;
+        globalContext.currentSpec = {
           // the event's test's name is analogous to the original description in earlier versions of jest
           description: eventTest.name,
           fullName,
