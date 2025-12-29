@@ -73,6 +73,8 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         patchTextContent(Cstr.prototype);
       }
     }
+  } else if (BUILD.cloneNodeFix) {
+    patchCloneNode(Cstr.prototype);
   }
 
   if (BUILD.hydrateClientSide && BUILD.shadowDom) {
