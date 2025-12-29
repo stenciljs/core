@@ -5,6 +5,15 @@ import { extname, join } from 'node:path';
 
 import puppeteer, { Browser } from 'puppeteer';
 
+declare global {
+  interface Window {
+    __STENCIL_COMPONENT_LIBRARY_READY__?: boolean;
+  }
+
+  interface CustomElementRegistry {
+    get(name: string): CustomElementConstructor | undefined;
+  }
+}
 let BASE_URL = '';
 const DIST_DIR = join(__dirname, 'dist');
 
@@ -83,9 +92,23 @@ describe('vite-bundle', () => {
 
     try {
       await page.goto(`${BASE_URL}/index.html`, { waitUntil: 'networkidle0' });
+      page.on('console', (message) => {
+        console.log(`[vite-bundle] console ${message.type()}: ${message.text()}`);
+      });
+      page.on('pageerror', (error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('[vite-bundle] pageerror:', message);
+      });
 
       // Ensure the custom element is defined
-      await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 10000 });
+      await page.waitForFunction(
+        () => (window as any).__STENCIL_COMPONENT_LIBRARY_READY__ === true,
+        { timeout: 15000 },
+      );
+      await page.waitForFunction(
+        () => !!customElements.get('my-component'),
+        { timeout: 15000 },
+      );
 
       // Wait for the element to be present
       await page.waitForSelector('my-component', { timeout: 10000 });

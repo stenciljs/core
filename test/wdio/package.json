@@ -19,7 +19,7 @@
   "devDependencies": {
     "@stencil/core": "file:../..",
     "@stencil/sass": "^3.0.12",
-    "@types/node": "^16.11.7",
+    "@types/node": "^25.0.3",
     "@wdio/browser-runner": "^9.6.0",
     "@wdio/cli": "^9.6.0",
     "@wdio/globals": "^9.6.0",
