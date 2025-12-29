@@ -45,6 +45,7 @@ test/end-to-end/docs.d.ts
 test/end-to-end/docs.json
 test/docs-json/docs.d.ts
 test/docs-json/docs.json
+test/bundler/component-library/loader/
 
 # minified angular that exists in the test directory
 
