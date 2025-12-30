@@ -19,17 +19,13 @@ describe('scoped-slot-slotchange', () => {
     const slotChangeEle: any = document.querySelector('scoped-slot-slotchange');
     await expect(slotChangeEle).toBeDefined();
     await expect(slotChangeEle.slotEventCatch).toBeDefined();
-    await expect(slotChangeEle.slotEventCatch).toHaveLength(1);
-    await expect(slotChangeEle.slotEventCatch[0]).toMatchObject({ event: { type: 'slotchange' } });
-    await expect(slotChangeEle.slotEventCatch[0].assignedNodes[0].outerHTML).toMatch(
-      `<p class="sc-scoped-slot-slotchange-wrap">Initial slotted content</p>`,
-    );
+    await expect(slotChangeEle.slotEventCatch).toHaveLength(0);
 
     document.querySelector('scoped-slot-slotchange-wrap').setAttribute('swap-slot-content', 'true');
     await waitForChanges();
-    await expect(slotChangeEle.slotEventCatch).toHaveLength(2);
-    await expect(slotChangeEle.slotEventCatch[1]).toMatchObject({ event: { type: 'slotchange' } });
-    await expect(slotChangeEle.slotEventCatch[1].assignedNodes[0].outerHTML).toMatch(
+    await expect(slotChangeEle.slotEventCatch).toHaveLength(1);
+    await expect(slotChangeEle.slotEventCatch[0]).toMatchObject({ event: { type: 'slotchange' } });
+    await expect(slotChangeEle.slotEventCatch[0].assignedNodes[0].outerHTML).toMatch(
       '<div class="sc-scoped-slot-slotchange-wrap">Swapped slotted content</div>',
     );
   });
