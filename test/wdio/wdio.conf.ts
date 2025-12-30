@@ -60,8 +60,8 @@ export const config: WebdriverIO.Config = {
           {
             name: 'fix-js-mime-type',
             configureServer(server) {
-              // Add middleware early to set correct MIME type for .js files
-              // This fixes issues where Vite serves .js files without proper content-type
+              // Add middleware to set correct MIME type for .js files
+              // This runs early in the middleware stack to ensure headers are set correctly
               server.middlewares.use((req, res, next) => {
                 const url = req.url || '';
                 // Check if this is a .js file request (excluding node_modules and Vite's internal files)
@@ -71,7 +71,21 @@ export const config: WebdriverIO.Config = {
                   !url.startsWith('/@') &&
                   !url.startsWith('/@fs')
                 ) {
-                  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                  // Intercept writeHead to ensure Content-Type is set correctly
+                  const originalWriteHead = res.writeHead.bind(res);
+                  res.writeHead = function (statusCode: number, statusMessage?: any, headers?: any) {
+                    if (!headers || typeof headers !== 'object') {
+                      headers = statusMessage || {};
+                      statusMessage = undefined;
+                    }
+                    if (!headers['Content-Type'] && !headers['content-type']) {
+                      headers['Content-Type'] = 'application/javascript; charset=utf-8';
+                    }
+                    if (statusMessage) {
+                      return originalWriteHead(statusCode, statusMessage, headers);
+                    }
+                    return originalWriteHead(statusCode, headers);
+                  };
                 }
                 next();
               });
