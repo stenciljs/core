@@ -357,4 +357,97 @@ describe('transformCssToEsm', () => {
     expect(result.output).toContain('"\\\\f101"');
     expect(result.output).toContain("'\\\\f102'");
   });
+
+  it('replaces newlines with spaces to avoid escape sequence issues', () => {
+    const result = transformCssToEsmSync({
+      input: '.my-component {\n  --theme-primary-color: #2c3e50;\n  display: block;\n}',
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // Should not contain literal \n escape sequences
+    expect(result.output).not.toContain('\\n');
+    // Should contain spaces instead
+    expect(result.output).toContain('.my-component {');
+    expect(result.output).toContain('--theme-primary-color');
+  });
+
+  it('handles multiline color-mix CSS correctly', () => {
+    const input = `.my-component {
+--theme-primary-color: #2c3e50;
+--theme-primary-opacity: 10%;
+--theme-secondary-color: #0a0a0a;
+--theme-secondary-opacity: 20%;
+
+display: block;
+color: color-mix(in srgb, var(--theme-primary-color) var(--theme-primary-opacity),
+var(--theme-secondary-color) var(--theme-secondary-opacity));
+}`;
+
+    const result = transformCssToEsmSync({
+      input,
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // Should not contain \n escape sequences
+    expect(result.output).not.toContain('\\n');
+    // Should contain the color-mix function properly
+    expect(result.output).toContain('color-mix');
+    expect(result.output).toContain('in srgb');
+  });
+
+  it('replaces tabs and carriage returns with spaces', () => {
+    const result = transformCssToEsmSync({
+      input: '.my-class\t{\tcolor:\tred;\r\n}',
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // Should not contain escape sequences for tabs or newlines
+    expect(result.output).not.toContain('\\t');
+    expect(result.output).not.toContain('\\r');
+    expect(result.output).not.toContain('\\n');
+    expect(result.output).toContain('.my-class');
+    expect(result.output).toContain('color');
+  });
+
+  it('escapes backticks in CSS content', () => {
+    const result = transformCssToEsmSync({
+      input: '.my-class::before { content: "`"; }',
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // Should escape backticks to avoid breaking template literal
+    expect(result.output).toContain('\\`');
+  });
 });
