@@ -97,6 +97,7 @@ describe('scoped', () => {
     expect(page.root).toEqualHtml(`
       <cmp-b class="hydrated sc-cmp-b-h">
         <!---->
+        <!--s-nt-hello-->
         <div class="sc-cmp-b">
           <div class="sc-cmp-b"></div>
         </div>
