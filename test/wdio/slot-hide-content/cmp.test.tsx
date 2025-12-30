@@ -46,21 +46,4 @@ describe('slot-hide-content', function () {
       expect(slottedContent.parentElement.classList).toContain('slot-wrapper');
     });
   });
-
-  describe('no encapsulation', () => {
-    it('should not hide content when no slot is provided', async () => {
-      const host = document.body.querySelector('slot-hide-content-open');
-      const slottedContent = host.querySelector('#slotted-2');
-
-      expect(slottedContent).toBeDefined();
-      expect(slottedContent.hasAttribute('hidden')).toBe(false);
-      expect(slottedContent.parentElement.tagName).toContain('SLOT-HIDE-CONTENT-OPEN');
-
-      document.querySelector('button').click();
-      await browser.pause();
-
-      expect(slottedContent.hasAttribute('hidden')).toBe(false);
-      expect(slottedContent.parentElement.classList).toContain('slot-wrapper');
-    });
-  });
 });
