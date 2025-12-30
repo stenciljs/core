@@ -734,12 +734,12 @@ export interface ChildNode {
  *
  * For further information: https://stenciljs.com/docs/host-element
  */
-export declare const Host: FunctionalComponent<HostAttributes>;
+export declare const Host: (props: HostAttributes) => VNode;
 
 /**
  * Fragment
  */
-export declare const Fragment: FunctionalComponent<{}>;
+export declare const Fragment: (props: {}) => VNode;
 
 /* eslint-disable jsdoc/require-param, jsdoc/require-returns -- we don't want to JSDoc these overloads at this time */
 /**
@@ -757,6 +757,7 @@ export declare namespace h {
   export function h(sel: any, data: VNodeData | null, children: VNode): VNode;
 
   export namespace JSX {
+    type Element = VNode;
     interface IntrinsicElements extends LocalJSX.IntrinsicElements, JSXBase.IntrinsicElements {
       [tagName: string]: any;
     }
