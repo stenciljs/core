@@ -49,6 +49,35 @@ export const config: WebdriverIO.Config = {
             '@stencil/core': path.resolve(__dirname, '..', '..', 'internal'),
           },
         },
+        server: {
+          fs: {
+            strict: false,
+            allow: ['..'],
+          },
+          middlewareMode: false,
+        },
+        plugins: [
+          {
+            name: 'fix-js-mime-type',
+            configureServer(server) {
+              // Add middleware early to set correct MIME type for .js files
+              // This fixes issues where Vite serves .js files without proper content-type
+              server.middlewares.use((req, res, next) => {
+                const url = req.url || '';
+                // Check if this is a .js file request (excluding node_modules and Vite's internal files)
+                if (
+                  url.endsWith('.js') &&
+                  !url.includes('node_modules') &&
+                  !url.startsWith('/@') &&
+                  !url.startsWith('/@fs')
+                ) {
+                  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                }
+                next();
+              });
+            },
+          },
+        ],
       },
     },
   ],
