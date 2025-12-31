@@ -1,8 +1,8 @@
 import { h } from '@stencil/core';
 import { render } from '@wdio/browser-runner/stencil';
+import { $, browser,expect } from '@wdio/globals';
 
 import { setupIFrameTest } from '../util.js';
-import { $, expect, browser } from '@wdio/globals';
 
 describe('scoped-slot-connectedcallback', function () {
   describe('lazy load (dist output)', () => {
