@@ -164,20 +164,26 @@ export const runTsProgram = async (
     await Promise.all(srcRootDtsFiles);
   }
 
-  // TODO(STENCIL-540): remove `hasTypesChanged` check and figure out how to generate types before
-  // executing the TS build program so we don't get semantic diagnostic errors about referencing the
-  // auto-generated `components.d.ts` file.
-  if (config.validateTypes && !hasTypesChanged) {
+  if (config.validateTypes) {
     const tsSemantic = loadTypeScriptDiagnostics(tsBuilder.getSemanticDiagnostics());
+
+    // When types changed, filter out errors from generated components.d.ts to avoid chicken-and-egg issues
+    const filteredDiagnostics = hasTypesChanged
+      ? tsSemantic.filter((diagnostic) => {
+          const fileName = diagnostic.absFilePath || '';
+          return !fileName.endsWith('components.d.ts');
+        })
+      : tsSemantic;
+
     if (config.devMode) {
-      tsSemantic.forEach((semanticDiagnostic) => {
+      filteredDiagnostics.forEach((semanticDiagnostic) => {
         // Unused variable errors become warnings in dev mode
         if (semanticDiagnostic.code === '6133' || semanticDiagnostic.code === '6192') {
           semanticDiagnostic.level = 'warn';
         }
       });
     }
-    buildCtx.diagnostics.push(...tsSemantic);
+    buildCtx.diagnostics.push(...filteredDiagnostics);
   }
 
   return hasTypesChanged;
