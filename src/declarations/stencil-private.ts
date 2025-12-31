@@ -1812,6 +1812,10 @@ export interface HostRef {
   $rmListeners$?: (() => void)[];
   $modeName$?: string;
   $renderCount$?: number;
+  /**
+   * Defer connectedCallback until after first render for components with slot relocation.
+   */
+  $deferredConnectedCallback$?: boolean;
 }
 
 export interface PlatformRuntime {
