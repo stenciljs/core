@@ -90,7 +90,15 @@ export const initializeComponent = async (
         hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
       }
       endNewInstance();
-      fireConnectedCallback(hostRef.$lazyInstance$, elm);
+
+      // For components that relocate slots, defer connectedCallback until after first render
+      // so that slotted content is available
+      const needsDeferredCallback = BUILD.slotRelocation && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation;
+      if (!needsDeferredCallback) {
+        fireConnectedCallback(hostRef.$lazyInstance$, elm);
+      } else {
+        hostRef.$deferredConnectedCallback$ = true;
+      }
     } else {
       // sync constructor component
       Cstr = elm.constructor as any;

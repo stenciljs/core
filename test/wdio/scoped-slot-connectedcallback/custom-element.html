@@ -1,0 +1,17 @@
+<html>
+<head>
+  <title>Scoped Slot ConnectedCallback - dist-custom-elements output</title>
+  <script type="module">
+    import { defineCustomElement as childDefine } from '/test-components/scoped-slot-connectedcallback-child.js';
+    import { defineCustomElement as middleDefine } from '/test-components/scoped-slot-connectedcallback-middle.js';
+    import { defineCustomElement as parentDefine } from '/test-components/scoped-slot-connectedcallback-parent.js';
+
+    childDefine();
+    middleDefine();
+    parentDefine();
+  </script>
+</head>
+<body>
+
+</body>
+</html>
