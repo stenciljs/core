@@ -26,7 +26,7 @@ export const runTsProgram = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   tsBuilder: ts.BuilderProgram,
-): Promise<boolean> => {
+): Promise<string[]> => {
   const tsSyntactic = loadTypeScriptDiagnostics(tsBuilder.getSyntacticDiagnostics());
   const tsGlobal = loadTypeScriptDiagnostics(tsBuilder.getGlobalDiagnostics());
   const tsOptions = loadTypeScriptDiagnostics(tsBuilder.getOptionsDiagnostics());
@@ -35,7 +35,7 @@ export const runTsProgram = async (
   buildCtx.diagnostics.push(...tsOptions);
 
   if (buildCtx.hasError) {
-    return false;
+    return [];
   }
 
   const tsProgram = tsBuilder.getProgram();
@@ -136,7 +136,54 @@ export const runTsProgram = async (
   validateTranspiledComponents(config, buildCtx);
 
   if (buildCtx.hasError) {
-    return false;
+    return [];
+  }
+
+  return emittedDts;
+};
+
+/**
+ * Generate types and run semantic validation AFTER components.d.ts exists on disk
+ */
+export const validateTypesAfterGeneration = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  tsBuilder: ts.BuilderProgram,
+  emittedDts: string[],
+): Promise<boolean> => {
+  const tsProgram = tsBuilder.getProgram();
+  const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
+
+  // Check if components.d.ts already exists
+  const componentsDtsPath = join(config.srcDir, 'components.d.ts');
+  const componentsDtsExists = await compilerCtx.fs.access(componentsDtsPath);
+
+  // Only validate source files if components.d.ts already exists
+  // If it doesn't exist yet (first build), skip validation to avoid chicken-and-egg errors
+  if (config.validateTypes && componentsDtsExists) {
+    const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
+      const fileName = normalizePath(sf.fileName);
+      return (
+        !fileName.includes('node_modules') &&
+        !fileName.endsWith('.d.ts') &&
+        fileName.startsWith(normalizePath(config.srcDir))
+      );
+    });
+
+    for (const sourceFile of sourceFiles) {
+      const sourceSemanticDiagnostics = tsProgram.getSemanticDiagnostics(sourceFile);
+      const tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
+
+      if (config.devMode) {
+        tsSemantic.forEach((semanticDiagnostic) => {
+          if (semanticDiagnostic.code === '6133' || semanticDiagnostic.code === '6192') {
+            semanticDiagnostic.level = 'warn';
+          }
+        });
+      }
+      buildCtx.diagnostics.push(...tsSemantic);
+    }
   }
 
   // create the components.d.ts file and write to disk
@@ -164,21 +211,8 @@ export const runTsProgram = async (
     await Promise.all(srcRootDtsFiles);
   }
 
-  // TODO(STENCIL-540): remove `hasTypesChanged` check and figure out how to generate types before
-  // executing the TS build program so we don't get semantic diagnostic errors about referencing the
-  // auto-generated `components.d.ts` file.
-  if (config.validateTypes && !hasTypesChanged) {
-    const tsSemantic = loadTypeScriptDiagnostics(tsBuilder.getSemanticDiagnostics());
-    if (config.devMode) {
-      tsSemantic.forEach((semanticDiagnostic) => {
-        // Unused variable errors become warnings in dev mode
-        if (semanticDiagnostic.code === '6133' || semanticDiagnostic.code === '6192') {
-          semanticDiagnostic.level = 'warn';
-        }
-      });
-    }
-    buildCtx.diagnostics.push(...tsSemantic);
-  }
+  // Note: We validated user source files above before generating types
+  // We don't validate components.d.ts itself as it may reference types that will resolve later
 
   return hasTypesChanged;
 };
