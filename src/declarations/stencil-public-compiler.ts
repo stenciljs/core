@@ -659,6 +659,12 @@ export interface StencilDevServerConfig {
    */
   port?: number;
   /**
+   * When set to `true`, the dev server will exit with an error if the specified port is already in use.
+   * When set to `false`, the dev server will automatically try the next available port.
+   * Defaults to `false`.
+   */
+  strictPort?: boolean;
+  /**
    * When files are watched and updated, by default the dev server will use `hmr` (Hot Module Replacement)
    * to update the page without a full page refresh. To have the page do a full refresh use `pageReload`.
    * To disable any reloading, use `null`. Defaults to `hmr`.

@@ -162,6 +162,23 @@ describe('validateDevServer', () => {
     expect(config.devServer.port).toBe(4444);
   });
 
+  it('should default strictPort to false', () => {
+    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+    expect(config.devServer.strictPort).toBe(false);
+  });
+
+  it('should set strictPort to true', () => {
+    inputConfig.devServer = { ...inputDevServerConfig, strictPort: true };
+    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+    expect(config.devServer.strictPort).toBe(true);
+  });
+
+  it('should set strictPort to false', () => {
+    inputConfig.devServer = { ...inputDevServerConfig, strictPort: false };
+    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+    expect(config.devServer.strictPort).toBe(false);
+  });
+
   it('should default historyApiFallback', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.historyApiFallback).toBeDefined();
