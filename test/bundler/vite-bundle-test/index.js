@@ -20,53 +20,54 @@ if (typeof window !== 'undefined') {
     } else {
       // Wait for the component to be defined
       let resolved = false;
-      const setReady = () => {
-        if (!resolved) {
+      let timeoutId;
+      let pollInterval;
+
+      const handleDefinitionCheck = () => {
+        const isDefined = checkAndSetReady();
+        if (isDefined && !resolved) {
           resolved = true;
-          const isDefined = checkAndSetReady();
-          if (isDefined) {
-            console.log('[vite-bundle] Component my-component is now defined');
-          } else {
-            console.warn('[vite-bundle] Component my-component still not defined after wait');
+          console.log('[vite-bundle] Component my-component is now defined');
+          if (pollInterval) {
+            clearInterval(pollInterval);
+          }
+          if (timeoutId) {
+            clearTimeout(timeoutId);
           }
         }
+        return isDefined;
       };
 
       // Use whenDefined with a timeout fallback
       customElements
         .whenDefined('my-component')
         .then(() => {
-          setReady();
+          handleDefinitionCheck();
         })
         .catch((err) => {
           console.error('[vite-bundle] whenDefined failed:', err);
           // Still check if component is defined despite the error
-          setReady();
+          handleDefinitionCheck();
         });
 
       // Timeout fallback - check periodically and set flag
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         if (!resolved) {
           console.warn('[vite-bundle] Timeout waiting for component definition, checking anyway');
-          setReady();
+          handleDefinitionCheck();
         }
       }, 10000); // 10 second timeout
 
       // Also poll periodically as a backup
-      const pollInterval = setInterval(() => {
-        if (checkAndSetReady()) {
-          clearInterval(pollInterval);
-          clearTimeout(timeoutId);
-          if (!resolved) {
-            resolved = true;
-            console.log('[vite-bundle] Component my-component defined (via polling)');
-          }
-        }
+      pollInterval = setInterval(() => {
+        handleDefinitionCheck();
       }, 100); // Check every 100ms
 
       // Clean up polling after timeout
       setTimeout(() => {
-        clearInterval(pollInterval);
+        if (pollInterval) {
+          clearInterval(pollInterval);
+        }
       }, 10000);
     }
   } catch (err) {
