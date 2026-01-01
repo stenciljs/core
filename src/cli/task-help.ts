@@ -23,7 +23,7 @@ export const taskHelp = async (flags: ConfigFlags, logger: d.Logger, sys: d.Comp
       ${logger.cyan('--prerender')} ${logger.dim('.......')} Prerender the application
       ${logger.cyan('--docs')} ${logger.dim('............')} Generate component readme.md docs
       ${logger.cyan('--config')} ${logger.dim('..........')} Set stencil config file
-      ${logger.cyan('--stats')} ${logger.dim('...........')} Write stencil-stats.json file
+      ${logger.cyan('--stats')} ${logger.dim('...........')} Write stats, optional file path (default: stencil-stats.json)
       ${logger.cyan('--log')} ${logger.dim('.............')} Write stencil-build.log file
       ${logger.cyan('--debug')} ${logger.dim('...........')} Set the log level to debug
 
