@@ -165,15 +165,15 @@ const generateTransformCssToEsm = (
 ): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
 
-  // Double existing backslashes; so `\\f101` parses to `\f101` at runtime
-  // handles plain css string or js variable input (i.e from testing)
+  // Replace literal newlines/tabs/returns with spaces to avoid them becoming escape sequences
+  // Then handle other special characters and escape backslashes last
   results.styleText = results.styleText
+    .replace(/\n/g, ' ')
+    .replace(/\r/g, ' ')
+    .replace(/\t/g, ' ')
     .replace(/`/g, '\\`')
     .replace(/\u000c/g, '\\f')
     .replace(/\u0008/g, '\\b')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
     .replace(/\u000b/g, '\\v')
     .replace(/\0/g, '\\0')
     .replace(/\\/g, '\\\\');

@@ -98,6 +98,12 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
 
   if (isInitialLoad) {
     if (BUILD.lazyLoad) {
+      // Fire deferred connectedCallback before componentWillLoad
+      if (BUILD.slotRelocation && hostRef.$deferredConnectedCallback$) {
+        hostRef.$deferredConnectedCallback$ = false;
+        safeCall(instance, 'connectedCallback', undefined, elm);
+      }
+
       if (BUILD.hostListener) {
         hostRef.$flags$ |= HOST_FLAGS.isListenReady;
         if (hostRef.$queuedListeners$) {
@@ -105,6 +111,8 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
           hostRef.$queuedListeners$ = undefined;
         }
       }
+
+      // Fire any pending fetch callbacks
       if (hostRef.$fetchedCbList$.length) {
         hostRef.$fetchedCbList$.forEach((cb) => cb(elm));
       }
