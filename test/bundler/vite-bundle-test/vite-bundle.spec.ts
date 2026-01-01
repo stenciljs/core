@@ -100,10 +100,33 @@ describe('vite-bundle', () => {
         console.error('[vite-bundle] pageerror:', message);
       });
 
-      // Ensure the custom element is defined
-      await page.waitForFunction(() => (window as any).__STENCIL_COMPONENT_LIBRARY_READY__ === true, {
-        timeout: 15000,
+      // Debug: Check initial state
+      const initialState = await page.evaluate(() => {
+        return {
+          readyFlag: (window as any).__STENCIL_COMPONENT_LIBRARY_READY__,
+          componentDefined: !!customElements.get('my-component'),
+          componentExists: !!document.querySelector('my-component'),
+        };
       });
+      console.log('[vite-bundle] Initial state:', initialState);
+
+      // Ensure the custom element is defined
+      try {
+        await page.waitForFunction(() => (window as any).__STENCIL_COMPONENT_LIBRARY_READY__ === true, {
+          timeout: 15000,
+        });
+      } catch (error) {
+        // Debug: Check state on timeout
+        const timeoutState = await page.evaluate(() => {
+          return {
+            readyFlag: (window as any).__STENCIL_COMPONENT_LIBRARY_READY__,
+            componentDefined: !!customElements.get('my-component'),
+            componentExists: !!document.querySelector('my-component'),
+          };
+        });
+        console.error('[vite-bundle] Timeout state:', timeoutState);
+        throw error;
+      }
       await page.waitForFunction(() => !!customElements.get('my-component'), { timeout: 15000 });
 
       // Wait for the element to be present
