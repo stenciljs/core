@@ -124,11 +124,12 @@ const updateImportReferenceFactory = (
 
         const newTypeName = getIncrementTypeName(typeName);
         existingTypeImportData[importResolvedFile].push({
-          // Since we create a unique ID for each type for documentation generation purposes, we can parse
-          // that ID to get the original name for the export
-          originalName: typeReference.id.split('::').pop(),
+          // For re-export purposes, originalName should be the name we imported (typeName/localName)
+          // The type ID contains the source module's export name which may differ if imported with alias
+          originalName: typeName,
           localName: typeName,
           importName: newTypeName,
+          isDefault: typeReference.isDefault,
         });
       });
 

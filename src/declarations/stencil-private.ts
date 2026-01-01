@@ -772,6 +772,11 @@ export interface ComponentCompilerTypeReference {
    * An ID for this type which is unique within a Stencil project.
    */
   id: string;
+  /**
+   * Whether this type was imported as a default import (e.g., `import MyEnum from './my-enum'`)
+   * vs a named import (e.g., `import { MyType } from './my-type'`)
+   */
+  isDefault?: boolean;
 }
 
 /**
@@ -2605,6 +2610,11 @@ export interface TypesMemberNameData {
    * file that is using `localName`.
    */
   importName?: string;
+  /**
+   * Whether this is a default import/export (e.g., `import MyEnum from './my-enum'`)
+   * vs a named import/export (e.g., `import { MyType } from './my-type'`)
+   */
+  isDefault?: boolean;
 }
 
 export interface TypesModule {
