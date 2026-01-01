@@ -14,7 +14,18 @@ export function createHttpServer(devServerConfig: d.DevServerConfig, serverCtx: 
   return credentials ? https.createServer(credentials, reqHandler) : http.createServer(reqHandler);
 }
 
-export async function findClosestOpenPort(host: string, port: number): Promise<number> {
+export async function findClosestOpenPort(host: string, port: number, strictPort = false): Promise<number> {
+  const isTaken = await isPortTaken(host, port);
+
+  if (!isTaken) {
+    return port;
+  }
+
+  if (strictPort) {
+    throw new Error(`Port ${port} is already in use. Please specify a different port or set strictPort to false.`);
+  }
+
+  // If strictPort is false, recursively find the next available port
   async function t(portToCheck: number): Promise<number> {
     const isTaken = await isPortTaken(host, portToCheck);
     if (!isTaken) {
@@ -23,7 +34,7 @@ export async function findClosestOpenPort(host: string, port: number): Promise<n
     return t(portToCheck + 1);
   }
 
-  return t(port);
+  return t(port + 1);
 }
 
 function isPortTaken(host: string, port: number): Promise<boolean> {
