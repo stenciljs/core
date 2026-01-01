@@ -71,6 +71,15 @@ export const config: WebdriverIO.Config = {
                   !url.startsWith('/@') &&
                   !url.startsWith('/@fs')
                 ) {
+                  // Intercept setHeader to ensure Content-Type is set correctly
+                  const originalSetHeader = res.setHeader.bind(res);
+                  res.setHeader = function (name: string, value: string | string[]) {
+                    if (name.toLowerCase() === 'content-type' && typeof value === 'string' && !value.includes('javascript')) {
+                      return originalSetHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    }
+                    return originalSetHeader(name, value);
+                  };
+
                   // Intercept writeHead to ensure Content-Type is set correctly
                   const originalWriteHead = res.writeHead.bind(res);
                   res.writeHead = function (statusCode: number, statusMessage?: any, headers?: any) {
@@ -85,6 +94,15 @@ export const config: WebdriverIO.Config = {
                       return originalWriteHead(statusCode, statusMessage, headers);
                     }
                     return originalWriteHead(statusCode, headers);
+                  };
+
+                  // Intercept end to ensure Content-Type is set before sending response
+                  const originalEnd = res.end.bind(res);
+                  res.end = function (chunk?: any, encoding?: any, cb?: any) {
+                    if (!res.headersSent && !res.getHeader('content-type')) {
+                      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    }
+                    return originalEnd(chunk, encoding, cb);
                   };
                 }
                 next();
