@@ -43,6 +43,12 @@ interface ComponentCompilerTypeReference {
    * vs a named import (e.g., `import { MyType } from './my-type'`)
    */
   isDefault?: boolean;
+  /**
+   * The name used in the import statement (before any user-defined alias).
+   * For `import { XAxisOption as moo }`, this would be "XAxisOption".
+   * This is the name exported by the source module.
+   */
+  referenceLocation?: string;
 }
 interface ComponentCompilerReferencedType {
   /**
