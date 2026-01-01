@@ -5,7 +5,7 @@ import { defineCustomElements } from 'component-library/loader';
 if (typeof window !== 'undefined') {
   try {
     defineCustomElements();
-    
+
     // Function to check and set readiness flag
     const checkAndSetReady = () => {
       const isDefined = !!customElements.get('my-component');
