@@ -95,9 +95,11 @@ const generateComponentTypesFile = (
   c.push(COMPONENTS_DTS_HEADER);
   c.push(`import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";`);
 
-  // Map event type metadata to partial expressions (omitting import/export keywords)
-  // e.g. { TestEvent } from '../path/to/event/test-event.interface';
-  const expressions = Object.keys(typeImportData).map((filePath) => {
+  // Generate import and export statements for type dependencies
+  const imports: string[] = [];
+  const exports: string[] = [];
+
+  Object.keys(typeImportData).forEach((filePath) => {
     const typeData = typeImportData[filePath];
 
     let importFilePath = filePath;
@@ -105,22 +107,53 @@ const generateComponentTypesFile = (
       importFilePath = normalizePath('./' + relative(config.srcDir, filePath)).replace(/\.(tsx|ts)$/, '');
     }
 
-    return `{ ${typeData
-      .sort(sortImportNames)
-      .map((td) => {
-        if (td.originalName === '') {
-          return `${td.localName}`;
-        } else if (td.originalName === td.importName) {
-          return `${td.originalName}`;
-        } else {
-          return `${td.originalName} as ${td.importName}`;
-        }
-      })
-      .join(`, `)} } from "${importFilePath}";`;
+    // Check if this file has any default imports
+    const hasDefaultImport = typeData.some((td) => td.isDefault);
+
+    if (hasDefaultImport && typeData.length === 1) {
+      // Pure default import
+      const td = typeData[0];
+      imports.push(`import ${td.importName} from "${importFilePath}";`);
+      exports.push(`export { default as ${td.importName} } from "${importFilePath}";`);
+    } else if (hasDefaultImport) {
+      // Mixed default and named imports
+      const defaultImport = typeData.find((td) => td.isDefault);
+      const namedImports = typeData.filter((td) => !td.isDefault);
+      const namedPart = namedImports
+        .sort(sortImportNames)
+        .map((td) => {
+          if (td.originalName === '') {
+            return `${td.localName}`;
+          } else if (td.originalName === td.importName) {
+            return `${td.originalName}`;
+          } else {
+            return `${td.originalName} as ${td.importName}`;
+          }
+        })
+        .join(`, `);
+      imports.push(`import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`);
+      exports.push(`export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`);
+    } else {
+      // Named imports only
+      const namedPart = typeData
+        .sort(sortImportNames)
+        .map((td) => {
+          if (td.originalName === '') {
+            return `${td.localName}`;
+          } else if (td.originalName === td.importName) {
+            return `${td.originalName}`;
+          } else {
+            return `${td.originalName} as ${td.importName}`;
+          }
+        })
+        .join(`, `);
+      imports.push(`import { ${namedPart} } from "${importFilePath}";`);
+      exports.push(`export { ${namedPart} } from "${importFilePath}";`);
+    }
   });
 
   // Write all import and export statements for event types
-  c.push(...expressions.map((ref) => `import ${ref}`), ...expressions.map((ref) => `export ${ref}`));
+  c.push(...imports, ...exports);
 
   c.push(`export namespace Components {`);
   c.push(...modules.map((m) => `${m.component}`));

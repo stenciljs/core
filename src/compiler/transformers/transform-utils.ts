@@ -664,8 +664,13 @@ const getTypeReferenceLocation = (
     const importHomeModule = getHomeModule(sourceFile, localImportPath, options, compilerHost, program);
 
     if (importHomeModule) {
-      const importName = namedImportBindings.elements.find((nbe) => nbe.name.getText() === typeName).name;
+      const importElement = namedImportBindings.elements.find((nbe) => nbe.name.getText() === typeName);
+      const importName = importElement.name;
       const originalTypeName = getOriginalTypeName(importName, checker);
+
+      // Get the name as it appears in the import statement (before any user alias)
+      // For "import { XAxisOption as moo }", propertyName is "XAxisOption"
+      const importedAs = importElement.propertyName ? importElement.propertyName.getText() : typeName;
 
       const typeDecl = findTypeWithName(importHomeModule, originalTypeName);
       type = checker.getTypeAtLocation(typeDecl);
@@ -675,6 +680,7 @@ const getTypeReferenceLocation = (
         location: 'import',
         path: localImportPath,
         id,
+        referenceLocation: importedAs,
       };
     }
   }
@@ -725,6 +731,48 @@ const getTypeReferenceLocation = (
       path: sourceFile.fileName,
       id,
     };
+  }
+
+  // Check for default imports (import MyEnum from '...')
+  const defaultImportDeclaration = sourceFile.statements.find((st) => {
+    if (!ts.isImportDeclaration(st) || !st.importClause) {
+      return false;
+    }
+    // Check if the default import name matches the type name
+    const defaultImportName = st.importClause.name;
+    return defaultImportName && defaultImportName.getText() === typeName;
+  }) as ts.ImportDeclaration;
+
+  if (defaultImportDeclaration) {
+    const localImportPath = (<ts.StringLiteral>defaultImportDeclaration.moduleSpecifier).text;
+    const options = program.getCompilerOptions();
+    const compilerHost = ts.createCompilerHost(options);
+    const importHomeModule = getHomeModule(sourceFile, localImportPath, options, compilerHost, program);
+
+    if (importHomeModule) {
+      // For default imports, the original type name is 'default' in the module's exports
+      // But we want to use the actual type name from the module
+      const defaultExport = importHomeModule.statements.find(
+        (st) =>
+          ts.isExportAssignment(st) &&
+          !st.isExportEquals &&
+          ts.isIdentifier(st.expression) &&
+          st.expression.getText() === typeName,
+      );
+
+      if (defaultExport) {
+        const typeDecl = findTypeWithName(importHomeModule, typeName);
+        type = checker.getTypeAtLocation(typeDecl);
+
+        const id = addToLibrary(type, typeName, checker, normalizePath(importHomeModule.fileName, false));
+        return {
+          location: 'import',
+          path: localImportPath,
+          id,
+          isDefault: true,
+        };
+      }
+    }
   }
 
   // This is most likely a global type, if it is a local that is not exported then typescript will inform the dev

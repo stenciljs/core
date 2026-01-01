@@ -772,6 +772,17 @@ export interface ComponentCompilerTypeReference {
    * An ID for this type which is unique within a Stencil project.
    */
   id: string;
+  /**
+   * Whether this type was imported as a default import (e.g., `import MyEnum from './my-enum'`)
+   * vs a named import (e.g., `import { MyType } from './my-type'`)
+   */
+  isDefault?: boolean;
+  /**
+   * The name used in the import statement (before any user-defined alias).
+   * For `import { XAxisOption as moo }`, this would be "XAxisOption".
+   * This is the name exported by the source module.
+   */
+  referenceLocation?: string;
 }
 
 /**
@@ -2605,6 +2616,11 @@ export interface TypesMemberNameData {
    * file that is using `localName`.
    */
   importName?: string;
+  /**
+   * Whether this is a default import/export (e.g., `import MyEnum from './my-enum'`)
+   * vs a named import/export (e.g., `import { MyType } from './my-type'`)
+   */
+  isDefault?: boolean;
 }
 
 export interface TypesModule {
