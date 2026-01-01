@@ -32,7 +32,8 @@
               "ImportedInterface": {
                 "location": "import",
                 "path": "./imported-interface",
-                "id": "src/components/my-component/imported-interface.ts::ImportedInterface"
+                "id": "src/components/my-component/imported-interface.ts::ImportedInterface",
+                "referenceLocation": "ImportedInterface"
               },
               "T": {
                 "location": "global",
