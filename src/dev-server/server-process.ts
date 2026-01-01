@@ -20,7 +20,11 @@ export function initServerProcess(sendMsg: d.DevServerSendMessage) {
 
   const startServer = async (msg: d.DevServerMessage) => {
     const devServerConfig = msg.startServer;
-    devServerConfig.port = await findClosestOpenPort(devServerConfig.address, devServerConfig.port);
+    devServerConfig.port = await findClosestOpenPort(
+      devServerConfig.address,
+      devServerConfig.port,
+      devServerConfig.strictPort,
+    );
     devServerConfig.browserUrl = getBrowserUrl(
       devServerConfig.protocol,
       devServerConfig.address,

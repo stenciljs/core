@@ -87,6 +87,10 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
     devServer.websocket = true;
   }
 
+  if (!isBoolean(devServer.strictPort)) {
+    devServer.strictPort = false;
+  }
+
   if (flags.ssr) {
     devServer.ssr = true;
   } else {
