@@ -9,9 +9,16 @@ export const validateStats = (userConfig: d.ValidatedConfig, userOutputs: d.Outp
   if (userConfig.flags.stats) {
     const hasOutputTarget = userOutputs.some(isOutputTargetStats);
     if (!hasOutputTarget) {
-      outputTargets.push({
+      const statsOutput: d.OutputTargetStats = {
         type: STATS,
-      });
+      };
+
+      // If --stats was provided with a path (string), use it; otherwise use default
+      if (typeof userConfig.flags.stats === 'string') {
+        statsOutput.file = userConfig.flags.stats;
+      }
+
+      outputTargets.push(statsOutput);
     }
   }
 

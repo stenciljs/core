@@ -29,7 +29,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'skipNodeCheck',
   'spec',
   'ssr',
-  'stats',
   'updateScreenshot',
   'verbose',
   'version',
@@ -181,6 +180,12 @@ export const BOOLEAN_STRING_CLI_FLAGS = [
    * {@see https://developer.chrome.com/blog/chrome-headless-shell/}
    */
   'headless',
+  /**
+   * `stats` is an argument that can optionally accept a file path where stats should be written.
+   * When used as a boolean (--stats), it defaults to 'stencil-stats.json'.
+   * When used with a path (--stats dist/stats.json), it writes to that path.
+   */
+  'stats',
 ] as const;
 
 /**

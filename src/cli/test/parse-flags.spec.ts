@@ -144,14 +144,14 @@ describe('parseFlags', () => {
     it('parses a boolean-string flag as a boolean with no arg', () => {
       const args = [`--${cliArg}`];
       const flags = parseFlags(args);
-      expect(flags.headless).toBe(true);
+      expect(flags[cliArg]).toBe(true);
       expect(flags.knownArgs).toEqual([`--${cliArg}`]);
     });
 
     it(`parses a boolean-string flag as a falsy boolean with "no" arg - --no-${cliArg}`, () => {
       const args = [`--no-${cliArg}`];
       const flags = parseFlags(args);
-      expect(flags.headless).toBe(false);
+      expect(flags[cliArg]).toBe(false);
       expect(flags.knownArgs).toEqual([`--no-${cliArg}`]);
     });
 
@@ -160,21 +160,21 @@ describe('parseFlags', () => {
     }`, () => {
       const negativeFlag = '--no' + cliArg.charAt(0).toUpperCase() + cliArg.slice(1);
       const flags = parseFlags([negativeFlag]);
-      expect(flags.headless).toBe(false);
+      expect(flags[cliArg]).toBe(false);
       expect(flags.knownArgs).toEqual([negativeFlag]);
     });
 
     it('parses a boolean-string flag as a string with a string arg', () => {
       const args = [`--${cliArg}`, 'shell'];
       const flags = parseFlags(args);
-      expect(flags.headless).toBe('shell');
-      expect(flags.knownArgs).toEqual(['--headless', 'shell']);
+      expect(flags[cliArg]).toBe('shell');
+      expect(flags.knownArgs).toEqual([`--${cliArg}`, 'shell']);
     });
 
     it('parses a boolean-string flag as a string with a string arg using equality', () => {
       const args = [`--${cliArg}=shell`];
       const flags = parseFlags(args);
-      expect(flags.headless).toBe('shell');
+      expect(flags[cliArg]).toBe('shell');
       expect(flags.knownArgs).toEqual([`--${cliArg}`, 'shell']);
     });
   });
