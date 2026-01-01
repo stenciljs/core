@@ -123,10 +123,23 @@ const updateImportReferenceFactory = (
         }
 
         const newTypeName = getIncrementTypeName(typeName);
+
+        // Get the original export name:
+        // - If referenceLocation is set, use it (it's the name from the import statement)
+        // - Otherwise extract from type ID for backwards compatibility
+        let originalExportName: string;
+        if (typeReference.referenceLocation) {
+          originalExportName = typeReference.referenceLocation;
+        } else {
+          const typeIdParts = typeReference.id.split('::');
+          originalExportName = typeIdParts.length > 1 ? typeIdParts[typeIdParts.length - 1] : typeName;
+        }
+
         existingTypeImportData[importResolvedFile].push({
-          // For re-export purposes, originalName should be the name we imported (typeName/localName)
-          // The type ID contains the source module's export name which may differ if imported with alias
-          originalName: typeName,
+          // originalName: the name exported from the source module (for import { originalName as ... })
+          // localName: the name used in the component file (the alias if there is one)
+          // importName: Stencil-generated alias to avoid collisions in components.d.ts
+          originalName: originalExportName,
           localName: typeName,
           importName: newTypeName,
           isDefault: typeReference.isDefault,

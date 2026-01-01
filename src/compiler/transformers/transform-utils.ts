@@ -664,8 +664,13 @@ const getTypeReferenceLocation = (
     const importHomeModule = getHomeModule(sourceFile, localImportPath, options, compilerHost, program);
 
     if (importHomeModule) {
-      const importName = namedImportBindings.elements.find((nbe) => nbe.name.getText() === typeName).name;
+      const importElement = namedImportBindings.elements.find((nbe) => nbe.name.getText() === typeName);
+      const importName = importElement.name;
       const originalTypeName = getOriginalTypeName(importName, checker);
+
+      // Get the name as it appears in the import statement (before any user alias)
+      // For "import { XAxisOption as moo }", propertyName is "XAxisOption"
+      const importedAs = importElement.propertyName ? importElement.propertyName.getText() : typeName;
 
       const typeDecl = findTypeWithName(importHomeModule, originalTypeName);
       type = checker.getTypeAtLocation(typeDecl);
@@ -675,6 +680,7 @@ const getTypeReferenceLocation = (
         location: 'import',
         path: localImportPath,
         id,
+        referenceLocation: importedAs,
       };
     }
   }

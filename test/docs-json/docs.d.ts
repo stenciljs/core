@@ -38,6 +38,11 @@ interface ComponentCompilerTypeReference {
    * An ID for this type which is unique within a Stencil project.
    */
   id: string;
+  /**
+   * Whether this type was imported as a default import (e.g., `import MyEnum from './my-enum'`)
+   * vs a named import (e.g., `import { MyType } from './my-type'`)
+   */
+  isDefault?: boolean;
 }
 interface ComponentCompilerReferencedType {
   /**
