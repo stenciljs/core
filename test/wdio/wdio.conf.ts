@@ -74,7 +74,11 @@ export const config: WebdriverIO.Config = {
                   // Intercept setHeader to ensure Content-Type is set correctly
                   const originalSetHeader = res.setHeader.bind(res);
                   res.setHeader = function (name: string, value: string | string[]) {
-                    if (name.toLowerCase() === 'content-type' && typeof value === 'string' && !value.includes('javascript')) {
+                    if (
+                      name.toLowerCase() === 'content-type' &&
+                      typeof value === 'string' &&
+                      !value.includes('javascript')
+                    ) {
                       return originalSetHeader('Content-Type', 'application/javascript; charset=utf-8');
                     }
                     return originalSetHeader(name, value);

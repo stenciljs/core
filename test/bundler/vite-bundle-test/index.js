@@ -10,7 +10,8 @@ if (typeof window !== 'undefined') {
   (async () => {
     try {
       // Await defineCustomElements to ensure components are actually defined
-      await defineCustomElements();
+      // Pass window and empty options object as expected by the loader
+      await defineCustomElements(window, {});
 
       // After defineCustomElements completes, components should be defined
       // Verify and set the readiness flag
