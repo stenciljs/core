@@ -1,3 +1,26 @@
+# 🏂 [4.41.0](https://github.com/stenciljs/core/compare/v4.40.1...v4.41.0) (2026-01-02)
+
+
+### Bug Fixes
+
+* **build:** always fail build on typescript failure ([#6520](https://github.com/stenciljs/core/issues/6520)) ([74aea99](https://github.com/stenciljs/core/commit/74aea99dffda483418ce8e61707b3dc50eb749a2))
+* **cli:** `--stats` accepts optional path string as per documentation ([#6524](https://github.com/stenciljs/core/issues/6524)) ([42ebdfa](https://github.com/stenciljs/core/commit/42ebdfaaa9bc3b0c7600525f2a86f4cd09a3d97e))
+* **compiler:** stop error from globalScript lack of default export ([#6527](https://github.com/stenciljs/core/issues/6527)) ([ba03ccf](https://github.com/stenciljs/core/commit/ba03ccf8f6caa0b19699e5931cc5fa231cd14fff))
+* **css:** strip line breaks from final template literal ([#6517](https://github.com/stenciljs/core/issues/6517)) ([dfeeaec](https://github.com/stenciljs/core/commit/dfeeaecc82a3696db2ea3076f649c8088df5c12c))
+* **runtime:** allow `cloneNode` patch even without <slot> ([#6513](https://github.com/stenciljs/core/issues/6513)) ([e893bd1](https://github.com/stenciljs/core/commit/e893bd13a851586532cbfac66d7213c28d0f09ca))
+* **runtime:** delay non-shadow onConnectedCallback; make sure slotted content is available ([#6519](https://github.com/stenciljs/core/issues/6519)) ([9e38aa7](https://github.com/stenciljs/core/commit/9e38aa7a06f7afd722812e748e213ad2f1457da5))
+* **runtime:** update non-shadow slotted content visibility via dynamic `<slot>` ([#6514](https://github.com/stenciljs/core/issues/6514)) ([cdcd873](https://github.com/stenciljs/core/commit/cdcd873a03de2534715320e6c758a808cab08ce1))
+* **testing:** jest / mixin related errors ([#6512](https://github.com/stenciljs/core/issues/6512)) ([5c17422](https://github.com/stenciljs/core/commit/5c17422eee67ffff6f1166374e43d218ba82905f))
+* **types:** components.d.ts - correctly import / export used enums ([#6522](https://github.com/stenciljs/core/issues/6522)) ([e243c6f](https://github.com/stenciljs/core/commit/e243c6f73ff8632851152b0b2f6a88eaa87c1bf4))
+
+
+### Features
+
+* **dev-server:** new `strictPort` property ([#6523](https://github.com/stenciljs/core/issues/6523)) ([cc12853](https://github.com/stenciljs/core/commit/cc1285363d85d87d5e686adcb7f5e9d93b7829b7))
+* **runtime:** support tsconfig `jsxImportSource` (`h` import no longer necessary) ([#6525](https://github.com/stenciljs/core/issues/6525)) ([6482533](https://github.com/stenciljs/core/commit/648253360793cc6909aa631fe44dd34599e9d4e2))
+
+
+
 ## 🐂 [4.40.1](https://github.com/stenciljs/core/compare/v4.40.0...v4.40.1) (2025-12-23)
 
 
