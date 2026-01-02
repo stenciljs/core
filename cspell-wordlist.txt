@@ -151,3 +151,5 @@ yourpackage
 fdir
 shadowrootmode
 shadowrootdelegatesfocus
+jsxmode
+jsxdev
