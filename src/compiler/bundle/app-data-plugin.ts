@@ -97,6 +97,19 @@ export const appDataPlugin = (
       if (globalScripts.some((s) => s.path === id)) {
         const program = this.parse(code, {});
         const needsDefault = !(program as any).body.some((s: any) => s.type === 'ExportDefaultDeclaration');
+
+        if (needsDefault) {
+          const diagnostic: d.Diagnostic = {
+            level: 'warn',
+            type: 'build',
+            header: 'Missing default export in globalScript',
+            messageText: `globalScript should export a default function.\nSee: https://stenciljs.com/docs/config#globalscript`,
+            relFilePath: id,
+            lines: [],
+          };
+          buildCtx.diagnostics.push(diagnostic);
+        }
+
         const defaultExport = needsDefault ? '\nexport const globalFn = () => {};\nexport default globalFn;' : '';
         code = code + defaultExport;
 
@@ -176,11 +189,13 @@ export const getGlobalScriptData = (config: d.ValidatedConfig, compilerCtx: d.Co
 
 const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
   if (globalScripts.length === 1) {
-    s.prepend(`import appGlobalScript from '${globalScripts[0].path}';\n`);
+    s.prepend(`import * as appGlobalScriptNs from '${globalScripts[0].path}';\n`);
+    s.prepend(`const appGlobalScript = appGlobalScriptNs.default || (() => {});\n`);
     s.append(`export const globalScripts = appGlobalScript;\n`);
   } else if (globalScripts.length > 1) {
     globalScripts.forEach((globalScript) => {
-      s.prepend(`import ${globalScript.defaultName} from '${globalScript.path}';\n`);
+      s.prepend(`import * as ${globalScript.defaultName}Ns from '${globalScript.path}';\n`);
+      s.prepend(`const ${globalScript.defaultName} = ${globalScript.defaultName}Ns.default || (() => {});\n`);
     });
 
     s.append(`export const globalScripts = () => {\n`);
