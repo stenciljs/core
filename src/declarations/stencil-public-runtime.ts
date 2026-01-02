@@ -772,6 +772,45 @@ export declare function h(sel: any, text: string): VNode;
 export declare function h(sel: any, children: Array<VNode | undefined | null>): VNode;
 export declare function h(sel: any, data: VNodeData | null, text: string): VNode;
 export declare function h(sel: any, data: VNodeData | null, children: Array<VNode | undefined | null>): VNode;
+
+/**
+ * Automatic JSX runtime functions for TypeScript's react-jsx mode.
+ * These functions are called automatically by TypeScript when using "jsx": "react-jsx".
+ * @param type type of node
+ * @param props properties of node
+ * @param key optional key for the node
+ * @returns a jsx vnode
+ */
+export declare function jsx(type: any, props: any, key?: string): VNode;
+
+/**
+ * Automatic JSX runtime functions for TypeScript's react-jsxmode with multiple children.
+ * @param type type of node
+ * @param props properties of node
+ * @param key optional key for the node
+ * @returns a jsx vnode
+ */
+export declare function jsxs(type: any, props: any, key?: string): VNode;
+
+/**
+ * Automatic JSX runtime functions for TypeScript's react-jsxdev mode.
+ * These functions are called automatically by TypeScript when using "jsx": "react-jsxdev".
+ * @param type type of node
+ * @param props properties of node
+ * @param key optional key for the node
+ * @param isStaticChildren indicates if the children are static
+ * @param source source information
+ * @param self reference to the component instance
+ * @returns a jsx vnode
+ */
+export declare function jsxDEV(
+  type: any,
+  props: any,
+  key?: string | number,
+  isStaticChildren?: boolean,
+  source?: any,
+  self?: any,
+): VNode;
 export declare function h(sel: any, data: VNodeData | null, children: VNode): VNode;
 
 /**
