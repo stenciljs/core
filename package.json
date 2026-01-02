@@ -28,6 +28,16 @@
       "import": "./internal/stencil-core/index.js",
       "require": "./internal/stencil-core/index.cjs"
     },
+    "./jsx-runtime": {
+      "types": "./internal/stencil-core/jsx-runtime.d.ts",
+      "import": "./internal/stencil-core/jsx-runtime.js",
+      "require": "./internal/stencil-core/jsx-runtime.cjs"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./internal/stencil-core/jsx-dev-runtime.d.ts",
+      "import": "./internal/stencil-core/jsx-dev-runtime.js",
+      "require": "./internal/stencil-core/jsx-dev-runtime.cjs"
+    },
     "./cli": {
       "import": "./cli/index.js",
       "require": "./cli/index.cjs"

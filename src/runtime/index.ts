@@ -19,5 +19,7 @@ export { getValue, setValue } from './set-value';
 export { setTagTransformer, transformTag } from './tag-transform';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';
+export { jsxDEV } from './vdom/jsx-dev-runtime';
+export { jsx, jsxs } from './vdom/jsx-runtime';
 export { insertVdomAnnotations } from './vdom/vdom-annotations';
 export { renderVdom } from './vdom/vdom-render';
