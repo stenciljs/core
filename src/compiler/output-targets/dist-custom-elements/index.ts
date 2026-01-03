@@ -17,6 +17,7 @@ import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
 import { nativeComponentTransform } from '../../transformers/component-native/tranform-to-native-component';
@@ -24,7 +25,6 @@ import { removeCollectionImports } from '../../transformers/remove-collection-im
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getCustomElementsBuildConditionals } from './custom-elements-build-conditionals';
-import { addTagTransform } from '../../transformers/add-tag-transform';
 
 /**
  * Main output target function for `dist-custom-elements`. This function just
@@ -321,6 +321,7 @@ export const generateEntryPoint = (
  * @param compilerCtx the current compiler context
  * @param components the components that will be compiled as a part of the current build
  * @param outputTarget the output target configuration
+ * @param buildCtx the current build context for the compilation
  * @returns a list of transformers to use in the transpilation process
  */
 const getCustomBeforeTransformers = (

@@ -26,7 +26,7 @@ import { getStaticValue } from './transform-utils';
  * switches on a flag so  we can handle them at runtime.
  *
  * @param classNode the parental class node
- * @param cmp metadata about the stencil component of interest
+ * @param sourceFile the source file owning the class, used to resolve property names
  * @returns true if the class has modern property declarations, false otherwise
  */
 export const detectModernPropDeclarations = (classNode: ts.ClassDeclaration, sourceFile?: ts.SourceFile) => {

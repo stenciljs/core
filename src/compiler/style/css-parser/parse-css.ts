@@ -327,6 +327,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   /**
    * Parse nested @ rule that contains declarations instead of rules
+   * @param name the at-rule name being parsed
+   * @returns the parsed node or null when no match is found
    */
   const nestedAtQuery = (name: 'media' | 'container' | 'supports') => {
     const pos = position();
@@ -348,6 +350,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   /**
    * Try to parse a nested at-rule (one that contains declarations, not rules)
+   * @returns the parsed nested at-rule node, or null when no match is found
    */
   const nestedAtrule = () => {
     if (css[0] !== '@') return null;

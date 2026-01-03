@@ -18,8 +18,6 @@ import { createNativeAttachInternalsBinding } from './attach-internals';
  * @param moduleFile the Stencil module representation of the component class
  * @param cmp the component metadata generated for the component
  * @param classNode the TypeScript syntax tree node for the class
- * @param compilerCtx the compiler context, which provides access to the module map
- * @param tsSourceFile the TypeScript source file containing the class
  */
 export const updateNativeConstructor = (
   classMembers: ts.ClassElement[],

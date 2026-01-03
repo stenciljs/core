@@ -25,6 +25,7 @@ import { updateNativeComponentClass, updateNativeExtendedClass } from './native-
  *
  * @param compilerCtx the current compiler context, which acts as the source of truth for the transformations
  * @param transformOpts the transformation configuration to use when performing the transformations
+ * @param buildCtx the current build context for the compilation
  * @returns a transformer factory, to be run by the TypeScript compiler
  */
 export const nativeComponentTransform = (

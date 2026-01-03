@@ -1,6 +1,7 @@
 import { Component, h, Host, State } from '@stencil/core';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
+
 import { MouseController } from './mouse-controller.js';
+import { ReactiveControllerHost } from './reactive-controller-host.js';
 
 @Component({
   tag: 'extends-via-host-cmp',

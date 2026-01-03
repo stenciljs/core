@@ -49,7 +49,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       });
 
       it('component @State can be updated via method', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators') as any;
         await component.updateMixedName('updated via method');
 
         await browser.waitUntil(
@@ -72,7 +72,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
         expect(mixedName?.textContent).not.toContain('base prop value');
 
         // Verify it behaves as a state (reactive, can be updated)
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators') as any;
         await component.updateMixedName('state behavior verified');
 
         await browser.waitUntil(
@@ -100,7 +100,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       });
 
       it('component @Prop conflicts with base @State - attribute updates may not work', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators');
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators');
         const initialValue = frameContent.querySelector('.mixed-state-name-value')?.textContent;
         component?.setAttribute('mixed-state-name', 'updated via attribute');
 
@@ -122,7 +122,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       });
 
       it('component @Prop conflicts with base @State - property updates may not work', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators') as any;
         component.mixedStateName = 'updated via property';
 
         // Wait to see if update occurs
@@ -169,7 +169,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       });
 
       it('winning decorator types behave correctly', async () => {
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators') as any;
 
         // Test @State behavior (mixedName) - this works correctly
         await component.updateMixedName('state reactivity verified');
@@ -201,7 +201,7 @@ describe('Test Case #18 – Mixed Decorator Types (Different decorator types, sa
       it('non-conflicting base decorators remain accessible', async () => {
         const baseOnlyProp = frameContent.querySelector('.base-only-prop-value');
         const baseOnlyState = frameContent.querySelector('.base-only-state-value');
-        const component = frameContent.querySelector('extends-mixed-decorators') as any;
+        const component = frameContent.querySelector('ts-target-extends-mixed-decorators') as any;
 
         expect(baseOnlyProp?.textContent).toContain('base only prop value');
         expect(baseOnlyState?.textContent).toContain('base only state value');

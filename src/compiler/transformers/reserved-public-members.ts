@@ -5,6 +5,7 @@ import type * as d from '../../declarations';
 
 /**
  * Determine if a public class member collides with a reserved name for HTML elements, nodes, or JSX
+ * @param config the validated Stencil configuration
  * @param diagnostics a collection of compiler diagnostics. If a naming collision is found, a diagnostic detected must
  * be added to this collection
  * @param memberName the name of the class member to check for collision

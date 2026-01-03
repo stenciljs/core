@@ -1,17 +1,18 @@
 import { Component, Element, h, Method, Prop, State } from '@stencil/core';
+
 import { MixedDecoratorsBase } from './mixed-decorators-base.js';
 
 /**
  * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
  *
  * This component:
- * 1. Extends MixedDecoratorsBase (inherits base decorators)
+ * 1. Extends a base class with existing decorators
  * 2. Defines conflicting decorators with same names but different decorator types
  * 3. Verifies runtime behavior when mixed decorator types exist
  * 4. Renders UI showing which decorator type is active (component decorator type should win)
  */
 @Component({
-  tag: 'extends-mixed-decorators',
+  tag: 'ts-target-extends-mixed-decorators',
 })
 export class MixedDecoratorsCmp extends MixedDecoratorsBase {
   @Element() el!: HTMLElement;
@@ -28,6 +29,7 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
 
   /**
    * Method to update mixedName state for testing
+   * @param value new mixedName value
    */
   @Method()
   async updateMixedName(value: string): Promise<void> {
@@ -36,6 +38,7 @@ export class MixedDecoratorsCmp extends MixedDecoratorsBase {
 
   /**
    * Method to update component-only state
+   * @param value new component-only state value
    */
   @Method()
   async updateComponentOnlyState(value: string): Promise<void> {
