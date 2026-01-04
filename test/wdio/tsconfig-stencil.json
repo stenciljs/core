@@ -43,8 +43,8 @@
     // exclude no-external-runtime because they are built separately with `externalRuntime: false`
     "./no-external-runtime/**/*.tsx",
     "./no-external-runtime/**/*.ts",
-     // exclude ts-target because they are built separately with `target: es2022`
-     "./test-ts-target/**/*.tsx",
-     "./test-ts-target/**/*.ts",
+    // exclude ts-target because they are built separately with `target: es2022`
+    "./ts-target/**/*.tsx",
+    "./ts-target/**/*.ts",
   ]
 }

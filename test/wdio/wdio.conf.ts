@@ -1,8 +1,9 @@
 /// <reference types="@wdio/browser-runner" />
 
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = Boolean(process.env.CI);
 
 /**
@@ -48,6 +49,71 @@ export const config: WebdriverIO.Config = {
             '@stencil/core': path.resolve(__dirname, '..', '..', 'internal'),
           },
         },
+        server: {
+          fs: {
+            strict: false,
+            allow: ['..'],
+          },
+          middlewareMode: false,
+        },
+        plugins: [
+          {
+            name: 'fix-js-mime-type',
+            configureServer(server) {
+              // Add middleware to set correct MIME type for .js files
+              // This runs early in the middleware stack to ensure headers are set correctly
+              server.middlewares.use((req, res, next) => {
+                const url = req.url || '';
+                // Check if this is a .js file request (excluding node_modules and Vite's internal files)
+                if (
+                  url.endsWith('.js') &&
+                  !url.includes('node_modules') &&
+                  !url.startsWith('/@') &&
+                  !url.startsWith('/@fs')
+                ) {
+                  // Intercept setHeader to ensure Content-Type is set correctly
+                  const originalSetHeader = res.setHeader.bind(res);
+                  res.setHeader = function (name: string, value: string | string[]) {
+                    if (
+                      name.toLowerCase() === 'content-type' &&
+                      typeof value === 'string' &&
+                      !value.includes('javascript')
+                    ) {
+                      return originalSetHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    }
+                    return originalSetHeader(name, value);
+                  };
+
+                  // Intercept writeHead to ensure Content-Type is set correctly
+                  const originalWriteHead = res.writeHead.bind(res);
+                  res.writeHead = function (statusCode: number, statusMessage?: any, headers?: any) {
+                    if (!headers || typeof headers !== 'object') {
+                      headers = statusMessage || {};
+                      statusMessage = undefined;
+                    }
+                    if (!headers['Content-Type'] && !headers['content-type']) {
+                      headers['Content-Type'] = 'application/javascript; charset=utf-8';
+                    }
+                    if (statusMessage) {
+                      return originalWriteHead(statusCode, statusMessage, headers);
+                    }
+                    return originalWriteHead(statusCode, headers);
+                  };
+
+                  // Intercept end to ensure Content-Type is set before sending response
+                  const originalEnd = res.end.bind(res);
+                  res.end = function (chunk?: any, encoding?: any, cb?: any) {
+                    if (!res.headersSent && !res.getHeader('content-type')) {
+                      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+                    }
+                    return originalEnd(chunk, encoding, cb);
+                  };
+                }
+                next();
+              });
+            },
+          },
+        ],
       },
     },
   ],

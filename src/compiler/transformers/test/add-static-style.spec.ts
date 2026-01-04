@@ -12,6 +12,7 @@ jest.mock('@utils/shadow-css', () => {
 
 import { mockBuildCtx } from '@stencil/core/testing';
 import ts from 'typescript';
+
 import type * as d from '../../../declarations';
 import {
   addStaticStyleGetterWithinClass,
@@ -395,7 +396,7 @@ describe('add-static-style', () => {
       // MyComponentIosStyle0() + MyComponentIosStyle1() + MyComponentIosStyle2()
       expect(ts.isBinaryExpression(result)).toBe(true);
 
-      let binaryExpr = result as ts.BinaryExpression;
+      const binaryExpr = result as ts.BinaryExpression;
       expect(binaryExpr.operatorToken.kind).toBe(ts.SyntaxKind.PlusToken);
       // Check that the right side is also a binary expression (nested)
       let rightBinary = binaryExpr.right;

@@ -4,14 +4,14 @@ import MagicString from 'magic-string';
 import path from 'path';
 
 import type * as d from '../../declarations';
+import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 import { parseStyleDocs } from '../docs/style-docs';
 import { optimizeCss } from '../optimize/optimize-css';
+import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { serializeImportPath } from '../transformers/stencil-import-path';
+import { addTagTransformToCssString } from '../transformers/transform-utils';
 import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
-import { addTagTransformToCssString } from '../transformers/transform-utils';
-import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
-import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
  * A regular expression for matching CSS import statements

@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "node ../../../bin/stencil build --docs",
-    "clean": "rm -rf dist loader www",
+    "clean": "node -e \"const fs=require('fs'); ['dist','loader','www'].forEach(d=>{try{fs.rmSync(d,{recursive:true,force:true})}catch(e){}})\"",
     "start": "node ../../../bin/stencil build --dev --watch --serve"
   },
   "license": "MIT"

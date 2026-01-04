@@ -1,8 +1,8 @@
 import { BUILD } from '@app-data';
+import { CMP_FLAGS } from '@utils/constants';
 import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
 
 import type * as d from '../../declarations';
-import { CMP_FLAGS } from '@utils/constants';
 
 /**
  * Access transformTag via the closure-scoped $stencilTagTransform object.

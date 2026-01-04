@@ -3,9 +3,9 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { addStaticStylePropertyToClass } from '../add-static-style';
 import { transformHostData } from '../host-data-transform';
+import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { updateComponentClass } from '../update-component-class';
-import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { updateLazyComponentConstructor } from './lazy-constructor';
 import { addLazyElementGetter } from './lazy-element-getter';
 
@@ -20,6 +20,7 @@ import { addLazyElementGetter } from './lazy-element-getter';
  * @param classNode the class declaration node
  * @param moduleFile information on the class' home module
  * @param cmp metadata collected during the compilation process
+ * @param buildCtx the current build context for the compilation
  * @returns the updated class
  */
 export const updateLazyComponentClass = (
@@ -42,6 +43,7 @@ export const updateLazyComponentClass = (
  * @param classNode the class declaration node
  * @param moduleFile information on the class' home module
  * @param cmp metadata collected during the compilation process
+ * @param buildCtx the current build context for the compilation
  * @returns the updated class members
  */
 const updateLazyComponentMembers = (

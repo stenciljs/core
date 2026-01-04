@@ -1,17 +1,17 @@
-import ts from 'typescript';
 import { augmentDiagnosticWithNode, buildWarn } from '@utils';
-import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
+import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { tsGetSourceFile, tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
+import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
 import { parseStaticMethods } from './methods';
 import { parseStaticProps } from './props';
+import { parseStaticSerializers } from './serializers';
 import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
-import { parseStaticSerializers } from './serializers';
-
-import type * as d from '../../../declarations';
-import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 
 type DeDupeMember =
   | d.ComponentCompilerProperty
@@ -56,16 +56,16 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
  * 3. Finding the class declaration
  * 4. Adding to dependent classes tree
  *
- * @param compilerCtx
- * @param buildCtx
+ * @param compilerCtx the compiler context used to resolve modules
+ * @param buildCtx the current build context for the compilation
  * @param classDeclaration the current class being analyzed
  * @param currentSource the source file of the current class
  * @param moduleSpecifier the module path to resolve
  * @param className the name of the class to find in the resolved module
  * @param dependentClasses the array to add found classes to
  * @param keepLooking whether to continue recursively looking for more extended classes
- * @param typeChecker
- * @param ogModule
+ * @param typeChecker the TypeScript type checker
+ * @param ogModule the originating module for the component
  * @returns the found class declaration or undefined
  */
 function resolveAndProcessExtendedClass(
@@ -150,7 +150,6 @@ function resolveAndProcessExtendedClass(
 /**
  * A recursive function that walks the AST to find a class declaration.
  * @param node the current AST node
- * @param depth the current depth in the AST
  * @param name optional name of the class to find
  * @returns the found class declaration or undefined
  */
@@ -412,9 +411,9 @@ function buildExtendsTree(
  * to find any extended classes, and then parse the static members of those
  * extended classes to merge them into the current class's metadata.
  *
- * @param compilerCtx
- * @param typeChecker
- * @param buildCtx
+ * @param compilerCtx the compiler context used to resolve modules
+ * @param typeChecker the TypeScript type checker
+ * @param buildCtx the current build context for the compilation
  * @param cmpNode the extending class declaration
  * @param staticMembers the static members of the extending class to merge with the extended class members
  * @param moduleFile the module file of the extending class

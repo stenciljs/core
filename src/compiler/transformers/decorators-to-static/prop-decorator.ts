@@ -20,6 +20,7 @@ import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 /**
  * Parse a collection of class members decorated with `@Prop()`
  *
+ * @param config the validated Stencil configuration
  * @param diagnostics a collection of compiler diagnostics. During the parsing process, any errors detected must be
  * added to this collection
  * @param decoratedProps a collection of class elements that may or may not my class members decorated with `@Prop`.
@@ -29,6 +30,7 @@ import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
  * @param newMembers a collection that parsed `@Prop` annotated class members should be pushed to as a side effect of calling this function
  * @param decoratorName the name of the decorator to look for
  * @param serializers a collection of serializers (from prop > attribute) used on `@Prop` annotated class members
+ * @param deserializers a collection of deserializers (from attribute > prop) used on `@Prop` annotated class members
  */
 export const propDecoratorsToStatic = (
   config: d.ValidatedConfig,
@@ -65,6 +67,7 @@ export const propDecoratorsToStatic = (
 
 /**
  * Parse a single `@Prop` decorator annotated class member
+ * @param config the validated Stencil configuration
  * @param diagnostics a collection of compiler diagnostics. During the parsing process, any errors detected must be
  * added to this collection
  * @param typeChecker a reference to the TypeScript type checker

@@ -16,6 +16,7 @@ import { addTagTransformToCssTsAST, createStaticGetter, getExternalStyles } from
  * @param classMembers a class to existing members of a class. **this parameter will be mutated** rather than returning
  * a cloned version
  * @param cmp the metadata associated with the component being evaluated
+ * @param buildCtx the current build context for the compilation
  */
 export const addStaticStyleGetterWithinClass = (
   classMembers: ts.ClassElement[],
@@ -38,6 +39,7 @@ export const addStaticStyleGetterWithinClass = (
  *
  * @param styleStatements a list of statements containing style assignments to a class
  * @param cmp the metadata associated with the component being evaluated
+ * @param buildCtx the current build context for the compilation
  */
 export const addStaticStylePropertyToClass = (
   styleStatements: ts.Statement[],

@@ -1,6 +1,6 @@
-import { MockTokenList } from '../token-list';
 import { MockDocument } from '../document';
 import { MockElement } from '../node';
+import { MockTokenList } from '../token-list';
 
 describe('token-list', () => {
   let tokenList: MockTokenList;
