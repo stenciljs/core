@@ -13,10 +13,6 @@ export const HYDRATE_FACTORY_INTRO = `
 // const ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
-  var everywhere;
-  try { everywhere = global || globalThis; } 
-  catch (e) { everywhere = window || globalThis; }
-
   var globalThis = $stencilWindow;
   var self = $stencilWindow;
   var top = $stencilWindow;
@@ -42,6 +38,11 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
   var requestIdleCallback = $stencilWindow.requestIdleCallback.bind($stencilWindow);
   var setInterval = $stencilWindow.setInterval.bind($stencilWindow);
   var setTimeout = $stencilWindow.setTimeout.bind($stencilWindow);
+
+  // Tag transform functions are provided from the outer scope
+  // This ensures the factory uses the same instance as the runner
+  var setTagTransformer = $stencilTagTransform.setTagTransformer;
+  var transformTag = $stencilTagTransform.transformTag;
 
   var CharacterData = $stencilWindow.CharacterData;
   var CSS = $stencilWindow.CSS;
