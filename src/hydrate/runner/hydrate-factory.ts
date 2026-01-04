@@ -20,3 +20,10 @@ export function hydrateFactory<DocOptions extends d.SerializeDocumentOptions>(
   afterHydrate;
   resolve;
 }
+
+/**
+ * These are stub exports that will be replaced during compilation with the actual
+ * tag transform functions from the factory bundle.
+ */
+export const setTagTransformer: d.TagTransformer = null as any;
+export const transformTag: <T extends string>(tag: T) => T = null as any;

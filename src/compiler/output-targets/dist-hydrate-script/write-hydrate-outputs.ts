@@ -70,6 +70,47 @@ const writeHydrateOutput = async (
           `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
         );
 
+        /**
+         * Inject the $stencilTagTransform variable definition.
+         * This variable is referenced by the factory closure (HYDRATE_FACTORY_INTRO)
+         * and must be defined at module scope to be accessible within the factory.
+         * We inject it after the tag transform functions are defined/exported.
+         */
+        const tagTransformFunctionPattern = /function (setTagTransformer|transformTag)\(/;
+        const match = code.match(tagTransformFunctionPattern);
+        if (match) {
+          // Find where setTagTransformer and transformTag functions are defined
+          // and inject the $stencilTagTransform variable after them
+          const injectCode = `\n// Tag transform state object for factory closure\nvar $stencilTagTransform = { setTagTransformer: setTagTransformer, transformTag: transformTag };\n`;
+
+          // Find the last occurrence of tag transform function definitions
+          const lastTransformTagIndex = code.lastIndexOf('function transformTag(');
+          const lastSetTagTransformerIndex = code.lastIndexOf('function setTagTransformer(');
+          const injectionPoint = Math.max(lastTransformTagIndex, lastSetTagTransformerIndex);
+
+          if (injectionPoint !== -1) {
+            // Find the end of that function (closing brace)
+            let braceCount = 0;
+            let foundStart = false;
+            let injectionIndex = injectionPoint;
+
+            for (let i = injectionPoint; i < code.length; i++) {
+              if (code[i] === '{') {
+                foundStart = true;
+                braceCount++;
+              } else if (code[i] === '}') {
+                braceCount--;
+                if (foundStart && braceCount === 0) {
+                  injectionIndex = i + 1;
+                  break;
+                }
+              }
+            }
+
+            code = code.slice(0, injectionIndex) + injectCode + code.slice(injectionIndex);
+          }
+        }
+
         if (minify) {
           const optimizeResults = await optimizeModule(config, compilerCtx, {
             input: code,

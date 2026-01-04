@@ -66,8 +66,9 @@ export const generateHydrateApp = async (
         {
           name: 'hydrateAppPlugin',
           resolveId(id) {
-            if (id === STENCIL_HYDRATE_FACTORY_ID) {
-              return id;
+            // Handle both @hydrate-factory (TypeScript alias) and full path
+            if (id === STENCIL_HYDRATE_FACTORY_ID || id === '@hydrate-factory') {
+              return STENCIL_HYDRATE_FACTORY_ID;
             }
             if (id === STENCIL_MOCK_DOC_ID) {
               return mockDoc;

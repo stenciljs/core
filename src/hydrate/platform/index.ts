@@ -4,6 +4,14 @@ import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
 import type * as d from '../../declarations';
 import { CMP_FLAGS } from '@utils/constants';
 
+/**
+ * Access transformTag via the closure-scoped $stencilTagTransform object.
+ * This object is defined in the factory closure (HYDRATE_FACTORY_INTRO).
+ * We declare it here to satisfy TypeScript, but at runtime it will be
+ * provided by the factory closure scope.
+ */
+declare const $stencilTagTransform: { transformTag: (tag: string) => string };
+
 let customError: d.ErrorHandler;
 
 export const cmpModules = new Map<string, { [exportName: string]: d.ComponentConstructor }>();
@@ -47,8 +55,9 @@ export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
   for (const Cstr of Cstrs) {
     // using this format so it follows exactly how client-side modules work
     const exportName = Cstr.cmpMeta.$tagName$;
-    // @ts-expect-error this is due to a workaround to get / set the tagTransform function globally
-    const transformedTagName = everywhere.tagTransform(exportName);
+    // Access transformTag from the closure-scoped $stencilTagTransform object
+    // This ensures we use the same instance as the runner (prevents duplication)
+    const transformedTagName = $stencilTagTransform.transformTag(exportName);
 
     cmpModules.set(exportName, {
       [exportName]: Cstr,
