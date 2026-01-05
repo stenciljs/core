@@ -32,6 +32,18 @@ const visitCallExpressionArgs = (
     if (fnName === 'h' || fnName === H) {
       gatherVdomMeta(m, args);
     }
+  } else if (
+    fnName === 'jsx' ||
+    fnName === 'jsxs' ||
+    fnName === 'jsxDEV' ||
+    fnName === '_jsx' ||
+    fnName === '_jsxs' ||
+    fnName === '_jsxDEV'
+  ) {
+    // Handle jsx-runtime calls (jsx, jsxs, jsxDEV)
+    // These have the same signature as h() for metadata purposes
+    visitCallExpressionArg(m, args[0]);
+    gatherVdomMeta(m, args);
   } else if (args.length > 1 && fnName === 'createElementNS') {
     visitCallExpressionArg(m, args[1]);
   } else if (fnName === 'require' && args.length > 0 && (m as d.Module).originalImports) {
