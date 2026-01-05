@@ -53,8 +53,8 @@ export async function getInternalPlatformHydrateBundles(opts: BuildOptions): Pro
     },
     plugins: [
       externalAlias('@utils/shadow-css', '../client/shadow-css.js'),
-      externalAlias('@app-data', '@stencil/core/internal/app-data'),
-      externalAlias('@app-globals', '@stencil/core/internal/app-globals'),
+      externalAlias('@app-data', '../app-data/index.js'),
+      externalAlias('@app-globals', '../app-globals/index.js'),
     ],
   };
 
@@ -70,7 +70,7 @@ export async function getInternalPlatformHydrateBundles(opts: BuildOptions): Pro
     },
     plugins: [
       externalAlias('@utils/shadow-css', '../client/shadow-css.js'),
-      externalAlias('@app-data', '@stencil/core/internal/app-data'),
+      externalAlias('@app-data', '../app-data/index.js'),
       externalAlias('@hydrate-factory', '@stencil/core/hydrate-factory'),
     ],
   };
