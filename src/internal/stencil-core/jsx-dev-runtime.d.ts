@@ -6,7 +6,8 @@
  * TypeScript will automatically import from this module in development mode.
  */
 
-import type { VNode } from '../stencil-public-runtime';
+import type { VNode, JSXBase } from '../stencil-public-runtime';
+import type { JSX as LocalJSX } from '../stencil-public-runtime';
 
 export { Fragment } from '../stencil-public-runtime';
 
@@ -21,3 +22,20 @@ export function jsxDEV(
   source?: any,
   self?: any,
 ): VNode;
+
+/**
+ * JSX namespace for TypeScript's automatic JSX runtime.
+ * This is required for TypeScript to resolve JSX element types when using
+ * "jsx": "react-jsxdev" with "jsxImportSource": "@stencil/core".
+ */
+export namespace JSX {
+  type BaseElements = LocalJSX.IntrinsicElements & JSXBase.IntrinsicElements;
+
+  export type IntrinsicElements = {
+    [K in keyof BaseElements]: BaseElements[K] & { children?: any };
+  } & {
+    [tagName: string]: any;
+  };
+
+  export type Element = VNode | VNode[] | null;
+}
