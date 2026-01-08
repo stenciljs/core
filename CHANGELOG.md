@@ -1,3 +1,15 @@
+## 🌴 [4.41.1](https://github.com/stenciljs/core/compare/v4.41.0...v4.41.1) (2026-01-08)
+
+
+### Bug Fixes
+
+* **runtime:** fix jsxImportSource Fragment handling ([#6531](https://github.com/stenciljs/core/issues/6531)) ([953346e](https://github.com/stenciljs/core/commit/953346ebb2211dcb1826ee9b4bb1d153c92e6caf))
+* **ssr:** remove global hack to stop duplicate tagTransformer instances ([#6529](https://github.com/stenciljs/core/issues/6529)) ([4bb24de](https://github.com/stenciljs/core/commit/4bb24dee2927491601c7b28f71fa099da52d2128))
+* **types:** add IntrinsicElements to jsximportSource runtime definitions ([#6532](https://github.com/stenciljs/core/issues/6532)) ([0fa0bc8](https://github.com/stenciljs/core/commit/0fa0bc8e56bc6faabd9585e458d9687ea6fcdf44))
+* **types:** FunctionalComponent can return null for jsxImportSource ([#6533](https://github.com/stenciljs/core/issues/6533)) ([82b47b8](https://github.com/stenciljs/core/commit/82b47b8e90b6eeaf916733d2ae05d0908916f9c9))
+
+
+
 # 🏂 [4.41.0](https://github.com/stenciljs/core/compare/v4.40.1...v4.41.0) (2026-01-02)
 
 
