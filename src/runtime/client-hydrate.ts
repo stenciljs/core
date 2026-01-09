@@ -255,7 +255,7 @@ export const initializeClientHydrate = (
     });
   }
 
-  if (BUILD.shadowDom && shadowRoot && !shadowRoot.childNodes.length) {
+  if (BUILD.shadowDom && shadowRoot) {
     // For `scoped` shadowDOM rendering (not DSD);
     // Add all the root nodes in the shadowDOM (a root node can have a whole nested DOM tree)
     let rnIdex = 0;
@@ -270,7 +270,7 @@ export const initializeClientHydrate = (
          *
          *   TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'
          */
-        if (node) {
+        if (node && !node.isConnected) {
           shadowRoot.appendChild(node);
         }
       }
