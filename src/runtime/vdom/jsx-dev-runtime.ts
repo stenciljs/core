@@ -33,18 +33,34 @@ export function jsxDEV(
   _source?: any,
   _self?: any,
 ) {
-  const { children, ...rest } = props;
+  const propsObj = props || {};
+  const { children, ...rest } = propsObj;
 
-  // In development mode, key might be passed separately
-  const vnodeData = key !== undefined ? { ...rest, key } : rest;
+  // Build vnodeData - key from props takes precedence over parameter
+  let vnodeData = rest;
+  if (key !== undefined && !('key' in rest)) {
+    vnodeData = { ...rest, key };
+  }
+
+  // If vnodeData is empty object, use null instead (matches old transform)
+  if (vnodeData && Object.keys(vnodeData).length === 0) {
+    vnodeData = null;
+  }
 
   // Note: source and self are debug info we could potentially use in the future
   // for better developer experience, but for now we ignore them
 
-  // If children is an array, spread it; otherwise pass as single child
-  if (Array.isArray(children)) {
-    return h(type, vnodeData, ...children);
-  } else if (children !== undefined) {
+  if (children !== undefined) {
+    // If children is already an array, spread it
+    if (Array.isArray(children)) {
+      return h(type, vnodeData, ...children);
+    }
+    // If single child is a VNode (has $flags$), pass it directly
+    // Otherwise it gets stringified
+    if (typeof children === 'object' && children !== null && '$flags$' in children) {
+      return h(type, vnodeData, children);
+    }
+    // For primitive values (strings, numbers), pass directly
     return h(type, vnodeData, children);
   }
 

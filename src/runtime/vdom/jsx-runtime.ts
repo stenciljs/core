@@ -25,18 +25,19 @@ export { Fragment } from '../fragment';
 export function jsx(type: any, props: any, key?: string) {
   const propsObj = props || {};
   const { children, ...rest } = propsObj;
-  // Build vnodeData - pass null if no props/key (matches old h() behavior)
+  // Build vnodeData - key from props takes precedence over parameter
   let vnodeData = rest;
-  if (key !== undefined) {
+  if (key !== undefined && !('key' in rest)) {
     vnodeData = { ...rest, key };
   }
+
   // If vnodeData is empty object, use null instead (matches old transform)
   if (vnodeData && Object.keys(vnodeData).length === 0) {
     vnodeData = null;
   }
 
   if (children !== undefined) {
-    // If children is array, spread it
+    // If children is already an array, spread it
     if (Array.isArray(children)) {
       return h(type, vnodeData, ...children);
     }

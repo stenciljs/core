@@ -44,6 +44,10 @@ const visitCallExpressionArgs = (
     // These have the same signature as h() for metadata purposes
     visitCallExpressionArg(m, args[0]);
     gatherVdomMeta(m, args);
+    // TypeScript's jsx transform passes key as the 3rd argument
+    if (args.length > 2 && args[2]) {
+      m.hasVdomKey = true;
+    }
   } else if (args.length > 1 && fnName === 'createElementNS') {
     visitCallExpressionArg(m, args[1]);
   } else if (fnName === 'require' && args.length > 0 && (m as d.Module).originalImports) {
