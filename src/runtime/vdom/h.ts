@@ -116,7 +116,8 @@ export const newVNode = (tag: string, text: string) => {
   const vnode: d.VNode = {
     $flags$: 0,
     $tag$: tag,
-    $text$: text,
+    // Normalize undefined to null to prevent rendering "undefined" as text
+    $text$: text ?? null,
     $elm$: null,
     $children$: null,
   };

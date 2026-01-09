@@ -9,7 +9,7 @@ import type * as d from '../../declarations';
  * messages
  */
 export const initNodeWorkerThread = (process: NodeJS.Process, msgHandler: d.WorkerMsgHandler) => {
-  const sendHandle = (err: NodeJS.ErrnoException) => {
+  const sendHandle: any = (err: NodeJS.ErrnoException) => {
     if (err && err.code === 'ERR_IPC_CHANNEL_CLOSED') {
       process.exit(0);
     }

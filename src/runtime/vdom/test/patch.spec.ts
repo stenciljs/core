@@ -861,4 +861,9 @@ describe('renderer', () => {
     }
     return ret;
   }
+
+  it('should normalize undefined $text$ to null in newVNode', () => {
+    const vnode = newVNode(null, undefined as any);
+    expect(vnode.$text$).toBe(null);
+  });
 });
