@@ -270,7 +270,7 @@ export const initializeClientHydrate = (
          *
          *   TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'
          */
-        if (node) {
+        if (node && !node.isConnected) {
           shadowRoot.appendChild(node);
         }
       }
