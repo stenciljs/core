@@ -463,7 +463,7 @@ export class MockWindow {
       this.__timeouts = new Set();
     }
 
-    ms = Math.min(ms, this.__maxTimeout);
+    ms = Math.min(ms ?? 0, this.__maxTimeout);
 
     if (this.__allowInterval) {
       const intervalId = this.__setInterval(() => {
@@ -521,7 +521,7 @@ export class MockWindow {
       this.__timeouts = new Set();
     }
 
-    ms = Math.min(ms, this.__maxTimeout);
+    ms = Math.min(ms ?? 0, this.__maxTimeout);
 
     const timeoutId = this.__setTimeout.call(
       nativeWindow || this,
