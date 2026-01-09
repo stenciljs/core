@@ -86,7 +86,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     if (BUILD.vdomAttribute) {
       updateElement(null, newVNode, isSvgMode);
     }
-  } else if (newVNode.$tag$) {
+  } else {
     // Only create element if we have a valid tag name
     if (BUILD.svg && !isSvgMode) {
       isSvgMode = newVNode.$tag$ === 'svg';
