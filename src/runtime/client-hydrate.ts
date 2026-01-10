@@ -123,7 +123,7 @@ export const initializeClientHydrate = (
         const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
 
         if (styleSheet) {
-          hostElm.shadowRoot.append(styleSheet.cloneNode(true));
+          shadowRootNodes.unshift(styleSheet.cloneNode(true) as d.RenderNode);
         }
       }
     }
@@ -255,7 +255,7 @@ export const initializeClientHydrate = (
     });
   }
 
-  if (BUILD.shadowDom && shadowRoot) {
+  if (BUILD.shadowDom && shadowRoot && !shadowRoot.childNodes.length) {
     // For `scoped` shadowDOM rendering (not DSD);
     // Add all the root nodes in the shadowDOM (a root node can have a whole nested DOM tree)
     let rnIdex = 0;
