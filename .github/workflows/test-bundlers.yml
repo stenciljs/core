@@ -13,22 +13,72 @@ jobs:
     name: Verify Bundlers
     runs-on: 'ubuntu-22.04'
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Get Core Dependencies
+      - name: 🕸️ Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
+      - name: 📥 Download Build Archive
         uses: ./.github/workflows/actions/download-archive
         with:
           name: stencil-core
           path: .
           filename: stencil-core-build.zip
 
-      - name: Bundler Tests
-        run: npm run test.bundlers
+      - name: 🧲 Install Puppeteer and Download Chrome
         shell: bash
+        run: |
+          # Reinstall the full puppeteer package to ensure its CLI and dependencies
+          # are properly installed (sometimes npm ci doesn't install peer deps correctly in CI)
+          npm install --no-save puppeteer
+          # Download the Chrome binary
+          npx puppeteer browsers install chrome
 
-      - name: Check Git Context
+      - name: 🧱 Build bundler fixtures (component-lib + Vite app)
+        shell: bash
+        run: |
+          cd test/bundler
+          npm run build.component-lib
+          npm run build.vite
+
+      # Compile the TS bundler spec to JS to avoid installing ts-jest in CI
+      - name: 🛠️ Compile bundler spec to JS
+        shell: bash
+        run: |
+          cd test/bundler
+          cat > tsconfig.test.json << 'EOF'
+          {
+            "compilerOptions": {
+              "module": "commonjs",
+              "target": "ES2020",
+              "lib": ["ES2020", "DOM"],
+              "esModuleInterop": true,
+              "skipLibCheck": true,
+              "moduleResolution": "node",
+              "outDir": "./dist-spec"
+            },
+            "include": [
+              "vite-bundle-test/vite-bundle.spec.ts"
+            ]
+          }
+          EOF
+          npx tsc -p tsconfig.test.json
+
+      - name: 🧪 Bundler Tests
+        shell: bash
+        run: |
+          cd test/bundler
+          # Create a minimal Jest config that does not use ts-jest
+          cat > jest.config.ci.js << 'EOF'
+          module.exports = {
+            testEnvironment: 'node',
+            testMatch: ['<rootDir>/dist-spec/vite-bundle.spec.js'],
+            testTimeout: 30000,
+          };
+          EOF
+          # Run Jest from repo root against compiled JS using CI config
+          node ../../node_modules/jest/bin/jest.js --config=jest.config.ci.js
+
+      - name: 🔍 Check Git Context
         uses: ./.github/workflows/actions/check-git-context

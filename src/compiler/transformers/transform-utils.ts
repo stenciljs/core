@@ -1,17 +1,17 @@
 import { normalizePath } from '@utils';
-import ts from 'typescript';
-
-import type * as d from '../../declarations';
-import { updateLazyComponentConstructor } from './component-lazy/lazy-constructor';
-import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
-import { removeStaticMetaProperties } from './remove-static-meta-properties';
-import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
-import { updateComponentClass } from './update-component-class';
 import postcss from 'postcss';
 // @ts-expect-error - including `@types` for postcss-safe-parser breaks Stencil's type build
 import postcssSafeParser from 'postcss-safe-parser';
 import postcssSelectorParser from 'postcss-selector-parser';
+import ts from 'typescript';
+
+import type * as d from '../../declarations';
+import { updateLazyComponentConstructor } from './component-lazy/lazy-constructor';
 import { TRANSFORM_TAG } from './core-runtime-apis';
+import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
+import { removeStaticMetaProperties } from './remove-static-meta-properties';
+import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
+import { updateComponentClass } from './update-component-class';
 
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup
@@ -390,6 +390,11 @@ export const objectLiteralToObjectMap = (
 /**
  * Resolves a resolveVar() call within an object literal.
  * This is a simplified version that handles the same cases as resolveVariableValue in decorator-utils.
+ * @param node the AST expression to resolve
+ * @param typeChecker the TypeScript type checker
+ * @param _diagnostics diagnostics placeholder (unused)
+ * @param _errorNode error node placeholder (unused)
+ * @returns the resolved string literal value
  */
 const resolveVarInObjectLiteral = (
   node: ts.Expression,

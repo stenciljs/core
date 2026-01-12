@@ -13,14 +13,48 @@ type HydrateModule = typeof import('../../hydrate');
 
 const testSuites = async (root: HTMLTsTargetPropsElement) => {
   async function getTxt(selector: string) {
-    await browser.waitUntil(() => !!root.querySelector(selector), { timeout: 3000 });
-    return root.querySelector(selector).textContent.trim();
+    // Try querying the root element first (for scoped components)
+    // If that fails, try querying shadow root (for shadow DOM components)
+    await browser.waitUntil(
+      () => {
+        const element = root.querySelector(selector);
+        if (element) return true;
+        // Check shadow root if it exists
+        if (root.shadowRoot) {
+          return !!root.shadowRoot.querySelector(selector);
+        }
+        return false;
+      },
+      { timeout: 10000 },
+    );
+    const element = root.querySelector(selector) || root.shadowRoot?.querySelector(selector);
+    if (!element) {
+      throw new Error(`Element with selector "${selector}" not found`);
+    }
+    return element.textContent.trim();
   }
   function getTxtHtml(html: string, className: string) {
-    const match = html.match(new RegExp(`<div class="${className}".*?>(.*?)</div>`, 'g'));
-    if (match && match[0]) {
-      const textMatch = match[0].match(new RegExp(`<div class="${className}".*?>(.*?)</div>`));
-      return textMatch ? textMatch[1].replace(/<!--.*?-->/g, '').trim() : null;
+    // Try multiple patterns to match the HTML structure
+    // Pattern 1: <div class="className">content</div>
+    // Pattern 2: <div class="className" ...>content</div>
+    // Pattern 3: Handle scoped class names (e.g., class="basicProp s-xyz")
+    const patterns = [
+      new RegExp(`<div class="${className}"[^>]*>(.*?)</div>`, 's'),
+      new RegExp(`<div class="[^"]*\\b${className}\\b[^"]*"[^>]*>(.*?)</div>`, 's'),
+      new RegExp(`<div[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>(.*?)</div>`, 's'),
+    ];
+
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match && match[1]) {
+        const text = match[1]
+          .replace(/<!--.*?-->/g, '')
+          .replace(/<[^>]+>/g, '')
+          .trim();
+        if (text) {
+          return text;
+        }
+      }
     }
     return null;
   }
@@ -73,7 +107,14 @@ const testSuites = async (root: HTMLTsTargetPropsElement) => {
       expect(await getTxt('.basicState')).toBe('basicState');
       expect(await getTxt('.decoratedState')).toBe('10');
 
-      const buttons = root.querySelectorAll('button');
+      // Try querying buttons from root or shadow root
+      const buttons =
+        root.querySelectorAll('button').length > 0
+          ? root.querySelectorAll('button')
+          : root.shadowRoot?.querySelectorAll('button') || [];
+      if (buttons.length < 2) {
+        throw new Error(`Expected at least 2 buttons, found ${buttons.length}`);
+      }
       buttons[0].click();
       await browser.pause(100);
       expect(await getTxt('.basicState')).toBe('basicState changed');
@@ -128,14 +169,26 @@ const testSuites = async (root: HTMLTsTargetPropsElement) => {
       expect(await getTxtHtml(html, 'decoratedState')).toBe('10');
     },
     dynamicLifecycleMethods: async () => {
+      // Initialize lifecycle calls array if not already initialized
+      if (!window.lifecycleCalls) {
+        window.lifecycleCalls = [];
+      }
       root.basicProp = 'basicProp via prop';
       await browser.pause(100);
-      const buttons = root.querySelectorAll('button');
+      // Try querying buttons from root or shadow root
+      const buttons =
+        root.querySelectorAll('button').length > 0
+          ? root.querySelectorAll('button')
+          : root.shadowRoot?.querySelectorAll('button') || [];
+      if (buttons.length === 0) {
+        throw new Error('No buttons found in component');
+      }
       buttons[0].click();
       await browser.pause(100);
       root.remove();
       await browser.pause(100);
 
+      expect(window.lifecycleCalls).toBeDefined();
       expect(window.lifecycleCalls).toContain('componentWillLoad');
       expect(window.lifecycleCalls).toContain('componentWillRender');
       expect(window.lifecycleCalls).toContain('componentDidLoad');

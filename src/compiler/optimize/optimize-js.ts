@@ -1,6 +1,6 @@
 import { catchError } from '@utils';
 
-import { ValidatedConfig, OptimizeJsInput, OptimizeJsOutput } from '../../declarations';
+import { OptimizeJsInput, OptimizeJsOutput, ValidatedConfig } from '../../declarations';
 import { minifyJs } from './minify-js';
 import { getTerserOptions } from './optimize-module';
 

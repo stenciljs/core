@@ -4,9 +4,9 @@ import type * as d from '../../../declarations';
 import { updateLazyComponentConstructor } from '../component-lazy/lazy-constructor';
 import { addLazyElementGetter } from '../component-lazy/lazy-element-getter';
 import { transformHostData } from '../host-data-transform';
+import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { retrieveModifierLike } from '../transform-utils';
-import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { addHydrateRuntimeCmpMeta } from './hydrate-runtime-cmp-meta';
 
 export const updateHydrateComponentClass = (

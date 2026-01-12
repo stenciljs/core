@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   build_core:
-    name: 🏗️ Build
+    name: Build
     uses: ./.github/workflows/build.yml
 
   get-dev-version:
-    name: 🔍 Get Dev Build Version
+    name: Get Dev Build Version
     needs: [build_core]
     runs-on: ubuntu-22.04
     outputs:
@@ -54,7 +54,7 @@ jobs:
         shell: bash
 
   release-stencil-dev-build:
-    name: 🚀 Publish Dev Build
+    name: Publish Dev Build
     needs: [get-dev-version, build_core]
     uses: ./.github/workflows/publish-npm.yml
     with:

@@ -15,6 +15,7 @@ import {
 } from '../../bundle/entry-alias-ids';
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
@@ -24,7 +25,6 @@ import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
 import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
-import { addTagTransform } from '../../transformers/add-tag-transform';
 
 export const outputLazy = async (
   config: d.ValidatedConfig,
@@ -105,6 +105,7 @@ export const outputLazy = async (
  #
  * @param config the Stencil configuration associated with the current build
  * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context for the compilation
  * @returns a collection of transformations that should be applied to the source code, intended for the `before` part
  * of the pipeline
  */

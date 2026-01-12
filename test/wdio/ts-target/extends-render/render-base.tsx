@@ -14,6 +14,7 @@ export class RenderBase {
    * - Template structure with slots
    * - CSS classes
    * - Base content
+   * @returns the rendered JSX content
    */
   render() {
     return (

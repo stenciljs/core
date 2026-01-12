@@ -5,9 +5,9 @@ import type * as d from '../../../declarations';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_HYDRATE_ID } from '../../bundle/entry-alias-ids';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
-import { addTagTransform } from '../../transformers/add-tag-transform';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
@@ -61,6 +61,7 @@ export const bundleHydrateFactory = async (
  #
  * @param config the Stencil configuration associated with the current build
  * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context for the compilation
  * @returns a collection of transformations that should be applied to the source code, intended for the `before` part
  * of the pipeline
  */

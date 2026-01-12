@@ -1,4 +1,5 @@
 import { Component, h, State } from '@stencil/core';
+
 import { RenderBase } from './render-base.js';
 
 /**
@@ -26,6 +27,7 @@ export class RenderCmp extends RenderBase {
   /**
    * Render method that composes parent template with child content
    * Uses super.render() to include base template, then wraps it with additional structure
+   * @returns the rendered JSX content
    */
   render() {
     // Compose parent template (via super.render()) with additional wrapper and content

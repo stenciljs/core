@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "build": "run-s build.no-external-runtime build.test-sibling build.main build.global-script build.prerender build.invisible-prehydration build.es2022",
-    "build.main": "node ../../bin/stencil build --debug --es5 && cp src/components.d.ts dist/components.d.ts",
+    "build.main": "node ../../bin/stencil build --debug --es5 && npm run copy.components.dts",
+    "copy.components.dts": "node -e \"const fs=require('fs'); fs.copyFileSync('src/components.d.ts','dist/components.d.ts');\"",
     "build.es2022": "node ../../bin/stencil build --debug --config stencil.config-es2022.ts",
     "build.global-script": "node ../../bin/stencil build --debug --es5 --config global-script.stencil.config.ts",
     "build.test-sibling": "cd test-sibling && npm run build",
@@ -18,7 +19,7 @@
   "devDependencies": {
     "@stencil/core": "file:../..",
     "@stencil/sass": "^3.0.12",
-    "@types/node": "^16.11.7",
+    "@types/node": "^25.0.3",
     "@wdio/browser-runner": "^9.6.0",
     "@wdio/cli": "^9.6.0",
     "@wdio/globals": "^9.6.0",

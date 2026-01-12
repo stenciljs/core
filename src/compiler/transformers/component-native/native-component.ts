@@ -4,10 +4,10 @@ import ts from 'typescript';
 import type * as d from '../../../declarations';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
 import { transformHostData } from '../host-data-transform';
+import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { foundSuper, updateConstructor } from '../transform-utils';
 import { updateComponentClass } from '../update-component-class';
-import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { addNativeConnectedCallback } from './native-connected-callback';
 import { updateNativeConstructor } from './native-constructor';
 import { addNativeElementGetter } from './native-element-getter';
@@ -23,13 +23,11 @@ import { addNativeStaticStyle } from './native-static-style';
  * it has a constructor, adding a `connectedCallback` method, and a few things
  * that are Stencil-specific implementation details.
  *
- * @param transformOpts options governing how Stencil components should be
- * transformed
+ * @param transformOpts options governing how Stencil components should be transformed
  * @param classNode the class to transform
  * @param moduleFile information about the class' home module
  * @param cmp metadata about the stencil component of interest
- * @param compilerCtx the compiler context
- * @param tsSourceFile the TypeScript source file containing the class
+ * @param buildCtx the current build context for the compilation
  * @returns an updated class
  */
 export const updateNativeComponentClass = (
@@ -126,13 +124,11 @@ const updateNativeHostComponentHeritageClauses = (
  * `connectedCallback` method, implementing the `@Element` decorator, and
  * adding static values for watchers.
  *
- * @param transformOpts options governing how Stencil components should be
- * transformed
+ * @param transformOpts options governing how Stencil components should be transformed
  * @param classNode the class to transform
  * @param moduleFile information about the class' home module
  * @param cmp metadata about the stencil component of interest
- * @param compilerCtx the compiler context
- * @param tsSourceFile the TypeScript source file containing the class
+ * @param buildCtx the current build context for the compilation
  * @returns an updated list of class elements
  */
 const updateNativeHostComponentMembers = (

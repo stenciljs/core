@@ -1,7 +1,7 @@
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import * as util from '@utils';
-
 import { getTextDocs } from '@utils';
+
 import type * as d from '../../declarations';
 import { stubDiagnostic } from '../../dev-server/test/Diagnostic.stub';
 
