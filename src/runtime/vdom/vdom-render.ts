@@ -72,7 +72,8 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     );
   }
 
-  if (BUILD.vdomText && newVNode.$text$ !== null) {
+  // Use loose equality to handle both null and undefined
+  if (BUILD.vdomText && newVNode.$text$ != null) {
     // create text node
     elm = newVNode.$elm$ = win.document.createTextNode(newVNode.$text$) as any;
   } else if (BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotReference) {
@@ -86,6 +87,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       updateElement(null, newVNode, isSvgMode);
     }
   } else {
+    // Only create element if we have a valid tag name
     if (BUILD.svg && !isSvgMode) {
       isSvgMode = newVNode.$tag$ === 'svg';
     }
@@ -698,7 +700,8 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
   const text = newVNode.$text$;
   let defaultHolder: Comment;
 
-  if (!BUILD.vdomText || text === null) {
+  // Use loose equality to handle both null and undefined
+  if (!BUILD.vdomText || text == null) {
     if (BUILD.svg) {
       // test if we're rendering an svg element, or still rendering nodes inside of one
       // only add this to the when the compiler sees we're using an svg somewhere
@@ -893,6 +896,7 @@ export const nullifyVNodeRefs = (vNode: d.VNode) => {
  * @param parent parent node
  * @param newNode element to be inserted
  * @param reference anchor element
+ * @param isInitialLoad whether or not this is the first render
  * @returns inserted node
  */
 export const insertBefore = (
