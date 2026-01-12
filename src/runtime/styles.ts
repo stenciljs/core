@@ -75,16 +75,16 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       }
 
       // Check if style element already exists (for HMR updates)
-      const existingStyleElm =
+      const existingStyleElm: HTMLStyleElement =
         (BUILD.hydrateClientSide || BUILD.hotModuleReplacement) &&
         styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
 
       if (existingStyleElm) {
         // Update existing style element (for hydration or HMR)
-        existingStyleElm.innerHTML = style;
+        existingStyleElm.textContent = style;
       } else if (!appliedStyles.has(scopeId)) {
         styleElm = win.document.createElement('style');
-        styleElm.innerHTML = style;
+        styleElm.textContent = style;
 
         // Apply CSP nonce to the style tag if it exists
         const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(win.document);
@@ -155,9 +155,9 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                * Note: order of how styles are applied is important. The new style node
                * should be inserted before the existing style node.
                */
-              const existingStyleContainer = styleContainerNode.querySelector('style');
+              const existingStyleContainer: HTMLStyleElement = styleContainerNode.querySelector('style');
               if (existingStyleContainer) {
-                existingStyleContainer.innerHTML = style + existingStyleContainer.innerHTML;
+                existingStyleContainer.textContent = style + existingStyleContainer.textContent;
               } else {
                 (styleContainerNode as HTMLElement).prepend(styleElm);
               }
@@ -176,7 +176,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
 
         // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
         if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-          styleElm.innerHTML += SLOT_FB_CSS;
+          styleElm.textContent += SLOT_FB_CSS;
         }
 
         if (appliedStyles) {
