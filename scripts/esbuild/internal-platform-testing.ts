@@ -28,6 +28,11 @@ export async function getInternalTestingBundle(opts: BuildOptions): Promise<ESBu
     main: 'index.js',
   });
 
+  // Copy JSX runtime files for automatic JSX transform support
+  const srcJsxDir = join(opts.srcDir, 'internal', 'testing');
+  const jsxFiles = ['jsx-runtime.js', 'jsx-runtime.d.ts', 'jsx-dev-runtime.js', 'jsx-dev-runtime.d.ts'];
+  await Promise.all(jsxFiles.map((file) => fs.copyFile(join(srcJsxDir, file), join(outputTestingPlatformDir, file))));
+
   const internalTestingAliases = {
     ...getEsbuildAliases(),
     '@platform': inputTestingPlatform,
