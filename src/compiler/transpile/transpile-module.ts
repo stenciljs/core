@@ -69,11 +69,16 @@ export const transpileModule = (
     tsCompilerOptions.jsx = ts.JsxEmit.React;
   }
 
-  if (tsCompilerOptions.jsx != null && !isString(tsCompilerOptions.jsxFactory)) {
+  // Only set jsxFactory and jsxFragmentFactory for classic React mode
+  // For ReactJSX and ReactJSXDev modes (automatic runtime), these should not be set
+  const isAutomaticRuntime =
+    tsCompilerOptions.jsx === ts.JsxEmit.ReactJSX || tsCompilerOptions.jsx === ts.JsxEmit.ReactJSXDev;
+
+  if (tsCompilerOptions.jsx != null && !isAutomaticRuntime && !isString(tsCompilerOptions.jsxFactory)) {
     tsCompilerOptions.jsxFactory = 'h';
   }
 
-  if (tsCompilerOptions.jsx != null && !isString(tsCompilerOptions.jsxFragmentFactory)) {
+  if (tsCompilerOptions.jsx != null && !isAutomaticRuntime && !isString(tsCompilerOptions.jsxFragmentFactory)) {
     tsCompilerOptions.jsxFragmentFactory = 'Fragment';
   }
 
