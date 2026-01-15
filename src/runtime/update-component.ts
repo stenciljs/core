@@ -1,8 +1,8 @@
 import { BUILD, NAMESPACE } from '@app-data';
 import { Build, consoleError, getHostRef, nextTick, plt, win, writeTask } from '@platform';
-import { CMP_FLAGS, HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { emitEvent } from './event-emitter';
 import { createTime } from './profile';
 import { PLATFORM_FLAGS } from './runtime-constants';

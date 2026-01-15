@@ -1,6 +1,7 @@
 import { BUILD } from '@app-data';
 import { getHostRef, win } from '@platform';
-import { HOST_FLAGS } from '@utils';
+
+import { HOST_FLAGS } from '../utils/constants';
 
 let i = 0;
 

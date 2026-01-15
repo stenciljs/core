@@ -1,5 +1,8 @@
 import { BUILD } from '@app-data';
-import { deserializeProperty, isComplexType, MEMBER_FLAGS, SERIALIZED_PREFIX } from '@utils';
+
+import { MEMBER_FLAGS, SERIALIZED_PREFIX } from '../utils/constants';
+import { isComplexType } from '../utils/helpers';
+import { deserializeProperty } from '../utils/serialize';
 
 /**
  * Parse a new property value for a given property type.

@@ -28,7 +28,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'www',
-      empty: false,
       serviceWorker: null,
     },
     {
@@ -57,7 +56,6 @@ export const config: Config = {
     foo: 'bar',
     HOST: 'example.com',
   },
-  enableCache: false,
   hashFileNames: false,
   buildEs5: 'prod',
   sourceMap: true,

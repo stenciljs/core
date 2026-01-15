@@ -126,6 +126,7 @@
     "spellcheck.markdown": "cspell --config cspell-markdown.json --no-progress \"*.md\" \"**/*.md\"",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
     "test.analysis": "cd test && npm run analysis.build-and-analyze",
+    "test.bundle-size": "cd test/bundle-size && npm test",
     "test.bundlers": "cd test && npm run bundlers",
     "test.copytask": "cd test/copy-task && npm ci && npm run test",
     "test.dist": "npm run ts scripts/index.ts -- --validate-build",

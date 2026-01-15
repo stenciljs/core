@@ -1,8 +1,8 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, consoleError, getHostRef } from '@platform';
-import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 

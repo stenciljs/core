@@ -41,5 +41,9 @@ jobs:
         run: npm run test.analysis
         shell: bash
 
+      - name: Bundle Size Test
+        run: npm run test.bundle-size
+        shell: bash
+
       - name: Check Git Context
         uses: ./.github/workflows/actions/check-git-context
