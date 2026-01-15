@@ -54,6 +54,16 @@
       "import": "./internal/testing/index.js",
       "require": "./internal/testing/index.js"
     },
+    "./internal/testing/jsx-runtime": {
+      "types": "./internal/testing/jsx-runtime.d.ts",
+      "import": "./internal/testing/jsx-runtime.js",
+      "require": "./internal/testing/jsx-runtime.js"
+    },
+    "./internal/testing/jsx-dev-runtime": {
+      "types": "./internal/testing/jsx-dev-runtime.d.ts",
+      "import": "./internal/testing/jsx-dev-runtime.js",
+      "require": "./internal/testing/jsx-dev-runtime.js"
+    },
     "./internal/testing/*": {
       "import": "./internal/testing/*"
     },

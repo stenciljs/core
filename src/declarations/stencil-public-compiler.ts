@@ -3052,6 +3052,16 @@ export interface TranspileOptions {
    */
   paths?: { [key: string]: string[] };
   /**
+   * JSX mode for TypeScript compilation. Can be 'react', 'react-jsx', 'react-jsxdev', etc.
+   * Same as the `jsx` TypeScript compiler option.
+   */
+  jsx?: number;
+  /**
+   * Module specifier for JSX factory. Used with automatic JSX runtime.
+   * Same as the `jsxImportSource` TypeScript compiler option.
+   */
+  jsxImportSource?: string;
+  /**
    * Passed in Stencil Compiler System, otherwise falls back to the internal in-memory only system.
    */
   sys?: CompilerSystem;

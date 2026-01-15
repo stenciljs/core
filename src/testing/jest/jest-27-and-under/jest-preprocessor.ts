@@ -91,6 +91,14 @@ export const jestPreprocessor = {
         if (tsCompilerOptions.paths) {
           opts.paths = tsCompilerOptions.paths;
         }
+        if (tsCompilerOptions.jsx !== undefined) {
+          opts.jsx = tsCompilerOptions.jsx;
+        }
+        // Override jsxImportSource to use internal/testing for Jest tests
+        // This ensures TypeScript emits imports from the testing bundle instead of jsx-runtime
+        if (tsCompilerOptions.jsxImportSource) {
+          opts.jsxImportSource = '@stencil/core/internal/testing';
+        }
       }
 
       const results = transpile(sourceText, opts);
