@@ -1,8 +1,8 @@
 import { BUILD } from '@app-data';
 import { addHostEventListeners, getHostRef, nextTick, plt, supportsShadow, win } from '@platform';
-import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
 import { initializeClientHydrate } from './client-hydrate';
 import { fireConnectedCallback, initializeComponent } from './initialize-component';
 import { createTime } from './profile';

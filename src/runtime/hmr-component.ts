@@ -1,7 +1,7 @@
 import { getHostRef } from '@platform';
-import { HOST_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
 
 /**

@@ -9,7 +9,7 @@
 
 import { BUILD } from '@app-data';
 import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
-import { isComplexType } from '@utils';
+import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
 

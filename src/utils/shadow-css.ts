@@ -123,9 +123,6 @@ const createSupportsRuleRe = (selector: string) => {
     'g',
   );
 };
-const _colonSlottedRe = createSupportsRuleRe('::slotted');
-const _colonHostRe = createSupportsRuleRe(':host');
-const _colonHostContextRe = createSupportsRuleRe(':host-context');
 
 const _commentRe = /\/\*\s*[\s\S]*?\*\//g;
 
@@ -251,6 +248,10 @@ const insertPolyfillHostInCssText = (cssText: string) => {
     supportsBlocks.push(selectorContent);
     return `@supports selector(${placeholder})`;
   });
+
+  const _colonSlottedRe = createSupportsRuleRe('::slotted');
+  const _colonHostRe = createSupportsRuleRe(':host');
+  const _colonHostContextRe = createSupportsRuleRe(':host-context');
 
   // These replacements use a special syntax with the `$1`. When the replacement
   // occurs, `$1` maps to the content of the string leading up to the selector

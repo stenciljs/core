@@ -1,9 +1,8 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from '@platform';
-import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
-import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
+import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
 

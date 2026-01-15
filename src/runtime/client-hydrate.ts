@@ -1,8 +1,8 @@
 import { BUILD } from '@app-data';
 import { getHostRef, plt, transformTag, win } from '@platform';
-import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS } from '../utils/constants';
 import { internalCall, patchSlottedNode } from './dom-extras';
 import { createTime } from './profile';
 import {

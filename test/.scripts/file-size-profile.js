@@ -19,17 +19,33 @@ module.exports = function fileSizeProfile(appName, buildDir, output) {
   totalGzip = 0;
   totalMinify = 0;
 
+  const processedFiles = new Map(); // Track unique file paths
+
   const buildFiles = fs
     .readdirSync(buildDir)
+    .filter((f) => {
+      const fullPath = path.join(buildDir, f);
+      return fs.statSync(fullPath).isFile();
+    })
     .filter((f) => !f.includes('system'))
     .filter((f) => !f.includes('css-shim'))
     .filter((f) => !f.includes('dom'))
     .filter((f) => !f.includes('shadow-css'))
+    .filter((f) => !f.endsWith('.map') && !f.endsWith('.map.js'))
+    .filter((f) => !f.endsWith('.system.js'))
     .filter((f) => f !== 'svg')
     .filter((f) => f !== 'swiper');
 
   buildFiles.forEach((buildFile) => {
-    const o = getBuildFileSize(path.join(buildDir, buildFile));
+    const fullPath = path.join(buildDir, buildFile);
+    const realPath = fs.realpathSync(fullPath); // Resolve symlinks
+
+    if (processedFiles.has(realPath)) {
+      return; // Skip already processed files
+    }
+
+    processedFiles.set(realPath, true);
+    const o = getBuildFileSize(fullPath);
     if (o) {
       output.push(o);
     }
@@ -83,11 +99,14 @@ function getBuildFileSize(filePath) {
 }
 
 function render(fileName, brotliSize, gzipSize, minifiedSize) {
-  if (fileName.includes('-') && !fileName.includes('entry')) {
-    const dotSplt = fileName.split('.');
-    const dashSplt = dotSplt[0].split('-');
-    dashSplt[dashSplt.length - 1] = 'hash';
-    fileName = dashSplt.join('-') + '.' + dotSplt[1];
+  if (!fileName.includes('entry')) {
+    // Replace hash-like patterns (6+ alphanumeric characters, often with underscores/mixed case)
+    // Matches patterns like: BKTJo, BzdVKK6O, 3yrFD0, Cc5x6M82, pv_ODqr_, BtC, DfQ_W
+    fileName = fileName.replace(/-[A-Za-z0-9_]{4,}(?=[-.]|$)/g, '-hash');
+
+    // Clean up edge cases where hash appears at the start after period
+    // e.g., "hash.transition-BzdVKK6O" -> "hash.transition-hash"
+    fileName = fileName.replace(/\.(transition|bundle)-[A-Za-z0-9_]{4,}($|\.)/g, '.$1-hash$2');
   }
   return `| ${fileName.padEnd(40)} | ${getFileSize(brotliSize).padEnd(8)} | ${getFileSize(gzipSize).padEnd(
     8,

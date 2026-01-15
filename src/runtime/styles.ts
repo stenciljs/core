@@ -7,9 +7,10 @@ import {
   supportsShadow,
   win,
 } from '@platform';
-import { CMP_FLAGS, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS } from '../utils/constants';
+import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
 import { createTime } from './profile';
 import { HYDRATED_STYLE_ID, NODE_TYPE, SLOT_FB_CSS } from './runtime-constants';
 

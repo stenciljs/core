@@ -8,9 +8,10 @@ import {
   supportsShadow,
   transformTag,
 } from '@platform';
-import { CMP_FLAGS, createShadowRoot } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS } from '../utils/constants';
+import { createShadowRoot } from '../utils/shadow-root';
 import { connectedCallback } from './connected-callback';
 import { disconnectedCallback } from './disconnected-callback';
 import {

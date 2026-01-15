@@ -8,7 +8,8 @@
  */
 import { BUILD } from '@app-data';
 import { consoleDevError, plt, supportsShadow, win } from '@platform';
-import { CMP_FLAGS, HTML_NS, isDef, NODE_TYPES, SVG_NS } from '@utils';
+import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
+import { isDef } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
 import { patchParentNode } from '../dom-extras';
@@ -93,10 +94,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     }
 
     if (!win.document) {
-      throw new Error(
-        "You are trying to render a Stencil component in an environment that doesn't support the DOM. " +
-          'Make sure to populate the [`window`](https://developer.mozilla.org/en-US/docs/Web/API/Window/window) object before rendering a component.',
-      );
+      throw new Error("You are trying to render a Stencil component in an environment that doesn't support the DOM.");
     }
 
     // create element
@@ -905,23 +903,26 @@ export const insertBefore = (
   reference?: d.RenderNode | d.PatchedSlotNode,
   isInitialLoad?: boolean,
 ): Node => {
-  if (BUILD.scoped && typeof newNode['s-sn'] === 'string' && !!newNode['s-sr'] && !!newNode['s-cr']) {
-    // this is a slot node
-    addRemoveSlotScopedClass(newNode['s-cr'], newNode, parent as d.RenderNode, newNode.parentElement);
-  } else if (typeof newNode['s-sn'] === 'string') {
-    // this is a slotted node.
-    if (BUILD.experimentalSlotFixes && parent.getRootNode().nodeType !== NODE_TYPES.DOCUMENT_FRAGMENT_NODE) {
-      // we don't need to patch this node if it's nested in a shadow root
-      patchParentNode(newNode);
+  //
+  if (BUILD.slotRelocation) {
+    if (BUILD.scoped && typeof newNode['s-sn'] === 'string' && !!newNode['s-sr'] && !!newNode['s-cr']) {
+      // this is a slot node
+      addRemoveSlotScopedClass(newNode['s-cr'], newNode, parent as d.RenderNode, newNode.parentElement);
+    } else if (typeof newNode['s-sn'] === 'string') {
+      // this is a slotted node.
+      if (BUILD.experimentalSlotFixes && parent.getRootNode().nodeType !== NODE_TYPES.DOCUMENT_FRAGMENT_NODE) {
+        // we don't need to patch this node if it's nested in a shadow root
+        patchParentNode(newNode);
+      }
+      // potentially use the patched insertBefore method. This will correctly slot the new node
+      parent.insertBefore(newNode, reference);
+
+      // if we find a corresponding slot node, dispatch a slotchange event now
+      const { slotNode } = findSlotFromSlottedNode(newNode);
+      if (slotNode && !isInitialLoad) dispatchSlotChangeEvent(slotNode);
+
+      return newNode;
     }
-    // potentially use the patched insertBefore method. This will correctly slot the new node
-    parent.insertBefore(newNode, reference);
-
-    // if we find a corresponding slot node, dispatch a slotchange event now
-    const { slotNode } = findSlotFromSlottedNode(newNode);
-    if (slotNode && !isInitialLoad) dispatchSlotChangeEvent(slotNode);
-
-    return newNode;
   }
 
   if ((parent as d.RenderNode).__insertBefore) {

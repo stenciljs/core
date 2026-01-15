@@ -37,8 +37,8 @@ jobs:
           path: .
           filename: stencil-core-build.zip
 
-      - name: Analysis Tests
-        run: npm run test.analysis
+      - name: Bundle Size Test
+        run: npm run test.bundle-size
         shell: bash
 
       - name: Check Git Context

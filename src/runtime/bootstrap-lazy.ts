@@ -1,9 +1,11 @@
 import { BUILD } from '@app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
-import { CMP_FLAGS, createShadowRoot, queryNonceMetaTagContent } from '@utils';
 
 import type * as d from '../declarations';
+import { CMP_FLAGS } from '../utils/constants';
+import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
+import { createShadowRoot } from '../utils/shadow-root';
 import { connectedCallback } from './connected-callback';
 import { disconnectedCallback } from './disconnected-callback';
 import {
@@ -251,7 +253,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   // TODO(STENCIL-1118): Add test cases for CSS content based on conditionals
   if (cmpTags.length > 0) {
     // Add styles for `slot-fb` elements if any of our components are using slots outside the Shadow DOM
-    if (hasSlotRelocation) {
+    if (BUILD.slotRelocation && hasSlotRelocation) {
       dataStyles.textContent += SLOT_FB_CSS;
     }
 

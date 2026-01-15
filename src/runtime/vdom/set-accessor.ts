@@ -9,7 +9,7 @@
 
 import { BUILD } from '@app-data';
 import { isMemberInElement, plt, win } from '@platform';
-import { isComplexType } from '@utils';
+import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
