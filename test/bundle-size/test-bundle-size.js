@@ -5,13 +5,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const distDir = path.join(__dirname, 'dist', 'bundlesize');
-const maxBundleSize = 9 * 1024; // 9KB in bytes
-
-console.log('Building bundle-size test project...');
-execSync('../../bin/stencil build --prod', {
-  cwd: __dirname,
-  stdio: 'inherit',
-});
+const maxBundleSize = 8 * 1024; // 9KB in bytes
 
 console.log('\nChecking bundle size...');
 

@@ -2,8 +2,8 @@
   "name": "bundle-size-test",
   "private": true,
   "scripts": {
-    "build": "stencil build --prod",
+    "build": "node ../../bin/stencil build --prod",
     "clean": "rimraf dist .stencil",
-    "test": "node test-bundle-size.js"
+    "test": "npm run build && node test-bundle-size.js"
   }
 }
