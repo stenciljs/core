@@ -1,3 +1,17 @@
+## 🐝 [4.41.2](https://github.com/stenciljs/core/compare/v4.41.1...v4.41.2) (2026-01-16)
+
+
+### Bug Fixes
+
+* **mock-doc:** handle undefined delay in setTimeout/setInterval ([#6539](https://github.com/stenciljs/core/issues/6539)) ([0d3a068](https://github.com/stenciljs/core/commit/0d3a068ed27185cefe63649e6625c2d4437c7788))
+* **runtime:** bundle size ([#6549](https://github.com/stenciljs/core/issues/6549)) ([3de7ba6](https://github.com/stenciljs/core/commit/3de7ba6844cc7ed3cd961a185f7f06a37391f6f9))
+* **runtime:** style elements use `textContent` for TrustedHTML assignment ([#6544](https://github.com/stenciljs/core/issues/6544)) ([a708bdc](https://github.com/stenciljs/core/commit/a708bdc430c8d4c752e88b9f5e71c52302f76ef3))
+* **runtime:** various jsx-runtime behaviours ([#6538](https://github.com/stenciljs/core/issues/6538)) ([8f9efc5](https://github.com/stenciljs/core/commit/8f9efc5570983ff4d03580f4000ae5f844e7f641))
+* **ssr:** double style render ([#6540](https://github.com/stenciljs/core/issues/6540)) ([43608fa](https://github.com/stenciljs/core/commit/43608fa32791c897ec06b1884616bde2a10ac307))
+* **testing:** support `jsxImportSource` in internal jest test runner ([#6547](https://github.com/stenciljs/core/issues/6547)) ([6ac3b51](https://github.com/stenciljs/core/commit/6ac3b517a89434fb4c7a38d36a0fd786a5089310))
+
+
+
 ## 🌴 [4.41.1](https://github.com/stenciljs/core/compare/v4.41.0...v4.41.1) (2026-01-08)
 
 
