@@ -13,6 +13,7 @@ import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
+import { queueRefAttachment } from './vdom-render';
 
 /**
  * When running a VDom render set properties present on a VDom node onto the
@@ -92,7 +93,7 @@ export const setAccessor = (
   } else if (BUILD.vdomRef && memberName === 'ref') {
     // minifier will clean this up
     if (newValue) {
-      newValue(elm);
+      queueRefAttachment(newValue, elm);
     }
   } else if (
     BUILD.vdomListener &&

@@ -1195,5 +1195,65 @@ describe('render-vdom', () => {
       // https://github.com/stenciljs/core/issues/3253
       expect(rootInstance.divRef).toEqual(root.querySelector('.a'));
     });
+
+    it('should call ref callbacks in correct order when element parent changes', async () => {
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        divRef: HTMLDivElement | null = null;
+        refCallHistory: Array<HTMLDivElement | null> = [];
+        @State() wrap: boolean = false;
+
+        captureDiv = (el: HTMLDivElement | null) => {
+          this.refCallHistory.push(el);
+          this.divRef = el;
+        };
+
+        renderInner() {
+          return (
+            <div class="inner" ref={this.captureDiv}>
+              hello
+            </div>
+          );
+        }
+
+        render() {
+          return (
+            <Host>
+              {this.wrap ? (
+                <article>
+                  <h1>article</h1>
+                  {this.renderInner()}
+                </article>
+              ) : (
+                this.renderInner()
+              )}
+            </Host>
+          );
+        }
+      }
+
+      const { root, rootInstance, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      // After initial render, ref should point to the element
+      expect(rootInstance.divRef).not.toBeNull();
+      const initialCallCount = rootInstance.refCallHistory.length;
+      expect(initialCallCount).toBeGreaterThan(0);
+      expect(rootInstance.refCallHistory[initialCallCount - 1]).toEqual(root.querySelector('.inner'));
+
+      root.wrap = true;
+      await waitForChanges();
+      expect(rootInstance.divRef).not.toBeNull();
+
+      root.wrap = false;
+      await waitForChanges();
+      expect(rootInstance.divRef).not.toBeNull();
+
+      const finalRef = rootInstance.refCallHistory[rootInstance.refCallHistory.length - 1];
+      expect(finalRef).not.toBeNull();
+      expect(finalRef).toEqual(root.querySelector('.inner'));
+    });
   });
 });

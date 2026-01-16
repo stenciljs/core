@@ -33,6 +33,14 @@ let checkSlotRelocate = false;
 let isSvgMode = false;
 
 /**
+ * Queues for ref callbacks that need to be called during rendering.
+ * These ensure that ref callbacks are called in the correct order:
+ * first all removal callbacks (with null), then all attachment callbacks (with elements).
+ */
+let refCallbacksToRemove: Array<() => void> = [];
+let refCallbacksToAttach: Array<() => void> = [];
+
+/**
  * Create a DOM Node corresponding to one of the children of a given VNode.
  *
  * @param oldParentVNode the parent VNode from the previous render
@@ -882,8 +890,42 @@ const markSlotContentForRelocation = (elm: d.RenderNode) => {
  */
 export const nullifyVNodeRefs = (vNode: d.VNode) => {
   if (BUILD.vdomRef) {
-    vNode.$attrs$ && vNode.$attrs$.ref && vNode.$attrs$.ref(null);
+    if (vNode.$attrs$ && vNode.$attrs$.ref) {
+      // Queue the ref removal callback to be called later
+      refCallbacksToRemove.push(() => vNode.$attrs$.ref(null));
+    }
     vNode.$children$ && vNode.$children$.map(nullifyVNodeRefs);
+  }
+};
+
+/**
+ * Queue a ref callback to be called with an element during rendering.
+ * This ensures ref callbacks are called in the correct order.
+ *
+ * @param refCallback the ref callback function to queue
+ * @param elm the element to pass to the callback
+ */
+export const queueRefAttachment = (refCallback: (elm: any) => void, elm: any) => {
+  if (BUILD.vdomRef) {
+    refCallbacksToAttach.push(() => refCallback(elm));
+  }
+};
+
+/**
+ * Flush all queued ref callbacks in the correct order:
+ * first all removal callbacks (with null), then all attachment callbacks (with elements).
+ * This ensures that when elements are replaced/reordered, the ref is always left
+ * pointing to the current element, not null.
+ */
+const flushQueuedRefCallbacks = () => {
+  if (BUILD.vdomRef) {
+    // First, call all ref removal callbacks (passing null)
+    refCallbacksToRemove.forEach((cb) => cb());
+    refCallbacksToRemove.length = 0;
+
+    // Then, call all ref attachment callbacks (passing elements)
+    refCallbacksToAttach.forEach((cb) => cb());
+    refCallbacksToAttach.length = 0;
   }
 };
 
@@ -1265,6 +1307,9 @@ render() {
 
   // Clear the content ref so we don't create a memory leak
   contentRef = undefined;
+
+  // Flush all queued ref callbacks in the correct order
+  flushQueuedRefCallbacks();
 };
 
 // slot comment debug nodes only created with the `--debug` flag
