@@ -2,7 +2,7 @@ We need a minimal reproduction to be able to triage this issue.
 
 ### Why do we need a minimal reproduction?
 
-Reproductions allow the team to triage and fix issues quickly with a relatively small team. They help us identify the source of the problem and verify that the issue is not caused by something specific to your project.
+Reproductions allow the team to triage and fix issues quickly with a tiny team. They help us identify the source of the problem and verify that the issue is not caused by something specific to your project.
 
 ### How can I create a reproduction?
 
