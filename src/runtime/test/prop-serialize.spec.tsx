@@ -1,4 +1,4 @@
-import { Component, Element, Prop, PropSerialize, State } from '@stencil/core';
+import { Component, Element, h, Prop, PropSerialize, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 import { withSilentWarn } from '../../testing/testing-utils';
@@ -86,20 +86,25 @@ describe('attribute serialization', () => {
 
       componentWillLoad() {
         // initial render
+        // watchCalled is 3 at this point because:
+        // 1. value=10 (default) was serialized during construction
+        // 2. prop="123" (from HTML attr) was serialized via queued callback before componentWillLoad
+        // 3. prop=1 was serialized during componentWillLoad (not queued since instance exists)
+        // Note: prop=10 default was NOT serialized because HTML attr set prop=123 first
         this.prop = 1;
-        expect(this.watchCalled).toBe(2);
-        this.value = 1;
         expect(this.watchCalled).toBe(3);
+        this.value = 1;
+        expect(this.watchCalled).toBe(4);
       }
 
       componentDidLoad() {
         // setting the same value should not trigger the serializer
         this.prop = 1;
         this.value = 1;
-        expect(this.watchCalled).toBe(3);
+        expect(this.watchCalled).toBe(4);
         this.prop = 20;
         this.value = 30;
-        expect(this.watchCalled).toBe(5);
+        expect(this.watchCalled).toBe(6);
       }
     }
 
@@ -111,20 +116,20 @@ describe('attribute serialization', () => {
     );
 
     await waitForChanges();
-    expect(rootInstance.watchCalled).toBe(5);
+    expect(rootInstance.watchCalled).toBe(6);
     jest.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.prop = 1000;
     await waitForChanges();
     expect(rootInstance.method).toHaveBeenLastCalledWith(1000, 'prop');
-    expect(rootInstance.watchCalled).toBe(6);
+    expect(rootInstance.watchCalled).toBe(7);
     expect(root.getAttribute('prop')).toBe('1000');
 
     root.value = 1300;
     await waitForChanges();
     expect(rootInstance.method).toHaveBeenLastCalledWith(1300, 'value');
-    expect(rootInstance.watchCalled).toBe(7);
+    expect(rootInstance.watchCalled).toBe(8);
     expect(root.getAttribute('value')).toBe('1300');
   });
 
@@ -212,5 +217,31 @@ describe('attribute serialization', () => {
     await waitForChanges();
     expect(rootInstance.method).toHaveBeenCalledTimes(2);
     expect(root.hasAttribute('bool-prop')).toBe(false);
+  });
+
+  it('serializes props set via JSX before instance creation', async () => {
+    @Component({ tag: 'cmp-jsx-serialize' })
+    class CmpJsxSerialize {
+      @Prop() jsonProp: Record<string, unknown>;
+
+      @PropSerialize('jsonProp')
+      serializeJson(newValue: Record<string, unknown>) {
+        return JSON.stringify(newValue);
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpJsxSerialize],
+      template: () => <cmp-jsx-serialize jsonProp={{ page: 'custom' }} />,
+    });
+
+    await waitForChanges();
+
+    // The prop value should be set correctly
+    expect((root as any).jsonProp).toEqual({ page: 'custom' });
+
+    // The serialized value should be reflected to the attribute
+    expect(root.hasAttribute('json-prop')).toBe(true);
+    expect(root.getAttribute('json-prop')).toBe('{"page":"custom"}');
   });
 });
