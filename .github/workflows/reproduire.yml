@@ -1,0 +1,18 @@
+name: Needs Reproduction
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  reproduire:
+    runs-on: ubuntu-latest
+    if: "github.event.label.name == 'ionitron: needs reproduction'"
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
+      - uses: Hebilicious/reproduire@v0.0.9-mp
+        with:
+          label: 'ionitron: needs reproduction'

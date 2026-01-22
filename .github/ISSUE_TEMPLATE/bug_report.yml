@@ -1,7 +1,29 @@
 name: 🐛 Bug Report
 description: Create a report to help us improve Stencil
 title: 'bug: '
+labels: ['triage']
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        Please provide a minimal reproduction using our [Stencil Starter](https://codesandbox.io/p/github/johnjenkins/stencil-starter/).
+
+        <details>
+        <summary>Other starter templates</summary>
+
+        - [Stencil + Vitest](https://codesandbox.io/p/github/johnjenkins/stencil-starter-vitest/)
+        - [Angular](https://codesandbox.io/p/github/johnjenkins/stencil-angular-starter/)
+        - [NextJs](https://codesandbox.io/p/github/johnjenkins/stencil-starter-next/)
+        - [React](https://codesandbox.io/p/github/johnjenkins/stencil-starter-react/)
+        - [Vue](https://codesandbox.io/p/github/johnjenkins/stencil-starter-vue/)
+
+        </details>
+
+        A minimal reproduction is **required** unless you are absolutely sure the issue is obvious.
+        If the issue cannot be reliably reproduced, it will be labeled `ionitron: needs reproduction` and may be closed.
+
   - type: checkboxes
     attributes:
       label: Prerequisites
@@ -50,9 +72,9 @@ body:
       label: Code Reproduction URL
       description: |
         Please reproduce this issue in a blank Stencil starter application and provide a link to the repo.
-        Run `npm init stencil@latest` to quickly spin up a Stencil project.
+        Run `npm init stencil@latest` to quickly spin up a Stencil project, or use our [Stencil Starter](https://codesandbox.io/p/github/johnjenkins/stencil-starter/).
         This is the best way to ensure this issue is triaged quickly.
-        Issues that do not include a code reproduction are likely to be be closed without any investigation.
+        Issues that do not include a code reproduction are likely to be closed without any investigation.
       placeholder: https://github.com/...
     validations:
       required: true
