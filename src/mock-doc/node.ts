@@ -22,7 +22,7 @@ export class MockNode {
   nodeType: number;
   ownerDocument: any;
   parentNode: MockNode | null;
-  childNodes: MockNode[];
+  private _childNodes: MockNode[] = [];
 
   constructor(ownerDocument: any, nodeType: number, nodeName: string | null, nodeValue: string | null) {
     this.ownerDocument = ownerDocument;
@@ -30,7 +30,13 @@ export class MockNode {
     this.nodeName = nodeName;
     this._nodeValue = nodeValue;
     this.parentNode = null;
-    this.childNodes = [];
+  }
+
+  get childNodes(): MockNode[] {
+    return this._childNodes;
+  }
+  set childNodes(value: MockNode[]) {
+    this._childNodes = value;
   }
 
   appendChild(newNode: MockNode) {
