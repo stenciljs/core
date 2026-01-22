@@ -22,6 +22,18 @@ declare global {
 }
 declare namespace LocalJSX {
     interface CustomElementsFormAssociated {
+        /**
+          * If `true`, the user cannot interact with the element.
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
     }
     interface IntrinsicElements {
         "custom-elements-form-associated": CustomElementsFormAssociated;
