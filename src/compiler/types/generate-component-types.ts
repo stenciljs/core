@@ -8,6 +8,37 @@ import { generateMethodTypes } from './generate-method-types';
 import { generatePropTypes } from './generate-prop-types';
 
 /**
+ * Attributes automatically available on form-associated custom elements.
+ * These mirror the standard HTML form element attributes.
+ */
+const FORM_ASSOCIATED_ATTRIBUTES: d.TypeInfo = [
+  {
+    name: 'disabled',
+    type: 'boolean',
+    optional: true,
+    required: false,
+    internal: false,
+    jsdoc: 'If `true`, the user cannot interact with the element.',
+  },
+  {
+    name: 'form',
+    type: 'string',
+    optional: true,
+    required: false,
+    internal: false,
+    jsdoc: 'The `id` of a `<form>` element to associate this element with.',
+  },
+  {
+    name: 'name',
+    type: 'string',
+    optional: true,
+    required: false,
+    internal: false,
+    jsdoc: 'The name of the element, used when submitting an HTML form.',
+  },
+];
+
+/**
  * Generate a string based on the types that are defined within a component
  * @param cmp the metadata for the component that a type definition string is generated for
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
@@ -38,7 +69,15 @@ export const generateComponentTypes = (
     areTypesInternal,
   );
   const isDep = cmp.isCollectionDependency;
-  const jsxAttributes = attributesToMultiLineString([...propAttributes, ...eventAttributes], true, areTypesInternal);
+  const propNames = new Set(propAttributes.map((p) => p.name));
+  const formAssociatedAttrs = cmp.formAssociated
+    ? FORM_ASSOCIATED_ATTRIBUTES.filter((attr) => !propNames.has(attr.name))
+    : [];
+  const jsxAttributes = attributesToMultiLineString(
+    [...propAttributes, ...eventAttributes, ...formAssociatedAttrs],
+    true,
+    areTypesInternal,
+  );
 
   // Generate the element interface with method conflict resolution
   const elementInterface = hasMethodConflicts
