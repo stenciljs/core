@@ -224,16 +224,7 @@ export class MockWindow {
   }
 
   get Element() {
-    if (this.__elementCstr == null) {
-      const ownerDocument = this.document;
-      this.__elementCstr = class extends MockElement {
-        constructor() {
-          super(ownerDocument, '');
-          throw new Error('Illegal constructor: cannot construct Element');
-        }
-      };
-    }
-    return this.__elementCstr;
+    return MockElement;
   }
 
   fetch(input: any, init?: any): any {
@@ -362,16 +353,7 @@ export class MockWindow {
   }
 
   get Node() {
-    if (this.__nodeCstr == null) {
-      const ownerDocument = this.document;
-      this.__nodeCstr = class extends MockNode {
-        constructor() {
-          super(ownerDocument, 0, 'test', '');
-          throw new Error('Illegal constructor: cannot construct Node');
-        }
-      };
-    }
-    return this.__nodeCstr;
+    return MockNode;
   }
 
   get NodeList() {
