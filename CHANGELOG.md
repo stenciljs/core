@@ -1,3 +1,16 @@
+## 🎇 [4.41.3](https://github.com/stenciljs/core/compare/v4.41.2...v4.41.3) (2026-01-23)
+
+
+### Bug Fixes
+
+* **build:** auto add `name`, `form` and `disabled` to `formAssociated` components ([#6561](https://github.com/stenciljs/core/issues/6561)) ([4e19b99](https://github.com/stenciljs/core/commit/4e19b99dca2b8433d5ae0568eb30e58391b64264))
+* **runtime:** `ref` callback order ([#6552](https://github.com/stenciljs/core/issues/6552)) ([e006cf7](https://github.com/stenciljs/core/commit/e006cf74ab49d1b534109dc315e51890f0f7a477))
+* **runtime:** PropSerialize not called for JSX props before instance creation ([#6558](https://github.com/stenciljs/core/issues/6558)) ([88b3315](https://github.com/stenciljs/core/commit/88b3315c19dd1a7e41054e1a9e3ab028ad3fb7d8))
+* **ssr:** support jsxImportSource within hydrate-script output ([#6563](https://github.com/stenciljs/core/issues/6563)) ([5ca9668](https://github.com/stenciljs/core/commit/5ca96689acba81c35c4b244d5f4ad6f06eaad5ac))
+* **testing:** initialise mock-doc `childNodes` with get / set. Allows patching during tests ([#6564](https://github.com/stenciljs/core/issues/6564)) ([dbaa9fb](https://github.com/stenciljs/core/commit/dbaa9fbc288e045709f87a8cbb172aef26142472))
+
+
+
 ## 🐝 [4.41.2](https://github.com/stenciljs/core/compare/v4.41.1...v4.41.2) (2026-01-16)
 
 
