@@ -336,8 +336,8 @@ describe("hydrated components' slotted node order", () => {
       hydrateClientSide: true,
     });
 
-    // patches this element in the same way we patch all elements in the browser
-    patchPseudoShadowDom(clientHydrated.root);
+    // patches this element's prototype in the same way we patch all elements in the browser
+    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
 
     expect(clientHydrated.root.outerHTML).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
@@ -429,8 +429,8 @@ describe("hydrated components' slotted node order", () => {
       hydrateClientSide: true,
     });
 
-    // patches this element in the same way we patch all elements in the browser
-    patchPseudoShadowDom(clientHydrated.root);
+    // patches this element's prototype in the same way we patch all elements in the browser
+    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
 
     const childNodes = clientHydrated.root.childNodes;
 
@@ -523,12 +523,12 @@ describe("hydrated components' slotted node order", () => {
       hydrateClientSide: true,
     });
 
-    // patches this element in the same way we patch all elements in the browser
-    patchPseudoShadowDom(clientHydrated.root);
+    // patches this element's prototype in the same way we patch all elements in the browser
+    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
 
     const childNodes = clientHydrated.root.childNodes;
 
-    patchPseudoShadowDom(childNodes[4]);
+    patchPseudoShadowDom(Object.getPrototypeOf(childNodes[4]));
 
     expect(nodeOrEle(childNodes[0])).toBe(`<p>slotted item 1a</p>`);
     expect(nodeOrEle(childNodes[1])).toBe(` a comment `);
