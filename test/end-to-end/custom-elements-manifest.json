@@ -1,0 +1,2047 @@
+{
+  "schemaVersion": "2.1.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/another-car-detail.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "another-car-detail",
+          "name": "AnotherCarDetail",
+          "attributes": [
+            {
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "fieldName": "car"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "readonly": true,
+              "attribute": "car"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AnotherCarDetail",
+          "declaration": {
+            "name": "AnotherCarDetail"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "another-car-detail",
+          "declaration": {
+            "name": "AnotherCarDetail"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/another-car-list.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "another-car-list",
+          "name": "AnotherCarList",
+          "description": "Component that helps display a list of cars",
+          "attributes": [
+            {
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "fieldName": "cars"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "readonly": true,
+              "attribute": "cars"
+            },
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "CarData"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "carSelected",
+              "type": {
+                "text": "CustomEvent<CarData>"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "header",
+              "description": "The slot for the header content."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "car",
+              "description": "The shadow part to target to style the car."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AnotherCarList",
+          "declaration": {
+            "name": "AnotherCarList"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "another-car-list",
+          "declaration": {
+            "name": "AnotherCarList"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/app-root/app-root.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "app-root",
+          "name": "AppRoot"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AppRoot",
+          "declaration": {
+            "name": "AppRoot"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "app-root",
+          "declaration": {
+            "name": "AppRoot"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/build-data/build-data.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "build-data",
+          "name": "BuildData"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "BuildData",
+          "declaration": {
+            "name": "BuildData"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "build-data",
+          "declaration": {
+            "name": "BuildData"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/car-detail/car-detail.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "car-detail",
+          "name": "CarDetail",
+          "attributes": [
+            {
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "fieldName": "car"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "readonly": true,
+              "attribute": "car"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CarDetail",
+          "declaration": {
+            "name": "CarDetail"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "car-detail",
+          "declaration": {
+            "name": "CarDetail"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/car-list/car-list.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "car-list",
+          "name": "CarList",
+          "description": "Component that helps display a list of cars",
+          "attributes": [
+            {
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "fieldName": "cars"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "readonly": true,
+              "attribute": "cars"
+            },
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "CarData"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "carSelected",
+              "type": {
+                "text": "CustomEvent<CarData>"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "header",
+              "description": "The slot for the header content."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "car",
+              "description": "The shadow part to target to style the car."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CarList",
+          "declaration": {
+            "name": "CarList"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "car-list",
+          "declaration": {
+            "name": "CarList"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/deep-selector/cmpA.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-a",
+          "name": "CmpA"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpA",
+          "declaration": {
+            "name": "CmpA"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-a",
+          "declaration": {
+            "name": "CmpA"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/deep-selector/cmpB.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-b",
+          "name": "CmpB"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpB",
+          "declaration": {
+            "name": "CmpB"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-b",
+          "declaration": {
+            "name": "CmpB"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/deep-selector/cmpC.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-c",
+          "name": "CmpC"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpC",
+          "declaration": {
+            "name": "CmpC"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-c",
+          "declaration": {
+            "name": "CmpC"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/cmp-dsd.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-dsd",
+          "name": "CmpDsd",
+          "attributes": [
+            {
+              "name": "initial-counter",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "fieldName": "initialCounter"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "initialCounter",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "readonly": true,
+              "attribute": "initial-counter"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpDsd",
+          "declaration": {
+            "name": "CmpDsd"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-dsd",
+          "declaration": {
+            "name": "CmpDsd"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/cmp-dsd-focus.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-dsd-focus",
+          "name": "CmpDsdFocus"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpDsdFocus",
+          "declaration": {
+            "name": "CmpDsdFocus"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-dsd-focus",
+          "declaration": {
+            "name": "CmpDsdFocus"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/server-vs-client.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-server-vs-client",
+          "name": "CmpServerVsClient"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpServerVsClient",
+          "declaration": {
+            "name": "CmpServerVsClient"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-server-vs-client",
+          "declaration": {
+            "name": "CmpServerVsClient"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/cmp-with-slot.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "cmp-with-slot",
+          "name": "CmpWithSlot"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CmpWithSlot",
+          "declaration": {
+            "name": "CmpWithSlot"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "cmp-with-slot",
+          "declaration": {
+            "name": "CmpWithSlot"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dom-api/dom-api.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "dom-api",
+          "name": "DomApi"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DomApi",
+          "declaration": {
+            "name": "DomApi"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "dom-api",
+          "declaration": {
+            "name": "DomApi"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dom-interaction/dom-interaction.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "dom-interaction",
+          "name": "DomInteraction"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DomInteraction",
+          "declaration": {
+            "name": "DomInteraction"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "dom-interaction",
+          "declaration": {
+            "name": "DomInteraction"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/dom-visible/dom-visible.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "dom-visible",
+          "name": "DomVisible"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DomVisible",
+          "declaration": {
+            "name": "DomVisible"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "dom-visible",
+          "declaration": {
+            "name": "DomVisible"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/dsd-listen-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "dsd-listen-cmp",
+          "name": "DsdListenCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DsdListenCmp",
+          "declaration": {
+            "name": "DsdListenCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "dsd-listen-cmp",
+          "declaration": {
+            "name": "DsdListenCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/element-cmp/element-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "element-cmp",
+          "name": "ElementCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ElementCmp",
+          "declaration": {
+            "name": "ElementCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "element-cmp",
+          "declaration": {
+            "name": "ElementCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/non-existent-element/empty-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "empty-cmp",
+          "name": "EmptyCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EmptyCmp",
+          "declaration": {
+            "name": "EmptyCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "empty-cmp",
+          "declaration": {
+            "name": "EmptyCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/non-existent-element/empty-cmp-shadow.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "empty-cmp-shadow",
+          "name": "EmptyCmpShadow"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EmptyCmpShadow",
+          "declaration": {
+            "name": "EmptyCmpShadow"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "empty-cmp-shadow",
+          "declaration": {
+            "name": "EmptyCmpShadow"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/env-data/env-data.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "env-data",
+          "name": "EnvData"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EnvData",
+          "declaration": {
+            "name": "EnvData"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "env-data",
+          "declaration": {
+            "name": "EnvData"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/event-cmp/event-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "event-cmp",
+          "name": "EventCmp",
+          "members": [
+            {
+              "kind": "method",
+              "name": "methodThatFiresEventWithOptions",
+              "description": "this is some method that fires an event with options",
+              "parameters": [
+                {
+                  "name": "mph",
+                  "description": "some value",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "methodThatFiresMyDocumentEvent",
+              "description": "this is some method that fires a document event",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "methodThatFiresMyWindowEvent",
+              "description": "this is some method that fires a window event",
+              "parameters": [
+                {
+                  "name": "value",
+                  "description": "some value",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "my-event-with-options",
+              "type": {
+                "text": "CustomEvent<{ mph: number; }>"
+              }
+            },
+            {
+              "name": "myDocumentEvent",
+              "type": {
+                "text": "CustomEvent<any>"
+              }
+            },
+            {
+              "name": "myWindowEvent",
+              "type": {
+                "text": "CustomEvent<number>"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "EventCmp",
+          "declaration": {
+            "name": "EventCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "event-cmp",
+          "declaration": {
+            "name": "EventCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/non-shadow-slotted-siblings.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "hydrated-sibling-accessors",
+          "name": "HydratedSiblingAccessors"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "HydratedSiblingAccessors",
+          "declaration": {
+            "name": "HydratedSiblingAccessors"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "hydrated-sibling-accessors",
+          "declaration": {
+            "name": "HydratedSiblingAccessors"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/import-assets/import-assets.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "import-assets",
+          "name": "ImportAssets"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ImportAssets",
+          "declaration": {
+            "name": "ImportAssets"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "import-assets",
+          "declaration": {
+            "name": "ImportAssets"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/listen-cmp/listen-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "listen-cmp",
+          "name": "ListenCmp",
+          "attributes": [
+            {
+              "name": "opened",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "fieldName": "opened"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "opened",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "opened"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ListenCmp",
+          "declaration": {
+            "name": "ListenCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "listen-cmp",
+          "declaration": {
+            "name": "ListenCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/method-cmp/method-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "method-cmp",
+          "name": "MethodCmp",
+          "attributes": [
+            {
+              "name": "some-prop",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "fieldName": "someProp"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "someProp",
+              "type": {
+                "text": "number"
+              },
+              "default": "0",
+              "readonly": true,
+              "attribute": "some-prop"
+            },
+            {
+              "kind": "method",
+              "name": "someMethod",
+              "description": "this is some method",
+              "return": {
+                "type": {
+                  "text": "Promise<number>"
+                },
+                "description": "some number"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "someMethodWithArgs",
+              "description": "this is some method with args",
+              "parameters": [
+                {
+                  "name": "unit",
+                  "description": "some unit",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "description": "some value",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "Promise<string>"
+                },
+                "description": "some string"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MethodCmp",
+          "declaration": {
+            "name": "MethodCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "method-cmp",
+          "declaration": {
+            "name": "MethodCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/hydrate-props/my-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "my-cmp",
+          "name": "MyCmp",
+          "attributes": [
+            {
+              "name": "bar-prop",
+              "description": "bar prop",
+              "type": {
+                "text": "string"
+              },
+              "default": "'bar'",
+              "fieldName": "barProp"
+            },
+            {
+              "name": "foo-prop",
+              "description": "foo prop",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "fooProp"
+            },
+            {
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "fieldName": "mode"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "barProp",
+              "description": "bar prop",
+              "type": {
+                "text": "string"
+              },
+              "default": "'bar'",
+              "readonly": true,
+              "attribute": "bar-prop"
+            },
+            {
+              "kind": "field",
+              "name": "fooProp",
+              "description": "foo prop",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "foo-prop"
+            },
+            {
+              "kind": "field",
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "readonly": true,
+              "attribute": "mode"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyCmp",
+          "declaration": {
+            "name": "MyCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-cmp",
+          "declaration": {
+            "name": "MyCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/hydrate-props/my-jsx-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "my-jsx-cmp",
+          "name": "MyJsxCmp",
+          "attributes": [
+            {
+              "name": "bar-prop",
+              "description": "bar prop",
+              "type": {
+                "text": "string"
+              },
+              "default": "'bar'",
+              "fieldName": "barProp"
+            },
+            {
+              "name": "foo-prop",
+              "description": "foo prop",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "fooProp"
+            },
+            {
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "fieldName": "mode"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "barProp",
+              "description": "bar prop",
+              "type": {
+                "text": "string"
+              },
+              "default": "'bar'",
+              "readonly": true,
+              "attribute": "bar-prop"
+            },
+            {
+              "kind": "field",
+              "name": "fooProp",
+              "description": "foo prop",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "foo-prop"
+            },
+            {
+              "kind": "field",
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "readonly": true,
+              "attribute": "mode"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyJsxCmp",
+          "declaration": {
+            "name": "MyJsxCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-jsx-cmp",
+          "declaration": {
+            "name": "MyJsxCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/nested-child-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "nested-cmp-child",
+          "name": "NestedCmpChild"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NestedCmpChild",
+          "declaration": {
+            "name": "NestedCmpChild"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nested-cmp-child",
+          "declaration": {
+            "name": "NestedCmpChild"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/parent-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "nested-cmp-parent",
+          "name": "NestedCmpParent"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NestedCmpParent",
+          "declaration": {
+            "name": "NestedCmpParent"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nested-cmp-parent",
+          "declaration": {
+            "name": "NestedCmpParent"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/nested-scope-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "nested-scope-cmp",
+          "name": "NestedScopeCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NestedScopeCmp",
+          "declaration": {
+            "name": "NestedScopeCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "nested-scope-cmp",
+          "declaration": {
+            "name": "NestedScopeCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/non-shadow.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "non-shadow-child",
+          "name": "NonShadowChild"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NonShadowChild",
+          "declaration": {
+            "name": "NonShadowChild"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "non-shadow-child",
+          "declaration": {
+            "name": "NonShadowChild"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/non-shadow-forwarded-slot.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "non-shadow-forwarded-slot",
+          "name": "NonShadowForwardedSlot"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NonShadowForwardedSlot",
+          "declaration": {
+            "name": "NonShadowForwardedSlot"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "non-shadow-forwarded-slot",
+          "declaration": {
+            "name": "NonShadowForwardedSlot"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/non-shadow-multi-slots.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "non-shadow-multi-slots",
+          "name": "NonShadowMultiSlots"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NonShadowMultiSlots",
+          "declaration": {
+            "name": "NonShadowMultiSlots"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "non-shadow-multi-slots",
+          "declaration": {
+            "name": "NonShadowMultiSlots"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/non-shadow-wrapper.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "non-shadow-wrapper",
+          "name": "NonShadowWrapper"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NonShadowWrapper",
+          "declaration": {
+            "name": "NonShadowWrapper"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "non-shadow-wrapper",
+          "declaration": {
+            "name": "NonShadowWrapper"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/path-alias-cmp/path-alias-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "path-alias-cmp",
+          "name": "PathAliasCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PathAliasCmp",
+          "declaration": {
+            "name": "PathAliasCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "path-alias-cmp",
+          "declaration": {
+            "name": "PathAliasCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/prerender-cmp/prerender-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "prerender-cmp",
+          "name": "PrerenderCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PrerenderCmp",
+          "declaration": {
+            "name": "PrerenderCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "prerender-cmp",
+          "declaration": {
+            "name": "PrerenderCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/prop-cmp/prop-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "prop-cmp",
+          "name": "PropCmp",
+          "attributes": [
+            {
+              "name": "clothes",
+              "type": {
+                "text": "string"
+              },
+              "default": "'life preservers'",
+              "fieldName": "clothes"
+            },
+            {
+              "name": "first",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "first"
+            },
+            {
+              "name": "full-name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "fullName"
+            },
+            {
+              "name": "last-name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "lastName"
+            },
+            {
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "fieldName": "mode"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "clothes",
+              "type": {
+                "text": "string"
+              },
+              "default": "'life preservers'",
+              "readonly": true,
+              "attribute": "clothes"
+            },
+            {
+              "kind": "field",
+              "name": "first",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "first"
+            },
+            {
+              "kind": "field",
+              "name": "fullName",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "full-name"
+            },
+            {
+              "kind": "field",
+              "name": "lastName",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "last-name"
+            },
+            {
+              "kind": "field",
+              "name": "mode",
+              "description": "Mode",
+              "type": {
+                "text": "any"
+              },
+              "readonly": true,
+              "attribute": "mode"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PropCmp",
+          "declaration": {
+            "name": "PropCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "prop-cmp",
+          "declaration": {
+            "name": "PropCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/resolve-var-events/resolve-var-events.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "resolve-var-events",
+          "name": "ResolveVarEvents",
+          "members": [
+            {
+              "kind": "method",
+              "name": "emitMyEvent",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "emitOtherEvent",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "myEvent",
+              "type": {
+                "text": "CustomEvent<any>"
+              }
+            },
+            {
+              "name": "otherEvent",
+              "type": {
+                "text": "CustomEvent<any>"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ResolveVarEvents",
+          "declaration": {
+            "name": "ResolveVarEvents"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "resolve-var-events",
+          "declaration": {
+            "name": "ResolveVarEvents"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-runtime-decorators/ssr-runtime-decorators.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "runtime-decorators",
+          "name": "RuntimeDecorators",
+          "attributes": [
+            {
+              "name": "basic-prop",
+              "type": {
+                "text": "string"
+              },
+              "default": "'basicProp'",
+              "fieldName": "basicProp"
+            },
+            {
+              "name": "decorated-getter-setter-prop",
+              "type": {
+                "text": "number"
+              },
+              "fieldName": "decoratedGetterSetterProp"
+            },
+            {
+              "name": "decorated-prop",
+              "type": {
+                "text": "number"
+              },
+              "default": "-10",
+              "fieldName": "decoratedProp"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "basicProp",
+              "type": {
+                "text": "string"
+              },
+              "default": "'basicProp'",
+              "readonly": true,
+              "attribute": "basic-prop",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "decoratedGetterSetterProp",
+              "type": {
+                "text": "number"
+              },
+              "readonly": true,
+              "attribute": "decorated-getter-setter-prop",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "decoratedProp",
+              "type": {
+                "text": "number"
+              },
+              "default": "-10",
+              "readonly": true,
+              "attribute": "decorated-prop",
+              "reflects": true
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "RuntimeDecorators",
+          "declaration": {
+            "name": "RuntimeDecorators"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "runtime-decorators",
+          "declaration": {
+            "name": "RuntimeDecorators"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/scoped-car-detail.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "scoped-car-detail",
+          "name": "ScopedCarDetail",
+          "attributes": [
+            {
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "fieldName": "car"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "car",
+              "type": {
+                "text": "CarData"
+              },
+              "readonly": true,
+              "attribute": "car"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ScopedCarDetail",
+          "declaration": {
+            "name": "ScopedCarDetail"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "scoped-car-detail",
+          "declaration": {
+            "name": "ScopedCarDetail"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/scoped-car-list.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "scoped-car-list",
+          "name": "ScopedCarList",
+          "description": "Component that helps display a list of cars",
+          "attributes": [
+            {
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "fieldName": "cars"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "cars",
+              "type": {
+                "text": "CarData[]"
+              },
+              "readonly": true,
+              "attribute": "cars"
+            },
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "CarData"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "carSelected",
+              "type": {
+                "text": "CustomEvent<CarData>"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "header",
+              "description": "The slot for the header content."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "car",
+              "description": "The shadow part to target to style the car."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ScopedCarList",
+          "declaration": {
+            "name": "ScopedCarList"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "scoped-car-list",
+          "declaration": {
+            "name": "ScopedCarList"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/shadow.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "shadow-child",
+          "name": "ShadowChild"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ShadowChild",
+          "declaration": {
+            "name": "ShadowChild"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "shadow-child",
+          "declaration": {
+            "name": "ShadowChild"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/scoped-hydration/shadow-wrapper.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "shadow-wrapper",
+          "name": "ShadowWrapper"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ShadowWrapper",
+          "declaration": {
+            "name": "ShadowWrapper"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "shadow-wrapper",
+          "declaration": {
+            "name": "ShadowWrapper"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/slot-cmp/slot-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slot-cmp",
+          "name": "SlotCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlotCmp",
+          "declaration": {
+            "name": "SlotCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slot-cmp",
+          "declaration": {
+            "name": "SlotCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/slot-cmp-container/slot-cmp-container.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slot-cmp-container",
+          "name": "SlotCmpContainer"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlotCmpContainer",
+          "declaration": {
+            "name": "SlotCmpContainer"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slot-cmp-container",
+          "declaration": {
+            "name": "SlotCmpContainer"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/slot-parent-cmp/slot-parent-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slot-parent-cmp",
+          "name": "SlotParentCmp",
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "label"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "label"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlotParentCmp",
+          "declaration": {
+            "name": "SlotParentCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slot-parent-cmp",
+          "declaration": {
+            "name": "SlotParentCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state-cmp/state-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "state-cmp",
+          "name": "StateCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "StateCmp",
+          "declaration": {
+            "name": "StateCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "state-cmp",
+          "declaration": {
+            "name": "StateCmp"
+          }
+        }
+      ]
+    }
+  ]
+}
