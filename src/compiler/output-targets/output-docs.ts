@@ -1,5 +1,6 @@
 import {
   isOutputTargetDocsCustom,
+  isOutputTargetDocsCustomElementsManifest,
   isOutputTargetDocsJson,
   isOutputTargetDocsReadme,
   isOutputTargetDocsVscode,
@@ -7,6 +8,7 @@ import {
 
 import type * as d from '../../declarations';
 import { generateCustomDocs } from '../docs/custom';
+import { generateCustomElementsManifestDocs } from '../docs/custom-elements-manifest';
 import { generateDocData } from '../docs/generate-doc-data';
 import { generateJsonDocs } from '../docs/json';
 import { generateReadmeDocs } from '../docs/readme';
@@ -31,7 +33,8 @@ export const outputDocs = async (
       isOutputTargetDocsReadme(o) ||
       isOutputTargetDocsJson(o) ||
       isOutputTargetDocsCustom(o) ||
-      isOutputTargetDocsVscode(o),
+      isOutputTargetDocsVscode(o) ||
+      isOutputTargetDocsCustomElementsManifest(o),
   );
 
   if (docsOutputTargets.length === 0) {
@@ -48,5 +51,6 @@ export const outputDocs = async (
     generateJsonDocs(config, compilerCtx, docsData, docsOutputTargets),
     generateVscodeDocs(compilerCtx, docsData, docsOutputTargets),
     generateCustomDocs(config, docsData, docsOutputTargets),
+    generateCustomElementsManifestDocs(compilerCtx, docsData, docsOutputTargets),
   ]);
 };

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "2.1.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/components/my-component/my-component.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "my-component",
+          "name": "MyComponent",
+          "members": [
+            {
+              "kind": "method",
+              "name": "onDidDismiss",
+              "description": "A comment, which should be included, I should think!",
+              "parameters": [
+                {
+                  "name": "arg",
+                  "type": {
+                    "text": "T"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "Promise<ImportedInterface<T>>"
+                }
+              }
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--background",
+              "description": "the background color"
+            },
+            {
+              "name": "--background",
+              "description": "the background color"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyComponent",
+          "declaration": {
+            "name": "MyComponent"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-component",
+          "declaration": {
+            "name": "MyComponent"
+          }
+        }
+      ]
+    }
+  ]
+}

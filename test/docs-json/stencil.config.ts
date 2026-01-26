@@ -12,5 +12,9 @@ export const config: Config = {
       file: 'docs.json',
       supplementalPublicTypes: 'src/components/interfaces.ts',
     },
+    {
+      type: 'docs-custom-elements-manifest',
+      file: 'custom-elements-manifest.json',
+    }
   ],
 };
