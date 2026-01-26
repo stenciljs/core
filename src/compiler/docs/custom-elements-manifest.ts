@@ -24,9 +24,7 @@ export const generateCustomElementsManifestDocs = async (
   const manifest = generateManifest(docsData);
   const jsonContent = JSON.stringify(manifest, null, 2);
 
-  await Promise.all(
-    cemOutputTargets.map((outputTarget) => compilerCtx.fs.writeFile(outputTarget.file!, jsonContent)),
-  );
+  await Promise.all(cemOutputTargets.map((outputTarget) => compilerCtx.fs.writeFile(outputTarget.file!, jsonContent)));
 };
 
 /**
@@ -61,9 +59,7 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
   const modules: JavaScriptModule[] = [];
 
   for (const [filePath, components] of componentsByFile) {
-    const declarations: CustomElementDeclaration[] = components.map((component) =>
-      componentToDeclaration(component),
-    );
+    const declarations: CustomElementDeclaration[] = components.map((component) => componentToDeclaration(component));
 
     const exports: (JavaScriptExport | CustomElementExport)[] = components.flatMap((component) => {
       const className = tagNameToClassName(component.tag);

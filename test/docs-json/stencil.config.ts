@@ -15,6 +15,6 @@ export const config: Config = {
     {
       type: 'docs-custom-elements-manifest',
       file: 'custom-elements-manifest.json',
-    }
+    },
   ],
 };
