@@ -40,6 +40,10 @@ export const config: Config = {
       type: 'docs-json',
       file: 'docs.json',
     },
+    {
+      type: 'docs-custom-elements-manifest',
+      file: 'custom-elements-manifest.json',
+    },
     reactOutputTarget({
       componentCorePackage: '@stencil/e2e-react-output-target',
       proxiesFile: './dist-react/components.ts',
