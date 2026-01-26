@@ -33,7 +33,10 @@ const writeHydrateOutput = async (
   }
 
   const hydrateCoreIndexPath = join(hydrateAppDirPath, 'index.js');
-  await copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath);
+  await Promise.all([
+    copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath),
+    writeHydratePackageJson(compilerCtx, hydrateAppDirPath),
+  ]);
 
   // always remember a path to the hydrate app that the prerendering may need later on
   buildCtx.hydrateAppFilePath = hydrateCoreIndexPath;
@@ -124,4 +127,14 @@ const copyHydrateRunnerDts = async (
   const runnerDtsDestPath = join(hydrateAppDirPath, 'index.d.ts');
 
   await compilerCtx.fs.copyFile(srcHydrateDir, runnerDtsDestPath);
+};
+
+/**
+ * Write a minimal package.json to the hydrate output directory to ensure
+ * Node.js treats the .js files as CommonJS, even when the consumer package
+ * has "type": "module" in its package.json.
+ */
+const writeHydratePackageJson = async (compilerCtx: d.CompilerCtx, hydrateAppDirPath: string) => {
+  const packageJsonPath = join(hydrateAppDirPath, 'package.json');
+  await compilerCtx.fs.writeFile(packageJsonPath, JSON.stringify({ type: 'commonjs' }), { immediateWrite: true });
 };
