@@ -1,5 +1,4 @@
 import { hasError, join } from '@utils';
-import { basename } from 'path';
 import type { RollupOutput } from 'rollup';
 
 import type * as d from '../../../declarations';
@@ -28,30 +27,13 @@ const writeHydrateOutput = async (
   outputTarget: d.OutputTargetHydrate,
   rollupOutput: RollupOutput,
 ) => {
-  const hydratePackageName = await getHydratePackageName(config, compilerCtx);
-
   const hydrateAppDirPath = outputTarget.dir;
   if (!hydrateAppDirPath) {
     throw new Error(`outputTarget config missing the "dir" property`);
   }
 
   const hydrateCoreIndexPath = join(hydrateAppDirPath, 'index.js');
-  const hydrateCoreIndexPathESM = join(hydrateAppDirPath, 'index.mjs');
-  const hydrateCoreIndexDtsFilePath = join(hydrateAppDirPath, 'index.d.ts');
-
-  const pkgJsonPath = join(hydrateAppDirPath, 'package.json');
-  const pkgJsonCode = getHydratePackageJson(
-    config,
-    hydrateCoreIndexPath,
-    hydrateCoreIndexPathESM,
-    hydrateCoreIndexDtsFilePath,
-    hydratePackageName,
-  );
-
-  await Promise.all([
-    copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath),
-    compilerCtx.fs.writeFile(pkgJsonPath, pkgJsonCode),
-  ]);
+  await copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath);
 
   // always remember a path to the hydrate app that the prerendering may need later on
   buildCtx.hydrateAppFilePath = hydrateCoreIndexPath;
@@ -129,41 +111,6 @@ const writeHydrateOutput = async (
       }
     }),
   );
-};
-
-const getHydratePackageJson = (
-  config: d.ValidatedConfig,
-  hydrateAppFilePathCJS: string,
-  hydrateAppFilePathESM: string,
-  hydrateDtsFilePath: string,
-  hydratePackageName: string,
-) => {
-  const pkg: d.PackageJsonData = {
-    name: hydratePackageName,
-    description: `${config.namespace} component hydration app.`,
-    main: basename(hydrateAppFilePathCJS),
-    types: basename(hydrateDtsFilePath),
-    exports: {
-      '.': {
-        require: `./${basename(hydrateAppFilePathCJS)}`,
-        import: `./${basename(hydrateAppFilePathESM)}`,
-      },
-    },
-  };
-  return JSON.stringify(pkg, null, 2);
-};
-
-const getHydratePackageName = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
-  const directoryName = basename(config.rootDir);
-  try {
-    const rootPkgFilePath = join(config.rootDir, 'package.json');
-    const pkgStr = await compilerCtx.fs.readFile(rootPkgFilePath);
-    const pkgData = JSON.parse(pkgStr) as d.PackageJsonData;
-    const scope = pkgData.name || directoryName;
-    return `${scope}/hydrate`;
-  } catch (e) {}
-
-  return `${config.fsNamespace || directoryName}/hydrate`;
 };
 
 const copyHydrateRunnerDts = async (
