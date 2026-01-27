@@ -2401,7 +2401,9 @@ export interface OutputTargetHydrate extends OutputTargetBase {
   dir?: string;
   /**
    * Whether to generate a package.json file in the hydrate output directory.
-   * Defaults to `true`.
+   * Defaults to `true`
+   * @deprecated
+   * In the next major release, the `package.json` file will be completely removed from the `dist-hydrate-script` output (use `exports` from your library's main `package.json`)
    */
   generatePackageJson?: boolean;
   /**
