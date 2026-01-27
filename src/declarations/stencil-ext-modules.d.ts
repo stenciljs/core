@@ -1,5 +1,5 @@
 declare module '*.css' {
-  const src: string;
+  const src: () => string;
   export default src;
 }
 
