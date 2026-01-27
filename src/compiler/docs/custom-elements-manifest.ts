@@ -1,4 +1,4 @@
-import { isOutputTargetDocsCustomElementsManifest } from '@utils';
+import { dashToPascalCase, isOutputTargetDocsCustomElementsManifest } from '@utils';
 
 import type * as d from '../../declarations';
 
@@ -28,18 +28,6 @@ export const generateCustomElementsManifestDocs = async (
 };
 
 /**
- * Convert a kebab-case tag name to PascalCase class name
- * @param tagName the component's tag name (e.g., 'my-component')
- * @returns PascalCase class name (e.g., 'MyComponent')
- */
-const tagNameToClassName = (tagName: string): string => {
-  return tagName
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join('');
-};
-
-/**
  * Generate the Custom Elements Manifest from Stencil docs data
  * @param docsData the generated docs data
  * @returns the Custom Elements Manifest object
@@ -62,7 +50,7 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
     const declarations: CustomElementDeclaration[] = components.map((component) => componentToDeclaration(component));
 
     const exports: (JavaScriptExport | CustomElementExport)[] = components.flatMap((component) => {
-      const className = tagNameToClassName(component.tag);
+      const className = dashToPascalCase(component.tag);
       return [
         {
           kind: 'js' as const,
@@ -101,7 +89,7 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
  * @returns the Custom Element Declaration
  */
 const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDeclaration => {
-  const className = tagNameToClassName(component.tag);
+  const className = dashToPascalCase(component.tag);
 
   const attributes: Attribute[] = component.props
     .filter((prop) => prop.attr !== undefined)
