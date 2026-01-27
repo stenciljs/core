@@ -84,6 +84,40 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
 };
 
 /**
+ * Convert Stencil's ComponentCompilerTypeReferences to CEM TypeReference array
+ * @param references Stencil's type references map
+ * @returns CEM TypeReference array
+ */
+const convertTypeReferences = (references?: d.ComponentCompilerTypeReferences): TypeReference[] | undefined => {
+  if (!references || Object.keys(references).length === 0) {
+    return undefined;
+  }
+
+  return Object.entries(references).map(([name, ref]) => ({
+    name,
+    // Global types (like HTMLElement, Array) get 'global:' package
+    ...(ref.location === 'global' && { package: 'global:' }),
+    // Imported types get their module path
+    ...(ref.location === 'import' && ref.path && { module: ref.path }),
+    // Local types don't need package or module (they're in the same module)
+  }));
+};
+
+/**
+ * Create a CEM Type object from a type string and optional references
+ * @param text the type string
+ * @param references Stencil's type references map
+ * @returns CEM Type object
+ */
+const createType = (text: string, references?: d.ComponentCompilerTypeReferences): Type => {
+  const typeRefs = convertTypeReferences(references);
+  return {
+    text,
+    ...(typeRefs && { references: typeRefs }),
+  };
+};
+
+/**
  * Convert a Stencil component to a Custom Element Declaration
  * @param component the Stencil component docs data
  * @returns the Custom Element Declaration
@@ -96,7 +130,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     .map((prop) => ({
       name: prop.attr!,
       ...(prop.docs && { description: prop.docs }),
-      ...(prop.type && { type: { text: prop.type } }),
+      ...(prop.type && { type: createType(prop.type, prop.complexType?.references) }),
       ...(prop.default !== undefined && { default: prop.default }),
       fieldName: prop.name,
       ...(prop.deprecation !== undefined && { deprecated: prop.deprecation || true }),
@@ -109,7 +143,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
         kind: 'field',
         name: prop.name,
         ...(prop.docs && { description: prop.docs }),
-        ...(prop.type && { type: { text: prop.type } }),
+        ...(prop.type && { type: createType(prop.type, prop.complexType?.references) }),
         ...(prop.default !== undefined && { default: prop.default }),
         ...(prop.deprecation !== undefined && { deprecated: prop.deprecation || true }),
         ...(!prop.mutable && { readonly: true }),
@@ -129,12 +163,12 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
             parameters: method.parameters.map((param) => ({
               name: param.name,
               ...(param.docs && { description: param.docs }),
-              ...(param.type && { type: { text: param.type } }),
+              ...(param.type && { type: createType(param.type, method.complexType?.references) }),
             })),
           }),
         ...(method.returns && {
           return: {
-            ...(method.returns.type && { type: { text: method.returns.type } }),
+            ...(method.returns.type && { type: createType(method.returns.type, method.complexType?.references) }),
             ...(method.returns.docs && { description: method.returns.docs }),
           },
         }),
@@ -145,7 +179,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
   const events: Event[] = component.events.map((event) => ({
     name: event.event,
     ...(event.docs && { description: event.docs }),
-    type: { text: event.detail ? `CustomEvent<${event.detail}>` : 'CustomEvent' },
+    type: createType(event.detail ? `CustomEvent<${event.detail}>` : 'CustomEvent', event.complexType?.references),
     ...(event.deprecation !== undefined && { deprecated: event.deprecation || true }),
   }));
 
@@ -166,6 +200,13 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
       ...(style.docs && { description: style.docs }),
     }));
 
+  // Generate demos from usage examples
+  const demos: Demo[] = Object.entries(component.usage || {}).map(([name, content]) => ({
+    // Create relative URL from usagesDir + filename
+    url: component.usagesDir ? `${component.usagesDir}/${name}.md` : `${name}.md`,
+    ...(content && { description: content }),
+  }));
+
   return {
     kind: 'class',
     customElement: true,
@@ -179,6 +220,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     ...(slots.length > 0 && { slots }),
     ...(cssParts.length > 0 && { cssParts }),
     ...(cssProperties.length > 0 && { cssProperties }),
+    ...(demos.length > 0 && { demos }),
   };
 };
 
@@ -228,6 +270,12 @@ interface CustomElementDeclaration {
   slots?: Slot[];
   cssParts?: CssPart[];
   cssProperties?: CssCustomProperty[];
+  demos?: Demo[];
+}
+
+interface Demo {
+  url: string;
+  description?: string;
 }
 
 interface Attribute {
@@ -241,6 +289,13 @@ interface Attribute {
 
 interface Type {
   text: string;
+  references?: TypeReference[];
+}
+
+interface TypeReference {
+  name: string;
+  package?: string;
+  module?: string;
 }
 
 interface CustomElementField {

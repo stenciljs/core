@@ -19,13 +19,41 @@
                 {
                   "name": "arg",
                   "type": {
-                    "text": "T"
+                    "text": "T",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      },
+                      {
+                        "name": "ImportedInterface",
+                        "module": "./imported-interface"
+                      },
+                      {
+                        "name": "T",
+                        "package": "global:"
+                      }
+                    ]
                   }
                 }
               ],
               "return": {
                 "type": {
-                  "text": "Promise<ImportedInterface<T>>"
+                  "text": "Promise<ImportedInterface<T>>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    },
+                    {
+                      "name": "ImportedInterface",
+                      "module": "./imported-interface"
+                    },
+                    {
+                      "name": "T",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             }

@@ -255,6 +255,115 @@ describe('custom-elements-manifest', () => {
     expect(method.return.type).toEqual({ text: 'Promise<void>' });
   });
 
+  it('includes type references from complexType', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          filePath: 'src/my-component.tsx',
+          props: [
+            {
+              name: 'items',
+              type: 'MyItem[]',
+              docs: 'Array of items',
+              mutable: false,
+              reflectToAttr: false,
+              docsTags: [],
+              values: [],
+              optional: false,
+              required: false,
+              getter: false,
+              setter: false,
+              complexType: {
+                original: 'MyItem[]',
+                resolved: '{ id: string; name: string }[]',
+                references: {
+                  MyItem: {
+                    location: 'import',
+                    path: './types',
+                    id: 'src/types.ts::MyItem',
+                  },
+                },
+              },
+            },
+            {
+              name: 'element',
+              type: 'HTMLElement',
+              docs: 'An HTML element',
+              mutable: false,
+              reflectToAttr: false,
+              docsTags: [],
+              values: [],
+              optional: false,
+              required: false,
+              getter: false,
+              setter: false,
+              complexType: {
+                original: 'HTMLElement',
+                resolved: 'HTMLElement',
+                references: {
+                  HTMLElement: {
+                    location: 'global',
+                    path: '',
+                    id: 'global::HTMLElement',
+                  },
+                },
+              },
+            },
+          ],
+          events: [
+            {
+              event: 'itemSelected',
+              docs: 'Fired when item is selected',
+              detail: 'MyItem',
+              bubbles: true,
+              cancelable: false,
+              composed: true,
+              docsTags: [],
+              complexType: {
+                original: 'MyItem',
+                resolved: '{ id: string; name: string }',
+                references: {
+                  MyItem: {
+                    location: 'import',
+                    path: './types',
+                    id: 'src/types.ts::MyItem',
+                  },
+                },
+              },
+            },
+          ],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const declaration = writtenContent.modules[0].declarations[0];
+
+    // Check prop with imported type reference
+    const itemsField = declaration.members.find((m: any) => m.name === 'items');
+    expect(itemsField.type.text).toBe('MyItem[]');
+    expect(itemsField.type.references).toEqual([{ name: 'MyItem', module: './types' }]);
+
+    // Check prop with global type reference
+    const elementField = declaration.members.find((m: any) => m.name === 'element');
+    expect(elementField.type.text).toBe('HTMLElement');
+    expect(elementField.type.references).toEqual([{ name: 'HTMLElement', package: 'global:' }]);
+
+    // Check event with type reference
+    const event = declaration.events[0];
+    expect(event.type.text).toBe('CustomEvent<MyItem>');
+    expect(event.type.references).toEqual([{ name: 'MyItem', module: './types' }]);
+  });
+
   it('includes events', async () => {
     const docsData: d.JsonDocs = {
       timestamp: 'test',
@@ -326,6 +435,42 @@ describe('custom-elements-manifest', () => {
     expect(declaration.slots).toHaveLength(2);
     expect(declaration.slots[0]).toEqual({ name: '', description: 'Default slot content' });
     expect(declaration.slots[1]).toEqual({ name: 'header', description: 'Header slot' });
+  });
+
+  it('includes demos from usage examples', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          filePath: 'src/components/my-component/my-component.tsx',
+          usagesDir: 'src/components/my-component/usage',
+          usage: {
+            angular: '```html\n<my-component></my-component>\n```',
+            react: '```tsx\nimport { MyComponent } from "my-lib";\n```',
+          },
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const declaration = writtenContent.modules[0].declarations[0];
+    expect(declaration.demos).toHaveLength(2);
+    expect(declaration.demos).toContainEqual({
+      url: 'src/components/my-component/usage/angular.md',
+      description: '```html\n<my-component></my-component>\n```',
+    });
+    expect(declaration.demos).toContainEqual({
+      url: 'src/components/my-component/usage/react.md',
+      description: '```tsx\nimport { MyComponent } from "my-lib";\n```',
+    });
   });
 
   it('includes CSS parts', async () => {

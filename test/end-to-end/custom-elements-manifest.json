@@ -14,7 +14,13 @@
             {
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "fieldName": "car"
             }
@@ -24,7 +30,13 @@
               "kind": "field",
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "car"
@@ -63,7 +75,13 @@
             {
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "fieldName": "cars"
             }
@@ -73,7 +91,13 @@
               "kind": "field",
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "cars"
@@ -82,7 +106,13 @@
               "kind": "field",
               "name": "selected",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               }
             }
           ],
@@ -90,7 +120,13 @@
             {
               "name": "carSelected",
               "type": {
-                "text": "CustomEvent<CarData>"
+                "text": "CustomEvent<CarData>",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               }
             }
           ],
@@ -194,7 +230,13 @@
             {
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "fieldName": "car"
             }
@@ -204,7 +246,13 @@
               "kind": "field",
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "car"
@@ -243,7 +291,13 @@
             {
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "./car-data"
+                  }
+                ]
               },
               "fieldName": "cars"
             }
@@ -253,7 +307,13 @@
               "kind": "field",
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "./car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "cars"
@@ -262,7 +322,13 @@
               "kind": "field",
               "name": "selected",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "./car-data"
+                  }
+                ]
               }
             }
           ],
@@ -270,7 +336,13 @@
             {
               "name": "carSelected",
               "type": {
-                "text": "CustomEvent<CarData>"
+                "text": "CustomEvent<CarData>",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "./car-data"
+                  }
+                ]
               }
             }
           ],
@@ -766,13 +838,25 @@
                   "name": "mph",
                   "description": "some value",
                   "type": {
-                    "text": "number"
+                    "text": "number",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      }
+                    ]
                   }
                 }
               ],
               "return": {
                 "type": {
-                  "text": "Promise<void>"
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             },
@@ -782,7 +866,13 @@
               "description": "this is some method that fires a document event",
               "return": {
                 "type": {
-                  "text": "Promise<void>"
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             },
@@ -795,13 +885,25 @@
                   "name": "value",
                   "description": "some value",
                   "type": {
-                    "text": "number"
+                    "text": "number",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      }
+                    ]
                   }
                 }
               ],
               "return": {
                 "type": {
-                  "text": "Promise<void>"
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             }
@@ -986,7 +1088,13 @@
               "description": "this is some method",
               "return": {
                 "type": {
-                  "text": "Promise<number>"
+                  "text": "Promise<number>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 },
                 "description": "some number"
               }
@@ -1000,20 +1108,38 @@
                   "name": "unit",
                   "description": "some unit",
                   "type": {
-                    "text": "string"
+                    "text": "string",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      }
+                    ]
                   }
                 },
                 {
                   "name": "value",
                   "description": "some value",
                   "type": {
-                    "text": "number"
+                    "text": "number",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      }
+                    ]
                   }
                 }
               ],
               "return": {
                 "type": {
-                  "text": "Promise<string>"
+                  "text": "Promise<string>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 },
                 "description": "some string"
               }
@@ -1597,7 +1723,13 @@
               "name": "emitMyEvent",
               "return": {
                 "type": {
-                  "text": "Promise<void>"
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             },
@@ -1606,7 +1738,13 @@
               "name": "emitOtherEvent",
               "return": {
                 "type": {
-                  "text": "Promise<void>"
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
                 }
               }
             }
@@ -1744,7 +1882,13 @@
             {
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "fieldName": "car"
             }
@@ -1754,7 +1898,13 @@
               "kind": "field",
               "name": "car",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "car"
@@ -1793,7 +1943,13 @@
             {
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "fieldName": "cars"
             }
@@ -1803,7 +1959,13 @@
               "kind": "field",
               "name": "cars",
               "type": {
-                "text": "CarData[]"
+                "text": "CarData[]",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               },
               "readonly": true,
               "attribute": "cars"
@@ -1812,7 +1974,13 @@
               "kind": "field",
               "name": "selected",
               "type": {
-                "text": "CarData"
+                "text": "CarData",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               }
             }
           ],
@@ -1820,7 +1988,13 @@
             {
               "name": "carSelected",
               "type": {
-                "text": "CustomEvent<CarData>"
+                "text": "CustomEvent<CarData>",
+                "references": [
+                  {
+                    "name": "CarData",
+                    "module": "../car-list/car-data"
+                  }
+                ]
               }
             }
           ],
