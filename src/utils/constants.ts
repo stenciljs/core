@@ -216,6 +216,10 @@ export const DOCS_README = 'docs-readme';
  */
 export const DOCS_VSCODE = 'docs-vscode';
 /**
+ * Constant for the 'docs-custom-elements-manifest' output target
+ */
+export const DOCS_CUSTOM_ELEMENTS_MANIFEST = 'docs-custom-elements-manifest';
+/**
  * Constant for the 'stats' output target
  */
 export const STATS = 'stats';
@@ -246,6 +250,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   DOCS_README,
   DOCS_VSCODE,
   DOCS_CUSTOM,
+  DOCS_CUSTOM_ELEMENTS_MANIFEST,
 
   // MISC
   COPY,

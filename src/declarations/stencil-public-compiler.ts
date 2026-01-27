@@ -2504,6 +2504,17 @@ export interface OutputTargetDocsCustom extends OutputTargetBase {
   strict?: boolean;
 }
 
+export interface OutputTargetDocsCustomElementsManifest extends OutputTargetBase {
+  type: 'docs-custom-elements-manifest';
+
+  /**
+   * The file path where the custom-elements.json manifest will be written.
+   * Defaults to 'custom-elements.json' in the root directory.
+   */
+  file?: string;
+  strict?: boolean;
+}
+
 export interface OutputTargetStats extends OutputTargetBase {
   type: 'stats';
 
@@ -2699,6 +2710,7 @@ export type OutputTarget =
   | OutputTargetDocsCustom
   | OutputTargetDocsReadme
   | OutputTargetDocsVscode
+  | OutputTargetDocsCustomElementsManifest
   | OutputTargetWww
   | OutputTargetHydrate
   | OutputTargetStats
