@@ -154,7 +154,7 @@ export const setAccessor = (
           // Workaround for Safari, moving the <input> caret when re-assigning the same valued
           if (memberName === 'list') {
             isProp = false;
-          } else if (oldValue == null || (elm as any)[memberName] != n) {
+          } else if (oldValue == null || (elm as any)[memberName] !== n) {
             if (typeof (elm as any).__lookupSetter__(memberName) === 'function') {
               (elm as any)[memberName] = n;
             } else {
