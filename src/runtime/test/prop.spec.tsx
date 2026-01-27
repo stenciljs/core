@@ -248,11 +248,9 @@ describe('prop', () => {
   it('updates the internal input when the prop value changes between distinct falsy states', async () => {
     @Component({ tag: 'cmp-input-wrapper' })
     class CmpA {
-      @Prop() value: any
+      @Prop() value: any;
       render() {
-        return (
-          <input id="internal-input" value={this.value}></input>
-        );
+        return <input id="internal-input" value={this.value}></input>;
       }
     }
 
@@ -272,6 +270,5 @@ describe('prop', () => {
     root.value = 0;
     await waitForChanges();
     expect(root.querySelector('#internal-input').value).toBe('0');
-
   });
 });
