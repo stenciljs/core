@@ -2400,6 +2400,13 @@ export interface OutputTargetHydrate extends OutputTargetBase {
   type: 'dist-hydrate-script';
   dir?: string;
   /**
+   * Whether to generate a package.json file in the hydrate output directory.
+   * Defaults to `true`
+   * @deprecated
+   * In the next major release, the `package.json` file will be completely removed from the `dist-hydrate-script` output (use `exports` from your library's main `package.json`)
+   */
+  generatePackageJson?: boolean;
+  /**
    * Module IDs that should not be bundled into the script.
    * By default, all node builtin's, such as `fs` or `path`
    * will be considered "external" and not bundled.
