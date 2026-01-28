@@ -213,7 +213,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     tagName: component.tag,
     name: className,
     ...(component.docs && { description: component.docs }),
-    ...(component.deprecation !== undefined && { deprecated: true }),
+    ...(component.deprecation !== undefined && { deprecated: component.deprecation || true }),
     ...(attributes.length > 0 && { attributes }),
     ...(members.length > 0 && { members }),
     ...(events.length > 0 && { events }),
