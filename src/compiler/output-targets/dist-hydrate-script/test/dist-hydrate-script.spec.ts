@@ -165,7 +165,7 @@ describe('dist-hydrate-script', () => {
 
       expect(mockFs.copyFile).toHaveBeenCalled();
       expect(mockFs.writeFile).not.toHaveBeenCalledWith(
-        path.join(validatedOutputTarget.dir as string, 'package.json'),
+        expect.stringMatching(/dist[\\/]+hydrate[\\/]+package\.json$/),
         expect.any(String),
       );
     });
@@ -203,7 +203,7 @@ describe('dist-hydrate-script', () => {
 
       expect(mockFs.copyFile).toHaveBeenCalled();
       expect(mockFs.writeFile).toHaveBeenCalledWith(
-        path.join(validatedOutputTarget.dir as string, 'package.json'),
+        expect.stringMatching(/dist[\\/]+hydrate[\\/]+package\.json$/),
         expect.stringContaining('"name"'),
       );
     });
