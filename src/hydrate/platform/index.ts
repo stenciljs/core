@@ -232,6 +232,7 @@ export {
   postUpdateComponent,
   proxyComponent,
   proxyCustomElement,
+  ReactiveControllerHost,
   renderVdom,
   setAssetPath,
   setMode,

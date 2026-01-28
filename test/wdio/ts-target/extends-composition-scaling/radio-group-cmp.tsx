@@ -1,5 +1,4 @@
-import { Component, h, State, Element, Event, EventEmitter } from '@stencil/core';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
+import { Component, h, ReactiveControllerHost, State, Element, Event, EventEmitter } from '@stencil/core';
 import { ValidationController } from './validation-controller.js';
 import { FocusController } from './focus-controller.js';
 
@@ -15,7 +14,7 @@ export class RadioGroupCmp extends ReactiveControllerHost {
 
   // Controllers via composition
   private validation = new ValidationController(this);
-  private focus = new FocusController(this);
+  private focusController = new FocusController(this);
 
   private inputId = `radio-group-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
@@ -50,16 +49,16 @@ export class RadioGroupCmp extends ReactiveControllerHost {
   };
 
   private handleFocus = () => {
-    this.focus.handleFocus();
+    this.focusController.handleFocus();
   };
 
   private handleBlur = () => {
-    this.focus.handleBlur();
+    this.focusController.handleBlur();
     this.validation.handleBlur(this.value);
   };
 
   render() {
-    const focusState = this.focus.getFocusState();
+    const focusState = this.focusController.getFocusState();
     const validationData = this.validation.getValidationMessageData(this.helperTextId, this.errorTextId);
 
     return (

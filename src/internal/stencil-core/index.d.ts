@@ -19,6 +19,7 @@ export type {
   PropOptions,
   QueueApi,
   RafCallback,
+  ReactiveController,
   VNode,
   VNodeData,
 } from '../stencil-public-runtime';
@@ -45,6 +46,7 @@ export {
   Mixin,
   MixinFactory,
   Prop,
+  ReactiveControllerHost,
   readTask,
   render,
   setAssetPath,
