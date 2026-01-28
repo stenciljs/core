@@ -59,7 +59,7 @@ export const attachInternalsDecoratorsToStatic = (
 
   // Parse decorator options for custom states, extracting JSDoc comments from AST
   const decorator = retrieveTsDecorators(decoratedProp)?.find(isDecoratorNamed(decoratorName));
-  const customStates = parseCustomStatesFromDecorator(decorator);
+  const customStates = parseCustomStatesFromDecorator(decorator, typeChecker);
 
   newMembers.push(createStaticGetter('attachInternalsMemberName', convertValueToLiteral(name)));
 
@@ -86,7 +86,10 @@ export const attachInternalsDecoratorsToStatic = (
  * @param decorator the decorator node to parse
  * @returns array of custom state metadata with docs
  */
-function parseCustomStatesFromDecorator(decorator: ts.Decorator | undefined): d.ComponentCompilerCustomState[] {
+function parseCustomStatesFromDecorator(
+  decorator: ts.Decorator | undefined,
+  typeChecker: ts.TypeChecker,
+): d.ComponentCompilerCustomState[] {
   if (!decorator || !ts.isCallExpression(decorator.expression)) {
     return [];
   }
@@ -132,8 +135,9 @@ function parseCustomStatesFromDecorator(decorator: ts.Decorator | undefined): d.
       initialValue = false;
     }
 
-    // Extract JSDoc comment if present
-    const docs = getJsDocFromNode(prop);
+    // Extract JSDoc comment using TypeChecker (consistent with rest of codebase)
+    const symbol = typeChecker.getSymbolAtLocation(prop.name);
+    const docs = symbol ? ts.displayPartsToString(symbol.getDocumentationComment(typeChecker)) : '';
 
     customStates.push({
       name: stateName,
@@ -143,40 +147,4 @@ function parseCustomStatesFromDecorator(decorator: ts.Decorator | undefined): d.
   }
 
   return customStates;
-}
-
-/**
- * Extract JSDoc comment text from a node's leading comments
- *
- * @param node the AST node to extract JSDoc from
- * @returns the JSDoc text, or empty string if none found
- */
-function getJsDocFromNode(node: ts.Node): string {
-  const sourceFile = node.getSourceFile();
-  const nodeText = sourceFile.text;
-  const nodeStart = node.getFullStart();
-  const commentRanges = ts.getLeadingCommentRanges(nodeText, nodeStart);
-
-  if (!commentRanges || commentRanges.length === 0) {
-    return '';
-  }
-
-  // Find JSDoc-style comments (starting with /**)
-  for (const range of commentRanges) {
-    const commentText = nodeText.slice(range.pos, range.end);
-    if (commentText.startsWith('/**')) {
-      // Extract the text content from the JSDoc comment
-      return (
-        commentText
-          // Remove /** and */
-          .replace(/^\/\*\*\s*/, '')
-          .replace(/\s*\*\/$/, '')
-          // Remove leading * on each line
-          .replace(/^\s*\*\s?/gm, '')
-          .trim()
-      );
-    }
-  }
-
-  return '';
 }
