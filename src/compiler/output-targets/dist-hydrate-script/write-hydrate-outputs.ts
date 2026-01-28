@@ -39,19 +39,22 @@ const writeHydrateOutput = async (
   const hydrateCoreIndexPathESM = join(hydrateAppDirPath, 'index.mjs');
   const hydrateCoreIndexDtsFilePath = join(hydrateAppDirPath, 'index.d.ts');
 
-  const pkgJsonPath = join(hydrateAppDirPath, 'package.json');
-  const pkgJsonCode = getHydratePackageJson(
-    config,
-    hydrateCoreIndexPath,
-    hydrateCoreIndexPathESM,
-    hydrateCoreIndexDtsFilePath,
-    hydratePackageName,
-  );
+  const writeOperations: Promise<unknown>[] = [copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath)];
 
-  await Promise.all([
-    copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath),
-    compilerCtx.fs.writeFile(pkgJsonPath, pkgJsonCode),
-  ]);
+  if (outputTarget.generatePackageJson) {
+    const pkgJsonPath = join(hydrateAppDirPath, 'package.json');
+    const pkgJsonCode = getHydratePackageJson(
+      config,
+      hydrateCoreIndexPath,
+      hydrateCoreIndexPathESM,
+      hydrateCoreIndexDtsFilePath,
+      hydratePackageName,
+    );
+
+    writeOperations.push(compilerCtx.fs.writeFile(pkgJsonPath, pkgJsonCode));
+  }
+
+  await Promise.all(writeOperations);
 
   // always remember a path to the hydrate app that the prerendering may need later on
   buildCtx.hydrateAppFilePath = hydrateCoreIndexPath;
