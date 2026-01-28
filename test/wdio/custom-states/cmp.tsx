@@ -16,7 +16,7 @@ export class CustomStatesCmp {
   /**
    * Toggle a custom state on or off
    * @param stateName the name of the state to toggle
-   * @param force optional boolean to force the state on (true) or off (false) 
+   * @param force optional boolean to force the state on (true) or off (false)
    */
   @Method()
   async toggleState(stateName: string, force?: boolean): Promise<void> {
