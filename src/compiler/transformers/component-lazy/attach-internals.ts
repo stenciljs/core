@@ -16,7 +16,7 @@ import { HOST_REF_ARG } from './constants';
  * If an `@AttachInternals` decorator is present on a component like this:
  *
  * ```ts
- * @AttachInternals()
+ * @AttachInternals({ states: { open: true, active: false } })
  * internals: ElementInternals;
  * ```
  *
@@ -30,6 +30,8 @@ import { HOST_REF_ARG } from './constants';
  *   this.internals = hostRef.$hostElement$.attachInternals();
  *   hostRef.$hostElement$["s-ei"] = this.internals;
  * }
+ * this.internals.states.add('open');
+ * // 'active' is false, so no call needed (not in set by default)
  * ```
  *
  * The `"s-ei"` prop on a {@link d.HostElement} may hold a reference to the
@@ -45,89 +47,127 @@ export function createLazyAttachInternalsBinding(cmp: d.ComponentCompilerMeta): 
   if (!cmp?.attachInternalsMemberName) {
     return [];
   }
-  if (cmp.attachInternalsMemberName) {
-    return [
-      ts.factory.createIfStatement(
-        // the condition for the `if` statement here is just whether the
-        // following is defined:
-        //
-        // ```ts
-        // hostRef.$hostElement$["s-ei"]
-        // ```
-        hostRefElementInternalsPropAccess(),
-        ts.factory.createBlock(
-          [
-            // this `ts.factory` call creates the following statement:
-            //
-            // ```ts
-            // this.${ cmp.formInternalsMemberName } = hostRef.$hostElement$['s-ei'];
-            // ```
-            ts.factory.createExpressionStatement(
-              ts.factory.createBinaryExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createThis(),
-                  // use the name set on the {@link d.ComponentCompilerMeta}
-                  ts.factory.createIdentifier(cmp.attachInternalsMemberName),
-                ),
-                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
-                hostRefElementInternalsPropAccess(),
+
+  const statements: ts.Statement[] = [
+    ts.factory.createIfStatement(
+      // the condition for the `if` statement here is just whether the
+      // following is defined:
+      //
+      // ```ts
+      // hostRef.$hostElement$["s-ei"]
+      // ```
+      hostRefElementInternalsPropAccess(),
+      ts.factory.createBlock(
+        [
+          // this `ts.factory` call creates the following statement:
+          //
+          // ```ts
+          // this.${ cmp.formInternalsMemberName } = hostRef.$hostElement$['s-ei'];
+          // ```
+          ts.factory.createExpressionStatement(
+            ts.factory.createBinaryExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createThis(),
+                // use the name set on the {@link d.ComponentCompilerMeta}
+                ts.factory.createIdentifier(cmp.attachInternalsMemberName),
               ),
+              ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+              hostRefElementInternalsPropAccess(),
             ),
-          ],
-          true,
-        ),
-        ts.factory.createBlock(
-          [
-            // this `ts.factory` call creates the following statement:
-            //
-            // ```ts
-            // this.${ cmp.attachInternalsMemberName } = hostRef.$hostElement$.attachInternals();
-            // ```
-            ts.factory.createExpressionStatement(
-              ts.factory.createBinaryExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createThis(),
-                  // use the name set on the {@link d.ComponentCompilerMeta}
-                  ts.factory.createIdentifier(cmp.attachInternalsMemberName),
-                ),
-                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
-                ts.factory.createCallExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier(HOST_REF_ARG),
-                      ts.factory.createIdentifier('$hostElement$'),
-                    ),
-                    ts.factory.createIdentifier('attachInternals'),
-                  ),
-                  undefined,
-                  [],
-                ),
-              ),
-            ),
-            // this `ts.factory` call produces the following:
-            //
-            // ```ts
-            // hostRef.$hostElement$['s-ei'] = this.${ cmp.attachInternalsMemberName };
-            // ```
-            ts.factory.createExpressionStatement(
-              ts.factory.createBinaryExpression(
-                hostRefElementInternalsPropAccess(),
-                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createThis(),
-                  // use the name set on the {@link d.ComponentCompilerMeta}
-                  ts.factory.createIdentifier(cmp.attachInternalsMemberName),
-                ),
-              ),
-            ),
-          ],
-          true,
-        ),
+          ),
+        ],
+        true,
       ),
-    ];
-  } else {
-    return [];
+      ts.factory.createBlock(
+        [
+          // this `ts.factory` call creates the following statement:
+          //
+          // ```ts
+          // this.${ cmp.attachInternalsMemberName } = hostRef.$hostElement$.attachInternals();
+          // ```
+          ts.factory.createExpressionStatement(
+            ts.factory.createBinaryExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createThis(),
+                // use the name set on the {@link d.ComponentCompilerMeta}
+                ts.factory.createIdentifier(cmp.attachInternalsMemberName),
+              ),
+              ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+              ts.factory.createCallExpression(
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.factory.createIdentifier(HOST_REF_ARG),
+                    ts.factory.createIdentifier('$hostElement$'),
+                  ),
+                  ts.factory.createIdentifier('attachInternals'),
+                ),
+                undefined,
+                [],
+              ),
+            ),
+          ),
+          // this `ts.factory` call produces the following:
+          //
+          // ```ts
+          // hostRef.$hostElement$['s-ei'] = this.${ cmp.attachInternalsMemberName };
+          // ```
+          ts.factory.createExpressionStatement(
+            ts.factory.createBinaryExpression(
+              hostRefElementInternalsPropAccess(),
+              ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createThis(),
+                // use the name set on the {@link d.ComponentCompilerMeta}
+                ts.factory.createIdentifier(cmp.attachInternalsMemberName),
+              ),
+            ),
+          ),
+        ],
+        true,
+      ),
+    ),
+  ];
+
+  // Add custom states initialization for states with initialValue: true
+  // CustomStateSet only has add/delete/has methods (extends Set), so we only
+  // need to call add() for true values - false values are the default (not in set)
+  if (cmp.attachInternalsCustomStates?.length > 0) {
+    for (const customState of cmp.attachInternalsCustomStates) {
+      if (customState.initialValue) {
+        statements.push(createStatesAddCall(cmp.attachInternalsMemberName, customState.name));
+      }
+    }
   }
+
+  return statements;
+}
+
+/**
+ * Create a `states.add()` call for initializing a custom state.
+ *
+ * Generates code like:
+ * ```ts
+ * this.internals.states.add('stateName');
+ * ```
+ *
+ * @param memberName the name of the ElementInternals property
+ * @param stateName the name of the custom state to add
+ * @returns an expression statement for the add call
+ */
+function createStatesAddCall(memberName: string, stateName: string): ts.ExpressionStatement {
+  return ts.factory.createExpressionStatement(
+    ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createPropertyAccessExpression(
+          ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier(memberName)),
+          ts.factory.createIdentifier('states'),
+        ),
+        ts.factory.createIdentifier('add'),
+      ),
+      undefined,
+      [ts.factory.createStringLiteral(stateName)],
+    ),
+  );
 }
 
 /**

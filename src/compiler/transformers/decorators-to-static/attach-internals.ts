@@ -16,6 +16,10 @@ import { isDecoratorNamed } from './decorator-utils';
  * Stencil components rich participants in whatever `HTMLFormElement` instances
  * they find themselves inside of in the future.
  *
+ * The decorator also accepts an optional `states` option to define initial
+ * custom states that will be set on the `ElementInternals.states` CustomStateSet.
+ * Each state property can have a JSDoc comment that will be extracted for documentation.
+ *
  * **Note**: this function will mutate the `newMembers` parameter in order to
  * add new members to the class.
  *
@@ -53,5 +57,126 @@ export const attachInternalsDecoratorsToStatic = (
 
   const { staticName: name } = tsPropDeclName(decoratedProp, typeChecker);
 
+  // Parse decorator options for custom states, extracting JSDoc comments from AST
+  const decorator = retrieveTsDecorators(decoratedProp)?.find(isDecoratorNamed(decoratorName));
+  const customStates = parseCustomStatesFromDecorator(decorator);
+
   newMembers.push(createStaticGetter('attachInternalsMemberName', convertValueToLiteral(name)));
+
+  // Only add custom states static getter if there are states defined
+  if (customStates.length > 0) {
+    newMembers.push(createStaticGetter('attachInternalsCustomStates', convertValueToLiteral(customStates)));
+  }
 };
+
+/**
+ * Parse custom states from the decorator AST, including JSDoc comments.
+ *
+ * Supports JSDoc comments on state properties:
+ * ```ts
+ * @AttachInternals({
+ *   states: {
+ *     hovered: false,
+ *     /&#42;&#42; Whether is currently active &#42;/
+ *     active: true
+ *   }
+ * })
+ * ```
+ *
+ * @param decorator the decorator node to parse
+ * @returns array of custom state metadata with docs
+ */
+function parseCustomStatesFromDecorator(decorator: ts.Decorator | undefined): d.ComponentCompilerCustomState[] {
+  if (!decorator || !ts.isCallExpression(decorator.expression)) {
+    return [];
+  }
+
+  const [firstArg] = decorator.expression.arguments;
+  if (!firstArg || !ts.isObjectLiteralExpression(firstArg)) {
+    return [];
+  }
+
+  // Find the 'states' property in the options object
+  const statesProp = firstArg.properties.find(
+    (prop): prop is ts.PropertyAssignment =>
+      ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'states',
+  );
+
+  if (!statesProp || !ts.isObjectLiteralExpression(statesProp.initializer)) {
+    return [];
+  }
+
+  const customStates: d.ComponentCompilerCustomState[] = [];
+
+  // Iterate through each property in the states object
+  for (const prop of statesProp.initializer.properties) {
+    if (!ts.isPropertyAssignment(prop)) {
+      continue;
+    }
+
+    const stateName = ts.isIdentifier(prop.name)
+      ? prop.name.text
+      : ts.isStringLiteral(prop.name)
+        ? prop.name.text
+        : null;
+
+    if (!stateName) {
+      continue;
+    }
+
+    // Get the boolean value
+    let initialValue = false;
+    if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+      initialValue = true;
+    } else if (prop.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+      initialValue = false;
+    }
+
+    // Extract JSDoc comment if present
+    const docs = getJsDocFromNode(prop);
+
+    customStates.push({
+      name: stateName,
+      initialValue,
+      docs,
+    });
+  }
+
+  return customStates;
+}
+
+/**
+ * Extract JSDoc comment text from a node's leading comments
+ *
+ * @param node the AST node to extract JSDoc from
+ * @returns the JSDoc text, or empty string if none found
+ */
+function getJsDocFromNode(node: ts.Node): string {
+  const sourceFile = node.getSourceFile();
+  const nodeText = sourceFile.text;
+  const nodeStart = node.getFullStart();
+  const commentRanges = ts.getLeadingCommentRanges(nodeText, nodeStart);
+
+  if (!commentRanges || commentRanges.length === 0) {
+    return '';
+  }
+
+  // Find JSDoc-style comments (starting with /**)
+  for (const range of commentRanges) {
+    const commentText = nodeText.slice(range.pos, range.end);
+    if (commentText.startsWith('/**')) {
+      // Extract the text content from the JSDoc comment
+      return (
+        commentText
+          // Remove /** and */
+          .replace(/^\/\*\*\s*/, '')
+          .replace(/\s*\*\/$/, '')
+          // Remove leading * on each line
+          .replace(/^\s*\*\s?/gm, '')
+          .trim()
+      );
+    }
+  }
+
+  return '';
+}
