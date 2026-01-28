@@ -4,6 +4,7 @@ import type * as d from '../../../declarations';
 import { AUTO_GENERATE_COMMENT } from '../constants';
 import { getUserReadmeContent } from '../generate-doc-data';
 import { stylesToMarkdown } from './markdown-css-props';
+import { customStatesToMarkdown } from './markdown-custom-states';
 import { depsToMarkdown } from './markdown-dependencies';
 import { eventsToMarkdown } from './markdown-events';
 import { methodsToMarkdown } from './markdown-methods';
@@ -103,6 +104,7 @@ export const generateMarkdown = (
     ...methodsToMarkdown(cmp.methods),
     ...slotsToMarkdown(cmp.slots),
     ...partsToMarkdown(cmp.parts),
+    ...customStatesToMarkdown(cmp.customStates),
     ...stylesToMarkdown(cmp.styles),
     ...dependencies,
     `----------------------------------------------`,

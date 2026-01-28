@@ -623,6 +623,11 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    * `null` then `attachInternals` should not be called.
    */
   attachInternalsMemberName: string | null;
+  /**
+   * Custom states to initialize on the ElementInternals.states CustomStateSet.
+   * These are defined via @AttachInternals({ states: {...} }).
+   */
+  attachInternalsCustomStates: ComponentCompilerCustomState[];
   componentClassName: string;
   /**
    * A list of web component tag names that are either:
@@ -860,6 +865,27 @@ export interface ComponentCompilerMethod extends ComponentCompilerStaticMethod {
 
 export interface ComponentCompilerState {
   name: string;
+}
+
+/**
+ * Metadata about a custom state defined via @AttachInternals({ states: {...} })
+ *
+ * Custom states are exposed via the ElementInternals.states CustomStateSet
+ * and can be targeted with the CSS :state() pseudo-class.
+ */
+export interface ComponentCompilerCustomState {
+  /**
+   * The name of the custom state (without dashes)
+   */
+  name: string;
+  /**
+   * The initial value of the state
+   */
+  initialValue: boolean;
+  /**
+   * Optional JSDoc description for the state
+   */
+  docs: string;
 }
 
 /**

@@ -8,7 +8,7 @@ import {
 
 import type * as d from '../../declarations';
 import { generateCustomDocs } from '../docs/custom';
-import { generateCustomElementsManifestDocs } from '../docs/custom-elements-manifest';
+import { generateCustomElementsManifestDocs } from '../docs/cem';
 import { generateDocData } from '../docs/generate-doc-data';
 import { generateJsonDocs } from '../docs/json';
 import { generateReadmeDocs } from '../docs/readme';

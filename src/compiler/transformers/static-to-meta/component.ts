@@ -7,7 +7,7 @@ import { addComponentMetaStatic } from '../add-component-meta-static';
 import { setComponentBuildConditionals } from '../component-build-conditionals';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { getComponentTagName, getStaticValue, isInternal, isStaticGetter, serializeSymbol } from '../transform-utils';
-import { parseAttachInternals } from './attach-internals';
+import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach-internals';
 import { parseCallExpression } from './call-expression';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
@@ -83,6 +83,7 @@ export const parseStaticComponentMeta = (
   const encapsulation = parseStaticEncapsulation(staticMembers);
   const cmp: d.ComponentCompilerMeta = {
     attachInternalsMemberName: parseAttachInternals(staticMembers),
+    attachInternalsCustomStates: parseAttachInternalsCustomStates(staticMembers),
     formAssociated: parseFormAssociated(staticMembers),
     tagName: tagName,
     excludeFromCollection: moduleFile.excludeFromCollection,

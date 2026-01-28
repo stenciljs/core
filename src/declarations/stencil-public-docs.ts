@@ -140,6 +140,10 @@ export interface JsonDocsComponent {
    */
   parts: JsonDocsPart[];
   /**
+   * Array of custom states defined via @AttachInternals({ states: {...} })
+   */
+  customStates: JsonDocsCustomState[];
+  /**
    * Array of metadata describing where the current component is used
    */
   dependents: string[];
@@ -366,6 +370,29 @@ export interface JsonDocsPart {
   name: string;
   /**
    * A textual description of the Shadow part.
+   */
+  docs: string;
+}
+
+/**
+ * A descriptor for a Custom State defined via @AttachInternals({ states: {...} })
+ *
+ * Custom states are exposed via the ElementInternals.states CustomStateSet
+ * and can be targeted with the CSS `:state()` pseudo-class.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/CustomStateSet
+ */
+export interface JsonDocsCustomState {
+  /**
+   * The name of the custom state (without dashes)
+   */
+  name: string;
+  /**
+   * The initial/default value of the state
+   */
+  initialValue: boolean;
+  /**
+   * A textual description of the custom state
    */
   docs: string;
 }
