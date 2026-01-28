@@ -83,31 +83,19 @@ describe('custom states', function () {
       // Test that the element matches :state(open) initially
       // Note: :state() pseudo-class support varies by browser
       const matchesOpen = await elm.execute((el: Element) => {
-        try {
-          return el.matches(':state(open)');
-        } catch {
-          // Browser may not support :state() pseudo-class
-          return null;
-        }
+        return el.matches(':state(open)');
       });
 
-      // If the browser supports :state(), verify it works
-      if (matchesOpen !== null) {
-        expect(matchesOpen).toBe(true);
+      expect(matchesOpen).toBe(true);
 
-        // Toggle open off and verify CSS no longer matches
-        const cmp = document.querySelector('custom-states-cmp') as any;
-        await cmp.toggleState('open', false);
+      // Toggle open off and verify CSS no longer matches
+      const cmp = document.querySelector('custom-states-cmp') as any;
+      await cmp.toggleState('open', false);
 
-        const matchesOpenAfter = await elm.execute((el: Element) => {
-          try {
-            return el.matches(':state(open)');
-          } catch {
-            return null;
-          }
-        });
-        expect(matchesOpenAfter).toBe(false);
-      }
+      const matchesOpenAfter = await elm.execute((el: Element) => {
+        return el.matches(':state(open)');
+      });
+      expect(matchesOpenAfter).toBe(false);
     });
   });
 });
