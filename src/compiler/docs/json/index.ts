@@ -49,6 +49,7 @@ export default _default;
       styles: cmp.styles,
       slots: cmp.slots,
       parts: cmp.parts,
+      states: cmp.customStates,
       dependents: cmp.dependents,
       dependencies: cmp.dependencies,
       dependencyGraph: cmp.dependencyGraph,

@@ -12,6 +12,7 @@ export const stubComponentCompilerMeta = (
 ): d.ComponentCompilerMeta => ({
   assetsDirs: [],
   attachInternalsMemberName: null,
+  attachInternalsCustomStates: [],
   componentClassName: 'StubCmp',
   dependencies: [],
   dependents: [],

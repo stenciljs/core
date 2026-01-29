@@ -1,6 +1,6 @@
 import { dashToPascalCase, isOutputTargetDocsCustomElementsManifest } from '@utils';
 
-import type * as d from '../../declarations';
+import type * as d from '../../../declarations';
 
 /**
  * Generate Custom Elements Manifest (custom-elements.json) output
@@ -220,6 +220,13 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     ...(slots.length > 0 && { slots }),
     ...(cssParts.length > 0 && { cssParts }),
     ...(cssProperties.length > 0 && { cssProperties }),
+    ...(component.customStates.length > 0 && {
+      customStates: component.customStates.map((state) => ({
+        name: state.name,
+        initialValue: state.initialValue,
+        ...(state.docs && { description: state.docs }),
+      })),
+    }),
     ...(demos.length > 0 && { demos }),
   };
 };
@@ -270,6 +277,7 @@ interface CustomElementDeclaration {
   slots?: Slot[];
   cssParts?: CssPart[];
   cssProperties?: CssCustomProperty[];
+  customStates?: CustomState[];
   demos?: Demo[];
 }
 
@@ -342,6 +350,16 @@ interface Slot {
 
 interface CssPart {
   name: string;
+  description?: string;
+}
+
+/**
+ * Custom state that can be targeted with the CSS :state() pseudo-class.
+ * This is a custom extension to the CEM spec.
+ */
+interface CustomState {
+  name: string;
+  initialValue: boolean;
   description?: string;
 }
 

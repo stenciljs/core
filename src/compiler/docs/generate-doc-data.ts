@@ -118,6 +118,7 @@ const getDocsComponents = async (
           styles: getDocsStyles(cmp),
           slots: getDocsSlots(cmp.docs.tags),
           parts: getDocsParts(cmp.htmlParts, cmp.docs.tags),
+          customStates: getDocsCustomStates(cmp),
           listeners: getDocsListeners(cmp.listeners),
         }));
     }),
@@ -382,6 +383,27 @@ const getDocsParts = (vdom: string[], tags: d.JsonDocsTag[]): d.JsonDocsSlot[] =
   return sortBy(
     unique([...docsParts, ...vdomParts], (p) => p.name),
     (p) => p.name,
+  );
+};
+
+/**
+ * Extract custom states documentation from component metadata
+ *
+ * @param cmpMeta the component metadata to extract custom states from
+ * @returns array of custom state documentation objects
+ */
+const getDocsCustomStates = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsCustomState[] => {
+  if (!cmpMeta.attachInternalsCustomStates || cmpMeta.attachInternalsCustomStates.length === 0) {
+    return [];
+  }
+
+  return sortBy(
+    cmpMeta.attachInternalsCustomStates.map((state) => ({
+      name: state.name,
+      initialValue: state.initialValue,
+      docs: state.docs || '',
+    })),
+    (state) => state.name,
   );
 };
 
