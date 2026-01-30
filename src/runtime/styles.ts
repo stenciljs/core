@@ -215,6 +215,14 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         }
 
         appliedStyles.add(scopeId);
+
+        // Remove SSR style element from shadow root now that adoptedStyleSheets is in use
+        if (BUILD.hydrateClientSide) {
+          const ssrStyleElm = styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
+          if (ssrStyleElm) {
+            ssrStyleElm.remove();
+          }
+        }
       }
     }
   }

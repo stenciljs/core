@@ -2,6 +2,43 @@ import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('hydrate, shadow', () => {
+  it('shadow component with styles hydrates correctly', async () => {
+    @Component({
+      tag: 'cmp-styled',
+      shadow: true,
+      styles: `
+        :host { color: red; }
+        div { background: blue; }
+      `,
+    })
+    class CmpStyled {
+      render() {
+        return <div>Styled content</div>;
+      }
+    }
+
+    const serverHydrated = await newSpecPage({
+      components: [CmpStyled],
+      html: `<cmp-styled></cmp-styled>`,
+      hydrateServerSide: true,
+    });
+
+    // SSR should add scoped style classes
+    expect(serverHydrated.root.outerHTML).toContain('sc-cmp-styled');
+
+    const clientHydrated = await newSpecPage({
+      components: [CmpStyled],
+      html: serverHydrated.root.outerHTML,
+      hydrateClientSide: true,
+    });
+
+    // After hydration, shadow root should exist
+    expect(clientHydrated.root.shadowRoot).toBeDefined();
+
+    // Component should render correctly
+    expect(clientHydrated.root.shadowRoot.querySelector('div').textContent).toBe('Styled content');
+  });
+
   it('light dom parent, nested shadow slot', async () => {
     @Component({
       tag: 'cmp-a',
