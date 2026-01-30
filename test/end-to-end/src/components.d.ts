@@ -836,17 +836,68 @@ declare namespace LocalJSX {
     }
     interface StateCmp {
     }
+
+    interface AnotherCarDetailAttributes {
+        "car": string;
+    }
+    interface AnotherCarListAttributes {
+        "cars": string;
+    }
+    interface CarDetailAttributes {
+        "car": string;
+    }
+    interface CarListAttributes {
+        "cars": string;
+    }
+    interface CmpDsdAttributes {
+        "initialCounter": number;
+    }
+    interface ListenCmpAttributes {
+        "opened": boolean;
+    }
+    interface MethodCmpAttributes {
+        "someProp": number;
+    }
+    interface MyCmpAttributes {
+        "fooProp": string;
+        "barProp": string;
+    }
+    interface MyJsxCmpAttributes {
+        "fooProp": string;
+        "barProp": string;
+    }
+    interface PropCmpAttributes {
+        "first": string;
+        "lastName": string;
+        "fullName": string;
+        "clothes": string;
+    }
+    interface RuntimeDecoratorsAttributes {
+        "basicProp": string;
+        "decoratedProp": number;
+        "decoratedGetterSetterProp": number;
+    }
+    interface ScopedCarDetailAttributes {
+        "car": string;
+    }
+    interface ScopedCarListAttributes {
+        "cars": string;
+    }
+    interface SlotParentCmpAttributes {
+        "label": string;
+    }
+
     interface IntrinsicElements {
-        "another-car-detail": AnotherCarDetail;
-        "another-car-list": AnotherCarList;
+        "another-car-detail": Omit<AnotherCarDetail, keyof AnotherCarDetailAttributes> & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes]?: AnotherCarDetail[K] } & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes as `attr:${K}`]?: AnotherCarDetailAttributes[K] } & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes as `prop:${K}`]?: AnotherCarDetail[K] };
+        "another-car-list": Omit<AnotherCarList, keyof AnotherCarListAttributes> & { [K in keyof AnotherCarList & keyof AnotherCarListAttributes]?: AnotherCarList[K] } & { [K in keyof AnotherCarList & keyof AnotherCarListAttributes as `attr:${K}`]?: AnotherCarListAttributes[K] } & { [K in keyof AnotherCarList & keyof AnotherCarListAttributes as `prop:${K}`]?: AnotherCarList[K] };
         "app-root": AppRoot;
         "build-data": BuildData;
-        "car-detail": CarDetail;
-        "car-list": CarList;
+        "car-detail": Omit<CarDetail, keyof CarDetailAttributes> & { [K in keyof CarDetail & keyof CarDetailAttributes]?: CarDetail[K] } & { [K in keyof CarDetail & keyof CarDetailAttributes as `attr:${K}`]?: CarDetailAttributes[K] } & { [K in keyof CarDetail & keyof CarDetailAttributes as `prop:${K}`]?: CarDetail[K] };
+        "car-list": Omit<CarList, keyof CarListAttributes> & { [K in keyof CarList & keyof CarListAttributes]?: CarList[K] } & { [K in keyof CarList & keyof CarListAttributes as `attr:${K}`]?: CarListAttributes[K] } & { [K in keyof CarList & keyof CarListAttributes as `prop:${K}`]?: CarList[K] };
         "cmp-a": CmpA;
         "cmp-b": CmpB;
         "cmp-c": CmpC;
-        "cmp-dsd": CmpDsd;
+        "cmp-dsd": Omit<CmpDsd, keyof CmpDsdAttributes> & { [K in keyof CmpDsd & keyof CmpDsdAttributes]?: CmpDsd[K] } & { [K in keyof CmpDsd & keyof CmpDsdAttributes as `attr:${K}`]?: CmpDsdAttributes[K] } & { [K in keyof CmpDsd & keyof CmpDsdAttributes as `prop:${K}`]?: CmpDsd[K] };
         "cmp-dsd-focus": CmpDsdFocus;
         "cmp-server-vs-client": CmpServerVsClient;
         "cmp-with-slot": CmpWithSlot;
@@ -861,10 +912,10 @@ declare namespace LocalJSX {
         "event-cmp": EventCmp;
         "hydrated-sibling-accessors": HydratedSiblingAccessors;
         "import-assets": ImportAssets;
-        "listen-cmp": ListenCmp;
-        "method-cmp": MethodCmp;
-        "my-cmp": MyCmp;
-        "my-jsx-cmp": MyJsxCmp;
+        "listen-cmp": Omit<ListenCmp, keyof ListenCmpAttributes> & { [K in keyof ListenCmp & keyof ListenCmpAttributes]?: ListenCmp[K] } & { [K in keyof ListenCmp & keyof ListenCmpAttributes as `attr:${K}`]?: ListenCmpAttributes[K] } & { [K in keyof ListenCmp & keyof ListenCmpAttributes as `prop:${K}`]?: ListenCmp[K] };
+        "method-cmp": Omit<MethodCmp, keyof MethodCmpAttributes> & { [K in keyof MethodCmp & keyof MethodCmpAttributes]?: MethodCmp[K] } & { [K in keyof MethodCmp & keyof MethodCmpAttributes as `attr:${K}`]?: MethodCmpAttributes[K] } & { [K in keyof MethodCmp & keyof MethodCmpAttributes as `prop:${K}`]?: MethodCmp[K] };
+        "my-cmp": Omit<MyCmp, keyof MyCmpAttributes> & { [K in keyof MyCmp & keyof MyCmpAttributes]?: MyCmp[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `attr:${K}`]?: MyCmpAttributes[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `prop:${K}`]?: MyCmp[K] };
+        "my-jsx-cmp": Omit<MyJsxCmp, keyof MyJsxCmpAttributes> & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes]?: MyJsxCmp[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `attr:${K}`]?: MyJsxCmpAttributes[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `prop:${K}`]?: MyJsxCmp[K] };
         "nested-cmp-child": NestedCmpChild;
         "nested-cmp-parent": NestedCmpParent;
         "nested-scope-cmp": NestedScopeCmp;
@@ -874,16 +925,16 @@ declare namespace LocalJSX {
         "non-shadow-wrapper": NonShadowWrapper;
         "path-alias-cmp": PathAliasCmp;
         "prerender-cmp": PrerenderCmp;
-        "prop-cmp": PropCmp;
+        "prop-cmp": Omit<PropCmp, keyof PropCmpAttributes> & { [K in keyof PropCmp & keyof PropCmpAttributes]?: PropCmp[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `attr:${K}`]?: PropCmpAttributes[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `prop:${K}`]?: PropCmp[K] };
         "resolve-var-events": ResolveVarEvents;
-        "runtime-decorators": RuntimeDecorators;
-        "scoped-car-detail": ScopedCarDetail;
-        "scoped-car-list": ScopedCarList;
+        "runtime-decorators": Omit<RuntimeDecorators, keyof RuntimeDecoratorsAttributes> & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes]?: RuntimeDecorators[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `attr:${K}`]?: RuntimeDecoratorsAttributes[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `prop:${K}`]?: RuntimeDecorators[K] };
+        "scoped-car-detail": Omit<ScopedCarDetail, keyof ScopedCarDetailAttributes> & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes]?: ScopedCarDetail[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `attr:${K}`]?: ScopedCarDetailAttributes[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `prop:${K}`]?: ScopedCarDetail[K] };
+        "scoped-car-list": Omit<ScopedCarList, keyof ScopedCarListAttributes> & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes]?: ScopedCarList[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `attr:${K}`]?: ScopedCarListAttributes[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `prop:${K}`]?: ScopedCarList[K] };
         "shadow-child": ShadowChild;
         "shadow-wrapper": ShadowWrapper;
         "slot-cmp": SlotCmp;
         "slot-cmp-container": SlotCmpContainer;
-        "slot-parent-cmp": SlotParentCmp;
+        "slot-parent-cmp": Omit<SlotParentCmp, keyof SlotParentCmpAttributes> & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes]?: SlotParentCmp[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `attr:${K}`]?: SlotParentCmpAttributes[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `prop:${K}`]?: SlotParentCmp[K] };
         "state-cmp": StateCmp;
     }
 }
@@ -891,63 +942,63 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "another-car-detail": LocalJSX.AnotherCarDetail & JSXBase.HTMLAttributes<HTMLAnotherCarDetailElement>;
+            "another-car-detail": LocalJSX.IntrinsicElements["another-car-detail"] & JSXBase.HTMLAttributes<HTMLAnotherCarDetailElement>;
             /**
              * Component that helps display a list of cars
              */
-            "another-car-list": LocalJSX.AnotherCarList & JSXBase.HTMLAttributes<HTMLAnotherCarListElement>;
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
-            "build-data": LocalJSX.BuildData & JSXBase.HTMLAttributes<HTMLBuildDataElement>;
-            "car-detail": LocalJSX.CarDetail & JSXBase.HTMLAttributes<HTMLCarDetailElement>;
+            "another-car-list": LocalJSX.IntrinsicElements["another-car-list"] & JSXBase.HTMLAttributes<HTMLAnotherCarListElement>;
+            "app-root": LocalJSX.IntrinsicElements["app-root"] & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "build-data": LocalJSX.IntrinsicElements["build-data"] & JSXBase.HTMLAttributes<HTMLBuildDataElement>;
+            "car-detail": LocalJSX.IntrinsicElements["car-detail"] & JSXBase.HTMLAttributes<HTMLCarDetailElement>;
             /**
              * Component that helps display a list of cars
              */
-            "car-list": LocalJSX.CarList & JSXBase.HTMLAttributes<HTMLCarListElement>;
-            "cmp-a": LocalJSX.CmpA & JSXBase.HTMLAttributes<HTMLCmpAElement>;
-            "cmp-b": LocalJSX.CmpB & JSXBase.HTMLAttributes<HTMLCmpBElement>;
-            "cmp-c": LocalJSX.CmpC & JSXBase.HTMLAttributes<HTMLCmpCElement>;
-            "cmp-dsd": LocalJSX.CmpDsd & JSXBase.HTMLAttributes<HTMLCmpDsdElement>;
-            "cmp-dsd-focus": LocalJSX.CmpDsdFocus & JSXBase.HTMLAttributes<HTMLCmpDsdFocusElement>;
-            "cmp-server-vs-client": LocalJSX.CmpServerVsClient & JSXBase.HTMLAttributes<HTMLCmpServerVsClientElement>;
-            "cmp-with-slot": LocalJSX.CmpWithSlot & JSXBase.HTMLAttributes<HTMLCmpWithSlotElement>;
-            "dom-api": LocalJSX.DomApi & JSXBase.HTMLAttributes<HTMLDomApiElement>;
-            "dom-interaction": LocalJSX.DomInteraction & JSXBase.HTMLAttributes<HTMLDomInteractionElement>;
-            "dom-visible": LocalJSX.DomVisible & JSXBase.HTMLAttributes<HTMLDomVisibleElement>;
-            "dsd-listen-cmp": LocalJSX.DsdListenCmp & JSXBase.HTMLAttributes<HTMLDsdListenCmpElement>;
-            "element-cmp": LocalJSX.ElementCmp & JSXBase.HTMLAttributes<HTMLElementCmpElement>;
-            "empty-cmp": LocalJSX.EmptyCmp & JSXBase.HTMLAttributes<HTMLEmptyCmpElement>;
-            "empty-cmp-shadow": LocalJSX.EmptyCmpShadow & JSXBase.HTMLAttributes<HTMLEmptyCmpShadowElement>;
-            "env-data": LocalJSX.EnvData & JSXBase.HTMLAttributes<HTMLEnvDataElement>;
-            "event-cmp": LocalJSX.EventCmp & JSXBase.HTMLAttributes<HTMLEventCmpElement>;
-            "hydrated-sibling-accessors": LocalJSX.HydratedSiblingAccessors & JSXBase.HTMLAttributes<HTMLHydratedSiblingAccessorsElement>;
-            "import-assets": LocalJSX.ImportAssets & JSXBase.HTMLAttributes<HTMLImportAssetsElement>;
-            "listen-cmp": LocalJSX.ListenCmp & JSXBase.HTMLAttributes<HTMLListenCmpElement>;
-            "method-cmp": LocalJSX.MethodCmp & JSXBase.HTMLAttributes<HTMLMethodCmpElement>;
-            "my-cmp": LocalJSX.MyCmp & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
-            "my-jsx-cmp": LocalJSX.MyJsxCmp & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
-            "nested-cmp-child": LocalJSX.NestedCmpChild & JSXBase.HTMLAttributes<HTMLNestedCmpChildElement>;
-            "nested-cmp-parent": LocalJSX.NestedCmpParent & JSXBase.HTMLAttributes<HTMLNestedCmpParentElement>;
-            "nested-scope-cmp": LocalJSX.NestedScopeCmp & JSXBase.HTMLAttributes<HTMLNestedScopeCmpElement>;
-            "non-shadow-child": LocalJSX.NonShadowChild & JSXBase.HTMLAttributes<HTMLNonShadowChildElement>;
-            "non-shadow-forwarded-slot": LocalJSX.NonShadowForwardedSlot & JSXBase.HTMLAttributes<HTMLNonShadowForwardedSlotElement>;
-            "non-shadow-multi-slots": LocalJSX.NonShadowMultiSlots & JSXBase.HTMLAttributes<HTMLNonShadowMultiSlotsElement>;
-            "non-shadow-wrapper": LocalJSX.NonShadowWrapper & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
-            "path-alias-cmp": LocalJSX.PathAliasCmp & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
-            "prerender-cmp": LocalJSX.PrerenderCmp & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
-            "prop-cmp": LocalJSX.PropCmp & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
-            "resolve-var-events": LocalJSX.ResolveVarEvents & JSXBase.HTMLAttributes<HTMLResolveVarEventsElement>;
-            "runtime-decorators": LocalJSX.RuntimeDecorators & JSXBase.HTMLAttributes<HTMLRuntimeDecoratorsElement>;
-            "scoped-car-detail": LocalJSX.ScopedCarDetail & JSXBase.HTMLAttributes<HTMLScopedCarDetailElement>;
+            "car-list": LocalJSX.IntrinsicElements["car-list"] & JSXBase.HTMLAttributes<HTMLCarListElement>;
+            "cmp-a": LocalJSX.IntrinsicElements["cmp-a"] & JSXBase.HTMLAttributes<HTMLCmpAElement>;
+            "cmp-b": LocalJSX.IntrinsicElements["cmp-b"] & JSXBase.HTMLAttributes<HTMLCmpBElement>;
+            "cmp-c": LocalJSX.IntrinsicElements["cmp-c"] & JSXBase.HTMLAttributes<HTMLCmpCElement>;
+            "cmp-dsd": LocalJSX.IntrinsicElements["cmp-dsd"] & JSXBase.HTMLAttributes<HTMLCmpDsdElement>;
+            "cmp-dsd-focus": LocalJSX.IntrinsicElements["cmp-dsd-focus"] & JSXBase.HTMLAttributes<HTMLCmpDsdFocusElement>;
+            "cmp-server-vs-client": LocalJSX.IntrinsicElements["cmp-server-vs-client"] & JSXBase.HTMLAttributes<HTMLCmpServerVsClientElement>;
+            "cmp-with-slot": LocalJSX.IntrinsicElements["cmp-with-slot"] & JSXBase.HTMLAttributes<HTMLCmpWithSlotElement>;
+            "dom-api": LocalJSX.IntrinsicElements["dom-api"] & JSXBase.HTMLAttributes<HTMLDomApiElement>;
+            "dom-interaction": LocalJSX.IntrinsicElements["dom-interaction"] & JSXBase.HTMLAttributes<HTMLDomInteractionElement>;
+            "dom-visible": LocalJSX.IntrinsicElements["dom-visible"] & JSXBase.HTMLAttributes<HTMLDomVisibleElement>;
+            "dsd-listen-cmp": LocalJSX.IntrinsicElements["dsd-listen-cmp"] & JSXBase.HTMLAttributes<HTMLDsdListenCmpElement>;
+            "element-cmp": LocalJSX.IntrinsicElements["element-cmp"] & JSXBase.HTMLAttributes<HTMLElementCmpElement>;
+            "empty-cmp": LocalJSX.IntrinsicElements["empty-cmp"] & JSXBase.HTMLAttributes<HTMLEmptyCmpElement>;
+            "empty-cmp-shadow": LocalJSX.IntrinsicElements["empty-cmp-shadow"] & JSXBase.HTMLAttributes<HTMLEmptyCmpShadowElement>;
+            "env-data": LocalJSX.IntrinsicElements["env-data"] & JSXBase.HTMLAttributes<HTMLEnvDataElement>;
+            "event-cmp": LocalJSX.IntrinsicElements["event-cmp"] & JSXBase.HTMLAttributes<HTMLEventCmpElement>;
+            "hydrated-sibling-accessors": LocalJSX.IntrinsicElements["hydrated-sibling-accessors"] & JSXBase.HTMLAttributes<HTMLHydratedSiblingAccessorsElement>;
+            "import-assets": LocalJSX.IntrinsicElements["import-assets"] & JSXBase.HTMLAttributes<HTMLImportAssetsElement>;
+            "listen-cmp": LocalJSX.IntrinsicElements["listen-cmp"] & JSXBase.HTMLAttributes<HTMLListenCmpElement>;
+            "method-cmp": LocalJSX.IntrinsicElements["method-cmp"] & JSXBase.HTMLAttributes<HTMLMethodCmpElement>;
+            "my-cmp": LocalJSX.IntrinsicElements["my-cmp"] & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
+            "my-jsx-cmp": LocalJSX.IntrinsicElements["my-jsx-cmp"] & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
+            "nested-cmp-child": LocalJSX.IntrinsicElements["nested-cmp-child"] & JSXBase.HTMLAttributes<HTMLNestedCmpChildElement>;
+            "nested-cmp-parent": LocalJSX.IntrinsicElements["nested-cmp-parent"] & JSXBase.HTMLAttributes<HTMLNestedCmpParentElement>;
+            "nested-scope-cmp": LocalJSX.IntrinsicElements["nested-scope-cmp"] & JSXBase.HTMLAttributes<HTMLNestedScopeCmpElement>;
+            "non-shadow-child": LocalJSX.IntrinsicElements["non-shadow-child"] & JSXBase.HTMLAttributes<HTMLNonShadowChildElement>;
+            "non-shadow-forwarded-slot": LocalJSX.IntrinsicElements["non-shadow-forwarded-slot"] & JSXBase.HTMLAttributes<HTMLNonShadowForwardedSlotElement>;
+            "non-shadow-multi-slots": LocalJSX.IntrinsicElements["non-shadow-multi-slots"] & JSXBase.HTMLAttributes<HTMLNonShadowMultiSlotsElement>;
+            "non-shadow-wrapper": LocalJSX.IntrinsicElements["non-shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
+            "path-alias-cmp": LocalJSX.IntrinsicElements["path-alias-cmp"] & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
+            "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
+            "prop-cmp": LocalJSX.IntrinsicElements["prop-cmp"] & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
+            "resolve-var-events": LocalJSX.IntrinsicElements["resolve-var-events"] & JSXBase.HTMLAttributes<HTMLResolveVarEventsElement>;
+            "runtime-decorators": LocalJSX.IntrinsicElements["runtime-decorators"] & JSXBase.HTMLAttributes<HTMLRuntimeDecoratorsElement>;
+            "scoped-car-detail": LocalJSX.IntrinsicElements["scoped-car-detail"] & JSXBase.HTMLAttributes<HTMLScopedCarDetailElement>;
             /**
              * Component that helps display a list of cars
              */
-            "scoped-car-list": LocalJSX.ScopedCarList & JSXBase.HTMLAttributes<HTMLScopedCarListElement>;
-            "shadow-child": LocalJSX.ShadowChild & JSXBase.HTMLAttributes<HTMLShadowChildElement>;
-            "shadow-wrapper": LocalJSX.ShadowWrapper & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;
-            "slot-cmp": LocalJSX.SlotCmp & JSXBase.HTMLAttributes<HTMLSlotCmpElement>;
-            "slot-cmp-container": LocalJSX.SlotCmpContainer & JSXBase.HTMLAttributes<HTMLSlotCmpContainerElement>;
-            "slot-parent-cmp": LocalJSX.SlotParentCmp & JSXBase.HTMLAttributes<HTMLSlotParentCmpElement>;
-            "state-cmp": LocalJSX.StateCmp & JSXBase.HTMLAttributes<HTMLStateCmpElement>;
+            "scoped-car-list": LocalJSX.IntrinsicElements["scoped-car-list"] & JSXBase.HTMLAttributes<HTMLScopedCarListElement>;
+            "shadow-child": LocalJSX.IntrinsicElements["shadow-child"] & JSXBase.HTMLAttributes<HTMLShadowChildElement>;
+            "shadow-wrapper": LocalJSX.IntrinsicElements["shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;
+            "slot-cmp": LocalJSX.IntrinsicElements["slot-cmp"] & JSXBase.HTMLAttributes<HTMLSlotCmpElement>;
+            "slot-cmp-container": LocalJSX.IntrinsicElements["slot-cmp-container"] & JSXBase.HTMLAttributes<HTMLSlotCmpContainerElement>;
+            "slot-parent-cmp": LocalJSX.IntrinsicElements["slot-parent-cmp"] & JSXBase.HTMLAttributes<HTMLSlotParentCmpElement>;
+            "state-cmp": LocalJSX.IntrinsicElements["state-cmp"] & JSXBase.HTMLAttributes<HTMLStateCmpElement>;
         }
     }
 }

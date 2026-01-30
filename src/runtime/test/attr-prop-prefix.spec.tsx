@@ -20,11 +20,11 @@ describe('attr: and prop: prefix', () => {
       expect(div.getAttribute('aria-label')).toBe('test label');
     });
 
-    it('should set custom data attributes with attr: prefix', async () => {
+    it('should set numeric and stringified values as attributes', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:data-test-id="my-id" attr:data-value="123" />;
+          return <div attr:role="button" attr:tabindex="0" />;
         }
       }
 
@@ -34,8 +34,8 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.getAttribute('data-test-id')).toBe('my-id');
-      expect(div.getAttribute('data-value')).toBe('123');
+      expect(div.getAttribute('role')).toBe('button');
+      expect(div.getAttribute('tabindex')).toBe('0');
     });
 
     it('should set boolean true as empty string attribute', async () => {
@@ -245,7 +245,7 @@ describe('attr: and prop: prefix', () => {
       class CmpA {
         render() {
           return (
-            <div id="normal-id" class="normal-class" attr:data-test="custom-attr" prop:customData={{ value: 123 }} />
+            <div id="normal-id" class="normal-class" attr:role="button" prop:customData={{ value: 123 }} />
           );
         }
       }
@@ -258,7 +258,7 @@ describe('attr: and prop: prefix', () => {
       const div = root.querySelector('div') as any;
       expect(div.id).toBe('normal-id');
       expect(div.className).toBe('normal-class');
-      expect(div.getAttribute('data-test')).toBe('custom-attr');
+      expect(div.getAttribute('role')).toBe('button');
       expect(div.customData).toEqual({ value: 123 });
     });
 
@@ -266,7 +266,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:data-one="1" attr:data-two="2" prop:propOne="a" prop:propTwo="b" />;
+          return <div attr:aria-label="Label" attr:role="button" prop:propOne="a" prop:propTwo="b" />;
         }
       }
 
@@ -276,8 +276,8 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div') as any;
-      expect(div.getAttribute('data-one')).toBe('1');
-      expect(div.getAttribute('data-two')).toBe('2');
+      expect(div.getAttribute('aria-label')).toBe('Label');
+      expect(div.getAttribute('role')).toBe('button');
       expect(div.propOne).toBe('a');
       expect(div.propTwo).toBe('b');
     });
@@ -317,10 +317,10 @@ describe('attr: and prop: prefix', () => {
     it('should re-render correctly with prefixed attributes', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
-        @Prop() attrValue = 'initial-attr';
+        @Prop() attrValue = 'initial';
         @Prop() propValue = { count: 0 };
         render() {
-          return <div attr:data-value={this.attrValue} prop:customProp={this.propValue} />;
+          return <div attr:aria-label={this.attrValue} prop:customProp={this.propValue} />;
         }
       }
 
@@ -330,14 +330,14 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div') as any;
-      expect(div.getAttribute('data-value')).toBe('initial-attr');
+      expect(div.getAttribute('aria-label')).toBe('initial');
       expect(div.customProp).toEqual({ count: 0 });
 
-      root.attrValue = 'updated-attr';
+      root.attrValue = 'updated';
       root.propValue = { count: 42 };
       await waitForChanges();
 
-      expect(div.getAttribute('data-value')).toBe('updated-attr');
+      expect(div.getAttribute('aria-label')).toBe('updated');
       expect(div.customProp).toEqual({ count: 42 });
     });
   });

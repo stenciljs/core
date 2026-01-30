@@ -47,9 +47,14 @@ declare namespace LocalJSX {
     }
     interface AppRoot {
     }
+
+    interface AppProfileAttributes {
+        "name": string;
+    }
+
     interface IntrinsicElements {
         "app-home": AppHome;
-        "app-profile": AppProfile;
+        "app-profile": Omit<AppProfile, keyof AppProfileAttributes> & { [K in keyof AppProfile & keyof AppProfileAttributes]?: AppProfile[K] } & { [K in keyof AppProfile & keyof AppProfileAttributes as `attr:${K}`]?: AppProfileAttributes[K] } & { [K in keyof AppProfile & keyof AppProfileAttributes as `prop:${K}`]?: AppProfile[K] };
         "app-root": AppRoot;
     }
 }
@@ -57,9 +62,9 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
-            "app-profile": LocalJSX.AppProfile & JSXBase.HTMLAttributes<HTMLAppProfileElement>;
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "app-home": LocalJSX.IntrinsicElements["app-home"] & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
+            "app-profile": LocalJSX.IntrinsicElements["app-profile"] & JSXBase.HTMLAttributes<HTMLAppProfileElement>;
+            "app-root": LocalJSX.IntrinsicElements["app-root"] & JSXBase.HTMLAttributes<HTMLAppRootElement>;
         }
     }
 }
