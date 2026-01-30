@@ -23,6 +23,8 @@ declare global {
 declare namespace LocalJSX {
     interface PrehydratedStyles {
     }
+
+
     interface IntrinsicElements {
         "prehydrated-styles": PrehydratedStyles;
     }
@@ -31,7 +33,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "prehydrated-styles": LocalJSX.PrehydratedStyles & JSXBase.HTMLAttributes<HTMLPrehydratedStylesElement>;
+            "prehydrated-styles": LocalJSX.IntrinsicElements["prehydrated-styles"] & JSXBase.HTMLAttributes<HTMLPrehydratedStylesElement>;
         }
     }
 }

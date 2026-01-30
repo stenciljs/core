@@ -35,6 +35,8 @@ declare namespace LocalJSX {
          */
         "name"?: string;
     }
+
+
     interface IntrinsicElements {
         "custom-elements-form-associated": CustomElementsFormAssociated;
     }
@@ -43,7 +45,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "custom-elements-form-associated": LocalJSX.CustomElementsFormAssociated & JSXBase.HTMLAttributes<HTMLCustomElementsFormAssociatedElement>;
+            "custom-elements-form-associated": LocalJSX.IntrinsicElements["custom-elements-form-associated"] & JSXBase.HTMLAttributes<HTMLCustomElementsFormAssociatedElement>;
         }
     }
 }

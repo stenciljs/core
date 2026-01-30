@@ -36,5 +36,6 @@ export const generateEventDetailTypes = (cmp: d.ComponentCompilerMeta): d.TypesM
     element: cmpInterface.join('\n'),
     explicitAttributes: null,
     explicitProperties: null,
+    requiredProps: null,
   };
 };

@@ -103,9 +103,29 @@ export const generateComponentTypes = (
   // Props without attributes don't need attr: or prop: prefixes - they're already property-only
   const propsWithAttributes = cmp.properties.filter((prop) => prop.attribute !== undefined);
   const hasExplicitAttributes = propsWithAttributes.length > 0;
+  const requiredProps = propsWithAttributes.filter((prop) => prop.required);
+  const hasRequiredProps = requiredProps.length > 0;
 
   const explicitAttributes = propsWithAttributes
-    .map((prop) => `        "${prop.name}": string | number | boolean;`)
+    .map((prop) => {
+      // For attributes, use the simple serializable type
+      // Most props will have a known simple type like string, number, boolean
+      // For complex types or unknown, fall back to string | number | boolean
+      const propMeta = cmp.properties.find((p) => p.name === prop.name);
+      let attrType = 'string';
+
+      if (propMeta?.type) {
+        const simpleType = propMeta.type.trim();
+        // If it's a simple primitive type, use it directly
+        if (['string', 'number', 'boolean'].includes(simpleType)) {
+          attrType = simpleType;
+        } else {
+          attrType = 'string';
+        }
+      }
+
+      return `        "${prop.name}": ${attrType};`;
+    })
     .join('\n');
 
   return {
@@ -120,6 +140,13 @@ export const generateComponentTypes = (
       ? `    interface ${tagNameAsPascal}Attributes {\n${explicitAttributes}\n    }`
       : null,
     explicitProperties: null,
+    requiredProps: hasRequiredProps
+      ? requiredProps.map((p) => ({
+          name: p.name,
+          type: p.type,
+          complexType: p.complexType,
+        }))
+      : null,
   };
 };
 

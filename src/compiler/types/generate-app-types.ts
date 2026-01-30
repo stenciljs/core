@@ -173,6 +173,16 @@ const generateComponentTypesFile = (
 
   // Generate ExplicitAttributes interfaces (SolidJS-style)
   c.push(`declare namespace LocalJSX {`);
+
+  // Add OneOf helper type for required prop unions
+  const hasAnyRequiredProps = modules.some((m) => m.requiredProps);
+  if (hasAnyRequiredProps) {
+    c.push(
+      `    type OneOf<K extends string, T> = { [P in K]: T } | { [P in \`attr:\${K}\`]: T } | { [P in \`prop:\${K}\`]: T };`,
+    );
+    c.push(``);
+  }
+
   c.push(
     ...modules.map((m) => {
       const docs = components.find((c) => c.tagName === m.tagName).docs;
@@ -187,8 +197,22 @@ const generateComponentTypesFile = (
   c.push(
     ...modules.map((m) => {
       if (m.explicitAttributes) {
-        // Use SharedKeys pattern to map both attr: and prop: over the same keys
-        return `        "${m.tagName}": ${m.tagNameAsPascal} & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] };`;
+        // Base optional props (props without attributes or optional props with attributes)
+        const baseOptional = `Omit<${m.tagNameAsPascal}, keyof ${m.tagNameAsPascal}Attributes> & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes]?: ${m.tagNameAsPascal}[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] }`;
+
+        if (m.requiredProps && m.requiredProps.length > 0) {
+          // Generate OneOf unions for each required prop
+          const requiredUnions = m.requiredProps
+            .map((prop) => {
+              // Get the property type from the component interface
+              return `OneOf<"${prop.name}", ${m.tagNameAsPascal}["${prop.name}"]>`;
+            })
+            .join(' & ');
+
+          return `        "${m.tagName}": ${baseOptional} & ${requiredUnions};`;
+        } else {
+          return `        "${m.tagName}": ${baseOptional};`;
+        }
       } else {
         return `        "${m.tagName}": ${m.tagNameAsPascal};`;
       }
