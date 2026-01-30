@@ -2631,6 +2631,8 @@ export interface TypesModule {
   component: string;
   jsx: string;
   element: string;
+  explicitAttributes: string | null;
+  explicitProperties: string | null;
 }
 
 export type TypeInfo = {

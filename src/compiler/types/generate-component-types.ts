@@ -73,6 +73,7 @@ export const generateComponentTypes = (
   const formAssociatedAttrs = cmp.formAssociated
     ? FORM_ASSOCIATED_ATTRIBUTES.filter((attr) => !propNames.has(attr.name))
     : [];
+
   const jsxAttributes = attributesToMultiLineString(
     [...propAttributes, ...eventAttributes, ...formAssociatedAttrs],
     true,
@@ -98,6 +99,15 @@ export const generateComponentTypes = (
     `        new (): ${htmlElementName};`,
     `    };`,
   ];
+  // Generate explicit attributes interface (only props with HTML attributes)
+  // Props without attributes don't need attr: or prop: prefixes - they're already property-only
+  const propsWithAttributes = cmp.properties.filter((prop) => prop.attribute !== undefined);
+  const hasExplicitAttributes = propsWithAttributes.length > 0;
+
+  const explicitAttributes = propsWithAttributes
+    .map((prop) => `        "${prop.name}": string | number | boolean;`)
+    .join('\n');
+
   return {
     isDep,
     tagName,
@@ -106,6 +116,10 @@ export const generateComponentTypes = (
     component: addDocBlock(`    interface ${tagNameAsPascal} {\n${componentAttributes}    }`, cmp.docs, 4),
     jsx: `    interface ${tagNameAsPascal} {\n${jsxAttributes}    }`,
     element: element.join(`\n`),
+    explicitAttributes: hasExplicitAttributes
+      ? `    interface ${tagNameAsPascal}Attributes {\n${explicitAttributes}\n    }`
+      : null,
+    explicitProperties: null,
   };
 };
 

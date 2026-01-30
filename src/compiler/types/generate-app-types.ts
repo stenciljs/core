@@ -171,6 +171,7 @@ const generateComponentTypesFile = (
 
   c.push(`}`);
 
+  // Generate ExplicitAttributes interfaces (SolidJS-style)
   c.push(`declare namespace LocalJSX {`);
   c.push(
     ...modules.map((m) => {
@@ -178,9 +179,21 @@ const generateComponentTypesFile = (
       return addDocBlock(m.jsx, docs, 4);
     }),
   );
+  c.push(``);
+  c.push(...modules.filter((m) => m.explicitAttributes).map((m) => m.explicitAttributes));
+  c.push(``);
 
   c.push(`    interface IntrinsicElements {`);
-  c.push(...modules.map((m) => `        "${m.tagName}": ${m.tagNameAsPascal};`));
+  c.push(
+    ...modules.map((m) => {
+      if (m.explicitAttributes) {
+        // Use SharedKeys pattern to map both attr: and prop: over the same keys
+        return `        "${m.tagName}": ${m.tagNameAsPascal} & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] };`;
+      } else {
+        return `        "${m.tagName}": ${m.tagNameAsPascal};`;
+      }
+    }),
+  );
   c.push(`    }`);
 
   c.push(`}`);
@@ -195,7 +208,7 @@ const generateComponentTypesFile = (
       const docs = components.find((c) => c.tagName === m.tagName).docs;
 
       return addDocBlock(
-        `            "${m.tagName}": LocalJSX.${m.tagNameAsPascal} & JSXBase.HTMLAttributes<${m.htmlElementName}>;`,
+        `            "${m.tagName}": LocalJSX.IntrinsicElements["${m.tagName}"] & JSXBase.HTMLAttributes<${m.htmlElementName}>;`,
         docs,
         12,
       );

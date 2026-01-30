@@ -170,8 +170,6 @@ declare namespace LocalJSX {
     interface MyComponent {
         "onMyEvent"?: (event: MyComponentCustomEvent<UserImplementedEventType>) => void;
     }
-
-
     interface IntrinsicElements {
         "my-component": MyComponent;
     }
@@ -278,8 +276,6 @@ declare namespace LocalJSX {
         "onMyEvent"?: (event: MyComponentCustomEvent<UserImplementedEventType>) => void;
         "onMySecondEvent"?: (event: MyComponentCustomEvent<SecondUserImplementedEventType>) => void;
     }
-
-
     interface IntrinsicElements {
         "my-component": MyComponent;
     }
@@ -440,8 +436,6 @@ declare namespace LocalJSX {
     interface MyNewComponent {
         "onMyEvent"?: (event: MyNewComponentCustomEvent<UserImplementedEventType>) => void;
     }
-
-
     interface IntrinsicElements {
         "my-component": MyComponent;
         "my-new-component": MyNewComponent;
@@ -784,8 +778,6 @@ declare namespace LocalJSX {
     interface MyNewComponent {
         "onMyEvent"?: (event: MyNewComponentCustomEvent<UserImplementedEventType1>) => void;
     }
-
-
     interface IntrinsicElements {
         "my-component": MyComponent;
         "my-new-component": MyNewComponent;
@@ -1124,6 +1116,10 @@ declare namespace LocalJSX {
     interface MyComponent {
         "name"?: UserImplementedPropType;
     }
+
+    interface MyComponentAttributes {
+        "name": string | number | boolean;
+    }
     /**
      * docs
      */
@@ -1131,9 +1127,6 @@ declare namespace LocalJSX {
         "fullName"?: UserImplementedPropType;
     }
 
-    interface MyComponentAttributes {
-        "name": string | number | boolean;
-    }
     interface MyNewComponentAttributes {
         "fullName": string | number | boolean;
     }
@@ -1283,9 +1276,6 @@ declare namespace LocalJSX {
         "newName"?: UserImplementedPropType1;
     }
 
-    interface MyComponentAttributes {
-        "name": string | number | boolean;
-    }
     interface MyNewComponentAttributes {
         "newName": string | number | boolean;
     }
@@ -1435,9 +1425,6 @@ declare namespace LocalJSX {
         "name"?: UserImplementedPropType1;
     }
 
-    interface MyComponentAttributes {
-        "name": string | number | boolean;
-    }
     interface MyNewComponentAttributes {
         "name": string | number | boolean;
     }

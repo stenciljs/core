@@ -26,6 +26,8 @@ describe('generate-event-detail-types', () => {
         jsx: expectedTypeInfo,
         tagName,
         tagNameAsPascal,
+        explicitAttributes: null,
+        explicitProperties: null,
       });
     });
   });
