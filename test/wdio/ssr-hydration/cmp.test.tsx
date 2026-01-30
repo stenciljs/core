@@ -73,8 +73,8 @@ describe('Sanity check SSR > Client hydration', () => {
         await expect(getNodeNames(ele.childNodes)).toBe(`text comment div comment text`);
 
         // Checking shadow content
-        const eles = method === 'scoped' ? 'div' : 'style div';
-        await expect(getNodeNames(ele.shadowRoot.childNodes)).toBe(eles);
+        // Shadow DOM uses adoptedStyleSheets, so no <style> element after hydration
+        await expect(getNodeNames(ele.shadowRoot.childNodes)).toBe('div');
 
         // Checking styling
         await expect(getComputedStyle(ele).color).toBe('rgb(255, 0, 0)'); // red

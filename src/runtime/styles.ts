@@ -6,6 +6,7 @@ import {
   supportsMutableAdoptedStyleSheets,
   supportsShadow,
   win,
+  writeTask,
 } from '@platform';
 
 import type * as d from '../declarations';
@@ -217,10 +218,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         appliedStyles.add(scopeId);
 
         // Remove SSR style element from shadow root now that adoptedStyleSheets is in use
-        if (BUILD.hydrateClientSide) {
+        // Only remove from shadow roots, not from document head (for scoped components)
+        if (BUILD.hydrateClientSide && 'host' in styleContainerNode) {
           const ssrStyleElm = styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
           if (ssrStyleElm) {
-            ssrStyleElm.remove();
+            writeTask(() => ssrStyleElm.remove());
           }
         }
       }

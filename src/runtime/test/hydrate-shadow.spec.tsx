@@ -7,8 +7,12 @@ describe('hydrate, shadow', () => {
       tag: 'cmp-styled',
       shadow: true,
       styles: `
-        :host { color: red; }
-        div { background: blue; }
+        :host {
+          color: red;
+        }
+        div {
+          background: blue;
+        }
       `,
     })
     class CmpStyled {
