@@ -65,18 +65,28 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
     hostRef.$instanceValues$.set(propName, newVal);
 
     if (BUILD.serializer && BUILD.reflect && cmpMeta.$attrsToReflect$) {
-      if (instance && cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
+      if (cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
         // this property has a serializer method
+        const runSerializer = (inst: any) => {
+          let attrVal = newVal;
+          for (const serializer of cmpMeta.$serializers$[propName]) {
+            const [[methodName]] = Object.entries(serializer);
+            // call the serializer methods
+            attrVal = inst[methodName](attrVal, propName);
+          }
+          // keep the serialized value - it's used in `renderVdom()` (vdom-render.ts)
+          // to set the attribute on the vnode
+          hostRef.$serializerValues$.set(propName, attrVal);
+        };
 
-        let attrVal = newVal;
-        for (const serializer of cmpMeta.$serializers$[propName]) {
-          const [[methodName]] = Object.entries(serializer);
-          // call the serializer methods
-          attrVal = (instance as any)[methodName](attrVal, propName);
+        if (instance) {
+          runSerializer(instance);
+        } else {
+          // Instance not ready yet, queue the serialization for later
+          hostRef.$fetchedCbList$.push(() => {
+            runSerializer(hostRef.$lazyInstance$);
+          });
         }
-        // keep the serialized value - it's used in `renderVdom()` (vdom-render.ts)
-        // to set the attribute on the vnode
-        hostRef.$serializerValues$.set(propName, attrVal);
       }
     }
 

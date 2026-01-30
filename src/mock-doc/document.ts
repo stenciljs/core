@@ -294,6 +294,7 @@ const DOC_KEY_KEEPERS = new Set([
   'ownerDocument',
   'parentNode',
   'childNodes',
+  '_childNodes',
   '_shadowRoot',
 ]);
 

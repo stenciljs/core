@@ -16,6 +16,10 @@ import { isDecoratorNamed } from './decorator-utils';
  * Stencil components rich participants in whatever `HTMLFormElement` instances
  * they find themselves inside of in the future.
  *
+ * The decorator also accepts an optional `states` option to define initial
+ * custom states that will be set on the `ElementInternals.states` CustomStateSet.
+ * Each state property can have a JSDoc comment that will be extracted for documentation.
+ *
  * **Note**: this function will mutate the `newMembers` parameter in order to
  * add new members to the class.
  *
@@ -53,5 +57,94 @@ export const attachInternalsDecoratorsToStatic = (
 
   const { staticName: name } = tsPropDeclName(decoratedProp, typeChecker);
 
+  // Parse decorator options for custom states, extracting JSDoc comments from AST
+  const decorator = retrieveTsDecorators(decoratedProp)?.find(isDecoratorNamed(decoratorName));
+  const customStates = parseCustomStatesFromDecorator(decorator, typeChecker);
+
   newMembers.push(createStaticGetter('attachInternalsMemberName', convertValueToLiteral(name)));
+
+  // Only add custom states static getter if there are states defined
+  if (customStates.length > 0) {
+    newMembers.push(createStaticGetter('attachInternalsCustomStates', convertValueToLiteral(customStates)));
+  }
 };
+
+/**
+ * Parse custom states from the decorator AST, including JSDoc comments.
+ *
+ * Supports JSDoc comments on state properties:
+ * ```ts
+ * @AttachInternals({
+ *   states: {
+ *     hovered: false,
+ *     /&#42;&#42; Whether is currently active &#42;/
+ *     active: true
+ *   }
+ * })
+ * ```
+ *
+ * @param decorator the decorator node to parse
+ * @returns array of custom state metadata with docs
+ */
+function parseCustomStatesFromDecorator(
+  decorator: ts.Decorator | undefined,
+  typeChecker: ts.TypeChecker,
+): d.ComponentCompilerCustomState[] {
+  if (!decorator || !ts.isCallExpression(decorator.expression)) {
+    return [];
+  }
+
+  const [firstArg] = decorator.expression.arguments;
+  if (!firstArg || !ts.isObjectLiteralExpression(firstArg)) {
+    return [];
+  }
+
+  // Find the 'states' property in the options object
+  const statesProp = firstArg.properties.find(
+    (prop): prop is ts.PropertyAssignment =>
+      ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'states',
+  );
+
+  if (!statesProp || !ts.isObjectLiteralExpression(statesProp.initializer)) {
+    return [];
+  }
+
+  const customStates: d.ComponentCompilerCustomState[] = [];
+
+  // Iterate through each property in the states object
+  for (const prop of statesProp.initializer.properties) {
+    if (!ts.isPropertyAssignment(prop)) {
+      continue;
+    }
+
+    const stateName = ts.isIdentifier(prop.name)
+      ? prop.name.text
+      : ts.isStringLiteral(prop.name)
+        ? prop.name.text
+        : null;
+
+    if (!stateName) {
+      continue;
+    }
+
+    // Get the boolean value
+    let initialValue = false;
+    if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) {
+      initialValue = true;
+    } else if (prop.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+      initialValue = false;
+    }
+
+    // Extract JSDoc comment using TypeChecker (consistent with rest of codebase)
+    const symbol = typeChecker.getSymbolAtLocation(prop.name);
+    const docs = symbol ? ts.displayPartsToString(symbol.getDocumentationComment(typeChecker)) : '';
+
+    customStates.push({
+      name: stateName,
+      initialValue,
+      docs,
+    });
+  }
+
+  return customStates;
+}

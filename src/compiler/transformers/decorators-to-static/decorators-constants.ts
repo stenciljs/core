@@ -47,6 +47,7 @@ export const MEMBER_DECORATORS_TO_REMOVE = [
 export const STATIC_GETTER_NAMES = [
   'COMPILER_META',
   'assetsDirs',
+  'attachInternalsCustomStates',
   'attachInternalsMemberName',
   'cmpMeta',
   'delegatesFocus',

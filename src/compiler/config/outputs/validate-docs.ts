@@ -4,6 +4,7 @@ import {
   DOCS_README,
   isFunction,
   isOutputTargetDocsCustom,
+  isOutputTargetDocsCustomElementsManifest,
   isOutputTargetDocsJson,
   isOutputTargetDocsReadme,
   isOutputTargetDocsVscode,
@@ -59,6 +60,13 @@ export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnosti
   vscodeDocsOutputs.forEach((vscodeDocsOutput) => {
     docsOutputs.push(validateVScodeDocsOutputTarget(diagnostics, vscodeDocsOutput));
   });
+
+  // custom elements manifest docs
+  const customElementsManifestOutputs = userOutputs.filter(isOutputTargetDocsCustomElementsManifest);
+  customElementsManifestOutputs.forEach((cemOutput) => {
+    docsOutputs.push(validateCustomElementsManifestOutputTarget(config, cemOutput));
+  });
+
   return docsOutputs;
 };
 
@@ -113,5 +121,17 @@ const validateVScodeDocsOutputTarget = (diagnostics: d.Diagnostic[], outputTarge
     const err = buildError(diagnostics);
     err.messageText = `docs-vscode outputTarget missing the "file" path`;
   }
+  return outputTarget;
+};
+
+const validateCustomElementsManifestOutputTarget = (
+  config: d.ValidatedConfig,
+  outputTarget: d.OutputTargetDocsCustomElementsManifest,
+) => {
+  if (!isString(outputTarget.file)) {
+    outputTarget.file = 'custom-elements.json';
+  }
+  outputTarget.file = join(config.rootDir, outputTarget.file);
+  outputTarget.strict = !!outputTarget.strict;
   return outputTarget;
 };

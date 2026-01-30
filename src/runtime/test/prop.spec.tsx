@@ -244,4 +244,31 @@ describe('prop', () => {
       </simple-demo>
     `);
   });
+
+  it('updates the internal input when the prop value changes between distinct falsy states', async () => {
+    @Component({ tag: 'cmp-input-wrapper' })
+    class CmpA {
+      @Prop() value: any;
+      render() {
+        return <input id="internal-input" value={this.value}></input>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-input-wrapper></cmp-input-wrapper>`,
+    });
+
+    root.value = 0;
+    await waitForChanges();
+    expect(root.querySelector('#internal-input').value).toBe('0');
+
+    root.value = '';
+    await waitForChanges();
+    expect(root.querySelector('#internal-input').value).toBe('');
+
+    root.value = 0;
+    await waitForChanges();
+    expect(root.querySelector('#internal-input').value).toBe('0');
+  });
 });

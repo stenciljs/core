@@ -2400,6 +2400,13 @@ export interface OutputTargetHydrate extends OutputTargetBase {
   type: 'dist-hydrate-script';
   dir?: string;
   /**
+   * Whether to generate a package.json file in the hydrate output directory.
+   * Defaults to `true`
+   * @deprecated
+   * In the next major release, the `package.json` file will be completely removed from the `dist-hydrate-script` output (use `exports` from your library's main `package.json`)
+   */
+  generatePackageJson?: boolean;
+  /**
    * Module IDs that should not be bundled into the script.
    * By default, all node builtin's, such as `fs` or `path`
    * will be considered "external" and not bundled.
@@ -2495,6 +2502,17 @@ export interface OutputTargetDocsJson extends OutputTargetBase {
    * they'll be included in the output, facilitating their documentation.
    */
   supplementalPublicTypes?: string;
+}
+
+export interface OutputTargetDocsCustomElementsManifest extends OutputTargetBase {
+  type: 'docs-custom-elements-manifest';
+
+  /**
+   * The file path where the custom-elements.json manifest will be written.
+   * Defaults to 'custom-elements.json' in the root directory.
+   */
+  file: string;
+  strict?: boolean;
 }
 
 export interface OutputTargetDocsCustom extends OutputTargetBase {
@@ -2699,6 +2717,7 @@ export type OutputTarget =
   | OutputTargetDocsCustom
   | OutputTargetDocsReadme
   | OutputTargetDocsVscode
+  | OutputTargetDocsCustomElementsManifest
   | OutputTargetWww
   | OutputTargetHydrate
   | OutputTargetStats

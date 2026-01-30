@@ -16,6 +16,7 @@ import {
   DIST_LAZY_LOADER,
   DIST_TYPES,
   DOCS_CUSTOM,
+  DOCS_CUSTOM_ELEMENTS_MANIFEST,
   DOCS_JSON,
   DOCS_README,
   DOCS_VSCODE,
@@ -148,8 +149,17 @@ export const isOutputTargetCustom = (o: d.OutputTarget): o is d.OutputTargetCust
 
 export const isOutputTargetDocs = (
   o: d.OutputTarget,
-): o is d.OutputTargetDocsJson | d.OutputTargetDocsReadme | d.OutputTargetDocsVscode | d.OutputTargetDocsCustom =>
-  o.type === DOCS_README || o.type === DOCS_JSON || o.type === DOCS_CUSTOM || o.type === DOCS_VSCODE;
+): o is
+  | d.OutputTargetDocsJson
+  | d.OutputTargetDocsReadme
+  | d.OutputTargetDocsVscode
+  | d.OutputTargetDocsCustom
+  | d.OutputTargetDocsCustomElementsManifest =>
+  o.type === DOCS_README ||
+  o.type === DOCS_JSON ||
+  o.type === DOCS_CUSTOM ||
+  o.type === DOCS_VSCODE ||
+  o.type === DOCS_CUSTOM_ELEMENTS_MANIFEST;
 
 export const isOutputTargetDocsReadme = (o: d.OutputTarget): o is d.OutputTargetDocsReadme => o.type === DOCS_README;
 
@@ -158,6 +168,10 @@ export const isOutputTargetDocsJson = (o: d.OutputTarget): o is d.OutputTargetDo
 export const isOutputTargetDocsCustom = (o: d.OutputTarget): o is d.OutputTargetDocsCustom => o.type === DOCS_CUSTOM;
 
 export const isOutputTargetDocsVscode = (o: d.OutputTarget): o is d.OutputTargetDocsVscode => o.type === DOCS_VSCODE;
+
+export const isOutputTargetDocsCustomElementsManifest = (
+  o: d.OutputTarget,
+): o is d.OutputTargetDocsCustomElementsManifest => o.type === DOCS_CUSTOM_ELEMENTS_MANIFEST;
 
 export const isOutputTargetWww = (o: d.OutputTarget): o is d.OutputTargetWww => o.type === WWW;
 

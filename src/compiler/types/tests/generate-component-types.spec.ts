@@ -2,6 +2,7 @@ import { ComponentCompilerMeta, ComponentCompilerMethod } from '../../../declara
 import { generateComponentTypes } from '../generate-component-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerMethod } from './ComponentCompilerMethod.stub';
+import { stubComponentCompilerProperty } from './ComponentCompilerProperty.stub';
 
 describe('generateComponentTypes', () => {
   describe('HTMLElement method conflicts', () => {
@@ -237,6 +238,97 @@ describe('generateComponentTypes', () => {
       htmlElementMethods.slice(0, 5).forEach((methodName) => {
         expect(result.element).toContain(`"${methodName}": () => Promise<void>;`);
       });
+    });
+  });
+
+  describe('form-associated attributes', () => {
+    it('should add name, disabled, and form attributes to JSX for form-associated components', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-input',
+        formAssociated: true,
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false);
+
+      expect(result.jsx).toContain('"disabled"?: boolean;');
+      expect(result.jsx).toContain('"form"?: string;');
+      expect(result.jsx).toContain('"name"?: string;');
+    });
+
+    it('should not add form-associated attributes for non-form-associated components', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-button',
+        formAssociated: false,
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false);
+
+      expect(result.jsx).not.toContain('"disabled"');
+      expect(result.jsx).not.toContain('"form"');
+      expect(result.jsx).not.toContain('"name"');
+    });
+
+    it('should not duplicate attributes when component defines them as props', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-input',
+        formAssociated: true,
+        properties: [
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'name',
+            complexType: {
+              original: 'string',
+              resolved: 'string',
+              references: {},
+            },
+          },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false);
+
+      // Should only have one "name" attribute (from the prop)
+      const nameMatches = result.jsx.match(/"name"/g);
+      expect(nameMatches).toHaveLength(1);
+
+      // Should still have the other form-associated attributes
+      expect(result.jsx).toContain('"disabled"?: boolean;');
+      expect(result.jsx).toContain('"form"?: string;');
+    });
+
+    it('should not duplicate any attributes when component defines all form-associated props', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-input',
+        formAssociated: true,
+        properties: [
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'name',
+            complexType: { original: 'string', resolved: 'string', references: {} },
+          },
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'disabled',
+            complexType: { original: 'boolean', resolved: 'boolean', references: {} },
+          },
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'form',
+            complexType: { original: 'string', resolved: 'string', references: {} },
+          },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false);
+
+      // Each attribute should appear exactly once
+      expect(result.jsx.match(/"name"/g)).toHaveLength(1);
+      expect(result.jsx.match(/"disabled"/g)).toHaveLength(1);
+      expect(result.jsx.match(/"form"/g)).toHaveLength(1);
     });
   });
 });
