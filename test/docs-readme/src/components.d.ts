@@ -23,6 +23,8 @@ declare global {
 declare namespace LocalJSX {
     interface StyleurlsComponent {
     }
+
+
     interface IntrinsicElements {
         "styleurls-component": StyleurlsComponent;
     }
@@ -31,7 +33,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "styleurls-component": LocalJSX.StyleurlsComponent & JSXBase.HTMLAttributes<HTMLStyleurlsComponentElement>;
+            "styleurls-component": LocalJSX.IntrinsicElements["styleurls-component"] & JSXBase.HTMLAttributes<HTMLStyleurlsComponentElement>;
         }
     }
 }
