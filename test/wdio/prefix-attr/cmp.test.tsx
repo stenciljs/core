@@ -18,7 +18,6 @@ describe('prefix-attr', () => {
     await expect(nested).toHaveAttribute('count', '42');
     await expect(nested).toHaveAttribute('enabled');
     await expect(nested).toHaveAttribute('nullValue', 'not-null');
-    await expect(nested).not.toHaveAttribute('undefinedValue');
     await expect(nested).toHaveAttribute('undefinedValue', 'defined');
   });
 
