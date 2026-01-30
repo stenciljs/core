@@ -244,9 +244,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return (
-            <div id="normal-id" class="normal-class" attr:role="button" prop:customData={{ value: 123 }} />
-          );
+          return <div id="normal-id" class="normal-class" attr:role="button" prop:customData={{ value: 123 }} />;
         }
       }
 
