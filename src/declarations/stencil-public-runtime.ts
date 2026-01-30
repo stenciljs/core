@@ -146,8 +146,26 @@ export interface EventOptions {
   composed?: boolean;
 }
 
+export interface AttachInternalsOptions {
+  /**
+   * Initial custom states to set on the ElementInternals.states CustomStateSet.
+   * Each key is the state name and the value is the initial boolean state.
+   *
+   * These states can be targeted with the CSS `:state()` pseudo-class.
+   *
+   * @example
+   * ```tsx
+   * @AttachInternals({ states: { open: true, active: false } })
+   * internals: ElementInternals;
+   * ```
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/CustomStateSet
+   */
+  states?: { [stateName: string]: boolean };
+}
+
 export interface AttachInternalsDecorator {
-  (): PropertyDecorator;
+  (opts?: AttachInternalsOptions): PropertyDecorator;
 }
 
 export interface ListenDecorator {

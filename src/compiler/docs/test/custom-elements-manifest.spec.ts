@@ -1,7 +1,7 @@
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 
 import type * as d from '../../../declarations';
-import { generateCustomElementsManifestDocs } from '../custom-elements-manifest';
+import { generateCustomElementsManifestDocs } from '../cem';
 
 describe('custom-elements-manifest', () => {
   let compilerCtx: d.CompilerCtx;
@@ -608,6 +608,7 @@ function createMockComponent(overrides: Partial<d.JsonDocsComponent> = {}): d.Js
     styles: [],
     slots: [],
     parts: [],
+    customStates: [],
     listeners: [],
     ...overrides,
   };

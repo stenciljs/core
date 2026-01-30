@@ -2504,13 +2504,6 @@ export interface OutputTargetDocsJson extends OutputTargetBase {
   supplementalPublicTypes?: string;
 }
 
-export interface OutputTargetDocsCustom extends OutputTargetBase {
-  type: 'docs-custom';
-
-  generator: (docs: JsonDocs, config: Config) => void | Promise<void>;
-  strict?: boolean;
-}
-
 export interface OutputTargetDocsCustomElementsManifest extends OutputTargetBase {
   type: 'docs-custom-elements-manifest';
 
@@ -2518,7 +2511,14 @@ export interface OutputTargetDocsCustomElementsManifest extends OutputTargetBase
    * The file path where the custom-elements.json manifest will be written.
    * Defaults to 'custom-elements.json' in the root directory.
    */
-  file?: string;
+  file: string;
+  strict?: boolean;
+}
+
+export interface OutputTargetDocsCustom extends OutputTargetBase {
+  type: 'docs-custom';
+
+  generator: (docs: JsonDocs, config: Config) => void | Promise<void>;
   strict?: boolean;
 }
 
