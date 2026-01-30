@@ -1898,7 +1898,7 @@ export namespace JSXBase {
     zoomAndPan?: string;
 
     // Explicit attribute/property prefix support
-    [key: `attr:${string}`]: any;
+    [key: `attr:${string}`]: string;
     [key: `prop:${string}`]: any;
   }
 
