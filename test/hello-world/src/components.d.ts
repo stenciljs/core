@@ -23,8 +23,6 @@ declare global {
 declare namespace LocalJSX {
     interface HelloWorld {
     }
-
-
     interface IntrinsicElements {
         "hello-world": HelloWorld;
     }

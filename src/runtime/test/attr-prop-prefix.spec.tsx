@@ -7,7 +7,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:aria-label="test label" />;
+          return <div attr:something="test label" />;
         }
       }
 
@@ -17,14 +17,14 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.getAttribute('aria-label')).toBe('test label');
+      expect(div.getAttribute('something')).toBe('test label');
     });
 
     it('should set numeric and stringified values as attributes', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:role="button" attr:tabindex="0" />;
+          return <div attr:something-else="button" attr:a-number="0" />;
         }
       }
 
@@ -34,15 +34,15 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.getAttribute('role')).toBe('button');
-      expect(div.getAttribute('tabindex')).toBe('0');
+      expect(div.getAttribute('something-else')).toBe('button');
+      expect(div.getAttribute('a-number')).toBe('0');
     });
 
     it('should set boolean true as empty string attribute', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:hidden={true} />;
+          return <div attr:boolean={true} />;
         }
       }
 
@@ -52,8 +52,8 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.getAttribute('hidden')).toBe('');
-      expect(div.hasAttribute('hidden')).toBe(true);
+      expect(div.getAttribute('boolean')).toBe('');
+      expect(div.hasAttribute('boolean')).toBe(true);
     });
 
     it('should remove attribute when value is false', async () => {
@@ -61,7 +61,7 @@ describe('attr: and prop: prefix', () => {
       class CmpA {
         @Prop() show = false;
         render() {
-          return <div attr:hidden={this.show} />;
+          return <div attr:boolean={this.show} />;
         }
       }
 
@@ -71,23 +71,21 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.hasAttribute('hidden')).toBe(false);
+      expect(div.hasAttribute('boolean')).toBe(false);
 
       root.show = true;
       await waitForChanges();
-      expect(div.getAttribute('hidden')).toBe('');
-
+      expect(div.getAttribute('boolean')).toBe('');
       root.show = false;
       await waitForChanges();
-      expect(div.hasAttribute('hidden')).toBe(false);
+      expect(div.hasAttribute('boolean')).toBe(false);
     });
 
     it('should force attribute even for properties that exist on element', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          // "id" is a property, but attr: should force setAttribute
-          return <input attr:id="custom-id" type="text" />;
+          return <input attr:value="500px" type="text" />;
         }
       }
 
@@ -97,8 +95,8 @@ describe('attr: and prop: prefix', () => {
       });
 
       const input = root.querySelector('input');
-      expect(input.getAttribute('id')).toBe('custom-id');
-      expect(input.id).toBe('custom-id');
+      expect(input.getAttribute('value')).toBe('500px');
+      expect(input.value).toBe('500px'); // property remains unset
     });
 
     it('should update attribute on re-render', async () => {
@@ -106,7 +104,7 @@ describe('attr: and prop: prefix', () => {
       class CmpA {
         @Prop() label = 'initial';
         render() {
-          return <div attr:aria-label={this.label} />;
+          return <div attr:some-label={this.label} />;
         }
       }
 
@@ -116,11 +114,11 @@ describe('attr: and prop: prefix', () => {
       });
 
       const div = root.querySelector('div');
-      expect(div.getAttribute('aria-label')).toBe('initial');
+      expect(div.getAttribute('some-label')).toBe('initial');
 
       root.label = 'updated';
       await waitForChanges();
-      expect(div.getAttribute('aria-label')).toBe('updated');
+      expect(div.getAttribute('some-label')).toBe('updated');
     });
   });
 

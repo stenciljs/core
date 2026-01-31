@@ -23,8 +23,6 @@ declare global {
 declare namespace LocalJSX {
     interface PrehydratedStyles {
     }
-
-
     interface IntrinsicElements {
         "prehydrated-styles": PrehydratedStyles;
     }

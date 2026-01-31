@@ -29,8 +29,6 @@ declare global {
 declare namespace LocalJSX {
     interface MyComponent {
     }
-
-
     interface IntrinsicElements {
         "my-component": MyComponent;
     }

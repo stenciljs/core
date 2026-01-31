@@ -23,8 +23,6 @@ declare global {
 declare namespace LocalJSX {
     interface AppRoot {
     }
-
-
     interface IntrinsicElements {
         "app-root": AppRoot;
     }

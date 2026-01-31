@@ -23,8 +23,6 @@ declare global {
 declare namespace LocalJSX {
     interface HelloVdom {
     }
-
-
     interface IntrinsicElements {
         "hello-vdom": HelloVdom;
     }

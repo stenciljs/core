@@ -12,8 +12,6 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-
-
     interface IntrinsicElements {
     }
 }

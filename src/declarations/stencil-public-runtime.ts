@@ -1896,10 +1896,6 @@ export namespace JSXBase {
     yChannelSelector?: string;
     z?: number | string;
     zoomAndPan?: string;
-
-    // Explicit attribute/property prefix support
-    [key: `attr:${string}`]: string;
-    [key: `prop:${string}`]: any;
   }
 
   /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent) */

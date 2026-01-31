@@ -23,8 +23,6 @@ declare global {
 declare namespace LocalJSX {
     interface StyleurlsComponent {
     }
-
-
     interface IntrinsicElements {
         "styleurls-component": StyleurlsComponent;
     }

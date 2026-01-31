@@ -35,8 +35,6 @@ declare namespace LocalJSX {
          */
         "name"?: string;
     }
-
-
     interface IntrinsicElements {
         "custom-elements-form-associated": CustomElementsFormAssociated;
     }

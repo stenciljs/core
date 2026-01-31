@@ -189,9 +189,13 @@ const generateComponentTypesFile = (
       return addDocBlock(m.jsx, docs, 4);
     }),
   );
-  c.push(``);
-  c.push(...modules.filter((m) => m.explicitAttributes).map((m) => m.explicitAttributes));
-  c.push(``);
+
+  const attributeInterfaces = modules.filter((m) => m.explicitAttributes).map((m) => m.explicitAttributes);
+  if (attributeInterfaces.length > 0) {
+    c.push(``);
+    c.push(...attributeInterfaces);
+    c.push(``);
+  }
 
   c.push(`    interface IntrinsicElements {`);
   c.push(

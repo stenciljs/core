@@ -46,8 +46,6 @@ declare namespace LocalJSX {
     }
     interface GlobalScriptTestCmp {
     }
-
-
     interface IntrinsicElements {
         "global-script-dist-cmp": GlobalScriptDistCmp;
         "global-script-test-cmp": GlobalScriptTestCmp;
