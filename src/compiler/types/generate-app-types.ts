@@ -171,7 +171,6 @@ const generateComponentTypesFile = (
 
   c.push(`}`);
 
-  // Generate ExplicitAttributes interfaces (SolidJS-style)
   c.push(`declare namespace LocalJSX {`);
 
   // Add OneOf helper type for required prop unions
