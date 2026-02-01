@@ -964,53 +964,109 @@ declare namespace LocalJSX {
         "decoratedProp"?: number;
         "dynamicLifecycle"?: string[];
     }
+
+    interface ExtendedCmpAttributes {
+        "prop1": string;
+        "prop2": string;
+    }
+    interface ExtendedCmpCmpAttributes {
+        "prop1": string;
+        "prop2": string;
+    }
+    interface ExtendsAbstractAttributes {
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsCmpCmpAttributes {
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsConflictsAttributes {
+        "baseOnlyProp": string;
+        "duplicateProp": string;
+    }
+    interface ExtendsExternalAttributes {
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsLocalAttributes {
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsMixedDecoratorsAttributes {
+        "mixedName": string;
+        "baseOnlyProp": string;
+        "mixedStateName": string;
+    }
+    interface ExtendsMixinCmpAttributes {
+        "prop3": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsPropsStateAttributes {
+        "baseProp": string;
+        "baseCount": number;
+        "componentProp": string;
+    }
+    interface ExtendsWatchAttributes {
+        "baseProp": string;
+        "baseCount": number;
+        "overrideProp": string;
+        "childProp": string;
+    }
+    interface TsTargetPropsAttributes {
+        "basicProp": string;
+        "decoratedProp": number;
+        "decoratedGetterSetterProp": number;
+    }
+
     interface IntrinsicElements {
         "composition-checkbox-group": CompositionCheckboxGroup;
         "composition-radio-group": CompositionRadioGroup;
         "composition-scaling-demo": CompositionScalingDemo;
         "composition-text-input": CompositionTextInput;
-        "extended-cmp": ExtendedCmp;
-        "extended-cmp-cmp": ExtendedCmpCmp;
-        "extends-abstract": ExtendsAbstract;
-        "extends-cmp-cmp": ExtendsCmpCmp;
-        "extends-conflicts": ExtendsConflicts;
+        "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
+        "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
+        "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
+        "extends-cmp-cmp": Omit<ExtendsCmpCmp, keyof ExtendsCmpCmpAttributes> & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes]?: ExtendsCmpCmp[K] } & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes as `attr:${K}`]?: ExtendsCmpCmpAttributes[K] } & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes as `prop:${K}`]?: ExtendsCmpCmp[K] };
+        "extends-conflicts": Omit<ExtendsConflicts, keyof ExtendsConflictsAttributes> & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes]?: ExtendsConflicts[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `attr:${K}`]?: ExtendsConflictsAttributes[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `prop:${K}`]?: ExtendsConflicts[K] };
         "extends-controller-updates": ExtendsControllerUpdates;
         "extends-direct-state": ExtendsDirectState;
         "extends-events": ExtendsEvents;
-        "extends-external": ExtendsExternal;
+        "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
         "extends-lifecycle-basic": ExtendsLifecycleBasic;
         "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
-        "extends-local": ExtendsLocal;
+        "extends-local": Omit<ExtendsLocal, keyof ExtendsLocalAttributes> & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes]?: ExtendsLocal[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `attr:${K}`]?: ExtendsLocalAttributes[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `prop:${K}`]?: ExtendsLocal[K] };
         "extends-methods": ExtendsMethods;
-        "extends-mixed-decorators": ExtendsMixedDecorators;
-        "extends-mixin-cmp": ExtendsMixinCmp;
-        "extends-props-state": ExtendsPropsState;
+        "extends-mixed-decorators": Omit<ExtendsMixedDecorators, keyof ExtendsMixedDecoratorsAttributes> & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes]?: ExtendsMixedDecorators[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `attr:${K}`]?: ExtendsMixedDecoratorsAttributes[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `prop:${K}`]?: ExtendsMixedDecorators[K] };
+        "extends-mixin-cmp": Omit<ExtendsMixinCmp, keyof ExtendsMixinCmpAttributes> & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes]?: ExtendsMixinCmp[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `attr:${K}`]?: ExtendsMixinCmpAttributes[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `prop:${K}`]?: ExtendsMixinCmp[K] };
+        "extends-props-state": Omit<ExtendsPropsState, keyof ExtendsPropsStateAttributes> & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes]?: ExtendsPropsState[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `attr:${K}`]?: ExtendsPropsStateAttributes[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `prop:${K}`]?: ExtendsPropsState[K] };
         "extends-render": ExtendsRender;
         "extends-via-host-cmp": ExtendsViaHostCmp;
-        "extends-watch": ExtendsWatch;
+        "extends-watch": Omit<ExtendsWatch, keyof ExtendsWatchAttributes> & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes]?: ExtendsWatch[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `attr:${K}`]?: ExtendsWatchAttributes[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `prop:${K}`]?: ExtendsWatch[K] };
         "inheritance-checkbox-group": InheritanceCheckboxGroup;
         "inheritance-radio-group": InheritanceRadioGroup;
         "inheritance-scaling-demo": InheritanceScalingDemo;
         "inheritance-text-input": InheritanceTextInput;
-        "ts-target-props": TsTargetProps;
+        "ts-target-props": Omit<TsTargetProps, keyof TsTargetPropsAttributes> & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes]?: TsTargetProps[K] } & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes as `attr:${K}`]?: TsTargetPropsAttributes[K] } & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes as `prop:${K}`]?: TsTargetProps[K] };
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "composition-checkbox-group": LocalJSX.CompositionCheckboxGroup & JSXBase.HTMLAttributes<HTMLCompositionCheckboxGroupElement>;
-            "composition-radio-group": LocalJSX.CompositionRadioGroup & JSXBase.HTMLAttributes<HTMLCompositionRadioGroupElement>;
+            "composition-checkbox-group": LocalJSX.IntrinsicElements["composition-checkbox-group"] & JSXBase.HTMLAttributes<HTMLCompositionCheckboxGroupElement>;
+            "composition-radio-group": LocalJSX.IntrinsicElements["composition-radio-group"] & JSXBase.HTMLAttributes<HTMLCompositionRadioGroupElement>;
             /**
              * Main component that demonstrates composition-based scaling
              * with 3 components and 2 controllers (ValidationController and FocusController)
              */
-            "composition-scaling-demo": LocalJSX.CompositionScalingDemo & JSXBase.HTMLAttributes<HTMLCompositionScalingDemoElement>;
-            "composition-text-input": LocalJSX.CompositionTextInput & JSXBase.HTMLAttributes<HTMLCompositionTextInputElement>;
-            "extended-cmp": LocalJSX.ExtendedCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
-            "extended-cmp-cmp": LocalJSX.ExtendedCmpCmp & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
-            "extends-abstract": LocalJSX.ExtendsAbstract & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
-            "extends-cmp-cmp": LocalJSX.ExtendsCmpCmp & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            "composition-scaling-demo": LocalJSX.IntrinsicElements["composition-scaling-demo"] & JSXBase.HTMLAttributes<HTMLCompositionScalingDemoElement>;
+            "composition-text-input": LocalJSX.IntrinsicElements["composition-text-input"] & JSXBase.HTMLAttributes<HTMLCompositionTextInputElement>;
+            "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
+            "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
+            "extends-abstract": LocalJSX.IntrinsicElements["extends-abstract"] & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
+            "extends-cmp-cmp": LocalJSX.IntrinsicElements["extends-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
             /**
              * ConflictsCmp - Demonstrates decorator conflicts in inheritance chains
              * This component:
@@ -1019,9 +1075,9 @@ declare module "@stencil/core" {
              * 3. Verifies component decorators override base decorators
              * 4. Renders UI showing which version is active (component should win)
              */
-            "extends-conflicts": LocalJSX.ExtendsConflicts & JSXBase.HTMLAttributes<HTMLExtendsConflictsElement>;
-            "extends-controller-updates": LocalJSX.ExtendsControllerUpdates & JSXBase.HTMLAttributes<HTMLExtendsControllerUpdatesElement>;
-            "extends-direct-state": LocalJSX.ExtendsDirectState & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
+            "extends-conflicts": LocalJSX.IntrinsicElements["extends-conflicts"] & JSXBase.HTMLAttributes<HTMLExtendsConflictsElement>;
+            "extends-controller-updates": LocalJSX.IntrinsicElements["extends-controller-updates"] & JSXBase.HTMLAttributes<HTMLExtendsControllerUpdatesElement>;
+            "extends-direct-state": LocalJSX.IntrinsicElements["extends-direct-state"] & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
             /**
              * EventsCmp - Demonstrates
              * @Listen decorator inheritance
@@ -1033,12 +1089,12 @@ declare module "@stencil/core" {
              * 3. Overrides base event handler
              * 4. Demonstrates event bubbling and propagation
              */
-            "extends-events": LocalJSX.ExtendsEvents & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
-            "extends-external": LocalJSX.ExtendsExternal & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
-            "extends-lifecycle-basic": LocalJSX.ExtendsLifecycleBasic & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
-            "extends-lifecycle-multilevel": LocalJSX.ExtendsLifecycleMultilevel & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
-            "extends-local": LocalJSX.ExtendsLocal & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
-            "extends-methods": LocalJSX.ExtendsMethods & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
+            "extends-events": LocalJSX.IntrinsicElements["extends-events"] & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
+            "extends-external": LocalJSX.IntrinsicElements["extends-external"] & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            "extends-lifecycle-basic": LocalJSX.IntrinsicElements["extends-lifecycle-basic"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
+            "extends-lifecycle-multilevel": LocalJSX.IntrinsicElements["extends-lifecycle-multilevel"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
+            "extends-local": LocalJSX.IntrinsicElements["extends-local"] & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
+            "extends-methods": LocalJSX.IntrinsicElements["extends-methods"] & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
             /**
              * MixedDecoratorsCmp - Demonstrates mixed decorator type conflicts in inheritance chains
              * This component:
@@ -1047,8 +1103,8 @@ declare module "@stencil/core" {
              * 3. Verifies runtime behavior when mixed decorator types exist
              * 4. Renders UI showing which decorator type is active (component decorator type should win)
              */
-            "extends-mixed-decorators": LocalJSX.ExtendsMixedDecorators & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
-            "extends-mixin-cmp": LocalJSX.ExtendsMixinCmp & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
+            "extends-mixed-decorators": LocalJSX.IntrinsicElements["extends-mixed-decorators"] & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
+            "extends-mixin-cmp": LocalJSX.IntrinsicElements["extends-mixin-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
             /**
              * Test Case #3: Property & State Inheritance Basics
              * This component extends PropsStateBase to test:
@@ -1061,7 +1117,7 @@ declare module "@stencil/core" {
              * @State without conflicts
              * - Property reactivity (inherited props/state trigger re-renders)
              */
-            "extends-props-state": LocalJSX.ExtendsPropsState & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
+            "extends-props-state": LocalJSX.IntrinsicElements["extends-props-state"] & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
             /**
              * Test Case #5: Render Method Inheritance
              * This component extends RenderBase to test:
@@ -1070,8 +1126,8 @@ declare module "@stencil/core" {
              * - Slot Integration: Parent template slots work correctly when inherited and extended
              * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
              */
-            "extends-render": LocalJSX.ExtendsRender & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
-            "extends-via-host-cmp": LocalJSX.ExtendsViaHostCmp & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
+            "extends-render": LocalJSX.IntrinsicElements["extends-render"] & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
+            "extends-via-host-cmp": LocalJSX.IntrinsicElements["extends-via-host-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
             /**
              * WatchCmp - Demonstrates
              * @Watch decorator inheritance
@@ -1084,16 +1140,16 @@ declare module "@stencil/core" {
              * 4. Demonstrates watch execution order
              * 5. Demonstrates reactive property chains
              */
-            "extends-watch": LocalJSX.ExtendsWatch & JSXBase.HTMLAttributes<HTMLExtendsWatchElement>;
-            "inheritance-checkbox-group": LocalJSX.InheritanceCheckboxGroup & JSXBase.HTMLAttributes<HTMLInheritanceCheckboxGroupElement>;
-            "inheritance-radio-group": LocalJSX.InheritanceRadioGroup & JSXBase.HTMLAttributes<HTMLInheritanceRadioGroupElement>;
+            "extends-watch": LocalJSX.IntrinsicElements["extends-watch"] & JSXBase.HTMLAttributes<HTMLExtendsWatchElement>;
+            "inheritance-checkbox-group": LocalJSX.IntrinsicElements["inheritance-checkbox-group"] & JSXBase.HTMLAttributes<HTMLInheritanceCheckboxGroupElement>;
+            "inheritance-radio-group": LocalJSX.IntrinsicElements["inheritance-radio-group"] & JSXBase.HTMLAttributes<HTMLInheritanceRadioGroupElement>;
             /**
              * Main component that demonstrates inheritance-based scaling
              * with 3 components and 2 controllers (ValidationController and FocusController)
              */
-            "inheritance-scaling-demo": LocalJSX.InheritanceScalingDemo & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
-            "inheritance-text-input": LocalJSX.InheritanceTextInput & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
-            "ts-target-props": LocalJSX.TsTargetProps & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
+            "inheritance-scaling-demo": LocalJSX.IntrinsicElements["inheritance-scaling-demo"] & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
+            "inheritance-text-input": LocalJSX.IntrinsicElements["inheritance-text-input"] & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
+            "ts-target-props": LocalJSX.IntrinsicElements["ts-target-props"] & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
 }

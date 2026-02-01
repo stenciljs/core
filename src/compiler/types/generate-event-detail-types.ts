@@ -34,5 +34,8 @@ export const generateEventDetailTypes = (cmp: d.ComponentCompilerMeta): d.TypesM
     component: cmpInterface.join('\n'),
     jsx: cmpInterface.join('\n'),
     element: cmpInterface.join('\n'),
+    explicitAttributes: null,
+    explicitProperties: null,
+    requiredProps: null,
   };
 };

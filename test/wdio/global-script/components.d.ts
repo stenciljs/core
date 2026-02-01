@@ -59,8 +59,8 @@ declare module "@stencil/core" {
              * rendering this component will fail as `<attribute-basic /`> is compiled with
              * a `dist-custom-element` output target, which will break in a lazy load environment
              */
-            "global-script-dist-cmp": LocalJSX.GlobalScriptDistCmp & JSXBase.HTMLAttributes<HTMLGlobalScriptDistCmpElement>;
-            "global-script-test-cmp": LocalJSX.GlobalScriptTestCmp & JSXBase.HTMLAttributes<HTMLGlobalScriptTestCmpElement>;
+            "global-script-dist-cmp": LocalJSX.IntrinsicElements["global-script-dist-cmp"] & JSXBase.HTMLAttributes<HTMLGlobalScriptDistCmpElement>;
+            "global-script-test-cmp": LocalJSX.IntrinsicElements["global-script-test-cmp"] & JSXBase.HTMLAttributes<HTMLGlobalScriptTestCmpElement>;
         }
     }
 }

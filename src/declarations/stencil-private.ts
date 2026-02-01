@@ -2657,6 +2657,13 @@ export interface TypesModule {
   component: string;
   jsx: string;
   element: string;
+  explicitAttributes: string | null;
+  explicitProperties: string | null;
+  requiredProps: Array<{
+    name: string;
+    type: string;
+    complexType?: ComponentCompilerProperty['complexType'];
+  }> | null;
 }
 
 export type TypeInfo = {

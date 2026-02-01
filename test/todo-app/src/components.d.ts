@@ -83,19 +83,25 @@ declare namespace LocalJSX {
         "onItemRemove"?: (event: TodoItemCustomEvent<any>) => void;
         "text"?: string;
     }
+
+    interface TodoItemAttributes {
+        "checked": boolean;
+        "text": string;
+    }
+
     interface IntrinsicElements {
         "app-root": AppRoot;
         "todo-input": TodoInput;
-        "todo-item": TodoItem;
+        "todo-item": Omit<TodoItem, keyof TodoItemAttributes> & { [K in keyof TodoItem & keyof TodoItemAttributes]?: TodoItem[K] } & { [K in keyof TodoItem & keyof TodoItemAttributes as `attr:${K}`]?: TodoItemAttributes[K] } & { [K in keyof TodoItem & keyof TodoItemAttributes as `prop:${K}`]?: TodoItem[K] };
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
-            "todo-input": LocalJSX.TodoInput & JSXBase.HTMLAttributes<HTMLTodoInputElement>;
-            "todo-item": LocalJSX.TodoItem & JSXBase.HTMLAttributes<HTMLTodoItemElement>;
+            "app-root": LocalJSX.IntrinsicElements["app-root"] & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "todo-input": LocalJSX.IntrinsicElements["todo-input"] & JSXBase.HTMLAttributes<HTMLTodoInputElement>;
+            "todo-item": LocalJSX.IntrinsicElements["todo-item"] & JSXBase.HTMLAttributes<HTMLTodoItemElement>;
         }
     }
 }

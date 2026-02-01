@@ -960,4 +960,132 @@ describe('setAccessor for standard html elements', () => {
       expect(classList).toEqual(['class1', 'class2', 'class3']);
     });
   });
+
+  describe('attr: prefix', () => {
+    let elm: any;
+
+    beforeEach(() => {
+      elm = document.createElement('my-tag');
+    });
+
+    it('should set value as attribute using setAttribute', () => {
+      setAccessor(elm, 'attr:data-value', undefined, 'hello', false, 0);
+      expect(elm.getAttribute('data-value')).toBe('hello');
+    });
+
+    it('should set true boolean as empty string attribute', () => {
+      setAccessor(elm, 'attr:hidden', undefined, true, false, 0);
+      expect(elm.getAttribute('hidden')).toBe('');
+    });
+
+    it('should remove attribute when value is false', () => {
+      elm.setAttribute('hidden', '');
+      setAccessor(elm, 'attr:hidden', true, false, false, 0);
+      expect(elm.hasAttribute('hidden')).toBe(false);
+    });
+
+    it('should remove attribute when value is null', () => {
+      elm.setAttribute('data-value', 'test');
+      setAccessor(elm, 'attr:data-value', 'test', null, false, 0);
+      expect(elm.hasAttribute('data-value')).toBe(false);
+    });
+
+    it('should remove attribute when value is undefined', () => {
+      elm.setAttribute('data-value', 'test');
+      setAccessor(elm, 'attr:data-value', 'test', undefined, false, 0);
+      expect(elm.hasAttribute('data-value')).toBe(false);
+    });
+
+    it('should force attribute even for properties that exist on element', () => {
+      const nativeElm = document.createElement('input');
+      const spy = jest.spyOn(nativeElm, 'setAttribute');
+      setAccessor(nativeElm, 'attr:id', undefined, 'my-id', false, 0);
+      expect(spy).toHaveBeenCalledWith('id', 'my-id');
+    });
+
+    it('should set string value as attribute', () => {
+      setAccessor(elm, 'attr:aria-label', undefined, 'Close', false, 0);
+      expect(elm.getAttribute('aria-label')).toBe('Close');
+    });
+
+    it('should update attribute value on re-render', () => {
+      setAccessor(elm, 'attr:data-count', undefined, '1', false, 0);
+      expect(elm.getAttribute('data-count')).toBe('1');
+      setAccessor(elm, 'attr:data-count', '1', '2', false, 0);
+      expect(elm.getAttribute('data-count')).toBe('2');
+    });
+
+    it('should not set attribute when old and new values are equal', () => {
+      const spy = jest.spyOn(elm, 'setAttribute');
+      setAccessor(elm, 'attr:data-value', 'same', 'same', false, 0);
+      expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prop: prefix', () => {
+    let elm: any;
+
+    beforeEach(() => {
+      elm = document.createElement('my-tag');
+    });
+
+    it('should set value as property directly', () => {
+      setAccessor(elm, 'prop:myProp', undefined, 'hello', false, 0);
+      expect(elm.myProp).toBe('hello');
+    });
+
+    it('should set complex object as property', () => {
+      const obj = { foo: 'bar' };
+      setAccessor(elm, 'prop:data', undefined, obj, false, 0);
+      expect(elm.data).toBe(obj);
+    });
+
+    it('should set array as property', () => {
+      const arr = [1, 2, 3];
+      setAccessor(elm, 'prop:items', undefined, arr, false, 0);
+      expect(elm.items).toBe(arr);
+    });
+
+    it('should set null as property', () => {
+      elm.myProp = 'old';
+      setAccessor(elm, 'prop:myProp', 'old', null, false, 0);
+      expect(elm.myProp).toBe(null);
+    });
+
+    it('should set undefined as property', () => {
+      elm.myProp = 'old';
+      setAccessor(elm, 'prop:myProp', 'old', undefined, false, 0);
+      expect(elm.myProp).toBe(undefined);
+    });
+
+    it('should not set attribute when using prop: prefix', () => {
+      const spy = jest.spyOn(elm, 'setAttribute');
+      setAccessor(elm, 'prop:value', undefined, 'test', false, 0);
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should force property even in SVG mode', () => {
+      setAccessor(elm, 'prop:myProp', undefined, 'hello', true, 0);
+      expect(elm.myProp).toBe('hello');
+    });
+
+    it('should not throw for read-only properties', () => {
+      Object.defineProperty(elm, 'readOnlyProp', {
+        get: () => 'fixed',
+        set: () => {
+          throw new Error('read-only');
+        },
+      });
+      expect(() => {
+        setAccessor(elm, 'prop:readOnlyProp', undefined, 'new-value', false, 0);
+      }).not.toThrow();
+    });
+
+    it('should not set property when old and new values are equal', () => {
+      elm.myProp = 'same';
+      setAccessor(elm, 'prop:myProp', 'same', 'same', false, 0);
+      // early return means property setter not called again
+      expect(elm.myProp).toBe('same');
+    });
+  });
 });

@@ -143,6 +143,29 @@ export const setAccessor = (
         plt.ael(elm, memberName, newValue, capture);
       }
     }
+  } else if (BUILD.vdomPropOrAttr && memberName[0] === 'a' && memberName.startsWith('attr:')) {
+    // Explicit attr: prefix — always set as attribute, bypass heuristic
+    const attrName = memberName.slice(5);
+    if (newValue == null || newValue === false) {
+      // null or undefined or false (and no value) - remove attribute
+      if (newValue !== false || elm.getAttribute(attrName) === '') {
+        elm.removeAttribute(attrName);
+      }
+    } else {
+      elm.setAttribute(attrName, newValue === true ? '' : newValue);
+    }
+    return;
+  } else if (BUILD.vdomPropOrAttr && memberName[0] === 'p' && memberName.startsWith('prop:')) {
+    // Explicit prop: prefix — always set as property, bypass heuristic
+    const propName = memberName.slice(5);
+    try {
+      (elm as any)[propName] = newValue;
+    } catch (e) {
+      /**
+       * in case someone tries to set a read-only property, we just ignore it
+       */
+    }
+    return;
   } else if (BUILD.vdomPropOrAttr) {
     // Set property if it exists and it's not a SVG
     const isComplex = isComplexType(newValue);

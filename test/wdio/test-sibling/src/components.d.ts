@@ -81,9 +81,19 @@ declare namespace LocalJSX {
     }
     interface SiblingRoot {
     }
+
+    interface SiblingExtendedAttributes {
+        "prop1": string;
+        "prop2": string;
+    }
+    interface SiblingExtendedBaseAttributes {
+        "prop1": string;
+        "prop2": string;
+    }
+
     interface IntrinsicElements {
-        "sibling-extended": SiblingExtended;
-        "sibling-extended-base": SiblingExtendedBase;
+        "sibling-extended": Omit<SiblingExtended, keyof SiblingExtendedAttributes> & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes]?: SiblingExtended[K] } & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes as `attr:${K}`]?: SiblingExtendedAttributes[K] } & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes as `prop:${K}`]?: SiblingExtended[K] };
+        "sibling-extended-base": Omit<SiblingExtendedBase, keyof SiblingExtendedBaseAttributes> & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes]?: SiblingExtendedBase[K] } & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes as `attr:${K}`]?: SiblingExtendedBaseAttributes[K] } & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes as `prop:${K}`]?: SiblingExtendedBase[K] };
         "sibling-root": SiblingRoot;
     }
 }
@@ -91,9 +101,9 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "sibling-extended": LocalJSX.SiblingExtended & JSXBase.HTMLAttributes<HTMLSiblingExtendedElement>;
-            "sibling-extended-base": LocalJSX.SiblingExtendedBase & JSXBase.HTMLAttributes<HTMLSiblingExtendedBaseElement>;
-            "sibling-root": LocalJSX.SiblingRoot & JSXBase.HTMLAttributes<HTMLSiblingRootElement>;
+            "sibling-extended": LocalJSX.IntrinsicElements["sibling-extended"] & JSXBase.HTMLAttributes<HTMLSiblingExtendedElement>;
+            "sibling-extended-base": LocalJSX.IntrinsicElements["sibling-extended-base"] & JSXBase.HTMLAttributes<HTMLSiblingExtendedBaseElement>;
+            "sibling-root": LocalJSX.IntrinsicElements["sibling-root"] & JSXBase.HTMLAttributes<HTMLSiblingRootElement>;
         }
     }
 }

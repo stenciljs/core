@@ -152,6 +152,11 @@ declare namespace LocalJSX {
     }
     interface TestSvg {
     }
+
+    interface CmpDAttributes {
+        "uniqueId": string;
+    }
+
     interface IntrinsicElements {
         "app-root": AppRoot;
         "cmp-a": CmpA;
@@ -159,7 +164,7 @@ declare namespace LocalJSX {
         "cmp-c": CmpC;
         "cmp-client-scoped": CmpClientScoped;
         "cmp-client-shadow": CmpClientShadow;
-        "cmp-d": CmpD;
+        "cmp-d": Omit<CmpD, keyof CmpDAttributes> & { [K in keyof CmpD & keyof CmpDAttributes]?: CmpD[K] } & { [K in keyof CmpD & keyof CmpDAttributes as `attr:${K}`]?: CmpDAttributes[K] } & { [K in keyof CmpD & keyof CmpDAttributes as `prop:${K}`]?: CmpD[K] };
         "cmp-scoped-a": CmpScopedA;
         "cmp-scoped-b": CmpScopedB;
         "cmp-text-blue": CmpTextBlue;
@@ -171,18 +176,18 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
-            "cmp-a": LocalJSX.CmpA & JSXBase.HTMLAttributes<HTMLCmpAElement>;
-            "cmp-b": LocalJSX.CmpB & JSXBase.HTMLAttributes<HTMLCmpBElement>;
-            "cmp-c": LocalJSX.CmpC & JSXBase.HTMLAttributes<HTMLCmpCElement>;
-            "cmp-client-scoped": LocalJSX.CmpClientScoped & JSXBase.HTMLAttributes<HTMLCmpClientScopedElement>;
-            "cmp-client-shadow": LocalJSX.CmpClientShadow & JSXBase.HTMLAttributes<HTMLCmpClientShadowElement>;
-            "cmp-d": LocalJSX.CmpD & JSXBase.HTMLAttributes<HTMLCmpDElement>;
-            "cmp-scoped-a": LocalJSX.CmpScopedA & JSXBase.HTMLAttributes<HTMLCmpScopedAElement>;
-            "cmp-scoped-b": LocalJSX.CmpScopedB & JSXBase.HTMLAttributes<HTMLCmpScopedBElement>;
-            "cmp-text-blue": LocalJSX.CmpTextBlue & JSXBase.HTMLAttributes<HTMLCmpTextBlueElement>;
-            "cmp-text-green": LocalJSX.CmpTextGreen & JSXBase.HTMLAttributes<HTMLCmpTextGreenElement>;
-            "test-svg": LocalJSX.TestSvg & JSXBase.HTMLAttributes<HTMLTestSvgElement>;
+            "app-root": LocalJSX.IntrinsicElements["app-root"] & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "cmp-a": LocalJSX.IntrinsicElements["cmp-a"] & JSXBase.HTMLAttributes<HTMLCmpAElement>;
+            "cmp-b": LocalJSX.IntrinsicElements["cmp-b"] & JSXBase.HTMLAttributes<HTMLCmpBElement>;
+            "cmp-c": LocalJSX.IntrinsicElements["cmp-c"] & JSXBase.HTMLAttributes<HTMLCmpCElement>;
+            "cmp-client-scoped": LocalJSX.IntrinsicElements["cmp-client-scoped"] & JSXBase.HTMLAttributes<HTMLCmpClientScopedElement>;
+            "cmp-client-shadow": LocalJSX.IntrinsicElements["cmp-client-shadow"] & JSXBase.HTMLAttributes<HTMLCmpClientShadowElement>;
+            "cmp-d": LocalJSX.IntrinsicElements["cmp-d"] & JSXBase.HTMLAttributes<HTMLCmpDElement>;
+            "cmp-scoped-a": LocalJSX.IntrinsicElements["cmp-scoped-a"] & JSXBase.HTMLAttributes<HTMLCmpScopedAElement>;
+            "cmp-scoped-b": LocalJSX.IntrinsicElements["cmp-scoped-b"] & JSXBase.HTMLAttributes<HTMLCmpScopedBElement>;
+            "cmp-text-blue": LocalJSX.IntrinsicElements["cmp-text-blue"] & JSXBase.HTMLAttributes<HTMLCmpTextBlueElement>;
+            "cmp-text-green": LocalJSX.IntrinsicElements["cmp-text-green"] & JSXBase.HTMLAttributes<HTMLCmpTextGreenElement>;
+            "test-svg": LocalJSX.IntrinsicElements["test-svg"] & JSXBase.HTMLAttributes<HTMLTestSvgElement>;
         }
     }
 }

@@ -1620,6 +1620,12 @@ export namespace JSXBase {
     results?: number;
     security?: string;
     unselectable?: boolean;
+
+    // Explicit attribute/property prefix support
+    // attr:* forces setting as an HTML attribute via setAttribute
+    // prop:* forces setting as a DOM property via direct assignment
+    [key: `attr:${string}`]: string;
+    [key: `prop:${string}`]: any;
   }
 
   export interface SVGAttributes<T = SVGElement> extends DOMAttributes<T> {
@@ -1896,6 +1902,12 @@ export namespace JSXBase {
     yChannelSelector?: string;
     z?: number | string;
     zoomAndPan?: string;
+
+    // Explicit attribute/property prefix support
+    // attr:* forces setting as an HTML attribute via setAttribute
+    // prop:* forces setting as a DOM property via direct assignment
+    [key: `attr:${string}`]: string;
+    [key: `prop:${string}`]: any;
   }
 
   /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent) */

@@ -73,6 +73,7 @@ export const generateComponentTypes = (
   const formAssociatedAttrs = cmp.formAssociated
     ? FORM_ASSOCIATED_ATTRIBUTES.filter((attr) => !propNames.has(attr.name))
     : [];
+
   const jsxAttributes = attributesToMultiLineString(
     [...propAttributes, ...eventAttributes, ...formAssociatedAttrs],
     true,
@@ -98,6 +99,34 @@ export const generateComponentTypes = (
     `        new (): ${htmlElementName};`,
     `    };`,
   ];
+  // Generate explicit attributes interface (only props with HTML attributes)
+  // Props without attributes don't need attr: or prop: prefixes - they're already property-only
+  const propsWithAttributes = cmp.properties.filter((prop) => prop.attribute !== undefined);
+  const hasExplicitAttributes = propsWithAttributes.length > 0;
+  const requiredProps = propsWithAttributes.filter((prop) => prop.required);
+  const hasRequiredProps = requiredProps.length > 0;
+
+  const explicitAttributes = propsWithAttributes
+    .map((prop) => {
+      const propMeta = cmp.properties.find((p) => p.name === prop.name);
+      const simpleType = propMeta?.type?.trim();
+      let attrType: string;
+
+      // If it's a simple primitive type that can be set directly as an attribute
+      if (simpleType && ['string', 'number', 'boolean'].includes(simpleType)) {
+        // Try to use the more specific TypeScript type for better precision
+        // e.g., 'full' | 'inset' | 'none' instead of just 'string'
+        attrType = propMeta?.complexType?.original || simpleType;
+      } else {
+        // For complex types (objects, arrays, etc.) or unknown/any,
+        // attributes can still accept strings (user may have custom serializers)
+        attrType = 'string';
+      }
+
+      return `        "${prop.name}": ${attrType};`;
+    })
+    .join('\n');
+
   return {
     isDep,
     tagName,
@@ -106,6 +135,17 @@ export const generateComponentTypes = (
     component: addDocBlock(`    interface ${tagNameAsPascal} {\n${componentAttributes}    }`, cmp.docs, 4),
     jsx: `    interface ${tagNameAsPascal} {\n${jsxAttributes}    }`,
     element: element.join(`\n`),
+    explicitAttributes: hasExplicitAttributes
+      ? `    interface ${tagNameAsPascal}Attributes {\n${explicitAttributes}\n    }`
+      : null,
+    explicitProperties: null,
+    requiredProps: hasRequiredProps
+      ? requiredProps.map((p) => ({
+          name: p.name,
+          type: p.type,
+          complexType: p.complexType,
+        }))
+      : null,
   };
 };
 
