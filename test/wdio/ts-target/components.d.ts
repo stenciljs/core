@@ -307,8 +307,6 @@ export namespace Components {
      */
     interface ExtendsRender {
     }
-    interface ExtendsViaHostCmp {
-    }
     /**
      * WatchCmp - Demonstrates
      * @Watch decorator inheritance
@@ -606,12 +604,6 @@ declare global {
         prototype: HTMLExtendsRenderElement;
         new (): HTMLExtendsRenderElement;
     };
-    interface HTMLExtendsViaHostCmpElement extends Components.ExtendsViaHostCmp, HTMLStencilElement {
-    }
-    var HTMLExtendsViaHostCmpElement: {
-        prototype: HTMLExtendsViaHostCmpElement;
-        new (): HTMLExtendsViaHostCmpElement;
-    };
     /**
      * WatchCmp - Demonstrates
      * @Watch decorator inheritance
@@ -708,7 +700,6 @@ declare global {
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
         "extends-props-state": HTMLExtendsPropsStateElement;
         "extends-render": HTMLExtendsRenderElement;
-        "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
         "extends-watch": HTMLExtendsWatchElement;
         "inheritance-checkbox-group": HTMLInheritanceCheckboxGroupElement;
         "inheritance-radio-group": HTMLInheritanceRadioGroupElement;
@@ -906,8 +897,6 @@ declare namespace LocalJSX {
      */
     interface ExtendsRender {
     }
-    interface ExtendsViaHostCmp {
-    }
     /**
      * WatchCmp - Demonstrates
      * @Watch decorator inheritance
@@ -986,7 +975,6 @@ declare namespace LocalJSX {
         "extends-mixin-cmp": ExtendsMixinCmp;
         "extends-props-state": ExtendsPropsState;
         "extends-render": ExtendsRender;
-        "extends-via-host-cmp": ExtendsViaHostCmp;
         "extends-watch": ExtendsWatch;
         "inheritance-checkbox-group": InheritanceCheckboxGroup;
         "inheritance-radio-group": InheritanceRadioGroup;
@@ -1071,7 +1059,6 @@ declare module "@stencil/core" {
              * - CSS Class Inheritance: CSS classes from parent template maintained in component extension
              */
             "extends-render": LocalJSX.ExtendsRender & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
-            "extends-via-host-cmp": LocalJSX.ExtendsViaHostCmp & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
             /**
              * WatchCmp - Demonstrates
              * @Watch decorator inheritance

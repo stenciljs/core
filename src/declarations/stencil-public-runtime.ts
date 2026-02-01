@@ -656,6 +656,47 @@ export interface ComponentInterface {
   [memberName: string]: any;
 }
 
+/**
+ * Interface for reactive controllers that can be attached to a ReactiveControllerHost.
+ * Controllers implement lifecycle hooks that are called by the host during component lifecycle.
+ */
+export interface ReactiveController {
+  hostConnected?(): void;
+  hostDisconnected?(): void;
+  hostWillLoad?(): Promise<void> | void;
+  hostDidLoad?(): void;
+  hostWillRender?(): Promise<void> | void;
+  hostDidRender?(): void;
+  hostWillUpdate?(): Promise<void> | void;
+  hostDidUpdate?(): void;
+}
+
+/**
+ * Base class that implements ComponentInterface and provides reactive controller functionality.
+ * Components can extend this class to enable reactive controller composition.
+ *
+ * Known Limitation: Components extending ReactiveControllerHost cannot use
+ * `<Host>` as their root element in the render method. This is because
+ * ReactiveControllerHost does not extend HTMLElement. Instead, return a
+ * regular element (like `<div>`) as the root.
+ */
+export declare class ReactiveControllerHost implements ComponentInterface {
+  controllers: Set<ReactiveController>;
+
+  addController(controller: ReactiveController): void;
+  removeController(controller: ReactiveController): void;
+  requestUpdate(): void;
+  connectedCallback(): void;
+  disconnectedCallback(): void;
+  componentWillLoad(): void;
+  componentDidLoad(): void;
+  componentWillRender(): void;
+  componentDidRender(): void;
+  componentWillUpdate(): void;
+  componentDidUpdate(): void;
+  [memberName: string]: any;
+}
+
 // General types important to applications using stencil built components
 export interface EventEmitter<T = any> {
   emit: (data?: T) => CustomEvent<T>;

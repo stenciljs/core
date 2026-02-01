@@ -1,5 +1,4 @@
-import { Component, h, State, Element } from '@stencil/core';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
+import { Component, h, ReactiveControllerHost, State, Element } from '@stencil/core';
 import { ValidationController } from './validation-controller.js';
 import { FocusController } from './focus-controller.js';
 
@@ -13,7 +12,7 @@ export class TextInputCmp extends ReactiveControllerHost {
 
   // Controllers via composition
   private validation = new ValidationController(this);
-  private focus = new FocusController(this);
+  private focusController = new FocusController(this);
 
   private inputId = `text-input-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
@@ -47,16 +46,16 @@ export class TextInputCmp extends ReactiveControllerHost {
   };
 
   private handleFocus = () => {
-    this.focus.handleFocus();
+    this.focusController.handleFocus();
   };
 
   private handleBlur = () => {
-    this.focus.handleBlur();
+    this.focusController.handleBlur();
     this.validation.handleBlur(this.value);
   };
 
   render() {
-    const focusState = this.focus.getFocusState();
+    const focusState = this.focusController.getFocusState();
     const validationState = this.validation.getValidationState();
     const validationData = this.validation.getValidationMessageData(this.helperTextId, this.errorTextId);
 

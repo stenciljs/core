@@ -13,6 +13,7 @@ export { setNonce } from './nonce';
 export { parsePropertyValue } from './parse-property-value';
 export { setPlatformOptions } from './platform-options';
 export { proxyComponent } from './proxy-component';
+export { ReactiveController, ReactiveControllerHost } from './reactive-controller';
 export { render } from './render';
 export { HYDRATED_STYLE_ID } from './runtime-constants';
 export { getValue, setValue } from './set-value';
