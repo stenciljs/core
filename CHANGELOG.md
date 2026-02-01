@@ -1,3 +1,22 @@
+# 🚑 [4.42.0](https://github.com/stenciljs/core/compare/v4.41.3...v4.42.0) (2026-02-01)
+
+
+### Bug Fixes
+
+* **runtime:** use strict comparison when updating properties ([#6573](https://github.com/stenciljs/core/issues/6573)) ([e8dfc09](https://github.com/stenciljs/core/commit/e8dfc0973e25de29de395ea4130d9feb3f11b9dc))
+* **types:** css import type ([#6569](https://github.com/stenciljs/core/issues/6569)) ([60802fc](https://github.com/stenciljs/core/commit/60802fce9e521e50a98533c4ded58f23b8739429))
+
+
+### Features
+
+* **compiler:** `CustomStateSet` support ([#6574](https://github.com/stenciljs/core/issues/6574)) ([cce1e23](https://github.com/stenciljs/core/commit/cce1e2328d1d9ba290ef10342c0bcb659b2bff36))
+* **docs:** new `docs-custom-elements-manifest` output ([#6568](https://github.com/stenciljs/core/issues/6568)) ([df9d198](https://github.com/stenciljs/core/commit/df9d198b815bab381ab13ca444e7f85c99f6b077))
+* **hydrate-script:** add `generatePackageJson` option to `dist-hydrate-script` ([#6571](https://github.com/stenciljs/core/issues/6571)) ([f2dbed7](https://github.com/stenciljs/core/commit/f2dbed7c7162147446e084541d67ef322639b3b0))
+* **jsx:** `attr:` / `prop:` prefixes ([#6575](https://github.com/stenciljs/core/issues/6575)) ([aa599da](https://github.com/stenciljs/core/commit/aa599dabefd5df1058a512e03b785387e32e88d4))
+* **runtime:** Remove redundant SSR style elements after adoptedStyleSheets adoption ([#6576](https://github.com/stenciljs/core/issues/6576)) ([bc90887](https://github.com/stenciljs/core/commit/bc9088793774bfd307800422a762362b4de603cd))
+
+
+
 ## 🎇 [4.41.3](https://github.com/stenciljs/core/compare/v4.41.2...v4.41.3) (2026-01-23)
 
 
