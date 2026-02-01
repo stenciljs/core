@@ -108,20 +108,19 @@ export const generateComponentTypes = (
 
   const explicitAttributes = propsWithAttributes
     .map((prop) => {
-      // For attributes, use the simple serializable type
-      // Most props will have a known simple type like string, number, boolean
-      // For complex types or unknown, fall back to string | number | boolean
       const propMeta = cmp.properties.find((p) => p.name === prop.name);
-      let attrType = 'string';
+      const simpleType = propMeta?.type?.trim();
+      let attrType: string;
 
-      if (propMeta?.type) {
-        const simpleType = propMeta.type.trim();
-        // If it's a simple primitive type, use it directly
-        if (['string', 'number', 'boolean'].includes(simpleType)) {
-          attrType = simpleType;
-        } else {
-          attrType = 'string';
-        }
+      // If it's a simple primitive type that can be set directly as an attribute
+      if (simpleType && ['string', 'number', 'boolean'].includes(simpleType)) {
+        // Try to use the more specific TypeScript type for better precision
+        // e.g., 'full' | 'inset' | 'none' instead of just 'string'
+        attrType = propMeta?.complexType?.original || simpleType;
+      } else {
+        // For complex types (objects, arrays, etc.) or unknown/any,
+        // attributes can still accept strings (user may have custom serializers)
+        attrType = 'string';
       }
 
       return `        "${prop.name}": ${attrType};`;
