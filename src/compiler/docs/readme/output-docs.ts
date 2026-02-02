@@ -66,7 +66,31 @@ export const generateReadme = async (
               : // Default case: writing to srcDir, so use the provided user content.
                 userContent;
 
-        const readmeContent = generateMarkdown(currentReadmeContent, docsData, cmps, readmeOutput, config);
+        // If styles are empty and we're in docs-only mode (not a full build),
+        // try to preserve existing CSS Custom Properties section.
+        // We detect docs-only mode by checking if ALL output targets are docs targets.
+        const isDocsOnlyMode = config.outputTargets.every(
+          (target) =>
+            target.type === 'docs-readme' ||
+            target.type === 'docs-json' ||
+            target.type === 'docs-custom' ||
+            target.type === 'docs-vscode' ||
+            target.type === 'docs-custom-elements-manifest',
+        );
+
+        let existingCssProps: d.JsonDocsStyle[] | undefined;
+        if (docsData.styles.length === 0 && isDocsOnlyMode) {
+          existingCssProps = await extractExistingCssProps(compilerCtx, readmeOutputPath);
+        }
+
+        const readmeContent = generateMarkdown(
+          currentReadmeContent,
+          docsData,
+          cmps,
+          readmeOutput,
+          config,
+          existingCssProps,
+        );
 
         const results = await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
         if (results.changedContent) {
@@ -87,9 +111,13 @@ export const generateMarkdown = (
   cmps: d.JsonDocsComponent[],
   readmeOutput: d.OutputTargetDocsReadme,
   config?: d.ValidatedConfig,
+  existingCssProps?: d.JsonDocsStyle[],
 ) => {
   //If the readmeOutput.dependencies is true or undefined the dependencies will be generated.
   const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps, config) : [];
+
+  // Use existing CSS props if styles are empty and we have preserved props
+  const stylesToUse = cmp.styles.length === 0 && existingCssProps ? existingCssProps : cmp.styles;
 
   return [
     userContent || '',
@@ -105,7 +133,7 @@ export const generateMarkdown = (
     ...slotsToMarkdown(cmp.slots),
     ...partsToMarkdown(cmp.parts),
     ...customStatesToMarkdown(cmp.customStates),
-    ...stylesToMarkdown(cmp.styles),
+    ...stylesToMarkdown(stylesToUse),
     ...dependencies,
     `----------------------------------------------`,
     '',
@@ -129,4 +157,77 @@ const getDocsDeprecation = (cmp: d.JsonDocsComponent) => {
  */
 const getDefaultReadme = (docsData: d.JsonDocsComponent) => {
   return [`# ${docsData.tag}`, '', '', ''].join('\n');
+};
+
+/**
+ * Extract the existing CSS Custom Properties section from a README file.
+ * This is used to preserve CSS props documentation when running `stencil docs`
+ * without building styles.
+ *
+ * @param compilerCtx the current compiler context
+ * @param readmePath the path to the README file to read
+ * @returns array of CSS custom properties styles, or undefined if none found
+ */
+const extractExistingCssProps = async (
+  compilerCtx: d.CompilerCtx,
+  readmePath: string,
+): Promise<d.JsonDocsStyle[] | undefined> => {
+  try {
+    const existingContent = await compilerCtx.fs.readFile(readmePath);
+
+    // Find the CSS Custom Properties section
+    const cssPropsSectionMatch = existingContent.match(
+      /## CSS Custom Properties\s*\n\s*\n([\s\S]*?)(?=\n##|\n-{4,}|$)/,
+    );
+    if (!cssPropsSectionMatch) {
+      return undefined;
+    }
+
+    const cssPropsSection = cssPropsSectionMatch[1];
+    const styles: d.JsonDocsStyle[] = [];
+
+    // Parse the markdown table to extract CSS custom properties
+    // Table format:
+    // | Name | Description |
+    // | ---- | ----------- |
+    // | `--prop-name` | Description text |
+    const lines = cssPropsSection.split('\n');
+    let inTable = false;
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      // Skip header and separator rows
+      if (trimmedLine.startsWith('| Name') || trimmedLine.startsWith('| ---')) {
+        inTable = true;
+        continue;
+      }
+
+      // Parse table rows
+      if (inTable && trimmedLine.startsWith('|')) {
+        const parts = trimmedLine
+          .split('|')
+          .map((p) => p.trim())
+          .filter((p) => p);
+        if (parts.length >= 2) {
+          // Extract the CSS variable name (remove backticks)
+          const name = parts[0].replace(/`/g, '').trim();
+          const docs = parts[1].trim();
+
+          if (name.startsWith('--')) {
+            styles.push({
+              name,
+              docs,
+              annotation: 'prop',
+              mode: undefined,
+            });
+          }
+        }
+      }
+    }
+
+    return styles.length > 0 ? styles : undefined;
+  } catch (e) {
+    return undefined;
+  }
 };
