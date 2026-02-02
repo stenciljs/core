@@ -66,31 +66,8 @@ export const generateReadme = async (
               : // Default case: writing to srcDir, so use the provided user content.
                 userContent;
 
-        // If styles are empty and we're in docs-only mode (not a full build),
-        // try to preserve existing CSS Custom Properties section.
-        // We detect docs-only mode by checking if ALL output targets are docs targets.
-        const isDocsOnlyMode = config.outputTargets.every(
-          (target) =>
-            target.type === 'docs-readme' ||
-            target.type === 'docs-json' ||
-            target.type === 'docs-custom' ||
-            target.type === 'docs-vscode' ||
-            target.type === 'docs-custom-elements-manifest',
-        );
-
-        let existingCssProps: d.JsonDocsStyle[] | undefined;
-        if (docsData.styles.length === 0 && isDocsOnlyMode) {
-          existingCssProps = await extractExistingCssProps(compilerCtx, readmeOutputPath);
-        }
-
-        const readmeContent = generateMarkdown(
-          currentReadmeContent,
-          docsData,
-          cmps,
-          readmeOutput,
-          config,
-          existingCssProps,
-        );
+        // CSS Custom Properties preservation is now handled centrally in outputDocs
+        const readmeContent = generateMarkdown(currentReadmeContent, docsData, cmps, readmeOutput, config);
 
         const results = await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
         if (results.changedContent) {
@@ -111,13 +88,9 @@ export const generateMarkdown = (
   cmps: d.JsonDocsComponent[],
   readmeOutput: d.OutputTargetDocsReadme,
   config?: d.ValidatedConfig,
-  existingCssProps?: d.JsonDocsStyle[],
 ) => {
   //If the readmeOutput.dependencies is true or undefined the dependencies will be generated.
   const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps, config) : [];
-
-  // Use existing CSS props if styles are empty and we have preserved props
-  const stylesToUse = cmp.styles.length === 0 && existingCssProps ? existingCssProps : cmp.styles;
 
   return [
     userContent || '',
@@ -133,7 +106,7 @@ export const generateMarkdown = (
     ...slotsToMarkdown(cmp.slots),
     ...partsToMarkdown(cmp.parts),
     ...customStatesToMarkdown(cmp.customStates),
-    ...stylesToMarkdown(stylesToUse),
+    ...stylesToMarkdown(cmp.styles),
     ...dependencies,
     `----------------------------------------------`,
     '',
@@ -168,7 +141,7 @@ const getDefaultReadme = (docsData: d.JsonDocsComponent) => {
  * @param readmePath the path to the README file to read
  * @returns array of CSS custom properties styles, or undefined if none found
  */
-const extractExistingCssProps = async (
+export const extractExistingCssProps = async (
   compilerCtx: d.CompilerCtx,
   readmePath: string,
 ): Promise<d.JsonDocsStyle[] | undefined> => {
