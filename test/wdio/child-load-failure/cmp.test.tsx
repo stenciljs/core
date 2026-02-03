@@ -34,7 +34,6 @@ describe('child-load-failure', () => {
         const parentContent = await $('.parent-content');
         await expect(parentContent).toHaveText('Parent Loaded');
       } catch (e) {
-        console.log('????');
         const parent = await $('cmp-parent');
         await parent.waitForExist();
 
