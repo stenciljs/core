@@ -36,7 +36,7 @@ const closest = async (root: HTMLParentTagTransformElement) => {
 };
 const cssSelectors = async (root: HTMLParentTagTransformElement) => {
   expect(getComputedStyle(root.shadowRoot.querySelector('child-tag-is-transformed')).borderColor).toBe(
-    'rgb(0, 0, 255)',
+    'rgba(0, 0, 255, 1)',
   );
   // blue border applied from parent-tag-transform.css using transformed selector
 };

@@ -32,17 +32,17 @@ describe('delegates-focus', function () {
     const noDelegatesFocus = document.querySelector('no-delegates-focus');
 
     const delegateFocusStyles1 = window.getComputedStyle(delegatesFocus);
-    expect(delegateFocusStyles1.borderColor).toBe('rgb(255, 0, 0)');
+    expect(delegateFocusStyles1.borderColor).toBe('rgba(255, 0, 0, 1)');
 
     const noDelegateFocusStyles1 = window.getComputedStyle(noDelegatesFocus);
-    expect(noDelegateFocusStyles1.borderColor).toBe('rgb(255, 0, 0)');
+    expect(noDelegateFocusStyles1.borderColor).toBe('rgba(255, 0, 0, 1)');
 
     await $('button').click();
 
     const delegateFocusStyles2 = window.getComputedStyle(delegatesFocus);
-    expect(delegateFocusStyles2.borderColor).toBe('rgb(0, 0, 255)');
+    expect(delegateFocusStyles2.borderColor).toBe('rgba(0, 0, 255, 1)');
 
     const noDelegateFocusStyles2 = window.getComputedStyle(noDelegatesFocus);
-    expect(noDelegateFocusStyles2.borderColor).toBe('rgb(255, 0, 0)');
+    expect(noDelegateFocusStyles2.borderColor).toBe('rgba(255, 0, 0, 1)');
   });
 });

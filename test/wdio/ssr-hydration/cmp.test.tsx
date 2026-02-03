@@ -77,8 +77,8 @@ describe('Sanity check SSR > Client hydration', () => {
         await expect(getNodeNames(ele.shadowRoot.childNodes)).toBe('div');
 
         // Checking styling
-        await expect(getComputedStyle(ele).color).toBe('rgb(255, 0, 0)'); // red
-        await expect(getComputedStyle(ele).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+        await expect(getComputedStyle(ele).color).toBe('rgba(255, 0, 0, 1)'); // red
+        await expect(getComputedStyle(ele).backgroundColor).toBe('rgba(255, 255, 0, 1)'); // yellow
       },
 
       slots: async () => {
@@ -333,12 +333,12 @@ describe('Sanity check SSR > Client hydration', () => {
     const scopedCmp = document.querySelector('ssr-shadow-cmp');
     const scopedNestCmp = wrapCmp.shadowRoot.querySelector('ssr-shadow-cmp');
 
-    await expect(getComputedStyle(wrapCmp).color).toBe('rgb(255, 255, 255)'); // white
-    await expect(getComputedStyle(wrapCmp).backgroundColor).toBe('rgb(0, 0, 255)'); // blue
-    await expect(getComputedStyle(scopedCmp).color).toBe('rgb(255, 0, 0)'); // red
-    await expect(getComputedStyle(scopedCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
-    await expect(getComputedStyle(scopedNestCmp).color).toBe('rgb(255, 0, 0)'); // red
-    await expect(getComputedStyle(scopedNestCmp).backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+    await expect(getComputedStyle(wrapCmp).color).toBe('rgba(255, 255, 255, 1)'); // white
+    await expect(getComputedStyle(wrapCmp).backgroundColor).toBe('rgba(0, 0, 255, 1)'); // blue
+    await expect(getComputedStyle(scopedCmp).color).toBe('rgba(255, 0, 0, 1)'); // red
+    await expect(getComputedStyle(scopedCmp).backgroundColor).toBe('rgba(255, 255, 0, 1)'); // yellow
+    await expect(getComputedStyle(scopedNestCmp).color).toBe('rgba(255, 0, 0, 1)'); // red
+    await expect(getComputedStyle(scopedNestCmp).backgroundColor).toBe('rgba(255, 255, 0, 1)'); // yellow
   });
 
   it('retains the order of slotted nodes in serializeShadowRoot `scoped` components', async () => {
@@ -406,7 +406,7 @@ describe('Sanity check SSR > Client hydration', () => {
     await browser.waitUntil(async () => !!childComponentPart);
     await browser.pause(100);
 
-    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgba(255, 192, 203, 1)'); // pink
 
     // scoped in scoped component
 
@@ -433,7 +433,7 @@ describe('Sanity check SSR > Client hydration', () => {
     await browser.waitUntil(async () => !!childComponentPart);
     await browser.pause(100);
 
-    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgb(255, 192, 203)'); // pink
+    await expect(getComputedStyle(childComponentPart).backgroundColor).toBe('rgba(255, 192, 203, 1)'); // pink
   });
 
   it('renders named slots in the correct order in the DOM in scoped components', async () => {

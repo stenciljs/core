@@ -35,8 +35,8 @@ describe('css-variables', () => {
 
       await expect(blackLocalElm).toHaveText('No encapsulation: Black background');
       await expect(blackLocalElm).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(0, 0, 0)`,
-        color: 'rgb(255,255,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(0, 0, 0, 1)`,
+        color: 'rgba(255,255,255,1)',
       });
     });
 
@@ -45,8 +45,8 @@ describe('css-variables', () => {
 
       await expect(blackGlobalElm).toHaveText('No encapsulation: Black background (global style)');
       await expect(blackGlobalElm).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(0, 0, 0)`,
-        color: 'rgb(255,255,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(0, 0, 0, 1)`,
+        color: 'rgba(255,255,255,1)',
       });
 
       const fontWeight = await blackGlobalElm.getCSSProperty('font-weight');
@@ -58,8 +58,8 @@ describe('css-variables', () => {
 
       await expect(yellowGlobalElm).toHaveText('No encapsulation: Yellow background (global link)');
       await expect(yellowGlobalElm).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(255, 255, 0)`,
-        color: 'rgb(0,0,0)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(255, 255, 0, 1)`,
+        color: 'rgba(0,0,0,1)',
       });
     });
   });
@@ -70,8 +70,8 @@ describe('css-variables', () => {
 
       await expect(globalShadow).toHaveText('Shadow: Black background (global)');
       await expect(globalShadow).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(0, 0, 0)`,
-        color: 'rgb(255,255,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(0, 0, 0, 1)`,
+        color: 'rgba(255,255,255,1)',
       });
       let fontWeight = await globalShadow.getCSSProperty('font-weight');
       expect(fontWeight.value).toEqual(800);
@@ -80,8 +80,8 @@ describe('css-variables', () => {
 
       await expect(globalShadow).toHaveText('Shadow: Black background (global)');
       await expect(globalShadow).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(0, 0, 0)`,
-        color: 'rgb(255,255,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(0, 0, 0, 1)`,
+        color: 'rgba(255,255,255,1)',
       });
       fontWeight = await globalShadow.getCSSProperty('font-weight');
       expect(fontWeight.value).toEqual(800);
@@ -91,15 +91,15 @@ describe('css-variables', () => {
       const innerDiv = $('>>>.inner-div');
 
       await expect(innerDiv).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(255, 0, 0)`,
-        color: 'rgb(0,0,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(255, 0, 0, 1)`,
+        color: 'rgba(0,0,255,1)',
       });
 
       await $('css-variables-shadow-dom').$('>>> button').click();
 
       await expect(innerDiv).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(0, 128, 0)`,
-        color: 'rgb(0,0,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(0, 128, 0, 1)`,
+        color: 'rgba(0,0,255,1)',
       });
     });
 
@@ -130,16 +130,16 @@ describe('css-variables', () => {
       const innerDiv = await $$('css-variables-shadow-dom')[1].$('>>>.inner-div');
 
       await expect(innerDiv).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(255, 0, 0)`,
-        color: 'rgb(0,0,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(255, 0, 0, 1)`,
+        color: 'rgba(0,0,255,1)',
       });
 
       const button = await $$('css-variables-shadow-dom')[0].$('>>> button');
       await button.click();
 
       await expect(innerDiv).toHaveStyle({
-        background: `none 0% 0% auto repeat padding-box border-box scroll rgb(255, 0, 0)`,
-        color: 'rgb(0,0,255)',
+        background: `none 0% 0% auto repeat padding-box border-box scroll rgba(255, 0, 0, 1)`,
+        color: 'rgba(0,0,255,1)',
       });
     });
   });

@@ -26,14 +26,14 @@ describe('scoped-basic', function () {
     await expect(scopedEl).toHaveElementClass(expect.stringContaining('hydrated'));
 
     await expect(scopedEl).toHaveStyle({
-      backgroundColor: 'rgb(0,0,0)',
-      color: 'rgb(128,128,128)',
+      backgroundColor: 'rgba(0,0,0,1)',
+      color: 'rgba(128,128,128,1)',
     });
 
     const scopedDiv = await $('scoped-basic span');
     await expect(scopedDiv).toHaveElementClass(expect.stringContaining('sc-scoped-basic'));
     await expect(scopedDiv).toHaveStyle({
-      color: 'rgb(255,0,0)',
+      color: 'rgba(255,0,0,1)',
     });
 
     const scopedP = await $('scoped-basic p');
@@ -45,7 +45,7 @@ describe('scoped-basic', function () {
     await expect(scopedSlot).toHaveText('light');
 
     await expect(scopedSlot).toHaveStyle({
-      color: 'rgb(255,255,0)',
+      color: 'rgba(255,255,0,1)',
     });
   });
 });

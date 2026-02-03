@@ -30,9 +30,9 @@ describe('shadow-dom-basic', () => {
     expect(shadowDiv.textContent.trim()).toBe('shadow');
 
     const shadowBG = window.getComputedStyle(shadowDiv).backgroundColor;
-    expect(shadowBG).toBe('rgb(0, 0, 0)');
+    expect(shadowBG).toBe('rgba(0, 0, 0, 1)');
 
     const lightBG = window.getComputedStyle(shadowDomBasic.lastElementChild).backgroundColor;
-    expect(lightBG).toBe('rgb(255, 255, 0)');
+    expect(lightBG).toBe('rgba(255, 255, 0, 1)');
   });
 });

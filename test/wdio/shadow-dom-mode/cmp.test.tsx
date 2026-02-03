@@ -16,12 +16,12 @@ describe('shadow-dom-mode', () => {
   it('renders', async () => {
     const blueElm = $('shadow-dom-mode[id="blue"]');
     await expect(blueElm).toHaveStyle({
-      'background-color': 'rgb(0,0,255)',
+      'background-color': 'rgba(0,0,255,1)',
     });
 
     const redElm = $('shadow-dom-mode[id="red"]');
     await expect(redElm).toHaveStyle({
-      'background-color': 'rgb(255,0,0)',
+      'background-color': 'rgba(255,0,0,1)',
     });
   });
 });

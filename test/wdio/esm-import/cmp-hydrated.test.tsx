@@ -31,21 +31,21 @@ describe('esm-webpack', () => {
     const host = document.querySelector('esm-import');
 
     const hostStyles = window.getComputedStyle(host);
-    expect(hostStyles.borderBottomColor).toBe('rgb(0, 0, 255)');
+    expect(hostStyles.borderBottomColor).toBe('rgba(0, 0, 255, 1)');
 
     /**
      * text color defined by :host
      */
     const span = host.shadowRoot.querySelector('span');
     const spanStyles = window.getComputedStyle(span);
-    expect(spanStyles.color).toBe('rgb(128, 0, 128)');
+    expect(spanStyles.color).toBe('rgba(128, 0, 128, 1)');
 
     /**
      * test color defined by h1 rule in global-css-entry.css
      */
     const h1 = host.shadowRoot.querySelector('h1');
     const h1Styles = window.getComputedStyle(h1);
-    expect(h1Styles.color).toBe('rgb(128, 0, 0)');
+    expect(h1Styles.color).toBe('rgba(128, 0, 0, 1)');
 
     const button = host.shadowRoot.querySelector('button');
 

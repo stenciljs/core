@@ -103,24 +103,24 @@ describe('prerender', () => {
 
     const scoped = iframe.querySelector('cmp-client-scoped');
     const scopedStyle = getComputedStyle(scoped.querySelector('section'));
-    expect(scopedStyle.color).toBe('rgb(255, 0, 0)');
+    expect(scopedStyle.color).toBe('rgba(255, 0, 0, 1)');
 
     const shadow = iframe.querySelector('cmp-client-shadow');
     await browser.waitUntil(async () => shadow.shadowRoot.querySelector('article'));
     const article = shadow.shadowRoot.querySelector('article');
 
     const shadowStyle = getComputedStyle(article);
-    await browser.waitUntil(async () => shadowStyle.color === 'rgb(0, 155, 0)');
-    expect(shadowStyle.color).toBe('rgb(0, 155, 0)');
+    await browser.waitUntil(async () => shadowStyle.color === 'rgba(0, 155, 0, 1)');
+    expect(shadowStyle.color).toBe('rgba(0, 155, 0, 1)');
 
     const blueText = shadow.shadowRoot.querySelector('cmp-text-blue');
     const blueTextStyle = getComputedStyle(blueText.querySelector('text-blue'));
-    await browser.waitUntil(async () => blueTextStyle.color === 'rgb(0, 0, 255)');
-    expect(blueTextStyle.color).toBe('rgb(0, 0, 255)');
+    await browser.waitUntil(async () => blueTextStyle.color === 'rgba(0, 0, 255, 1)');
+    expect(blueTextStyle.color).toBe('rgba(0, 0, 255, 1)');
 
     const greenText = shadow.shadowRoot.querySelector('cmp-text-green');
     const greenTextStyle = getComputedStyle(greenText.querySelector('text-green'));
-    expect(greenTextStyle.color).toBe('rgb(0, 255, 0)');
+    expect(greenTextStyle.color).toBe('rgba(0, 255, 0, 1)');
   });
 
   // this describe block is just here to let us run a cleanup function after
@@ -140,7 +140,7 @@ describe('prerender', () => {
 function testScopedStyles(app: HTMLElement) {
   const cmpScopedA = app.querySelector('cmp-scoped-a');
   const scopedAStyles = window.getComputedStyle(cmpScopedA);
-  expect(scopedAStyles.backgroundColor).toBe('rgb(0, 128, 0)');
+  expect(scopedAStyles.backgroundColor).toBe('rgba(0, 128, 0, 1)');
 
   const cmpScopedADiv = cmpScopedA.querySelector('div');
   const scopedADivStyles = window.getComputedStyle(cmpScopedADiv);
@@ -148,15 +148,15 @@ function testScopedStyles(app: HTMLElement) {
 
   const cmpScopedAP = cmpScopedA.querySelector('p');
   const scopedAPStyles = window.getComputedStyle(cmpScopedAP);
-  expect(scopedAPStyles.color).toBe('rgb(128, 0, 128)');
+  expect(scopedAPStyles.color).toBe('rgba(128, 0, 128, 1)');
 
   const cmpScopedAScopedClass = cmpScopedA.querySelector('.scoped-class');
   const scopedAScopedClassStyles = window.getComputedStyle(cmpScopedAScopedClass);
-  expect(scopedAScopedClassStyles.color).toBe('rgb(0, 0, 255)');
+  expect(scopedAScopedClassStyles.color).toBe('rgba(0, 0, 255, 1)');
 
   const cmpScopedB = app.querySelector('cmp-scoped-b');
   const scopedBStyles = window.getComputedStyle(cmpScopedB);
-  expect(scopedBStyles.backgroundColor).toBe('rgb(128, 128, 128)');
+  expect(scopedBStyles.backgroundColor).toBe('rgba(128, 128, 128, 1)');
 
   const cmpScopedBDiv = cmpScopedB.querySelector('div');
   const scopedBDivStyles = window.getComputedStyle(cmpScopedBDiv);
@@ -164,9 +164,9 @@ function testScopedStyles(app: HTMLElement) {
 
   const cmpScopedBP = cmpScopedB.querySelector('p');
   const scopedBPStyles = window.getComputedStyle(cmpScopedBP);
-  expect(scopedBPStyles.color).toBe('rgb(0, 128, 0)');
+  expect(scopedBPStyles.color).toBe('rgba(0, 128, 0, 1)');
 
   const cmpScopedBScopedClass = cmpScopedB.querySelector('.scoped-class');
   const scopedBScopedClassStyles = window.getComputedStyle(cmpScopedBScopedClass);
-  expect(scopedBScopedClassStyles.color).toBe('rgb(255, 255, 0)');
+  expect(scopedBScopedClassStyles.color).toBe('rgba(255, 255, 0, 1)');
 }

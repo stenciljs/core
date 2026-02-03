@@ -10,6 +10,6 @@ describe('cross-document-style', () => {
 
   it('should render in across frames', async () => {
     await browser.switchFrame($('iframe'));
-    await expect($('cross-document-style')).toHaveStyle({ color: 'rgb(255,0,0)' });
+    await expect($('cross-document-style')).toHaveStyle({ color: 'rgba(255,0,0,1)' });
   });
 });

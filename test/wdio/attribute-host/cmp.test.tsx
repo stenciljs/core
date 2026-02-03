@@ -37,7 +37,7 @@ describe('attribute-host', () => {
     await button.click();
 
     await expect(elm).toHaveStyle({
-      'border-color': 'rgb(0,0,0)',
+      'border-color': 'rgba(0,0,0,1)',
       display: 'block',
       'font-size': '24px',
     });
@@ -73,7 +73,7 @@ describe('attribute-host', () => {
     await button.click();
 
     await expect(elm).toHaveStyle({
-      'border-color': 'rgb(0,0,0)',
+      'border-color': 'rgba(0,0,0,1)',
       display: 'block',
       'font-size': '24px',
     });

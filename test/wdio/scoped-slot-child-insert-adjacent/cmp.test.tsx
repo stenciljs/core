@@ -102,7 +102,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       const firstParagraph = paragraphElms[0];
       expect(firstParagraph.textContent).toBe('I am slotted and will receive a red background');
       expect(firstParagraph.parentElement).toBe(parentDiv);
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       // insert an additional <p> elm
       const addButton = $('#addInsertAdjacentHtmlBeforeEnd');
@@ -120,7 +120,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
         'Added via insertAdjacentHTMLBeforeEnd. I should have a red background.',
       );
       expect(secondParagraph.parentElement).toBe(parentDiv);
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
 
     it('slots elements w/ "afterbegin" position', async () => {
@@ -131,7 +131,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       const firstParagraph = paragraphElms[0];
       expect(firstParagraph.textContent).toBe('I am slotted and will receive a red background');
       expect(firstParagraph.parentElement).toBe(parentDiv);
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       // insert an additional <p> elm
       const addButton = $('#addInsertAdjacentHtmlAfterBegin');
@@ -149,7 +149,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
         'Added via insertAdjacentHTMLAfterBegin. I should have a red background.',
       );
       expect(insertedParagraph.parentElement).toBe(parentDiv);
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
   });
 
@@ -158,7 +158,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(parentDiv).toBeDefined();
 
       expect(parentDiv.textContent).toBe('Here is my slot. It is red.I am slotted and will receive a red background');
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       // insert an additional text node
       const addButton = $('#addInsertAdjacentTextBeforeEnd');
@@ -167,14 +167,14 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(parentDiv.textContent).toBe(
         'Here is my slot. It is red.I am slotted and will receive a red backgroundAdded via insertAdjacentTextBeforeEnd. I should have a red background.',
       );
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
 
     it('slots elements w/ "afterbegin" position', async () => {
       expect(parentDiv).toBeDefined();
 
       expect(parentDiv.textContent).toBe('Here is my slot. It is red.I am slotted and will receive a red background');
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       // insert an additional text node
       const addButton = $('#addInsertAdjacentTextAfterBegin');
@@ -183,7 +183,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(parentDiv.textContent).toBe(
         'Here is my slot. It is red.Added via insertAdjacentTextAfterBegin. I should have a red background.I am slotted and will receive a red background',
       );
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
   });
 
@@ -194,7 +194,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       let children = parentDiv.children;
       expect(children.length).toBe(1);
       expect(children[0].textContent).toBe('I am slotted and will receive a red background');
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       const addButton = $('#addInsertAdjacentElementBeforeEnd');
       await addButton.click();
@@ -202,7 +202,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       children = parentDiv.children;
       expect(children.length).toBe(2);
       expect(children[1].textContent).toBe('Added via insertAdjacentElementBeforeEnd. I should have a red background.');
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
 
     it('slots elements w/ "afterBegin" position', async () => {
@@ -211,7 +211,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       let children = parentDiv.children;
       expect(children.length).toBe(1);
       expect(children[0].textContent).toBe('I am slotted and will receive a red background');
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
 
       const addButton = $('#addInsertAdjacentElementAfterBegin');
       await addButton.click();
@@ -221,7 +221,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(children[0].textContent).toBe(
         'Added via insertAdjacentElementAfterBegin. I should have a red background.',
       );
-      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgb(255, 0, 0)');
+      expect((getComputedStyle(parentDiv) as any)['background-color']).toBe('rgba(255, 0, 0, 1)');
     });
   });
 });

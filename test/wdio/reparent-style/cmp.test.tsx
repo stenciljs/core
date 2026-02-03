@@ -29,8 +29,8 @@ describe('reparent behavior (style)', () => {
     const varsContainer = document.querySelector('reparent-style-with-vars');
     const novarsContainer = document.querySelector('reparent-style-no-vars');
 
-    expect(window.getComputedStyle(varsContainer).backgroundColor).toBe('rgb(0, 0, 255)');
-    expect(window.getComputedStyle(novarsContainer).backgroundColor).toBe('rgb(0, 128, 128)');
+    expect(window.getComputedStyle(varsContainer).backgroundColor).toBe('rgba(0, 0, 255, 1)');
+    expect(window.getComputedStyle(novarsContainer).backgroundColor).toBe('rgba(0, 128, 128, 1)');
   });
 
   it('should preserve styles after reparenting a component (no css vars)', async () => {
@@ -39,7 +39,7 @@ describe('reparent behavior (style)', () => {
 
     await $('reparent-style-no-vars').waitForExist();
     const novars = document.querySelector('reparent-style-no-vars');
-    expect(window.getComputedStyle(novars).backgroundColor).toBe('rgb(0, 128, 128)');
+    expect(window.getComputedStyle(novars).backgroundColor).toBe('rgba(0, 128, 128, 1)');
   });
 
   it('should preserve styles after reparenting a component (with css vars)', async () => {
@@ -48,6 +48,6 @@ describe('reparent behavior (style)', () => {
 
     await $('reparent-style-with-vars').waitForExist();
     const vars = document.querySelector('reparent-style-with-vars');
-    expect(window.getComputedStyle(vars).backgroundColor).toBe('rgb(0, 0, 255)');
+    expect(window.getComputedStyle(vars).backgroundColor).toBe('rgba(0, 0, 255, 1)');
   });
 });
