@@ -605,4 +605,131 @@ describe('element', () => {
       expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual('Fallback content');
     });
   });
+
+  describe('label', () => {
+    it('htmlFor getter/setter reflects the for attribute', () => {
+      const label = doc.createElement('label');
+      expect(label.htmlFor).toBe('');
+
+      label.htmlFor = 'my-input';
+      expect(label.htmlFor).toBe('my-input');
+      expect(label.getAttribute('for')).toBe('my-input');
+
+      label.setAttribute('for', 'other-input');
+      expect(label.htmlFor).toBe('other-input');
+    });
+
+    it('control returns element referenced by for attribute', () => {
+      const label = doc.createElement('label');
+      const input = doc.createElement('input');
+      input.id = 'my-input';
+      label.htmlFor = 'my-input';
+
+      doc.body.appendChild(label);
+      doc.body.appendChild(input);
+
+      expect(label.control).toBe(input);
+    });
+
+    it('control returns null when for attribute references non-existent element', () => {
+      const label = doc.createElement('label');
+      label.htmlFor = 'non-existent';
+      doc.body.appendChild(label);
+
+      expect(label.control).toBe(null);
+    });
+
+    it('control returns first labelable descendant when no for attribute', () => {
+      const label = doc.createElement('label');
+      const span = doc.createElement('span');
+      const input = doc.createElement('input');
+
+      label.appendChild(span);
+      span.appendChild(input);
+      doc.body.appendChild(label);
+
+      expect(label.control).toBe(input);
+    });
+
+    it('control returns null when no for attribute and no labelable descendants', () => {
+      const label = doc.createElement('label');
+      const span = doc.createElement('span');
+      label.appendChild(span);
+      doc.body.appendChild(label);
+
+      expect(label.control).toBe(null);
+    });
+  });
+
+  describe('labels property', () => {
+    it('input.labels returns labels with matching for attribute', () => {
+      const label1 = doc.createElement('label');
+      const label2 = doc.createElement('label');
+      const input = doc.createElement('input');
+
+      input.id = 'my-input';
+      label1.htmlFor = 'my-input';
+      label2.htmlFor = 'other-input';
+
+      doc.body.appendChild(label1);
+      doc.body.appendChild(label2);
+      doc.body.appendChild(input);
+
+      const labels = input.labels;
+      expect(labels.length).toBe(1);
+      expect(labels[0]).toBe(label1);
+    });
+
+    it('input.labels returns ancestor label elements', () => {
+      const label = doc.createElement('label');
+      const input = doc.createElement('input');
+
+      label.appendChild(input);
+      doc.body.appendChild(label);
+
+      const labels = input.labels;
+      expect(labels.length).toBe(1);
+      expect(labels[0]).toBe(label);
+    });
+
+    it('input.labels returns both for-referenced and ancestor labels', () => {
+      const label1 = doc.createElement('label');
+      const label2 = doc.createElement('label');
+      const input = doc.createElement('input');
+
+      input.id = 'my-input';
+      label1.htmlFor = 'my-input';
+      label2.appendChild(input);
+
+      doc.body.appendChild(label1);
+      doc.body.appendChild(label2);
+
+      const labels = input.labels;
+      expect(labels.length).toBe(2);
+      expect(labels).toContain(label1);
+      expect(labels).toContain(label2);
+    });
+
+    it('input.labels returns empty array when no associated labels', () => {
+      const input = doc.createElement('input');
+      doc.body.appendChild(input);
+
+      expect(input.labels.length).toBe(0);
+    });
+
+    it('button.labels returns associated labels', () => {
+      const label = doc.createElement('label');
+      const button = doc.createElement('button');
+
+      button.id = 'my-button';
+      label.htmlFor = 'my-button';
+
+      doc.body.appendChild(label);
+      doc.body.appendChild(button);
+
+      const labels = button.labels;
+      expect(labels.length).toBe(1);
+      expect(labels[0]).toBe(label);
+    });
+  });
 });
