@@ -292,6 +292,15 @@ describe('scopeCSS', function () {
         '@supports selector(::slotted(*)) {.sc-cmp-s > * {color:red;}}',
       );
     });
+
+    it('should not match partial selectors when expanding slotted with descendants', () => {
+      // This tests a bug where :host ::slotted(p) b a would incorrectly include
+      // an extra selector from :host ::slotted(p) b due to substring matching
+      const r = s(':host ::slotted(p) b {} :host ::slotted(p) b a {}', 'sc-my-component');
+      expect(r).toEqual(
+        '.sc-my-component-h.sc-my-component-s > p b, .sc-my-component-h .sc-my-component-s > p b {} .sc-my-component-h.sc-my-component-s > p b a, .sc-my-component-h .sc-my-component-s > p b a {}',
+      );
+    });
   });
 
   it('should handle ::shadow', () => {

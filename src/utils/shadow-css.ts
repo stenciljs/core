@@ -645,7 +645,9 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
   }
 
   scoped.slottedSelectors.forEach((slottedSelector) => {
-    const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector), 'g');
+    // Use lookahead to ensure we only match complete selectors, not partial substrings
+    // A selector ends at ',' (separator), '{' (declaration block), or end of string
+    const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector) + '(?=\\s*[,{]|$)', 'g');
     cssText = cssText.replace(regex, slottedSelector.updatedSelector);
   });
 
