@@ -3,6 +3,7 @@ import { createConsole } from './console';
 import { MockCustomElementRegistry } from './custom-element-registry';
 import { MockDocument, resetDocument } from './document';
 import { MockDocumentFragment } from './document-fragment';
+import { MockSVGElement } from './element';
 import {
   addEventListener,
   dispatchEvent,
@@ -19,7 +20,6 @@ import { MockHistory } from './history';
 import { MockIntersectionObserver } from './intersection-observer';
 import { MockLocation } from './location';
 import { MockNavigator } from './navigator';
-import { MockSVGElement } from './element';
 import { MockElement, MockHTMLElement, MockNode, MockNodeList } from './node';
 import { MockPerformance, resetPerformance } from './performance';
 import { MockResizeObserver } from './resize-observer';
