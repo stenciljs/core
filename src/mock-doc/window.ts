@@ -19,6 +19,7 @@ import { MockHistory } from './history';
 import { MockIntersectionObserver } from './intersection-observer';
 import { MockLocation } from './location';
 import { MockNavigator } from './navigator';
+import { MockSVGElement } from './element';
 import { MockElement, MockHTMLElement, MockNode, MockNodeList } from './node';
 import { MockPerformance, resetPerformance } from './performance';
 import { MockResizeObserver } from './resize-observer';
@@ -36,7 +37,6 @@ export class MockWindow {
   __timeouts: Set<any>;
   __history: MockHistory;
   __elementCstr: any;
-  __htmlElementCstr: any;
   __charDataCstr: any;
   __docTypeCstr: any;
   __docCstr: any;
@@ -280,28 +280,11 @@ export class MockWindow {
   }
 
   get HTMLElement() {
-    if (this.__htmlElementCstr == null) {
-      const ownerDocument = this.document;
-      this.__htmlElementCstr = class extends MockHTMLElement {
-        constructor() {
-          super(ownerDocument, '');
-
-          const observedAttributes = (this.constructor as any).observedAttributes;
-          if (Array.isArray(observedAttributes) && typeof (this as any).attributeChangedCallback === 'function') {
-            observedAttributes.forEach((attrName) => {
-              const attrValue = this.getAttribute(attrName);
-              if (attrValue != null) {
-                (this as any).attributeChangedCallback(attrName, null, attrValue);
-              }
-            });
-          }
-        }
-      };
-    }
-    return this.__htmlElementCstr;
+    return MockHTMLElement;
   }
-  set HTMLElement(htmlElementCstr: any) {
-    this.__htmlElementCstr = htmlElementCstr;
+
+  get SVGElement() {
+    return MockSVGElement;
   }
 
   get IntersectionObserver() {

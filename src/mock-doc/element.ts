@@ -33,6 +33,9 @@ export function createElement(ownerDocument: any, tagName: string): any {
     case 'input':
       return new MockInputElement(ownerDocument);
 
+    case 'label':
+      return new MockLabelElement(ownerDocument);
+
     case 'link':
       return new MockLinkElement(ownerDocument);
 
@@ -125,6 +128,10 @@ export class MockButtonElement extends MockHTMLElement {
   constructor(ownerDocument: any) {
     super(ownerDocument, 'button');
   }
+
+  get labels() {
+    return getLabelsForElement(this);
+  }
 }
 patchPropAttributes(
   MockButtonElement.prototype,
@@ -178,6 +185,10 @@ export class MockInputElement extends MockHTMLElement {
     }
     return null;
   }
+
+  get labels() {
+    return getLabelsForElement(this);
+  }
 }
 
 patchPropAttributes(
@@ -228,6 +239,30 @@ export class MockFormElement extends MockHTMLElement {
 patchPropAttributes(MockFormElement.prototype, {
   name: String,
 });
+
+export class MockLabelElement extends MockHTMLElement {
+  constructor(ownerDocument: any) {
+    super(ownerDocument, 'label');
+  }
+
+  get htmlFor() {
+    return this.getAttributeNS(null, 'for') || '';
+  }
+  set htmlFor(value: string) {
+    this.setAttributeNS(null, 'for', value);
+  }
+
+  get control(): MockHTMLElement | null {
+    const forAttr = this.htmlFor;
+    if (forAttr) {
+      // Label references an element by ID via the "for" attribute
+      return this.ownerDocument?.getElementById(forAttr) ?? null;
+    }
+    // If no "for" attribute, look for the first labelable descendant
+    const labelableSelector = 'button, input:not([type="hidden"]), meter, output, progress, select, textarea';
+    return this.querySelector(labelableSelector);
+  }
+}
 
 export class MockLinkElement extends MockHTMLElement {
   constructor(ownerDocument: any) {
@@ -674,6 +709,36 @@ function fullUrl(elm: MockElement, attrName: string) {
     }
   }
   return val.replace(/\'|\"/g, '').trim();
+}
+
+function getLabelsForElement(elm: MockHTMLElement): MockHTMLElement[] {
+  const labels: MockHTMLElement[] = [];
+  const id = elm.id;
+  const doc = elm.ownerDocument;
+
+  if (doc) {
+    // Find labels with "for" attribute matching this element's ID
+    if (id) {
+      const allLabels = doc.getElementsByTagName('label');
+      for (let i = 0; i < allLabels.length; i++) {
+        const label = allLabels[i] as MockLabelElement;
+        if (label.htmlFor === id) {
+          labels.push(label);
+        }
+      }
+    }
+
+    // Find labels that contain this element as a descendant
+    let parent = elm.parentNode as MockHTMLElement | null;
+    while (parent) {
+      if (parent.nodeName === 'LABEL' && !labels.includes(parent)) {
+        labels.push(parent);
+      }
+      parent = parent.parentNode as MockHTMLElement | null;
+    }
+  }
+
+  return labels;
 }
 
 function patchPropAttributes(prototype: any, attrs: any, defaults: any = {}) {
