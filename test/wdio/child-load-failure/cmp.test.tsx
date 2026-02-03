@@ -13,7 +13,7 @@ describe('child-load-failure', () => {
   it('parent hydrates even when child fails to load', async () => {
     const runTest = async () => {
       try {
-        const root = await $('.root');
+        await $('.root');
         document.querySelector('.root').innerHTML = `
           <cmp-parent></cmp-parent>
         `;
