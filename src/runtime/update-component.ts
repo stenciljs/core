@@ -255,7 +255,7 @@ const updateComponent = async (
     if (childrenPromises.length === 0) {
       postUpdate();
     } else {
-      Promise.all(childrenPromises).then(postUpdate);
+      Promise.all(childrenPromises).then(postUpdate).catch(postUpdate);
       hostRef.$flags$ |= HOST_FLAGS.isWaitingForChildren;
       childrenPromises.length = 0;
     }
