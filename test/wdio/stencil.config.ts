@@ -22,7 +22,11 @@ export const config: Config = {
       dir: 'hydrate',
     },
   ],
-  plugins: [sass()],
+  plugins: [
+    sass({
+      quietDeps: true,
+    }),
+  ],
   buildDist: true,
   globalStyle: './style-plugin/global-sass-entry.scss',
   globalScript: './global.ts',
