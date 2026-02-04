@@ -131,7 +131,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         }
       },
     });
-    Cstr.is = cmpMeta.$tagName$;
+    Object.defineProperty(Cstr, 'is', {
+      value: cmpMeta.$tagName$,
+      configurable: true,
+    });
 
     return proxyComponent(Cstr, cmpMeta, PROXY_FLAGS.isElementConstructor | PROXY_FLAGS.proxyState);
   } catch (e) {
