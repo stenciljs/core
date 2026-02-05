@@ -120,6 +120,75 @@ describe('attr: and prop: prefix', () => {
       await waitForChanges();
       expect(div.getAttribute('some-label')).toBe('updated');
     });
+
+    it('should use the correct attribute name for camelCase properties on Stencil components', async () => {
+      @Component({ tag: 'cmp-child' })
+      class CmpChild {
+        @Prop() overlayIndex: number;
+        @Prop({ attribute: 'custom-attr-name' }) customAttr: string;
+        render() {
+          return (
+            <div>
+              overlayIndex: {this.overlayIndex}, customAttr: {this.customAttr}
+            </div>
+          );
+        }
+      }
+
+      @Component({ tag: 'cmp-parent' })
+      class CmpParent {
+        render() {
+          return (
+            <div>
+              <cmp-child attr:overlayIndex={42} attr:customAttr="test" />
+            </div>
+          );
+        }
+      }
+
+      const { root } = await newSpecPage({
+        components: [CmpParent, CmpChild],
+        html: `<cmp-parent></cmp-parent>`,
+      });
+
+      const child = root.querySelector('cmp-child');
+      // Should use kebab-case attribute name from metadata
+      expect(child.getAttribute('overlay-index')).toBe('42');
+      expect(child.overlayIndex).toBe(42);
+
+      // Should use custom attribute name from @Prop decorator
+      expect(child.getAttribute('custom-attr-name')).toBe('test');
+      expect(child.customAttr).toBe('test');
+
+      // Should not set incorrect camelCase attribute names
+      expect(child.hasAttribute('overlayIndex')).toBe(false);
+      expect(child.hasAttribute('customAttr')).toBe(false);
+    });
+
+    it('should convert camelCase to kebab-case for non-Stencil elements', async () => {
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        render() {
+          return <div attr:dataTestId="test-123" attr:ariaLabel="Test Label" attr:customAttribute="value" />;
+        }
+      }
+
+      const { root } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      const div = root.querySelector('div');
+      // Should convert camelCase to kebab-case
+      expect(div.getAttribute('data-test-id')).toBe('test-123');
+      expect(div.getAttribute('aria-label')).toBe('Test Label');
+      expect(div.getAttribute('custom-attribute')).toBe('value');
+
+      // Should not set camelCase versions
+      expect(div.hasAttribute('dataTestId')).toBe(false);
+      expect(div.hasAttribute('ariaLabel')).toBe(false);
+      expect(div.hasAttribute('customAttribute')).toBe(false);
+    });
   });
 
   describe('prop: prefix', () => {

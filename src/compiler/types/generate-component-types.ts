@@ -103,10 +103,25 @@ export const generateComponentTypes = (
   // Props without attributes don't need attr: or prop: prefixes - they're already property-only
   const propsWithAttributes = cmp.properties.filter((prop) => prop.attribute !== undefined);
   const hasExplicitAttributes = propsWithAttributes.length > 0;
-  const requiredProps = propsWithAttributes.filter((prop) => prop.required);
+  const requiredProps = propsWithAttributes.filter((prop) => {
+    // Exclude internal props when generating public types (areTypesInternal === false)
+    // Internal props are stripped from the JSX interface during distribution builds,
+    // so they shouldn't be included in the OneOf requirement
+    if (!areTypesInternal && prop.internal) {
+      return false;
+    }
+    return prop.required;
+  });
   const hasRequiredProps = requiredProps.length > 0;
 
   const explicitAttributes = propsWithAttributes
+    .filter((prop) => {
+      // Exclude internal props when generating public types (areTypesInternal === false)
+      if (!areTypesInternal && prop.internal) {
+        return false;
+      }
+      return true;
+    })
     .map((prop) => {
       const propMeta = cmp.properties.find((p) => p.name === prop.name);
       const simpleType = propMeta?.type?.trim();
