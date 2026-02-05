@@ -125,6 +125,52 @@ describe('prop', () => {
     expect(root.clamped).toBe(5);
   });
 
+  it('should call componentShouldUpdate for each prop when multiple props change synchronously', async () => {
+    const shouldUpdateCalls: Array<{ value: any; old: any; prop: string }> = [];
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop({ mutable: true }) first = 'initial-first';
+      @Prop({ mutable: true }) second = 'initial-second';
+      @Prop({ mutable: true }) third = 'initial-third';
+
+      componentShouldUpdate(value: any, old: any, prop: string) {
+        shouldUpdateCalls.push({ value, old, prop });
+      }
+
+      render() {
+        return `${this.first}-${this.second}-${this.third}`;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+
+    expect(root).toEqualHtml(`
+      <cmp-a>initial-first-initial-second-initial-third</cmp-a>
+    `);
+    expect(shouldUpdateCalls).toHaveLength(0);
+
+    // Update all three props synchronously
+    root.first = 'new-first';
+    root.second = 'new-second';
+    root.third = 'new-third';
+    await waitForChanges();
+
+    // componentShouldUpdate should have been called for each prop
+    expect(shouldUpdateCalls).toHaveLength(3);
+    expect(shouldUpdateCalls[0]).toEqual({ value: 'new-first', old: 'initial-first', prop: 'first' });
+    expect(shouldUpdateCalls[1]).toEqual({ value: 'new-second', old: 'initial-second', prop: 'second' });
+    expect(shouldUpdateCalls[2]).toEqual({ value: 'new-third', old: 'initial-third', prop: 'third' });
+
+    // All values should be rendered
+    expect(root).toEqualHtml(`
+      <cmp-a>new-first-new-second-new-third</cmp-a>
+    `);
+  });
+
   it('only update on even numbers', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {

@@ -140,12 +140,15 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
       }
     }
 
-    if (
-      BUILD.updatable &&
-      (flags & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
-    ) {
+    if (BUILD.updatable && flags & HOST_FLAGS.hasRendered) {
+      // Always call componentShouldUpdate after initial render, regardless of queue status.
+      // This ensures the callback is invoked for every prop change, not just the first one
+      // in a batch of synchronous updates.
       if (instance.componentShouldUpdate) {
-        if (instance.componentShouldUpdate(newVal, oldVal, propName) === false) {
+        const shouldUpdate = instance.componentShouldUpdate(newVal, oldVal, propName);
+        // Only skip scheduling if componentShouldUpdate returns false AND we're not already queued.
+        // If already queued, the render will happen anyway with all the batched prop changes.
+        if (shouldUpdate === false && !(flags & HOST_FLAGS.isQueuedForUpdate)) {
           return;
         }
       }
@@ -154,7 +157,9 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
       // but only if we've already rendered, otherwise just chill out
       // queue that we need to do an update, but don't worry about queuing
       // up millions cuz this function ensures it only runs once
-      scheduleUpdate(hostRef, false);
+      if (!(flags & HOST_FLAGS.isQueuedForUpdate)) {
+        scheduleUpdate(hostRef, false);
+      }
     }
   }
 };
