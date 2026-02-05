@@ -25,6 +25,7 @@ export const config: Config = {
   plugins: [
     sass({
       quietDeps: true,
+      silenceDeprecations: ['import'],
     }),
   ],
   buildDist: true,

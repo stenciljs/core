@@ -17,8 +17,8 @@ describe('prefix-attr', () => {
     await expect(nested).toHaveAttribute('message', 'Hello');
     await expect(nested).toHaveAttribute('count', '42');
     await expect(nested).toHaveAttribute('enabled');
-    await expect(nested).toHaveAttribute('nullValue', 'not-null');
-    await expect(nested).toHaveAttribute('undefinedValue', 'defined');
+    await expect(nested).toHaveAttribute('null-value', 'not-null');
+    await expect(nested).toHaveAttribute('undefined-value', 'defined');
   });
 
   it('should update nested component when parent state changes', async () => {
@@ -37,10 +37,10 @@ describe('prefix-attr', () => {
 
     const setNullBtn = await $('button=Set Null to String');
     await setNullBtn.click();
-    await expect(nested).not.toHaveAttribute('nullValue');
+    await expect(nested).not.toHaveAttribute('null-value');
 
     const setUndefinedBtn = await $('button=Set Undefined to String');
     await setUndefinedBtn.click();
-    await expect(nested).not.toHaveAttribute('undefinedValue');
+    await expect(nested).not.toHaveAttribute('undefined-value');
   });
 });
