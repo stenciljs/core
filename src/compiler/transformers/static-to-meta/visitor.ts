@@ -26,7 +26,7 @@ export const convertStaticToMeta = (
       } else if (ts.isImportDeclaration(node)) {
         parseModuleImport(config, compilerCtx, buildCtx, moduleFile, dirPath, node, !transformOpts.isolatedModules);
       } else if (ts.isCallExpression(node)) {
-        parseCallExpression(moduleFile, node);
+        parseCallExpression(moduleFile, node, typeChecker);
       } else if (ts.isStringLiteral(node)) {
         parseStringLiteral(moduleFile, node);
       }

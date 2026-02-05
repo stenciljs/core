@@ -56,6 +56,7 @@ export const createModule = (
   isCollectionDependency: false,
   isLegacy: false,
   localImports: [],
+  functionalComponentDeps: [],
   originalCollectionComponentPath: null,
   originalImports: [],
   potentialCmpRefs: [],
