@@ -177,7 +177,7 @@ const generateComponentTypesFile = (
   const hasAnyRequiredProps = modules.some((m) => m.requiredProps);
   if (hasAnyRequiredProps) {
     c.push(
-      `    type OneOf<K extends string, T> = { [P in K]: T } | { [P in \`attr:\${K}\`]: T } | { [P in \`prop:\${K}\`]: T };`,
+      `    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in \`attr:\${K}\` | \`prop:\${K}\`]?: never } | { [P in \`attr:\${K}\`]: AttrT } & { [P in K | \`prop:\${K}\`]?: never } | { [P in \`prop:\${K}\`]: PropT } & { [P in K | \`attr:\${K}\`]?: never };`,
     );
     c.push(``);
   }
@@ -207,8 +207,8 @@ const generateComponentTypesFile = (
           // Generate OneOf unions for each required prop
           const requiredUnions = m.requiredProps
             .map((prop) => {
-              // Get the property type from the component interface
-              return `OneOf<"${prop.name}", ${m.tagNameAsPascal}["${prop.name}"]>`;
+              // Get both the property type and attribute type
+              return `OneOf<"${prop.name}", ${m.tagNameAsPascal}["${prop.name}"], ${m.tagNameAsPascal}Attributes["${prop.name}"]>`;
             })
             .join(' & ');
 

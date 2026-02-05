@@ -8,7 +8,7 @@
  */
 
 import { BUILD } from '@app-data';
-import { isMemberInElement, plt, win } from '@platform';
+import { getHostRef, isMemberInElement, plt, win } from '@platform';
 import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
@@ -145,7 +145,23 @@ export const setAccessor = (
     }
   } else if (BUILD.vdomPropOrAttr && memberName[0] === 'a' && memberName.startsWith('attr:')) {
     // Explicit attr: prefix — always set as attribute, bypass heuristic
-    const attrName = memberName.slice(5);
+    const propName = memberName.slice(5);
+    // Look up the actual attribute name from component metadata
+    // Component metadata stores [flags, attributeName] for each member
+    let attrName: string | undefined;
+    if (BUILD.member) {
+      const hostRef = getHostRef(elm);
+      if (hostRef && hostRef.$cmpMeta$ && hostRef.$cmpMeta$.$members$) {
+        const memberMeta = hostRef.$cmpMeta$.$members$[propName];
+        if (memberMeta && memberMeta[1]) {
+          attrName = memberMeta[1];
+        }
+      }
+    }
+    // Fallback: convert camelCase to kebab-case if no metadata found
+    if (!attrName) {
+      attrName = propName.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    }
     if (newValue == null || newValue === false) {
       // null or undefined or false (and no value) - remove attribute
       if (newValue !== false || elm.getAttribute(attrName) === '') {
