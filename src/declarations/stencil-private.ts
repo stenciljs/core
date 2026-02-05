@@ -1332,6 +1332,12 @@ export interface Module {
   isLegacy: boolean;
   jsFilePath: string;
   localImports: string[];
+  /**
+   * Source file paths of functional components that are used in JSX/h() calls.
+   * This is used to ensure htmlTagNames are properly propagated from functional
+   * component dependencies even when they're accessed indirectly (e.g., via barrel files).
+   */
+  functionalComponentDeps: string[];
   originalImports: string[];
   originalCollectionComponentPath: string;
   potentialCmpRefs: string[];

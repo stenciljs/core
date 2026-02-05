@@ -113,6 +113,7 @@ export const getModuleLegacy = (compilerCtx: d.CompilerCtx, sourceFilePath: stri
       isCollectionDependency: false,
       isLegacy: false,
       localImports: [],
+      functionalComponentDeps: [],
       originalCollectionComponentPath: null,
       originalImports: [],
       potentialCmpRefs: [],

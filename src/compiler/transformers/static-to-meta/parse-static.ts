@@ -52,7 +52,7 @@ export const updateModule = (
       parseModuleImport(config, compilerCtx, buildCtx, moduleFile, srcDirPath, node, true);
       return;
     } else if (ts.isCallExpression(node)) {
-      parseCallExpression(moduleFile, node);
+      parseCallExpression(moduleFile, node, typeChecker);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(moduleFile, node);
     }

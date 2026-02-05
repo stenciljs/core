@@ -125,6 +125,11 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
     moduleFile.localImports.forEach((localImport) => {
       getModuleImports(moduleMap, localImport, importedModules);
     });
+
+    // Follow functional component dependencies resolved via typeChecker.
+    moduleFile.functionalComponentDeps?.forEach((depPath) => {
+      getModuleImports(moduleMap, depPath, importedModules);
+    });
   }
   return importedModules;
 };

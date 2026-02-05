@@ -177,7 +177,7 @@ export const parseStaticComponentMeta = (
     validateComponentMembers(node, buildCtx);
 
     if (ts.isCallExpression(node)) {
-      parseCallExpression(cmp, node);
+      parseCallExpression(cmp, node, typeChecker);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }

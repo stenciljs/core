@@ -262,6 +262,7 @@ export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   isLegacy: false,
   jsFilePath: '',
   localImports: [],
+  functionalComponentDeps: [],
   originalImports: [],
   originalCollectionComponentPath: '',
   potentialCmpRefs: [],
