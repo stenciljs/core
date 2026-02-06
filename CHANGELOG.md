@@ -1,3 +1,19 @@
+## 🌍 [4.42.1](https://github.com/stenciljs/core/compare/v4.42.0...v4.42.1) (2026-02-06)
+
+
+### Bug Fixes
+
+* **compiler:** make `resolveVar` for import ([#6588](https://github.com/stenciljs/core/issues/6588)) ([e4eeb37](https://github.com/stenciljs/core/commit/e4eeb370d133c1e431f6513cbb1b2587fef01ab3))
+* **compiler:** scrape build-conditionals from `FunctionalComponents` ([#6586](https://github.com/stenciljs/core/issues/6586)) ([d63bf5d](https://github.com/stenciljs/core/commit/d63bf5d8849eadd22d0644c00812aec8ff813ec6))
+* **css:** make scoped 'slotted' selector replacement less greedy ([#6580](https://github.com/stenciljs/core/issues/6580)) ([10e6184](https://github.com/stenciljs/core/commit/10e61848cf8b0030e55be07f002be30c1cf2779e))
+* **docs:** preserve css properties outside of production builds   ([#6579](https://github.com/stenciljs/core/issues/6579)) ([69d331e](https://github.com/stenciljs/core/commit/69d331e85b9d4d6264689172e7051c211fe43404))
+* **mock-doc:** add global instanceof `HTMLElement` / `SVGElement` plus new `MockLabelElement` ([#6581](https://github.com/stenciljs/core/issues/6581)) ([756b7aa](https://github.com/stenciljs/core/commit/756b7aadd203448feca54411477f5aad973f5a4d))
+* **runtime:** `dist` parent should hydrate even when children fail ([#6583](https://github.com/stenciljs/core/issues/6583)) ([50ad901](https://github.com/stenciljs/core/commit/50ad9014e1a12ab21d1268c3651e921802783310))
+* **runtime:** call `componentShouldUpdate` for every prop changed ([#6587](https://github.com/stenciljs/core/issues/6587)) ([dd4d2e6](https://github.com/stenciljs/core/commit/dd4d2e6ff43d6721e2ef914a3bdaf33f9c243c4e))
+* **types:** don't include `[@internal](https://github.com/internal)` properties in dist build required fields ([#6585](https://github.com/stenciljs/core/issues/6585)) ([6136a67](https://github.com/stenciljs/core/commit/6136a67c441c3e7f0e25acb9643eb8f4ffe7d27d))
+
+
+
 # 🚑 [4.42.0](https://github.com/stenciljs/core/compare/v4.41.3...v4.42.0) (2026-02-01)
 
 
