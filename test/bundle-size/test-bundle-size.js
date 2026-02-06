@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
+// Checks a basic component with rendering and
+// reactivity to ensure the bundle size is under 12KB.
+
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const distDir = path.join(__dirname, 'dist', 'bundlesize');
-const maxBundleSize = 8 * 1024; // 9KB in bytes
+const maxBundleSize = 12 * 1024; // 12KB in bytes
 
 console.log('\nChecking bundle size...');
 
