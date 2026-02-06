@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Checks a basic component with rendering and
-// reactivity to ensure the bundle size is under 12KB.
+// reactivity to ensure the bundle size is under 12KB (non-gzipped)
 
 const fs = require('fs');
 const path = require('path');
