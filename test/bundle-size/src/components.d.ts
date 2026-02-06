@@ -7,6 +7,10 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface TestComponent {
+        /**
+          * The text to display
+         */
+        "t": string;
     }
 }
 declare global {
@@ -22,9 +26,18 @@ declare global {
 }
 declare namespace LocalJSX {
     interface TestComponent {
+        /**
+          * The text to display
+         */
+        "t"?: string;
     }
+
+    interface TestComponentAttributes {
+        "t": string;
+    }
+
     interface IntrinsicElements {
-        "test-component": TestComponent;
+        "test-component": Omit<TestComponent, keyof TestComponentAttributes> & { [K in keyof TestComponent & keyof TestComponentAttributes]?: TestComponent[K] } & { [K in keyof TestComponent & keyof TestComponentAttributes as `attr:${K}`]?: TestComponentAttributes[K] } & { [K in keyof TestComponent & keyof TestComponentAttributes as `prop:${K}`]?: TestComponent[K] };
     }
 }
 export { LocalJSX as JSX };

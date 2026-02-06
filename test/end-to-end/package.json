@@ -15,7 +15,8 @@
     "test.hydrate": "node test-end-to-end-hydrate.js",
     "test.screenshot": "node ../../bin/stencil test --e2e --debug --screenshot",
     "test.spec": "node ../../bin/stencil test --spec --debug",
-    "jest": "jest --coverage"
+    "jest": "jest --coverage",
+    "benchmark": "node benchmark-compile-time.js"
   },
   "jest": {
     "preset": "../../testing/jest-preset.js"
