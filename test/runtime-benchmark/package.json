@@ -1,0 +1,10 @@
+{
+  "name": "@stencil/runtime-benchmark",
+  "private": true,
+  "scripts": {
+    "benchmark": "node benchmark-runtime.js"
+  },
+  "devDependencies": {
+    "@stencil/core": "file:../../"
+  }
+}
