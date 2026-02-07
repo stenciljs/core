@@ -6,3 +6,4 @@ www-prerender-script
 www-invisible-prehydration
 test-ts-target-output
 test-components-autoloader
+dist-autoloader-comparison

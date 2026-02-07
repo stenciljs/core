@@ -6,48 +6,20 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    /**
-     * Child component for auto-loader E2E tests.
-     * This component is nested inside auto-loader-dynamic to test
-     * that parent components auto-define their child dependencies
-     * when their defineCustomElement() function is called.
-     */
     interface AutoLoaderChild {
     }
-    /**
-     * Dynamic component for auto-loader E2E tests.
-     * This component is created dynamically via document.createElement()
-     * to test that the MutationObserver correctly detects new elements
-     * and loads their definitions.
-     * This component also nests auto-loader-child to test that
-     * parent components auto-define their child dependencies.
-     */
     interface AutoLoaderDynamic {
     }
     interface AutoLoaderRoot {
     }
 }
 declare global {
-    /**
-     * Child component for auto-loader E2E tests.
-     * This component is nested inside auto-loader-dynamic to test
-     * that parent components auto-define their child dependencies
-     * when their defineCustomElement() function is called.
-     */
     interface HTMLAutoLoaderChildElement extends Components.AutoLoaderChild, HTMLStencilElement {
     }
     var HTMLAutoLoaderChildElement: {
         prototype: HTMLAutoLoaderChildElement;
         new (): HTMLAutoLoaderChildElement;
     };
-    /**
-     * Dynamic component for auto-loader E2E tests.
-     * This component is created dynamically via document.createElement()
-     * to test that the MutationObserver correctly detects new elements
-     * and loads their definitions.
-     * This component also nests auto-loader-child to test that
-     * parent components auto-define their child dependencies.
-     */
     interface HTMLAutoLoaderDynamicElement extends Components.AutoLoaderDynamic, HTMLStencilElement {
     }
     var HTMLAutoLoaderDynamicElement: {
@@ -67,22 +39,8 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-    /**
-     * Child component for auto-loader E2E tests.
-     * This component is nested inside auto-loader-dynamic to test
-     * that parent components auto-define their child dependencies
-     * when their defineCustomElement() function is called.
-     */
     interface AutoLoaderChild {
     }
-    /**
-     * Dynamic component for auto-loader E2E tests.
-     * This component is created dynamically via document.createElement()
-     * to test that the MutationObserver correctly detects new elements
-     * and loads their definitions.
-     * This component also nests auto-loader-child to test that
-     * parent components auto-define their child dependencies.
-     */
     interface AutoLoaderDynamic {
     }
     interface AutoLoaderRoot {
@@ -97,21 +55,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            /**
-             * Child component for auto-loader E2E tests.
-             * This component is nested inside auto-loader-dynamic to test
-             * that parent components auto-define their child dependencies
-             * when their defineCustomElement() function is called.
-             */
             "auto-loader-child": LocalJSX.IntrinsicElements["auto-loader-child"] & JSXBase.HTMLAttributes<HTMLAutoLoaderChildElement>;
-            /**
-             * Dynamic component for auto-loader E2E tests.
-             * This component is created dynamically via document.createElement()
-             * to test that the MutationObserver correctly detects new elements
-             * and loads their definitions.
-             * This component also nests auto-loader-child to test that
-             * parent components auto-define their child dependencies.
-             */
             "auto-loader-dynamic": LocalJSX.IntrinsicElements["auto-loader-dynamic"] & JSXBase.HTMLAttributes<HTMLAutoLoaderDynamicElement>;
             "auto-loader-root": LocalJSX.IntrinsicElements["auto-loader-root"] & JSXBase.HTMLAttributes<HTMLAutoLoaderRootElement>;
         }
