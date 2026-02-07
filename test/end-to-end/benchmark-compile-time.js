@@ -1,12 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawnSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 const COLD_RUNS = 5;
 const WARM_RUNS = 5;
 const STENCIL_BIN = path.join(__dirname, '..', '..', 'bin', 'stencil');
 const CACHE_DIR = path.join(__dirname, '.stencil');
 const RESULTS_FILE = path.join(__dirname, 'benchmark-results.json');
+const SUMMARY_FILE = path.join(__dirname, 'benchmark-results.md');
 
 function clearCache() {
   if (fs.existsSync(CACHE_DIR)) {
@@ -62,6 +63,57 @@ function printStats(label, stats) {
   console.log(`  Avg:    ${formatMs(stats.avg)}`);
   console.log(`  Median: ${formatMs(stats.median)}`);
   console.log(`  StdDev: ${formatMs(stats.stddev)}`);
+}
+
+function generateMarkdown(results, history) {
+  const { cold, warm } = results;
+
+  const fmtValue = (ms) => formatMs(ms).padStart(8);
+
+  let md = `# Stencil Compile Time Benchmark
+
+**Last Run:** ${results.timestamp}
+**Node:** ${results.nodeVersion} | **Platform:** ${results.platform} (${results.arch})
+
+## Latest Results
+
+### Cold Builds (no cache)
+
+| Metric   |    Value |
+|----------|----------|
+| Min      | ${fmtValue(cold.min)} |
+| Max      | ${fmtValue(cold.max)} |
+| **Avg**  | **${formatMs(cold.avg)}** |
+| Median   | ${fmtValue(cold.median)} |
+| StdDev   | ${fmtValue(cold.stddev)} |
+
+### Warm Builds (with cache)
+
+| Metric   |    Value |
+|----------|----------|
+| Min      | ${fmtValue(warm.min)} |
+| Max      | ${fmtValue(warm.max)} |
+| **Avg**  | **${formatMs(warm.avg)}** |
+| Median   | ${fmtValue(warm.median)} |
+| StdDev   | ${fmtValue(warm.stddev)} |
+
+## History
+
+| Date       | Cold Avg | Warm Avg | Node     |
+|------------|----------|----------|----------|
+`;
+
+  // Add history rows (most recent first, limit to 10)
+  const recentHistory = [...history].reverse().slice(0, 10);
+  for (const entry of recentHistory) {
+    const date = new Date(entry.timestamp).toLocaleDateString().padEnd(10);
+    const coldAvg = formatMs(entry.cold.avg).padStart(8);
+    const warmAvg = formatMs(entry.warm.avg).padStart(8);
+    const node = entry.nodeVersion.padEnd(8);
+    md += `| ${date} | ${coldAvg} | ${warmAvg} | ${node} |\n`;
+  }
+
+  return md;
 }
 
 async function main() {
@@ -127,9 +179,15 @@ async function main() {
 
   history.push(results);
 
+  // Save JSON
   fs.writeFileSync(RESULTS_FILE, JSON.stringify({ latest: results, history }, null, 2));
 
-  console.log(`\nResults saved to ${RESULTS_FILE}`);
+  // Save Markdown summary
+  fs.writeFileSync(SUMMARY_FILE, generateMarkdown(results, history));
+
+  console.log(`\nResults saved to:`);
+  console.log(`  ${RESULTS_FILE}`);
+  console.log(`  ${SUMMARY_FILE}`);
 }
 
 main().catch((err) => {
