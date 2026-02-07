@@ -5,9 +5,15 @@ const { spawnSync } = require('child_process');
 const COLD_RUNS = 5;
 const WARM_RUNS = 5;
 const STENCIL_BIN = path.join(__dirname, '..', '..', 'bin', 'stencil');
+const STENCIL_PKG = path.join(__dirname, '..', '..', 'package.json');
 const CACHE_DIR = path.join(__dirname, '.stencil');
 const RESULTS_FILE = path.join(__dirname, 'benchmark-results.json');
 const SUMMARY_FILE = path.join(__dirname, 'benchmark-results.md');
+
+function getStencilVersion() {
+  const pkg = JSON.parse(fs.readFileSync(STENCIL_PKG, 'utf-8'));
+  return pkg.version;
+}
 
 function clearCache() {
   if (fs.existsSync(CACHE_DIR)) {
@@ -73,7 +79,7 @@ function generateMarkdown(results, history) {
   let md = `# Stencil Compile Time Benchmark
 
 **Last Run:** ${results.timestamp}
-**Node:** ${results.nodeVersion} | **Platform:** ${results.platform} (${results.arch})
+**Stencil:** ${results.stencilVersion} | **Node:** ${results.nodeVersion} | **Platform:** ${results.platform} (${results.arch})
 
 ## Latest Results
 
@@ -99,18 +105,19 @@ function generateMarkdown(results, history) {
 
 ## History
 
-| Date       | Cold Avg | Warm Avg | Node     |
-|------------|----------|----------|----------|
+| Date       | Stencil  | Cold Avg | Warm Avg | Node     |
+|------------|----------|----------|----------|----------|
 `;
 
   // Add history rows (most recent first, limit to 10)
   const recentHistory = [...history].reverse().slice(0, 10);
   for (const entry of recentHistory) {
     const date = new Date(entry.timestamp).toLocaleDateString().padEnd(10);
+    const stencil = (entry.stencilVersion || '-').padEnd(8);
     const coldAvg = formatMs(entry.cold.avg).padStart(8);
     const warmAvg = formatMs(entry.warm.avg).padStart(8);
     const node = entry.nodeVersion.padEnd(8);
-    md += `| ${date} | ${coldAvg} | ${warmAvg} | ${node} |\n`;
+    md += `| ${date} | ${stencil} | ${coldAvg} | ${warmAvg} | ${node} |\n`;
   }
 
   return md;
@@ -159,6 +166,7 @@ async function main() {
   // Save results
   const results = {
     timestamp: new Date().toISOString(),
+    stencilVersion: getStencilVersion(),
     nodeVersion: process.version,
     platform: process.platform,
     arch: process.arch,
