@@ -5,9 +5,15 @@ const { spawnSync } = require('child_process');
 
 const RUNS_PER_BENCHMARK = 5;
 const STENCIL_BIN = path.join(__dirname, '..', '..', 'bin', 'stencil');
+const STENCIL_PKG = path.join(__dirname, '..', '..', 'package.json');
 const WWW_DIR = path.join(__dirname, 'www');
 const RESULTS_FILE = path.join(__dirname, 'benchmark-results.json');
 const SUMMARY_FILE = path.join(__dirname, 'benchmark-results.md');
+
+function getStencilVersion() {
+  const pkg = JSON.parse(fs.readFileSync(STENCIL_PKG, 'utf-8'));
+  return pkg.version;
+}
 
 let puppeteer;
 
@@ -81,7 +87,7 @@ function generateMarkdown(results, history) {
   let md = `# Stencil Runtime Performance Benchmark
 
 **Last Run:** ${results.timestamp}
-**Node:** ${results.nodeVersion} | **Platform:** ${results.platform} (${results.arch})
+**Stencil:** ${results.stencilVersion} | **Node:** ${results.nodeVersion} | **Platform:** ${results.platform} (${results.arch})
 
 ## Latest Results
 
@@ -101,21 +107,22 @@ function generateMarkdown(results, history) {
   md += `
 ## History
 
-| Date       | Create 1k |  Replace 1k |    Update | Create 10k | Node     |
-|------------|-----------|-------------|-----------|------------|----------|
+| Date       | Stencil  | Create 1k |  Replace 1k |    Update | Create 10k | Node     |
+|------------|----------|-----------|-------------|-----------|------------|----------|
 `;
 
   // Add history rows (most recent first, limit to 10)
   const recentHistory = [...history].reverse().slice(0, 10);
   for (const entry of recentHistory) {
     const date = new Date(entry.timestamp).toLocaleDateString().padEnd(10);
+    const stencil = (entry.stencilVersion || '-').padEnd(8);
     const b = entry.benchmarks;
     const c1k = `${b.create1k?.avg.toFixed(1) || '-'}ms`.padStart(9);
     const r1k = `${b.replace1k?.avg.toFixed(1) || '-'}ms`.padStart(11);
     const upd = `${b.update?.avg.toFixed(1) || '-'}ms`.padStart(9);
     const c10k = `${b.create10k?.avg.toFixed(1) || '-'}ms`.padStart(10);
     const node = entry.nodeVersion.padEnd(8);
-    md += `| ${date} | ${c1k} | ${r1k} | ${upd} | ${c10k} | ${node} |\n`;
+    md += `| ${date} | ${stencil} | ${c1k} | ${r1k} | ${upd} | ${c10k} | ${node} |\n`;
   }
 
   return md;
@@ -302,6 +309,7 @@ async function main() {
     // Save results
     const results = {
       timestamp: new Date().toISOString(),
+      stencilVersion: getStencilVersion(),
       nodeVersion: process.version,
       platform: process.platform,
       arch: process.arch,
