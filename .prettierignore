@@ -57,3 +57,13 @@ test/docs-json/docs.json
 # third party scripts
 src/mock-doc/third-party/jquery.ts
 test/wdio/slot-ng-if/assets/
+
+
+# wdio test output
+test/wdio/test-components
+test/wdio/test-components-no-external-runtime
+test/wdio/www-global-script/
+test/wdio/www-prerender-script
+test/wdio/www-invisible-prehydration/
+test/wdio/test-ts-target-output
+test/wdio/test-components-autoloader

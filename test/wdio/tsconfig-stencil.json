@@ -43,8 +43,11 @@
     // exclude no-external-runtime because they are built separately with `externalRuntime: false`
     "./no-external-runtime/**/*.tsx",
     "./no-external-runtime/**/*.ts",
-     // exclude ts-target because they are built separately with `target: es2022`
-     "./test-ts-target/**/*.tsx",
-     "./test-ts-target/**/*.ts",
+    // exclude ts-target because they are built separately with `target: es2022`
+    "./test-ts-target/**/*.tsx",
+    "./test-ts-target/**/*.ts",
+    // exclude auto-loader because it's built separately to test lazy-loading in isolation
+    "./auto-loader/**/*.tsx",
+    "./auto-loader/**/*.ts"
   ]
 }

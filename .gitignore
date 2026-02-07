@@ -54,13 +54,5 @@ null_errors*.json
 # TODO(STENCIL-454): Remove or change this up once we've eliminated unused exports
 unused-exports*.txt
 
-# wdio test output
-test/wdio/test-components
-test/wdio/test-components-no-external-runtime
-test/wdio/www-global-script/
-test/wdio/www-prerender-script
-test/wdio/www-invisible-prehydration/
-test/wdio/test-ts-target-output
-
 # readme file from docs-readme that is expected to be missing so it will be emitted in full
 test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/styleurls-component/readme.md

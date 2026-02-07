@@ -280,5 +280,79 @@ export const defineCustomElements = (opts) => {
         );
       });
     });
+
+    describe('autoLoader', () => {
+      it('should add a loader virtual module when autoLoader is true', () => {
+        const componentOne = stubComponentCompilerMeta();
+        const componentTwo = stubComponentCompilerMeta({
+          componentClassName: 'MyBestComponent',
+          tagName: 'my-best-component',
+        });
+
+        buildCtx.components = [componentOne, componentTwo];
+
+        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        outputTarget.autoLoader = { fileName: 'loader', autoStart: true };
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+
+        // Check loader input is added
+        expect(bundleOptions.inputs['loader']).toBe('\0loader');
+
+        // Check loader module content
+        const loaderContent = bundleOptions.loader['\0loader'];
+        expect(loaderContent).toContain(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_ID}'`);
+        expect(loaderContent).toContain("'stub-cmp': './stub-cmp.js'");
+        expect(loaderContent).toContain("'my-best-component': './my-best-component.js'");
+        expect(loaderContent).toContain('export function start(');
+        expect(loaderContent).toContain('export function stop(');
+        expect(loaderContent).toContain('start();'); // autoStart is true
+      });
+
+      it('should not auto-start when autoStart is false', () => {
+        const component = stubComponentCompilerMeta();
+        buildCtx.components = [component];
+
+        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        outputTarget.autoLoader = { fileName: 'loader', autoStart: false };
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+
+        const loaderContent = bundleOptions.loader['\0loader'];
+        // Should export start/stop but NOT auto-call start()
+        expect(loaderContent).toContain('export function start(');
+        expect(loaderContent).toContain('export function stop(');
+        expect(loaderContent).not.toMatch(/^start\(\);$/m);
+      });
+
+      it('should use custom fileName for loader', () => {
+        const component = stubComponentCompilerMeta();
+        buildCtx.components = [component];
+
+        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        outputTarget.autoLoader = { fileName: 'my-custom-loader', autoStart: true };
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+
+        expect(bundleOptions.inputs['my-custom-loader']).toBe('\0loader');
+      });
+
+      it('should not add loader when autoLoader is not set', () => {
+        const component = stubComponentCompilerMeta();
+        buildCtx.components = [component];
+
+        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        // autoLoader is not set
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+
+        expect(bundleOptions.inputs['loader']).toBeUndefined();
+        expect(bundleOptions.loader['\0loader']).toBeUndefined();
+      });
+    });
   });
 });

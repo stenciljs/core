@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig-stencil.json",
+  "include": [
+    "auto-loader"
+  ],
+  "exclude": [
+    "auto-loader/*.test.tsx"
+  ]
+}

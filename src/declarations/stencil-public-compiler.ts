@@ -2585,6 +2585,42 @@ export interface OutputTargetDistCustomElements extends OutputTargetValidationCo
    * If omitted, no auto-definition behavior or re-exporting will happen.
    */
   customElementsExportBehavior?: CustomElementsExportBehavior;
+  /**
+   * Generate an auto-loader script that uses MutationObserver to lazily load
+   * and define custom elements as they appear in the DOM.
+   *
+   * When set to `true`, generates a `loader.js` file that auto-starts on import.
+   * Can also be configured with an object for more control:
+   * - `fileName`: Custom filename for the loader (default: 'loader.js')
+   * - `autoStart`: Whether to auto-start the loader on import (default: true)
+   *
+   * @example
+   * ```typescript
+   * // Simple usage
+   * autoLoader: true
+   *
+   * // With options
+   * autoLoader: {
+   *   fileName: 'my-loader.js',
+   *   autoStart: false
+   * }
+   * ```
+   */
+  autoLoader?:
+    | boolean
+    | {
+        /**
+         * Custom filename for the generated loader script.
+         * @default 'loader.js'
+         */
+        fileName?: string;
+        /**
+         * Whether to automatically start the loader when the script is imported.
+         * If false, you must call `start()` manually.
+         * @default true
+         */
+        autoStart?: boolean;
+      };
 }
 
 /**

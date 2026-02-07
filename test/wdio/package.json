@@ -8,6 +8,7 @@
     "build.es2022": "node ../../bin/stencil build --config stencil.config-es2022.ts",
     "build.global-script": "node ../../bin/stencil build --es5 --config global-script.stencil.config.ts",
     "build.test-sibling": "cd test-sibling && npm run build",
+    "build.auto-loader": "node ../../bin/stencil build --config auto-loader.stencil.config.ts",
     "build.prerender": "node ../../bin/stencil build --config prerender.stencil.config.ts --prerender && node ./test-prerender/prerender.js && node ./test-prerender/no-script-build.js",
     "build.invisible-prehydration": "node ../../bin/stencil build --es5 --config invisible-prehydration.stencil.config.ts",
     "build.no-external-runtime": "node ../../bin/stencil build --es5 --config no-external-runtime.stencil.config.ts",
