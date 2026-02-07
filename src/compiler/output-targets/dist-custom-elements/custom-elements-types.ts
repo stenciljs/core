@@ -170,6 +170,37 @@ const generateCustomElementsTypesOutput = async (
       await compilerCtx.fs.writeFile(filePath, dtsCode, { outputTargetType: outputTarget.type });
     }),
   );
+
+  // Generate loader.d.ts if autoLoader is enabled
+  if (outputTarget.autoLoader) {
+    const loaderFileName =
+      typeof outputTarget.autoLoader === 'object' ? outputTarget.autoLoader.fileName || 'loader' : 'loader';
+    const loaderDtsPath = join(outputTarget.dir!, `${loaderFileName}.d.ts`);
+    const loaderDtsCode = generateLoaderType();
+    await compilerCtx.fs.writeFile(loaderDtsPath, loaderDtsCode, { outputTargetType: outputTarget.type });
+  }
+};
+
+/**
+ * Generate a type declaration file for the auto-loader module
+ * @returns the contents of the type declaration file for the loader
+ */
+const generateLoaderType = (): string => {
+  return [
+    `/**`,
+    ` * Start the auto-loader, scanning the DOM and watching for changes.`,
+    ` * The loader uses MutationObserver to detect when custom elements are added`,
+    ` * to the DOM and lazily loads their definitions.`,
+    ` * @param root - The root element to observe (default: document.body)`,
+    ` */`,
+    `export declare function start(root?: Element): void;`,
+    ``,
+    `/**`,
+    ` * Stop the auto-loader and disconnect the MutationObserver.`,
+    ` */`,
+    `export declare function stop(): void;`,
+    ``,
+  ].join('\n');
 };
 
 /**

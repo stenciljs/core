@@ -386,5 +386,95 @@ describe('validate-output-dist-custom-element', () => {
         ]);
       });
     });
+
+    describe('"autoLoader" field', () => {
+      it('normalizes autoLoader: true to an object with defaults', () => {
+        const outputTarget: d.OutputTargetDistCustomElements = {
+          type: DIST_CUSTOM_ELEMENTS,
+          autoLoader: true,
+          generateTypeDeclarations: false,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const distCustomElementsTarget = config.outputTargets.find(
+          (o) => o.type === DIST_CUSTOM_ELEMENTS,
+        ) as d.OutputTargetDistCustomElements;
+
+        expect(distCustomElementsTarget.autoLoader).toEqual({
+          fileName: 'loader',
+          autoStart: true,
+        });
+      });
+
+      it('normalizes autoLoader object with partial options', () => {
+        const outputTarget: d.OutputTargetDistCustomElements = {
+          type: DIST_CUSTOM_ELEMENTS,
+          autoLoader: { fileName: 'my-loader' },
+          generateTypeDeclarations: false,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const distCustomElementsTarget = config.outputTargets.find(
+          (o) => o.type === DIST_CUSTOM_ELEMENTS,
+        ) as d.OutputTargetDistCustomElements;
+
+        expect(distCustomElementsTarget.autoLoader).toEqual({
+          fileName: 'my-loader',
+          autoStart: true,
+        });
+      });
+
+      it('normalizes autoLoader object with autoStart: false', () => {
+        const outputTarget: d.OutputTargetDistCustomElements = {
+          type: DIST_CUSTOM_ELEMENTS,
+          autoLoader: { autoStart: false },
+          generateTypeDeclarations: false,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const distCustomElementsTarget = config.outputTargets.find(
+          (o) => o.type === DIST_CUSTOM_ELEMENTS,
+        ) as d.OutputTargetDistCustomElements;
+
+        expect(distCustomElementsTarget.autoLoader).toEqual({
+          fileName: 'loader',
+          autoStart: false,
+        });
+      });
+
+      it('does not set autoLoader when not provided', () => {
+        const outputTarget: d.OutputTargetDistCustomElements = {
+          type: DIST_CUSTOM_ELEMENTS,
+          generateTypeDeclarations: false,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const distCustomElementsTarget = config.outputTargets.find(
+          (o) => o.type === DIST_CUSTOM_ELEMENTS,
+        ) as d.OutputTargetDistCustomElements;
+
+        expect(distCustomElementsTarget.autoLoader).toBeUndefined();
+      });
+
+      it('does not set autoLoader when explicitly false', () => {
+        const outputTarget: d.OutputTargetDistCustomElements = {
+          type: DIST_CUSTOM_ELEMENTS,
+          autoLoader: false,
+          generateTypeDeclarations: false,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const distCustomElementsTarget = config.outputTargets.find(
+          (o) => o.type === DIST_CUSTOM_ELEMENTS,
+        ) as d.OutputTargetDistCustomElements;
+
+        expect(distCustomElementsTarget.autoLoader).toBe(false);
+      });
+    });
   });
 });

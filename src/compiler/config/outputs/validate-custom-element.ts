@@ -49,6 +49,19 @@ export const validateCustomElement = (
         outputTarget.customElementsExportBehavior = 'default';
       }
 
+      // Normalize autoLoader option
+      if (outputTarget.autoLoader === true) {
+        outputTarget.autoLoader = {
+          fileName: 'loader',
+          autoStart: true,
+        };
+      } else if (outputTarget.autoLoader && typeof outputTarget.autoLoader === 'object') {
+        outputTarget.autoLoader = {
+          fileName: outputTarget.autoLoader.fileName || 'loader',
+          autoStart: outputTarget.autoLoader.autoStart !== false,
+        };
+      }
+
       // unlike other output targets, Stencil does not allow users to define the output location of types at this time
       if (outputTarget.generateTypeDeclarations) {
         const typesDirectory = getAbsolutePath(config, join(defaultDir, 'types'));

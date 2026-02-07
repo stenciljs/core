@@ -24,6 +24,7 @@ import { removeCollectionImports } from '../../transformers/remove-collection-im
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getCustomElementsBuildConditionals } from './custom-elements-build-conditionals';
+import { generateLoaderModule } from './generate-loader-module';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 
 /**
@@ -241,6 +242,15 @@ export const addCustomElementInputs = (
 
   // Generate the contents of the entry file to be created by the bundler
   bundleOpts.loader!['\0core'] = generateEntryPoint(outputTarget, indexImports, indexExports, exportNames);
+
+  // Generate auto-loader module if enabled
+  if (outputTarget.autoLoader) {
+    const loaderFileName =
+      typeof outputTarget.autoLoader === 'object' ? outputTarget.autoLoader.fileName || 'loader' : 'loader';
+
+    bundleOpts.inputs[loaderFileName] = '\0loader';
+    bundleOpts.loader!['\0loader'] = generateLoaderModule(components, outputTarget);
+  }
 };
 
 /**

@@ -5,7 +5,7 @@ import type { Config } from '../../internal/index.js';
 export const config: Config = {
   namespace: 'TestApp',
   tsconfig: 'tsconfig-stencil.json',
-  excludeComponents: ['excluded-component', 'exclude-*'],
+  excludeComponents: ['excluded-component', 'exclude-*', 'auto-loader*'],
   outputTargets: [
     {
       type: 'dist',
