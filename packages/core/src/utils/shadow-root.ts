@@ -1,7 +1,7 @@
 import { BUILD } from '@app-data';
 import { globalStyles } from '@app-globals';
 import { supportsConstructableStylesheets, supportsMutableAdoptedStyleSheets } from '@platform';
-import { CMP_FLAGS } from '@utils/constants';
+import { CMP_FLAGS } from './constants';
 
 import type * as d from '../declarations';
 import { HYDRATED_STYLE_ID } from '../runtime/runtime-constants';

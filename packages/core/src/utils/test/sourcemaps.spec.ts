@@ -3,7 +3,7 @@ import {
   getSourceMappingUrlForEndOfFile,
   getSourceMappingUrlLinker,
   rollupToStencilSourceMap,
-} from '@utils';
+} from '../index';
 import { SourceMap as RollupSourceMap } from 'rollup';
 
 import type * as d from '../../declarations';

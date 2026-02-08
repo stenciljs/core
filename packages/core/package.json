@@ -17,7 +17,8 @@
     "./internal/client": "./dist/internal/client/index.js",
     "./internal/server": "./dist/internal/server/index.js",
     "./internal/app-data": "./dist/internal/app-data/index.js",
-    "./internal/app-globals": "./dist/internal/app-globals/index.js"
+    "./internal/app-globals": "./dist/internal/app-globals/index.js",
+    "./compiler/utils": "./dist/compiler/utils/index.js"
   },
   "files": [
     "dist/"

@@ -1,5 +1,6 @@
-import { flatOne, isGlob, normalizePath, sortBy } from '@utils';
-import { join } from '@utils';
+import { flatOne, sortBy } from './helpers';
+import { isGlob } from './is-glob';
+import { join, normalizePath } from './path';
 import { minimatch } from 'minimatch';
 import { basename, dirname, relative } from 'path';
 

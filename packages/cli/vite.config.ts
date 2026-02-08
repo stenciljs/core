@@ -24,6 +24,7 @@ export default defineConfig({
         /^node:/,
         '@stencil/core',
         '@stencil/core/compiler',
+        '@stencil/core/compiler/utils',
         '@stencil/core/testing', // Being removed in v5
         '@stencil/core/dev-server', // Being replaced by Vite in v5
         '@stencil/mock-doc',
@@ -37,20 +38,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // CLI uses utils/declarations from core
-      '@utils': resolve(__dirname, '../core/src/utils'),
-      '@app-data': resolve(__dirname, '../core/src/app-data'),
-      '@app-globals': resolve(__dirname, '../core/src/app-globals'),
-      '@platform': resolve(__dirname, '../core/src/client'),
-      '@runtime': resolve(__dirname, '../core/src/runtime'),
-      '@stencil/core/declarations': resolve(__dirname, '../core/src/declarations'),
-      // Relative imports from old src/ structure
-      '../declarations': resolve(__dirname, '../core/src/declarations'),
-      '../../declarations': resolve(__dirname, '../core/src/declarations'),
-      '../compiler': resolve(__dirname, '../core/src/compiler'),
-      '../../compiler': resolve(__dirname, '../core/src/compiler'),
-      '../version': resolve(__dirname, '../core/src/version'),
-      '../../version': resolve(__dirname, '../core/src/version'),
+      // Map @utils to proper package export
+      '@utils': '@stencil/core/compiler/utils',
+      // Map local declarations to core exports
+      '../declarations': '@stencil/core',
     },
   },
 });

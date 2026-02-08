@@ -35,11 +35,13 @@ const PACKAGES: PackageBuildConfig[] = [
     name: 'core',
     packageDir: 'core',
     additionalConfigs: [
+      'vite.compiler-utils.config.ts',
       'vite.internal.config.ts',
       'vite.client.config.ts',
       'vite.server.config.ts',
       'vite.app-data.config.ts',
       'vite.app-globals.config.ts',
+      'vite.compiler-utils.config.ts',
     ],
   },
   { name: 'cli', packageDir: 'cli' },
