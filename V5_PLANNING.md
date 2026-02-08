@@ -23,11 +23,13 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - In-browser compilation → REMOVE
 
 ### 3. ⚡ Move to Vite
-**Status:** 🚧 In Progress (Level 1 complete)
+**Status:** 🚧 In Progress
 - ✅ Built prototype
 - ✅ All packages build with Vite
-- ⏳ Rename internal → runtime
-- ⏳ Fix CLI/Core dependencies
+- ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
+- ⏳ Rename internal → runtime (bulk find/replace across codebase)
+- ⏳ Fix type generation (use tsc + dts-bundle-generator properly)
+- ⏳ Remove build-time aliases (@utils, @app-data, etc.) - convert to relative imports
 - ⏳ Type generation
 
 ### 4. 📦 Mono-repo Restructure  
@@ -89,10 +91,29 @@ packages/
 ## Immediate Tasks
 
 ### ⏳ Rename internal → runtime
-Current structure uses confusing "internal" naming:
+Current structure uses confusing "internal" naming. Need to rename:
+
+**Directories:**
+- `packages/core/src/internal/` → `packages/core/src/runtime/`
+- `packages/core/dist/internal/` → `packages/core/dist/runtime/`
+
+**Package exports (package.json):**
 - `@stencil/core/internal` → `@stencil/core/runtime`
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
 - `@stencil/core/internal/server` → `@stencil/core/runtime/server`
+- etc.
+
+**Code changes (find/replace in all files):**
+- Import statements: `from '@stencil/core/internal'` → `from '@stencil/core/runtime'`
+- Build aliases: `@internal` → `@runtime` (in vite configs)
+- Path references in build scripts and configs
+
+**Files to update:**
+- All `.ts`, `.tsx` files (imports)
+- All `vite.*.config.ts` (aliases, output paths)
+- `build-vite.ts` (output path handling)
+- `packages/core/package.json` (exports map)
+- Documentation/comments mentioning "internal"
 
 ### ⏳ Fix CLI/Core shared dependencies
 CLI currently uses build-time aliases to hack into core's source:

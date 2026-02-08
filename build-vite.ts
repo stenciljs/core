@@ -113,24 +113,23 @@ async function generateDeclarations(pkg: PackageBuildConfig) {
     return;
   }
 
-  console.log(`  📝 Generating declarations for ${pkg.name}...`);
-
-  try {
-    execSync(`npx tsc --project tsconfig.build.json`, {
-      cwd: packagePath,
-      stdio: 'pipe',
-    });
-    console.log(`  ✅ Declarations generated for ${pkg.name}`);
-  } catch (error) {
-    // For core/cli packages, declarations may fail due to complex dependencies
-    // We'll use fallback declarations
-    if (pkg.name === 'core') {
-      console.log(`  ⚠️  Declaration generation failed for core, using existing bundled declarations`);
-      await copyExistingCoreDeclarations();
-    } else if (pkg.name === 'cli') {
-      console.log(`  ⚠️  Declaration generation failed for cli, creating stub declarations`);
-      await createCliDeclarations();
-    } else {
+  // TODO: Fix tsc emitting to src instead of dist
+  // For now, use fallback declarations
+  if (pkg.name === 'core') {
+    console.log(`  ✅ Copied existing bundled declarations for ${pkg.name}`);
+    await copyExistingCoreDeclarations();
+  } else if (pkg.name === 'cli') {
+    console.log(`  ✅ Created stub declarations for ${pkg.name}`);
+    await createCliDeclarations();
+  } else {
+    // Try running tsc for other packages
+    try {
+      execSync(`npx tsc --project tsconfig.build.json`, {
+        cwd: packagePath,
+        stdio: 'pipe',
+      });
+      console.log(`  ✅ Declarations generated for ${pkg.name}`);
+    } catch (error) {
       console.warn(`  ⚠️  Declaration generation failed for ${pkg.name}:`, (error as Error).message);
     }
   }
