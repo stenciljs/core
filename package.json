@@ -167,7 +167,7 @@
     "@types/graceful-fs": "^4.1.5",
     "@types/jest": "^27.0.3",
     "@types/listr": "^0.14.4",
-    "@types/node": "^24.6.2",
+    "@types/node": "^24.10.12",
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.1",
     "@types/prompts": "^2.0.9",
@@ -222,6 +222,7 @@
     "terser": "5.37.0",
     "tsx": "^4.19.2",
     "typescript": "~5.8.3",
+    "vite": "^7.3.1",
     "webpack": "^5.75.0",
     "ws": "8.17.1"
   },

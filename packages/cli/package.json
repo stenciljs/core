@@ -1,0 +1,23 @@
+{
+  "name": "@stencil/cli",
+  "version": "5.0.0-alpha.0",
+  "description": "CLI for Stencil - Web component compiler",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "stencil": "./dist/stencil"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

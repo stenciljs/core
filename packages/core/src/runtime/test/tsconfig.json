@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "lib": ["dom", "es2017", "esnext.array"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "target": "es2017",
+    "useUnknownInCatchVariables": true,
+    "baseUrl": ".",
+    "paths": {
+      "@stencil/core": ["../../index.ts"],
+      "@stencil/core/testing": ["../../testing/index.ts"],
+      "@platform": ["../../client/index.ts"]
+    }
+  }
+}

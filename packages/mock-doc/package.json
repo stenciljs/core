@@ -1,0 +1,17 @@
+{
+  "name": "@stencil/mock-doc",
+  "version": "5.0.0-alpha.0",
+  "description": "Mock DOM implementation for SSR and testing",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/"
+  ]
+}

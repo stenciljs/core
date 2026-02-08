@@ -1,0 +1,689 @@
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import path from 'path';
+
+import type * as d from '../../../declarations';
+import { patchTypescript } from '../../sys/typescript/typescript-sys';
+import { generateAppTypes } from '../generate-app-types';
+import { stubComponentCompilerEvent } from './ComponentCompilerEvent.stub';
+import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
+import { stubComponentCompilerProperty } from './ComponentCompilerProperty.stub';
+
+describe('generateAppTypes', () => {
+  let config: d.ValidatedConfig;
+  let compilerCtx: d.CompilerCtx;
+  let buildCtx: d.BuildCtx;
+  let originalWriteFile: typeof compilerCtx.fs.writeFile;
+
+  const mockWriteFile = jest.fn();
+
+  beforeEach(() => {
+    config = mockValidatedConfig({
+      srcDir: '/',
+    });
+    compilerCtx = mockCompilerCtx(config);
+    buildCtx = mockBuildCtx(config, compilerCtx);
+
+    // Save the original write function to we can create a file in the
+    // in-memory fs if needed
+    originalWriteFile = compilerCtx.fs.writeFile;
+    compilerCtx.fs.writeFile = mockWriteFile;
+
+    mockWriteFile.mockResolvedValueOnce({ changedContent: true });
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should generate a type declaration file without custom types', async () => {
+    const compilerComponentMeta = stubComponentCompilerMeta({
+      tagName: 'my-component',
+      componentClassName: 'MyComponent',
+      events: [],
+    });
+    buildCtx.components = [compilerComponentMeta];
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1);
+    expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+    expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+  });
+
+  describe('custom event types', () => {
+    it('should generate a type declaration file with custom event types', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasEvent: true,
+        events: [stubComponentCompilerEvent()],
+      });
+      buildCtx.components = [compilerComponentMeta];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should generate a type declaration file with multiple custom events from the same location', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent(),
+          stubComponentCompilerEvent({
+            name: 'mySecondEvent',
+            method: 'mySecondEvent',
+            complexType: {
+              original: 'SecondUserImplementedEventType',
+              resolved: '"wee" | "woo"',
+              references: {
+                SecondUserImplementedEventType: {
+                  id: './resources.ts::SecondUserImplementedEventType',
+                  location: 'import',
+                  path: './resources',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should generate a type declaration file with multiple components using the same custom event type', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'import',
+                  id: './resources.ts::UserImplementedEventType',
+                  path: './resources',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/nested/my-component.js',
+        sourceFilePath: '/some/stubbed/path/nested/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/nested/my-component.js.map',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'import',
+                  id: 'placeholder',
+                  path: '../resources',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should handle custom event type name collisions when defined in separate files', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        jsFilePath: '/some/stubbed/path/a/my-component.js',
+        sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::UserImplementedEventType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/b/my-new-component.js',
+        sourceFilePath: '/some/stubbed/path/b/my-new-component.tsx',
+        sourceMapPath: '/some/stubbed/path/b/my-new-component.js.map',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::UserImplementedEventType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should handle custom event type name collisions when defined in the component files', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        jsFilePath: '/some/stubbed/path/a/my-component.js',
+        sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'local',
+                  path: '/some/stubbed/path/a/my-component.tsx',
+                  id: '/some/stubbed/path/a/my-component.tsx::UserImplementedEventType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/b/my-new-component.js',
+        sourceFilePath: '/some/stubbed/path/b/my-new-component.tsx',
+        sourceMapPath: '/some/stubbed/path/b/my-new-component.js.map',
+        hasEvent: true,
+        events: [
+          stubComponentCompilerEvent({
+            complexType: {
+              original: 'UserImplementedEventType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedEventType: {
+                  location: 'local',
+                  id: '/some/stubbed/path/b/my-new-component.tsx::UserImplementedEventType',
+                  path: '/some/stubbed/path/b/my-new-component.tsx',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+  });
+
+  describe('custom prop types', () => {
+    it('should export prop types too', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should generate a type declaration file with multiple custom prop types from the same location', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+          stubComponentCompilerProperty({
+            name: 'email',
+            complexType: {
+              original: 'SecondUserImplementedPropType',
+              resolved: '"wee" | "woo"',
+              references: {
+                SecondUserImplementedPropType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::SecondUserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should generate a type declaration file with multiple components using the same custom prop type', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/nested/my-component.js',
+        sourceFilePath: '/some/stubbed/path/nested/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/nested/my-component.js.map',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'fullName',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  path: '../resources',
+                  id: '../resources::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should handle custom prop type name collisions when defined in separate files', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        jsFilePath: '/some/stubbed/path/a/my-component.js',
+        sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  id: './resources.ts::UserImplementedPropType',
+                  path: './resources',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/b/my-new-component.js',
+        sourceFilePath: '/some/stubbed/path/b/my-new-component.tsx',
+        sourceMapPath: '/some/stubbed/path/b/my-new-component.js.map',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'newName',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"wee" | "woo"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'import',
+                  path: './resources',
+                  id: './resources.ts::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+
+    it('should handle custom prop type name collisions when defined in the component files', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        jsFilePath: '/some/stubbed/path/a/my-component.js',
+        sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+        sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"foo" | "bar"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'local',
+                  path: '/some/stubbed/path/a/my-component.tsx',
+                  id: '/some/stubbed/path/a/my-component.tsx::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      const compilerComponentMeta2 = stubComponentCompilerMeta({
+        tagName: 'my-new-component',
+        componentClassName: 'MyNewComponent',
+        jsFilePath: '/some/stubbed/path/b/my-new-component.js',
+        sourceFilePath: '/some/stubbed/path/b/my-new-component.tsx',
+        sourceMapPath: '/some/stubbed/path/b/my-new-component.js.map',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'name',
+            complexType: {
+              original: 'UserImplementedPropType',
+              resolved: '"wee" | "woo"',
+              references: {
+                UserImplementedPropType: {
+                  location: 'local',
+                  path: '/some/stubbed/path/b/my-new-component.tsx',
+                  id: '/some/stubbed/path/b/my-new-component.tsx::UserImplementedPropType',
+                },
+              },
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta, compilerComponentMeta2];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile).toHaveBeenCalledTimes(1);
+      expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+  });
+
+  it('should work with both event and prop types', async () => {
+    const compilerComponentMeta = stubComponentCompilerMeta({
+      tagName: 'my-component',
+      componentClassName: 'MyComponent',
+      jsFilePath: '/some/stubbed/path/a/my-component.js',
+      sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+      sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+      hasProp: true,
+      hasEvent: true,
+      events: [stubComponentCompilerEvent()],
+      properties: [
+        stubComponentCompilerProperty({
+          name: 'name',
+          complexType: {
+            original: 'UserImplementedPropType',
+            resolved: '"foo" | "bar"',
+            references: {
+              UserImplementedPropType: {
+                location: 'import',
+                path: './resources',
+                id: './resources.ts::UserImplementedPropType',
+              },
+            },
+          },
+        }),
+      ],
+    });
+    buildCtx.components = [compilerComponentMeta];
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1);
+    expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+    expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+  });
+
+  it('should transform aliased paths if transformAliasedImportPaths is true', async () => {
+    const compilerComponentMeta = stubComponentCompilerMeta({
+      tagName: 'my-component',
+      componentClassName: 'MyComponent',
+      jsFilePath: path.join(config.rootDir, 'some/stubbed/path/a/my-component.js'),
+      sourceFilePath: path.join(config.rootDir, 'some/stubbed/path/a/my-component.tsx'),
+      sourceMapPath: path.join(config.rootDir, 'some/stubbed/path/a/my-component.js.map'),
+      hasProp: true,
+      properties: [
+        stubComponentCompilerProperty({
+          name: 'name',
+          complexType: {
+            original: 'UserImplementedPropType',
+            resolved: '"foo" | "bar"',
+            references: {
+              UserImplementedPropType: {
+                id: 'some-module.ts::UserImplementedPropType',
+                location: 'import',
+                path: '@utils',
+              },
+            },
+          },
+        }),
+      ],
+    });
+    buildCtx.components = [compilerComponentMeta];
+    config.tsCompilerOptions = {
+      paths: {
+        '@utils': [path.join(config.rootDir, 'some/stubbed/path/utils/utils.ts')],
+      },
+      declaration: true,
+    };
+    config.transformAliasedImportPaths = true;
+    // We need to have a file in the in-memory fs for the TS module resolution to succeed
+    await originalWriteFile(path.join(config.rootDir, 'some/stubbed/path/utils/utils.ts'), '');
+
+    patchTypescript(config, compilerCtx.fs);
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1);
+    expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+    expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+  });
+
+  it('should not transform aliased paths if transformAliasedImportPaths is false', async () => {
+    const compilerComponentMeta = stubComponentCompilerMeta({
+      tagName: 'my-component',
+      componentClassName: 'MyComponent',
+      jsFilePath: '/some/stubbed/path/a/my-component.js',
+      sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+      sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+      hasProp: true,
+      properties: [
+        stubComponentCompilerProperty({
+          name: 'name',
+          complexType: {
+            original: 'UserImplementedPropType',
+            resolved: '"foo" | "bar"',
+            references: {
+              UserImplementedPropType: {
+                id: 'some-file.ts::UserImplementedPropType',
+                location: 'import',
+                path: '@utils',
+              },
+            },
+          },
+        }),
+      ],
+    });
+    buildCtx.components = [compilerComponentMeta];
+    config.tsCompilerOptions = {};
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1);
+    expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+    expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+  });
+
+  it('should handle type import aliases', async () => {
+    const compilerComponentMeta = stubComponentCompilerMeta({
+      tagName: 'my-component',
+      componentClassName: 'MyComponent',
+      jsFilePath: '/some/stubbed/path/a/my-component.js',
+      sourceFilePath: '/some/stubbed/path/a/my-component.tsx',
+      sourceMapPath: '/some/stubbed/path/a/my-component.js.map',
+      hasProp: true,
+      properties: [
+        stubComponentCompilerProperty({
+          name: 'name',
+          complexType: {
+            original: 'UserImplementedPropType',
+            resolved: '"foo" | "bar"',
+            references: {
+              UserImplementedPropType: {
+                id: 'some-file.ts::MyType',
+                location: 'import',
+                path: '@utils',
+              },
+              Fragment: {
+                location: 'import',
+                path: '@stencil/core',
+                id: '',
+              },
+            },
+          },
+        }),
+      ],
+    });
+    buildCtx.components = [compilerComponentMeta];
+    config.tsCompilerOptions = {};
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1);
+    expect(mockWriteFile.mock.calls[0][0]).toBe('/components.d.ts');
+    expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+  });
+
+  describe('attr: and prop: prefix generation', () => {
+    it('should not generate attr: or prop: prefixes for props without attributes', async () => {
+      const compilerComponentMeta = stubComponentCompilerMeta({
+        tagName: 'my-component',
+        componentClassName: 'MyComponent',
+        hasProp: true,
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'internalData',
+            attribute: undefined, // No attribute mapping
+            complexType: {
+              original: 'InternalDataType',
+              resolved: 'InternalDataType',
+              references: {},
+            },
+          }),
+        ],
+      });
+      buildCtx.components = [compilerComponentMeta];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
+    });
+  });
+});

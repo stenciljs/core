@@ -1,0 +1,28 @@
+{
+  "name": "@stencil/core",
+  "version": "5.0.0-alpha.0",
+  "description": "Compiler for web components and progressive web apps",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./internal": "./dist/internal/index.js",
+    "./internal/client": "./dist/internal/client/index.js",
+    "./internal/server": "./dist/internal/server/index.js",
+    "./internal/app-data": "./dist/internal/app-data/index.js",
+    "./internal/app-globals": "./dist/internal/app-globals/index.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "dependencies": {
+    "@stencil/mock-doc": "workspace:*",
+    "typescript": "~5.8.3",
+    "terser": "5.37.0",
+    "parse5": "7.2.1"
+  }
+}
