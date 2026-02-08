@@ -1,4 +1,4 @@
-import ansiColor, { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } from 'ansi-colors';
+import chalk, { type ChalkInstance } from 'chalk';
 
 import {
   Diagnostic,
@@ -10,12 +10,28 @@ import {
   PrintLine,
 } from '../../../declarations';
 
+// Re-export chalk color functions for convenience
+const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;
+
 /**
- * A type to capture the range of functions exported by the ansi-colors module
- * Unfortunately they don't make a type like this available directly, so we have
- * to do a little DIY.
+ * A type to capture chalk style names
  */
-type AnsiColorVariant = keyof typeof ansiColor.styles;
+type ChalkColorVariant = 'yellow' | 'red' | 'magenta' | 'green' | 'gray' | 'cyan' | 'blue' | 'bold' | 'dim';
+
+/**
+ * Map of color names to chalk functions for dynamic access
+ */
+const chalkColors: Record<ChalkColorVariant, ChalkInstance> = {
+  yellow: chalk.yellow,
+  red: chalk.red,
+  magenta: chalk.magenta,
+  green: chalk.green,
+  gray: chalk.gray,
+  cyan: chalk.cyan,
+  blue: chalk.blue,
+  bold: chalk.bold,
+  dim: chalk.dim,
+};
 
 /**
  * Create a logger for outputting information to a terminal environment
@@ -147,7 +163,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
   const timespanFinish = (
     finishMsg: string,
     timeSuffix: string,
-    colorName: AnsiColorVariant,
+    colorName: ChalkColorVariant,
     textBold: boolean,
     newLineSuffix: boolean,
     debug: boolean,
@@ -155,8 +171,8 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
   ) => {
     let msg = finishMsg;
 
-    if (colorName) {
-      msg = ansiColor[colorName](finishMsg);
+    if (colorName && chalkColors[colorName]) {
+      msg = chalkColors[colorName](finishMsg);
     }
     if (textBold) {
       msg = bold(msg);
@@ -195,7 +211,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
     const duration = () => Date.now() - start;
     const timeSpan: LoggerTimeSpan = {
       duration,
-      finish: (finishMsg, colorName: AnsiColorVariant, textBold, newLineSuffix) => {
+      finish: (finishMsg, colorName: ChalkColorVariant, textBold, newLineSuffix) => {
         const dur = duration();
         let time: string;
 
@@ -256,10 +272,10 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
 
   /**
    * Callback to enable / disable colored output in logs
-   * @param useColors the new value for the `enabled` toggle on ansi-color
+   * @param useColors whether to enable colors (chalk.level = 3) or disable (chalk.level = 0)
    */
   const enableColors = (useColors: boolean) => {
-    ansiColor.enabled = useColors;
+    chalk.level = useColors ? 3 : 0;
   };
 
   /**

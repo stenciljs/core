@@ -27,15 +27,12 @@ export default defineConfig({
         if (id.startsWith('node:')) return true;
         // Dependencies (not bundled)
         if (id === 'typescript' || id === 'terser' || id === 'parse5') return true;
-        if (id === '@stencil/mock-doc' || id === '@stencil/core/mock-doc') return true;
-        // Runtime externals
-        if (id === '@platform' || id.startsWith('@platform/')) return true;
-        if (id === '@runtime' || id.startsWith('@runtime/')) return true;
-        if (id === '@app-data' || id.startsWith('@app-data/')) return true;
-        if (id === '@app-globals' || id.startsWith('@app-globals/')) return true;
-        // Node packages
-        if (['resolve', 'chalk', 'glob', 'magic-string', 'ansi-colors', 'postcss', 'autoprefixer', 'rollup'].includes(id)) return true;
+        // Node packages (external dependencies)
+        // Note: ansi-colors/chalk bundled to avoid CJS interop issues
+        if (['resolve', 'glob', 'magic-string', 'postcss', 'autoprefixer', 'rollup'].includes(id)) return true;
         if (id.startsWith('@babel/') || id.startsWith('@rollup/')) return true;
+        // Note: @app-data, @platform, @runtime, @app-globals are NOT externalized
+        // They get resolved via aliases and bundled inline
         return false;
       },
       output: {
@@ -46,7 +43,6 @@ export default defineConfig({
   resolve: {
     alias: {
       // TODO: Replace these with relative imports
-      '@stencil/core/mock-doc': '@stencil/mock-doc', // Redirect old path to new package
       '@utils': resolve(__dirname, 'src/utils'),
       '@app-data': resolve(__dirname, 'src/app-data'),
       '@app-globals': resolve(__dirname, 'src/app-globals'),

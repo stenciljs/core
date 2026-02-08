@@ -19,9 +19,8 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         if (id.startsWith('node:')) return true;
-        if (id === '@platform' || id.startsWith('@platform/')) return true;
-        if (id === '@app-data' || id.startsWith('@app-data/')) return true;
-        if (id === '@app-globals' || id.startsWith('@app-globals/')) return true;
+        // Note: @platform, @app-data, @app-globals are NOT externalized
+        // They get resolved via aliases and bundled inline
         return false;
       },
       output: {
@@ -34,6 +33,8 @@ export default defineConfig({
       '@platform': resolve(__dirname, 'src/client'),
       '@runtime': resolve(__dirname, 'src/runtime'),
       '@utils': resolve(__dirname, 'src/utils'),
+      '@app-data': resolve(__dirname, 'src/app-data'),
+      '@app-globals': resolve(__dirname, 'src/app-globals'),
     },
   },
 });

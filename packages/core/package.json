@@ -10,6 +10,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./mock-doc": {
+      "import": "./dist/mock-doc.js"
+    },
     "./internal": "./dist/internal/index.js",
     "./internal/client": "./dist/internal/client/index.js",
     "./internal/server": "./dist/internal/server/index.js",
@@ -21,8 +24,13 @@
   ],
   "dependencies": {
     "@stencil/mock-doc": "workspace:*",
-    "typescript": "~5.8.3",
+    "chalk": "^5.6.2",
+    "glob": "^10.0.0",
+    "magic-string": "^0.30.0",
+    "parse5": "7.2.1",
+    "resolve": "^1.22.0",
+    "rollup": "^4.0.0",
     "terser": "5.37.0",
-    "parse5": "7.2.1"
+    "typescript": "~5.8.3"
   }
 }

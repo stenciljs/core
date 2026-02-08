@@ -1,4 +1,4 @@
-import { createDocument, serializeNodeToHtml } from '@stencil/core/mock-doc';
+import { createDocument, serializeNodeToHtml } from '@stencil/mock-doc';
 import { catchError, isFunction, isString } from '@utils';
 
 import type * as d from '../../declarations';

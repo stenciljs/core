@@ -1,4 +1,4 @@
-import { MockWindow } from '@stencil/core/mock-doc';
+import { MockWindow } from '@stencil/mock-doc';
 
 import type * as d from '../../declarations';
 import { renderBuildDiagnostic, renderCatchError } from './render-utils';

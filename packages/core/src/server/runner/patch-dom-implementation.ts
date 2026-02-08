@@ -1,4 +1,4 @@
-import { MockWindow, patchWindow } from '@stencil/core/mock-doc';
+import { MockWindow, patchWindow } from '@stencil/mock-doc';
 
 import type * as d from '../../declarations';
 

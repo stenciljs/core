@@ -1,4 +1,6 @@
-import { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } from 'ansi-colors';
+import chalk from 'chalk';
+
+const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;
 
 import { LOG_LEVELS, LogLevel } from '../../../../declarations';
 import { setupConsoleMocker } from '../../../../testing/testing-utils';
@@ -85,7 +87,7 @@ describe('terminal-logger', () => {
     });
 
     describe('color support', () => {
-      it('re-packages some ansi-colors functions', () => {
+      it('re-packages some chalk color functions', () => {
         const { logger } = setup();
         expect(logger.bgRed('test message')).toBe(bgRed('test message'));
         expect(logger.blue('test message')).toBe(blue('test message'));
@@ -113,7 +115,7 @@ describe('terminal-logger', () => {
         expect(logger.red('test message')).toBe('test message');
         expect(logger.yellow('test message')).toBe('test message');
         // This has to be re-enabled because this actually toggles
-        // a boolean declared inside of the ansi-colors module
+        // chalk.level which affects all subsequent color calls
         logger.enableColors(true);
       });
     });

@@ -258,9 +258,24 @@ importers:
       '@stencil/mock-doc':
         specifier: workspace:*
         version: link:../mock-doc
+      chalk:
+        specifier: ^5.6.2
+        version: 5.6.2
+      glob:
+        specifier: ^10.0.0
+        version: 10.5.0
+      magic-string:
+        specifier: ^0.30.0
+        version: 0.30.21
       parse5:
         specifier: 7.2.1
         version: 7.2.1
+      resolve:
+        specifier: ^1.22.0
+        version: 1.22.11
+      rollup:
+        specifier: ^4.0.0
+        version: 4.34.9
       terser:
         specifier: 5.37.0
         version: 5.37.0

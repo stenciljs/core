@@ -1,4 +1,4 @@
-import { cloneWindow, MockWindow } from '@stencil/core/mock-doc';
+import { cloneWindow, MockWindow } from '@stencil/mock-doc';
 
 const templateWindows = new Map<string, Window>();
 

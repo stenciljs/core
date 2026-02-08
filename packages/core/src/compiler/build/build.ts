@@ -1,4 +1,4 @@
-import { createDocument } from '@stencil/core/mock-doc';
+import { createDocument } from '@stencil/mock-doc';
 import { catchError, isString, readPackageJson } from '@utils';
 import ts from 'typescript';
 

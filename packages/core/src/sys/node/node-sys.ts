@@ -1,5 +1,4 @@
 import { isFunction, normalizePath } from '@utils';
-import { parse as parseYarnLockFile } from '@yarnpkg/lockfile';
 import { createHash } from 'crypto';
 import exit from 'exit';
 import fs from 'graceful-fs';
@@ -272,9 +271,6 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
           }
         });
       });
-    },
-    parseYarnLockFile(content: string) {
-      return parseYarnLockFile(content);
     },
     isTTY() {
       return !!process?.stdout?.isTTY;
