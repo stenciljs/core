@@ -18,7 +18,8 @@
     "./runtime/server": "./dist/runtime/server/index.js",
     "./runtime/app-data": "./dist/runtime/app-data/index.js",
     "./runtime/app-globals": "./dist/runtime/app-globals/index.js",
-    "./compiler/utils": "./dist/compiler/utils/index.js"
+    "./compiler/utils": "./dist/compiler/utils/index.js",
+    "./testing": "./dist/testing/index.js"
   },
   "files": [
     "dist/"

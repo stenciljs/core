@@ -41,7 +41,7 @@ const PACKAGES: PackageBuildConfig[] = [
       'vite.server.config.ts',
       'vite.app-data.config.ts',
       'vite.app-globals.config.ts',
-      'vite.compiler-utils.config.ts',
+      'vite.testing.config.ts',
     ],
   },
   { name: 'cli', packageDir: 'cli' },
