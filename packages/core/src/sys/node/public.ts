@@ -1,4 +1,4 @@
-import type { CompilerSystem, Logger } from '@stencil/core/runtime';
+import type { CompilerSystem, Logger } from '../../declarations';
 
 /**
  * Creates a "logger", based off of NodeJS APIs, that will be used by the compiler and dev-server.

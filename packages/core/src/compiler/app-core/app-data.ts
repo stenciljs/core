@@ -1,11 +1,11 @@
-import {
+import type {
   BuildConditionals,
   BuildFeatures,
   ComponentCompilerMeta,
   Module,
   ModuleMap,
   ValidatedConfig,
-} from '@stencil/core/runtime';
+} from '../../declarations';
 import { unique } from '../../utils';
 
 /**

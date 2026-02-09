@@ -90,6 +90,8 @@ const runPrerender = async (
     devServerConfig.reloadStrategy = null;
 
     const devServerPath = config.sys.getDevServerExecutingPath();
+    // TODO(v5): Replace dev-server with Vite dev server for pre-rendering
+    // @ts-ignore - dev-server module being removed
     const { start }: typeof import('@stencil/core/dev-server') = await config.sys.dynamicImport(devServerPath);
     const devServer = await start(devServerConfig, config.logger);
 

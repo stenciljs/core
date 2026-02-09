@@ -5,7 +5,7 @@ import type {
   TranspileOptions,
   TranspileResults,
   ValidatedConfig,
-} from '@stencil/core/runtime';
+} from '../declarations';
 import { catchError, getInlineSourceMappingUrlLinker, isString } from '../utils';
 
 import { getTranspileConfig, getTranspileCssConfig, getTranspileResults } from './config/transpile-options';

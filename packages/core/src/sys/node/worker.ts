@@ -1,4 +1,4 @@
-import * as coreCompiler from '@stencil/core/compiler';
+import * as coreCompiler from '../../compiler';
 import * as nodeApi from './';
 
 import { initNodeWorkerThread } from './node-worker-thread';

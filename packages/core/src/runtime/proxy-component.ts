@@ -30,7 +30,6 @@ export const proxyComponent = (
 
   if (BUILD.isTesting) {
     if (prototype.__stencilAugmented) {
-      // @ts-expect-error - we don't want to re-augment the prototype. This happens during spec tests.
       return;
     }
     prototype.__stencilAugmented = true;

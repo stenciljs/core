@@ -19,7 +19,6 @@ export default defineConfig({
       },
     }),
     dts({
-      tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
       outDir: 'dist/runtime/server',
       entryRoot: 'src/server',
       include: ['src/server/**/*.ts'],

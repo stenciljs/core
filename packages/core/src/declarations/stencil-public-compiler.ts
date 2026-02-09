@@ -1,5 +1,5 @@
 import type { ConfigFlags } from '@stencil/cli';
-import type { PrerenderUrlResults, PrintLine } from '../internal';
+import type { PrerenderUrlResults, PrintLine } from './stencil-private';
 import type { BuildCtx, CompilerCtx } from './stencil-private';
 import type { JsonDocs } from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';

@@ -1,4 +1,4 @@
-import type * as d from '@stencil/core/declarations';
+import type * as d from '../../declarations';
 
 import { NODE_TYPE } from '../runtime-constants';
 import { newVNode } from './h';

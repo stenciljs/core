@@ -116,13 +116,13 @@ async function generateDeclarations(pkg: PackageBuildConfig) {
       break;
 
     case 'tsc': {
-      const tsconfigPath = resolve(packagePath, 'tsconfig.build.json');
+      const tsconfigPath = resolve(packagePath, 'tsconfig.json');
       if (!fs.existsSync(tsconfigPath)) {
-        console.log(`  ⚠️  ${pkg.name}: no tsconfig.build.json, skipping`);
+        console.log(`  ⚠️  ${pkg.name}: no tsconfig.json, skipping`);
         return;
       }
       try {
-        execSync(`npx tsc --project tsconfig.build.json`, {
+        execSync(`npx tsc --project tsconfig.json`, {
           cwd: packagePath,
           stdio: 'pipe',
         });

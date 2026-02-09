@@ -8,7 +8,6 @@ import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
 import postcss from 'postcss';
-// @ts-expect-error - including `@types` for postcss-safe-parser breaks Stencil's type build
 import postcssSafeParser from 'postcss-safe-parser';
 import postcssSelectorParser from 'postcss-selector-parser';
 import { TRANSFORM_TAG } from './core-runtime-apis';
