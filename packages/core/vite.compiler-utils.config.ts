@@ -35,7 +35,7 @@ export default defineConfig({
     },
     outDir: 'dist/compiler/utils',
     emptyOutDir: true,
-    sourcemap: !!process.env.DEBUG,
+    sourcemap: true,
     target: 'node18',
     rollupOptions: {
       external: [

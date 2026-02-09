@@ -16,7 +16,7 @@ export default defineConfig({
     },
     outDir: 'dist/runtime/app-data',
     emptyOutDir: true,
-    sourcemap: !!process.env.DEBUG,
+    sourcemap: true,
     target: ['es2022', 'chrome79', 'edge79', 'firefox70', 'safari14'],
     rollupOptions: {
       external: (id) => {

@@ -36,7 +36,7 @@ export default defineConfig({
     },
     outDir: 'dist/testing',
     emptyOutDir: false,
-    sourcemap: !!process.env.DEBUG,
+    sourcemap: true,
     target: 'node18',
     rollupOptions: {
       external: (id) => {
