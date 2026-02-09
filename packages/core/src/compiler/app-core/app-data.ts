@@ -5,7 +5,7 @@ import {
   Module,
   ModuleMap,
   ValidatedConfig,
-} from '@stencil/core/internal';
+} from '@stencil/core/runtime';
 import { unique } from '@utils';
 
 /**

@@ -38,20 +38,20 @@ try {
   console.log('   ❌ Import failed:', error.message);
 }
 
-// Test core internal (runtime)
-console.log('\n📦 Testing @stencil/core/internal...');
+// Test core runtime
+console.log('\n📦 Testing @stencil/core/runtime...');
 try {
-  const internal = await import('./packages/core/dist/internal/index.js');
-  console.log('   ✅ Internal imported successfully');
-  console.log(`   ✅ Exports: ${Object.keys(internal).slice(0, 5).join(', ')}...`);
+  const runtime = await import('./packages/core/dist/runtime/index.js');
+  console.log('   ✅ Runtime imported successfully');
+  console.log(`   ✅ Exports: ${Object.keys(runtime).slice(0, 5).join(', ')}...`);
 } catch (error) {
   console.log('   ❌ Import failed:', error.message);
 }
 
 // Test core client runtime
-console.log('\n📦 Testing @stencil/core/internal/client...');
+console.log('\n📦 Testing @stencil/core/runtime/client...');
 try {
-  const client = await import('./packages/core/dist/internal/client/index.js');
+  const client = await import('./packages/core/dist/runtime/client/index.js');
   console.log('   ✅ Client runtime imported successfully');
   console.log(`   ✅ Exports: ${Object.keys(client).slice(0, 5).join(', ')}...`);
 } catch (error) {

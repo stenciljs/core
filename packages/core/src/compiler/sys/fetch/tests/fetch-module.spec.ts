@@ -24,9 +24,9 @@ describe('fetch module', () => {
 
     it('cdn w/out version', () => {
       compilerExe = 'https://cdn.jsdelivr.net/npm/@stencil/core/compiler/stencil.js';
-      const p = '/node_modules/@stencil/core/internal/client/index.mjs';
+      const p = '/node_modules/@stencil/core/runtime/client/index.mjs';
       const m = getStencilModuleUrl(compilerExe, p);
-      expect(m).toBe('https://cdn.jsdelivr.net/npm/@stencil/core/internal/client/index.mjs');
+      expect(m).toBe('https://cdn.jsdelivr.net/npm/@stencil/core/runtime/client/index.mjs');
     });
 
     it('local w/out version w/out node_module prefix', () => {

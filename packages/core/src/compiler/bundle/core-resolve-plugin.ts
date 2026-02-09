@@ -55,14 +55,14 @@ export const coreResolvePlugin = (
       if (id === STENCIL_INTERNAL_CLIENT_ID) {
         if (externalRuntime) {
           // not bundling the client runtime and the user's component together this
-          // must be the custom elements build, where @stencil/core/internal/client
+          // must be the custom elements build, where @stencil/core/runtime/client
           // is an import, rather than bundling
           return {
             id: STENCIL_INTERNAL_CLIENT_ID,
             external: true,
           };
         }
-        // importing @stencil/core/internal/client directly, so it shouldn't get
+        // importing @stencil/core/runtime/client directly, so it shouldn't get
         // the custom app-data conditionals
         return internalClient;
       }
@@ -134,13 +134,13 @@ export const getStencilInternalModule = (config: d.ValidatedConfig, compilerExe:
       config.sys.getLocalModulePath({
         rootDir: config.rootDir,
         moduleId: '@stencil/core',
-        path: 'internal/' + internalModule,
+        path: 'runtime/' + internalModule,
       }),
     );
   }
 
   const compilerExeDir = dirname(compilerExe);
-  return normalizePath(join(compilerExeDir, '..', 'internal', internalModule));
+  return normalizePath(join(compilerExeDir, '..', 'runtime', internalModule));
 };
 
 export const getHydratedFlagHead = (h: d.HydratedFlag) => {

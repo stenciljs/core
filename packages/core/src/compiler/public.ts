@@ -17,7 +17,7 @@ import type {
   PrerenderStartOptions,
   TranspileOptions,
   TranspileResults,
-} from '@stencil/core/internal';
+} from '@stencil/core/runtime';
 
 export { transpile, transpileSync } from './transpile';
 

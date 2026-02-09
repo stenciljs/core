@@ -47,7 +47,7 @@ export default defineConfig({
       '@app-data': resolve(__dirname, 'src/app-data'),
       '@app-globals': resolve(__dirname, 'src/app-globals'),
       '@stencil/core/compiler': resolve(__dirname, 'src/compiler'),
-      '@stencil/core/internal': resolve(__dirname, 'src/runtime'),
+      '@stencil/core/runtime': resolve(__dirname, 'src/runtime'),
       '@platform': resolve(__dirname, 'src/client'),
       '@runtime': resolve(__dirname, 'src/runtime'),
       '@sys-api-node': resolve(__dirname, 'src/sys/node'),

@@ -1,4 +1,4 @@
-import type * as d from '@stencil/core/internal';
+import type * as d from '@stencil/core/runtime';
 import { isIterable, isString, normalizePath, relative } from '@utils';
 import { basename, dirname } from 'path';
 

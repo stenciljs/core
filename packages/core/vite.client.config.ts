@@ -2,17 +2,17 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 /**
- * Build config for internal/client/index.js (browser runtime)
+ * Build config for runtime/client/index.js (browser runtime)
  */
 export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/client/index.ts'),
-      name: '@stencil/core/internal/client',
+      name: '@stencil/core/runtime/client',
       formats: ['es'],
       fileName: () => 'index.js',
     },
-    outDir: 'dist/internal/client',
+    outDir: 'dist/runtime/client',
     emptyOutDir: true,
     sourcemap: !!process.env.DEBUG,
     target: ['es2022', 'chrome79', 'edge79', 'firefox70', 'safari14'],
@@ -26,8 +26,8 @@ export default defineConfig({
       output: {
         preserveModules: false,
         paths: {
-          '@app-data': '@stencil/core/internal/app-data',
-          '@app-globals': '@stencil/core/internal/app-globals',
+          '@app-data': '@stencil/core/runtime/app-data',
+          '@app-globals': '@stencil/core/runtime/app-globals',
           '@utils/shadow-css': './shadow-css.js',
         },
       },

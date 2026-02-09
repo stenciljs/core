@@ -1,6 +1,6 @@
 // Export automatic JSX runtime for testing
 // This file allows TypeScript's automatic JSX transform to work in tests
-// when using jsxImportSource: "@stencil/core/internal/testing"
+// when using jsxImportSource: "@stencil/core/runtime/testing"
 const testing = require('./index.js');
 module.exports = {
   jsx: testing.jsx,

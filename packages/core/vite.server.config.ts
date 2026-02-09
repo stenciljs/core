@@ -2,8 +2,8 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 /**
- * Build config for internal/server/index.js (SSR/hydration runtime)
- * 
+ * Build config for runtime/server/index.js (SSR/hydration runtime)
+ *
  * v5 breaking change: hydrate → server (clearer naming)
  */
 export default defineConfig({
@@ -11,11 +11,11 @@ export default defineConfig({
     ssr: true,
     lib: {
       entry: resolve(__dirname, 'src/server/platform/index.ts'),
-      name: '@stencil/core/internal/server',
+      name: '@stencil/core/runtime/server',
       formats: ['es'],
       fileName: () => 'index.js',
     },
-    outDir: 'dist/internal/server',
+    outDir: 'dist/runtime/server',
     emptyOutDir: true,
     sourcemap: !!process.env.DEBUG,
     target: 'node18',

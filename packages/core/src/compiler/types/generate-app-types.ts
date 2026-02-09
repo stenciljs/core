@@ -93,7 +93,7 @@ const generateComponentTypesFile = (
   });
 
   c.push(COMPONENTS_DTS_HEADER);
-  c.push(`import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";`);
+  c.push(`import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";`);
 
   // Generate import and export statements for type dependencies
   const imports: string[] = [];

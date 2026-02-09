@@ -36,7 +36,7 @@ const PACKAGES: PackageBuildConfig[] = [
     packageDir: 'core',
     additionalConfigs: [
       'vite.compiler-utils.config.ts',
-      'vite.internal.config.ts',
+      'vite.runtime.config.ts',
       'vite.client.config.ts',
       'vite.server.config.ts',
       'vite.app-data.config.ts',
@@ -143,21 +143,21 @@ async function copyExistingCoreDeclarations() {
   const coreDistDir = resolve(PACKAGES_DIR, 'core/dist');
 
   // Ensure dist directories exist
-  await fs.ensureDir(resolve(coreDistDir, 'internal'));
-  await fs.ensureDir(resolve(coreDistDir, 'internal/client'));
-  await fs.ensureDir(resolve(coreDistDir, 'internal/server'));
-  await fs.ensureDir(resolve(coreDistDir, 'internal/app-data'));
-  await fs.ensureDir(resolve(coreDistDir, 'internal/app-globals'));
+  await fs.ensureDir(resolve(coreDistDir, 'runtime'));
+  await fs.ensureDir(resolve(coreDistDir, 'runtime/client'));
+  await fs.ensureDir(resolve(coreDistDir, 'runtime/server'));
+  await fs.ensureDir(resolve(coreDistDir, 'runtime/app-data'));
+  await fs.ensureDir(resolve(coreDistDir, 'runtime/app-globals'));
 
   // Copy bundled declaration files
   const declarationsToCopy = [
-    // Main types (re-export from internal)
-    { src: 'internal/index.d.ts', dest: 'index.d.ts' },
-    // Internal types
-    { src: 'internal/index.d.ts', dest: 'internal/index.d.ts' },
-    { src: 'internal/stencil-private.d.ts', dest: 'internal/stencil-private.d.ts' },
-    { src: 'internal/stencil-public-compiler.d.ts', dest: 'internal/stencil-public-compiler.d.ts' },
-    { src: 'internal/stencil-public-runtime.d.ts', dest: 'internal/stencil-public-runtime.d.ts' },
+    // Main types (re-export from runtime)
+    { src: 'runtime/index.d.ts', dest: 'index.d.ts' },
+    // Runtime types
+    { src: 'runtime/index.d.ts', dest: 'runtime/index.d.ts' },
+    { src: 'runtime/stencil-private.d.ts', dest: 'runtime/stencil-private.d.ts' },
+    { src: 'runtime/stencil-public-compiler.d.ts', dest: 'runtime/stencil-public-compiler.d.ts' },
+    { src: 'runtime/stencil-public-runtime.d.ts', dest: 'runtime/stencil-public-runtime.d.ts' },
   ];
 
   for (const { src, dest } of declarationsToCopy) {
@@ -170,10 +170,10 @@ async function copyExistingCoreDeclarations() {
 
   // Create stub declarations for runtime bundles
   const stubs = [
-    { path: 'internal/client/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
-    { path: 'internal/server/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
-    { path: 'internal/app-data/index.d.ts', content: 'export * from "../stencil-private";\n' },
-    { path: 'internal/app-globals/index.d.ts', content: 'export {};\n' },
+    { path: 'runtime/client/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
+    { path: 'runtime/server/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
+    { path: 'runtime/app-data/index.d.ts', content: 'export * from "../stencil-private";\n' },
+    { path: 'runtime/app-globals/index.d.ts', content: 'export {};\n' },
   ];
 
   for (const { path, content } of stubs) {

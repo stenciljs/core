@@ -257,7 +257,7 @@ globalScripts();
         addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-import { transformTag } from '@stencil/core/internal/client';
+import { transformTag } from '@stencil/core/runtime/client';
 import { StubCmp } from '\0StubCmp';
 import { MyBestComponent } from '\0MyBestComponent';
 export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';

@@ -2,17 +2,17 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 /**
- * Build config for internal/index.js (type definitions)
+ * Build config for runtime/index.js (type definitions)
  */
 export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/runtime/index.ts'),
-      name: '@stencil/core/internal',
+      name: '@stencil/core/runtime',
       formats: ['es'],
       fileName: () => 'index.js',
     },
-    outDir: 'dist/internal',
+    outDir: 'dist/runtime',
     emptyOutDir: false,
     sourcemap: !!process.env.DEBUG,
     target: ['es2022', 'chrome79', 'edge79', 'firefox70', 'safari14'],

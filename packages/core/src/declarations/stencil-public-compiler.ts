@@ -3049,7 +3049,7 @@ export interface TranspileOptions {
   componentMetadata?: 'runtimestatic' | 'compilerstatic' | string | undefined;
   /**
    * The actual internal import path for any `@stencil/core` imports.
-   * Default is `@stencil/core/internal/client`.
+   * Default is `@stencil/core/runtime/client`.
    */
   coreImportPath?: string;
   /**
