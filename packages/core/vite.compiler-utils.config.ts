@@ -28,6 +28,7 @@ export default defineConfig({
       ],
       output: {
         preserveModules: false,
+        entryFileNames: 'index.js',
       },
     },
   },

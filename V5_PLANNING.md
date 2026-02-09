@@ -27,10 +27,9 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - ✅ Built prototype
 - ✅ All packages build with Vite
 - ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
-- ⏳ Rename internal → runtime (bulk find/replace across codebase)
+- ✅ Renamed internal → runtime (public API change)
 - ⏳ Fix type generation (use tsc + dts-bundle-generator properly)
 - ⏳ Remove build-time aliases (@utils, @app-data, etc.) - convert to relative imports
-- ⏳ Type generation
 
 ### 4. 📦 Mono-repo Restructure  
 **Status:** ✅ Complete
@@ -41,10 +40,12 @@ packages/
 └── mock-doc/    @stencil/mock-doc
 ```
 
-### 4. Document ALL BREAKING CHANGES
+### 5. Document ALL BREAKING CHANGES
 
-- `internal/hydrate` → `internal/server` 
-- REMOVED `internal/testing`
+- `@stencil/core/internal` → `@stencil/core/runtime`
+- `@stencil/core/internal/client` → `@stencil/core/runtime/client`
+- `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
+- REMOVED `@stencil/core/internal/testing`
 - REMOVED `@stencil/core/testing`
 - `@stencil/core/cli` → `@stencil/cli`
 
@@ -64,7 +65,7 @@ packages/
 │   │   └── utils/      (Shared utilities)
 │   ├── dist/
 │   │   ├── index.js           (compiler)
-│   │   └── runtime/           (runtime bundles - to be renamed)
+│   │   └── runtime/           (runtime bundles)
 │   │       ├── index.js
 │   │       ├── client/
 │   │       ├── server/
@@ -97,52 +98,11 @@ packages/
 
 ## Immediate Tasks
 
-### ⏳ Rename internal → runtime
-Current structure uses confusing "internal" naming. Need to rename:
-
-**Directories:**
-- `packages/core/src/internal/` → `packages/core/src/runtime/`
-- `packages/core/dist/internal/` → `packages/core/dist/runtime/`
-
-**Package exports (package.json):**
-- `@stencil/core/internal` → `@stencil/core/runtime`
-- `@stencil/core/internal/client` → `@stencil/core/runtime/client`
-- `@stencil/core/internal/server` → `@stencil/core/runtime/server`
-- etc.
-
-**Code changes (find/replace in all files):**
-- Import statements: `from '@stencil/core/internal'` → `from '@stencil/core/runtime'`
-- Build aliases: `@internal` → `@runtime` (in vite configs)
-- Path references in build scripts and configs
-
-**Files to update:**
-- All `.ts`, `.tsx` files (imports)
-- All `vite.*.config.ts` (aliases, output paths)
-- `build-vite.ts` (output path handling)
-- `packages/core/package.json` (exports map)
-- Documentation/comments mentioning "internal"
-
-### ⏳ Fix CLI/Core shared dependencies
-CLI currently uses build-time aliases to hack into core's source:
-```typescript
-// packages/cli/vite.config.ts - CURRENT (WRONG)
-alias: {
-  '@utils': resolve(__dirname, '../core/src/utils'),
-}
-```
-
-**Problem:** CLI imports ~20 utils from core (buildError, isString, normalizePath, result, etc.)
-
-**Solution:** Export properly from core:
-```typescript
-// packages/core/package.json
-"exports": {
-  "./compiler/utils": "./dist/compiler/utils/index.js"
-}
-```
-
 ### ⏳ Fix type generation
 Currently using fallback/stub instead of proper `tsc` + `dts-bundle-generator`
+
+### ⏳ Remove build-time aliases
+Convert `@utils`, `@app-data`, etc. to relative imports
 
 ---
 
@@ -195,13 +155,24 @@ Total:     ~4.3s
 ```
 
 Runtime bundles:
-- `internal/index.js` - 97.95 kB (type exports)
-- `internal/client/` - 103.27 kB (browser runtime)
-- `internal/server/` - 185.55 kB (SSR/hydration)
-- `internal/app-data/` - 2.25 kB (build conditionals)
-- `internal/app-globals/` - 0.13 kB (global state)
+- `runtime/index.js` - 53.73 kB (type exports)
+- `runtime/client/` - 103.26 kB (browser runtime)
+- `runtime/server/` - 185.55 kB (SSR/hydration)
+- `runtime/app-data/` - 2.25 kB (build conditionals)
+- `runtime/app-globals/` - 0.13 kB (global state)
 
 ---
 
-*Last updated: 2026-02-08 Session 6*
+## ⚠️ Notes for Future Agents
+
+**All v5 changes should be made in `packages/` only.**
+
+The root `src/` directory is a v4 reference/dummy and should NOT be modified unless explicitly instructed. The v5 source of truth is:
+- `packages/core/src/` - compiler and runtime
+- `packages/cli/src/` - CLI
+- `packages/mock-doc/src/` - mock-doc
+
+---
+
+*Last updated: 2026-02-09 Session 7*
 
