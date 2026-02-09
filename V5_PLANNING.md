@@ -41,6 +41,13 @@ packages/
 └── mock-doc/    @stencil/mock-doc
 ```
 
+### 4. Document ALL BREAKING CHANGES
+
+- `internal/hydrate` → `internal/server` 
+- REMOVED `internal/testing`
+- REMOVED `@stencil/core/testing`
+- `@stencil/core/cli` → `@stencil/cli`
+
 ---
 
 ## Current v5 Architecture
