@@ -1,7 +1,7 @@
 import { generatePreamble, join, relativeImport } from '../../../utils';
 import type { OutputOptions, RollupBuild } from 'rollup';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getAppBrowserCorePolyfills } from '../../app-core/app-polyfills';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';

@@ -1,6 +1,6 @@
 import { normalizePath } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 
 const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mts', '.cts', '.mjs', '.js', '.cjs', '.jsx', '.json', '.md'];
 

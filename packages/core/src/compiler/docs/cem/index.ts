@@ -1,6 +1,6 @@
 import { dashToPascalCase, isOutputTargetDocsCustomElementsManifest } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Generate Custom Elements Manifest (custom-elements.json) output

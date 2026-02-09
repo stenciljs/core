@@ -9,7 +9,7 @@ import {
   writeTask,
 } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
 import { createTime } from './profile';

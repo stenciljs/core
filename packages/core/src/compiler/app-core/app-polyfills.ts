@@ -1,6 +1,6 @@
 import { join } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const getClientPolyfill = async (
   config: d.ValidatedConfig,

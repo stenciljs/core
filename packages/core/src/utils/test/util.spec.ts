@@ -2,7 +2,7 @@ import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import * as util from '../index';
 
 import { getTextDocs } from '../util';
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { stubDiagnostic } from '../../dev-server/test/Diagnostic.stub';
 
 describe('util', () => {

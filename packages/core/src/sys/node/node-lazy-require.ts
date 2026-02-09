@@ -5,7 +5,7 @@ import semverLte from 'semver/functions/lte';
 import major from 'semver/functions/major';
 import satisfies from 'semver/functions/satisfies';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { NodeResolveModule } from './node-resolve-module';
 
 /**

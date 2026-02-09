@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { isMethod } from '../transform-utils';
 
 export const parseClassMethods = (classMethods: ts.MethodDeclaration[], cmpMeta: d.ComponentCompilerMeta) => {

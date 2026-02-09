@@ -1,6 +1,6 @@
 import { getHostRef } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
 

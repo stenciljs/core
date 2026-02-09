@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { ValidatedConfig } from '../../../../declarations';
+import { ValidatedConfig } from '@stencil/core';
 import { mockValidatedConfig } from '../../../../testing/mocks';
 import { createTestingSystem, TestingSystem } from '../../../../testing/testing-sys';
 import * as tsConfig from '../typescript-config';

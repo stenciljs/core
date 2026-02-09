@@ -1,6 +1,6 @@
-import { isOutputTargetHydrate, WWW } from '@stencil/core/compiler/utils';
+import { isOutputTargetHydrate, isOutputTargetWww } from '@stencil/core/compiler/utils';
 
-import type * as d from '@stencil/core/declarations';
+import type * as d from '@stencil/core';
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';
@@ -94,7 +94,7 @@ export async function telemetryAction(
  */
 export function hasAppTarget(config: d.ValidatedConfig): boolean {
   return config.outputTargets.some(
-    (target) => target.type === WWW && (!!target.serviceWorker || (!!target.baseUrl && target.baseUrl !== '/')),
+    (target) => isOutputTargetWww(target) && (!!target.serviceWorker || (!!target.baseUrl && target.baseUrl !== '/')),
   );
 }
 

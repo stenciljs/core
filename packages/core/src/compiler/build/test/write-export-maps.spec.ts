@@ -1,7 +1,7 @@
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import childProcess from 'child_process';
 
-import * as d from '../../../declarations';
+import * as d from '@stencil/core';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import { writeExportMaps } from '../write-export-maps';
 

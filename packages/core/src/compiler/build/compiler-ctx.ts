@@ -1,7 +1,7 @@
 import { join, noop, normalizePath } from '../../utils';
 import { basename, dirname, extname } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { buildEvents } from '../events';
 import { InMemoryFileSystem } from '../sys/in-memory-fs';
 

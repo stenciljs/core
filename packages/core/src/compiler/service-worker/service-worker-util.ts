@@ -1,6 +1,6 @@
 import { relative } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const generateServiceWorkerUrl = (outputTarget: d.OutputTargetWww, serviceWorker: d.ServiceWorkerConfig) => {
   let swUrl = relative(outputTarget.appDir, serviceWorker.swDest);

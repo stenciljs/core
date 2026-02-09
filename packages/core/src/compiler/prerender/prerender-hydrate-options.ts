@@ -1,6 +1,6 @@
 import { catchError } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const getHydrateOptions = (prerenderConfig: d.PrerenderConfig, url: URL, diagnostics: d.Diagnostic[]) => {
   const prerenderUrl = url.href;

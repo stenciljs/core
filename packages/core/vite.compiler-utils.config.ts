@@ -20,7 +20,7 @@ export default defineConfig({
     dts({
       outDir: 'dist/compiler/utils',
       entryRoot: 'src/utils',
-      include: ['src/utils/compiler-exports.ts'],
+      include: ['src/utils/**/*.ts'],
       exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
     }),
   ],

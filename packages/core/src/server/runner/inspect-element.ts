@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export function inspectElement(results: d.HydrateResults, elm: Element, depth: number) {
   const children = [...Array.from(elm.children), ...Array.from(elm.shadowRoot ? elm.shadowRoot.children : [])];

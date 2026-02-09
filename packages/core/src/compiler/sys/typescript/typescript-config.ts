@@ -11,7 +11,7 @@ import {
 import { isAbsolute } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 
 export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.CompilerSystem, init: d.LoadConfigInit) => {
   const tsconfig = {

@@ -1,7 +1,7 @@
 import { isString, join } from '../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { generateHashedCopy } from '../output-targets/copy/hashed-copy';
 import { getAbsoluteBuildDir } from './html-utils';
 import { injectModulePreloads } from './inject-module-preloads';

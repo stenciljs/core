@@ -1,7 +1,7 @@
 import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
 import { minimatch } from 'minimatch';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { canSkipAssetsCopy, getComponentAssetsCopyTasks } from './assets-copy-tasks';
 import { getDestAbsPath, getSrcAbsPath } from './local-copy-tasks';
 

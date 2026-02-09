@@ -1,6 +1,6 @@
 import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { validateConfig } from '../../config/validate-config';
 import { getCustomElementsBuildConditionals } from '../dist-custom-elements/custom-elements-build-conditionals';
 import { getHydrateBuildConditionals } from '../dist-hydrate-script/hydrate-build-conditionals';

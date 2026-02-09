@@ -10,7 +10,7 @@ import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
 import { parseStaticSerializers } from './serializers';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 
 type DeDupeMember =

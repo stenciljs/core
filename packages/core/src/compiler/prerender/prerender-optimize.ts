@@ -1,6 +1,6 @@
 import { catchError, flatOne, isString, join, unique } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { injectModulePreloads } from '../html/inject-module-preloads';
 import { minifyCss } from '../optimize/minify-css';
 import { optimizeCss } from '../optimize/optimize-css';

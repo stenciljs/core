@@ -1,4 +1,4 @@
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import ts from 'typescript';
 
 import { HOST_REF_ARG } from './constants';

@@ -2,7 +2,7 @@ import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, un
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { addComponentMetaStatic } from '../add-component-meta-static';
 import { setComponentBuildConditionals } from '../component-build-conditionals';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';

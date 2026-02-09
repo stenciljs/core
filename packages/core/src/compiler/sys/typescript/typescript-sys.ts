@@ -2,7 +2,7 @@ import { isRemoteUrl, isString, noop, normalizePath, resolve } from '../../../ut
 import { basename } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { IS_CASE_SENSITIVE_FILE_NAMES } from '../environment';
 import { InMemoryFileSystem } from '../in-memory-fs';
 

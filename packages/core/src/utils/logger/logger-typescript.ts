@@ -1,6 +1,6 @@
 import type { Diagnostic, DiagnosticMessageChain, Node } from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { isIterable } from '../helpers';
 import { normalizePath } from '../path';
 import { splitLineBreaks } from './logger-utils';

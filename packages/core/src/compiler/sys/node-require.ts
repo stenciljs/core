@@ -1,7 +1,7 @@
 import { catchError, loadTypeScriptDiagnostic } from '../../utils';
 import ts from 'typescript';
 
-import type { Diagnostic } from '../../declarations';
+import type { Diagnostic } from '@stencil/core';
 
 export const nodeRequire = (id: string) => {
   const results = {

@@ -1,6 +1,6 @@
 import { BUILD } from 'virtual:app-data';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { consoleDevError, consoleError } from './client-log';
 
 export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();

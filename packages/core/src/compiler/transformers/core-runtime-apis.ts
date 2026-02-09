@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const CREATE_EVENT = '__stencil_createEvent';
 export const DEFINE_CUSTOM_ELEMENT = '__stencil_defineCustomElement';

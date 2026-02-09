@@ -1,7 +1,7 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { initializeClientHydrate } from '../client-hydrate';
 
 describe('initializeClientHydrate', () => {

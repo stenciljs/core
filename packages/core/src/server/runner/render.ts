@@ -14,7 +14,7 @@ import type {
   HydrateFactoryOptions,
   HydrateResults,
   SerializeDocumentOptions,
-} from '../../declarations';
+} from '@stencil/core';
 import { inspectElement } from './inspect-element';
 import { patchDomImplementation } from './patch-dom-implementation';
 import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';

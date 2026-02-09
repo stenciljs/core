@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { updateLazyComponentConstructor } from '../component-lazy/lazy-constructor';
 import { addLazyElementGetter } from '../component-lazy/lazy-element-getter';
 import { transformHostData } from '../host-data-transform';

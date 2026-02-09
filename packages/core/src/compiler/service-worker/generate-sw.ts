@@ -1,7 +1,7 @@
 import { buildWarn, catchError, isOutputTargetWww } from '../../utils';
 import { basename } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const generateServiceWorker = async (
   config: d.ValidatedConfig,

@@ -6,7 +6,7 @@ import {
 import { relative } from '../../utils';
 import { execSync } from 'child_process';
 
-import * as d from '../../declarations';
+import * as d from '@stencil/core';
 import { PRIMARY_PACKAGE_TARGET_CONFIGS } from '../types/validate-primary-package-output-target';
 
 /**

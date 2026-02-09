@@ -1,7 +1,7 @@
 import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
 
 import type * as d from '@stencil/core';
-import { ValidatedConfig } from '@stencil/core/declarations';
+import { ValidatedConfig } from '@stencil/core';
 import { createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
 import { CoreCompiler, loadCoreCompiler } from './load-compiler';
@@ -15,7 +15,6 @@ import { taskInfo } from './task-info';
 import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
 import { taskTelemetry } from './task-telemetry';
-import { taskTest } from './task-test';
 import { telemetryAction } from './telemetry/telemetry';
 
 /**
@@ -167,10 +166,6 @@ export const runTask = async (
 
     case 'telemetry':
       await taskTelemetry(strictConfig.flags, sys, strictConfig.logger);
-      break;
-
-    case 'test':
-      await taskTest(strictConfig);
       break;
 
     case 'version':

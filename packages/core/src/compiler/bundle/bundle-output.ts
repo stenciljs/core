@@ -5,7 +5,7 @@ import rollupReplacePlugin from '@rollup/plugin-replace';
 import { createOnWarnFn, isString, loadRollupDiagnostics } from '../../utils';
 import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
 import type { BundleOptions } from './bundle-interface';

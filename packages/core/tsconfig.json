@@ -29,7 +29,8 @@
     "paths": {
       "virtual:app-data": ["./src/app-data/index.ts"],
       "virtual:app-globals": ["./src/app-globals/index.ts"],
-      "virtual:platform": ["./src/client/index.ts"]
+      "virtual:platform": ["./src/client/index.ts"],
+      "@stencil/core": ["./src/declarations/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

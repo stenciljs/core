@@ -1,6 +1,6 @@
 import { isFunction } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '@stencil/core/declarations';
+import type { ValidatedConfig } from '@stencil/core';
 
 /**
  * Retrieve a reference to the active `CompilerSystem`'s `checkVersion` function

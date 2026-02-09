@@ -1,7 +1,7 @@
 import { normalizePath } from '../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Helper function for retrieving a Stencil {@link d.Module} from the provided compiler context

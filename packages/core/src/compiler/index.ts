@@ -14,4 +14,6 @@ export { createWorkerContext } from './worker/worker-thread';
 export { createWorkerMessageHandler } from './worker/worker-thread';
 export { ts };
 export { validateConfig } from './config/validate-config';
-export { LOG_LEVELS } from '../declarations/stencil-public-compiler';
+
+// Public declarations/types
+export * from '@stencil/core';

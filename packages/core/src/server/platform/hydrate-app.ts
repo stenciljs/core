@@ -3,7 +3,7 @@ import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setSc
 import { connectedCallback, insertVdomAnnotations } from '../../runtime';
 import { CMP_FLAGS } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { proxyHostElement } from './proxy-host-element';
 
 export function hydrateApp(

@@ -1,7 +1,7 @@
 import { DEFAULT_STYLE_MODE, isString, relative } from '../../utils';
 import { basename, dirname, isAbsolute } from 'path';
 
-import type { ImportData, ParsedImport, SerializeImportData } from '../../declarations';
+import type { ImportData, ParsedImport, SerializeImportData } from '@stencil/core';
 
 /**
  * Serialize data about a style import to an annotated path, where

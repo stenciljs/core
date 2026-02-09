@@ -1,7 +1,7 @@
 import { buildError, buildJsonFileError, isOutputTargetWww, join } from '../../utils';
 import { dirname } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const validateManifestJson = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (config.devMode) {

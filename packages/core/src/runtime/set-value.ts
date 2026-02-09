@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, consoleError, getHostRef } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';

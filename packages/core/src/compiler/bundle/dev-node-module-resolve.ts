@@ -2,7 +2,7 @@ import { join, relative } from '../../utils';
 import { basename, dirname } from 'path';
 import { ResolveIdResult } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from '../sys/in-memory-fs';
 import { DEV_MODULE_DIR } from './constants';
 

@@ -2,7 +2,7 @@ import sourceMapMerge from 'merge-source-map';
 import type { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOptions, SourceMapOptions } from 'terser';
 import ts from 'typescript';
 
-import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedConfig } from '../../declarations';
+import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedConfig } from '@stencil/core';
 import { minfyJsId } from '../../version';
 import { minifyJs } from './minify-js';
 

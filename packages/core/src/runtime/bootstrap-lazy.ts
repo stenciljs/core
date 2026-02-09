@@ -2,7 +2,7 @@ import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from 'virtual:platform';
 import { addHostEventListeners } from './';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
 import { createShadowRoot } from '../utils/shadow-root';

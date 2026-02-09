@@ -1,8 +1,8 @@
 import { buildError, catchError, isFunction, isOutputTargetDocs, isString, relative } from '../../utils';
 import { basename } from 'path';
 
-import type * as d from '../../declarations';
-import { PluginCtx, PluginTransformResults } from '../../declarations';
+import type * as d from '@stencil/core';
+import { PluginCtx, PluginTransformResults } from '@stencil/core';
 import { parseCssImports } from '../style/css-imports';
 
 export const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {

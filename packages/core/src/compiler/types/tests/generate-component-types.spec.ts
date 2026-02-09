@@ -1,4 +1,4 @@
-import { ComponentCompilerMeta, ComponentCompilerMethod } from '../../../declarations';
+import { ComponentCompilerMeta, ComponentCompilerMethod } from '@stencil/core';
 import { generateComponentTypes } from '../generate-component-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerMethod } from './ComponentCompilerMethod.stub';

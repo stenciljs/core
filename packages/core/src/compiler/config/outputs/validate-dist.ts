@@ -14,7 +14,7 @@ import {
 } from '../../../utils';
 import { isAbsolute } from 'path';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 

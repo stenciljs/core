@@ -1,4 +1,4 @@
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { DEFAULT_TARGET_COMPONENT_STYLES } from '../../config/constants';
 import { depsToMarkdown } from '../readme/markdown-dependencies';
 

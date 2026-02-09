@@ -1,4 +1,4 @@
-// import type * as d from '../declarations';
+// import type * as d from '@stencil/core';
 import { h } from '../h';
 import { isSameVnode } from '../vdom-render';
 

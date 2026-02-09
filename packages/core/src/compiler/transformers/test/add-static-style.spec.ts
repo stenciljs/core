@@ -12,7 +12,7 @@ jest.mock('../../utils/shadow-css', () => {
 
 import { mockBuildCtx } from '@stencil/core/testing';
 import ts from 'typescript';
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import {
   addStaticStyleGetterWithinClass,
   addStaticStylePropertyToClass,

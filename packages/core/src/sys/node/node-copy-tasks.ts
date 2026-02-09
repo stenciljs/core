@@ -2,7 +2,7 @@ import { buildError, catchError, flatOne, isGlob, normalizePath } from '../../ut
 import { glob } from 'glob';
 import path from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { copyFile, mkdir, readdir, stat } from './node-fs-promisify';
 
 export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: string) {

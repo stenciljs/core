@@ -8,7 +8,7 @@ import {
 } from '../../../utils';
 import type { SourceMap as RollupSourceMap } from 'rollup';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { writeLazyModule } from './write-lazy-entry-module';
 

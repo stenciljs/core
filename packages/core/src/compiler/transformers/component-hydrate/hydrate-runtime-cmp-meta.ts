@@ -1,7 +1,7 @@
 import { CMP_FLAGS, formatComponentRuntimeMeta } from '../../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { addStaticStyleGetterWithinClass } from '../add-static-style';
 import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
 

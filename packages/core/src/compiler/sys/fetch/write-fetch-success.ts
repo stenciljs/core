@@ -1,6 +1,6 @@
 import { dirname } from 'path';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from '../in-memory-fs';
 import { setPackageVersionByContent } from '../resolve/resolve-utils';
 

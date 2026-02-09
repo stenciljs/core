@@ -1,6 +1,6 @@
 import { addDocBlock, dashToPascalCase, sortBy } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { HTML_ELEMENT_METHODS } from './constants';
 import { generateEventListenerTypes } from './generate-event-listener-types';
 import { generateEventTypes } from './generate-event-types';

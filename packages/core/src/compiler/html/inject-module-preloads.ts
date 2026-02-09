@@ -1,6 +1,6 @@
 import { join } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getAbsoluteBuildDir } from './html-utils';
 
 export const optimizeCriticalPath = (doc: Document, criticalBundlers: string[], outputTarget: d.OutputTargetWww) => {

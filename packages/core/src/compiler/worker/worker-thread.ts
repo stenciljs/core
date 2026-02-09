@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { optimizeCss } from '../optimize/optimize-css';
 import { prepareModule } from '../optimize/optimize-module';
 import { prerenderWorker } from '../prerender/prerender-worker';

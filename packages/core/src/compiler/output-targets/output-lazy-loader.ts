@@ -1,6 +1,6 @@
 import { generatePreamble, isOutputTargetDistLazyLoader, join, relative, relativeImport } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getClientPolyfill } from '../app-core/app-polyfills';
 
 export const outputLazyLoader = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {

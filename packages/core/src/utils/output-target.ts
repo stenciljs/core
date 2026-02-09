@@ -4,7 +4,7 @@ import { join, normalizePath } from './path';
 import { minimatch } from 'minimatch';
 import { basename, dirname, relative } from 'path';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import {
   COPY,
   CUSTOM,

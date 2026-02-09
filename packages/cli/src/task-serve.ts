@@ -1,6 +1,6 @@
 import { isString } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '@stencil/core/declarations';
+import type { ValidatedConfig } from '@stencil/core';
 
 export const taskServe = async (config: ValidatedConfig) => {
   config.suppressLogs = true;

@@ -1,4 +1,4 @@
-import type { CompilerSystem, Logger, TaskCommand, ValidatedConfig } from '@stencil/core/declarations';
+import type { CompilerSystem, Logger, TaskCommand, ValidatedConfig } from '@stencil/core';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 

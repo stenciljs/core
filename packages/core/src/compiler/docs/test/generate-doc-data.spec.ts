@@ -1,7 +1,7 @@
 import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import { AUTO_GENERATE_COMMENT } from '../constants';
 import { generateDocData, getDocsStyles } from '../generate-doc-data';

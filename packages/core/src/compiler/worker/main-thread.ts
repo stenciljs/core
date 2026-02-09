@@ -1,4 +1,4 @@
-import { CompilerWorkerContext, WorkerMainController } from '../../declarations';
+import { CompilerWorkerContext, WorkerMainController } from '@stencil/core';
 
 /**
  * Instantiate a worker context which is specific to the 'main thread' and

@@ -1,6 +1,6 @@
 import { BUILD } from 'virtual:app-data';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 
 let customError: d.ErrorHandler;
 

@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { MEMBER_FLAGS } from './constants';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * - Re-wires component prototype `get` / `set` with instance `@State` / `@Prop` decorated fields.

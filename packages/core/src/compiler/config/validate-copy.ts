@@ -1,6 +1,6 @@
 import { unique } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Validate a series of {@link d.CopyTask}s

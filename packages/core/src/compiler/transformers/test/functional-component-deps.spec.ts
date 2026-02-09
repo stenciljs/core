@@ -1,6 +1,6 @@
 import { mockModule } from '@stencil/core/testing';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getBuildFeatures, updateComponentBuildConditionals } from '../../app-core/app-data';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import { transpileModule } from './transpile';

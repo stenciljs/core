@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Parse CSS docstrings that Stencil supports, as documented here:

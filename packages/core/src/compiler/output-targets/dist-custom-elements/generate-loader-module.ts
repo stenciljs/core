@@ -1,4 +1,4 @@
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { STENCIL_INTERNAL_CLIENT_ID } from '../../bundle/entry-alias-ids';
 
 /**

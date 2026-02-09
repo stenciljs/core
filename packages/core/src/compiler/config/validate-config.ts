@@ -9,7 +9,7 @@ import {
   LogLevel,
   UnvalidatedConfig,
   ValidatedConfig,
-} from '../../declarations';
+} from '@stencil/core';
 import { setBooleanConfig } from './config-utils';
 import {
   DEFAULT_DEV_MODE,

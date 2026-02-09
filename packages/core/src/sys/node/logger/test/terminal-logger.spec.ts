@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;
 
-import { LOG_LEVELS, LogLevel } from '../../../../declarations';
+import { LOG_LEVELS, LogLevel } from '@stencil/core';
 import { setupConsoleMocker } from '../../../../testing/testing-utils';
 import { createNodeLoggerSys } from '../index';
 import { createTerminalLogger, shouldLog } from '../terminal-logger';

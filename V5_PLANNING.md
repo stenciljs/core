@@ -99,7 +99,7 @@ packages/
 
 ### 🚧 Type generation
 - ✅ `core`: vite-plugin-dts integrated with Vite configs
-- ⏳ `cli`: still using stub types
+- ✅ `cli`: vite-plugin-dts integrated
 - ⏳ `mock-doc`: still using tsc
 
 ### ✅ Remove build-time aliases (DONE)

@@ -17,7 +17,7 @@ import type {
   CompilerSystemRemoveFileResults,
   CompilerSystemWriteFileResults,
   Logger,
-} from '../../declarations';
+} from '@stencil/core';
 import { asyncGlob, nodeCopyTasks } from './node-copy-tasks';
 import { NodeLazyRequire } from './node-lazy-require';
 import { NodeResolveModule } from './node-resolve-module';

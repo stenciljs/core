@@ -2,7 +2,7 @@ import { mockLoadConfigInit } from '@stencil/core/testing';
 import path from 'path';
 
 import { createConfigFlags, type ConfigFlags } from '@stencil/cli';
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { normalizePath } from '../../../utils';
 import { validateConfig } from '../validate-config';
 

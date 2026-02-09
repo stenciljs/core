@@ -1,7 +1,7 @@
 import { augmentDiagnosticWithNode, buildError } from '../../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { retrieveTsDecorators, retrieveTsModifiers, updateConstructor } from '../transform-utils';
 import { attachInternalsDecoratorsToStatic } from './attach-internals';
 import { componentDecoratorToStatic } from './component-decorator';

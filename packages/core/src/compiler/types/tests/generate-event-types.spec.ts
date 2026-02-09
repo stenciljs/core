@@ -1,4 +1,4 @@
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import * as UtilHelpers from '../../../utils/helpers';
 import * as Util from '../../../utils/util';
 import { generateEventTypes } from '../generate-event-types';

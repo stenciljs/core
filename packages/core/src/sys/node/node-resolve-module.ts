@@ -2,7 +2,7 @@ import { normalizePath } from '../../utils';
 import fs from 'graceful-fs';
 import path from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export class NodeResolveModule {
   private resolveModuleCache = new Map<string, string>();

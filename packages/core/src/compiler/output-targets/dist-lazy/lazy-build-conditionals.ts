@@ -1,6 +1,6 @@
 import { isOutputTargetHydrate } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
 
 export const getLazyBuildConditionals = (

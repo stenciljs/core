@@ -3,7 +3,7 @@ import { scopeCss } from '../../utils/shadow-css';
 import MagicString from 'magic-string';
 import path from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { parseStyleDocs } from '../docs/style-docs';
 import { optimizeCss } from '../optimize/optimize-css';
 import { serializeImportPath } from '../transformers/stencil-import-path';

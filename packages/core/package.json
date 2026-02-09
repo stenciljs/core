@@ -34,9 +34,6 @@
     "./testing": {
       "types": "./dist/testing/index.d.ts",
       "import": "./dist/testing/index.js"
-    },
-    "./declarations": {
-      "types": "./dist/declarations/index.d.ts"
     }
   },
   "files": [

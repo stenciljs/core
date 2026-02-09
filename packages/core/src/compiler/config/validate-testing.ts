@@ -1,7 +1,7 @@
 import { buildError, isOutputTargetDist, isOutputTargetWww, isString, join, normalizePath } from '../../utils';
 import { basename, dirname, isAbsolute } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { isLocalModule } from '../sys/resolve/resolve-utils';
 
 export const validateTesting = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[]) => {

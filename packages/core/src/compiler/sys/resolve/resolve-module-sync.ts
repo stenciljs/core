@@ -2,7 +2,7 @@ import { isString, normalizeFsPath, normalizePath } from '../../../utils';
 import { dirname } from 'path';
 import resolve, { SyncOpts } from 'resolve';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from '../in-memory-fs';
 
 export const resolveRemoteModuleIdSync = (

@@ -2,7 +2,7 @@ import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
 import { minimatch } from 'minimatch';
 import { basename } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getScopeId } from '../style/scope-css';
 
 export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {

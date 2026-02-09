@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleError, plt, supportsListenerOptions, win } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { HOST_FLAGS, LISTENER_FLAGS } from '../utils/constants';
 
 export const addHostEventListeners = (

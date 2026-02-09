@@ -1,6 +1,6 @@
 import { join, normalizePath, relative } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { AUTO_GENERATE_COMMENT } from '../constants';
 import { getUserReadmeContent } from '../generate-doc-data';
 import { stylesToMarkdown } from './markdown-css-props';

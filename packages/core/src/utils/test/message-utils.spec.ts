@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { catchError } from '../message-utils';
 
 describe('message-utils', () => {

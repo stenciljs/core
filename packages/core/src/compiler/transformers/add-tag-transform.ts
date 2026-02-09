@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getModuleFromSourceFile } from './transform-utils';
 import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
 import { parse, SelectorType, stringify } from 'css-what';

@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { augmentDiagnosticWithNode, buildError } from '../../../utils';
 import { objectLiteralToObjectMap } from '../transform-utils';
 

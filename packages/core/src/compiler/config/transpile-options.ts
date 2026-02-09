@@ -9,7 +9,7 @@ import type {
   TransformOptions,
   TranspileOptions,
   TranspileResults,
-} from '../../declarations';
+} from '@stencil/core';
 import { STENCIL_INTERNAL_CLIENT_ID } from '../bundle/entry-alias-ids';
 import { parseImportPath } from '../transformers/stencil-import-path';
 

@@ -1,7 +1,7 @@
 import { buildError, isBoolean, isNumber, isOutputTargetWww, isString, join, normalizePath } from '../../utils';
 import { isAbsolute } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[]): d.DevServerConfig => {
   if ((config.devServer === null || (config.devServer as any)) === false) {

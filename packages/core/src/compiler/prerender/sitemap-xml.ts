@@ -1,6 +1,6 @@
 import { catchError, join } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const generateSitemapXml = async (manager: d.PrerenderManager) => {
   if (manager.prerenderConfig.sitemapXml === null) {

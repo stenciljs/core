@@ -1,6 +1,6 @@
 import { hasError, normalizePath } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { optimizeCssId } from '../../version';
 
 export const optimizeCss = async (

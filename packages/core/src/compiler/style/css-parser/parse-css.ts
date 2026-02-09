@@ -1,4 +1,4 @@
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
 
 // (note - We can't use something like postcss / lightningCSS here

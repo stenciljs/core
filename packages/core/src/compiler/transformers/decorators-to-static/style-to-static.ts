@@ -2,7 +2,7 @@ import { DEFAULT_STYLE_MODE, join } from '../../../utils';
 import { basename, dirname, extname } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { ConvertIdentifier, convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
 export const styleToStatic = (newMembers: ts.ClassElement[], componentOptions: d.ComponentOptions) => {

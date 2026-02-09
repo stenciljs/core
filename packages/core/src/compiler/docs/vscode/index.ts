@@ -1,6 +1,6 @@
 import { isOutputTargetDocsVscode, join } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getNameText } from '../generate-doc-data';
 
 /**

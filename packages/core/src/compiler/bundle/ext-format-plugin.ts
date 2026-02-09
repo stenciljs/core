@@ -2,7 +2,7 @@ import { createJsVarName, normalizeFsPathQuery } from '../../utils';
 import { basename } from 'path';
 import type { Plugin, TransformPluginContext, TransformResult } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const extFormatPlugin = (config: d.ValidatedConfig): Plugin => {
   return {

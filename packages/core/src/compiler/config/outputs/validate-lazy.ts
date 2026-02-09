@@ -1,6 +1,6 @@
 import { DIST_LAZY, isBoolean, isOutputTargetDistLazy, join } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 
 export const validateLazy = (config: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {

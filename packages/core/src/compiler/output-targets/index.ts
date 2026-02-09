@@ -1,6 +1,6 @@
 import type { RollupCache } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { outputCopy } from './copy/output-copy';
 import { outputCollection } from './dist-collection';
 import { outputCustomElements } from './dist-custom-elements';

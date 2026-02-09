@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleError, loadModule, needsScopedSSR, styles } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';

@@ -8,7 +8,7 @@ import {
   normalizePath,
 } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { generateCustomDocs } from '../docs/custom';
 import { generateCustomElementsManifestDocs } from '../docs/cem';
 import { generateDocData } from '../docs/generate-doc-data';

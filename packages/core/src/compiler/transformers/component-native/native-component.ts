@@ -1,7 +1,7 @@
 import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
 import { transformHostData } from '../host-data-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';

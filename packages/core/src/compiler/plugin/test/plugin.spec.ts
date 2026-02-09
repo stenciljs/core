@@ -4,7 +4,7 @@ import { mockConfig } from '@stencil/core/testing';
 import { normalizePath } from '../../../utils';
 import path from 'path';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 
 describe.skip('plugin', () => {
   jest.setTimeout(20000);

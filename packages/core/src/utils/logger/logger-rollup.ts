@@ -1,6 +1,6 @@
 import type { RollupError } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { isString, toTitleCase } from '../helpers';
 import { buildWarn } from '../message-utils';
 import { splitLineBreaks } from './logger-utils';

@@ -3,7 +3,7 @@ import path from 'path';
 import ts from 'typescript';
 
 import type { ConfigFlags } from '@stencil/cli';
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { normalizePath } from '../../../utils';
 import { loadConfig } from '../load-config';
 

@@ -1,7 +1,7 @@
 import { augmentDiagnosticWithNode, buildWarn } from '../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Determine if a public class member collides with a reserved name for HTML elements, nodes, or JSX

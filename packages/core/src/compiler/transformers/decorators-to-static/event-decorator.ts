@@ -1,7 +1,7 @@
 import { augmentDiagnosticWithNode, buildWarn } from '../../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import {
   convertValueToLiteral,
   createStaticGetter,

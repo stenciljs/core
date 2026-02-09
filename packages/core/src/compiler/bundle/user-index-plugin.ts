@@ -1,7 +1,7 @@
 import { join } from '../../utils';
 import type { Plugin } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { USER_INDEX_ENTRY_ID } from './entry-alias-ids';
 
 export const userIndexPlugin = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx): Plugin => {

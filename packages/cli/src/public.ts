@@ -1,4 +1,4 @@
-import type { CliInitOptions, Config, Logger, TaskCommand } from '@stencil/core/declarations';
+import type { CliInitOptions, Config, Logger, TaskCommand } from '@stencil/core';
 
 import type { ConfigFlags } from './config-flags';
 

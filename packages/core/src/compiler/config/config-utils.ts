@@ -2,7 +2,7 @@ import { isBoolean, join } from '../../utils';
 import { isAbsolute } from 'path';
 
 import type { ConfigFlags } from '@stencil/cli';
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const getAbsolutePath = (config: d.ValidatedConfig, dir: string) => {
   if (!isAbsolute(dir)) {

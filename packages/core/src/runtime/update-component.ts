@@ -1,7 +1,7 @@
 import { BUILD, NAMESPACE } from 'virtual:app-data';
 import { Build, consoleError, getHostRef, nextTick, plt, win, writeTask } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { emitEvent } from './event-emitter';
 import { createTime } from './profile';

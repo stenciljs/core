@@ -1,6 +1,6 @@
 import { Postcss } from 'postcss';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 type CssProcessor = ReturnType<Postcss>;
 let cssProcessor: CssProcessor;

@@ -1,4 +1,4 @@
-import * as d from '../../declarations';
+import * as d from '@stencil/core';
 import { isInteractive } from './helpers';
 import { checkTelemetry } from './telemetry';
 

@@ -10,8 +10,8 @@ import {
 } from '../../utils';
 import { basename, dirname } from 'path';
 
-import type * as d from '../../declarations';
-import { JsonDocsValue } from '../../declarations';
+import type * as d from '@stencil/core';
+import { JsonDocsValue } from '@stencil/core';
 import { typescriptVersion, version } from '../../version';
 import { getBuildTimestamp } from '../build/build-ctx';
 import { addFileToLibrary, getTypeLibrary } from '../transformers/type-library';

@@ -1,7 +1,7 @@
 import { dirname } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getModuleLegacy, resetModuleLegacy } from '../../build/compiler-ctx';
 import { parseCallExpression } from './call-expression';
 import { parseStaticComponentMeta } from './component';

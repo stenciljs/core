@@ -1,7 +1,7 @@
 import { cloneDocument, serializeNodeToHtml } from '@stencil/mock-doc';
 import { catchError, flatOne, isOutputTargetWww, join, relative, unique } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { generateEs5DisabledMessage } from '../app-core/app-es5-disabled';
 import { addScriptDataAttribute } from '../html/add-script-attr';
 import { getAbsoluteBuildDir } from '../html/html-utils';

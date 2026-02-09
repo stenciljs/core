@@ -1,7 +1,7 @@
 import { buildError, join, normalizePath } from '../../utils';
 import { basename, dirname, isAbsolute } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { parseStyleDocs } from '../docs/style-docs';
 import { resolveModuleIdAsync } from '../sys/resolve/resolve-module-async';
 import { getModuleId } from '../sys/resolve/resolve-utils';

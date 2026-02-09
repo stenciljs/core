@@ -1,4 +1,4 @@
-import type * as d from '../../../../declarations';
+import type * as d from '@stencil/core';
 import { createSystem } from '../../../sys/stencil-sys';
 import { ensureExtension } from '../typescript-resolve-module';
 

@@ -1,6 +1,6 @@
 import { SVG_NS, XLINK_NS } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { h, newVNode } from '../h';
 import { patch } from '../vdom-render';
 

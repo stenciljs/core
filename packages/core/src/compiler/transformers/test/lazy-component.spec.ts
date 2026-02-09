@@ -1,6 +1,6 @@
 import { mockBuildCtx } from '@stencil/core/testing';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { lazyComponentTransform } from '../component-lazy/transform-lazy-component';
 import { transpileModule } from './transpile';
 import { c, formatCode } from './utils';

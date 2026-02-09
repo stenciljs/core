@@ -1,7 +1,7 @@
 import { mockValidatedConfig } from '@stencil/core/testing';
 
 import { createSystem } from '../../../../compiler/sys/stencil-sys';
-import type * as d from '../../../../declarations';
+import type * as d from '@stencil/core';
 import { getTypescriptPathFromUrl } from '../typescript-sys';
 
 describe('getTypescriptPathFromUrl', () => {

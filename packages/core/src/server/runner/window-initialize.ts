@@ -1,7 +1,7 @@
 import { constrainTimeouts, type MockWindow } from '@stencil/mock-doc';
 import { STENCIL_DOC_DATA } from 'src/runtime/runtime-constants';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { runtimeLogging } from './runtime-log';
 
 /**

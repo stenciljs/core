@@ -1,4 +1,4 @@
-import type { Logger } from '../../../declarations';
+import type { Logger } from '@stencil/core';
 import fs from 'graceful-fs';
 import path from 'path';
 

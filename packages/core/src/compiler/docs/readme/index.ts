@@ -1,6 +1,6 @@
 import { isOutputTargetDocsReadme } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { generateReadme } from './output-docs';
 
 export const generateReadmeDocs = async (

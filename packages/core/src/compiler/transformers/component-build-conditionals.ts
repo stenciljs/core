@@ -1,6 +1,6 @@
 import { DEFAULT_STYLE_MODE } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) => {
   if (cmpMeta.properties.length > 0) {

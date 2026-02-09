@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { addStaticStylePropertyToClass } from '../add-static-style';
 import { transformHostData } from '../host-data-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';

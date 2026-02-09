@@ -1,6 +1,6 @@
 import { getHostRef } from 'virtual:platform';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import {
   COMMENT_NODE_ID,
   CONTENT_REF_ID,

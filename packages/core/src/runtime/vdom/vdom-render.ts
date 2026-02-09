@@ -11,7 +11,7 @@ import { consoleDevError, plt, supportsShadow, win } from 'virtual:platform';
 import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { patchParentNode } from '../dom-extras';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {

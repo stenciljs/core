@@ -3,7 +3,7 @@ import { globalStyles } from 'virtual:app-globals';
 import { supportsConstructableStylesheets, supportsMutableAdoptedStyleSheets } from 'virtual:platform';
 import { CMP_FLAGS } from './constants';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { HYDRATED_STYLE_ID } from '../runtime/runtime-constants';
 import { createStyleSheetIfNeededAndSupported } from './style';
 

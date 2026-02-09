@@ -1,7 +1,7 @@
 import { isString, join } from '../../utils';
 import { isAbsolute } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Validate that a service worker configuration is valid, if it is present and

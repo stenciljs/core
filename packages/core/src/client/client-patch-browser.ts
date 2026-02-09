@@ -1,7 +1,7 @@
 import { BUILD, NAMESPACE } from 'virtual:app-data';
 import { consoleDevInfo, H, promiseResolve, win } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 
 export const patchBrowser = (): Promise<d.CustomElementsDefineOptions> => {
   // NOTE!! This fn cannot use async/await!

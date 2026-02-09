@@ -1,7 +1,7 @@
 import { createDocument, serializeNodeToHtml } from '@stencil/mock-doc';
 import { catchError, isFunction, isString } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import {
   hasStencilScript,
   inlineExternalStyleSheets,

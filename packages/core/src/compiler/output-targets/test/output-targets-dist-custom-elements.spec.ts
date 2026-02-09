@@ -8,8 +8,8 @@ import {
 import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import path from 'path';
 
-import type * as d from '../../../declarations';
-import { OutputTargetDistCustomElements } from '../../../declarations';
+import type * as d from '@stencil/core';
+import { OutputTargetDistCustomElements } from '@stencil/core';
 import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../dist-custom-elements';

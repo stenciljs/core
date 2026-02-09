@@ -1,4 +1,4 @@
-import type { BuildConditionals } from '../declarations';
+import type { BuildConditionals } from '@stencil/core';
 
 /**
  * A collection of default build flags for a Stencil project.

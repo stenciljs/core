@@ -1,7 +1,7 @@
 import { catchError, isFunction, isRootPath, join, normalizePath } from '../../utils';
 import { dirname } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { crawlAnchorsForNextUrls } from './crawl-urls';
 import { getPrerenderConfig } from './prerender-config';
 import { getHydrateOptions } from './prerender-hydrate-options';

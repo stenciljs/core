@@ -1,4 +1,4 @@
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 /**
  * Iterate through a series of diagnostics to provide minor fix-ups for various edge cases, deduplicate messages, etc.

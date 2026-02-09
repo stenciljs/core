@@ -2,7 +2,7 @@ import { consoleError, getHostRef } from 'virtual:platform';
 import { getValue, parsePropertyValue, setValue } from '../../runtime';
 import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;

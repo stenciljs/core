@@ -9,7 +9,7 @@ import {
 } from '../../utils';
 import { dirname } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { packageJsonError, packageJsonWarn } from './package-json-log-utils';
 import { validatePrimaryPackageOutputTarget } from './validate-primary-package-output-target';
 

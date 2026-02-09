@@ -1,7 +1,7 @@
 import { isOutputTargetDocsJson, isOutputTargetDocsVscode, isOutputTargetStats, isString, unique } from '../../utils';
 import { basename } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const filesChanged = (buildCtx: d.BuildCtx) => {
   // files changed include updated, added and deleted

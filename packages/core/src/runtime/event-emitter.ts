@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, plt } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { EVENT_FLAGS } from '../utils/constants';
 import { getElement } from './element';
 

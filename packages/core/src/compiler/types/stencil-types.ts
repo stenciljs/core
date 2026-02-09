@@ -1,7 +1,7 @@
 import { isOutputTargetDistTypes, join, normalizePath, relative, resolve } from '../../utils';
 import { dirname } from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { FsWriteResults } from '../sys/in-memory-fs';
 
 /**

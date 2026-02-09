@@ -2,7 +2,7 @@ import { isString, resolve } from '../../utils';
 import { dirname } from 'path';
 import type ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { compilerRequest } from '../bundle/dev-module';
 import {
   filesChanged,

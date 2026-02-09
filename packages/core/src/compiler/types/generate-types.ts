@@ -1,6 +1,6 @@
 import { isDtsFile, join, relative } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { generateCustomElementsTypes } from '../output-targets/dist-custom-elements/custom-elements-types';
 import { generateAppTypes } from './generate-app-types';
 import { copyStencilCoreDts, updateStencilTypesImports } from './stencil-types';

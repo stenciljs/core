@@ -13,7 +13,7 @@ import {
 } from '../../../utils';
 import { isAbsolute } from 'path';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { NOTE } from '../../docs/constants';
 
 export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {

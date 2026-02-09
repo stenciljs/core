@@ -1,6 +1,6 @@
 import { isBoolean, isOutputTargetDistCollection } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 
 /**

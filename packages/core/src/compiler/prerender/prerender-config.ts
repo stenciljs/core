@@ -1,6 +1,6 @@
 import { isString } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { nodeRequire } from '../sys/node-require';
 
 export const getPrerenderConfig = (diagnostics: d.Diagnostic[], prerenderConfigPath: string) => {

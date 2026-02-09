@@ -1,7 +1,7 @@
 import { join } from '../../utils';
 import path from 'path';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const getWriteFilePathFromUrlPath = (manager: d.PrerenderManager, inputHref: string) => {
   const baseUrl = new URL(manager.outputTarget.baseUrl, manager.devServerHostUrl);

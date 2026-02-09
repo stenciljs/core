@@ -1,6 +1,6 @@
 import { catchError, join } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getSitemapUrls } from './sitemap-xml';
 
 export const generateRobotsTxt = async (manager: d.PrerenderManager, sitemapResults: d.SitemapXmpResults) => {

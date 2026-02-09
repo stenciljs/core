@@ -1,6 +1,6 @@
 import { isString } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from '../in-memory-fs';
 import { known404Urls } from './fetch-utils';
 import { skipFilePathFetch, skipUrlFetch } from './fetch-utils';

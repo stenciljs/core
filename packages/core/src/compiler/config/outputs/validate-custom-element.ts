@@ -6,8 +6,8 @@ import type {
   OutputTargetDistCustomElements,
   OutputTargetDistTypes,
   ValidatedConfig,
-} from '../../../declarations';
-import { CustomElementsExportBehaviorOptions } from '../../../declarations';
+} from '@stencil/core';
+import { CustomElementsExportBehaviorOptions } from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 

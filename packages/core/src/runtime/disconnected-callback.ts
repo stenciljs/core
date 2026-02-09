@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { PLATFORM_FLAGS } from './runtime-constants';
 import { rootAppliedStyles } from './styles';
 import { safeCall } from './update-component';

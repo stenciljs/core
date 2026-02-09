@@ -1,6 +1,6 @@
 import { buildError, isValidConfigOutputTarget, VALID_CONFIG_OUTPUT_TARGETS } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { validateCollection } from './validate-collection';
 import { validateCustomElement } from './validate-custom-element';
 import { validateCustomOutput } from './validate-custom-output';

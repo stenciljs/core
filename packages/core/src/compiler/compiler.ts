@@ -1,7 +1,7 @@
 import { isFunction } from '../utils';
 import ts from 'typescript';
 
-import type { Compiler, Config, Diagnostic, ValidatedConfig } from '../declarations';
+import type { Compiler, Config, Diagnostic, ValidatedConfig } from '@stencil/core';
 import { CompilerContext } from './build/compiler-ctx';
 import { createFullBuild } from './build/full-build';
 import { createWatchBuild } from './build/watch-build';

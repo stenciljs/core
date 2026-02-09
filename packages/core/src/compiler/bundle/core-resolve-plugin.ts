@@ -2,7 +2,7 @@ import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
 import { dirname } from 'path';
 import type { Plugin } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { HYDRATED_CSS } from '../../runtime/runtime-constants';
 import { fetchModuleAsync } from '../sys/fetch/fetch-module-async';
 import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';

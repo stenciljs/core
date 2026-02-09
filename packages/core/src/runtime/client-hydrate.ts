@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt, transformTag, win } from 'virtual:platform';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { CMP_FLAGS } from '../utils/constants';
 import { internalCall, patchSlottedNode } from './dom-extras';
 import { createTime } from './profile';

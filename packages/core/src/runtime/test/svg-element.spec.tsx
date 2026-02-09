@@ -1,7 +1,7 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
-import { Prop } from '../../declarations';
+import { Prop } from '@stencil/core';
 
 describe('SVG element', () => {
   it('should render #text nodes', async () => {

@@ -1,6 +1,6 @@
 import { toTitleCase } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 
 export const usageToMarkdown = (usages: d.JsonDocsUsage) => {
   const content: string[] = [];

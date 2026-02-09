@@ -1,6 +1,6 @@
 import { isFunction, isTsFile, isTsxFile, normalizePath } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { isCommonDirModuleFile } from '../resolve/resolve-utils';
 
 /**

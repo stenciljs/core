@@ -8,7 +8,7 @@ import {
 import { DIST_CUSTOM_ELEMENTS, normalizePath } from '../../../utils';
 import path from 'path';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../dist-custom-elements';
 import { generateCustomElementsTypes } from '../dist-custom-elements/custom-elements-types';

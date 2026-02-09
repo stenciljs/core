@@ -1,7 +1,7 @@
 import { formatComponentRuntimeMeta } from '../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { addCoreRuntimeApi, PROXY_CUSTOM_ELEMENT, RUNTIME_APIS } from './core-runtime-apis';
 import { convertValueToLiteral } from './transform-utils';
 

@@ -1,7 +1,7 @@
 import { normalizePath, validateComponentTag } from '@stencil/core/compiler/utils';
 import { join, parse, relative } from 'path';
 
-import type { ValidatedConfig } from '@stencil/core/declarations';
+import type { ValidatedConfig } from '@stencil/core';
 
 /**
  * Task to generate component boilerplate and write it to disk. This task can

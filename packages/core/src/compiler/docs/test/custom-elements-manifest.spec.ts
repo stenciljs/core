@@ -1,6 +1,6 @@
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { generateCustomElementsManifestDocs } from '../cem';
 
 describe('custom-elements-manifest', () => {

@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { ValidatedConfig } from '../../../declarations';
+import { ValidatedConfig } from '@stencil/core';
 import { mockValidatedConfig } from '../../../testing/mocks';
 import { createTsWatchProgram } from '../create-watch-program';
 

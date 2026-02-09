@@ -1,6 +1,6 @@
 import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import {
   PRIMARY_PACKAGE_TARGET_CONFIGS,
   PrimaryPackageOutputTargetRecommendedConfig,

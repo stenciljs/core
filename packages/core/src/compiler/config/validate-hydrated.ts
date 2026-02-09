@@ -1,6 +1,6 @@
 import { isString } from '../../utils';
 
-import { HydratedFlag, UnvalidatedConfig } from '../../declarations';
+import { HydratedFlag, UnvalidatedConfig } from '@stencil/core';
 
 /**
  * Validate the `.hydratedFlag` property on the supplied config object and

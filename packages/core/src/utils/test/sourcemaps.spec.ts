@@ -6,7 +6,7 @@ import {
 } from '../index';
 import { SourceMap as RollupSourceMap } from 'rollup';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 describe('sourcemaps', () => {
   describe('rollupToStencilSourceMap', () => {

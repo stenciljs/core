@@ -1,6 +1,6 @@
 import { MockWindow, patchWindow } from '@stencil/mock-doc';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) {
   let win: MockWindow;
@@ -38,7 +38,6 @@ export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) 
   }
 
   try {
-    // @ts-expect-error Assigning the baseURI prevents JavaScript optimizers from treating this as dead code
     win.__stencil_baseURI = doc.baseURI;
   } catch (e) {
     Object.defineProperty(doc, 'baseURI', {

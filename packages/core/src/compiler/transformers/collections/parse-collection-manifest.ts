@@ -1,6 +1,6 @@
 import { join, normalizePath } from '../../../utils';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { parseCollectionComponents, transpileCollectionModule } from './parse-collection-components';
 
 export const parseCollectionManifest = (

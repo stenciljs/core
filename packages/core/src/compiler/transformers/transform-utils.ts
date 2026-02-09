@@ -1,7 +1,7 @@
 import { normalizePath } from '../../utils';
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { updateLazyComponentConstructor } from './component-lazy/lazy-constructor';
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
 import { removeStaticMetaProperties } from './remove-static-meta-properties';

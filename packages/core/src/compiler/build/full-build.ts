@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { createTsBuildProgram } from '../transpile/create-build-program';
 import { build } from './build';
 import { BuildContext } from './build-ctx';

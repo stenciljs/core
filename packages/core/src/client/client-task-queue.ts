@@ -1,6 +1,6 @@
 import { BUILD } from 'virtual:app-data';
 
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { PLATFORM_FLAGS } from '../runtime/runtime-constants';
 import { consoleError } from './client-log';
 import { plt, promiseResolve } from './client-window';

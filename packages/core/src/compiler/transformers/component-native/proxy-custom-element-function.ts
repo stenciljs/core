@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { createClassMetadataProxy } from '../add-component-meta-proxy';
 import { addImports } from '../add-imports';
 import { RUNTIME_APIS } from '../core-runtime-apis';

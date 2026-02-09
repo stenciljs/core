@@ -1,4 +1,4 @@
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 import { renderVdom } from './vdom/vdom-render';
 
 /**

@@ -1,4 +1,4 @@
-import type * as d from '../declarations';
+import type * as d from '@stencil/core';
 
 export const buildEvents = (): d.BuildEvents => {
   const evCallbacks: EventCallback[] = [];

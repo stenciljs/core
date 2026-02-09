@@ -1,6 +1,6 @@
 import { buildError, buildWarn, flatOne, unique, validateComponentTag } from '../../utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 import { getUsedComponents } from '../html/used-components';
 
 /**

@@ -1,7 +1,7 @@
 import { consoleDevError } from 'virtual:platform';
 import { h } from '../../runtime';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core';
 
 export const hAsync = (nodeName: any, vnodeData: any, ...children: d.ChildType[]) => {
   if (Array.isArray(children) && children.length > 0) {

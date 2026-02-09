@@ -2,7 +2,7 @@ import { join, normalizePath } from '../../../utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
 
-import type * as d from '../../../declarations';
+import type * as d from '@stencil/core';
 import { createModule, getModule } from '../../transpile/transpiled-module';
 import { parseCallExpression } from './call-expression';
 import { parseStaticComponentMeta } from './component';

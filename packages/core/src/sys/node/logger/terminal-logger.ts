@@ -8,7 +8,7 @@ import {
   LoggerTimeSpan,
   LogLevel,
   PrintLine,
-} from '../../../declarations';
+} from '@stencil/core';
 
 // Re-export chalk color functions for convenience
 const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;

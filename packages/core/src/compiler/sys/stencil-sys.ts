@@ -19,7 +19,7 @@ import type {
   CopyResults,
   CopyTask,
   Logger,
-} from '../../declarations';
+} from '@stencil/core';
 import { version } from '../../version';
 import { buildEvents } from '../events';
 import { resolveModuleIdAsync } from './resolve/resolve-module-async';

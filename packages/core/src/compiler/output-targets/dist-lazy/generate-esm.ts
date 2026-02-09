@@ -1,8 +1,8 @@
 import { generatePreamble, join, relativeImport } from '../../../utils';
 import type { OutputOptions, RollupBuild } from 'rollup';
 
-import type * as d from '../../../declarations';
-import type { RollupResult } from '../../../declarations';
+import type * as d from '@stencil/core';
+import type { RollupResult } from '@stencil/core';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
