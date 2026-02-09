@@ -29,7 +29,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
 - ✅ Renamed internal → runtime (public API change)
 - ✅ Removed build-time aliases - converted to relative imports + virtual modules
-- ⏳ Fix type generation (use tsc + dts-bundle-generator properly)
+- 🚧 Type generation (core done, cli/mock-doc TODO)
 
 ### 4. 📦 Mono-repo Restructure  
 **Status:** ✅ Complete
@@ -45,8 +45,6 @@ packages/
 - `@stencil/core/internal` → `@stencil/core/runtime`
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
 - `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
-- REMOVED `@stencil/core/internal/testing`
-- REMOVED `@stencil/core/testing`
 - `@stencil/core/cli` → `@stencil/cli`
 
 ---
@@ -62,6 +60,7 @@ packages/
 │   │   ├── runtime/    (Reactivity, vDOM, lifecycle)
 │   │   ├── client/     (Browser runtime)
 │   │   ├── server/     (SSR/hydration - renamed from hydrate)
+│   │   └── testing/    (Testing things)
 │   │   └── utils/      (Shared utilities)
 │   ├── dist/
 │   │   ├── index.js           (compiler)
@@ -98,8 +97,10 @@ packages/
 
 ## Immediate Tasks
 
-### ⏳ Fix type generation
-Currently using fallback/stub instead of proper `tsc` + `dts-bundle-generator`
+### 🚧 Type generation
+- ✅ `core`: vite-plugin-dts integrated with Vite configs
+- ⏳ `cli`: still using stub types
+- ⏳ `mock-doc`: still using tsc
 
 ### ✅ Remove build-time aliases (DONE)
 Converted aliases to:
@@ -189,5 +190,5 @@ node test-packages.mjs
 
 ---
 
-*Last updated: 2026-02-09 Session 8*
+*Last updated: 2026-02-09 Session 9*
 

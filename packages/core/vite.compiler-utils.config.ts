@@ -20,6 +20,7 @@ export default defineConfig({
     dts({
       tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
       outDir: 'dist/compiler/utils',
+      entryRoot: 'src/utils',
       include: ['src/utils/compiler-exports.ts'],
       exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
     }),

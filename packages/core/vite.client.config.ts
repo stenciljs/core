@@ -20,6 +20,7 @@ export default defineConfig({
     dts({
       tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
       outDir: 'dist/runtime/client',
+      entryRoot: 'src/client',
       include: ['src/client/**/*.ts'],
       exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
     }),

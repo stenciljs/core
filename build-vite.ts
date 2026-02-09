@@ -24,16 +24,19 @@ interface PackageBuildConfig {
   packageDir: string;
   /** Additional vite config files to build (relative to package dir) */
   additionalConfigs?: string[];
+  /** How types are generated: 'vite-plugin-dts' | 'tsc' | 'stub' */
+  typeGeneration: 'vite-plugin-dts' | 'tsc' | 'stub';
 }
 
 /**
  * All packages in the mono-repo (build order matters for dependencies)
  */
 const PACKAGES: PackageBuildConfig[] = [
-  { name: 'mock-doc', packageDir: 'mock-doc' },
+  { name: 'mock-doc', packageDir: 'mock-doc', typeGeneration: 'tsc' },
   {
     name: 'core',
     packageDir: 'core',
+    typeGeneration: 'vite-plugin-dts',
     additionalConfigs: [
       'vite.compiler-utils.config.ts',
       'vite.runtime.config.ts',
@@ -44,14 +47,14 @@ const PACKAGES: PackageBuildConfig[] = [
       'vite.testing.config.ts',
     ],
   },
-  { name: 'cli', packageDir: 'cli' },
+  { name: 'cli', packageDir: 'cli', typeGeneration: 'stub' },
 ];
 
 async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean; mode?: string }) {
   console.log(`\n📦 Building ${pkg.name}...`);
-  
+
   const packagePath = resolve(PACKAGES_DIR, pkg.packageDir);
-  
+
   // Build main config
   const mainConfig: InlineConfig = {
     configFile: resolve(packagePath, 'vite.config.ts'),
@@ -101,90 +104,45 @@ async function createCoreMockDocWrapper() {
 }
 
 /**
- * Generate TypeScript declarations for a package
+ * Generate TypeScript declarations for packages that don't use vite-plugin-dts
  */
 async function generateDeclarations(pkg: PackageBuildConfig) {
   const packagePath = resolve(PACKAGES_DIR, pkg.packageDir);
-  const tsconfigPath = resolve(packagePath, 'tsconfig.build.json');
 
-  // Check if tsconfig.build.json exists
-  if (!fs.existsSync(tsconfigPath)) {
-    console.log(`  ⚠️  No tsconfig.build.json for ${pkg.name}, skipping declarations`);
-    return;
-  }
+  switch (pkg.typeGeneration) {
+    case 'vite-plugin-dts':
+      // Types already generated during Vite build
+      console.log(`  ✅ ${pkg.name}: types generated via vite-plugin-dts`);
+      break;
 
-  // TODO: Fix tsc emitting to src instead of dist
-  // For now, use fallback declarations
-  if (pkg.name === 'core') {
-    console.log(`  ✅ Copied existing bundled declarations for ${pkg.name}`);
-    await copyExistingCoreDeclarations();
-  } else if (pkg.name === 'cli') {
-    console.log(`  ✅ Created stub declarations for ${pkg.name}`);
-    await createCliDeclarations();
-  } else {
-    // Try running tsc for other packages
-    try {
-      execSync(`npx tsc --project tsconfig.build.json`, {
-        cwd: packagePath,
-        stdio: 'pipe',
-      });
-      console.log(`  ✅ Declarations generated for ${pkg.name}`);
-    } catch (error) {
-      console.warn(`  ⚠️  Declaration generation failed for ${pkg.name}:`, (error as Error).message);
+    case 'tsc': {
+      const tsconfigPath = resolve(packagePath, 'tsconfig.build.json');
+      if (!fs.existsSync(tsconfigPath)) {
+        console.log(`  ⚠️  ${pkg.name}: no tsconfig.build.json, skipping`);
+        return;
+      }
+      try {
+        execSync(`npx tsc --project tsconfig.build.json`, {
+          cwd: packagePath,
+          stdio: 'pipe',
+        });
+        console.log(`  ✅ ${pkg.name}: types generated via tsc`);
+      } catch (error) {
+        console.warn(`  ⚠️  ${pkg.name}: tsc failed:`, (error as Error).message);
+      }
+      break;
     }
+
+    case 'stub':
+      await createCliDeclarations();
+      console.log(`  ✅ ${pkg.name}: stub types created`);
+      break;
   }
-}
-
-/**
- * Copy existing bundled declarations for core package
- * These are pre-bundled by dts-bundle-generator in the old build
- */
-async function copyExistingCoreDeclarations() {
-  const coreDistDir = resolve(PACKAGES_DIR, 'core/dist');
-
-  // Ensure dist directories exist
-  await fs.ensureDir(resolve(coreDistDir, 'runtime'));
-  await fs.ensureDir(resolve(coreDistDir, 'runtime/client'));
-  await fs.ensureDir(resolve(coreDistDir, 'runtime/server'));
-  await fs.ensureDir(resolve(coreDistDir, 'runtime/app-data'));
-  await fs.ensureDir(resolve(coreDistDir, 'runtime/app-globals'));
-
-  // Copy bundled declaration files
-  const declarationsToCopy = [
-    // Main types (re-export from runtime)
-    { src: 'runtime/index.d.ts', dest: 'index.d.ts' },
-    // Runtime types
-    { src: 'runtime/index.d.ts', dest: 'runtime/index.d.ts' },
-    { src: 'runtime/stencil-private.d.ts', dest: 'runtime/stencil-private.d.ts' },
-    { src: 'runtime/stencil-public-compiler.d.ts', dest: 'runtime/stencil-public-compiler.d.ts' },
-    { src: 'runtime/stencil-public-runtime.d.ts', dest: 'runtime/stencil-public-runtime.d.ts' },
-  ];
-
-  for (const { src, dest } of declarationsToCopy) {
-    const srcPath = resolve(ROOT_DIR, src);
-    const destPath = resolve(coreDistDir, dest);
-    if (fs.existsSync(srcPath)) {
-      await fs.copy(srcPath, destPath);
-    }
-  }
-
-  // Create stub declarations for runtime bundles
-  const stubs = [
-    { path: 'runtime/client/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
-    { path: 'runtime/server/index.d.ts', content: 'export * from "../stencil-public-runtime";\n' },
-    { path: 'runtime/app-data/index.d.ts', content: 'export * from "../stencil-private";\n' },
-    { path: 'runtime/app-globals/index.d.ts', content: 'export {};\n' },
-  ];
-
-  for (const { path, content } of stubs) {
-    await fs.writeFile(resolve(coreDistDir, path), content);
-  }
-
-  console.log(`  ✅ Copied existing bundled declarations for core`);
 }
 
 /**
  * Create stub declarations for CLI package
+ * TODO: Add vite-plugin-dts to CLI and remove this
  */
 async function createCliDeclarations() {
   const cliDistDir = resolve(PACKAGES_DIR, 'cli/dist');
@@ -202,12 +160,14 @@ export interface ConfigFlags {
   unknownArgs: string[];
 }
 
+export const BOOLEAN_CLI_FLAGS: readonly string[];
+export function createConfigFlags(init?: Partial<ConfigFlags>): ConfigFlags;
 export function parseFlags(args: string[]): ConfigFlags;
 export function run(options?: { args?: string[] }): Promise<void>;
+export function runTask(task: string, config: unknown): Promise<void>;
 `;
 
   await fs.writeFile(resolve(cliDistDir, 'index.d.ts'), cliDeclaration);
-  console.log(`  ✅ Created stub declarations for cli`);
 }
 
 async function buildAll(options: { watch?: boolean; isProd?: boolean }) {
@@ -225,8 +185,8 @@ async function buildAll(options: { watch?: boolean; isProd?: boolean }) {
       await buildPackage(pkg, { watch: options.watch, mode });
     }
 
-    // Generate declarations for all packages
-    console.log('\n📝 Generating TypeScript declarations...');
+    // Generate declarations for packages that need post-build type generation
+    console.log('\n📝 TypeScript declarations...');
     for (const pkg of PACKAGES) {
       await generateDeclarations(pkg);
     }
