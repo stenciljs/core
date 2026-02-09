@@ -1,4 +1,4 @@
-import { dashToPascalCase } from '@utils';
+import { dashToPascalCase } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

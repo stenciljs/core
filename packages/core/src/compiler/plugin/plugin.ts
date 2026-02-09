@@ -1,4 +1,4 @@
-import { buildError, catchError, isFunction, isOutputTargetDocs, isString, relative } from '@utils';
+import { buildError, catchError, isFunction, isOutputTargetDocs, isString, relative } from '../../utils';
 import { basename } from 'path';
 
 import type * as d from '../../declarations';

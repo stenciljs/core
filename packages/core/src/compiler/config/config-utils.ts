@@ -1,4 +1,4 @@
-import { isBoolean, join } from '@utils';
+import { isBoolean, join } from '../../utils';
 import { isAbsolute } from 'path';
 
 import type { ConfigFlags } from '@stencil/cli';

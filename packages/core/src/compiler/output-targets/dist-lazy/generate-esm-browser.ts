@@ -1,4 +1,4 @@
-import { generatePreamble } from '@utils';
+import { generatePreamble } from '../../../utils';
 import type { OutputOptions, RollupBuild } from 'rollup';
 
 import type * as d from '../../../declarations';

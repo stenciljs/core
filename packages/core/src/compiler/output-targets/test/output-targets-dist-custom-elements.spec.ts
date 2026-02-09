@@ -5,7 +5,7 @@ import {
   mockModule,
   mockValidatedConfig,
 } from '@stencil/core/testing';
-import { DIST_CUSTOM_ELEMENTS } from '@utils';
+import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import path from 'path';
 
 import type * as d from '../../../declarations';

@@ -1,4 +1,4 @@
-import { hasError, isOutputTargetDistCollection, join, mergeIntoWith, normalizeFsPath, relative } from '@utils';
+import { hasError, isOutputTargetDistCollection, join, mergeIntoWith, normalizeFsPath, relative } from '../../utils';
 import type { Plugin } from 'rollup';
 
 import type * as d from '../../declarations';

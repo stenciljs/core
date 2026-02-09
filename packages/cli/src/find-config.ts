@@ -1,6 +1,6 @@
-import { buildError, isString, normalizePath, result } from '@utils';
+import { buildError, isString, normalizePath, result } from '@stencil/core/compiler/utils';
 
-import type { CompilerSystem, Diagnostic } from '../declarations';
+import type { CompilerSystem, Diagnostic } from '@stencil/core';
 
 /**
  * An object containing the {@link CompilerSystem} used to find the configuration file, as well as the location on disk

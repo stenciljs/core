@@ -1,4 +1,4 @@
-import { buildError, isValidConfigOutputTarget, VALID_CONFIG_OUTPUT_TARGETS } from '@utils';
+import { buildError, isValidConfigOutputTarget, VALID_CONFIG_OUTPUT_TARGETS } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { validateCollection } from './validate-collection';

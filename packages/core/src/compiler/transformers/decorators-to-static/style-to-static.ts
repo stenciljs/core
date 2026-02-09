@@ -1,4 +1,4 @@
-import { DEFAULT_STYLE_MODE, join } from '@utils';
+import { DEFAULT_STYLE_MODE, join } from '../../../utils';
 import { basename, dirname, extname } from 'path';
 import ts from 'typescript';
 

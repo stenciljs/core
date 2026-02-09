@@ -1,4 +1,4 @@
-import { plt } from '@platform';
+import { plt } from 'virtual:platform';
 
 interface SetPlatformOptions {
   raf?: (c: FrameRequestCallback) => number;

@@ -1,4 +1,4 @@
-import { join, relative } from '@utils';
+import { join, relative } from '../../utils';
 import { basename, dirname } from 'path';
 import { ResolveIdResult } from 'rollup';
 

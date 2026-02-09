@@ -1,5 +1,5 @@
-import { createNodeSys } from '@sys-api-node';
-import { buildError, catchError, hasError, isString, normalizePath } from '@utils';
+import { createNodeSys } from '../../sys/node';
+import { buildError, catchError, hasError, isString, normalizePath } from '../../utils';
 import { dirname } from 'path';
 
 import type { Diagnostic, LoadConfigInit, LoadConfigResults, UnvalidatedConfig } from '../../declarations';

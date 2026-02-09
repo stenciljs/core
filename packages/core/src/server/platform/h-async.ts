@@ -1,5 +1,5 @@
-import { consoleDevError } from '@platform';
-import { h } from '@runtime';
+import { consoleDevError } from 'virtual:platform';
+import { h } from '../../runtime';
 
 import type * as d from '../../declarations';
 

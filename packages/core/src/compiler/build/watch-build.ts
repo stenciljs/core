@@ -1,4 +1,4 @@
-import { isString, resolve } from '@utils';
+import { isString, resolve } from '../../utils';
 import { dirname } from 'path';
 import type ts from 'typescript';
 

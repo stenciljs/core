@@ -1,4 +1,4 @@
-import { isOutputTargetHydrate } from '@utils';
+import { isOutputTargetHydrate } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { generateHydrateApp } from './generate-hydrate-app';

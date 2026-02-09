@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 import { parseClassList, setAccessor } from '../set-accessor';
 

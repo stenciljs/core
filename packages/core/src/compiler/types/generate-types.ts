@@ -1,4 +1,4 @@
-import { isDtsFile, join, relative } from '@utils';
+import { isDtsFile, join, relative } from '../../utils';
 
 import type * as d from '../../declarations';
 import { generateCustomElementsTypes } from '../output-targets/dist-custom-elements/custom-elements-types';

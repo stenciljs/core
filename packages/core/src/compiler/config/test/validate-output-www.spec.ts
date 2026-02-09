@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockLoadConfigInit } from '@stencil/core/testing';
-import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '@utils';
+import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
 import path from 'path';
 
 import { createConfigFlags, type ConfigFlags } from '@stencil/cli';

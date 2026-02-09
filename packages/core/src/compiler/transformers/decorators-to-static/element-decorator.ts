@@ -1,4 +1,4 @@
-import { buildError } from '@utils';
+import { buildError } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

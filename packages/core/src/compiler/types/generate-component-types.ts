@@ -1,4 +1,4 @@
-import { addDocBlock, dashToPascalCase, sortBy } from '@utils';
+import { addDocBlock, dashToPascalCase, sortBy } from '../../utils';
 
 import type * as d from '../../declarations';
 import { HTML_ELEMENT_METHODS } from './constants';

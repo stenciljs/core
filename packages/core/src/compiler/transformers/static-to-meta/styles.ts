@@ -1,4 +1,4 @@
-import { DEFAULT_STYLE_MODE, sortBy } from '@utils';
+import { DEFAULT_STYLE_MODE, sortBy } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

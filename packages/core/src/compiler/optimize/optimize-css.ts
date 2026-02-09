@@ -1,4 +1,4 @@
-import { hasError } from '@utils';
+import { hasError } from '../../utils';
 
 import { OptimizeCssInput, OptimizeCssOutput } from '../../declarations';
 import { autoprefixCss } from './autoprefixer';

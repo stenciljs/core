@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
  * Build config for runtime/index.js (type definitions)
  */
 export default defineConfig({
+  plugins: [
+    stencilVirtualModules({
+      resolve: {
+        'app-data': resolve(__dirname, 'src/app-data/index.ts'),
+        'app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+        'platform': resolve(__dirname, 'src/client/index.ts'),
+      },
+    }),
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, 'src/runtime/index.ts'),
@@ -19,22 +29,11 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         if (id.startsWith('node:')) return true;
-        // Note: @platform, @app-data, @app-globals are NOT externalized
-        // They get resolved via aliases and bundled inline
         return false;
       },
       output: {
         preserveModules: false,
       },
-    },
-  },
-  resolve: {
-    alias: {
-      '@platform': resolve(__dirname, 'src/client'),
-      '@runtime': resolve(__dirname, 'src/runtime'),
-      '@utils': resolve(__dirname, 'src/utils'),
-      '@app-data': resolve(__dirname, 'src/app-data'),
-      '@app-globals': resolve(__dirname, 'src/app-globals'),
     },
   },
 });

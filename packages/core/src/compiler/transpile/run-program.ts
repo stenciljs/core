@@ -6,7 +6,7 @@ import {
   loadTypeScriptDiagnostics,
   normalizePath,
   relative,
-} from '@utils';
+} from '../../utils';
 import { basename } from 'path';
 import ts from 'typescript';
 

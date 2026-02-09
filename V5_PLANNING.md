@@ -28,8 +28,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - ✅ All packages build with Vite
 - ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
 - ✅ Renamed internal → runtime (public API change)
+- ✅ Removed build-time aliases - converted to relative imports + virtual modules
 - ⏳ Fix type generation (use tsc + dts-bundle-generator properly)
-- ⏳ Remove build-time aliases (@utils, @app-data, etc.) - convert to relative imports
 
 ### 4. 📦 Mono-repo Restructure  
 **Status:** ✅ Complete
@@ -101,8 +101,12 @@ packages/
 ### ⏳ Fix type generation
 Currently using fallback/stub instead of proper `tsc` + `dts-bundle-generator`
 
-### ⏳ Remove build-time aliases
-Convert `@utils`, `@app-data`, etc. to relative imports
+### ✅ Remove build-time aliases (DONE)
+Converted aliases to:
+- **Relative imports:** `@utils`, `@runtime`, `@sys-api-node`, `@hydrate-factory`
+- **Virtual modules:** `virtual:app-data`, `virtual:app-globals`, `virtual:platform`
+  - Follows Vite's virtual module convention with `\0` prefix
+  - See `vite-plugin-virtual-modules.ts` for implementation
 
 ---
 
@@ -149,15 +153,15 @@ Convert `@utils`, `@app-data`, etc. to relative imports
 
 ```
 mock-doc:  337.62 kB (53 modules)
-core:      883.77 kB (336 modules) + runtime bundles
-cli:        56.05 kB (100 modules)
-Total:     ~4.3s
+core:      1,221.96 kB (383 modules) + runtime bundles
+cli:        48.79 kB (22 modules)
+Total:     ~8.5s
 ```
 
 Runtime bundles:
 - `runtime/index.js` - 53.73 kB (type exports)
 - `runtime/client/` - 103.26 kB (browser runtime)
-- `runtime/server/` - 185.55 kB (SSR/hydration)
+- `runtime/server/` - 185.64 kB (SSR/hydration)
 - `runtime/app-data/` - 2.25 kB (build conditionals)
 - `runtime/app-globals/` - 0.13 kB (global state)
 
@@ -185,5 +189,5 @@ node test-packages.mjs
 
 ---
 
-*Last updated: 2026-02-09 Session 7*
+*Last updated: 2026-02-09 Session 8*
 

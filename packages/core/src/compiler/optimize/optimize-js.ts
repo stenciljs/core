@@ -1,4 +1,4 @@
-import { catchError } from '@utils';
+import { catchError } from '../../utils';
 
 import { ValidatedConfig, OptimizeJsInput, OptimizeJsOutput } from '../../declarations';
 import { minifyJs } from './minify-js';

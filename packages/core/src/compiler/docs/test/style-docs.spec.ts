@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core/declarations';
-import { DEFAULT_STYLE_MODE } from '@utils';
+import { DEFAULT_STYLE_MODE } from '../../../utils';
 
 import { parseStyleDocs } from '../style-docs';
 

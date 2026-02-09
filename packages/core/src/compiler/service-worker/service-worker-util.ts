@@ -1,4 +1,4 @@
-import { relative } from '@utils';
+import { relative } from '../../utils';
 
 import type * as d from '../../declarations';
 

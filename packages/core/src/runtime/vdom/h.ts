@@ -7,8 +7,8 @@
  * Modified for Stencil's compiler and vdom
  */
 
-import { BUILD } from '@app-data';
-import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { consoleDevError, consoleDevWarn, transformTag } from 'virtual:platform';
 import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';

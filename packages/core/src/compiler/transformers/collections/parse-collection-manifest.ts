@@ -1,4 +1,4 @@
-import { join, normalizePath } from '@utils';
+import { join, normalizePath } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { parseCollectionComponents, transpileCollectionModule } from './parse-collection-components';

@@ -6,7 +6,7 @@
  * Using it could look something like this:
  *
  * ```ts
- * import { result } from '@utils';
+ * import { result } from './';
  *
  * const mightFail = (input: number): Result<number, string> => {
  *   try {

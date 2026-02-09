@@ -1,4 +1,4 @@
-import { catchError } from '@utils';
+import { catchError } from '../../utils';
 
 import type * as d from '../../declarations';
 

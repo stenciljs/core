@@ -1,4 +1,4 @@
-import { isDtsFile, isJsFile, isJsxFile, isString, isTsFile, isTsxFile, join, normalizePath, resolve } from '@utils';
+import { isDtsFile, isJsFile, isJsxFile, isString, isTsFile, isTsxFile, join, normalizePath, resolve } from '../../../utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
 

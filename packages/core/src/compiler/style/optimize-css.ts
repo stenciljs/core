@@ -1,4 +1,4 @@
-import { hasError, normalizePath } from '@utils';
+import { hasError, normalizePath } from '../../utils';
 
 import type * as d from '../../declarations';
 import { optimizeCssId } from '../../version';

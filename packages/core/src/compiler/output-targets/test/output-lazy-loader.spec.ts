@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockBuildCtx, mockCompilerCtx, mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
-import { DIST, resolve } from '@utils';
+import { DIST, resolve } from '../../../utils';
 
 import { validateDist } from '../../config/outputs/validate-dist';
 import { outputLazyLoader } from '../output-lazy-loader';

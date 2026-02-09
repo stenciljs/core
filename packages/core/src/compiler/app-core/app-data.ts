@@ -6,7 +6,7 @@ import {
   ModuleMap,
   ValidatedConfig,
 } from '@stencil/core/runtime';
-import { unique } from '@utils';
+import { unique } from '../../utils';
 
 /**
  * Re-export {@link BUILD} defaults

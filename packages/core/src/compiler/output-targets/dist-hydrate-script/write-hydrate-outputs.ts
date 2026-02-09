@@ -1,4 +1,4 @@
-import { hasError, join } from '@utils';
+import { hasError, join } from '../../../utils';
 import { basename } from 'path';
 import type { RollupOutput } from 'rollup';
 

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
  * Build config for runtime/server/index.js (SSR/hydration runtime)
@@ -7,6 +8,16 @@ import { resolve } from 'path';
  * v5 breaking change: hydrate → server (clearer naming)
  */
 export default defineConfig({
+  plugins: [
+    stencilVirtualModules({
+      // Server bundle externalizes all virtual modules - they're provided at runtime
+      external: {
+        'app-data': '@stencil/core/runtime/app-data',
+        'app-globals': '@stencil/core/runtime/app-globals',
+        'platform': '@stencil/core/runtime/client',
+      },
+    }),
+  ],
   build: {
     ssr: true,
     lib: {
@@ -23,22 +34,11 @@ export default defineConfig({
       external: (id) => {
         if (id.startsWith('node:')) return true;
         if (id === '@stencil/mock-doc') return true;
-        if (id === '@platform' || id.startsWith('@platform/')) return true;
-        if (id === '@app-data' || id.startsWith('@app-data/')) return true;
-        if (id === '@app-globals' || id.startsWith('@app-globals/')) return true;
         return false;
       },
       output: {
         preserveModules: false,
       },
-    },
-  },
-  resolve: {
-    alias: {
-      // For server, @platform is the server platform (not client)
-      '@platform': resolve(__dirname, 'src/server/platform/index.ts'),
-      '@runtime': resolve(__dirname, 'src/runtime'),
-      '@utils': resolve(__dirname, 'src/utils'),
     },
   },
 });

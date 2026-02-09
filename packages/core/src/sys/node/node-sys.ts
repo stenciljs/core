@@ -1,4 +1,4 @@
-import { isFunction, normalizePath } from '@utils';
+import { isFunction, normalizePath } from '../../utils';
 import { createHash } from 'crypto';
 import exit from 'exit';
 import fs from 'graceful-fs';

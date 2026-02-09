@@ -1,4 +1,4 @@
-import { join, normalizePath } from '@utils';
+import { join, normalizePath } from '../../../utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
 

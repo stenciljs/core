@@ -1,7 +1,7 @@
 import { createConfigFlags } from '@stencil/cli';
 import type * as d from '../declarations';
 import { MockWindow } from '@stencil/mock-doc';
-import { noop } from '@utils';
+import { noop } from '../utils';
 import path from 'path';
 
 import { createWorkerContext } from '../compiler';

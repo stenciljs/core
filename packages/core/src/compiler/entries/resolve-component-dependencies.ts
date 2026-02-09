@@ -1,4 +1,4 @@
-import { flatOne, unique } from '@utils';
+import { flatOne, unique } from '../../utils';
 
 import type * as d from '../../declarations';
 

@@ -1,4 +1,4 @@
-import { normalizePath, relative } from '@utils';
+import { normalizePath, relative } from '../../utils';
 import { dirname } from 'path';
 import ts from 'typescript';
 
@@ -85,7 +85,7 @@ function visit(compilerHost: ts.CompilerHost, transformCtx: ts.TransformationCon
  *
  * ```ts
  * // src/importing.ts
- * import { myUtil } from '@utils';
+ * import { myUtil } from '../../utils';
  * ```
  *
  * but unfortunately, in the compiled output you'll still have:

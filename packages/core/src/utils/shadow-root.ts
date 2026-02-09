@@ -1,6 +1,6 @@
-import { BUILD } from '@app-data';
-import { globalStyles } from '@app-globals';
-import { supportsConstructableStylesheets, supportsMutableAdoptedStyleSheets } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { globalStyles } from 'virtual:app-globals';
+import { supportsConstructableStylesheets, supportsMutableAdoptedStyleSheets } from 'virtual:platform';
 import { CMP_FLAGS } from './constants';
 
 import type * as d from '../declarations';

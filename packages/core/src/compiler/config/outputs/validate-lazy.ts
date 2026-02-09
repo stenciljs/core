@@ -1,4 +1,4 @@
-import { DIST_LAZY, isBoolean, isOutputTargetDistLazy, join } from '@utils';
+import { DIST_LAZY, isBoolean, isOutputTargetDistLazy, join } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { getAbsolutePath } from '../config-utils';

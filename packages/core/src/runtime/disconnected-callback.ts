@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { getHostRef, plt } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { getHostRef, plt } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { PLATFORM_FLAGS } from './runtime-constants';

@@ -3,8 +3,6 @@ import { resolve } from 'path';
 
 /**
  * Vite config for @stencil/cli
- *
- * Source is in packages/cli/src/
  */
 export default defineConfig({
   build: {
@@ -25,8 +23,8 @@ export default defineConfig({
         '@stencil/core',
         '@stencil/core/compiler',
         '@stencil/core/compiler/utils',
-        '@stencil/core/testing', // Being removed in v5
-        '@stencil/core/dev-server', // Being replaced by Vite in v5
+        '@stencil/core/testing',
+        '@stencil/core/dev-server',
         '@stencil/mock-doc',
         'typescript',
         'prompts',
@@ -34,14 +32,6 @@ export default defineConfig({
       output: {
         preserveModules: false,
       },
-    },
-  },
-  resolve: {
-    alias: {
-      // Map @utils to proper package export
-      '@utils': '@stencil/core/compiler/utils',
-      // Map local declarations to core exports
-      '../declarations': '@stencil/core',
     },
   },
 });

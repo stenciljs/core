@@ -1,4 +1,4 @@
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../../utils';
 
 import type * as d from '../../../declarations';
 

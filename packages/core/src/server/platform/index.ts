@@ -1,8 +1,8 @@
-import { BUILD } from '@app-data';
-import { reWireGetterSetter } from '@utils/es2022-rewire-class-members';
+import { BUILD } from 'virtual:app-data';
+import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 
 import type * as d from '../../declarations';
-import { CMP_FLAGS } from '@utils/constants';
+import { CMP_FLAGS } from '../../utils/constants';
 
 /**
  * Access transformTag via the closure-scoped $stencilTagTransform object.
@@ -206,7 +206,7 @@ let scopedSSR = false;
 
 export { hAsync as h } from './h-async';
 export { hydrateApp } from './hydrate-app';
-export { BUILD, Env, NAMESPACE } from '@app-data';
+export { BUILD, Env, NAMESPACE } from 'virtual:app-data';
 export {
   addHostEventListeners,
   bootstrapLazy,
@@ -239,4 +239,4 @@ export {
   setTagTransformer,
   setValue,
   transformTag,
-} from '@runtime';
+} from '../../runtime';

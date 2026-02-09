@@ -1,4 +1,4 @@
-import { isObject, pluck } from '@utils';
+import { isObject, pluck } from '../../utils';
 
 import type * as d from '../../declarations';
 

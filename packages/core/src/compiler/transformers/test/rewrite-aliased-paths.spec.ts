@@ -1,6 +1,6 @@
 import { CompilerCtx } from '@stencil/core/declarations';
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../../utils';
 import path from 'path';
 import ts from 'typescript';
 

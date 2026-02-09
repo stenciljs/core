@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 import { MEMBER_FLAGS, SERIALIZED_PREFIX } from '../utils/constants';
 import { isComplexType } from '../utils/helpers';

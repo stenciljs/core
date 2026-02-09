@@ -1,4 +1,4 @@
-import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '@utils';
+import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '../../../utils';
 import MagicString from 'magic-string';
 import * as ts from 'typescript';
 

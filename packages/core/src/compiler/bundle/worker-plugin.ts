@@ -1,4 +1,4 @@
-import { generatePreamble, hasError, normalizeFsPath } from '@utils';
+import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
 import type { Plugin, PluginContext, TransformResult } from 'rollup';
 
 import type * as d from '../../declarations';

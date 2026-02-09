@@ -1,4 +1,4 @@
-import { escapeHtml, generatePreamble, join } from '@utils';
+import { escapeHtml, generatePreamble, join } from '../../utils';
 
 import type * as d from '../../declarations';
 

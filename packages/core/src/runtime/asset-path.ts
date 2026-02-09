@@ -1,4 +1,4 @@
-import { plt, win } from '@platform';
+import { plt, win } from 'virtual:platform';
 
 export const getAssetPath = (path: string) => {
   const assetUrl = new URL(path, plt.$resourcesUrl$);

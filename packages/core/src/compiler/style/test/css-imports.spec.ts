@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { buildError, normalizePath } from '@utils';
+import { buildError, normalizePath } from '../../../utils';
 import path from 'path';
 
 import { FsReadOptions } from '../../sys/in-memory-fs';

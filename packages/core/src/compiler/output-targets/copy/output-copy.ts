@@ -1,4 +1,4 @@
-import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '@utils';
+import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
 import { minimatch } from 'minimatch';
 
 import type * as d from '../../../declarations';

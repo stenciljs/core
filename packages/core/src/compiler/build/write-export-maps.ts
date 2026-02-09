@@ -2,8 +2,8 @@ import {
   isEligiblePrimaryPackageOutputTarget,
   isOutputTargetDistCustomElements,
   isOutputTargetDistLazyLoader,
-} from '@utils';
-import { relative } from '@utils';
+} from '../../utils';
+import { relative } from '../../utils';
 import { execSync } from 'child_process';
 
 import * as d from '../../declarations';

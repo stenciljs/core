@@ -1,4 +1,4 @@
-import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '@utils';
+import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '../../../utils';
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 

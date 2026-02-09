@@ -1,4 +1,4 @@
-import { DEFAULT_STYLE_MODE, join, normalizePath, relative } from '@utils';
+import { DEFAULT_STYLE_MODE, join, normalizePath, relative } from '../../utils';
 import { dirname, isAbsolute } from 'path';
 
 import type * as d from '../../declarations';

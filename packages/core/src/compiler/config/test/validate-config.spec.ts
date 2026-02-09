@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '@stencil/core/testing';
-import { DOCS_CUSTOM, DOCS_JSON, DOCS_README, DOCS_VSCODE } from '@utils';
+import { DOCS_CUSTOM, DOCS_JSON, DOCS_README, DOCS_VSCODE } from '../../../utils';
 
 import { createConfigFlags } from '@stencil/cli';
 import { isWatchIgnorePath } from '../../fs-watch/fs-watch-rebuild';

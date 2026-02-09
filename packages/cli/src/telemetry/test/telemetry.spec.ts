@@ -1,6 +1,6 @@
 import * as coreCompiler from '@stencil/core/compiler';
 import { mockValidatedConfig } from '@stencil/core/testing';
-import { DIST, DIST_CUSTOM_ELEMENTS, DIST_HYDRATE_SCRIPT, WWW } from '@utils';
+import { DIST, DIST_CUSTOM_ELEMENTS, DIST_HYDRATE_SCRIPT, WWW } from '@stencil/core/compiler/utils';
 
 import { createConfigFlags } from '../../../cli/config-flags';
 import { createSystem } from '../../../compiler/sys/stencil-sys';

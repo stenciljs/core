@@ -1,14 +1,20 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
  * Vite config for @stencil/core compiler
- *
- * Source is now in packages/core/src/
- *
- * TODO: Remove aliases gradually - replace with relative imports
  */
 export default defineConfig({
+  plugins: [
+    stencilVirtualModules({
+      resolve: {
+        'app-data': resolve(__dirname, 'src/app-data/index.ts'),
+        'app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+        'platform': resolve(__dirname, 'src/client/index.ts'),
+      },
+    }),
+  ],
   build: {
     ssr: true,
     lib: {
@@ -33,8 +39,6 @@ export default defineConfig({
         // Note: ansi-colors/chalk bundled to avoid CJS interop issues
         if (['resolve', 'glob', 'magic-string', 'postcss', 'autoprefixer', 'rollup'].includes(id)) return true;
         if (id.startsWith('@babel/') || id.startsWith('@rollup/')) return true;
-        // Note: @app-data, @platform, @runtime, @app-globals are NOT externalized
-        // They get resolved via aliases and bundled inline
         return false;
       },
       output: {
@@ -44,17 +48,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // TODO: Replace these with relative imports
-      '@utils': resolve(__dirname, 'src/utils'),
-      '@app-data': resolve(__dirname, 'src/app-data'),
-      '@app-globals': resolve(__dirname, 'src/app-globals'),
+      // Package self-references for internal imports
       '@stencil/core/compiler': resolve(__dirname, 'src/compiler'),
       '@stencil/core/runtime': resolve(__dirname, 'src/runtime'),
-      '@platform': resolve(__dirname, 'src/client'),
-      '@runtime': resolve(__dirname, 'src/runtime'),
-      '@sys-api-node': resolve(__dirname, 'src/sys/node'),
-      '@environment': resolve(__dirname, 'src/compiler/sys/environment.ts'),
-      '@hydrate-factory': resolve(__dirname, 'src/server/runner/hydrate-factory.ts'),
     },
   },
 });

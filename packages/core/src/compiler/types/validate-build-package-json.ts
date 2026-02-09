@@ -6,7 +6,7 @@ import {
   join,
   normalizePath,
   relative,
-} from '@utils';
+} from '../../utils';
 import { dirname } from 'path';
 
 import type * as d from '../../declarations';

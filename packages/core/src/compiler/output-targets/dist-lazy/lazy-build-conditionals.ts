@@ -1,4 +1,4 @@
-import { isOutputTargetHydrate } from '@utils';
+import { isOutputTargetHydrate } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';

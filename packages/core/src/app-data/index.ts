@@ -5,7 +5,7 @@ import type { BuildConditionals } from '@stencil/core/runtime';
  *
  * This collection can be found throughout the Stencil codebase, often imported from the `@app-data` module like so:
  * ```ts
- * import { BUILD } from '@app-data';
+ * import { BUILD } from 'virtual:app-data';
  * ```
  * and is used to determine if a portion of the output of a Stencil _project_'s compilation step can be eliminated.
  *

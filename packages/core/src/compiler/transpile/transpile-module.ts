@@ -1,5 +1,5 @@
-import { createNodeLogger } from '@sys-api-node';
-import { isNumber, isString, loadTypeScriptDiagnostics, normalizePath } from '@utils';
+import { createNodeLogger } from '../../sys/node';
+import { isNumber, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';

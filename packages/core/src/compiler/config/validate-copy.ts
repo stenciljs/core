@@ -1,4 +1,4 @@
-import { unique } from '@utils';
+import { unique } from '../../utils';
 
 import type * as d from '../../declarations';
 

@@ -6,7 +6,7 @@ import {
   isOutputTargetWww,
   isString,
   join,
-} from '@utils';
+} from '../../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '../../../declarations';

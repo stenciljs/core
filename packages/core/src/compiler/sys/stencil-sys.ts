@@ -1,5 +1,5 @@
-import { createNodeLogger } from '@sys-api-node';
-import { isRootPath, join, normalizePath } from '@utils';
+import { createNodeLogger } from '../../sys/node';
+import { isRootPath, join, normalizePath } from '../../utils';
 import * as os from 'os';
 import path, { basename, dirname } from 'path';
 import * as process from 'process';

@@ -1,4 +1,4 @@
-import { isOutputTargetDocsReadme } from '@utils';
+import { isOutputTargetDocsReadme } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { generateReadme } from './output-docs';

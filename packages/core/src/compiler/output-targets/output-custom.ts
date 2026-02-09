@@ -1,4 +1,4 @@
-import { catchError, isOutputTargetCustom } from '@utils';
+import { catchError, isOutputTargetCustom } from '../../utils';
 
 import type * as d from '../../declarations';
 import { generateDocData } from '../docs/generate-doc-data';

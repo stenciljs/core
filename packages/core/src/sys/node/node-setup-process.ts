@@ -1,4 +1,4 @@
-import { shouldIgnoreError } from '@utils';
+import { shouldIgnoreError } from '../../utils';
 
 import type { Logger } from '../../declarations';
 

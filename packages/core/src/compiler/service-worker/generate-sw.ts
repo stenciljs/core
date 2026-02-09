@@ -1,4 +1,4 @@
-import { buildWarn, catchError, isOutputTargetWww } from '@utils';
+import { buildWarn, catchError, isOutputTargetWww } from '../../utils';
 import { basename } from 'path';
 
 import type * as d from '../../declarations';

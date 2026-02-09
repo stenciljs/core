@@ -11,7 +11,7 @@ import {
   isString,
   join,
   resolve,
-} from '@utils';
+} from '../../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '../../../declarations';

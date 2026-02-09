@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
-import { augmentDiagnosticWithNode, buildError } from '@utils';
+import { augmentDiagnosticWithNode, buildError } from '../../../utils';
 import { objectLiteralToObjectMap } from '../transform-utils';
 
 export const getDecoratorParameters: GetDecoratorParameters = (

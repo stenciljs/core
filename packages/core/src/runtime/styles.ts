@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 import {
   plt,
   styles,
@@ -7,7 +7,7 @@ import {
   supportsShadow,
   win,
   writeTask,
-} from '@platform';
+} from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS } from '../utils/constants';

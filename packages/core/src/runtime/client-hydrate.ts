@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { getHostRef, plt, transformTag, win } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { getHostRef, plt, transformTag, win } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS } from '../utils/constants';

@@ -1,5 +1,5 @@
 import * as coreCompiler from '@stencil/core/compiler';
-import * as nodeApi from '@sys-api-node';
+import * as nodeApi from './';
 
 import { initNodeWorkerThread } from './node-worker-thread';
 

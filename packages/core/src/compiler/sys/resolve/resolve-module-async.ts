@@ -1,4 +1,4 @@
-import { isString, normalizeFsPath, normalizePath } from '@utils';
+import { isString, normalizeFsPath, normalizePath } from '../../../utils';
 import { dirname } from 'path';
 import resolve, { AsyncOpts } from 'resolve';
 

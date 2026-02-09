@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { result } from '@utils';
+import { result } from '../../../utils';
 
 import { generateBuildResults } from '../build-results';
 import { generateBuildStats } from '../build-stats';

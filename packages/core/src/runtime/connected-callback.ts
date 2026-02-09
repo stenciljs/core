@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { addHostEventListeners, getHostRef, nextTick, plt, supportsShadow, win } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { addHostEventListeners, getHostRef, nextTick, plt, supportsShadow, win } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';

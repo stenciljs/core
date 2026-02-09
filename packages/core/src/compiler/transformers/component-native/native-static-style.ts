@@ -1,5 +1,5 @@
-import { DEFAULT_STYLE_MODE } from '@utils';
-import { scopeCss } from '@utils/shadow-css';
+import { DEFAULT_STYLE_MODE } from '../../../utils';
+import { scopeCss } from '../../../utils/shadow-css';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

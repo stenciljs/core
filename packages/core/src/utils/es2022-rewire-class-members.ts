@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 import { MEMBER_FLAGS } from './constants';
 
 import type * as d from '../declarations';

@@ -1,4 +1,4 @@
-import { buildError, isBoolean, isNumber, isOutputTargetWww, isString, join, normalizePath } from '@utils';
+import { buildError, isBoolean, isNumber, isOutputTargetWww, isString, join, normalizePath } from '../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '../../declarations';

@@ -1,4 +1,4 @@
-import { isOutputTargetDocsCustom } from '@utils';
+import { isOutputTargetDocsCustom } from '../../../utils';
 
 import type * as d from '../../../declarations';
 

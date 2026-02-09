@@ -1,4 +1,4 @@
-import { catchError, COPY, isOutputTargetCustom } from '@utils';
+import { catchError, COPY, isOutputTargetCustom } from '../../../utils';
 
 import type * as d from '../../../declarations';
 

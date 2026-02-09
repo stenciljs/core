@@ -1,4 +1,4 @@
-import { isString } from '@utils';
+import { isString } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { InMemoryFileSystem } from '../in-memory-fs';

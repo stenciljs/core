@@ -6,7 +6,7 @@ import {
   isOutputTargetHydrate,
   isOutputTargetWww,
   isString,
-} from '@utils';
+} from '../../utils';
 
 import type * as d from '../../declarations';
 

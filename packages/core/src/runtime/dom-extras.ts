@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { supportsShadow } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { supportsShadow } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import {

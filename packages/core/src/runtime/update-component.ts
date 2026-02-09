@@ -1,5 +1,5 @@
-import { BUILD, NAMESPACE } from '@app-data';
-import { Build, consoleError, getHostRef, nextTick, plt, win, writeTask } from '@platform';
+import { BUILD, NAMESPACE } from 'virtual:app-data';
+import { Build, consoleError, getHostRef, nextTick, plt, win, writeTask } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';

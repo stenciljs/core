@@ -1,4 +1,4 @@
-import { normalizePath, resolve } from '@utils';
+import { normalizePath, resolve } from '../../../utils';
 import { isAbsolute } from 'path';
 import ts from 'typescript';
 

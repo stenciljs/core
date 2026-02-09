@@ -1,4 +1,4 @@
-import { buildError } from '@utils';
+import { buildError } from '../../../utils';
 import fs from 'graceful-fs';
 
 import { LazyDependencies, NodeLazyRequire } from '../node-lazy-require';

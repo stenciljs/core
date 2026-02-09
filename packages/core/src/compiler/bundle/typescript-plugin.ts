@@ -1,4 +1,4 @@
-import { isDtsFile, isString, normalizeFsPath } from '@utils';
+import { isDtsFile, isString, normalizeFsPath } from '../../utils';
 import { basename, isAbsolute } from 'path';
 import type { LoadResult, Plugin, TransformResult } from 'rollup';
 import ts from 'typescript';

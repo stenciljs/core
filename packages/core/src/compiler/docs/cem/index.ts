@@ -1,4 +1,4 @@
-import { dashToPascalCase, isOutputTargetDocsCustomElementsManifest } from '@utils';
+import { dashToPascalCase, isOutputTargetDocsCustomElementsManifest } from '../../../utils';
 
 import type * as d from '../../../declarations';
 

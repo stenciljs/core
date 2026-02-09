@@ -6,7 +6,7 @@ import {
   isOutputTargetDocsVscode,
   join,
   normalizePath,
-} from '@utils';
+} from '../../utils';
 
 import type * as d from '../../declarations';
 import { generateCustomDocs } from '../docs/custom';

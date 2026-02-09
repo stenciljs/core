@@ -1,4 +1,4 @@
-import { buildError, catchError, isFunction, isString, relative } from '@utils';
+import { buildError, catchError, isFunction, isString, relative } from '../../utils';
 
 import type * as d from '../../declarations';
 import { crawlAnchorsForNextUrls } from './crawl-urls';

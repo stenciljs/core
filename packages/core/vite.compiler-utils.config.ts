@@ -1,12 +1,22 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
  * Vite config for @stencil/core/compiler/utils
- * 
+ *
  * Exports compiler utilities for use by CLI and other tools
  */
 export default defineConfig({
+  plugins: [
+    stencilVirtualModules({
+      resolve: {
+        'app-data': resolve(__dirname, 'src/app-data/index.ts'),
+        'app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+        'platform': resolve(__dirname, 'src/client/index.ts'),
+      },
+    }),
+  ],
   build: {
     ssr: true,
     lib: {
@@ -30,14 +40,6 @@ export default defineConfig({
         preserveModules: false,
         entryFileNames: 'index.js',
       },
-    },
-  },
-  resolve: {
-    alias: {
-      '@app-data': resolve(__dirname, 'src/app-data'),
-      '@app-globals': resolve(__dirname, 'src/app-globals'),
-      '@runtime': resolve(__dirname, 'src/runtime'),
-      '@platform': resolve(__dirname, 'src/client'),
     },
   },
 });

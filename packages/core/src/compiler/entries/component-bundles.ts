@@ -1,4 +1,4 @@
-import { sortBy } from '@utils';
+import { sortBy } from '../../utils';
 
 import type * as d from '../../declarations';
 import { getDefaultBundles } from './default-bundles';

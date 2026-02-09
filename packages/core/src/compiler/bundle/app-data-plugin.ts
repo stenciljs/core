@@ -1,4 +1,4 @@
-import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '@utils';
+import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
 import MagicString from 'magic-string';
 import { basename } from 'path';
 import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rollup';

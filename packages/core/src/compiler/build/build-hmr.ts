@@ -1,4 +1,4 @@
-import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '@utils';
+import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
 import { minimatch } from 'minimatch';
 import { basename } from 'path';
 

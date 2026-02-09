@@ -1,4 +1,4 @@
-import { DEFAULT_STYLE_MODE } from '@utils';
+import { DEFAULT_STYLE_MODE } from '../../utils';
 
 import type * as d from '../../declarations';
 

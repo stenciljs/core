@@ -1,4 +1,4 @@
-import { createJsVarName, normalizeFsPathQuery } from '@utils';
+import { createJsVarName, normalizeFsPathQuery } from '../../utils';
 import { basename } from 'path';
 import type { Plugin, TransformPluginContext, TransformResult } from 'rollup';
 

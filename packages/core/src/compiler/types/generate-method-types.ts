@@ -1,4 +1,4 @@
-import { getTextDocs } from '@utils';
+import { getTextDocs } from '../../utils';
 
 import type * as d from '../../declarations';
 import { updateTypeIdentifierNames } from './stencil-types';

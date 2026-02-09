@@ -1,4 +1,4 @@
-import { hasError, isFunction, isString } from '@utils';
+import { hasError, isFunction, isString } from '../../utils';
 
 import { CssNode, CssNodeType } from '../style/css-parser/css-parse-declarations';
 import { parseCss } from '../style/css-parser/parse-css';

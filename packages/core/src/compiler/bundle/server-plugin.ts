@@ -1,4 +1,4 @@
-import { isOutputTargetHydrate, isString, normalizeFsPath } from '@utils';
+import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
 import { isAbsolute } from 'path';
 import type { Plugin } from 'rollup';
 

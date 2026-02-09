@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { consoleError, loadModule, needsScopedSSR, styles } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { consoleError, loadModule, needsScopedSSR, styles } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';

@@ -7,7 +7,7 @@ import {
   relative,
   sortBy,
   unique,
-} from '@utils';
+} from '../../utils';
 import { basename, dirname } from 'path';
 
 import type * as d from '../../declarations';

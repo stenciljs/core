@@ -1,4 +1,4 @@
-import { isBoolean, isOutputTargetDistCollection } from '@utils';
+import { isBoolean, isOutputTargetDistCollection } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { getAbsolutePath } from '../config-utils';

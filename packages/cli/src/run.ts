@@ -1,7 +1,7 @@
-import { hasError, isFunction, result, shouldIgnoreError } from '@utils';
+import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
 
-import type * as d from '../declarations';
-import { ValidatedConfig } from '../declarations';
+import type * as d from '@stencil/core';
+import { ValidatedConfig } from '@stencil/core';
 import { createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
 import { CoreCompiler, loadCoreCompiler } from './load-compiler';

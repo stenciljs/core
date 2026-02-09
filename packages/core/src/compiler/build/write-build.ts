@@ -1,4 +1,4 @@
-import { catchError } from '@utils';
+import { catchError } from '../../utils';
 
 import * as d from '../../declarations';
 import { outputServiceWorkers } from '../output-targets/output-service-workers';

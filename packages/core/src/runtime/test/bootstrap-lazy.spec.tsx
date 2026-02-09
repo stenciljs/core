@@ -1,4 +1,4 @@
-import { win } from '@platform';
+import { win } from 'virtual:platform';
 
 import { LazyBundlesRuntimeData } from '../../internal';
 import { bootstrapLazy } from '../bootstrap-lazy';

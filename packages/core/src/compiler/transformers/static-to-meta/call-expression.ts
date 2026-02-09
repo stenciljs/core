@@ -1,4 +1,4 @@
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

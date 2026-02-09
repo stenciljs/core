@@ -1,4 +1,4 @@
-import { generatePreamble, isOutputTargetDistLazyLoader, join, relative, relativeImport } from '@utils';
+import { generatePreamble, isOutputTargetDistLazyLoader, join, relative, relativeImport } from '../../utils';
 
 import type * as d from '../../declarations';
 import { getClientPolyfill } from '../app-core/app-polyfills';

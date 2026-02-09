@@ -1,4 +1,4 @@
-import { isString, noop } from '@utils';
+import { isString, noop } from '../../utils';
 import fs from 'graceful-fs';
 import { tmpdir } from 'os';
 import path from 'path';

@@ -1,6 +1,6 @@
-import { readOnlyArrayHasStringMember, toCamelCase } from '@utils';
+import { readOnlyArrayHasStringMember, toCamelCase } from '@stencil/core/compiler/utils';
 
-import { LOG_LEVELS, LogLevel, TaskCommand } from '../declarations';
+import { LOG_LEVELS, LogLevel, TaskCommand } from '@stencil/core';
 import {
   BOOLEAN_CLI_FLAGS,
   BOOLEAN_STRING_CLI_FLAGS,

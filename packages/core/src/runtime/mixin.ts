@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 type Ctor<T = {}> = new (...args: any[]) => T;
 

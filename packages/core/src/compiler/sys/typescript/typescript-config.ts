@@ -7,7 +7,7 @@ import {
   loadTypeScriptDiagnostic,
   normalizePath,
   relative,
-} from '@utils';
+} from '../../../utils';
 import { isAbsolute } from 'path';
 import ts from 'typescript';
 

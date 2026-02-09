@@ -1,6 +1,6 @@
 // Mock the shadow-css module before any imports
-jest.mock('@utils/shadow-css', () => {
-  const originalModule = jest.requireActual('@utils/shadow-css');
+jest.mock('../../utils/shadow-css', () => {
+  const originalModule = jest.requireActual('../../utils/shadow-css');
   return {
     ...originalModule,
     scopeCss: jest.fn((cssText: string, scopeId: string) => {

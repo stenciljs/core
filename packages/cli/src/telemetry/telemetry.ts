@@ -1,4 +1,4 @@
-import { isOutputTargetHydrate, WWW } from '@utils';
+import { isOutputTargetHydrate, WWW } from '@stencil/core/compiler/utils';
 
 import type * as d from '../../declarations';
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';

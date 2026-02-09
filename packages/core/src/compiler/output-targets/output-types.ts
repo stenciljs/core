@@ -1,4 +1,4 @@
-import { isOutputTargetDistTypes } from '@utils';
+import { isOutputTargetDistTypes } from '../../utils';
 
 import type * as d from '../../declarations';
 import { generateTypes } from '../types/generate-types';

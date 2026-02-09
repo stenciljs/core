@@ -1,4 +1,4 @@
-import { isString, join } from '@utils';
+import { isString, join } from '../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '../../declarations';

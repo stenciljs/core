@@ -1,4 +1,4 @@
-import { buildWarn } from '@utils';
+import { buildWarn } from '../../utils';
 
 import type * as d from '../../declarations';
 

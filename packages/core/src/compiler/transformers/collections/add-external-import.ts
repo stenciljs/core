@@ -1,4 +1,4 @@
-import { isString, normalizePath, parsePackageJson } from '@utils';
+import { isString, normalizePath, parsePackageJson } from '../../../utils';
 import { dirname } from 'path';
 
 import type * as d from '../../../declarations';

@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core/declarations';
 import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
-import { join, resolve } from '@utils';
+import { join, resolve } from '../../../utils';
 
 import { validateConfig } from '../validate-config';
 

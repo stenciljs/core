@@ -1,10 +1,10 @@
 import { Readable } from 'node:stream';
 
-import { hydrateFactory } from '@hydrate-factory';
-import { modeResolutionChain, setMode } from '@platform';
-import { HYDRATED_STYLE_ID } from '@runtime';
+import { hydrateFactory } from './hydrate-factory';
+import { modeResolutionChain, setMode } from 'virtual:platform';
+import { HYDRATED_STYLE_ID } from '../../runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
-import { hasError } from '@utils';
+import { hasError } from '../../utils';
 
 import { updateCanonicalLink } from '../../compiler/html/canonical-link';
 import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';

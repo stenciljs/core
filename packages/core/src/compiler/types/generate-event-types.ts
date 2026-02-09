@@ -1,4 +1,4 @@
-import { getTextDocs, toTitleCase } from '@utils';
+import { getTextDocs, toTitleCase } from '../../utils';
 
 import type * as d from '../../declarations';
 import { updateTypeIdentifierNames } from './stencil-types';

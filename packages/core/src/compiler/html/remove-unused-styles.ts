@@ -1,4 +1,4 @@
-import { catchError, hasError } from '@utils';
+import { catchError, hasError } from '../../utils';
 
 import type * as d from '../../declarations';
 import { parseCss } from '../style/css-parser/parse-css';

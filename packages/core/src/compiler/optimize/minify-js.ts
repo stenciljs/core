@@ -1,4 +1,4 @@
-import { splitLineBreaks } from '@utils';
+import { splitLineBreaks } from '../../utils';
 import { CompressOptions, MangleOptions, ManglePropertiesOptions, minify, MinifyOptions } from 'terser';
 
 import type * as d from '../../declarations';

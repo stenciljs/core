@@ -1,4 +1,4 @@
-import { buildJsonFileError } from '@utils';
+import { buildJsonFileError } from '../../utils';
 
 import type * as d from '../../declarations';
 

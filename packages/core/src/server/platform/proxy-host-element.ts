@@ -1,6 +1,6 @@
-import { consoleError, getHostRef } from '@platform';
-import { getValue, parsePropertyValue, setValue } from '@runtime';
-import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
+import { consoleError, getHostRef } from 'virtual:platform';
+import { getValue, parsePropertyValue, setValue } from '../../runtime';
+import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '../../utils';
 
 import type * as d from '../../declarations';
 

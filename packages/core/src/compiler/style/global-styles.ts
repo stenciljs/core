@@ -1,4 +1,4 @@
-import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '@utils';
+import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '../../utils';
 
 import type * as d from '../../declarations';
 import { runPluginTransforms } from '../plugin/plugin';

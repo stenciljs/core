@@ -1,4 +1,4 @@
-import { COPY, DIST_TYPES, isBoolean, isOutputTargetDistCustomElements, join } from '@utils';
+import { COPY, DIST_TYPES, isBoolean, isOutputTargetDistCustomElements, join } from '../../../utils';
 
 import type {
   OutputTarget,

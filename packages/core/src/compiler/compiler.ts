@@ -1,4 +1,4 @@
-import { isFunction } from '@utils';
+import { isFunction } from '../utils';
 import ts from 'typescript';
 
 import type { Compiler, Config, Diagnostic, ValidatedConfig } from '../declarations';

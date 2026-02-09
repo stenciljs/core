@@ -1,4 +1,4 @@
-import { dashToPascalCase, isOutputTargetDistCustomElements, join, normalizePath, relative } from '@utils';
+import { dashToPascalCase, isOutputTargetDistCustomElements, join, normalizePath, relative } from '../../../utils';
 import { dirname } from 'path';
 
 import type * as d from '../../../declarations';

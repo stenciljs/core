@@ -1,4 +1,4 @@
-import { getHostRef } from '@platform';
+import { getHostRef } from 'virtual:platform';
 import { Component } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 

@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { getHostRef, win } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { getHostRef, win } from 'virtual:platform';
 
 import { HOST_FLAGS } from '../utils/constants';
 

@@ -5,7 +5,7 @@ import {
   join,
   rollupToStencilSourceMap,
   stringifyRuntimeData,
-} from '@utils';
+} from '../../../utils';
 import type { SourceMap as RollupSourceMap } from 'rollup';
 
 import type * as d from '../../../declarations';

@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 import type * as d from '../declarations';
 import { internalCall } from './dom-extras';

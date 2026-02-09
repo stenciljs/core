@@ -6,8 +6,8 @@
  *
  * Modified for Stencil's renderer and slot projection
  */
-import { BUILD } from '@app-data';
-import { consoleDevError, plt, supportsShadow, win } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { consoleDevError, plt, supportsShadow, win } from 'virtual:platform';
 import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 

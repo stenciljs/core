@@ -1,4 +1,4 @@
-import { DEFAULT_STYLE_MODE } from '@utils';
+import { DEFAULT_STYLE_MODE } from '../../utils';
 
 /**
  * Get a unique component ID which incorporates the component tag name and

@@ -1,4 +1,4 @@
-import { hasError, hasWarning, result } from '@utils';
+import { hasError, hasWarning, result } from '../../utils';
 
 import type * as d from '../../declarations';
 import { validateConfig } from '../config/validate-config';

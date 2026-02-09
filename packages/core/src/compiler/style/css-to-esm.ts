@@ -1,5 +1,5 @@
-import { catchError, createJsVarName, DEFAULT_STYLE_MODE, hasError, isString, normalizePath, resolve } from '@utils';
-import { scopeCss } from '@utils/shadow-css';
+import { catchError, createJsVarName, DEFAULT_STYLE_MODE, hasError, isString, normalizePath, resolve } from '../../utils';
+import { scopeCss } from '../../utils/shadow-css';
 import MagicString from 'magic-string';
 import path from 'path';
 

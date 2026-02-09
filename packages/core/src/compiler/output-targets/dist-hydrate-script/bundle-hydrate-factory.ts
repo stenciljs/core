@@ -1,4 +1,4 @@
-import { loadRollupDiagnostics } from '@utils';
+import { loadRollupDiagnostics } from '../../../utils';
 import * as ts from 'typescript';
 
 import type * as d from '../../../declarations';

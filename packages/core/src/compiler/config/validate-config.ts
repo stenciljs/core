@@ -1,5 +1,5 @@
-import { createNodeLogger, createNodeSys } from '@sys-api-node';
-import { buildError, buildWarn, isBoolean, isNumber, isString, sortBy } from '@utils';
+import { createNodeLogger, createNodeSys } from '../../sys/node';
+import { buildError, buildWarn, isBoolean, isNumber, isString, sortBy } from '../../utils';
 
 import {
   ConfigBundle,

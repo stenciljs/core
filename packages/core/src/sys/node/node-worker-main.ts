@@ -1,4 +1,4 @@
-import { TASK_CANCELED_MSG } from '@utils';
+import { TASK_CANCELED_MSG } from '../../utils';
 import * as cp from 'child_process';
 import { EventEmitter } from 'events';
 

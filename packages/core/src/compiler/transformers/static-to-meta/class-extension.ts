@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { augmentDiagnosticWithNode, buildWarn } from '@utils';
+import { augmentDiagnosticWithNode, buildWarn } from '../../../utils';
 import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';

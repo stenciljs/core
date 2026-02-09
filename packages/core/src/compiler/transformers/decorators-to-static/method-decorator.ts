@@ -1,4 +1,4 @@
-import { augmentDiagnosticWithNode, buildError, buildWarn } from '@utils';
+import { augmentDiagnosticWithNode, buildError, buildWarn } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

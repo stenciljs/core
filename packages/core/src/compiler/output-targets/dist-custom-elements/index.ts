@@ -9,7 +9,7 @@ import {
   isString,
   join,
   rollupToStencilSourceMap,
-} from '@utils';
+} from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

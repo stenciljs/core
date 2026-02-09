@@ -1,4 +1,4 @@
-import { DIST_CUSTOM_ELEMENTS } from '@utils';
+import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import * as ts from 'typescript';
 
 import * as d from '../../../declarations';

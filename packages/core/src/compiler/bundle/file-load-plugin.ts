@@ -1,4 +1,4 @@
-import { isDtsFile, normalizeFsPath } from '@utils';
+import { isDtsFile, normalizeFsPath } from '../../utils';
 import type { Plugin } from 'rollup';
 
 import { InMemoryFileSystem } from '../sys/in-memory-fs';

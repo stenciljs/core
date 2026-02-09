@@ -1,4 +1,4 @@
-import { isOutputTargetDistTypes } from '@utils';
+import { isOutputTargetDistTypes } from '../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../declarations';

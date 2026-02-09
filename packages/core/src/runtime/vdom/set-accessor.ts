@@ -7,8 +7,8 @@
  * Modified for Stencil's compiler and vdom
  */
 
-import { BUILD } from '@app-data';
-import { getHostRef, isMemberInElement, plt, win } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { getHostRef, isMemberInElement, plt, win } from 'virtual:platform';
 import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';

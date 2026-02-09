@@ -1,4 +1,4 @@
-import { getHostRef } from '@platform';
+import { getHostRef } from 'virtual:platform';
 
 import type * as d from '../../declarations';
 import {

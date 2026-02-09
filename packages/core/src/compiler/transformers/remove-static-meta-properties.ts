@@ -1,4 +1,4 @@
-import { readOnlyArrayHasStringMember } from '@utils';
+import { readOnlyArrayHasStringMember } from '../../utils';
 import ts from 'typescript';
 
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';

@@ -1,4 +1,4 @@
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 import type * as d from '../declarations';
 import { PLATFORM_FLAGS } from '../runtime/runtime-constants';

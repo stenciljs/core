@@ -1,4 +1,4 @@
-import { catchError, isFunction, isRootPath, join, normalizePath } from '@utils';
+import { catchError, isFunction, isRootPath, join, normalizePath } from '../../utils';
 import { dirname } from 'path';
 
 import type * as d from '../../declarations';

@@ -1,4 +1,4 @@
-import { toDashCase } from '@utils';
+import { toDashCase } from '@stencil/core/compiler/utils';
 
 import { LogLevel } from '../../declarations';
 import {

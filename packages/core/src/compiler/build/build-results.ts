@@ -1,4 +1,4 @@
-import { fromEntries, hasError, isString, normalizeDiagnostics } from '@utils';
+import { fromEntries, hasError, isString, normalizeDiagnostics } from '../../utils';
 
 import type * as d from '../../declarations';
 import { getBuildTimestamp } from './build-ctx';

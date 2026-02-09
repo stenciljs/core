@@ -2,7 +2,7 @@ import rollupCommonjsPlugin from '@rollup/plugin-commonjs';
 import rollupJsonPlugin from '@rollup/plugin-json';
 import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import rollupReplacePlugin from '@rollup/plugin-replace';
-import { createOnWarnFn, isString, loadRollupDiagnostics } from '@utils';
+import { createOnWarnFn, isString, loadRollupDiagnostics } from '../../utils';
 import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
 
 import type * as d from '../../declarations';

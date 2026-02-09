@@ -1,4 +1,4 @@
-import { normalizePath, relative } from '@utils';
+import { normalizePath, relative } from '../../utils';
 import { dirname } from 'path';
 import ts from 'typescript';
 

@@ -1,4 +1,4 @@
-import { isFunction, isRemoteUrl, relative } from '@utils';
+import { isFunction, isRemoteUrl, relative } from '../../utils';
 
 import type * as d from '../../declarations';
 import { generateBuildResults } from './build-results';

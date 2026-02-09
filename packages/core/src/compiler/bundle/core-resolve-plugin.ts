@@ -1,4 +1,4 @@
-import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '@utils';
+import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
 import { dirname } from 'path';
 import type { Plugin } from 'rollup';
 

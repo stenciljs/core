@@ -1,4 +1,4 @@
-import { join } from '@utils';
+import { join } from '../../utils';
 
 import type * as d from '../../declarations';
 

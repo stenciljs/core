@@ -1,4 +1,4 @@
-import { isOutputTargetDistTypes, join, normalizePath, relative, resolve } from '@utils';
+import { isOutputTargetDistTypes, join, normalizePath, relative, resolve } from '../../utils';
 import { dirname } from 'path';
 
 import type * as d from '../../declarations';

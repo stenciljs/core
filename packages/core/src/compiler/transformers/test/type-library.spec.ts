@@ -1,7 +1,7 @@
 import { ValidatedConfig } from '@stencil/core/declarations';
 import { mockLogger, mockValidatedConfig, setupConsoleMocker } from '@stencil/core/testing';
-import { normalizePath } from '@utils';
-import { relative } from '@utils';
+import { normalizePath } from '../../../utils';
+import { relative } from '../../../utils';
 import path from 'path';
 
 import { addFileToLibrary, getTypeLibrary } from '../type-library';

@@ -1,4 +1,4 @@
-import { catchError, loadTypeScriptDiagnostic } from '@utils';
+import { catchError, loadTypeScriptDiagnostic } from '../../utils';
 import ts from 'typescript';
 
 import type { Diagnostic } from '../../declarations';

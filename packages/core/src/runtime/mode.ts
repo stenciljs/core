@@ -1,4 +1,4 @@
-import { getHostRef, modeResolutionChain } from '@platform';
+import { getHostRef, modeResolutionChain } from 'virtual:platform';
 
 import type * as d from '../declarations';
 

@@ -1,6 +1,6 @@
-import { isOutputTargetDocs } from '@utils';
+import { isOutputTargetDocs } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '../declarations';
+import type { ValidatedConfig } from '@stencil/core';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 

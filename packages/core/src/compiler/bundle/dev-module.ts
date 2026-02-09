@@ -1,4 +1,4 @@
-import { generatePreamble, join, relative } from '@utils';
+import { generatePreamble, join, relative } from '../../utils';
 import { basename, dirname } from 'path';
 import { OutputOptions, rollup } from 'rollup';
 

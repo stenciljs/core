@@ -1,4 +1,4 @@
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../utils';
 import fs from 'graceful-fs';
 import path from 'path';
 

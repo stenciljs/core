@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
  * Vite config for @stencil/core/testing
@@ -8,6 +9,15 @@ import { resolve } from 'path';
  * NOT for end-user testing - those use @stencil/vitest and @stencil/playwright.
  */
 export default defineConfig({
+  plugins: [
+    stencilVirtualModules({
+      resolve: {
+        'app-data': resolve(__dirname, 'src/app-data/index.ts'),
+        'app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+        'platform': resolve(__dirname, 'src/client/index.ts'),
+      },
+    }),
+  ],
   build: {
     ssr: true,
     lib: {
@@ -39,16 +49,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@utils': resolve(__dirname, 'src/utils'),
-      '@app-data': resolve(__dirname, 'src/app-data'),
-      '@app-globals': resolve(__dirname, 'src/app-globals'),
+      // Package self-references for internal imports
       '@stencil/core/compiler': resolve(__dirname, 'src/compiler'),
       '@stencil/core/runtime': resolve(__dirname, 'src/runtime'),
-      '@platform': resolve(__dirname, 'src/client'),
-      '@runtime': resolve(__dirname, 'src/runtime'),
-      '@sys-api-node': resolve(__dirname, 'src/sys/node'),
-      '@environment': resolve(__dirname, 'src/compiler/sys/environment.ts'),
-      '@hydrate-factory': resolve(__dirname, 'src/server/runner/hydrate-factory.ts'),
     },
   },
 });

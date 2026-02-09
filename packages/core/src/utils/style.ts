@@ -1,4 +1,4 @@
-import { supportsConstructableStylesheets } from '@platform';
+import { supportsConstructableStylesheets } from 'virtual:platform';
 
 /**
  * If (1) styles is not empty string, and (2) constructable stylesheets are supported,

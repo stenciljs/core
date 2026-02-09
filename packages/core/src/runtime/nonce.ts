@@ -1,4 +1,4 @@
-import { plt } from '@platform';
+import { plt } from 'virtual:platform';
 
 /**
  * Assigns the given value to the nonce property on the runtime platform object.

@@ -1,5 +1,5 @@
-import { BUILD } from '@app-data';
-import { consoleDevWarn, consoleError, getHostRef } from '@platform';
+import { BUILD } from 'virtual:app-data';
+import { consoleDevWarn, consoleError, getHostRef } from 'virtual:platform';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';

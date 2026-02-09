@@ -1,4 +1,4 @@
-import { dashToPascalCase } from '@utils';
+import { dashToPascalCase } from '../../utils';
 
 import type * as d from '../../declarations';
 import { updateTypeIdentifierNames } from './stencil-types';

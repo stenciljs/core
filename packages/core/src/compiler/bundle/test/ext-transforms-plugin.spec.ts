@@ -1,5 +1,5 @@
 import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../../utils';
 
 import * as importPathLib from '../../transformers/stencil-import-path';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';

@@ -1,4 +1,4 @@
-import { isFunction, isTsFile, isTsxFile, normalizePath } from '@utils';
+import { isFunction, isTsFile, isTsxFile, normalizePath } from '../../../utils';
 
 import type * as d from '../../../declarations';
 import { isCommonDirModuleFile } from '../resolve/resolve-utils';

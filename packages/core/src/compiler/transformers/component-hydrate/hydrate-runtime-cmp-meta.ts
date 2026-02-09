@@ -1,4 +1,4 @@
-import { CMP_FLAGS, formatComponentRuntimeMeta } from '@utils';
+import { CMP_FLAGS, formatComponentRuntimeMeta } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';

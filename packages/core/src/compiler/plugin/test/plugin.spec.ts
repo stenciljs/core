@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { createCompiler } from '@stencil/core/compiler';
 import { mockConfig } from '@stencil/core/testing';
-import { normalizePath } from '@utils';
+import { normalizePath } from '../../../utils';
 import path from 'path';
 
 import type * as d from '../../../declarations';

@@ -1,4 +1,4 @@
-import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '@utils';
+import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '../../declarations';

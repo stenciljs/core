@@ -1,6 +1,6 @@
-import { BUILD } from '@app-data';
-import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
-import { addHostEventListeners } from '@runtime';
+import { BUILD } from 'virtual:app-data';
+import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from 'virtual:platform';
+import { addHostEventListeners } from './';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS } from '../utils/constants';
@@ -21,7 +21,7 @@ import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS, SLOT_FB_CSS } from './runtime-constants';
 import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
-export { setNonce } from '@platform';
+export { setNonce } from 'virtual:platform';
 
 export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.CustomElementsDefineOptions = {}) => {
   if (BUILD.profile && performance.mark) {

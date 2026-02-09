@@ -1,4 +1,4 @@
-import { dashToPascalCase, sortBy, toTitleCase } from '@utils';
+import { dashToPascalCase, sortBy, toTitleCase } from '../../../utils';
 
 import type * as d from '../../../declarations';
 

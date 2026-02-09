@@ -2,7 +2,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { convertValueToLiteral, createStaticGetter } from './transform-utils';
-import { WATCH_FLAGS } from '@utils';
+import { WATCH_FLAGS } from '../../utils';
 
 /**
  * Add a getter to a class for a static representation of the watchers

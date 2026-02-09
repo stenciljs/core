@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core/declarations';
-import { catchError, createOnWarnFn, generatePreamble, join, loadRollupDiagnostics } from '@utils';
+import { catchError, createOnWarnFn, generatePreamble, join, loadRollupDiagnostics } from '../../../utils';
 import MagicString from 'magic-string';
 import { RollupOptions } from 'rollup';
 import { rollup, type RollupBuild } from 'rollup';

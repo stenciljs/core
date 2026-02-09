@@ -1,4 +1,4 @@
-import { buildError, join, normalizePath } from '@utils';
+import { buildError, join, normalizePath } from '../../utils';
 import { basename, dirname, isAbsolute } from 'path';
 
 import type * as d from '../../declarations';
