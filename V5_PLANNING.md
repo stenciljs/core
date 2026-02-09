@@ -11,25 +11,31 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 ## Major Goals
 
 ### 1. 🧪 Remove Integrated Testing
-**Status:** 📋 Replacement packages ready - need to remove `src/testing/`
+**Status:** 📋 Replacement packages ready - need to remove `src/testing/jest` and `src/testing/puppeteer`
 - `@stencil/vitest` + `@stencil/playwright` audited and ready
-- Still need to migrate Stencil's internal tests
+- Still need to migrate Stencil's internal tests from jest to vitest
+- Still need to find a way to translate Stencil's jest tests / on-the-fly component in-line transpilation to vitest
 
-### 2. 🗑️ Remove Legacy Features
+### 2. 🗑️ Update / Remove Legacy Features
 **Status:** ✅ Decided
 - ES5 builds → REMOVE
 - Internal CommonJS → Pure ESM (Node 18+)
 - Ancient polyfills → REMOVE
 - In-browser compilation → REMOVE
+- node-sys in-memory file-system. We can hand this over to Vite (ts > )
+- Hand-crafted dev server (used for development AND www / SSG) → replace with vite dev server
 
-### 3. ⚡ Move to Vite
+### 3. ⚡ Move Stencil build to Vite
 **Status:** 🚧 In Progress
 - ✅ Built prototype
 - ✅ All packages build with Vite
 - ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
 - ✅ Renamed internal → runtime (public API change)
 - ✅ Removed build-time aliases - converted to relative imports + virtual modules
-- 🚧 Type generation (core done, cli/mock-doc TODO)
+- 🚧 Type generation (core done, cli done, mock-doc TODO)
+- 🚧 Move development server calls / orchestration to point to vite dev server
+- 🚧 Move jest tests to vitest (see #1)
+- 🚧 Get orchestrator working in `--watch` mode 
 
 ### 4. 📦 Mono-repo Restructure  
 **Status:** ✅ Complete
