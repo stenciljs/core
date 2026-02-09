@@ -13,13 +13,28 @@
     "./mock-doc": {
       "import": "./dist/mock-doc.js"
     },
-    "./runtime": "./dist/runtime/index.js",
-    "./runtime/client": "./dist/runtime/client/index.js",
-    "./runtime/server": "./dist/runtime/server/index.js",
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js"
+    },
+    "./runtime/client": {
+      "types": "./dist/runtime/client/index.d.ts",
+      "import": "./dist/runtime/client/index.js"
+    },
+    "./runtime/server": {
+      "types": "./dist/runtime/server/index.d.ts",
+      "import": "./dist/runtime/server/index.js"
+    },
     "./runtime/app-data": "./dist/runtime/app-data/index.js",
     "./runtime/app-globals": "./dist/runtime/app-globals/index.js",
-    "./compiler/utils": "./dist/compiler/utils/index.js",
-    "./testing": "./dist/testing/index.js"
+    "./compiler/utils": {
+      "types": "./dist/compiler/utils/index.d.ts",
+      "import": "./dist/compiler/utils/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
+    }
   },
   "files": [
     "dist/"

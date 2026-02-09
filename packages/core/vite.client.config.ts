@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
 /**
@@ -15,6 +16,12 @@ export default defineConfig({
         'app-data': '@stencil/core/runtime/app-data',
         'app-globals': '@stencil/core/runtime/app-globals',
       },
+    }),
+    dts({
+      tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
+      outDir: 'dist/runtime/client',
+      include: ['src/client/**/*.ts'],
+      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
     }),
   ],
   build: {
