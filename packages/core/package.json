@@ -4,10 +4,10 @@
   "description": "Compiler for web components and progressive web apps",
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/compiler/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/compiler/index.d.ts",
       "import": "./dist/index.js"
     },
     "./mock-doc": {
