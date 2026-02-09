@@ -1,3 +1,36 @@
+# runtime
+
+Platform-agnostic core runtime for Stencil components.
+
+## Overview
+
+This directory contains the core logic that powers Stencil components at runtime:
+- **Reactivity** - `@Prop` and `@State` change detection
+- **Virtual DOM** - Diffing and patching (`vdom/`)
+- **Lifecycle** - Component initialization, updates, and teardown
+- **Rendering** - JSX to DOM transformation
+
+## Architecture
+
+The runtime is platform-agnostic - it defines *what* needs to happen but not *how*. Platform-specific behavior is provided by:
+- `client/` - Browser implementation (uses real DOM, `requestAnimationFrame`, etc.)
+- `server/` - SSR implementation (uses mock-doc, synchronous rendering)
+
+Both platforms implement the `@platform` interface, allowing the same runtime code to work in both environments.
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `connected-callback.ts` | Component connection and ancestor detection |
+| `initialize-component.ts` | First-time component setup |
+| `update-component.ts` | Re-rendering and lifecycle dispatch |
+| `set-value.ts` | Reactive property updates |
+| `proxy-component.ts` | Property/attribute reflection |
+| `vdom/` | Virtual DOM implementation |
+
+---
+
 ## Lifecycle Order Of Operations
 
 Component lifecycle events fire `componentWillLoad` from top to bottom, then fire `componentDidLoad` from bottom to top. It should take into account each component can finish lazy-loaded requests in any random order. Additionally, any `componentWillLoad` can return a promise that all child components should wait on until it's resolved, while still keeping the correct firing order.

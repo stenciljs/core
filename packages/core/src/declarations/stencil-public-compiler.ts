@@ -1,4 +1,4 @@
-import type { ConfigFlags } from '../cli/config-flags';
+import type { ConfigFlags } from '@stencil/cli';
 import type { PrerenderUrlResults, PrintLine } from '../internal';
 import type { BuildCtx, CompilerCtx } from './stencil-private';
 import type { JsonDocs } from './stencil-public-docs';

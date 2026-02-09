@@ -172,6 +172,17 @@ The root `src/` directory is a v4 reference/dummy and should NOT be modified unl
 - `packages/cli/src/` - CLI
 - `packages/mock-doc/src/` - mock-doc
 
+**To build v5:**
+```bash
+pnpm exec tsx build-vite.ts
+```
+Do NOT use `pnpm build` at root - that builds the legacy v4 code.
+
+**To test v5 bundle output**
+```bash
+node test-packages.mjs
+```
+
 ---
 
 *Last updated: 2026-02-09 Session 7*

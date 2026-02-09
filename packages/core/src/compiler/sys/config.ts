@@ -1,6 +1,6 @@
 import { createNodeLogger } from '@sys-api-node';
 
-import { createConfigFlags } from '../../cli/config-flags';
+import { createConfigFlags } from '@stencil/cli';
 import type * as d from '../../declarations';
 import { validateConfig } from '../config/validate-config';
 

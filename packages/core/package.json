@@ -24,6 +24,7 @@
     "dist/"
   ],
   "dependencies": {
+    "@stencil/cli": "workspace:*",
     "@stencil/mock-doc": "workspace:*",
     "chalk": "^5.6.2",
     "glob": "^10.0.0",

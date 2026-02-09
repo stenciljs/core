@@ -2,7 +2,7 @@ import { mockCompilerSystem } from '@stencil/core/testing';
 import path from 'path';
 import ts from 'typescript';
 
-import { ConfigFlags } from '../../../cli/config-flags';
+import type { ConfigFlags } from '@stencil/cli';
 import type * as d from '../../../declarations';
 import { normalizePath } from '../../../utils';
 import { loadConfig } from '../load-config';

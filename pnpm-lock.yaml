@@ -255,6 +255,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@stencil/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@stencil/mock-doc':
         specifier: workspace:*
         version: link:../mock-doc

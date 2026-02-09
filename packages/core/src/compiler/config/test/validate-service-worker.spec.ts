@@ -2,7 +2,7 @@ import type * as d from '@stencil/core/declarations';
 import { OutputTargetWww } from '@stencil/core/declarations';
 import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '@stencil/core/testing';
 
-import { createConfigFlags } from '../../../cli/config-flags';
+import { createConfigFlags } from '@stencil/cli';
 import { validateServiceWorker } from '../validate-service-worker';
 
 describe('validateServiceWorker', () => {

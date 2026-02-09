@@ -3,7 +3,7 @@ import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '@stencil/cor
 import { join } from '@utils';
 import path from 'path';
 
-import { ConfigFlags, createConfigFlags } from '../../../cli/config-flags';
+import { createConfigFlags, type ConfigFlags } from '@stencil/cli';
 import { validateConfig } from '../validate-config';
 
 describe('validateTesting', () => {

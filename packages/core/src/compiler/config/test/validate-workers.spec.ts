@@ -2,7 +2,7 @@ import type * as d from '@stencil/core/declarations';
 import { mockLoadConfigInit, mockLogger } from '@stencil/core/testing';
 import path from 'path';
 
-import { createConfigFlags } from '../../../cli/config-flags';
+import { createConfigFlags } from '@stencil/cli';
 import { validateConfig } from '../validate-config';
 
 describe('validate-workers', () => {
