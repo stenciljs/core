@@ -32,7 +32,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - ✅ Fixed CLI/Core dependencies (CLI uses @stencil/core/compiler/utils)
 - ✅ Renamed internal → runtime (public API change)
 - ✅ Removed build-time aliases - converted to relative imports + virtual modules
-- 🚧 Type generation (core done, cli done, mock-doc TODO)
+- ✅ Type generation (core done, cli done, mock-doc done)
 - 🚧 Move development server calls / orchestration to point to vite dev server
 - 🚧 Move jest tests to vitest (see #1)
 - ✅ Get orchestrator working in `--watch` mode 
