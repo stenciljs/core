@@ -19,9 +19,6 @@ export default defineConfig({
     sourcemap: true,
     target: ['es2022', 'chrome79', 'edge79', 'firefox70', 'safari14'],
     rollupOptions: {
-      external: (id) => {
-        return false;
-      },
       output: {
         preserveModules: false,
       },

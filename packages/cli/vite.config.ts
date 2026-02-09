@@ -2,18 +2,21 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 
+const skipDts = process.env.STENCIL_SKIP_DTS === 'true';
+
 /**
  * Vite config for @stencil/cli
  */
 export default defineConfig({
   plugins: [
-    dts({
-      outDir: 'dist',
-      entryRoot: 'src',
-      include: ['src/**/*.ts'],
-      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
-    }),
-  ],
+    !skipDts &&
+      dts({
+        outDir: 'dist',
+        entryRoot: 'src',
+        include: ['src/**/*.ts'],
+        exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
+      }),
+  ].filter(Boolean),
   build: {
     ssr: true,
     lib: {

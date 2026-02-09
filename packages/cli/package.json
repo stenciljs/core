@@ -17,6 +17,10 @@
   "files": [
     "dist/"
   ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "STENCIL_SKIP_DTS=true vite build --watch"
+  },
   "dependencies": {
     "@stencil/core": "workspace:*"
   }

@@ -121,6 +121,8 @@
     "build": "npm run clean && npm run tsc.prod && npm run ts scripts/index.ts -- --prod --ci",
     "build.watch": "npm run build -- --watch",
     "build.updateSelectorEngine": "npm run ts scripts/updateSelectorEngine.ts",
+    "build:v5": "turbo run build",
+    "dev:v5": "turbo run build && STENCIL_SKIP_DTS=true turbo run dev",
     "clean": "rimraf --max-retries=2 build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/node/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
     "clean.screenshots": "rimraf test/end-to-end/screenshot/builds test/end-to-end/screenshot/images",
     "clean:scripts": "rimraf scripts/build",
@@ -221,6 +223,7 @@
     "semver": "^7.3.7",
     "terser": "5.37.0",
     "tsx": "^4.19.2",
+    "turbo": "^2.8.3",
     "typescript": "~5.8.3",
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.0",
@@ -262,5 +265,6 @@
   "volta": {
     "node": "22.2.0",
     "npm": "10.8.1"
-  }
+  },
+  "packageManager": "pnpm@10.5.2"
 }

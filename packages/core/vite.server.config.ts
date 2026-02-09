@@ -3,6 +3,8 @@ import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
+const skipDts = process.env.STENCIL_SKIP_DTS === 'true';
+
 /**
  * Build config for runtime/server/index.js (SSR/hydration runtime)
  *
@@ -18,13 +20,14 @@ export default defineConfig({
         'platform': '@stencil/core/runtime/client',
       },
     }),
-    dts({
-      outDir: 'dist/runtime/server',
-      entryRoot: 'src/server',
-      include: ['src/server/**/*.ts'],
-      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
-    }),
-  ],
+    !skipDts &&
+      dts({
+        outDir: 'dist/runtime/server',
+        entryRoot: 'src/server',
+        include: ['src/server/**/*.ts'],
+        exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
+      }),
+  ].filter(Boolean),
   build: {
     ssr: true,
     lib: {
@@ -40,7 +43,7 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         if (id.startsWith('node:')) return true;
-        if (id === '@stencil/mock-doc') return true;
+        if (id.startsWith('@stencil/')) return true;
         return false;
       },
       output: {

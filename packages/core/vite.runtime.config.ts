@@ -3,6 +3,8 @@ import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
+const skipDts = process.env.STENCIL_SKIP_DTS === 'true';
+
 /**
  * Build config for runtime/index.js (type definitions)
  */
@@ -15,13 +17,14 @@ export default defineConfig({
         'platform': resolve(__dirname, 'src/client/index.ts'),
       },
     }),
-    dts({
-      outDir: 'dist/runtime',
-      entryRoot: 'src/runtime',
-      include: ['src/runtime/**/*.ts'],
-      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
-    }),
-  ],
+    !skipDts &&
+      dts({
+        outDir: 'dist/runtime',
+        entryRoot: 'src/runtime',
+        include: ['src/runtime/**/*.ts'],
+        exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
+      }),
+  ].filter(Boolean),
   build: {
     lib: {
       entry: resolve(__dirname, 'src/runtime/index.ts'),
@@ -36,6 +39,7 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         if (id.startsWith('node:')) return true;
+        if (id.startsWith('@stencil/')) return true;
         return false;
       },
       output: {

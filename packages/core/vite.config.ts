@@ -3,6 +3,8 @@ import { resolve } from 'path';
 import dts from 'vite-plugin-dts';
 import { stencilVirtualModules } from './vite-plugin-virtual-modules';
 
+const skipDts = process.env.STENCIL_SKIP_DTS === 'true';
+
 /**
  * Vite config for @stencil/core compiler
  */
@@ -15,14 +17,15 @@ export default defineConfig({
         'platform': resolve(__dirname, 'src/client/index.ts'),
       },
     }),
-    dts({
-      outDir: 'dist',
-      entryRoot: 'src',
-      include: ['src/compiler/**/*.ts', 'src/declarations/**/*.ts'],
-      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
-      copyDtsFiles: true,
-    }),
-  ],
+    !skipDts &&
+      dts({
+        outDir: 'dist',
+        entryRoot: 'src',
+        include: ['src/compiler/**/*.ts', 'src/declarations/**/*.ts'],
+        exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
+        copyDtsFiles: true,
+      }),
+  ].filter(Boolean),
   build: {
     ssr: true,
     lib: {

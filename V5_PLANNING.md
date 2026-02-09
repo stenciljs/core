@@ -88,8 +88,8 @@ packages/
     └── dist/
 ```
 
-**Build system:** Vite 7.3.1 (replaced `scripts/esbuild/*`)  
-**Module format:** Pure ESM  
+**Build system:** Vite 7.3.1 + Turborepo (replaced `scripts/esbuild/*`)
+**Module format:** Pure ESM
 **Node floor:** 18 LTS
 
 ---
@@ -188,8 +188,21 @@ The root `src/` directory is a v4 reference/dummy and should NOT be modified unl
 
 **To build v5:**
 ```bash
-pnpm exec tsx build-vite.ts
+pnpm run build:v5
 ```
+
+**To develop v5 (watch mode):**
+```bash
+pnpm run dev:v5
+```
+
+Turborepo handles:
+- Parallel builds across packages
+- Dependency ordering (mock-doc → core → cli)
+- Build caching (faster CI)
+
+Watch mode skips DTS generation after initial build for faster iteration.
+
 Do NOT use `pnpm build` at root - that builds the legacy v4 code.
 
 **To test v5 bundle output**

@@ -39,8 +39,11 @@
   "files": [
     "dist/"
   ],
+  "scripts": {
+    "build": "tsx build.ts",
+    "dev": "STENCIL_SKIP_DTS=true tsx build.ts --watch"
+  },
   "dependencies": {
-    "@stencil/cli": "workspace:*",
     "@stencil/mock-doc": "workspace:*",
     "chalk": "^5.6.2",
     "glob": "^10.0.0",
@@ -50,5 +53,8 @@
     "rollup": "^4.0.0",
     "terser": "5.37.0",
     "typescript": "~5.8.3"
+  },
+  "devDependencies": {
+    "@stencil/cli": "workspace:*"
   }
 }
