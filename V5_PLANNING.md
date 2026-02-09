@@ -106,10 +106,10 @@ packages/
 
 ## Immediate Tasks
 
-### 🚧 Type generation
+### ✅ Type generation
 - ✅ `core`: vite-plugin-dts integrated with Vite configs
 - ✅ `cli`: vite-plugin-dts integrated
-- ⏳ `mock-doc`: still using tsc
+- ✅ `mock-doc`: vite-plugin-dts integrated
 
 ### ✅ Remove build-time aliases (DONE)
 Converted aliases to:

@@ -13,7 +13,6 @@
 import { build as viteBuild, type InlineConfig } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs-extra';
-import { execSync } from 'child_process';
 
 const ROOT_DIR = process.cwd();
 const PACKAGES_DIR = resolve(ROOT_DIR, 'packages');
@@ -24,19 +23,17 @@ interface PackageBuildConfig {
   packageDir: string;
   /** Additional vite config files to build (relative to package dir) */
   additionalConfigs?: string[];
-  /** How types are generated: 'vite-plugin-dts' | 'tsc' */
-  typeGeneration: 'vite-plugin-dts' | 'tsc';
 }
 
 /**
  * All packages in the mono-repo (build order matters for dependencies)
+ * Types are generated via vite-plugin-dts in each package's vite.config.ts
  */
 const PACKAGES: PackageBuildConfig[] = [
-  { name: 'mock-doc', packageDir: 'mock-doc', typeGeneration: 'tsc' },
+  { name: 'mock-doc', packageDir: 'mock-doc' },
   {
     name: 'core',
     packageDir: 'core',
-    typeGeneration: 'vite-plugin-dts',
     additionalConfigs: [
       'vite.compiler-utils.config.ts',
       'vite.runtime.config.ts',
@@ -47,7 +44,7 @@ const PACKAGES: PackageBuildConfig[] = [
       'vite.testing.config.ts',
     ],
   },
-  { name: 'cli', packageDir: 'cli', typeGeneration: 'vite-plugin-dts' },
+  { name: 'cli', packageDir: 'cli' },
 ];
 
 async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean; mode?: string }) {
@@ -103,39 +100,6 @@ async function createCoreMockDocWrapper() {
   );
 }
 
-/**
- * Generate TypeScript declarations for packages that don't use vite-plugin-dts
- */
-async function generateDeclarations(pkg: PackageBuildConfig) {
-  const packagePath = resolve(PACKAGES_DIR, pkg.packageDir);
-
-  switch (pkg.typeGeneration) {
-    case 'vite-plugin-dts':
-      // Types already generated during Vite build
-      console.log(`  ✅ ${pkg.name}: types generated via vite-plugin-dts`);
-      break;
-
-    case 'tsc': {
-      const tsconfigPath = resolve(packagePath, 'tsconfig.json');
-      if (!fs.existsSync(tsconfigPath)) {
-        console.log(`  ⚠️  ${pkg.name}: no tsconfig.json, skipping`);
-        return;
-      }
-      try {
-        execSync(`npx tsc --project tsconfig.json`, {
-          cwd: packagePath,
-          stdio: 'pipe',
-        });
-        console.log(`  ✅ ${pkg.name}: types generated via tsc`);
-      } catch (error) {
-        console.warn(`  ⚠️  ${pkg.name}: tsc failed:`, (error as Error).message);
-      }
-      break;
-    }
-
-  }
-}
-
 async function buildAll(options: { watch?: boolean; isProd?: boolean }) {
   const mode = options.isProd ? 'production' : 'development';
 
@@ -147,14 +111,9 @@ async function buildAll(options: { watch?: boolean; isProd?: boolean }) {
 
   try {
     // Build packages in order (sequential for now, parallel later when deps resolved)
+    // Types are generated via vite-plugin-dts during each build
     for (const pkg of PACKAGES) {
       await buildPackage(pkg, { watch: options.watch, mode });
-    }
-
-    // Generate declarations for packages that need post-build type generation
-    console.log('\n📝 TypeScript declarations...');
-    for (const pkg of PACKAGES) {
-      await generateDeclarations(pkg);
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
