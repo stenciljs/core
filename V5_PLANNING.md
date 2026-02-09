@@ -46,7 +46,10 @@ packages/
 └── mock-doc/    @stencil/mock-doc
 ```
 
-### 5. Document ALL BREAKING CHANGES
+### 5. Translate current, public API (stencil.config) to wrap vite
+- Move core output targets' direct rollup calls to instead be vite calls 
+
+### 6. Document ALL BREAKING CHANGES
 
 - `@stencil/core/internal` → `@stencil/core/runtime`
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
