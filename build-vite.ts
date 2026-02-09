@@ -13,6 +13,7 @@
 import { build as viteBuild, type InlineConfig } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs-extra';
+import type { RollupWatcher } from 'rollup';
 
 const ROOT_DIR = process.cwd();
 const PACKAGES_DIR = resolve(ROOT_DIR, 'packages');
@@ -47,10 +48,14 @@ const PACKAGES: PackageBuildConfig[] = [
   { name: 'cli', packageDir: 'cli' },
 ];
 
-async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean; mode?: string }) {
+async function buildPackage(
+  pkg: PackageBuildConfig,
+  options: { watch?: boolean; mode?: string }
+): Promise<RollupWatcher[]> {
   console.log(`\n📦 Building ${pkg.name}...`);
 
   const packagePath = resolve(PACKAGES_DIR, pkg.packageDir);
+  const watchers: RollupWatcher[] = [];
 
   // Build main config
   const mainConfig: InlineConfig = {
@@ -58,26 +63,28 @@ async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean;
     mode: options.mode || 'production',
     logLevel: 'info',
     root: packagePath,
+    build: options.watch ? { watch: {} } : undefined,
   };
 
-  if (options.watch) {
-    // TODO: Implement watch mode
-    console.warn('Watch mode not yet implemented');
-    await viteBuild(mainConfig);
-  } else {
-    await viteBuild(mainConfig);
+  const result = await viteBuild(mainConfig);
+  if (options.watch && result && 'on' in result) {
+    watchers.push(result as RollupWatcher);
   }
 
   // Build additional configs (e.g., core has multiple runtime bundles)
   if (pkg.additionalConfigs) {
     for (const configPath of pkg.additionalConfigs) {
       console.log(`  ↳ Building ${configPath}...`);
-      await viteBuild({
+      const additionalResult = await viteBuild({
         configFile: resolve(packagePath, configPath),
         mode: options.mode || 'production',
         logLevel: 'info',
         root: packagePath,
+        build: options.watch ? { watch: {} } : undefined,
       });
+      if (options.watch && additionalResult && 'on' in additionalResult) {
+        watchers.push(additionalResult as RollupWatcher);
+      }
     }
   }
 
@@ -87,6 +94,7 @@ async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean;
   }
 
   console.log(`✅ ${pkg.name} built successfully`);
+  return watchers;
 }
 
 /**
@@ -106,18 +114,42 @@ async function buildAll(options: { watch?: boolean; isProd?: boolean }) {
   console.log(`🚀 Building Stencil v5 mono-repo with Vite (${mode} mode)`);
   console.log(`   Packages dir: ${PACKAGES_DIR}`);
   console.log(`   Package count: ${PACKAGES.length}`);
+  if (options.watch) {
+    console.log(`   Watch mode: enabled`);
+  }
 
   const startTime = Date.now();
+  const allWatchers: RollupWatcher[] = [];
 
   try {
     // Build packages in order (sequential for now, parallel later when deps resolved)
     // Types are generated via vite-plugin-dts during each build
     for (const pkg of PACKAGES) {
-      await buildPackage(pkg, { watch: options.watch, mode });
+      const watchers = await buildPackage(pkg, { watch: options.watch, mode });
+      allWatchers.push(...watchers);
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`\n✨ All packages built in ${duration}s`);
+
+    // In watch mode, keep the process alive and handle graceful shutdown
+    if (options.watch && allWatchers.length > 0) {
+      console.log(`\n👀 Watching for changes... (${allWatchers.length} watchers active)`);
+      console.log(`   Press Ctrl+C to stop\n`);
+
+      // Handle graceful shutdown
+      const cleanup = () => {
+        console.log('\n🛑 Stopping watchers...');
+        allWatchers.forEach((watcher) => watcher.close());
+        process.exit(0);
+      };
+
+      process.on('SIGINT', cleanup);
+      process.on('SIGTERM', cleanup);
+
+      // Keep the process alive
+      await new Promise(() => {});
+    }
   } catch (error) {
     console.error('\n❌ Build failed:', error);
     process.exit(1);

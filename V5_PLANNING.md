@@ -35,7 +35,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling (Vite),
 - 🚧 Type generation (core done, cli done, mock-doc TODO)
 - 🚧 Move development server calls / orchestration to point to vite dev server
 - 🚧 Move jest tests to vitest (see #1)
-- 🚧 Get orchestrator working in `--watch` mode 
+- ✅ Get orchestrator working in `--watch` mode 
 
 ### 4. 📦 Mono-repo Restructure  
 **Status:** ✅ Complete

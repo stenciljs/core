@@ -42,7 +42,7 @@ export default defineConfig({
         // Dependencies (not bundled)
         if (id === 'typescript' || id === 'terser' || id === 'parse5') return true;
         // Workspace packages (external - resolved at runtime)
-        if (id === '@stencil/cli') return true;
+        if (id === '@stencil/cli' || id === '@stencil/mock-doc') return true;
         // Node packages (external dependencies)
         // Note: ansi-colors/chalk bundled to avoid CJS interop issues
         if (['resolve', 'glob', 'magic-string', 'postcss', 'autoprefixer', 'rollup'].includes(id)) return true;
