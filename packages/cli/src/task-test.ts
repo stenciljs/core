@@ -1,4 +1,4 @@
-import type { TestingRunOptions, ValidatedConfig } from '@stencil/core';
+import type { TestingRunOptions, ValidatedConfig } from '@stencil/core/declarations';
 
 /**
  * Entrypoint for any Stencil tests

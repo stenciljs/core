@@ -25,14 +25,7 @@
     "sourceMap": false,
     "target": "es2022",
     "types": ["node"],
-    "baseUrl": ".",
-    "paths": {
-      "@stencil/core": ["../core/src/compiler/index.ts"],
-      "@stencil/core/compiler": ["../core/src/compiler/index.ts"],
-      "@stencil/core/declarations": ["../core/src/declarations/index.ts"],
-      "@utils": ["../core/src/utils/index.ts"],
-      "@utils/*": ["../core/src/utils/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "dist"]

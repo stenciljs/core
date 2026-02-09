@@ -1,4 +1,4 @@
-import type { CompilerSystem, Logger } from '@stencil/core';
+import type { CompilerSystem, Logger } from '@stencil/core/declarations';
 import type { CoreCompiler } from './load-compiler';
 
 /**

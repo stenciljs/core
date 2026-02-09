@@ -1,6 +1,6 @@
 import { isOutputTargetHydrate, WWW } from '@stencil/core/compiler/utils';
 
-import type * as d from '../../declarations';
+import type * as d from '@stencil/core/declarations';
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';

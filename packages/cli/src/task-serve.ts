@@ -1,6 +1,6 @@
 import { isString } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '@stencil/core';
+import type { ValidatedConfig } from '@stencil/core/declarations';
 
 export const taskServe = async (config: ValidatedConfig) => {
   config.suppressLogs = true;
@@ -20,6 +20,7 @@ export const taskServe = async (config: ValidatedConfig) => {
   }
 
   const devServerPath = config.sys.getDevServerExecutingPath();
+  // @ts-expect-error - this is being removed
   const { start }: typeof import('@stencil/core/dev-server') = await config.sys.dynamicImport(devServerPath);
   const devServer = await start(config.devServer, config.logger);
 

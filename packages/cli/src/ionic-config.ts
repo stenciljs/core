@@ -1,4 +1,4 @@
-import type * as d from '@stencil/core';
+import type * as d from '@stencil/core/declarations';
 import { readJson, UUID_REGEX, uuidv4 } from './telemetry/helpers';
 
 export const isTest = () => process.env.JEST_WORKER_ID !== undefined;

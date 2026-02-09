@@ -24,8 +24,8 @@ interface PackageBuildConfig {
   packageDir: string;
   /** Additional vite config files to build (relative to package dir) */
   additionalConfigs?: string[];
-  /** How types are generated: 'vite-plugin-dts' | 'tsc' | 'stub' */
-  typeGeneration: 'vite-plugin-dts' | 'tsc' | 'stub';
+  /** How types are generated: 'vite-plugin-dts' | 'tsc' */
+  typeGeneration: 'vite-plugin-dts' | 'tsc';
 }
 
 /**
@@ -47,7 +47,7 @@ const PACKAGES: PackageBuildConfig[] = [
       'vite.testing.config.ts',
     ],
   },
-  { name: 'cli', packageDir: 'cli', typeGeneration: 'stub' },
+  { name: 'cli', packageDir: 'cli', typeGeneration: 'vite-plugin-dts' },
 ];
 
 async function buildPackage(pkg: PackageBuildConfig, options: { watch?: boolean; mode?: string }) {
@@ -133,41 +133,7 @@ async function generateDeclarations(pkg: PackageBuildConfig) {
       break;
     }
 
-    case 'stub':
-      await createCliDeclarations();
-      console.log(`  ✅ ${pkg.name}: stub types created`);
-      break;
   }
-}
-
-/**
- * Create stub declarations for CLI package
- * TODO: Add vite-plugin-dts to CLI and remove this
- */
-async function createCliDeclarations() {
-  const cliDistDir = resolve(PACKAGES_DIR, 'cli/dist');
-
-  await fs.ensureDir(cliDistDir);
-
-  // Create a simple index.d.ts that exports CLI types
-  const cliDeclaration = `/**
- * Stencil CLI
- */
-export interface ConfigFlags {
-  task: string;
-  args: string[];
-  knownArgs: string[];
-  unknownArgs: string[];
-}
-
-export const BOOLEAN_CLI_FLAGS: readonly string[];
-export function createConfigFlags(init?: Partial<ConfigFlags>): ConfigFlags;
-export function parseFlags(args: string[]): ConfigFlags;
-export function run(options?: { args?: string[] }): Promise<void>;
-export function runTask(task: string, config: unknown): Promise<void>;
-`;
-
-  await fs.writeFile(resolve(cliDistDir, 'index.d.ts'), cliDeclaration);
 }
 
 async function buildAll(options: { watch?: boolean; isProd?: boolean }) {

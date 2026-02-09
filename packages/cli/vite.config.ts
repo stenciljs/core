@@ -1,10 +1,19 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 /**
  * Vite config for @stencil/cli
  */
 export default defineConfig({
+  plugins: [
+    dts({
+      outDir: 'dist',
+      entryRoot: 'src',
+      include: ['src/**/*.ts'],
+      exclude: ['**/*.spec.ts', '**/*.test.ts', '**/test/**'],
+    }),
+  ],
   build: {
     ssr: true,
     lib: {
@@ -23,6 +32,7 @@ export default defineConfig({
         '@stencil/core',
         '@stencil/core/compiler',
         '@stencil/core/compiler/utils',
+        '@stencil/core/declarations',
         '@stencil/core/testing',
         '@stencil/core/dev-server',
         '@stencil/mock-doc',
