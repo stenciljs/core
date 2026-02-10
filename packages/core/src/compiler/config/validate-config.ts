@@ -26,7 +26,6 @@ import { validateNamespace } from './validate-namespace';
 import { validatePaths } from './validate-paths';
 import { validatePlugins } from './validate-plugins';
 import { validateRollupConfig } from './validate-rollup-config';
-import { validateTesting } from './validate-testing';
 import { validateWorkers } from './validate-workers';
 
 /**
@@ -222,9 +221,6 @@ export const validateConfig = (
 
   // dev server
   validatedConfig.devServer = validateDevServer(validatedConfig, diagnostics);
-
-  // testing
-  validateTesting(validatedConfig, diagnostics);
 
   // bundles
   if (Array.isArray(validatedConfig.bundles)) {

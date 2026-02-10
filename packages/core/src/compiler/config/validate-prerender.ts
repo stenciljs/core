@@ -8,7 +8,8 @@ export const validatePrerender = (
   diagnostics: d.Diagnostic[],
   outputTarget: d.OutputTargetWww,
 ) => {
-  if (!config.flags.ssr && !config.flags.prerender && config.flags.task !== 'prerender') {
+  // Skip prerender validation if neither ssr nor prerender is enabled
+  if (!config.ssr && !config.prerender) {
     return;
   }
 

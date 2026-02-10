@@ -6,7 +6,7 @@ import type * as d from '@stencil/core';
 export const validateStats = (userConfig: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {
   const outputTargets: d.OutputTargetStats[] = [];
 
-  if (userConfig.flags.stats) {
+  if (userConfig.statsJsonPath) {
     const hasOutputTarget = userOutputs.some(isOutputTargetStats);
     if (!hasOutputTarget) {
       const statsOutput: d.OutputTargetStats = {
@@ -14,8 +14,8 @@ export const validateStats = (userConfig: d.ValidatedConfig, userOutputs: d.Outp
       };
 
       // If --stats was provided with a path (string), use it; otherwise use default
-      if (typeof userConfig.flags.stats === 'string') {
-        statsOutput.file = userConfig.flags.stats;
+      if (typeof userConfig.statsJsonPath === 'string') {
+        statsOutput.file = userConfig.statsJsonPath;
       }
 
       outputTargets.push(statsOutput);

@@ -3,12 +3,12 @@
   "version": "5.0.0-alpha.0",
   "description": "CLI for Stencil - Web component compiler",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./cli": "./bin/stencil.mjs"
   },

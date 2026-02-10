@@ -181,7 +181,7 @@ const runPrerenderOutputTarget = async (
       resolve: null,
     };
 
-    if (!config.flags.ci && !manager.isDebug) {
+    if (!config.ci && !manager.isDebug) {
       manager.progressLogger = await config.logger.createLineUpdater();
     }
 

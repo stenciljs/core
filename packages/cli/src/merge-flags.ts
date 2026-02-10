@@ -59,9 +59,55 @@ export const mergeFlags = (config: Config, flags: ConfigFlags): Config => {
     merged.enableCache = flags.cache;
   }
 
-  // --ci → testing.ci (for test runs)
-  if (typeof flags.ci === 'boolean' && merged.testing) {
-    merged.testing = { ...merged.testing, ci: flags.ci };
+  // --ci → ci
+  if (typeof flags.ci === 'boolean') {
+    merged.ci = flags.ci;
+  }
+
+  // --ssr → ssr
+  if (typeof flags.ssr === 'boolean') {
+    merged.ssr = flags.ssr;
+  }
+
+  // --prerender → prerender
+  if (typeof flags.prerender === 'boolean') {
+    merged.prerender = flags.prerender;
+  }
+
+  // --docsJson → docsJsonPath
+  if (typeof flags.docsJson === 'string') {
+    merged.docsJsonPath = flags.docsJson;
+  }
+
+  // --stats → statsJsonPath
+  if (flags.stats) {
+    merged.statsJsonPath = flags.stats;
+  }
+
+  // --serviceWorker → generateServiceWorker
+  if (typeof flags.serviceWorker === 'boolean') {
+    merged.generateServiceWorker = flags.serviceWorker;
+  }
+
+  // --e2e → e2eTests
+  if (typeof flags.e2e === 'boolean') {
+    merged.e2eTests = flags.e2e;
+  }
+
+  // --maxWorkers → maxConcurrentWorkers
+  if (typeof flags.maxWorkers === 'number') {
+    merged.maxConcurrentWorkers = flags.maxWorkers;
+  }
+
+  // Dev server overrides
+  if (typeof flags.address === 'string') {
+    merged.devServerAddress = flags.address;
+  }
+  if (typeof flags.port === 'number') {
+    merged.devServerPort = flags.port;
+  }
+  if (typeof flags.open === 'boolean') {
+    merged.devServerOpen = flags.open;
   }
 
   return merged;

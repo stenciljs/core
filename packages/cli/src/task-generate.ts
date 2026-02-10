@@ -2,6 +2,7 @@ import { normalizePath, validateComponentTag } from '@stencil/core/compiler/util
 import { join, parse, relative } from 'path';
 
 import type { ValidatedConfig } from '@stencil/core';
+import type { ConfigFlags } from './config-flags';
 
 /**
  * Task to generate component boilerplate and write it to disk. This task can
@@ -10,9 +11,10 @@ import type { ValidatedConfig } from '@stencil/core';
  * already exist, etc.
  *
  * @param config the user-supplied config, which we need here to access `.sys`.
+ * @param flags the CLI flags (owned by CLI, not part of core config)
  * @returns a void promise
  */
-export const taskGenerate = async (config: ValidatedConfig): Promise<void> => {
+export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags): Promise<void> => {
   if (!config.configPath) {
     config.logger.error('Please run this command in your root directory (i. e. the one containing stencil.config.ts).');
     return config.sys.exit(1);
@@ -28,7 +30,7 @@ export const taskGenerate = async (config: ValidatedConfig): Promise<void> => {
   const { prompt } = await import('prompts');
 
   const input =
-    config.flags.unknownArgs.find((arg) => !arg.startsWith('-')) ||
+    flags.unknownArgs.find((arg: string) => !arg.startsWith('-')) ||
     ((await prompt({ name: 'tagName', type: 'text', message: 'Component tag name (dash-case):' })).tagName as string);
 
   if (undefined === input) {

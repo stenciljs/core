@@ -1,4 +1,3 @@
-import type { Plugin } from 'rolldown'
 import { resolve } from 'node:path'
 import { defineConfig } from 'tsdown'
 
@@ -11,14 +10,14 @@ const __dirname = import.meta.dirname
 function virtualModules(options: {
   resolve?: Record<string, string>
   external?: Record<string, string>
-}): Plugin {
+}) {
   const resolveMap = new Map(Object.entries(options.resolve ?? {}))
   const externalMap = new Map(Object.entries(options.external ?? {}))
 
   return {
     name: 'stencil-virtual-modules',
 
-    resolveId(id) {
+    resolveId(id: string) {
       if (externalMap.has(id)) {
         return { id: externalMap.get(id)!, external: true }
       }
@@ -32,7 +31,8 @@ function virtualModules(options: {
 
 // Externalize all bare imports (not relative/absolute paths) = all node_modules
 // Exclude virtual: modules so the plugin can handle them
-const nodeExternals = [/^(?!virtual:)[^./]/]
+// const nodeExternals: string[] = []
+// /^(?!virtual:)[^./]/ 
 
 // Browser targets
 const browserTargets = ['es2022']
@@ -62,7 +62,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     sourcemap: true,
-    external: [...nodeExternals],
+    noExternal: ['@stencil/core', /^virtual:/],
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
@@ -78,7 +78,7 @@ export default defineConfig([
     dts: true,
     clean: false,
     sourcemap: true,
-    external: [...nodeExternals],
+    noExternal: ['@stencil/core', /^virtual:/],
     plugins: [
       virtualModules({
         external: {
@@ -108,7 +108,7 @@ export default defineConfig([
     dts: true,
     clean: false,
     sourcemap: true,
-    external: [/^@stencil\//],
+    noExternal: ['@stencil/core', /^virtual:/],
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
@@ -124,6 +124,7 @@ export default defineConfig([
     dts: true,
     clean: false,
     sourcemap: true,
+    noExternal: ['@stencil/core', /^virtual:/],
     plugins: [
       virtualModules({
         resolve: {

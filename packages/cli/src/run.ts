@@ -104,7 +104,7 @@ export const run = async (init: d.CliInitOptions) => {
       sys.applyGlobalPatch(validated.config.rootDir);
     }
 
-    await telemetryAction(sys, validated.config, coreCompiler, async () => {
+    await telemetryAction(sys, validated.config, coreCompiler, flags, async () => {
       await runTask(coreCompiler, validated.config, task, sys, flags);
     });
   } catch (e) {
@@ -147,7 +147,7 @@ export const runTask = async (
 
   switch (task) {
     case 'build':
-      await taskBuild(coreCompiler, strictConfig);
+      await taskBuild(coreCompiler, strictConfig, resolvedFlags);
       break;
 
     case 'docs':
@@ -156,7 +156,7 @@ export const runTask = async (
 
     case 'generate':
     case 'g':
-      await taskGenerate(strictConfig);
+      await taskGenerate(strictConfig, resolvedFlags);
       break;
 
     case 'help':
@@ -164,11 +164,11 @@ export const runTask = async (
       break;
 
     case 'prerender':
-      await taskPrerender(coreCompiler, strictConfig);
+      await taskPrerender(coreCompiler, strictConfig, resolvedFlags);
       break;
 
     case 'serve':
-      await taskServe(strictConfig);
+      await taskServe(strictConfig, resolvedFlags);
       break;
 
     case 'telemetry':

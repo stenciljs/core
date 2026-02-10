@@ -19,12 +19,12 @@ import { NOTE } from '../../docs/constants';
 export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
   const docsOutputs: d.OutputTarget[] = [];
 
-  // json docs flag
-  if (isString(config.flags.docsJson)) {
+  // json docs from --docsJson flag (set via config.docsJsonPath)
+  if (isString(config.docsJsonPath)) {
     docsOutputs.push(
       validateJsonDocsOutputTarget(config, diagnostics, {
         type: DOCS_JSON,
-        file: config.flags.docsJson,
+        file: config.docsJsonPath,
       }),
     );
   }
@@ -35,8 +35,8 @@ export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnosti
     docsOutputs.push(validateJsonDocsOutputTarget(config, diagnostics, jsonDocsOutput));
   });
 
-  // readme docs flag
-  if (config.flags.docs || config.flags.task === 'docs') {
+  // readme docs flag (buildDocs is set when --docs flag or 'docs' task is used)
+  if (config.buildDocs) {
     if (!userOutputs.some(isOutputTargetDocsReadme)) {
       // didn't provide a docs config, so let's add one
       docsOutputs.push(validateReadmeOutputTarget(config, { type: DOCS_README }));

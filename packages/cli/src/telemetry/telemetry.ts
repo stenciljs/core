@@ -1,6 +1,7 @@
 import { isOutputTargetHydrate, isOutputTargetWww } from '@stencil/core/compiler/utils';
 
 import type * as d from '@stencil/core';
+import type { ConfigFlags } from '../config-flags';
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';
@@ -13,14 +14,16 @@ import { shouldTrack } from './shouldTrack';
  * @param config The config passed into the Stencil command
  * @param coreCompiler The compiler used to do builds
  * @param result The results of a compiler build.
+ * @param flags The CLI flags (owned by CLI, not part of core config)
  */
 export async function telemetryBuildFinishedAction(
   sys: d.CompilerSystem,
   config: d.ValidatedConfig,
   coreCompiler: CoreCompiler,
   result: d.CompilerBuildResults,
+  flags: ConfigFlags,
 ) {
-  const tracking = await shouldTrack(config, sys, !!config.flags.ci);
+  const tracking = await shouldTrack(sys, flags, !!flags.ci);
 
   if (!tracking) {
     return;
@@ -28,9 +31,9 @@ export async function telemetryBuildFinishedAction(
 
   const component_count = result.componentGraph ? Object.keys(result.componentGraph).length : undefined;
 
-  const data = await prepareData(coreCompiler, config, sys, result.duration, component_count);
+  const data = await prepareData(coreCompiler, config, sys, flags, result.duration, component_count);
 
-  await sendMetric(sys, config, 'stencil_cli_command', data);
+  await sendMetric(sys, flags, 'stencil_cli_command', data);
 
   config.logger.debug(`${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`);
 }
@@ -41,6 +44,7 @@ export async function telemetryBuildFinishedAction(
  * @param sys The system where the command is invoked
  * @param config The config passed into the Stencil command
  * @param coreCompiler The compiler used to do builds
+ * @param flags The CLI flags (owned by CLI, not part of core config)
  * @param action A Promise-based function to call in order to get the duration of any given command.
  * @returns void
  */
@@ -48,9 +52,10 @@ export async function telemetryAction(
   sys: d.CompilerSystem,
   config: d.ValidatedConfig,
   coreCompiler: CoreCompiler,
+  flags: ConfigFlags,
   action?: d.TelemetryCallback,
 ) {
-  const tracking = await shouldTrack(config, sys, !!config.flags.ci);
+  const tracking = await shouldTrack(sys, flags, !!flags.ci);
 
   let duration = undefined;
   let error: any;
@@ -69,13 +74,13 @@ export async function telemetryAction(
   }
 
   // We'll get componentCount details inside the taskBuild, so let's not send two messages.
-  if (!tracking || (config.flags.task == 'build' && !config.flags.args.includes('--watch'))) {
+  if (!tracking || (flags.task == 'build' && !flags.args.includes('--watch'))) {
     return;
   }
 
-  const data = await prepareData(coreCompiler, config, sys, duration);
+  const data = await prepareData(coreCompiler, config, sys, flags, duration);
 
-  await sendMetric(sys, config, 'stencil_cli_command', data);
+  await sendMetric(sys, flags, 'stencil_cli_command', data);
   config.logger.debug(`${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`);
 
   if (error) {
@@ -121,6 +126,7 @@ export function getActiveTargets(config: d.ValidatedConfig): string[] {
  * @param coreCompiler the core compiler
  * @param config the current Stencil config
  * @param sys the compiler system instance in use
+ * @param flags the CLI flags (owned by CLI, not part of core config)
  * @param duration_ms the duration of the action being tracked
  * @param component_count the number of components being built (optional)
  * @returns a Promise wrapping data for the telemetry endpoint
@@ -129,11 +135,12 @@ export const prepareData = async (
   coreCompiler: CoreCompiler,
   config: d.ValidatedConfig,
   sys: d.CompilerSystem,
+  flags: ConfigFlags,
   duration_ms: number | undefined,
   component_count: number | undefined = undefined,
 ): Promise<d.TrackableData> => {
   const { typescript, rollup } = coreCompiler.versions || { typescript: 'unknown', rollup: 'unknown' };
-  const { packages, packagesNoVersions } = await getInstalledPackages(sys, config);
+  const { packages, packagesNoVersions } = await getInstalledPackages(sys, flags);
   const targets = getActiveTargets(config);
   const yarn = isUsingYarn(sys);
   const stencil = coreCompiler.version || 'unknown';
@@ -146,7 +153,7 @@ export const prepareData = async (
   const anonymizedConfig = anonymizeConfigForTelemetry(config);
 
   return {
-    arguments: config.flags.args,
+    arguments: flags.args,
     build,
     component_count,
     config: anonymizedConfig,
@@ -162,7 +169,7 @@ export const prepareData = async (
     system,
     system_major: getMajorVersion(system),
     targets,
-    task: config.flags.task,
+    task: flags.task,
     typescript,
     yarn,
   };
@@ -269,12 +276,12 @@ export const anonymizeConfigForTelemetry = (config: d.ValidatedConfig): d.Config
  * of each package under the @stencil, @ionic, and @capacitor scopes.
  *
  * @param sys the system instance where telemetry is invoked
- * @param config the Stencil configuration associated with the current task that triggered telemetry
+ * @param flags the CLI flags (owned by CLI, not part of core config)
  * @returns an object listing all dev and production dependencies under the aforementioned scopes
  */
 async function getInstalledPackages(
   sys: d.CompilerSystem,
-  config: d.ValidatedConfig,
+  flags: ConfigFlags,
 ): Promise<{ packages: string[]; packagesNoVersions: string[] }> {
   let packages: string[] = [];
   let packagesNoVersions: string[] = [];
@@ -316,7 +323,7 @@ async function getInstalledPackages(
 
     return { packages, packagesNoVersions };
   } catch (err) {
-    hasDebug(config.flags) && console.error(err);
+    hasDebug(flags) && console.error(err);
     return { packages, packagesNoVersions };
   }
 }
@@ -371,14 +378,14 @@ function sanitizeDeclaredVersion(version: string): string {
  * If telemetry is enabled, send a metric to an external data store
  *
  * @param sys the system instance where telemetry is invoked
- * @param config the Stencil configuration associated with the current task that triggered telemetry
+ * @param flags the CLI flags (owned by CLI, not part of core config)
  * @param name the name of a trackable metric. Note this name is not necessarily a scalar value to track, like
  * "Stencil Version". For example, "stencil_cli_command" is a name that is used to track all CLI command information.
  * @param value the data to send to the external data store under the provided name argument
  */
 export async function sendMetric(
   sys: d.CompilerSystem,
-  config: d.ValidatedConfig,
+  flags: ConfigFlags,
   name: string,
   value: d.TrackableData,
 ): Promise<void> {
@@ -392,7 +399,7 @@ export async function sendMetric(
     session_id,
   };
 
-  await sendTelemetry(sys, config, message);
+  await sendTelemetry(sys, flags, message);
 }
 
 /**
@@ -413,10 +420,10 @@ async function getTelemetryToken(sys: d.CompilerSystem) {
 /**
  * Issues a request to the telemetry server.
  * @param sys The system where the command is invoked
- * @param config The config passed into the Stencil command
+ * @param flags The CLI flags (owned by CLI, not part of core config)
  * @param data Data to be tracked
  */
-async function sendTelemetry(sys: d.CompilerSystem, config: d.ValidatedConfig, data: d.Metric): Promise<void> {
+async function sendTelemetry(sys: d.CompilerSystem, flags: ConfigFlags, data: d.Metric): Promise<void> {
   try {
     const now = new Date().toISOString();
 
@@ -438,15 +445,15 @@ async function sendTelemetry(sys: d.CompilerSystem, config: d.ValidatedConfig, d
       body: JSON.stringify(body),
     });
 
-    hasVerbose(config.flags) &&
+    hasVerbose(flags) &&
       console.debug('\nSent %O metric to events service (status: %O)', data.name, response.status, '\n');
 
     if (response.status !== 204) {
-      hasVerbose(config.flags) &&
+      hasVerbose(flags) &&
         console.debug('\nBad response from events service. Request body: %O', response.body.toString(), '\n');
     }
   } catch (e) {
-    hasVerbose(config.flags) && console.debug('Telemetry request failed:', e);
+    hasVerbose(flags) && console.debug('Telemetry request failed:', e);
   }
 }
 

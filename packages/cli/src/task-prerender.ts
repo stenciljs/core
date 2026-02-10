@@ -1,13 +1,14 @@
 import { catchError } from '@stencil/core/compiler/utils';
 
 import type { BuildResultsComponentGraph, Diagnostic, ValidatedConfig } from '@stencil/core';
+import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 
-export const taskPrerender = async (coreCompiler: CoreCompiler, config: ValidatedConfig) => {
+export const taskPrerender = async (coreCompiler: CoreCompiler, config: ValidatedConfig, flags: ConfigFlags) => {
   startupCompilerLog(coreCompiler, config);
 
-  const hydrateAppFilePath = config.flags.unknownArgs[0];
+  const hydrateAppFilePath = flags.unknownArgs[0];
 
   if (typeof hydrateAppFilePath !== 'string') {
     config.logger.error(`Missing hydrate app script path`);

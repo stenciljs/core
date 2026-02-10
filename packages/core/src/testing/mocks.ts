@@ -130,7 +130,6 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     devMode: true,
     devServer: {},
     extras: {},
-    flags: createConfigFlags(),
     fsNamespace: 'testing',
     hashFileNames: false,
     hashedFileNameLength: 8,

@@ -27,7 +27,7 @@ export const validateServiceWorker = (config: d.ValidatedConfig, outputTarget: d
   if (outputTarget.serviceWorker === false) {
     return;
   }
-  if (config.devMode && !config.flags.serviceWorker) {
+  if (config.devMode && !config.generateServiceWorker) {
     outputTarget.serviceWorker = null;
     return;
   }

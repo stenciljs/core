@@ -21,7 +21,7 @@ export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.
     // let's still see if we require one because of other output targets
 
     const hasWwwOutput = userOutputs.filter(isOutputTargetWww).some((o) => isString(o.indexHtml));
-    const shouldBuildHydrate = config.flags.prerender || config.flags.ssr;
+    const shouldBuildHydrate = config.prerender || config.ssr;
 
     if (hasWwwOutput && shouldBuildHydrate) {
       // we're prerendering a www output target, so we'll need a hydrate app

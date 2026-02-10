@@ -35,7 +35,7 @@ export const setBooleanConfig = <K extends keyof d.Config>(
   }
 
   if (isBoolean(config[userConfigName])) {
-    config[configName] = config[userConfigName];
+    (config[configName] as boolean) = config[userConfigName];
   } else {
     config[configName] = defaultValue;
   }

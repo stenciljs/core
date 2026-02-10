@@ -20,7 +20,7 @@ import { validateServiceWorker } from '../validate-service-worker';
 
 export const validateWww = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
   const hasOutputTargets = userOutputs.length > 0;
-  const hasE2eTests = !!config.flags.e2e;
+  const hasE2eTests = !!config.e2eTests;
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
   if (
@@ -30,7 +30,7 @@ export const validateWww = (config: d.ValidatedConfig, diagnostics: d.Diagnostic
     userWwwOutputs.push({ type: WWW });
   }
 
-  if (config.flags.prerender && userWwwOutputs.length === 0) {
+  if (config.prerender && userWwwOutputs.length === 0) {
     const err = buildError(diagnostics);
     err.messageText = `You need at least one "www" output target configured in your stencil.config.ts, when the "--prerender" flag is used`;
   }

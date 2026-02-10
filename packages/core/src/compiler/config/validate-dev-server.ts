@@ -8,11 +8,11 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
     return {};
   }
 
-  const { flags } = config;
   const devServer = { ...config.devServer };
 
-  if (flags.address && isString(flags.address)) {
-    devServer.address = flags.address;
+  // Use devServerAddress from config (set via --address flag)
+  if (config.devServerAddress && isString(config.devServerAddress)) {
+    devServer.address = config.devServerAddress;
   } else if (!isString(devServer.address)) {
     devServer.address = '0.0.0.0';
   }
@@ -56,8 +56,9 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
     }
   }
 
-  if (isNumber(flags.port)) {
-    devServer.port = flags.port;
+  // Use devServerPort from config (set via --port flag)
+  if (isNumber(config.devServerPort)) {
+    devServer.port = config.devServerPort;
   } else if (devServer.port !== null && !isNumber(devServer.port)) {
     if (isNumber(addressPort)) {
       devServer.port = addressPort;
@@ -91,7 +92,8 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
     devServer.strictPort = false;
   }
 
-  if (flags.ssr) {
+  // Use ssr from config (set via --ssr flag)
+  if (config.ssr) {
     devServer.ssr = true;
   } else {
     devServer.ssr = !!devServer.ssr;
@@ -124,9 +126,10 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
     }
   }
 
-  if (flags.open === false) {
+  // Use devServerOpen from config (set via --open flag)
+  if (config.devServerOpen === false) {
     devServer.openBrowser = false;
-  } else if (flags.prerender && !config.watch) {
+  } else if (config.prerender && !config.watch) {
     devServer.openBrowser = false;
   }
 

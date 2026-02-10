@@ -1,7 +1,5 @@
 import { defineConfig } from 'tsdown'
 
-const nodeExternals = [/^(?!virtual:)[^./]/]
-
 export default defineConfig({
   entry: ['src/index.ts'],
   outDir: 'dist',
@@ -12,5 +10,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   shims: true,
-  external: [...nodeExternals],
+  noExternal: [/^virtual:/],
 })

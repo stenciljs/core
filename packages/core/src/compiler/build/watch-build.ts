@@ -71,7 +71,7 @@ export const createWatchBuild = async (
     buildCtx.hasHtmlChanges = hasHtmlChanges(config, buildCtx);
     buildCtx.hasServiceWorkerChanges = hasServiceWorkerChanges(config, buildCtx);
 
-    if (config.flags.debug) {
+    if (config.logLevel === 'debug') {
       config.logger.debug(`WATCH_BUILD::watchBuild::onBuild filesAdded: ${formatFilesForDebug(buildCtx.filesAdded)}`);
       config.logger.debug(
         `WATCH_BUILD::watchBuild::onBuild filesDeleted: ${formatFilesForDebug(buildCtx.filesDeleted)}`,

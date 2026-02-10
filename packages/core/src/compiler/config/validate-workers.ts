@@ -5,10 +5,10 @@ export const validateWorkers = (config: d.ValidatedConfig) => {
     config.maxConcurrentWorkers = 8;
   }
 
-  if (typeof config.flags.maxWorkers === 'number') {
-    config.maxConcurrentWorkers = config.flags.maxWorkers;
-  } else if (config.flags.ci) {
-    config.maxConcurrentWorkers = 4;
+  // maxConcurrentWorkers is set via mergeFlags from --maxWorkers flag
+  // Reduce workers in CI environments for stability
+  if (config.ci) {
+    config.maxConcurrentWorkers = Math.min(config.maxConcurrentWorkers, 4);
   }
 
   config.maxConcurrentWorkers = Math.max(Math.min(config.maxConcurrentWorkers, 16), 0);

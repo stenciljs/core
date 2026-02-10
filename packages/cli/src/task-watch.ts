@@ -1,16 +1,17 @@
 import type { DevServer, ValidatedConfig } from '@stencil/core';
+import type { ConfigFlags } from './config-flags';
 import { printCheckVersionResults, startCheckVersion } from './check-version';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 
-export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedConfig) => {
+export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedConfig, flags: ConfigFlags) => {
   let devServer: DevServer | null = null;
   let exitCode = 0;
 
   try {
     startupCompilerLog(coreCompiler, config);
 
-    const versionChecker = startCheckVersion(config, coreCompiler.version);
+    const versionChecker = startCheckVersion(config, coreCompiler.version, flags);
 
     const compiler = await coreCompiler.createCompiler(config);
     const watcher = await compiler.createWatcher();
@@ -21,7 +22,7 @@ export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedCon
       );
     }
 
-    if (config.flags.serve) {
+    if (flags.serve) {
       const devServerPath = config.sys.getDevServerExecutingPath();
       // @ts-expect-error - this is being removed
       const { start }: typeof import('@stencil/core/dev-server') = await config.sys.dynamicImport(devServerPath);

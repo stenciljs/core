@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import type { ConfigFlags } from './config-flags';
 import { printCheckVersionResults, startCheckVersion } from './check-version';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
@@ -6,10 +7,10 @@ import { runPrerenderTask } from './task-prerender';
 import { taskWatch } from './task-watch';
 import { telemetryBuildFinishedAction } from './telemetry/telemetry';
 
-export const taskBuild = async (coreCompiler: CoreCompiler, config: d.ValidatedConfig) => {
-  if (config.flags.watch) {
+export const taskBuild = async (coreCompiler: CoreCompiler, config: d.ValidatedConfig, flags: ConfigFlags) => {
+  if (flags.watch) {
     // watch build
-    await taskWatch(coreCompiler, config);
+    await taskWatch(coreCompiler, config, flags);
     return;
   }
 
@@ -19,18 +20,18 @@ export const taskBuild = async (coreCompiler: CoreCompiler, config: d.ValidatedC
   try {
     startupCompilerLog(coreCompiler, config);
 
-    const versionChecker = startCheckVersion(config, coreCompiler.version);
+    const versionChecker = startCheckVersion(config, coreCompiler.version, flags);
 
     const compiler = await coreCompiler.createCompiler(config);
     const results = await compiler.build();
 
-    await telemetryBuildFinishedAction(config.sys, config, coreCompiler, results);
+    await telemetryBuildFinishedAction(config.sys, config, coreCompiler, results, flags);
 
     await compiler.destroy();
 
     if (results.hasError) {
       exitCode = 1;
-    } else if (config.flags.prerender) {
+    } else if (flags.prerender) {
       const prerenderDiagnostics = await runPrerenderTask(
         coreCompiler,
         config,

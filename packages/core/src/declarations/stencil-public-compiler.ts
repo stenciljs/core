@@ -494,6 +494,56 @@ export interface Config extends StencilConfig {
   tsWatchOptions?: any;
   _isValidated?: boolean;
   _isTesting?: boolean;
+
+  /**
+   * Whether running in a CI environment (disables interactive features, adjusts worker count)
+   */
+  ci?: boolean;
+
+  /**
+   * Enable server-side rendering mode
+   */
+  ssr?: boolean;
+
+  /**
+   * Enable prerendering
+   */
+  prerender?: boolean;
+
+  /**
+   * Path to output docs JSON file (when --docsJson flag is used)
+   */
+  docsJsonPath?: string;
+
+  /**
+   * Path to output stats JSON file, or true to use default path
+   */
+  statsJsonPath?: string | boolean;
+
+  /**
+   * Whether to generate service worker
+   */
+  generateServiceWorker?: boolean;
+
+  /**
+   * Whether e2e tests are being run
+   */
+  e2eTests?: boolean;
+
+  /**
+   * Dev server address override
+   */
+  devServerAddress?: string;
+
+  /**
+   * Dev server port override
+   */
+  devServerPort?: number;
+
+  /**
+   * Whether to open browser on dev server start
+   */
+  devServerOpen?: boolean;
 }
 
 /**

@@ -175,7 +175,7 @@ const generateIndexHtml = async (
     const indexContent = serializeNodeToHtml(doc);
     await compilerCtx.fs.writeFile(outputTarget.indexHtml, indexContent, { outputTargetType: outputTarget.type });
 
-    if (outputTarget.serviceWorker && config.flags.prerender) {
+    if (outputTarget.serviceWorker && config.prerender) {
       await compilerCtx.fs.writeFile(join(outputTarget.appDir, INDEX_ORG), indexContent, {
         outputTargetType: outputTarget.type,
       });

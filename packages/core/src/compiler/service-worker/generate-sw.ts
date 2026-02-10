@@ -55,7 +55,7 @@ const injectManifest = async (buildCtx: d.BuildCtx, serviceWorker: d.ServiceWork
 };
 
 export const hasServiceWorkerChanges = (config: d.ValidatedConfig, buildCtx: d.BuildCtx) => {
-  if (config.devMode && !config.flags.serviceWorker) {
+  if (config.devMode && !config.generateServiceWorker) {
     return false;
   }
 
