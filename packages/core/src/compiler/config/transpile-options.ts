@@ -1,4 +1,5 @@
 import { isString } from '../../utils';
+import { createNodeSys } from '../../sys/node';
 import type { CompilerOptions } from 'typescript';
 
 import type {
@@ -58,7 +59,7 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
   if (input.sys) {
     transpileCtx.sys = input.sys;
   } else if (!transpileCtx.sys) {
-    transpileCtx.sys = require('../sys/node/index.js').createNodeSys();
+    transpileCtx.sys = createNodeSys();
   }
 
   const compileOpts: TranspileOptions = {

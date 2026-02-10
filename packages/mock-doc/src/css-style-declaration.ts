@@ -13,7 +13,7 @@ export class MockCSSStyleDeclaration {
 
   getPropertyValue(prop: string) {
     prop = jsCaseToCssCase(prop);
-    return String(this._styles.get(prop) || '');
+    return String(this._styles.get(prop) || ''); 
   }
 
   removeProperty(prop: string) {

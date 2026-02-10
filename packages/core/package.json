@@ -3,47 +3,59 @@
   "version": "5.0.0-alpha.0",
   "description": "Compiler for web components and progressive web apps",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/compiler/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "stencil": "./bin/stencil.mjs"
+  },
   "exports": {
     ".": {
-      "types": "./dist/compiler/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./mock-doc": {
-      "import": "./dist/mock-doc.js"
+      "import": "./dist/mock-doc.mjs"
     },
     "./runtime": {
-      "types": "./dist/runtime/index.d.ts",
-      "import": "./dist/runtime/index.js"
+      "types": "./dist/runtime/index.d.mts",
+      "import": "./dist/runtime/index.mjs"
     },
     "./runtime/client": {
-      "types": "./dist/runtime/client/index.d.ts",
-      "import": "./dist/runtime/client/index.js"
+      "types": "./dist/runtime/client/index.d.mts",
+      "import": "./dist/runtime/client/index.mjs"
     },
     "./runtime/server": {
-      "types": "./dist/runtime/server/index.d.ts",
-      "import": "./dist/runtime/server/index.js"
+      "types": "./dist/runtime/server/index.d.mts",
+      "import": "./dist/runtime/server/index.mjs"
     },
-    "./runtime/app-data": "./dist/runtime/app-data/index.js",
-    "./runtime/app-globals": "./dist/runtime/app-globals/index.js",
+    "./runtime/app-data": "./dist/runtime/app-data/index.mjs",
+    "./runtime/app-globals": "./dist/runtime/app-globals/index.mjs",
     "./compiler/utils": {
-      "types": "./dist/compiler/utils/index.d.ts",
-      "import": "./dist/compiler/utils/index.js"
+      "types": "./dist/compiler/utils/index.d.mts",
+      "import": "./dist/compiler/utils/index.mjs"
+    },
+    "./sys/node": {
+      "types": "./dist/sys/node/index.d.mts",
+      "import": "./dist/sys/node/index.mjs"
     },
     "./testing": {
-      "types": "./dist/testing/index.d.ts",
-      "import": "./dist/testing/index.js"
+      "types": "./dist/testing/index.d.mts",
+      "import": "./dist/testing/index.mjs"
     }
   },
   "files": [
+    "bin/",
     "dist/"
   ],
   "scripts": {
-    "build": "tsx build.ts",
-    "dev": "STENCIL_SKIP_DTS=true tsx build.ts --watch"
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "dev": "pnpm run \"/^dev:/\"",
+    "dev:typecheck": "tsc --noEmit --watch",
+    "dev:build": "tsdown --watch"
   },
   "dependencies": {
+    "@stencil/cli": "workspace:*",
     "@stencil/mock-doc": "workspace:*",
     "chalk": "^5.6.2",
     "glob": "^10.0.0",
@@ -55,6 +67,6 @@
     "typescript": "~5.8.3"
   },
   "devDependencies": {
-    "@stencil/cli": "workspace:*"
+    "tsdown": "^0.20.3"
   }
 }

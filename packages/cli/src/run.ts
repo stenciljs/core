@@ -2,8 +2,9 @@ import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/c
 
 import type * as d from '@stencil/core';
 import { ValidatedConfig } from '@stencil/core';
-import { createConfigFlags } from './config-flags';
+import { ConfigFlags, createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
+import { mergeFlags } from './merge-flags';
 import { CoreCompiler, loadCoreCompiler } from './load-compiler';
 import { loadedCompilerLog, startupLog, startupLogVersion } from './logs';
 import { parseFlags } from './parse-flags';
@@ -82,10 +83,11 @@ export const run = async (init: d.CliInitOptions) => {
     }
 
     const foundConfig = result.unwrap(findConfigResults);
+    // Merge CLI flags into a base config object before passing to Core.
+    // Core doesn't need to know about flags - it just receives config values.
+    const configWithFlags = mergeFlags({}, flags);
     const validated = await coreCompiler.loadConfig({
-      config: {
-        flags,
-      },
+      config: configWithFlags,
       configPath: foundConfig.configPath,
       logger,
       sys,
@@ -103,7 +105,7 @@ export const run = async (init: d.CliInitOptions) => {
     }
 
     await telemetryAction(sys, validated.config, coreCompiler, async () => {
-      await runTask(coreCompiler, validated.config, task, sys);
+      await runTask(coreCompiler, validated.config, task, sys, flags);
     });
   } catch (e) {
     if (!shouldIgnoreError(e)) {
@@ -121,6 +123,7 @@ export const run = async (init: d.CliInitOptions) => {
  * @param config a configuration for the Stencil project to apply to the task run
  * @param task the task to run
  * @param sys the {@link d.CompilerSystem} for interacting with the operating system
+ * @param flags the parsed CLI flags (owned by CLI, not passed to Core)
  * @public
  * @returns a void promise
  */
@@ -129,14 +132,18 @@ export const runTask = async (
   config: d.Config,
   task: d.TaskCommand,
   sys: d.CompilerSystem,
+  flags?: ConfigFlags,
 ): Promise<void> => {
-  const flags = createConfigFlags(config.flags ?? { task });
-  config.flags = flags;
+  // Ensure we have flags (either passed in or create defaults)
+  const resolvedFlags = flags ?? createConfigFlags({ task });
 
-  if (!config.sys) {
-    config.sys = sys;
+  // Merge CLI flags into config before validation
+  const configWithFlags = mergeFlags(config, resolvedFlags);
+
+  if (!configWithFlags.sys) {
+    configWithFlags.sys = sys;
   }
-  const strictConfig: ValidatedConfig = coreCompiler.validateConfig(config, {}).config;
+  const strictConfig: ValidatedConfig = coreCompiler.validateConfig(configWithFlags, {}).config;
 
   switch (task) {
     case 'build':
@@ -153,7 +160,7 @@ export const runTask = async (
       break;
 
     case 'help':
-      await taskHelp(strictConfig.flags, strictConfig.logger, sys);
+      await taskHelp(resolvedFlags, strictConfig.logger, sys);
       break;
 
     case 'prerender':
@@ -165,7 +172,7 @@ export const runTask = async (
       break;
 
     case 'telemetry':
-      await taskTelemetry(strictConfig.flags, sys, strictConfig.logger);
+      await taskTelemetry(resolvedFlags, sys, strictConfig.logger);
       break;
 
     case 'version':
@@ -176,7 +183,7 @@ export const runTask = async (
       strictConfig.logger.error(
         `${strictConfig.logger.emoji('❌ ')}Invalid stencil command, please see the options below:`,
       );
-      await taskHelp(strictConfig.flags, strictConfig.logger, sys);
-      return config.sys.exit(1);
+      await taskHelp(resolvedFlags, strictConfig.logger, sys);
+      return configWithFlags.sys.exit(1);
   }
 };

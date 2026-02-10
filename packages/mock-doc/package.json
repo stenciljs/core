@@ -15,7 +15,14 @@
     "dist/"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "STENCIL_SKIP_DTS=true vite build --watch"
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "dev": "pnpm run \"/^dev:/\"",
+    "dev:typecheck": "tsc --noEmit --watch",
+    "dev:build": "tsdown --watch"
+  },
+  "devDependencies": {
+    "tsdown": "^0.20.3",
+    "typescript": "~5.8.3"
   }
 }

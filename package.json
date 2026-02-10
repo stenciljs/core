@@ -121,8 +121,8 @@
     "build": "npm run clean && npm run tsc.prod && npm run ts scripts/index.ts -- --prod --ci",
     "build.watch": "npm run build -- --watch",
     "build.updateSelectorEngine": "npm run ts scripts/updateSelectorEngine.ts",
-    "build:v5": "turbo run build",
-    "dev:v5": "turbo run build && STENCIL_SKIP_DTS=true turbo run dev",
+    "build:v5": "pnpm --filter './packages/*' run build",
+    "dev:v5": "pnpm --parallel --filter './packages/*' run dev",
     "clean": "rimraf --max-retries=2 build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/node/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
     "clean.screenshots": "rimraf test/end-to-end/screenshot/builds test/end-to-end/screenshot/images",
     "clean:scripts": "rimraf scripts/build",
@@ -158,6 +158,7 @@
   "devDependencies": {
     "@ionic/prettier-config": "^4.0.0",
     "@jridgewell/source-map": "^0.3.6",
+    "@rolldown/binding-darwin-x64": "1.0.0-rc.3",
     "@rollup/plugin-commonjs": "28.0.2",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.0",
@@ -222,15 +223,20 @@
     "rollup": "4.34.9",
     "semver": "^7.3.7",
     "terser": "5.37.0",
+    "tsdown": "^0.20.3",
     "tsx": "^4.19.2",
-    "turbo": "^2.8.3",
     "typescript": "~5.8.3",
-    "vite": "^7.3.1",
-    "vite-plugin-dts": "^4.5.0",
     "webpack": "^5.75.0",
     "ws": "8.17.1"
   },
   "optionalDependencies": {
+    "@rolldown/binding-darwin-arm64": "1.0.0-rc.3",
+    "@rolldown/binding-linux-arm64-gnu": "1.0.0-rc.3",
+    "@rolldown/binding-linux-arm64-musl": "1.0.0-rc.3",
+    "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.3",
+    "@rolldown/binding-linux-x64-musl": "1.0.0-rc.3",
+    "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.3",
+    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.3",
     "@rollup/rollup-darwin-arm64": "4.34.9",
     "@rollup/rollup-darwin-x64": "4.34.9",
     "@rollup/rollup-linux-arm64-gnu": "4.34.9",
@@ -263,7 +269,7 @@
   ],
   "prettier": "@ionic/prettier-config",
   "volta": {
-    "node": "22.2.0",
+    "node": "22.22.0",
     "npm": "10.8.1"
   },
   "packageManager": "pnpm@10.5.2"

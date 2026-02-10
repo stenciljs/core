@@ -1,7 +1,6 @@
 import { isBoolean, join } from '../../utils';
 import { isAbsolute } from 'path';
 
-import type { ConfigFlags } from '@stencil/cli';
 import type * as d from '@stencil/core';
 
 export const getAbsolutePath = (config: d.ValidatedConfig, dir: string) => {
@@ -12,32 +11,23 @@ export const getAbsolutePath = (config: d.ValidatedConfig, dir: string) => {
 };
 
 /**
- * This function does two things:
+ * Set a boolean configuration value with a default.
  *
- * 1. If you pass a `flagName`, it will hoist that `flagName` out of the
- *    `ConfigFlags` object and onto the 'root' level (if you will) of the
- *    `config` under the `configName` (`keyof d.Config`) that you pass.
- * 2. If you _don't_  pass a `flagName` it will just set the value you supply
- *    on the config.
+ * If the config already has a value for `configName`, use it.
+ * Otherwise, set it to `defaultValue`.
+ *
+ * Note: CLI flags are now merged into config before validation,
+ * so this function no longer needs to know about flags.
  *
  * @param config the config that we want to update
  * @param configName the key we're setting on the config
- * @param flagName either the name of a ConfigFlag prop we want to hoist up or null
  * @param defaultValue the default value we should set!
  */
 export const setBooleanConfig = <K extends keyof d.Config>(
   config: d.UnvalidatedConfig,
-  configName: (K & keyof ConfigFlags) | K,
-  flagName: keyof ConfigFlags | null,
+  configName: K,
   defaultValue: d.Config[K],
 ) => {
-  if (flagName) {
-    const flagValue = config.flags?.[flagName];
-    if (isBoolean(flagValue)) {
-      config[configName] = flagValue;
-    }
-  }
-
   const userConfigName = getUserConfigName(config, configName);
 
   if (typeof config[userConfigName] === 'function') {

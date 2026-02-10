@@ -25,7 +25,7 @@ export const autoprefixCss = async (cssText: string, opts: boolean | null | d.Au
   try {
     const autoprefixerOpts = opts != null && typeof opts === 'object' ? opts : DEFAULT_AUTOPREFIX_OPTIONS;
 
-    const processor = getProcessor(autoprefixerOpts);
+    const processor = await getProcessor(autoprefixerOpts);
     const result = await processor.process(cssText, { map: null });
 
     result.warnings().forEach((warning: any) => {
@@ -97,9 +97,12 @@ export const autoprefixCss = async (cssText: string, opts: boolean | null | d.Au
  * @param autoprefixerOpts Options for Autoprefixer
  * @returns postCSS with the Autoprefixer plugin applied
  */
-const getProcessor = (autoprefixerOpts: d.AutoprefixerOptions): CssProcessor => {
-  const { postcss, autoprefixer } = require('../sys/node/autoprefixer.js');
+const getProcessor = async (autoprefixerOpts: d.AutoprefixerOptions): Promise<CssProcessor> => {
   if (!cssProcessor) {
+    const [{ default: postcss }, { default: autoprefixer }] = await Promise.all([
+      import('postcss'),
+      import('autoprefixer'),
+    ]);
     cssProcessor = postcss([autoprefixer(autoprefixerOpts)]);
   }
   return cssProcessor;

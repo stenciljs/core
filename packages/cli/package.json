@@ -5,23 +5,33 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "stencil": "./dist/stencil"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./cli": "./bin/stencil.mjs"
+  },
+  "bin": {
+    "stencil": "./bin/stencil.mjs"
   },
   "files": [
+    "bin/",
     "dist/"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "STENCIL_SKIP_DTS=true vite build --watch"
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "dev": "pnpm run \"/^dev:/\"",
+    "dev:typecheck": "tsc --noEmit --watch",
+    "dev:build": "tsdown --watch"
   },
-  "dependencies": {
-    "@stencil/core": "workspace:*"
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "tsdown": "^0.20.3",
+    "typescript": "~5.8.3"
   }
 }

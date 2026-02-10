@@ -1,4 +1,3 @@
-import type { ConfigFlags } from '@stencil/cli';
 import type { PrerenderUrlResults, PrintLine } from './stencil-private';
 import type { BuildCtx, CompilerCtx } from './stencil-private';
 import type { JsonDocs } from './stencil-public-docs';
@@ -485,7 +484,6 @@ export interface Config extends StencilConfig {
   configPath?: string;
   writeLog?: boolean;
   devServer?: DevServerConfig;
-  flags?: ConfigFlags;
   fsNamespace?: string;
   logLevel?: LogLevel;
   rootDir?: string;
@@ -553,7 +551,6 @@ type StrictConfigFields = keyof Pick<
   | 'devMode'
   | 'devServer'
   | 'extras'
-  | 'flags'
   | 'fsNamespace'
   | 'hashFileNames'
   | 'hashedFileNameLength'

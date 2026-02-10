@@ -91,30 +91,14 @@ export const validateConfig = (
 
   const logger = bootstrapConfig.logger || config.logger || createNodeLogger();
 
-  // flags _should_ be JSON safe here
-  //
-  // we access `'flags'` on validated config to avoid having to introduce an
-  // import of the CLI module
-  const flags: ValidatedConfig['flags'] = JSON.parse(JSON.stringify(config.flags || {}));
-
-  // default level is 'info'
-  let logLevel: LogLevel = 'info';
-  if (flags.debug || flags.verbose) {
-    logLevel = 'debug';
-  } else if (flags.logLevel) {
-    logLevel = flags.logLevel;
-  }
-
+  // Log level: use config value or default to 'info'
+  // CLI is responsible for setting this based on --verbose/--debug flags
+  const logLevel: LogLevel = config.logLevel ?? 'info';
   logger.setLevel(logLevel);
 
-  let devMode = config.devMode ?? DEFAULT_DEV_MODE;
-  if (flags.prod) {
-    devMode = false;
-  } else if (flags.dev) {
-    devMode = true;
-  } else if (!isBoolean(config.devMode)) {
-    devMode = DEFAULT_DEV_MODE;
-  }
+  // devMode: use config value or default
+  // CLI is responsible for setting this based on --dev/--prod flags
+  const devMode = isBoolean(config.devMode) ? config.devMode : DEFAULT_DEV_MODE;
 
   const hashFileNames = config.hashFileNames ?? !devMode;
 
@@ -124,7 +108,6 @@ export const validateConfig = (
     buildEs5: config.buildEs5 === true || (!devMode && config.buildEs5 === 'prod'),
     devMode,
     extras: config.extras || {},
-    flags,
     generateExportMaps: isBoolean(config.generateExportMaps) ? config.generateExportMaps : false,
     hashFileNames,
     hashedFileNameLength: config.hashedFileNameLength ?? DEFAULT_HASHED_FILENAME_LENGTH,
@@ -195,16 +178,18 @@ export const validateConfig = (
     validatedConfig.extras.experimentalScopedSlotChanges = !!validatedConfig.extras.experimentalScopedSlotChanges;
   }
 
-  setBooleanConfig(validatedConfig, 'watch', 'watch', false);
-  setBooleanConfig(validatedConfig, 'buildDocs', 'docs', !validatedConfig.devMode);
-  setBooleanConfig(validatedConfig, 'buildDist', 'esm', !validatedConfig.devMode || !!validatedConfig.buildEs5);
-  setBooleanConfig(validatedConfig, 'profile', 'profile', validatedConfig.devMode);
-  setBooleanConfig(validatedConfig, 'writeLog', 'log', false);
-  setBooleanConfig(validatedConfig, 'buildAppCore', null, true);
-  setBooleanConfig(validatedConfig, 'autoprefixCss', null, validatedConfig.buildEs5);
-  setBooleanConfig(validatedConfig, 'validateTypes', null, !validatedConfig._isTesting);
-  setBooleanConfig(validatedConfig, 'allowInlineScripts', null, true);
-  setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', null, false);
+  // Set boolean config values with defaults
+  // CLI is responsible for merging flags into config before validation
+  setBooleanConfig(validatedConfig, 'watch', false);
+  setBooleanConfig(validatedConfig, 'buildDocs', !validatedConfig.devMode);
+  setBooleanConfig(validatedConfig, 'buildDist', !validatedConfig.devMode || !!validatedConfig.buildEs5);
+  setBooleanConfig(validatedConfig, 'profile', validatedConfig.devMode);
+  setBooleanConfig(validatedConfig, 'writeLog', false);
+  setBooleanConfig(validatedConfig, 'buildAppCore', true);
+  setBooleanConfig(validatedConfig, 'autoprefixCss', validatedConfig.buildEs5);
+  setBooleanConfig(validatedConfig, 'validateTypes', !validatedConfig._isTesting);
+  setBooleanConfig(validatedConfig, 'allowInlineScripts', true);
+  setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', false);
 
   if (!isString(validatedConfig.taskQueue)) {
     validatedConfig.taskQueue = 'async';
@@ -257,13 +242,13 @@ export const validateConfig = (
   validateWorkers(validatedConfig);
 
   // default devInspector to whatever devMode is
-  setBooleanConfig(validatedConfig, 'devInspector', null, validatedConfig.devMode);
+  setBooleanConfig(validatedConfig, 'devInspector', validatedConfig.devMode);
 
   if (!validatedConfig._isTesting) {
     validateDistNamespace(validatedConfig, diagnostics);
   }
 
-  setBooleanConfig(validatedConfig, 'enableCache', 'cache', true);
+  setBooleanConfig(validatedConfig, 'enableCache', true);
 
   if (!Array.isArray(validatedConfig.watchIgnoredRegex) && validatedConfig.watchIgnoredRegex != null) {
     validatedConfig.watchIgnoredRegex = [validatedConfig.watchIgnoredRegex];

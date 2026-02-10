@@ -26,7 +26,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - Hand-crafted dev server → replace with Vite dev server
 
 ### 3. 🔧 Build System: tsdown
-**Status:** 🚧 In Progress (Replacing Vite + Turborepo)
+**Status:** ✅ Complete
 
 Previous approach used Vite + Turborepo with 8 separate config files for core alone. New approach:
 
@@ -52,7 +52,7 @@ packages/
 ```
 
 ### 5. 🔗 CLI/Core Dependency Architecture
-**Status:** 🚧 In Progress
+**Status:** ✅ Complete
 
 Break the circular dependency between CLI and Core. Make Core standalone, CLI thin.
 
@@ -270,24 +270,24 @@ packages/
 
 ## Immediate Tasks
 
-### 🚧 Build System Migration
-- [ ] Add tsdown to each package
-- [ ] Create tsdown.config.ts for mock-doc
-- [ ] Create tsdown.config.ts for core
-- [ ] Create tsdown.config.ts for cli
-- [ ] Update root package.json scripts
-- [ ] Delete Vite configs and build.ts
-- [ ] Delete turbo.json
-- [ ] Test build output matches previous
+### ✅ Build System Migration
+- [x] Add tsdown to each package
+- [x] Create tsdown.config.ts for mock-doc
+- [x] Create tsdown.config.ts for core
+- [x] Create tsdown.config.ts for cli
+- [x] Update root package.json scripts
+- [x] Delete Vite configs and build.ts
+- [x] Delete turbo.json
+- [x] Test build output matches previous
 
-### 🚧 CLI/Core Decoupling
-- [ ] Move `ConfigFlags` type to CLI (already there)
-- [ ] Move flag→config merge logic from Core to CLI
-- [ ] Remove `flags` from `ValidatedConfig`
-- [ ] Simplify `setBooleanConfig` (remove flag param)
-- [ ] Update Core's package.json: add `@stencil/cli` as dependency
-- [ ] Update CLI's package.json: change to peerDependency on `@stencil/core`
-- [ ] Create `packages/core/bin/stencil.js`
+### ✅ CLI/Core Decoupling
+- [x] Move `ConfigFlags` type to CLI (already there)
+- [x] Move flag→config merge logic from Core to CLI (new `mergeFlags.ts`)
+- [x] Remove `flags` from `ValidatedConfig`
+- [x] Simplify `setBooleanConfig` (remove flag param)
+- [x] Update Core's package.json: add `@stencil/cli` as dependency
+- [x] Update CLI's package.json: change to peerDependency on `@stencil/core`
+- [x] Create `packages/core/bin/stencil.mjs`
 - [ ] Move flag-related tests from Core to CLI
 
 ---
@@ -357,4 +357,4 @@ pnpm workspaces handle dependency ordering automatically.
 
 ---
 
-*Last updated: 2026-02-09 Session 10*
+*Last updated: 2026-02-09 Session 11*
