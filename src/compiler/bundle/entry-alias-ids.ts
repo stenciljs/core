@@ -7,6 +7,8 @@ export const STENCIL_INTERNAL_CLIENT_ID = '@stencil/core/internal/client';
 export const STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID = '@stencil/core/internal/client/patch-browser';
 export const STENCIL_INTERNAL_HYDRATE_ID = '@stencil/core/internal/hydrate';
 export const STENCIL_MOCK_DOC_ID = '@stencil/core/mock-doc';
+export const STENCIL_JSX_RUNTIME_ID = '@stencil/core/jsx-runtime';
+export const STENCIL_JSX_DEV_RUNTIME_ID = '@stencil/core/jsx-dev-runtime';
 export const APP_DATA_CONDITIONAL = '?app-data=conditional';
 export const LAZY_BROWSER_ENTRY_ID = '@lazy-browser-entrypoint' + APP_DATA_CONDITIONAL;
 export const LAZY_EXTERNAL_ENTRY_ID = '@lazy-external-entrypoint' + APP_DATA_CONDITIONAL;

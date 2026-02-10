@@ -1,8 +1,9 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
+import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 
 import { createSystem } from '../../../compiler/sys/stencil-sys';
 import type * as d from '../../../declarations';
-import { getHydratedFlagHead, getStencilInternalModule } from '../core-resolve-plugin';
+import { coreResolvePlugin, getHydratedFlagHead, getStencilInternalModule } from '../core-resolve-plugin';
+import { APP_DATA_CONDITIONAL, STENCIL_JSX_RUNTIME_ID } from '../entry-alias-ids';
 
 describe('core resolve plugin', () => {
   const config: d.ValidatedConfig = mockValidatedConfig({
@@ -66,5 +67,15 @@ describe('core resolve plugin', () => {
       hydratedValue: 'block',
     });
     expect(o).toBe(`{display:none}[yup]{display:block}`);
+  });
+
+  describe('jsx-runtime resolution', () => {
+    it('should resolve jsx-runtime to same path as @stencil/core for lazy builds', () => {
+      const compilerCtx = mockCompilerCtx(config);
+      const plugin = coreResolvePlugin(config, compilerCtx, 'client', false, true);
+      const resolved = (plugin.resolveId as Function)(STENCIL_JSX_RUNTIME_ID);
+      expect(resolved).toContain('internal/client/index.js');
+      expect(resolved).toContain(APP_DATA_CONDITIONAL);
+    });
   });
 });
