@@ -2,7 +2,7 @@ import { flatOne, sortBy } from './helpers';
 import { isGlob } from './is-glob';
 import { join, normalizePath } from './path';
 import { minimatch } from 'minimatch';
-import { basename, dirname, relative } from 'path';
+import { basename, dirname, relative } from 'node:path';
 
 import type * as d from '@stencil/core';
 import {

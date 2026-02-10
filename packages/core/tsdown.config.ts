@@ -61,8 +61,8 @@ export default defineConfig([
     target: 'node20',
     dts: true,
     clean: true,
-    sourcemap: true,
-    noExternal: ['@stencil/core', /^virtual:/],
+    // sourcemap: true,
+    external: [/^node:/],
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
@@ -77,8 +77,8 @@ export default defineConfig([
     target: 'node20',
     dts: true,
     clean: false,
-    sourcemap: true,
-    noExternal: ['@stencil/core', /^virtual:/],
+    // sourcemap: true,
+    external: ['node:*'],
     plugins: [
       virtualModules({
         external: {
@@ -108,7 +108,7 @@ export default defineConfig([
     dts: true,
     clean: false,
     sourcemap: true,
-    noExternal: ['@stencil/core', /^virtual:/],
+    external: [/^node:/],
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
@@ -123,8 +123,8 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
-    sourcemap: true,
-    noExternal: ['@stencil/core', /^virtual:/],
+    // sourcemap: true,
+    external: [/^node:/],
     plugins: [
       virtualModules({
         resolve: {

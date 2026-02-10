@@ -1,262 +1,8 @@
 {
-  "name": "@stencil/core",
-  "version": "4.42.1",
-  "license": "MIT",
-  "main": "./internal/stencil-core/index.cjs",
-  "module": "./internal/stencil-core/index.js",
-  "types": "./internal/stencil-core/index.d.ts",
-  "bin": {
-    "stencil": "bin/stencil"
-  },
-  "files": [
-    "!**/*.map",
-    "!**/*.stub.ts",
-    "!**/*.stub.tsx",
-    "bin/",
-    "cli/",
-    "compiler/",
-    "dev-server/",
-    "internal/",
-    "mock-doc/",
-    "screenshot/",
-    "sys/",
-    "testing/"
-  ],
-  "exports": {
-    ".": {
-      "types": "./internal/stencil-core/index.d.ts",
-      "import": "./internal/stencil-core/index.js",
-      "require": "./internal/stencil-core/index.cjs"
-    },
-    "./jsx-runtime": {
-      "types": "./internal/stencil-core/jsx-runtime.d.ts",
-      "import": "./internal/stencil-core/jsx-runtime.js",
-      "require": "./internal/stencil-core/jsx-runtime.cjs"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./internal/stencil-core/jsx-dev-runtime.d.ts",
-      "import": "./internal/stencil-core/jsx-dev-runtime.js",
-      "require": "./internal/stencil-core/jsx-dev-runtime.cjs"
-    },
-    "./cli": {
-      "import": "./cli/index.js",
-      "require": "./cli/index.cjs"
-    },
-    "./internal": {
-      "import": "./internal/index.js",
-      "types": "./internal/index.d.ts"
-    },
-    "./internal/client": {
-      "import": "./internal/client/index.js",
-      "require": "./internal/client/index.js"
-    },
-    "./internal/testing": {
-      "import": "./internal/testing/index.js",
-      "require": "./internal/testing/index.js"
-    },
-    "./internal/testing/jsx-runtime": {
-      "types": "./internal/testing/jsx-runtime.d.ts",
-      "import": "./internal/testing/jsx-runtime.js",
-      "require": "./internal/testing/jsx-runtime.js"
-    },
-    "./internal/testing/jsx-dev-runtime": {
-      "types": "./internal/testing/jsx-dev-runtime.d.ts",
-      "import": "./internal/testing/jsx-dev-runtime.js",
-      "require": "./internal/testing/jsx-dev-runtime.js"
-    },
-    "./internal/testing/*": {
-      "import": "./internal/testing/*"
-    },
-    "./internal/app-data": {
-      "types": "./internal/app-data/index.d.ts",
-      "import": "./internal/app-data/index.js",
-      "require": "./internal/app-data/index.cjs"
-    },
-    "./internal/app-globals": {
-      "import": "./internal/app-globals/index.js",
-      "require": "./internal/app-globals/index.js"
-    },
-    "./mock-doc": {
-      "types": "./mock-doc/index.d.ts",
-      "import": "./mock-doc/index.js",
-      "require": "./mock-doc/index.cjs"
-    },
-    "./compiler": {
-      "types": "./compiler/stencil.d.ts",
-      "import": "./compiler/stencil.js",
-      "require": "./compiler/stencil.js"
-    },
-    "./compiler/*": {
-      "types": "./compiler/*",
-      "import": "./compiler/*",
-      "require": "./compiler/*"
-    },
-    "./screenshot": {
-      "types": "./screenshot/index.d.ts",
-      "require": "./screenshot/index.js"
-    },
-    "./sys/node": {
-      "types": "./sys/node/index.d.ts",
-      "import": "./sys/node/index.js",
-      "require": "./sys/node/index.js"
-    },
-    "./sys/node/*": {
-      "import": "./sys/node/*",
-      "require": "./sys/node/*"
-    },
-    "./testing": {
-      "types": "./testing/index.d.ts",
-      "import": "./testing/index.js",
-      "require": "./testing/index.js"
-    },
-    "./testing/jest-preset": {
-      "require": "./testing/jest-preset.js"
-    },
-    "./testing/*": {
-      "import": "./testing/*",
-      "require": "./testing/*"
-    }
-  },
-  "scripts": {
-    "build": "npm run clean && npm run tsc.prod && npm run ts scripts/index.ts -- --prod --ci",
-    "build.watch": "npm run build -- --watch",
-    "build.updateSelectorEngine": "npm run ts scripts/updateSelectorEngine.ts",
-    "build:v5": "pnpm --filter './packages/*' run build",
-    "dev:v5": "pnpm --parallel --filter './packages/*' run dev",
-    "clean": "rimraf --max-retries=2 build/ cli/ compiler/ dev-server/ internal/ mock-doc/ sys/node/ sys/ testing/ && npm run clean:scripts && npm run clean.screenshots",
-    "clean.screenshots": "rimraf test/end-to-end/screenshot/builds test/end-to-end/screenshot/images",
-    "clean:scripts": "rimraf scripts/build",
-    "lint": "eslint bin/* scripts/*.ts scripts/**/*.ts src/*.ts src/**/*.ts src/**/*.tsx test/wdio/**/*.tsx",
-    "install.jest": "npx tsx ./src/testing/jest/install-dependencies.mts",
-    "prettier": "npm run prettier.base -- --write",
-    "prettier.base": "prettier --cache \"./({bin,scripts,src,test}/**/*.{ts,tsx,js,jsx})|bin/stencil|.github/(**/)?*.(yml|yaml)|*.js\"",
-    "prettier.dry-run": "npm run prettier.base -- --list-different",
-    "release.ci.prepare": "npm run ts scripts/index.ts -- --release --ci-prepare",
-    "release.ci": "NODE_OPTIONS=--max-old-space-size=4096 npm run ts scripts/index.ts -- --release --ci-publish",
-    "spellcheck": "npm run spellcheck.code && npm run spellcheck.markdown",
-    "spellcheck.code": "cspell --config cspell-code.json --no-progress \"src/**/*.ts\" \"src/**/*.tsx\" \"scripts/**/*.ts\"",
-    "spellcheck.markdown": "cspell --config cspell-markdown.json --no-progress \"*.md\" \"**/*.md\"",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
-    "test.analysis": "cd test && npm ci && npm run analysis.build-and-analyze",
-    "test.bundle-size": "cd test/bundle-size && npm test",
-    "test.bundlers": "cd test && npm run bundlers",
-    "test.copytask": "cd test/copy-task && npm ci && npm run test",
-    "test.dist": "npm run ts scripts/index.ts -- --validate-build",
-    "test.end-to-end": "cd test/end-to-end && npm ci && npm test && npm run test.dist",
-    "test.jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-    "test.type-tests": "cd ./test/wdio && npm install && npm run build.test-sibling && npm run build.main && cd ../../ && tsc -p test/type-tests/tsconfig.json",
-    "test.wdio": "cd test/wdio && npm ci && npm run test",
-    "test.wdio.testOnly": "cd test/wdio && npm ci && npm run wdio",
-    "test.prod": "npm run test.dist && npm run test.end-to-end && npm run test.jest && npm run test.wdio && npm run test.testing && npm run test.analysis",
-    "test.testing": "node scripts/test/validate-testing.js",
-    "test.docs-build": "cd test && npm run build.docs-json && npm run build.docs-readme",
-    "test.watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
-    "test.watch-all": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watchAll --coverage",
-    "tsc.prod": "tsc",
-    "ts": "tsc --noEmit --project scripts/tsconfig.json && tsx"
-  },
-  "devDependencies": {
-    "@ionic/prettier-config": "^4.0.0",
-    "@jridgewell/source-map": "^0.3.6",
-    "@rolldown/binding-darwin-x64": "1.0.0-rc.3",
-    "@rollup/plugin-commonjs": "28.0.2",
-    "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-node-resolve": "16.0.0",
-    "@rollup/plugin-replace": "6.0.2",
-    "@rollup/pluginutils": "5.1.4",
-    "@types/eslint": "^8.4.6",
-    "@types/exit": "^0.1.31",
-    "@types/fs-extra": "^11.0.0",
-    "@types/graceful-fs": "^4.1.5",
-    "@types/jest": "^27.0.3",
-    "@types/listr": "^0.14.4",
-    "@types/node": "^24.10.12",
-    "@types/pixelmatch": "^5.2.4",
-    "@types/pngjs": "^6.0.1",
-    "@types/prompts": "^2.0.9",
-    "@types/semver": "^7.3.12",
-    "@types/ws": "^8.5.4",
-    "@types/yarnpkg__lockfile": "^1.1.5",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
-    "@yarnpkg/lockfile": "^1.1.0",
-    "ansi-colors": "4.1.3",
-    "autoprefixer": "10.4.19",
-    "conventional-changelog-cli": "^5.0.0",
-    "cspell": "^8.0.0",
-    "css-what": "^7.0.0",
-    "dts-bundle-generator": "~9.5.0",
-    "esbuild": "^0.25.0",
-    "esbuild-plugin-replace": "^1.4.0",
-    "eslint": "^8.23.1",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-jest": "^28.0.0",
-    "eslint-plugin-jsdoc": "^50.0.0",
-    "eslint-plugin-simple-import-sort": "^12.0.0",
-    "eslint-plugin-wdio": "^8.24.12",
-    "execa": "9.3.0",
-    "exit": "^0.1.2",
-    "fs-extra": "^11.0.0",
-    "glob": "10.5.0",
-    "graceful-fs": "~4.2.6",
-    "jest": "^27.4.5",
-    "jest-cli": "^27.4.5",
-    "jest-environment-node": "^27.4.4",
-    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068",
-    "listr": "^0.14.3",
-    "magic-string": "^0.30.0",
-    "merge-source-map": "^1.1.0",
-    "mime-db": "^1.46.0",
-    "minimatch": "9.0.4",
-    "node-fetch": "3.3.2",
-    "open": "^9.0.0",
-    "open-in-editor": "2.2.0",
-    "parse5": "7.2.1",
-    "pixelmatch": "5.3.0",
-    "postcss": "^8.2.8",
-    "postcss-safe-parser": "^7.0.1",
-    "postcss-selector-parser": "^7.1.0",
-    "prettier": "3.3.1",
-    "prompts": "2.4.2",
-    "puppeteer": "^24.1.0",
-    "rimraf": "^6.0.1",
-    "rollup": "4.34.9",
-    "semver": "^7.3.7",
-    "terser": "5.37.0",
-    "tsdown": "^0.20.3",
-    "tsx": "^4.19.2",
-    "typescript": "~5.8.3",
-    "webpack": "^5.75.0",
-    "ws": "8.17.1"
-  },
-  "optionalDependencies": {
-    "@rolldown/binding-darwin-arm64": "1.0.0-rc.3",
-    "@rolldown/binding-linux-arm64-gnu": "1.0.0-rc.3",
-    "@rolldown/binding-linux-arm64-musl": "1.0.0-rc.3",
-    "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.3",
-    "@rolldown/binding-linux-x64-musl": "1.0.0-rc.3",
-    "@rolldown/binding-win32-arm64-msvc": "1.0.0-rc.3",
-    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.3",
-    "@rollup/rollup-darwin-arm64": "4.34.9",
-    "@rollup/rollup-darwin-x64": "4.34.9",
-    "@rollup/rollup-linux-arm64-gnu": "4.34.9",
-    "@rollup/rollup-linux-arm64-musl": "4.34.9",
-    "@rollup/rollup-linux-x64-gnu": "4.34.9",
-    "@rollup/rollup-linux-x64-musl": "4.34.9",
-    "@rollup/rollup-win32-arm64-msvc": "4.34.9",
-    "@rollup/rollup-win32-x64-msvc": "4.34.9"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.10.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stenciljs/core.git"
-  },
-  "author": "Ionic Team",
-  "homepage": "https://stenciljs.com/",
+  "name": "@stencil/monorepo",
   "description": "A Compiler for Web Components and Progressive Web Apps",
+  "author": "StencilJs Contributors",
+  "homepage": "https://stenciljs.com/",
   "keywords": [
     "web components",
     "components",
@@ -267,10 +13,37 @@
     "pwa",
     "progressive web app"
   ],
-  "prettier": "@ionic/prettier-config",
+  "private": true,
+  "version": "4.42.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs"
+  },  
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter './packages/*' run build",
+    "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
+    "dev": "pnpm typecheck && pnpm build:watch",   
+    "typecheck": "pnpm --filter './packages/*' run typecheck"
+  },
+  "devDependencies": {
+    "rolldown": "^1.0.0-rc.3",
+    "tsdown": "^0.20.3",
+    "@types/node": "^22"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-darwin-arm64": "^1.0.0-rc.3",
+    "@rolldown/binding-linux-arm64-gnu": "^1.0.0-rc.3",
+    "@rolldown/binding-linux-arm64-musl": "^1.0.0-rc.3",
+    "@rolldown/binding-linux-x64-gnu": "^1.0.0-rc.3",
+    "@rolldown/binding-linux-x64-musl": "^1.0.0-rc.3",
+    "@rolldown/binding-win32-arm64-msvc": "^1.0.0-rc.3",
+    "@rolldown/binding-win32-x64-msvc": "^1.0.0-rc.3"
+  },
   "volta": {
     "node": "22.22.0",
-    "npm": "10.8.1"
+    "npm": "10.9.4"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.29.2"
 }

@@ -1,8 +1,25 @@
 {
   "name": "@stencil/cli",
-  "version": "5.0.0-alpha.0",
   "description": "CLI for Stencil - Web component compiler",
+  "author": "StencilJs Contributors",
+  "homepage": "https://stenciljs.com/",
+  "keywords": [
+    "web components",
+    "components",
+    "stencil",
+    "ionic",
+    "webapp",
+    "custom elements",
+    "pwa",
+    "progressive web app"
+  ],
+  "version": "5.0.0-alpha.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
   "type": "module",
+  "license": "MIT",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -21,10 +38,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "typecheck": "tsc --noEmit",
-    "dev": "pnpm run \"/^dev:/\"",
-    "dev:typecheck": "tsc --noEmit --watch",
-    "dev:build": "tsdown --watch"
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@stencil/core": "^5.0.0"
@@ -33,5 +47,11 @@
     "@stencil/core": "workspace:*",
     "tsdown": "^0.20.3",
     "typescript": "~5.8.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2"
   }
 }

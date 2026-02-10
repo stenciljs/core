@@ -1,10 +1,9 @@
 import { isFunction, normalizePath } from '../../utils';
-import { createHash } from 'crypto';
-import exit from 'exit';
+import { createHash } from 'node:crypto';
 import fs from 'graceful-fs';
-import { cpus, freemem, platform, release, tmpdir, totalmem } from 'os';
-import * as os from 'os';
-import path from 'path';
+import { cpus, freemem, platform, release, tmpdir, totalmem } from 'node:os';
+import * as os from 'node:os';
+import path from 'node:path';
 import type TypeScript from 'typescript';
 
 import { buildEvents } from '../../compiler/events';
@@ -212,7 +211,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     },
     exit: async (exitCode) => {
       await runInterruptsCallbacks();
-      exit(exitCode);
+      process.exitCode = exitCode;
     },
     getCurrentDirectory() {
       return normalizePath(prcs.cwd());

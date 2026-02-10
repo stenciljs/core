@@ -1,7 +1,24 @@
 {
   "name": "@stencil/core",
+  "description": "A Compiler for Web Components and Progressive Web Apps",
+  "author": "StencilJs Contributors",
+  "homepage": "https://stenciljs.com/",
+  "keywords": [
+    "web components",
+    "components",
+    "stencil",
+    "ionic",
+    "webapp",
+    "custom elements",
+    "pwa",
+    "progressive web app"
+  ],
   "version": "5.0.0-alpha.0",
-  "description": "Compiler for web components and progressive web apps",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -49,24 +66,37 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "typecheck": "tsc --noEmit",
-    "dev": "pnpm run \"/^dev:/\"",
-    "dev:typecheck": "tsc --noEmit --watch",
-    "dev:build": "tsdown --watch"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-replace": "^6.0.3",
+    "@rollup/pluginutils": "^5.3.0",
     "@stencil/cli": "workspace:*",
     "@stencil/mock-doc": "workspace:*",
+    "autoprefixer": "^10.4.24",
     "chalk": "^5.6.2",
+    "css-what": "^7.0.0",
     "glob": "^10.0.0",
+    "graceful-fs": "^4.2.11",
     "magic-string": "^0.30.0",
-    "parse5": "7.2.1",
+    "merge-source-map": "^1.1.0",
+    "minimatch": "^10.1.2",
+    "postcss": "^8.5.6",
+    "postcss-safe-parser": "^7.0.1",
+    "postcss-selector-parser": "^7.1.1",
     "resolve": "^1.22.0",
     "rollup": "^4.0.0",
+    "semver": "^7.7.4",
     "terser": "5.37.0",
     "typescript": "~5.8.3"
   },
   "devDependencies": {
     "tsdown": "^0.20.3"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

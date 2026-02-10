@@ -1,8 +1,7 @@
-import { createConfigFlags } from '@stencil/cli';
 import type * as d from '@stencil/core';
 import { MockWindow } from '@stencil/mock-doc';
 import { noop } from '../utils';
-import path from 'path';
+import path from 'node:path';
 
 import { createWorkerContext } from '../compiler';
 import { BuildContext } from '../compiler/build/build-ctx';
@@ -183,7 +182,6 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     devMode: true,
     enableCache: false,
     extras: {},
-    flags: createConfigFlags(),
     globalScript: null,
     hashFileNames: false,
     logger: new TestingLogger(),
