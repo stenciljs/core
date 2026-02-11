@@ -1,7 +1,7 @@
-import { mockLoadConfigInit } from '@stencil/core/testing';
+import { mockLoadConfigInit } from '../../../testing';
 import path from 'path';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createConfigFlags, type ConfigFlags } from '@stencil/cli';
 import type * as d from '@stencil/core';
 import { normalizePath } from '../../../utils';
 import { validateConfig } from '../validate-config';
@@ -10,16 +10,13 @@ describe('validateDevServer', () => {
   const root = path.resolve('/');
   let inputConfig: d.UnvalidatedConfig;
   let inputDevServerConfig: d.DevServerConfig;
-  let flags: ConfigFlags;
 
   beforeEach(() => {
     inputDevServerConfig = {};
-    flags = createConfigFlags({ serve: true });
     inputConfig = {
       sys: {} as any,
       rootDir: normalizePath(path.join(root, 'some', 'path')),
       devServer: inputDevServerConfig,
-      flags,
       namespace: 'Testing',
     };
   });
@@ -40,12 +37,6 @@ describe('validateDevServer', () => {
 
   it('should set address', () => {
     inputConfig.devServer = { ...inputDevServerConfig, address: '123.123.123.123' };
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.address).toBe('123.123.123.123');
-  });
-
-  it('should set address from flags', () => {
-    inputConfig.flags = { ...flags, address: '123.123.123.123' };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.address).toBe('123.123.123.123');
   });
@@ -156,12 +147,6 @@ describe('validateDevServer', () => {
     expect(config.devServer.port).toBe(4444);
   });
 
-  it('should set port from flags', () => {
-    inputConfig.flags = { ...flags, port: 4444 };
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.port).toBe(4444);
-  });
-
   it('should default strictPort to false', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.strictPort).toBe(false);
@@ -237,13 +222,6 @@ describe('validateDevServer', () => {
     expect(config.devServer.openBrowser).toBe(false);
   });
 
-  it('should set openBrowser from flag', () => {
-    // the flags field should have been set up in the `beforeEach` block for this test, hence the bang operator
-    inputConfig.flags!.open = false;
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.openBrowser).toBe(false);
-  });
-
   it('should default http protocol', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.protocol).toBe('http');
@@ -267,12 +245,6 @@ describe('validateDevServer', () => {
     expect(config.devServer.ssr).toBe(false);
   });
 
-  it('should set ssr from flag', () => {
-    inputConfig.flags = { ...flags, ssr: true };
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.ssr).toBe(true);
-  });
-
   it('should set ssr false by default', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.ssr).toBe(false);
@@ -283,13 +255,13 @@ describe('validateDevServer', () => {
     expect(config.devServer.srcIndexHtml).toBe(normalizePath(path.join(root, 'some', 'path', 'src', 'index.html')));
   });
 
-  it('should set srcIndexHtml from config', () => {
+  it('should set prerenderConfig from output target when ssr is true', () => {
     const wwwOutputTarget: d.OutputTargetWww = {
       type: 'www',
       prerenderConfig: normalizePath(path.join(root, 'some', 'path', 'prerender.config.ts')),
     };
     inputConfig.outputTargets = [wwwOutputTarget];
-    inputConfig.flags = { ...flags, ssr: true };
+    inputConfig.devServer = { ...inputDevServerConfig, ssr: true };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.prerenderConfig).toBe(wwwOutputTarget.prerenderConfig);
   });

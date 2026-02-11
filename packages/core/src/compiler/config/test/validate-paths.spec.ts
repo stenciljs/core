@@ -1,7 +1,8 @@
-import type * as d from '@stencil/core/declarations';
-import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '@stencil/core/testing';
+import type * as d from '@stencil/core';
+import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '../../../testing';
 import { join } from '../../../utils';
 import path from 'path';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { validateConfig } from '../validate-config';
 

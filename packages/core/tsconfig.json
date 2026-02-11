@@ -35,11 +35,6 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/test/**",
-    "src/**/tests/**",
-    "src/**/*.stub.ts",
     "dist"
   ]
 }

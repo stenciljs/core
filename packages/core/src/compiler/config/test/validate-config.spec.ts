@@ -1,8 +1,8 @@
-import type * as d from '@stencil/core/declarations';
-import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '@stencil/core/testing';
+import type * as d from '@stencil/core';
+import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '../../../testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { DOCS_CUSTOM, DOCS_JSON, DOCS_README, DOCS_VSCODE } from '../../../utils';
 
-import { createConfigFlags } from '@stencil/cli';
 import { isWatchIgnorePath } from '../../fs-watch/fs-watch-rebuild';
 import { validateConfig } from '../validate-config';
 
@@ -42,45 +42,13 @@ describe('validation', () => {
     });
   });
 
-  describe('flags', () => {
-    it('adds a default "flags" object if none is provided', () => {
-      userConfig.flags = undefined;
+  describe('devMode validation', () => {
+    it('sets "devMode" to false if the user provided value isn\'t a boolean', () => {
+      // the branch under test explicitly requires a value whose type is not allowed by the type system
+      const devMode = 'not-a-bool' as unknown as boolean;
+      userConfig = { devMode };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.flags).toEqual({});
-    });
-
-    it('serializes a provided "flags" object', () => {
-      userConfig.flags = createConfigFlags({ dev: false });
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.flags).toEqual(createConfigFlags({ dev: false }));
-    });
-
-    describe('devMode', () => {
-      it('defaults "devMode" to false when "flag.prod" is truthy', () => {
-        userConfig.flags = createConfigFlags({ prod: true });
-        const { config } = validateConfig(userConfig, bootstrapConfig);
-        expect(config.devMode).toBe(false);
-      });
-
-      it('defaults "devMode" to true when "flag.dev" is truthy', () => {
-        userConfig.flags = createConfigFlags({ dev: true });
-        const { config } = validateConfig(userConfig, bootstrapConfig);
-        expect(config.devMode).toBe(true);
-      });
-
-      it('defaults "devMode" to false when "flag.prod" & "flag.dev" are truthy', () => {
-        userConfig.flags = createConfigFlags({ dev: true, prod: true });
-        const { config } = validateConfig(userConfig, bootstrapConfig);
-        expect(config.devMode).toBe(false);
-      });
-
-      it('sets "devMode" to false if the user provided flag isn\'t a boolean', () => {
-        // the branch under test explicitly requires a value whose type is not allowed by the type system
-        const devMode = 'not-a-bool' as unknown as boolean;
-        userConfig = { devMode };
-        const { config } = validateConfig(userConfig, bootstrapConfig);
-        expect(config.devMode).toBe(false);
-      });
+      expect(config.devMode).toBe(false);
     });
   });
 
@@ -343,13 +311,25 @@ describe('validation', () => {
     expect(config.devMode).toBe(false);
   });
 
-  it.each([DOCS_JSON, DOCS_CUSTOM, DOCS_README, DOCS_VSCODE])(
+  it.each([DOCS_JSON, DOCS_CUSTOM, DOCS_VSCODE])(
     'should not add "%s" output target by default',
     (targetType) => {
       const { config } = validateConfig(userConfig, bootstrapConfig);
       expect(config.outputTargets.some((o) => o.type === targetType)).toBe(false);
     },
   );
+
+  it('should add "docs-readme" output target by default in production mode', () => {
+    userConfig.devMode = false;
+    const { config } = validateConfig(userConfig, bootstrapConfig);
+    expect(config.outputTargets.some((o) => o.type === DOCS_README)).toBe(true);
+  });
+
+  it('should not add "docs-readme" output target in dev mode', () => {
+    userConfig.devMode = true;
+    const { config } = validateConfig(userConfig, bootstrapConfig);
+    expect(config.outputTargets.some((o) => o.type === DOCS_README)).toBe(false);
+  });
 
   it('should set devInspector false', () => {
     userConfig.devInspector = false;
@@ -571,27 +551,13 @@ describe('validation', () => {
       const { config } = validateConfig(userConfig, bootstrapConfig);
       expect(config.sourceMap).toBe(false);
     });
-
-    it('sets the field to true when set to "dev" and --dev flag is passed', () => {
-      userConfig.sourceMap = 'dev';
-      userConfig.flags = createConfigFlags({ dev: true });
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.sourceMap).toBe(true);
-    });
-
-    it('sets the field to false when set to "dev" and --prod flag is passed', () => {
-      userConfig.sourceMap = 'dev';
-      userConfig.flags = createConfigFlags({ prod: true });
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.sourceMap).toBe(false);
-    });
   });
 
   describe('buildDist', () => {
-    it.each([true, false])('should set the field based on the config flag (%p)', (flag) => {
-      userConfig.flags = createConfigFlags({ esm: flag });
+    it.each([true, false])('should set the field based on the config value (%p)', (buildDist) => {
+      userConfig.buildDist = buildDist;
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildDist).toBe(flag);
+      expect(config.buildDist).toBe(buildDist);
     });
 
     it.each([true, false])('should fallback to !devMode', (devMode) => {

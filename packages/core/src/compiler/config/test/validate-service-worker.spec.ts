@@ -1,8 +1,8 @@
-import type * as d from '@stencil/core/declarations';
-import { OutputTargetWww } from '@stencil/core/declarations';
-import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '@stencil/core/testing';
+import type * as d from '@stencil/core';
+import type { OutputTargetWww } from '@stencil/core';
+import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '../../../testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createConfigFlags } from '@stencil/cli';
 import { validateServiceWorker } from '../validate-service-worker';
 
 describe('validateServiceWorker', () => {
@@ -13,7 +13,6 @@ describe('validateServiceWorker', () => {
   beforeEach(() => {
     config = mockValidatedConfig({
       devMode: false,
-      flags: createConfigFlags(),
       fsNamespace: 'app',
       hydratedFlag: null,
       logger: mockLogger(),
@@ -161,14 +160,14 @@ describe('validateServiceWorker', () => {
     expect(outputTarget.serviceWorker).toBe(null);
   });
 
-  it('should create sw config when in devMode if flag serviceWorker', () => {
+  it('should create sw config when in devMode if generateServiceWorker is true', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
       serviceWorker: true as any,
     };
     config.devMode = true;
-    config.flags.serviceWorker = true;
+    config.generateServiceWorker = true;
     validateServiceWorker(config, outputTarget);
     expect(outputTarget.serviceWorker).not.toBe(null);
   });

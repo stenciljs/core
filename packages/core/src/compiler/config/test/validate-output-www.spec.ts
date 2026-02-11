@@ -1,9 +1,9 @@
-import type * as d from '@stencil/core/declarations';
-import { mockLoadConfigInit } from '@stencil/core/testing';
+import type * as d from '@stencil/core';
+import { mockLoadConfigInit } from '../../../testing';
 import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
 import path from 'path';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createConfigFlags, type ConfigFlags } from '@stencil/cli';
 import { validateConfig } from '../validate-config';
 
 describe('validateOutputTargetWww', () => {
@@ -11,13 +11,10 @@ describe('validateOutputTargetWww', () => {
   // tests are run on)
   const rootDir = path.resolve('/');
   let userConfig: d.Config;
-  let flags: ConfigFlags;
 
   beforeEach(() => {
-    flags = createConfigFlags();
     userConfig = {
       rootDir: rootDir,
-      flags,
     };
   });
 
@@ -89,6 +86,12 @@ describe('validateOutputTargetWww', () => {
         file: join(rootDir, 'www', 'docs', 'build', 'app.css'),
         type: 'dist-global-styles',
       },
+      {
+        dir: join(rootDir, 'src'),
+        footer: '*Built with [StencilJS](https://stenciljs.com/)*',
+        strict: false,
+        type: 'docs-readme',
+      },
     ]);
   });
 
@@ -130,7 +133,7 @@ describe('validateOutputTargetWww', () => {
 
   it('should default to add www when outputTargets is undefined', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets).toHaveLength(5);
+    expect(config.outputTargets).toHaveLength(6); // includes docs-readme in production mode
 
     const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(outputTarget.dir).toBe(join(rootDir, 'www'));
@@ -338,15 +341,15 @@ describe('validateOutputTargetWww', () => {
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
-    it('should add hydrate with --prerender flag', () => {
-      userConfig.flags = { ...flags, prerender: true };
+    it('should add hydrate with prerender config', () => {
+      userConfig.prerender = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
-    it('should add hydrate with --ssr flag', () => {
-      userConfig.flags = { ...flags, ssr: true };
+    it('should add hydrate with ssr config', () => {
+      userConfig.ssr = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
@@ -368,7 +371,7 @@ describe('validateOutputTargetWww', () => {
     });
 
     it('should add node builtins to external by default', () => {
-      userConfig.flags = { ...flags, prerender: true };
+      userConfig.prerender = true;
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;

@@ -1,4 +1,5 @@
-import type * as d from '@stencil/core/declarations';
+import type * as d from '@stencil/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { validateRollupConfig } from '../validate-rollup-config';
 

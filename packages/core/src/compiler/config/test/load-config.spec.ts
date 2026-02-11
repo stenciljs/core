@@ -1,33 +1,37 @@
-import { mockCompilerSystem } from '@stencil/core/testing';
-import path from 'path';
-import ts from 'typescript';
+import { mockCompilerSystem } from '../../../testing';
+import { resolve, dirname } from 'node:path';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ConfigFlags } from '@stencil/cli';
 import type * as d from '@stencil/core';
 import { normalizePath } from '../../../utils';
 import { loadConfig } from '../load-config';
 
+vi.mock('typescript', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('typescript')>();
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      getParsedCommandLineOfConfigFile: vi.fn().mockReturnValue({
+        options: {
+          target: actual.ScriptTarget.ES2017,
+          module: actual.ModuleKind.ESNext,
+        },
+        fileNames: [],
+        errors: [],
+      }),
+    },
+  };
+});
+
 describe('load config', () => {
-  const configPath = require.resolve('./fixtures/stencil.config.ts');
-  const configPath2 = require.resolve('./fixtures/stencil.config2.ts');
+  const configPath = resolve(import.meta.dirname, 'fixtures/stencil.config.ts');
+  const configPath2 = resolve(import.meta.dirname, 'fixtures/stencil.config2.ts');
 
   let sys: d.CompilerSystem;
 
   beforeEach(() => {
     sys = mockCompilerSystem();
-
-    jest.spyOn(ts, 'getParsedCommandLineOfConfigFile').mockReturnValue({
-      options: {
-        target: ts.ScriptTarget.ES2017,
-        module: ts.ModuleKind.ESNext,
-      },
-      fileNames: [],
-      errors: [],
-    });
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
   });
 
   it("merges a user's configuration with a stencil.config file on disk", async () => {
@@ -48,7 +52,7 @@ describe('load config', () => {
     expect(actualConfig).toBeDefined();
     expect(actualConfig.hashedFileNameLength).toEqual(9);
     // these fields are defined in the config file on disk, and should be present
-    expect<ConfigFlags>(actualConfig.flags).toEqual({ dev: true });
+    expect(actualConfig.devMode).toBe(true);
     expect(actualConfig.extras).toBeDefined();
     expect(actualConfig.extras!.enableImportInjection).toBe(true);
     // respects custom root dir
@@ -70,8 +74,6 @@ describe('load config', () => {
     expect(actualConfig.configPath).toBe(normalizePath(configPath));
     // this field is defined in the config file on disk, and should be present
     expect(actualConfig.hashedFileNameLength).toBe(13);
-    // this field should default to an empty object literal, since it wasn't present in the config file
-    expect<ConfigFlags>(actualConfig.flags).toEqual({});
   });
 
   describe('empty initialization argument', () => {
@@ -86,7 +88,7 @@ describe('load config', () => {
     });
 
     it('creates a tsconfig file when "initTsConfig" set', async () => {
-      const tsconfigPath = path.resolve(path.dirname(configPath), 'tsconfig.json');
+      const tsconfigPath = resolve(dirname(configPath), 'tsconfig.json');
       expect(sys.accessSync(tsconfigPath)).toBe(false);
       const loadedConfig = await loadConfig({ initTsConfig: true, configPath, sys });
       expect(sys.accessSync(tsconfigPath)).toBe(true);
@@ -102,7 +104,7 @@ describe('load config', () => {
         level: 'error',
         lines: [],
         messageText: `Unable to load TypeScript config file. Please create a "tsconfig.json" file within the "${normalizePath(
-          path.dirname(configPath),
+          dirname(configPath),
         )}" directory.`,
         relFilePath: undefined,
         type: 'build',

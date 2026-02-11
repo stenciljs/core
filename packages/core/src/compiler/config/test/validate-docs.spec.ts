@@ -1,5 +1,6 @@
-import type * as d from '@stencil/core/declarations';
-import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
+import type * as d from '@stencil/core';
+import { mockConfig, mockLoadConfigInit } from '../../../testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DEFAULT_TARGET_COMPONENT_STYLES } from '../constants';
 import { validateConfig } from '../validate-config';
@@ -12,9 +13,6 @@ describe('validateDocs', () => {
   });
 
   it('readme docs dir', () => {
-    // the flags field is expected to have been set by the mock creation function for unvalidated configs, hence the
-    // bang operator
-    userConfig.flags!.docs = true;
     userConfig.outputTargets = [
       {
         type: 'docs-readme',

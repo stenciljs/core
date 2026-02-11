@@ -19,19 +19,20 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs"
-  },  
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm --filter './packages/*' run build",
     "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
-    "dev": "pnpm typecheck && pnpm build:watch",   
+    "dev": "pnpm typecheck && pnpm build:watch",
     "typecheck": "pnpm --filter './packages/*' run typecheck"
   },
   "devDependencies": {
     "@types/node": "^22",
     "rolldown": "^1.0.0-rc.3",
     "tsdown": "^0.20.3",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.3",

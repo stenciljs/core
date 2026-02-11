@@ -1,12 +1,25 @@
-import { mockCompilerSystem, mockLoadConfigInit } from '@stencil/core/testing';
+import { mockCompilerSystem, mockLoadConfigInit } from '../../../testing';
+import { resolve } from 'node:path';
 import ts from 'typescript';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type * as d from '@stencil/core';
 import { loadConfig } from '../load-config';
 import { validateConfig } from '../validate-config';
 
+vi.mock('typescript', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('typescript')>();
+  return {
+    ...actual,
+    default: {
+      ...actual,
+      getParsedCommandLineOfConfigFile: vi.fn(),
+    },
+  };
+});
+
 describe('stencil config - sourceMap option', () => {
-  const configPath = require.resolve('./fixtures/stencil.config.ts');
+  const configPath = resolve(import.meta.dirname, 'fixtures/stencil.config.ts');
   let sys = mockCompilerSystem();
 
   /**
@@ -34,7 +47,7 @@ describe('stencil config - sourceMap option', () => {
    * @param sourceMap The `sourceMap` option from the Stencil config.
    */
   const mockTsConfigParser = (sourceMap: boolean) => {
-    jest.spyOn(ts, 'getParsedCommandLineOfConfigFile').mockReturnValue({
+    vi.mocked(ts.getParsedCommandLineOfConfigFile).mockReturnValue({
       options: {
         target: ts.ScriptTarget.ES2017,
         module: ts.ModuleKind.ESNext,
@@ -48,10 +61,7 @@ describe('stencil config - sourceMap option', () => {
 
   beforeEach(() => {
     sys = mockCompilerSystem();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('sets sourceMap to true when explicitly set to true', async () => {

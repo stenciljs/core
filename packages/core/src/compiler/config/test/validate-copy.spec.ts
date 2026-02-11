@@ -1,4 +1,6 @@
 import type * as d from '@stencil/core';
+import { describe, expect, it } from 'vitest';
+
 import { validateCopy } from '../validate-copy';
 
 describe('validate-copy', () => {
