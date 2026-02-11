@@ -44,9 +44,7 @@
     "@stencil/core": "^5.0.0"
   },
   "devDependencies": {
-    "@stencil/core": "workspace:*",
-    "tsdown": "^0.20.3",
-    "typescript": "~5.8.3"
+    "@stencil/core": "workspace:*"
   },
   "volta": {
     "extends": "../../package.json"

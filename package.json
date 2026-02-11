@@ -28,9 +28,10 @@
     "typecheck": "pnpm --filter './packages/*' run typecheck"
   },
   "devDependencies": {
+    "@types/node": "^22",
     "rolldown": "^1.0.0-rc.3",
     "tsdown": "^0.20.3",
-    "@types/node": "^22"
+    "typescript": "~5.9.3"
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.3",

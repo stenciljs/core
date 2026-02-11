@@ -14,7 +14,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 **Status:** 📋 Replacement packages ready - need to remove `src/testing/jest` and `src/testing/puppeteer`
 - `@stencil/vitest` + `@stencil/playwright` audited and ready
 - Still need to migrate Stencil's internal tests from jest to vitest
-- Still need to find a way to translate Stencil's jest tests / on-the-fly component in-line transpilation to vitest
+- Still need to find a way to translate Stencil's jest tests on-the-fly, component in-line transpilation to vitest
 
 ### 2. 🗑️ Update / Remove Legacy Features
 **Status:** ✅ Decided
@@ -22,8 +22,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - Internal CommonJS → Pure ESM (Node 18+)
 - Ancient polyfills → REMOVE
 - In-browser compilation → REMOVE
-- node-sys in-memory file-system → hand over to Vite
-- Hand-crafted dev server → replace with Vite dev server
+- *-sys in-memory file-system (patching node / typescript to do in-memory builds) → use newer 'incremental' build APIs in TypeScript instead. See ./new-ts-non-sys-pattern for some relevant code.
+- Hand-crafted dev server (used for dev and SSG) / HMR → replace with something (esbuild server or Vite dev server)
 
 ### 3. 🔧 Build System: tsdown
 **Status:** ✅ Complete
@@ -58,8 +58,9 @@ Break the circular dependency between CLI and Core. Make Core standalone, CLI th
 
 See [CLI/Core Architecture](#clicore-architecture) section for details.
 
-### 6. Translate current, public API (stencil.config) to wrap Vite
-- Move core output targets' direct rollup calls to instead be Vite calls
+### 6. Update public build chain
+- Migrate from rollup to rolldown
+- Potentially move from typescript to tsgo
 
 ### 7. Document ALL BREAKING CHANGES
 
@@ -71,16 +72,6 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 ---
 
 ## Build System: tsdown
-
-### Why tsdown?
-
-| Problem with Vite | Solution with tsdown |
-|-------------------|---------------------|
-| 8 separate config files for core | Single config with multiple entries |
-| Custom build.ts orchestrator | Native multi-entry support |
-| Turborepo for package ordering | Simple `pnpm -r build` |
-| vite-plugin-dts for types | Built-in dts generation |
-| Complex, hard to understand | Simple, explicit |
 
 ### Configuration
 
@@ -135,84 +126,6 @@ export default defineConfig({
 })
 ```
 
-### What Gets Deleted
-
-- `packages/core/vite.*.config.ts` (8 files)
-- `packages/core/build.ts`
-- `packages/core/vite-plugin-virtual-modules.ts`
-- `packages/cli/vite.config.ts`
-- `packages/mock-doc/vite.config.ts`
-- `turbo.json`
-- vite, vite-plugin-dts dependencies
-
-### What Gets Added
-
-- `tsdown` as devDependency in each package
-- One `tsdown.config.ts` per package
-
----
-
-## CLI/Core Architecture
-
-### Problem: Circular Dependency
-
-Current state creates a circular dependency:
-```
-cli → core (needs compiler APIs, types)
-core → cli (needs ConfigFlags type, createConfigFlags)
-```
-
-### Solution: Smart CLI, Pure Core
-
-**Core** is standalone - no awareness of CLI concepts:
-- Receives config objects, not "flags"
-- Validates and normalizes config values
-- No `flags` property on `ValidatedConfig`
-
-**CLI** is the user interface layer:
-- Parses argv → `ConfigFlags` (owns this type entirely)
-- Loads `stencil.config.ts`
-- **Merges flags into config** (CLI owns this logic):
-  - `--dev` → `config.devMode = true`
-  - `--prod` → `config.devMode = false`
-  - `--verbose` → `config.logLevel = 'debug'`
-  - `--watch` → `config.watch = true`
-- Passes clean config object to Core
-
-### Package Dependencies (Nuxt Pattern)
-
-```
-@stencil/core
-├── dependencies: { "@stencil/cli": "..." }
-└── bin/stencil.js → import '@stencil/cli'
-
-@stencil/cli
-├── peerDependencies: { "@stencil/core": "..." }
-└── devDependencies: { "@stencil/core": "workspace:*" }
-```
-
-**Why this works:**
-1. User installs `@stencil/core`
-2. npm/pnpm installs `@stencil/cli` as a dependency of core
-3. CLI's peer dependency on `@stencil/core` is satisfied by the parent
-4. No circular resolution - CLI doesn't *pull in* core, it just *expects* it
-
-### Code Changes Required
-
-| What | From | To |
-|------|------|-----|
-| `ConfigFlags` type | CLI | CLI (stays) |
-| `createConfigFlags` | CLI | CLI (stays) |
-| Flag→config merge logic | Core (`validate-config.ts`) | CLI (new) |
-| `ValidatedConfig.flags` | Core | Remove |
-| Config validation | Core | Core (stays, simplified) |
-| `setBooleanConfig` with flag lookups | Core | Simplify (no flag param) |
-
-### Tests Follow Code
-
-- Flag parsing tests → CLI
-- Config validation tests → Core
-
 ---
 
 ## Current v5 Architecture
@@ -251,7 +164,7 @@ packages/
 
 **Build system:** tsdown + pnpm workspaces
 **Module format:** Pure ESM
-**Node floor:** 18 LTS
+**Node floor:** 20 LTS
 
 ---
 
@@ -268,7 +181,7 @@ packages/
 
 ---
 
-## Immediate Tasks
+## Tasks
 
 ### ✅ Build System Migration
 - [x] Add tsdown to each package
@@ -289,6 +202,15 @@ packages/
 - [x] Update CLI's package.json: change to peerDependency on `@stencil/core`
 - [x] Create `packages/core/bin/stencil.mjs`
 - [ ] Move flag-related tests from Core to CLI
+
+## Migrate *.sys patching for in-memory stuff
+- [ ] Remove all `*.sys` patching code
+- [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
+
+## Migrate all unit tests from jest to vitest
+- [ ] Migrate `src/core` tests
+- [ ] Migrate `src/cli` tests
+- [ ] Migrate `src/mock-doc` tests
 
 ---
 
@@ -314,23 +236,10 @@ packages/
 - **ES5 builds** - Remove polyfills, dual builds
 - **Ancient polyfills** - SystemJS, Promise, fetch
 - **In-browser compilation** - Remove bundled TypeScript
-- **Node floor:** 18 LTS, **Browser floor:** ES2020
+- **Node floor:** 20 LTS, **Browser floor:** ES2020
 
 </details>
 
-<details>
-<summary><b>Virtual Modules (May Need Rolldown Plugin)</b></summary>
-
-Current Vite setup uses virtual modules for internal aliasing:
-- `virtual:app-data` → `src/app-data/index.ts`
-- `virtual:app-globals` → `src/app-globals/index.ts`
-- `virtual:platform` → `src/client/index.ts`
-
-With tsdown/Rolldown, we may need:
-1. A Rolldown plugin for virtual modules, OR
-2. Restructure to use regular imports with path aliases
-
-</details>
 
 ---
 

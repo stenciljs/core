@@ -93,9 +93,6 @@
     "terser": "5.37.0",
     "typescript": "~5.8.3"
   },
-  "devDependencies": {
-    "tsdown": "^0.20.3"
-  },
   "volta": {
     "extends": "../../package.json"
   }
