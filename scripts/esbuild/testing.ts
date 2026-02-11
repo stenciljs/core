@@ -69,7 +69,7 @@ export async function buildTesting(opts: BuildOptions) {
     alias: aliases,
     banner: { js: getBanner(opts, `Stencil Testing`, true) },
     plugins: [
-      externalAlias('@app-data', '@stencil/core/internal/app-data'),
+      externalAlias('@app-data', '../internal/app-data/index.js'),
       externalAlias('@platform', '@stencil/core/internal/testing'),
       externalAlias('../internal/testing/index.js', '@stencil/core/internal/testing'),
       externalAlias('@stencil/core/dev-server', '../dev-server/index.js'),
