@@ -24,6 +24,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - In-browser compilation → REMOVE
 - *-sys in-memory file-system (patching node / typescript to do in-memory builds) → use newer 'incremental' build APIs in TypeScript instead. See ./new-ts-non-sys-pattern for some relevant code.
 - Hand-crafted dev server (used for dev and SSG) / HMR → replace with something (esbuild server or Vite dev server)
+- Custom file watcher → replace with some 3rd party thing
 
 ### 3. 🔧 Build System: tsdown
 **Status:** ✅ Complete
@@ -207,10 +208,14 @@ packages/
 - [ ] Remove all `*.sys` patching code
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
 
-## Migrate all unit tests from jest to vitest
+## 🚧 Migrate all unit tests from jest to vitest
 - [ ] Migrate `src/core` tests
-- [ ] Migrate `src/cli` tests
+  - [x] Initial setup
+  - [x] Migrate `src/core/compiler/config` tests
+- [x] Migrate `src/cli` tests - COMPLETE
+  - [x] Initial setup
 - [ ] Migrate `src/mock-doc` tests
+  - [x] Initial setup
 
 ---
 

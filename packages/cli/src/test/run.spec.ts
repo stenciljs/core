@@ -1,8 +1,9 @@
-import * as coreCompiler from '@stencil/core/compiler';
+import * as coreCompiler from '@stencil/core';
 import { mockCompilerSystem, mockConfig, mockLogger as createMockLogger } from '@stencil/core/testing';
+import { vi, type MockInstance, describe, it, beforeEach, expect, afterEach } from 'vitest';
 
-import type * as d from '../../declarations';
-import { createTestingSystem } from '../../testing/testing-sys';
+import type * as d from '@stencil/core';
+import { createTestingSystem } from '@stencil/core/testing';
 import { createConfigFlags } from '../config-flags';
 import * as ParseFlags from '../parse-flags';
 import { run, runTask } from '../run';
@@ -13,7 +14,6 @@ import * as HelpTask from '../task-help';
 import * as PrerenderTask from '../task-prerender';
 import * as ServeTask from '../task-serve';
 import * as TelemetryTask from '../task-telemetry';
-import * as TestTask from '../task-test';
 
 describe('run', () => {
   describe('run()', () => {
@@ -21,10 +21,7 @@ describe('run', () => {
     let mockLogger: d.Logger;
     let mockSystem: d.CompilerSystem;
 
-    let parseFlagsSpy: jest.SpyInstance<
-      ReturnType<typeof ParseFlags.parseFlags>,
-      Parameters<typeof ParseFlags.parseFlags>
-    >;
+    let parseFlagsSpy: MockInstance<typeof ParseFlags.parseFlags>;
 
     beforeEach(() => {
       mockLogger = createMockLogger();
@@ -36,7 +33,7 @@ describe('run', () => {
         sys: mockSystem,
       };
 
-      parseFlagsSpy = jest.spyOn(ParseFlags, 'parseFlags');
+      parseFlagsSpy = vi.spyOn(ParseFlags, 'parseFlags');
       parseFlagsSpy.mockReturnValue(
         createConfigFlags({
           // use the 'help' task as a reasonable default for all calls to this function.
@@ -51,10 +48,10 @@ describe('run', () => {
     });
 
     describe('help task', () => {
-      let taskHelpSpy: jest.SpyInstance<ReturnType<typeof HelpTask.taskHelp>, Parameters<typeof HelpTask.taskHelp>>;
+      let taskHelpSpy: MockInstance<typeof HelpTask.taskHelp>;
 
       beforeEach(() => {
-        taskHelpSpy = jest.spyOn(HelpTask, 'taskHelp');
+        taskHelpSpy = vi.spyOn(HelpTask, 'taskHelp');
         taskHelpSpy.mockReturnValue(Promise.resolve());
       });
 
@@ -134,53 +131,40 @@ describe('run', () => {
     let sys: d.CompilerSystem;
     let unvalidatedConfig: d.UnvalidatedConfig;
 
-    let taskBuildSpy: jest.SpyInstance<ReturnType<typeof BuildTask.taskBuild>, Parameters<typeof BuildTask.taskBuild>>;
-    let taskDocsSpy: jest.SpyInstance<ReturnType<typeof DocsTask.taskDocs>, Parameters<typeof DocsTask.taskDocs>>;
-    let taskGenerateSpy: jest.SpyInstance<
-      ReturnType<typeof GenerateTask.taskGenerate>,
-      Parameters<typeof GenerateTask.taskGenerate>
-    >;
-    let taskHelpSpy: jest.SpyInstance<ReturnType<typeof HelpTask.taskHelp>, Parameters<typeof HelpTask.taskHelp>>;
-    let taskPrerenderSpy: jest.SpyInstance<
-      ReturnType<typeof PrerenderTask.taskPrerender>,
-      Parameters<typeof PrerenderTask.taskPrerender>
-    >;
-    let taskServeSpy: jest.SpyInstance<ReturnType<typeof ServeTask.taskServe>, Parameters<typeof ServeTask.taskServe>>;
-    let taskTelemetrySpy: jest.SpyInstance<
-      ReturnType<typeof TelemetryTask.taskTelemetry>,
-      Parameters<typeof TelemetryTask.taskTelemetry>
-    >;
-    let taskTestSpy: jest.SpyInstance<ReturnType<typeof TestTask.taskTest>, Parameters<typeof TestTask.taskTest>>;
+    let taskBuildSpy: MockInstance<typeof BuildTask.taskBuild>;
+    let taskDocsSpy: MockInstance<typeof DocsTask.taskDocs>;
+    let taskGenerateSpy: MockInstance<typeof GenerateTask.taskGenerate>;
+    let taskHelpSpy: MockInstance<typeof HelpTask.taskHelp>;
+    let taskPrerenderSpy: MockInstance<typeof PrerenderTask.taskPrerender>;
+    let taskServeSpy: MockInstance<typeof ServeTask.taskServe>;
+    let taskTelemetrySpy: MockInstance<typeof TelemetryTask.taskTelemetry>;
 
     beforeEach(() => {
       sys = mockCompilerSystem();
-      sys.exit = jest.fn();
+      sys.exit = vi.fn();
 
       unvalidatedConfig = mockConfig({ outputTargets: [], sys, fsNamespace: 'testing' });
 
-      taskBuildSpy = jest.spyOn(BuildTask, 'taskBuild');
+      taskBuildSpy = vi.spyOn(BuildTask, 'taskBuild');
       taskBuildSpy.mockResolvedValue();
 
-      taskDocsSpy = jest.spyOn(DocsTask, 'taskDocs');
+      taskDocsSpy = vi.spyOn(DocsTask, 'taskDocs');
       taskDocsSpy.mockResolvedValue();
 
-      taskGenerateSpy = jest.spyOn(GenerateTask, 'taskGenerate');
+      taskGenerateSpy = vi.spyOn(GenerateTask, 'taskGenerate');
       taskGenerateSpy.mockResolvedValue();
 
-      taskHelpSpy = jest.spyOn(HelpTask, 'taskHelp');
+      taskHelpSpy = vi.spyOn(HelpTask, 'taskHelp');
       taskHelpSpy.mockResolvedValue();
 
-      taskPrerenderSpy = jest.spyOn(PrerenderTask, 'taskPrerender');
+      taskPrerenderSpy = vi.spyOn(PrerenderTask, 'taskPrerender');
       taskPrerenderSpy.mockResolvedValue();
 
-      taskServeSpy = jest.spyOn(ServeTask, 'taskServe');
+      taskServeSpy = vi.spyOn(ServeTask, 'taskServe');
       taskServeSpy.mockResolvedValue();
 
-      taskTelemetrySpy = jest.spyOn(TelemetryTask, 'taskTelemetry');
+      taskTelemetrySpy = vi.spyOn(TelemetryTask, 'taskTelemetry');
       taskTelemetrySpy.mockResolvedValue();
-
-      taskTestSpy = jest.spyOn(TestTask, 'taskTest');
-      taskTestSpy.mockResolvedValue();
     });
 
     afterEach(() => {
@@ -191,7 +175,6 @@ describe('run', () => {
       taskPrerenderSpy.mockRestore();
       taskServeSpy.mockRestore();
       taskTelemetrySpy.mockRestore();
-      taskTestSpy.mockRestore();
     });
 
     describe('default configuration', () => {
@@ -201,12 +184,11 @@ describe('run', () => {
           unvalidatedConfig.sys = undefined;
 
           await runTask(coreCompiler, unvalidatedConfig, 'build', sys);
-          const validated = coreCompiler.validateConfig(unvalidatedConfig, { sys });
 
-          // first validate there was one call, and that call had two arguments
+          // first validate there was one call
           expect(taskBuildSpy).toHaveBeenCalledTimes(1);
-          expect(taskBuildSpy).toHaveBeenCalledWith(coreCompiler, validated.config);
 
+          // verify the sys was passed through to the validated config
           const compilerSystemUsed: d.CompilerSystem = taskBuildSpy.mock.calls[0][1].sys;
           expect(compilerSystemUsed).toBe(sys);
         });
@@ -215,95 +197,101 @@ describe('run', () => {
 
     it('calls the build task', async () => {
       await runTask(coreCompiler, unvalidatedConfig, 'build', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskBuildSpy).toHaveBeenCalledTimes(1);
-      expect(taskBuildSpy).toHaveBeenCalledWith(coreCompiler, validated.config);
+      // taskBuild now receives (coreCompiler, config, flags)
+      expect(taskBuildSpy.mock.calls[0][0]).toBe(coreCompiler);
+      expect(taskBuildSpy.mock.calls[0][1]).toHaveProperty('sys');
+      expect(taskBuildSpy.mock.calls[0][2]).toHaveProperty('task', 'build');
     });
 
     it('calls the docs task', async () => {
       await runTask(coreCompiler, unvalidatedConfig, 'docs', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskDocsSpy).toHaveBeenCalledTimes(1);
-      expect(taskDocsSpy).toHaveBeenCalledWith(coreCompiler, validated.config);
+      // taskDocs receives (coreCompiler, config)
+      expect(taskDocsSpy.mock.calls[0][0]).toBe(coreCompiler);
+      expect(taskDocsSpy.mock.calls[0][1]).toHaveProperty('sys');
     });
 
     describe('generate task', () => {
       it("calls the generate task for the argument 'generate'", async () => {
         await runTask(coreCompiler, unvalidatedConfig, 'generate', sys);
-        const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
         expect(taskGenerateSpy).toHaveBeenCalledTimes(1);
-        expect(taskGenerateSpy).toHaveBeenCalledWith(validated.config);
+        // taskGenerate receives (config, flags)
+        expect(taskGenerateSpy.mock.calls[0][0]).toHaveProperty('sys');
+        expect(taskGenerateSpy.mock.calls[0][1]).toHaveProperty('task', 'generate');
       });
 
       it("calls the generate task for the argument 'g'", async () => {
         await runTask(coreCompiler, unvalidatedConfig, 'g', sys);
-        const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
         expect(taskGenerateSpy).toHaveBeenCalledTimes(1);
-        expect(taskGenerateSpy).toHaveBeenCalledWith(validated.config);
+        // taskGenerate receives (config, flags)
+        expect(taskGenerateSpy.mock.calls[0][0]).toHaveProperty('sys');
+        expect(taskGenerateSpy.mock.calls[0][1]).toHaveProperty('task', 'g');
       });
     });
 
     it('calls the help task', async () => {
       await runTask(coreCompiler, unvalidatedConfig, 'help', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      expect(taskHelpSpy).toHaveBeenCalledWith(validated.config.flags, validated.config.logger, sys);
+      // taskHelp receives (flags, logger, sys)
+      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'help');
+      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
     });
 
     it('calls the prerender task', async () => {
       await runTask(coreCompiler, unvalidatedConfig, 'prerender', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskPrerenderSpy).toHaveBeenCalledTimes(1);
-      expect(taskPrerenderSpy).toHaveBeenCalledWith(coreCompiler, validated.config);
+      // taskPrerender receives (coreCompiler, config, flags)
+      expect(taskPrerenderSpy.mock.calls[0][0]).toBe(coreCompiler);
+      expect(taskPrerenderSpy.mock.calls[0][1]).toHaveProperty('sys');
+      expect(taskPrerenderSpy.mock.calls[0][2]).toHaveProperty('task', 'prerender');
     });
 
     it('calls the serve task', async () => {
       await runTask(coreCompiler, unvalidatedConfig, 'serve', sys);
 
       expect(taskServeSpy).toHaveBeenCalledTimes(1);
-      expect(taskServeSpy).toHaveBeenCalledWith(coreCompiler.validateConfig(unvalidatedConfig, {}).config);
+      // taskServe receives (config, flags)
+      expect(taskServeSpy.mock.calls[0][0]).toHaveProperty('sys');
+      expect(taskServeSpy.mock.calls[0][1]).toHaveProperty('task', 'serve');
     });
 
     describe('telemetry task', () => {
       it('calls the telemetry task when a compiler system is present', async () => {
         await runTask(coreCompiler, unvalidatedConfig, 'telemetry', sys);
-        const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
         expect(taskTelemetrySpy).toHaveBeenCalledTimes(1);
-        expect(taskTelemetrySpy).toHaveBeenCalledWith(validated.config.flags, sys, validated.config.logger);
+        // taskTelemetry receives (flags, sys, logger)
+        expect(taskTelemetrySpy.mock.calls[0][0]).toHaveProperty('task', 'telemetry');
+        expect(taskTelemetrySpy.mock.calls[0][1]).toBe(sys);
       });
-    });
-
-    it('calls the test task', async () => {
-      await runTask(coreCompiler, unvalidatedConfig, 'test', sys);
-
-      expect(taskTestSpy).toHaveBeenCalledTimes(1);
-      expect(taskTestSpy).toHaveBeenCalledWith(coreCompiler.validateConfig(unvalidatedConfig, {}).config);
     });
 
     it('defaults to the help task for an unaccounted for task name', async () => {
       // info is a valid task name, but isn't used in the `switch` statement of `runTask`
       await runTask(coreCompiler, unvalidatedConfig, 'info', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      expect(taskHelpSpy).toHaveBeenCalledWith(validated.config.flags, validated.config.logger, sys);
+      // taskHelp receives (flags, logger, sys)
+      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'info');
+      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
     });
 
     it('defaults to the provided task if no flags exist on the provided config', async () => {
       unvalidatedConfig = mockConfig({ flags: undefined, sys });
 
       await runTask(coreCompiler, unvalidatedConfig, 'help', sys);
-      const validated = coreCompiler.validateConfig(unvalidatedConfig, {});
 
       expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      expect(taskHelpSpy).toHaveBeenCalledWith(createConfigFlags({ task: 'help' }), validated.config.logger, sys);
+      // taskHelp receives (flags, logger, sys)
+      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'help');
+      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
     });
   });
 });

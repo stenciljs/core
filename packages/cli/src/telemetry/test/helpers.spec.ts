@@ -1,6 +1,7 @@
-import { createSystem } from '../../../compiler/sys/stencil-sys';
+import { createSystem } from '@stencil/core';
 import { ConfigFlags, createConfigFlags } from '../../config-flags';
 import { hasDebug, hasVerbose, isInteractive, tryFn, uuidv4 } from '../helpers';
+import { describe, it, expect } from 'vitest';
 
 describe('hasDebug', () => {
   it('returns true when the "debug" flag is true', () => {

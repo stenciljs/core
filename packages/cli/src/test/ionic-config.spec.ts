@@ -1,6 +1,7 @@
 import { mockCompilerSystem } from '@stencil/core/testing';
 
-import { createSystem } from '../../compiler/sys/stencil-sys';
+import { createSystem } from '@stencil/core';
+import { describe, it, beforeEach, expect } from 'vitest';
 import { defaultConfig, readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { UUID_REGEX } from '../telemetry/helpers';
 

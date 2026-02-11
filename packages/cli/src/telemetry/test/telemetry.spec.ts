@@ -1,10 +1,11 @@
-import * as coreCompiler from '@stencil/core/compiler';
+import * as coreCompiler from '@stencil/core';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import { DIST, DIST_CUSTOM_ELEMENTS, DIST_HYDRATE_SCRIPT, WWW } from '@stencil/core/compiler/utils';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-import { createConfigFlags } from '../../../cli/config-flags';
-import { createSystem } from '../../../compiler/sys/stencil-sys';
-import type * as d from '../../../declarations';
+import { createConfigFlags } from '../../config-flags';
+import { createSystem } from '@stencil/core';
+import type * as d from '@stencil/core';
 import * as shouldTrack from '../shouldTrack';
 import * as telemetry from '../telemetry';
 import { anonymizeConfigForTelemetry } from '../telemetry';
@@ -12,18 +13,18 @@ import { anonymizeConfigForTelemetry } from '../telemetry';
 describe('telemetryBuildFinishedAction', () => {
   let config: d.ValidatedConfig;
   let sys: d.CompilerSystem;
+  const flags = createConfigFlags({ task: 'build' });
 
   beforeEach(() => {
     sys = createSystem();
     config = mockValidatedConfig({
-      flags: createConfigFlags({ task: 'build' }),
       outputTargets: [],
       sys,
     });
   });
 
   it('issues a network request when complete', async () => {
-    const spyShouldTrack = jest.spyOn(shouldTrack, 'shouldTrack');
+    const spyShouldTrack = vi.spyOn(shouldTrack, 'shouldTrack');
     spyShouldTrack.mockReturnValue(
       new Promise((resolve) => {
         resolve(true);
@@ -35,7 +36,7 @@ describe('telemetryBuildFinishedAction', () => {
       duration: 100,
     } as d.CompilerBuildResults;
 
-    await telemetry.telemetryBuildFinishedAction(sys, config, coreCompiler, results);
+    await telemetry.telemetryBuildFinishedAction(sys, config, coreCompiler, results, flags);
     expect(spyShouldTrack).toHaveBeenCalled();
 
     spyShouldTrack.mockRestore();
@@ -45,39 +46,39 @@ describe('telemetryBuildFinishedAction', () => {
 describe('telemetryAction', () => {
   let config: d.ValidatedConfig;
   let sys: d.CompilerSystem;
+  const flags = createConfigFlags({ task: 'build' });
 
   beforeEach(() => {
     sys = createSystem();
     config = mockValidatedConfig({
-      flags: createConfigFlags({ task: 'build' }),
       outputTargets: [],
       sys,
     });
   });
 
   it('issues a network request when no async function is passed', async () => {
-    const spyShouldTrack = jest.spyOn(shouldTrack, 'shouldTrack');
+    const spyShouldTrack = vi.spyOn(shouldTrack, 'shouldTrack');
     spyShouldTrack.mockReturnValue(
       new Promise((resolve) => {
         resolve(true);
       }),
     );
 
-    await telemetry.telemetryAction(sys, config, coreCompiler, () => {});
+    await telemetry.telemetryAction(sys, config, coreCompiler, flags, () => {});
     expect(spyShouldTrack).toHaveBeenCalled();
 
     spyShouldTrack.mockRestore();
   });
 
   it('issues a network request when passed async function is complete', async () => {
-    const spyShouldTrack = jest.spyOn(shouldTrack, 'shouldTrack');
+    const spyShouldTrack = vi.spyOn(shouldTrack, 'shouldTrack');
     spyShouldTrack.mockReturnValue(
       new Promise((resolve) => {
         resolve(true);
       }),
     );
 
-    await telemetry.telemetryAction(sys, config, coreCompiler, async () => {
+    await telemetry.telemetryAction(sys, config, coreCompiler, flags, async () => {
       new Promise((resolve) => {
         setTimeout(() => {
           resolve(true);
@@ -147,6 +148,7 @@ describe('hasAppTarget()', () => {
 describe('prepareData', () => {
   let config: d.ValidatedConfig;
   let sys: d.CompilerSystem;
+  const flags = createConfigFlags({});
 
   beforeEach(() => {
     config = mockValidatedConfig();
@@ -157,7 +159,7 @@ describe('prepareData', () => {
   });
 
   it('prepares an object to send to ionic', async () => {
-    const data = await telemetry.prepareData(coreCompiler, config, sys, 1000);
+    const data = await telemetry.prepareData(coreCompiler, config, sys, flags, 1000);
     expect(data).toEqual({
       arguments: [],
       build: coreCompiler.buildId,
@@ -188,7 +190,7 @@ describe('prepareData', () => {
         outputTargets: [{ type: 'www', baseUrl: 'https://example.com' }],
       });
 
-      const data = await telemetry.prepareData(coreCompiler, config, sys, 1000);
+      const data = await telemetry.prepareData(coreCompiler, config, sys, flags, 1000);
 
       expect(data.has_app_pwa_config).toBe(true);
     });
@@ -198,7 +200,7 @@ describe('prepareData', () => {
         outputTargets: [{ type: 'www', serviceWorker: { swDest: './tmp' } }],
       });
 
-      const data = await telemetry.prepareData(coreCompiler, config, sys, 1000);
+      const data = await telemetry.prepareData(coreCompiler, config, sys, flags, 1000);
 
       expect(data.has_app_pwa_config).toBe(true);
     });
@@ -211,7 +213,7 @@ describe('prepareData', () => {
       outputTargets: [{ type: 'www' }],
     });
 
-    const data = await telemetry.prepareData(coreCompiler, config, sys, 1000, COMPONENT_COUNT);
+    const data = await telemetry.prepareData(coreCompiler, config, sys, flags, 1000, COMPONENT_COUNT);
 
     expect(data.component_count).toEqual(COMPONENT_COUNT);
   });
