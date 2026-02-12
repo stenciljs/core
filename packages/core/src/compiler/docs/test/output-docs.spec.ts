@@ -1,5 +1,6 @@
 import type * as d from '@stencil/core';
 import { generateMarkdown } from '../readme/output-docs';
+import { describe, expect, it } from 'vitest';
 
 describe('css-props to markdown', () => {
   describe('generateMarkdown', () => {

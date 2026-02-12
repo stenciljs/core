@@ -1,4 +1,5 @@
 import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 
 import type * as d from '@stencil/core';

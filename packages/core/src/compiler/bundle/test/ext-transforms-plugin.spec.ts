@@ -1,4 +1,5 @@
 import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it, vi } from 'vitest';
 import { normalizePath } from '../../../utils';
 
 import * as importPathLib from '../../transformers/stencil-import-path';
@@ -46,12 +47,12 @@ describe('extTransformsPlugin', () => {
     const cssText = ':host { text: pink; }';
 
     // mock out the read for our CSS
-    jest.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(cssText);
+    vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(cssText);
 
     // mock out compilerCtx.worker.transformCssToEsm because 1) we want to
     // test what arguments are passed to it and 2) calling it un-mocked causes
     // the infamous autoprefixer-spew-issue :(
-    const transformCssToEsmSpy = jest.spyOn(compilerCtx.worker, 'transformCssToEsm').mockResolvedValue({
+    const transformCssToEsmSpy = vi.spyOn(compilerCtx.worker, 'transformCssToEsm').mockResolvedValue({
       styleText: cssText,
       output: cssText,
       map: null,
@@ -61,7 +62,7 @@ describe('extTransformsPlugin', () => {
       styleDocs: [],
     });
 
-    const writeFileSpy = jest.spyOn(compilerCtx.fs, 'writeFile');
+    const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
     return {
       plugin: extTransformsPlugin(config, compilerCtx, buildCtx),
       config,
@@ -83,7 +84,7 @@ describe('extTransformsPlugin', () => {
       const { plugin } = setup();
       // @ts-ignore we're testing something which shouldn't normally happen,
       // but might if an argument of the wrong type were passed as `id`
-      const parseSpy = jest.spyOn(importPathLib, 'parseImportPath').mockReturnValue({ data: null });
+      const parseSpy = vi.spyOn(importPathLib, 'parseImportPath').mockReturnValue({ data: null });
       // @ts-ignore the Rollup plugins expect to be called in a Rollup context
       expect(await plugin.transform('asdf', 'foo.css')).toBe(null);
       parseSpy.mockRestore();

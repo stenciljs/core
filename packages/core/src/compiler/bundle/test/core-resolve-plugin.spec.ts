@@ -1,4 +1,5 @@
 import { mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it } from 'vitest';
 
 import { createSystem } from '../../../compiler/sys/stencil-sys';
 import type * as d from '@stencil/core';
@@ -21,7 +22,7 @@ describe('core resolve plugin', () => {
     const compilerExe = '/Users/me/node_modules/stencil/compiler/stencil.js';
     const internalModule = 'client/index.js';
     const m = getStencilInternalModule(config, compilerExe, internalModule);
-    expect(m).toBe('/Users/me/node_modules/stencil/internal/client/index.js');
+    expect(m).toBe('/Users/me/node_modules/stencil/runtime/client/index.js');
   });
 
   it('should not set initialValue', () => {

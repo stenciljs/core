@@ -215,10 +215,10 @@ packages/
   - [x] Migrate `src/cli/telemetry/test` tests
 - [ ] Migrate `src/core` tests
   - [x] Initial setup
-  - [ ] Migrate `src/compiler/build` tests
-  - [ ] Migrate `src/compiler/bundle` tests
+  - [x] Migrate `src/compiler/build` tests
+  - [x] Migrate `src/compiler/bundle` tests
   - [x] Migrate `src/compiler/config` tests
-  - [ ] Migrate `src/compiler/docs` tests
+  - [x] Migrate `src/compiler/docs` tests
   - [ ] Migrate `src/compiler/html` tests
   - [ ] Migrate `src/compiler/output-targets` tests
   - [ ] Migrate `src/compiler/output-targets/dist-custom-elements` tests

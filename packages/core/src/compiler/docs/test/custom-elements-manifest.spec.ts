@@ -1,16 +1,17 @@
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it, MockInstance, beforeEach, afterEach, vi } from 'vitest';
 
 import type * as d from '@stencil/core';
 import { generateCustomElementsManifestDocs } from '../cem';
 
 describe('custom-elements-manifest', () => {
   let compilerCtx: d.CompilerCtx;
-  let writeFileSpy: jest.SpyInstance;
+  let writeFileSpy: MockInstance;
 
   beforeEach(() => {
     const config = mockValidatedConfig();
     compilerCtx = mockCompilerCtx(config);
-    writeFileSpy = jest.spyOn(compilerCtx.fs, 'writeFile');
+    writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
   });
 
   afterEach(() => {

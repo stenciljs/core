@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { DEFAULT_STYLE_MODE } from '../../../utils';
 
 import { parseStyleDocs } from '../style-docs';

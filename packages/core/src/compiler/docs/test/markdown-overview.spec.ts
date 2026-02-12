@@ -1,4 +1,5 @@
 import { overviewToMarkdown } from '../readme/markdown-overview';
+import { describe, expect, it } from 'vitest';
 
 describe('markdown-overview', () => {
   describe('overviewToMarkdown', () => {
