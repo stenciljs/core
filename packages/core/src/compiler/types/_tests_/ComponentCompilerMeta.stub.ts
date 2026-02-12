@@ -1,4 +1,4 @@
-import * as d from '@stencil/core';
+import * as d from '../../../declarations';
 
 /**
  * Generates a stub {@link d.ComponentCompilerMeta}. This function uses sensible defaults for the initial stub. However,

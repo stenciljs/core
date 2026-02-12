@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { beforeEach, describe, expect, it, vi, afterEach, Mock } from 'vitest';
 
 import * as d from '@stencil/core';
-import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { writeExportMaps } from '../write-export-maps';
 
 vi.mock('child_process', () => ({

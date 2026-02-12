@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
 import { generatePropTypes } from '../generate-prop-types';
 import * as StencilTypes from '../stencil-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
@@ -8,13 +9,10 @@ import { stubTypesImportData } from './TypesImportData.stub';
 
 describe('generate-prop-types', () => {
   describe('generatePropTypes', () => {
-    let updateTypeIdentifierNamesSpy: jest.SpyInstance<
-      ReturnType<typeof StencilTypes.updateTypeIdentifierNames>,
-      Parameters<typeof StencilTypes.updateTypeIdentifierNames>
-    >;
+    let updateTypeIdentifierNamesSpy: MockInstance<typeof StencilTypes.updateTypeIdentifierNames>;
 
     beforeEach(() => {
-      updateTypeIdentifierNamesSpy = jest.spyOn(StencilTypes, 'updateTypeIdentifierNames');
+      updateTypeIdentifierNamesSpy = vi.spyOn(StencilTypes, 'updateTypeIdentifierNames');
       updateTypeIdentifierNamesSpy.mockImplementation(
         (
           _typeReferences: d.ComponentCompilerTypeReferences,

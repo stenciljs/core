@@ -3,7 +3,7 @@ import { mockModule } from '@stencil/core/testing';
 import type * as d from '@stencil/core';
 import { describe, expect, it } from 'vitest';
 import { getBuildFeatures, updateComponentBuildConditionals } from '../../app-core/app-data';
-import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { transpileModule } from './transpile';
 
 describe('functional component dependencies', () => {

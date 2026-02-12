@@ -1,8 +1,9 @@
 import * as d from '@stencil/core';
+import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
 import path from 'path';
 
-jest.mock('@utils', () => {
-  const originalUtils = jest.requireActual('@utils');
+vi.mock('../../../utils', async () => {
+  const originalUtils = await vi.importActual('../../../utils');
   return {
     __esModule: true,
     ...originalUtils,
@@ -17,10 +18,10 @@ import { stubTypesImportData } from './TypesImportData.stub';
 
 describe('stencil-types', () => {
   describe('updateTypeMemberNames', () => {
-    let dirnameSpy: jest.SpyInstance<ReturnType<typeof path.dirname>, Parameters<typeof path.dirname>>;
+    let dirnameSpy: MockInstance<typeof path.dirname>;
 
     beforeEach(() => {
-      dirnameSpy = jest.spyOn(path, 'dirname');
+      dirnameSpy = vi.spyOn(path, 'dirname');
       dirnameSpy.mockImplementation((path: string) => path);
     });
 

@@ -6,7 +6,7 @@ import path from 'path';
 import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
-import { stubComponentCompilerMeta } from '../../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
 import { addCustomElementInputs, bundleCustomElements } from '../index';
 
 describe('dist-custom-elements', () => {

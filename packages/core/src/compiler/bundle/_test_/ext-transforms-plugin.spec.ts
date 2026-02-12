@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { normalizePath } from '../../../utils';
 
 import * as importPathLib from '../../transformers/stencil-import-path';
-import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { BundleOptions } from '../bundle-interface';
 import { extTransformsPlugin } from '../ext-transforms-plugin';
 

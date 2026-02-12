@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
 import * as Util from '../../../utils/util';
 import { generateMethodTypes } from '../generate-method-types';
 import * as StencilTypes from '../stencil-types';
@@ -8,14 +9,10 @@ import { stubTypesImportData } from './TypesImportData.stub';
 
 describe('generate-method-types', () => {
   describe('generateMethodTypes', () => {
-    let updateTypeIdentifierNamesSpy: jest.SpyInstance<
-      ReturnType<typeof StencilTypes.updateTypeIdentifierNames>,
-      Parameters<typeof StencilTypes.updateTypeIdentifierNames>
-    >;
-    let getTextDocsSpy: jest.SpyInstance<ReturnType<typeof Util.getTextDocs>, Parameters<typeof Util.getTextDocs>>;
-
+    let updateTypeIdentifierNamesSpy: MockInstance<typeof StencilTypes.updateTypeIdentifierNames>;
+    let getTextDocsSpy: MockInstance<typeof Util.getTextDocs>;
     beforeEach(() => {
-      updateTypeIdentifierNamesSpy = jest.spyOn(StencilTypes, 'updateTypeIdentifierNames');
+      updateTypeIdentifierNamesSpy = vi.spyOn(StencilTypes, 'updateTypeIdentifierNames');
       updateTypeIdentifierNamesSpy.mockImplementation(
         (
           _typeReferences: d.ComponentCompilerTypeReferences,
@@ -25,7 +22,7 @@ describe('generate-method-types', () => {
         ) => initialType,
       );
 
-      getTextDocsSpy = jest.spyOn(Util, 'getTextDocs');
+      getTextDocsSpy = vi.spyOn(Util, 'getTextDocs');
       getTextDocsSpy.mockReturnValue('');
     });
 

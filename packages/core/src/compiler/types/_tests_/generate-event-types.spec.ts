@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
 import * as UtilHelpers from '../../../utils/helpers';
 import * as Util from '../../../utils/util';
 import { generateEventTypes } from '../generate-event-types';
@@ -9,18 +10,12 @@ import { stubTypesImportData } from './TypesImportData.stub';
 
 describe('generate-event-types', () => {
   describe('generateEventTypes', () => {
-    let updateTypeIdentifierNamesSpy: jest.SpyInstance<
-      ReturnType<typeof StencilTypes.updateTypeIdentifierNames>,
-      Parameters<typeof StencilTypes.updateTypeIdentifierNames>
-    >;
-    let getTextDocsSpy: jest.SpyInstance<ReturnType<typeof Util.getTextDocs>, Parameters<typeof Util.getTextDocs>>;
-    let toTitleCaseSpy: jest.SpyInstance<
-      ReturnType<typeof UtilHelpers.toTitleCase>,
-      Parameters<typeof UtilHelpers.toTitleCase>
-    >;
+    let updateTypeIdentifierNamesSpy: MockInstance<typeof StencilTypes.updateTypeIdentifierNames>;
+    let getTextDocsSpy: MockInstance<typeof Util.getTextDocs>;
+    let toTitleCaseSpy: MockInstance<typeof UtilHelpers.toTitleCase>;
 
     beforeEach(() => {
-      updateTypeIdentifierNamesSpy = jest.spyOn(StencilTypes, 'updateTypeIdentifierNames');
+      updateTypeIdentifierNamesSpy = vi.spyOn(StencilTypes, 'updateTypeIdentifierNames');
       updateTypeIdentifierNamesSpy.mockImplementation(
         (
           _typeReferences: d.ComponentCompilerTypeReferences,
@@ -30,10 +25,10 @@ describe('generate-event-types', () => {
         ) => initialType,
       );
 
-      getTextDocsSpy = jest.spyOn(Util, 'getTextDocs');
+      getTextDocsSpy = vi.spyOn(Util, 'getTextDocs');
       getTextDocsSpy.mockReturnValue('');
 
-      toTitleCaseSpy = jest.spyOn(UtilHelpers, 'toTitleCase');
+      toTitleCaseSpy = vi.spyOn(UtilHelpers, 'toTitleCase');
       toTitleCaseSpy.mockImplementation((_name: string) => 'MyEvent');
     });
 

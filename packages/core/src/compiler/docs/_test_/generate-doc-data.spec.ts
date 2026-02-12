@@ -3,7 +3,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 
 import type * as d from '@stencil/core';
-import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { AUTO_GENERATE_COMMENT } from '../constants';
 import { generateDocData, getDocsStyles } from '../generate-doc-data';
 

@@ -3,7 +3,7 @@ import { describe, expect, it, beforeEach, afterEach, MockInstance, vi } from 'v
 import { mockCompilerCtx, mockModule } from '@stencil/core/testing';
 import * as ts from 'typescript';
 
-import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as AddComponentMetaProxy from '../add-component-meta-proxy';
 import { proxyCustomElement } from '../component-native/proxy-custom-element-function';
 import { PROXY_CUSTOM_ELEMENT } from '../core-runtime-apis';

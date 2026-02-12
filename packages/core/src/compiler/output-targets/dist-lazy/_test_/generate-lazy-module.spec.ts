@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import { stubComponentCompilerMeta } from '../../../types/tests/ComponentCompilerMeta.stub';
+import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
 import { sortBundleComponents } from '../generate-lazy-module';
 import { describe, expect, it, beforeEach } from 'vitest';
 

@@ -1,6 +1,6 @@
 import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import path from 'path';
-
+import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 import { patchTypescript } from '../../sys/typescript/typescript-sys';
 import { generateAppTypes } from '../generate-app-types';
@@ -14,7 +14,7 @@ describe('generateAppTypes', () => {
   let buildCtx: d.BuildCtx;
   let originalWriteFile: typeof compilerCtx.fs.writeFile;
 
-  const mockWriteFile = jest.fn();
+  const mockWriteFile = vi.fn();
 
   beforeEach(() => {
     config = mockValidatedConfig({
@@ -32,7 +32,7 @@ describe('generateAppTypes', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('should generate a type declaration file without custom types', async () => {
