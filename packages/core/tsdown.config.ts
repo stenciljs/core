@@ -29,11 +29,6 @@ function virtualModules(options: {
   }
 }
 
-// Externalize all bare imports (not relative/absolute paths) = all node_modules
-// Exclude virtual: modules so the plugin can handle them
-// const nodeExternals: string[] = []
-// /^(?!virtual:)[^./]/ 
-
 // Browser targets
 const browserTargets = ['es2022']
 

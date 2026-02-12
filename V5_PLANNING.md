@@ -234,8 +234,8 @@ packages/
   - [x] Migrate `src/compiler/sys/resolve` tests
   - [x] Migrate `src/compiler/sys/typescript` tests
   - [x] Migrate `src/compiler/transformers` tests
-  - [ ] Migrate `src/compiler/transpile` tests
-  - [ ] Migrate `src/compiler/types` tests
+  - [x] Migrate `src/compiler/transpile` tests
+  - [x] Migrate `src/compiler/types` tests
   - [ ] Migrate `src/runtime` tests
   - [ ] Migrate `src/runtime/vdom` tests
   - [ ] Migrate `src/server/platform` tests

@@ -1,6 +1,6 @@
 import { getAssetPath } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { describe, expect, it } from 'vitest';
 import { CmpAsset } from './fixtures/cmp-asset';
 
 describe('assets', () => {

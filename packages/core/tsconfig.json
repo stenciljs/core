@@ -12,7 +12,7 @@
     "jsx": "react",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
-    "lib": ["dom", "es2021"],
+    "lib": ["dom", "es2022"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noImplicitAny": false,
@@ -33,7 +33,7 @@
       "@stencil/core": ["./src/declarations/index.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
     "dist"
   ]

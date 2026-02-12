@@ -1,7 +1,7 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 
-import { patchPseudoShadowDom, patchSlottedNode } from '../../runtime/dom-extras';
+import { patchPseudoShadowDom, patchSlottedNode } from '../dom-extras';
 
 describe('dom-extras - patches for non-shadow dom methods and accessors', () => {
   let specPage: SpecPage;
