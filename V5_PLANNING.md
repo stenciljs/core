@@ -229,11 +229,11 @@ packages/
   - [x] Migrate `src/compiler/service-worker` tests
   - [x] Migrate `src/compiler/style` tests
   - [x] Migrate `src/compiler/style/css-parser` tests
-  - [ ] Migrate `src/compiler/sys` tests
-  - [ ] Migrate `src/compiler/sys/fetch` tests
-  - [ ] Migrate `src/compiler/sys/resolve` tests
-  - [ ] Migrate `src/compiler/sys/typescript` tests
-  - [ ] Migrate `src/compiler/transformers` tests
+  - [x] Migrate `src/compiler/sys` tests
+  - [x] Migrate `src/compiler/sys/fetch` tests
+  - [x] Migrate `src/compiler/sys/resolve` tests
+  - [x] Migrate `src/compiler/sys/typescript` tests
+  - [x] Migrate `src/compiler/transformers` tests
   - [ ] Migrate `src/compiler/transpile` tests
   - [ ] Migrate `src/compiler/types` tests
   - [ ] Migrate `src/runtime` tests

@@ -3,6 +3,7 @@
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import path from 'path';
+import { describe, expect, it, beforeEach } from 'vitest';
 
 // TODO(STENCIL-463): investigate getting these tests to pass again
 describe.skip('build-conditionals', () => {

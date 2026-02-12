@@ -96,5 +96,8 @@
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "devDependencies": {
+    "@ionic/prettier-config": "^4.0.0"
   }
 }

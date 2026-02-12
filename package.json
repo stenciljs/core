@@ -25,10 +25,13 @@
     "build": "pnpm --filter './packages/*' run build",
     "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
     "dev": "pnpm typecheck && pnpm build:watch",
+    "test": "pnpm --filter './packages/*' run test",
     "typecheck": "pnpm --filter './packages/*' run typecheck"
   },
   "devDependencies": {
     "@types/node": "^22",
+    "oxlint": "^1.47.0",
+    "prettier": "^3.8.1",
     "rolldown": "^1.0.0-rc.3",
     "tsdown": "^0.20.3",
     "typescript": "~5.9.3",
