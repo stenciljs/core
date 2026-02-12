@@ -219,16 +219,16 @@ packages/
   - [x] Migrate `src/compiler/bundle` tests
   - [x] Migrate `src/compiler/config` tests
   - [x] Migrate `src/compiler/docs` tests
-  - [ ] Migrate `src/compiler/html` tests
-  - [ ] Migrate `src/compiler/output-targets` tests
-  - [ ] Migrate `src/compiler/output-targets/dist-custom-elements` tests
-  - [ ] Migrate `src/compiler/output-targets/dist-hydrate-script` tests
-  - [ ] Migrate `src/compiler/output-targets/dist-lazy` tests
-  - [ ] Migrate `src/compiler/plugin` tests
-  - [ ] Migrate `src/compiler/prerender` tests
-  - [ ] Migrate `src/compiler/service-worker` tests
-  - [ ] Migrate `src/compiler/style` tests
-  - [ ] Migrate `src/compiler/style/css-parser` tests
+  - [x] Migrate `src/compiler/html` tests
+  - [x] Migrate `src/compiler/output-targets` tests
+  - [x] Migrate `src/compiler/output-targets/dist-custom-elements` tests
+  - [x] Migrate `src/compiler/output-targets/dist-hydrate-script` tests
+  - [x] Migrate `src/compiler/output-targets/dist-lazy` tests
+  - [x] Migrate `src/compiler/plugin` tests
+  - [x] Migrate `src/compiler/prerender` tests
+  - [x] Migrate `src/compiler/service-worker` tests
+  - [x] Migrate `src/compiler/style` tests
+  - [x] Migrate `src/compiler/style/css-parser` tests
   - [ ] Migrate `src/compiler/sys` tests
   - [ ] Migrate `src/compiler/sys/fetch` tests
   - [ ] Migrate `src/compiler/sys/resolve` tests

@@ -1,3 +1,6 @@
+import { InMemoryFileSystem } from "src/compiler/sys/in-memory-fs";
+import { afterAll, Mock, vi } from "vitest";
+
 /**
  * Shuffle an array using Fisher-Yates algorithm
  * http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
@@ -77,9 +80,9 @@ export function setupConsoleMocker(): ConsoleMocker {
   });
 
   function setupConsoleMocks() {
-    const logMock = jest.fn();
-    const warnMock = jest.fn();
-    const errorMock = jest.fn();
+    const logMock = vi.fn();
+    const warnMock = vi.fn();
+    const errorMock = vi.fn();
 
     console.log = logMock;
     console.warn = warnMock;
@@ -96,9 +99,9 @@ export function setupConsoleMocker(): ConsoleMocker {
 
 interface ConsoleMocker {
   setupConsoleMocks: () => {
-    logMock: jest.Mock<typeof console.log>;
-    warnMock: jest.Mock<typeof console.warn>;
-    errorMock: jest.Mock<typeof console.error>;
+    logMock: Mock<typeof console.log>;
+    warnMock: Mock<typeof console.warn>;
+    errorMock: Mock<typeof console.error>;
   };
   teardownConsoleMocks: () => void;
 }
@@ -108,7 +111,7 @@ interface ConsoleMocker {
  * as its argument and returns a `Promise`, the value of which is returned by `withSilentWarn`
  * as well.
  */
-type SilentWarnFunc<T> = (mock: jest.Mock<typeof console.warn>) => Promise<T>;
+type SilentWarnFunc<T> = (mock: Mock<typeof console.warn>) => Promise<T>;
 
 /**
  * Wrap a single callback with a silent `console.warn`. The callback passed in
@@ -121,9 +124,47 @@ type SilentWarnFunc<T> = (mock: jest.Mock<typeof console.warn>) => Promise<T>;
  */
 export async function withSilentWarn<T>(cb: SilentWarnFunc<T>): Promise<T> {
   const realWarn = console.warn;
-  const warnMock = jest.fn();
+  const warnMock = vi.fn();
   console.warn = warnMock;
   const retVal = await cb(warnMock);
   console.warn = realWarn;
   return retVal;
+}
+
+/**
+ * Testing utility to validate the existence of some provided file paths using a specific file system
+ *
+ * @param fs the file system to use to validate the existence of some files
+ * @param filePaths the paths to validate
+ * @throws when one or more of the provided file paths cannot be found
+ */
+export function expectFilesExist(fs: InMemoryFileSystem, filePaths: string[]): void {
+  const notFoundFiles: ReadonlyArray<string> = filePaths.filter((filePath: string) => !fs.statSync(filePath).exists);
+
+  if (notFoundFiles.length > 0) {
+    throw new Error(
+      `The following files were expected, but could not be found:\n${notFoundFiles
+        .map((result: string) => '-' + result)
+        .join('\n')}`,
+    );
+  }
+}
+
+/**
+ * Testing utility to validate the non-existence of some provided file paths using a specific file system
+ *
+ * @param fs the file system to use to validate the non-existence of some files
+ * @param filePaths the paths to validate
+ * @throws when one or more of the provided file paths is found
+ */
+export function expectFilesDoNotExist(fs: InMemoryFileSystem, filePaths: string[]): void {
+  const existentFiles: ReadonlyArray<string> = filePaths.filter((filePath: string) => fs.statSync(filePath).exists);
+
+  if (existentFiles.length > 0) {
+    throw new Error(
+      `The following files were expected to not exist, but do:\n${existentFiles
+        .map((result: string) => '-' + result)
+        .join('\n')}`,
+    );
+  }
 }
