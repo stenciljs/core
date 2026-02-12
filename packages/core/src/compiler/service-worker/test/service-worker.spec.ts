@@ -1,7 +1,7 @@
 // @ts-nocheck
 // TODO(STENCIL-462): investigate getting this file to pass (remove ts-nocheck)
 import { Compiler, Config } from '@stencil/core/compiler';
-import type * as d from '@stencil/core/declarations';
+import type * as d from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import path from 'path';
 

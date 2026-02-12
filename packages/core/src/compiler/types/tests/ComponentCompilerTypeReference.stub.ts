@@ -1,4 +1,4 @@
-import * as d from '@stencil/core/declarations';
+import * as d from '@stencil/core';
 
 /**
  * Generates a stub {@link d.ComponentCompilerTypeReference}. This function uses sensible defaults for the initial stub.

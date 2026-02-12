@@ -27,8 +27,9 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs.js"
     },
     "./mock-doc": {
       "import": "./dist/mock-doc.mjs"

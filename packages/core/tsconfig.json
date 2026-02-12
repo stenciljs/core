@@ -24,7 +24,7 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "target": "es2022",
-    "types": ["node", "jest"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "virtual:app-data": ["./src/app-data/index.ts"],

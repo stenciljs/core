@@ -1,5 +1,6 @@
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import childProcess from 'child_process';
+import { beforeEach, describe, expect, it, vi, MockInstance, afterEach } from 'vitest';
 
 import * as d from '@stencil/core';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
@@ -8,17 +9,17 @@ import { writeExportMaps } from '../write-export-maps';
 describe('writeExportMaps', () => {
   let config: d.ValidatedConfig;
   let buildCtx: d.BuildCtx;
-  let execSyncSpy: jest.SpyInstance;
+  let execSyncSpy: MockInstance;
 
   beforeEach(() => {
     config = mockValidatedConfig();
     buildCtx = mockBuildCtx(config);
 
-    execSyncSpy = jest.spyOn(childProcess, 'execSync').mockImplementation(() => '');
+    execSyncSpy = vi.spyOn(childProcess, 'execSync').mockImplementation(() => '');
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should not generate any exports if there are no output targets', () => {

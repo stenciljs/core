@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import * as d from '@stencil/core/declarations';
+import * as d from '@stencil/core';
 import { mockBuildCtx } from '@stencil/core/testing';
 
 import { nativeComponentTransform } from '../component-native/tranform-to-native-component';

@@ -18,7 +18,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stenciljs"
+    "url": "git+https://github.com/stenciljs/core.git"
   },
   "type": "module",
   "scripts": {

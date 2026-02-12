@@ -209,13 +209,42 @@ packages/
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
 
 ## 🚧 Migrate all unit tests from jest to vitest
-- [ ] Migrate `src/core` tests
-  - [x] Initial setup
-  - [x] Migrate `src/core/compiler/config` tests
 - [x] Migrate `src/cli` tests - COMPLETE
   - [x] Initial setup
+  - [x] Migrate `src/cli/test` tests
+  - [x] Migrate `src/cli/telemetry/test` tests
+- [ ] Migrate `src/core` tests
+  - [x] Initial setup
+  - [ ] Migrate `src/compiler/build` tests
+  - [ ] Migrate `src/compiler/bundle` tests
+  - [x] Migrate `src/compiler/config` tests
+  - [ ] Migrate `src/compiler/docs` tests
+  - [ ] Migrate `src/compiler/html` tests
+  - [ ] Migrate `src/compiler/output-targets` tests
+  - [ ] Migrate `src/compiler/output-targets/dist-custom-elements` tests
+  - [ ] Migrate `src/compiler/output-targets/dist-hydrate-script` tests
+  - [ ] Migrate `src/compiler/output-targets/dist-lazy` tests
+  - [ ] Migrate `src/compiler/plugin` tests
+  - [ ] Migrate `src/compiler/prerender` tests
+  - [ ] Migrate `src/compiler/service-worker` tests
+  - [ ] Migrate `src/compiler/style` tests
+  - [ ] Migrate `src/compiler/style/css-parser` tests
+  - [ ] Migrate `src/compiler/sys` tests
+  - [ ] Migrate `src/compiler/sys/fetch` tests
+  - [ ] Migrate `src/compiler/sys/resolve` tests
+  - [ ] Migrate `src/compiler/sys/typescript` tests
+  - [ ] Migrate `src/compiler/transformers` tests
+  - [ ] Migrate `src/compiler/transpile` tests
+  - [ ] Migrate `src/compiler/types` tests
+  - [ ] Migrate `src/runtime` tests
+  - [ ] Migrate `src/runtime/vdom` tests
+  - [ ] Migrate `src/server/platform` tests
+  - [ ] Migrate `src/sys/node` tests
+  - [ ] Migrate `src/sys/node/logger` tests
+  - [ ] Migrate `src/utils` tests
 - [ ] Migrate `src/mock-doc` tests
   - [x] Initial setup
+  - [ ] Migrate `src/mock-doc/test` tests
 
 ---
 

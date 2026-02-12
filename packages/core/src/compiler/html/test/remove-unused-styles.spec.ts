@@ -1,4 +1,4 @@
-import type * as d from '@stencil/core/declarations';
+import type * as d from '@stencil/core';
 import { mockDocument } from '@stencil/core/testing';
 
 import { removeUnusedStyles } from '../remove-unused-styles';

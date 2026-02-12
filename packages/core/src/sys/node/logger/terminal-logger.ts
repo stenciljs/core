@@ -1,14 +1,14 @@
 import chalk, { type ChalkInstance } from 'chalk';
 
-import {
+import type {
   Diagnostic,
-  LOG_LEVELS,
   Logger,
   LoggerLineUpdater,
   LoggerTimeSpan,
   LogLevel,
   PrintLine,
 } from '@stencil/core';
+import { LOG_LEVELS } from '@stencil/core';
 
 // Re-export chalk color functions for convenience
 const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;

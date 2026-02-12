@@ -1,4 +1,4 @@
-import { ValidatedConfig } from '@stencil/core/declarations';
+import { ValidatedConfig } from '@stencil/core';
 import { mockLogger, mockValidatedConfig, setupConsoleMocker } from '@stencil/core/testing';
 import { normalizePath } from '../../../utils';
 import { relative } from '../../../utils';

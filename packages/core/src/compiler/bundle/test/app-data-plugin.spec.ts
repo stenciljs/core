@@ -1,4 +1,4 @@
-import * as d from '@stencil/core/declarations';
+import * as d from '@stencil/core';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import MagicString from 'magic-string';
 

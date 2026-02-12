@@ -1,4 +1,4 @@
-import { CompilerCtx } from '@stencil/core/declarations';
+import { CompilerCtx } from '@stencil/core';
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { normalizePath } from '../../../utils';
 import path from 'path';

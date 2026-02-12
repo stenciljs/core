@@ -1,4 +1,4 @@
-import * as d from '@stencil/core/declarations';
+import * as d from '@stencil/core';
 import { mockCompilerCtx, mockModule } from '@stencil/core/testing';
 import * as ts from 'typescript';
 

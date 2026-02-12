@@ -1,4 +1,4 @@
-import type { OutputTargetDistCollection } from '@stencil/core/declarations';
+import type { OutputTargetDistCollection } from '@stencil/core';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import ts, { Extension } from 'typescript';
 
