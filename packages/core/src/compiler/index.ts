@@ -16,4 +16,4 @@ export { ts };
 export { validateConfig } from './config/validate-config';
 
 // Public declarations/types
-export * from '@stencil/core';
+export * from '../declarations';

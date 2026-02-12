@@ -1,21 +1,23 @@
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
-import childProcess from 'child_process';
-import { beforeEach, describe, expect, it, vi, MockInstance, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import { beforeEach, describe, expect, it, vi, afterEach, Mock } from 'vitest';
 
 import * as d from '@stencil/core';
 import { stubComponentCompilerMeta } from '../../types/tests/ComponentCompilerMeta.stub';
 import { writeExportMaps } from '../write-export-maps';
 
+vi.mock('child_process', () => ({
+  execSync: vi.fn(),
+}));
+
 describe('writeExportMaps', () => {
   let config: d.ValidatedConfig;
   let buildCtx: d.BuildCtx;
-  let execSyncSpy: MockInstance;
+  const execSyncMock = execSync as Mock;
 
   beforeEach(() => {
     config = mockValidatedConfig();
     buildCtx = mockBuildCtx(config);
-
-    execSyncSpy = vi.spyOn(childProcess, 'execSync').mockImplementation(() => '');
   });
 
   afterEach(() => {
@@ -25,7 +27,7 @@ describe('writeExportMaps', () => {
   it('should not generate any exports if there are no output targets', () => {
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(0);
+    expect(execSyncMock).toHaveBeenCalledTimes(0);
   });
 
   it('should generate the default exports for the lazy build if present', () => {
@@ -39,10 +41,10 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(3);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[.][require]"="./dist/index.cjs.js"`);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledTimes(3);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][require]"="./dist/index.cjs.js"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`);
   });
 
   it('should generate the default exports for the custom elements build if present', () => {
@@ -56,9 +58,9 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(2);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/components/index.js"`);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/components/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledTimes(2);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/components/index.js"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/components/index.d.ts"`);
   });
 
   it('should generate the lazy loader exports if the output target is present', () => {
@@ -74,10 +76,10 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(3);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[./loader][import]"="./dist/lazy-loader/index.js"`);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[./loader][require]"="./dist/lazy-loader/index.cjs"`);
-    expect(execSyncSpy).toHaveBeenCalledWith(`npm pkg set "exports[./loader][types]"="./dist/lazy-loader/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledTimes(3);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][import]"="./dist/lazy-loader/index.js"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][require]"="./dist/lazy-loader/index.cjs"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][types]"="./dist/lazy-loader/index.d.ts"`);
   });
 
   it('should generate the custom elements exports if the output target is present', () => {
@@ -97,11 +99,11 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(4);
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledTimes(4);
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
     );
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][types]"="./dist/components/my-component.d.ts"`,
     );
   });
@@ -127,17 +129,17 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncSpy).toHaveBeenCalledTimes(6);
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledTimes(6);
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
     );
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][types]"="./dist/components/my-component.d.ts"`,
     );
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-other-component][import]"="./dist/components/my-other-component.js"`,
     );
-    expect(execSyncSpy).toHaveBeenCalledWith(
+    expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-other-component][types]"="./dist/components/my-other-component.d.ts"`,
     );
   });
