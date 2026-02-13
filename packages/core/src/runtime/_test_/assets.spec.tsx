@@ -1,6 +1,7 @@
+// @vitest-environment stencil
+import { expect, describe, it } from '@stencil/vitest'
 import { getAssetPath } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
-import { describe, expect, it } from 'vitest';
+import { newSpecPage } from '../../testing/spec-page';
 import { CmpAsset } from './fixtures/cmp-asset';
 
 describe('assets', () => {
@@ -16,6 +17,7 @@ describe('assets', () => {
         <img src="https://google.com/">
       </cmp-asset>
     `);
+    expect(window).toBeDefined();
   });
 
   it('getAssetPath is defined', async () => {

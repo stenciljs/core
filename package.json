@@ -14,7 +14,7 @@
     "progressive web app"
   ],
   "private": true,
-  "version": "4.42.1",
+  "version": "5.0.0-next.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -50,5 +50,10 @@
     "node": "22.22.0",
     "npm": "10.9.4"
   },
-  "packageManager": "pnpm@10.29.2"
+  "packageManager": "pnpm@10.29.2",
+   "pnpm": {
+    "overrides": {
+      "@stencil/vitest>@stencil/core": "workspace:*"
+    }
+  }
 }

@@ -1,7 +1,11 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
+import { stencilVitestPlugin } from './src/testing/vitest-stencil-plugin';
+
+const __dirname = import.meta.dirname
 
 export default defineConfig({
+  plugins: [stencilVitestPlugin()],
   resolve: {
     alias: {
       'virtual:app-data': resolve(__dirname, 'src/app-data/index.ts'),

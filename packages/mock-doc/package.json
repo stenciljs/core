@@ -13,7 +13,7 @@
     "jsdom",
     "happy-dom"
   ],
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-next.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"

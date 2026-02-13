@@ -4,8 +4,9 @@ import { normalizePath } from '../../../utils';
 import { relative } from '../../../utils';
 import path from 'path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-
 import { addFileToLibrary, getTypeLibrary } from '../type-library';
+
+const __dirname = import.meta.dirname;
 
 function resetLibrary() {
   const library = getTypeLibrary();

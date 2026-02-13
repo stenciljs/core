@@ -2,7 +2,7 @@ import { isString, noop } from '../../utils';
 import fs from 'graceful-fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import semverLt from 'semver/functions/lt';
+import semverLt from 'semver/functions/lt.js';
 
 import type { Logger, PackageJsonData } from '@stencil/core';
 

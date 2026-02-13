@@ -23,6 +23,8 @@ import { NodeResolveModule } from './node-resolve-module';
 import { checkVersion } from './node-stencil-version-checker';
 import { NodeWorkerController } from './node-worker-controller';
 
+const __dirname = import.meta.dirname;
+
 /**
  * Create a node.js-specific {@link CompilerSystem} to be used when Stencil is
  * run from the CLI or via the public API in a node context.

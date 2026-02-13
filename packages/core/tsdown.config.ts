@@ -45,20 +45,41 @@ export default defineConfig([
   // ============================================
   {
     entry: {
-      index: 'src/compiler/index.ts',
+      index: 'src/index.ts',
+      'compiler/index': 'src/compiler/index.ts',
       'compiler/utils/index': 'src/utils/compiler-exports.ts',
       'testing/index': 'src/testing/index.ts',
       'sys/node/index': 'src/sys/node/index.ts',
+      'mock-doc': 'src/mock-doc.ts',
     },
     outDir: 'dist',
     format: ['esm'],
     platform: 'node',
     target: 'node20',
+    skipNodeModulesBundle: true,
     dts: true,
     clean: true,
-    // sourcemap: true,
-    external: [/^node:/],
+    external: [/^node:/, '@stencil/mock-doc'],
     plugins: [virtualModules({ resolve: virtualResolve })],
+    copy: [
+      // Copy curated public types (paths resolve via declarations entry below)
+      { from: 'src/index.d.mts', to: 'dist' },
+    ],
+  },
+
+  // Declarations (types only - generates .d.mts for public API imports)
+  {
+    entry: {
+      'declarations/stencil-public-runtime': 'src/declarations/stencil-public-runtime.ts',
+      'declarations/stencil-public-compiler': 'src/declarations/stencil-public-compiler.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    external: [/^node:/],
+    dts: true,
+    clean: false,
+    skipNodeModulesBundle: true,
   },
 
   // Server/SSR (virtuals externalized for runtime swapping)
@@ -72,8 +93,8 @@ export default defineConfig([
     target: 'node20',
     dts: true,
     clean: false,
-    // sourcemap: true,
     external: ['node:*'],
+    skipNodeModulesBundle: true,
     plugins: [
       virtualModules({
         external: {
@@ -118,7 +139,7 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
-    // sourcemap: true,
+    skipNodeModulesBundle: true,
     external: [/^node:/],
     plugins: [
       virtualModules({

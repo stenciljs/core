@@ -13,7 +13,7 @@
     "pwa",
     "progressive web app"
   ],
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.0-next.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
@@ -30,8 +30,9 @@
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
     },
-    "./mock-doc": {
-      "import": "./dist/mock-doc.mjs"
+    "./compiler": {
+      "types": "./dist/compiler/index.d.mts",
+      "import": "./dist/compiler/index.mjs"
     },
     "./runtime": {
       "types": "./dist/runtime/index.d.mts",
@@ -58,6 +59,9 @@
     "./testing": {
       "types": "./dist/testing/index.d.mts",
       "import": "./dist/testing/index.mjs"
+    },
+    "./mock-doc": {
+      "import": "./dist/mock-doc.mjs"
     }
   },
   "files": [
@@ -98,6 +102,8 @@
     "extends": "../../package.json"
   },
   "devDependencies": {
-    "@ionic/prettier-config": "^4.0.0"
+    "@ionic/prettier-config": "^4.0.0",
+    "@stencil/vitest": "^1.1.14",
+    "vitest-environment-stencil": "^1.1.14"
   }
 }
