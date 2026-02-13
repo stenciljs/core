@@ -1,6 +1,8 @@
+import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
 import { createEvent } from '../../runtime/event-emitter';
-import { EVENT_FLAGS } from '../../utils';
+import { CMP_FLAGS, EVENT_FLAGS } from '../../utils';
+import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 
 /**
  * Retrieve the data structure tracking the component by its runtime reference
@@ -37,6 +39,11 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef | null | 
 
   lazyInstance.__stencil__getHostRef = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
+
+  // Re-wire getters/setters for ES2022+ class fields
+  if (hostRef.$cmpMeta$?.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
+    reWireGetterSetter(lazyInstance, hostRef);
+  }
 
   // Create EventEmitters for all events from the component and its parent classes/mixins
   // This is necessary to support events defined in mixins that may not have been included

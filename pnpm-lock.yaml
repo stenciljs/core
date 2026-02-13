@@ -141,11 +141,11 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(prettier@3.8.1)
       '@stencil/vitest':
-        specifier: ^1.1.13
-        version: 1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+        specifier: ^1.1.14
+        version: 1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
       vitest-environment-stencil:
-        specifier: ^1.1.13
-        version: 1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+        specifier: ^1.1.14
+        version: 1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
 
   packages/mock-doc:
     dependencies:
@@ -940,8 +940,8 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@stencil/vitest@1.1.13':
-    resolution: {integrity: sha512-gHc1env8B0enmGhN0hLbnNFNoXJkS9qIDEsoQBi4geTF7F/wR0CmyzBdNpVFjBMVTvMUTqOa6VExX/lPbTYsGQ==}
+  '@stencil/vitest@1.1.14':
+    resolution: {integrity: sha512-xbbnEnPy/LSpzLaynJRyrs2WrIvPDhwZiruiQuKbHJMqrb7IqTwWdhrLbLYD72sCDrWOZsrKE6VZb/usJbckuQ==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
     peerDependencies:
@@ -1733,8 +1733,8 @@ packages:
       yaml:
         optional: true
 
-  vitest-environment-stencil@1.1.13:
-    resolution: {integrity: sha512-GErUlGmZvu5hgfy5tWGK38V0pqguP46kwZ4QfYfHb4NVvxj55GXFXstEQFNyeN5uxzbeVB+xvS4IsjwzqLJUNQ==}
+  vitest-environment-stencil@1.1.14:
+    resolution: {integrity: sha512-7CAL/UEL9UJs32ZSdCAZ44VU3zyRB0UmtRRDPo/FF8CORR+4CByQBKEb2MhAknCeFaqBqAQ3aWkzSeaaxvf6gQ==}
 
   vitest@4.0.18:
     resolution: {integrity: sha512-hOQuK7h0FGKgBAas7v0mSAsnvrIgAvWmRFjmzpJ7SwFHH3g1k2u37JtYwOwmEKhK6ZO3v9ggDBBm0La1LCK4uQ==}
@@ -2315,12 +2315,12 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@stencil/vitest@1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))':
+  '@stencil/vitest@1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))':
     dependencies:
       jiti: 2.6.1
       local-pkg: 1.1.2
       vitest: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)
-      vitest-environment-stencil: 1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+      vitest-environment-stencil: 1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
     optionalDependencies:
       '@stencil/mock-doc': link:packages/mock-doc
       jsdom: 28.0.0
@@ -3102,9 +3102,9 @@ snapshots:
       jiti: 2.6.1
       terser: 5.37.0
 
-  vitest-environment-stencil@1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)):
+  vitest-environment-stencil@1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)):
     dependencies:
-      '@stencil/vitest': 1.1.13(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+      '@stencil/vitest': 1.1.14(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
     transitivePeerDependencies:
       - '@playwright/test'
       - '@stencil/core'

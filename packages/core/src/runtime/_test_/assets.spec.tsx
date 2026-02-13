@@ -1,4 +1,5 @@
 // @vitest-environment stencil
+
 import { expect, describe, it } from '@stencil/vitest'
 import { getAssetPath } from '@stencil/core';
 import { newSpecPage } from '../../testing/spec-page';
@@ -13,8 +14,8 @@ describe('assets', () => {
 
     expect(page.root).toEqualHtml(`
       <cmp-asset icon="delorean">
-        <img src="/assets/icons/delorean.png">
-        <img src="https://google.com/">
+        <img src="http://localhost:3000/assets/icons/delorean.png"></img>
+        <img src="https://google.com/"></img>
       </cmp-asset>
     `);
     expect(window).toBeDefined();

@@ -49,8 +49,6 @@ export function stencilVitestPlugin(): VitePlugin {
         target: 'es2022',
       });
 
-      console.log(result)
-
       const hasErrors = result.diagnostics?.some((d) => d.level === 'error');
       if (hasErrors) {
         const messages = result.diagnostics
