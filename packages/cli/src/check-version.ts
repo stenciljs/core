@@ -1,6 +1,6 @@
 import { isFunction } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '@stencil/core';
+import type { ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 
 /**

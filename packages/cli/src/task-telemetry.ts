@@ -1,4 +1,4 @@
-import type * as d from '@stencil/core';
+import type * as d from '@stencil/core/compiler';
 import { ConfigFlags } from './config-flags';
 import { checkTelemetry, disableTelemetry, enableTelemetry } from './telemetry/telemetry';
 

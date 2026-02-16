@@ -25,7 +25,6 @@ import type {
   PageReloadStrategy,
   PrerenderConfig,
   StyleDoc,
-  TaskCommand,
   ValidatedConfig,
 } from './stencil-public-compiler';
 import type { JsonDocMethodParameter } from './stencil-public-docs';
@@ -2373,60 +2372,4 @@ export interface ValidateTypesResults {
   diagnostics: Diagnostic[];
   dirPaths: string[];
   filePaths: string[];
-}
-
-export interface TerminalInfo {
-  /**
-   * Whether this is in CI or not.
-   */
-  readonly ci: boolean;
-  /**
-   * Whether the terminal is an interactive TTY or not.
-   */
-  readonly tty: boolean;
-}
-
-/**
- * The task to run in order to collect the duration data point.
- */
-export type TelemetryCallback = (...args: any[]) => void | Promise<void>;
-
-/**
- * The model for the data that's tracked.
- */
-export interface TrackableData {
-  arguments: string[];
-  build: string;
-  component_count?: number;
-  config: Config;
-  cpu_model: string | undefined;
-  duration_ms: number | undefined;
-  has_app_pwa_config: boolean;
-  os_name: string | undefined;
-  os_version: string | undefined;
-  packages: string[];
-  packages_no_versions?: string[];
-  rollup: string;
-  stencil: string;
-  system: string;
-  system_major?: string;
-  targets: string[];
-  task: TaskCommand | null;
-  typescript: string;
-  yarn: boolean;
-}
-
-/**
- * Used as the object sent to the server. Value is the data tracked.
- */
-export interface Metric {
-  name: string;
-  timestamp: string;
-  source: 'stencil_cli';
-  value: TrackableData;
-  session_id: string;
-}
-export interface TelemetryConfig {
-  'telemetry.stencil'?: boolean;
-  'tokens.telemetry'?: string;
 }

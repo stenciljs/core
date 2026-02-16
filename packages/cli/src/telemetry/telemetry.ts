@@ -1,11 +1,48 @@
 import { isOutputTargetHydrate, isOutputTargetWww } from '@stencil/core/compiler/utils';
 
-import type * as d from '@stencil/core';
+import type * as d from '@stencil/core/compiler';
 import type { ConfigFlags } from '../config-flags';
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';
 import { shouldTrack } from './shouldTrack';
+import type { TaskCommand } from '../public';
+
+type TelemetryCallback = (...args: any[]) => void | Promise<void>;
+
+interface Metric {
+  name: string;
+  timestamp: string;
+  source: 'stencil_cli';
+  value: TrackableData;
+  session_id: string;
+}
+
+/**
+ * The model for the data that's tracked.
+ */
+interface TrackableData {
+  arguments: string[];
+  build: string;
+  component_count?: number;
+  config: d.Config;
+  cpu_model: string | undefined;
+  duration_ms: number | undefined;
+  has_app_pwa_config: boolean;
+  os_name: string | undefined;
+  os_version: string | undefined;
+  packages: string[];
+  packages_no_versions?: string[];
+  rollup: string;
+  stencil: string;
+  system: string;
+  system_major?: string;
+  targets: string[];
+  task: TaskCommand | null;
+  typescript: string;
+  yarn: boolean;
+}
+
 
 /**
  * Used to within taskBuild to provide the component_count property.
@@ -53,7 +90,7 @@ export async function telemetryAction(
   config: d.ValidatedConfig,
   coreCompiler: CoreCompiler,
   flags: ConfigFlags,
-  action?: d.TelemetryCallback,
+  action?: TelemetryCallback,
 ) {
   const tracking = await shouldTrack(sys, flags, !!flags.ci);
 
@@ -138,7 +175,7 @@ export const prepareData = async (
   flags: ConfigFlags,
   duration_ms: number | undefined,
   component_count: number | undefined = undefined,
-): Promise<d.TrackableData> => {
+): Promise<TrackableData> => {
   const { typescript, rollup } = coreCompiler.versions || { typescript: 'unknown', rollup: 'unknown' };
   const { packages, packagesNoVersions } = await getInstalledPackages(sys, flags);
   const targets = getActiveTargets(config);
@@ -387,11 +424,11 @@ export async function sendMetric(
   sys: d.CompilerSystem,
   flags: ConfigFlags,
   name: string,
-  value: d.TrackableData,
+  value: TrackableData,
 ): Promise<void> {
   const session_id = await getTelemetryToken(sys);
 
-  const message: d.Metric = {
+  const message: Metric = {
     name,
     timestamp: new Date().toISOString(),
     source: 'stencil_cli',
@@ -423,7 +460,7 @@ async function getTelemetryToken(sys: d.CompilerSystem) {
  * @param flags The CLI flags (owned by CLI, not part of core config)
  * @param data Data to be tracked
  */
-async function sendTelemetry(sys: d.CompilerSystem, flags: ConfigFlags, data: d.Metric): Promise<void> {
+async function sendTelemetry(sys: d.CompilerSystem, flags: ConfigFlags, data: Metric): Promise<void> {
   try {
     const now = new Date().toISOString();
 

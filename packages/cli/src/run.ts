@@ -1,7 +1,7 @@
 import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
 
-import type * as d from '@stencil/core';
-import { ValidatedConfig } from '@stencil/core';
+import type * as d from '@stencil/core/compiler';
+import { ValidatedConfig } from '@stencil/core/compiler';
 import { ConfigFlags, createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
 import { mergeFlags } from './merge-flags';
@@ -17,6 +17,7 @@ import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
 import { taskTelemetry } from './task-telemetry';
 import { telemetryAction } from './telemetry/telemetry';
+import { TaskCommand } from './public';
 
 /**
  * Main entry point for the Stencil CLI
@@ -130,7 +131,7 @@ export const run = async (init: d.CliInitOptions) => {
 export const runTask = async (
   coreCompiler: CoreCompiler,
   config: d.Config,
-  task: d.TaskCommand,
+  task: TaskCommand,
   sys: d.CompilerSystem,
   flags?: ConfigFlags,
 ): Promise<void> => {

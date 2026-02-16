@@ -1,6 +1,6 @@
 import { readOnlyArrayHasStringMember, toCamelCase } from '@stencil/core/compiler/utils';
 
-import { LOG_LEVELS, type LogLevel, type TaskCommand } from '@stencil/core';
+import { LOG_LEVELS, type LogLevel } from '@stencil/core/compiler';
 import {
   BOOLEAN_CLI_FLAGS,
   BOOLEAN_STRING_CLI_FLAGS,
@@ -14,6 +14,7 @@ import {
   STRING_CLI_FLAGS,
   STRING_NUMBER_CLI_FLAGS,
 } from './config-flags';
+import type { TaskCommand } from './public';
 
 /**
  * Parse command line arguments into a structured `ConfigFlags` object

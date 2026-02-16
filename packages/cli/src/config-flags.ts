@@ -1,4 +1,5 @@
-import type { LogLevel, TaskCommand } from '@stencil/core';
+import type { LogLevel } from '@stencil/core/compiler';
+import type { TaskCommand } from './public';
 
 /**
  * All the Boolean options supported by the Stencil CLI

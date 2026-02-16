@@ -1,7 +1,7 @@
 import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
 import { vi, describe, it, expect, afterEach, afterAll } from 'vitest';
 
-import type * as d from '@stencil/core';
+import type * as d from '@stencil/core/compiler';
 import * as utils from '@stencil/core/compiler/utils';
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
 import { BoilerplateFile, getBoilerplateByExtension, taskGenerate } from '../task-generate';

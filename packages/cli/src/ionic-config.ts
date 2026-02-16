@@ -1,5 +1,5 @@
-import type * as d from '@stencil/core';
-import { readJson, UUID_REGEX, uuidv4 } from './telemetry/helpers';
+import type * as d from '@stencil/core/compiler';
+import { readJson, TelemetryConfig, UUID_REGEX, uuidv4 } from './telemetry/helpers';
 
 export const isTest = () => process.env.JEST_WORKER_ID !== undefined;
 
@@ -14,8 +14,8 @@ export const defaultConfigDirectory = (sys: d.CompilerSystem) => sys.resolvePath
  * @param sys The system where the command is invoked
  * @returns the config read from disk that has been potentially been updated
  */
-export async function readConfig(sys: d.CompilerSystem): Promise<d.TelemetryConfig> {
-  let config: d.TelemetryConfig = await readJson(sys, defaultConfig(sys));
+export async function readConfig(sys: d.CompilerSystem) {
+  let config = await readJson<TelemetryConfig>(sys, defaultConfig(sys));
 
   if (!config) {
     config = {
@@ -39,7 +39,7 @@ export async function readConfig(sys: d.CompilerSystem): Promise<d.TelemetryConf
  * @param config The config passed into the Stencil command
  * @returns boolean If the command was successful
  */
-export async function writeConfig(sys: d.CompilerSystem, config: d.TelemetryConfig): Promise<boolean> {
+export async function writeConfig(sys: d.CompilerSystem, config: TelemetryConfig): Promise<boolean> {
   let result = false;
   try {
     await sys.createDir(defaultConfigDirectory(sys), { recursive: true });
@@ -58,7 +58,7 @@ export async function writeConfig(sys: d.CompilerSystem, config: d.TelemetryConf
  * @param newOptions The new options to save
  * @returns boolean If the command was successful
  */
-export async function updateConfig(sys: d.CompilerSystem, newOptions: d.TelemetryConfig): Promise<boolean> {
+export async function updateConfig(sys: d.CompilerSystem, newOptions: TelemetryConfig): Promise<boolean> {
   const config = await readConfig(sys);
   return await writeConfig(sys, Object.assign(config, newOptions));
 }

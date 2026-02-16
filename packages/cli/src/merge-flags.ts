@@ -1,4 +1,4 @@
-import type { Config } from '@stencil/core';
+import type { Config } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 
 /**

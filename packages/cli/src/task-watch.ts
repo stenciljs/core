@@ -1,4 +1,4 @@
-import type { DevServer, ValidatedConfig } from '@stencil/core';
+import type { DevServer, ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 import { printCheckVersionResults, startCheckVersion } from './check-version';
 import type { CoreCompiler } from './load-compiler';

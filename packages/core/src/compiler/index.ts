@@ -14,3 +14,5 @@ export { createWorkerContext } from './worker/worker-thread';
 export { createWorkerMessageHandler } from './worker/worker-thread';
 export { ts };
 export { validateConfig } from './config/validate-config';
+export * from '../declarations/stencil-public-compiler';
+export * from '../declarations/stencil-private';

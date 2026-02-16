@@ -1,6 +1,7 @@
-import type { CompilerSystem, Logger, TaskCommand, ValidatedConfig } from '@stencil/core';
+import type { CompilerSystem, Logger, ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
+import type { TaskCommand } from './public';
 
 /**
  * Log the name of this package (`@stencil/core`) to an output stream

@@ -1,11 +1,11 @@
-import * as coreCompiler from '@stencil/core';
+import * as coreCompiler from '@stencil/core/compiler';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import { DIST, DIST_CUSTOM_ELEMENTS, DIST_HYDRATE_SCRIPT, WWW } from '@stencil/core/compiler/utils';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 
 import { createConfigFlags } from '../../config-flags';
-import { createSystem } from '@stencil/core';
-import type * as d from '@stencil/core';
+import { createSystem } from '@stencil/core/compiler';
+import type * as d from '@stencil/core/compiler';
 import * as shouldTrack from '../shouldTrack';
 import * as telemetry from '../telemetry';
 import { anonymizeConfigForTelemetry } from '../telemetry';

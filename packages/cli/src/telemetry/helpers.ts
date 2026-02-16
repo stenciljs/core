@@ -1,5 +1,22 @@
-import type * as d from '@stencil/core';
+import type * as d from '@stencil/core/compiler';
 import { ConfigFlags } from '../config-flags';
+
+interface TerminalInfo {
+  /**
+   * Whether this is in CI or not.
+   */
+  readonly ci: boolean;
+  /**
+   * Whether the terminal is an interactive TTY or not.
+   */
+  readonly tty: boolean;
+}
+
+
+export interface TelemetryConfig {
+  'telemetry.stencil'?: boolean;
+  'tokens.telemetry'?: string;
+}
 
 export const tryFn = async <T extends (...args: any[]) => Promise<R>, R>(fn: T, ...args: any[]): Promise<R | null> => {
   try {
@@ -11,7 +28,7 @@ export const tryFn = async <T extends (...args: any[]) => Promise<R>, R>(fn: T, 
   return null;
 };
 
-export const isInteractive = (sys: d.CompilerSystem, flags: ConfigFlags, object?: d.TerminalInfo): boolean => {
+export const isInteractive = (sys: d.CompilerSystem, flags: ConfigFlags, object?: TerminalInfo): boolean => {
   const terminalInfo =
     object ||
     Object.freeze({
@@ -43,9 +60,9 @@ export function uuidv4(): string {
  * @param path the path on the file system to read and parse
  * @returns the parsed JSON
  */
-export async function readJson(sys: d.CompilerSystem, path: string): Promise<any> {
+export async function readJson<T extends object>(sys: d.CompilerSystem, path: string): Promise<T> {
   const file = await sys.readFile(path);
-  return !!file && JSON.parse(file);
+  return !!file && JSON.parse(file) as T;
 }
 
 /**

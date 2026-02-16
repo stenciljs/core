@@ -1,7 +1,7 @@
 import { normalizePath, validateComponentTag } from '@stencil/core/compiler/utils';
 import { join, parse, relative } from 'path';
 
-import type { ValidatedConfig } from '@stencil/core';
+import type { ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 
 /**

@@ -204,6 +204,22 @@ packages/
 - [x] Create `packages/core/bin/stencil.mjs`
 - [x] Move flag-related tests from Core to CLI
 
+### ✅ Git History Migration
+- [x] Migrate files from `src/` → `packages/*/src/` preserving git history
+- [x] 694 files migrated with history intact
+- [x] 33 new v5 files (no legacy counterpart)
+- [x] Mapping: `src/cli/` → `packages/cli/src/`
+- [x] Mapping: `src/mock-doc/` → `packages/mock-doc/src/`
+- [x] Mapping: `src/hydrate/` → `packages/core/src/server/`
+- [x] Mapping: `src/{compiler,runtime,client,utils,...}/` → `packages/core/src/...`
+- [x] Test dirs renamed: `test/` → `_test_/`
+
+**Not migrated (intentionally removed in v5):**
+- `src/dev-server/` - replaced with external tooling
+- `src/screenshot/` - removed
+- `src/testing/jest/` - replaced with `@stencil/vitest`
+- `src/testing/puppeteer/` - replaced with `@stencil/playwright`
+
 ## Migrate *.sys patching for in-memory stuff
 - [ ] Remove all `*.sys` patching code
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
@@ -281,10 +297,12 @@ packages/
 
 **All v5 changes should be made in `packages/` only.**
 
-The root `src/` directory is a v4 reference/dummy and should NOT be modified unless explicitly instructed. The v5 source of truth is:
+The v5 source of truth is:
 - `packages/core/src/` - compiler and runtime
 - `packages/cli/src/` - CLI
 - `packages/mock-doc/src/` - mock-doc
+
+**Git history has been preserved** - files were migrated from legacy `src/` using `git mv` + content replacement. Use `git log --follow <file>` to see full history.
 
 **To build v5:**
 ```bash
@@ -300,4 +318,4 @@ pnpm workspaces handle dependency ordering automatically.
 
 ---
 
-*Last updated: 2026-02-09 Session 11*
+*Last updated: 2026-02-16 Session 12*

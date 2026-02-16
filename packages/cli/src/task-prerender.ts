@@ -1,6 +1,5 @@
 import { catchError } from '@stencil/core/compiler/utils';
-
-import type { BuildResultsComponentGraph, Diagnostic, ValidatedConfig } from '@stencil/core';
+import type { BuildResultsComponentGraph, Diagnostic, ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';

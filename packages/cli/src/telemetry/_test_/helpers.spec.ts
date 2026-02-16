@@ -1,4 +1,4 @@
-import { createSystem } from '@stencil/core';
+import { createSystem } from '@stencil/core/compiler';
 import { ConfigFlags, createConfigFlags } from '../../config-flags';
 import { hasDebug, hasVerbose, isInteractive, tryFn, uuidv4 } from '../helpers';
 import { describe, it, expect } from 'vitest';

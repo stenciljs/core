@@ -1,6 +1,6 @@
 import { isString } from '@stencil/core/compiler/utils';
 
-import type { ValidatedConfig } from '@stencil/core';
+import type { ValidatedConfig } from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 
 export const taskServe = async (config: ValidatedConfig, flags: ConfigFlags) => {

@@ -1,4 +1,4 @@
-import * as d from '@stencil/core';
+import * as d from '@stencil/core/compiler';
 import type { ConfigFlags } from '../config-flags';
 import { isInteractive } from './helpers';
 import { checkTelemetry } from './telemetry';
