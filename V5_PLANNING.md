@@ -202,7 +202,7 @@ packages/
 - [x] Update Core's package.json: add `@stencil/cli` as dependency
 - [x] Update CLI's package.json: change to peerDependency on `@stencil/core`
 - [x] Create `packages/core/bin/stencil.mjs`
-- [ ] Move flag-related tests from Core to CLI
+- [x] Move flag-related tests from Core to CLI
 
 ## Migrate *.sys patching for in-memory stuff
 - [ ] Remove all `*.sys` patching code
@@ -236,7 +236,7 @@ packages/
   - [x] Migrate `src/compiler/transformers` tests
   - [x] Migrate `src/compiler/transpile` tests
   - [x] Migrate `src/compiler/types` tests
-  - [ ] Migrate `src/runtime` tests
+  - [x] Migrate `src/runtime` tests
   - [ ] Migrate `src/runtime/vdom` tests
   - [ ] Migrate `src/server/platform` tests
   - [ ] Migrate `src/sys/node` tests
