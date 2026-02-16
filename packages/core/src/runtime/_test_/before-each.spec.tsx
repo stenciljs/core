@@ -1,5 +1,5 @@
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { newSpecPage } from '@stencil/core/testing';
-
 import { CmpA } from './fixtures/cmp-a';
 
 describe('newSpecPage, spec testing', () => {

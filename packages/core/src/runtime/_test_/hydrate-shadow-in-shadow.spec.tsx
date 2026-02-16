@@ -1,5 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate, shadow in shadow', () => {
   it('nested cmp-b w/ shadow/slot, root level text', async () => {
@@ -25,7 +26,7 @@ describe('hydrate, shadow in shadow', () => {
         );
       }
     }
-    // @ts-ignore
+
     const serverHydrated = await newSpecPage({
       components: [CmpA, CmpB],
       html: `<cmp-a>light-dom</cmp-a>`,
@@ -46,7 +47,6 @@ describe('hydrate, shadow in shadow', () => {
       </cmp-a>
     `);
 
-    // @ts-ignore
     const clientHydrated = await newSpecPage({
       components: [CmpA, CmpB],
       html: serverHydrated.root.outerHTML,
@@ -349,9 +349,11 @@ describe('hydrate, shadow in shadow', () => {
         <!--r.1-->
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
-          <!--t.2.0.0.0-->shadow-header
+          <!--t.2.0.0.0-->
+          shadow-header
           <footer c-id="2.1.0.1">
-            <!--t.2.2.1.0-->shadow-footer
+            <!--t.2.2.1.0-->
+            shadow-footer
           </footer>
         </cmp-b>
       </cmp-a>
@@ -416,7 +418,8 @@ describe('hydrate, shadow in shadow', () => {
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
           <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->light-dom
+          <!--t.1.1.1.0-->
+          light-dom
           <footer c-id="2.2.0.2"></footer>
         </cmp-b>
       </cmp-a>

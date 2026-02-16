@@ -1,6 +1,6 @@
 import { Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import { MEMBER_FLAGS } from '../../utils';
 
 describe('hydrate prop types', () => {
@@ -63,7 +63,7 @@ describe('hydrate prop types', () => {
     });
 
     expect(serverHydrated.root).toEqualHtml(`
-      <cmp-a class="hydrated" boolean="false" clamped="11" num="1" s-id="1" str="hello" accessor="1">
+      <cmp-a num="1" clamped="11" str="hello" boolean="false" accessor="1" class="hydrated" s-id="1">
         <!--r.1-->
         <!--t.1.0.0.0-->
         true-hello world-101-101-10
@@ -80,7 +80,7 @@ describe('hydrate prop types', () => {
     expect(clientHydrated.root['s-cr']['s-cn']).toBe(true);
 
     expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a accessor="1" boolean="false" clamped="11" class="hydrated" num="1" str="hello">
+      <cmp-a num="1" clamped="11" str="hello" boolean="false" accessor="1" class="hydrated">
         <!--r.1-->
         true-hello world-101-101-10
       </cmp-a>

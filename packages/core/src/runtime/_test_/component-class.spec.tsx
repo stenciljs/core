@@ -1,3 +1,6 @@
+// @vitest-environment stencil
+
+import { expect, describe, it } from '@stencil/vitest';
 import { Component, Element } from '@stencil/core';
 
 describe('component class only', () => {

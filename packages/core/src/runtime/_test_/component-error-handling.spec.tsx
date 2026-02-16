@@ -1,4 +1,5 @@
 import { Component, ComponentInterface, h, Prop, setErrorHandler } from '@stencil/core';
+import { expect, describe, it, vi } from '@stencil/vitest';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('component error handling', () => {
@@ -55,7 +56,7 @@ describe('component error handling', () => {
       html: ``,
     });
 
-    const handler = jest.fn();
+    const handler = vi.fn();
     doc.addEventListener('componentError', handler);
     const cmpA = document.createElement('cmp-a') as any;
     doc.body.appendChild(cmpA);

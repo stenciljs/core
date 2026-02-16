@@ -1,5 +1,6 @@
 import { Component, Element, h, Host, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('attribute', () => {
   it('multi-word attribute', async () => {

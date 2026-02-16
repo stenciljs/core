@@ -1,4 +1,5 @@
 import { Component, h, Host } from '@stencil/core';
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 
 import { patchPseudoShadowDom, patchSlottedNode } from '../dom-extras';
@@ -133,11 +134,13 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
 
   it('patches parentNode of slotted nodes', async () => {
     specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
-    expect(specPage.root.children[0].parentNode.tagName).toBe('CMP-A');
-    expect(specPage.root.children[1].parentNode.tagName).toBe('CMP-A');
-    expect(specPage.root.childNodes[0].parentNode.tagName).toBe('CMP-A');
-    expect(specPage.root.childNodes[1].parentNode.tagName).toBe('CMP-A');
-    expect(specPage.root.children[0].__parentNode.tagName).toBe('DIV');
-    expect(specPage.root.childNodes[0].__parentNode.tagName).toBe('DIV');
+    expect((specPage.root.children[0].parentNode as HTMLElement).tagName).toBe('CMP-A');
+    expect((specPage.root.children[1].parentNode as HTMLElement).tagName).toBe('CMP-A');
+    expect((specPage.root.childNodes[0].parentNode as HTMLElement).tagName).toBe('CMP-A');
+    expect((specPage.root.childNodes[1].parentNode as HTMLElement).tagName).toBe('CMP-A');
+    // @ts-ignore
+    expect((specPage.root.children[0].__parentNode as HTMLElement).tagName).toBe('DIV');
+    // @ts-ignore
+    expect((specPage.root.childNodes[0].__parentNode as HTMLElement).tagName).toBe('DIV');
   });
 });

@@ -1,5 +1,6 @@
 import { Component, Element, Method } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('element', () => {
   it('allows the class to be set', async () => {

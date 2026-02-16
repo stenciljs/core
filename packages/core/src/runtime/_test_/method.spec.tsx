@@ -1,5 +1,6 @@
 import { Component, Method, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('method', () => {
   it('call method', async () => {
@@ -14,7 +15,7 @@ describe('method', () => {
 
       @Method()
       promiseMethod(val: string) {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
           this.someState = val;
           resolve();
         });
@@ -31,7 +32,9 @@ describe('method', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>default</cmp-a>
+      <cmp-a>
+        default
+      </cmp-a>
     `);
 
     await root.asyncMethod('async');

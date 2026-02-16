@@ -1,5 +1,6 @@
 import { Component, Element, h, Prop, PropSerialize, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 import { withSilentWarn } from '../../testing/testing-utils';
 
@@ -38,8 +39,8 @@ describe('attribute serialization', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
-    jest.spyOn(rootInstance, 'method2');
+    vi.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method2');
 
     expect(rootInstance.method1Called).toBe(1);
     expect(rootInstance.method2Called).toBe(1);
@@ -117,7 +118,7 @@ describe('attribute serialization', () => {
 
     await waitForChanges();
     expect(rootInstance.watchCalled).toBe(6);
-    jest.spyOn(rootInstance, 'method');
+    vi.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.prop = 1000;
@@ -157,8 +158,8 @@ describe('attribute serialization', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
-    jest.spyOn(rootInstance, 'method2');
+    vi.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method2');
 
     // set same values, serializer should not be called ('cos the prop is reflected)
     root.prop1 = 1;
@@ -202,7 +203,7 @@ describe('attribute serialization', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method');
+    vi.spyOn(rootInstance, 'method');
 
     expect(rootInstance.method).toHaveBeenCalledTimes(0);
     expect(root.hasAttribute('bool-prop')).toBe(false);

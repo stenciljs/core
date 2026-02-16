@@ -1,6 +1,6 @@
 import { Component, Element, forceUpdate, getRenderingRef, h, Host, Prop, setErrorHandler, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import { withSilentWarn } from '../../testing/testing-utils';
 
 describe('render-vdom', () => {
@@ -410,7 +410,11 @@ describe('render-vdom', () => {
     );
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>true - 2</div></cmp-a>
+      <cmp-a>
+        <div>
+          true - 2
+        </div>
+      </cmp-a>
     `);
   });
 
@@ -438,7 +442,11 @@ describe('render-vdom', () => {
     );
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>true - 1</div></cmp-a>
+      <cmp-a>
+        <div>
+          true - 1
+        </div>
+      </cmp-a>
     `);
   });
 
@@ -457,21 +465,33 @@ describe('render-vdom', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello VDOM</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello VDOM
+        </div>
+      </cmp-a>
     `);
 
     root.excitement = `!`;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello VDOM!</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello VDOM!
+        </div>
+      </cmp-a>
     `);
 
     root.excitement = `!!`;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello VDOM!!</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello VDOM!!
+        </div>
+      </cmp-a>
     `);
   });
 
@@ -498,7 +518,11 @@ describe('render-vdom', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello
+        </div>
+      </cmp-a>
     `);
 
     expect(didError).toBe(false);
@@ -506,7 +530,11 @@ describe('render-vdom', () => {
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello
+        </div>
+      </cmp-a>
     `);
     expect(didError).toBe(true);
   });
@@ -525,7 +553,11 @@ describe('render-vdom', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a><div>Hello VDOM</div></cmp-a>
+      <cmp-a>
+        <div>
+          Hello VDOM
+        </div>
+      </cmp-a>
     `);
   });
 
@@ -549,8 +581,9 @@ describe('render-vdom', () => {
 
     expect(root).toEqualHtml(`
       <cmp-a class="hydrated">
-        <!---->
-        <a href="#">Hello</a>
+        <a href="#">
+          Hello
+        </a>
       </cmp-a>
     `);
   });
@@ -571,7 +604,13 @@ describe('render-vdom', () => {
     await waitForChanges();
 
     expect(body).toEqualHtml(`
-      <cmp-a><div>Hello VDOM</div></cmp-a>
+      <body>
+        <cmp-a>
+          <div>
+            Hello VDOM
+          </div>
+        </cmp-a>
+      </body>
     `);
   });
 
@@ -597,7 +636,13 @@ describe('render-vdom', () => {
     });
 
     expect(body).toEqualHtml(`
-      <cmp-a><div class="class1 class2 class3">Hello VDOM</div></cmp-a>
+      <body>
+        <cmp-a>
+          <div class="class1 class2 class3">
+            Hello VDOM
+          </div>
+        </cmp-a>
+      </body>
     `);
   });
 
@@ -659,10 +704,16 @@ describe('render-vdom', () => {
       <cmp-a>
         <div>
           Text0
-          <h1>H1</h1>
-          <h2>h2</h2>
+          <h1>
+            H1
+          </h1>
+          <h2>
+            h2
+          </h2>
           Outside
-          <h3>h3</h3>
+          <h3>
+            h3
+          </h3>
         </div>
       </cmp-a>
     `);
@@ -715,7 +766,9 @@ describe('render-vdom', () => {
       });
       expect(root).toEqualHtml(`
         <cmp-a>
-          <p>MyFunctionalCmp</p>
+          <p>
+            MyFunctionalCmp
+          </p>
         </cmp-a>
       `);
     });
@@ -744,14 +797,18 @@ describe('render-vdom', () => {
       });
       expect(root).toEqualHtml(`
         <cmp-a>
-          <p>0</p>
+          <p>
+            0
+          </p>
         </cmp-a>
       `);
       root.querySelector('p').click();
       await waitForChanges();
       expect(root).toEqualHtml(`
         <cmp-a>
-          <p>1</p>
+          <p>
+            1
+          </p>
         </cmp-a>
       `);
     });
@@ -824,12 +881,12 @@ describe('render-vdom', () => {
         <cmp-a>
           <button type=\"button\"></button>
           <button type=\"submit\"></button>
-          <input type=\"text\" value=\"\">
+          <input type=\"text\" value>
           <input type=\"number\">
           <input type=\"password\">
           <input type=\"email\">
           <input type=\"date\">
-          <input list=\"my-list\" />
+          <input list=\"my-list\">
         </cmp-a>
       `);
     });
@@ -855,18 +912,18 @@ describe('render-vdom', () => {
         includeAnnotations: true,
       });
       expect(root).toEqualHtml(`
-    <cmp-a class="hydrated sc-cmp-a-h">
-      <svg class="sc-cmp-a"></svg>
-    </cmp-a>
-    `);
+        <cmp-a class="sc-cmp-a-h hydrated">
+          <svg class="sc-cmp-a"></svg>
+        </cmp-a>
+      `);
 
       root.querySelector('svg').classList.add('manual');
       root.addClass = true;
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-      <cmp-a class="hydrated sc-cmp-a-h">
-        <svg class="manual hello sc-cmp-a"></svg>
+      <cmp-a class="sc-cmp-a-h hydrated">
+        <svg class="sc-cmp-a manual hello"></svg>
       </cmp-a>
       `);
     });
@@ -945,35 +1002,39 @@ describe('render-vdom', () => {
         html: `<cmp-a></cmp-a>`,
       });
 
-      for (const el of Array.from(root.querySelectorAll('.is-html'))) {
-        expect(el.namespaceURI).toEqual('http://www.w3.org/1999/xhtml');
+      for (const el of Array.from(root.querySelectorAll<HTMLElement>('.is-html'))) {
+        expect((el as HTMLElement).namespaceURI).toEqual('http://www.w3.org/1999/xhtml');
       }
-      for (const el of Array.from(root.querySelectorAll('.is-svg'))) {
-        expect(el.namespaceURI).toEqual('http://www.w3.org/2000/svg');
+      for (const el of Array.from(root.querySelectorAll<SVGElement>('.is-svg'))) {
+        expect((el as SVGElement).namespaceURI).toEqual('http://www.w3.org/2000/svg');
       }
 
       expect(root).toEqualHtml(`
       <cmp-a>
-        <svg class=\"is-svg\">
-          <foreignObject class=\"is-svg\">
-            <div class=\"is-html\">
+        <svg class="is-svg">
+          <foreignobject class="is-svg">
+            <div class="is-html">
               hello
             </div>
-            <svg class=\"is-svg\">
-              <feGaussianBlur class=\"is-svg\"></feGaussianBlur>
-              <foreignObject class=\"is-svg\">
-                <foreignobject class=\"is-html\"></foreignobject>
-                <div class=\"is-html\">
+            <svg class="is-svg">
+              <fegaussianblur class="is-svg"></fegaussianblur>
+              <foreignobject class="is-svg">
+                <foreignobject class="is-html"></foreignobject>
+                <div class="is-html">
                   Still outside svg
                 </div>
-              </foreignObject>
+              </foreignobject>
             </svg>
-            <fegaussianblur class=\"is-html\">
+            <fegaussianblur class="is-html">
               bye
             </fegaussianblur>
-          </foreignObject>
-          <text class=\"is-svg\">Hello</text>
-          <text class=\"is-svg\">Bye</text>
+          </foreignobject>
+          <text class="is-svg">
+            Hello
+          </text>
+          <text class="is-svg">
+            Bye
+          </text>
         </svg>
       </cmp-a>`);
     });
@@ -995,7 +1056,7 @@ describe('render-vdom', () => {
 
       expect(root).toEqualHtml(`
         <cmp-a>
-          <input max=\"10\" min=\"0\" value=\"5\">
+          <input min="0" max="10" value="5">
         </cmp-a>`);
     });
   });

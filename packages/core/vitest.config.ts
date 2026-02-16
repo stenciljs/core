@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [stencilVitestPlugin()],
   resolve: {
     alias: {
-      'virtual:app-data': resolve(__dirname, 'src/app-data/index.ts'),
+      'virtual:app-data': resolve(__dirname, 'src/testing/app-data.ts'),
       'virtual:app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
       'virtual:platform': resolve(__dirname, 'src/testing/platform/index.ts'),
       // Ensure transpiled components resolve to source (same plt instance)

@@ -1,5 +1,6 @@
 import { Component, h, Listen, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('vdom-relocation', () => {
   it('vdom-relocation', async () => {
@@ -46,9 +47,15 @@ describe('vdom-relocation', () => {
 <my-root>
   <my-child>
     <div class=\"wrapper\">
-      <div>1</div>
-      <div>2</div>
-      <div>3</div>
+      <div>
+        1
+      </div>
+      <div>
+        2
+      </div>
+      <div>
+        3
+      </div>
     </div>
   </my-child>
 </my-root>`);
@@ -60,10 +67,18 @@ describe('vdom-relocation', () => {
   <my-root>
     <my-child>
       <div class=\"wrapper\">
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>4</div>
+        <div>
+          1
+        </div>
+        <div>
+          2
+        </div>
+        <div>
+          3
+        </div>
+        <div>
+          4
+        </div>
       </div>
     </my-child>
   </my-root>`);

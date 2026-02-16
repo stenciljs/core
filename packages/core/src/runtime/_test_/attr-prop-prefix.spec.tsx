@@ -1,5 +1,20 @@
+import { expect, describe, it } from '@stencil/vitest';
 import { Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+
+// Augment JSX to allow attr:* and prop:* prefixed attributes
+declare module '@stencil/core' {
+  export namespace JSXBase {
+    interface HTMLAttributes<T = HTMLElement> {
+      [key: `attr:${string}`]: any;
+      [key: `prop:${string}`]: any;
+    }
+    interface InputHTMLAttributes<T = HTMLInputElement> {
+      [key: `attr:${string}`]: any;
+      [key: `prop:${string}`]: any;
+    }
+  }
+}
 
 describe('attr: and prop: prefix', () => {
   describe('attr: prefix', () => {
@@ -151,7 +166,7 @@ describe('attr: and prop: prefix', () => {
         html: `<cmp-parent></cmp-parent>`,
       });
 
-      const child = root.querySelector('cmp-child');
+      const child = root.querySelector<any>('cmp-child');
       // Should use kebab-case attribute name from metadata
       expect(child.getAttribute('overlay-index')).toBe('42');
       expect(child.overlayIndex).toBe(42);
@@ -373,7 +388,7 @@ describe('attr: and prop: prefix', () => {
         html: `<cmp-parent></cmp-parent>`,
       });
 
-      const child = root.querySelector('cmp-child');
+      const child = root.querySelector<any>('cmp-child');
       expect(child.normalProp).toBe('via-normal');
       expect(child.complexData).toEqual({ test: 'data' });
       expect(child.textContent.trim()).toBe('via-normal - {"test":"data"}');

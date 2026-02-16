@@ -1,6 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import { patchPseudoShadowDom } from '../dom-extras';
 
 describe("hydrated components' slotted node order", () => {
@@ -42,17 +42,17 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.6.-->
       <main c-id="1.0.0.0">
         <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn="">
+        <p c-id="0.1" s-sn>
           slotted item 1
         </p>
         <!--c.0.2-->
         <!-- a comment -->
-        <p c-id="0.3" s-sn="">
+        <p c-id="0.3" s-sn>
           slotted item 2
         </p>
         <!--t.0.4-->
         A text node
-        <p c-id="0.5" s-sn="">
+        <p c-id="0.5" s-sn>
           slotted item 3
         </p>
         <!--c.0.6-->
@@ -135,7 +135,7 @@ describe("hydrated components' slotted node order", () => {
       <main c-id="1.0.0.0">
         <aside c-id="1.1.1.0">
           <!--s.1.2.2.0.second-->
-          <p c-id="0.3" slot="second">
+          <p slot="second" c-id="0.3">
             second slot
           </p>
         </aside>
@@ -157,16 +157,18 @@ describe("hydrated components' slotted node order", () => {
       hydrateClientSide: true,
     });
 
-    expect(clientHydrated.root.outerHTML).toEqualHtml(`
-      <cmp-a class="hydrated"><template shadowrootmode="open">
-        <main>
-          <aside>
-            <slot name="second"></slot>
-          </aside>
-          <section>
-            <slot></slot>
-          </section>
-        </main></template>
+    expect(clientHydrated.root).toEqualHtml(`
+      <cmp-a class="hydrated">
+        <mock:shadow-root>
+          <main>
+            <aside>
+              <slot name="second"></slot>
+            </aside>
+            <section>
+              <slot></slot>
+            </section>
+          </main>
+        </mock:shadow-root>
         <!-- comment node -->
         Default slot
         <p slot="second">
@@ -230,7 +232,7 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.5.-->
       <main c-id="1.0.0.0">
         <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn="">
+        <p c-id="0.1" s-sn>
           slotted item 1a
         </p>
         <!--c.0.2-->
@@ -239,7 +241,7 @@ describe("hydrated components' slotted node order", () => {
         A text node
         <!--c.0.4-->
         <!-- another comment a-->
-        <cmp-b c-id="0.5" class="hydrated" s-id="2" s-sn="">
+        <cmp-b class="hydrated" s-id="2" c-id="0.5" s-sn>
           <!--r.2-->
           <!--o.0.6.-->
           <!--o.0.7.-->
@@ -247,7 +249,7 @@ describe("hydrated components' slotted node order", () => {
           <!--o.0.9.-->
           <section c-id="2.0.0.0">
             <!--s.2.1.1.0.-->
-            <p c-id="0.6" s-sn="">
+            <p c-id="0.6" s-sn>
               slotted item 1b
             </p>
             <!--c.0.7-->
@@ -312,17 +314,17 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.6.c-->
       <main c-id="1.0.0.0">
         <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn="">
+        <p c-id="0.1" s-sn>
           slotted item 1
         </p>
         <!--c.0.2-->
         <!-- a comment -->
-        <p c-id="0.3" s-sn="">
+        <p c-id="0.3" s-sn>
           slotted item 2
         </p>
         <!--t.0.4-->
         A text node
-        <p c-id="0.5" s-sn="">
+        <p c-id="0.5" s-sn>
           slotted item 3
         </p>
         <!--c.0.6-->
@@ -339,10 +341,10 @@ describe("hydrated components' slotted node order", () => {
     // patches this element's prototype in the same way we patch all elements in the browser
     patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
 
-    expect(clientHydrated.root.outerHTML).toEqualHtml(`
+    expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <main class="sc-cmp-a sc-cmp-a-s">
+        <main class="sc-cmp-a-s sc-cmp-a">
           <!--s.1.1.1.0.-->
           <p>
             slotted item 1
@@ -407,7 +409,7 @@ describe("hydrated components' slotted node order", () => {
       <main c-id="1.0.0.0">
         <aside c-id="1.1.1.0">
           <!--s.1.2.2.0.second-->
-          <p c-id="0.3" slot="second">
+          <p slot="second" c-id="0.3">
             second slot
           </p>
         </aside>
@@ -486,7 +488,7 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.5-->
       <main c-id="1.0.0.0">
         <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn="">
+        <p c-id="0.1" s-sn>
           slotted item 1a
         </p>
         <!--c.0.2-->
@@ -495,7 +497,7 @@ describe("hydrated components' slotted node order", () => {
         A text node
         <!--c.0.4-->
         <!-- another comment a-->
-        <cmp-b c-id="0.5" class="hydrated" s-id="2" s-sn="">
+        <cmp-b class="hydrated" s-id="2" c-id="0.5" s-sn>
           <!--r.2-->
           <!--o.0.6-->
           <!--o.0.7-->
@@ -503,7 +505,7 @@ describe("hydrated components' slotted node order", () => {
           <!--o.0.9-->
           <section c-id="2.0.0.0">
             <!--s.2.1.1.0.-->
-            <p c-id="0.6" s-sn="">
+            <p c-id="0.6" s-sn>
               slotted item 1b
             </p>
             <!--c.0.7-->

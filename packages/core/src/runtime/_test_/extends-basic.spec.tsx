@@ -1,13 +1,6 @@
 import { Component, h, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      [elemName: string]: any;
-    }
-  }
-}
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('extends', () => {
   it('renders a component that extends from a base class', async () => {
@@ -27,7 +20,9 @@ describe('extends', () => {
     });
 
     expect(page.root).toEqualHtml(`
-      <cmp-a>base</cmp-a>
+      <cmp-a>
+        base
+      </cmp-a>
     `);
   });
 

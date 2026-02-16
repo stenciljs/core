@@ -1,5 +1,6 @@
 import { Component, Event, EventEmitter, Listen, resolveVar, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('listen', () => {
   it('listen to click on host, from elm.click()', async () => {
@@ -23,21 +24,27 @@ describe('listen', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>0</cmp-a>
+      <cmp-a>
+        0
+      </cmp-a>
     `);
 
     root.click();
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
 
     root.click();
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
   });
 
@@ -83,43 +90,57 @@ describe('listen', () => {
     const other = doc.querySelector('other') as any;
 
     expect(root).toEqualHtml(`
-      <cmp-a>0,0,0,0</cmp-a>
+      <cmp-a>
+        0,0,0,0
+      </cmp-a>
     `);
 
     root.click();
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,1,1,1</cmp-a>
+      <cmp-a>
+        1,1,1,1
+      </cmp-a>
     `);
 
     parent.click();
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,2,2,2</cmp-a>
+      <cmp-a>
+        1,2,2,2
+      </cmp-a>
     `);
 
     other.click();
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,3,3,3</cmp-a>
+      <cmp-a>
+        1,3,3,3
+      </cmp-a>
     `);
 
     body.click();
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,4,4,4</cmp-a>
+      <cmp-a>
+        1,4,4,4
+      </cmp-a>
     `);
 
     doc.dispatchEvent(new CustomEvent('click', { bubbles: true }));
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,4,5,5</cmp-a>
+      <cmp-a>
+        1,4,5,5
+      </cmp-a>
     `);
 
     win.dispatchEvent(new CustomEvent('click', { bubbles: true }));
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>1,4,5,6</cmp-a>
+      <cmp-a>
+        1,4,5,6
+      </cmp-a>
     `);
   });
 
@@ -197,9 +218,13 @@ describe('listen', () => {
     expect(log).toEqual(
       `connectedCallback event0 event1 event2 event3 event4 event5 componentWillLoad event6 componentDidLoad `,
     );
-    expect(a).toEqualHtml(`<cmp-a>1 7</cmp-a>`);
+    expect(a).toEqualHtml(`<cmp-a>
+      1 7
+    </cmp-a>`);
     await waitForChanges();
-    expect(a).toEqualHtml(`<cmp-a>1 7</cmp-a>`);
+    expect(a).toEqualHtml(`<cmp-a>
+      1 7
+    </cmp-a>`);
   });
 
   it('disconnects target listeners when element is not connected to DOM', async () => {
@@ -220,8 +245,8 @@ describe('listen', () => {
       components: [CmpA],
     });
 
-    jest.spyOn(doc, 'addEventListener');
-    jest.spyOn(doc, 'removeEventListener');
+    vi.spyOn(doc, 'addEventListener');
+    vi.spyOn(doc, 'removeEventListener');
 
     doc.createElement('cmp-a');
     await waitForChanges();
@@ -230,8 +255,8 @@ describe('listen', () => {
     expect(events).toEqual(0);
 
     // no event listeners have been added as the element is not connected to the DOM
-    expect(doc.addEventListener.mock.calls.length).toBe(0);
-    expect(doc.removeEventListener.mock.calls.length).toBe(0);
+    expect(doc.addEventListener).toHaveBeenCalledTimes(0);
+    expect(doc.removeEventListener).toHaveBeenCalledTimes(0);
   });
 
   describe('resolveVar', () => {
@@ -258,14 +283,18 @@ describe('listen', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       root.dispatchEvent(new CustomEvent('myEvent', { bubbles: true }));
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
 
@@ -294,14 +323,18 @@ describe('listen', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       root.dispatchEvent(new CustomEvent('myEvent', { bubbles: true }));
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
   });

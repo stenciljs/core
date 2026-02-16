@@ -1,5 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate no encapsulation', () => {
   it('no script annotations', async () => {
@@ -21,7 +22,9 @@ describe('hydrate no encapsulation', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <script c-id="1.0.0.0">console.log('script')</script>
+        <script c-id="1.0.0.0">
+          console.log('script')
+        </script>
       </cmp-a>
     `);
   });
@@ -45,7 +48,7 @@ describe('hydrate no encapsulation', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <p c-id="1.0.0.0" class="hi">
+        <p class="hi" c-id="1.0.0.0">
           <!--t.1.1.1.0-->
           Hello
         </p>
@@ -447,7 +450,7 @@ describe('hydrate no encapsulation', () => {
           <!--o.1.5-->
           <header c-id="2.0.0.0"></header>
           <!--s.2.1.0.1.top-->
-          <div c-id="1.3.1.1" slot="top">
+          <div slot="top" c-id="1.3.1.1">
             <!--t.1.4.2.0-->
             top light-dom
           </div>
@@ -455,7 +458,7 @@ describe('hydrate no encapsulation', () => {
           <!--t.1.5.1.2-->
           middle light-dom
           <!--s.2.3.0.3.bottom-->
-          <div c-id="1.1.1.0" slot="bottom">
+          <div slot="bottom" c-id="1.1.1.0">
             <!--t.1.2.2.0-->
             bottom light-dom
           </div>

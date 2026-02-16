@@ -1,5 +1,6 @@
 import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 function Clamp(lowerBound: number, upperBound: number): any {
   const clamp = (value: number) => Math.max(lowerBound, Math.min(value, upperBound));
@@ -36,7 +37,9 @@ describe('prop', () => {
 
     expect(root).toEqualHtml(`
       <cmp-a value="#005a00">
-        <code>#005a00</code>
+        <code>
+          #005a00
+        </code>
       </cmp-a>
     `);
   });
@@ -113,7 +116,9 @@ describe('prop', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>false-true-string-88-accessor-5</cmp-a>
+      <cmp-a>
+        false-true-string-88-accessor-5
+      </cmp-a>
     `);
 
     expect(root.textContent).toBe('false-true-string-88-accessor-5');
@@ -149,7 +154,9 @@ describe('prop', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>initial-first-initial-second-initial-third</cmp-a>
+      <cmp-a>
+        initial-first-initial-second-initial-third
+      </cmp-a>
     `);
     expect(shouldUpdateCalls).toHaveLength(0);
 
@@ -167,7 +174,9 @@ describe('prop', () => {
 
     // All values should be rendered
     expect(root).toEqualHtml(`
-      <cmp-a>new-first-new-second-new-third</cmp-a>
+      <cmp-a>
+        new-first-new-second-new-third
+      </cmp-a>
     `);
   });
 
@@ -193,23 +202,31 @@ describe('prop', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
 
     root.num++;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
     root.num++;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
     root.num++;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>4</cmp-a>
+      <cmp-a>
+        4
+      </cmp-a>
     `);
   });
 
@@ -235,23 +252,31 @@ describe('prop', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
 
     root.num = 2;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
     root.num = 3;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
     root.num = 4;
     await waitForChanges();
     expect(root).toEqualHtml(`
-      <cmp-a>4</cmp-a>
+      <cmp-a>
+        4
+      </cmp-a>
     `);
   });
 
@@ -282,10 +307,14 @@ describe('prop', () => {
     });
 
     expect(root).toEqualHtml(`
-      <simple-demo message='{"text": "Hello World"}' message-any='{"text": "Hello World"}'>
+      <simple-demo message="{"text": "Hello World"}" message-any="{"text": "Hello World"}">
         <div>
-          <div>Hello World</div>
-          <div>Hello World</div>
+          <div>
+            Hello World
+          </div>
+          <div>
+            Hello World
+          </div>
         </div>
       </simple-demo>
     `);

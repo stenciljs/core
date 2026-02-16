@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate style element', () => {
   it('style element text', async () => {
@@ -17,7 +18,9 @@ describe('hydrate style element', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <style c-id="1.0.0.0">div { color: red; }</style>
+        <style c-id="1.0.0.0">
+          div { color: red; }
+        </style>
       </cmp-a>
     `);
 
@@ -30,7 +33,9 @@ describe('hydrate style element', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated">
         <!--r.1-->
-        <style>div { color: red; }</style>
+        <style>
+          div { color: red; }
+        </style>
       </cmp-a>
     `);
   });

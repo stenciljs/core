@@ -1,5 +1,6 @@
 import { Component, Element, forceUpdate, h, Host, Method, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('lifecycle sync', () => {
   it('should fire connected/disconnected when removed', async () => {
@@ -68,7 +69,6 @@ describe('lifecycle sync', () => {
     });
     expect(root).toEqualHtml(`
       <cmp-b class="hydrated">
-        <!---->
         <div>
           <cmp-a class="hydrated"></cmp-a>
         </div>

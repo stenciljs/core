@@ -1,5 +1,6 @@
 import { Component, Event, EventEmitter, h, MixedInCtor, Mixin, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('mixin', () => {
   it('can call a constructor with args', async () => {
@@ -59,7 +60,9 @@ describe('mixin', () => {
 
     expect(root).toEqualHtml(`
       <mixin-test>
-        <code>ABC</code>
+        <code>
+          ABC
+        </code>
       </mixin-test>
     `);
   });

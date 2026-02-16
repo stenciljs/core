@@ -1,5 +1,6 @@
 import { Component, h, Host, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('scoped', () => {
   it('should add scoped classes', async () => {
@@ -39,9 +40,8 @@ describe('scoped', () => {
     });
 
     expect(page.root).toEqualHtml(`
-    <cmp-a class="hydrated sc-cmp-a-h">
-      <cmp-b class="hydrated sc-cmp-a sc-cmp-b-h">
-        <!---->
+    <cmp-a class="sc-cmp-a-h hydrated">
+      <cmp-b class="sc-cmp-a sc-cmp-b-h hydrated">
         <div class="sc-cmp-b sc-cmp-b-s">
           <span class="sc-cmp-a">
             Hola
@@ -82,10 +82,11 @@ describe('scoped', () => {
     });
 
     expect(page.root).toEqualHtml(`
-      <cmp-b class="hydrated sc-cmp-b-h">
-        <!---->
+      <cmp-b class="sc-cmp-b-h hydrated">
         <div class="sc-cmp-b">
-          <div class="sc-cmp-b sc-cmp-b-s">hello</div>
+          <div class="sc-cmp-b sc-cmp-b-s">
+            hello
+          </div>
         </div>
       </cmp-b>
     `);
@@ -95,8 +96,7 @@ describe('scoped', () => {
     await page.waitForChanges();
 
     expect(page.root).toEqualHtml(`
-      <cmp-b class="hydrated sc-cmp-b-h">
-        <!---->
+      <cmp-b class="sc-cmp-b-h hydrated">
         <!--s-nt-hello-->
         <div class="sc-cmp-b">
           <div class="sc-cmp-b"></div>

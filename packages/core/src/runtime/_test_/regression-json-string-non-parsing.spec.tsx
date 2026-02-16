@@ -1,5 +1,6 @@
 import { Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 /**
  * Regression tests for:

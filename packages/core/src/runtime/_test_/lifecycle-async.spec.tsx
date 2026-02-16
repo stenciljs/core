@@ -1,5 +1,6 @@
 import { Component, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('lifecycle async', () => {
   it('wait for componentWillLoad', async () => {
@@ -43,7 +44,7 @@ describe('lifecycle async', () => {
       }
 
       componentWillLoad() {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
           setTimeout(() => {
             log += ' componentWillLoad';
             resolve();
@@ -56,7 +57,7 @@ describe('lifecycle async', () => {
       }
 
       componentWillUpdate() {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
           setTimeout(() => {
             log += ' componentWillUpdate';
             resolve();
@@ -69,7 +70,7 @@ describe('lifecycle async', () => {
       }
 
       componentWillRender() {
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
           setTimeout(() => {
             log += ' componentWillRender';
             resolve();
@@ -107,7 +108,7 @@ describe('lifecycle async', () => {
   });
 
   it('windows emits event', async () => {
-    const mockEvent = jest.fn();
+    const mockEvent = vi.fn();
     @Component({ tag: 'cmp-a' })
     class CmpA {
       componentWillLoad() {

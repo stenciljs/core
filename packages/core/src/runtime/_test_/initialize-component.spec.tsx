@@ -1,7 +1,7 @@
 import { getHostRef } from 'virtual:platform';
 import { Component } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import { HOST_FLAGS } from '../../utils';
 
 describe('initialize component', () => {

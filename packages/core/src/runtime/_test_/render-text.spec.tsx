@@ -1,5 +1,6 @@
 import { Component, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('render-text', () => {
   @Component({ tag: 'cmp-a' })
@@ -16,7 +17,11 @@ describe('render-text', () => {
     });
 
     expect(body).toEqualHtml(`
-      <cmp-a>Hello World</cmp-a>
+      <body>
+        <cmp-a>
+          Hello World
+        </cmp-a>
+      </body>
     `);
   });
 
@@ -36,11 +41,13 @@ describe('render-text', () => {
     await waitForChanges();
 
     expect(body).toEqualHtml(`
-      <cmp-a>
-        <mock:shadow-root>
-          Hello World
-        </mock:shadow-root>
-      </cmp-a>
+      <body>
+        <cmp-a>
+          <mock:shadow-root>
+            Hello World
+          </mock:shadow-root>
+        </cmp-a>
+      </body>
     `);
   });
 
@@ -53,7 +60,11 @@ describe('render-text', () => {
     await waitForChanges();
 
     expect(body).toEqualHtml(`
-      <cmp-a>Hello World</cmp-a>
+      <body>
+        <cmp-a>
+          Hello World
+        </cmp-a>
+      </body>
     `);
   });
 
@@ -65,9 +76,17 @@ describe('render-text', () => {
     await page.setContent(`<cmp-a></cmp-a>`);
 
     expect(page.body).toEqualHtml(`
-      <cmp-a>Hello World</cmp-a>
+      <body>
+        <cmp-a>
+          Hello World
+        </cmp-a>
+      </body>
     `);
-    expect(page.root).toEqualHtml(`<cmp-a>Hello World</cmp-a>`);
+    expect(page.root).toEqualHtml(`
+      <cmp-a>
+        Hello World
+      </cmp-a>
+    `);
     expect(page.rootInstance).not.toBeUndefined();
     expect(page.rootInstance).not.toBeNull();
   });
@@ -87,21 +106,27 @@ describe('render-text', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>Hello World</cmp-a>
+      <cmp-a>
+        Hello World
+      </cmp-a>
     `);
 
     root.excitement = `!`;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a>Hello World!</cmp-a>
+      <cmp-a>
+        Hello World!
+      </cmp-a>
     `);
 
     root.excitement = `!!`;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a>Hello World!!</cmp-a>
+      <cmp-a>
+        Hello World!!
+      </cmp-a>
     `);
   });
 });

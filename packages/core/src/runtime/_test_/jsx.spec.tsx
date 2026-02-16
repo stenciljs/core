@@ -1,6 +1,6 @@
 import { Component, Fragment, h, Host, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import { FunctionalComponent } from '@stencil/core';
 
 describe('jsx', () => {

@@ -1,5 +1,6 @@
 import { Component, h, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('update-component', () => {
   describe('scheduleUpdate - initial load with queueMicrotask', () => {
@@ -15,7 +16,7 @@ describe('update-component', () => {
     }
 
     it('should use queueMicrotask for initial load dispatch', async () => {
-      const queueMicrotaskSpy = jest.spyOn(global, 'queueMicrotask');
+      const queueMicrotaskSpy = vi.spyOn(global, 'queueMicrotask');
 
       const page = await newSpecPage({
         components: [TestCmp],
@@ -30,7 +31,7 @@ describe('update-component', () => {
 
     it('should not interfere with following render dispatch events', async () => {
       let componentWillRender = 0;
-      const queueMicrotaskSpy = jest.spyOn(global, 'queueMicrotask');
+      const queueMicrotaskSpy = vi.spyOn(global, 'queueMicrotask');
 
       @Component({
         tag: 'update-test-cmp',

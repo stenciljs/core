@@ -1,5 +1,6 @@
 import { Component, h, Host, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hostData', () => {
   it('render hostData() attributes', async () => {
@@ -22,14 +23,14 @@ describe('hostData', () => {
       html: `<cmp-a></cmp-a>`,
     });
     expect(root).toEqualHtml(`
-      <cmp-a role="alert" value="somevalue"></cmp-a>
+      <cmp-a value="somevalue" role="alert"></cmp-a>
     `);
 
     root.hidden = true;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a role="alert" aria-hidden="true" value="somevalue" hidden></cmp-a>
+      <cmp-a value="somevalue" role="alert" aria-hidden="true" hidden></cmp-a>
     `);
   });
 
@@ -48,14 +49,14 @@ describe('hostData', () => {
       html: `<cmp-a></cmp-a>`,
     });
     expect(root).toEqualHtml(`
-      <cmp-a role="alert" value="hello"></cmp-a>
+      <cmp-a value="hello" role="alert"></cmp-a>
     `);
 
     root.hidden = true;
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-      <cmp-a role="alert" value="hello" aria-hidden="true" hidden></cmp-a>
+      <cmp-a value="hello" role="alert" aria-hidden="true" hidden></cmp-a>
     `);
   });
 
@@ -88,14 +89,28 @@ describe('hostData', () => {
       html: `<cmp-a></cmp-a>`,
     });
     expect(root).toEqualHtml(`
-      <cmp-a><span>0</span><cmp-b>0</cmp-b></cmp-a>
+      <cmp-a>
+        <span>
+          0
+        </span>
+        <cmp-b>
+          0
+        </cmp-b>
+      </cmp-a>
     `);
 
     (doc.querySelector('cmp-b') as any).click();
     await waitForChanges();
 
     expect(root).toEqualHtml(`
-    <cmp-a><span>1</span><cmp-b>1</cmp-b></cmp-a>
+      <cmp-a>
+        <span>
+          1
+        </span>
+        <cmp-b>
+          1
+        </cmp-b>
+      </cmp-a>
     `);
   });
 });

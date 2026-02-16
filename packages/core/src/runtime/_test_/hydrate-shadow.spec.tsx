@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate, shadow', () => {
   it('light dom parent, nested shadow slot', async () => {
@@ -34,7 +35,7 @@ describe('hydrate, shadow', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <cmp-b c-id="1.0.0.0" class="hydrated" s-id="2">
+        <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <!--o.1.1.-->
           <article c-id="2.0.0.0">
@@ -118,7 +119,7 @@ describe('hydrate, shadow', () => {
             </header>
             <div c-id="1.5.2.1">
               <!--s.1.6.3.0.-->
-              <div c-id="0.2" s-sn="">
+              <div c-id="0.2" s-sn>
                 <img>
                 <p>
                   LightDom1

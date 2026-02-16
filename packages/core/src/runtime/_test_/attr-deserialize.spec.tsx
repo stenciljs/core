@@ -1,3 +1,4 @@
+import { expect, describe, it, vi } from '@stencil/vitest';
 import { AttrDeserialize, Component, Element, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
@@ -39,8 +40,8 @@ describe('attribute deserialization', () => {
       components: [CmpA],
       html: `<cmp-a prop-1="123"></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
-    jest.spyOn(rootInstance, 'method2');
+    vi.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method2');
 
     // spies were wired up after initial load
     expect(rootInstance.method1Called).toBe(1);
@@ -115,7 +116,7 @@ describe('attribute deserialization', () => {
     );
 
     expect(rootInstance.watchCalled).toBe(5);
-    jest.spyOn(rootInstance, 'method');
+    vi.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.setAttribute('prop', '1000');
@@ -153,8 +154,8 @@ describe('attribute deserialization', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
-    jest.spyOn(rootInstance, 'method2');
+    vi.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method2');
 
     // set same values, deserializer should not be called ('cos the prop is reflected)
     root.setAttribute('prop-1', '1');

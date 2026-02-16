@@ -1,3 +1,4 @@
+import { modeResolutionChain } from './testing-constants';
 export { Build } from './testing-build';
 export { modeResolutionChain, styles } from './testing-constants';
 export { getHostRef, registerHost, registerInstance } from './testing-host-ref';
@@ -21,6 +22,14 @@ export { flushAll, flushLoadModule, flushQueue, loadModule, nextTick, readTask, 
 export { win } from './testing-window';
 export { Env } from 'virtual:app-data';
 export * from '../../runtime';
+
+// Testing-specific setMode that clears previous handlers first
+// This shadows the runtime's setMode so each test gets a clean slate
+export const setMode = (handler: (elm: any) => string | undefined | null) => {
+  modeResolutionChain.length = 0;
+  modeResolutionChain.push(handler);
+};
+
 export const setScopedSSR = (scoped?: boolean) => {
   scopedSSR = scoped;
 };

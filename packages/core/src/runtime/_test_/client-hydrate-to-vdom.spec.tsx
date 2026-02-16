@@ -1,3 +1,4 @@
+import { expect, describe, it } from '@stencil/vitest';
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
@@ -34,6 +35,11 @@ describe('initializeClientHydrate', () => {
 
     const hostRef: d.HostRef = {
       $flags$: 0,
+      $cmpMeta$: {
+        $tagName$: 'cmp-a',
+        $flags$: 0,
+      },
+      $hostElement$: hostElm,
     };
 
     initializeClientHydrate(hostElm, 'cmp-a', '1', hostRef);
@@ -73,6 +79,11 @@ describe('initializeClientHydrate', () => {
 
     const hostRef: d.HostRef = {
       $flags$: 0,
+      $cmpMeta$: {
+        $tagName$: 'cmp-a',
+        $flags$: 0,
+      },
+      $hostElement$: hostElm,
     };
 
     initializeClientHydrate(hostElm, 'cmp-a', '1', hostRef);

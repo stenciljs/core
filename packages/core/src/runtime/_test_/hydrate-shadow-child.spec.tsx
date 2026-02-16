@@ -1,5 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate, shadow child', () => {
   it('no slot', async () => {
@@ -473,7 +474,7 @@ describe('hydrate, shadow child', () => {
         <!--r.1-->
         <!--o.0.2-->
         <!--s.1.0.0.0.-->
-        <cmp-b c-id="0.2" class="hydrated" s-id="2" s-sn="">
+        <cmp-b class="hydrated" s-id="2" c-id="0.2" s-sn>
           <!--r.2-->
           <!--o.0.4.-->
           <!--o.0.5.-->
@@ -481,7 +482,7 @@ describe('hydrate, shadow child', () => {
             <!--s.2.1.1.0.-->
             <!--t.0.4-->
             cmp-b-top-text
-            <cmp-c c-id="0.5" class="hydrated" s-id="3" s-sn="">
+            <cmp-c class="hydrated" s-id="3" c-id="0.5" s-sn>
               <!--r.3-->
               <article c-id="3.0.0.0">
                 <!--t.3.1.1.0-->
@@ -549,29 +550,29 @@ describe('hydrate, shadow child', () => {
     });
 
     expect(serverHydrated.root).toEqualHtml(`
-      <cmp-a class=\"hydrated\" s-id=\"1\">
+      <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <!--o.0.1.-->
         <!--o.0.2.-->
         <!--o.0.4.-->
         <!--o.0.6.-->
         <!--o.0.7.-->
-        <slot-fb c-id=\"1.0.0.0\" hidden=\"\" s-sn=\"\">
-          <!--t.1.1.1.0-->
+        <slot-fb hidden c-id="1.0.0.0" s-sn>
+        <!--t.1.1.1.0-->
           Shadow Content
         </slot-fb>
         <!--t.0.1-->
         A text node
         <!--c.0.2-->
         <!-- a comment -->
-        <div c-id=\"0.4\" s-sn=\"\">
+        <div c-id="0.4" s-sn>
           An element
         </div>
         <!--c.0.6-->
         <!-- another comment -->
         <!--t.0.7-->
         Another text node
-      </cmp-a>  
+      </cmp-a>
     `);
 
     const clientHydrated = await newSpecPage({

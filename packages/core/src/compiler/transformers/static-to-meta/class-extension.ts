@@ -297,14 +297,11 @@ function buildExtendsTree(
     } catch (_e) {
       // sad path (>1 levels removed or node_modules): the extends type does not resolve so let's find it manually:
 
-      let currentSource: ts.SourceFile = classDeclaration.getSourceFile();
+      let currentSource: ts.SourceFile =
+        classDeclaration.getSourceFile() ?? extendee.getSourceFile() ?? ogModule?.staticSourceFile;
       let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
 
-      if (!currentSource) {
-        // fallback for jest tests where getSourceFile() is undefined - use the original classNode's source file
-        currentSource = ogModule?.staticSourceFile;
-        matchedStatement = findClassWalk(currentSource, extendee.getText());
-      } else {
+      if (currentSource) {
         matchedStatement = currentSource.statements.find(matchesNamedDeclaration(extendee.getText()));
       }
 

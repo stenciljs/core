@@ -1,5 +1,6 @@
 import { Component, Element, Event, EventEmitter, h, Listen, Method, resolveVar, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('event', () => {
   it('event normal ionChange event', async () => {
@@ -31,14 +32,18 @@ describe('event', () => {
     });
 
     expect(page.root).toEqualHtml(`
-      <cmp-a>0</cmp-a>
+      <cmp-a>
+        0
+      </cmp-a>
     `);
 
     await page.root.emitEvent();
     await page.waitForChanges();
 
     expect(page.root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
 
     let called = false;
@@ -54,7 +59,9 @@ describe('event', () => {
 
     expect(called).toBe(true);
     expect(page.root).toEqualHtml(`
-      <cmp-a>2</cmp-a>
+      <cmp-a>
+        2
+      </cmp-a>
     `);
   });
 
@@ -104,7 +111,9 @@ describe('event', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>0</cmp-a>
+      <cmp-a>
+        0
+      </cmp-a>
     `);
 
     let called = false;
@@ -119,7 +128,9 @@ describe('event', () => {
 
     expect(called).toBe(true);
     expect(root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
   });
 
@@ -157,7 +168,9 @@ describe('event', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>0</cmp-a>
+      <cmp-a>
+        0
+      </cmp-a>
     `);
 
     let called = false;
@@ -173,7 +186,9 @@ describe('event', () => {
     expect(called).toBe(true);
 
     expect(root).toEqualHtml(`
-      <cmp-a>1</cmp-a>
+      <cmp-a>
+        1
+      </cmp-a>
     `);
   });
 
@@ -199,7 +214,9 @@ describe('event', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       const ev = new KeyboardEvent('keydown');
@@ -207,7 +224,9 @@ describe('event', () => {
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
 
@@ -234,7 +253,9 @@ describe('event', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a> - </cmp-a>
+        <cmp-a>
+          -
+        </cmp-a>
       `);
 
       const ev = new KeyboardEvent('keydown', { key: 'A', shiftKey: true });
@@ -242,7 +263,9 @@ describe('event', () => {
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>A - Yes</cmp-a>
+        <cmp-a>
+          A - Yes
+        </cmp-a>
       `);
     });
   });
@@ -269,7 +292,9 @@ describe('event', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       const ev = new MouseEvent('onclick');
@@ -277,7 +302,9 @@ describe('event', () => {
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
 
@@ -304,7 +331,9 @@ describe('event', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a> - </cmp-a>
+        <cmp-a> 
+          - 
+        </cmp-a>
       `);
 
       const ev = new MouseEvent('onclick', { screenX: 99, shiftKey: true });
@@ -312,7 +341,9 @@ describe('event', () => {
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a>99 - Yes</cmp-a>
+        <cmp-a>
+          99 - Yes
+        </cmp-a>
       `);
     });
   });
@@ -350,11 +381,11 @@ describe('event', () => {
         return h(
           'div',
           null,
-          h('input', {
+          [h('input', {
             value: this.inputValue,
             onInput: (e: any) => (this.inputValue = (e.target as HTMLInputElement).value),
           }),
-          h('div', null, `Blur count: ${this.blurCount}`),
+          h('div', null, `Blur count: ${this.blurCount}`),]
         );
       }
     }
@@ -367,8 +398,10 @@ describe('event', () => {
     expect(root).toEqualHtml(`
       <cmp-blur-recursion>
         <div>
-          <input value="">
-          <div>Blur count: 0</div>
+          <input value=""></input>
+          <div>
+            Blur count: 0
+          </div>
         </div>
       </cmp-blur-recursion>
     `);
@@ -381,8 +414,10 @@ describe('event', () => {
     expect(root).toEqualHtml(`
       <cmp-blur-recursion>
         <div>
-          <input value="">
-          <div>Blur count: 1</div>
+          <input value=""></input>
+          <div>
+            Blur count: 1
+          </div>
         </div>
       </cmp-blur-recursion>
     `);
@@ -418,14 +453,18 @@ describe('event', () => {
       });
 
       expect(page.root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       await page.root.emitEvent();
       await page.waitForChanges();
 
       expect(page.root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
 
@@ -460,14 +499,18 @@ describe('event', () => {
       });
 
       expect(page.root).toEqualHtml(`
-        <cmp-a>0</cmp-a>
+        <cmp-a>
+          0
+        </cmp-a>
       `);
 
       await page.root.emitEvent();
       await page.waitForChanges();
 
       expect(page.root).toEqualHtml(`
-        <cmp-a>1</cmp-a>
+        <cmp-a>
+          1
+        </cmp-a>
       `);
     });
   });

@@ -1,5 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate, shadow parent', () => {
   it('slot depth 1, text w/out vdom', async () => {
@@ -404,7 +405,7 @@ describe('hydrate, shadow parent', () => {
         <!--o.0.2.-->
         <a c-id="1.0.0.0">
           <!--s.1.1.1.0.-->
-          <ion-badge class="hydrated" c-id="0.2" s-id="2" s-sn="">
+          <ion-badge class="hydrated" s-id="2" c-id="0.2" s-sn>
             <!--r.2-->
             <!--o.0.4.-->
             <!--s.2.0.0.0.-->
@@ -475,7 +476,7 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <!--s.1.0.0.0.-->
-        <cmp-b class="hydrated" c-id="0.1" s-id="2" s-sn="">
+        <cmp-b class="hydrated" s-id="2" c-id="0.1" s-sn>
           <!--r.2-->
           <!--o.0.2-->
           <!--s.2.0.0.0.-->

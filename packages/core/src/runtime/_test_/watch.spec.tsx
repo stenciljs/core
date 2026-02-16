@@ -1,5 +1,6 @@
 import { Component, Method, Prop, State, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 import { withSilentWarn } from '../../testing/testing-utils';
 
@@ -36,8 +37,8 @@ describe('watch', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
-    jest.spyOn(rootInstance, 'method2');
+    vi.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method2');
 
     // set same values, watch should not be called
     root.prop1 = 1;
@@ -64,6 +65,7 @@ describe('watch', () => {
 
       @Prop({ mutable: true }) prop = 10;
       @Prop({ mutable: true }) value = 10;
+      // @ts-ignore
       @State({ mutable: true }) someState = 'default';
 
       @Watch('prop')
@@ -104,7 +106,7 @@ describe('watch', () => {
     );
 
     expect(rootInstance.watchCalled).toBe(6);
-    jest.spyOn(rootInstance, 'method');
+    vi.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.prop = 1000;
@@ -165,14 +167,20 @@ describe('watch', () => {
       }),
     );
 
-    expect(root).toEqualHtml(`<cmp-a>2 4 4</cmp-a>`);
+    expect(root).toEqualHtml(`<cmp-a>
+      2 4 4
+    </cmp-a>`);
     await waitForChanges();
     await waitForChanges();
-    expect(root).toEqualHtml(`<cmp-a>2 4 4</cmp-a>`);
+    expect(root).toEqualHtml(`<cmp-a>
+      2 4 4
+    </cmp-a>`);
 
     await root.pushState();
     await waitForChanges();
-    expect(root).toEqualHtml(`<cmp-a>3 5 5</cmp-a>`);
+    expect(root).toEqualHtml(`<cmp-a>
+      3 5 5
+    </cmp-a>`);
   });
 
   it('correctly calls watch when @Prop uses `set()', async () => {
@@ -205,7 +213,7 @@ describe('watch', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
     });
-    jest.spyOn(rootInstance, 'method1');
+    vi.spyOn(rootInstance, 'method1');
 
     // set same values, watch should not be called
     root.prop1 = 1;

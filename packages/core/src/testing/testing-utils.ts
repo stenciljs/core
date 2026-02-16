@@ -1,5 +1,7 @@
+import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from "src/compiler/sys/in-memory-fs";
 import { afterAll, Mock, vi } from "vitest";
+import { isString, isOutputTargetWww, join, relative, isOutputTargetDistLazy } from '../utils'
 
 /**
  * Shuffle an array using Fisher-Yates algorithm
@@ -167,4 +169,39 @@ export function expectFilesDoNotExist(fs: InMemoryFileSystem, filePaths: string[
         .join('\n')}`,
     );
   }
+}
+
+export function getAppScriptUrl(config: d.ValidatedConfig, browserUrl: string) {
+  const appFileName = `${config.fsNamespace}.esm.js`;
+  return getAppUrl(config, browserUrl, appFileName);
+}
+
+export function getAppStyleUrl(config: d.ValidatedConfig, browserUrl: string) {
+  if (config.globalStyle) {
+    const appFileName = `${config.fsNamespace}.css`;
+    return getAppUrl(config, browserUrl, appFileName);
+  }
+  return null;
+}
+
+function getAppUrl(config: d.ValidatedConfig, browserUrl: string, appFileName: string) {
+  const wwwOutput = config.outputTargets.find(isOutputTargetWww);
+  if (wwwOutput && isString(wwwOutput.buildDir) && isString(wwwOutput.dir)) {
+    const appBuildDir = wwwOutput.buildDir;
+    const appFilePath = join(appBuildDir, appFileName);
+    const appUrlPath = relative(wwwOutput.dir, appFilePath);
+    const url = new URL(appUrlPath, browserUrl);
+    return url.href;
+  }
+
+  const distOutput = config.outputTargets.find(isOutputTargetDistLazy);
+  if (distOutput && isString(distOutput.esmDir)) {
+    const appBuildDir = distOutput.esmDir;
+    const appFilePath = join(appBuildDir, appFileName);
+    const appUrlPath = relative(config.rootDir, appFilePath);
+    const url = new URL(appUrlPath, browserUrl);
+    return url.href;
+  }
+
+  return browserUrl;
 }

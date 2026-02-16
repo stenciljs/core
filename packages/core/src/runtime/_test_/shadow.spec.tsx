@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 @Component({
   tag: 'cmp-a',
@@ -39,21 +40,20 @@ describe('shadow', () => {
     <cmp-a class="hydrated">
       <mock:shadow-root>
         <div>
-          <slot name=\"start\"></slot>
+          <slot name="start"></slot>
           <span>
             <slot></slot>
           </span>
-          <div class='end'>
-            <slot name='end'></slot>
+          <div class="end">
+            <slot name="end"></slot>
           </div>
         </div>
       </mock:shadow-root>
-
-      <span slot=\"end\">
+      <span slot="end">
         End
       </span>
       Text
-      <span slot=\"start\">
+      <span slot="start">
         Start
       </span>
     </cmp-a>`);
@@ -84,17 +84,16 @@ describe('shadow', () => {
     });
 
     const expected = `
-    <cmp-a class="hydrated sc-cmp-a-h">
-      <!---->
-      <div class=\"sc-cmp-a sc-cmp-a-s\">
-        <span slot=\"start\">
+    <cmp-a class="sc-cmp-a-h hydrated">
+      <div class="sc-cmp-a sc-cmp-a-s">
+        <span slot="start">
           Start
         </span>
-        <span class=\"sc-cmp-a sc-cmp-a-s\">
+        <span class="sc-cmp-a sc-cmp-a-s">
           Text
         </span>
         <div class="end sc-cmp-a sc-cmp-a-s">
-          <span slot=\"end\">
+          <span slot="end">
             End
           </span>
         </div>
@@ -119,14 +118,14 @@ describe('shadow', () => {
     const expected = `
     <cmp-a>
       <div>
-        <span slot=\"start\">
+        <span slot="start">
           Start
         </span>
         <span>
           Text
         </span>
-        <div class='end'>
-          <span slot=\"end\">
+        <div class="end">
+          <span slot="end">
             End
           </span>
         </div>

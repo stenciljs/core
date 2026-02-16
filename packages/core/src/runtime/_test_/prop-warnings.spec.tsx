@@ -1,5 +1,6 @@
 import { Component, h, Method, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi, afterEach, afterAll } from '@stencil/vitest';
 
 @Component({
   tag: 'shared-cmp',
@@ -14,7 +15,7 @@ class SharedCmp {
 }
 
 describe('prop', () => {
-  const spy = jest.spyOn(console, 'warn').mockImplementation();
+  const spy = vi.spyOn(console, 'warn').mockImplementation(vi.fn);
 
   afterEach(() => spy.mockReset());
   afterAll(() => spy.mockRestore());
@@ -39,12 +40,16 @@ describe('prop', () => {
       html: `<cmp-a></cmp-a>`,
     });
 
-    expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      1
+    </cmp-a>`);
 
     await root.update();
     await waitForChanges();
 
-    expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      2
+    </cmp-a>`);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy.mock.calls[0][0]).toMatch(/@Prop\(\) "[A-Za-z-]+" on <[A-Za-z-]+> is immutable/);
   });
@@ -69,12 +74,16 @@ describe('prop', () => {
       html: `<cmp-a></cmp-a>`,
     });
 
-    expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      1
+    </cmp-a>`);
 
     await root.update();
     await waitForChanges();
 
-    expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      2
+    </cmp-a>`);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -93,12 +102,16 @@ describe('prop', () => {
       html: `<cmp-a></cmp-a>`,
     });
 
-    expect(root).toEqualHtml('<cmp-a>1</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      1
+    </cmp-a>`);
 
     root.a = 2;
     await waitForChanges();
 
-    expect(root).toEqualHtml('<cmp-a>2</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a>
+      2
+    </cmp-a>`);
     expect(spy).not.toHaveBeenCalled();
   });
 
@@ -141,7 +154,9 @@ describe('prop', () => {
       html: `<cmp-a></cmp-a>`,
     });
 
-    expect(root).toEqualHtml('<cmp-a a="1">1</cmp-a>');
+    expect(root).toEqualHtml(`<cmp-a a="1">
+      1
+    </cmp-a>`);
 
     root.a = undefined;
     await waitForChanges();

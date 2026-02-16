@@ -34,11 +34,22 @@ export const lazyComponentTransform = (
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           const module = compilerCtx.moduleMap.get(tsSourceFile.fileName);
-
           if (cmp != null) {
             return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
           } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
+          } else if (buildCtx.config._isTesting && node.parent === tsSourceFile) {
+            // For tests using newSpecPage, tidy up top-level class constructors
+            // (but not nested classes like those inside mixin factory functions)
+            const updatedMembers = updateConstructor(node, Array.from(node.members), [], []);
+            return ts.factory.updateClassDeclaration(
+              node,
+              node.modifiers,
+              node.name,
+              node.typeParameters,
+              node.heritageClauses,
+              updatedMembers,
+            );
           }
         }
         return ts.visitEachChild(node, visitNode, transformCtx);

@@ -1,6 +1,6 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { Prop } from '@stencil/core';
 
 describe('SVG element', () => {
@@ -26,7 +26,9 @@ describe('SVG element', () => {
     expect(root).toEqualHtml(`
       <cmp-a>
         <svg viewBox=\"0 0 100 4\">
-          <text>Hola 1</text>
+          <text>
+            Hola 1
+          </text>
         </svg>
       </cmp-a>
     `);
@@ -35,8 +37,12 @@ describe('SVG element', () => {
     expect(root).toEqualHtml(`
       <cmp-a>
         <svg viewBox=\"0 0 100 4\">
-          <text>Hola 1</text>
-          <text>Hola 2</text>
+          <text>
+            Hola 1
+          </text>
+          <text>
+            Hola 2
+          </text>
         </svg>
       </cmp-a>
     `);

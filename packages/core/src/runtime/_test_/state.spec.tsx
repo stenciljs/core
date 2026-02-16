@@ -1,5 +1,6 @@
 import { Component, Method, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 function Clamp(lowerBound: number, upperBound: number): any {
   const clamp = (value: number) => Math.max(lowerBound, Math.min(value, upperBound));
@@ -49,7 +50,9 @@ describe('state', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a>false-true-string-88-0</cmp-a>
+      <cmp-a>
+        false-true-string-88-0
+      </cmp-a>
     `);
 
     expect(root.textContent).toBe('false-true-string-88-0');

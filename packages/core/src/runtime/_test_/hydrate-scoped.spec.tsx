@@ -1,5 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate scoped', () => {
   it('does not support shadow, slot, light dom', async () => {
@@ -15,7 +16,7 @@ describe('hydrate scoped', () => {
         );
       }
     }
-    // @ts-ignore
+
     const serverHydrated = await newSpecPage({
       components: [CmpA],
       html: `<cmp-a>88mph</cmp-a>`,
@@ -96,8 +97,8 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <article class="sc-cmp-a sc-cmp-a-s">
-          <!--s.1.1.1.0.-->
+        <article class="sc-cmp-a-s sc-cmp-a">
+        <!--s.1.1.1.0.-->
           88mph
         </article>
       </cmp-a>
@@ -124,7 +125,7 @@ describe('hydrate scoped', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <p c-id="1.0.0.0" class="hi">
+        <p class="hi" c-id="1.0.0.0">
           <!--t.1.1.1.0-->
           Hello
         </p>
@@ -174,8 +175,8 @@ describe('hydrate scoped', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class=\"hydrated\" s-id=\"1\">
         <!--r.1-->
-        <div c-id=\"1.0.0.0\" class=\"wrapper\">
-          <p c-id=\"1.1.1.0\" class=\"hi\">
+        <div  class="wrapper" c-id="1.0.0.0">
+          <p class="hi" c-id="1.1.1.0">
             <!--s.1.2.2.0.-->
           </p>
         </div>
@@ -191,8 +192,8 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class=\"hydrated sc-cmp-a-h\">
         <!--r.1-->
-        <div class=\"sc-cmp-a wrapper\">
-          <p class=\"hi sc-cmp-a sc-cmp-a-s\">
+        <div class=\"wrapper sc-cmp-a\">
+          <p class=\"hi sc-cmp-a-s sc-cmp-a\">
             <!--s.1.2.2.0.-->
           </p>
         </div>

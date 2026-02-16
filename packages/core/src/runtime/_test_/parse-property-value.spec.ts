@@ -1,5 +1,6 @@
 import { MEMBER_FLAGS } from '../../utils';
 import { parsePropertyValue } from '../parse-property-value';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('parse-property-value', () => {
   describe('parsePropertyValue', () => {
