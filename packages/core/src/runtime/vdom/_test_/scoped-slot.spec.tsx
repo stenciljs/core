@@ -1,5 +1,6 @@
 import { Component, forceUpdate, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it } from '@stencil/vitest'
 
 describe('scoped slot', () => {
   it('should relocate nested default slot nodes', async () => {
@@ -235,7 +236,7 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('H6');
     expect(root.firstElementChild.textContent).toBe('parent text update');
 
-    const child = root.querySelector('ion-child');
+    const child = root.querySelector<any>('ion-child');
     child.Tag = 'article';
     await waitForChanges();
 

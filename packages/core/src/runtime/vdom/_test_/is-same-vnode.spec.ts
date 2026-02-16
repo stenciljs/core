@@ -1,6 +1,7 @@
 // import type * as d from '@stencil/core';
 import { h } from '../h';
 import { isSameVnode } from '../vdom-render';
+import { expect, describe, it } from '@stencil/vitest'
 
 describe('isSameVnode', () => {
   it('should not be same vnode with slot and no vnode2 name', () => {

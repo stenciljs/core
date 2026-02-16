@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { expect, describe, it, vi } from '@stencil/vitest'
 import { NODE_TYPE } from '../../runtime-constants';
 import { newVNode } from '../h';
 import * as setAccessor from '../set-accessor';
@@ -146,7 +147,7 @@ describe('updateElement', () => {
   });
 
   it('max test', () => {
-    const spy = jest.spyOn(setAccessor, 'setAccessor');
+    const spy = vi.spyOn(setAccessor, 'setAccessor');
     const elm = document.createElement('section') as HTMLElement;
     const initialVNode: null = null;
     const firstVNode = createTestNode({

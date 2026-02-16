@@ -1,5 +1,6 @@
 import { jsx, jsxs } from '../jsx-runtime';
 import { jsxDEV } from '../jsx-dev-runtime';
+import { expect, describe, it, vi } from '@stencil/vitest'
 
 describe('jsx-runtime', () => {
   describe('jsx() and jsxs()', () => {
@@ -37,14 +38,14 @@ describe('jsx-runtime', () => {
     });
 
     it('should handle ref in props', () => {
-      const refCallback = jest.fn();
+      const refCallback = vi.fn();
       const vnode = jsx('div', { id: 'test', ref: refCallback });
       expect(vnode.$tag$).toBe('div');
       expect(vnode.$attrs$).toEqual({ id: 'test', ref: refCallback });
     });
 
     it('should handle both key and ref', () => {
-      const refCallback = jest.fn();
+      const refCallback = vi.fn();
       const vnode = jsx('div', { id: 'test', key: 'my-key', ref: refCallback }, undefined);
       expect(vnode.$tag$).toBe('div');
       expect(vnode.$key$).toBe('my-key');
@@ -78,7 +79,7 @@ describe('jsx-runtime', () => {
 
   describe('jsxDEV()', () => {
     it('should handle key and ref like jsx()', () => {
-      const refCallback = jest.fn();
+      const refCallback = vi.fn();
       const vnode = jsxDEV('div', { id: 'test', key: 'my-key', ref: refCallback });
       expect(vnode.$tag$).toBe('div');
       expect(vnode.$key$).toBe('my-key');

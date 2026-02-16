@@ -1,5 +1,6 @@
 import type * as d from '@stencil/core';
 import { h, newVNode } from '../h';
+import { expect, describe, it } from '@stencil/vitest'
 
 describe('h()', () => {
   it('should render nested functional components', () => {

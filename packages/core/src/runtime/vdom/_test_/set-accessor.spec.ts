@@ -1,5 +1,7 @@
-import { BUILD } from 'virtual:app-data';
 
+import { BUILD } from 'virtual:app-data';
+import { plt } from 'virtual:platform';
+import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest'
 import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {
@@ -10,8 +12,12 @@ describe('setAccessor for custom elements', () => {
   });
 
   describe('event listener', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
     it('should allow public method starting with "on" and capital 3rd character', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
 
       elm.onMyMethod = () => {
         /**/
@@ -26,8 +32,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should remove standardized event listener when has old value, but no new', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const orgValue = () => {
         /**/
@@ -37,13 +43,13 @@ describe('setAccessor for custom elements', () => {
       setAccessor(elm, 'onClick', orgValue, undefined, false, 0);
 
       expect(addEventSpy).toHaveBeenCalledTimes(1);
-      expect(addEventSpy).toHaveBeenCalledWith('click', orgValue, false);
-      expect(removeEventSpy).toHaveBeenCalledWith('click', orgValue, false);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, false);
+      expect(removeEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, false);
     });
 
     it('should remove standardized multiple-word then add event listener w/ different value', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const orgValue = () => {
         /**/
@@ -52,13 +58,13 @@ describe('setAccessor for custom elements', () => {
 
       setAccessor(elm, 'onMouseOver', orgValue, undefined, false, 0);
 
-      expect(addEventSpy).toHaveBeenCalledWith('mouseover', orgValue, false);
-      expect(removeEventSpy).toHaveBeenCalledWith('mouseover', orgValue, false);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'mouseover', orgValue, false);
+      expect(removeEventSpy).toHaveBeenCalledWith(elm, 'mouseover', orgValue, false);
     });
 
     it('should remove standardized then add event listener w/ different value', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const orgValue = () => {
         /**/
@@ -75,8 +81,8 @@ describe('setAccessor for custom elements', () => {
     });
 
     it('should add custom event listener when no old value', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const newValue = () => {
         /**/
@@ -84,13 +90,13 @@ describe('setAccessor for custom elements', () => {
 
       setAccessor(elm, 'onIonChange', undefined, newValue, false, 0);
 
-      expect(addEventSpy).toHaveBeenCalledWith('ionChange', newValue, false);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'ionChange', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
     });
 
     it('should add standardized multiple-word event listener when no old value', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const newValue = () => {
         /**/
@@ -98,13 +104,13 @@ describe('setAccessor for custom elements', () => {
 
       setAccessor(elm, 'onMouseOver', undefined, newValue, false, 0);
 
-      expect(addEventSpy).toHaveBeenCalledWith('mouseover', newValue, false);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'mouseover', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
     });
 
     it('should add standardized event listener when no old value', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const newValue = () => {
         /**/
@@ -112,13 +118,13 @@ describe('setAccessor for custom elements', () => {
 
       setAccessor(elm, 'onClick', undefined, newValue, false, 0);
 
-      expect(addEventSpy).toHaveBeenCalledWith('click', newValue, false);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
     });
 
     it('should add a capture style event listener', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const newValue = () => {
         /**/
@@ -126,13 +132,13 @@ describe('setAccessor for custom elements', () => {
 
       setAccessor(elm, 'onClickCapture', undefined, newValue, false, 0);
 
-      expect(addEventSpy).toHaveBeenCalledWith('click', newValue, true);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', newValue, true);
       expect(removeEventSpy).not.toHaveBeenCalled();
     });
 
     it('should remove a capture style event listener', () => {
-      const addEventSpy = jest.spyOn(elm, 'addEventListener');
-      const removeEventSpy = jest.spyOn(elm, 'removeEventListener');
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
 
       const orgValue = () => {
         /**/
@@ -142,8 +148,8 @@ describe('setAccessor for custom elements', () => {
       setAccessor(elm, 'onClickCapture', orgValue, undefined, false, 0);
 
       expect(addEventSpy).toHaveBeenCalledTimes(1);
-      expect(addEventSpy).toHaveBeenCalledWith('click', orgValue, true);
-      expect(removeEventSpy).toHaveBeenCalledWith('click', orgValue, true);
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, true);
+      expect(removeEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, true);
     });
   });
 
@@ -932,12 +938,12 @@ describe('setAccessor for standard html elements', () => {
 
   it('uses setAttribute if element has not setter', () => {
     const elm = document.createElement('button');
-    const spy = jest.spyOn(elm, 'setAttribute');
+    const spy = vi.spyOn(elm, 'setAttribute');
     setAccessor(elm, 'form', undefined, 'some-form', false, 0);
     expect(spy.mock.calls).toEqual([['form', 'some-form']]);
 
     const elm2 = document.createElement('button');
-    const spy2 = jest.spyOn(elm2, 'setAttribute');
+    const spy2 = vi.spyOn(elm2, 'setAttribute');
     setAccessor(elm2, 'textContent', undefined, 'some-content', false, 0);
     expect(spy2.mock.calls).toEqual([]);
   });
@@ -998,7 +1004,7 @@ describe('setAccessor for standard html elements', () => {
 
     it('should force attribute even for properties that exist on element', () => {
       const nativeElm = document.createElement('input');
-      const spy = jest.spyOn(nativeElm, 'setAttribute');
+      const spy = vi.spyOn(nativeElm, 'setAttribute');
       setAccessor(nativeElm, 'attr:id', undefined, 'my-id', false, 0);
       expect(spy).toHaveBeenCalledWith('id', 'my-id');
     });
@@ -1016,7 +1022,7 @@ describe('setAccessor for standard html elements', () => {
     });
 
     it('should not set attribute when old and new values are equal', () => {
-      const spy = jest.spyOn(elm, 'setAttribute');
+      const spy = vi.spyOn(elm, 'setAttribute');
       setAccessor(elm, 'attr:data-value', 'same', 'same', false, 0);
       expect(spy).not.toHaveBeenCalled();
     });
@@ -1059,7 +1065,7 @@ describe('setAccessor for standard html elements', () => {
     });
 
     it('should not set attribute when using prop: prefix', () => {
-      const spy = jest.spyOn(elm, 'setAttribute');
+      const spy = vi.spyOn(elm, 'setAttribute');
       setAccessor(elm, 'prop:value', undefined, 'test', false, 0);
       expect(spy).not.toHaveBeenCalled();
     });

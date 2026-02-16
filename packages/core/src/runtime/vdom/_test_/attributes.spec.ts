@@ -1,3 +1,4 @@
+import { expect, describe, it, beforeEach } from '@stencil/vitest'
 import { SVG_NS, XLINK_NS } from '../../../utils';
 
 import type * as d from '@stencil/core';

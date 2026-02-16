@@ -1,3 +1,4 @@
+import { expect, describe, it, beforeEach } from '@stencil/vitest'
 import { shuffleArray } from '@stencil/core/testing';
 import { SVG_NS } from '../../../utils';
 
