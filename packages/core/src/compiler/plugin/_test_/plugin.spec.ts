@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest'
 import { createCompiler } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import { normalizePath } from '../../../utils';

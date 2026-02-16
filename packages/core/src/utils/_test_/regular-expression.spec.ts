@@ -1,3 +1,4 @@
+import { expect, describe, it } from '@stencil/vitest';
 import { escapeRegExpSpecialCharacters } from '../regular-expression';
 
 describe('regular expression utils', () => {

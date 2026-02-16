@@ -1,5 +1,5 @@
 import { createAttributeProxy, MockAttr, MockAttributeMap } from './attribute';
-import { NODE_NAMES, NODE_TYPES } from './constants';
+import { getPrefixForNamespace, NODE_NAMES, NODE_TYPES } from './constants';
 import { createCSSStyleDeclaration, MockCSSStyleDeclaration } from './css-style-declaration';
 import { attributeChanged, checkAttributeChanged, connectNode, disconnectNode } from './custom-element-registry';
 import { dataset } from './dataset';
@@ -245,6 +245,7 @@ type MockElementInternals = Record<keyof ElementInternals, null>;
 
 export class MockElement extends MockNode {
   __namespaceURI: string | null;
+  __localName: string | null;
   __attributeMap: MockAttributeMap | null | undefined;
   __shadowRoot: ShadowRoot | null | undefined;
   __style: MockCSSStyleDeclaration | null | undefined;
@@ -268,6 +269,8 @@ export class MockElement extends MockNode {
   constructor(ownerDocument: any, nodeName: string | null, namespaceURI: string | null = null) {
     super(ownerDocument, NODE_TYPES.ELEMENT_NODE, typeof nodeName === 'string' ? nodeName : null, null);
     this.__namespaceURI = namespaceURI;
+    // Store original case-sensitive local name (important for SVG elements like foreignObject)
+    this.__localName = typeof nodeName === 'string' ? nodeName : null;
     this.__shadowRoot = null;
     this.__attributeMap = null;
   }
@@ -302,16 +305,16 @@ export class MockElement extends MockNode {
   }
 
   get localName() {
-    /**
-     * The `localName` of an element should be always given, however the way
-     * MockDoc is constructed, it won't allow us to guarantee that. Let's throw
-     * and error we get into the situation where we don't have a `nodeName` set.
-     *
-     */
-    if (!this.nodeName) {
-      throw new Error(`Can't compute elements localName without nodeName`);
+    // Use stored localName if available, otherwise derive from nodeName
+    const name = this.__localName ?? this.nodeName;
+    if (!name) {
+      throw new Error(`Can't get element's localName - not set`);
     }
-    return this.nodeName.toLocaleLowerCase();
+    // HTML elements have lowercase localName, SVG/XML elements preserve case
+    if (this.__namespaceURI === 'http://www.w3.org/1999/xhtml' || this.__namespaceURI === null) {
+      return name.toLowerCase();
+    }
+    return name;
   }
 
   get namespaceURI() {
@@ -747,7 +750,21 @@ export class MockElement extends MockNode {
 
   setAttributeNS(namespaceURI: string | null, attrName: string, value: any) {
     const attributes = this.attributes;
-    let attr = attributes.getNamedItemNS(namespaceURI, attrName);
+
+    // Parse localName and prefix from attrName
+    let localName: string;
+    let prefix: string | null;
+    if (attrName.includes(':')) {
+      const [parsedPrefix, ...rest] = attrName.split(':');
+      prefix = parsedPrefix;
+      localName = rest.join(':');
+    } else {
+      localName = attrName;
+      // Get standard prefix from namespace if not provided in attrName
+      prefix = getPrefixForNamespace(namespaceURI);
+    }
+
+    let attr = attributes.getNamedItemNS(namespaceURI, localName);
     const checkAttrChanged = checkAttributeChanged(this);
 
     if (attr != null) {
@@ -762,11 +779,11 @@ export class MockElement extends MockNode {
         attr.value = value;
       }
     } else {
-      attr = new MockAttr(attrName, value, namespaceURI);
+      attr = new MockAttr(localName, value, namespaceURI, prefix);
       attributes.__items.push(attr);
 
       if (checkAttrChanged === true) {
-        attributeChanged(this, attrName, null, attr.value);
+        attributeChanged(this, attr.name, null, attr.value);
       }
     }
   }

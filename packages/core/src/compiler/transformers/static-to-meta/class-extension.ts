@@ -154,10 +154,13 @@ function resolveAndProcessExtendedClass(
  * @param name optional name of the class to find
  * @returns the found class declaration or undefined
  */
-function findClassWalk(node?: ts.Node, name?: string): ts.ClassDeclaration | undefined {
+function findClassWalk(node?: ts.Node, name?: string, depth = 0): ts.ClassDeclaration | undefined {
   if (!node) return undefined;
-  if (node && ts.isClassDeclaration(node) && (!name || node.name?.text === name)) {
-    return node;
+
+  if (node && ts.isClassDeclaration(node)) {
+    if (!name || node.name?.text === name) {
+      return node;
+    }
   } else if (
     node &&
     ts.isVariableDeclaration(node) &&
@@ -178,7 +181,7 @@ function findClassWalk(node?: ts.Node, name?: string): ts.ClassDeclaration | und
 
   ts.forEachChild(node, (child) => {
     if (found) return;
-    const result = findClassWalk(child, name);
+    const result = findClassWalk(child, name, depth + 1);
     if (result) found = result;
   });
 
@@ -321,10 +324,35 @@ function buildExtendsTree(
         // if it's wrapped in a function - let's try and find it inside
         foundClassDeclaration = findClassWalk(matchedStatement);
         keepLooking = false;
+      } else {
+        // class might be nested inside a function (e.g., in a test callback)
+        // search the entire source file recursively for the class
+        foundClassDeclaration = findClassWalk(currentSource, extendee.getText());
+        keepLooking = false;
       }
 
       if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
         // we found the class declaration in the current module
+        // Try to get the transformed version from the module map 
+        const foundModule = compilerCtx.moduleMap.get(currentSource.fileName);
+        if (foundModule?.staticSourceFile) {
+          const transformedSource = foundModule.staticSourceFile as ts.SourceFile;
+          const transformedClass = findClassWalk(transformedSource, foundClassDeclaration.name?.getText());
+
+          if (transformedClass) {
+            dependentClasses.push({
+              classNode: transformedClass,
+              sourceFile: transformedSource,
+              fileName: transformedSource.fileName,
+            });
+            if (keepLooking) {
+              buildExtendsTree(compilerCtx, transformedClass, dependentClasses, typeChecker, buildCtx, ogModule);
+            }
+            return;
+          }
+        }
+
+        // Fallback to original (for cases where module isn't in map yet)
         dependentClasses.push({
           classNode: foundClassDeclaration,
           sourceFile: currentSource,

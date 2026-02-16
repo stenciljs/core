@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { catchError } from '../message-utils';
 
 describe('message-utils', () => {

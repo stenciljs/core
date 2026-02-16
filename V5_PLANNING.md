@@ -253,11 +253,11 @@ packages/
   - [x] Migrate `src/compiler/transpile` tests
   - [x] Migrate `src/compiler/types` tests
   - [x] Migrate `src/runtime` tests
-  - [ ] Migrate `src/runtime/vdom` tests
-  - [ ] Migrate `src/server/platform` tests
-  - [ ] Migrate `src/sys/node` tests
-  - [ ] Migrate `src/sys/node/logger` tests
-  - [ ] Migrate `src/utils` tests
+  - [x] Migrate `src/runtime/vdom` tests
+  - [x] Migrate `src/server/platform` tests
+  - [x] Migrate `src/sys/node` tests
+  - [x] Migrate `src/sys/node/logger` tests
+  - [x] Migrate `src/utils` tests
 - [ ] Migrate `src/mock-doc` tests
   - [x] Initial setup
   - [ ] Migrate `src/mock-doc/test` tests

@@ -1,11 +1,11 @@
 import chalk from 'chalk';
-
-const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;
-
-import { LOG_LEVELS, LogLevel } from '@stencil/core';
+import { expect, describe, it, vi } from '@stencil/vitest';
+import { LOG_LEVELS, type LogLevel } from '../../../../declarations/stencil-public-compiler';
 import { setupConsoleMocker } from '../../../../testing/testing-utils';
 import { createNodeLoggerSys } from '../index';
 import { createTerminalLogger, shouldLog } from '../terminal-logger';
+
+const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;
 
 describe('terminal-logger', () => {
   describe('shouldLog helper', () => {
@@ -49,14 +49,14 @@ describe('terminal-logger', () => {
 
       const loggerSys = createNodeLoggerSys();
 
-      loggerSys.memoryUsage = jest.fn().mockReturnValue(10_000_000);
+      loggerSys.memoryUsage = vi.fn().mockReturnValue(10_000_000);
 
-      const writeLogsMock = jest.fn();
+      const writeLogsMock = vi.fn();
       loggerSys.writeLogs = writeLogsMock;
 
       const logger = createTerminalLogger(loggerSys);
 
-      jest.useFakeTimers().setSystemTime(new Date(2022, 6, 3, 9, 32, 32, 32));
+      vi.useFakeTimers().setSystemTime(new Date(2022, 6, 3, 9, 32, 32, 32));
 
       return { logger, logMock, warnMock, errorMock, writeLogsMock };
     }
@@ -65,7 +65,7 @@ describe('terminal-logger', () => {
       const { logger, logMock } = setup();
       logger.setLevel('debug');
       logger.debug('my debug message');
-      expect(logMock).toHaveBeenCalledWith(`${cyan('[32:32.0]')}  my debug message ${dim(' MEM: 10.0MB')}`);
+      expect(logMock).toHaveBeenCalledWith(`${cyan('[32:32.0]')}  my debug message ${dim('MEM: 10.0MB')}`);
     });
 
     it("supports 'info' level", () => {
@@ -145,7 +145,7 @@ describe('terminal-logger', () => {
       it('has basic support for timespans', function () {
         const { logger, logMock } = setup();
         const timespan = logger.createTimeSpan('start the timespan');
-        jest.advanceTimersByTime(10_000);
+        vi.advanceTimersByTime(10_000);
         timespan.finish('finish the timespan');
 
         expect(logMock).toHaveBeenNthCalledWith(1, `${dim('[32:32.0]')}  start the timespan ${dim('...')}`);
@@ -157,7 +157,7 @@ describe('terminal-logger', () => {
           const { logger, logMock } = setup();
           logger.setLevel('debug');
           const timespan = logger.createTimeSpan('start the timespan', true);
-          jest.advanceTimersByTime(10_000);
+          vi.advanceTimersByTime(10_000);
           timespan.finish('finish the timespan');
 
           expect(logMock).toHaveBeenNthCalledWith(
@@ -175,7 +175,7 @@ describe('terminal-logger', () => {
           logger.setLogFilePath!('testfile.txt');
           logger.setLevel('debug');
           const timespan = logger.createTimeSpan('start the timespan', true);
-          jest.advanceTimersByTime(10_000);
+          vi.advanceTimersByTime(10_000);
           timespan.finish('finish the timespan');
           logger.writeLogs!(false);
 
@@ -193,7 +193,7 @@ describe('terminal-logger', () => {
             const { logger, logMock } = setup();
             logger.setLevel(level);
             const timespan = logger.createTimeSpan('start the timespan', true);
-            jest.advanceTimersByTime(10_000);
+            vi.advanceTimersByTime(10_000);
             timespan.finish('finish the timespan');
             expect(logMock).not.toHaveBeenCalled();
           },
@@ -203,7 +203,7 @@ describe('terminal-logger', () => {
       it('reports the number of milliseconds if timespan takes under a second', () => {
         const { logger, logMock } = setup();
         const timespan = logger.createTimeSpan('start the timespan');
-        jest.advanceTimersByTime(10);
+        vi.advanceTimersByTime(10);
         timespan.finish('finish the timespan');
 
         expect(logMock).toHaveBeenNthCalledWith(1, `${dim('[32:32.0]')}  start the timespan ${dim('...')}`);
@@ -226,7 +226,7 @@ describe('terminal-logger', () => {
         const { logger, writeLogsMock } = setup();
         logger.setLogFilePath!('testfile.txt');
         const timespan = logger.createTimeSpan('start the timespan');
-        jest.advanceTimersByTime(10_000);
+        vi.advanceTimersByTime(10_000);
         timespan.finish('finish the timespan');
         logger.writeLogs!(false);
 

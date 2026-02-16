@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   test: {
-    globals: true,
+    // globals: true,
     include: ['src/**/*.spec.ts', 'src/**/*.spec.tsx'],
   },
 });

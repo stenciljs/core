@@ -1012,23 +1012,23 @@ describe('render-vdom', () => {
       expect(root).toEqualHtml(`
       <cmp-a>
         <svg class="is-svg">
-          <foreignobject class="is-svg">
+          <foreignObject class="is-svg">
             <div class="is-html">
               hello
             </div>
             <svg class="is-svg">
-              <fegaussianblur class="is-svg"></fegaussianblur>
-              <foreignobject class="is-svg">
+              <feGaussianBlur class="is-svg"></feGaussianBlur>
+              <foreignObject class="is-svg">
                 <foreignobject class="is-html"></foreignobject>
                 <div class="is-html">
                   Still outside svg
                 </div>
-              </foreignobject>
+              </foreignObject>
             </svg>
             <fegaussianblur class="is-html">
               bye
             </fegaussianblur>
-          </foreignobject>
+          </foreignObject>
           <text class="is-svg">
             Hello
           </text>

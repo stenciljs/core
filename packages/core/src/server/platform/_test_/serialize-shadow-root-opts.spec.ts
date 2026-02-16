@@ -1,14 +1,10 @@
-import type { tagRequiresScoped as TypeTagRequiresScoped } from '../hydrate-app';
+import { tagRequiresScoped } from '../hydrate-app';
+import { expect, describe, it, afterEach, vi } from '@stencil/vitest'
 
 describe('tagRequiresScoped', () => {
-  let tagRequiresScoped: typeof TypeTagRequiresScoped;
-
-  beforeEach(async () => {
-    tagRequiresScoped = require('../hydrate-app').tagRequiresScoped;
-  });
 
   afterEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
   });
 
   it('should return true for a component with serializeShadowRoot: true', () => {

@@ -1,3 +1,5 @@
+// @vitest-environment stencil
+
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
@@ -48,7 +50,7 @@ describe('SVG element', () => {
     `);
 
     // Ensure all SVG elements have the SVG namespace
-    const namespaces = root.querySelectorAll('text').map((e: any) => e.namespaceURI);
+    const namespaces = Array.from(root.querySelectorAll('text')).map((e: any) => e.namespaceURI);
 
     expect(namespaces).toEqual(['http://www.w3.org/2000/svg', 'http://www.w3.org/2000/svg']);
   });
@@ -72,7 +74,7 @@ describe('SVG element', () => {
     });
     expect(root).toEqualHtml(`
       <cmp-a>
-        <svg id=\"my-svg\" preserveAspectRatio=\"none\" viewBox=\"0 0 100 4\">
+        <svg id="my-svg" viewBox="0 0 100 4" preserveAspectRatio="none">
           <a xlink:href="/path"></a>
           <a href="/path"></a>
         </svg>

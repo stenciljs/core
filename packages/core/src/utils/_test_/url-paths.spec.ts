@@ -1,3 +1,4 @@
+import { expect, describe, it } from '@stencil/vitest';
 import { isRemoteUrl } from '../url-paths';
 
 describe('url-paths', () => {

@@ -8,7 +8,7 @@ import type {
   LogLevel,
   PrintLine,
 } from '@stencil/core';
-import { LOG_LEVELS } from '@stencil/core';
+import { LOG_LEVELS } from '../../../declarations/stencil-public-compiler';
 
 // Re-export chalk color functions for convenience
 const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chalk;

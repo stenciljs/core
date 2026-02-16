@@ -1,9 +1,10 @@
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import * as util from '../index';
 
 import { getTextDocs } from '../util';
 import type * as d from '@stencil/core';
-import { stubDiagnostic } from '../../dev-server/test/Diagnostic.stub';
+import { stubDiagnostic } from './fixtures/Diagnostic.stub';
 
 describe('util', () => {
   describe('generatePreamble', () => {

@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import { expect, describe, it, vi } from '@stencil/vitest';
 import type { EligiblePrimaryPackageOutputTarget } from '@stencil/core';
 import { DIST_TYPES, VALID_CONFIG_OUTPUT_TARGETS } from '../constants';
 import {
@@ -102,7 +103,7 @@ describe('output-utils tests', () => {
       return {
         excludeComponents: excludePatterns,
         logger: {
-          debug: jest.fn(),
+          debug: vi.fn(),
         },
       } as any as d.ValidatedConfig;
     };
@@ -131,7 +132,7 @@ describe('output-utils tests', () => {
       const config = {
         ...createMockConfig(['demo-widget']),
         devMode: false,
-        logger: { debug: jest.fn(), info: jest.fn() },
+        logger: { debug: vi.fn(), info: vi.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
@@ -152,7 +153,7 @@ describe('output-utils tests', () => {
       const config = {
         ...createMockConfig(['demo-*']),
         devMode: false,
-        logger: { debug: jest.fn(), info: jest.fn() },
+        logger: { debug: vi.fn(), info: vi.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
@@ -173,7 +174,7 @@ describe('output-utils tests', () => {
       const config = {
         ...createMockConfig(['demo-*', '*-test', 'specific-exclude']),
         devMode: false,
-        logger: { debug: jest.fn(), info: jest.fn() },
+        logger: { debug: vi.fn(), info: vi.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
@@ -188,7 +189,7 @@ describe('output-utils tests', () => {
       const config = {
         ...createMockConfig(['demo-*']),
         devMode: false,
-        logger: { debug: jest.fn(), info: jest.fn() },
+        logger: { debug: vi.fn(), info: vi.fn() },
       } as any;
 
       filterExcludedComponents(components, config);
@@ -201,7 +202,7 @@ describe('output-utils tests', () => {
       const config = {
         ...createMockConfig(['demo-*']),
         devMode: false,
-        logger: { debug: jest.fn(), info: jest.fn() },
+        logger: { debug: vi.fn(), info: vi.fn() },
       } as any;
 
       const result = filterExcludedComponents(components, config);
@@ -220,8 +221,8 @@ describe('output-utils tests', () => {
         ...createMockConfig(['demo-*']),
         devMode: false,
         logger: {
-          debug: jest.fn(),
-          info: jest.fn(),
+          debug: vi.fn(),
+          info: vi.fn(),
         },
       } as any as d.ValidatedConfig;
 
@@ -238,8 +239,8 @@ describe('output-utils tests', () => {
         ...createMockConfig(['demo-widget']),
         devMode: false,
         logger: {
-          debug: jest.fn(),
-          info: jest.fn(),
+          debug: vi.fn(),
+          info: vi.fn(),
         },
       } as any as d.ValidatedConfig;
 
@@ -254,8 +255,8 @@ describe('output-utils tests', () => {
         ...createMockConfig(['demo-widget']),
         devMode: true,
         logger: {
-          debug: jest.fn(),
-          info: jest.fn(),
+          debug: vi.fn(),
+          info: vi.fn(),
         },
       } as any as d.ValidatedConfig;
 
@@ -275,8 +276,8 @@ describe('output-utils tests', () => {
         ...createMockConfig(['demo-*']),
         devMode: false,
         logger: {
-          debug: jest.fn(),
-          info: jest.fn(),
+          debug: vi.fn(),
+          info: vi.fn(),
         },
       } as any as d.ValidatedConfig;
 

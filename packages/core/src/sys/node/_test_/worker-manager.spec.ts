@@ -1,6 +1,7 @@
 import type * as d from '@stencil/core';
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { getNextWorker } from '../node-worker-controller';
-import { TestWorkerMain } from './test-worker-main';
+import { TestWorkerMain } from './fixtures/test-worker-main';
 
 const incr = (function* () {
   let i = 1;

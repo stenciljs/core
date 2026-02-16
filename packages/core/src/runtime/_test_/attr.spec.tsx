@@ -18,7 +18,9 @@ describe('attribute', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a multi-word="multi-word">multi-word</cmp-a>
+      <cmp-a multi-word="multi-word">
+        multi-word
+      </cmp-a>
     `);
 
     expect(root.textContent).toBe('multi-word');
@@ -40,7 +42,9 @@ describe('attribute', () => {
     });
 
     expect(root).toEqualHtml(`
-      <cmp-a some-customName="some-customName">some-customName</cmp-a>
+      <cmp-a some-customname="some-customName">
+        some-customName
+      </cmp-a>
     `);
 
     expect(root.textContent).toBe('some-customName');
@@ -63,7 +67,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a bool="false">false</cmp-a>
+        <cmp-a bool="false">
+          false
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('false');
@@ -93,7 +99,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a>undefined</cmp-a>
+        <cmp-a>
+          undefined
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('undefined');
@@ -115,7 +123,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a bool="true">true</cmp-a>
+        <cmp-a bool="true">
+          true
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('true');
@@ -145,7 +155,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a bool>true</cmp-a>
+        <cmp-a bool>
+          true
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('true');
@@ -175,7 +187,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a bool="">true</cmp-a>
+        <cmp-a bool>
+          true
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('true');
@@ -205,7 +219,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a bool="nice">true</cmp-a>
+        <cmp-a bool="nice">
+          true
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('true');
@@ -235,7 +251,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a num="0">0</cmp-a>
+        <cmp-a num="0">
+          0
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('0');
@@ -257,7 +275,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a num="88">88</cmp-a>
+        <cmp-a num="88">
+          88
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('88');
@@ -279,7 +299,9 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a str="string">string</cmp-a>
+        <cmp-a str="string">
+          string
+        </cmp-a>
       `);
 
       expect(root.textContent).toBe('string');
@@ -301,7 +323,7 @@ describe('attribute', () => {
       });
 
       expect(root).toEqualHtml(`
-        <cmp-a str=""></cmp-a>
+        <cmp-a str></cmp-a>
       `);
 
       expect(root.textContent).toBe('');
@@ -360,7 +382,7 @@ describe('attribute', () => {
       await waitForChanges();
 
       expect(root).toEqualHtml(`
-        <cmp-a str="second" nu="-12.2" undef="no undef" null="no null" bool dynamic-str="value" dynamic-nu="123" get-set="prop set via setter"></cmp-a>
+        <cmp-a str="second" nu="-12.2" dynamic-str="value" dynamic-nu="123" get-set="prop set via setter" undef="no undef" null="no null" bool></cmp-a>
       `);
     });
 
@@ -415,7 +437,7 @@ describe('attribute', () => {
         <cmp-draggable>
           <mock:shadow-root>
             <div draggable="false"></div>
-            <img draggable="false"/>
+            <img draggable="false">
           </mock:shadow-root>
         </cmp-draggable>
       `);
@@ -427,7 +449,7 @@ describe('attribute', () => {
       <cmp-draggable>
         <mock:shadow-root>
           <div draggable="true"></div>
-          <img draggable="true"/>
+          <img draggable="true">
         </mock:shadow-root>
       </cmp-draggable>
     `);

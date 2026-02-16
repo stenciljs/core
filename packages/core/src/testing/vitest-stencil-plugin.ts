@@ -43,11 +43,13 @@ export function stencilVitestPlugin(): VitePlugin {
         currentDirectory: process.cwd(),
         module: 'esm',
         proxy: null,
-        sourceMap: true,
+        sourceMap: false,
         style: null,
         styleImportData: 'queryparams',
         target: 'es2022',
       });
+
+      // console.log(result)
 
       const hasErrors = result.diagnostics?.some((d) => d.level === 'error');
       if (hasErrors) {

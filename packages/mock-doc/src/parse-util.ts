@@ -67,11 +67,13 @@ function getParser(ownerDocument: MockDocument) {
       const elm = ownerDocument.createElementNS(namespaceURI, tagName);
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
+        // Construct qualified name with prefix if present
+        const qualifiedName = attr.prefix ? `${attr.prefix}:${attr.name}` : attr.name;
 
         if (attr.namespace == null || attr.namespace === 'http://www.w3.org/1999/xhtml') {
-          elm.setAttribute(attr.name, attr.value);
+          elm.setAttribute(qualifiedName, attr.value);
         } else {
-          elm.setAttributeNS(attr.namespace, attr.name, attr.value);
+          elm.setAttributeNS(attr.namespace, qualifiedName, attr.value);
         }
       }
 
@@ -147,9 +149,10 @@ function getParser(ownerDocument: MockDocument) {
     adoptAttributes(recipient: MockElement, attrs: Token.Attribute[]) {
       for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
+        const qualifiedName = attr.prefix ? `${attr.prefix}:${attr.name}` : attr.name;
 
         if (recipient.hasAttributeNS(attr.namespace, attr.name) === false) {
-          recipient.setAttributeNS(attr.namespace, attr.name, attr.value);
+          recipient.setAttributeNS(attr.namespace, qualifiedName, attr.value);
         }
       }
     },

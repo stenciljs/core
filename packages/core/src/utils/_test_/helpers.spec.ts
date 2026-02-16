@@ -1,4 +1,5 @@
 import { dashToPascalCase, escapeWithPattern, isDef, mergeIntoWith, toCamelCase, toDashCase } from '../helpers';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('util helpers', () => {
   describe('dashToPascalCase', () => {

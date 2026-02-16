@@ -2,7 +2,7 @@ import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from 'virtual:platform';
 import { addHostEventListeners } from './';
 
-import type * as d from '@stencil/core';
+import type * as d from '../declarations';
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
 import { createShadowRoot } from '../utils/shadow-root';
@@ -46,7 +46,11 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   let isBootstrapping = true;
 
   Object.assign(plt, options);
-  plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', win.document.baseURI).href;
+  try {
+    plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', win.document.baseURI).href;
+  } catch {
+    plt.$resourcesUrl$ = win.document.baseURI;
+  }
   if (BUILD.asyncQueue) {
     if (options.syncQueue) {
       plt.$flags$ |= PLATFORM_FLAGS.queueSync;

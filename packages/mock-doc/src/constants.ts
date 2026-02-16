@@ -5,8 +5,21 @@ export const SLOT_NODE_ID = 's';
 export const TEXT_NODE_ID = 't';
 export const HYDRATE_ID = 's-id';
 
-// XML namespace for xlink attributes
+// Standard XML namespaces
 export const XLINK_NS = 'http://www.w3.org/1999/xlink';
+export const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+export const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
+
+/**
+ * Get the standard prefix for a namespace URI.
+ * Returns null if namespace has no standard prefix.
+ */
+export function getPrefixForNamespace(namespaceURI: string | null): string | null {
+  if (namespaceURI === XLINK_NS) return 'xlink';
+  if (namespaceURI === XML_NS) return 'xml';
+  if (namespaceURI === XMLNS_NS) return 'xmlns';
+  return null;
+}
 
 export const enum NODE_TYPES {
   ELEMENT_NODE = 1,

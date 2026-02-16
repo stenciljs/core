@@ -1,26 +1,28 @@
-import { buildError } from '../../../utils';
-import fs from 'graceful-fs';
+/// <reference types="vitest/globals" />
 
+import { expect, describe, it } from '@stencil/vitest';
+import { buildError } from '../../../utils';
 import { LazyDependencies, NodeLazyRequire } from '../node-lazy-require';
 import { NodeResolveModule } from '../node-resolve-module';
+import fs from 'graceful-fs';
 
-const mockPackageJson = (version: string) =>
-  JSON.stringify({
-    version,
-  });
+vi.mock('graceful-fs', () => ({
+  default: {
+    readFileSync: vi.fn(),
+  },
+}));
+
+vi.mock('../node-resolve-module', () => ({
+  NodeResolveModule: class {
+    resolveModule = vi.fn().mockReturnValue('/fake/path/to/jest/package.json');
+  },
+}));
+
+const mockPackageJson = (version: string) => JSON.stringify({ version });
 
 describe('node-lazy-require', () => {
   describe('NodeLazyRequire', () => {
     describe('ensure', () => {
-      let readFSMock: jest.SpyInstance<ReturnType<typeof fs.readFileSync>, Parameters<typeof fs.readFileSync>>;
-
-      beforeEach(() => {
-        readFSMock = jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPackageJson('10.10.10'));
-      });
-
-      afterEach(() => {
-        readFSMock.mockClear();
-      });
 
       const jestTestRange = (maxVersion = '38.0.1'): LazyDependencies => ({
         jest: {
@@ -40,7 +42,7 @@ describe('node-lazy-require', () => {
         'should not error if installed package has a suitable major version (%p)',
         async (testVersion) => {
           const nodeLazyRequire = setup(jestTestRange());
-          readFSMock.mockReturnValue(mockPackageJson(testVersion));
+          vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson(testVersion));
           const diagnostics = await nodeLazyRequire.ensure('.', ['jest']);
           expect(diagnostics.length).toBe(0);
         },
@@ -50,7 +52,7 @@ describe('node-lazy-require', () => {
         'should never error with versions above minVersion if there is no maxVersion supplied (%p)',
         async (testVersion) => {
           const nodeLazyRequire = setup(jestTestRange(undefined));
-          readFSMock.mockReturnValue(mockPackageJson(testVersion));
+          vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson(testVersion));
           const diagnostics = await nodeLazyRequire.ensure('.', ['jest']);
           expect(diagnostics.length).toBe(0);
         },
@@ -59,7 +61,7 @@ describe('node-lazy-require', () => {
       it.each(['38', undefined])('should error w/ installed version too low and maxVersion=%p', async (maxVersion) => {
         const range = jestTestRange(maxVersion);
         const nodeLazyRequire = setup(range);
-        readFSMock.mockReturnValue(mockPackageJson('1.1.1'));
+        vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson('1.1.1'));
         const [error] = await nodeLazyRequire.ensure('.', ['jest']);
         expect(error).toEqual({
           ...buildError([]),
@@ -73,7 +75,7 @@ describe('node-lazy-require', () => {
         async (version) => {
           const range = jestTestRange();
           const nodeLazyRequire = setup(range);
-          readFSMock.mockReturnValue(mockPackageJson(version));
+          vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson(version));
           const [error] = await nodeLazyRequire.ensure('.', ['jest']);
           expect(error).toEqual({
             ...buildError([]),

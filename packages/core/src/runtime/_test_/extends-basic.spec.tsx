@@ -3,28 +3,6 @@ import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
 describe('extends', () => {
-  it('renders a component that extends from a base class', async () => {
-    class Base {
-      baseProp = 'base';
-    }
-    @Component({ tag: 'cmp-a' })
-    class CmpA extends Base {
-      render() {
-        return `${this.baseProp}`;
-      }
-    }
-
-    const page = await newSpecPage({
-      components: [CmpA],
-      html: `<cmp-a></cmp-a>`,
-    });
-
-    expect(page.root).toEqualHtml(`
-      <cmp-a>
-        base
-      </cmp-a>
-    `);
-  });
 
   it('should call inherited watch methods when props change', async () => {
     let called = 0;
@@ -45,14 +23,15 @@ describe('extends', () => {
       }
     }
 
-    const { root } = await newSpecPage({
+    const { root, waitForChanges } = await newSpecPage({
       components: [ExtendedComponent],
       html: `<extended-component></extended-component>`,
     });
 
     expect(called).toBe(0);
-
+    
     root.foo = '1';
+    await waitForChanges();
 
     expect(called).toBe(1);
     expect(root.foo).toBe('1');

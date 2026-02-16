@@ -398,7 +398,7 @@ describe('event', () => {
     expect(root).toEqualHtml(`
       <cmp-blur-recursion>
         <div>
-          <input value=""></input>
+          <input value>
           <div>
             Blur count: 0
           </div>
@@ -414,7 +414,7 @@ describe('event', () => {
     expect(root).toEqualHtml(`
       <cmp-blur-recursion>
         <div>
-          <input value=""></input>
+          <input value>
           <div>
             Blur count: 1
           </div>

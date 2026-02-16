@@ -1,7 +1,16 @@
+// @vitest-environment stencil
+
+import { expect, describe, it } from '@stencil/vitest';
 import { queryNonceMetaTagContent } from '../query-nonce-meta-tag-content';
 
 describe('queryNonceMetaTagContent', () => {
-  it('should return the nonce value if the tag exists', () => {
+  it('should return `undefined` if the tag does not exist', () => {
+    const nonce = queryNonceMetaTagContent(document);
+
+    expect(nonce).toEqual(undefined);
+  });
+
+   it('should return the nonce value if the tag exists', () => {
     const meta = document.createElement('meta');
     meta.setAttribute('name', 'csp-nonce');
     meta.setAttribute('content', '1234');
@@ -10,12 +19,6 @@ describe('queryNonceMetaTagContent', () => {
     const nonce = queryNonceMetaTagContent(document);
 
     expect(nonce).toEqual('1234');
-  });
-
-  it('should return `undefined` if the tag does not exist', () => {
-    const nonce = queryNonceMetaTagContent(document);
-
-    expect(nonce).toEqual(undefined);
   });
 
   it('should return `undefined` if the document does not have a head element', () => {
