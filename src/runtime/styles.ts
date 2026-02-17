@@ -77,6 +77,8 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       }
 
       // Check if style element already exists (for HMR updates)
+      // For shadow DOM components, directly update their dedicated style element
+      // For scoped components, check if they have their own HMR-created style element
       const existingStyleElm: HTMLStyleElement =
         (BUILD.hydrateClientSide || BUILD.hotModuleReplacement) &&
         styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
@@ -156,9 +158,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                *
                * Note: order of how styles are applied is important. The new style node
                * should be inserted before the existing style node.
+               *
+               * During HMR, create separate style elements for scoped components so they can be
+               * updated independently without affecting other components' styles.
                */
               const existingStyleContainer: HTMLStyleElement = styleContainerNode.querySelector('style');
-              if (existingStyleContainer) {
+              if (existingStyleContainer && !BUILD.hotModuleReplacement) {
                 existingStyleContainer.textContent = style + existingStyleContainer.textContent;
               } else {
                 (styleContainerNode as HTMLElement).prepend(styleElm);
