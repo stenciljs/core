@@ -224,7 +224,7 @@ packages/
 - [ ] Remove all `*.sys` patching code
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
 
-## 🚧 Migrate all unit tests from jest to vitest
+## ✅ Migrate all unit tests from jest to vitest
 - [x] Migrate `src/cli` tests - COMPLETE
   - [x] Initial setup
   - [x] Migrate `src/cli/test` tests
@@ -260,7 +260,7 @@ packages/
   - [x] Migrate `src/utils` tests
 - [ ] Migrate `src/mock-doc` tests
   - [x] Initial setup
-  - [ ] Migrate `src/mock-doc/test` tests
+  - [x] Migrate `src/mock-doc/test` tests
 
 ---
 
