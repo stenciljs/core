@@ -26,11 +26,12 @@
     "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
     "dev": "pnpm typecheck && pnpm build:watch",
     "test": "pnpm --filter './packages/*' run test",
+    "test:watch": "pnpm --parallel --filter './packages/*' run test --watch",
     "typecheck": "pnpm --filter './packages/*' run typecheck"
   },
   "devDependencies": {
-    "@stencil/vitest": "^1.1.19",
-    "vitest-environment-stencil": "^1.1.19",
+    "@stencil/vitest": "^1.1.21",
+    "vitest-environment-stencil": "^1.1.21",
     "@types/node": "^22",
     "oxlint": "^1.47.0",
     "prettier": "^3.8.1",

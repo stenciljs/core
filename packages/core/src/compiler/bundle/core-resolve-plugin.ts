@@ -13,6 +13,8 @@ import {
   STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID,
   STENCIL_INTERNAL_HYDRATE_ID,
   STENCIL_INTERNAL_ID,
+  STENCIL_JSX_DEV_RUNTIME_ID,
+  STENCIL_JSX_RUNTIME_ID,
 } from './entry-alias-ids';
 
 export const coreResolvePlugin = (
@@ -77,6 +79,30 @@ export const coreResolvePlugin = (
       }
       if (id === STENCIL_INTERNAL_HYDRATE_ID) {
         return internalHydrate;
+      }
+      // Handle jsx-runtime and jsx-dev-runtime imports
+      // These must resolve to the same internal client path as @stencil/core
+      // to prevent Rollup from bundling duplicate runtime code with different
+      // minified property names, which causes VNode property mismatches during hydration
+      if (id === STENCIL_JSX_RUNTIME_ID || id === STENCIL_JSX_DEV_RUNTIME_ID) {
+        if (platform === 'client') {
+          if (externalRuntime) {
+            return {
+              id: STENCIL_INTERNAL_CLIENT_ID,
+              external: true,
+            };
+          }
+          if (lazyLoad) {
+            // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+            // use the default app-data, but build a custom one based on component meta
+            return internalClient + APP_DATA_CONDITIONAL;
+          }
+          // for a non-lazy / dist-custom-elements build, use the default, complete core.
+          return internalClient;
+        }
+        if (platform === 'hydrate') {
+          return internalHydrate;
+        }
       }
       return null;
     },
