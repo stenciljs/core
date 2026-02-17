@@ -59,4 +59,5 @@ test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/st
 
 
 .turbo
-.agents
+# temporary ignore whilst we complete v5
+src/
