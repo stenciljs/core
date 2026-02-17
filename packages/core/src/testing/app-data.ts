@@ -62,7 +62,6 @@ export const BUILD: BuildConditionals = {
   cloneNodeFix: false,
   hydratedAttribute: false,
   hydratedClass: true,
-  scriptDataOpts: false,
   scopedSlotTextContentFix: false,
   shadowDomShim: false,
   slotChildNodesFix: false,

@@ -44,8 +44,8 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
   const hardwareConcurrency = sysCpus.length;
   const osPlatform = platform();
 
-  const compilerExecutingPath = path.join(__dirname, '..', '..', 'compiler', 'stencil.js');
-  const devServerExecutingPath = path.join(__dirname, '..', '..', 'dev-server', 'index.js');
+  // Note: tsdown bundles this into a chunk at dist/, so __dirname = dist/
+  const compilerExecutingPath = path.join(__dirname, 'compiler', 'index.mjs');
 
   const runInterruptsCallbacks = () => {
     const returnValues: Promise<any>[] = [];
@@ -171,7 +171,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       return results;
     },
     createWorkerController(maxConcurrentWorkers) {
-      const forkModulePath = path.join(__dirname, 'worker.js');
+      const forkModulePath = path.join(__dirname, 'sys', 'node', 'worker.mjs');
       return new NodeWorkerController(forkModulePath, maxConcurrentWorkers);
     },
     async destroy() {
@@ -222,7 +222,8 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       return compilerExecutingPath;
     },
     getDevServerExecutingPath() {
-      return devServerExecutingPath;
+      // Dev server removed in v5 - use Vite or esbuild dev server instead
+      throw new Error('Dev server has been removed in Stencil v5. Use Vite or another dev server.');
     },
     getEnvironmentVar(key) {
       return process.env[key];

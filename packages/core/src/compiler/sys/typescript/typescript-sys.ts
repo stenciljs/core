@@ -86,7 +86,17 @@ export const patchTsSystemFileSystem = (
 
   tsSys.getCurrentDirectory = compilerSys.getCurrentDirectory;
 
-  tsSys.getExecutingFilePath = compilerSys.getCompilerExecutingPath;
+  // Use TypeScript's actual path for lib file resolution (not Stencil's compiler path)
+  // This allows TypeScript to find its lib.*.d.ts files in node_modules/typescript/lib/
+  tsSys.getExecutingFilePath = () => {
+    try {
+      // Get TypeScript's actual location for lib file resolution
+      return require.resolve('typescript');
+    } catch {
+      // Fallback to Stencil's compiler path
+      return compilerSys.getCompilerExecutingPath();
+    }
+  };
 
   tsSys.getDirectories = (p) => {
     const items = compilerSys.readDirSync(p);

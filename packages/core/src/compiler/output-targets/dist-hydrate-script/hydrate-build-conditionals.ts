@@ -43,8 +43,6 @@ export const getHydrateBuildConditionals = (config: d.ValidatedConfig, cmps: d.C
   build.cssAnnotations = true;
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   build.shadowDomShim = true;
-  // TODO(STENCIL-1305): remove this option
-  build.scriptDataOpts = false;
   build.attachStyles = true;
 
   return build;

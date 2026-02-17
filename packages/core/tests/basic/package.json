@@ -1,0 +1,11 @@
+{
+  "name": "test-basic",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "scripts": {
+    "build": "stencil build --prod"
+  }
+}

@@ -67,7 +67,6 @@ const generateIndexDts = (indexDtsPath: string, componentsDtsPath: string) => {
   return `export * from '${relativeImport(indexDtsPath, componentsDtsPath, '.d.ts')}';
 export interface CustomElementsDefineOptions {
   exclude?: string[];
-  resourcesUrl?: string;
   syncQueue?: boolean;
   jmp?: (c: Function) => any;
   raf?: (c: FrameRequestCallback) => number;

@@ -91,7 +91,7 @@ describe('scoped', () => {
       </cmp-b>
     `);
 
-    page.root.slot = false;
+    (page.root as any).slot = false;
     await page.waitForChanges();
     await page.waitForChanges();
 

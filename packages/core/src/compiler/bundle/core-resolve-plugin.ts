@@ -10,7 +10,6 @@ import {
   APP_DATA_CONDITIONAL,
   STENCIL_CORE_ID,
   STENCIL_INTERNAL_CLIENT_ID,
-  STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID,
   STENCIL_INTERNAL_HYDRATE_ID,
   STENCIL_INTERNAL_ID,
   STENCIL_JSX_DEV_RUNTIME_ID,
@@ -26,7 +25,6 @@ export const coreResolvePlugin = (
 ): Plugin => {
   const compilerExe = config.sys.getCompilerExecutingPath();
   const internalClient = getStencilInternalModule(config, compilerExe, 'client/index.js');
-  const internalClientPatchBrowser = getStencilInternalModule(config, compilerExe, 'client/patch-browser.js');
   const internalHydrate = getStencilInternalModule(config, compilerExe, 'hydrate/index.js');
 
   return {
@@ -67,15 +65,6 @@ export const coreResolvePlugin = (
         // importing @stencil/core/runtime/client directly, so it shouldn't get
         // the custom app-data conditionals
         return internalClient;
-      }
-      if (id === STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID) {
-        if (externalRuntime) {
-          return {
-            id: STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID,
-            external: true,
-          };
-        }
-        return internalClientPatchBrowser;
       }
       if (id === STENCIL_INTERNAL_HYDRATE_ID) {
         return internalHydrate;

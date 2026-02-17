@@ -2078,7 +2078,6 @@ export interface JSXAttributes<T = Element> {
 
 export interface CustomElementsDefineOptions {
   exclude?: string[];
-  resourcesUrl?: string;
   syncQueue?: boolean;
   /** @deprecated in-favour of `setTagTransformer` and `transformTag` */
   transformTagName?: (tagName: string) => string;

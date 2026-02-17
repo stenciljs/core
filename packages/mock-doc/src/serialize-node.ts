@@ -216,7 +216,7 @@ function* streamToHtml(
         if (opts.prettyHtml && attrName === 'class') {
           attrValue = attr.value = attrValue
             .split(' ')
-            .filter((t) => t !== '')
+            .filter((t: string) => t !== '')
             .sort()
             .join(' ')
             .trim();

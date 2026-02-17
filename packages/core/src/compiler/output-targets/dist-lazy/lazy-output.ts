@@ -10,7 +10,6 @@ import {
   LAZY_EXTERNAL_ENTRY_ID,
   STENCIL_APP_GLOBALS_ID,
   STENCIL_CORE_ID,
-  STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID,
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { generateComponentBundles } from '../../entries/component-bundles';
@@ -184,12 +183,11 @@ const getLazyEntry = (isBrowser: boolean): string => {
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
 
   if (isBrowser) {
-    s.append(`import { patchBrowser } from '${STENCIL_INTERNAL_CLIENT_PATCH_BROWSER_ID}';\n`);
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
-    s.append(`patchBrowser().then(async (options) => {\n`);
+    s.append(`(async () => {\n`);
     s.append(`  await globalScripts();\n`);
-    s.append(`  return bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/], options);\n`);
-    s.append(`});\n`);
+    s.append(`  bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/]);\n`);
+    s.append(`})();\n`);
   } else {
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     s.append(`export const defineCustomElements = async (win, options) => {\n`);

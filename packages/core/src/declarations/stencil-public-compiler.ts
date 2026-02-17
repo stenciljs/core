@@ -380,14 +380,6 @@ interface ConfigExtrasBase {
   lifecycleDOMEvents?: boolean;
 
   /**
-   * It is possible to assign data to the actual `<script>` element's `data-opts` property,
-   * which then gets passed to Stencil's initial bootstrap. This feature is only required
-   * for very special cases and rarely needed. Defaults to `false`.
-   * @deprecated This option has been deprecated and will be removed in a future major version of Stencil.
-   */
-  scriptDataOpts?: boolean;
-
-  /**
    * When a component is first attached to the DOM, this setting will wait a single tick before
    * rendering. This works around an Angular issue, where Angular attaches the elements before
    * settings their initial state, leading to double renders and unnecessary event dispatches.

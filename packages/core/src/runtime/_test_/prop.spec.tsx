@@ -336,14 +336,14 @@ describe('prop', () => {
 
     root.value = 0;
     await waitForChanges();
-    expect(root.querySelector('#internal-input').value).toBe('0');
+    expect(root.querySelector<HTMLInputElement>('#internal-input').value).toBe('0');
 
     root.value = '';
     await waitForChanges();
-    expect(root.querySelector('#internal-input').value).toBe('');
+    expect(root.querySelector<HTMLInputElement>('#internal-input').value).toBe('');
 
     root.value = 0;
     await waitForChanges();
-    expect(root.querySelector('#internal-input').value).toBe('0');
+    expect(root.querySelector<HTMLInputElement>('#internal-input').value).toBe('0');
   });
 });

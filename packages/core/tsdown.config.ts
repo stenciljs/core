@@ -50,6 +50,7 @@ export default defineConfig([
       'compiler/utils/index': 'src/utils/compiler-exports.ts',
       'testing/index': 'src/testing/index.ts',
       'sys/node/index': 'src/sys/node/index.ts',
+      'sys/node/worker': 'src/sys/node/worker.ts',
       'mock-doc': 'src/mock-doc.ts',
     },
     outDir: 'dist',

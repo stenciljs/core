@@ -46,15 +46,8 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   let isBootstrapping = true;
 
   Object.assign(plt, options);
-  try {
-    plt.$resourcesUrl$ = new URL(options.resourcesUrl || './', win.document.baseURI).href;
-  } catch {
-    plt.$resourcesUrl$ = win.document.baseURI;
-  }
-  if (BUILD.asyncQueue) {
-    if (options.syncQueue) {
-      plt.$flags$ |= PLATFORM_FLAGS.queueSync;
-    }
+  if (BUILD.asyncQueue && options.syncQueue) {
+    plt.$flags$ |= PLATFORM_FLAGS.queueSync;
   }
   if (BUILD.hydrateClientSide) {
     // If the app is already hydrated there is not point to disable the

@@ -22,12 +22,12 @@
   },
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter './packages/*' run build",
+    "build": "pnpm --reporter=append-only --filter './packages/*' run build",
     "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
     "dev": "pnpm typecheck && pnpm build:watch",
     "test": "pnpm --filter './packages/*' run test",
     "test:watch": "pnpm --parallel --filter './packages/*' run test --watch",
-    "typecheck": "pnpm --filter './packages/*' run typecheck"
+    "typecheck": "pnpm --reporter=append-only --filter './packages/*' run typecheck"
   },
   "devDependencies": {
     "@stencil/vitest": "^1.1.21",
