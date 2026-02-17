@@ -1,3 +1,17 @@
+# 👒 [4.43.0](https://github.com/stenciljs/core/compare/v4.42.1...v4.43.0) (2026-02-13)
+
+
+### Bug Fixes
+
+* **compiler:** JSX Runtime Hydration Failure ([#6595](https://github.com/stenciljs/core/issues/6595)) ([8a34ac5](https://github.com/stenciljs/core/commit/8a34ac5cac109d8db83d0fe55dadb522e3b7c379))
+
+
+### Features
+
+* **dist-custom-elements:** new `autoLoader` option ([#6594](https://github.com/stenciljs/core/issues/6594)) ([e130b7a](https://github.com/stenciljs/core/commit/e130b7aa5f126684ccfa9bfd64e7ed438d1722a2))
+
+
+
 ## 🌍 [4.42.1](https://github.com/stenciljs/core/compare/v4.42.0...v4.42.1) (2026-02-06)
 
 
