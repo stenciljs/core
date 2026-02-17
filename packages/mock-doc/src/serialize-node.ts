@@ -180,6 +180,8 @@ function* streamToHtml(
         }
 
         const attrNamespaceURI = attr.namespaceURI;
+        // Use localName for namespaced attributes since we add the prefix manually
+        const attrLocalName = attr.localName ?? attrName;
         if (attrNamespaceURI == null) {
           output.currentLineWidth += attrName.length + 1;
           if (
@@ -193,22 +195,22 @@ function* streamToHtml(
             yield ' ' + attrName;
           }
         } else if (attrNamespaceURI === 'http://www.w3.org/XML/1998/namespace') {
-          yield ' xml:' + attrName;
-          output.currentLineWidth += attrName.length + 5;
+          yield ' xml:' + attrLocalName;
+          output.currentLineWidth += attrLocalName.length + 5;
         } else if (attrNamespaceURI === 'http://www.w3.org/2000/xmlns/') {
-          if (attrName !== 'xmlns') {
-            yield ' xmlns:' + attrName;
-            output.currentLineWidth += attrName.length + 7;
+          if (attrLocalName !== 'xmlns') {
+            yield ' xmlns:' + attrLocalName;
+            output.currentLineWidth += attrLocalName.length + 7;
           } else {
-            yield ' ' + attrName;
-            output.currentLineWidth += attrName.length + 1;
+            yield ' ' + attrLocalName;
+            output.currentLineWidth += attrLocalName.length + 1;
           }
         } else if (attrNamespaceURI === XLINK_NS) {
-          yield ' xlink:' + attrName;
-          output.currentLineWidth += attrName.length + 7;
+          yield ' xlink:' + attrLocalName;
+          output.currentLineWidth += attrLocalName.length + 7;
         } else {
-          yield ' ' + attrNamespaceURI + ':' + attrName;
-          output.currentLineWidth += attrNamespaceURI.length + attrName.length + 2;
+          yield ' ' + attrNamespaceURI + ':' + attrLocalName;
+          output.currentLineWidth += attrNamespaceURI.length + attrLocalName.length + 2;
         }
 
         if (opts.prettyHtml && attrName === 'class') {

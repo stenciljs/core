@@ -1,3 +1,5 @@
+import { describe, it, expect } from '@stencil/vitest';
+
 describe('global', () => {
   it('HTMLElement', () => {
     expect(HTMLElement).toBeDefined();

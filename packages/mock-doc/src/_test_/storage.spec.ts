@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { MockWindow } from '../window';
 
 describe('storage', () => {
@@ -9,9 +10,11 @@ describe('storage', () => {
   it('localStorage should return proper values', () => {
     expect(win.localStorage.getItem('key')).toEqual(null);
 
+    // @ts-ignore
     win.localStorage.setItem('key', null);
     expect(win.localStorage.getItem('key')).toEqual('null');
 
+    // @ts-ignore
     win.localStorage.setItem('key', undefined);
     expect(win.localStorage.getItem('key')).toEqual('null');
 

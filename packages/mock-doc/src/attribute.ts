@@ -98,7 +98,8 @@ function getNamespaceURI(namespaceURI: string | null) {
 }
 
 export function cloneAttributes(srcAttrs: MockAttributeMap, sortByName = false) {
-  const dstAttrs = new MockAttributeMap(srcAttrs.caseInsensitive);
+  // Use createAttributeProxy to ensure numeric indexing works (e.g., attrs[0])
+  const dstAttrs = createAttributeProxy(srcAttrs.caseInsensitive);
   if (srcAttrs != null) {
     const attrLen = srcAttrs.length;
 

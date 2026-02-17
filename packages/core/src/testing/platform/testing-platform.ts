@@ -64,8 +64,6 @@ export function resetPlatform(defaults: Partial<d.PlatformRuntime> = {}) {
     plt.$orgLocNodes$ = undefined;
   }
 
-  // win.location.href = plt.$resourcesUrl$ = `http://testing.stenciljs.com/`;
-
   resetTaskQueue();
   stopAutoApplyChanges();
 

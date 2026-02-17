@@ -1,4 +1,5 @@
-import { XLINK_NS } from '../../runtime/runtime-constants';
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
+import { XLINK_NS } from '../constants';
 import { MockAttr, MockAttributeMap } from '../attribute';
 import { MockDocument } from '../document';
 import { MockElement, MockHTMLElement } from '../node';
@@ -49,16 +50,15 @@ describe('attributes', () => {
     element.setAttribute('viewbox', '0 0 20 20');
 
     expect(element.attributes.length).toBe(2);
-    expect(element.attributes.getNamedItem('viewBox').value).toEqual('0 0 10 10');
-    expect(element.attributes.getNamedItem('viewbox').value).toEqual('0 0 20 20');
+    expect(element.attributes.getNamedItem('viewBox')?.value).toEqual('0 0 10 10');
+    expect(element.attributes.getNamedItem('viewbox')?.value).toEqual('0 0 20 20');
 
-    expect(element.attributes.getNamedItemNS(null, 'viewBox').value).toEqual('0 0 10 10');
-    expect(element.attributes.getNamedItemNS(null, 'viewbox').value).toEqual('0 0 20 20');
-
+    expect(element.attributes.getNamedItemNS(null, 'viewBox')?.value).toEqual('0 0 10 10');
+    expect(element.attributes.getNamedItemNS(null, 'viewbox')?.value).toEqual('0 0 20 20');
     element.removeAttribute('viewBox');
     element.removeAttribute('viewbox');
 
-    testNsAttributes(element);
+    testNsAttributes(element as any);
   });
 
   it('should cast attribute values to string', () => {
@@ -122,12 +122,11 @@ describe('attributes', () => {
 
     element.setAttribute('viewBox', '0 0 10 10');
     element.setAttribute('viewbox', '0 0 20 20');
-    expect(element.attributes.getNamedItem('viewBox').value).toEqual('0 0 20 20');
-    expect(element.attributes.getNamedItem('viewbox').value).toEqual('0 0 20 20');
+    expect(element.attributes.getNamedItem('viewBox')?.value).toEqual('0 0 20 20');
+    expect(element.attributes.getNamedItem('viewbox')?.value).toEqual('0 0 20 20');
 
     expect(element.attributes.getNamedItemNS(null, 'viewBox')).toEqual(null);
-    expect(element.attributes.getNamedItemNS(null, 'viewbox').value).toEqual('0 0 20 20');
-
+    expect(element.attributes.getNamedItemNS(null, 'viewbox')?.value).toEqual('0 0 20 20');
     element.removeAttribute('viewbox');
 
     testNsAttributes(element);
@@ -170,8 +169,9 @@ describe('attributes', () => {
       const div = doc.createElement('div');
       div.setAttribute('draggable', 'true');
       expect(div.getAttributeNode('draggable')).toEqual({
-        _name: 'draggable',
+        _localName: 'draggable',
         _namespaceURI: null,
+        _prefix: null,
         _value: 'true',
       });
     });
@@ -190,10 +190,10 @@ describe('attributes', () => {
     expect(element.attributes.length).toBe(2);
     expect(element.attributes.getNamedItemNS('test', 'viewBox')).toEqual(null);
     expect(element.attributes.getNamedItemNS('test', 'viewbox')).toEqual(null);
-    expect(element.attributes.getNamedItemNS('tEst', 'viewBox').name).toEqual('viewBox');
-    expect(element.attributes.getNamedItemNS('tEst', 'viewbox').name).toEqual('viewbox');
-    expect(element.attributes.getNamedItemNS('tEst', 'viewBox').value).toEqual('1');
-    expect(element.attributes.getNamedItemNS('tEst', 'viewbox').value).toEqual('2');
+    expect(element.attributes.getNamedItemNS('tEst', 'viewBox')?.name).toEqual('viewBox');
+    expect(element.attributes.getNamedItemNS('tEst', 'viewbox')?.name).toEqual('viewbox');
+    expect(element.attributes.getNamedItemNS('tEst', 'viewBox')?.value).toEqual('1');
+    expect(element.attributes.getNamedItemNS('tEst', 'viewbox')?.value).toEqual('2');
 
     element.removeAttributeNS('test', 'viewBox');
     element.removeAttributeNS('test', 'viewbox');

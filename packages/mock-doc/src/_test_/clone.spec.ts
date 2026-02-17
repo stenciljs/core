@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { createDocument, MockDocument } from '../document';
 import { cloneDocument } from '../window';
 
@@ -31,9 +32,9 @@ describe('cloneNode', () => {
     `);
 
     const cloned = cloneDocument(doc);
-    const clonedDiv = cloned.querySelector('div');
+    const clonedDiv = cloned?.querySelector('div');
 
-    expect(clonedDiv.innerHTML.trim()).toEqual(`content`);
+    expect(clonedDiv?.innerHTML.trim()).toEqual(`content`);
   });
 
   it('template', () => {
@@ -44,9 +45,9 @@ describe('cloneNode', () => {
     `);
 
     const cloned = cloneDocument(doc);
-    const clonedTemplate = cloned.querySelector('template');
+    const clonedTemplate = cloned?.querySelector('template');
 
-    expect(clonedTemplate.innerHTML.trim()).toEqual(`content`);
-    expect(clonedTemplate.content.firstChild.textContent.trim()).toEqual(`content`);
+    expect(clonedTemplate?.innerHTML.trim()).toEqual(`content`);
+    expect(clonedTemplate?.content.firstChild?.textContent?.trim()).toEqual(`content`);
   });
 });

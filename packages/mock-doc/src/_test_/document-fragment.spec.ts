@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { MockDocument } from '../document';
 import { MockDocumentFragment } from '../document-fragment';
 
@@ -40,9 +41,11 @@ describe('documentFragment', () => {
     expect(frag).toEqualHtml(``);
 
     expect(doc.body).toEqualHtml(`
-    <div></div>
-    <a></a>
-    text
+    <body>
+      <div></div>
+      <a></a>
+      text
+    </body>
     `);
   });
 });

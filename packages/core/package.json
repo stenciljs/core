@@ -102,8 +102,6 @@
     "extends": "../../package.json"
   },
   "devDependencies": {
-    "@ionic/prettier-config": "^4.0.0",
-    "@stencil/vitest": "^1.1.19",
-    "vitest-environment-stencil": "^1.1.19"
+    "@ionic/prettier-config": "^4.0.0"
   }
 }

@@ -51,10 +51,11 @@ export class MockRequest {
   }
 
   get url() {
+    const baseUrl = typeof location !== 'undefined' && location.href ? location.href : 'http://localhost/';
     if (typeof this._url === 'string') {
-      return new URL(this._url, location.href).href;
+      return new URL(this._url, baseUrl).href;
     }
-    return new URL('/', location.href).href;
+    return new URL('/', baseUrl).href;
   }
   set url(value: string) {
     this._url = value;

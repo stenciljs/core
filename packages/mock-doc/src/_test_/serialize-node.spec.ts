@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { MockDocument } from '../document';
 import { EMPTY_ELEMENTS, serializeNodeToHtml } from '../serialize-node';
 
@@ -99,7 +100,9 @@ describe('serializeNodeToHtml', () => {
       <p>
         <!--comment1-->
         <!--comment2-->
-        <span>Hello</span>
+        <span>
+          Hello
+        </span>
         <!--comment3-->
         <!--comment4-->
       </p>
@@ -110,7 +113,9 @@ describe('serializeNodeToHtml', () => {
         <p>
           <!--comment1-->
           <!--comment2-->
-          <span>Hello</span>
+          <span>
+            Hello
+          </span>
           <!--comment3-->
           <!--comment4-->
         </p>
@@ -144,11 +149,17 @@ describe('serializeNodeToHtml', () => {
     expect(elm).toEqualHtml(`
       <cmp-a>
         <mock:shadow-root>
-          <article>shadow top</article>
+          <article>
+            shadow top
+          </article>
           <slot></slot>
-          <section>shadow bottom</section>
+          <section>
+            shadow bottom
+          </section>
         </mock:shadow-root>
-        <div>light dom</div>
+        <div>
+          light dom
+        </div>
       </cmp-a>
     `);
   });
@@ -179,7 +190,9 @@ describe('serializeNodeToHtml', () => {
     expect(elm).toEqualHtml(`
       <my-tag tabindex="0">
         <mock:shadow-root shadowrootdelegatesfocus>
-          <div>test content</div>
+          <div>
+            test content
+          </div>
         </mock:shadow-root>
       </my-tag>
     `);

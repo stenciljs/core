@@ -1,3 +1,4 @@
+import { describe, it, expect } from '@stencil/vitest';
 import { MockHeaders } from '../headers';
 import { MockRequest, MockResponse } from '../request-response';
 

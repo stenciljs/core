@@ -29,6 +29,8 @@
     "typecheck": "pnpm --filter './packages/*' run typecheck"
   },
   "devDependencies": {
+    "@stencil/vitest": "^1.1.19",
+    "vitest-environment-stencil": "^1.1.19",
     "@types/node": "^22",
     "oxlint": "^1.47.0",
     "prettier": "^3.8.1",

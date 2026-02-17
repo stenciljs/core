@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { NODE_TYPES } from '../constants';
 import { createFragment } from '../document';
 import { MockDocument } from '../document';
@@ -62,21 +63,23 @@ describe('parseHtml', () => {
     expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2].children?.[0]?.tagName).toEqual('A');
     expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.children?.[1]?.tagName).toEqual('FEIMAGE');
     expect(doc.body).toEqualHtml(`
-    <div>
-      <svg>
-        <a>
-          Hello
-        </a>
-        <feImage></feImage>
-        <foreignObject>
-          <a>
-            Hello
-          </a>
-          <feimage></feimage>
-        </foreignObject>
-        <svg></svg>
-      </svg>
-    </div>
+      <body>
+        <div>
+          <svg>
+            <a>
+              Hello
+            </a>
+            <feImage></feImage>
+            <foreignObject>
+              <a>
+                Hello
+              </a>
+              <feimage></feimage>
+            </foreignObject>
+            <svg></svg>
+          </svg>
+        </div>
+      </body>
     `);
   });
 

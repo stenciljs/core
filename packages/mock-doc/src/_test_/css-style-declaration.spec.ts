@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { MockCSSStyleDeclaration } from '../css-style-declaration';
 import { MockDocument } from '../document';
 import { MockHTMLElement } from '../node';

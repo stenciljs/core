@@ -1,3 +1,4 @@
+import { describe, it, expect } from '@stencil/vitest';
 import { MockDocument } from '../document';
 import { MockElement } from '../node';
 import { PROBLEMATIC_SELECTORS } from '../selector';

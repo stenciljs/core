@@ -11,6 +11,9 @@ importers:
 
   .:
     devDependencies:
+      '@stencil/vitest':
+        specifier: ^1.1.19
+        version: 1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
       '@types/node':
         specifier: ^22
         version: 22.19.11
@@ -32,6 +35,9 @@ importers:
       vitest:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)
+      vitest-environment-stencil:
+        specifier: ^1.1.19
+        version: 1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
     optionalDependencies:
       '@rolldown/binding-darwin-arm64':
         specifier: ^1.0.0-rc.3
@@ -140,12 +146,6 @@ importers:
       '@ionic/prettier-config':
         specifier: ^4.0.0
         version: 4.0.0(prettier@3.8.1)
-      '@stencil/vitest':
-        specifier: ^1.1.19
-        version: 1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
-      vitest-environment-stencil:
-        specifier: ^1.1.19
-        version: 1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
 
   packages/mock-doc:
     dependencies:
@@ -2315,14 +2315,13 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@stencil/vitest@1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))':
+  '@stencil/vitest@1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))':
     dependencies:
       jiti: 2.6.1
       local-pkg: 1.1.2
       vitest: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)
-      vitest-environment-stencil: 1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+      vitest-environment-stencil: 1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
     optionalDependencies:
-      '@stencil/mock-doc': link:packages/mock-doc
       jsdom: 28.0.0
 
   '@tybys/wasm-util@0.10.1':
@@ -3102,9 +3101,9 @@ snapshots:
       jiti: 2.6.1
       terser: 5.37.0
 
-  vitest-environment-stencil@1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)):
+  vitest-environment-stencil@1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0)):
     dependencies:
-      '@stencil/vitest': 1.1.19(@stencil/mock-doc@packages+mock-doc)(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
+      '@stencil/vitest': 1.1.19(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(terser@5.37.0))
     transitivePeerDependencies:
       - '@playwright/test'
       - '@stencil/core'

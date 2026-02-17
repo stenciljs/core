@@ -23,7 +23,7 @@ import { MockRequest, MockResponse } from './request-response';
 import { MockWindow } from './window';
 
 export function setupGlobal(gbl: any) {
-  if (gbl.window == null) {
+  if (gbl?.window == null) {
     const win: any = (gbl.window = new MockWindow());
 
     WINDOW_FUNCTIONS.forEach((fnName) => {

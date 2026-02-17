@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { createWindow } from '../window';
 
 describe('customElements', () => {
@@ -117,7 +118,7 @@ describe('customElements', () => {
     expect(connectedInc).toBe(1);
     expect(disconnectedInc).toBe(0);
 
-    expect(document.body.outerHTML).toEqualHtml(`
+    expect(document.body).toEqualHtml(`
       <body>
         <div>
           <cmp-a></cmp-a>
@@ -128,7 +129,7 @@ describe('customElements', () => {
     document.body.innerHTML = '';
     expect(connectedInc).toBe(1);
     expect(disconnectedInc).toBe(1);
-    expect(document.body.outerHTML).toEqualHtml(``);
+    expect(document.body).toEqualHtml(`<body></body>`);
   });
 
   it('connectedCallback, multiple appendChild', () => {
@@ -151,7 +152,7 @@ describe('customElements', () => {
     expect(connectedInc).toBe(1);
     document.body.appendChild(cmpA2);
     expect(connectedInc).toBe(2);
-    expect(document.body.outerHTML).toEqualHtml(`
+    expect(document.body).toEqualHtml(`
       <body>
         <cmp-a></cmp-a>
         <cmp-a></cmp-a>
@@ -176,7 +177,7 @@ describe('customElements', () => {
     expect(connectedInc).toBe(0);
     document.body.insertBefore(cmpA, null);
     expect(connectedInc).toBe(1);
-    expect(document.body.outerHTML).toEqualHtml(`<body><cmp-a></cmp-a></body>`);
+    expect(document.body).toEqualHtml(`<body><cmp-a></cmp-a></body>`);
   });
 
   it('connectedCallback, insertBefore elm', () => {
@@ -197,7 +198,7 @@ describe('customElements', () => {
     const cmpA = document.createElement('cmp-a');
     document.body.insertBefore(cmpA, ref);
     expect(connectedInc).toBe(1);
-    expect(document.body.outerHTML).toEqualHtml(`<body><cmp-a></cmp-a><div></div></body>`);
+    expect(document.body).toEqualHtml(`<body><cmp-a></cmp-a><div></div></body>`);
   });
 
   it('appendChild nested, scoped to mocked window', () => {
@@ -228,7 +229,11 @@ describe('customElements', () => {
     expect(connectedInc).toBe(1);
     expect(disconnectedInc).toBe(0);
 
-    expect(win.document.body.outerHTML).toEqualHtml(`<body><div><cmp-a></cmp-a></div></body>`);
+    expect(win.document.body.outerHTML).toEqualHtml(`
+      <div>
+        <cmp-a></cmp-a>
+      </div>  
+    `);
 
     win.document.body.removeChild(parentElm);
     expect(connectedInc).toBe(1);
