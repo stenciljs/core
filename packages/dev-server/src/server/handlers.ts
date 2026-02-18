@@ -46,13 +46,19 @@ export function createRequestHandler(
   serverCtx: DevServerContext
 ): (req: IncomingMessage, res: ServerResponse) => Promise<void> {
   let userRequestHandler: ((req: IncomingMessage, res: ServerResponse, next: () => void) => void) | null = null
-
-  if (typeof devServerConfig.requestListenerPath === 'string') {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    userRequestHandler = require(devServerConfig.requestListenerPath)
-  }
+  let userHandlerLoaded = false
 
   return async function (incomingReq: IncomingMessage, res: ServerResponse): Promise<void> {
+    // Lazy load user request handler on first request
+    if (!userHandlerLoaded && typeof devServerConfig.requestListenerPath === 'string') {
+      userHandlerLoaded = true
+      try {
+        const userModule = await import(devServerConfig.requestListenerPath)
+        userRequestHandler = userModule.default || userModule
+      } catch (e) {
+        console.error('Failed to load user request handler:', e)
+      }
+    }
     async function defaultHandler(): Promise<void> {
       try {
         const req = normalizeHttpRequest(devServerConfig, incomingReq)
@@ -143,7 +149,14 @@ export function createRequestHandler(
 
         return serverCtx.serve404(req, res, xSource.join(', '))
       } catch (e) {
-        return serverCtx.serve500(req, res, e, 'not found error')
+        // Use a minimal request object for error handling since req may not be defined
+        const errorReq: HttpRequest = {
+          method: (incomingReq.method || 'GET').toUpperCase() as HttpRequest['method'],
+          acceptHeader: '',
+          url: null,
+          searchParams: null,
+        }
+        return serverCtx.serve500(errorReq, res, e, 'not found error')
       }
     }
 

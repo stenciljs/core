@@ -60,8 +60,8 @@ export async function ssrPageRequest(
         const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts)
 
         diagnostics.push(...ssrResults.diagnostics)
-        status = ssrResults.httpStatus
-        content = ssrResults.html
+        status = ssrResults.httpStatus ?? 500
+        content = ssrResults.html ?? ''
       } catch (e) {
         catchError(diagnostics, e)
       }
@@ -176,13 +176,16 @@ async function setupHydrateApp(
   const diagnostics: Diagnostic[] = []
 
   if (serverCtx.prerenderConfig == null && isString(devServerConfig.prerenderConfig)) {
-    const compilerPath = path.join(devServerConfig.devServerDir!, '..', 'compiler', 'stencil.js')
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const compiler: typeof import('@stencil/core/compiler') = require(compilerPath)
-    const prerenderConfigResults = compiler.nodeRequire(devServerConfig.prerenderConfig)
-    diagnostics.push(...prerenderConfigResults.diagnostics)
-    if (prerenderConfigResults.module?.config) {
-      serverCtx.prerenderConfig = prerenderConfigResults.module.config
+    try {
+      // Dynamic import the compiler
+      const compiler = await import('@stencil/core/compiler')
+      const prerenderConfigResults = compiler.nodeRequire(devServerConfig.prerenderConfig)
+      diagnostics.push(...prerenderConfigResults.diagnostics)
+      if (prerenderConfigResults.module?.config) {
+        serverCtx.prerenderConfig = prerenderConfigResults.module.config
+      }
+    } catch (e) {
+      catchError(diagnostics, e)
     }
   }
 
@@ -212,15 +215,15 @@ async function setupHydrateApp(
     } else {
       const hydrateAppFilePath = path.resolve(buildResults.hydrateAppFilePath)
 
-      // Clear require cache for hydrate app (brute force)
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require.cache = {}
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const Module = require('module')
-      Module._cache[hydrateAppFilePath] = undefined
-
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      hydrateApp = require(hydrateAppFilePath)
+      try {
+        // Use cache-busting query string for ESM dynamic import
+        // This ensures we get a fresh module on each build
+        const cacheBuster = `?t=${Date.now()}`
+        const hydrateModule = await import(`file://${hydrateAppFilePath}${cacheBuster}`)
+        hydrateApp = hydrateModule.default || hydrateModule
+      } catch (e) {
+        catchError(diagnostics, e)
+      }
     }
   }
 
@@ -265,10 +268,11 @@ function getSsrHydrateOptions(
 
   if (isFunction(serverCtx.sys.applyPrerenderGlobalPatch)) {
     const orgBeforeHydrate = opts.beforeHydrate
+    const applyPatch = serverCtx.sys.applyPrerenderGlobalPatch
     opts.beforeHydrate = (document: Document) => {
       const devServerBaseUrl = new URL(devServerConfig.browserUrl!)
       const devServerHostUrl = devServerBaseUrl.origin
-      serverCtx.sys.applyPrerenderGlobalPatch({
+      applyPatch({
         devServerHostUrl,
         window: document.defaultView,
       })

@@ -40,7 +40,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "open": "^11.0.0"
+    "open": "^11.0.0",
+    "ws": "^8.0.0"
   },
   "optionalDependencies": {
     "open-in-editor": "^3.0.0"

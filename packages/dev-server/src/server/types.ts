@@ -3,7 +3,7 @@
  * Re-exports relevant types from @stencil/core and defines local interfaces.
  */
 
-import type { ServerResponse, IncomingMessage } from 'node:http'
+import type { ServerResponse } from 'node:http'
 
 // Re-export types from core that we need
 export type {
@@ -50,9 +50,9 @@ export interface DevServerMessage {
 }
 
 export interface BuildLog {
-  buildId: number
-  messages: string[]
-  progress: number
+  buildId?: number
+  messages?: string[]
+  progress?: number
 }
 
 export type DevServerSendMessage = (msg: DevServerMessage) => void
@@ -105,6 +105,8 @@ export interface DevResponseHeaders {
   server?: string
   'x-directory-index'?: string
   'x-source'?: string
+  // Index signature for compatibility with OutgoingHttpHeaders
+  [key: string]: string | number | string[] | undefined
 }
 
 /**

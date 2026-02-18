@@ -120,14 +120,14 @@ function startServer(
     return closePromise
   }
 
-  const emit = async (eventName: string, data: unknown): Promise<void> => {
+  const emit = (eventName: string, data: any): void => {
     if (sendToServer) {
       if (eventName === 'buildFinish') {
         isActivelyBuilding = false
         lastBuildResults = { ...(data as CompilerBuildResults) }
         sendToServer({ buildResults: { ...lastBuildResults }, isActivelyBuilding })
       } else if (eventName === 'buildLog') {
-        sendToServer({ buildLog: { ...(data as DevServerMessage['buildLog']) } })
+        sendToServer({ buildLog: { ...data } })
       } else if (eventName === 'buildStart') {
         isActivelyBuilding = true
       }
@@ -236,7 +236,8 @@ function startServer(
 
   try {
     if (watcher) {
-      removeWatcher = watcher.on(emit as Parameters<typeof watcher.on>[0])
+      // Cast emit to the generic callback signature that watcher.on accepts
+      removeWatcher = watcher.on(emit as (eventName: string, data: any) => void)
     }
 
     // Initialize server directly (no worker process)

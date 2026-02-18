@@ -3,6 +3,8 @@
  * Consolidated from dev-server-constants.ts and dev-server-utils.ts
  */
 
+import type { OutgoingHttpHeaders } from 'node:http'
+
 import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types.js'
 
 // =============================================================================
@@ -30,8 +32,8 @@ const DEFAULT_HEADERS: DevResponseHeaders = {
   'access-control-expose-headers': '*',
 }
 
-export function responseHeaders(headers: DevResponseHeaders, httpCache = false): DevResponseHeaders {
-  const result = { ...DEFAULT_HEADERS, ...headers }
+export function responseHeaders(headers: DevResponseHeaders, httpCache = false): OutgoingHttpHeaders {
+  const result: OutgoingHttpHeaders = { ...DEFAULT_HEADERS, ...headers }
   if (httpCache) {
     result['cache-control'] = 'max-age=3600'
     delete result['date']

@@ -7,7 +7,7 @@
 import * as http from 'node:http'
 import * as https from 'node:https'
 import * as net from 'node:net'
-import { WebSocketServer, type WebSocket as NodeWebSocket } from 'node:ws'
+import { WebSocketServer, type WebSocket as NodeWebSocket } from 'ws'
 
 import type {
   CompilerBuildResults,
@@ -106,11 +106,10 @@ export function createWebSocket(
 ): DevWebSocket {
   const wsServer = new WebSocketServer({ server: httpServer })
 
-  function heartbeat(this: DevWS): void {
-    this.isAlive = true
-  }
+  wsServer.on('connection', (rawWs: NodeWebSocket) => {
+    const ws = rawWs as DevWS
+    ws.isAlive = true
 
-  wsServer.on('connection', (ws: DevWS) => {
     ws.on('message', (data) => {
       try {
         onMessageFromClient(JSON.parse(data.toString()))
@@ -119,8 +118,9 @@ export function createWebSocket(
       }
     })
 
-    ws.isAlive = true
-    ws.on('pong', heartbeat)
+    ws.on('pong', () => {
+      ws.isAlive = true
+    })
 
     // Handle errors gracefully
     ws.on('error', (err) => {
