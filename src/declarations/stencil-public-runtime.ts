@@ -773,6 +773,7 @@ export declare namespace h {
   export function h(sel: any, data: VNodeData | null, text: string): VNode;
   export function h(sel: any, data: VNodeData | null, children: Array<VNode | undefined | null>): VNode;
   export function h(sel: any, data: VNodeData | null, children: VNode): VNode;
+  export function h(sel: any, data: VNodeData | null, ...children: (VNode | string | number)[]): VNode;
 
   export namespace JSX {
     interface IntrinsicElements extends LocalJSX.IntrinsicElements, JSXBase.IntrinsicElements {
@@ -790,6 +791,8 @@ export declare function h(sel: any, text: string): VNode;
 export declare function h(sel: any, children: Array<VNode | undefined | null>): VNode;
 export declare function h(sel: any, data: VNodeData | null, text: string): VNode;
 export declare function h(sel: any, data: VNodeData | null, children: Array<VNode | undefined | null>): VNode;
+export declare function h(sel: any, data: VNodeData | null, children: VNode): VNode;
+export declare function h(sel: any, data: VNodeData | null, ...children: (VNode | string | number)[]): VNode;
 
 /**
  * Automatic JSX runtime functions for TypeScript's react-jsx mode.
@@ -829,7 +832,6 @@ export declare function jsxDEV(
   source?: any,
   self?: any,
 ): VNode;
-export declare function h(sel: any, data: VNodeData | null, children: VNode): VNode;
 
 /**
  * A virtual DOM node
