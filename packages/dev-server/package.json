@@ -1,0 +1,58 @@
+{
+  "name": "@stencil/dev-server",
+  "description": "Development server for Stencil with DOM-based HMR",
+  "author": "StencilJs Contributors",
+  "homepage": "https://stenciljs.com/",
+  "keywords": [
+    "web components",
+    "stencil",
+    "dev server",
+    "hmr",
+    "hot module replacement"
+  ],
+  "version": "5.0.0-next.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.mts",
+      "import": "./dist/client/index.mjs"
+    }
+  },
+  "files": [
+    "dist/",
+    "templates/",
+    "static/"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "open": "^11.0.0"
+  },
+  "optionalDependencies": {
+    "open-in-editor": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "@types/ws": "^8.0.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

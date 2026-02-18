@@ -23,7 +23,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - Ancient polyfills → REMOVE
 - In-browser compilation → REMOVE
 - *-sys in-memory file-system (patching node / typescript to do in-memory builds) → use newer 'incremental' build APIs in TypeScript instead. See ./new-ts-non-sys-pattern for some relevant code.
-- Hand-crafted dev server (used for dev and SSG) / HMR → replace with something (esbuild server or Vite dev server)
+- Hand-crafted dev server / HMR → modernize as `@stencil/dev-server` (Vite doesn't fit lazy-loading architecture)
 - Custom file watcher → replace with some 3rd party thing
 
 ### 3. 🔧 Build System: tsdown
@@ -44,12 +44,13 @@ Previous approach used Vite + Turborepo with 8 separate config files for core al
 See [Build System](#build-system-tsdown-1) section for details.
 
 ### 4. 📦 Mono-repo Restructure
-**Status:** ✅ Complete
+**Status:** ✅ Complete (dev-server pending)
 ```
 packages/
 ├── core/        @stencil/core (compiler + runtime)
 ├── cli/         @stencil/cli
-└── mock-doc/    @stencil/mock-doc
+├── mock-doc/    @stencil/mock-doc
+└── dev-server/  @stencil/dev-server (planned)
 ```
 
 ### 5. 🔗 CLI/Core Dependency Architecture
@@ -157,8 +158,15 @@ packages/
 │   ├── src/
 │   ├── dist/
 │   └── tsdown.config.ts
-└── mock-doc/            @stencil/mock-doc
+├── mock-doc/            @stencil/mock-doc
+│   ├── src/
+│   ├── dist/
+│   └── tsdown.config.ts
+└── dev-server/          @stencil/dev-server (planned)
     ├── src/
+    │   ├── server/      (HTTP + WebSocket server)
+    │   ├── client/      (Browser HMR client, injected)
+    │   └── templates/   (Error overlay, directory index)
     ├── dist/
     └── tsdown.config.ts
 ```
@@ -179,6 +187,7 @@ packages/
 6. **tsdown over Vite** - Better for libraries, single config, no orchestrator needed
 7. **No Turborepo** - Simple `pnpm -r build` is sufficient
 8. **CLI as peer dep of Core** - Nuxt pattern, avoids circular deps
+9. **Modernize dev-server, don't replace** - Vite/esbuild assume static module graphs; Stencil's lazy-loading needs DOM-based HMR
 
 ---
 
@@ -214,8 +223,10 @@ packages/
 - [x] Mapping: `src/{compiler,runtime,client,utils,...}/` → `packages/core/src/...`
 - [x] Test dirs renamed: `test/` → `_test_/`
 
-**Not migrated (intentionally removed in v5):**
-- `src/dev-server/` - replaced with external tooling
+**Not migrated yet:**
+- `src/dev-server/` → `packages/dev-server/` (modernize as `@stencil/dev-server`)
+
+**Intentionally removed in v5:**
 - `src/screenshot/` - removed
 - `src/testing/jest/` - replaced with `@stencil/vitest`
 - `src/testing/puppeteer/` - replaced with `@stencil/playwright`
@@ -318,4 +329,247 @@ pnpm workspaces handle dependency ordering automatically.
 
 ---
 
-*Last updated: 2026-02-16 Session 12*
+### 8. 🖥️ Dev Server: Modernize as `@stencil/dev-server`
+**Status:** 📋 Planned
+
+**Decision:** Modernize the legacy dev server rather than adopt Vite/esbuild. Off-the-shelf tools assume static module graphs; Stencil's lazy-loading requires DOM-based HMR.
+
+**Why not Vite?** Vite's HMR requires `import.meta.hot.accept()` and static imports. Stencil discovers components at runtime from the DOM - no module graph exists at build time.
+
+**New package:** `packages/dev-server/` → `@stencil/dev-server`
+
+```
+packages/
+├── core/        @stencil/core
+├── cli/         @stencil/cli
+├── mock-doc/    @stencil/mock-doc
+└── dev-server/  @stencil/dev-server  ← NEW
+```
+
+**Features to preserve:**
+- DOM-based HMR (traverses shadow roots, finds components by tag name)
+- Error overlay with "open in editor"
+- Build status favicon (🟢/🟡/🔴)
+- SSR dev mode
+- Directory browsing
+- History API fallback
+
+**Modernization tasks:**
+- [ ] Create `packages/dev-server/` structure
+- [ ] Remove worker-process forking (evaluate if needed with Node 20+)
+- [ ] Use native Node 22+ WebSocket (no ws package)
+- [ ] Remove IE/legacy browser support
+- [ ] Consolidate ~30 files into ~10
+- [ ] Strict TypeScript throughout
+- [ ] Target 40-50% code reduction
+
+<details>
+<summary><b>Dev Server Implementation Reference</b></summary>
+
+### Current File Structure (`src/dev-server/`)
+
+```
+src/dev-server/
+├── index.ts                    # Main entry point, exports start()
+├── server-worker-main.ts       # Forks child process for server
+├── server-worker-thread.js     # Worker thread bootstrap (legacy)
+├── server-process.ts           # HTTP + WebSocket server setup
+├── server-http.ts              # HTTP server creation, port finding
+├── server-web-socket.ts        # WebSocket server (uses 'ws' package)
+├── server-context.ts           # Request context utilities
+├── request-handler.ts          # Route dispatching
+├── serve-file.ts               # Static file serving + HMR injection
+├── serve-directory-index.ts    # Directory listing
+├── serve-dev-client.ts         # Serves connector iframe
+├── serve-dev-node-module.ts    # Dynamic module resolution
+├── ssr-request.ts              # SSR page rendering
+├── open-in-browser.ts          # Launch browser
+├── open-in-editor.ts           # IDE integration
+├── open-in-editor-api.ts       # Editor API helpers
+├── dev-server-utils.ts         # URL/path utilities
+├── dev-server-constants.ts     # Route constants
+├── content-types-db.json       # MIME types
+│
+├── dev-server-client/          # Connector (runs in hidden iframe)
+│   ├── index.ts                # Entry
+│   ├── init-dev-client.ts      # Setup
+│   ├── client-web-socket.ts    # Browser WebSocket client
+│   └── app-update.ts           # Coordinates HMR updates
+│
+├── client/                     # HMR client (injected into page)
+│   ├── index.ts                # Exports
+│   ├── hmr-window.ts           # Main HMR coordinator
+│   ├── hmr-components.ts       # DOM traversal for component HMR
+│   ├── hmr-inline-styles.ts    # Style tag updates
+│   ├── hmr-external-styles.ts  # Link tag updates
+│   ├── hmr-images.ts           # Image cache busting
+│   ├── hmr-util.ts             # HMR utilities
+│   ├── app-error.ts            # Error overlay
+│   ├── app-error.css           # Error overlay styles
+│   ├── events.ts               # Custom DOM events
+│   ├── logger.ts               # Console logging
+│   ├── progress.ts             # Build progress
+│   └── status.ts               # Favicon status indicator
+│
+├── templates/
+│   ├── connector.html          # Hidden iframe HTML
+│   ├── directory-index.html    # Directory listing template
+│   └── initial-load.html       # Loading screen during first build
+│
+└── static/
+    └── favicon.ico             # Default favicon
+```
+
+### Architecture Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ CLI Process (main)                                                       │
+│   index.ts::start()                                                      │
+│     └─ Creates emit() function that receives watcher events             │
+│        └─ buildStart, buildFinish, buildLog                             │
+│     └─ Forks worker OR imports server-process directly                  │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   │ IPC (DevServerMessage)
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Server Process (worker)                                                  │
+│   server-process.ts::initServerProcess()                                │
+│     ├─ HTTP Server (server-http.ts)                                     │
+│     │    └─ request-handler.ts dispatches to serve-*.ts                 │
+│     └─ WebSocket Server (server-web-socket.ts)                          │
+│          └─ Broadcasts buildResults to all connected browsers           │
+└──────────────────────────────────┬──────────────────────────────────────┘
+                                   │ WebSocket
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Browser                                                                  │
+│   Hidden iframe (dev-server-client/)                                    │
+│     └─ client-web-socket.ts manages WebSocket connection                │
+│        └─ On message: emits DOM events to parent window                 │
+│                                                                          │
+│   Parent window (client/)                                                │
+│     └─ Listens for 'devserver:buildresults' event                       │
+│        └─ hmr-window.ts coordinates updates                             │
+│           ├─ hmr-components.ts: traverse DOM, call element['s-hmr']()   │
+│           ├─ hmr-inline-styles.ts: update <style> tags                  │
+│           ├─ hmr-external-styles.ts: update <link> hrefs                │
+│           └─ hmr-images.ts: cache-bust image URLs                       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Message Protocol (DevServerMessage)
+
+```typescript
+// Main → Worker
+{ startServer: DevServerConfig }     // Initialize server
+{ closeServer: true }                // Shutdown
+{ buildResults: CompilerBuildResults, isActivelyBuilding: boolean }
+{ buildLog: BuildLog }               // Progress updates
+{ compilerRequestResults: ... }      // Module resolution response
+
+// Worker → Main
+{ serverStarted: DevServerConfig }   // Server ready, includes port/URL
+{ serverClosed: true }               // Shutdown complete
+{ requestBuildResults: true }        // Browser wants latest build
+{ compilerRequestPath: string }      // Module resolution request
+{ requestLog: { method, url, status } }  // Access log
+{ error: { message, stack } }        // Error report
+
+// Worker → Browser (via WebSocket)
+{ buildResults: CompilerBuildResults }  // With hmr object
+{ buildLog: BuildLog }                  // Progress
+{ isActivelyBuilding: boolean }         // Build state
+```
+
+### HMR Data Structure
+
+```typescript
+interface HotModuleReplacement {
+  versionId: string;                    // Cache-busting version
+  componentsUpdated?: string[];         // Tag names: ['my-component', ...]
+  inlineStylesUpdated?: string[];       // Component tags with style changes
+  externalStylesUpdated?: string[];     // External stylesheet paths
+  imagesUpdated?: string[];             // Image paths
+  reloadStrategy?: 'hmr' | 'pageReload';
+  excludeHmr?: string[];               // Files that always trigger reload
+}
+```
+
+### Key HMR Logic (hmr-components.ts)
+
+```typescript
+// The core HMR mechanism - DOM traversal, not module graph
+const hmrComponent = (updatedTags, element, versionId, cmpTagName) => {
+  // Match by tag name
+  if (element.nodeName.toLowerCase() === cmpTagName) {
+    // Call component's HMR method (set by Stencil runtime)
+    element['s-hmr'](versionId);
+  }
+
+  // Traverse shadow roots
+  if (element.shadowRoot) {
+    hmrComponent(updatedTags, element.shadowRoot, versionId, cmpTagName);
+  }
+
+  // Recurse children
+  for (const child of element.children) {
+    hmrComponent(updatedTags, child, versionId, cmpTagName);
+  }
+};
+```
+
+### Consolidation Plan
+
+| Current (~30 files) | New (~10 files) |
+|---------------------|-----------------|
+| index.ts, server-worker-main.ts, server-worker-thread.js | `index.ts` (no worker fork) |
+| server-process.ts, server-http.ts, server-web-socket.ts | `server.ts` |
+| server-context.ts, dev-server-utils.ts, dev-server-constants.ts | `utils.ts` |
+| request-handler.ts, serve-file.ts, serve-directory-index.ts, serve-dev-client.ts, serve-dev-node-module.ts | `handlers.ts` |
+| ssr-request.ts | `ssr.ts` (if keeping SSR) |
+| open-in-browser.ts, open-in-editor.ts, open-in-editor-api.ts | `editor.ts` |
+| dev-server-client/* (4 files) | `connector.ts` |
+| client/* (12 files) | `hmr-client.ts` (browser bundle) |
+| templates/* | Keep as-is |
+
+### Dependencies to Remove
+
+- `ws` package → Use Node 22+ native `WebSocket` / `WebSocketServer`
+- Worker process forking → Run in same process (simpler, fast enough)
+
+### Code Patterns to Modernize
+
+**Before (callback-style IPC):**
+```typescript
+sendToWorker = initServerProcessWorkerProxy(receiveFromWorker);
+sendToWorker({ startServer: config });
+```
+
+**After (direct):**
+```typescript
+const server = await createDevServer(config);
+// No IPC, direct function calls
+```
+
+**Before (ping/pong heartbeat):**
+```typescript
+const pingInterval = setInterval(() => {
+  wsServer.clients.forEach((ws) => {
+    if (!ws.isAlive) return ws.close();
+    ws.isAlive = false;
+    ws.ping(noop);
+  });
+}, 10000);
+```
+
+**After (native WebSocket handles this):**
+```typescript
+// Node 22+ WebSocket has built-in ping/pong
+```
+
+</details>
+
+---
+
+*Last updated: 2026-02-18*
