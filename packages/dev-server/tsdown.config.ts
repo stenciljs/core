@@ -13,6 +13,12 @@ export default defineConfig([
     dts: true,
     clean: true,
     external: [/^node:/, '@stencil/core'],
+    copy: [
+      // Copy static assets needed by the dev server
+      { from: 'templates', to: 'dist' },
+      { from: 'static', to: 'dist' },
+      { from: 'connector.html', to: 'dist' },
+    ],
   },
   // Browser-side client (HMR, connector)
   {

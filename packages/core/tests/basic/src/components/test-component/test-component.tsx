@@ -3,11 +3,12 @@ import { Component, h, Prop } from '@stencil/core';
 @Component({
   tag: 'test-component',
   shadow: true,
+  styles: `:host { display: block; background: pink; }`,
 })
 export class TestComponent {
   /** The text to display */
   @Prop() t!: string;
   render() {
-    return <div>Test</div>;
+    return <div>Test?????********</div>
   }
 }

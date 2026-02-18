@@ -49,6 +49,7 @@ export function start(
   return new Promise(async (resolve, reject) => {
     try {
       const devServerConfig: DevServerConfig = {
+        // Point to dist/ where templates/, static/, and connector.html are copied during build
         devServerDir: import.meta.dirname,
         ...stencilDevServerConfig,
       }

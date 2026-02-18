@@ -56,6 +56,11 @@ export function createServerContext(
     xSource: string
   ): void => {
     try {
+      if (res.headersSent) {
+        // Headers already sent, just end the response
+        res.end()
+        return
+      }
       res.writeHead(
         500,
         responseHeaders({
@@ -78,8 +83,21 @@ export function createServerContext(
     content: string | null = null
   ): void => {
     try {
+      if (res.headersSent) {
+        res.end()
+        return
+      }
+
       if (req.pathname === '/favicon.ico') {
         const defaultFavicon = path.join(devServerConfig.devServerDir!, 'static', 'favicon.ico')
+        const rs = fs.createReadStream(defaultFavicon)
+        rs.on('error', () => {
+          // Favicon not found - just end the response silently
+          if (!res.headersSent) {
+            res.writeHead(404)
+          }
+          res.end()
+        })
         res.writeHead(
           200,
           responseHeaders({
@@ -87,18 +105,6 @@ export function createServerContext(
             'x-source': `favicon: ${xSource}`,
           })
         )
-        const rs = fs.createReadStream(defaultFavicon)
-        rs.on('error', (err) => {
-          res.writeHead(
-            404,
-            responseHeaders({
-              'content-type': 'text/plain; charset=utf-8',
-              'x-source': `createReadStream error: ${err}, ${xSource}`,
-            })
-          )
-          res.write(inspect(err))
-          res.end()
-        })
         rs.pipe(res)
         return
       }

@@ -14,16 +14,16 @@ import {
   scriptsDeleted,
 } from '../fs-watch/fs-watch-rebuild';
 import { hasServiceWorkerChanges } from '../service-worker/generate-sw';
-import { createTsWatchProgram } from '../transpile/create-watch-program';
+import { IncrementalCompiler } from '../transpile/incremental-compiler';
 import { build } from './build';
 import { BuildContext } from './build-ctx';
 
 /**
- * This method contains context and functionality for a TS watch build. This is called via
+ * This method contains context and functionality for a watch build. This is called via
  * the compiler when running a build in watch mode (i.e. `stencil build --watch`).
  *
- * In essence, this method tracks all files that change while the program is running to trigger
- * a rebuild of a Stencil project using a {@link ts.EmitAndSemanticDiagnosticsBuilderProgram}.
+ * Uses an IncrementalCompiler for TypeScript compilation with explicit cache invalidation,
+ * triggered by @parcel/watcher file system events.
  *
  * @param config The validated config for the Stencil project
  * @param compilerCtx The compiler context for the project
@@ -34,10 +34,8 @@ export const createWatchBuild = async (
   compilerCtx: d.CompilerCtx,
 ): Promise<d.CompilerWatcher> => {
   let isRebuild = false;
-  let tsWatchProgram: {
-    program: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>;
-    rebuild: () => void;
-  };
+  let isBuilding = false;
+  let incrementalCompiler: IncrementalCompiler;
   let closeResolver: Function;
   const watchWaiter = new Promise<d.WatcherCloseResults>((resolve) => (closeResolver = resolve));
 
@@ -47,14 +45,49 @@ export const createWatchBuild = async (
   const filesUpdated = new Set<string>();
   const filesDeleted = new Set<string>();
 
+  // Track TypeScript files that need cache invalidation
+  const tsFilesToInvalidate = new Set<string>();
+
+  // Debounce rebuild calls to handle duplicate events from multiple watchers
+  let rebuildTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Trigger a rebuild of the project.
+   * Invalidates changed TypeScript files in the compiler cache, then rebuilds.
+   */
+  const triggerRebuild = async () => {
+    if (isBuilding) {
+      // If already building, schedule another rebuild after current one finishes
+      rebuildTimeout = setTimeout(triggerRebuild, 50);
+      return;
+    }
+
+    isBuilding = true;
+    try {
+      // Invalidate TypeScript cache for changed files
+      if (tsFilesToInvalidate.size > 0) {
+        incrementalCompiler.invalidateFiles(Array.from(tsFilesToInvalidate));
+        tsFilesToInvalidate.clear();
+      }
+
+      // Rebuild TypeScript program (incremental - only changed files re-emit)
+      const tsBuilder = incrementalCompiler.rebuild();
+
+      // Run the Stencil build
+      await onBuild(tsBuilder);
+    } finally {
+      isBuilding = false;
+    }
+  };
+
   /**
    * A callback function that is invoked to trigger a rebuild of a Stencil project. This will
    * update the build context with the associated file changes (these are used downstream to trigger
    * HMR) and then calls the `build()` function to execute the Stencil build.
    *
-   * @param tsBuilder A {@link ts.BuilderProgram} to be passed to the `build()` function.
+   * @param tsBuilder The TypeScript builder program for transpilation.
    */
-  const onBuild = async (tsBuilder: ts.BuilderProgram) => {
+  const onBuild = async (tsBuilder: ts.EmitAndSemanticDiagnosticsBuilderProgram) => {
     const buildCtx = new BuildContext(config, compilerCtx);
     buildCtx.isRebuild = isRebuild;
     buildCtx.requiresFullBuild = !isRebuild;
@@ -98,8 +131,6 @@ export const createWatchBuild = async (
     });
 
     // Make sure all added/updated files are watched
-    // We need to check both added/updates since the TS watch program behaves kinda weird
-    // and doesn't always handle file renames the same way
     new Set([...filesUpdated, ...filesAdded]).forEach((filePath) => {
       compilerCtx.addWatchFile(filePath);
     });
@@ -141,10 +172,9 @@ export const createWatchBuild = async (
 
   /**
    * Utility method to start/construct the watch program. This will mark
-   * all relevant files to be watched and then call a method to build the TS
-   * program responsible for building the project.
+   * all relevant files to be watched and then do the initial build.
    *
-   * @returns A promise of the result of creating the watch program.
+   * @returns A promise that resolves when the watcher is closed.
    */
   const start = async () => {
     /**
@@ -167,7 +197,13 @@ export const createWatchBuild = async (
       ...(config.watchExternalDirs || []).map((dir) => watchFiles(compilerCtx, dir)),
     ]);
 
-    tsWatchProgram = await createTsWatchProgram(config, onBuild);
+    // Create the incremental TypeScript compiler
+    incrementalCompiler = new IncrementalCompiler(config);
+
+    // Initial build
+    const tsBuilder = incrementalCompiler.rebuild();
+    await onBuild(tsBuilder);
+
     return watchWaiter;
   };
 
@@ -183,15 +219,15 @@ export const createWatchBuild = async (
   const watchingFiles = new Map<string, d.CompilerFileWatcher>();
 
   /**
-   * Callback method that will execute whenever TS alerts us that a file change
-   * has occurred. This will update the appropriate set with the file path based on the
+   * Callback method that will execute whenever a file change has occurred.
+   * This will update the appropriate set with the file path based on the
    * type of change, and then will kick off a rebuild of the project.
    *
    * @param filePath The absolute path to the file in the Stencil project
    * @param eventKind The type of file change that occurred (update, add, delete)
    */
   const onFsChange: d.CompilerFileWatcherCallback = (filePath, eventKind) => {
-    if (tsWatchProgram && !isWatchIgnorePath(config, filePath)) {
+    if (incrementalCompiler && !isWatchIgnorePath(config, filePath)) {
       updateCompilerCtxCache(config, compilerCtx, filePath, eventKind);
 
       switch (eventKind) {
@@ -212,17 +248,28 @@ export const createWatchBuild = async (
           break;
       }
 
+      // Track TypeScript files for cache invalidation
+      if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
+        tsFilesToInvalidate.add(filePath);
+      }
+
       config.logger.debug(
         `WATCH_BUILD::fs_event_change - type=${eventKind}, path=${filePath}, time=${new Date().getTime()}`,
       );
 
-      // Trigger a rebuild of the project
-      tsWatchProgram.rebuild();
+      // Debounce rebuild calls - multiple watchers may fire for the same change
+      if (rebuildTimeout) {
+        clearTimeout(rebuildTimeout);
+      }
+      rebuildTimeout = setTimeout(() => {
+        rebuildTimeout = null;
+        triggerRebuild();
+      }, 10);
     }
   };
 
   /**
-   * Callback method that will execute when TS alerts us that a directory modification has occurred.
+   * Callback method that will execute when a directory modification has occurred.
    * This will just call the `onFsChange()` callback method with the same arguments.
    *
    * @param filePath The absolute path to the file in the Stencil project
@@ -235,7 +282,7 @@ export const createWatchBuild = async (
   };
 
   /**
-   * Utility method to teardown the TS watch program and close/clear all watched files.
+   * Utility method to teardown the watch program and close/clear all watched files.
    *
    * @returns An object with the `exitCode` status of the teardown.
    */
@@ -245,9 +292,9 @@ export const createWatchBuild = async (
     watchingDirs.clear();
     watchingFiles.clear();
 
-    if (tsWatchProgram) {
-      tsWatchProgram.program.close();
-      tsWatchProgram = null;
+    if (rebuildTimeout) {
+      clearTimeout(rebuildTimeout);
+      rebuildTimeout = null;
     }
 
     const watcherCloseResults: d.WatcherCloseResults = {

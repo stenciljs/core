@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stencil Dev Server Connector 5.0.0</title>
+  <style>body{background:black;color:white;font:18px monospace;text-align:center}</style>
+</head>
+<body>
+Stencil Dev Server Connector 5.0.0
+
+<script type="module">
+  import { initDevClient } from '/~dev-server/client/index.js';
+
+  const appWindow = window.parent;
+  const config = window.__DEV_CLIENT_CONFIG__;
+
+  const defaultConfig = {
+    basePath: appWindow.location.pathname,
+    editors: [],
+    reloadStrategy: 'hmr',
+    socketUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.hostname}${location.port !== '' ? ':' + location.port : ''}/`,
+  };
+
+  initDevClient(appWindow, { ...defaultConfig, ...appWindow.devServerConfig, ...config });
+</script>
+</body>
+</html>

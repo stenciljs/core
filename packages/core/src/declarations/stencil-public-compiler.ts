@@ -1256,10 +1256,6 @@ export interface CompilerSystem {
    * The compiler's executing path.
    */
   getCompilerExecutingPath(): string;
-  /**
-   * The dev server's executing path.
-   */
-  getDevServerExecutingPath?(): string;
   getEnvironmentVar?(key: string): string;
   /**
    * Gets the absolute file path when for a dependency module.

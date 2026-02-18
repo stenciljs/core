@@ -51,6 +51,7 @@
     "extends": "../../package.json"
   },
   "dependencies": {
+    "@stencil/dev-server": "workspace:*",
     "prompts": "^2.4.2"
   }
 }

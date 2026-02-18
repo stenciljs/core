@@ -16,16 +16,12 @@ export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedCon
     const compiler = await coreCompiler.createCompiler(config);
     const watcher = await compiler.createWatcher();
 
-    if (!config.sys.getDevServerExecutingPath || !config.sys.dynamicImport || !config.sys.onProcessInterrupt) {
-      throw new Error(
-        `Environment doesn't provide required functions: getDevServerExecutingPath, dynamicImport, onProcessInterrupt`,
-      );
+    if (!config.sys.onProcessInterrupt) {
+      throw new Error(`Environment doesn't provide required function: onProcessInterrupt`);
     }
 
     if (flags.serve) {
-      const devServerPath = config.sys.getDevServerExecutingPath();
-      // @ts-expect-error - this is being removed
-      const { start }: typeof import('@stencil/core/dev-server') = await config.sys.dynamicImport(devServerPath);
+      const { start } = await import('@stencil/dev-server');
       devServer = await start(config.devServer, config.logger, watcher);
     }
 

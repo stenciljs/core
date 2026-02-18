@@ -62,3 +62,5 @@ test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/st
 .turbo
 # temporary ignore whilst we complete v5
 /src
+dist
+www

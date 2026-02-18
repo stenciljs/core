@@ -4,7 +4,7 @@ import fs from 'graceful-fs';
 import { cpus, freemem, platform, release, tmpdir, totalmem } from 'node:os';
 import * as os from 'node:os';
 import path from 'node:path';
-import type TypeScript from 'typescript';
+import * as parcelWatcher from '@parcel/watcher';
 
 import { buildEvents } from '../../compiler/events';
 import type {
@@ -221,10 +221,6 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     getCompilerExecutingPath() {
       return compilerExecutingPath;
     },
-    getDevServerExecutingPath() {
-      // Dev server removed in v5 - use Vite or esbuild dev server instead
-      throw new Error('Dev server has been removed in Stencil v5. Use Vite or another dev server.');
-    },
     getEnvironmentVar(key) {
       return process.env[key];
     },
@@ -435,30 +431,61 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       }
       return results;
     },
-    setupCompiler(c) {
-      // save references to typescript utilities so that we can wrap them
-      const ts: typeof TypeScript = c.ts;
-      const tsSysWatchDirectory = ts.sys.watchDirectory;
-      const tsSysWatchFile = ts.sys.watchFile;
-
+    setupCompiler(_c) {
       sys.watchTimeout = 80;
-
       sys.events = buildEvents();
 
-      sys.watchDirectory = (p, callback, recursive) => {
+      // Track active subscriptions for cleanup
+      const activeSubscriptions = new Map<string, Promise<parcelWatcher.AsyncSubscription>>();
+
+      /**
+       * Watch a directory for changes using @parcel/watcher.
+       * Uses native file system events (FSEvents on macOS, inotify on Linux, ReadDirectoryChangesW on Windows)
+       * for efficient, low-latency change detection.
+       */
+      sys.watchDirectory = (p, callback, _recursive) => {
         logger?.debug(`NODE_SYS_DEBUG::watchDir ${p}`);
 
-        const tsFileWatcher = tsSysWatchDirectory(
-          p,
-          (fileName) => {
-            logger?.debug(`NODE_SYS_DEBUG::watchDir:callback dir=${p} changedPath=${fileName}`);
-            callback(normalizePath(fileName), 'fileUpdate');
-          },
-          recursive,
-        );
+        const subscriptionPromise = parcelWatcher
+          .subscribe(
+            p,
+            (err, events) => {
+              if (err) {
+                logger?.error(`Watch error for ${p}: ${err.message}`);
+                return;
+              }
+              for (const event of events) {
+                const fileName = normalizePath(event.path);
+                logger?.debug(`NODE_SYS_DEBUG::watchDir:callback dir=${p} changedPath=${fileName} type=${event.type}`);
+
+                // Map @parcel/watcher event types to Stencil's event types
+                if (event.type === 'create') {
+                  callback(fileName, 'fileAdd');
+                } else if (event.type === 'update') {
+                  callback(fileName, 'fileUpdate');
+                } else if (event.type === 'delete') {
+                  callback(fileName, 'fileDelete');
+                }
+              }
+            },
+            {
+              ignore: ['.git', 'node_modules', '.stencil', 'dist', 'www', '.cache'],
+            },
+          )
+          .catch((err) => {
+            // Directory may not exist yet - this is expected during initial builds
+            logger?.debug(`Watch subscribe failed for ${p}: ${err.message}`);
+            return null;
+          });
+
+        activeSubscriptions.set(p, subscriptionPromise as Promise<parcelWatcher.AsyncSubscription>);
 
         const close = () => {
-          tsFileWatcher.close();
+          const sub = activeSubscriptions.get(p);
+          if (sub) {
+            activeSubscriptions.delete(p);
+            sub.then((s) => s?.unsubscribe()).catch(() => {});
+          }
         };
 
         sys.addDestroy(close);
@@ -466,86 +493,75 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
         return {
           close() {
             sys.removeDestroy(close);
-            tsFileWatcher.close();
+            close();
           },
         };
       };
 
       /**
-       * Wrap the TypeScript `watchFile` implementation in order to hook into the rest of the {@link CompilerSystem}
-       * implementation that is used when running Stencil's compiler in "watch mode" in Node.
-       *
-       * The wrapped function calls the default TypeScript `watchFile` implementation for the provided `path`. Based on
-       * the type of {@link ts.FileWatcherEventKind} emitted, invoke the provided callback and inform the rest of the
-       * `CompilerSystem` that the event occurred.
-       *
-       * This function does not perform any file watcher registration itself. Each `path` provided to it when called
-       * has already been registered as a file to watch.
-       *
-       * @param path the path to the file that is being watched
-       * @param callback a callback to invoke. The same callback is invoked for every `ts.FileWatcherEventKind`, only
-       * with a different event classifier string.
-       * @returns an object with a method for unhooking the file watcher from the system
+       * Watch an individual file for changes using @parcel/watcher.
+       * Watches the parent directory and filters events for the specific file.
        */
-      sys.watchFile = (path: string, callback: CompilerFileWatcherCallback): CompilerFileWatcher => {
-        logger?.debug(`NODE_SYS_DEBUG::watchFile ${path}`);
+      sys.watchFile = (filePath: string, callback: CompilerFileWatcherCallback): CompilerFileWatcher => {
+        logger?.debug(`NODE_SYS_DEBUG::watchFile ${filePath}`);
 
-        const tsFileWatcher = tsSysWatchFile(
-          path,
-          (fileName: string, tsEventKind: TypeScript.FileWatcherEventKind) => {
-            fileName = normalizePath(fileName);
-            if (tsEventKind === ts.FileWatcherEventKind.Created) {
-              callback(fileName, 'fileAdd');
-              sys.events.emit('fileAdd', fileName);
-            } else if (tsEventKind === ts.FileWatcherEventKind.Changed) {
-              callback(fileName, 'fileUpdate');
-              sys.events.emit('fileUpdate', fileName);
-            } else if (tsEventKind === ts.FileWatcherEventKind.Deleted) {
-              callback(fileName, 'fileDelete');
-              sys.events.emit('fileDelete', fileName);
-            }
-          },
+        const normalizedPath = normalizePath(filePath);
+        const dirPath = path.dirname(filePath);
 
-          /**
-           * When setting up a watcher, a numeric polling interval (in milliseconds) must be set when using
-           * {@link ts.WatchFileKind.FixedPollingInterval}. Failing to do so may cause the watch process in the
-           * TypeScript compiler to crash when files are deleted.
-           *
-           * This is the value that was used for files in TypeScript 4.8.4. The value is hardcoded as TS does not
-           * export this value/make it publicly available.
-           */
-          250,
+        const subscriptionPromise = parcelWatcher
+          .subscribe(
+            dirPath,
+            (err, events) => {
+              if (err) {
+                logger?.error(`Watch error for ${filePath}: ${err.message}`);
+                return;
+              }
+              for (const event of events) {
+                const eventPath = normalizePath(event.path);
+                // Only process events for the specific file we're watching
+                if (eventPath === normalizedPath) {
+                  logger?.debug(`NODE_SYS_DEBUG::watchFile:callback file=${filePath} type=${event.type}`);
 
-          /**
-           * As of TypeScript v4.9, the default file watcher implementation is based on file system events, and moves
-           * away from the previous polling based implementation. When attempting to use the file system events-based
-           * implementation, issues with the dev server (which runs "watch mode") were reported, stating that the
-           * compiler was continuously recompiling and reloading the dev server. It was found that in some cases, this
-           * would be caused by the access time (`atime`) on a non-TypeScript file being update by some process on the
-           * user's machine. For now, we default back to the poll-based implementation to avoid such issues, and will
-           * revisit this functionality in the future.
-           *
-           * Ref: {@link https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html#file-watching-now-uses-file-system-events|TS 4.9 Release Note}
-           *
-           * TODO(STENCIL-744): Revisit using file system events for watch mode
-           */
-          {
-            // TS 4.8 and under defaulted to this type of polling interval for polling-based watchers
-            watchFile: ts.WatchFileKind.FixedPollingInterval,
-            // set fallbackPolling so that directories are given the correct watcher variant
-            fallbackPolling: ts.PollingWatchKind.FixedInterval,
-          },
-        );
+                  if (event.type === 'create') {
+                    callback(eventPath, 'fileAdd');
+                    sys.events.emit('fileAdd', eventPath);
+                  } else if (event.type === 'update') {
+                    callback(eventPath, 'fileUpdate');
+                    sys.events.emit('fileUpdate', eventPath);
+                  } else if (event.type === 'delete') {
+                    callback(eventPath, 'fileDelete');
+                    sys.events.emit('fileDelete', eventPath);
+                  }
+                }
+              }
+            },
+            {
+              ignore: ['.git', 'node_modules'],
+            },
+          )
+          .catch((err) => {
+            // Directory may not exist yet - this is expected for files being watched before creation
+            logger?.debug(`Watch subscribe failed for ${filePath}: ${err.message}`);
+            return null;
+          });
+
+        const subscriptionKey = `file:${filePath}`;
+        activeSubscriptions.set(subscriptionKey, subscriptionPromise as Promise<parcelWatcher.AsyncSubscription>);
 
         const close = () => {
-          tsFileWatcher.close();
+          const sub = activeSubscriptions.get(subscriptionKey);
+          if (sub) {
+            activeSubscriptions.delete(subscriptionKey);
+            sub.then((s) => s?.unsubscribe()).catch(() => {});
+          }
         };
+
         sys.addDestroy(close);
 
         return {
           close() {
             sys.removeDestroy(close);
-            tsFileWatcher.close();
+            close();
           },
         };
       };

@@ -6,6 +6,7 @@
     "@stencil/core": "workspace:*"
   },
   "scripts": {
-    "build": "stencil build --prod"
+    "build": "stencil build --prod",
+    "start": "stencil build --dev --watch --serve"
   }
 }

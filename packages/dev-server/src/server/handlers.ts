@@ -293,6 +293,18 @@ export async function serveFile(
         res.end()
       }
     } else {
+      const readStream = fs.createReadStream(req.filePath!)
+
+      // Handle stream errors before piping to avoid "headers already sent" errors
+      readStream.on('error', (err) => {
+        if (!res.headersSent) {
+          serverCtx.serve500(req, res, err, 'serveFile')
+        } else {
+          // Headers already sent, just end the response
+          res.end()
+        }
+      })
+
       res.writeHead(
         200,
         responseHeaders({
@@ -300,7 +312,7 @@ export async function serveFile(
           'content-length': req.stats!.size,
         })
       )
-      fs.createReadStream(req.filePath!).pipe(res)
+      readStream.pipe(res)
     }
 
     serverCtx.logRequest(req, 200)
@@ -386,8 +398,15 @@ async function serveDevClient(
     if (isInitialDevServerLoad(req.pathname!)) {
       req.filePath = path.join(devServerConfig.devServerDir!, 'templates', 'initial-load.html')
     } else {
-      const staticFile = req.pathname!.replace(DEV_SERVER_URL + '/', '')
-      req.filePath = path.join(devServerConfig.devServerDir!, 'static', staticFile)
+      // Strip the /~dev-server/ prefix and serve from appropriate directory
+      const subPath = req.pathname!.replace(DEV_SERVER_URL + '/', '')
+      if (subPath.startsWith('client/')) {
+        // Serve client JS module
+        req.filePath = path.join(devServerConfig.devServerDir!, subPath)
+      } else {
+        // Serve static assets (favicon, etc.)
+        req.filePath = path.join(devServerConfig.devServerDir!, 'static', subPath)
+      }
     }
 
     try {

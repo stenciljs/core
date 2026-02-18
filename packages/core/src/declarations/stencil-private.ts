@@ -4,16 +4,11 @@ import type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 import type { CPSerializable } from './child_process';
 import type {
   BuildEvents,
-  BuildLog,
   BuildResultsComponentGraph,
   CompilerBuildResults,
-  CompilerFsStats,
-  CompilerRequestResponse,
   CompilerSystem,
   Config,
   CopyResults,
-  DevServerConfig,
-  DevServerEditor,
   Diagnostic,
   Logger,
   LoggerLineUpdater,
@@ -22,7 +17,6 @@ import type {
   OptimizeCssOutput,
   OutputTarget,
   OutputTargetWww,
-  PageReloadStrategy,
   PrerenderConfig,
   StyleDoc,
   ValidatedConfig,
@@ -1031,96 +1025,6 @@ export interface ComponentConstructorListener {
   method: string;
   capture?: boolean;
   passive?: boolean;
-}
-
-export interface DevClientWindow extends Window {
-  ['s-dev-server']: boolean;
-  ['s-initial-load']: boolean;
-  ['s-build-id']: number;
-  WebSocket: new (socketUrl: string, protos: string[]) => WebSocket;
-  devServerConfig?: DevClientConfig;
-}
-
-export interface DevClientConfig {
-  basePath: string;
-  editors: DevServerEditor[];
-  reloadStrategy: PageReloadStrategy;
-  socketUrl?: string;
-}
-
-export interface HttpRequest {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD' | 'OPTIONS';
-  acceptHeader: string;
-  url: URL;
-  searchParams: URLSearchParams;
-  pathname?: string;
-  filePath?: string;
-  stats?: CompilerFsStats;
-  headers?: { [name: string]: string };
-  host?: string;
-}
-
-export interface DevServerMessage {
-  startServer?: DevServerConfig;
-  closeServer?: boolean;
-  serverStarted?: DevServerConfig;
-  serverClosed?: boolean;
-  buildStart?: boolean;
-  buildLog?: BuildLog;
-  buildResults?: CompilerBuildResults;
-  requestBuildResults?: boolean;
-  error?: { message?: string; type?: string; stack?: any };
-  isActivelyBuilding?: boolean;
-  compilerRequestPath?: string;
-  compilerRequestResults?: CompilerRequestResponse;
-  requestLog?: {
-    method: string;
-    url: string;
-    status: number;
-  };
-}
-
-export type DevServerSendMessage = (msg: DevServerMessage) => void;
-
-export interface DevServerContext {
-  connectorHtml: string;
-  dirTemplate: string;
-  getBuildResults: () => Promise<CompilerBuildResults>;
-  getCompilerRequest: (path: string) => Promise<CompilerRequestResponse>;
-  isServerListening: boolean;
-  logRequest: (req: HttpRequest, status: number) => void;
-  prerenderConfig: PrerenderConfig;
-  serve302: (req: any, res: any, pathname?: string) => void;
-  serve404: (req: any, res: any, xSource: string, content?: string) => void;
-  serve500: (req: any, res: any, error: any, xSource: string) => void;
-  sys: CompilerSystem;
-}
-
-export type InitServerProcess = (sendMsg: (msg: DevServerMessage) => void) => (msg: DevServerMessage) => void;
-
-export interface DevResponseHeaders {
-  'cache-control'?: string;
-  expires?: string;
-  'content-type'?: string;
-  'content-length'?: number;
-  date?: string;
-  'access-control-allow-origin'?: string;
-  'access-control-expose-headers'?: string;
-  'content-encoding'?: 'gzip';
-  vary?: 'Accept-Encoding';
-  server?: string;
-  'x-directory-index'?: string;
-  'x-source'?: string;
-}
-
-export interface OpenInEditorData {
-  file?: string;
-  line?: number;
-  column?: number;
-  open?: string;
-  editor?: string;
-  exists?: boolean;
-  error?: string;
 }
 
 export interface EntryModule {
