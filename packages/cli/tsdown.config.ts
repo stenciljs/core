@@ -8,7 +8,7 @@ export default defineConfig({
   target: 'node20',
   dts: true,
   clean: true,
-  sourcemap: true,
+  // sourcemap: true,
   external: [/^node:/],
 })
 

@@ -13,6 +13,7 @@ log.txt
 .idea/
 .vscode/
 .claude
+.agents
 .history/
 .sass-cache/
 .versions/

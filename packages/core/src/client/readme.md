@@ -36,7 +36,7 @@ The runtime imports from `@platform`, which resolves to either `client/` or `ser
 
 The `index.ts` re-exports:
 - All platform implementations (`client-*.ts` files)
-- `BUILD`, `Env`, `NAMESPACE` from `@app-data`
+- `BUILD`, `Env`, `NAMESPACE` from `virtual:app-data`
 - Everything from `@runtime`
 
 This makes `@stencil/core/runtime/client` a complete bundle for browser usage.

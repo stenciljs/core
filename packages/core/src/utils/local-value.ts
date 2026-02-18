@@ -1,4 +1,11 @@
-import { NonPrimitiveType, PrimitiveType, TYPE_CONSTANT, VALUE_CONSTANT } from './constants';
+import {
+  NonPrimitiveType,
+  NonPrimitiveTypeValue,
+  PrimitiveType,
+  PrimitiveTypeValue,
+  TYPE_CONSTANT,
+  VALUE_CONSTANT,
+} from './constants';
 import type { LocalValueParam, ScriptLocalValue, Serializeable } from './types';
 
 /**
@@ -7,10 +14,10 @@ import type { LocalValueParam, ScriptLocalValue, Serializeable } from './types';
  * @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead.
  */
 export class LocalValue {
-  type: PrimitiveType | NonPrimitiveType;
+  type: PrimitiveTypeValue | NonPrimitiveTypeValue;
   value?: Serializeable | Serializeable[] | [Serializeable, Serializeable][];
 
-  constructor(type: PrimitiveType | NonPrimitiveType, value?: LocalValueParam) {
+  constructor(type: PrimitiveTypeValue | NonPrimitiveTypeValue, value?: LocalValueParam) {
     if (type === PrimitiveType.Undefined || type === PrimitiveType.Null) {
       this.type = type;
     } else {

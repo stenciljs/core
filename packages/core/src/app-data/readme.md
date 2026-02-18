@@ -13,7 +13,7 @@ This directory contains **default values** that get replaced at build time by `s
 A `BuildConditionals` object used for dead-code elimination. The compiler analyzes your components and sets flags like `BUILD.shadowDom`, `BUILD.slot`, etc. based on what features are actually used.
 
 ```ts
-import { BUILD } from '@app-data';
+import { BUILD } from 'virtual:app-data';
 
 if (BUILD.shadowDom) {
   // This code is eliminated if no components use Shadow DOM
@@ -31,7 +31,7 @@ export const config = {
 };
 
 // component
-import { Env } from '@app-data';
+import { Env } from 'virtual:app-data';
 console.log(Env.apiUrl);
 ```
 

@@ -122,7 +122,7 @@ export const copyStencilCoreDts = async (
 ): Promise<ReadonlyArray<FsWriteResults>> => {
   const typesOutputTargets = config.outputTargets.filter(isOutputTargetDistTypes).filter((o) => o.typesDir);
 
-  const srcStencilDtsPath = join(config.sys.getCompilerExecutingPath(), '..', '..', 'internal', CORE_DTS);
+  const srcStencilDtsPath = join(config.sys.getCompilerExecutingPath(), '..', '..', 'declarations', CORE_DTS);
   const srcStencilCoreDts = await compilerCtx.fs.readFile(srcStencilDtsPath);
 
   return Promise.all(

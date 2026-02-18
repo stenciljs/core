@@ -22,23 +22,24 @@
   },
   "type": "module",
   "scripts": {
-    "build": "pnpm --reporter=append-only --filter './packages/*' run build",
-    "build:watch": "pnpm --parallel --filter './packages/*' run build --watch",
+    "build": "pnpm --reporter=append-only --stream --filter './packages/*' run build",
+    "build:watch": "pnpm --parallel --stream --filter './packages/*' run build --watch",
     "dev": "pnpm typecheck && pnpm build:watch",
-    "test": "pnpm --filter './packages/*' run test",
-    "test:watch": "pnpm --parallel --filter './packages/*' run test --watch",
-    "typecheck": "pnpm --reporter=append-only --filter './packages/*' run typecheck"
+    "test": "pnpm --stream --filter './packages/*' run test",
+    "test:watch": "pnpm --parallel --stream --filter './packages/*' run test --watch",
+    "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck"
   },
   "devDependencies": {
     "@stencil/vitest": "^1.1.21",
-    "vitest-environment-stencil": "^1.1.21",
     "@types/node": "^22",
     "oxlint": "^1.47.0",
     "prettier": "^3.8.1",
     "rolldown": "^1.0.0-rc.3",
     "tsdown": "^0.20.3",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "unplugin-inline-enum": "^0.6.4",
+    "vitest": "^4.0.18",
+    "vitest-environment-stencil": "^1.1.21"
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.3",
@@ -54,7 +55,7 @@
     "npm": "10.9.4"
   },
   "packageManager": "pnpm@10.29.2",
-   "pnpm": {
+  "pnpm": {
     "overrides": {
       "@stencil/vitest>@stencil/core": "workspace:*"
     }

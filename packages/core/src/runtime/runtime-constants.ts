@@ -1,38 +1,42 @@
 /**
  * Bit flags for recording various properties of VDom nodes
  */
-export const enum VNODE_FLAGS {
+export const VNODE_FLAGS = {
   /**
    * Whether or not a vdom node is a slot reference
    */
-  isSlotReference = 1 << 0,
+  isSlotReference: 1 << 0,
 
   /**
    * Whether or not a slot element has fallback content
    */
-  isSlotFallback = 1 << 1,
+  isSlotFallback: 1 << 1,
 
   /**
    * Whether or not an element is a host element
    */
-  isHost = 1 << 2,
-}
+  isHost: 1 << 2,
+} as const;
 
-export const enum PROXY_FLAGS {
-  isElementConstructor = 1 << 0,
-  proxyState = 1 << 1,
-}
+export const PROXY_FLAGS = {
+  isElementConstructor: 1 << 0,
+  proxyState: 1 << 1,
+} as const;
 
-export const enum PLATFORM_FLAGS {
+// PLATFORM_FLAGS base values
+const PF_appLoaded = 1 << 1;
+const PF_queueSync = 1 << 2;
+
+export const PLATFORM_FLAGS = {
   /**
    * designates a node in the DOM as being actively moved by the runtime
    */
-  isTmpDisconnected = 1 << 0,
-  appLoaded = 1 << 1,
-  queueSync = 1 << 2,
+  isTmpDisconnected: 1 << 0,
+  appLoaded: PF_appLoaded,
+  queueSync: PF_queueSync,
 
-  queueMask = appLoaded | queueSync,
-}
+  queueMask: PF_appLoaded | PF_queueSync,
+} as const;
 
 /**
  * A (subset) of node types which are relevant for the Stencil runtime. These
@@ -41,14 +45,14 @@ export const enum PLATFORM_FLAGS {
  *
  * {@link https://dom.spec.whatwg.org/#ref-for-dom-node-nodetype%E2%91%A0}
  */
-export const enum NODE_TYPE {
-  ElementNode = 1,
-  TextNode = 3,
-  CommentNode = 8,
-  DocumentNode = 9,
-  DocumentTypeNode = 10,
-  DocumentFragment = 11,
-}
+export const NODE_TYPE = {
+  ElementNode: 1,
+  TextNode: 3,
+  CommentNode: 8,
+  DocumentNode: 9,
+  DocumentTypeNode: 10,
+  DocumentFragment: 11,
+} as const;
 
 export const CONTENT_REF_ID = 'r';
 export const ORG_LOCATION_ID = 'o';

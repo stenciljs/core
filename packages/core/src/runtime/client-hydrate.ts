@@ -724,7 +724,7 @@ const addSlottedNodes = (
  * @param type - the type of node to find
  * @returns the first corresponding node of the type
  */
-const findCorrespondingNode = (node: Node, type: NODE_TYPE.CommentNode | NODE_TYPE.TextNode) => {
+const findCorrespondingNode = (node: Node, type: typeof NODE_TYPE.CommentNode | typeof NODE_TYPE.TextNode) => {
   let sibling = node;
   do {
     sibling = sibling.nextSibling;

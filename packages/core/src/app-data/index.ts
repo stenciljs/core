@@ -3,7 +3,7 @@ import type { BuildConditionals } from '@stencil/core';
 /**
  * A collection of default build flags for a Stencil project.
  *
- * This collection can be found throughout the Stencil codebase, often imported from the `@app-data` module like so:
+ * This collection can be found throughout the Stencil codebase, often imported from the `virtual:app-data` module like so:
  * ```ts
  * import { BUILD } from 'virtual:app-data';
  * ```
@@ -16,7 +16,7 @@ import type { BuildConditionals } from '@stencil/core';
  * }
  * ```
  *
- * `@app-data`, the module that `BUILD` is imported from, is an alias for the `@stencil/core/runtime/app-data`, and is
+ * `virtual:app-data`, the module that `BUILD` is imported from, is an alias for the `@stencil/core/runtime/app-data`, and is
  * partially referenced by {@link STENCIL_APP_DATA_ID}. The `src/compiler/bundle/app-data-plugin.ts` references
  * `STENCIL_APP_DATA_ID` uses it to replace these defaults with {@link BuildConditionals} that are derived from a
  * Stencil project's contents (i.e. metadata from the components). This replacement happens at a Stencil project's

@@ -12,15 +12,11 @@ function virtualModules(options: {
   external?: Record<string, string>
 }) {
   const resolveMap = new Map(Object.entries(options.resolve ?? {}))
-  const externalMap = new Map(Object.entries(options.external ?? {}))
 
   return {
     name: 'stencil-virtual-modules',
 
     resolveId(id: string) {
-      if (externalMap.has(id)) {
-        return { id: externalMap.get(id)!, external: true }
-      }
       if (resolveMap.has(id)) {
         return resolveMap.get(id)
       }
@@ -124,7 +120,7 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
-    sourcemap: true,
+    // sourcemap: true,
     external: [/^node:/],
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
@@ -141,15 +137,17 @@ export default defineConfig([
     dts: true,
     clean: false,
     skipNodeModulesBundle: true,
-    external: [/^node:/],
+    external: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
+    outputOptions: {
+      paths: {
+        'virtual:app-data': '@stencil/core/runtime/app-data',
+        'virtual:app-globals': '@stencil/core/runtime/app-globals',
+      },
+    },
     plugins: [
       virtualModules({
         resolve: {
           'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
-        },
-        external: {
-          'virtual:app-data': '@stencil/core/runtime/app-data',
-          'virtual:app-globals': '@stencil/core/runtime/app-globals',
         },
       }),
     ],
