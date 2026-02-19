@@ -7,7 +7,9 @@ import type { ConfigFlags } from './config-flags';
 export const taskServe = async (config: ValidatedConfig, flags: ConfigFlags) => {
   config.suppressLogs = true;
 
-  config.devServer.openBrowser = !!flags.open;
+  if (typeof flags.open === 'boolean') {
+    config.devServer.openBrowser = flags.open;
+  }
   config.devServer.reloadStrategy = null;
   config.devServer.initialLoadUrl = '/';
   config.devServer.websocket = false;

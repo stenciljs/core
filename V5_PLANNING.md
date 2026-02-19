@@ -70,6 +70,8 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
 - `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
 - `@stencil/core/cli` → `@stencil/cli`
+- `@stencil/core/dev-server` → `@stencil/dev-server`
+- `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config. 
 
 ---
 
