@@ -16,8 +16,9 @@ import type {
   DevServerMessage,
   Logger,
   StencilDevServerConfig,
-} from './types.js'
-import { initServerProcess, type ServerProcessOptions } from './server.js'
+} from './types'
+import { initServerProcess } from './server'
+import { initServerProcessWorkerProxy } from './worker-main'
 
 // Re-export types for consumers
 export type {
@@ -26,12 +27,17 @@ export type {
   StencilDevServerConfig,
   Logger,
   CompilerWatcher,
-} from './types.js'
+} from './types'
 
 /**
  * Callback to remove the watcher listener.
  */
 type BuildOnEventRemove = () => void
+
+/**
+ * Function signature for initializing the server process (either in-process or worker)
+ */
+type InitServerProcess = (receiveFromMain: (msg: DevServerMessage) => void) => (msg: DevServerMessage) => void
 
 /**
  * Start the Stencil development server.
@@ -58,13 +64,18 @@ export function start(
         devServerConfig.root = path.join(process.cwd(), devServerConfig.root!)
       }
 
-      // Create the node system - lazily loaded from @stencil/core
-      const createNodeSys = async (): Promise<ServerProcessOptions['sys']> => {
-        const { createNodeSys: createSys } = await import('@stencil/core/sys/node')
-        return createSys({ process }) as ServerProcessOptions['sys']
+      // Determine whether to use worker architecture or run in-process
+      let initServerProcessFn: InitServerProcess
+
+      if (stencilDevServerConfig.worker === true || stencilDevServerConfig.worker === undefined) {
+        // Fork a worker process (default for stability and isolation)
+        initServerProcessFn = initServerProcessWorkerProxy
+      } else {
+        // Run server in the same process (useful for debugging)
+        initServerProcessFn = initServerProcess
       }
 
-      startServer(devServerConfig, logger, watcher, createNodeSys, resolve, reject)
+      startServer(devServerConfig, logger, watcher, initServerProcessFn, resolve, reject)
     } catch (e) {
       reject(e)
     }
@@ -75,7 +86,7 @@ function startServer(
   devServerConfig: DevServerConfig,
   logger: Logger,
   watcher: CompilerWatcher | undefined,
-  createNodeSys: () => Promise<ServerProcessOptions['sys']>,
+  initServerProcessFn: InitServerProcess,
   resolve: (devServer: DevServer) => void,
   reject: (err: unknown) => void
 ): void {
@@ -241,14 +252,14 @@ function startServer(
       removeWatcher = watcher.on(emit as (eventName: string, data: any) => void)
     }
 
-    // Initialize server directly (no worker process)
-    createNodeSys().then((sys) => {
-      sendToServer = initServerProcess(receiveFromServer, () => sys)
+    // Initialize server process (either worker or in-process)
+    sendToServer = initServerProcessFn(receiveFromServer)
 
-      sendToServer({ startServer: devServerConfig })
-    })
+    sendToServer({ startServer: devServerConfig })
   } catch (e) {
     close()
     reject(e)
   }
 }
+
+export { initServerProcess } from './server'

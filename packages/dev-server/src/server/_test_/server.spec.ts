@@ -1,7 +1,7 @@
 import * as net from 'node:net'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { findClosestOpenPort } from '../server.js'
+import { findClosestOpenPort } from '../server'
 
 describe('findClosestOpenPort', () => {
   let testServer: net.Server | undefined

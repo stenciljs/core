@@ -7,10 +7,10 @@ import {
   RECONNECT_ATTEMPTS,
   RECONNECT_RETRY_MS,
   REQUEST_BUILD_RESULTS_INTERVAL_MS,
-} from './constants.js'
-import { emitBuildLog, emitBuildResults, emitBuildStatus } from './events.js'
-import { logDisabled, logReload, logWarn } from './logger.js'
-import type { DevClientConfig, DevClientWindow, DevServerMessage } from './types.js'
+} from './constants'
+import { emitBuildLog, emitBuildResults, emitBuildStatus } from './events'
+import { logDisabled, logReload, logWarn } from './logger'
+import type { DevClientConfig, DevClientWindow, DevServerMessage } from './types'
 
 export const initClientWebSocket = (win: DevClientWindow, config: DevClientConfig): void => {
   let clientWs: WebSocket | null = null

@@ -1,4 +1,5 @@
 import { defineConfig } from 'tsdown'
+import postcss from "rollup-plugin-postcss";
 
 export default defineConfig([
   // Server-side Node targets
@@ -18,12 +19,20 @@ export default defineConfig([
       { from: 'templates', to: 'dist' },
       { from: 'static', to: 'dist' },
       { from: 'connector.html', to: 'dist' },
+      // Copy worker thread entry point (must be .js for fork to load it)
+      { from: 'src/server/worker-thread.js', to: 'dist' },
     ],
   },
   // Browser-side client (HMR, connector)
   {
     entry: {
       'client/index': 'src/client/index.ts',
+    },
+    plugins: [postcss({ autoModules: true })],
+    inputOptions: {
+      moduleTypes: {
+        ".css": "js",
+      },
     },
     outDir: 'dist',
     format: ['esm'],

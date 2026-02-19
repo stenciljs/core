@@ -14,7 +14,7 @@ import type {
   DevServerContext,
   DevClientConfig,
   HttpRequest,
-} from './types.js'
+} from './types'
 import {
   DEV_SERVER_URL,
   VERSION,
@@ -33,9 +33,9 @@ import {
   normalizePath,
   responseHeaders,
   shouldCompress,
-} from './utils.js'
-import { getEditors, serveOpenInEditor } from './editor.js'
-import { ssrPageRequest, ssrStaticDataRequest } from './ssr.js'
+} from './utils'
+import { getEditors, serveOpenInEditor } from './editor'
+import { ssrPageRequest, ssrStaticDataRequest } from './ssr'
 
 // =============================================================================
 // Main Request Handler

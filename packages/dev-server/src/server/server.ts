@@ -16,15 +16,15 @@ import type {
   DevServerMessage,
   DevServerSendMessage,
   DevWebSocket,
-} from './types.js'
+} from './types'
 import {
   createServerContext,
   type BuildRequestResolve,
   type CompilerRequestResolve,
-} from './context.js'
-import { createRequestHandler } from './handlers.js'
-import { getBrowserUrl, normalizePath, DEV_SERVER_INIT_URL } from './utils.js'
-import { openInBrowser } from './editor.js'
+} from './context'
+import { createRequestHandler } from './handlers'
+import { getBrowserUrl, normalizePath, DEV_SERVER_INIT_URL } from './utils'
+import { openInBrowser } from './editor'
 
 // =============================================================================
 // HTTP Server
@@ -170,7 +170,7 @@ export function createWebSocket(
 }
 
 // =============================================================================
-// Server Process (simplified - no worker forking)
+// Server Process
 // =============================================================================
 
 export interface ServerProcessOptions {
@@ -184,8 +184,7 @@ export interface ServerProcessOptions {
 }
 
 export function initServerProcess(
-  sendMsg: DevServerSendMessage,
-  createNodeSys: () => ServerProcessOptions['sys']
+  sendMsg: DevServerSendMessage
 ): (msg: DevServerMessage) => void {
   let server: http.Server | https.Server | null = null
   let webSocket: DevWebSocket | null = null
@@ -193,6 +192,11 @@ export function initServerProcess(
 
   const buildResultsResolves: BuildRequestResolve[] = []
   const compilerRequestResolves: CompilerRequestResolve[] = []
+
+  const createNodeSys = async (): Promise<ServerProcessOptions['sys']> => {
+    const { createNodeSys: createSys } = await import('@stencil/core/sys/node')
+    return createSys({ process }) as ServerProcessOptions['sys']
+  }
 
   const startServer = async (msg: DevServerMessage): Promise<void> => {
     const devServerConfig = msg.startServer!
@@ -213,7 +217,7 @@ export function initServerProcess(
 
     devServerConfig.root = normalizePath(devServerConfig.root!)
 
-    const sys = createNodeSys()
+    const sys = await createNodeSys()
     serverCtx = createServerContext(
       sys as any,
       sendMsg,

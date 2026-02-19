@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { DevServerConfig, HttpRequest } from '../types.js'
+import type { DevServerConfig, HttpRequest } from '../types'
 import {
   DEV_SERVER_URL,
   getBrowserUrl,
@@ -10,7 +10,7 @@ import {
   isExtensionLessPath,
   isHtmlFile,
   isSsrStaticDataPath,
-} from '../utils.js'
+} from '../utils'
 
 describe('isHtmlFile', () => {
   it.each(['.html', 'foo.html', 'foo/bar.html'])('returns true for .html files (%s)', (filename) => {

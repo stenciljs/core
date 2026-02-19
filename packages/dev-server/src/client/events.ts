@@ -2,8 +2,8 @@
  * Client-side event system for dev server.
  */
 
-import { BUILD_LOG, BUILD_RESULTS, BUILD_STATUS } from './constants.js'
-import type { BuildLog, CompilerBuildResults } from './types.js'
+import { BUILD_LOG, BUILD_RESULTS, BUILD_STATUS } from './constants'
+import type { BuildLog, CompilerBuildResults } from './types'
 
 export const emitBuildLog = (win: Window, buildLog: BuildLog): void => {
   win.dispatchEvent(new CustomEvent(BUILD_LOG, { detail: buildLog }))

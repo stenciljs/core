@@ -81,7 +81,7 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
   }
 
   if (!isBoolean(devServer.openBrowser)) {
-    devServer.openBrowser = true;
+    devServer.openBrowser = false;
   }
 
   if (!isBoolean(devServer.websocket)) {

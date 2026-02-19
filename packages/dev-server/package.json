@@ -40,18 +40,17 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "launch-editor": "^2.9.1",
     "open": "^11.0.0",
     "ws": "^8.0.0"
-  },
-  "optionalDependencies": {
-    "open-in-editor": "^3.0.0"
   },
   "peerDependencies": {
     "@stencil/core": "^5.0.0"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
-    "@types/ws": "^8.0.0"
+    "@types/ws": "^8.0.0",
+    "rollup-plugin-postcss": "^4.0.2"
   },
   "volta": {
     "extends": "../../package.json"

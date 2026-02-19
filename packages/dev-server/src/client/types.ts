@@ -2,6 +2,23 @@
  * Client-side type definitions for dev server.
  */
 
+// Import and re-export compiler types from @stencil/core
+import type {
+  CompilerBuildResults,
+  Diagnostic,
+  HotModuleReplacement,
+  HmrStyleUpdate,
+  PrintLine,
+} from '@stencil/core/compiler'
+
+export type {
+  CompilerBuildResults,
+  Diagnostic,
+  HotModuleReplacement,
+  HmrStyleUpdate,
+  PrintLine,
+}
+
 export interface DevClientWindow extends Window {
   's-dev-server'?: boolean
   's-initial-load'?: boolean
@@ -33,46 +50,6 @@ export interface BuildLog {
   buildId: number
   messages: string[]
   progress: number
-}
-
-export interface CompilerBuildResults {
-  buildId: number
-  hasError: boolean
-  diagnostics: Diagnostic[]
-  hmr?: HotModuleReplacement
-  hydrateAppFilePath?: string
-  hasSuccessfulBuild?: boolean
-}
-
-export interface Diagnostic {
-  level: 'error' | 'warn' | 'info' | 'log' | 'debug'
-  type: string
-  messageText: string
-  header?: string
-  relFilePath?: string
-  lineNumber?: number
-  columnNumber?: number
-  lines: unknown[]
-}
-
-export interface HotModuleReplacement {
-  versionId: string
-  componentsUpdated?: string[]
-  inlineStylesUpdated?: HmrStyleUpdate[]
-  externalStylesUpdated?: string[]
-  imagesUpdated?: string[]
-  reloadStrategy?: 'hmr' | 'pageReload'
-  indexHtmlUpdated?: boolean
-  serviceWorkerUpdated?: boolean
-  scriptsAdded?: string[]
-  scriptsDeleted?: string[]
-  excludeHmr?: string[]
-}
-
-export interface HmrStyleUpdate {
-  styleId: string
-  styleTag: string
-  styleText: string
 }
 
 export interface HostElement extends Element {

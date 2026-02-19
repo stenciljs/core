@@ -2,7 +2,7 @@
  * Client-side logging utilities for dev server.
  */
 
-import type { Diagnostic } from './types.js'
+import type { Diagnostic } from './types'
 
 const YELLOW = '#f39c12'
 const RED = '#c0392b'

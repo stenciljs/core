@@ -1,6 +1,10 @@
+/**
+ * @vitest-environment stencil
+ */
 import { describe, expect, it } from 'vitest'
 
-import { getHmrHref, updateCssUrlValue } from '../hmr.js'
+import { getHmrHref, updateCssUrlValue } from '../hmr/utils'
+import { hmrInlineStyles } from '../hmr/style'
 
 describe('updateCssUrlValue', () => {
   const versionId = '1234'
@@ -100,5 +104,97 @@ describe('getHmrHref', () => {
     const newHref = getHmrHref(versionId, fileName, oldHref)
 
     expect(newHref).toBe('/build/file-b.css')
+  })
+})
+
+describe('hmrInlineStyles', () => {
+  const versionId = '1234'
+
+  it('should update existing style element', () => {
+    const styleElm = document.createElement('style')
+    styleElm.setAttribute('sty-id', 'sc-test-component')
+    styleElm.innerHTML = '.old { color: red; }'
+    document.head.appendChild(styleElm)
+
+    hmrInlineStyles(document.documentElement, versionId, [
+      { styleId: 'sc-test-component', styleTag: 'test-component', styleText: '.new { color: blue; }' }
+    ])
+
+    expect(styleElm.innerHTML).toBe('.new { color: blue; }')
+    expect(styleElm.getAttribute('data-hmr')).toBe(versionId)
+
+    styleElm.remove()
+  })
+
+  it('should remove style element when styleText is empty', () => {
+    const styleElm = document.createElement('style')
+    styleElm.setAttribute('sty-id', 'sc-test-component')
+    styleElm.innerHTML = '.old { color: red; }'
+    document.head.appendChild(styleElm)
+
+    hmrInlineStyles(document.documentElement, versionId, [
+      { styleId: 'sc-test-component', styleTag: 'test-component', styleText: '' }
+    ])
+
+    expect(document.querySelector('[sty-id="sc-test-component"]')).toBeNull()
+  })
+
+  it('should create style element when CSS is added for the first time', () => {
+    // Create a component element (scoped, no shadow root)
+    const component = document.createElement('test-component')
+    document.body.appendChild(component)
+
+    // No existing style element for this component
+    expect(document.querySelector('[sty-id="sc-test-component"]')).toBeNull()
+
+    hmrInlineStyles(document.documentElement, versionId, [
+      { styleId: 'sc-test-component', styleTag: 'test-component', styleText: '.new { color: blue; }' }
+    ])
+
+    // Style element should be created in head
+    const styleElm = document.querySelector('[sty-id="sc-test-component"]')
+    expect(styleElm).not.toBeNull()
+    expect(styleElm!.innerHTML).toBe('.new { color: blue; }')
+    expect(styleElm!.getAttribute('data-hmr')).toBe(versionId)
+
+    component.remove()
+    styleElm!.remove()
+  })
+
+  it('should create style element in shadow root for shadow DOM components', () => {
+    // Create a shadow DOM component
+    const component = document.createElement('test-shadow-component')
+    const shadowRoot = component.attachShadow({ mode: 'open' })
+    document.body.appendChild(component)
+
+    hmrInlineStyles(document.documentElement, versionId, [
+      { styleId: 'sc-test-shadow-component', styleTag: 'test-shadow-component', styleText: ':host { display: block; }' }
+    ])
+
+    // Style element should be created in shadow root
+    const styleElm = shadowRoot.querySelector('[sty-id="sc-test-shadow-component"]')
+    expect(styleElm).not.toBeNull()
+    expect(styleElm!.innerHTML).toBe(':host { display: block; }')
+
+    component.remove()
+  })
+
+  it('should update style in shadow root', () => {
+    const component = document.createElement('test-shadow-component')
+    const shadowRoot = component.attachShadow({ mode: 'open' })
+    const styleElm = document.createElement('style')
+    styleElm.setAttribute('sty-id', 'sc-test-shadow-component')
+    styleElm.innerHTML = '.old { color: red; }'
+    shadowRoot.appendChild(styleElm)
+    document.body.appendChild(component)
+
+    hmrInlineStyles(document.documentElement, versionId, [
+      { styleId: 'sc-test-shadow-component', styleTag: 'test-shadow-component', styleText: ':host { display: block; }' }
+    ])
+
+    expect(styleElm.innerHTML).toBe(':host { display: block; }')
+    expect(styleElm.getAttribute('data-hmr')).toBe(versionId)
+
+    component.remove()
   })
 })

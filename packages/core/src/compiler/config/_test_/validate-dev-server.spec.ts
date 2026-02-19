@@ -211,15 +211,15 @@ describe('validateDevServer', () => {
     expect(config.devServer.reloadStrategy).toBe('pageReload');
   });
 
-  it('should default openBrowser', () => {
+  it('should default openBrowser to false', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.openBrowser).toBe(true);
+    expect(config.devServer.openBrowser).toBe(false);
   });
 
   it('should set openBrowser', () => {
-    inputConfig.devServer = { ...inputDevServerConfig, openBrowser: false };
+    inputConfig.devServer = { ...inputDevServerConfig, openBrowser: true };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.openBrowser).toBe(false);
+    expect(config.devServer.openBrowser).toBe(true);
   });
 
   it('should default http protocol', () => {

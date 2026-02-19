@@ -5,6 +5,13 @@ import { basename } from 'path';
 import type * as d from '@stencil/core';
 import { getScopeId } from '../style/scope-css';
 
+/**
+ * Track which components had styles in the previous build.
+ * Used to detect when styles are removed from a component.
+ * Maps component tag name to an array of style modes (or ['$'] for no mode).
+ */
+const previousComponentStyles = new Map<string, string[]>();
+
 export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (config.devServer?.reloadStrategy == null) {
     return null;
@@ -43,18 +50,25 @@ export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildC
     hmr.componentsUpdated = componentsUpdated;
   }
 
-  if (Object.keys(buildCtx.stylesUpdated).length > 0) {
-    hmr.inlineStylesUpdated = sortBy(
-      buildCtx.stylesUpdated.map((s) => {
-        return {
-          styleId: getScopeId(s.styleTag, s.styleMode),
-          styleTag: s.styleTag,
-          styleText: s.styleText,
-        } as d.HmrStyleUpdate;
-      }),
-      (s) => s.styleId,
-    );
+  // Detect components that had their styles removed
+  const stylesRemoved = getStylesRemoved(buildCtx, componentsUpdated);
+
+  // Combine updated styles with removed styles
+  const allStyleUpdates = [
+    ...buildCtx.stylesUpdated.map((s) => ({
+      styleId: getScopeId(s.styleTag, s.styleMode),
+      styleTag: s.styleTag,
+      styleText: s.styleText,
+    })),
+    ...stylesRemoved,
+  ];
+
+  if (allStyleUpdates.length > 0) {
+    hmr.inlineStylesUpdated = sortBy(allStyleUpdates, (s) => s.styleId);
   }
+
+  // Update tracking for next build
+  updateComponentStyleTracking(buildCtx);
 
   const externalStylesUpdated = getExternalStylesUpdated(buildCtx, outputTargetsWww);
   if (externalStylesUpdated) {
@@ -246,3 +260,56 @@ const excludeHmrFiles = (config: d.Config, excludeHmr: string[], filesChanged: s
 };
 
 const IMAGE_EXT = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.svg'];
+
+/**
+ * Detect components that had styles removed (had styles before, but not anymore).
+ */
+const getStylesRemoved = (
+  buildCtx: d.BuildCtx,
+  componentsUpdated: string[] | null,
+): d.HmrStyleUpdate[] => {
+  if (!componentsUpdated || componentsUpdated.length === 0) {
+    return [];
+  }
+
+  const removedStyles: d.HmrStyleUpdate[] = [];
+
+  for (const tagName of componentsUpdated) {
+    const previousModes = previousComponentStyles.get(tagName);
+    if (!previousModes) {
+      continue;
+    }
+
+    // Check current component styles
+    const cmp = buildCtx.components.find((c) => c.tagName === tagName);
+    const currentModes = cmp?.styles?.map((s) => s.modeName || '$') ?? [];
+
+    // Find modes that were removed
+    for (const mode of previousModes) {
+      if (!currentModes.includes(mode)) {
+        removedStyles.push({
+          styleId: getScopeId(tagName, mode === '$' ? undefined : mode),
+          styleTag: tagName,
+          styleText: '',
+        });
+      }
+    }
+  }
+
+  return removedStyles;
+};
+
+/**
+ * Update the tracking map with current component styles for next build.
+ */
+const updateComponentStyleTracking = (buildCtx: d.BuildCtx): void => {
+  // Clear and rebuild to remove stale entries
+  previousComponentStyles.clear();
+
+  for (const cmp of buildCtx.components) {
+    if (cmp.styles && cmp.styles.length > 0) {
+      const modes = cmp.styles.map((s) => s.modeName || '$');
+      previousComponentStyles.set(cmp.tagName, modes);
+    }
+  }
+};

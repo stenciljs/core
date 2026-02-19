@@ -689,8 +689,8 @@ export interface StencilDevServerConfig {
    */
   logRequests?: boolean;
   /**
-   * By default, when dev server is started the local dev URL is opened in your default browser.
-   * However, to prevent this URL to be opened change this value to `false`. Defaults to `true`.
+   * When set to `true`, the local dev URL is opened in your default browser when the dev server starts.
+   * Defaults to `false`.
    */
   openBrowser?: boolean;
   /**

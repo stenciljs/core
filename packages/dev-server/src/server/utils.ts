@@ -5,7 +5,7 @@
 
 import type { OutgoingHttpHeaders } from 'node:http'
 
-import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types.js'
+import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types'
 
 // =============================================================================
 // Constants

@@ -3,7 +3,7 @@
  */
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { initBuildStatus, updateFavIcon } from '../status.js'
+import { initBuildStatus, updateFavIcon } from '../status'
 
 describe('build-status', () => {
   beforeAll(() => {

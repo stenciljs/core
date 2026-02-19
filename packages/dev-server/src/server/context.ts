@@ -16,8 +16,8 @@ import type {
   DevServerContext,
   DevServerSendMessage,
   HttpRequest,
-} from './types.js'
-import { responseHeaders } from './utils.js'
+} from './types'
+import { responseHeaders } from './utils'
 
 export interface CompilerRequestResolve {
   path: string

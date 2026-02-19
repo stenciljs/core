@@ -13,9 +13,9 @@ import type {
   HttpRequest,
   PrerenderHydrateOptions,
   HydrateResults,
-} from './types.js'
-import { getSsrStaticDataPath, responseHeaders } from './utils.js'
-import { appendDevServerClientScript } from './handlers.js'
+} from './types'
+import { getSsrStaticDataPath, responseHeaders } from './utils'
+import { appendDevServerClientScript } from './handlers'
 
 // =============================================================================
 // Types

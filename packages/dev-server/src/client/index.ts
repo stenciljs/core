@@ -7,54 +7,29 @@
  * This module runs in the browser and is injected into pages during development.
  */
 
-import { DEV_SERVER_INIT_URL, OPEN_IN_EDITOR_URL } from './constants.js'
-import { emitBuildStatus, onBuildResults } from './events.js'
-import { hmrWindow } from './hmr.js'
-import { logBuild, logDiagnostic, logReload, logWarn } from './logger.js'
-import { initBuildProgress, initBuildStatus } from './status.js'
+import { DEV_SERVER_INIT_URL, OPEN_IN_EDITOR_URL } from './constants'
+import { emitBuildStatus, onBuildResults } from './events'
+import { appError, clearAppErrorModal } from './error'
+import { hmrWindow } from './hmr/window'
+import { logBuild, logDiagnostic, logReload, logWarn } from './logger'
+import { initBuildProgress, initBuildStatus } from './status'
 import type {
   CompilerBuildResults,
   DevClientConfig,
   DevClientWindow,
-  Diagnostic,
   HotModuleReplacement,
-  OpenInEditorData,
-} from './types.js'
-import { initClientWebSocket } from './websocket.js'
+} from './types'
+import { initClientWebSocket } from './websocket'
 
 // Re-export everything for external use
-export * from './constants.js'
-export * from './events.js'
-export * from './hmr.js'
-export * from './logger.js'
-export * from './status.js'
-export * from './types.js'
-export { initClientWebSocket } from './websocket.js'
-
-// =============================================================================
-// Error Modal (simplified)
-// =============================================================================
-
-interface AppErrorResult {
-  diagnostics: Diagnostic[]
-  status: string
-}
-
-export const appError = (data: {
-  window: Window
-  buildResults: CompilerBuildResults
-  openInEditor: ((data: OpenInEditorData) => void) | null
-}): AppErrorResult => {
-  const diagnostics = data.buildResults.diagnostics || []
-  return {
-    diagnostics,
-    status: diagnostics.some((d) => d.level === 'error') ? 'error' : 'default',
-  }
-}
-
-export const clearAppErrorModal = (_data: { window: Window }): void => {
-  // Clear error modal if present
-}
+export * from './constants'
+export * from './error'
+export * from './events'
+export * from './hmr/window'
+export * from './logger'
+export * from './status'
+export * from './types'
+export { initClientWebSocket } from './websocket'
 
 // =============================================================================
 // App Update Handler
@@ -80,28 +55,39 @@ const appUpdate = (
     clearAppErrorModal({ window: win })
 
     if (buildResults.hasError) {
-      const editorId = Array.isArray(config.editors) && config.editors.length > 0 ? config.editors[0].id : null
+      const hasEditors = Array.isArray(config.editors) && config.editors.length > 0
       const errorResults = appError({
         window: win,
         buildResults,
-        openInEditor: editorId
+        openInEditor: hasEditors
           ? (data) => {
-              const qs: OpenInEditorData = {
+              // Don't pass editor param - let launch-editor auto-detect
+              const params = new URLSearchParams({
                 file: data.file,
-                line: data.line,
-                column: data.column,
-                editor: editorId,
-              }
-              const url = `${OPEN_IN_EDITOR_URL}?${Object.keys(qs)
-                .map((k) => `${k}=${(qs as Record<string, unknown>)[k]}`)
-                .join('&')}`
-              win.fetch(url)
+                line: String(data.line),
+                column: String(data.column),
+              })
+              const url = `${OPEN_IN_EDITOR_URL}?${params.toString()}`
+              win.fetch(url).catch((err) => {
+                console.error('Failed to open in editor:', err)
+              })
             }
-          : null,
+          : undefined,
       })
 
       errorResults.diagnostics.forEach(logDiagnostic)
-      emitBuildStatus(win, errorResults.status)
+      if (errorResults.status) {
+        emitBuildStatus(win, errorResults.status)
+      }
+      
+      // If this is initial load, still forward to the page (with error overlay)
+      if (win['s-initial-load']) {
+        appReset(win, config, () => {
+          logReload('Initial load (with errors)')
+          win.location.reload()
+        })
+      }
+      
       return
     }
 
@@ -134,7 +120,7 @@ const appHmr = (win: Window, hmr: HotModuleReplacement): void => {
   }
 
   if (hmr.serviceWorkerUpdated) {
-    logReload('Updated Service Worker: sw.js')
+    logReload('Updated Service Worker: sw')
     shouldWindowReload = true
   }
 
@@ -216,6 +202,9 @@ export const initDevClient = (win: DevClientWindow, config: DevClientConfig): vo
       return
     }
     win['s-dev-server'] = true
+    
+    // Store config on window for debugging
+    win.devServerConfig = config
 
     initBuildStatus({ window: win })
     initBuildProgress({ window: win })

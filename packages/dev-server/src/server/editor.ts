@@ -1,12 +1,12 @@
 /**
- * Editor integration.
+ * Editor integration using launch-editor.
  * Consolidated from open-in-browser.ts, open-in-editor.ts, and open-in-editor-api.ts.
  */
 
 import type { ServerResponse } from 'node:http'
 
-import type { DevServerContext, DevServerEditor, HttpRequest, OpenInEditorData } from './types.js'
-import { responseHeaders } from './utils.js'
+import type { DevServerContext, DevServerEditor, HttpRequest, OpenInEditorData } from './types'
+import { responseHeaders } from './utils'
 
 // =============================================================================
 // Open in Browser
@@ -19,51 +19,25 @@ export async function openInBrowser(opts: { url: string }): Promise<void> {
 }
 
 // =============================================================================
-// Open in Editor API (configurable mock for testing)
+// Launch Editor Integration
 // =============================================================================
 
-export interface OpenInEditorOptions {
-  editor: string
-}
+let launchEditorLoaded = false
+let launchEditor: ((file: string, specifiedEditor?: string, onErrorCallback?: (fileName: string, errorMessage: string | null) => void) => void) | null = null
 
-export type OpenInEditorCallback = (err: unknown) => void
-
-export interface OpenInEditorDetections {
-  [key: string]: {
-    detect(): Promise<unknown>
-  }
-}
-
-interface OpenInEditorApi {
-  configure(
-    opts: OpenInEditorOptions,
-    cb: OpenInEditorCallback
-  ): { open(openId: string): Promise<unknown> } | null
-  editors: OpenInEditorDetections
-}
-
-const openInEditorApi: OpenInEditorApi = {
-  configure(_opts: OpenInEditorOptions, _cb: OpenInEditorCallback) {
-    return null
-  },
-  editors: {},
-}
-
-// Try to load the actual open-in-editor package if available
-let openInEditorLoaded = false
-
-async function loadOpenInEditor(): Promise<void> {
-  if (openInEditorLoaded) return
+async function loadLaunchEditor(): Promise<void> {
+  if (launchEditorLoaded) return
 
   try {
-    const openInEditor = await import('open-in-editor')
-    openInEditorApi.configure = openInEditor.configure || openInEditorApi.configure
-    openInEditorApi.editors = openInEditor.editors || openInEditorApi.editors
-  } catch {
-    // Package not available, use mock
+    const mod = await import('launch-editor')
+    launchEditor = mod.default || mod
+  } catch (e) {
+    console.warn('launch-editor package is not available. Open in editor functionality will be disabled.')
+    // Package not available
+    launchEditor = null
   }
 
-  openInEditorLoaded = true
+  launchEditorLoaded = true
 }
 
 // =============================================================================
@@ -79,13 +53,8 @@ export async function serveOpenInEditor(
   const data: OpenInEditorData = {}
 
   try {
-    const editors = await getEditors()
-    if (editors.length > 0) {
-      await parseEditorData(editors, serverCtx.sys, req, data)
-      await openDataInEditor(data)
-    } else {
-      data.error = 'no editors available'
-    }
+    await parseEditorData(serverCtx.sys, req, data)
+    await openDataInEditor(data)
   } catch (e) {
     data.error = String(e)
     status = 500
@@ -105,7 +74,6 @@ export async function serveOpenInEditor(
 }
 
 async function parseEditorData(
-  editors: DevServerEditor[],
   sys: DevServerContext['sys'],
   req: HttpRequest,
   data: OpenInEditorData
@@ -133,17 +101,8 @@ async function parseEditorData(
     data.column = 1
   }
 
-  let editor = qs.get('editor')
-  if (typeof editor === 'string') {
-    editor = editor.trim().toLowerCase()
-    if (editors.some((e) => e.id === editor)) {
-      data.editor = editor
-    } else {
-      data.error = `invalid editor: ${editor}`
-      return
-    }
-  } else {
-    data.editor = editors[0].id
+  if (qs.has('editor')) {
+    data.editor = qs.get('editor')!
   }
 
   const stat = await sys.stat(data.file)
@@ -155,104 +114,70 @@ async function openDataInEditor(data: OpenInEditorData): Promise<void> {
     return
   }
 
-  await loadOpenInEditor()
+  await loadLaunchEditor()
+
+  if (!launchEditor) {
+    data.error = 'launch-editor not available'
+    return
+  }
 
   try {
-    const opts = {
-      editor: data.editor!,
-    }
-
-    const editor = openInEditorApi.configure(opts, (err) => {
-      data.error = String(err)
+    // Format: file:line:column
+    const fileSpec = `${data.file}:${data.line}:${data.column}`
+    
+    await new Promise<void>((resolve, reject) => {
+      let errorCalled = false
+      
+      launchEditor!(
+        fileSpec,
+        data.editor || process.env.EDITOR, // Try editor param, then env var, then auto-detect
+        (_fileName: string, errorMessage: string | null) => {
+          errorCalled = true
+          const errMsg = errorMessage || 'Unknown error'
+          // Log to dev server console so user sees it
+          console.error('Editor launch failed.')
+          console.error('The "code" executable was not found in your PATH.')
+          console.error('This usually means your editor\'s command-line tool isn\'t installed.')
+          console.error('Try running:')
+          console.error('  code --version')
+          console.error('If that fails, install your editor\'s CLI command and ensure it\'s in your PATH.\n')
+          data.error = errMsg
+          reject(new Error(errMsg))
+        }
+      )
+      
+      // launch-editor doesn't have a success callback
+      // Give it a moment to call the error callback if there's an issue
+      setTimeout(() => {
+        if (!errorCalled) {
+          data.open = fileSpec
+          resolve()
+        }
+      }, 100)
     })
-
-    if (data.error || !editor) {
-      return
-    }
-
-    data.open = `${data.file}:${data.line}:${data.column}`
-    await editor.open(data.open)
   } catch (e) {
-    data.error = String(e)
+    if (!data.error) {
+      data.error = String(e)
+    }
   }
 }
 
 // =============================================================================
-// Editor Detection
+// Editor Detection (Simplified - launch-editor handles this internally)
 // =============================================================================
-
-let editorsPromise: Promise<DevServerEditor[]> | null = null
 
 export function getEditors(): Promise<DevServerEditor[]> {
-  if (!editorsPromise) {
-    editorsPromise = detectEditors()
-  }
-  return editorsPromise
-}
-
-async function detectEditors(): Promise<DevServerEditor[]> {
-  await loadOpenInEditor()
-
-  const editors: Array<DevServerEditor & { supported?: boolean; priority?: number }> = []
-
-  try {
-    await Promise.all(
-      Object.keys(openInEditorApi.editors).map(async (editorId) => {
-        const isSupported = await isEditorSupported(editorId)
-
-        editors.push({
-          id: editorId,
-          priority: EDITOR_PRIORITY[editorId] ?? 100,
-          supported: isSupported,
-        })
-      })
-    )
-  } catch {
-    // Ignore errors during detection
-  }
-
-  return editors
-    .filter((e) => e.supported)
-    .sort((a, b) => {
-      if (a.priority! < b.priority!) return -1
-      if (a.priority! > b.priority!) return 1
-      return 0
-    })
-    .map((e) => ({
-      id: e.id,
-      name: EDITORS[e.id],
-    }))
-}
-
-async function isEditorSupported(editorId: string): Promise<boolean> {
-  try {
-    await openInEditorApi.editors[editorId].detect()
-    return true
-  } catch {
-    return false
-  }
-}
-
-const EDITORS: Record<string, string> = {
-  atom: 'Atom',
-  code: 'Code',
-  emacs: 'Emacs',
-  idea14ce: 'IDEA 14 Community Edition',
-  phpstorm: 'PhpStorm',
-  sublime: 'Sublime',
-  webstorm: 'WebStorm',
-  vim: 'Vim',
-  visualstudio: 'Visual Studio',
-}
-
-const EDITOR_PRIORITY: Record<string, number> = {
-  code: 1,
-  atom: 2,
-  sublime: 3,
-  visualstudio: 4,
-  idea14ce: 5,
-  webstorm: 6,
-  phpstorm: 7,
-  vim: 8,
-  emacs: 9,
+  // launch-editor automatically detects editors, so we just return common ones
+  // The actual detection happens when opening a file
+  return Promise.resolve([
+    { id: 'code', name: 'Visual Studio Code' },
+    { id: 'cursor', name: 'Cursor' },
+    { id: 'code-insiders', name: 'VS Code Insiders' },
+    { id: 'webstorm', name: 'WebStorm' },
+    { id: 'idea', name: 'IntelliJ IDEA' },
+    { id: 'sublime', name: 'Sublime Text' },
+    { id: 'atom', name: 'Atom' },
+    { id: 'vim', name: 'Vim' },
+    { id: 'emacs', name: 'Emacs' },
+  ])
 }
