@@ -1,3 +1,14 @@
+## 🏹 [4.43.1](https://github.com/stenciljs/core/compare/v4.43.0...v4.43.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* **compiler:** update rollup to fix watch hang ([#6603](https://github.com/stenciljs/core/issues/6603)) ([205856b](https://github.com/stenciljs/core/commit/205856b5fe2e15434938812c48d7b0e62a71f058)), closes [#6602](https://github.com/stenciljs/core/issues/6602)
+* **declarations:** add rest params to h() ([#6604](https://github.com/stenciljs/core/issues/6604)) ([4d322a7](https://github.com/stenciljs/core/commit/4d322a75878cc14604c7b2cd747cdc3c17249fa5)), closes [#6181](https://github.com/stenciljs/core/issues/6181)
+* **hmr:** non-shadow component styles within shadow parent ([#6601](https://github.com/stenciljs/core/issues/6601)) ([fc14281](https://github.com/stenciljs/core/commit/fc142814c67b4911b60cc15db912294fef87da81))
+
+
+
 # 👒 [4.43.0](https://github.com/stenciljs/core/compare/v4.42.1...v4.43.0) (2026-02-13)
 
 
