@@ -5,9 +5,12 @@
     "dist/"
   ],
   "scripts": {
-    "build": "node ../../bin/stencil build --prerender",
-    "start": "node ../../bin/stencil build --dev --watch --serve",
-    "start.prod": "node ../../bin/stencil build --watch --serve"
+    "build": "stencil build --prerender",
+    "start": "stencil build --dev --watch --serve",
+    "start.prod": "stencil build --watch --serve"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
   },
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
