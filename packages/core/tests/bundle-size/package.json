@@ -1,0 +1,15 @@
+{
+  "name": "bundle-size-test",
+  "private": true,
+  "scripts": {
+    "build": "stencil build --prod",
+    "clean": "rimraf dist .stencil",
+    "test": "npm run build && node test-bundle-size.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.3"
+  }
+}

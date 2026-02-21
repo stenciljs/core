@@ -1,0 +1,44 @@
+{
+  "name": "copytask",
+  "version": "0.0.1",
+  "description": "Stencil Component Starter",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "unpkg": "dist/copytask/copytask.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/copytask/copytask.esm.js",
+      "require": "./dist/copytask/copytask.cjs.js"
+    },
+    "./my-component": {
+      "import": "./dist/components/my-component.js",
+      "types": "./dist/components/my-component.d.ts"
+    },
+    "./loader": {
+      "import": "./loader/index.js",
+      "require": "./loader/index.cjs",
+      "types": "./loader/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stenciljs/component-starter.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "rimraf ./dist && stencil build",
+    "test": "npm run build && tsx validate.mts"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
+  },
+  "license": "MIT"
+}

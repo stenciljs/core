@@ -1,0 +1,16 @@
+{
+  "name": "@stencil/hello-vdom",
+  "private": true,
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "collection": "./dist/collection/collection-manifest.json",
+  "scripts": {
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve --debug",
+    "start.prod": "stencil build --watch --serve"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@stencil/hello-shadow",
+  "private": true,
+  "scripts": {
+    "build": "stencil build --prerender --debug",
+    "start": "stencil build --dev --watch --serve",
+    "start.prod": "stencil build --watch --serve",
+    "prerender": "node prerender.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

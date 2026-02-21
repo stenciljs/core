@@ -1,0 +1,14 @@
+{
+  "name": "@stencil/style-modes",
+  "private": true,
+  "scripts": {
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve",
+    "start.prod": "stencil build --watch --serve"
+  },
+  "dependencies": {
+    "@stencil/sass": "^1.3.2",
+    "npm": "^6.10.3",
+    "@stencil/core": "workspace:*"
+  }
+}

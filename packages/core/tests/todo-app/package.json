@@ -1,0 +1,17 @@
+{
+  "name": "@stencil/todo-app",
+  "private": true,
+  "scripts": {
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve",
+    "start.prod": "stencil build --watch --serve"
+  },
+  "devDependencies": {
+    "todomvc-app-css": "latest",
+    "todomvc-common": "latest",
+    "workbox-build": "4.3.1"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

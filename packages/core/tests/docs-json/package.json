@@ -1,0 +1,21 @@
+{
+  "name": "json-docs-testbed",
+  "version": "1.0.0",
+  "description": "A test app for the docs-json output target",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "stencil build && npm run postprocess",
+    "postprocess": "node scripts/postprocess.js",
+    "build.dev": "stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watch",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "license": "MIT"
+}

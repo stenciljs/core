@@ -1,0 +1,41 @@
+{
+  "name": "@stencil/end-to-end",
+  "private": true,
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "types": "dist/types/components.d.ts",
+  "collection": " dist/collection/collection-manifest.json",
+  "scripts": {
+    "build": "stencil build --config ./stencil.build.config.ts --docs",
+    "start": "stencil build --debug --watch --dev --serve",
+    "test": "stencil test --ci --e2e --spec --screenshot --debug",
+    "test.dist": "npm run build && node test-end-to-end-dist.js && node test-end-to-end-hydrate.js && npm run test.exportMap",
+    "test.e2e": "stencil test --e2e",
+    "test.exportMap": "node ./exportMap/index.js && tsx ./exportMap/index.mts",
+    "test.hydrate": "node test-end-to-end-hydrate.js",
+    "test.spec": "stencil-test",
+    "jest": "jest --coverage",
+    "benchmark": "node benchmark-compile-time.js"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "@stencil/playwright": "^0.2.3",
+    "@stencil/react-output-target": "^0.0.9",
+    "@types/file-saver": "^2.0.1",
+    "@types/lodash": "^4.14.165",
+    "@types/lodash-es": "^4.17.4",
+    "@types/video.js": "^7.3.11",
+    "file-saver": "^2.0.2",
+    "linaria": "^1.3.3",
+    "lodash": "^4.17.20",
+    "lodash-es": "^4.17.15",
+    "rollup-plugin-css-only": "^2.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "tsx": "^4.19.2",
+    "video.js": "^7.10.2",
+    "why-is-node-running": "^2.2.0"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}
