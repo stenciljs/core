@@ -71,7 +71,33 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
 - `@stencil/core/cli` → `@stencil/cli`
 - `@stencil/core/dev-server` → `@stencil/dev-server`
-- `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config. 
+- `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config.
+
+### 8. 🏷️ Release Management: Changesets
+**Status:** 📋 Planned
+
+Adopt [Changesets](https://github.com/changesets/changesets) for monorepo release management with lockstep versioning.
+
+**Why Changesets:**
+- De facto standard for pnpm monorepos (used by Vite, SvelteKit, Turborepo)
+- Supports `fixed` mode for lockstep versioning across all packages
+- Auto-generates changelogs
+- Works great with GitHub Actions
+
+**Setup:**
+```bash
+pnpm add -D @changesets/cli
+pnpm changeset init
+```
+
+**Config (`.changeset/config.json`):**
+```json
+{
+  "fixed": [["@stencil/core", "@stencil/cli", "@stencil/mock-doc", "@stencil/dev-server"]],
+  "access": "public",
+  "baseBranch": "main"
+}
+```
 
 ---
 
