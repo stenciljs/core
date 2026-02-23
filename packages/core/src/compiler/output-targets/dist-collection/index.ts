@@ -12,7 +12,7 @@ import {
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { typescriptVersion, version } from '../../../version';
+import { version, versions } from '../../../version';
 import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-aliases';
 
 /**
@@ -127,7 +127,7 @@ const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.C
     compiler: {
       name: '@stencil/core',
       version,
-      typescriptVersion,
+      typescriptVersion: versions.typescript,
     },
     collections: serializeCollectionDependencies(compilerCtx),
     bundles: config.bundles.map((b) => ({

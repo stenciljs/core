@@ -12,7 +12,7 @@ import { basename, dirname } from 'path';
 
 import type * as d from '@stencil/core';
 import { JsonDocsValue } from '@stencil/core';
-import { typescriptVersion, version } from '../../version';
+import { version, versions } from '../../version';
 import { getBuildTimestamp } from '../build/build-ctx';
 import { addFileToLibrary, getTypeLibrary } from '../transformers/type-library';
 import { AUTO_GENERATE_COMMENT } from './constants';
@@ -48,7 +48,7 @@ export const generateDocData = async (
     compiler: {
       name: '@stencil/core',
       version,
-      typescriptVersion,
+      typescriptVersion: versions.typescript,
     },
     components: await getDocsComponents(config, compilerCtx, buildCtx),
     typeLibrary,

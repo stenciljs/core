@@ -344,6 +344,29 @@ export function getVermoji(changelogPath: string) {
  * @param changelogPath the path to the changelog to parse
  * @returns the vermoji found in the changelog, otherwise use a default value.
  */
+/**
+ * Get a deterministic vermoji based on a hash string (e.g., buildId).
+ * Useful for dev builds where you want a consistent emoji for a specific build.
+ * @param hash a string to hash (e.g., buildId)
+ * @returns a vermoji deterministically selected from the pool
+ */
+export function getVermojiFromHash(hash: string): string {
+  // Simple hash function to convert string to number
+  let hashCode = 0;
+  for (let i = 0; i < hash.length; i++) {
+    const char = hash.charCodeAt(i);
+    hashCode = (hashCode << 5) - hashCode + char;
+    hashCode = hashCode & hashCode; // Convert to 32-bit integer
+  }
+  const index = Math.abs(hashCode) % vermojis.length;
+  return vermojis[index];
+}
+
+/**
+ * Pull the most recently used vermoji for the provided changelog path
+ * @param changelogPath the path to the changelog to parse
+ * @returns the vermoji found in the changelog, otherwise use a default value.
+ */
 export function getLatestVermoji(changelogPath: string) {
   let changelogContents = null;
   try {

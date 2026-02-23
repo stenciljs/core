@@ -263,6 +263,34 @@ packages/
 - [ ] Remove all `*.sys` patching code
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
 
+## ✅ Version.ts Modernization
+**Status:** Complete
+
+Simplified the version/build identification system for v5:
+
+### Build-time constants (baked into dist via tsdown `define`):
+- `version` - Stencil version (e.g., "5.0.0" or "5.0.0-dev.1708618229.abc123")
+- `buildId` - Unique build identifier (epoch seconds)
+- `vermoji` - Hash-based emoji for dev builds, random-unused for releases
+
+### Runtime tool versions (read via `local-pkg` when needed):
+- Tool versions (terser, postcss, autoprefixer, etc.) now read at runtime
+- Correctly invalidates cache when user's actual installed tool versions change
+- No longer tied to versions baked in when Stencil was built
+
+### Files:
+- `packages/core/src/version.ts` - Exports build constants + `getToolVersion()` helper
+- `packages/core/build/version-utils.ts` - Build-time utilities for tsdown config
+- `packages/core/tsdown.config.ts` - Uses `define` for string replacements
+
+### Removed:
+- `__BUILDID:TRANSPILE__` - was never used
+- `__BUILDID:BUNDLER__` - was never used
+- `__BUILDID:MINIFYJS__` - now runtime via `getToolVersion('terser')`
+- `__BUILDID:OPTIMIZECSS__` - now runtime via `getToolVersion('autoprefixer')` + `getToolVersion('postcss')`
+- `__VERSION:*` for dependencies - now runtime via `versions` object getters
+- jQuery from CLI info display (still used by mock-doc internally)
+
 ## ✅ Migrate all unit tests from jest to vitest
 - [x] Migrate `src/cli` tests - COMPLETE
   - [x] Initial setup

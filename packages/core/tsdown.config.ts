@@ -1,7 +1,16 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'tsdown'
 
+import { createDefines, getBuildVersionInfo } from './build/version-utils.ts'
+
 const __dirname = import.meta.dirname
+
+// Get build-time version info for string replacements
+const isProd = process.env.NODE_ENV === 'production'
+const versionInfo = getBuildVersionInfo(resolve(__dirname, 'package.json'), isProd)
+const defines = createDefines(versionInfo)
+
+console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji}`)
 
 /**
  * Virtual module plugin for Stencil internal builds.
@@ -57,6 +66,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     external: [/^node:/, '@stencil/mock-doc'],
+    define: defines,
     plugins: [virtualModules({ resolve: virtualResolve })],
     copy: [
       // Copy curated public types (paths resolve via declarations entry below)

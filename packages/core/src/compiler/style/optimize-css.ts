@@ -1,7 +1,11 @@
 import { hasError, normalizePath } from '../../utils';
 
 import type * as d from '@stencil/core';
-import { optimizeCssId } from '../../version';
+import { getToolVersion } from '../../version';
+
+// Cache key based on actual installed versions of CSS tools
+const getCssToolVersions = () =>
+  `autoprefixer@${getToolVersion('autoprefixer')}_postcss@${getToolVersion('postcss')}`;
 
 export const optimizeCss = async (
   config: d.ValidatedConfig,
@@ -33,7 +37,7 @@ export const optimizeCss = async (
     minify: config.minifyCss,
   };
 
-  const cacheKey = await compilerCtx.cache.createKey('optimizeCss', optimizeCssId, opts);
+  const cacheKey = await compilerCtx.cache.createKey('optimizeCss', getCssToolVersions(), opts);
   const cachedContent = await compilerCtx.cache.get(cacheKey);
   if (cachedContent != null) {
     // let's use the cached data we already figured out

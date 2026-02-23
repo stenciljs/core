@@ -3,7 +3,7 @@ import type { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOpt
 import ts from 'typescript';
 
 import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedConfig } from '@stencil/core';
-import { minfyJsId } from '../../version';
+import { getToolVersion } from '../../version';
 import { minifyJs } from './minify-js';
 
 interface OptimizeModuleOptions {
@@ -37,7 +37,7 @@ export const optimizeModule = async (
   }
 
   const isDebug = config.logLevel === 'debug';
-  const cacheKey = await compilerCtx.cache.createKey('optimizeModule', minfyJsId, opts, isDebug);
+  const cacheKey = await compilerCtx.cache.createKey('optimizeModule', getToolVersion('terser'), opts, isDebug);
   const cachedContent = await compilerCtx.cache.get(cacheKey);
   if (cachedContent != null) {
     const cachedMap = await compilerCtx.cache.get(cacheKey + 'Map');
