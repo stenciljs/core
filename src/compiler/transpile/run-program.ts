@@ -99,13 +99,12 @@ export const runTsProgram = async (
   // Emit files that changed
   const emitResult = tsBuilder.emit(undefined, emitCallback, undefined, false, transformers);
 
-  // Check for emit diagnostics (e.g., TS4094 for private/protected members in anonymous classes)
-  // These occur when mixins return classes with private/protected members that TypeScript cannot emit
+  // Check for emit diagnostics
   if (emitResult.diagnostics.length > 0) {
     const emitDiagnostics = loadTypeScriptDiagnostics(emitResult.diagnostics);
 
-    // Enhance error messages for TS4094 to be more helpful for mixin users
-    // Downgrade to warnings since missing .d.ts files shouldn't fail the build
+    // Enhance error messages for TS4094 to be more helpful for mixin users;
+    // These occur when mixins return classes with private/protected members that TypeScript cannot emit
     emitDiagnostics.forEach((diagnostic) => {
       if (diagnostic.code === '4094') {
         diagnostic.level = 'warn';
