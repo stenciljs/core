@@ -26,6 +26,13 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
     }
   }
 
+  // Guard against server-side DOM implementations (e.g. Domino) that do not
+  // provide `attachShadow` on host elements.  In those environments we fall
+  // back gracefully so hydration can continue without crashing (#6605).
+  if (typeof this.attachShadow !== 'function') {
+    return;
+  }
+
   const shadowRoot = this.attachShadow(opts);
 
   // Initialize if undefined, set to CSSStyleSheet or null
