@@ -97,7 +97,30 @@ export const runTsProgram = async (
   }
 
   // Emit files that changed
-  tsBuilder.emit(undefined, emitCallback, undefined, false, transformers);
+  const emitResult = tsBuilder.emit(undefined, emitCallback, undefined, false, transformers);
+
+  // Check for emit diagnostics
+  if (emitResult.diagnostics.length > 0) {
+    const emitDiagnostics = loadTypeScriptDiagnostics(emitResult.diagnostics);
+
+    // Enhance error messages for TS4094 to be more helpful for mixin users;
+    // These occur when mixins return classes with private/protected members that TypeScript cannot emit
+    emitDiagnostics.forEach((diagnostic) => {
+      if (diagnostic.code === '4094') {
+        diagnostic.level = 'warn';
+        diagnostic.messageText =
+          `${diagnostic.messageText}\n\n` +
+          `This commonly occurs when using mixins that return classes with private or protected members. ` +
+          `TypeScript cannot emit declaration files for anonymous classes with non-public members.\n\n` +
+          `Possible solutions:\n` +
+          `  1. Add explicit type annotations to your mixin's return type\n` +
+          `  2. Use public members in your mixin classes\n` +
+          `  3. Use JavaScript private fields (#field) instead of TypeScript's private keyword`;
+      }
+    });
+
+    buildCtx.diagnostics.push(...emitDiagnostics);
+  }
 
   const changedmodules = Array.from(compilerCtx.changedModules.keys());
   buildCtx.debug('Transpiled modules: ' + JSON.stringify(changedmodules, null, '\n'));
