@@ -23,7 +23,7 @@ export const parseCallExpression = (
     }
   } else if (ts.isPropertyAccessExpression(node.expression)) {
     if (ts.isIdentifier(node.expression.name)) {
-      // match potential partial function calls like `this.renderContent()`
+      // potential function calls that return jsx e.g. `renderContent()`
       const symbol = typeChecker?.getSymbolAtLocation(node.expression);
       if (!symbol) return;
 
