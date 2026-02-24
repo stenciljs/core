@@ -165,6 +165,11 @@ export const runTsProgram = async (
   return emittedDts;
 };
 
+export interface ValidateTypesResult {
+  hasTypesChanged: boolean;
+  needsRebuild: boolean;
+}
+
 /**
  * Generate types and run semantic validation AFTER components.d.ts exists on disk
  */
@@ -174,7 +179,7 @@ export const validateTypesAfterGeneration = async (
   buildCtx: d.BuildCtx,
   tsBuilder: ts.BuilderProgram,
   emittedDts: string[],
-): Promise<boolean> => {
+): Promise<ValidateTypesResult> => {
   const tsProgram = tsBuilder.getProgram();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
 
@@ -182,14 +187,17 @@ export const validateTypesAfterGeneration = async (
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
   const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // If components.d.ts doesn't exist yet (first build), generate it before validation
-  // so that subsequent watch builds will have it available. Track if we generated it.
-  let hasTypesChanged = false;
+  // If components.d.ts doesn't exist yet, generate it and signal that a rebuild is needed.
+  // The current TS program was created without components.d.ts, so it can't provide
+  // accurate type checking. We need a fresh TS program that includes components.d.ts.
   if (!componentsDtsExistedBefore) {
-    hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+    // Signal that we need to rebuild with a fresh TS program
+    return { hasTypesChanged: true, needsRebuild: true };
   }
 
-  // Run semantic validation on user source files
+  // components.d.ts existed, so the TS program has full type information.
+  // Run semantic validation on user source files.
   if (config.validateTypes) {
     const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
       const fileName = normalizePath(sf.fileName);
@@ -202,22 +210,7 @@ export const validateTypesAfterGeneration = async (
 
     for (const sourceFile of sourceFiles) {
       const sourceSemanticDiagnostics = tsProgram.getSemanticDiagnostics(sourceFile);
-      let tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
-
-      // If components.d.ts didn't exist before this build, filter out JSX IntrinsicElements errors
-      // These are "chicken-and-egg" errors that occur because the TS program was created before
-      // components.d.ts existed. Real user errors (type mismatches, etc.) will still be reported.
-      if (!componentsDtsExistedBefore) {
-        tsSemantic = tsSemantic.filter((diagnostic) => {
-          // Filter out "Property 'x' does not exist on type 'IntrinsicElements'" errors (TS2339)
-          // and "Type 'x' is not assignable to type 'IntrinsicElements'" errors (TS2322)
-          // when they're specifically about JSX IntrinsicElements
-          const isJsxIntrinsicError =
-            (diagnostic.code === '2339' || diagnostic.code === '2322') &&
-            diagnostic.messageText.includes('IntrinsicElements');
-          return !isJsxIntrinsicError;
-        });
-      }
+      const tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
 
       if (config.devMode) {
         tsSemantic.forEach((semanticDiagnostic) => {
@@ -230,10 +223,8 @@ export const validateTypesAfterGeneration = async (
     }
   }
 
-  // Generate/update components.d.ts if it already existed (otherwise we already generated it above)
-  if (componentsDtsExistedBefore) {
-    hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
-  }
+  // Update components.d.ts in case components changed
+  const hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
   if (typesOutputTarget.length > 0) {
     // copy src dts files that do not get emitted by the compiler
     // but we still want to ship them in the dist directory
@@ -257,11 +248,7 @@ export const validateTypesAfterGeneration = async (
     await Promise.all(srcRootDtsFiles);
   }
 
-  // Note: We generate components.d.ts before validation, then validate user source files.
-  // If components.d.ts didn't exist before, JSX IntrinsicElements errors are filtered out
-  // since the TS program wasn't aware of the custom element types.
-
-  return hasTypesChanged;
+  return { hasTypesChanged, needsRebuild: false };
 };
 
 /**
