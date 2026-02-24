@@ -40,6 +40,17 @@ export const createFullBuild = async (
           tsWatchProgram = null;
         }
         resolve(result);
+      } else {
+        // Build returned null, indicating a rebuild is needed (e.g., components.d.ts was just generated).
+        // Close the current TS program and create a fresh one that includes components.d.ts.
+        if (tsWatchProgram) {
+          tsWatchProgram.close();
+          tsWatchProgram = null;
+        }
+        config.logger.debug('Rebuilding with fresh TypeScript program after components.d.ts generation');
+        createTsBuildProgram(config, onBuild).then((program) => {
+          tsWatchProgram = program;
+        });
       }
     };
 

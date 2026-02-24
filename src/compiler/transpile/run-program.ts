@@ -165,6 +165,11 @@ export const runTsProgram = async (
   return emittedDts;
 };
 
+export interface ValidateTypesResult {
+  hasTypesChanged: boolean;
+  needsRebuild: boolean;
+}
+
 /**
  * Generate types and run semantic validation AFTER components.d.ts exists on disk
  */
@@ -174,17 +179,26 @@ export const validateTypesAfterGeneration = async (
   buildCtx: d.BuildCtx,
   tsBuilder: ts.BuilderProgram,
   emittedDts: string[],
-): Promise<boolean> => {
+): Promise<ValidateTypesResult> => {
   const tsProgram = tsBuilder.getProgram();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
 
   // Check if components.d.ts already exists
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
-  const componentsDtsExists = await compilerCtx.fs.access(componentsDtsPath);
+  const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // Only validate source files if components.d.ts already exists
-  // If it doesn't exist yet (first build), skip validation to avoid chicken-and-egg errors
-  if (config.validateTypes && componentsDtsExists) {
+  // If components.d.ts doesn't exist yet, generate it and signal that a rebuild is needed.
+  // The current TS program was created without components.d.ts, so it can't provide
+  // accurate type checking. We need a fresh TS program that includes components.d.ts.
+  if (!componentsDtsExistedBefore) {
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+    // Signal that we need to rebuild with a fresh TS program
+    return { hasTypesChanged: true, needsRebuild: true };
+  }
+
+  // components.d.ts existed, so the TS program has full type information.
+  // Run semantic validation on user source files.
+  if (config.validateTypes) {
     const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
       const fileName = normalizePath(sf.fileName);
       return (
@@ -209,7 +223,7 @@ export const validateTypesAfterGeneration = async (
     }
   }
 
-  // create the components.d.ts file and write to disk
+  // Update components.d.ts in case components changed
   const hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
   if (typesOutputTarget.length > 0) {
     // copy src dts files that do not get emitted by the compiler
@@ -234,10 +248,7 @@ export const validateTypesAfterGeneration = async (
     await Promise.all(srcRootDtsFiles);
   }
 
-  // Note: We validated user source files above before generating types
-  // We don't validate components.d.ts itself as it may reference types that will resolve later
-
-  return hasTypesChanged;
+  return { hasTypesChanged, needsRebuild: false };
 };
 
 /**
