@@ -55,6 +55,29 @@ export const updateModule = (
       parseCallExpression(moduleFile, node, typeChecker);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(moduleFile, node);
+    } else if (ts.isVariableStatement(node)) {
+      // Look for mixin patterns like `const MyMixin = (Base) => class MyMixin extends Base { ... }`
+      node.declarationList.declarations.forEach((declaration) => {
+        if (declaration.initializer) {
+          if (ts.isArrowFunction(declaration.initializer) || ts.isFunctionExpression(declaration.initializer)) {
+            const funcBody = declaration.initializer.body;
+            // Handle functions with block body: (Base) => { class MyMixin ... }
+            if (ts.isBlock(funcBody)) {
+              funcBody.statements.forEach((statement) => {
+                // Look for class declarations in the function body
+                if (ts.isClassDeclaration(statement)) {
+                  statement.members.forEach((member) => {
+                    if (ts.isPropertyDeclaration(member) && member.initializer) {
+                      // Traverse into the property initializer (e.g., arrow function)
+                      ts.forEachChild(member.initializer, visitNode);
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
+      });
     }
     node.forEachChild(visitNode);
   };
