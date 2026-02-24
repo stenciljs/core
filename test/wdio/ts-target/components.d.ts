@@ -267,6 +267,8 @@ export namespace Components {
          */
         "prop3": string;
     }
+    interface ExtendsMixinSlotCmp {
+    }
     /**
      * Test Case #3: Property & State Inheritance Basics
      * This component extends PropsStateBase to test:
@@ -574,6 +576,12 @@ declare global {
         prototype: HTMLExtendsMixinCmpElement;
         new (): HTMLExtendsMixinCmpElement;
     };
+    interface HTMLExtendsMixinSlotCmpElement extends Components.ExtendsMixinSlotCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsMixinSlotCmpElement: {
+        prototype: HTMLExtendsMixinSlotCmpElement;
+        new (): HTMLExtendsMixinSlotCmpElement;
+    };
     /**
      * Test Case #3: Property & State Inheritance Basics
      * This component extends PropsStateBase to test:
@@ -706,6 +714,7 @@ declare global {
         "extends-methods": HTMLExtendsMethodsElement;
         "extends-mixed-decorators": HTMLExtendsMixedDecoratorsElement;
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
+        "extends-mixin-slot-cmp": HTMLExtendsMixinSlotCmpElement;
         "extends-props-state": HTMLExtendsPropsStateElement;
         "extends-render": HTMLExtendsRenderElement;
         "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
@@ -869,6 +878,8 @@ declare namespace LocalJSX {
           * @default 'mixin b text'
          */
         "prop3"?: string;
+    }
+    interface ExtendsMixinSlotCmp {
     }
     /**
      * Test Case #3: Property & State Inheritance Basics
@@ -1040,6 +1051,7 @@ declare namespace LocalJSX {
         "extends-methods": ExtendsMethods;
         "extends-mixed-decorators": Omit<ExtendsMixedDecorators, keyof ExtendsMixedDecoratorsAttributes> & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes]?: ExtendsMixedDecorators[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `attr:${K}`]?: ExtendsMixedDecoratorsAttributes[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `prop:${K}`]?: ExtendsMixedDecorators[K] };
         "extends-mixin-cmp": Omit<ExtendsMixinCmp, keyof ExtendsMixinCmpAttributes> & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes]?: ExtendsMixinCmp[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `attr:${K}`]?: ExtendsMixinCmpAttributes[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `prop:${K}`]?: ExtendsMixinCmp[K] };
+        "extends-mixin-slot-cmp": ExtendsMixinSlotCmp;
         "extends-props-state": Omit<ExtendsPropsState, keyof ExtendsPropsStateAttributes> & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes]?: ExtendsPropsState[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `attr:${K}`]?: ExtendsPropsStateAttributes[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `prop:${K}`]?: ExtendsPropsState[K] };
         "extends-render": ExtendsRender;
         "extends-via-host-cmp": ExtendsViaHostCmp;
@@ -1105,6 +1117,7 @@ declare module "@stencil/core" {
              */
             "extends-mixed-decorators": LocalJSX.IntrinsicElements["extends-mixed-decorators"] & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
             "extends-mixin-cmp": LocalJSX.IntrinsicElements["extends-mixin-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
+            "extends-mixin-slot-cmp": LocalJSX.IntrinsicElements["extends-mixin-slot-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsMixinSlotCmpElement>;
             /**
              * Test Case #3: Property & State Inheritance Basics
              * This component extends PropsStateBase to test:

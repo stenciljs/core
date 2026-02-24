@@ -1,0 +1,15 @@
+<html>
+<head>
+  <title>ES2022 dist-custom-elements output - Mixin Slot Test</title>
+  <script type="module">
+    import { defineCustomElement as defineMixinSlotCmp } from '/test-ts-target-output/custom-elements/extends-mixin-slot-cmp.js';
+    defineMixinSlotCmp();
+  </script>
+</head>
+<body>
+  <h1>ES2022 dist-custom-elements output - Mixin Slot Test</h1>
+  <extends-mixin-slot-cmp>
+    <span slot="content" class="slotted-content">I am slotted content</span>
+  </extends-mixin-slot-cmp>
+</body>
+</html>
