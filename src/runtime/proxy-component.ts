@@ -7,6 +7,21 @@ import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime
 import { getValue, setValue } from './set-value';
 
 /**
+ * Walk up the prototype chain to find a property descriptor.
+ * This is needed for mixin/inheritance patterns where getters/setters
+ * may be defined on a parent prototype rather than the immediate prototype.
+ */
+const getPropertyDescriptor = (obj: any, prop: string): PropertyDescriptor | undefined => {
+  let proto = obj;
+  while (proto) {
+    const desc = Object.getOwnPropertyDescriptor(proto, prop);
+    if (desc) return desc;
+    proto = Object.getPrototypeOf(proto);
+  }
+  return undefined;
+};
+
+/**
  * Attach a series of runtime constructs to a compiled Stencil component
  * constructor, including getters and setters for the `@Prop` and `@State`
  * decorators, callbacks for when attributes change, and so on.
@@ -86,7 +101,8 @@ export const proxyComponent = (
       ) {
         // preserve any getters / setters that already exist on the prototype;
         // we'll call them via our new accessors. On a lazy component, this would only be called on the class instance.
-        const { get: origGetter, set: origSetter } = Object.getOwnPropertyDescriptor(prototype, memberName) || {};
+        // Use getPropertyDescriptor to walk up the prototype chain for mixin/inheritance patterns.
+        const { get: origGetter, set: origSetter } = getPropertyDescriptor(prototype, memberName) || {};
         if (origGetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Getter;
         if (origSetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Setter;
 
@@ -385,8 +401,8 @@ export const proxyComponent = (
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
-          const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
-          if (newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
+          const propDesc = getPropertyDescriptor(prototype, propName);
+          if (newValue != this[propName] && (!propDesc?.get || !!propDesc?.set)) {
             this[propName] = newValue;
           }
         });

@@ -59,9 +59,14 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
         });
       }
 
-      instance[memberName] = hostRef.$instanceValues$.has(memberName)
-        ? hostRef.$instanceValues$.get(memberName)
-        : ogValue;
+      if (hostRef.$instanceValues$.has(memberName)) {
+        // Sync element value to instance
+        instance[memberName] = hostRef.$instanceValues$.get(memberName);
+      } else if (!(memberFlags & MEMBER_FLAGS.Getter)) {
+        // Only set ogValue if there's no getter.
+        // Getters (e.g. from mixins) handle their own default values via backing fields.
+        instance[memberName] = ogValue;
+      }
     }
   });
 };
