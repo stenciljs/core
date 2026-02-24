@@ -21,6 +21,27 @@ export const parseCallExpression = (
         visitCallExpressionArgs(m, n, node.arguments, typeChecker);
       }
     }
+  } else if (ts.isPropertyAccessExpression(node.expression)) {
+    if (ts.isIdentifier(node.expression.name)) {
+      // match potential partial function calls like `this.renderContent()`
+      const symbol = typeChecker?.getSymbolAtLocation(node.expression);
+      if (!symbol) return;
+
+      const declarations = symbol.getDeclarations();
+      if (!declarations || declarations.length === 0) return;
+
+      const declaration = declarations[0];
+      const sourceFile = declaration.getSourceFile();
+      if (!sourceFile) return;
+
+      const sourceFilePath = normalizePath(sourceFile.fileName);
+      const moduleFile = m as d.Module;
+      if (moduleFile.functionalComponentDeps) {
+        if (!moduleFile.functionalComponentDeps.includes(sourceFilePath)) {
+          moduleFile.functionalComponentDeps.push(sourceFilePath);
+        }
+      }
+    }
   }
 };
 
