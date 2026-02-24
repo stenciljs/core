@@ -178,12 +178,16 @@ export const validateTypesAfterGeneration = async (
   const tsProgram = tsBuilder.getProgram();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
 
-  // Check if components.d.ts already exists before we generate it
+  // Check if components.d.ts already exists
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
   const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // Generate components.d.ts first to ensure it exists
-  const hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+  // If components.d.ts doesn't exist yet (first build), generate it before validation
+  // so that subsequent watch builds will have it available. Track if we generated it.
+  let hasTypesChanged = false;
+  if (!componentsDtsExistedBefore) {
+    hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+  }
 
   // Run semantic validation on user source files
   if (config.validateTypes) {
@@ -224,6 +228,11 @@ export const validateTypesAfterGeneration = async (
       }
       buildCtx.diagnostics.push(...tsSemantic);
     }
+  }
+
+  // Generate/update components.d.ts if it already existed (otherwise we already generated it above)
+  if (componentsDtsExistedBefore) {
+    hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
   }
   if (typesOutputTarget.length > 0) {
     // copy src dts files that do not get emitted by the compiler
