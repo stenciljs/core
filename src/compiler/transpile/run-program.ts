@@ -178,13 +178,15 @@ export const validateTypesAfterGeneration = async (
   const tsProgram = tsBuilder.getProgram();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
 
-  // Check if components.d.ts already exists
+  // Check if components.d.ts already exists before we generate it
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
-  const componentsDtsExists = await compilerCtx.fs.access(componentsDtsPath);
+  const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // Only validate source files if components.d.ts already exists
-  // If it doesn't exist yet (first build), skip validation to avoid chicken-and-egg errors
-  if (config.validateTypes && componentsDtsExists) {
+  // Generate components.d.ts first to ensure it exists
+  const hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+  // Run semantic validation on user source files
+  if (config.validateTypes) {
     const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
       const fileName = normalizePath(sf.fileName);
       return (
@@ -196,7 +198,22 @@ export const validateTypesAfterGeneration = async (
 
     for (const sourceFile of sourceFiles) {
       const sourceSemanticDiagnostics = tsProgram.getSemanticDiagnostics(sourceFile);
-      const tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
+      let tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
+
+      // If components.d.ts didn't exist before this build, filter out JSX IntrinsicElements errors
+      // These are "chicken-and-egg" errors that occur because the TS program was created before
+      // components.d.ts existed. Real user errors (type mismatches, etc.) will still be reported.
+      if (!componentsDtsExistedBefore) {
+        tsSemantic = tsSemantic.filter((diagnostic) => {
+          // Filter out "Property 'x' does not exist on type 'IntrinsicElements'" errors (TS2339)
+          // and "Type 'x' is not assignable to type 'IntrinsicElements'" errors (TS2322)
+          // when they're specifically about JSX IntrinsicElements
+          const isJsxIntrinsicError =
+            (diagnostic.code === '2339' || diagnostic.code === '2322') &&
+            diagnostic.messageText.includes('IntrinsicElements');
+          return !isJsxIntrinsicError;
+        });
+      }
 
       if (config.devMode) {
         tsSemantic.forEach((semanticDiagnostic) => {
@@ -208,9 +225,6 @@ export const validateTypesAfterGeneration = async (
       buildCtx.diagnostics.push(...tsSemantic);
     }
   }
-
-  // create the components.d.ts file and write to disk
-  const hasTypesChanged = await generateAppTypes(config, compilerCtx, buildCtx, 'src');
   if (typesOutputTarget.length > 0) {
     // copy src dts files that do not get emitted by the compiler
     // but we still want to ship them in the dist directory
@@ -234,8 +248,9 @@ export const validateTypesAfterGeneration = async (
     await Promise.all(srcRootDtsFiles);
   }
 
-  // Note: We validated user source files above before generating types
-  // We don't validate components.d.ts itself as it may reference types that will resolve later
+  // Note: We generate components.d.ts before validation, then validate user source files.
+  // If components.d.ts didn't exist before, JSX IntrinsicElements errors are filtered out
+  // since the TS program wasn't aware of the custom element types.
 
   return hasTypesChanged;
 };
