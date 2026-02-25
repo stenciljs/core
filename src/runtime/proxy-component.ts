@@ -1,25 +1,11 @@
 import { BUILD } from '@app-data';
 import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from '@platform';
+import { getPropertyDescriptor } from '@utils/get-prop-descriptor';
 
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
-
-/**
- * Walk up the prototype chain to find a property descriptor.
- * This is needed for mixin/inheritance patterns where getters/setters
- * may be defined on a parent prototype rather than the immediate prototype.
- */
-const getPropertyDescriptor = (obj: any, prop: string): PropertyDescriptor | undefined => {
-  let proto = obj;
-  while (proto) {
-    const desc = Object.getOwnPropertyDescriptor(proto, prop);
-    if (desc) return desc;
-    proto = Object.getPrototypeOf(proto);
-  }
-  return undefined;
-};
 
 /**
  * Attach a series of runtime constructs to a compiled Stencil component
