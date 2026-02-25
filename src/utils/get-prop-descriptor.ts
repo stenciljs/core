@@ -4,6 +4,7 @@
  * treating native properties like `hidden` as component-defined getters.
  * @param obj - The object to search on.
  * @param memberName - The name of the member to find.
+ * @param getOnly - If true, only returns descriptors with a getter (i.e. ignores properties that are only fields or have setters without getters).
  * @returns The property descriptor if found, otherwise undefined.
  */
 export function getPropertyDescriptor(
