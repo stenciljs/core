@@ -43,7 +43,7 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
 
       // Get the original Stencil prototype `get` / `set`
       const ogDescriptor =
-        getPropertyDescriptor(Object.getPrototypeOf(instance), memberName) ||
+        getPropertyDescriptor(Object.getPrototypeOf(instance), memberName, true) ||
         Object.getOwnPropertyDescriptor(instance, memberName);
 
       if (ogDescriptor) {
@@ -64,7 +64,7 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
         // Sync element value to instance
         instance[memberName] = hostRef.$instanceValues$.get(memberName);
       } else if (!(memberFlags & MEMBER_FLAGS.Getter)) {
-        // Only set ogValue if there's no getter.
+        // Only use ogValue if there's no getter.
         // Getters (e.g. from mixins) handle their own default values via backing fields.
         instance[memberName] = ogValue;
       }

@@ -3,6 +3,19 @@ import { Component, h, Prop, State, Method, Watch, Event, EventEmitter } from '@
 class MixinParent {
   @Event() myEvent: EventEmitter<string>;
 
+  /**
+   * Test getter/setter pattern - ensures default value is preserved
+   * and not overwritten with undefined during component initialization.
+   */
+  private _getterProp: string = 'getter default value';
+  @Prop()
+  get getterProp(): string {
+    return this._getterProp;
+  }
+  set getterProp(newValue: string) {
+    this._getterProp = newValue;
+  }
+
   @Prop() prop1: string = 'ExtendedCmp text';
   @Watch('prop1')
   prop1Changed(newValue: string) {
@@ -71,6 +84,7 @@ export class MixinCmp extends Mixin {
       <div>
         <p class="main-prop-1">Main class prop1: {this.prop1}</p>
         <p class="main-prop-2">Main class prop2: {this.prop2}</p>
+        <p class="main-getter-prop">Main class getterProp: {this.getterProp}</p>
         <p class="main-state-1">Main class state1: {this.state1}</p>
         <p class="main-state-2">Main class state2: {this.state2}</p>
       </div>

@@ -19,6 +19,10 @@ export namespace Components {
     interface CompositionTextInput {
     }
     interface ExtendedCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -31,6 +35,10 @@ export namespace Components {
         "prop2": string;
     }
     interface ExtendedCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -43,6 +51,10 @@ export namespace Components {
         "prop2": string;
     }
     interface ExtendsAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -55,6 +67,10 @@ export namespace Components {
         "prop2": string;
     }
     interface ExtendsCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -142,6 +158,10 @@ export namespace Components {
     interface ExtendsEvents {
     }
     interface ExtendsExternal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -158,6 +178,10 @@ export namespace Components {
     interface ExtendsLifecycleMultilevel {
     }
     interface ExtendsLocal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -747,6 +771,10 @@ declare namespace LocalJSX {
     }
     interface ExtendedCmp {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'ExtendedCmp text'
          */
         "prop1"?: string;
@@ -756,6 +784,10 @@ declare namespace LocalJSX {
         "prop2"?: string;
     }
     interface ExtendedCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
         /**
           * @default 'ExtendedCmp text'
          */
@@ -767,6 +799,10 @@ declare namespace LocalJSX {
     }
     interface ExtendsAbstract {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'default text'
          */
         "prop1"?: string;
@@ -776,6 +812,10 @@ declare namespace LocalJSX {
         "prop2"?: string;
     }
     interface ExtendsCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
         /**
           * @default 'default text'
          */
@@ -822,6 +862,10 @@ declare namespace LocalJSX {
     }
     interface ExtendsExternal {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'default text'
          */
         "prop1"?: string;
@@ -835,6 +879,10 @@ declare namespace LocalJSX {
     interface ExtendsLifecycleMultilevel {
     }
     interface ExtendsLocal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
         "onMyEvent"?: (event: ExtendsLocalCustomEvent<string>) => void;
         /**
           * @default 'default text'
@@ -985,18 +1033,22 @@ declare namespace LocalJSX {
     }
 
     interface ExtendedCmpAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }
     interface ExtendedCmpCmpAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }
     interface ExtendsAbstractAttributes {
+        "getterProp": string;
         "prop2": string;
         "prop1": string;
     }
     interface ExtendsCmpCmpAttributes {
+        "getterProp": string;
         "prop2": string;
         "prop1": string;
     }
@@ -1005,10 +1057,12 @@ declare namespace LocalJSX {
         "duplicateProp": string;
     }
     interface ExtendsExternalAttributes {
+        "getterProp": string;
         "prop2": string;
         "prop1": string;
     }
     interface ExtendsLocalAttributes {
+        "getterProp": string;
         "prop2": string;
         "prop1": string;
     }

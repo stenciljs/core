@@ -4,6 +4,19 @@ import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
   tag: 'sibling-extended-base',
 })
 export class SiblingExtendedBase {
+  /**
+   * Test getter/setter pattern - ensures default value is preserved
+   * and not overwritten with undefined during component initialization.
+   */
+  private _getterProp: string = 'getter default value';
+  @Prop()
+  get getterProp(): string {
+    return this._getterProp;
+  }
+  set getterProp(newValue: string) {
+    this._getterProp = newValue;
+  }
+
   @Prop() prop1: string = 'ExtendedCmp text';
   @Watch('prop1')
   prop1Changed(newValue: string) {
