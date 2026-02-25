@@ -87,7 +87,6 @@ export const proxyComponent = (
       ) {
         // preserve any getters / setters that already exist on the prototype;
         // we'll call them via our new accessors. On a lazy component, this would only be called on the class instance.
-        // Use getPropertyDescriptor to walk up the prototype chain for mixin/inheritance patterns.
         const { get: origGetter, set: origSetter } = getPropertyDescriptor(prototype, memberName) || {};
         if (origGetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Getter;
         if (origSetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Setter;
