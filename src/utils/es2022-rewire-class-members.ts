@@ -61,11 +61,8 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
       }
 
       if (hostRef.$instanceValues$.has(memberName)) {
-        // Sync element value to instance
         instance[memberName] = hostRef.$instanceValues$.get(memberName);
-      } else if (!(memberFlags & MEMBER_FLAGS.Getter)) {
-        // Only use ogValue if there's no getter.
-        // Getters (e.g. from mixins) handle their own default values via backing fields.
+      } else if (ogValue !== undefined) {
         instance[memberName] = ogValue;
       }
     }
