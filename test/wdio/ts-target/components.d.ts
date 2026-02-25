@@ -251,6 +251,10 @@ export namespace Components {
         "updateMixedName": (value: string) => Promise<void>;
     }
     interface ExtendsMixinCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         "method3": () => Promise<void>;
@@ -867,6 +871,10 @@ declare namespace LocalJSX {
     }
     interface ExtendsMixinCmp {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'default text'
          */
         "prop1"?: string;
@@ -1011,6 +1019,7 @@ declare namespace LocalJSX {
     }
     interface ExtendsMixinCmpAttributes {
         "prop3": string;
+        "getterProp": string;
         "prop2": string;
         "prop1": string;
     }
