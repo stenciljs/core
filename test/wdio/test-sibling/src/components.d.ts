@@ -7,6 +7,10 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface SiblingExtended {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -19,6 +23,10 @@ export namespace Components {
         "prop2": string;
     }
     interface SiblingExtendedBase {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -61,6 +69,10 @@ declare global {
 declare namespace LocalJSX {
     interface SiblingExtended {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'ExtendedCmp text'
          */
         "prop1"?: string;
@@ -70,6 +82,10 @@ declare namespace LocalJSX {
         "prop2"?: string;
     }
     interface SiblingExtendedBase {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
         /**
           * @default 'ExtendedCmp text'
          */
@@ -83,10 +99,12 @@ declare namespace LocalJSX {
     }
 
     interface SiblingExtendedAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }
     interface SiblingExtendedBaseAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }

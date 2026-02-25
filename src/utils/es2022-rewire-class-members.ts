@@ -2,6 +2,7 @@ import { BUILD } from '@app-data';
 import { MEMBER_FLAGS } from '@utils/constants';
 
 import type * as d from '../declarations';
+import { getPropertyDescriptor } from './get-prop-descriptor';
 
 /**
  * - Re-wires component prototype `get` / `set` with instance `@State` / `@Prop` decorated fields.
@@ -42,7 +43,7 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
 
       // Get the original Stencil prototype `get` / `set`
       const ogDescriptor =
-        getPropertyDescriptor(Object.getPrototypeOf(instance), memberName) ||
+        getPropertyDescriptor(Object.getPrototypeOf(instance), memberName, true) ||
         Object.getOwnPropertyDescriptor(instance, memberName);
 
       if (ogDescriptor) {
@@ -59,24 +60,11 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
         });
       }
 
-      instance[memberName] = hostRef.$instanceValues$.has(memberName)
-        ? hostRef.$instanceValues$.get(memberName)
-        : ogValue;
+      if (hostRef.$instanceValues$.has(memberName)) {
+        instance[memberName] = hostRef.$instanceValues$.get(memberName);
+      } else if (ogValue !== undefined) {
+        instance[memberName] = ogValue;
+      }
     }
   });
 };
-
-/**
- * Iterate through the prototype chain to find the property get / set descriptor for the provided member name.
- * @param obj - The object to search on.
- * @param memberName - The name of the member to find.
- * @returns The property descriptor if found, otherwise undefined.
- */
-function getPropertyDescriptor(obj: object, memberName: string): PropertyDescriptor | undefined {
-  while (obj) {
-    const desc = Object.getOwnPropertyDescriptor(obj, memberName);
-    if (desc?.get) return desc;
-    obj = Object.getPrototypeOf(obj);
-  }
-  return undefined;
-}
