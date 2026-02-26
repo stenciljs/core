@@ -465,6 +465,12 @@ export interface CollectionCompilerVersion {
 
 export interface CollectionManifest {
   entries?: CollectionComponentEntryPath[];
+  /**
+   * Paths to mixin/abstract class modules that can be extended by consuming projects.
+   * These are modules that contain classes with Stencil static members (properties, states, etc.)
+   * but are not components themselves (no @Component decorator / tag name).
+   */
+  mixins?: CollectionComponentEntryPath[];
   collections?: CollectionDependencyManifest[];
   global?: string;
   compiler?: CollectionCompilerVersion;
@@ -1311,6 +1317,11 @@ export interface Module {
   cmps: ComponentCompilerMeta[];
   isMixin: boolean;
   isExtended: boolean;
+  /**
+   * Indicates this module contains mixin/abstract classes that can be extended by other projects.
+   * These are classes with Stencil static members (properties, states, etc.) but no @Component decorator.
+   */
+  hasExportableMixins: boolean;
   /**
    * A collection of modules that a component will need. The modules in this list must have import statements generated
    * in order for the component to function.
