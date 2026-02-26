@@ -8,6 +8,14 @@
     "./dist/collection/sibling-extended/sibling-extended": {
       "import": "./dist/collection/sibling-extended/sibling-extended.js",
       "types": "./dist/types/sibling-extended/sibling-extended.d.ts"
+    },
+    "./dist/collection/sibling-abstract-mixin/sibling-abstract-mixin": {
+      "import": "./dist/collection/sibling-abstract-mixin/sibling-abstract-mixin.js",
+      "types": "./dist/types/sibling-abstract-mixin/sibling-abstract-mixin.d.ts"
+    },
+    "./dist/collection/sibling-with-mixin/sibling-with-mixin": {
+      "import": "./dist/collection/sibling-with-mixin/sibling-with-mixin.js",
+      "types": "./dist/types/sibling-with-mixin/sibling-with-mixin.d.ts"
     }
   },
   "volta": {

@@ -173,6 +173,48 @@ export namespace Components {
          */
         "prop2": string;
     }
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface ExtendsExternalAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface ExtendsExternalWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
     interface ExtendsLifecycleBasic {
     }
     interface ExtendsLifecycleMultilevel {
@@ -392,6 +434,29 @@ export namespace Components {
     }
     interface InheritanceTextInput {
     }
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface SiblingWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -548,6 +613,28 @@ declare global {
     var HTMLExtendsExternalElement: {
         prototype: HTMLExtendsExternalElement;
         new (): HTMLExtendsExternalElement;
+    };
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface HTMLExtendsExternalAbstractElement extends Components.ExtendsExternalAbstract, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalAbstractElement: {
+        prototype: HTMLExtendsExternalAbstractElement;
+        new (): HTMLExtendsExternalAbstractElement;
+    };
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface HTMLExtendsExternalWithMixinElement extends Components.ExtendsExternalWithMixin, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalWithMixinElement: {
+        prototype: HTMLExtendsExternalWithMixinElement;
+        new (): HTMLExtendsExternalWithMixinElement;
     };
     interface HTMLExtendsLifecycleBasicElement extends Components.ExtendsLifecycleBasic, HTMLStencilElement {
     }
@@ -716,6 +803,19 @@ declare global {
         prototype: HTMLInheritanceTextInputElement;
         new (): HTMLInheritanceTextInputElement;
     };
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface HTMLSiblingWithMixinElement extends Components.SiblingWithMixin, HTMLStencilElement {
+    }
+    var HTMLSiblingWithMixinElement: {
+        prototype: HTMLSiblingWithMixinElement;
+        new (): HTMLSiblingWithMixinElement;
+    };
     interface HTMLTsTargetPropsElement extends Components.TsTargetProps, HTMLStencilElement {
     }
     var HTMLTsTargetPropsElement: {
@@ -736,6 +836,8 @@ declare global {
         "extends-direct-state": HTMLExtendsDirectStateElement;
         "extends-events": HTMLExtendsEventsElement;
         "extends-external": HTMLExtendsExternalElement;
+        "extends-external-abstract": HTMLExtendsExternalAbstractElement;
+        "extends-external-with-mixin": HTMLExtendsExternalWithMixinElement;
         "extends-lifecycle-basic": HTMLExtendsLifecycleBasicElement;
         "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
         "extends-local": HTMLExtendsLocalElement;
@@ -751,6 +853,7 @@ declare global {
         "inheritance-radio-group": HTMLInheritanceRadioGroupElement;
         "inheritance-scaling-demo": HTMLInheritanceScalingDemoElement;
         "inheritance-text-input": HTMLInheritanceTextInputElement;
+        "sibling-with-mixin": HTMLSiblingWithMixinElement;
         "ts-target-props": HTMLTsTargetPropsElement;
     }
 }
@@ -861,6 +964,44 @@ declare namespace LocalJSX {
     interface ExtendsEvents {
     }
     interface ExtendsExternal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface ExtendsExternalAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface ExtendsExternalWithMixin {
         /**
           * @default 'getter default value'
          */
@@ -1019,6 +1160,27 @@ declare namespace LocalJSX {
     }
     interface InheritanceTextInput {
     }
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface SiblingWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
     interface TsTargetProps {
         /**
           * @default 'basicProp'
@@ -1061,6 +1223,16 @@ declare namespace LocalJSX {
         "prop2": string;
         "prop1": string;
     }
+    interface ExtendsExternalAbstractAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsExternalWithMixinAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
     interface ExtendsLocalAttributes {
         "getterProp": string;
         "prop2": string;
@@ -1088,6 +1260,11 @@ declare namespace LocalJSX {
         "overrideProp": string;
         "childProp": string;
     }
+    interface SiblingWithMixinAttributes {
+        "getterProp": string;
+        "prop1": string;
+        "prop2": string;
+    }
     interface TsTargetPropsAttributes {
         "basicProp": string;
         "decoratedProp": number;
@@ -1108,6 +1285,8 @@ declare namespace LocalJSX {
         "extends-direct-state": ExtendsDirectState;
         "extends-events": ExtendsEvents;
         "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
+        "extends-external-abstract": Omit<ExtendsExternalAbstract, keyof ExtendsExternalAbstractAttributes> & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes]?: ExtendsExternalAbstract[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `attr:${K}`]?: ExtendsExternalAbstractAttributes[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `prop:${K}`]?: ExtendsExternalAbstract[K] };
+        "extends-external-with-mixin": Omit<ExtendsExternalWithMixin, keyof ExtendsExternalWithMixinAttributes> & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes]?: ExtendsExternalWithMixin[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `attr:${K}`]?: ExtendsExternalWithMixinAttributes[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `prop:${K}`]?: ExtendsExternalWithMixin[K] };
         "extends-lifecycle-basic": ExtendsLifecycleBasic;
         "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
         "extends-local": Omit<ExtendsLocal, keyof ExtendsLocalAttributes> & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes]?: ExtendsLocal[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `attr:${K}`]?: ExtendsLocalAttributes[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `prop:${K}`]?: ExtendsLocal[K] };
@@ -1123,6 +1302,7 @@ declare namespace LocalJSX {
         "inheritance-radio-group": InheritanceRadioGroup;
         "inheritance-scaling-demo": InheritanceScalingDemo;
         "inheritance-text-input": InheritanceTextInput;
+        "sibling-with-mixin": Omit<SiblingWithMixin, keyof SiblingWithMixinAttributes> & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes]?: SiblingWithMixin[K] } & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes as `attr:${K}`]?: SiblingWithMixinAttributes[K] } & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes as `prop:${K}`]?: SiblingWithMixin[K] };
         "ts-target-props": Omit<TsTargetProps, keyof TsTargetPropsAttributes> & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes]?: TsTargetProps[K] } & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes as `attr:${K}`]?: TsTargetPropsAttributes[K] } & { [K in keyof TsTargetProps & keyof TsTargetPropsAttributes as `prop:${K}`]?: TsTargetProps[K] };
     }
 }
@@ -1166,6 +1346,18 @@ declare module "@stencil/core" {
              */
             "extends-events": LocalJSX.IntrinsicElements["extends-events"] & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
             "extends-external": LocalJSX.IntrinsicElements["extends-external"] & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            /**
+             * A component that extends from an external library's abstract mixin class.
+             * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+             * members should be properly merged in and have reactivity.
+             */
+            "extends-external-abstract": LocalJSX.IntrinsicElements["extends-external-abstract"] & JSXBase.HTMLAttributes<HTMLExtendsExternalAbstractElement>;
+            /**
+             * A component that extends from an external library's component which itself uses a mixin pattern.
+             * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+             * class pattern - the decorated class members should be properly merged and have reactivity.
+             */
+            "extends-external-with-mixin": LocalJSX.IntrinsicElements["extends-external-with-mixin"] & JSXBase.HTMLAttributes<HTMLExtendsExternalWithMixinElement>;
             "extends-lifecycle-basic": LocalJSX.IntrinsicElements["extends-lifecycle-basic"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
             "extends-lifecycle-multilevel": LocalJSX.IntrinsicElements["extends-lifecycle-multilevel"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
             "extends-local": LocalJSX.IntrinsicElements["extends-local"] & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
@@ -1225,6 +1417,14 @@ declare module "@stencil/core" {
              */
             "inheritance-scaling-demo": LocalJSX.IntrinsicElements["inheritance-scaling-demo"] & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
             "inheritance-text-input": LocalJSX.IntrinsicElements["inheritance-text-input"] & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
+            /**
+             * A component that uses a mixin factory pattern internally.
+             * This tests the scenario where a consumer project imports and renders a component
+             * from an external library, and that component internally uses a mixin pattern.
+             * The mixin's decorated members should be properly merged and reactive.
+             * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+             */
+            "sibling-with-mixin": LocalJSX.IntrinsicElements["sibling-with-mixin"] & JSXBase.HTMLAttributes<HTMLSiblingWithMixinElement>;
             "ts-target-props": LocalJSX.IntrinsicElements["ts-target-props"] & JSXBase.HTMLAttributes<HTMLTsTargetPropsElement>;
         }
     }
