@@ -90,6 +90,7 @@ export const getModuleLegacy = (compilerCtx: d.CompilerCtx, sourceFilePath: stri
       cmps: [],
       isExtended: false,
       isMixin: false,
+      hasExportableMixins: false,
       coreRuntimeApis: [],
       outputTargetCoreRuntimeApis: {},
       collectionName: null,
