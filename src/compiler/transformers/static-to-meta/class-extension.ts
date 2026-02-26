@@ -216,17 +216,17 @@ function matchesNamedDeclaration(name: string) {
 }
 
 /**
- * Helper function to convert a .d.ts declaration file path to its corresponding 
+ * Helper function to convert a .d.ts declaration file path to its corresponding
  * .js source file path and get the source file from the compiler context.
  * This is needed because in external projects the extended class may only be found as a .d.ts declaration.
- *  * 
+ *  *
  * @param declarationSourceFile the path to the .d.ts declaration file
  * @param compilerCtx the current compiler context
  * @returns the corresponding .js source file
  */
 function convertDtsToJs(declarationSourceFile: string, compilerCtx: d.CompilerCtx): ts.SourceFile {
-  const jsPath = normalizePath(declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'))
-  const jsModule = compilerCtx.moduleMap.get(jsPath);  
+  const jsPath = normalizePath(declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'));
+  const jsModule = compilerCtx.moduleMap.get(jsPath);
   return jsModule?.staticSourceFile as ts.SourceFile;
 }
 
@@ -287,7 +287,7 @@ function buildExtendsTree(
 
       if (source.fileName.endsWith('.d.ts')) {
         source = convertDtsToJs(source.fileName, compilerCtx);
-        declarations = [...source.statements];  
+        declarations = [...source.statements];
       }
 
       foundClassDeclaration = declarations?.find(ts.isClassDeclaration);
