@@ -2191,6 +2191,54 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/ssr-shadow-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "ssr-shadow-cmp",
+          "name": "SsrShadowCmp",
+          "attributes": [
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "selected"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "attribute": "selected"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SsrShadowCmp",
+          "declaration": {
+            "name": "SsrShadowCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ssr-shadow-cmp",
+          "declaration": {
+            "name": "SsrShadowCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/state-cmp/state-cmp.tsx",
       "declarations": [
         {
@@ -2213,6 +2261,54 @@
           "name": "state-cmp",
           "declaration": {
             "name": "StateCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/declarative-shadow-dom/wrap-ssr-shadow-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "wrap-ssr-shadow-cmp",
+          "name": "WrapSsrShadowCmp",
+          "attributes": [
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "selected"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "attribute": "selected"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "WrapSsrShadowCmp",
+          "declaration": {
+            "name": "WrapSsrShadowCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "wrap-ssr-shadow-cmp",
+          "declaration": {
+            "name": "WrapSsrShadowCmp"
           }
         }
       ]
