@@ -217,7 +217,13 @@ export namespace Components {
     interface SlotParentCmp {
         "label": string;
     }
+    interface SsrShadowCmp {
+        "selected": boolean;
+    }
     interface StateCmp {
+    }
+    interface WrapSsrShadowCmp {
+        "selected": boolean;
     }
 }
 export interface AnotherCarListCustomEvent<T> extends CustomEvent<T> {
@@ -590,11 +596,23 @@ declare global {
         prototype: HTMLSlotParentCmpElement;
         new (): HTMLSlotParentCmpElement;
     };
+    interface HTMLSsrShadowCmpElement extends Components.SsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLSsrShadowCmpElement: {
+        prototype: HTMLSsrShadowCmpElement;
+        new (): HTMLSsrShadowCmpElement;
+    };
     interface HTMLStateCmpElement extends Components.StateCmp, HTMLStencilElement {
     }
     var HTMLStateCmpElement: {
         prototype: HTMLStateCmpElement;
         new (): HTMLStateCmpElement;
+    };
+    interface HTMLWrapSsrShadowCmpElement extends Components.WrapSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLWrapSsrShadowCmpElement: {
+        prototype: HTMLWrapSsrShadowCmpElement;
+        new (): HTMLWrapSsrShadowCmpElement;
     };
     interface HTMLElementTagNameMap {
         "another-car-detail": HTMLAnotherCarDetailElement;
@@ -644,7 +662,9 @@ declare global {
         "slot-cmp": HTMLSlotCmpElement;
         "slot-cmp-container": HTMLSlotCmpContainerElement;
         "slot-parent-cmp": HTMLSlotParentCmpElement;
+        "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
         "state-cmp": HTMLStateCmpElement;
+        "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
     }
 }
 declare namespace LocalJSX {
@@ -834,7 +854,13 @@ declare namespace LocalJSX {
     interface SlotParentCmp {
         "label"?: string;
     }
+    interface SsrShadowCmp {
+        "selected"?: boolean;
+    }
     interface StateCmp {
+    }
+    interface WrapSsrShadowCmp {
+        "selected"?: boolean;
     }
 
     interface AnotherCarDetailAttributes {
@@ -886,6 +912,12 @@ declare namespace LocalJSX {
     interface SlotParentCmpAttributes {
         "label": string;
     }
+    interface SsrShadowCmpAttributes {
+        "selected": boolean;
+    }
+    interface WrapSsrShadowCmpAttributes {
+        "selected": boolean;
+    }
 
     interface IntrinsicElements {
         "another-car-detail": Omit<AnotherCarDetail, keyof AnotherCarDetailAttributes> & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes]?: AnotherCarDetail[K] } & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes as `attr:${K}`]?: AnotherCarDetailAttributes[K] } & { [K in keyof AnotherCarDetail & keyof AnotherCarDetailAttributes as `prop:${K}`]?: AnotherCarDetail[K] };
@@ -935,7 +967,9 @@ declare namespace LocalJSX {
         "slot-cmp": SlotCmp;
         "slot-cmp-container": SlotCmpContainer;
         "slot-parent-cmp": Omit<SlotParentCmp, keyof SlotParentCmpAttributes> & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes]?: SlotParentCmp[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `attr:${K}`]?: SlotParentCmpAttributes[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `prop:${K}`]?: SlotParentCmp[K] };
+        "ssr-shadow-cmp": Omit<SsrShadowCmp, keyof SsrShadowCmpAttributes> & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes]?: SsrShadowCmp[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `attr:${K}`]?: SsrShadowCmpAttributes[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `prop:${K}`]?: SsrShadowCmp[K] };
         "state-cmp": StateCmp;
+        "wrap-ssr-shadow-cmp": Omit<WrapSsrShadowCmp, keyof WrapSsrShadowCmpAttributes> & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes]?: WrapSsrShadowCmp[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `attr:${K}`]?: WrapSsrShadowCmpAttributes[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `prop:${K}`]?: WrapSsrShadowCmp[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -998,7 +1032,9 @@ declare module "@stencil/core" {
             "slot-cmp": LocalJSX.IntrinsicElements["slot-cmp"] & JSXBase.HTMLAttributes<HTMLSlotCmpElement>;
             "slot-cmp-container": LocalJSX.IntrinsicElements["slot-cmp-container"] & JSXBase.HTMLAttributes<HTMLSlotCmpContainerElement>;
             "slot-parent-cmp": LocalJSX.IntrinsicElements["slot-parent-cmp"] & JSXBase.HTMLAttributes<HTMLSlotParentCmpElement>;
+            "ssr-shadow-cmp": LocalJSX.IntrinsicElements["ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;
             "state-cmp": LocalJSX.IntrinsicElements["state-cmp"] & JSXBase.HTMLAttributes<HTMLStateCmpElement>;
+            "wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;
         }
     }
 }

@@ -401,6 +401,40 @@ describe('renderToString', () => {
     expect(await page.evaluate(() => document.activeElement.outerHTML)).toContain('cmp-dsd-focus');
   });
 
+  it("renders the styles of serializeShadowRoot `scoped` components when they're embedded in a shadow root", async () => {
+    const { html } = await renderToString(
+      `
+      <div>
+        <wrap-ssr-shadow-cmp>Inside shadowroot</wrap-ssr-shadow-cmp>
+        <ssr-shadow-cmp>Outside shadowroot</ssr-shadow-cmp>
+      </div>`,
+      {
+        fullDocument: false,
+        serializeShadowRoot: {
+          default: 'declarative-shadow-dom',
+          scoped: ['ssr-shadow-cmp'],
+        },
+      },
+    );
+
+    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+
+    const wrapCmp = await page.find('wrap-ssr-shadow-cmp');
+    const scopedCmp = await page.find('ssr-shadow-cmp');
+    const scopedNestCmp = await page.find('wrap-ssr-shadow-cmp >>> ssr-shadow-cmp');
+
+    const wrapCmpStyles = await wrapCmp.getComputedStyle();
+    const scopedCmpStyles = await scopedCmp.getComputedStyle();
+    const scopedNestCmpStyles = await scopedNestCmp.getComputedStyle();
+
+    expect(wrapCmpStyles.color).toBe('rgb(255, 255, 255)'); // white
+    expect(wrapCmpStyles.backgroundColor).toBe('rgb(0, 0, 255)'); // blue
+    expect(scopedCmpStyles.color).toBe('rgb(255, 0, 0)'); // red
+    expect(scopedCmpStyles.backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+    expect(scopedNestCmpStyles.color).toBe('rgb(255, 0, 0)'); // red
+    expect(scopedNestCmpStyles.backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
+  });
+
   describe('hydrateDocument', () => {
     it('can hydrate components with open shadow dom by default', async () => {
       const template = `<another-car-detail></another-car-detail>`;
