@@ -33,6 +33,7 @@ export const createModule = (
   cmps: [],
   isExtended: false,
   isMixin: false,
+  hasExportableMixins: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: null,

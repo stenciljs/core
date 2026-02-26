@@ -249,6 +249,7 @@ export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   cmps: [],
   isExtended: false,
   isMixin: false,
+  hasExportableMixins: false,
   coreRuntimeApis: [],
   outputTargetCoreRuntimeApis: {},
   collectionName: '',
