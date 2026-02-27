@@ -65,3 +65,5 @@ test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/st
 dist
 www
 hydrate
+loader
+test-results

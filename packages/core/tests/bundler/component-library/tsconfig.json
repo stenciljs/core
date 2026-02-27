@@ -14,12 +14,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "jsx": "react",
-    "jsxFactory": "h",
-    "paths": {
-      "@stencil/core": ["../../../internal"],
-      "@stencil/core/internal": ["../../../internal"],
-      "@stencil/core/testing": ["../../../testing"]
-    }
+    "jsxFactory": "h"
   },
   "include": [
     "src"

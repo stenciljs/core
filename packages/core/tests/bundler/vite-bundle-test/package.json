@@ -2,15 +2,14 @@
   "name": "vite-bundle-test",
   "private": true,
   "version": "1.0.0",
-  "description": "test package to verify vite can be used with stencil's lazy loaded bundle",
+  "description": "Test package to verify Vite can bundle Stencil's lazy loaded output",
   "scripts": {
     "build": "vite build",
-    "clean": "rm -rf dist",
     "start": "vite"
   },
   "license": "MIT",
   "devDependencies": {
-    "vite": "^2.8.0"
+    "vite": "^6.0.0"
   },
   "dependencies": {
     "component-library": "file:../component-library"

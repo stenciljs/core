@@ -4,6 +4,16 @@
   "description": "Stencil Component Starter",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./loader": {
+      "import": "./loader/index.js",
+      "require": "./loader/index.cjs"
+    }
+  },
   "es2015": "dist/esm/index.mjs",
   "es2017": "dist/esm/index.mjs",
   "types": "dist/types/index.d.ts",
@@ -16,7 +26,6 @@
   ],
   "scripts": {
     "build": "stencil build --docs",
-    "clean": "rm -rf dist loader www",
     "start": "stencil build --dev --watch --serve"
   },
   "dependencies": {

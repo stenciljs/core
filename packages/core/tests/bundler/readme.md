@@ -1,22 +1,25 @@
 # Bundler Tests
 
-This directory contains test suites that are intended to test using Stencil components in a downstream application that is transformed by bundlers such as Vite.
+Tests that verify Stencil components work correctly when consumed by downstream applications using bundlers.
 
-## Files of Interest
+## Structure
 
 ### component-library/
-This directory contains a basic component library, written in Stencil.
-It is intended that applications found in directories adjacent to this one consume the library, using a bundler to test.
+A minimal Stencil component library used as the test subject.
 
 ### vite-bundle-test/
-This directory contains a basic application that is bundled using Vite.
-It contains the Stencil component library found in the [component-library directory](#component-library).
-Tests for this application can be found in this directory as well.
+An application that imports and bundles the component library using Vite.
 
-### karma.config.ts
-This file contains the Karma configuration for running tests.
-It also describes how Karma can serve all applications in the `bundler/` directory.
+### playwright.config.ts
+Playwright configuration for running browser tests against the built output.
 
-### karma-stencil-utils.ts
-This file contains various utilities for setting up and tearing down tests.
-It may be used by an application test suite.
+## Running Tests
+
+```bash
+# Full test run (clean, build, test)
+npm start
+
+# Or step by step:
+npm run build    # Build component library + Vite app
+npm run test     # Run Playwright tests
+```
