@@ -6,11 +6,11 @@
     "dist/"
   ],
   "scripts": {
-    "build": "stencil build && npm run postprocess",
+    "build": "stencil build",
     "postprocess": "node scripts/postprocess.js",
     "build.dev": "stencil build --dev",
     "start": "stencil build --dev --watch --serve",
-    "test": "stencil test --spec --e2e",
+    "test": "pnpm build && && npm run postprocess",
     "test.watch": "stencil test --spec --e2e --watch",
     "generate": "stencil generate"
   },
