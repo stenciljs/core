@@ -7,6 +7,10 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface SiblingExtended {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -19,6 +23,10 @@ export namespace Components {
         "prop2": string;
     }
     interface SiblingExtendedBase {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
         "method1": () => Promise<void>;
         "method2": () => Promise<void>;
         /**
@@ -31,6 +39,29 @@ export namespace Components {
         "prop2": string;
     }
     interface SiblingRoot {
+    }
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface SiblingWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
     }
 }
 declare global {
@@ -52,14 +83,32 @@ declare global {
         prototype: HTMLSiblingRootElement;
         new (): HTMLSiblingRootElement;
     };
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface HTMLSiblingWithMixinElement extends Components.SiblingWithMixin, HTMLStencilElement {
+    }
+    var HTMLSiblingWithMixinElement: {
+        prototype: HTMLSiblingWithMixinElement;
+        new (): HTMLSiblingWithMixinElement;
+    };
     interface HTMLElementTagNameMap {
         "sibling-extended": HTMLSiblingExtendedElement;
         "sibling-extended-base": HTMLSiblingExtendedBaseElement;
         "sibling-root": HTMLSiblingRootElement;
+        "sibling-with-mixin": HTMLSiblingWithMixinElement;
     }
 }
 declare namespace LocalJSX {
     interface SiblingExtended {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
         /**
           * @default 'ExtendedCmp text'
          */
@@ -71,6 +120,10 @@ declare namespace LocalJSX {
     }
     interface SiblingExtendedBase {
         /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
           * @default 'ExtendedCmp text'
          */
         "prop1"?: string;
@@ -81,12 +134,40 @@ declare namespace LocalJSX {
     }
     interface SiblingRoot {
     }
+    /**
+     * A component that uses a mixin factory pattern internally.
+     * This tests the scenario where a consumer project imports and renders a component
+     * from an external library, and that component internally uses a mixin pattern.
+     * The mixin's decorated members should be properly merged and reactive.
+     * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+     */
+    interface SiblingWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
 
     interface SiblingExtendedAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }
     interface SiblingExtendedBaseAttributes {
+        "getterProp": string;
+        "prop1": string;
+        "prop2": string;
+    }
+    interface SiblingWithMixinAttributes {
+        "getterProp": string;
         "prop1": string;
         "prop2": string;
     }
@@ -95,6 +176,7 @@ declare namespace LocalJSX {
         "sibling-extended": Omit<SiblingExtended, keyof SiblingExtendedAttributes> & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes]?: SiblingExtended[K] } & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes as `attr:${K}`]?: SiblingExtendedAttributes[K] } & { [K in keyof SiblingExtended & keyof SiblingExtendedAttributes as `prop:${K}`]?: SiblingExtended[K] };
         "sibling-extended-base": Omit<SiblingExtendedBase, keyof SiblingExtendedBaseAttributes> & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes]?: SiblingExtendedBase[K] } & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes as `attr:${K}`]?: SiblingExtendedBaseAttributes[K] } & { [K in keyof SiblingExtendedBase & keyof SiblingExtendedBaseAttributes as `prop:${K}`]?: SiblingExtendedBase[K] };
         "sibling-root": SiblingRoot;
+        "sibling-with-mixin": Omit<SiblingWithMixin, keyof SiblingWithMixinAttributes> & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes]?: SiblingWithMixin[K] } & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes as `attr:${K}`]?: SiblingWithMixinAttributes[K] } & { [K in keyof SiblingWithMixin & keyof SiblingWithMixinAttributes as `prop:${K}`]?: SiblingWithMixin[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -104,6 +186,14 @@ declare module "@stencil/core" {
             "sibling-extended": LocalJSX.IntrinsicElements["sibling-extended"] & JSXBase.HTMLAttributes<HTMLSiblingExtendedElement>;
             "sibling-extended-base": LocalJSX.IntrinsicElements["sibling-extended-base"] & JSXBase.HTMLAttributes<HTMLSiblingExtendedBaseElement>;
             "sibling-root": LocalJSX.IntrinsicElements["sibling-root"] & JSXBase.HTMLAttributes<HTMLSiblingRootElement>;
+            /**
+             * A component that uses a mixin factory pattern internally.
+             * This tests the scenario where a consumer project imports and renders a component
+             * from an external library, and that component internally uses a mixin pattern.
+             * The mixin's decorated members should be properly merged and reactive.
+             * Used as the extendedTag in tests - renders `.extended-*` elements with mixin defaults.
+             */
+            "sibling-with-mixin": LocalJSX.IntrinsicElements["sibling-with-mixin"] & JSXBase.HTMLAttributes<HTMLSiblingWithMixinElement>;
         }
     }
 }

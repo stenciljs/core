@@ -384,6 +384,10 @@ export class MockElement extends MockNode {
     return new MockTokenList(this as any, 'part');
   }
 
+  set part(value: string | MockTokenList) {
+    this.setAttributeNS(null, 'part', String(value));
+  }
+
   click() {
     dispatchEvent(this, new MockEvent('click', { bubbles: true, cancelable: true, composed: true }));
   }

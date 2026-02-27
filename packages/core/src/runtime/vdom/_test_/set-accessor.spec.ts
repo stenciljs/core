@@ -153,6 +153,27 @@ describe('setAccessor for custom elements', () => {
     });
   });
 
+  it('should set part as an attribute on a custom element', () => {
+    setAccessor(elm, 'part', undefined, 'my-part', false, 0);
+    expect(elm.getAttribute('part')).toBe('my-part');
+  });
+
+  it('should update part attribute on a custom element', () => {
+    setAccessor(elm, 'part', undefined, 'old-part', false, 0);
+    expect(elm.getAttribute('part')).toBe('old-part');
+
+    setAccessor(elm, 'part', 'old-part', 'new-part', false, 0);
+    expect(elm.getAttribute('part')).toBe('new-part');
+  });
+
+  it('should remove part attribute when value is null', () => {
+    setAccessor(elm, 'part', undefined, 'my-part', false, 0);
+    expect(elm.getAttribute('part')).toBe('my-part');
+
+    setAccessor(elm, 'part', 'my-part', null, false, 0);
+    expect(elm.hasAttribute('part')).toBe(false);
+  });
+
   it('should set object property to child', () => {
     const oldValue: any = 'someval';
     const newValue: any = { some: 'obj' };

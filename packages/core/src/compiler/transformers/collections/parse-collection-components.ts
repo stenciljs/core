@@ -12,6 +12,15 @@ export const parseCollectionComponents = (
   collectionManifest: d.CollectionManifest,
   collection: d.CollectionCompilerMeta,
 ) => {
+  // Load mixin/abstract class entries (classes that can be extended by consuming projects)
+  if (collectionManifest.mixins) {
+    collectionManifest.mixins.forEach((mixinPath) => {
+      const fullPath = join(collectionDir, mixinPath);
+      transpileCollectionModule(config, compilerCtx, buildCtx, collection, fullPath);
+    });
+  }
+
+  // Load component entries
   if (collectionManifest.entries) {
     collectionManifest.entries.forEach((entryPath) => {
       const componentPath = join(collectionDir, entryPath);

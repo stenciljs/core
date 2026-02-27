@@ -1,3 +1,30 @@
+## 🌙 [4.43.2](https://github.com/stenciljs/core/compare/v4.43.1...v4.43.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* add missing `part` setter to MockElement ([#6612](https://github.com/stenciljs/core/issues/6612)) ([abfdd57](https://github.com/stenciljs/core/commit/abfdd57e04d0422a12ad189f2066090315265e02))
+* **compiler:** mixin jsx processing ([#6615](https://github.com/stenciljs/core/issues/6615)) ([ccda746](https://github.com/stenciljs/core/commit/ccda746e50ae90b10ad11b8d56182f59537ff598))
+* **compiler:** proper discovery and processing of external mixins / classes ([#6620](https://github.com/stenciljs/core/issues/6620)) ([0ee951e](https://github.com/stenciljs/core/commit/0ee951eca3b21facfd48afd90bd16ed5ef7877b0))
+* **dist-custom-elements:** stop `render` function being stripped from imports ([#6623](https://github.com/stenciljs/core/issues/6623)) ([cd33ccb](https://github.com/stenciljs/core/commit/cd33ccb270761be9a3e2f9f4668231ff53bb42f7))
+* **runtime:** init prop reactivity when ele.prop === instance.prop ([#6614](https://github.com/stenciljs/core/issues/6614)) ([ad6a344](https://github.com/stenciljs/core/commit/ad6a344cbe7145f8e810c322c608ed422d17a8b4))
+* **runtime:** mixin get / set `@Prop` infinite loop ([#6618](https://github.com/stenciljs/core/issues/6618)) ([11201b5](https://github.com/stenciljs/core/commit/11201b5565b6122e6b9ad38014b21004d27904c1))
+* **types:** provide warnings for ts 4094; anon classes may not be private or protected ([#6613](https://github.com/stenciljs/core/issues/6613)) ([3fbc441](https://github.com/stenciljs/core/commit/3fbc441849f82d6b2b88c3c79883f3a2a704d0a0))
+* **types:** raise typescript errors even without `components.d.ts` ([#6616](https://github.com/stenciljs/core/issues/6616)) ([827d0d6](https://github.com/stenciljs/core/commit/827d0d6a61a90f288310070deae12c2a50e149a3))
+
+
+
+## 🏹 [4.43.1](https://github.com/stenciljs/core/compare/v4.43.0...v4.43.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* **compiler:** update rollup to fix watch hang ([#6603](https://github.com/stenciljs/core/issues/6603)) ([205856b](https://github.com/stenciljs/core/commit/205856b5fe2e15434938812c48d7b0e62a71f058)), closes [#6602](https://github.com/stenciljs/core/issues/6602)
+* **declarations:** add rest params to h() ([#6604](https://github.com/stenciljs/core/issues/6604)) ([4d322a7](https://github.com/stenciljs/core/commit/4d322a75878cc14604c7b2cd747cdc3c17249fa5)), closes [#6181](https://github.com/stenciljs/core/issues/6181)
+* **hmr:** non-shadow component styles within shadow parent ([#6601](https://github.com/stenciljs/core/issues/6601)) ([fc14281](https://github.com/stenciljs/core/commit/fc142814c67b4911b60cc15db912294fef87da81))
+
+
+
 # 👒 [4.43.0](https://github.com/stenciljs/core/compare/v4.42.1...v4.43.0) (2026-02-13)
 
 

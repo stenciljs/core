@@ -28,6 +28,8 @@ export const testSuites = async (root: HTMLElement, mainTag: string, extendedTag
       }
       expect(await getTxt('.main-prop-1')).toBe('Main class prop1: default text');
       expect(await getTxt('.main-prop-2')).toBe('Main class prop2: ExtendedCmp prop2 text');
+      // Verify mixin getter/setter prop preserves its default value (not overwritten with undefined)
+      expect(await getTxt('.main-getter-prop')).toBe('Main class getterProp: getter default value');
       expect(await getTxt('.main-state-1')).toBe('Main class state1: default state text');
       expect(await getTxt('.main-state-2')).toBe('Main class state2: ExtendedCmp state2 text');
     },

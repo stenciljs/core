@@ -41,7 +41,7 @@ export const build = async (
     if (buildCtx.hasError) return buildAbort(buildCtx);
 
     // generate types and validate AFTER components.d.ts is written
-    const componentDtsChanged = await validateTypesAfterGeneration(
+    const { hasTypesChanged, needsRebuild } = await validateTypesAfterGeneration(
       config,
       compilerCtx,
       buildCtx,
@@ -50,8 +50,10 @@ export const build = async (
     );
     if (buildCtx.hasError) return buildAbort(buildCtx);
 
-    if (config.watch && componentDtsChanged) {
-      // silent abort for watch mode only
+    if (needsRebuild || (config.watch && hasTypesChanged)) {
+      // Abort and signal that a rebuild is needed:
+      // - needsRebuild: components.d.ts was just generated, need fresh TS program
+      // - watch mode with types changed: let watch trigger rebuild
       return null;
     }
 

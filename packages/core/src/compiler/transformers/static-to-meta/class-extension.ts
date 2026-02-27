@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { augmentDiagnosticWithNode, buildWarn } from '../../../utils';
+import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../utils';
 import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
@@ -219,6 +219,21 @@ function matchesNamedDeclaration(name: string) {
 }
 
 /**
+ * Helper function to convert a .d.ts declaration file path to its corresponding
+ * .js source file path and get the source file from the compiler context.
+ * This is needed because in external projects the extended class may only be found as a .d.ts declaration.
+ *  *
+ * @param declarationSourceFile the path to the .d.ts declaration file
+ * @param compilerCtx the current compiler context
+ * @returns the corresponding .js source file
+ */
+function convertDtsToJs(declarationSourceFile: string, compilerCtx: d.CompilerCtx): ts.SourceFile {
+  const jsPath = normalizePath(declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'));
+  const jsModule = compilerCtx.moduleMap.get(jsPath);
+  return jsModule?.staticSourceFile as ts.SourceFile;
+}
+
+/**
  * A recursive function that builds a tree of classes that extend from each other.
  *
  * @param compilerCtx the current compiler context
@@ -267,14 +282,23 @@ function buildExtendsTree(
     try {
       // happy path (normally 1 file level removed): the extends type resolves to a class declaration in another file
 
-      const symbol = typeChecker.getSymbolAtLocation(extendee);
+      const symbol = typeChecker?.getSymbolAtLocation(extendee);
       const aliasedSymbol = symbol ? typeChecker.getAliasedSymbol(symbol) : undefined;
-      foundClassDeclaration = aliasedSymbol?.declarations?.find(ts.isClassDeclaration);
+
+      let source = aliasedSymbol?.declarations?.[0].getSourceFile();
+      let declarations: ts.Declaration[] | ts.Statement[] = aliasedSymbol?.declarations;
+
+      if (source.fileName.endsWith('.d.ts')) {
+        source = convertDtsToJs(source.fileName, compilerCtx);
+        declarations = [...source.statements];
+      }
+
+      foundClassDeclaration = declarations?.find(ts.isClassDeclaration);
 
       if (!foundClassDeclaration) {
         // the found `extends` type does not resolve to a class declaration;
         // if it's wrapped in a function - let's try and find it inside
-        const node = aliasedSymbol?.declarations?.[0];
+        const node = declarations?.[0];
         foundClassDeclaration = findClassWalk(node);
         if (!node) {
           throw 'revert to sad path';

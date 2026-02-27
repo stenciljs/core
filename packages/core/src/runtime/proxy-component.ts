@@ -3,6 +3,7 @@ import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from 'virtual:pla
 
 import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
+import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
 
@@ -85,7 +86,7 @@ export const proxyComponent = (
       ) {
         // preserve any getters / setters that already exist on the prototype;
         // we'll call them via our new accessors. On a lazy component, this would only be called on the class instance.
-        const { get: origGetter, set: origSetter } = Object.getOwnPropertyDescriptor(prototype, memberName) || {};
+        const { get: origGetter, set: origSetter } = getPropertyDescriptor(prototype, memberName) || {};
         if (origGetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Getter;
         if (origSetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Setter;
 

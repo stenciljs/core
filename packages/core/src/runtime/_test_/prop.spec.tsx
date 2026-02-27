@@ -346,4 +346,86 @@ describe('prop', () => {
     await waitForChanges();
     expect(root.querySelector<HTMLInputElement>('#internal-input').value).toBe('0');
   });
+
+  it('should maintain reactivity when prop is set to undefined on element before initialization', async () => {
+    @Component({ tag: 'cmp-lazy-prop' })
+    class CmpLazyProp {
+      @Prop() first?: string;
+
+      render() {
+        return <div>{this.first ?? 'empty'}</div>;
+      }
+    }
+
+    // Create page without flushing queue - element exists but component not yet initialized
+    const page = await newSpecPage({
+      components: [CmpLazyProp],
+      html: `<cmp-lazy-prop></cmp-lazy-prop>`,
+      flushQueue: false,
+    });
+
+    // Set property to undefined on element BEFORE component initializes
+    // This creates an "own property" that shadows the getter/setter
+    (page.body.querySelector('cmp-lazy-prop') as any).first = undefined;
+
+    // Now initialize the component
+    await page.waitForChanges();
+
+    const root = page.root;
+    expect(root).toEqualHtml(`
+      <cmp-lazy-prop>
+        <div>empty</div>
+      </cmp-lazy-prop>
+    `);
+
+    // Update the prop - this should work because lazy property handling
+    // correctly cleaned up the shadowing own property
+    root.first = 'updated';
+    await page.waitForChanges();
+
+    expect(root).toEqualHtml(`
+      <cmp-lazy-prop>
+        <div>updated</div>
+      </cmp-lazy-prop>
+    `);
+    expect(root.first).toBe('updated');
+  });
+
+  it('should maintain reactivity when prop is set to null on element before initialization', async () => {
+    @Component({ tag: 'cmp-lazy-prop-null' })
+    class CmpLazyPropNull {
+      @Prop() value?: string;
+
+      render() {
+        return <div>{this.value ?? 'empty'}</div>;
+      }
+    }
+
+    const page = await newSpecPage({
+      components: [CmpLazyPropNull],
+      html: `<cmp-lazy-prop-null></cmp-lazy-prop-null>`,
+      flushQueue: false,
+    });
+
+    (page.body.querySelector('cmp-lazy-prop-null') as any).value = null;
+
+    await page.waitForChanges();
+
+    const root = page.root;
+    // null is a valid value, should render 'empty' due to nullish coalescing
+    expect(root).toEqualHtml(`
+      <cmp-lazy-prop-null>
+        <div>empty</div>
+      </cmp-lazy-prop-null>
+    `);
+
+    root.value = 'test';
+    await page.waitForChanges();
+
+    expect(root).toEqualHtml(`
+      <cmp-lazy-prop-null>
+        <div>test</div>
+      </cmp-lazy-prop-null>
+    `);
+  });
 });

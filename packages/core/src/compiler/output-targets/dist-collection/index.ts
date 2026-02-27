@@ -124,6 +124,11 @@ const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.C
     entries: buildCtx.moduleFiles
       .filter((mod) => !mod.isCollectionDependency && mod.cmps.length > 0)
       .map((mod) => relative(config.srcDir, mod.jsFilePath)),
+    // Include mixin/abstract class modules that can be extended by consuming projects
+    // These are modules with Stencil static members but no @Component decorator
+    mixins: buildCtx.moduleFiles
+      .filter((mod) => !mod.isCollectionDependency && mod.hasExportableMixins && mod.cmps.length === 0)
+      .map((mod) => relative(config.srcDir, mod.jsFilePath)),
     compiler: {
       name: '@stencil/core',
       version,
