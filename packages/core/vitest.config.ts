@@ -1,10 +1,15 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 import { stencilVitestPlugin } from './src/testing/vitest-stencil-plugin';
+import { createDefines, getBuildVersionInfo } from './build/version-utils';
 
 const __dirname = import.meta.dirname
 
+// Use same build-time defines as tsdown so tests have access to version constants
+const versionInfo = getBuildVersionInfo(resolve(__dirname, 'package.json'), false);
+
 export default defineConfig({
+  define: createDefines(versionInfo),
   plugins: [stencilVitestPlugin()],
   resolve: {
     alias: {

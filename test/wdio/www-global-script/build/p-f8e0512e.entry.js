@@ -1,0 +1,1 @@
+import{r as a,h as c}from"./p-DI1vMKXY.js";const t=class{constructor(c){a(this,c)}render(){return c("section",{key:"516982de455acd68aa6fbb8c55c2ac03157e2d36"},c("attribute-basic",{key:"53d87c446ffa3f68575f200a65ef4f0b0b1924a7"}))}};export{t as global_script_dist_cmp}

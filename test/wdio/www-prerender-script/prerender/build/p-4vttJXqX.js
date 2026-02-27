@@ -1,0 +1,1 @@
+function n(n,t){const c=document.createElement("div");{const o=document.getElementById(`client-${t}`);c.textContent=`${n} client ${t}`,null==o||o.appendChild(c)}}export{n as p}

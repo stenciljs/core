@@ -1,0 +1,17 @@
+<!doctype html><html dir="ltr" lang="en"><head> <meta charset="utf-8"> <title>Stencil Starter App</title> <script type="module" src="/www-global-script/build/testglobalscript.esm.js"></script> </head> <body> <global-script-dist-cmp></global-script-dist-cmp> <script data-build="2026-02-26T22:16:30">
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) {
+        reg.onupdatefound = function() {
+          var installingWorker = reg.installing;
+          installingWorker.onstatechange = function() {
+            if (installingWorker.state === 'installed') {
+              window.dispatchEvent(new Event('swUpdate'))
+            }
+          }
+        }
+      })
+      .catch(function(err) { console.error('service worker error', err) });
+  });
+}</script></body></html>

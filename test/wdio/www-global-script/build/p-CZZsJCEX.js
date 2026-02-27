@@ -1,0 +1,1 @@
+import{d as e}from"./p-DI1vMKXY.js";const o=async function(){return window.__testStart=Date.now(),e(),new Promise((e=>setTimeout((()=>e("done!")),1e3)))}||(()=>{});export{o as g}

@@ -374,7 +374,9 @@ describe('prop', () => {
     const root = page.root;
     expect(root).toEqualHtml(`
       <cmp-lazy-prop>
-        <div>empty</div>
+        <div>
+          empty
+        </div>
       </cmp-lazy-prop>
     `);
 
@@ -385,7 +387,9 @@ describe('prop', () => {
 
     expect(root).toEqualHtml(`
       <cmp-lazy-prop>
-        <div>updated</div>
+        <div>
+          updated
+        </div>
       </cmp-lazy-prop>
     `);
     expect(root.first).toBe('updated');
@@ -415,7 +419,9 @@ describe('prop', () => {
     // null is a valid value, should render 'empty' due to nullish coalescing
     expect(root).toEqualHtml(`
       <cmp-lazy-prop-null>
-        <div>empty</div>
+        <div>
+          empty
+        </div>
       </cmp-lazy-prop-null>
     `);
 
@@ -424,7 +430,9 @@ describe('prop', () => {
 
     expect(root).toEqualHtml(`
       <cmp-lazy-prop-null>
-        <div>test</div>
+        <div>
+          test
+        </div>
       </cmp-lazy-prop-null>
     `);
   });

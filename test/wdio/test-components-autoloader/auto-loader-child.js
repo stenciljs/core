@@ -1,0 +1,1 @@
+import{A as o,d as s}from"./p-B3_vQCAQ.js";const p=o,r=s;export{p as AutoLoaderChild,r as defineCustomElement}

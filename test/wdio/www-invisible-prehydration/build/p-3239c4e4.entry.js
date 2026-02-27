@@ -1,0 +1,1 @@
+import{r as e,h as r}from"./p-CLpG4PdC.js";const s=class{constructor(r){e(this,r)}render(){return r("div",{key:"f6ef7607b0ee44fd0196b80e0748a570435d2ba9"},"prehydrated-styles")}};export{s as prehydrated_styles}

@@ -1,0 +1,2441 @@
+{
+  "timestamp": "2026-02-26T20:22:45",
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "4.43.1-dev.1772051958.852ff35",
+    "typescriptVersion": "5.8.3"
+  },
+  "components": [
+    {
+      "filePath": "src/declarative-shadow-dom/another-car-detail.tsx",
+      "encapsulation": "shadow",
+      "tag": "another-car-detail",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "car",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "car",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "another-car-list",
+        "scoped-car-list"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "another-car-list": [
+          "another-car-detail"
+        ],
+        "scoped-car-list": [
+          "another-car-detail"
+        ]
+      }
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/another-car-list.tsx",
+      "encapsulation": "shadow",
+      "tag": "another-car-list",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "Component that helps display a list of cars",
+      "docsTags": [
+        {
+          "name": "slot",
+          "text": "header - The slot for the header content."
+        },
+        {
+          "name": "part",
+          "text": "car - The shadow part to target to style the car."
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "cars",
+          "type": "CarData[]",
+          "complexType": {
+            "original": "CarData[]",
+            "resolved": "CarData[]",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "cars",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData[]"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "selected",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": true,
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [
+        {
+          "event": "carSelected",
+          "detail": "CarData",
+          "bubbles": true,
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "listeners": [],
+      "styles": [],
+      "slots": [
+        {
+          "name": "header",
+          "docs": "The slot for the header content."
+        }
+      ],
+      "parts": [
+        {
+          "name": "car",
+          "docs": "The shadow part to target to style the car."
+        }
+      ],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "another-car-detail"
+      ],
+      "dependencyGraph": {
+        "another-car-list": [
+          "another-car-detail"
+        ]
+      }
+    },
+    {
+      "filePath": "src/app-root/app-root.tsx",
+      "encapsulation": "none",
+      "tag": "app-root",
+      "readme": "# app-root\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [
+        {
+          "event": "scroll",
+          "target": "window",
+          "capture": false,
+          "passive": true
+        }
+      ],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "prop-cmp"
+      ],
+      "dependencyGraph": {
+        "app-root": [
+          "prop-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/build-data/build-data.tsx",
+      "encapsulation": "none",
+      "tag": "build-data",
+      "readme": "# build-data\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/car-detail/car-detail.tsx",
+      "encapsulation": "none",
+      "tag": "car-detail",
+      "readme": "# car-detail\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "car",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "car",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "car-list"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "car-list": [
+          "car-detail"
+        ]
+      }
+    },
+    {
+      "filePath": "src/car-list/car-list.tsx",
+      "encapsulation": "shadow",
+      "tag": "car-list",
+      "readme": "# car-list\n\n\n",
+      "docs": "Component that helps display a list of cars",
+      "docsTags": [
+        {
+          "name": "slot",
+          "text": "header - The slot for the header content."
+        },
+        {
+          "name": "part",
+          "text": "car - The shadow part to target to style the car."
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "cars",
+          "type": "CarData[]",
+          "complexType": {
+            "original": "CarData[]",
+            "resolved": "CarData[]",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "./car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "cars",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData[]"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "selected",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "./car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": true,
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [
+        {
+          "event": "carSelected",
+          "detail": "CarData",
+          "bubbles": true,
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "./car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "listeners": [],
+      "styles": [],
+      "slots": [
+        {
+          "name": "header",
+          "docs": "The slot for the header content."
+        }
+      ],
+      "parts": [
+        {
+          "name": "car",
+          "docs": "The shadow part to target to style the car."
+        }
+      ],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "car-detail"
+      ],
+      "dependencyGraph": {
+        "car-list": [
+          "car-detail"
+        ]
+      }
+    },
+    {
+      "filePath": "src/deep-selector/cmpA.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-a",
+      "readme": "# cmp-c\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "cmp-b"
+      ],
+      "dependencyGraph": {
+        "cmp-a": [
+          "cmp-b"
+        ],
+        "cmp-b": [
+          "cmp-c"
+        ]
+      }
+    },
+    {
+      "filePath": "src/deep-selector/cmpB.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-b",
+      "readme": "# cmp-c\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "cmp-a"
+      ],
+      "dependencies": [
+        "cmp-c"
+      ],
+      "dependencyGraph": {
+        "cmp-b": [
+          "cmp-c"
+        ],
+        "cmp-a": [
+          "cmp-b"
+        ]
+      }
+    },
+    {
+      "filePath": "src/deep-selector/cmpC.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-c",
+      "readme": "# cmp-c\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "cmp-b"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "cmp-b": [
+          "cmp-c"
+        ]
+      }
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/cmp-dsd.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-dsd",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "initialCounter",
+          "type": "number",
+          "complexType": {
+            "original": "number",
+            "resolved": "number",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "initial-counter",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "0"
+            }
+          ],
+          "default": "0",
+          "values": [
+            {
+              "type": "number"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/cmp-dsd-focus.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-dsd-focus",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/server-vs-client.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-server-vs-client",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/cmp-with-slot.tsx",
+      "encapsulation": "shadow",
+      "tag": "cmp-with-slot",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/dom-api/dom-api.tsx",
+      "encapsulation": "none",
+      "tag": "dom-api",
+      "readme": "# dom-api\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/dom-interaction/dom-interaction.tsx",
+      "encapsulation": "shadow",
+      "tag": "dom-interaction",
+      "readme": "# dom-interaction\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/dom-visible/dom-visible.tsx",
+      "encapsulation": "none",
+      "tag": "dom-visible",
+      "readme": "# dom-visible\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/dsd-listen-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "dsd-listen-cmp",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [
+        {
+          "event": "keydown",
+          "capture": true,
+          "passive": false
+        }
+      ],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/element-cmp/element-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "element-cmp",
+      "readme": "# element-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/non-existent-element/empty-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "empty-cmp",
+      "readme": "# empty-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/non-existent-element/empty-cmp-shadow.tsx",
+      "encapsulation": "shadow",
+      "tag": "empty-cmp-shadow",
+      "readme": "# empty-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/env-data/env-data.tsx",
+      "encapsulation": "none",
+      "tag": "env-data",
+      "readme": "# env-data\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/event-cmp/event-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "event-cmp",
+      "readme": "# event-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [
+        {
+          "name": "methodThatFiresEventWithOptions",
+          "returns": {
+            "type": "Promise<void>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "(mph: number) => Promise<void>",
+            "parameters": [
+              {
+                "name": "mph",
+                "type": "number",
+                "docs": "some value"
+              }
+            ],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<void>"
+          },
+          "signature": "methodThatFiresEventWithOptions(mph: number) => Promise<void>",
+          "parameters": [
+            {
+              "name": "mph",
+              "type": "number",
+              "docs": "some value"
+            }
+          ],
+          "docs": "this is some method that fires an event with options",
+          "docsTags": [
+            {
+              "name": "param",
+              "text": "mph some value"
+            },
+            {
+              "name": "returns"
+            }
+          ]
+        },
+        {
+          "name": "methodThatFiresMyDocumentEvent",
+          "returns": {
+            "type": "Promise<void>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "() => Promise<void>",
+            "parameters": [],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<void>"
+          },
+          "signature": "methodThatFiresMyDocumentEvent() => Promise<void>",
+          "parameters": [],
+          "docs": "this is some method that fires a document event",
+          "docsTags": [
+            {
+              "name": "returns"
+            }
+          ]
+        },
+        {
+          "name": "methodThatFiresMyWindowEvent",
+          "returns": {
+            "type": "Promise<void>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "(value: number) => Promise<void>",
+            "parameters": [
+              {
+                "name": "value",
+                "type": "number",
+                "docs": "some value"
+              }
+            ],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<void>"
+          },
+          "signature": "methodThatFiresMyWindowEvent(value: number) => Promise<void>",
+          "parameters": [
+            {
+              "name": "value",
+              "type": "number",
+              "docs": "some value"
+            }
+          ],
+          "docs": "this is some method that fires a window event",
+          "docsTags": [
+            {
+              "name": "param",
+              "text": "value some value"
+            },
+            {
+              "name": "returns"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "event": "my-event-with-options",
+          "detail": "{ mph: number; }",
+          "bubbles": false,
+          "complexType": {
+            "original": "{ mph: number }",
+            "resolved": "{ mph: number; }",
+            "references": {}
+          },
+          "cancelable": false,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        },
+        {
+          "event": "myDocumentEvent",
+          "detail": "any",
+          "bubbles": true,
+          "complexType": {
+            "original": "any",
+            "resolved": "any",
+            "references": {}
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        },
+        {
+          "event": "myWindowEvent",
+          "detail": "number",
+          "bubbles": true,
+          "complexType": {
+            "original": "number",
+            "resolved": "number",
+            "references": {}
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/scoped-hydration/non-shadow-slotted-siblings.tsx",
+      "encapsulation": "scoped",
+      "tag": "hydrated-sibling-accessors",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/import-assets/import-assets.tsx",
+      "encapsulation": "none",
+      "tag": "import-assets",
+      "readme": "# import-assets\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/listen-cmp/listen-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "listen-cmp",
+      "readme": "# listen-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "opened",
+          "type": "boolean",
+          "complexType": {
+            "original": "boolean",
+            "resolved": "boolean",
+            "references": {}
+          },
+          "mutable": true,
+          "attr": "opened",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "false"
+            }
+          ],
+          "default": "false",
+          "values": [
+            {
+              "type": "boolean"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [
+        {
+          "event": "click",
+          "capture": false,
+          "passive": false
+        }
+      ],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/method-cmp/method-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "method-cmp",
+      "readme": "# method-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "someProp",
+          "type": "number",
+          "complexType": {
+            "original": "number",
+            "resolved": "number",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "some-prop",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "0"
+            }
+          ],
+          "default": "0",
+          "values": [
+            {
+              "type": "number"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [
+        {
+          "name": "someMethod",
+          "returns": {
+            "type": "Promise<number>",
+            "docs": "some number"
+          },
+          "complexType": {
+            "signature": "() => Promise<number>",
+            "parameters": [],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<number>"
+          },
+          "signature": "someMethod() => Promise<number>",
+          "parameters": [],
+          "docs": "this is some method",
+          "docsTags": [
+            {
+              "name": "returns",
+              "text": "some number"
+            }
+          ]
+        },
+        {
+          "name": "someMethodWithArgs",
+          "returns": {
+            "type": "Promise<string>",
+            "docs": "some string"
+          },
+          "complexType": {
+            "signature": "(unit: string, value: number) => Promise<string>",
+            "parameters": [
+              {
+                "name": "unit",
+                "type": "string",
+                "docs": "some unit"
+              },
+              {
+                "name": "value",
+                "type": "number",
+                "docs": "some value"
+              }
+            ],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<string>"
+          },
+          "signature": "someMethodWithArgs(unit: string, value: number) => Promise<string>",
+          "parameters": [
+            {
+              "name": "unit",
+              "type": "string",
+              "docs": "some unit"
+            },
+            {
+              "name": "value",
+              "type": "number",
+              "docs": "some value"
+            }
+          ],
+          "docs": "this is some method with args",
+          "docsTags": [
+            {
+              "name": "param",
+              "text": "unit some unit"
+            },
+            {
+              "name": "param",
+              "text": "value some value"
+            },
+            {
+              "name": "returns",
+              "text": "some string"
+            }
+          ]
+        }
+      ],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/hydrate-props/my-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "my-cmp",
+      "readme": "# hydrate-props\n\n\n",
+      "docs": "",
+      "docsTags": [
+        {
+          "name": "virtualProp",
+          "text": "mode - Mode"
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "barProp",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "bar-prop",
+          "reflectToAttr": false,
+          "docs": "bar prop",
+          "docsTags": [
+            {
+              "name": "returns",
+              "text": "bar"
+            },
+            {
+              "name": "readonly",
+              "text": ""
+            },
+            {
+              "name": "default",
+              "text": "'bar'"
+            }
+          ],
+          "default": "'bar'",
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": true,
+          "setter": false
+        },
+        {
+          "name": "fooProp",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "foo-prop",
+          "reflectToAttr": false,
+          "docs": "foo prop",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "mode",
+          "type": "any",
+          "mutable": false,
+          "attr": "mode",
+          "reflectToAttr": false,
+          "docs": "Mode",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "any"
+            }
+          ],
+          "optional": true,
+          "required": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "my-jsx-cmp"
+      ],
+      "dependencyGraph": {
+        "my-cmp": [
+          "my-jsx-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/hydrate-props/my-jsx-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "my-jsx-cmp",
+      "readme": "# hydrate-props\n\n\n",
+      "docs": "",
+      "docsTags": [
+        {
+          "name": "virtualProp",
+          "text": "mode - Mode"
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "barProp",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "bar-prop",
+          "reflectToAttr": false,
+          "docs": "bar prop",
+          "docsTags": [
+            {
+              "name": "returns",
+              "text": "bar"
+            },
+            {
+              "name": "readonly",
+              "text": ""
+            },
+            {
+              "name": "default",
+              "text": "'bar'"
+            }
+          ],
+          "default": "'bar'",
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": true,
+          "setter": false
+        },
+        {
+          "name": "fooProp",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "foo-prop",
+          "reflectToAttr": false,
+          "docs": "foo prop",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "mode",
+          "type": "any",
+          "mutable": false,
+          "attr": "mode",
+          "reflectToAttr": false,
+          "docs": "Mode",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "any"
+            }
+          ],
+          "optional": true,
+          "required": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "my-cmp"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "my-cmp": [
+          "my-jsx-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/nested-child-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "nested-cmp-child",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/parent-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "nested-cmp-parent",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "nested-scope-cmp"
+      ],
+      "dependencyGraph": {
+        "nested-cmp-parent": [
+          "nested-scope-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/nested-scope-cmp.tsx",
+      "encapsulation": "scoped",
+      "tag": "nested-scope-cmp",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "nested-cmp-parent"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "nested-cmp-parent": [
+          "nested-scope-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/scoped-hydration/non-shadow.tsx",
+      "encapsulation": "scoped",
+      "tag": "non-shadow-child",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/scoped-hydration/non-shadow-forwarded-slot.tsx",
+      "encapsulation": "scoped",
+      "tag": "non-shadow-forwarded-slot",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "shadow-child"
+      ],
+      "dependencyGraph": {
+        "non-shadow-forwarded-slot": [
+          "shadow-child"
+        ]
+      }
+    },
+    {
+      "filePath": "src/scoped-hydration/non-shadow-multi-slots.tsx",
+      "encapsulation": "scoped",
+      "tag": "non-shadow-multi-slots",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/scoped-hydration/non-shadow-wrapper.tsx",
+      "encapsulation": "scoped",
+      "tag": "non-shadow-wrapper",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/path-alias-cmp/path-alias-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "path-alias-cmp",
+      "readme": "# path-alias-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/prerender-cmp/prerender-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "prerender-cmp",
+      "readme": "# prerender-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/prop-cmp/prop-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "prop-cmp",
+      "readme": "# prop-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [
+        {
+          "name": "virtualProp",
+          "text": "mode - Mode"
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "clothes",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "clothes",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "'life preservers'"
+            }
+          ],
+          "default": "'life preservers'",
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": true,
+          "setter": true
+        },
+        {
+          "name": "first",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "first",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "fullName",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "full-name",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "readonly",
+              "text": ""
+            }
+          ],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": true,
+          "setter": false
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "last-name",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "mode",
+          "type": "any",
+          "mutable": false,
+          "attr": "mode",
+          "reflectToAttr": false,
+          "docs": "Mode",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "any"
+            }
+          ],
+          "optional": true,
+          "required": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "app-root"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "app-root": [
+          "prop-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/resolve-var-events/resolve-var-events.tsx",
+      "encapsulation": "shadow",
+      "tag": "resolve-var-events",
+      "readme": "# resolve-var-events\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [
+        {
+          "name": "emitMyEvent",
+          "returns": {
+            "type": "Promise<void>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "() => Promise<void>",
+            "parameters": [],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<void>"
+          },
+          "signature": "emitMyEvent() => Promise<void>",
+          "parameters": [],
+          "docs": "",
+          "docsTags": []
+        },
+        {
+          "name": "emitOtherEvent",
+          "returns": {
+            "type": "Promise<void>",
+            "docs": ""
+          },
+          "complexType": {
+            "signature": "() => Promise<void>",
+            "parameters": [],
+            "references": {
+              "Promise": {
+                "location": "global",
+                "id": "global::Promise"
+              }
+            },
+            "return": "Promise<void>"
+          },
+          "signature": "emitOtherEvent() => Promise<void>",
+          "parameters": [],
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "events": [
+        {
+          "event": "myEvent",
+          "detail": "any",
+          "bubbles": true,
+          "complexType": {
+            "original": "any",
+            "resolved": "any",
+            "references": {}
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        },
+        {
+          "event": "otherEvent",
+          "detail": "any",
+          "bubbles": true,
+          "complexType": {
+            "original": "any",
+            "resolved": "any",
+            "references": {}
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "listeners": [
+        {
+          "event": "myEvent",
+          "capture": false,
+          "passive": false
+        },
+        {
+          "event": "otherEvent",
+          "capture": false,
+          "passive": false
+        }
+      ],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/ssr-runtime-decorators/ssr-runtime-decorators.tsx",
+      "encapsulation": "none",
+      "tag": "runtime-decorators",
+      "readme": "# runtime-decorators\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "basicProp",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "basic-prop",
+          "reflectToAttr": true,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "'basicProp'"
+            }
+          ],
+          "default": "'basicProp'",
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "decoratedGetterSetterProp",
+          "type": "number",
+          "complexType": {
+            "original": "number",
+            "resolved": "number",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "decorated-getter-setter-prop",
+          "reflectToAttr": true,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "number"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": true,
+          "setter": true
+        },
+        {
+          "name": "decoratedProp",
+          "type": "number",
+          "complexType": {
+            "original": "number",
+            "resolved": "number",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "decorated-prop",
+          "reflectToAttr": true,
+          "docs": "",
+          "docsTags": [
+            {
+              "name": "default",
+              "text": "-10"
+            }
+          ],
+          "default": "-10",
+          "values": [
+            {
+              "type": "number"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/scoped-car-detail.tsx",
+      "encapsulation": "scoped",
+      "tag": "scoped-car-detail",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "car",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "car",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/scoped-car-list.tsx",
+      "encapsulation": "scoped",
+      "tag": "scoped-car-list",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "Component that helps display a list of cars",
+      "docsTags": [
+        {
+          "name": "slot",
+          "text": "header - The slot for the header content."
+        },
+        {
+          "name": "part",
+          "text": "car - The shadow part to target to style the car."
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "cars",
+          "type": "CarData[]",
+          "complexType": {
+            "original": "CarData[]",
+            "resolved": "CarData[]",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": false,
+          "attr": "cars",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData[]"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "selected",
+          "type": "CarData",
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "mutable": true,
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "CarData"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [
+        {
+          "event": "carSelected",
+          "detail": "CarData",
+          "bubbles": true,
+          "complexType": {
+            "original": "CarData",
+            "resolved": "CarData",
+            "references": {
+              "CarData": {
+                "location": "import",
+                "path": "../car-list/car-data",
+                "id": "src/car-list/car-data.ts::CarData",
+                "referenceLocation": "CarData"
+              }
+            }
+          },
+          "cancelable": true,
+          "composed": true,
+          "docs": "",
+          "docsTags": []
+        }
+      ],
+      "listeners": [],
+      "styles": [],
+      "slots": [
+        {
+          "name": "header",
+          "docs": "The slot for the header content."
+        }
+      ],
+      "parts": [
+        {
+          "name": "car",
+          "docs": "The shadow part to target to style the car."
+        }
+      ],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "another-car-detail"
+      ],
+      "dependencyGraph": {
+        "scoped-car-list": [
+          "another-car-detail"
+        ]
+      }
+    },
+    {
+      "filePath": "src/scoped-hydration/shadow.tsx",
+      "encapsulation": "shadow",
+      "tag": "shadow-child",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "non-shadow-forwarded-slot"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "non-shadow-forwarded-slot": [
+          "shadow-child"
+        ]
+      }
+    },
+    {
+      "filePath": "src/scoped-hydration/shadow-wrapper.tsx",
+      "encapsulation": "shadow",
+      "tag": "shadow-wrapper",
+      "readme": "# shadow-wrapper\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/slot-cmp/slot-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "slot-cmp",
+      "readme": "# slot-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "slot-cmp-container",
+        "slot-parent-cmp"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "slot-cmp-container": [
+          "slot-cmp"
+        ],
+        "slot-parent-cmp": [
+          "slot-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/slot-cmp-container/slot-cmp-container.tsx",
+      "encapsulation": "shadow",
+      "tag": "slot-cmp-container",
+      "readme": "# slot-cmp-container\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "slot-cmp",
+        "slot-parent-cmp"
+      ],
+      "dependencyGraph": {
+        "slot-cmp-container": [
+          "slot-cmp",
+          "slot-parent-cmp"
+        ],
+        "slot-parent-cmp": [
+          "slot-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/slot-parent-cmp/slot-parent-cmp.tsx",
+      "encapsulation": "none",
+      "tag": "slot-parent-cmp",
+      "readme": "# slot-parent-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "complexType": {
+            "original": "string",
+            "resolved": "string",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "label",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "string"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "slot-cmp-container"
+      ],
+      "dependencies": [
+        "slot-cmp"
+      ],
+      "dependencyGraph": {
+        "slot-parent-cmp": [
+          "slot-cmp"
+        ],
+        "slot-cmp-container": [
+          "slot-parent-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/ssr-shadow-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "ssr-shadow-cmp",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "selected",
+          "type": "boolean",
+          "complexType": {
+            "original": "boolean",
+            "resolved": "boolean",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "selected",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "boolean"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [
+        "wrap-ssr-shadow-cmp"
+      ],
+      "dependencies": [],
+      "dependencyGraph": {
+        "wrap-ssr-shadow-cmp": [
+          "ssr-shadow-cmp"
+        ]
+      }
+    },
+    {
+      "filePath": "src/state-cmp/state-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "state-cmp",
+      "readme": "# state-cmp\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {}
+    },
+    {
+      "filePath": "src/declarative-shadow-dom/wrap-ssr-shadow-cmp.tsx",
+      "encapsulation": "shadow",
+      "tag": "wrap-ssr-shadow-cmp",
+      "readme": "# cmp-server-vs-client\n\n\n",
+      "docs": "",
+      "docsTags": [],
+      "usage": {},
+      "props": [
+        {
+          "name": "selected",
+          "type": "boolean",
+          "complexType": {
+            "original": "boolean",
+            "resolved": "boolean",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "selected",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "boolean"
+            }
+          ],
+          "optional": false,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [],
+      "slots": [],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [
+        "ssr-shadow-cmp"
+      ],
+      "dependencyGraph": {
+        "wrap-ssr-shadow-cmp": [
+          "ssr-shadow-cmp"
+        ]
+      }
+    }
+  ],
+  "typeLibrary": {
+    "src/car-list/car-data.ts::CarData": {
+      "declaration": "any",
+      "docstring": "",
+      "path": "src/car-list/car-data.ts"
+    }
+  }
+}

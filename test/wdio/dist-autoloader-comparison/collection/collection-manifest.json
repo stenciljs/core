@@ -1,0 +1,15 @@
+{
+  "entries": [
+    "auto-loader-child.js",
+    "auto-loader-dynamic.js",
+    "auto-loader-root.js"
+  ],
+  "mixins": [],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "4.43.1-dev.1772051958.852ff35",
+    "typescriptVersion": "5.8.3"
+  },
+  "collections": [],
+  "bundles": []
+}

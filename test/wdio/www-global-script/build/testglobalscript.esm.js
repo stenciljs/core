@@ -1,0 +1,1 @@
+import{p,b as t}from"./p-DI1vMKXY.js";export{s as setNonce}from"./p-DI1vMKXY.js";import{g as a}from"./p-CZZsJCEX.js";(()=>{const s=import.meta.url,t={};return""!==s&&(t.resourcesUrl=new URL(".",s).href),p(t)})().then((async s=>(await a(),t([["p-f8e0512e",[[2,"global-script-dist-cmp"]]],["p-21de0eda",[[2,"global-script-test-cmp"]]]],s))));
