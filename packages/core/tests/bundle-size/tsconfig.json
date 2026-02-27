@@ -8,18 +8,7 @@
     "target": "es2017",
     "jsx": "react",
     "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
-    "paths": {
-      "@stencil/core": [
-        "../../internal"
-      ],
-      "@stencil/core/compiler": [
-        "../../compiler"
-      ],
-      "@stencil/core/internal": [
-        "../../internal"
-      ]
-    }
+    "jsxFragmentFactory": "Fragment"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

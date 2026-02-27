@@ -15,18 +15,7 @@
     "noUnusedParameters": true,
     "skipLibCheck": true,
     "jsx": "react",
-    "jsxFactory": "h",
-    "paths": {
-      "@stencil/core": [
-        "../../internal"
-      ],
-      "@stencil/core/compiler": [
-        "../../compiler"
-      ],
-      "@stencil/core/internal": [
-        "../../internal"
-      ]
-    }
+    "jsxFactory": "h"
   },
   "include": [
     "src"

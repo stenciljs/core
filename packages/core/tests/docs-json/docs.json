@@ -4,6 +4,7 @@
       "filePath": "src/components/my-component/my-component.tsx",
       "encapsulation": "shadow",
       "tag": "my-component",
+      "readme": "# my-component\n\n\n",
       "docs": "",
       "docsTags": [],
       "usage": {},

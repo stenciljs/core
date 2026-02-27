@@ -71,6 +71,8 @@ export default defineConfig([
     copy: [
       // Copy curated public types (paths resolve via declarations entry below)
       { from: 'src/index.d.mts', to: 'dist' },
+      // Copy stencil-public-docs.d.ts for docs-json output target
+      { from: '../../internal/stencil-public-docs.d.ts', to: 'dist/declarations' },
     ],
   },
 

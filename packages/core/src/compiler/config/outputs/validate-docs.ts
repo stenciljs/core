@@ -96,8 +96,10 @@ const validateJsonDocsOutputTarget = (
     err.messageText = `docs-json outputTarget missing the "file" option`;
   }
 
-  outputTarget.file = join(config.rootDir, outputTarget.file);
-  if (isString(outputTarget.typesFile)) {
+  if (!isAbsolute(outputTarget.file)) {
+    outputTarget.file = join(config.rootDir, outputTarget.file);
+  }
+  if (isString(outputTarget.typesFile) && !isAbsolute(outputTarget.typesFile)) {
     outputTarget.typesFile = join(config.rootDir, outputTarget.typesFile);
   } else if (outputTarget.typesFile !== null && outputTarget.file.endsWith('.json')) {
     outputTarget.typesFile = outputTarget.file.replace(/\.json$/, '.d.ts');
@@ -131,7 +133,9 @@ const validateCustomElementsManifestOutputTarget = (
   if (!isString(outputTarget.file)) {
     outputTarget.file = 'custom-elements.json';
   }
-  outputTarget.file = join(config.rootDir, outputTarget.file);
+  if (!isAbsolute(outputTarget.file)) {
+    outputTarget.file = join(config.rootDir, outputTarget.file);
+  }
   outputTarget.strict = !!outputTarget.strict;
   return outputTarget;
 };

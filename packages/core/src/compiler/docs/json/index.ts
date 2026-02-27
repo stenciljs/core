@@ -12,7 +12,7 @@ export const generateJsonDocs = async (
   if (jsonOutputTargets.length === 0) {
     return;
   }
-  const docsDtsPath = join(config.sys.getCompilerExecutingPath(), '..', '..', 'internal', 'stencil-public-docs.d.ts');
+  const docsDtsPath = join(config.sys.getCompilerExecutingPath(), '..', '..', 'declarations', 'stencil-public-docs.d.ts');
   let docsDts = await compilerCtx.fs.readFile(docsDtsPath);
   // this file was written by dts-bundle-generator, which uses tabs for
   // indentation. Instead, let's replace those with spaces!

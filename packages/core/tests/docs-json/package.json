@@ -10,7 +10,7 @@
     "postprocess": "node scripts/postprocess.js",
     "build.dev": "stencil build --dev",
     "start": "stencil build --dev --watch --serve",
-    "test": "pnpm build && && npm run postprocess",
+    "test": "pnpm build && npm run postprocess",
     "test.watch": "stencil test --spec --e2e --watch",
     "generate": "stencil generate"
   },
