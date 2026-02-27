@@ -17,22 +17,25 @@
  * - It copies `readme-supplemental.md` to `readme.md` in the appropriate directory.
  */
 
-const fs = require('fs');
-const path = require('path');
+import { copyFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Define source and destination paths
-const src = path.resolve(
+const src = resolve(
   __dirname,
-  '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme-supplemental.md',
+  './custom-readme-output-overwrite/components/styleurls-component/readme-supplemental.md',
 );
-const dest = path.resolve(
+const dest = resolve(
   __dirname,
-  '../../test/docs-readme/custom-readme-output-overwrite/components/styleurls-component/readme.md',
+  './custom-readme-output-overwrite/components/styleurls-component/readme.md',
 );
 
 // Copy the file
 try {
-  fs.copyFileSync(src, dest);
+  copyFileSync(src, dest);
   console.log(`Copied ${src} to ${dest}`);
 } catch (err) {
   console.error(`Error copying file: ${err.message}`);
