@@ -1335,7 +1335,7 @@ import { Component } from '@stencil/core';  // Error: Cannot find module
 // Solution: Check your tsconfig.json
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@stencil/core": ["node_modules/@stencil/core"]

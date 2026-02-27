@@ -25,7 +25,7 @@ describe.skip('component-styles', () => {
             "esnext.array"
           ],
           "module": "esnext",
-          "moduleResolution": "node",
+          "moduleResolution": "bundler",
           "target": "es2017"
         }
       }
@@ -59,7 +59,7 @@ describe.skip('component-styles', () => {
     //         "esnext.array"
     //       ],
     //       "module": "esnext",
-    //       "moduleResolution": "node",
+    //       "moduleResolution": "bundler",
     //       "target": "es2017",
     //     }
     //   }

@@ -13,7 +13,7 @@
     "jsxFactory": "h",
     "lib": ["dom", "es2017"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strictPropertyInitialization": false,
     "noImplicitAny": true,
     "noImplicitReturns": true,

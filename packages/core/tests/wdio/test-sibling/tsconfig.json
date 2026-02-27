@@ -15,7 +15,7 @@
       "es2017"
     ],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noUnusedLocals": false,
