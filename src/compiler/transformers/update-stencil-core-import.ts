@@ -112,4 +112,5 @@ const KEEP_IMPORTS = new Set([
   'jsx',
   'jsxs',
   'jsxDEV',
+  'render',
 ]);
