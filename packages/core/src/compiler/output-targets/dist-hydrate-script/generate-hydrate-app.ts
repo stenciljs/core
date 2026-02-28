@@ -53,9 +53,8 @@ export const generateHydrateApp = async (
 ) => {
   try {
     const packageDir = join(config.sys.getCompilerExecutingPath(), '..', '..');
-    const input = join(packageDir, 'internal', 'hydrate', 'runner.js');
-    const mockDoc = join(packageDir, 'mock-doc', 'index.js');
-    const appData = join(packageDir, 'internal', 'app-data', 'index.js');
+    const input = join(packageDir, 'runtime', 'server', 'runner.mjs');
+    const appData = join(packageDir, 'runtime', 'app-data', 'index.js');
 
     const rollupOptions: RollupOptions = {
       ...config.rollupConfig.inputOptions,
@@ -69,9 +68,6 @@ export const generateHydrateApp = async (
             // Handle both @hydrate-factory (TypeScript alias) and full path
             if (id === STENCIL_HYDRATE_FACTORY_ID || id === '@hydrate-factory') {
               return STENCIL_HYDRATE_FACTORY_ID;
-            }
-            if (id === STENCIL_MOCK_DOC_ID) {
-              return mockDoc;
             }
             if (id === STENCIL_APP_DATA_ID) {
               return appData;

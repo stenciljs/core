@@ -25,7 +25,7 @@ export const coreResolvePlugin = (
 ): Plugin => {
   const compilerExe = config.sys.getCompilerExecutingPath();
   const internalClient = getStencilInternalModule(config, compilerExe, 'client/index.js');
-  const internalHydrate = getStencilInternalModule(config, compilerExe, 'hydrate/index.js');
+  const internalHydrate = getStencilInternalModule(config, compilerExe, 'server/index.mjs');
 
   return {
     name: 'coreResolvePlugin',

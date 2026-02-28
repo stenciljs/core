@@ -14,9 +14,9 @@ describe('core resolve plugin', () => {
 
   it('http localhost with port url path', () => {
     const compilerExe = 'http://localhost:3333/@stencil/core/compiler/stencil.js?v=1.2.3';
-    const internalModule = 'hydrate/index.js';
+    const internalModule = 'server/index.mjs';
     const m = getStencilInternalModule(config, compilerExe, internalModule);
-    expect(m).toBe('/node_modules/@stencil/core/runtime/hydrate/index.js');
+    expect(m).toBe('/node_modules/@stencil/core/runtime/server/index.mjs');
   });
 
   it('node path', () => {

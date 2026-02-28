@@ -93,7 +93,7 @@ export default defineConfig([
     skipNodeModulesBundle: true,
   },
 
-  // Server/SSR (virtuals externalized for runtime swapping)
+  // Server/SSR platform (virtuals externalized for runtime swapping)
   {
     entry: {
       'runtime/server/index': 'src/server/platform/index.ts',
@@ -112,6 +112,28 @@ export default defineConfig([
           'virtual:app-data': '@stencil/core/runtime/app-data',
           'virtual:app-globals': '@stencil/core/runtime/app-globals',
           'virtual:platform': '@stencil/core/runtime/client',
+        },
+      }),
+    ],
+  },
+
+  // Server/SSR runner (user-facing hydrate API: renderToString, hydrateDocument, etc.)
+  {
+    entry: {
+      'runtime/server/runner': 'src/server/runner/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'node',
+    target: 'node20',
+    dts: true,
+    clean: false,
+    external: ['node:*', '@stencil/mock-doc'],
+    skipNodeModulesBundle: true,
+    plugins: [
+      virtualModules({
+        external: {
+          'virtual:platform': '@stencil/core/runtime/server',
         },
       }),
     ],
