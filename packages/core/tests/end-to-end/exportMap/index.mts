@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 
 import { run } from '@stencil/cli';
+import { h } from '@stencil/core';
 import { version } from '@stencil/core/compiler';
 import { MockDocument } from '@stencil/core/mock-doc';
 import { BUILD } from '@stencil/core/runtime/app-data';
@@ -10,6 +11,7 @@ import { newSpecPage } from '@stencil/core/testing';
 assert(typeof version === 'string');
 version.slice();
 
+assert(typeof h === 'function');
 assert(typeof run, 'function');
 run.call;
 
