@@ -1,3 +1,5 @@
+/// <reference path="./declarations/stencil-ext-modules.d.ts" />
+
 export type { StencilConfig as Config, PrerenderConfig } from './declarations/stencil-public-compiler';
 
 export type {

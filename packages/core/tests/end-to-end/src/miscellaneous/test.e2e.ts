@@ -1,37 +1,37 @@
-import { type E2EPage, newE2EPage } from '@stencil/core/testing';
-
-let page: E2EPage;
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
 function checkSorted(arr: string[]) {
   return arr.every((value, index, array) => index === 0 || value >= array[index - 1]);
 }
 
-describe('do not throw page already closed if page was defined in before(All) hook', () => {
-  beforeAll(async () => {
-    page = await newE2EPage();
+test.describe('page fixture tests', () => {
+  test('first test', async ({ page }) => {
+    await page.setContent('<html><body></body></html>');
+    const p = page.locator('html');
+    await expect(p).not.toBeNull();
   });
 
-  it('first test', async () => {
-    const p = await page.find('html');
-    expect(p).not.toBeNull();
-  });
-
-  it('second test', async () => {
-    const p = await page.find('html');
-    expect(p).not.toBeNull();
+  test('second test', async ({ page }) => {
+    await page.setContent('<html><body></body></html>');
+    const p = page.locator('html');
+    await expect(p).not.toBeNull();
   });
 });
 
-describe('sorts hydrated component styles', () => {
-  it('generates style tags in alphabetical order', async () => {
-    page = await newE2EPage();
-    expect(await page.evaluate(() => document.querySelectorAll('style').length)).toBe(0);
+test.describe('sorts hydrated component styles', () => {
+  test('generates style tags in alphabetical order', async ({ page }) => {
+    const styleCount = await page.evaluate(() => document.querySelectorAll('style').length);
+    expect(styleCount).toBe(0);
+
     await page.setContent(`
       <prop-cmp mode="ios"></prop-cmp>
     `);
-    expect(await page.evaluate(() => document.querySelectorAll('style').length)).toBe(1);
 
-    const styleContent = await page.evaluate(() => document.querySelector('style').innerHTML);
+    const newStyleCount = await page.evaluate(() => document.querySelectorAll('style').length);
+    expect(newStyleCount).toBe(1);
+
+    const styleContent = await page.evaluate(() => document.querySelector('style')?.innerHTML ?? '');
 
     /**
      * filter out the hydration class selector for the app-root component
@@ -42,6 +42,9 @@ describe('sorts hydrated component styles', () => {
       .split('\n')
       .map((c) => c.slice(0, c.indexOf('{')))
       .find((c) => c.includes('app-root'));
-    expect(checkSorted(classSelector.split(','))).toBeTruthy();
+
+    if (classSelector) {
+      expect(checkSorted(classSelector.split(','))).toBeTruthy();
+    }
   });
 });

@@ -1,8 +1,9 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('load when html does not contain components', () => {
-  it('test', async () => {
-    await newE2EPage({ html: `<div>88 mph</div>` });
+test.describe('load when html does not contain components', () => {
+  test('test', async ({ page }) => {
+    await page.setContent('<div>88 mph</div>');
     expect(1).toBe(1);
   });
 });

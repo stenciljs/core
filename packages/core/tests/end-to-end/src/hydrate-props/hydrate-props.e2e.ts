@@ -1,15 +1,18 @@
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
+
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
 
-describe('different types of decorated properties and states render on both server and client', () => {
-  beforeAll(async () => {
+test.describe('different types of decorated properties and states render on both server and client', () => {
+  test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../../hydrate');
     renderToString = mod.renderToString;
   });
 
-  it('renders default values', async () => {
+  test('renders default values', async () => {
     const { html } = await renderToString(
       `
       <my-cmp foo-prop="foo1" bar-prop="bar1"></my-cmp>

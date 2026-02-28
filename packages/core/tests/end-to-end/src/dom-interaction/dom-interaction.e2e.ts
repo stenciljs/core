@@ -1,65 +1,57 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('dom interaction e2e tests', () => {
-  it('should click button in shadow root', async () => {
-    const page = await newE2EPage({
-      html: `
+test.describe('dom interaction e2e tests', () => {
+  test('should click button in shadow root', async ({ page }) => {
+    await page.setContent(`
       <dom-interaction></dom-interaction>
-    `,
-    });
+    `);
 
-    const button = await page.find('dom-interaction >>> .click');
+    const button = page.locator('dom-interaction').locator('.click');
 
-    expect(button).toEqualText(`Click`);
+    await expect(button).toHaveText('Click');
 
     await button.click();
 
-    expect(button).toEqualText(`Was Clicked`);
+    await expect(button).toHaveText('Was Clicked');
   });
 
-  it('should focus button in shadow root', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should focus button in shadow root', async ({ page }) => {
+    await page.setContent(`
       <dom-interaction></dom-interaction>
-    `,
-    });
+    `);
 
-    const button = await page.find('dom-interaction >>> .focus');
+    const button = page.locator('dom-interaction').locator('.focus');
 
-    expect(button).toEqualText(`Focus`);
+    await expect(button).toHaveText('Focus');
 
     await button.tap();
 
-    expect(button).toEqualText(`Has Focus`);
+    await expect(button).toHaveText('Has Focus');
   });
 
-  it('should tap button in shadow root', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should tap button in shadow root', async ({ page }) => {
+    await page.setContent(`
       <dom-interaction></dom-interaction>
-    `,
-    });
+    `);
 
-    const button = await page.find('dom-interaction >>> .tap');
+    const button = page.locator('dom-interaction').locator('.tap');
 
-    expect(button).toEqualText(`Tap`);
+    await expect(button).toHaveText('Tap');
 
     await button.tap();
 
-    expect(button).toEqualText(`Was Tapped`);
+    await expect(button).toHaveText('Was Tapped');
   });
 
-  it('should use press() to enter text in an input in the shadow root', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should use press() to enter text in an input in the shadow root', async ({ page }) => {
+    await page.setContent(`
       <dom-interaction></dom-interaction>
-    `,
-    });
+    `);
 
-    const input = await page.find('dom-interaction >>> .input');
+    const input = page.locator('dom-interaction').locator('.input');
 
-    let value = await input.getProperty('value');
-    expect(value).toBe('');
+    await expect(input).toHaveValue('');
 
     await input.press('8');
     await input.press('8');
@@ -71,25 +63,20 @@ describe('dom interaction e2e tests', () => {
     await input.press('KeyH');
     await page.keyboard.up('Shift');
 
-    value = await input.getProperty('value');
-    expect(value).toBe('88 MPH');
+    await expect(input).toHaveValue('88 MPH');
   });
 
-  it('should use type() to enter text in an input in the shadow root', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should use fill() to enter text in an input in the shadow root', async ({ page }) => {
+    await page.setContent(`
       <dom-interaction></dom-interaction>
-    `,
-    });
+    `);
 
-    const input = await page.find('dom-interaction >>> .input');
+    const input = page.locator('dom-interaction').locator('.input');
 
-    let value = await input.getProperty('value');
-    expect(value).toBe('');
+    await expect(input).toHaveValue('');
 
-    await input.type('88 MPH');
+    await input.fill('88 MPH');
 
-    value = await input.getProperty('value');
-    expect(value).toBe('88 MPH');
+    await expect(input).toHaveValue('88 MPH');
   });
 });

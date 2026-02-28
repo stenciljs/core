@@ -73,6 +73,8 @@ export default defineConfig([
       { from: 'src/index.d.mts', to: 'dist' },
       // Copy stencil-public-docs.d.ts for docs-json output target
       { from: '../../internal/stencil-public-docs.d.ts', to: 'dist/declarations' },
+      // Copy ext-modules types for CSS/SVG/etc imports
+      { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
     ],
   },
 

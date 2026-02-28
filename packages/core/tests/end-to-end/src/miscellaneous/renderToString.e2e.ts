@@ -1,3 +1,6 @@
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
+
 import { CarData } from '../car-list/car-data';
 
 const vento = new CarData('VW', 'Vento', 2024);
@@ -7,14 +10,14 @@ const beetle = new CarData('VW', 'Beetle', 2023);
 type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
 
-describe('renderToString', () => {
-  beforeAll(async () => {
+test.describe('renderToString', () => {
+  test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../../hydrate');
     renderToString = mod.renderToString;
   });
 
-  it('allows to hydrate whole HTML page', async () => {
+  test('allows to hydrate whole HTML page', async () => {
     const { html } = await renderToString(
       `<html>
       <head>
@@ -49,7 +52,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('puts style after preconnect links in the head tag', async () => {
+  test('puts style after preconnect links in the head tag', async () => {
     const { html } = await renderToString(
       `<html>
       <head>
@@ -91,7 +94,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('puts styles before any custom styles', async () => {
+  test('puts styles before any custom styles', async () => {
     const { html } = await renderToString(
       `<html>
       <head>
@@ -126,7 +129,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('allows to hydrate whole HTML page with using a scoped component', async () => {
+  test('allows to hydrate whole HTML page with using a scoped component', async () => {
     const { html } = await renderToString(
       `<html>
       <head>
@@ -160,7 +163,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('populates style information even if we do not render the whole document', async () => {
+  test('populates style information even if we do not render the whole document', async () => {
     const { styles } = await renderToString(
       `<scoped-car-list cars=${JSON.stringify([vento, beetle])}></scoped-car-list>`,
     );

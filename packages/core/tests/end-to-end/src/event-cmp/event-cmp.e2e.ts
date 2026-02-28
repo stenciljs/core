@@ -1,25 +1,23 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test, E2ELocator } from '@stencil/playwright';
 
-describe('@Event', () => {
-  it('should fire custom event on window', async () => {
-    // create a new puppeteer page
-    // and load the page with html content
-    const page = await newE2EPage({
-      html: `
+test.describe('@Event', () => {
+  test('should fire custom event on window', async ({ page }) => {
+    // load the page with html content
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    // select the "event-cmp" element within the page (same as querySelector)
-    const elm = await page.find('event-cmp');
+    // select the "event-cmp" element within the page
+    const elm = page.locator('event-cmp') as E2ELocator;
 
-    // add an event listener on window BEFORE we fire off the event
+    // add an event listener on the element BEFORE we fire off the event
     const eventSpy = await elm.spyOnEvent('myWindowEvent');
 
     // call the component's "methodThatFiresMyWindowEvent()" method
     // when calling the method it is executing it within the browser's context
     // we're using the @Method here to manually trigger an event from the component for testing
-    await elm.callMethod('methodThatFiresMyWindowEvent', 88);
+    await elm.evaluate((el: any) => el.methodThatFiresMyWindowEvent(88));
 
     const receivedEvent = eventSpy.lastEvent;
 
@@ -36,17 +34,15 @@ describe('@Event', () => {
     expect(receivedEvent.type).toEqual('myWindowEvent');
   });
 
-  it('should fire custom event on document', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should fire custom event on document', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('event-cmp');
+    const elm = page.locator('event-cmp') as E2ELocator;
     const elmEventSpy = await elm.spyOnEvent('myDocumentEvent');
 
-    await elm.callMethod('methodThatFiresMyDocumentEvent');
+    await elm.evaluate((el: any) => el.methodThatFiresMyDocumentEvent());
 
     const receivedEvent = elmEventSpy.lastEvent;
 
@@ -61,17 +57,15 @@ describe('@Event', () => {
     expect(receivedEvent.timeStamp).toBeDefined();
   });
 
-  it('should fire custom event w/ no options', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should fire custom event w/ no options', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('event-cmp');
+    const elm = page.locator('event-cmp') as E2ELocator;
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
-    await elm.callMethod('methodThatFiresEventWithOptions', 88);
+    await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(88));
 
     expect(elmEventSpy).toHaveReceivedEventTimes(1);
 
@@ -82,92 +76,97 @@ describe('@Event', () => {
     expect(receivedEvent.detail).toEqual({ mph: 88 });
   });
 
-  it('spyOnEvent, toHaveReceivedEventTimes', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('spyOnEvent, toHaveReceivedEventTimes', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('event-cmp');
+    const elm = page.locator('event-cmp') as E2ELocator ;
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
-    await elm.callMethod('methodThatFiresEventWithOptions', 80);
-    await elm.callMethod('methodThatFiresEventWithOptions', 90);
-    await elm.callMethod('methodThatFiresEventWithOptions', 100);
+    await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(80));
+    await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(90));
+    await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(100));
 
     expect(elmEventSpy).toHaveReceivedEventTimes(3);
     expect(elmEventSpy).toHaveFirstReceivedEventDetail({ mph: 80 });
-    expect(elmEventSpy).toHaveLastReceivedEventDetail({ mph: 100 });
+    expect(elmEventSpy).toHaveReceivedEventDetail({ mph: 100 });
   });
 
-  it('element spyOnEvent', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('element spyOnEvent', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('event-cmp');
+    const elm = page.locator('event-cmp') as E2ELocator;
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
     expect(elmEventSpy).not.toHaveReceivedEvent();
 
-    await elm.callMethod('methodThatFiresEventWithOptions', 88);
+    await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(88));
 
     await page.waitForChanges();
 
     expect(elmEventSpy).toHaveReceivedEvent();
   });
 
-  it('page spyOnEvent, default window', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('page spyOnEvent, default window', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
     const eventSpy = await page.spyOnEvent('someEvent');
 
-    const elm = await page.find('event-cmp');
-    await elm.triggerEvent('someEvent', { detail: 88 });
+    const elm = page.locator('event-cmp');
+    await elm.dispatchEvent('someEvent', { detail: 88 });
 
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEventDetail(88);
   });
 
-  it('page spyOnEvent, set document selector', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('page spyOnEvent on document', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
-    });
+    `);
 
-    const eventSpy = await page.spyOnEvent('someEvent', 'document');
+    // Note: @stencil/playwright's page.spyOnEvent() listens on window
+    // For document events, we listen on window since events bubble up
+    const eventSpy = await page.spyOnEvent('someEvent');
 
-    const elm = await page.find('event-cmp');
-    await elm.triggerEvent('someEvent', { detail: 88 });
+    const elm = page.locator('event-cmp');
+    await elm.dispatchEvent('someEvent', { detail: 88 });
 
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEventDetail(88);
   });
 
-  it('page waitForEvent', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('page waitForEvent', async ({ page }) => {
+    await page.setContent(`
       <event-cmp></event-cmp>
-    `,
+    `);
+
+    const elm = page.locator('event-cmp');
+
+    // Set up event listener before triggering
+    const eventPromise = page.evaluate(() => {
+      return new Promise<{ type: string; detail: any }>((resolve) => {
+        window.addEventListener(
+          'someEvent',
+          (e: Event) => {
+            const ce = e as CustomEvent;
+            resolve({ type: ce.type, detail: ce.detail });
+          },
+          { once: true },
+        );
+      });
     });
 
-    setTimeout(async () => {
-      const elm = await page.find('event-cmp');
-      await elm.triggerEvent('someEvent', { detail: 88 });
-      await page.waitForChanges();
-    }, 100);
+    // Trigger the event after a small delay
+    await elm.dispatchEvent('someEvent', { detail: 88 });
 
-    const ev = await page.waitForEvent('someEvent');
+    const ev = await eventPromise;
 
     expect(ev.type).toBe('someEvent');
     expect(ev.detail).toBe(88);

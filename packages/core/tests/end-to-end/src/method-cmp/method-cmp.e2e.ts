@@ -1,32 +1,33 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('@Method', () => {
-  it('should pass method args', async () => {
-    const page = await newE2EPage({
-      html: `
+test.describe('@Method', () => {
+  test('should pass method args', async ({ page }) => {
+    await page.setContent(`
       <method-cmp></method-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('method-cmp');
+    const elm = page.locator('method-cmp');
 
-    const methodRtnValue = await elm.callMethod('someMethodWithArgs', 'mph', 88);
+    // Call component method with arguments via evaluate
+    const methodRtnValue = await elm.evaluate((el: any) => el.someMethodWithArgs('mph', 88));
 
-    expect(methodRtnValue).toBe(`88 mph`);
+    expect(methodRtnValue).toBe('88 mph');
   });
 
-  it('should set property thats used in a method', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should set property thats used in a method', async ({ page }) => {
+    await page.setContent(`
       <method-cmp></method-cmp>
-    `,
+    `);
+
+    const elm = page.locator('method-cmp');
+
+    // Set property and call method via evaluate
+    await elm.evaluate((el: any) => {
+      el.someProp = 88;
     });
 
-    const elm = await page.find('method-cmp');
-
-    elm.setProperty('someProp', 88);
-
-    const methodRtnValue = await elm.callMethod('someMethod');
+    const methodRtnValue = await elm.evaluate((el: any) => el.someMethod());
 
     expect(methodRtnValue).toBe(88);
   });

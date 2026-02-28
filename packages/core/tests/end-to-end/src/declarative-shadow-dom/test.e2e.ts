@@ -1,6 +1,7 @@
 import { Readable } from 'node:stream';
 
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
 import { CarData } from '../car-list/car-data';
 
@@ -32,8 +33,8 @@ let streamToString: HydrateModule['streamToString'];
 let hydrateDocument: HydrateModule['hydrateDocument'];
 let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
 
-describe('renderToString', () => {
-  beforeAll(async () => {
+test.describe('renderToString', () => {
+  test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../../hydrate');
     renderToString = mod.renderToString;
@@ -42,7 +43,7 @@ describe('renderToString', () => {
     createWindowFromHtml = mod.createWindowFromHtml;
   });
 
-  it('resolves to a Promise<HydrateResults> by default', async () => {
+  test('resolves to a Promise<HydrateResults> by default', async () => {
     const renderedString = renderToString('<div>Hello World</div>');
     expect(typeof renderedString.then).toBe('function');
     // this is a type assertion to verify that the promise resolves to a HydrateResults object
@@ -54,12 +55,12 @@ describe('renderToString', () => {
     renderedDocument.then((result) => result.html);
   });
 
-  it('can render a simple dom node', async () => {
+  test('can render a simple dom node', async () => {
     const { html } = await renderToString('<div>Hello World</div>');
     expect(html).toContain('<body><div>Hello World</div></body>');
   });
 
-  it('can render a simple dom node (sync)', async () => {
+  test('can render a simple dom node (sync)', async () => {
     const input = '<div>Hello World</div>';
     const renderedHTML = '<body><div>Hello World</div></body>';
     const stream = renderToString(input, {}, true);
@@ -67,7 +68,7 @@ describe('renderToString', () => {
     expect(await readableToString(streamToString(input))).toContain(renderedHTML);
   });
 
-  it('can render a simple shadow component', async () => {
+  test('can render a simple shadow component', async () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -76,7 +77,7 @@ describe('renderToString', () => {
     expect(html).toMatchSnapshot();
   });
 
-  it('supports passing props to components', async () => {
+  test('supports passing props to components', async () => {
     const { html } = await renderToString(
       '<another-car-detail car=\'{"year":2024, "make": "VW", "model": "Vento"}\'></another-car-detail>',
       {
@@ -90,7 +91,7 @@ describe('renderToString', () => {
     expect(html).toContain('2024 VW Vento');
   });
 
-  it('supports passing props to components with a simple object', async () => {
+  test('supports passing props to components with a simple object', async () => {
     const { html } = await renderToString(`<another-car-detail car=${JSON.stringify(vento)}></another-car-detail>`, {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -100,7 +101,7 @@ describe('renderToString', () => {
     expect(html).toContain('2024 VW Vento');
   });
 
-  it('does not fail if provided object is not a valid JSON', async () => {
+  test('does not fail if provided object is not a valid JSON', async () => {
     const { html } = await renderToString(
       `<another-car-detail car='{"year":2024, "make": "VW", "model": "Vento"'></another-car-detail>`,
       {
@@ -111,7 +112,7 @@ describe('renderToString', () => {
     expect(html).toContain('<section class="sc-another-car-detail" c-id="4.0.0.0"><!--t.4.1.1.0--> </section>');
   });
 
-  it('supports styles for DSD', async () => {
+  test('supports styles for DSD', async () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -121,7 +122,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('only returns the element if we render to DSD', async () => {
+  test('only returns the element if we render to DSD', async () => {
     const { html } = await renderToString('<div>Hello World</div>', {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -129,7 +130,7 @@ describe('renderToString', () => {
     expect(html).toBe('<div>Hello World</div>');
   });
 
-  it('can render nested components', async () => {
+  test('can render nested components', async () => {
     const { html } = await renderToString(
       `<another-car-list cars='${JSON.stringify([vento, beetle])}'></another-car-list>`,
       {
@@ -143,7 +144,7 @@ describe('renderToString', () => {
     expect(html).toContain('2023 VW Beetle');
   });
 
-  it('can render a scoped component within a shadow component', async () => {
+  test('can render a scoped component within a shadow component', async () => {
     const { html } = await renderToString(`<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`, {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -157,7 +158,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('can render a scoped component within a shadow component (sync)', async () => {
+  test('can render a scoped component within a shadow component (sync)', async () => {
     const input = `<car-list cars=${JSON.stringify([vento, beetle])}></car-list>`;
     const opts = {
       serializeShadowRoot: true,
@@ -181,45 +182,50 @@ describe('renderToString', () => {
     );
   });
 
-  it('can take over a server side rendered component and re-render it in the browser', async () => {
+  test('can take over a server side rendered component and re-render it in the browser', async ({ page }) => {
     const { html } = await renderToString('<cmp-dsd></cmp-dsd>', {
       serializeShadowRoot: true,
       fullDocument: false,
     });
 
     expect(html).toContain('Count me: 0!');
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const button = await page.find('cmp-dsd >>> button');
+    await page.setContent(html);
+
+    const button = page.locator('cmp-dsd').locator('button');
     await button.click();
-    expect(button).toEqualText('Count me: 1!');
+    await expect(button).toHaveText('Count me: 1!');
   });
 
-  it('can take over a server side rendered component and re-render it in the browser with applied prop', async () => {
+  test('can take over a server side rendered component and re-render it in the browser with applied prop', async ({
+    page,
+  }) => {
     const { html } = await renderToString('<cmp-dsd initial-counter="42"></cmp-dsd>', {
       serializeShadowRoot: true,
       fullDocument: false,
     });
 
     expect(html).toContain('Count me: 42!');
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const button = await page.find('cmp-dsd >>> button');
+    await page.setContent(html);
+
+    const button = page.locator('cmp-dsd').locator('button');
     await button.click();
-    expect(button).toEqualText('Count me: 43!');
+    await expect(button).toHaveText('Count me: 43!');
   });
 
-  it('can render server side component when client sender renders differently', async () => {
+  test('can render server side component when client sender renders differently', async ({ page }) => {
     const { html } = await renderToString('<cmp-server-vs-client></cmp-server-vs-client>', {
       serializeShadowRoot: true,
       fullDocument: false,
     });
 
     expect(html).toContain('Server vs Client? Winner: Server');
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const button = await page.find('cmp-server-vs-client');
-    expect(button.shadowRoot.querySelector('div')).toEqualText('Server vs Client? Winner: Client');
+    await page.setContent(html);
+
+    const div = page.locator('cmp-server-vs-client').locator('div');
+    await expect(div).toHaveText('Server vs Client? Winner: Client');
   });
 
-  it('can hydrate components with event listeners', async () => {
+  test('can hydrate components with event listeners', async ({ page }) => {
     const { html } = await renderToString(
       `
       <dsd-listen-cmp>Hello World</dsd-listen-cmp>
@@ -232,59 +238,50 @@ describe('renderToString', () => {
     );
 
     /**
-     * renders the component with listener with proper vdom annotation, e.g.
-     * ```html
-     * <dsd-listen-cmp custom-hydrate-flag="" s-id="1">
-     *   <template shadowrootmode="open">
-     *     <style sty-id="sc-dsd-listen-cmp">
-     *       .sc-dsd-listen-cmp-h{display:block}
-     *     </style>
-     *     <slot c-id="1.0.0.0"></slot>
-     *   </template>
-     *   <!--r.1-->
-     *   Hello World
-     * </dsd-listen-cmp>
-     * ```
+     * renders the component with listener with proper vdom annotation
      */
     expect(html).toContain(
       `<dsd-listen-cmp class=\"sc-dsd-listen-cmp-h\" custom-hydrate-flag=\"\" s-id=\"21\"><template shadowrootmode=\"open\"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot class=\"sc-dsd-listen-cmp\" c-id=\"21.0.0.0\"></slot></template><!--r.21-->Hello World</dsd-listen-cmp>`,
     );
 
     /**
-     * renders second component with proper vdom annotation, e.g.:
-     * ```html
-     * <car-detail c-id="2.4.2.0" class="sc-car-list" custom-hydrate-flag="" s-id="4">
-     *   <!--r.4-->
-     *   <section c-id="4.0.0.0" class="sc-car-list">
-     *     <!--t.4.1.1.0-->
-     *     2023 VW Beetle
-     *   </section>
-     * </car-detail>
+     * renders second component with proper vdom annotation
      */
     expect(html).toContain(
       `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"22.4.2.0\" s-id=\"24\"><!--r.24--><section c-id=\"24.0.0.0\"><!--t.24.1.1.0-->2023 VW Beetle</section></car-detail>`,
     );
 
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const cars = await page.findAll('>>>car-detail');
-    expect(cars.map((car) => car.textContent)).toEqual(['2024 VW Vento', '2023 VW Beetle']);
+    await page.setContent(html);
+
+    const cars = page.locator('car-detail');
+    const carTexts = await cars.allTextContents();
+    expect(carTexts).toEqual(['2024 VW Vento', '2023 VW Beetle']);
   });
 
-  it('calls beforeHydrate and afterHydrate function hooks', async () => {
-    const beforeHydrate = jest.fn((doc) => (doc.querySelector('div').textContent = 'Hello Universe'));
-    const afterHydrate = jest.fn();
+  test('calls beforeHydrate and afterHydrate function hooks', async () => {
+    let beforeHydrateCalled = 0;
+    let afterHydrateCalled = 0;
+
+    const beforeHydrate = (doc: Document) => {
+      beforeHydrateCalled++;
+      const div = doc.querySelector('div');
+      if (div) div.textContent = 'Hello Universe';
+    };
+    const afterHydrate = () => {
+      afterHydrateCalled++;
+    };
 
     const { html } = await renderToString('<div>Hello World</div>', {
       beforeHydrate,
       afterHydrate,
     });
 
-    expect(beforeHydrate).toHaveBeenCalledTimes(1);
-    expect(afterHydrate).toHaveBeenCalledTimes(1);
+    expect(beforeHydrateCalled).toBe(1);
+    expect(afterHydrateCalled).toBe(1);
     expect(html).toContain('<body><div>Hello Universe</div></body>');
   });
 
-  it('does not render a shadow component if serializeShadowRoot is false', async () => {
+  test('does not render a shadow component if serializeShadowRoot is false', async () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: false,
       fullDocument: false,
@@ -294,7 +291,7 @@ describe('renderToString', () => {
     );
   });
 
-  it('does not render a shadow component but its light dom', async () => {
+  test('does not render a shadow component but its light dom', async () => {
     const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
       serializeShadowRoot: false,
       fullDocument: false,
@@ -304,8 +301,8 @@ describe('renderToString', () => {
     );
   });
 
-  describe('modes in declarative shadow dom', () => {
-    it('renders components in ios mode', async () => {
+  test.describe('modes in declarative shadow dom', () => {
+    test('renders components in ios mode', async ({ page }) => {
       const { html } = await renderToString('<prop-cmp first="Max" last="Mustermann"></prop-cmp>', {
         fullDocument: false,
         prettyHtml: true,
@@ -313,27 +310,31 @@ describe('renderToString', () => {
       });
       expect(html).toContain('<style sty-id="sc-prop-cmp-ios">');
       expect(html).toContain(';color:white;');
-      const page = await newE2EPage({ html, url: 'https://stencil.com' });
-      const div = await page.find('>>>div');
-      const { color } = await div.getComputedStyle();
+
+      await page.setContent(html);
+
+      const div = page.locator('prop-cmp').locator('div');
+      const color = await div.evaluate((el) => getComputedStyle(el).color);
       expect(color).toBe('rgb(255, 255, 255)');
     });
 
-    it('renders components in md mode', async () => {
+    test('renders components in md mode', async ({ page }) => {
       const { html } = await renderToString('<prop-cmp first="Max" last="Mustermann"></prop-cmp>', {
         fullDocument: false,
         prettyHtml: true,
         modes: [() => 'md'],
       });
       expect(html).toContain(';color:black;');
-      const page = await newE2EPage({ html, url: 'https://stencil.com' });
-      const div = await page.find('>>>div');
-      const { color } = await div.getComputedStyle();
+
+      await page.setContent(html);
+
+      const div = page.locator('prop-cmp').locator('div');
+      const color = await div.evaluate((el) => getComputedStyle(el).color);
       expect(color).toBe('rgb(0, 0, 0)');
     });
   });
 
-  it('does not render the shadow root twice', async () => {
+  test('does not render the shadow root twice', async () => {
     const { html } = await renderToString(
       `
       <nested-cmp-parent>
@@ -385,7 +386,7 @@ describe('renderToString', () => {
 </nested-cmp-parent>`);
   });
 
-  it('renders server-side components with delegated focus', async () => {
+  test('renders server-side components with delegated focus', async ({ page }) => {
     const { html } = await renderToString('<cmp-dsd-focus></cmp-dsd-focus>', {
       serializeShadowRoot: true,
       fullDocument: false,
@@ -394,14 +395,18 @@ describe('renderToString', () => {
     expect(html).toContain('<template shadowrootmode="open" shadowrootdelegatesfocus>');
     expect(html).toMatchSnapshot();
 
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const div = await page.find('cmp-dsd-focus >>> div');
+    await page.setContent(html);
+
+    const div = page.locator('cmp-dsd-focus').locator('div');
     await div.click();
 
-    expect(await page.evaluate(() => document.activeElement.outerHTML)).toContain('cmp-dsd-focus');
+    const activeElement = await page.evaluate(() => document.activeElement?.outerHTML ?? '');
+    expect(activeElement).toContain('cmp-dsd-focus');
   });
 
-  it("renders the styles of serializeShadowRoot `scoped` components when they're embedded in a shadow root", async () => {
+  test("renders the styles of serializeShadowRoot `scoped` components when they're embedded in a shadow root", async ({
+    page,
+  }) => {
     const { html } = await renderToString(
       `
       <div>
@@ -417,15 +422,24 @@ describe('renderToString', () => {
       },
     );
 
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
-    const wrapCmp = await page.find('wrap-ssr-shadow-cmp');
-    const scopedCmp = await page.find('ssr-shadow-cmp');
-    const scopedNestCmp = await page.find('wrap-ssr-shadow-cmp >>> ssr-shadow-cmp');
+    const wrapCmp = page.locator('wrap-ssr-shadow-cmp');
+    const scopedCmp = page.locator('ssr-shadow-cmp').first();
+    const scopedNestCmp = page.locator('wrap-ssr-shadow-cmp').locator('ssr-shadow-cmp');
 
-    const wrapCmpStyles = await wrapCmp.getComputedStyle();
-    const scopedCmpStyles = await scopedCmp.getComputedStyle();
-    const scopedNestCmpStyles = await scopedNestCmp.getComputedStyle();
+    const wrapCmpStyles = await wrapCmp.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { color: cs.color, backgroundColor: cs.backgroundColor };
+    });
+    const scopedCmpStyles = await scopedCmp.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { color: cs.color, backgroundColor: cs.backgroundColor };
+    });
+    const scopedNestCmpStyles = await scopedNestCmp.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { color: cs.color, backgroundColor: cs.backgroundColor };
+    });
 
     expect(wrapCmpStyles.color).toBe('rgb(255, 255, 255)'); // white
     expect(wrapCmpStyles.backgroundColor).toBe('rgb(0, 0, 255)'); // blue
@@ -435,8 +449,8 @@ describe('renderToString', () => {
     expect(scopedNestCmpStyles.backgroundColor).toBe('rgb(255, 255, 0)'); // yellow
   });
 
-  describe('hydrateDocument', () => {
-    it('can hydrate components with open shadow dom by default', async () => {
+  test.describe('hydrateDocument', () => {
+    test('can hydrate components with open shadow dom by default', async () => {
       const template = `<another-car-detail></another-car-detail>`;
       const fullHTML = `<html><head></head><body>${template}</body></html>`;
       const win = createWindowFromHtml(fullHTML, Math.random().toString());
@@ -447,7 +461,7 @@ describe('renderToString', () => {
       expect(html).toContain('shadowrootmode="open"');
     });
 
-    it('can hydrate components with scoped shadow dom', async () => {
+    test('can hydrate components with scoped shadow dom', async () => {
       const template = `<another-car-detail></another-car-detail>`;
       const fullHTML = `<html><head></head><body>${template}</body></html>`;
       const win = createWindowFromHtml(fullHTML, Math.random().toString());

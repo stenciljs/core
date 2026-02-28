@@ -12,7 +12,8 @@
     "jsxFragmentFactory": "Fragment",
     "lib": [
       "dom",
-      "es2021"
+      "es2021",
+      "ESNext.Disposable"
     ],
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -25,18 +26,6 @@
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
     "paths": {
-      "@stencil/core": [
-        "../../internal"
-      ],
-      "@stencil/core/mock-doc": [
-        "../../mock-doc"
-      ],
-      "@stencil/core/internal": [
-        "../../internal"
-      ],
-      "@stencil/core/testing": [
-        "../../testing"
-      ],
       "@path-alias": [
         "./src/path-alias-cmp/path-alias-lib"
       ]

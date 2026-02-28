@@ -1,72 +1,77 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('Shadow DOM piercing', () => {
-  it('can pierce through shadow DOM via Puppeteer primitives', async () => {
-    // create a new puppeteer page
-    const page = await newE2EPage({
-      html: `
-        <cmp-a></cmp-a>
-      `,
-    });
+test.describe('Shadow DOM piercing', () => {
+  test('can pierce through shadow DOM via Playwright locators', async ({ page }) => {
+    await page.setContent(`
+      <cmp-a></cmp-a>
+    `);
 
-    const spanCmpA = await page.$('cmp-a >>> span');
-    expect(await spanCmpA.evaluate((el) => el.textContent)).toBe('I am in component A');
-    const spanCmpB = await page.$('cmp-a >>> cmp-b >>> span');
-    expect(await spanCmpB.evaluate((el) => el.textContent)).toBe('I am in component B');
-    const spanCmpC = await page.$('cmp-a >>> cmp-b >>> cmp-c >>> span');
-    expect(await spanCmpC.evaluate((el) => el.textContent)).toBe('I am in component C');
+    // Playwright automatically pierces shadow DOM with locator chains
+    const spanCmpA = page.locator('cmp-a').locator('span').first();
+    await expect(spanCmpA).toHaveText('I am in component A');
 
-    // we skip through the shadow dom
-    const spanCmp = await page.$('cmp-a >>> cmp-c >>> span');
-    expect(await spanCmp.evaluate((el) => el.textContent)).toBe('I am in component C');
+    const spanCmpB = page.locator('cmp-a').locator('cmp-b').locator('span').first();
+    await expect(spanCmpB).toHaveText('I am in component B');
+
+    const spanCmpC = page.locator('cmp-a').locator('cmp-b').locator('cmp-c').locator('span');
+    await expect(spanCmpC).toHaveText('I am in component C');
+
+    // we can skip through the shadow dom hierarchy
+    const spanCmp = page.locator('cmp-a').locator('cmp-c').locator('span');
+    await expect(spanCmp).toHaveText('I am in component C');
   });
 
-  it('can pierce through shadow DOM via Stencil E2E testing API', async () => {
-    // create a new puppeteer page
-    const page = await newE2EPage({
-      html: `
-        <cmp-a></cmp-a>
-      `,
-    });
+  test('can pierce through shadow DOM with CSS selectors', async ({ page }) => {
+    await page.setContent(`
+      <cmp-a></cmp-a>
+    `);
 
-    const spanCmpA = await page.find('cmp-a >>> span');
-    expect(spanCmpA.textContent).toBe('I am in component A');
-    const spanCmpB = await page.find('cmp-a >>> cmp-b >>> span');
-    expect(spanCmpB.textContent).toBe('I am in component B');
-    const spanCmpC = await page.find('cmp-a >>> div > cmp-b >>> div cmp-c >>> span');
-    expect(spanCmpC.textContent).toBe('I am in component C');
+    // Playwright locators pierce shadow DOM automatically
+    const spanCmpA = page.locator('cmp-a').locator('span').first();
+    await expect(spanCmpA).toHaveText('I am in component A');
 
-    // we skip through the shadow dom
-    const spanCmp = await page.find('cmp-a >>> cmp-c >>> span');
-    expect(spanCmp.textContent).toBe('I am in component C');
+    const spanCmpB = page.locator('cmp-a').locator('cmp-b').locator('span').first();
+    await expect(spanCmpB).toHaveText('I am in component B');
+
+    const spanCmpC = page.locator('cmp-a').locator('div > cmp-b').locator('div cmp-c').locator('span');
+    await expect(spanCmpC).toHaveText('I am in component C');
+
+    // we can skip through the shadow dom hierarchy
+    const spanCmp = page.locator('cmp-a').locator('cmp-c').locator('span');
+    await expect(spanCmp).toHaveText('I am in component C');
   });
 
-  it('can pierce through shadow DOM via findAll', async () => {
-    // create a new puppeteer page
-    const page = await newE2EPage({
-      html: `
-        <cmp-a></cmp-a>
-      `,
-    });
+  test('can find multiple elements through shadow DOM', async ({ page }) => {
+    await page.setContent(`
+      <cmp-a></cmp-a>
+    `);
 
-    const spans = await page.findAll('cmp-a >>> span');
-    expect(spans).toHaveLength(3);
-    expect(spans[0].textContent).toBe('I am in component A');
-    expect(spans[1].textContent).toBe('I am in component B');
-    expect(spans[2].textContent).toBe('I am in component C');
+    // Get all spans within cmp-a (piercing shadow DOM)
+    const spans = page.locator('cmp-a').locator('span');
+    await expect(spans).toHaveCount(3);
 
-    const spansCmpB = await page.findAll('cmp-a >>> cmp-b >>> span');
-    expect(spansCmpB).toHaveLength(2);
-    expect(spansCmpB[0].textContent).toBe('I am in component B');
-    expect(spansCmpB[1].textContent).toBe('I am in component C');
+    const allSpans = await spans.all();
+    await expect(allSpans[0]).toHaveText('I am in component A');
+    await expect(allSpans[1]).toHaveText('I am in component B');
+    await expect(allSpans[2]).toHaveText('I am in component C');
 
-    const spansCmpC = await page.findAll('cmp-a >>> cmp-b >>> cmp-c >>> span');
-    expect(spansCmpC).toHaveLength(1);
-    expect(spansCmpC[0].textContent).toBe('I am in component C');
+    // Get spans within cmp-b (which includes cmp-c)
+    const spansCmpB = page.locator('cmp-a').locator('cmp-b').locator('span');
+    await expect(spansCmpB).toHaveCount(2);
 
-    // we skip through the shadow dom
-    const spansCmp = await page.findAll('cmp-a >>> cmp-c >>> span');
-    expect(spansCmp).toHaveLength(1);
-    expect(spansCmp[0].textContent).toBe('I am in component C');
+    const cmpBSpans = await spansCmpB.all();
+    await expect(cmpBSpans[0]).toHaveText('I am in component B');
+    await expect(cmpBSpans[1]).toHaveText('I am in component C');
+
+    // Get spans only within cmp-c
+    const spansCmpC = page.locator('cmp-a').locator('cmp-b').locator('cmp-c').locator('span');
+    await expect(spansCmpC).toHaveCount(1);
+    await expect(spansCmpC).toHaveText('I am in component C');
+
+    // Skip through the shadow dom hierarchy
+    const spansCmp = page.locator('cmp-a').locator('cmp-c').locator('span');
+    await expect(spansCmp).toHaveCount(1);
+    await expect(spansCmp).toHaveText('I am in component C');
   });
 });

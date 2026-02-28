@@ -1,68 +1,63 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { E2ELocator, test } from '@stencil/playwright';
 
-describe('resolveVar with @Event and @Listen', () => {
-  it('should fire and listen to event with resolved const variable', async () => {
-    const page = await newE2EPage({
-      html: `
+test.describe('resolveVar with @Event and @Listen', () => {
+  test('should fire and listen to event with resolved const variable', async ({ page }) => {
+    await page.setContent(`
       <resolve-var-events></resolve-var-events>
-    `,
-    });
+    `);
 
-    const elm = await page.find('resolve-var-events');
+    const elm = page.locator('resolve-var-events') as E2ELocator;
     await page.waitForChanges();
 
     const eventSpy = await elm.spyOnEvent('myEvent');
 
-    await elm.callMethod('emitMyEvent');
+    await elm.evaluate((el: any) => el.emitMyEvent());
 
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEvent();
-    const myEventCount = await page.find('resolve-var-events >>> .my-event-count');
-    expect(await myEventCount.textContent).toBe('1');
+    const myEventCount = page.locator('resolve-var-events').locator('.my-event-count');
+    await expect(myEventCount).toHaveText('1');
   });
 
-  it('should fire and listen to event with resolved object property', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should fire and listen to event with resolved object property', async ({ page }) => {
+    await page.setContent(`
       <resolve-var-events></resolve-var-events>
-    `,
-    });
+    `);
 
-    const elm = await page.find('resolve-var-events');
+    const elm = page.locator('resolve-var-events') as E2ELocator;
     await page.waitForChanges();
 
     const eventSpy = await elm.spyOnEvent('otherEvent');
 
-    await elm.callMethod('emitOtherEvent');
+    await elm.evaluate((el: any) => el.emitOtherEvent());
 
     await page.waitForChanges();
 
     expect(eventSpy).toHaveReceivedEvent();
-    const otherEventCount = await page.find('resolve-var-events >>> .other-event-count');
-    expect(await otherEventCount.textContent).toBe('1');
+    const otherEventCount = page.locator('resolve-var-events').locator('.other-event-count');
+    await expect(otherEventCount).toHaveText('1');
   });
 
-  it('should handle multiple events with different resolved variables', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should handle multiple events with different resolved variables', async ({ page }) => {
+    await page.setContent(`
       <resolve-var-events></resolve-var-events>
-    `,
-    });
+    `);
 
-    const elm = await page.find('resolve-var-events');
+    const elm = page.locator('resolve-var-events');
     await page.waitForChanges();
 
-    await elm.callMethod('emitMyEvent');
+    await elm.evaluate((el: any) => el.emitMyEvent());
     await page.waitForChanges();
 
-    await elm.callMethod('emitOtherEvent');
+    await elm.evaluate((el: any) => el.emitOtherEvent());
     await page.waitForChanges();
 
-    const myEventCount = await page.find('resolve-var-events >>> .my-event-count');
-    const otherEventCount = await page.find('resolve-var-events >>> .other-event-count');
+    const myEventCount = page.locator('resolve-var-events').locator('.my-event-count');
+    const otherEventCount = page.locator('resolve-var-events').locator('.other-event-count');
 
-    expect(await myEventCount.textContent).toBe('1');
-    expect(await otherEventCount.textContent).toBe('1');
+    await expect(myEventCount).toHaveText('1');
+    await expect(otherEventCount).toHaveText('1');
   });
 });

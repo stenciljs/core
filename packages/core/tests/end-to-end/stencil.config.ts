@@ -4,7 +4,7 @@ import path from 'path';
 import css from 'rollup-plugin-css-only';
 import builtins from 'rollup-plugin-node-builtins';
 
-import { Config } from '../../internal';
+import { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'EndToEnd',
@@ -29,6 +29,7 @@ export const config: Config = {
     {
       type: 'www',
       serviceWorker: null,
+      copy: [{ src: '**/*.html' }, { src: '**/*.css' }],
     },
     {
       type: 'dist',

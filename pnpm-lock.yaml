@@ -221,6 +221,9 @@ importers:
 
   packages/core/tests/end-to-end:
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.50
+        version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
         version: link:../..

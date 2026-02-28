@@ -1,98 +1,63 @@
-import { E2EElement, E2EPage, newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
 import { CarData } from './car-data';
 
-describe('car-list', () => {
-  let page: E2EPage;
-  let elm: E2EElement;
-
-  beforeEach(async () => {
-    page = await newE2EPage({
-      html: `
+test.describe('car-list', () => {
+  test('should work without parameters', async ({ page }) => {
+    await page.setContent(`
       <car-list></car-list>
-    `,
-    });
-    elm = await page.find('car-list');
-  });
-
-  it('should work without parameters', async () => {
-    expect(elm).toEqualHtml(`
-      <car-list custom-hydrate-flag="">
-        <mock:shadow-root></mock:shadow-root>
-      </car-list>
     `);
 
-    expect(elm.innerHTML).toEqualHtml(``);
-    expect(elm.shadowRoot).toEqualHtml(``);
+    const elm = page.locator('car-list');
+
+    // Verify the component has the hydrate flag attribute
+    await expect(elm).toHaveAttribute('custom-hydrate-flag', '');
+
+    // Verify shadow root is empty initially
+    const shadowContent = await elm.evaluate((el) => el.shadowRoot?.innerHTML.trim() ?? '');
+    expect(shadowContent).toBe('');
+
+    // Verify innerHTML is empty (no light DOM content)
+    const innerHTML = await elm.evaluate((el) => el.innerHTML.trim());
+    expect(innerHTML).toBe('');
   });
 
-  it('should set car list data', async () => {
+  test('should set car list data', async ({ page }) => {
+    await page.setContent(`
+      <car-list></car-list>
+    `);
+
+    const elm = page.locator('car-list');
+
     const cars: CarData[] = [
       new CarData('Cord', 'Model 812', 1934),
       new CarData('Duesenberg', 'SSJ', 1935),
       new CarData('Alfa Romeo', '2900 8c', 1938),
     ];
 
-    elm.setProperty('cars', cars);
+    // Set the cars property
+    await elm.evaluate((el: any, carsData) => {
+      el.cars = carsData;
+    }, cars);
 
     await page.waitForChanges();
 
-    expect(elm).toEqualHtml(`
-      <car-list custom-hydrate-flag="">
-        <mock:shadow-root>
-          <ul>
-            <li class="">
-              <car-detail custom-hydrate-flag="">
-                <section>
-                  1934 Cord Model 812
-                </section>
-              </car-detail>
-            </li>
-            <li class="">
-              <car-detail custom-hydrate-flag="">
-                <section>
-                  1935 Duesenberg SSJ
-                </section>
-              </car-detail>
-            </li>
-            <li class="">
-              <car-detail custom-hydrate-flag="">
-                <section>
-                  1938 Alfa Romeo 2900 8c
-                </section>
-              </car-detail>
-            </li>
-          </ul>
-        </mock:shadow-root>
-      </car-list>
-    `);
+    // Verify the component rendered the car list
+    const listItems = page.locator('car-list').locator('li');
+    await expect(listItems).toHaveCount(3);
 
-    expect(elm.innerHTML).toEqualHtml(``);
+    // Verify each car detail is rendered correctly
+    const carDetails = page.locator('car-list').locator('car-detail');
+    await expect(carDetails).toHaveCount(3);
 
-    expect(elm.shadowRoot).toEqualHtml(`
-      <ul>
-        <li>
-          <car-detail custom-hydrate-flag="">
-            <section>
-              1934 Cord Model 812
-            </section>
-          </car-detail>
-        </li>
-        <li>
-          <car-detail custom-hydrate-flag="">
-            <section>
-              1935 Duesenberg SSJ
-            </section>
-          </car-detail>
-        </li>
-        <li>
-          <car-detail custom-hydrate-flag="">
-            <section>
-              1938 Alfa Romeo 2900 8c
-            </section>
-          </car-detail>
-        </li>
-      </ul>
-    `);
+    // Check the text content of each car detail
+    await expect(carDetails.nth(0).locator('section')).toHaveText('1934 Cord Model 812');
+    await expect(carDetails.nth(1).locator('section')).toHaveText('1935 Duesenberg SSJ');
+    await expect(carDetails.nth(2).locator('section')).toHaveText('1938 Alfa Romeo 2900 8c');
+
+    // Verify innerHTML is still empty (all content is in shadow DOM)
+    const innerHTML = await elm.evaluate((el) => el.innerHTML.trim());
+    expect(innerHTML).toBe('');
   });
 });

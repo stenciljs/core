@@ -5,19 +5,20 @@
   "module": "dist/index.js",
   "types": "dist/types/components.d.ts",
   "collection": " dist/collection/collection-manifest.json",
+  "type": "module",
   "scripts": {
     "build": "stencil build --config ./stencil.build.config.ts --docs",
     "start": "stencil build --debug --watch --dev --serve",
-    "test": "stencil test --ci --e2e --spec --screenshot --debug",
+    "test": "playwright test",
     "test.dist": "npm run build && node test-end-to-end-dist.js && node test-end-to-end-hydrate.js && npm run test.exportMap",
-    "test.e2e": "stencil test --e2e",
+    "test.e2e": "playwright test",
     "test.exportMap": "node ./exportMap/index.js && tsx ./exportMap/index.mts",
     "test.hydrate": "node test-end-to-end-hydrate.js",
     "test.spec": "stencil-test",
-    "jest": "jest --coverage",
     "benchmark": "node benchmark-compile-time.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50",
     "@stencil/core": "workspace:*",
     "@stencil/playwright": "^0.2.3",
     "@stencil/react-output-target": "^0.0.9",
@@ -36,6 +37,6 @@
     "why-is-node-running": "^2.2.0"
   },
   "volta": {
-    "extends": "../../../package.json"
+    "extends": "../../../../package.json"
   }
 }

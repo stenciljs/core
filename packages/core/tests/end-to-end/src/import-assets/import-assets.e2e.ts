@@ -1,21 +1,21 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('import assets', () => {
-  it('should import .txt file', async () => {
-    const page = await newE2EPage({
-      html: '<import-assets></import-assets',
-    });
+test.describe('import assets', () => {
+  test('should import .txt file', async ({ page }) => {
+    await page.setContent('<import-assets></import-assets>');
 
-    const txt = await page.find('#txt');
-    expect(txt.textContent.trim()).toBe('My .txt File');
+    const txt = page.locator('#txt');
+    await expect(txt).toHaveText('My .txt File');
 
-    const whateverHtml = await page.find('#whatever-html');
-    expect(whateverHtml.textContent.trim()).toBe('<whatever></whatever>');
+    const whateverHtml = page.locator('#whatever-html');
+    await expect(whateverHtml).toHaveText('<whatever></whatever>');
 
-    const ionicSvgUrl: HTMLImageElement = (await page.find('#ionic-svg-url')) as any;
-    expect(ionicSvgUrl.getAttribute('src')).toContain('data:image/svg+xml;base64,');
+    const ionicSvgUrl = page.locator('#ionic-svg-url');
+    const src = await ionicSvgUrl.getAttribute('src');
+    expect(src).toContain('data:image/svg+xml;base64,');
 
-    const ionicSvgText = await page.find('#ionic-svg-text');
-    expect(ionicSvgText.textContent).toContain('<svg xmlns=');
+    const ionicSvgText = page.locator('#ionic-svg-text');
+    await expect(ionicSvgText).toContainText('<svg xmlns=');
   });
 });

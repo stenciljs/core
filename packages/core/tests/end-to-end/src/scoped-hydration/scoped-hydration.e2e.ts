@@ -1,57 +1,67 @@
-import { newE2EPage, E2EPage } from '@stencil/core/testing';
+import { expect, Page } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
 
-async function getElementOrder(page: E2EPage, parent: string) {
+async function getElementOrder(page: Page, parent: string) {
   return await page.evaluate((parent: string) => {
-    const external = Array.from(document.querySelector(parent).children).map((el) => el.tagName);
-    const internal = Array.from((document.querySelector(parent) as any).__children).map((el: Element) => el.tagName);
+    const el = document.querySelector(parent);
+    if (!el) return { internal: [], external: [] };
+    const external = Array.from(el.children).map((el) => el.tagName);
+    const internal = Array.from((el as any).__children || []).map((el: Element) => el.tagName);
     return { internal, external };
   }, parent);
 }
 
-describe('`scoped: true` hydration checks', () => {
-  beforeAll(async () => {
+test.describe('`scoped: true` hydration checks', () => {
+  test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../../hydrate');
     renderToString = mod.renderToString;
   });
 
-  it('does not add multiple style tags', async () => {
+  test('does not add multiple style tags', async ({ page }) => {
     const { html } = await renderToString(
       `
-        <non-shadow-child></non-shadow-child> 
+        <non-shadow-child></non-shadow-child>
       `,
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const styles = await page.findAll('style');
-    expect(styles.length).toBe(3);
-    expect(styles[1].textContent).toContain(`.sc-non-shadow-child-h`);
-    expect(styles[0].textContent).not.toContain(`.sc-non-shadow-child-h`);
-    expect(styles[2].textContent).not.toContain(`.sc-non-shadow-child-h`);
+    await page.setContent(html);
+
+    const styles = page.locator('style');
+    await expect(styles).toHaveCount(3);
+
+    const style0Text = await styles.nth(0).textContent();
+    const style1Text = await styles.nth(1).textContent();
+    const style2Text = await styles.nth(2).textContent();
+
+    expect(style1Text).toContain('.sc-non-shadow-child-h');
+    expect(style0Text).not.toContain('.sc-non-shadow-child-h');
+    expect(style2Text).not.toContain('.sc-non-shadow-child-h');
   });
 
-  it('maintains order of multiple slots', async () => {
+  test('maintains order of multiple slots', async ({ page }) => {
     const { html } = await renderToString(
       `
         <non-shadow-multi-slots>
           <p>Default slot element</p>
           <p slot="second-slot">Second slot element</p>
-        </non-shadow-multi-slots> 
+        </non-shadow-multi-slots>
       `,
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
+
     const { internal } = await getElementOrder(page, 'non-shadow-multi-slots');
     expect(internal.length).toBe(7);
     expect(internal).toEqual(['DIV', 'P', 'DIV', 'DIV', 'SLOT-FB', 'P', 'DIV']);
   });
 
-  it('shows fallback slot when no content is slotted', async () => {
+  test('shows fallback slot when no content is slotted', async ({ page }) => {
     const { html } = await renderToString(
       `
-        <non-shadow-child></non-shadow-child> 
+        <non-shadow-child></non-shadow-child>
         <non-shadow-child>test</non-shadow-child>
       `,
       {
@@ -59,13 +69,19 @@ describe('`scoped: true` hydration checks', () => {
       },
     );
     expect(html).toContain('Slotted fallback content');
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
-    const slots = await page.findAll('slot-fb');
-    expect(await slots[0].getAttribute('hidden')).toBeNull();
-    expect(await slots[1].getAttribute('hidden')).not.toBeNull();
+    await page.setContent(html);
+
+    const slots = page.locator('slot-fb');
+    const slot0Hidden = await slots.nth(0).getAttribute('hidden');
+    const slot1Hidden = await slots.nth(1).getAttribute('hidden');
+
+    expect(slot0Hidden).toBeNull();
+    expect(slot1Hidden).not.toBeNull();
   });
 
-  it('keeps slotted elements in their assigned position and does not duplicate slotted children', async () => {
+  test('keeps slotted elements in their assigned position and does not duplicate slotted children', async ({
+    page,
+  }) => {
     const { html } = await renderToString(
       `
       <non-shadow-wrapper>
@@ -76,7 +92,7 @@ describe('`scoped: true` hydration checks', () => {
         serializeShadowRoot: true,
       },
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
     const { external, internal } = await getElementOrder(page, 'non-shadow-wrapper');
     expect(external.length).toBe(1);
@@ -85,12 +101,17 @@ describe('`scoped: true` hydration checks', () => {
     expect(internal).toEqual(['STRONG', 'P', 'SLOT-FB', 'NON-SHADOW-CHILD', 'P', 'STRONG']);
     expect(external).toEqual(['NON-SHADOW-CHILD']);
 
-    const slots = await page.findAll('slot-fb');
-    expect(await slots[0].getAttribute('hidden')).not.toBeNull();
-    expect(await slots[1].getAttribute('hidden')).toBeNull();
+    const slots = page.locator('slot-fb');
+    const slot0Hidden = await slots.nth(0).getAttribute('hidden');
+    const slot1Hidden = await slots.nth(1).getAttribute('hidden');
+
+    expect(slot0Hidden).not.toBeNull();
+    expect(slot1Hidden).toBeNull();
   });
 
-  it('forwards slotted nodes into a nested shadow component whilst keeping those nodes in the light dom', async () => {
+  test('forwards slotted nodes into a nested shadow component whilst keeping those nodes in the light dom', async ({
+    page,
+  }) => {
     const { html } = await renderToString(
       `
       <non-shadow-forwarded-slot>
@@ -103,7 +124,7 @@ describe('`scoped: true` hydration checks', () => {
         serializeShadowRoot: true,
       },
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
     const { external, internal } = await getElementOrder(page, 'non-shadow-forwarded-slot');
     expect(external.length).toBe(3);
@@ -113,7 +134,7 @@ describe('`scoped: true` hydration checks', () => {
     expect(external).toEqual(['P', 'P', 'P']);
   });
 
-  it('retains the correct order of different nodes', async () => {
+  test('retains the correct order of different nodes', async ({ page }) => {
     const { html } = await renderToString(
       `
       <non-shadow-forwarded-slot>
@@ -129,14 +150,15 @@ describe('`scoped: true` hydration checks', () => {
         serializeShadowRoot: true,
       },
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
-    expect(await page.evaluate(() => document.querySelector('non-shadow-forwarded-slot').textContent.trim())).toContain(
-      'Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2',
+    const textContent = await page.evaluate(
+      () => document.querySelector('non-shadow-forwarded-slot')?.textContent?.trim() ?? '',
     );
+    expect(textContent).toContain('Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2');
   });
 
-  it('Steps through only "lightDOM" nodes', async () => {
+  test('Steps through only "lightDOM" nodes', async ({ page }) => {
     const { html } = await renderToString(
       `<hydrated-sibling-accessors>
          <p>First slot element</p>
@@ -148,37 +170,49 @@ describe('`scoped: true` hydration checks', () => {
         serializeShadowRoot: true,
       },
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
-    let root: HTMLElement;
     await page.evaluate(() => {
       (window as any).root = document.querySelector('hydrated-sibling-accessors');
     });
-    expect(await page.evaluate(() => root.firstChild.textContent)).toBe('First slot element');
-    expect(await page.evaluate(() => root.firstChild.nextSibling.textContent)).toBe(' Default slot text node  ');
-    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.textContent)).toBe('Second slot element');
-    expect(await page.evaluate(() => root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.textContent)).toBe(
-      ' Default slot comment node  ',
-    );
 
-    expect(await page.evaluate(() => root.lastChild.previousSibling.textContent)).toBe(' Default slot comment node  ');
-    expect(await page.evaluate(() => root.lastChild.previousSibling.previousSibling.previousSibling.textContent)).toBe(
+    expect(await page.evaluate(() => (window as any).root.firstChild.textContent)).toBe('First slot element');
+    expect(await page.evaluate(() => (window as any).root.firstChild.nextSibling.textContent)).toBe(
+      ' Default slot text node  ',
+    );
+    expect(await page.evaluate(() => (window as any).root.firstChild.nextSibling.nextSibling.textContent)).toBe(
       'Second slot element',
     );
     expect(
       await page.evaluate(
-        () => root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
+        () => (window as any).root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.textContent,
+      ),
+    ).toBe(' Default slot comment node  ');
+
+    expect(await page.evaluate(() => (window as any).root.lastChild.previousSibling.textContent)).toBe(
+      ' Default slot comment node  ',
+    );
+    expect(
+      await page.evaluate(
+        () => (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.textContent,
+      ),
+    ).toBe('Second slot element');
+    expect(
+      await page.evaluate(
+        () =>
+          (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
       ),
     ).toBe(' Default slot text node  ');
     expect(
       await page.evaluate(
         () =>
-          root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
+          (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.previousSibling
+            .textContent,
       ),
     ).toBe('First slot element');
   });
 
-  it('Steps through only "lightDOM" elements', async () => {
+  test('Steps through only "lightDOM" elements', async ({ page }) => {
     const { html } = await renderToString(
       `<hydrated-sibling-accessors>
          <p>First slot element</p>
@@ -190,17 +224,23 @@ describe('`scoped: true` hydration checks', () => {
         serializeShadowRoot: true,
       },
     );
-    const page = await newE2EPage({ html, url: 'https://stencil.com' });
+    await page.setContent(html);
 
-    let root: HTMLElement;
     await page.evaluate(() => {
       (window as any).root = document.querySelector('hydrated-sibling-accessors');
     });
-    expect(await page.evaluate(() => root.children[0].textContent)).toBe('First slot element');
-    expect(await page.evaluate(() => root.children[0].nextElementSibling.textContent)).toBe('Second slot element');
-    expect(await page.evaluate(() => !root.children[0].nextElementSibling.nextElementSibling)).toBe(true);
-    expect(await page.evaluate(() => root.children[0].nextElementSibling.previousElementSibling.textContent)).toBe(
-      'First slot element',
+
+    expect(await page.evaluate(() => (window as any).root.children[0].textContent)).toBe('First slot element');
+    expect(await page.evaluate(() => (window as any).root.children[0].nextElementSibling.textContent)).toBe(
+      'Second slot element',
     );
+    expect(await page.evaluate(() => !(window as any).root.children[0].nextElementSibling.nextElementSibling)).toBe(
+      true,
+    );
+    expect(
+      await page.evaluate(
+        () => (window as any).root.children[0].nextElementSibling.previousElementSibling.textContent,
+      ),
+    ).toBe('First slot element');
   });
 });

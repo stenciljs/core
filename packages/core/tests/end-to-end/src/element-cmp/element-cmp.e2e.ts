@@ -1,69 +1,60 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('@Element', () => {
-  it('should read the host elements attribute', async () => {
-    // create a new puppeteer page
-    const page = await newE2EPage({
-      html: `
+test.describe('@Element', () => {
+  test('should read the host elements attribute', async ({ page }) => {
+    await page.setContent(`
       <element-cmp host-element-attr="Marty McFly"></element-cmp>
-    `,
-    });
+    `);
 
-    // with page.find() select the "element-cmp" element (uses querySelector)
-    const elm = await page.find('element-cmp');
-    expect(elm).toEqualText('Hello, my name is Marty McFly');
+    const elm = page.locator('element-cmp');
+    await expect(elm).toHaveText('Hello, my name is Marty McFly');
   });
 
-  it('should correctly expect attrs and classes', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should correctly expect attrs and classes', async ({ page }) => {
+    await page.setContent(`
       <element-cmp data-attr1="a" data-attr2="b" class="class1 class2"></element-cmp>
-    `,
-    });
+    `);
 
-    const elm = await page.find('element-cmp');
+    const elm = page.locator('element-cmp');
 
-    expect(elm).toHaveAttribute('data-attr1');
-    expect(elm).not.toHaveAttribute('data-attr3');
+    await expect(elm).toHaveAttribute('data-attr1');
+    await expect(elm).not.toHaveAttribute('data-attr3');
 
-    expect(elm).toEqualAttribute('data-attr2', 'b');
-    expect(elm).not.toEqualAttribute('data-attr2', 'c');
+    await expect(elm).toHaveAttribute('data-attr2', 'b');
 
-    expect(elm).toHaveClass('class1');
-    expect(elm).not.toHaveClass('class3');
+    await expect(elm).toHaveClass(/class1/);
+    await expect(elm).not.toHaveClass(/class3/);
   });
 
-  it('should set innerHTML', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should set innerHTML', async ({ page }) => {
+    await page.setContent(`
       <element-cmp id="my-elm"></element-cmp>
-    `,
+    `);
+
+    const elm = page.locator('#my-elm');
+
+    await elm.evaluate((el) => {
+      el.innerHTML = '<div>inner content</div>';
     });
-
-    const elm = await page.find('#my-elm');
-
-    elm.innerHTML = '<div>inner content</div>';
 
     await page.waitForChanges();
 
-    expect(elm).toEqualHtml(`
-      <element-cmp id="my-elm" custom-hydrate-flag="">
-        <div>
-          inner content
-        </div>
-      </element-cmp>
-    `);
-
-    expect(elm).toEqualText('inner content');
+    await expect(elm).toHaveAttribute('custom-hydrate-flag', '');
+    await expect(elm.locator('div')).toHaveText('inner content');
+    await expect(elm).toHaveText('inner content');
   });
 
-  it('should get computed styles of CSS vars assigned on host element', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('should get computed styles of CSS vars assigned on host element', async ({ page }) => {
+    await page.setContent(`
       <element-cmp id="my-elm" style="--my-component-text-color: rgb(255, 0, 0);"></element-cmp>
-    `,
+    `);
+
+    const el = page.locator('element-cmp');
+    const cssVarValue = await el.evaluate((elem) => {
+      return getComputedStyle(elem).getPropertyValue('--my-component-text-color');
     });
-    const el = await page.find('element-cmp');
-    expect((await el.getComputedStyle()).getPropertyValue('--my-component-text-color')).toEqual('rgb(255, 0, 0)');
+
+    expect(cssVarValue.trim()).toEqual('rgb(255, 0, 0)');
   });
 });

@@ -1,44 +1,36 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('dom visible e2e tests', () => {
-  it('isVisible()', async () => {
-    const page = await newE2EPage({
-      html: `
+test.describe('dom visible e2e tests', () => {
+  test('isVisible()', async ({ page }) => {
+    await page.setContent(`
       <dom-visible></dom-visible>
-    `,
-    });
+    `);
 
-    const article = await page.find('article');
-    let isVisible = await article.isVisible();
-    expect(isVisible).toBe(false);
+    const article = page.locator('article');
+    await expect(article).not.toBeVisible();
 
-    const elm = await page.find('button');
-    await elm.click();
+    const button = page.locator('button');
+    await button.click();
 
-    isVisible = await article.isVisible();
-    expect(isVisible).toBe(true);
+    await expect(article).toBeVisible();
   });
 
-  it('waitForVisible()', async () => {
-    const page = await newE2EPage({
-      html: `
+  test('waitForVisible()', async ({ page }) => {
+    await page.setContent(`
       <dom-visible></dom-visible>
-    `,
-    });
+    `);
 
-    const article = await page.find('article');
+    const article = page.locator('article');
 
-    const untilVisible = article.waitForVisible();
+    await expect(article).not.toBeVisible();
 
-    let isVisible = await article.isVisible();
-    expect(isVisible).toBe(false);
+    const button = page.locator('button');
+    await button.click();
 
-    const elm = await page.find('button');
-    await elm.click();
+    // Wait for article to become visible
+    await article.waitFor({ state: 'visible' });
 
-    await untilVisible;
-
-    isVisible = await article.isVisible();
-    expect(isVisible).toBe(true);
+    await expect(article).toBeVisible();
   });
 });
