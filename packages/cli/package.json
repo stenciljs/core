@@ -42,7 +42,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@stencil/core": "^5.0.0"
+    "@stencil/core": "5.0.0-next.0"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*"
