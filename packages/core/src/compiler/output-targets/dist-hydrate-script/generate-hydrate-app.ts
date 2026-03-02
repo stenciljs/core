@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import { catchError, createOnWarnFn, generatePreamble, join, loadRollupDiagnostics } from '../../../utils';
 import MagicString from 'magic-string';
 import { RollupOptions } from 'rollup';
@@ -8,7 +9,6 @@ import {
   STENCIL_APP_DATA_ID,
   STENCIL_HYDRATE_FACTORY_ID,
   STENCIL_INTERNAL_HYDRATE_ID,
-  STENCIL_MOCK_DOC_ID,
 } from '../../bundle/entry-alias-ids';
 import { bundleHydrateFactory } from './bundle-hydrate-factory';
 import {
@@ -58,15 +58,18 @@ export const generateHydrateApp = async (
 
     const rollupOptions: RollupOptions = {
       ...config.rollupConfig.inputOptions,
-      external: ['stream'],
+      external: ['stream', 'node:stream'],
 
       input,
       plugins: [
+        rollupNodeResolvePlugin({
+          preferBuiltins: true,
+        }),
         {
           name: 'hydrateAppPlugin',
           resolveId(id) {
-            // Handle both @hydrate-factory (TypeScript alias) and full path
-            if (id === STENCIL_HYDRATE_FACTORY_ID || id === '@hydrate-factory') {
+            // Handle virtual:hydrate-factory, @hydrate-factory (TypeScript alias), and full path
+            if (id === STENCIL_HYDRATE_FACTORY_ID || id === 'virtual:hydrate-factory' || id === '@hydrate-factory') {
               return STENCIL_HYDRATE_FACTORY_ID;
             }
             if (id === STENCIL_APP_DATA_ID) {
@@ -86,7 +89,7 @@ export const generateHydrateApp = async (
              * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
              * use it within the hydrate and global runtime.
              */
-            return code.replace(`var ${MODE_RESOLUTION_CHAIN_DECLARATION}`, '');
+            return code.replace(`const ${MODE_RESOLUTION_CHAIN_DECLARATION}`, '');
           },
         },
       ],

@@ -1,6 +1,7 @@
 import { consoleError, getHostRef } from 'virtual:platform';
 import { getValue, parsePropertyValue, setValue } from '../../runtime';
-import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '../../utils';
+import { CMP_FLAGS, MEMBER_FLAGS } from '../../utils/constants';
+import { createShadowRoot } from '../../utils/shadow-root';
 
 import type * as d from '@stencil/core';
 

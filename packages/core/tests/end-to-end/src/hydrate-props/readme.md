@@ -1,4 +1,4 @@
-# hydrate-props
+# my-jsx-cmp
 
 
 

@@ -263,6 +263,11 @@ packages/
 - [ ] Remove all `*.sys` patching code
 - [ ] Replace with new TypeScript incremental APIs (see ./new-ts-non-sys)
 
+## 🛢️ Eliminate Barrel Exports in `src/utils`
+- [ ] Use [barrel-breaker](https://github.com/nicolo-ribaudo/babel-plugin-transform-barrels) or similar tool to eliminate barrel exports
+- [ ] The `src/utils/index.ts` barrel causes bundling issues (e.g., `minimatch` leaking into server/runner bundle)
+- [ ] All imports should use direct paths (e.g., `from '../../utils/message-utils'` not `from '../../utils'`)
+
 ## ✅ Version.ts Modernization
 **Status:** Complete
 

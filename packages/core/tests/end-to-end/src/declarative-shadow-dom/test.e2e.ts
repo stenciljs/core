@@ -36,7 +36,7 @@ let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
 test.describe('renderToString', () => {
   test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../../hydrate');
+    const mod = await import('../../hydrate/index.mjs');
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
     hydrateDocument = mod.hydrateDocument;
@@ -56,7 +56,13 @@ test.describe('renderToString', () => {
   });
 
   test('can render a simple dom node', async () => {
-    const { html } = await renderToString('<div>Hello World</div>');
+    console.log('Test started');
+    console.log('renderToString function:', typeof renderToString);
+    console.log('About to call renderToString...');
+    const result = renderToString('<div>Hello World</div>');
+    console.log('renderToString returned:', typeof result);
+    const { html } = await result;
+    console.log('Got html:', html?.substring(0, 100));
     expect(html).toContain('<body><div>Hello World</div></body>');
   });
 

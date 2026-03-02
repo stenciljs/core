@@ -128,7 +128,7 @@ export default defineConfig([
     target: 'node20',
     dts: true,
     clean: false,
-    external: ['node:*', '@stencil/mock-doc'],
+    external: ['node:*', '@stencil/mock-doc', 'virtual:hydrate-factory'],
     skipNodeModulesBundle: true,
     plugins: [
       virtualModules({

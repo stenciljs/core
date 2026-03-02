@@ -14,7 +14,9 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
   if (config.devServerAddress && isString(config.devServerAddress)) {
     devServer.address = config.devServerAddress;
   } else if (!isString(devServer.address)) {
-    devServer.address = '0.0.0.0';
+    // Use localhost instead of 0.0.0.0 to avoid Chrome's Private Network Access policy
+    // which blocks requests from less-private to more-private address spaces
+    devServer.address = 'localhost';
   }
 
   // default to http for local dev

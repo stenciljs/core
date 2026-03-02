@@ -99,6 +99,14 @@ export const validateConfig = (
   // CLI is responsible for setting this based on --dev/--prod flags
   const devMode = isBoolean(config.devMode) ? config.devMode : DEFAULT_DEV_MODE;
 
+  config._isTesting = !!(
+    process.env.VITEST ||
+    process.env.JEST_WORKER_ID ||
+    process.env.TEST_WORKER_INDEX ||
+    process.env.TEST_PARALLEL_INDEX ||
+    process.env.NODE_ENV === 'test'
+  );
+
   const hashFileNames = config.hashFileNames ?? !devMode;
 
   const validatedConfig: ValidatedConfig = {

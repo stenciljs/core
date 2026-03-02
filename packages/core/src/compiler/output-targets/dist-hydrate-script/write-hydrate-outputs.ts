@@ -175,7 +175,7 @@ const copyHydrateRunnerDts = async (
   hydrateAppDirPath: string,
 ) => {
   const packageDir = join(config.sys.getCompilerExecutingPath(), '..', '..');
-  const srcHydrateDir = join(packageDir, 'internal', 'hydrate', 'runner.d.ts');
+  const srcHydrateDir = join(packageDir, 'runtime', 'server', 'runner.d.mts');
 
   const runnerDtsDestPath = join(hydrateAppDirPath, 'index.d.ts');
 

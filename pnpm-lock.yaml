@@ -228,8 +228,8 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@stencil/playwright':
-        specifier: ^0.2.3
-        version: 0.2.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        specifier: 1.2.3-next.5
+        version: 1.2.3-next.5(@playwright/test@1.58.2)(@stencil/core@packages+core)
       '@stencil/react-output-target':
         specifier: ^0.0.9
         version: 0.0.9(@stencil/core@packages+core)
@@ -272,6 +272,8 @@ importers:
       why-is-node-running:
         specifier: ^2.2.0
         version: 2.3.0
+
+  packages/core/tests/end-to-end/hydrate: {}
 
   packages/core/tests/hello-vdom:
     dependencies:
@@ -2039,12 +2041,12 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.10.0'}
     hasBin: true
 
-  '@stencil/playwright@0.2.3':
-    resolution: {integrity: sha512-UUQOPu2DvI2zXSLbL1uYbhbYpn7cR11nQyWZDE2Pl7xuwLmmZQLiYvp6IQTMOwm/PS4h+jXU7Jgj7Fu/bSOAEQ==}
+  '@stencil/playwright@1.2.3-next.5':
+    resolution: {integrity: sha512-m+Uq/xmOwte5yz1qPhfZ6c8kD3gf9iArIiMI5vwYYqYzy0eClHrU25PKmrjmNGYfeRzW6fUPIvth3W8e9mhv0A==}
     engines: {node: '>=12.0.0', npm: '>=6.0.0'}
     peerDependencies:
-      '@playwright/test': '>=1.41.2'
-      '@stencil/core': '>=4.13.0'
+      '@playwright/test': '>=1.50.0'
+      '@stencil/core': '>=5.0.0-next.0'
 
   '@stencil/react-output-target@0.0.9':
     resolution: {integrity: sha512-t2sSkm/VGftBqewK47eZonaHIXW7CYWlsDy6Ln4jqNVpr93CuPWkg7rsnPiZrJrU1NBuTgA0hC2xoRcAJVm7Sw==}
@@ -8434,7 +8436,7 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.44.0
     optional: true
 
-  '@stencil/playwright@0.2.3(@playwright/test@1.58.2)(@stencil/core@packages+core)':
+  '@stencil/playwright@1.2.3-next.5(@playwright/test@1.58.2)(@stencil/core@packages+core)':
     dependencies:
       '@playwright/test': 1.58.2
       '@stencil/core': link:packages/core

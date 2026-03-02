@@ -1,4 +1,4 @@
-import { catchError, hasError } from '../../utils';
+import { catchError, hasError } from '../../utils/message-utils';
 
 import type * as d from '@stencil/core';
 import { parseCss } from '../style/css-parser/parse-css';

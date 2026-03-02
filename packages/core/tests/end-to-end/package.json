@@ -20,7 +20,7 @@
   "devDependencies": {
     "@playwright/test": "^1.50",
     "@stencil/core": "workspace:*",
-    "@stencil/playwright": "^0.2.3",
+    "@stencil/playwright": "1.2.3-next.5",
     "@stencil/react-output-target": "^0.0.9",
     "@types/file-saver": "^2.0.1",
     "@types/lodash": "^4.14.165",

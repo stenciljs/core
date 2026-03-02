@@ -1,7 +1,7 @@
 import { globalScripts } from 'virtual:app-globals';
 import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from 'virtual:platform';
 import { connectedCallback, insertVdomAnnotations } from '../../runtime';
-import { CMP_FLAGS } from '../../utils';
+import { CMP_FLAGS } from '../../utils/constants';
 
 import type * as d from '@stencil/core';
 import { proxyHostElement } from './proxy-host-element';
