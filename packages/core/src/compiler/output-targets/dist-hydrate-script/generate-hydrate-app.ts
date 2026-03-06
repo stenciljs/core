@@ -78,12 +78,40 @@ export const generateHydrateApp = async (
             return null;
           },
           transform(code) {
+            if (code.match('modeResolutionChain')) {
+              console.log('[generateHydrateApp] Lines containing modeResolutionChain:');
+              code.split('\n').forEach((line, index) => {
+                if (line.includes('modeResolutionChain')) {
+                  console.log(`  Line ${index + 1}: ${line}`);
+                }
+              });
+              const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
+              console.log('[generateHydrateApp] Search pattern:', JSON.stringify(searchPattern));
+              console.log('[generateHydrateApp] Pattern found in code:', code.includes(searchPattern));
+
+              if (code.match(`const ${MODE_RESOLUTION_CHAIN_DECLARATION}`)) {
+                console.log('[generateHydrateApp] Pattern MATCHED!');
+              } else {
+                console.log('[generateHydrateApp] Pattern NOT matched');
+              }
+            }
             /**
              * Remove the modeResolutionChain variable from the generated code.
              * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
              * use it within the hydrate and global runtime.
              */
-            return code.replace(`const ${MODE_RESOLUTION_CHAIN_DECLARATION}`, '');
+            const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
+            const beforeReplace = code.includes(searchPattern);
+            const result = code.replaceAll(searchPattern, '');
+            const afterReplace = result.includes(searchPattern);
+
+            if (beforeReplace) {
+              console.log('[generateHydrateApp] BEFORE replace - pattern exists:', beforeReplace);
+              console.log('[generateHydrateApp] AFTER replace - pattern exists:', afterReplace);
+              console.log('[generateHydrateApp] Replace was', afterReplace ? 'NOT successful' : 'successful');
+            }
+
+            return result;
           },
         },
       ],

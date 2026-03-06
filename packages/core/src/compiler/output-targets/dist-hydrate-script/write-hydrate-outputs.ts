@@ -69,8 +69,8 @@ const writeHydrateOutput = async (
          * Enable the line where we define `modeResolutionChain` for the hydrate module.
          */
         code = code.replace(
-          `// const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
-          `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
+          `// let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
+          `let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
         );
 
         /**

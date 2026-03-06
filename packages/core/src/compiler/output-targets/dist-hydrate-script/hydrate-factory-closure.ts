@@ -10,7 +10,7 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
  * one module resolution chain across hydrate and core runtime.
  */
 export const HYDRATE_FACTORY_INTRO = `
-// const ${MODE_RESOLUTION_CHAIN_DECLARATION}
+// let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
