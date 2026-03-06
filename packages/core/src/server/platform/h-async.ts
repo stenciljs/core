@@ -1,4 +1,4 @@
-import { consoleDevError } from 'virtual:platform';
+import { consoleDevError } from './';
 import { h } from '../../runtime';
 
 import type * as d from '@stencil/core';

@@ -4,7 +4,7 @@ import * as ts from 'typescript';
 import type * as d from '@stencil/core';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
-import { STENCIL_INTERNAL_HYDRATE_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_INTERNAL_HYDRATE_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { addTagTransform } from '../../transformers/add-tag-transform';
@@ -36,10 +36,10 @@ export const bundleHydrateFactory = async (
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       inlineDynamicImports: true,
       inputs: {
-        '@app-factory-entry': '@app-factory-entry',
+        '@stencil/core/runtime/server/hydrate-factory': '@stencil/core/runtime/server/hydrate-factory'
       },
       loader: {
-        '@app-factory-entry': appFactoryEntryCode,
+        '@stencil/core/runtime/server/hydrate-factory': appFactoryEntryCode,
       },
     };
 
@@ -70,7 +70,7 @@ const getCustomBeforeTransformers = (
   buildCtx?: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
-    coreImportPath: STENCIL_INTERNAL_HYDRATE_ID,
+    coreImportPath: STENCIL_INTERNAL_HYDRATE_PLATFORM_ID,
     componentExport: null,
     componentMetadata: null,
     currentDirectory: config.sys.getCurrentDirectory(),

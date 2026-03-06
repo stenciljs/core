@@ -25,6 +25,7 @@
     "target": "es2017",
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
       "@path-alias": [
         "./src/path-alias-cmp/path-alias-lib"

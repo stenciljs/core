@@ -50,14 +50,6 @@
       "types": "./dist/runtime/server/runner.d.mts",
       "import": "./dist/runtime/server/runner.mjs"
     },
-    "./runtime/app-data": {
-      "types": "./dist/runtime/app-data/index.d.ts",
-      "import": "./dist/runtime/app-data/index.js"
-    },
-    "./runtime/app-globals": {
-      "types": "./dist/runtime/app-globals/index.d.ts",
-      "import": "./dist/runtime/app-globals/index.js"
-    },
     "./compiler/utils": {
       "types": "./dist/compiler/utils/index.d.mts",
       "import": "./dist/compiler/utils/index.mjs"

@@ -30,7 +30,7 @@
       "virtual:app-data": ["./src/app-data/index.ts"],
       "virtual:app-globals": ["./src/app-globals/index.ts"],
       "virtual:platform": ["./src/client/index.ts"],
-      "virtual:hydrate-factory": ["./src/server/runner/hydrate-factory.ts"],
+      "@stencil/core/runtime/server/hydrate-factory": ["./src/server/runner/hydrate-factory.ts"],
       "@stencil/core": ["./src/declarations/index.ts"]
     }
   },

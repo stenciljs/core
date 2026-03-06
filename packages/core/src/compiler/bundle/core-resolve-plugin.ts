@@ -9,8 +9,8 @@ import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_CORE_ID,
-  STENCIL_INTERNAL_CLIENT_ID,
-  STENCIL_INTERNAL_HYDRATE_ID,
+  STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+  STENCIL_INTERNAL_HYDRATE_PLATFORM_ID,
   STENCIL_INTERNAL_ID,
   STENCIL_JSX_DEV_RUNTIME_ID,
   STENCIL_JSX_RUNTIME_ID,
@@ -35,7 +35,7 @@ export const coreResolvePlugin = (
         if (platform === 'client') {
           if (externalRuntime) {
             return {
-              id: STENCIL_INTERNAL_CLIENT_ID,
+              id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
               external: true,
             };
           }
@@ -52,13 +52,13 @@ export const coreResolvePlugin = (
           return internalHydrate;
         }
       }
-      if (id === STENCIL_INTERNAL_CLIENT_ID) {
+      if (id === STENCIL_INTERNAL_CLIENT_PLATFORM_ID) {
         if (externalRuntime) {
           // not bundling the client runtime and the user's component together this
           // must be the custom elements build, where @stencil/core/runtime/client
           // is an import, rather than bundling
           return {
-            id: STENCIL_INTERNAL_CLIENT_ID,
+            id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
             external: true,
           };
         }
@@ -66,7 +66,7 @@ export const coreResolvePlugin = (
         // the custom app-data conditionals
         return internalClient;
       }
-      if (id === STENCIL_INTERNAL_HYDRATE_ID) {
+      if (id === STENCIL_INTERNAL_HYDRATE_PLATFORM_ID) {
         return internalHydrate;
       }
       // Handle jsx-runtime and jsx-dev-runtime imports
@@ -77,7 +77,7 @@ export const coreResolvePlugin = (
         if (platform === 'client') {
           if (externalRuntime) {
             return {
-              id: STENCIL_INTERNAL_CLIENT_ID,
+              id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
               external: true,
             };
           }

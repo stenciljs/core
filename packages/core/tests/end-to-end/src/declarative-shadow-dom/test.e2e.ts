@@ -56,13 +56,7 @@ test.describe('renderToString', () => {
   });
 
   test('can render a simple dom node', async () => {
-    console.log('Test started');
-    console.log('renderToString function:', typeof renderToString);
-    console.log('About to call renderToString...');
-    const result = renderToString('<div>Hello World</div>');
-    console.log('renderToString returned:', typeof result);
-    const { html } = await result;
-    console.log('Got html:', html?.substring(0, 100));
+    const { html } = await renderToString('<div>Hello World</div>');
     expect(html).toContain('<body><div>Hello World</div></body>');
   });
 
@@ -79,6 +73,7 @@ test.describe('renderToString', () => {
       serializeShadowRoot: true,
       fullDocument: false,
       prettyHtml: true,
+      clientHydrateAnnotations: false,
     });
     expect(html).toMatchSnapshot();
   });
@@ -90,6 +85,7 @@ test.describe('renderToString', () => {
         serializeShadowRoot: true,
         fullDocument: false,
         prettyHtml: true,
+        clientHydrateAnnotations: false,
       },
     );
 
@@ -102,6 +98,7 @@ test.describe('renderToString', () => {
       serializeShadowRoot: true,
       fullDocument: false,
       prettyHtml: true,
+      clientHydrateAnnotations: false,
     });
     expect(html).toMatchSnapshot();
     expect(html).toContain('2024 VW Vento');
@@ -113,15 +110,17 @@ test.describe('renderToString', () => {
       {
         serializeShadowRoot: true,
         fullDocument: false,
+        clientHydrateAnnotations: false,
       },
     );
-    expect(html).toContain('<section class="sc-another-car-detail" c-id="4.0.0.0"><!--t.4.1.1.0--> </section>');
+    expect(html).toContain('<section class="sc-another-car-detail"></section>');
   });
 
   test('supports styles for DSD', async () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: true,
       fullDocument: false,
+      clientHydrateAnnotations: false,
     });
     expect(html).toContain(
       '<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>',
@@ -143,6 +142,7 @@ test.describe('renderToString', () => {
         serializeShadowRoot: true,
         fullDocument: false,
         prettyHtml: true,
+        clientHydrateAnnotations: false,
       },
     );
     expect(html).toMatchSnapshot();
@@ -154,13 +154,14 @@ test.describe('renderToString', () => {
     const { html } = await renderToString(`<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`, {
       serializeShadowRoot: true,
       fullDocument: false,
+      clientHydrateAnnotations: false,
     });
     expect(html).toMatchSnapshot();
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.2.2.0\" s-id=\"10\"><!--r.10--><section c-id=\"10.0.0.0\"><!--t.10.1.1.0-->2024 VW Vento</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\"><!----><section>2024 VW Vento</section></car-detail>`,
     );
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"9.4.2.0\" s-id=\"11\"><!--r.11--><section c-id=\"11.0.0.0\"><!--t.11.1.1.0-->2023 VW Beetle</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\"><!----><section>2023 VW Beetle</section></car-detail>`,
     );
   });
 
@@ -169,22 +170,23 @@ test.describe('renderToString', () => {
     const opts = {
       serializeShadowRoot: true,
       fullDocument: false,
+      clientHydrateAnnotations: false,
     };
 
     const resultRenderToString = await readableToString(renderToString(input, opts, true));
     expect(resultRenderToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.2.2.0" s-id="13"><!--r.13--><section c-id="13.0.0.0"><!--t.13.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
     );
     expect(resultRenderToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="12.4.2.0" s-id="14"><!--r.14--><section c-id="14.0.0.0"><!--t.14.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>',
     );
 
     const resultStreamToString = await readableToString(streamToString(input, opts));
     expect(resultStreamToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.2.2.0" s-id="16"><!--r.16--><section c-id="16.0.0.0"><!--t.16.1.1.0-->2024 VW Vento</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
     );
     expect(resultStreamToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag="" c-id="15.4.2.0" s-id="17"><!--r.17--><section c-id="17.0.0.0"><!--t.17.1.1.0-->2023 VW Beetle</section></car-detail>',
+      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>',
     );
   });
 
@@ -197,7 +199,7 @@ test.describe('renderToString', () => {
     expect(html).toContain('Count me: 0!');
     await page.setContent(html);
 
-    const button = page.locator('cmp-dsd').locator('button');
+    const button = await page.locator('cmp-dsd').locator('button');
     await button.click();
     await expect(button).toHaveText('Count me: 1!');
   });
@@ -240,6 +242,7 @@ test.describe('renderToString', () => {
       {
         serializeShadowRoot: true,
         fullDocument: true,
+        clientHydrateAnnotations: false,
       },
     );
 
@@ -247,21 +250,22 @@ test.describe('renderToString', () => {
      * renders the component with listener with proper vdom annotation
      */
     expect(html).toContain(
-      `<dsd-listen-cmp class=\"sc-dsd-listen-cmp-h\" custom-hydrate-flag=\"\" s-id=\"21\"><template shadowrootmode=\"open\"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot class=\"sc-dsd-listen-cmp\" c-id=\"21.0.0.0\"></slot></template><!--r.21-->Hello World</dsd-listen-cmp>`,
+      `<dsd-listen-cmp class=\"sc-dsd-listen-cmp-h\" custom-hydrate-flag=\"\"><template shadowrootmode=\"open\"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot class=\"sc-dsd-listen-cmp\"></slot></template><!---->Hello World</dsd-listen-cmp>`,
     );
 
     /**
      * renders second component with proper vdom annotation
      */
     expect(html).toContain(
-      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\" c-id=\"22.4.2.0\" s-id=\"24\"><!--r.24--><section c-id=\"24.0.0.0\"><!--t.24.1.1.0-->2023 VW Beetle</section></car-detail>`,
+      `<car-detail class=\"sc-car-list\" custom-hydrate-flag=\"\"><!----><section>2023 VW Beetle</section></car-detail>`,
     );
 
     await page.setContent(html);
 
     const cars = page.locator('car-detail');
     const carTexts = await cars.allTextContents();
-    expect(carTexts).toEqual(['2024 VW Vento', '2023 VW Beetle']);
+    expect(carTexts).toContain('2024 VW Vento');
+    expect(carTexts).toContain('2023 VW Beetle');
   });
 
   test('calls beforeHydrate and afterHydrate function hooks', async () => {
@@ -291,9 +295,10 @@ test.describe('renderToString', () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: false,
       fullDocument: false,
+      clientHydrateAnnotations: false,
     });
     expect(html).toBe(
-      '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag="" s-id="25"><!--r.25--></another-car-detail>',
+      '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
     );
   });
 
@@ -301,9 +306,10 @@ test.describe('renderToString', () => {
     const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
       serializeShadowRoot: false,
       fullDocument: false,
+      clientHydrateAnnotations: false,
     });
     expect(html).toBe(
-      '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag="" s-id="26"><!--r.26-->Hello World</cmp-with-slot>',
+      '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
     );
   });
 

@@ -1,3 +1,9 @@
+/**
+ * This file: 
+ * 1) Overrides client specific functions with server specific implementations  
+ * 2) Re-export the rest of the runtime API from the client index, so that the server platform can use it as well
+ **/
+
 import { BUILD } from 'virtual:app-data';
 import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 

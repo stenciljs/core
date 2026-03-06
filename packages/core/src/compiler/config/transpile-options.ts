@@ -11,7 +11,7 @@ import type {
   TranspileOptions,
   TranspileResults,
 } from '@stencil/core';
-import { STENCIL_INTERNAL_CLIENT_ID } from '../bundle/entry-alias-ids';
+import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../bundle/entry-alias-ids';
 import { parseImportPath } from '../transformers/stencil-import-path';
 
 export const getTranspileResults = (code: string, input: TranspileOptions) => {
@@ -65,7 +65,7 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
   const compileOpts: TranspileOptions = {
     componentExport: getTranspileConfigOpt(input.componentExport, VALID_EXPORT, 'customelement'),
     componentMetadata: getTranspileConfigOpt(input.componentMetadata, VALID_METADATA, null),
-    coreImportPath: isString(input.coreImportPath) ? input.coreImportPath : STENCIL_INTERNAL_CLIENT_ID,
+    coreImportPath: isString(input.coreImportPath) ? input.coreImportPath : STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
     currentDirectory: isString(input.currentDirectory)
       ? input.currentDirectory
       : transpileCtx.sys.getCurrentDirectory(),

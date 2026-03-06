@@ -15,7 +15,7 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
-import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_PLATFORM_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
@@ -273,7 +273,7 @@ export const generateEntryPoint = (
 
   // Exports that are always present
   exports.push(
-    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
+    `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 
@@ -285,7 +285,7 @@ export const generateEntryPoint = (
 
   // Content related to the `bundle` export behavior
   if (outputTarget.customElementsExportBehavior === 'bundle') {
-    imports.push(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_ID}';`);
+    imports.push(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`);
     imports.push(...cmpImports);
     body.push(
       'export const defineCustomElements = (opts) => {',
@@ -341,7 +341,7 @@ const getCustomBeforeTransformers = (
   buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
-    coreImportPath: STENCIL_INTERNAL_CLIENT_ID,
+    coreImportPath: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
     componentExport: null,
     componentMetadata: null,
     currentDirectory: config.sys.getCurrentDirectory(),

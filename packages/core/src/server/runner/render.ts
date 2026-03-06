@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 
-import { hydrateFactory } from 'virtual:hydrate-factory';
+import { hydrateFactory } from '@stencil/core/runtime/server/hydrate-factory';
 import { modeResolutionChain, setMode } from 'virtual:platform';
 import { HYDRATED_STYLE_ID } from '../../runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';

@@ -1,6 +1,6 @@
 import { globalScripts } from 'virtual:app-globals';
-import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from 'virtual:platform';
-import { connectedCallback, insertVdomAnnotations } from '../../runtime';
+import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index';
+import { connectedCallback, insertVdomAnnotations, addHostEventListeners } from '../../runtime';
 import { CMP_FLAGS } from '../../utils/constants';
 
 import type * as d from '@stencil/core';

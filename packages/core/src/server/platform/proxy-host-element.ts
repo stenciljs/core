@@ -1,4 +1,4 @@
-import { consoleError, getHostRef } from 'virtual:platform';
+import { consoleError, getHostRef } from './index';
 import { getValue, parsePropertyValue, setValue } from '../../runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '../../utils/constants';
 import { createShadowRoot } from '../../utils/shadow-root';

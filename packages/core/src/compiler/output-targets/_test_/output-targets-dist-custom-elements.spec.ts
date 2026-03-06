@@ -11,7 +11,7 @@ import path from 'path';
 
 import type * as d from '@stencil/core';
 import { OutputTargetDistCustomElements } from '@stencil/core';
-import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_PLATFORM_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../dist-custom-elements';
 import {
@@ -73,7 +73,7 @@ describe('Custom Elements output target', () => {
       });
 
       expect(entryPoint).toEqual(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -87,7 +87,7 @@ globalScripts();
       });
 
       expect(entryPoint)
-        .toEqual(`export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+        .toEqual(`export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 `);
     });
@@ -165,7 +165,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
         addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -198,7 +198,7 @@ globalScripts();
         addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 export { StubCmp, defineCustomElement as defineCustomElementStubCmp } from '\0StubCmp';
 export { MyBestComponent, defineCustomElement as defineCustomElementMyBestComponent } from '\0MyBestComponent';
@@ -225,7 +225,7 @@ globalScripts();
         addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 export { ComponentWithJsx, defineCustomElement as defineCustomElementComponentWithJsx } from '\0ComponentWithJsx';
 
@@ -261,7 +261,7 @@ globalScripts();
 import { transformTag } from '@stencil/core/runtime/client';
 import { StubCmp } from '\0StubCmp';
 import { MyBestComponent } from '\0MyBestComponent';
-export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_ID}';
+export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -303,7 +303,7 @@ export const defineCustomElements = (opts) => {
 
         // Check loader module content
         const loaderContent = bundleOptions.loader['\0loader'];
-        expect(loaderContent).toContain(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_ID}'`);
+        expect(loaderContent).toContain(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}'`);
         expect(loaderContent).toContain("'stub-cmp': './stub-cmp.js'");
         expect(loaderContent).toContain("'my-best-component': './my-best-component.js'");
         expect(loaderContent).toContain('export function start(');

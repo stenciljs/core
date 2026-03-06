@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import { STENCIL_INTERNAL_CLIENT_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 
 /**
  * Generate the auto-loader module content that will be bundled via Rollup.
@@ -21,7 +21,7 @@ export const generateLoaderModule = (
   const componentMap = components.map((cmp) => `  '${cmp.tagName}': './${cmp.tagName}.js'`).join(',\n');
 
   return `
-import { transformTag } from '${STENCIL_INTERNAL_CLIENT_ID}';
+import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 
 /**
  * Component map built at compile time.

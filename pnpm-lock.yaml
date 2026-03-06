@@ -273,8 +273,6 @@ importers:
         specifier: ^2.2.0
         version: 2.3.0
 
-  packages/core/tests/end-to-end/hydrate: {}
-
   packages/core/tests/hello-vdom:
     dependencies:
       '@stencil/core':
