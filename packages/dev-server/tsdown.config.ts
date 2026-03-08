@@ -13,7 +13,10 @@ export default defineConfig([
     target: 'node20',
     dts: true,
     clean: true,
-    external: [/^node:/, '@stencil/core'],
+    deps: {
+      neverBundle: [/^node:/, '@stencil/core'],
+      skipNodeModulesBundle: true,
+    },
     copy: [
       // Copy static assets needed by the dev server
       { from: 'templates', to: 'dist' },
@@ -40,5 +43,8 @@ export default defineConfig([
     target: ['es2022'],
     dts: true,
     clean: false,
+    deps: {
+      skipNodeModulesBundle: true,
+    }
   },
 ])

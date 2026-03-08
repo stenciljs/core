@@ -192,7 +192,8 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       destroys.clear();
     },
     dynamicImport(p) {
-      return Promise.resolve(require(p));
+      // Use native import() for proper ESM support
+      return import(p);
     },
     encodeToBase64(str) {
       return Buffer.from(str).toString('base64');

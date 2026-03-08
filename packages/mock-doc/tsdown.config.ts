@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
@@ -8,7 +9,8 @@ export default defineConfig({
   target: 'node20',
   dts: true,
   clean: true,
-  // sourcemap: true,
-  noExternal: ['jquery'],
-  external: [/^node:/],
+  deps: {
+    neverBundle: [/^node:/],
+    alwaysBundle: ['jquery'],
+  },
 })

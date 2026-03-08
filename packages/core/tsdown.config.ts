@@ -35,7 +35,7 @@ function virtualModules(options: {
 }
 
 const browserTargets = ['es2022'];
-const nodeTarget = 'node20';
+const nodeTarget = 'node22';
 
 // Common virtual module resolve mappings
 const virtualResolve = {
@@ -62,10 +62,12 @@ export default defineConfig([
     format: ['esm'],
     platform: 'node',
     target: nodeTarget,
-    skipNodeModulesBundle: true,
     dts: true,
     clean: true,
-    external: [/^node:/, '@stencil/mock-doc'],
+    deps: {
+      neverBundle: [/^node:/, '@stencil/mock-doc'],
+      skipNodeModulesBundle: true,
+    },
     define: defines,
     plugins: [virtualModules({ resolve: virtualResolve })],
     copy: [
@@ -87,10 +89,12 @@ export default defineConfig([
     outDir: 'dist',
     format: ['esm'],
     platform: 'neutral',
-    external: [/^node:/],
+    deps: {
+      neverBundle: [/^node:/],
+      skipNodeModulesBundle: true,
+    },
     dts: true,
     clean: false,
-    skipNodeModulesBundle: true,
   },
 
   // Server/SSR platform (virtuals externalized for runtime swapping)
@@ -104,8 +108,10 @@ export default defineConfig([
     target: nodeTarget,
     dts: true,
     clean: false,
-    external: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
-    skipNodeModulesBundle: true,
+    deps: {
+      neverBundle: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
+      skipNodeModulesBundle: true,
+    },
     outputOptions: {
       paths: {
         'virtual:app-data': '@stencil/core/runtime/app-data',
@@ -122,8 +128,6 @@ export default defineConfig([
   },
 
   // Server/SSR runner (user-facing hydrate API: renderToString, hydrateDocument, etc.)
-  // NOTE: virtual:app-data, virtual:app-globals, and virtual:platform are externalized so that rollup can
-  // replace them with project-specific BUILD/Env/NAMESPACE values during hydrate bundling
   {
     entry: {
       'runtime/server/runner': 'src/server/runner/index.ts',
@@ -134,9 +138,11 @@ export default defineConfig([
     target: nodeTarget,
     dts: true,
     clean: false,
-    inlineOnly: ['parse5', 'entities'],
-    noExternal: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'], 
-    external: ['@stencil/core/runtime/server/hydrate-factory', 'virtual:app-data'],
+    deps: {
+      onlyAllowBundle: ['parse5', 'entities'],
+      alwaysBundle: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'], 
+      neverBundle: ['@stencil/core/runtime/server/hydrate-factory', 'virtual:app-data'],
+    },
     outputOptions: {
       paths: {
         'virtual:app-data': '@stencil/core/runtime/app-data',
@@ -169,7 +175,9 @@ export default defineConfig([
     dts: true,
     clean: false,
     // sourcemap: true,
-    external: [/^node:/],
+    deps: {
+      neverBundle: [/^node:/],
+    },
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
@@ -184,8 +192,10 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
-    skipNodeModulesBundle: true,
-    external: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
+    deps: {
+      neverBundle: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
+      skipNodeModulesBundle: true,
+    },
     outputOptions: {
       paths: {
         'virtual:app-data': '@stencil/core/runtime/app-data',

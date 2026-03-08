@@ -56,7 +56,7 @@ export class NodeWorkerMain extends EventEmitter {
 
     this.childProcess.stderr.setEncoding('utf8');
     this.childProcess.stderr.on('data', (data) => {
-      console.log(data);
+      console.error(data);
     });
 
     this.childProcess.on('message', this.receiveFromWorker.bind(this));
