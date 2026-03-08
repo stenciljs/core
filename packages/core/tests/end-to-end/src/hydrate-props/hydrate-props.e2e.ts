@@ -2,14 +2,17 @@ import { expect } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../../hydrate');
+type HydrateModule = typeof import('../../hydrate/index.mjs');
 let renderToString: HydrateModule['renderToString'];
+let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
 test.describe('different types of decorated properties and states render on both server and client', () => {
   test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../../hydrate');
+    const mod = await import('../../hydrate/index.mjs');
     renderToString = mod.renderToString;
+    resetHydrateDocData = mod.resetHydrateDocData;
+    resetHydrateDocData();
   });
 
   test('renders default values', async () => {

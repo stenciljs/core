@@ -14,6 +14,15 @@ const docData: d.DocData = {
   staticComponents: new Set<string>(),
 } as d.DocData;
 
+/**
+ * Reset the docData counters. Useful for testing to ensure deterministic IDs.
+ */
+export function resetHydrateDocData() {
+  docData.hostIds = 0;
+  docData.rootLevelIds = 0;
+  docData.staticComponents.clear();
+}
+
 export function initializeWindow(
   win: MockWindow,
   doc: Document,

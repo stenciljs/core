@@ -13,7 +13,7 @@ let renderToString: HydrateModule['renderToString'];
 test.describe('renderToString', () => {
   test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../../hydrate');
+    const mod = await import('../../hydrate/index.mjs');
     renderToString = mod.renderToString;
   });
 

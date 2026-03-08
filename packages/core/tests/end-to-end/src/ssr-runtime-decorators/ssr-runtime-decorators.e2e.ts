@@ -25,7 +25,7 @@ test.describe('different types of decorated properties and states render on both
 
   test.beforeAll(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../../hydrate');
+    const mod = await import('../../hydrate/index.mjs');
     renderToString = mod.renderToString;
   });
 

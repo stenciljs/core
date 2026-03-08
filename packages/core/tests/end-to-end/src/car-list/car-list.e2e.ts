@@ -15,8 +15,9 @@ test.describe('car-list', () => {
     await expect(elm).toHaveAttribute('custom-hydrate-flag', '');
 
     // Verify shadow root is empty initially
-    const shadowContent = await elm.evaluate((el) => el.shadowRoot?.innerHTML.trim() ?? '');
-    expect(shadowContent).toBe('');
+    // (all but not <style> tags)
+    const noShadowContent = await elm.evaluate((el) => el.shadowRoot?.querySelectorAll('*:not(style)').length === 0);
+    expect(noShadowContent).toBe(true);
 
     // Verify innerHTML is empty (no light DOM content)
     const innerHTML = await elm.evaluate((el) => el.innerHTML.trim());

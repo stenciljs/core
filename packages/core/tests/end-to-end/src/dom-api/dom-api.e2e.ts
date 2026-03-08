@@ -67,7 +67,7 @@ test.describe('dom api e2e tests', () => {
       <dom-api class="class-a"></dom-api>
     `);
 
-    const elm = page.locator('.class-a');
+    const elm = page.locator('dom-api');
 
     await page.waitForChanges();
 

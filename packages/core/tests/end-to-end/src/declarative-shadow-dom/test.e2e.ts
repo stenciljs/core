@@ -32,6 +32,7 @@ let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
 let hydrateDocument: HydrateModule['hydrateDocument'];
 let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
+let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
 test.describe('renderToString', () => {
   test.beforeEach(async () => {
@@ -41,6 +42,8 @@ test.describe('renderToString', () => {
     streamToString = mod.streamToString;
     hydrateDocument = mod.hydrateDocument;
     createWindowFromHtml = mod.createWindowFromHtml;
+    resetHydrateDocData = mod.resetHydrateDocData;
+    resetHydrateDocData();
   });
 
   test('resolves to a Promise<HydrateResults> by default', async () => {
@@ -366,30 +369,36 @@ test.describe('renderToString', () => {
         prettyHtml: true,
       },
     );
-
-    // Strip dynamic IDs (s-id, c-id) and comment IDs (<!--r.X-->, <!--o.X.X.c-->, <!--s.X.X.X.X.-->)
-    // since they change between test runs
-    const normalizeHtml = (str: string) =>
-      str
-        .replace(/s-id="[^"]*"/g, 's-id=""')
-        .replace(/c-id="[^"]*"/g, 'c-id=""')
-        .replace(/<!--r\.\d+-->/g, '<!--r-->')
-        .replace(/<!--o\.[^>]+-->/g, '<!--o-->')
-        .replace(/<!--s\.[^>]+-->/g, '<!--s-->');
-
-    const normalizedHtml = normalizeHtml(html);
-
-    // Verify structure without specific ID values
-    expect(normalizedHtml).toContain('<nested-cmp-parent class="sc-nested-cmp-parent-h" custom-hydrate-flag="" s-id="">');
-    expect(normalizedHtml).toContain('<template shadowrootmode="open">');
-    expect(normalizedHtml).toContain('<style sty-id="sc-nested-cmp-parent">');
-    expect(normalizedHtml).toContain('<nested-scope-cmp c-id="" class="sc-nested-cmp-parent sc-nested-scope-cmp-h" custom-hydrate-flag="" s-id="">');
-    expect(normalizedHtml).toContain('<nested-cmp-child class="sc-nested-cmp-child-h" custom-hydrate-flag="" s-id="">');
-    expect(normalizedHtml).toContain('Hello World');
-
-    // Ensure shadow root is only rendered once for each component
-    const shadowRootCount = (html.match(/<template shadowrootmode="open">/g) || []).length;
-    expect(shadowRootCount).toBe(2); // One for nested-cmp-parent, one for nested-cmp-child
+    expect(html).toBe(`<nested-cmp-parent class=\"sc-nested-cmp-parent-h\" custom-hydrate-flag=\"\" s-id=\"1\">
+  <template shadowrootmode=\"open\">
+    <style sty-id=\"sc-nested-cmp-parent\">
+      .sc-nested-scope-cmp-h{color:green}:host{display:inline-block}
+    </style>
+    <div c-id=\"1.0.0.0\" class=\"sc-nested-cmp-parent some-class\">
+      <nested-scope-cmp c-id=\"1.1.1.0\" class=\"sc-nested-cmp-parent sc-nested-scope-cmp-h\" custom-hydrate-flag=\"\" s-id=\"3\">
+        <!--r.3-->
+        <!--o.1.2.c-->
+        <div c-id=\"3.0.0.0\" class=\"sc-nested-scope-cmp sc-nested-scope-cmp-s some-scope-class\">
+          <!--s.3.1.1.0.-->
+          <slot c-id=\"1.2.2.0\" class=\"sc-nested-cmp-parent\" s-sn=\"\"></slot>
+        </div>
+      </nested-scope-cmp>
+    </div>
+  </template>
+  <!--r.1-->
+  <nested-cmp-child class=\"sc-nested-cmp-child-h\" custom-hydrate-flag=\"\" s-id=\"2\">
+    <template shadowrootmode=\"open\">
+      <style sty-id=\"sc-nested-cmp-child\">
+        :host{display:block}
+      </style>
+      <div c-id=\"2.0.0.0\" class=\"sc-nested-cmp-child some-other-class\">
+        <slot c-id=\"2.1.1.0\" class=\"sc-nested-cmp-child\"></slot>
+      </div>
+    </template>
+    <!--r.2-->
+    Hello World
+  </nested-cmp-child>
+</nested-cmp-parent>`);
   });
 
   test('renders server-side components with delegated focus', async ({ page }) => {

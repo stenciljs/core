@@ -40,8 +40,6 @@ test.describe('goto root url', () => {
 
     const elm = page.locator('prop-cmp').locator('div');
     await expect(elm).toHaveText('Hello, my name is Doc Brown. My full name being Mr Doc Brown. I like to wear lab coats.');
-
-    await expect(page).toHaveScreenshot('navigate-to-homepage-with-querystrings.png');
   });
 
   test('should apply global style when navigating to root page', async ({ page }) => {

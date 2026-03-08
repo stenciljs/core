@@ -25,7 +25,7 @@ test.describe('dom interaction e2e tests', () => {
 
     await expect(button).toHaveText('Focus');
 
-    await button.tap();
+    await button.click();
 
     await expect(button).toHaveText('Has Focus');
   });
@@ -39,7 +39,7 @@ test.describe('dom interaction e2e tests', () => {
 
     await expect(button).toHaveText('Tap');
 
-    await button.tap();
+    await button.click();
 
     await expect(button).toHaveText('Was Tapped');
   });

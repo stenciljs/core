@@ -4,6 +4,7 @@ import { test } from '@stencil/playwright';
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../../hydrate');
 let renderToString: HydrateModule['renderToString'];
+let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
 async function getElementOrder(page: Page, parent: string) {
   return await page.evaluate((parent: string) => {
@@ -16,10 +17,12 @@ async function getElementOrder(page: Page, parent: string) {
 }
 
 test.describe('`scoped: true` hydration checks', () => {
-  test.beforeAll(async () => {
+  test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../../hydrate');
+    const mod = await import('../../hydrate/index.mjs');
     renderToString = mod.renderToString;
+    resetHydrateDocData = mod.resetHydrateDocData;
+    resetHydrateDocData();
   });
 
   test('does not add multiple style tags', async ({ page }) => {
@@ -29,6 +32,7 @@ test.describe('`scoped: true` hydration checks', () => {
       `,
     );
     await page.setContent(html);
+    console.log(html)
 
     const styles = page.locator('style');
     await expect(styles).toHaveCount(3);

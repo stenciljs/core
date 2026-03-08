@@ -81,7 +81,7 @@ test.describe('@Event', () => {
       <event-cmp></event-cmp>
     `);
 
-    const elm = page.locator('event-cmp') as E2ELocator ;
+    const elm = page.locator('event-cmp');
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
     await elm.evaluate((el: any) => el.methodThatFiresEventWithOptions(80));
@@ -98,7 +98,7 @@ test.describe('@Event', () => {
       <event-cmp></event-cmp>
     `);
 
-    const elm = page.locator('event-cmp') as E2ELocator;
+    const elm = page.locator('event-cmp');
     const elmEventSpy = await elm.spyOnEvent('my-event-with-options');
 
     expect(elmEventSpy).not.toHaveReceivedEvent();
