@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { AppProfile } from './app-profile';
 
 describe('app-profile', () => {

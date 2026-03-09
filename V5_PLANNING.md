@@ -4,27 +4,26 @@
 
 ## Vision
 
-Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simplify architecture.
+Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simplify architecture, streamline user experience.
 
 ---
 
 ## Major Goals
 
 ### 1. 🧪 Remove Integrated Testing
-**Status:** 📋 Replacement packages ready - need to remove `src/testing/jest` and `src/testing/puppeteer`
+**Status:** 📋 Replacement packages ready - need to remove integrated testing (`src/testing/jest` and `src/testing/puppeteer`)
 - `@stencil/vitest` + `@stencil/playwright` audited and ready
 - Still need to migrate Stencil's internal tests from jest to vitest
-- Still need to find a way to translate Stencil's jest tests on-the-fly, component in-line transpilation to vitest
+- Still migrating integration / e2e test suites (in `packages/core/tests/`) 
 
 ### 2. 🗑️ Update / Remove Legacy Features
-**Status:** ✅ Decided
+**Status:** Decided
 - ES5 builds → REMOVE
 - Internal CommonJS → Pure ESM (Node 18+)
 - Ancient polyfills → REMOVE
 - In-browser compilation → REMOVE
 - *-sys in-memory file-system (patching node / typescript to do in-memory builds) → use newer 'incremental' build APIs in TypeScript instead. See ./new-ts-non-sys-pattern for some relevant code.
 - Hand-crafted dev server / HMR → modernize as `@stencil/dev-server` (Vite doesn't fit lazy-loading architecture)
-- Custom file watcher → replace with some 3rd party thing
 
 ### 3. 🔧 Build System: tsdown
 **Status:** ✅ Complete
@@ -142,20 +141,6 @@ export default defineConfig([
 ])
 ```
 
-```typescript
-// packages/cli/tsdown.config.ts
-import { defineConfig } from 'tsdown'
-
-export default defineConfig({
-  entry: ['src/index.ts'],
-  outDir: 'dist',
-  platform: 'node',
-  target: 'node18',
-  dts: true,
-  shims: true,
-})
-```
-
 ---
 
 ## Current v5 Architecture
@@ -201,7 +186,7 @@ packages/
 
 **Build system:** tsdown + pnpm workspaces
 **Module format:** Pure ESM
-**Node floor:** 20 LTS
+**Node floor:** 22 LTS
 
 ---
 
@@ -240,19 +225,6 @@ packages/
 - [x] Update CLI's package.json: change to peerDependency on `@stencil/core`
 - [x] Create `packages/core/bin/stencil.mjs`
 - [x] Move flag-related tests from Core to CLI
-
-### ✅ Git History Migration
-- [x] Migrate files from `src/` → `packages/*/src/` preserving git history
-- [x] 694 files migrated with history intact
-- [x] 33 new v5 files (no legacy counterpart)
-- [x] Mapping: `src/cli/` → `packages/cli/src/`
-- [x] Mapping: `src/mock-doc/` → `packages/mock-doc/src/`
-- [x] Mapping: `src/hydrate/` → `packages/core/src/server/`
-- [x] Mapping: `src/{compiler,runtime,client,utils,...}/` → `packages/core/src/...`
-- [x] Test dirs renamed: `test/` → `_test_/`
-
-**Not migrated yet:**
-- `src/dev-server/` → `packages/dev-server/` (modernize as `@stencil/dev-server`)
 
 **Intentionally removed in v5:**
 - `src/screenshot/` - removed
@@ -296,44 +268,6 @@ Simplified the version/build identification system for v5:
 - `__VERSION:*` for dependencies - now runtime via `versions` object getters
 - jQuery from CLI info display (still used by mock-doc internally)
 
-## ✅ Migrate all unit tests from jest to vitest
-- [x] Migrate `src/cli` tests - COMPLETE
-  - [x] Initial setup
-  - [x] Migrate `src/cli/test` tests
-  - [x] Migrate `src/cli/telemetry/test` tests
-- [ ] Migrate `src/core` tests
-  - [x] Initial setup
-  - [x] Migrate `src/compiler/build` tests
-  - [x] Migrate `src/compiler/bundle` tests
-  - [x] Migrate `src/compiler/config` tests
-  - [x] Migrate `src/compiler/docs` tests
-  - [x] Migrate `src/compiler/html` tests
-  - [x] Migrate `src/compiler/output-targets` tests
-  - [x] Migrate `src/compiler/output-targets/dist-custom-elements` tests
-  - [x] Migrate `src/compiler/output-targets/dist-hydrate-script` tests
-  - [x] Migrate `src/compiler/output-targets/dist-lazy` tests
-  - [x] Migrate `src/compiler/plugin` tests
-  - [x] Migrate `src/compiler/prerender` tests
-  - [x] Migrate `src/compiler/service-worker` tests
-  - [x] Migrate `src/compiler/style` tests
-  - [x] Migrate `src/compiler/style/css-parser` tests
-  - [x] Migrate `src/compiler/sys` tests
-  - [x] Migrate `src/compiler/sys/fetch` tests
-  - [x] Migrate `src/compiler/sys/resolve` tests
-  - [x] Migrate `src/compiler/sys/typescript` tests
-  - [x] Migrate `src/compiler/transformers` tests
-  - [x] Migrate `src/compiler/transpile` tests
-  - [x] Migrate `src/compiler/types` tests
-  - [x] Migrate `src/runtime` tests
-  - [x] Migrate `src/runtime/vdom` tests
-  - [x] Migrate `src/server/platform` tests
-  - [x] Migrate `src/sys/node` tests
-  - [x] Migrate `src/sys/node/logger` tests
-  - [x] Migrate `src/utils` tests
-- [ ] Migrate `src/mock-doc` tests
-  - [x] Initial setup
-  - [x] Migrate `src/mock-doc/test` tests
-
 ---
 
 ## Details & Historical Context
@@ -367,15 +301,6 @@ Simplified the version/build identification system for v5:
 
 ## ⚠️ Notes for Future Agents
 
-**All v5 changes should be made in `packages/` only.**
-
-The v5 source of truth is:
-- `packages/core/src/` - compiler and runtime
-- `packages/cli/src/` - CLI
-- `packages/mock-doc/src/` - mock-doc
-
-**Git history has been preserved** - files were migrated from legacy `src/` using `git mv` + content replacement. Use `git log --follow <file>` to see full history.
-
 **To build v5:**
 ```bash
 pnpm run build
@@ -386,43 +311,7 @@ pnpm run build
 pnpm run dev
 ```
 
-pnpm workspaces handle dependency ordering automatically.
-
----
-
-### 8. 🖥️ Dev Server: Modernize as `@stencil/dev-server`
-**Status:** 📋 Planned
-
-**Decision:** Modernize the legacy dev server rather than adopt Vite/esbuild. Off-the-shelf tools assume static module graphs; Stencil's lazy-loading requires DOM-based HMR.
-
-**Why not Vite?** Vite's HMR requires `import.meta.hot.accept()` and static imports. Stencil discovers components at runtime from the DOM - no module graph exists at build time.
-
-**New package:** `packages/dev-server/` → `@stencil/dev-server`
-
-```
-packages/
-├── core/        @stencil/core
-├── cli/         @stencil/cli
-├── mock-doc/    @stencil/mock-doc
-└── dev-server/  @stencil/dev-server  ← NEW
-```
-
-**Features to preserve:**
-- DOM-based HMR (traverses shadow roots, finds components by tag name)
-- Error overlay with "open in editor"
-- Build status favicon (🟢/🟡/🔴)
-- SSR dev mode
-- Directory browsing
-- History API fallback
-
-**Modernization tasks:**
-- [x] Create `packages/dev-server/` structure
-- [x] Remove IE/legacy browser support
-- [x] Strict ESM throughout
-- [x] Target 40-50% code reduction
-
-<details>
-<summary><b>Dev Server Implementation Reference</b></summary>
+In individual packages or from root. pnpm workspaces handle dependency ordering automatically.
 
 ---
 

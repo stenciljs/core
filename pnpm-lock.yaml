@@ -265,11 +265,26 @@ importers:
         specifier: workspace:*
         version: link:../..
 
+  packages/core/tests/hello-world/hydrate: {}
+
   packages/core/tests/ionic-app:
     dependencies:
       '@ionic/core':
-        specifier: ^6.0.10
-        version: 6.7.5
+        specifier: ^7.0.0
+        version: 7.8.6
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../..
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.50
+        version: 1.58.2
+      '@stencil/playwright':
+        specifier: 1.2.3-next.11
+        version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   packages/core/tests/performance:
     dependencies:
@@ -1230,8 +1245,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@ionic/core@6.7.5':
-    resolution: {integrity: sha512-zRkRn+h/Vs3xt/EVgBdShMKDyeGOM4RU31NPF2icfu3CUTH+VrMV569MUnNjYvd1Lu2xK90pYy4TaicSWmC1Pw==}
+  '@ionic/core@7.8.6':
+    resolution: {integrity: sha512-HAYZdEmeJgOdo2kDlZkcCGHb+zs/vjU6iv4skbVBL7y+OnSv/oC2u83Yee8S3/aY0YAxkyBgu7hLTYH13Zc2Aw==}
 
   '@ionic/prettier-config@4.0.0':
     resolution: {integrity: sha512-0DqL6CggVdgeJAWOLPUT73rF1VD5p0tVlCpC5GXz5vTIUBxNwsJ5085Q7wXjKiE5Odx3aOHGTcuRWCawFsLFag==}
@@ -2022,11 +2037,6 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
-
-  '@stencil/core@2.22.3':
-    resolution: {integrity: sha512-kmVA0M/HojwsfkeHsifvHVIYe4l5tin7J5+DLgtl8h6WWfiMClND5K3ifCXXI2ETDNKiEk21p6jql3Fx9o2rng==}
-    engines: {node: '>=12.10.0', npm: '>=6.0.0'}
-    hasBin: true
 
   '@stencil/core@4.43.1':
     resolution: {integrity: sha512-sohOiS8XMJXQnMsxhCgT6Ex8Kl0e0PAzDH9ExYXpDn/5Wo5rliSmABkqU9/dz/l945O/mpeG10rn6jToZJFjKQ==}
@@ -4167,8 +4177,8 @@ packages:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
     engines: {node: '>= 0.4'}
 
-  ionicons@6.1.3:
-    resolution: {integrity: sha512-ptzz38dd/Yq+PgjhXegh7yhb/SLIk1bvL9vQDtLv1aoSc7alO6mX2DIMgcKYzt9vrNWkRu1f9Jr78zIFFyOXqw==}
+  ionicons@7.4.0:
+    resolution: {integrity: sha512-ZK94MMqgzMCPPMhmk8Ouu6goyVHFIlw/ACP6oe3FrikcI0N7CX0xcwVaEbUc0G/v3W0shI93vo+9ve/KpvcNhQ==}
 
   ip-address@10.1.0:
     resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
@@ -7851,10 +7861,10 @@ snapshots:
     optionalDependencies:
       '@types/node': 16.18.126
 
-  '@ionic/core@6.7.5':
+  '@ionic/core@7.8.6':
     dependencies:
-      '@stencil/core': 2.22.3
-      ionicons: 6.1.3
+      '@stencil/core': 4.43.1
+      ionicons: 7.4.0
       tslib: 2.8.1
 
   '@ionic/prettier-config@4.0.0(prettier@3.8.1)':
@@ -8423,8 +8433,6 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@stencil/core@2.22.3': {}
-
   '@stencil/core@4.43.1':
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.0
@@ -8435,7 +8443,6 @@ snapshots:
       '@rollup/rollup-linux-x64-musl': 4.44.0
       '@rollup/rollup-win32-arm64-msvc': 4.44.0
       '@rollup/rollup-win32-x64-msvc': 4.44.0
-    optional: true
 
   '@stencil/playwright@1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)':
     dependencies:
@@ -10969,9 +10976,9 @@ snapshots:
       hasown: 2.0.2
       side-channel: 1.1.0
 
-  ionicons@6.1.3:
+  ionicons@7.4.0:
     dependencies:
-      '@stencil/core': 2.22.3
+      '@stencil/core': 4.43.1
 
   ip-address@10.1.0: {}
 
@@ -13829,6 +13836,23 @@ snapshots:
       terser: 5.37.0
       tsx: 4.21.0
 
+  vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+    dependencies:
+      esbuild: 0.27.3
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.57.1
+      tinyglobby: 0.2.15
+    optionalDependencies:
+      '@types/node': 24.10.13
+      fsevents: 2.3.3
+      jiti: 2.6.1
+      sass: 1.97.3
+      sass-embedded: 1.97.3
+      terser: 5.37.0
+      tsx: 4.21.0
+
   vitest-environment-stencil@1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)):
     dependencies:
       '@stencil/vitest': 1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
@@ -13869,6 +13893,44 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.19.11
+      jsdom: 28.0.0
+    transitivePeerDependencies:
+      - jiti
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
+
+  vitest@4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+    dependencies:
+      '@vitest/expect': 4.0.18
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/pretty-format': 4.0.18
+      '@vitest/runner': 4.0.18
+      '@vitest/snapshot': 4.0.18
+      '@vitest/spy': 4.0.18
+      '@vitest/utils': 4.0.18
+      es-module-lexer: 1.7.0
+      expect-type: 1.3.0
+      magic-string: 0.30.21
+      obug: 2.1.1
+      pathe: 2.0.3
+      picomatch: 4.0.3
+      std-env: 3.10.0
+      tinybench: 2.9.0
+      tinyexec: 1.0.2
+      tinyglobby: 0.2.15
+      tinyrainbow: 3.0.3
+      vite: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 24.10.13
       jsdom: 28.0.0
     transitivePeerDependencies:
       - jiti

@@ -22,9 +22,6 @@ export const autoprefixCss = async (cssText: string, opts: boolean | null | d.Au
     diagnostics: [],
   };
 
-  console.error('[TEST] This should be red');
-console.log('[TEST] This should be normal');
-
   try {
     const autoprefixerOpts = opts != null && typeof opts === 'object' ? opts : DEFAULT_AUTOPREFIX_OPTIONS;
 

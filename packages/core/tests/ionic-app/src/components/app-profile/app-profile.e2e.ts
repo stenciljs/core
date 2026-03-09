@@ -1,17 +1,18 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('app-profile', () => {
-  it('renders', async () => {
-    const page = await newE2EPage({ html: '<app-profile></app-profile>' });
+test.describe('app-profile', () => {
+  test('renders', async ({ page }) => {
+    await page.setContent('<app-profile></app-profile>');
 
-    const element = await page.find('app-profile');
-    expect(element).toHaveClass('hydrated');
+    const element = page.locator('app-profile');
+    await expect(element).toHaveClass(/hydrated/);
   });
 
-  it('displays the specified name', async () => {
-    const page = await newE2EPage({ url: '/profile/joseph' });
+  test('displays the specified name', async ({ page }) => {
+    await page.goto('/profile/joseph');
 
-    const element = await page.find('app-profile ion-content p');
-    expect(element.textContent).toContain('My name is Joseph.');
+    const element = page.locator('app-profile ion-content p');
+    await expect(element).toContainText('My name is Joseph.');
   });
 });

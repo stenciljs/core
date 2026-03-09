@@ -4,18 +4,26 @@
   "version": "1.0.0",
   "description": "ionic-app",
   "license": "MIT",
+  "type": "module",
   "files": [
     "dist/"
   ],
   "scripts": {
-    "build": "node ../../bin/stencil build --debug",
-    "build.dev": "node ../../bin/stencil build --dev",
-    "start": "node ../../bin/stencil build --dev --watch --serve",
-    "test": "node ../../bin/stencil test --spec --e2e",
-    "test.watch": "node ../../bin/stencil test --spec --e2e --watch",
-    "generate": "node ../../bin/stencil generate"
+    "build": "stencil build --debug",
+    "build.dev": "stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil-test && playwright test",
+    "test.e2e": "playwright test",
+    "test.spec": "stencil-test",
+    "generate": "stencil generate"
   },
   "dependencies": {
-    "@ionic/core": "^6.0.10"
+    "@ionic/core": "^7.0.0",
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50",
+    "@stencil/playwright": "1.2.3-next.11",
+    "vitest": "^4.0.18"
   }
 }

@@ -44,7 +44,7 @@ export default defineConfig([
     dts: true,
     clean: false,
     deps: {
-      skipNodeModulesBundle: true,
+      alwaysBundle: ['style-inject'],
     }
   },
 ])

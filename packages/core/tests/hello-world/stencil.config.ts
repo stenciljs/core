@@ -1,4 +1,4 @@
-import { Config } from '../../internal';
+import { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'HelloWorld',
@@ -14,7 +14,4 @@ export const config: Config = {
   enableCache: false,
   hydratedFlag: null,
   hashFileNames: false,
-  extras: {
-    scriptDataOpts: false,
-  },
 };

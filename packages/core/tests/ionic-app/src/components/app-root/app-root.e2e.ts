@@ -1,30 +1,31 @@
-import { newE2EPage } from '@stencil/core/testing';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
 
-describe('app-root', () => {
-  it('renders', async () => {
-    const page = await newE2EPage({ url: '/' });
+test.describe('app-root', () => {
+  test('renders', async ({ page }) => {
+    await page.goto('/');
 
-    const element = await page.find('app-root');
-    expect(element).toHaveClass('hydrated');
+    const element = page.locator('app-root');
+    await expect(element).toHaveClass(/hydrated/);
   });
 
-  it('renders an ion-app', async () => {
-    const page = await newE2EPage({ url: '/' });
+  test('renders an ion-app', async ({ page }) => {
+    await page.goto('/');
 
-    const element = await page.find('app-root > ion-app');
-    expect(element).toHaveClass('hydrated');
+    const element = page.locator('app-root > ion-app');
+    await expect(element).toHaveClass(/hydrated/);
   });
 
-  it('renders the ion-split-pane as visible', async () => {
-    const page = await newE2EPage({ url: '/' });
+  test('renders the ion-split-pane as visible', async ({ page }) => {
+    await page.goto('/');
 
-    const splitPane = await page.find('app-root > ion-app > ion-split-pane');
-    expect(splitPane).toHaveClass('split-pane-visible');
+    const splitPane = page.locator('app-root > ion-app > ion-split-pane');
+    await expect(splitPane).toHaveClass(/split-pane-visible/);
 
-    const menu = await splitPane.find('ion-menu');
-    expect(menu).toHaveClass('menu-pane-visible');
+    const menu = splitPane.locator('ion-menu');
+    await expect(menu).toHaveClass(/menu-pane-visible/);
 
-    const menuButton = await page.find('ion-menu-button');
-    expect(menuButton).toHaveClass('menu-button-hidden');
+    const menuButton = page.locator('ion-menu-button');
+    await expect(menuButton).toHaveClass(/menu-button-hidden/);
   });
 });

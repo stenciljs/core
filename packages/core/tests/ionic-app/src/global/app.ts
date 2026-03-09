@@ -6,3 +6,7 @@ export default () => {
   //   mode: 'ios'
   // });
 };
+
+window.addEventListener('appload', () => {
+  document.getElementsByTagName('html')[0].classList.add('hydrated');
+});
