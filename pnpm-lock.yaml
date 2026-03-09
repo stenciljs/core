@@ -4,6 +4,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@playwright/test':
+      specifier: ^1.52.0
+      version: 1.58.2
+    playwright:
+      specifier: ^1.52.0
+      version: 1.58.2
+    vitest:
+      specifier: ^4.0.18
+      version: 4.0.18
+
 overrides:
   '@stencil/vitest>@stencil/core': workspace:*
 
@@ -36,7 +48,7 @@ importers:
         specifier: ^0.6.4
         version: 0.6.4
       vitest:
-        specifier: ^4.0.18
+        specifier: 'catalog:'
         version: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
       vitest-environment-stencil:
         specifier: ^1.1.21
@@ -277,13 +289,13 @@ importers:
         version: link:../..
     devDependencies:
       '@playwright/test':
-        specifier: ^1.50
+        specifier: 'catalog:'
         version: 1.58.2
       '@stencil/playwright':
         specifier: 1.2.3-next.11
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
       vitest:
-        specifier: ^4.0.18
+        specifier: 'catalog:'
         version: 4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   packages/core/tests/performance:
@@ -302,11 +314,17 @@ importers:
         specifier: workspace:*
         version: link:../..
 
+  packages/core/tests/prerender-shadow/dist/hydrate: {}
+
   packages/core/tests/runtime-benchmark:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
         version: link:../..
+    devDependencies:
+      playwright:
+        specifier: 'catalog:'
+        version: 1.58.2
 
   packages/core/tests/style-modes:
     dependencies:
@@ -6885,46 +6903,6 @@ packages:
       yaml:
         optional: true
 
-  vite@7.3.1:
-    resolution: {integrity: sha512-w+N7Hifpc3gRjZ63vYBXA56dvvRlNWRczTdmCBBa+CotUzAPf5b7YMdMR/8CQoeYE5LX3W4wj6RYTgonm1b9DA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^20.19.0 || >=22.12.0
-      jiti: '>=1.21.0'
-      less: ^4.0.0
-      lightningcss: ^1.21.0
-      sass: ^1.70.0
-      sass-embedded: ^1.70.0
-      stylus: '>=0.54.8'
-      sugarss: ^5.0.0
-      terser: ^5.16.0
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      jiti:
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
-        optional: true
-
   vitest-environment-stencil@1.1.21:
     resolution: {integrity: sha512-5boFuPOzsGW3U5LWpC2bOaZgh/NznkG05LSqlC8CjfKT5bUum92ZygG6APRM5LRQH6BRvB2XL54rvQwmsUdquw==}
 
@@ -8653,13 +8631,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))':
+  '@vitest/mocker@4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   '@vitest/pretty-format@2.1.9':
     dependencies:
@@ -13802,26 +13780,9 @@ snapshots:
       sass-embedded: 1.97.3
       terser: 5.37.0
 
-  vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+  vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
-      rollup: 4.57.1
-      tinyglobby: 0.2.15
-    optionalDependencies:
-      '@types/node': 24.10.13
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      sass: 1.97.3
-      sass-embedded: 1.97.3
-      terser: 5.37.0
-      tsx: 4.21.0
-
-  vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
-    dependencies:
-      esbuild: 0.27.3
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -13836,9 +13797,9 @@ snapshots:
       terser: 5.37.0
       tsx: 4.21.0
 
-  vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+  vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
-      esbuild: 0.27.3
+      esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
@@ -13872,7 +13833,7 @@ snapshots:
   vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -13889,7 +13850,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.19.11
@@ -13910,7 +13871,7 @@ snapshots:
   vitest@4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -13927,7 +13888,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vite: 6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.10.13

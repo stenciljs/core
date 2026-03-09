@@ -1,39 +1,33 @@
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const { spawnSync } = require('child_process');
+import fs from 'node:fs';
+import path from 'node:path';
+import http from 'node:http';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+import { chromium } from 'playwright';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const require = createRequire(import.meta.url);
 
 const RUNS_PER_BENCHMARK = 5;
-const STENCIL_BIN = path.join(__dirname, '..', '..', 'bin', 'stencil');
-const STENCIL_PKG = path.join(__dirname, '..', '..', 'package.json');
 const WWW_DIR = path.join(__dirname, 'www');
 const RESULTS_FILE = path.join(__dirname, 'benchmark-results.json');
 const SUMMARY_FILE = path.join(__dirname, 'benchmark-results.md');
 
 function getStencilVersion() {
-  const pkg = JSON.parse(fs.readFileSync(STENCIL_PKG, 'utf-8'));
+  const pkgPath = require.resolve('@stencil/core/package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
   return pkg.version;
-}
-
-let puppeteer;
-
-async function loadPuppeteer() {
-  // Try to load puppeteer from the root project
-  try {
-    puppeteer = require('puppeteer');
-  } catch (e) {
-    console.error('Puppeteer not found. Run npm install from the root directory.');
-    process.exit(1);
-  }
 }
 
 function buildProject() {
   console.log('Building project...');
-  const result = spawnSync('node', [STENCIL_BIN, 'build'], {
-    cwd: __dirname,
-    stdio: 'inherit',
-  });
-  if (result.status !== 0) {
+  try {
+    execSync('pnpm stencil build', {
+      cwd: __dirname,
+      stdio: 'inherit',
+    });
+  } catch {
     console.error('Build failed');
     process.exit(1);
   }
@@ -186,8 +180,6 @@ function printStats(label, stats) {
 }
 
 async function main() {
-  await loadPuppeteer();
-
   console.log('Stencil Runtime Performance Benchmark');
   console.log('=====================================');
   console.log(`Runs per benchmark: ${RUNS_PER_BENCHMARK}\n`);
@@ -199,14 +191,14 @@ async function main() {
   const { server, port } = await startServer();
 
   // Launch browser
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
   try {
-    await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle0' });
+    await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
 
-    // Wait for component to be ready
-    await page.waitForSelector('#perf');
+    // Wait for component to be ready (use 'attached' since empty table may have no height)
+    await page.waitForSelector('#perf', { state: 'attached' });
     await page.evaluate(() => customElements.whenDefined('perf-rows'));
 
     const benchmarks = {};
@@ -322,7 +314,7 @@ async function main() {
       try {
         const existing = JSON.parse(fs.readFileSync(RESULTS_FILE, 'utf-8'));
         history = existing.history || [];
-      } catch (e) {
+      } catch {
         // Ignore parse errors, start fresh
       }
     }

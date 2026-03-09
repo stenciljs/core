@@ -22,8 +22,8 @@
     "@stencil/core": "workspace:*"
   },
   "devDependencies": {
-    "@playwright/test": "^1.50",
+    "@playwright/test": "catalog:",
     "@stencil/playwright": "1.2.3-next.11",
-    "vitest": "^4.0.18"
+    "vitest": "catalog:"
   }
 }

@@ -38,7 +38,7 @@
     "tsdown": "^0.21.0",
     "typescript": "~5.9.3",
     "unplugin-inline-enum": "^0.6.4",
-    "vitest": "^4.0.18",
+    "vitest": "catalog:",
     "vitest-environment-stencil": "^1.1.21"
   },
   "volta": {
