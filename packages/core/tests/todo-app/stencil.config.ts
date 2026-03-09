@@ -1,4 +1,4 @@
-import { Config } from '../../internal';
+import { Config } from '@stencil/core';
 
 export const config: Config = {
   globalStyle: 'src/global/app.css',
@@ -10,7 +10,4 @@ export const config: Config = {
   ],
   hashFileNames: false,
   hydratedFlag: null,
-  extras: {
-    scriptDataOpts: false,
-  },
 };
