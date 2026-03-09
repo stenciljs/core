@@ -7,7 +7,7 @@ import { Component, h } from '@stencil/core';
 })
 export class CmpD {
   componentWillLoad() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       setTimeout(() => {
         console.log('cmp-d componentWillLoad resolved');
         resolve();

@@ -12,6 +12,11 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
 export const HYDRATE_FACTORY_INTRO = `
 // let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
+// Capture native setTimeout/clearTimeout at module scope (before globalThis can be shadowed inside the factory).
+// Used for the hydrate timeout timer to avoid being affected by constrainTimeouts.
+var $nativeSetTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).setTimeout;
+var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).clearTimeout;
+
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
   var self = $stencilWindow;

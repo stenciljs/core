@@ -14,14 +14,6 @@
     "jsxFactory": "h",
     "useUnknownInCatchVariables": true,
     "baseUrl": ".",
-    "paths": {
-      "@stencil/core": ["../../internal"],
-      "@stencil/core/internal": ["../../internal"],
-      "@stencil/core/testing": ["../../testing"],
-      "@stencil/core/mock-doc": [
-        "../../mock-doc"
-      ]
-    },
     "skipLibCheck": true
   },
   "include": ["src"]

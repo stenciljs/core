@@ -6,6 +6,15 @@ import { CMP_FLAGS } from '../../utils/constants';
 import type * as d from '@stencil/core';
 import { proxyHostElement } from './proxy-host-element';
 
+/**
+ * Native setTimeout/clearTimeout captured before globalThis is shadowed in the factory closure.
+ * These are used for the hydrate timeout timer to avoid being affected by constrainTimeouts
+ * which modifies the MockWindow's setTimeout behavior.
+ * Defined in HYDRATE_FACTORY_INTRO (hydrate-factory-closure.ts).
+ */
+declare const $nativeSetTimeout: typeof setTimeout;
+declare const $nativeClearTimeout: typeof clearTimeout;
+
 export function hydrateApp(
   win: Window & typeof globalThis,
   opts: d.HydrateFactoryOptions,
@@ -30,7 +39,7 @@ export function hydrateApp(
   let ranCompleted = false;
 
   function hydratedComplete() {
-    globalThis.clearTimeout(tmrId);
+    $nativeClearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
 
@@ -167,8 +176,9 @@ export function hydrateApp(
       return elm;
     } as (typeof window)['document']['createElementNS'];
 
-    // ensure we use NodeJS's native setTimeout, not the mocked hydrate app scoped one
-    tmrId = globalThis.setTimeout(timeoutExceeded, opts.timeout);
+    // Use the native setTimeout captured before globalThis was shadowed,
+    // to avoid being affected by constrainTimeouts which sets MockWindow.__maxTimeout = 0
+    tmrId = $nativeSetTimeout(timeoutExceeded, opts.timeout);
 
     plt.$resourcesUrl$ = new URL(opts.resourcesUrl || './', win.document.baseURI).href;
 
