@@ -98,8 +98,7 @@ describe('event-re-register', () => {
 
 ### Event Spying
 ```tsx
-import { render, h } from '@stencil/vitest';
-import { describe, it, expect } from 'vitest';
+import { render, h, describe, it, expect } from '@stencil/vitest';
 
 describe('event-basic', () => {
   it('should spy on custom events', async () => {
@@ -123,13 +122,22 @@ describe('event-basic', () => {
 | `render({ template: () => <cmp /> })` in `before()` | `render(<cmp />)` per test |
 | `$('.selector')` | `root.querySelector('.selector')` |
 | `await $('cmp.hydrated').waitForExist()` | Not needed (render waits) |
-| `await $('cmp').waitForStable()` | Not needed (render waits) |
+| `await $('.something').waitForStable()` | `await waitForStable('.something')` (imported from `@stencil/vitest`) < Not required on first render / on the root *if* the component has a dimensions (a `render()`) |
 | `await button.click()` | `button.click()` + `await waitForChanges()` |
 | `browser.action('key').down('a').up('a').perform()` | `userEvent.keyboard('a')` |
 | `toHaveText()` | `toHaveTextContent()` |
 | `toBePresent()` | `toBeTruthy()` or check element exists |
 | `document.body.querySelector()` | `root.querySelector()` |
-| `await $('async-rerender .loaded').waitForExist();` | `await waitForStable('async-rerender .loaded')` (imported from `@stencil/vitest`) |
+| `await $('async-rerender .loaded').waitForExist();` | `await waitForExist('async-rerender .loaded')` (imported from `@stencil/vitest`) |
+
+If a component has no dimensions (e.g. it doesn't have a `render()` method), you need to skip waiting for the component to be stable / have dimensions on first render. Instead, wait for the existence of the 'hydrated' class on the component's root element. For example:
+
+```tsx
+import { render, h, waitForExist } from '@stencil/vitest';
+
+const { root, waitForChanges } = await render(<attribute-complex />, { waitForReady: false });
+await waitForExist('attribute-complex.hydrated');
+```
 
 ## iframes
 

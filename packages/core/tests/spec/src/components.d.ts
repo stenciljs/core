@@ -5,6 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
+import { SomeTypes } from "./components/attribute-complex/types.js";
+export { SomeTypes } from "./components/attribute-complex/types.js";
 export namespace Components {
     interface AsyncRerender {
     }
@@ -35,6 +37,28 @@ export namespace Components {
     }
     interface AttributeBooleanRoot {
         "toggleState": () => Promise<void>;
+    }
+    interface AttributeComplex {
+        /**
+          * @default true
+         */
+        "bool0": boolean;
+        "bool1"?: boolean;
+        "bool2"?: boolean;
+        "getInstance": () => Promise<this>;
+        /**
+          * @default 1
+         */
+        "nu0": number;
+        "nu1"?: number;
+        "nu2"?: SomeTypes.Number;
+        "obj": string;
+        /**
+          * @default 'hello'
+         */
+        "str0": string;
+        "str1"?: string;
+        "str2"?: SomeTypes.String;
     }
     interface EventBasic {
     }
@@ -78,6 +102,12 @@ declare global {
         prototype: HTMLAttributeBooleanRootElement;
         new (): HTMLAttributeBooleanRootElement;
     };
+    interface HTMLAttributeComplexElement extends Components.AttributeComplex, HTMLStencilElement {
+    }
+    var HTMLAttributeComplexElement: {
+        prototype: HTMLAttributeComplexElement;
+        new (): HTMLAttributeComplexElement;
+    };
     interface HTMLEventBasicElementEventMap {
         "testEvent": any;
     }
@@ -113,6 +143,7 @@ declare global {
         "attribute-basic-root": HTMLAttributeBasicRootElement;
         "attribute-boolean": HTMLAttributeBooleanElement;
         "attribute-boolean-root": HTMLAttributeBooleanRootElement;
+        "attribute-complex": HTMLAttributeComplexElement;
         "event-basic": HTMLEventBasicElement;
         "slot-basic": HTMLSlotBasicElement;
         "slot-basic-root": HTMLSlotBasicRootElement;
@@ -148,6 +179,27 @@ declare namespace LocalJSX {
     }
     interface AttributeBooleanRoot {
     }
+    interface AttributeComplex {
+        /**
+          * @default true
+         */
+        "bool0"?: boolean;
+        "bool1"?: boolean;
+        "bool2"?: boolean;
+        /**
+          * @default 1
+         */
+        "nu0"?: number;
+        "nu1"?: number;
+        "nu2"?: SomeTypes.Number;
+        "obj"?: string;
+        /**
+          * @default 'hello'
+         */
+        "str0"?: string;
+        "str1"?: string;
+        "str2"?: SomeTypes.String;
+    }
     interface EventBasic {
         "onTestEvent"?: (event: EventBasicCustomEvent<any>) => void;
     }
@@ -167,6 +219,18 @@ declare namespace LocalJSX {
         "strState": string;
         "noreflect": boolean;
     }
+    interface AttributeComplexAttributes {
+        "nu0": number;
+        "nu1": number;
+        "nu2": SomeTypes.Number;
+        "bool0": boolean;
+        "bool1": boolean;
+        "bool2": boolean;
+        "str0": string;
+        "str1": string;
+        "str2": SomeTypes.String;
+        "obj": string;
+    }
 
     interface IntrinsicElements {
         "async-rerender": AsyncRerender;
@@ -174,6 +238,7 @@ declare namespace LocalJSX {
         "attribute-basic-root": AttributeBasicRoot;
         "attribute-boolean": Omit<AttributeBoolean, keyof AttributeBooleanAttributes> & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes]?: AttributeBoolean[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `attr:${K}`]?: AttributeBooleanAttributes[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `prop:${K}`]?: AttributeBoolean[K] };
         "attribute-boolean-root": AttributeBooleanRoot;
+        "attribute-complex": Omit<AttributeComplex, keyof AttributeComplexAttributes> & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes]?: AttributeComplex[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `attr:${K}`]?: AttributeComplexAttributes[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `prop:${K}`]?: AttributeComplex[K] };
         "event-basic": EventBasic;
         "slot-basic": SlotBasic;
         "slot-basic-root": SlotBasicRoot;
@@ -188,6 +253,7 @@ declare module "@stencil/core" {
             "attribute-basic-root": LocalJSX.IntrinsicElements["attribute-basic-root"] & JSXBase.HTMLAttributes<HTMLAttributeBasicRootElement>;
             "attribute-boolean": LocalJSX.IntrinsicElements["attribute-boolean"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanElement>;
             "attribute-boolean-root": LocalJSX.IntrinsicElements["attribute-boolean-root"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanRootElement>;
+            "attribute-complex": LocalJSX.IntrinsicElements["attribute-complex"] & JSXBase.HTMLAttributes<HTMLAttributeComplexElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "slot-basic": LocalJSX.IntrinsicElements["slot-basic"] & JSXBase.HTMLAttributes<HTMLSlotBasicElement>;
             "slot-basic-root": LocalJSX.IntrinsicElements["slot-basic-root"] & JSXBase.HTMLAttributes<HTMLSlotBasicRootElement>;
