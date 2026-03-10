@@ -1,0 +1,22 @@
+{
+  "name": "@stencil/spec-tests",
+  "private": true,
+  "type": "module",
+  "main": "dist/lazy/index.cjs.js",
+  "collection": "dist/lazy/collection/collection-manifest.json",
+  "scripts": {
+    "test": "stencil-test",
+    "test:watch": "stencil-test --watch",
+    "test:dist": "stencil-test --project dist",
+    "test:custom-elements": "stencil-test --project custom-elements"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@stencil/vitest": "catalog:",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "vitest": "catalog:"
+  }
+}

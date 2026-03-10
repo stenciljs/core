@@ -9,6 +9,15 @@ catalogs:
     '@playwright/test':
       specifier: ^1.52.0
       version: 1.58.2
+    '@stencil/vitest':
+      specifier: ^1.2.0
+      version: 1.2.0
+    '@vitest/browser':
+      specifier: ^4.0.18
+      version: 4.0.18
+    '@vitest/browser-playwright':
+      specifier: ^4.0.18
+      version: 4.0.18
     playwright:
       specifier: ^1.52.0
       version: 1.58.2
@@ -23,9 +32,6 @@ importers:
 
   .:
     devDependencies:
-      '@stencil/vitest':
-        specifier: ^1.1.21
-        version: 1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
       '@types/node':
         specifier: ^22
         version: 22.19.11
@@ -49,10 +55,10 @@ importers:
         version: 0.6.4
       vitest:
         specifier: 'catalog:'
-        version: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+        version: 4.0.18(@types/node@22.19.11)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
       vitest-environment-stencil:
         specifier: ^1.1.21
-        version: 1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+        version: 1.1.21(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
 
   packages/cli:
     dependencies:
@@ -96,6 +102,9 @@ importers:
       '@stencil/mock-doc':
         specifier: workspace:*
         version: link:../mock-doc
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.2.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
       autoprefixer:
         specifier: ^10.4.24
         version: 10.4.24(postcss@8.5.6)
@@ -294,9 +303,12 @@ importers:
       '@stencil/playwright':
         specifier: 1.2.3-next.11
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.2.0(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
       vitest:
         specifier: 'catalog:'
-        version: 4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+        version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   packages/core/tests/performance:
     dependencies:
@@ -325,6 +337,25 @@ importers:
       playwright:
         specifier: 'catalog:'
         version: 1.58.2
+
+  packages/core/tests/spec:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../..
+    devDependencies:
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.2.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+      '@vitest/browser':
+        specifier: 'catalog:'
+        version: 4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   packages/core/tests/style-modes:
     dependencies:
@@ -1581,6 +1612,9 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  '@polka/url@1.0.0-next.29':
+    resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
   '@popperjs/core@2.11.8':
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
@@ -2117,6 +2151,42 @@ packages:
       playwright:
         optional: true
 
+  '@stencil/vitest@1.2.0':
+    resolution: {integrity: sha512-KchcuXluZJv/YLfusPiRxg+u0QoRdEo7cPm9cvCCLCoZvS9fQRmsLcvRSJckxh4o5+PlehDSSU5jEur/z3mxIw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
+    hasBin: true
+    peerDependencies:
+      '@playwright/test': '*'
+      '@stencil/core': workspace:*
+      '@stencil/mock-doc': '*'
+      '@vitest/browser-playwright': '*'
+      '@vitest/browser-preview': '*'
+      '@vitest/browser-webdriverio': '*'
+      '@wdio/globals': '*'
+      happy-dom: '*'
+      jsdom: '*'
+      playwright: '*'
+      vitest: ^4.0.0 || ^3.0.0 || ^2.0.0
+    peerDependenciesMeta:
+      '@playwright/test':
+        optional: true
+      '@stencil/mock-doc':
+        optional: true
+      '@vitest/browser-playwright':
+        optional: true
+      '@vitest/browser-preview':
+        optional: true
+      '@vitest/browser-webdriverio':
+        optional: true
+      '@wdio/globals':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+      playwright:
+        optional: true
+
   '@swc/core-darwin-arm64@1.15.11':
     resolution: {integrity: sha512-QoIupRWVH8AF1TgxYyeA5nS18dtqMuxNwchjBIwJo3RdwLEFiJq6onOx9JAxHtuPwUkIVuU2Xbp+jCJ7Vzmgtg==}
     engines: {node: '>=10'}
@@ -2314,6 +2384,17 @@ packages:
 
   '@videojs/xhr@2.6.0':
     resolution: {integrity: sha512-7J361GiN1tXpm+gd0xz2QWr3xNWBE+rytvo8J3KuggFaLg+U37gZQ2BuPLcnkfGffy2e+ozY70RHC8jt7zjA6Q==}
+
+  '@vitest/browser-playwright@4.0.18':
+    resolution: {integrity: sha512-gfajTHVCiwpxRj1qh0Sh/5bbGLG4F/ZH/V9xvFVoFddpITfMta9YGow0W6ZpTTORv2vdJuz9TnrNSmjKvpOf4g==}
+    peerDependencies:
+      playwright: '*'
+      vitest: 4.0.18
+
+  '@vitest/browser@4.0.18':
+    resolution: {integrity: sha512-gVQqh7paBz3gC+ZdcCmNSWJMk70IUjDeVqi+5m5vYpEHsIwRgw3Y545jljtajhkekIpIp5Gg8oK7bctgY0E2Ng==}
+    peerDependencies:
+      vitest: 4.0.18
 
   '@vitest/expect@4.0.18':
     resolution: {integrity: sha512-8sCWUyckXXYvx4opfzVY03EOiYVxyNrHS5QxX3DAIi5dpJAAkyJezHCP77VMX4HKA2LDT/Jpfo8i2r5BE3GnQQ==}
@@ -4926,6 +5007,10 @@ packages:
     resolution: {integrity: sha512-fwBebvpyPUU8bOzvhX0VQZgSohncbgYwUyJJoTSNpmy7ccD2ryiCvM7oRkn/xQH5cv73/xU7rJSNCLjdGFor0Q==}
     hasBin: true
 
+  mrmime@2.0.1:
+    resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
+    engines: {node: '>=10'}
+
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
 
@@ -5267,6 +5352,10 @@ packages:
     resolution: {integrity: sha512-eW/gHNMlxdSP6dmG6uJip6FXN0EQBwm2clYYd8Wul42Cwu/DK8HEftzsapcNdYe2MfLiIwZqsDk2RDEsTE79hA==}
     engines: {node: '>=10'}
 
+  pixelmatch@7.1.0:
+    resolution: {integrity: sha512-1wrVzJ2STrpmONHKBy228LM1b84msXDUoAzVEl0R8Mz4Ce6EPr+IVtxm8+yvrqLYMHswREkjYFaMxnyGnaY3Ng==}
+    hasBin: true
+
   pkcs7@1.0.4:
     resolution: {integrity: sha512-afRERtHn54AlwaF2/+LFszyAANTCggGilmcmILUzEjvs3XgFZT+xE6+QWQcAGmu4xajy+Xtj7acLOPdx5/eXWQ==}
     hasBin: true
@@ -5286,6 +5375,10 @@ packages:
     resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
     engines: {node: '>=18'}
     hasBin: true
+
+  pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
 
   posix-character-classes@0.1.1:
     resolution: {integrity: sha512-xTgYBc3fuo7Yt7JbiuFxSYGToMoz8fLoE6TC9Wx1P/u+LfeThMOAqmuyECnlBaaJb+u1m9hHiXUEtwW4OzfUJg==}
@@ -6110,6 +6203,10 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  sirv@3.0.2:
+    resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
+    engines: {node: '>=18'}
+
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
@@ -6440,6 +6537,10 @@ packages:
 
   todomvc-common@1.0.5:
     resolution: {integrity: sha512-D8kEJmxVMQIWwztEdH+WeiAfXRbbSCpgXq4NkYi+gduJ2tr8CNq7sYLfJvjpQ10KD9QxJwig57rvMbV2QAESwQ==}
+
+  totalist@3.0.1:
+    resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
+    engines: {node: '>=6'}
 
   tough-cookie@6.0.0:
     resolution: {integrity: sha512-kXuRi1mtaKMrsLUxz3sQYvVl37B0Ns6MzfrtV5DvJceE9bPyspOqk9xxv7XbZWcfLWbFmm997vl83qUWVJA64w==}
@@ -6773,6 +6874,9 @@ packages:
 
   vitest-environment-stencil@1.1.21:
     resolution: {integrity: sha512-5boFuPOzsGW3U5LWpC2bOaZgh/NznkG05LSqlC8CjfKT5bUum92ZygG6APRM5LRQH6BRvB2XL54rvQwmsUdquw==}
+
+  vitest-environment-stencil@1.2.0:
+    resolution: {integrity: sha512-Z/9Dmgr7zcLOpW28zJIEe6Ba1GTevu3M0VooOBYWFBXKftZYRfRQ811XBayKBEXp9HjSRT7IZ7u5NBJVED/cnQ==}
 
   vitest@4.0.18:
     resolution: {integrity: sha512-hOQuK7h0FGKgBAas7v0mSAsnvrIgAvWmRFjmzpJ7SwFHH3g1k2u37JtYwOwmEKhK6ZO3v9ggDBBm0La1LCK4uQ==}
@@ -7979,6 +8083,8 @@ snapshots:
     dependencies:
       playwright: 1.58.2
 
+  '@polka/url@1.0.0-next.29': {}
+
   '@popperjs/core@2.11.8': {}
 
   '@promptbook/utils@0.69.5':
@@ -8310,14 +8416,53 @@ snapshots:
       '@stencil/core': link:packages/core
       sass-embedded: 1.97.3
 
-  '@stencil/vitest@1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))':
+  '@stencil/vitest@1.1.21(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)':
     dependencies:
       jiti: 2.6.1
       local-pkg: 1.1.2
-      vitest: 4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
-      vitest-environment-stencil: 1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      vitest: 4.0.18(@types/node@22.19.11)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vitest-environment-stencil: 1.1.21(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
     optionalDependencies:
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
       jsdom: 28.0.0
+      playwright: 1.58.2
+
+  '@stencil/vitest@1.2.0(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)':
+    dependencies:
+      '@stencil/core': link:packages/core
+      jiti: 2.6.1
+      local-pkg: 1.1.2
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vitest-environment-stencil: 1.2.0(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    optionalDependencies:
+      '@playwright/test': 1.58.2
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      jsdom: 28.0.0
+      playwright: 1.58.2
+
+  '@stencil/vitest@1.2.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)':
+    dependencies:
+      '@stencil/core': link:packages/core
+      jiti: 2.6.1
+      local-pkg: 1.1.2
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vitest-environment-stencil: 1.2.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    optionalDependencies:
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      jsdom: 28.0.0
+      playwright: 1.58.2
+
+  '@stencil/vitest@1.2.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)':
+    dependencies:
+      jiti: 2.6.1
+      local-pkg: 1.1.2
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vitest-environment-stencil: 1.2.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    optionalDependencies:
+      '@stencil/mock-doc': link:packages/mock-doc
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      jsdom: 28.0.0
+      playwright: 1.58.2
 
   '@swc/core-darwin-arm64@1.15.11':
     optional: true
@@ -8490,6 +8635,68 @@ snapshots:
       global: 4.4.0
       is-function: 1.0.2
 
+  '@vitest/browser-playwright@4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)':
+    dependencies:
+      '@vitest/browser': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      playwright: 1.58.2
+      tinyrainbow: 3.0.3
+      vitest: 4.0.18(@types/node@22.19.11)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+    optional: true
+
+  '@vitest/browser-playwright@4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)':
+    dependencies:
+      '@vitest/browser': 4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      playwright: 1.58.2
+      tinyrainbow: 3.0.3
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+
+  '@vitest/browser@4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)':
+    dependencies:
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/utils': 4.0.18
+      magic-string: 0.30.21
+      pixelmatch: 7.1.0
+      pngjs: 7.0.0
+      sirv: 3.0.2
+      tinyrainbow: 3.0.3
+      vitest: 4.0.18(@types/node@22.19.11)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+    optional: true
+
+  '@vitest/browser@4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)':
+    dependencies:
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/utils': 4.0.18
+      magic-string: 0.30.21
+      pixelmatch: 7.1.0
+      pngjs: 7.0.0
+      sirv: 3.0.2
+      tinyrainbow: 3.0.3
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      ws: 8.19.0
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+
   '@vitest/expect@4.0.18':
     dependencies:
       '@standard-schema/spec': 1.1.0
@@ -8506,6 +8713,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+
+  '@vitest/mocker@4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))':
+    dependencies:
+      '@vitest/spy': 4.0.18
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
   '@vitest/pretty-format@2.1.9':
     dependencies:
@@ -11627,6 +11842,8 @@ snapshots:
       '@xmldom/xmldom': 0.8.11
       global: 4.4.0
 
+  mrmime@2.0.1: {}
+
   ms@2.0.0: {}
 
   ms@2.1.3: {}
@@ -11991,6 +12208,10 @@ snapshots:
 
   pify@5.0.0: {}
 
+  pixelmatch@7.1.0:
+    dependencies:
+      pngjs: 7.0.0
+
   pkcs7@1.0.4:
     dependencies:
       '@babel/runtime': 7.28.6
@@ -12014,6 +12235,8 @@ snapshots:
       playwright-core: 1.58.2
     optionalDependencies:
       fsevents: 2.3.2
+
+  pngjs@7.0.0: {}
 
   posix-character-classes@0.1.1: {}
 
@@ -12930,6 +13153,12 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  sirv@3.0.2:
+    dependencies:
+      '@polka/url': 1.0.0-next.29
+      mrmime: 2.0.1
+      totalist: 3.0.1
+
   sisteransi@1.0.5: {}
 
   slash@3.0.0: {}
@@ -13299,6 +13528,8 @@ snapshots:
   todomvc-app-css@2.4.3: {}
 
   todomvc-common@1.0.5: {}
+
+  totalist@3.0.1: {}
 
   tough-cookie@6.0.0:
     dependencies:
@@ -13680,9 +13911,9 @@ snapshots:
       terser: 5.37.0
       tsx: 4.21.0
 
-  vitest-environment-stencil@1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)):
+  vitest-environment-stencil@1.1.21(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
     dependencies:
-      '@stencil/vitest': 1.1.21(jsdom@28.0.0)(vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@stencil/vitest': 1.1.21(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
     transitivePeerDependencies:
       - '@playwright/test'
       - '@stencil/core'
@@ -13696,7 +13927,55 @@ snapshots:
       - playwright
       - vitest
 
-  vitest@4.0.18(@types/node@22.19.11)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+  vitest-environment-stencil@1.2.0(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
+    dependencies:
+      '@stencil/vitest': 1.2.0(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    transitivePeerDependencies:
+      - '@playwright/test'
+      - '@stencil/core'
+      - '@stencil/mock-doc'
+      - '@vitest/browser-playwright'
+      - '@vitest/browser-preview'
+      - '@vitest/browser-webdriverio'
+      - '@wdio/globals'
+      - happy-dom
+      - jsdom
+      - playwright
+      - vitest
+
+  vitest-environment-stencil@1.2.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
+    dependencies:
+      '@stencil/vitest': 1.2.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    transitivePeerDependencies:
+      - '@playwright/test'
+      - '@stencil/core'
+      - '@stencil/mock-doc'
+      - '@vitest/browser-playwright'
+      - '@vitest/browser-preview'
+      - '@vitest/browser-webdriverio'
+      - '@wdio/globals'
+      - happy-dom
+      - jsdom
+      - playwright
+      - vitest
+
+  vitest-environment-stencil@1.2.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
+    dependencies:
+      '@stencil/vitest': 1.2.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    transitivePeerDependencies:
+      - '@playwright/test'
+      - '@stencil/core'
+      - '@stencil/mock-doc'
+      - '@vitest/browser-playwright'
+      - '@vitest/browser-preview'
+      - '@vitest/browser-webdriverio'
+      - '@wdio/globals'
+      - happy-dom
+      - jsdom
+      - playwright
+      - vitest
+
+  vitest@4.0.18(@types/node@22.19.11)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
       '@vitest/expect': 4.0.18
       '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
@@ -13720,6 +13999,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.19.11
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
       jsdom: 28.0.0
     transitivePeerDependencies:
       - jiti
@@ -13734,10 +14014,10 @@ snapshots:
       - tsx
       - yaml
 
-  vitest@4.0.18(@types/node@24.10.13)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
+  vitest@4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
+      '@vitest/mocker': 4.0.18(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -13758,6 +14038,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.10.13
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
       jsdom: 28.0.0
     transitivePeerDependencies:
       - jiti

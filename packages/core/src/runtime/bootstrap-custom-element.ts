@@ -35,6 +35,11 @@ export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMe
 };
 
 export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
+  // Set the app start mark on first component (for consistent profiling with lazy build)
+  if (BUILD.profile && performance.mark && performance.getEntriesByName('st:app:start', 'mark').length === 0) {
+    performance.mark('st:app:start');
+  }
+
   const cmpMeta: d.ComponentRuntimeMeta = {
     $flags$: compactMeta[0],
     $tagName$: compactMeta[1],

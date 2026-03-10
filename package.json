@@ -30,7 +30,6 @@
     "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck"
   },
   "devDependencies": {
-    "@stencil/vitest": "^1.1.21",
     "@types/node": "^22",
     "oxlint": "^1.47.0",
     "prettier": "^3.8.1",

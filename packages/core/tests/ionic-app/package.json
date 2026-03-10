@@ -24,6 +24,7 @@
   "devDependencies": {
     "@playwright/test": "catalog:",
     "@stencil/playwright": "1.2.3-next.11",
+    "@stencil/vitest": "catalog:",
     "vitest": "catalog:"
   }
 }
