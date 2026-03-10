@@ -6,6 +6,8 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
 export namespace Components {
+    interface AsyncRerender {
+    }
     interface AttributeBasic {
         /**
           * @default 'my-custom-attr'
@@ -38,6 +40,12 @@ export interface EventBasicCustomEvent<T> extends CustomEvent<T> {
     target: HTMLEventBasicElement;
 }
 declare global {
+    interface HTMLAsyncRerenderElement extends Components.AsyncRerender, HTMLStencilElement {
+    }
+    var HTMLAsyncRerenderElement: {
+        prototype: HTMLAsyncRerenderElement;
+        new (): HTMLAsyncRerenderElement;
+    };
     interface HTMLAttributeBasicElement extends Components.AttributeBasic, HTMLStencilElement {
     }
     var HTMLAttributeBasicElement: {
@@ -80,6 +88,7 @@ declare global {
         new (): HTMLSlotBasicRootElement;
     };
     interface HTMLElementTagNameMap {
+        "async-rerender": HTMLAsyncRerenderElement;
         "attribute-basic": HTMLAttributeBasicElement;
         "attribute-basic-root": HTMLAttributeBasicRootElement;
         "event-basic": HTMLEventBasicElement;
@@ -88,6 +97,8 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface AsyncRerender {
+    }
     interface AttributeBasic {
         /**
           * @default 'my-custom-attr'
@@ -124,6 +135,7 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "async-rerender": AsyncRerender;
         "attribute-basic": Omit<AttributeBasic, keyof AttributeBasicAttributes> & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes]?: AttributeBasic[K] } & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes as `attr:${K}`]?: AttributeBasicAttributes[K] } & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes as `prop:${K}`]?: AttributeBasic[K] };
         "attribute-basic-root": AttributeBasicRoot;
         "event-basic": EventBasic;
@@ -135,6 +147,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "async-rerender": LocalJSX.IntrinsicElements["async-rerender"] & JSXBase.HTMLAttributes<HTMLAsyncRerenderElement>;
             "attribute-basic": LocalJSX.IntrinsicElements["attribute-basic"] & JSXBase.HTMLAttributes<HTMLAttributeBasicElement>;
             "attribute-basic-root": LocalJSX.IntrinsicElements["attribute-basic-root"] & JSXBase.HTMLAttributes<HTMLAttributeBasicRootElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
