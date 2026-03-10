@@ -204,7 +204,7 @@
     "magic-string": "^0.30.0",
     "merge-source-map": "^1.1.0",
     "mime-db": "^1.46.0",
-    "minimatch": "9.0.4",
+    "minimatch": "9.0.9",
     "node-fetch": "3.3.2",
     "open": "^9.0.0",
     "open-in-editor": "2.2.0",
