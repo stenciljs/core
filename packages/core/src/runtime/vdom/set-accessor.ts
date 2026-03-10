@@ -185,6 +185,30 @@ export const setAccessor = (
   } else if (BUILD.vdomPropOrAttr) {
     // Set property if it exists and it's not a SVG
     const isComplex = isComplexType(newValue);
+
+    // Check if this is an undefined custom element (tag contains '-' but not registered yet).
+    // For these elements, we queue the prop values to be applied when the element upgrades.
+    // This handles the case where parent components render child components before the child
+    // module is loaded (e.g., with lazy-loading custom-elements).
+    // We only queue props that look like custom element properties (camelCase), not standard
+    // HTML attributes like aria-*, data-*, etc. which should be set directly as attributes.
+    const isStandardAttr = ln.startsWith('aria-') || ln.startsWith('data-') || ln === memberName;
+    const isUndefinedCE =
+      !isProp &&
+      !isStandardAttr &&
+      elm.tagName?.includes('-') &&
+      typeof customElements !== 'undefined' &&
+      !customElements.get(elm.tagName.toLowerCase());
+
+    if (isUndefinedCE) {
+      // Queue the prop for when the element is defined and upgraded
+      if (!(elm as any)['s-pp']) {
+        (elm as any)['s-pp'] = new Map();
+      }
+      (elm as any)['s-pp'].set(memberName, newValue);
+      return;
+    }
+
     if ((isProp || (isComplex && newValue !== null)) && !isSvg) {
       try {
         if (!elm.tagName.includes('-')) {

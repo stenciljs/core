@@ -99,6 +99,20 @@ export const connectedCallback = (elm: d.HostElement) => {
         });
       }
 
+      // Pending props - apply props that were set on the element before it was upgraded.
+      // This handles the case where parent components render child custom elements before
+      // the child's module is loaded (e.g., lazy-loading with dist-custom-elements).
+      // Props were queued in setAccessor and are now applied through the proper setters.
+      if (BUILD.prop && !BUILD.hydrateServerSide) {
+        const pendingProps: Map<string, any> | undefined = (elm as any)['s-pp'];
+        if (pendingProps) {
+          delete (elm as any)['s-pp'];
+          pendingProps.forEach((value, propName) => {
+            (elm as any)[propName] = value;
+          });
+        }
+      }
+
       if (BUILD.initializeNextTick) {
         // connectedCallback, taskQueue, initialLoad
         // angular sets attribute AFTER connectCallback

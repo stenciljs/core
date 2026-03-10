@@ -28,6 +28,14 @@ export namespace Components {
     }
     interface AttributeBasicRoot {
     }
+    interface AttributeBoolean {
+        "boolState"?: boolean;
+        "noreflect"?: boolean;
+        "strState"?: string;
+    }
+    interface AttributeBooleanRoot {
+        "toggleState": () => Promise<void>;
+    }
     interface EventBasic {
     }
     interface SlotBasic {
@@ -57,6 +65,18 @@ declare global {
     var HTMLAttributeBasicRootElement: {
         prototype: HTMLAttributeBasicRootElement;
         new (): HTMLAttributeBasicRootElement;
+    };
+    interface HTMLAttributeBooleanElement extends Components.AttributeBoolean, HTMLStencilElement {
+    }
+    var HTMLAttributeBooleanElement: {
+        prototype: HTMLAttributeBooleanElement;
+        new (): HTMLAttributeBooleanElement;
+    };
+    interface HTMLAttributeBooleanRootElement extends Components.AttributeBooleanRoot, HTMLStencilElement {
+    }
+    var HTMLAttributeBooleanRootElement: {
+        prototype: HTMLAttributeBooleanRootElement;
+        new (): HTMLAttributeBooleanRootElement;
     };
     interface HTMLEventBasicElementEventMap {
         "testEvent": any;
@@ -91,6 +111,8 @@ declare global {
         "async-rerender": HTMLAsyncRerenderElement;
         "attribute-basic": HTMLAttributeBasicElement;
         "attribute-basic-root": HTMLAttributeBasicRootElement;
+        "attribute-boolean": HTMLAttributeBooleanElement;
+        "attribute-boolean-root": HTMLAttributeBooleanRootElement;
         "event-basic": HTMLEventBasicElement;
         "slot-basic": HTMLSlotBasicElement;
         "slot-basic-root": HTMLSlotBasicRootElement;
@@ -119,6 +141,13 @@ declare namespace LocalJSX {
     }
     interface AttributeBasicRoot {
     }
+    interface AttributeBoolean {
+        "boolState"?: boolean;
+        "noreflect"?: boolean;
+        "strState"?: string;
+    }
+    interface AttributeBooleanRoot {
+    }
     interface EventBasic {
         "onTestEvent"?: (event: EventBasicCustomEvent<any>) => void;
     }
@@ -133,11 +162,18 @@ declare namespace LocalJSX {
         "customAttr": string;
         "getter": string;
     }
+    interface AttributeBooleanAttributes {
+        "boolState": boolean;
+        "strState": string;
+        "noreflect": boolean;
+    }
 
     interface IntrinsicElements {
         "async-rerender": AsyncRerender;
         "attribute-basic": Omit<AttributeBasic, keyof AttributeBasicAttributes> & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes]?: AttributeBasic[K] } & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes as `attr:${K}`]?: AttributeBasicAttributes[K] } & { [K in keyof AttributeBasic & keyof AttributeBasicAttributes as `prop:${K}`]?: AttributeBasic[K] };
         "attribute-basic-root": AttributeBasicRoot;
+        "attribute-boolean": Omit<AttributeBoolean, keyof AttributeBooleanAttributes> & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes]?: AttributeBoolean[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `attr:${K}`]?: AttributeBooleanAttributes[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `prop:${K}`]?: AttributeBoolean[K] };
+        "attribute-boolean-root": AttributeBooleanRoot;
         "event-basic": EventBasic;
         "slot-basic": SlotBasic;
         "slot-basic-root": SlotBasicRoot;
@@ -150,6 +186,8 @@ declare module "@stencil/core" {
             "async-rerender": LocalJSX.IntrinsicElements["async-rerender"] & JSXBase.HTMLAttributes<HTMLAsyncRerenderElement>;
             "attribute-basic": LocalJSX.IntrinsicElements["attribute-basic"] & JSXBase.HTMLAttributes<HTMLAttributeBasicElement>;
             "attribute-basic-root": LocalJSX.IntrinsicElements["attribute-basic-root"] & JSXBase.HTMLAttributes<HTMLAttributeBasicRootElement>;
+            "attribute-boolean": LocalJSX.IntrinsicElements["attribute-boolean"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanElement>;
+            "attribute-boolean-root": LocalJSX.IntrinsicElements["attribute-boolean-root"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanRootElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "slot-basic": LocalJSX.IntrinsicElements["slot-basic"] & JSXBase.HTMLAttributes<HTMLSlotBasicElement>;
             "slot-basic-root": LocalJSX.IntrinsicElements["slot-basic-root"] & JSXBase.HTMLAttributes<HTMLSlotBasicRootElement>;
