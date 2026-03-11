@@ -106,6 +106,28 @@ export * from '${USER_INDEX_ENTRY_ID}';
       expect(options.preserveEntrySignatures).toEqual('allow-extension');
     });
 
+    it('should set experimentalSyncQueue properties on BundleOptions when taskQueue is immediate', () => {
+      const { config, buildCtx, compilerCtx } = setup();
+      config.taskQueue = 'immediate';
+      const options = getBundleOptions(config, buildCtx, compilerCtx, {
+        type: DIST_CUSTOM_ELEMENTS,
+        experimentalSyncQueue: true,
+      });
+      expect(options.conditionals.taskQueue).toBe(false);
+      expect(options.conditionals.syncQueue).toBe(true);
+    });
+
+    it('should NOT set experimentalSyncQueue properties on BundleOptions when taskQueue is not immediate', () => {
+      const { config, buildCtx, compilerCtx } = setup();
+      config.taskQueue = 'async'; // Default
+      const options = getBundleOptions(config, buildCtx, compilerCtx, {
+        type: DIST_CUSTOM_ELEMENTS,
+        experimentalSyncQueue: true,
+      });
+      // Should remain true (default for async)
+      expect(options.conditionals.taskQueue).toBe(true);
+    });
+
     it.each([true, false, undefined])('should set externalRuntime correctly when %p', (externalRuntime) => {
       const { config, buildCtx, compilerCtx } = setup();
       const options = getBundleOptions(config, buildCtx, compilerCtx, {

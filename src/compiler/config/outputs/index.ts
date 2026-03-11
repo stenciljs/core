@@ -25,7 +25,7 @@ export const validateOutputTargets = (config: d.ValidatedConfig, diagnostics: d.
 
   config.outputTargets = [
     ...validateCollection(config, userOutputs),
-    ...validateCustomElement(config, userOutputs),
+    ...validateCustomElement(config, diagnostics, userOutputs),
     ...validateCustomOutput(config, diagnostics, userOutputs),
     ...validateLazy(config, userOutputs),
     ...validateWww(config, diagnostics, userOutputs),

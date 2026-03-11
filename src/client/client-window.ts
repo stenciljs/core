@@ -1,6 +1,7 @@
 import { BUILD } from '@app-data';
 
 import type * as d from '../declarations';
+import { PLATFORM_FLAGS } from '../runtime/runtime-constants';
 
 interface StencilWindow extends Omit<Window, 'document'> {
   document?: Document;
@@ -11,7 +12,7 @@ export const win = (typeof window !== 'undefined' ? window : ({} as StencilWindo
 export const H = ((win as any).HTMLElement || (class {} as any)) as HTMLElement;
 
 export const plt: d.PlatformRuntime = {
-  $flags$: 0,
+  $flags$: BUILD.syncQueue ? PLATFORM_FLAGS.queueSync : 0,
   $resourcesUrl$: '',
   jmp: (h) => h(),
   raf: (h) => requestAnimationFrame(h),

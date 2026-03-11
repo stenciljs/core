@@ -1,6 +1,7 @@
-import { COPY, DIST_TYPES, isBoolean, isOutputTargetDistCustomElements, join } from '@utils';
+import { buildError, COPY, DIST_TYPES, isBoolean, isOutputTargetDistCustomElements, join } from '@utils';
 
 import type {
+  Diagnostic,
   OutputTarget,
   OutputTargetCopy,
   OutputTargetDistCustomElements,
@@ -16,11 +17,13 @@ import { validateCopy } from '../validate-copy';
  * fields that are omitted with sensible defaults and/or creating additional supporting output targets that were not
  * explicitly defined by the user
  * @param config the Stencil configuration associated with the project being compiled
+ * @param diagnostics the list of diagnostics to add any validation errors to
  * @param userOutputs the output target(s) specified by the user
  * @returns the validated output target(s)
  */
 export const validateCustomElement = (
   config: ValidatedConfig,
+  diagnostics: Diagnostic[],
   userOutputs: ReadonlyArray<OutputTarget>,
 ): ReadonlyArray<OutputTargetDistCustomElements | OutputTargetDistTypes | OutputTargetCopy> => {
   const defaultDir = 'dist';
@@ -60,6 +63,11 @@ export const validateCustomElement = (
           fileName: outputTarget.autoLoader.fileName || 'loader',
           autoStart: outputTarget.autoLoader.autoStart !== false,
         };
+      }
+
+      if (outputTarget.experimentalSyncQueue && config.taskQueue !== 'immediate') {
+        const err = buildError(diagnostics);
+        err.messageText = `The 'experimentalSyncQueue' option in 'dist-custom-elements' output target requires 'taskQueue' to be set to 'immediate' in the Stencil config. Please update your config to use 'taskQueue: "immediate"'.`;
       }
 
       // unlike other output targets, Stencil does not allow users to define the output location of types at this time

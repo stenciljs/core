@@ -159,6 +159,7 @@ export interface BuildFeatures {
   reflect: boolean;
 
   taskQueue: boolean;
+  syncQueue: boolean;
 }
 
 export interface BuildConditionals extends Partial<BuildFeatures> {

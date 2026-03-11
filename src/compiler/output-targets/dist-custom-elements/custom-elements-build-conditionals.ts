@@ -8,11 +8,13 @@ import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-da
  *
  * @param config a validated user-supplied config
  * @param cmps metadata about the components currently being compiled
+ * @param outputTarget the output target configuration
  * @returns build conditionals appropriate for the `dist-custom-elements` OT
  */
 export const getCustomElementsBuildConditionals = (
   config: d.ValidatedConfig,
   cmps: d.ComponentCompilerMeta[],
+  outputTarget?: d.OutputTargetDistCustomElements,
 ): d.BuildConditionals => {
   // because custom elements bundling does not customize the build conditionals by default
   // then the default in "import { BUILD, NAMESPACE } from '@stencil/core/internal/app-data'"
@@ -29,6 +31,10 @@ export const getCustomElementsBuildConditionals = (
 
   updateBuildConditionals(config, build);
   build.devTools = false;
+
+  if (outputTarget?.experimentalSyncQueue && config.taskQueue === 'immediate') {
+    build.syncQueue = true;
+  }
 
   return build;
 };

@@ -2586,6 +2586,18 @@ export interface OutputTargetDistCustomElements extends OutputTargetValidationCo
    */
   customElementsExportBehavior?: CustomElementsExportBehavior;
   /**
+   * **Experimental**: Disables the async queue and executes tasks synchronously.
+   * This can be useful for reducing FOUC (Flash of Unstyled Content) in some scenarios,
+   * but may impact performance.
+   *
+   * Note: This option requires `taskQueue: 'immediate'` to be set in the global Stencil config.
+   *
+   * When enabled: The task queue will execute tasks immediately (synchronously).
+   *
+   * @default false
+   */
+  experimentalSyncQueue?: boolean;
+  /**
    * Generate an auto-loader script that uses MutationObserver to lazily load
    * and define custom elements as they appear in the DOM.
    *

@@ -71,6 +71,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
     vdomText: cmps.some((c) => c.hasVdomText),
     taskQueue: true,
+    syncQueue: false,
   };
   f.vdomAttribute = f.vdomAttribute || f.reflect;
   f.vdomPropOrAttr = f.vdomPropOrAttr || f.reflect;

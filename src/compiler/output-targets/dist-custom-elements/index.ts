@@ -78,7 +78,7 @@ export const getBundleOptions = (
 ): BundleOptions => ({
   id: 'customElements',
   platform: 'client',
-  conditionals: getCustomElementsBuildConditionals(config, buildCtx.components),
+  conditionals: getCustomElementsBuildConditionals(config, buildCtx.components, outputTarget),
   customBeforeTransformers: getCustomBeforeTransformers(
     config,
     compilerCtx,
@@ -331,6 +331,7 @@ export const generateEntryPoint = (
  * @param compilerCtx the current compiler context
  * @param components the components that will be compiled as a part of the current build
  * @param outputTarget the output target configuration
+ * @param buildCtx the current build context
  * @returns a list of transformers to use in the transpilation process
  */
 const getCustomBeforeTransformers = (
