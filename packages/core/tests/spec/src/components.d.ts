@@ -73,6 +73,8 @@ export namespace Components {
         "getSet": { [key: string]: string };
         "json": { foo: string };
     }
+    interface AttributeHost {
+    }
     interface EventBasic {
     }
     interface SlotBasic {
@@ -127,6 +129,12 @@ declare global {
         prototype: HTMLAttributeDeserializerElement;
         new (): HTMLAttributeDeserializerElement;
     };
+    interface HTMLAttributeHostElement extends Components.AttributeHost, HTMLStencilElement {
+    }
+    var HTMLAttributeHostElement: {
+        prototype: HTMLAttributeHostElement;
+        new (): HTMLAttributeHostElement;
+    };
     interface HTMLEventBasicElementEventMap {
         "testEvent": any;
     }
@@ -164,6 +172,7 @@ declare global {
         "attribute-boolean-root": HTMLAttributeBooleanRootElement;
         "attribute-complex": HTMLAttributeComplexElement;
         "attribute-deserializer": HTMLAttributeDeserializerElement;
+        "attribute-host": HTMLAttributeHostElement;
         "event-basic": HTMLEventBasicElement;
         "slot-basic": HTMLSlotBasicElement;
         "slot-basic-root": HTMLSlotBasicRootElement;
@@ -229,6 +238,8 @@ declare namespace LocalJSX {
         "getSet"?: { [key: string]: string };
         "json"?: { foo: string };
     }
+    interface AttributeHost {
+    }
     interface EventBasic {
         "onTestEvent"?: (event: EventBasicCustomEvent<any>) => void;
     }
@@ -275,6 +286,7 @@ declare namespace LocalJSX {
         "attribute-boolean-root": AttributeBooleanRoot;
         "attribute-complex": Omit<AttributeComplex, keyof AttributeComplexAttributes> & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes]?: AttributeComplex[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `attr:${K}`]?: AttributeComplexAttributes[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `prop:${K}`]?: AttributeComplex[K] };
         "attribute-deserializer": Omit<AttributeDeserializer, keyof AttributeDeserializerAttributes> & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes]?: AttributeDeserializer[K] } & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes as `attr:${K}`]?: AttributeDeserializerAttributes[K] } & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes as `prop:${K}`]?: AttributeDeserializer[K] };
+        "attribute-host": AttributeHost;
         "event-basic": EventBasic;
         "slot-basic": SlotBasic;
         "slot-basic-root": SlotBasicRoot;
@@ -291,6 +303,7 @@ declare module "@stencil/core" {
             "attribute-boolean-root": LocalJSX.IntrinsicElements["attribute-boolean-root"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanRootElement>;
             "attribute-complex": LocalJSX.IntrinsicElements["attribute-complex"] & JSXBase.HTMLAttributes<HTMLAttributeComplexElement>;
             "attribute-deserializer": LocalJSX.IntrinsicElements["attribute-deserializer"] & JSXBase.HTMLAttributes<HTMLAttributeDeserializerElement>;
+            "attribute-host": LocalJSX.IntrinsicElements["attribute-host"] & JSXBase.HTMLAttributes<HTMLAttributeHostElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "slot-basic": LocalJSX.IntrinsicElements["slot-basic"] & JSXBase.HTMLAttributes<HTMLSlotBasicElement>;
             "slot-basic-root": LocalJSX.IntrinsicElements["slot-basic-root"] & JSXBase.HTMLAttributes<HTMLSlotBasicRootElement>;
