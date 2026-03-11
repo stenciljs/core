@@ -363,6 +363,14 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
     }
 
     emitLifecycleEvent(elm, 'componentDidLoad');
+
+    // Set isWatchReady after componentDidLoad so watchers don't fire on initial prop values.
+    // Per lifecycle docs, @Watch should only fire on subsequent prop changes, not initial load.
+    // Watchers with 'immediate' flag will still fire (checked separately in setValue).
+    if (BUILD.propChangeCallback) {
+      hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
+    }
+
     endPostUpdate();
 
     if (BUILD.asyncLoading) {

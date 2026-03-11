@@ -62,7 +62,10 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
 
       if (hostRef.$instanceValues$.has(memberName)) {
         instance[memberName] = hostRef.$instanceValues$.get(memberName);
-      } else if (ogValue !== undefined) {
+      } else if (ogValue !== undefined && instance[memberName] !== ogValue) {
+        // Only set if the value actually differs after re-wiring.
+        // This avoids triggering setters unnecessarily when the getter
+        // already returns the same value (e.g., custom getter/setter props).
         instance[memberName] = ogValue;
       }
     }

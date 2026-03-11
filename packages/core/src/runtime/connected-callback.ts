@@ -103,7 +103,8 @@ export const connectedCallback = (elm: d.HostElement) => {
       // This handles the case where parent components render child custom elements before
       // the child's module is loaded (e.g., lazy-loading with dist-custom-elements).
       // Props were queued in setAccessor and are now applied through the proper setters.
-      if (BUILD.prop && !BUILD.hydrateServerSide) {
+      // This only applies to dist-custom-elements (!lazyLoad), not dist which handles this differently.
+      if (!BUILD.lazyLoad && BUILD.prop && !BUILD.hydrateServerSide) {
         const pendingProps: Map<string, any> | undefined = (elm as any)['s-pp'];
         if (pendingProps) {
           delete (elm as any)['s-pp'];

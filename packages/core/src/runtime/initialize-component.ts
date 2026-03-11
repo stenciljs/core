@@ -87,9 +87,8 @@ export const initializeComponent = async (
         if (BUILD.member) {
           hostRef.$flags$ &= ~HOST_FLAGS.isConstructingInstance;
         }
-        if (BUILD.propChangeCallback) {
-          hostRef.$flags$ |= HOST_FLAGS.isWatchReady;
-        }
+        // Note: isWatchReady is now set in postUpdateComponent after componentDidLoad,
+        // per lifecycle docs that @Watch should only fire on subsequent prop changes.
         endNewInstance();
 
         // For components that relocate slots, defer connectedCallback until after first render
@@ -116,12 +115,9 @@ export const initializeComponent = async (
          * </script>
          * ```
          */
-        const cmpTag = elm.localName;
-
-        // wait for the CustomElementRegistry to mark the component as ready before setting `isWatchReady`. Otherwise,
-        // watchers may fire prematurely if `customElements.get()`/`customElements.whenDefined()` resolves _before_
-        // Stencil has completed instantiating the component.
-        customElements.whenDefined(cmpTag).then(() => (hostRef.$flags$ |= HOST_FLAGS.isWatchReady));
+        // Note: cmpTag was previously used for whenDefined().then() to set isWatchReady,
+        // but isWatchReady is now set in postUpdateComponent after componentDidLoad,
+        // per lifecycle docs that @Watch should only fire on subsequent prop changes.
       }
 
       if (BUILD.style && Cstr && Cstr.style) {

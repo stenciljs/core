@@ -1,7 +1,7 @@
 # Migrating wdio Tests to @stencil/vitest
 
 - We are migrating from WebDriverIO (wdio) to @stencil/vitest for testing Stencil components. 
-- The wdio tests are under `packages/core/tests/wdio` and the new @stencil/vitest tests are under `packages/core/tests/spec`.
+- The wdio tests / fixtures generally are under `packages/core/tests/wdio` and the new @stencil/vitest tests should be under `packages/core/tests/spec/src/components` generally.
 - The setup for @stencil/vitest is already done - you just need to sequentially migrate the tests from wdio to @stencil/vitest.
 - Migrated fixtures should be renamed from: `cmp.tsx` to `DESCRIPTIVE_NAME.tsx` (e.g. `cmp.tsx` > `event-basic.tsx`)
 - Migrated test files should be renamed from `cmp.test.tsx` to `DESCRIPTIVE_NAME.spec.tsx` (e.g. `cmp.test.tsx` > `event-basic.spec.tsx`).  
