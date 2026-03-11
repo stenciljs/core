@@ -92,6 +92,15 @@ export const connectedCallback = (elm: d.HostElement) => {
       if (BUILD.prop && !BUILD.hydrateServerSide && cmpMeta.$members$) {
         Object.entries(cmpMeta.$members$).map(([memberName, [memberFlags]]) => {
           if (memberFlags & MEMBER_FLAGS.Prop && Object.prototype.hasOwnProperty.call(elm, memberName)) {
+            // Skip accessor properties created by reWireGetterSetter for ES2022 class field support.
+            // ES2022 rewiring creates instance accessors that delegate to the prototype, and these
+            // should not be treated as lazy data properties that need to be re-set.
+            if (cmpMeta.$flags$ & CMP_FLAGS.hasModernPropertyDecls) {
+              const desc = Object.getOwnPropertyDescriptor(elm, memberName);
+              if (desc && (desc.get || desc.set)) {
+                return;
+              }
+            }
             const value = (elm as any)[memberName];
             delete (elm as any)[memberName];
             (elm as any)[memberName] = value;

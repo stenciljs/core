@@ -1,8 +1,9 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('attribute-boolean', () => {
   it('button click rerenders', async () => {
     const { root, waitForChanges } = await render(<attribute-boolean-root />);
+    await waitForExist('attribute-boolean-root.hydrated');
 
     expect(root).toHaveAttribute('aria-hidden', 'false');
     expect(root).toHaveAttribute('fixedtrue', 'true');
@@ -13,7 +14,8 @@ describe('attribute-boolean', () => {
     expect(root).not.toHaveAttribute('no-appear');
     expect(root).not.toHaveAttribute('no-appear-two');
 
-    const child = root.querySelector('attribute-boolean')!;
+    await waitForExist('attribute-boolean[str-state="false"]');
+    const child = root.querySelector('attribute-boolean');
     expect(child).toHaveAttribute('aria-hidden', 'false');
     expect(child).toHaveAttribute('str-state', 'false');
     expect(child).not.toHaveAttribute('bool-state');
