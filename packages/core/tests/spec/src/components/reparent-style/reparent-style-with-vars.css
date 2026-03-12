@@ -1,0 +1,13 @@
+:root {
+  --custom-color: blue;
+}
+:host {
+  background-color: var(--custom-color, blue);
+  display: block;
+  padding: 2em;
+}
+
+.css-entry {
+  color: purple;
+  font-weight: bold;
+}

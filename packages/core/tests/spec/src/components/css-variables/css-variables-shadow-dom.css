@@ -1,0 +1,20 @@
+
+:host {
+  --color: blue;
+  --background: red;
+}
+
+:host(.set-green) {
+  --background: green;
+}
+
+.inner-div {
+  background: var(--background);
+  color: var(--color);
+}
+
+.black-global-shadow {
+  background: var(--global-background);
+  color: var(--global-color);
+  font-weight: var(--font-weight);
+}

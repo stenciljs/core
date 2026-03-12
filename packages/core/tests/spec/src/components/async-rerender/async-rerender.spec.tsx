@@ -1,5 +1,4 @@
 import { render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
-import { page } from 'vitest/browser';
 
 describe('asynchronous re-rendering', () => {
   it('button click re-renders', async () => {

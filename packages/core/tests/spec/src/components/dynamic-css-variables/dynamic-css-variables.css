@@ -1,0 +1,7 @@
+:root {
+  --font-color: blue;
+}
+
+header {
+  color: var(--font-color);
+}

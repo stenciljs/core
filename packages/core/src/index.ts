@@ -1,5 +1,6 @@
 export {
   Build,
+  Fragment,
   forceUpdate,
   getAssetPath,
   getElement,
@@ -14,5 +15,6 @@ export {
   setErrorHandler,
   setMode,
   setPlatformHelpers,
+  setTagTransformer,
   writeTask,
 } from './client/index.js';

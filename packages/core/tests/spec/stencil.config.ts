@@ -1,6 +1,7 @@
 import type { Config } from '@stencil/core';
 
 export const config: Config = {
+  tsconfig: 'tsconfig.stencil.json',
   namespace: 'TestApp',
   outputTargets: [
     {
@@ -15,10 +16,10 @@ export const config: Config = {
       autoLoader: true,
     },
   ],
+  globalScript: 'src/global.ts',
   buildDist: true,
   extras: {
     lifecycleDOMEvents: true,
     experimentalSlotFixes: true,
-    experimentalScopedSlotChanges: true,
   },
 };
