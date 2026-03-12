@@ -60,8 +60,11 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
   }
   if (BUILD.asyncLoading) {
     hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
-    hostElement['s-p'] = [];
-    hostElement['s-rc'] = [];
+    // Preserve any existing s-p/s-rc arrays (e.g. pre-set by the autoloader
+    // before this element was upgraded) so that promises pushed by children
+    // that connected before this element's constructor ran are not lost.
+    if (!hostElement['s-p']) hostElement['s-p'] = [];
+    if (!hostElement['s-rc']) hostElement['s-rc'] = [];
   }
   if (BUILD.lazyLoad) {
     hostRef.$fetchedCbList$ = [];
