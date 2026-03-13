@@ -1,4 +1,5 @@
-import { Fragment, render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
+import { Fragment } from '@stencil/core';
 
 describe('listen-reattach', () => {
   it('should receive click events, remove/attach, and receive more events', async () => {
@@ -12,13 +13,15 @@ describe('listen-reattach', () => {
       </>,
     );
 
+    await waitForExist('listen-reattach.hydrated');
     const box = document.querySelector('.box')!;
     const moveable = document.querySelector('listen-reattach')!;
     const button = document.querySelector('#moveIt')!;
     button.addEventListener('click', function () {
       box.appendChild(moveable);
     });
-
+    await waitForChanges();
+    
     expect(document.querySelector('#clicked')).toHaveTextContent('Clicked: 0');
 
     for (let clicks = 1; clicks <= 2; clicks++) {

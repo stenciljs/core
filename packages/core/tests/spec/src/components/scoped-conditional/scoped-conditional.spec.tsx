@@ -1,26 +1,28 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-conditional', () => {
   it('renders the initial slotted content', async () => {
-    await render(
+    const { root } = await render(
       <scoped-conditional>
         <div>This div will be slotted in</div>
       </scoped-conditional>,
     );
+    await waitForExist('scoped-conditional.hydrated');
 
-    const host = document.querySelector('scoped-conditional')!;
+    const host = root;
     const innerDiv = host.querySelector('div')!;
     expect(innerDiv.textContent).toBe(`before slot->This div will be slotted in<-after slot`);
   });
 
   it('renders the slotted content after toggling the message', async () => {
-    const { waitForChanges } = await render(
+    const { root, waitForChanges } = await render<HTMLScopedConditionalElement>(
       <scoped-conditional>
         <div>This div will be slotted in</div>
       </scoped-conditional>,
     );
+    await waitForExist('scoped-conditional.hydrated');
 
-    const host = document.querySelector('scoped-conditional') as any;
+    const host = root;  
     // toggle the 'Hello' message, which should insert a new <div/> into the DOM & _not_ remove the slotted content
     host.renderHello = true;
     await waitForChanges();

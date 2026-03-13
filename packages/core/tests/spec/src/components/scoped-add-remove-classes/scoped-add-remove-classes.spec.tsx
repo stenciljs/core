@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped adding and removing of classes', () => {
   it('clicking new items, adds class and removes other item classes', async () => {

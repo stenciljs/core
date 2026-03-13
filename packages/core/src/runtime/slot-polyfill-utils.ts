@@ -244,6 +244,7 @@ export function patchSlotNode(node: d.RenderNode) {
  * @param elm the slot node to dispatch the event from
  */
 export function dispatchSlotChangeEvent(elm: d.RenderNode) {
+  (elm as any).name = elm['s-sn'] || '';
   elm.dispatchEvent(new CustomEvent('slotchange', { bubbles: false, cancelable: false, composed: false }));
 }
 

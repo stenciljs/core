@@ -1,20 +1,20 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-text', () => {
   it('sets the textContent in the slot location', async () => {
-    await render(<cmp-label>This text should go in a slot</cmp-label>);
-
-    const cmpLabel = document.querySelector('cmp-label')!;
-    cmpLabel.textContent = 'New text to go in the slot';
-    expect(cmpLabel.textContent.trim()).toBe('New text to go in the slot');
+    const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
+    await waitForExist('cmp-label.hydrated');
+    
+    root.textContent = 'New text to go in the slot';
+    expect(root.textContent.trim()).toBe('New text to go in the slot');
   });
 
   it('leaves the structure of the label intact', async () => {
-    await render(<cmp-label>This text should go in a slot</cmp-label>);
+    const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
+    await waitForExist('cmp-label.hydrated');
 
-    const cmpLabel = document.querySelector('cmp-label')!;
-    cmpLabel.textContent = 'New text for label structure testing';
-    const label = cmpLabel.querySelector('label')!;
+    root.textContent = 'New text for label structure testing';
+    const label = root.querySelector('label')!;
 
     /**
      * Expect two child nodes in the label

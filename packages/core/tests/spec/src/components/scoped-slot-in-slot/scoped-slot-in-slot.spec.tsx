@@ -1,16 +1,16 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-in-slot', () => {
   it('correctly renders content slotted through multiple levels of nested slots', async () => {
-    await render(
+    const { root } = await render(
       <ion-host>
         <span slot="label">Label text</span>
         <span slot="suffix">Suffix text</span>
         <span slot="message">Message text</span>
       </ion-host>,
     );
-
-    const host = document.querySelector('ion-host')!;
+    await waitForExist('ion-host.hydrated');
+    const host = root;
     expect(host).toBeDefined();
 
     // Check the parent content

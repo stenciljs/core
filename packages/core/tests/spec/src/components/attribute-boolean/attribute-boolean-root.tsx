@@ -36,7 +36,7 @@ export class AttributeBooleanRoot {
         boolState={this.state}
         strState={this.state}
         noreflect={this.state}
-        tappable={this.state}
+        attr:tappable={this.state}
         aria-hidden={`${this.state}`}
       />,
     ];

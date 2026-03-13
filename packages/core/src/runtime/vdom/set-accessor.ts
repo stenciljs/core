@@ -190,13 +190,14 @@ export const setAccessor = (
     // For these elements, we queue the prop values to be applied when the element upgrades.
     // This handles the case where parent components render child components before the child
     // module is loaded (e.g., with lazy-loading custom-elements).
-    // We only queue props that look like custom element properties (camelCase), not standard
-    // HTML attributes like aria-*, data-*, etc. which should be set directly as attributes.
-    const isStandardAttr = ln.startsWith('aria-') || ln.startsWith('data-') || ln === memberName;
+    // We only queue props, not standard HTML attributes like aria-*, data-*, etc.
+    // which should be set directly as attributes.
+    const isStandardAttr = ln.startsWith('aria-') || ln.startsWith('data-');
     const isUndefinedCE =
       !isProp &&
       !isStandardAttr &&
       elm.tagName?.includes('-') &&
+      elm.tagName !== 'SLOT-FB' &&
       typeof customElements !== 'undefined' &&
       !customElements.get(elm.tagName.toLowerCase());
 

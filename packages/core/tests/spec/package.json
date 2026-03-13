@@ -5,7 +5,7 @@
   "main": "dist/lazy/index.cjs.js",
   "collection": "dist/lazy/collection/collection-manifest.json",
   "scripts": {
-    "test": "stencil-test --prod",
+    "test": "stencil-test",
     "test:watch": "stencil-test --watch",
     "test:dist": "stencil-test --project dist",
     "test:custom-elements": "stencil-test --project custom-elements"

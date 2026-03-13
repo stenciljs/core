@@ -58,11 +58,18 @@ export const registerStyle = (scopeId: string, cssText: string, allowCS: boolean
  */
 export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMeta, mode?: string) => {
   const scopeId = getScopeId(cmpMeta, mode);
-  const style = styles.get(scopeId);
+  let style = styles.get(scopeId);
 
   if (!BUILD.attachStyles || !win.document) {
     return scopeId;
   }
+        
+  // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
+  if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
+    if (!style) style = '';
+    style+= SLOT_FB_CSS;
+  }
+
   // if an element is NOT connected then getRootNode() will return the wrong root node
   // so the fallback is to always use the document for the root node in those cases
   styleContainerNode = styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : win.document;
@@ -71,7 +78,8 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
     if (typeof style === 'string') {
       styleContainerNode = styleContainerNode.head || (styleContainerNode as HTMLElement);
       let appliedStyles = rootAppliedStyles.get(styleContainerNode);
-      let styleElm;
+      let styleElm: HTMLStyleElement;
+
       if (!appliedStyles) {
         rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
       }
@@ -181,10 +189,6 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleContainerNode.insertBefore(styleElm, null);
         }
 
-        // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
-        if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-          styleElm.textContent += SLOT_FB_CSS;
-        }
 
         if (appliedStyles) {
           appliedStyles.add(scopeId);
@@ -233,6 +237,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       }
     }
   }
+
   return scopeId;
 };
 

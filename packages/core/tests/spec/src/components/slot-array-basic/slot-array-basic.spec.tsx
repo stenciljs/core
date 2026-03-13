@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('slot array basic', () => {
   it('renders slotted content between header/footer', async () => {
@@ -21,8 +21,9 @@ describe('slot array basic', () => {
           <content-bottom>Content Bottom</content-bottom>
         </slot-array-basic>
       </div>,
-    );
+     {waitForReady: false});
 
+    await waitForExist('.results1.hydrated');
     let children = document.querySelectorAll('.results1 > *');
     expect(children.length).toBe(2);
     expect(children[0].tagName.toLowerCase()).toBe('header');

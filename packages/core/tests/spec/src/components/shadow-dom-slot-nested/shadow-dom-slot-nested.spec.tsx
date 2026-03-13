@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 const CSS = `main {
   color: blue;
@@ -17,7 +17,9 @@ describe('shadow-dom-slot-nested', () => {
         main content
         <shadow-dom-slot-nested-root></shadow-dom-slot-nested-root>
       </main>,
+      {waitForReady: false},
     );
+    await waitForExist('shadow-dom-slot-nested-root.hydrated');
 
     const main = document.querySelector('main')!;
     expect(window.getComputedStyle(main).color).toBe('rgb(0, 0, 255)');

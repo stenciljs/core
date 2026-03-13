@@ -1,15 +1,16 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-insertion-order-after-interaction', () => {
   describe('append', () => {
     it('inserts a DOM element at the end of the slot', async () => {
-      const { waitForChanges } = await render(
+      const { root, waitForChanges } = await render(
         <scoped-slot-insertion-order-after-interaction>
           <p>My initial slotted content.</p>
         </scoped-slot-insertion-order-after-interaction>,
       );
 
-      const host = document.querySelector('scoped-slot-insertion-order-after-interaction')!;
+      await waitForExist('scoped-slot-insertion-order-after-interaction.hydrated');
+      const host = root;
       expect(host).toBeDefined();
 
       expect(host.children.length).toBe(1);
@@ -35,13 +36,13 @@ describe('scoped-slot-insertion-order-after-interaction', () => {
 
   describe('appendChild', () => {
     it('inserts a DOM element at the end of the slot', async () => {
-      const { waitForChanges } = await render(
+      const { root, waitForChanges } = await render(
         <scoped-slot-insertion-order-after-interaction>
           <p>My initial slotted content.</p>
         </scoped-slot-insertion-order-after-interaction>,
       );
-
-      const host = document.querySelector('scoped-slot-insertion-order-after-interaction')!;
+      await waitForExist('scoped-slot-insertion-order-after-interaction.hydrated');
+      const host = root;
       expect(host).toBeDefined();
 
       expect(host.children.length).toBe(1);
@@ -67,13 +68,13 @@ describe('scoped-slot-insertion-order-after-interaction', () => {
 
   describe('prepend', () => {
     it('inserts a DOM element at the start of the slot', async () => {
-      const { waitForChanges } = await render(
+      const { root, waitForChanges } = await render(
         <scoped-slot-insertion-order-after-interaction>
           <p>My initial slotted content.</p>
         </scoped-slot-insertion-order-after-interaction>,
       );
-
-      const host = document.querySelector('scoped-slot-insertion-order-after-interaction')!;
+      await waitForExist('scoped-slot-insertion-order-after-interaction.hydrated');
+      const host = root;  
       expect(host).toBeDefined();
 
       expect(host.children.length).toBe(1);

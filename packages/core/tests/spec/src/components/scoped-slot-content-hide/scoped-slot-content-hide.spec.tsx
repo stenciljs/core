@@ -1,15 +1,15 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-content-hide', () => {
   it('can toggle content visibility according to the presence of a slot', async () => {
-    const { waitForChanges } = await render(
+    const { root, waitForChanges } = await render<HTMLScopedSlotContentHideElement>(
       <scoped-slot-content-hide use-slot={false}>
         testing
         <div class="inside-slot">inside slot</div>
       </scoped-slot-content-hide>,
     );
+    await waitForExist('scoped-slot-content-hide.hydrated');
 
-    const root = document.querySelector('scoped-slot-content-hide') as any;
     const slottedDiv = root.querySelector('.inside-slot') as HTMLElement;
 
     // Initially useSlot is false, so content should be hidden

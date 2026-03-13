@@ -1,4 +1,5 @@
-import { Fragment, render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
+import { Fragment } from '@stencil/core';
 
 /**
  * Tests for the patched `removeChild()` method on `scoped` components.
@@ -17,6 +18,7 @@ describe('remove-child-patch', () => {
       </>,
     );
 
+    await waitForExist('remove-child-patch.hydrated');
     const host = document.querySelector('remove-child-patch')!;
     document.querySelector('#remove-child-button')!.addEventListener('click', () => {
       const slotContainer = host.querySelector('.slot-container')!;
@@ -47,6 +49,7 @@ describe('remove-child-patch', () => {
       </>,
     );
 
+    await waitForExist('remove-child-patch.hydrated');
     const host = document.querySelector('remove-child-patch')!;
     document.querySelector('#remove-child-button')!.addEventListener('click', () => {
       const slotContainer = host.querySelector('.slot-container')!;
@@ -80,6 +83,7 @@ describe('remove-child-patch', () => {
       </>,
     );
 
+    await waitForExist('remove-child-patch.hydrated');
     const host = document.querySelector('remove-child-patch')!;
     document.querySelector('#remove-child-div-button')!.addEventListener('click', () => {
       const elementToRemove = host.querySelector('div');

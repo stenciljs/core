@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-slotchange', () => {
   it('checks that internal, stencil content changes fire slotchange events', async () => {
@@ -7,7 +7,7 @@ describe('scoped-slot-slotchange', () => {
         <p>My initial slotted content.</p>
       </scoped-slot-slotchange-wrap>,
     );
-
+    await waitForExist('scoped-slot-slotchange-wrap.hydrated');
     const slotChangeEle = document.querySelector('scoped-slot-slotchange') as any;
     expect(slotChangeEle).toBeDefined();
     expect(slotChangeEle.slotEventCatch).toBeDefined();
@@ -24,6 +24,7 @@ describe('scoped-slot-slotchange', () => {
 
   it('checks that external, browser content changes fire slotchange events', async () => {
     const { waitForChanges } = await render(<scoped-slot-slotchange></scoped-slot-slotchange>);
+    await waitForExist('scoped-slot-slotchange.hydrated');
 
     const slotChangeEle = document.querySelector('scoped-slot-slotchange') as any;
 

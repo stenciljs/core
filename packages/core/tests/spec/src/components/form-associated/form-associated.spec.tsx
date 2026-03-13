@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 
 describe('form associated', () => {
   it('should render without errors', async () => {
@@ -19,7 +19,7 @@ describe('form associated', () => {
           <input type="reset" value="Reset" />
         </form>,
       );
-
+      await waitForExist('form-associated.hydrated');
       const formEl = root as HTMLFormElement;
       expect(formEl.ariaLabel).toBe('formAssociated called');
     });
@@ -31,7 +31,7 @@ describe('form associated', () => {
           <input type="reset" value="Reset" />
         </form>,
       );
-
+      await waitForExist('form-associated.hydrated');
       const formEl = root as HTMLFormElement;
       const resetBtn = formEl.querySelector('input[type="reset"]') as HTMLInputElement;
 
@@ -50,6 +50,7 @@ describe('form associated', () => {
         </form>,
       );
 
+      await waitForExist('form-associated.hydrated');
       const formEl = root as HTMLFormElement;
       const elm = formEl.querySelector('form-associated')!;
 
@@ -75,6 +76,7 @@ describe('form associated', () => {
       </form>,
     );
 
+    await waitForExist('form-associated.hydrated');
     const formEl = root as HTMLFormElement;
     // this shows that the element has, through the `ElementInternals`
     // interface, been able to set a value in the surrounding form
@@ -90,6 +92,8 @@ describe('form associated prop check', () => {
         <form-associated-prop-check disabled="false"></form-associated-prop-check>
       </section>`,
     );
+
+    await waitForExist('form-associated-prop-check.hydrated');
 
     const components = root.querySelectorAll('form-associated-prop-check') as NodeListOf<
       HTMLFormAssociatedPropCheckElement

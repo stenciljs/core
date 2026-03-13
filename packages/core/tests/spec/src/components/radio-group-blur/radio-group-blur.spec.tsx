@@ -1,4 +1,5 @@
 import { render, h, describe, it, expect } from '@stencil/vitest';
+import { userEvent } from 'vitest/browser';
 
 describe('radio-group-blur', () => {
   it('should not emit blur event when focusing radio in radio group with slot', async () => {
@@ -10,8 +11,8 @@ describe('radio-group-blur', () => {
 
     expect(document.querySelector('#blur-count')).toHaveTextContent('0');
 
-    const radio = document.querySelector('ion-radio');
-    radio?.click();
+    const radio = document.querySelector('ion-radio')!;
+    await userEvent.click(radio);
     await waitForChanges();
 
     expect(document.querySelector('#blur-count')).toHaveTextContent('0');
@@ -27,9 +28,9 @@ describe('radio-group-blur', () => {
     const radios = document.querySelectorAll('ion-radio');
     expect(radios.length).toBeGreaterThanOrEqual(2);
 
-    radios[0]?.click();
+    await userEvent.click(radios[0]);
     await waitForChanges();
-    radios[1]?.click();
+    await userEvent.click(radios[1]);
     await waitForChanges();
 
     expect(document.querySelector('#blur-count')).toHaveTextContent('1');

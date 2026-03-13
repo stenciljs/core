@@ -1,4 +1,5 @@
-import { Fragment, render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
+import { Fragment } from '@stencil/core';
 
 describe('lifecycle-update', () => {
   it('fire load methods in order', async () => {
@@ -8,9 +9,10 @@ describe('lifecycle-update', () => {
         <hr />
         <lifecycle-update-a></lifecycle-update-a>
       </>,
+      {waitForReady: false},
     );
 
-    await waitForStable('#output');
+    await waitForExist('lifecycle-update-a.hydrated');
     let loads = document.querySelectorAll('#output li');
     expect(loads).toHaveLength(2);
 
@@ -21,6 +23,7 @@ describe('lifecycle-update', () => {
     button.click();
     await waitForChanges();
     await waitForStable('#output');
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     loads = document.querySelectorAll('#output li');
     expect(loads).toHaveLength(9);
@@ -38,6 +41,7 @@ describe('lifecycle-update', () => {
     button.click();
     await waitForChanges();
     await waitForStable('#output');
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     loads = document.querySelectorAll('#output li');
     expect(loads).toHaveLength(16);

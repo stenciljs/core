@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect, beforeEach, afterEach } from '@stencil/vitest';
+import { render, h, describe, it, expect, beforeEach, afterEach, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-assigned-methods', () => {
   let originalConsoleError: typeof console.error;
@@ -12,14 +12,14 @@ describe('scoped-slot-assigned-methods', () => {
   });
 
   it('tests assignedElements method on a `<slot-fb>`', async () => {
-    await render(
+    const { root } = await render(
       <scoped-slot-assigned-methods>
         <p>My initial slotted content.</p>
         Plain text
         <div slot="plain-slot">Plain slot content.</div>
       </scoped-slot-assigned-methods>,
     );
-
+    await waitForExist('scoped-slot-assigned-methods.hydrated');
     const errorLogs: string[] = [];
     console.error = (message) => errorLogs.push(message);
 

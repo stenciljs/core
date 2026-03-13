@@ -1,14 +1,14 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('testing a `scoped="true"` component `insertBefore` method', () => {
   it('slots nodes in the correct order when they have the same slot', async () => {
-    await render(
+    const { root } = await render(
       <scoped-slot-insertbefore>
         <p>My initial slotted content.</p>
       </scoped-slot-insertbefore>,
     );
-
-    const host = document.querySelector('scoped-slot-insertbefore')!;
+    await waitForExist('scoped-slot-insertbefore.hydrated');
+    const host = root;
     const startSlot = host.querySelector('#parentDiv .start-slot')! as HTMLDivElement;
     const endSlot = host.querySelector('#parentDiv .end-slot')! as HTMLDivElement;
     const defaultSlot = host.querySelector('#parentDiv .default-slot')! as HTMLDivElement;

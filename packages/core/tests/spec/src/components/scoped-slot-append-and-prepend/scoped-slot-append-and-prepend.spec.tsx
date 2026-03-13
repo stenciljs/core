@@ -1,15 +1,15 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-append-and-prepend', () => {
   describe('append', () => {
     it('inserts a DOM element at the end of the slot', async () => {
-      await render(
+      const { root } = await render(
         <scoped-slot-append-and-prepend>
           <p>My initial slotted content.</p>
         </scoped-slot-append-and-prepend>,
       );
-
-      const host = document.querySelector('scoped-slot-append-and-prepend')!;
+      await waitForExist('scoped-slot-append-and-prepend.hydrated');  
+      const host = root;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
 
       expect(host).toBeDefined();

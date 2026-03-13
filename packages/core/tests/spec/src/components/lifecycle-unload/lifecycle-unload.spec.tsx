@@ -1,4 +1,5 @@
-import { Fragment, render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
+import { Fragment } from '@stencil/core';
 
 describe('lifecycle-unload', () => {
   it('fire unload methods', async () => {
@@ -8,9 +9,10 @@ describe('lifecycle-unload', () => {
         <hr />
         <lifecycle-unload-root></lifecycle-unload-root>
       </>,
+      { waitForReady: false },
     );
-
-    await waitForStable('lifecycle-unload-a');
+    
+    await waitForExist('lifecycle-update-a.hydrated');
     let main = document.body.querySelector('lifecycle-unload-a')!.shadowRoot!.querySelector('main')!;
     const children = main.children;
 
@@ -28,7 +30,7 @@ describe('lifecycle-unload', () => {
     await waitForChanges();
 
     // Wait for component to be removed
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // await new Promise((resolve) => setTimeout(resolve, 100));
 
     const cmpA = document.body.querySelector('lifecycle-unload-a');
     expect(cmpA).toBe(null);
@@ -40,7 +42,6 @@ describe('lifecycle-unload', () => {
 
     document.querySelector('button')!.click();
     await waitForChanges();
-    await waitForStable('lifecycle-unload-a');
 
     main = document.body.querySelector('lifecycle-unload-a')!.shadowRoot!.querySelector('main')!;
     expect(main.children[0].textContent!.trim()).toBe('cmp-a - top');
@@ -52,7 +53,6 @@ describe('lifecycle-unload', () => {
 
     document.querySelector('button')!.click();
     await waitForChanges();
-    await waitForStable('#lifecycle-unload-results');
 
     unload = document.body.querySelector('#lifecycle-unload-results')!;
     expect(unload.children[0].textContent!.trim()).toBe('cmp-a unload');

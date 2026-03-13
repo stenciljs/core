@@ -8,6 +8,6 @@ describe('reflect-nan-attribute-with-child', () => {
     expect(parentDiv).toHaveTextContent('parent-reflect-nan-attribute Render Count: 1');
 
     const childCmp = root.shadowRoot!.querySelector('child-reflect-nan-attribute')!;
-    expect(childCmp).toHaveTextContent('child-reflect-nan-attribute Render Count: 1');
+    expect(childCmp.shadowRoot!.querySelector('div')).toHaveTextContent('child-reflect-nan-attribute Render Count: 1');
   });
 });

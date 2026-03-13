@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-children', () => {
   const nodeOrEleContent = (node: Node | Element) => {
@@ -16,6 +16,7 @@ describe('scoped-slot-children', () => {
         </div>
       </scoped-slot-children>,
     );
+    await waitForExist('scoped-slot-children.hydrated');
 
     const childNodes = () => document.querySelector('scoped-slot-children')!.childNodes;
     const innerChildNodes = () =>

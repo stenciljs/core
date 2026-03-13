@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('scoped-slot-child-insert-adjacent', () => {
   describe('insertAdjacentHtml', () => {
@@ -8,6 +8,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
@@ -43,6 +44,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
@@ -80,6 +82,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
@@ -103,6 +106,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
@@ -128,6 +132,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
@@ -155,6 +160,7 @@ describe('scoped-slot-child-insert-adjacent', () => {
           <p>I am slotted and will receive a red background</p>
         </scoped-slot-child-insert-adjacent>,
       );
+      await waitForExist('scoped-slot-child-insert-adjacent.hydrated');
 
       const host = document.querySelector('scoped-slot-child-insert-adjacent')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;

@@ -31,7 +31,7 @@ export class AddRemoveClasses {
   render() {
     return (
       <div class="menu">
-        {this.items.map((item: Item) => (
+        {this.items?.map((item: Item) => (
           <div
             class={{
               'menu-item': true,

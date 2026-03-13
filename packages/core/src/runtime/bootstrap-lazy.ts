@@ -59,7 +59,6 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
     hydrateScopedToShadow();
   }
 
-  let hasSlotRelocation = false;
   lazyBundles.map((lazyBundle) => {
     lazyBundle[1].map((compactMeta) => {
       const cmpMeta: d.ComponentRuntimeMeta = {
@@ -68,12 +67,6 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         $members$: compactMeta[2],
         $listeners$: compactMeta[3],
       };
-
-      // Check if we are using slots outside the shadow DOM in this component.
-      // We'll use this information later to add styles for `slot-fb` elements
-      if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-        hasSlotRelocation = true;
-      }
 
       if (BUILD.member) {
         cmpMeta.$members$ = compactMeta[2];
@@ -249,11 +242,6 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   // Only bother generating CSS if we have components
   // TODO(STENCIL-1118): Add test cases for CSS content based on conditionals
   if (cmpTags.length > 0) {
-    // Add styles for `slot-fb` elements if any of our components are using slots outside the Shadow DOM
-    if (BUILD.slotRelocation && hasSlotRelocation) {
-      dataStyles.textContent += SLOT_FB_CSS;
-    }
-
     // Add hydration styles
     if (BUILD.invisiblePrehydration && (BUILD.hydratedClass || BUILD.hydratedAttribute)) {
       dataStyles.textContent += cmpTags.sort() + HYDRATED_CSS;

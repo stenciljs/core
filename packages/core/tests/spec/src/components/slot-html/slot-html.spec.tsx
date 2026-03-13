@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('slot-html', () => {
   it('renders', async () => {
@@ -82,6 +82,9 @@ describe('slot-html', () => {
       </div>,
     );
 
+    await waitForExist('.results1.hydrated');
+    await waitForExist('.results12.hydrated');
+    
     expect(document.querySelector('.results1')!.textContent).toBe('');
 
     const results2 = document.querySelector('.results2 div')!;
