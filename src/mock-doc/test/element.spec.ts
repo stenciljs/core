@@ -375,6 +375,15 @@ describe('element', () => {
       expect(elm.childNodes[2]).toEqual(child);
       expect((elm.childNodes[3] as Text).data).toEqual('original');
     });
+
+    it('before null', () => {
+      const elm = doc.createElement('div') as Element;
+      const child = doc.createElement('div') as Element;
+      elm.prepend(child);
+
+      expect(elm.childNodes.length).toEqual(1);
+      expect(elm.childNodes[0]).toEqual(child);
+    });
   });
 
   it('getBoundingClientRect', () => {

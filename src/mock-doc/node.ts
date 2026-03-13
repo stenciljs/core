@@ -65,9 +65,7 @@ export class MockNode {
     const firstChild = this.firstChild;
     items.forEach((item) => {
       const isNode = typeof item === 'object' && item !== null && 'nodeType' in item;
-      if (firstChild) {
-        this.insertBefore(isNode ? item : this.ownerDocument.createTextNode(String(item)), firstChild);
-      }
+      this.insertBefore(isNode ? item : this.ownerDocument.createTextNode(String(item)), firstChild);
     });
   }
 
@@ -85,7 +83,7 @@ export class MockNode {
     return this.childNodes[0] || null;
   }
 
-  insertBefore(newNode: MockNode, referenceNode: MockNode) {
+  insertBefore(newNode: MockNode, referenceNode: MockNode | null) {
     if (newNode.nodeType === NODE_TYPES.DOCUMENT_FRAGMENT_NODE) {
       for (let i = 0, ii = newNode.childNodes.length; i < ii; i++) {
         insertBefore(this, newNode.childNodes[i], referenceNode);
