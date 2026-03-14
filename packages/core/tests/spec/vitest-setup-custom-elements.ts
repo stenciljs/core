@@ -1,3 +1,4 @@
+import './hydrated.css';
 import './dist/custom-elements/index.js';
 
 // Load bundled custom elements via autoloader

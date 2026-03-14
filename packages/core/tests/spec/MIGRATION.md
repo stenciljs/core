@@ -42,6 +42,7 @@ describe('attribute-basic', () => {
 ### @stencil/vitest
 ```tsx
 import { render, h, describe, it, expect } from '@stencil/vitest';
+import { Fragme } from '@stencil/core';
 
 describe('attribute-basic', () => {
   it('button click rerenders', async () => {
@@ -131,7 +132,7 @@ describe('event-basic', () => {
 | `document.body.querySelector()` | `root.querySelector()` |
 | `await $('async-rerender .loaded').waitForExist();` | `await waitForExist('async-rerender .loaded')` (imported from `@stencil/vitest`) |
 
-If a component has no dimensions (e.g. it doesn't have a `render()` method), you need to skip waiting for the component to be stable / have dimensions on first render. Instead, wait for the existence of the 'hydrated' class on the component's root element. For example:
+If a component has no dimensions (e.g. it doesn't have a `render()` method), or `root` is not the actual component you're testing, you need to skip waiting for the component to be stable / have dimensions on first render. Instead, wait for the existence of the 'hydrated' class on the component's root element. For example:
 
 ```tsx
 import { render, h, waitForExist } from '@stencil/vitest';
@@ -235,40 +236,40 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | slot-array-top | slot-array-top |
 | slot-fallback | slot-fallback |
 | slot-html | slot-html |
+| shared-jsx | shared-jsx |
+| slot-array-complex | slot-array-complex |
+| slot-basic-order | slot-basic-order |
+| slot-children | slot-children |
+| slot-conditional-rendering | slot-conditional-rendering |
+| slot-dynamic-name-change | slot-dynamic-name-change |
+| slot-dynamic-wrapper | slot-dynamic-wrapper |
+| slot-fallback-with-forwarded-slot | slot-fallback-with-forwarded-slot |
+| slot-fallback-with-textnode | slot-fallback-with-textnode |
+| slot-hide-content | slot-hide-content |
+| slot-light-dom | slot-light-dom |
+| slot-map-order | slot-map-order |
+| slot-nested-default-order | slot-nested-default-order |
+| slot-nested-dynamic | slot-nested-dynamic |
+| slot-nested-order | slot-nested-order |
+| slot-no-default | slot-no-default |
+| slot-none | slot-none |
+| slot-parent-tag-change | slot-parent-tag-change |
+| slot-reorder | slot-reorder |
+| slot-replace-wrapper | slot-replace-wrapper |
+| slot-scoped-list | slot-scoped-list |
+| slot-shadow-list | slot-shadow-list |
+| slotted-css | slotted-css |
+| static-styles | static-styles |
+| stencil-sibling | stencil-sibling |
+| template-render | template-render |
 
 ### Remaining Tests (Not Yet Migrated)
 
-#### Standard Tests (should be migratable)
-- shared-jsx
-- slot-array-complex
-- slot-basic-order
-- slot-children
-- slot-conditional-rendering
-- slot-dynamic-name-change
-- slot-dynamic-wrapper
-- slot-fallback-with-forwarded-slot
-- slot-fallback-with-textnode
-- slot-hide-content
-- slot-light-dom
-- slot-map-order
-- slot-nested-default-order
-- slot-nested-dynamic
-- slot-nested-order
-- slot-ng-if
-- slot-no-default
-- slot-none
-- slot-parent-tag-change
-- slot-reorder
-- slot-replace-wrapper
-- slot-scoped-list
-- slot-shadow-list
-- slotted-css
-- static-styles
-- stencil-sibling
-- template-render
-- test-sibling
+All standard tests have been migrated.
 
 #### Skipped Tests (need special handling or are not applicable)
+- slot-ng-if (uses Angular and iframes)
+- test-sibling (special setup)
 - auto-loader (special setup)
 - complex-properties (uses SSR renderToString)
 - cross-document-constructed-styles (iframes)

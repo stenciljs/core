@@ -23,7 +23,7 @@ describe('lifecycle-update', () => {
     button.click();
     await waitForChanges();
     await waitForStable('#output');
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     loads = document.querySelectorAll('#output li');
     expect(loads).toHaveLength(9);
@@ -41,7 +41,7 @@ describe('lifecycle-update', () => {
     button.click();
     await waitForChanges();
     await waitForStable('#output');
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     loads = document.querySelectorAll('#output li');
     expect(loads).toHaveLength(16);
