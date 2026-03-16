@@ -276,23 +276,19 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | manual-slot-assignment | manual-slot-assignment |
 | node-resolution | node-resolution |
 | esm-import | component-on-ready |
-
-### Remaining Tests (Not Yet Migrated)
-
-All standard tests have been migrated.
+| exclude-component | exclude-component |
+| style-plugin | style-plugin |
+| tag-transform | tag-transform |
 
 #### Skipped Tests (need special handling or are not applicable)
 - test-sibling (special setup)
 - complex-properties (uses SSR renderToString)
 - declarative-shadow-dom (special SSR)
-- exclude-component (special build config)
 - invisible-prehydration (SSR)
 - no-external-runtime (special build)
 - prerender-test (SSR)
 - serialize-deserialize-e2e (SSR)
 - ssr-hydration (SSR)
-- style-plugin (build config)
-- tag-transform (build config)
 - test-prerender (SSR)
 - ts-target (build config)
 

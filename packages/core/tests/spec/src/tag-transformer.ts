@@ -1,6 +1,6 @@
-export default (tagName) => {
-  if ((tagName.includes('tag-transform') || tagName === 'nested-child-tag') && !tagName.includes('tag-transformed')) {
-    return tagName.replace('tag-', 'tag-transformed');
+export default (tagName: string) => {
+  if (tagName.endsWith('-tag-transform')) {
+    return tagName.replace('-tag-transform', '-tag-is-transformed');
   }
   return tagName;
 };

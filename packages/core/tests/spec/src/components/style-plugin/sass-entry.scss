@@ -1,0 +1,17 @@
+@import 'sass-importee';
+@import 'css-importee.css';
+@import '~normalize.css/normalize.css';
+@import 'sass-bootstrap';
+
+.sass-entry {
+  color: $sass-entry-color;
+  font-weight: bold;
+}
+
+.sass-entry::after {
+  content: ': from sass-entry.scss';
+}
+
+hr {
+  background-color: blue;
+}

@@ -14,9 +14,12 @@
     "@stencil/core": "workspace:*"
   },
   "devDependencies": {
+    "@stencil/sass": "^3.0.12",
     "@stencil/vitest": "catalog:",
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
+    "bootstrap": "^5.3.3",
+    "normalize.css": "^8.0.1",
     "vitest": "catalog:"
   }
 }

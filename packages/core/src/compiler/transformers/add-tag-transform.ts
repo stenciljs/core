@@ -4,6 +4,30 @@ import { getModuleFromSourceFile } from './transform-utils';
 import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
 import { parse, SelectorType, stringify } from 'css-what';
 
+/**
+ * Checks if a node is inside a function, method, or class body (not at module top-level).
+ * We skip transforming top-level code because the tag transformer won't be set yet
+ * at module load time - it's only set when the global script function runs.
+ */
+const isInsideFunctionOrClass = (node: ts.Node): boolean => {
+  let parent = node.parent;
+  while (parent) {
+    if (
+      ts.isFunctionDeclaration(parent) ||
+      ts.isFunctionExpression(parent) ||
+      ts.isArrowFunction(parent) ||
+      ts.isMethodDeclaration(parent) ||
+      ts.isConstructorDeclaration(parent) ||
+      ts.isGetAccessor(parent) ||
+      ts.isSetAccessor(parent)
+    ) {
+      return true;
+    }
+    parent = parent.parent;
+  }
+  return false;
+};
+
 export const addTagTransform = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -17,6 +41,13 @@ export const addTagTransform = (
 
       const visitNode = (node: ts.Node): any => {
         let newNode: ts.Node = node;
+
+        // Skip transformations at module top-level (not inside a function/method).
+        // At module load time, the tag transformer won't be initialized yet,
+        // which would cause a "Cannot access before initialization" error.
+        if (!isInsideFunctionOrClass(node)) {
+          return ts.visitEachChild(node, visitNode, transformCtx);
+        }
 
         // turns `element.querySelector("my-tag")` into `element.querySelector(`${transformTag("my-tag")}`)`
         if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {

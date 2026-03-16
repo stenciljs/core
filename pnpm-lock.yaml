@@ -344,6 +344,9 @@ importers:
         specifier: workspace:*
         version: link:../..
     devDependencies:
+      '@stencil/sass':
+        specifier: ^3.0.12
+        version: 3.2.3(@stencil/core@packages+core)
       '@stencil/vitest':
         specifier: 'catalog:'
         version: 1.7.1(@stencil/core@packages+core)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
@@ -353,6 +356,12 @@ importers:
       '@vitest/browser-playwright':
         specifier: 'catalog:'
         version: 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      bootstrap:
+        specifier: ^5.3.3
+        version: 5.3.8(@popperjs/core@2.11.8)
+      normalize.css:
+        specifier: ^8.0.1
+        version: 8.0.1
       vitest:
         specifier: 'catalog:'
         version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)

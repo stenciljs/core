@@ -96,6 +96,9 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       __registerHost() {
         registerHost(this, cmpMeta);
       },
+      componentOnReady() {
+        return getHostRef(this)?.$onReadyPromise$;
+      },
       connectedCallback() {
         if (!this.__hasHostListenerAttached) {
           const hostRef = getHostRef(this);

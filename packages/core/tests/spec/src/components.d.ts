@@ -93,6 +93,13 @@ export namespace Components {
     interface ChildReflectNanAttribute {
         "val": number;
     }
+    interface ChildTagTransform {
+        "closestParentTag": () => Promise<HTMLParentTagTransformElement>;
+        /**
+          * @default 'Hello from Child'
+         */
+        "message": string;
+    }
     interface ChildWithReflection {
         "val": number | any;
     }
@@ -119,6 +126,13 @@ export namespace Components {
     interface CmpParent {
     }
     interface CmpSlottedParentnode {
+    }
+    interface ComponentOnReady {
+        /**
+          * @default 0
+         */
+        "propVal": number;
+        "someMethod": () => Promise<void>;
     }
     interface ComputedPropertiesPropDecorator {
         /**
@@ -168,6 +182,8 @@ export namespace Components {
     interface ConditionalRerenderRoot {
     }
     interface CrossDocumentStyle {
+    }
+    interface CssCmp {
     }
     interface CssUrlPaths {
     }
@@ -225,6 +241,10 @@ export namespace Components {
     interface EventCustomType {
     }
     interface EventListenerCapture {
+    }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
     }
     interface ExternalImportA {
     }
@@ -363,11 +383,19 @@ export namespace Components {
     interface ManualSlotTabs {
         "setActiveTab": (index: number) => Promise<void>;
     }
+    interface MultipleStylesCmp {
+    }
     interface NoDelegatesFocus {
     }
     interface NodeResolution {
     }
     interface ParentReflectNanAttribute {
+    }
+    interface ParentTagTransform {
+        "createChildTagElement": () => Promise<HTMLChildTagTransformElement>;
+        "customElementsGetChild": () => Promise<CustomElementConstructor>;
+        "querySelectorAllChildTags": () => Promise<NodeListOf<HTMLChildTagTransformElement>>;
+        "querySelectorChildTags": () => Promise<HTMLChildTagTransformElement>;
     }
     interface ParentWithReflectChild {
     }
@@ -447,6 +475,8 @@ export namespace Components {
     interface ReparentStyleNoVars {
     }
     interface ReparentStyleWithVars {
+    }
+    interface SassCmp {
     }
     interface ScopedAddRemoveClasses {
         "items": Item[];
@@ -706,6 +736,10 @@ export namespace Components {
     interface WatchNativeAttributes {
     }
 }
+export interface ComponentOnReadyCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLComponentOnReadyElement;
+}
 export interface EventBasicCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventBasicElement;
@@ -815,6 +849,12 @@ declare global {
         prototype: HTMLChildReflectNanAttributeElement;
         new (): HTMLChildReflectNanAttributeElement;
     };
+    interface HTMLChildTagTransformElement extends Components.ChildTagTransform, HTMLStencilElement {
+    }
+    var HTMLChildTagTransformElement: {
+        prototype: HTMLChildTagTransformElement;
+        new (): HTMLChildTagTransformElement;
+    };
     interface HTMLChildWithReflectionElement extends Components.ChildWithReflection, HTMLStencilElement {
     }
     var HTMLChildWithReflectionElement: {
@@ -893,6 +933,23 @@ declare global {
         prototype: HTMLCmpSlottedParentnodeElement;
         new (): HTMLCmpSlottedParentnodeElement;
     };
+    interface HTMLComponentOnReadyElementEventMap {
+        "someEvent": any;
+    }
+    interface HTMLComponentOnReadyElement extends Components.ComponentOnReady, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLComponentOnReadyElementEventMap>(type: K, listener: (this: HTMLComponentOnReadyElement, ev: ComponentOnReadyCustomEvent<HTMLComponentOnReadyElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLComponentOnReadyElementEventMap>(type: K, listener: (this: HTMLComponentOnReadyElement, ev: ComponentOnReadyCustomEvent<HTMLComponentOnReadyElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLComponentOnReadyElement: {
+        prototype: HTMLComponentOnReadyElement;
+        new (): HTMLComponentOnReadyElement;
+    };
     interface HTMLComputedPropertiesPropDecoratorElement extends Components.ComputedPropertiesPropDecorator, HTMLStencilElement {
     }
     var HTMLComputedPropertiesPropDecoratorElement: {
@@ -940,6 +997,12 @@ declare global {
     var HTMLCrossDocumentStyleElement: {
         prototype: HTMLCrossDocumentStyleElement;
         new (): HTMLCrossDocumentStyleElement;
+    };
+    interface HTMLCssCmpElement extends Components.CssCmp, HTMLStencilElement {
+    }
+    var HTMLCssCmpElement: {
+        prototype: HTMLCssCmpElement;
+        new (): HTMLCssCmpElement;
     };
     interface HTMLCssUrlPathsElement extends Components.CssUrlPaths, HTMLStencilElement {
     }
@@ -1058,6 +1121,18 @@ declare global {
     var HTMLEventListenerCaptureElement: {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
+    };
+    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
+    }
+    var HTMLExcludeComponentRootElement: {
+        prototype: HTMLExcludeComponentRootElement;
+        new (): HTMLExcludeComponentRootElement;
+    };
+    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
+    }
+    var HTMLExcludedComponentElement: {
+        prototype: HTMLExcludedComponentElement;
+        new (): HTMLExcludedComponentElement;
     };
     interface HTMLExternalImportAElement extends Components.ExternalImportA, HTMLStencilElement {
     }
@@ -1390,6 +1465,12 @@ declare global {
         prototype: HTMLManualSlotTabsElement;
         new (): HTMLManualSlotTabsElement;
     };
+    interface HTMLMultipleStylesCmpElement extends Components.MultipleStylesCmp, HTMLStencilElement {
+    }
+    var HTMLMultipleStylesCmpElement: {
+        prototype: HTMLMultipleStylesCmpElement;
+        new (): HTMLMultipleStylesCmpElement;
+    };
     interface HTMLNoDelegatesFocusElement extends Components.NoDelegatesFocus, HTMLStencilElement {
     }
     var HTMLNoDelegatesFocusElement: {
@@ -1407,6 +1488,12 @@ declare global {
     var HTMLParentReflectNanAttributeElement: {
         prototype: HTMLParentReflectNanAttributeElement;
         new (): HTMLParentReflectNanAttributeElement;
+    };
+    interface HTMLParentTagTransformElement extends Components.ParentTagTransform, HTMLStencilElement {
+    }
+    var HTMLParentTagTransformElement: {
+        prototype: HTMLParentTagTransformElement;
+        new (): HTMLParentTagTransformElement;
     };
     interface HTMLParentWithReflectChildElement extends Components.ParentWithReflectChild, HTMLStencilElement {
     }
@@ -1491,6 +1578,12 @@ declare global {
     var HTMLReparentStyleWithVarsElement: {
         prototype: HTMLReparentStyleWithVarsElement;
         new (): HTMLReparentStyleWithVarsElement;
+    };
+    interface HTMLSassCmpElement extends Components.SassCmp, HTMLStencilElement {
+    }
+    var HTMLSassCmpElement: {
+        prototype: HTMLSassCmpElement;
+        new (): HTMLSassCmpElement;
     };
     interface HTMLScopedAddRemoveClassesElement extends Components.ScopedAddRemoveClasses, HTMLStencilElement {
     }
@@ -2009,6 +2102,7 @@ declare global {
         "bad-shared-jsx": HTMLBadSharedJsxElement;
         "build-data": HTMLBuildDataElement;
         "child-reflect-nan-attribute": HTMLChildReflectNanAttributeElement;
+        "child-tag-transform": HTMLChildTagTransformElement;
         "child-with-reflection": HTMLChildWithReflectionElement;
         "clone-node-root": HTMLCloneNodeRootElement;
         "clone-node-slide": HTMLCloneNodeSlideElement;
@@ -2022,6 +2116,7 @@ declare global {
         "cmp-level-3": HTMLCmpLevel3Element;
         "cmp-parent": HTMLCmpParentElement;
         "cmp-slotted-parentnode": HTMLCmpSlottedParentnodeElement;
+        "component-on-ready": HTMLComponentOnReadyElement;
         "computed-properties-prop-decorator": HTMLComputedPropertiesPropDecoratorElement;
         "computed-properties-prop-decorator-reflect": HTMLComputedPropertiesPropDecoratorReflectElement;
         "computed-properties-state-decorator": HTMLComputedPropertiesStateDecoratorElement;
@@ -2030,6 +2125,7 @@ declare global {
         "conditional-rerender": HTMLConditionalRerenderElement;
         "conditional-rerender-root": HTMLConditionalRerenderRootElement;
         "cross-document-style": HTMLCrossDocumentStyleElement;
+        "css-cmp": HTMLCssCmpElement;
         "css-url-paths": HTMLCssUrlPathsElement;
         "css-variables-no-encapsulation": HTMLCssVariablesNoEncapsulationElement;
         "css-variables-shadow-dom": HTMLCssVariablesShadowDomElement;
@@ -2046,6 +2142,8 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "exclude-component-root": HTMLExcludeComponentRootElement;
+        "excluded-component": HTMLExcludedComponentElement;
         "external-import-a": HTMLExternalImportAElement;
         "external-import-b": HTMLExternalImportBElement;
         "external-import-c": HTMLExternalImportCElement;
@@ -2086,9 +2184,11 @@ declare global {
         "listen-window": HTMLListenWindowElement;
         "manual-slot-filter": HTMLManualSlotFilterElement;
         "manual-slot-tabs": HTMLManualSlotTabsElement;
+        "multiple-styles-cmp": HTMLMultipleStylesCmpElement;
         "no-delegates-focus": HTMLNoDelegatesFocusElement;
         "node-resolution": HTMLNodeResolutionElement;
         "parent-reflect-nan-attribute": HTMLParentReflectNanAttributeElement;
+        "parent-tag-transform": HTMLParentTagTransformElement;
         "parent-with-reflect-child": HTMLParentWithReflectChildElement;
         "prefix-attr-nested": HTMLPrefixAttrNestedElement;
         "prefix-attr-root": HTMLPrefixAttrRootElement;
@@ -2103,6 +2203,7 @@ declare global {
         "remove-child-patch": HTMLRemoveChildPatchElement;
         "reparent-style-no-vars": HTMLReparentStyleNoVarsElement;
         "reparent-style-with-vars": HTMLReparentStyleWithVarsElement;
+        "sass-cmp": HTMLSassCmpElement;
         "scoped-add-remove-classes": HTMLScopedAddRemoveClassesElement;
         "scoped-basic": HTMLScopedBasicElement;
         "scoped-basic-root": HTMLScopedBasicRootElement;
@@ -2265,6 +2366,12 @@ declare namespace LocalJSX {
     interface ChildReflectNanAttribute {
         "val"?: number;
     }
+    interface ChildTagTransform {
+        /**
+          * @default 'Hello from Child'
+         */
+        "message"?: string;
+    }
     interface ChildWithReflection {
         "val"?: number | any;
     }
@@ -2291,6 +2398,13 @@ declare namespace LocalJSX {
     interface CmpParent {
     }
     interface CmpSlottedParentnode {
+    }
+    interface ComponentOnReady {
+        "onSomeEvent"?: (event: ComponentOnReadyCustomEvent<any>) => void;
+        /**
+          * @default 0
+         */
+        "propVal"?: number;
     }
     interface ComputedPropertiesPropDecorator {
         /**
@@ -2340,6 +2454,8 @@ declare namespace LocalJSX {
     }
     interface CrossDocumentStyle {
     }
+    interface CssCmp {
+    }
     interface CssUrlPaths {
     }
     interface CssVariablesNoEncapsulation {
@@ -2385,6 +2501,10 @@ declare namespace LocalJSX {
         "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
     }
     interface EventListenerCapture {
+    }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
     }
     interface ExternalImportA {
     }
@@ -2563,11 +2683,15 @@ declare namespace LocalJSX {
      */
     interface ManualSlotTabs {
     }
+    interface MultipleStylesCmp {
+    }
     interface NoDelegatesFocus {
     }
     interface NodeResolution {
     }
     interface ParentReflectNanAttribute {
+    }
+    interface ParentTagTransform {
     }
     interface ParentWithReflectChild {
     }
@@ -2642,6 +2766,8 @@ declare namespace LocalJSX {
     interface ReparentStyleNoVars {
     }
     interface ReparentStyleWithVars {
+    }
+    interface SassCmp {
     }
     interface ScopedAddRemoveClasses {
         "items"?: Item[];
@@ -2936,8 +3062,14 @@ declare namespace LocalJSX {
     interface ChildReflectNanAttributeAttributes {
         "val": number;
     }
+    interface ChildTagTransformAttributes {
+        "message": string;
+    }
     interface ChildWithReflectionAttributes {
         "val": string;
+    }
+    interface ComponentOnReadyAttributes {
+        "propVal": number;
     }
     interface ComputedPropertiesPropDecoratorAttributes {
         "first": string;
@@ -3102,6 +3234,7 @@ declare namespace LocalJSX {
         "bad-shared-jsx": BadSharedJsx;
         "build-data": BuildData;
         "child-reflect-nan-attribute": Omit<ChildReflectNanAttribute, keyof ChildReflectNanAttributeAttributes> & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes]?: ChildReflectNanAttribute[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `attr:${K}`]?: ChildReflectNanAttributeAttributes[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `prop:${K}`]?: ChildReflectNanAttribute[K] };
+        "child-tag-transform": Omit<ChildTagTransform, keyof ChildTagTransformAttributes> & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes]?: ChildTagTransform[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `attr:${K}`]?: ChildTagTransformAttributes[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `prop:${K}`]?: ChildTagTransform[K] };
         "child-with-reflection": Omit<ChildWithReflection, keyof ChildWithReflectionAttributes> & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes]?: ChildWithReflection[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `attr:${K}`]?: ChildWithReflectionAttributes[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `prop:${K}`]?: ChildWithReflection[K] };
         "clone-node-root": CloneNodeRoot;
         "clone-node-slide": CloneNodeSlide;
@@ -3115,6 +3248,7 @@ declare namespace LocalJSX {
         "cmp-level-3": CmpLevel3;
         "cmp-parent": CmpParent;
         "cmp-slotted-parentnode": CmpSlottedParentnode;
+        "component-on-ready": Omit<ComponentOnReady, keyof ComponentOnReadyAttributes> & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes]?: ComponentOnReady[K] } & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes as `attr:${K}`]?: ComponentOnReadyAttributes[K] } & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes as `prop:${K}`]?: ComponentOnReady[K] };
         "computed-properties-prop-decorator": Omit<ComputedPropertiesPropDecorator, keyof ComputedPropertiesPropDecoratorAttributes> & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes]?: ComputedPropertiesPropDecorator[K] } & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes as `attr:${K}`]?: ComputedPropertiesPropDecoratorAttributes[K] } & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes as `prop:${K}`]?: ComputedPropertiesPropDecorator[K] };
         "computed-properties-prop-decorator-reflect": Omit<ComputedPropertiesPropDecoratorReflect, keyof ComputedPropertiesPropDecoratorReflectAttributes> & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes]?: ComputedPropertiesPropDecoratorReflect[K] } & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes as `attr:${K}`]?: ComputedPropertiesPropDecoratorReflectAttributes[K] } & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes as `prop:${K}`]?: ComputedPropertiesPropDecoratorReflect[K] };
         "computed-properties-state-decorator": ComputedPropertiesStateDecorator;
@@ -3123,6 +3257,7 @@ declare namespace LocalJSX {
         "conditional-rerender": ConditionalRerender;
         "conditional-rerender-root": ConditionalRerenderRoot;
         "cross-document-style": CrossDocumentStyle;
+        "css-cmp": CssCmp;
         "css-url-paths": CssUrlPaths;
         "css-variables-no-encapsulation": CssVariablesNoEncapsulation;
         "css-variables-shadow-dom": CssVariablesShadowDom;
@@ -3139,6 +3274,8 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "exclude-component-root": ExcludeComponentRoot;
+        "excluded-component": ExcludedComponent;
         "external-import-a": ExternalImportA;
         "external-import-b": ExternalImportB;
         "external-import-c": ExternalImportC;
@@ -3179,9 +3316,11 @@ declare namespace LocalJSX {
         "listen-window": ListenWindow;
         "manual-slot-filter": ManualSlotFilter;
         "manual-slot-tabs": ManualSlotTabs;
+        "multiple-styles-cmp": MultipleStylesCmp;
         "no-delegates-focus": NoDelegatesFocus;
         "node-resolution": NodeResolution;
         "parent-reflect-nan-attribute": ParentReflectNanAttribute;
+        "parent-tag-transform": ParentTagTransform;
         "parent-with-reflect-child": ParentWithReflectChild;
         "prefix-attr-nested": Omit<PrefixAttrNested, keyof PrefixAttrNestedAttributes> & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes]?: PrefixAttrNested[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `attr:${K}`]?: PrefixAttrNestedAttributes[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `prop:${K}`]?: PrefixAttrNested[K] };
         "prefix-attr-root": PrefixAttrRoot;
@@ -3196,6 +3335,7 @@ declare namespace LocalJSX {
         "remove-child-patch": RemoveChildPatch;
         "reparent-style-no-vars": ReparentStyleNoVars;
         "reparent-style-with-vars": ReparentStyleWithVars;
+        "sass-cmp": SassCmp;
         "scoped-add-remove-classes": ScopedAddRemoveClasses;
         "scoped-basic": ScopedBasic;
         "scoped-basic-root": ScopedBasicRoot;
@@ -3298,6 +3438,7 @@ declare module "@stencil/core" {
             "bad-shared-jsx": LocalJSX.IntrinsicElements["bad-shared-jsx"] & JSXBase.HTMLAttributes<HTMLBadSharedJsxElement>;
             "build-data": LocalJSX.IntrinsicElements["build-data"] & JSXBase.HTMLAttributes<HTMLBuildDataElement>;
             "child-reflect-nan-attribute": LocalJSX.IntrinsicElements["child-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLChildReflectNanAttributeElement>;
+            "child-tag-transform": LocalJSX.IntrinsicElements["child-tag-transform"] & JSXBase.HTMLAttributes<HTMLChildTagTransformElement>;
             "child-with-reflection": LocalJSX.IntrinsicElements["child-with-reflection"] & JSXBase.HTMLAttributes<HTMLChildWithReflectionElement>;
             "clone-node-root": LocalJSX.IntrinsicElements["clone-node-root"] & JSXBase.HTMLAttributes<HTMLCloneNodeRootElement>;
             "clone-node-slide": LocalJSX.IntrinsicElements["clone-node-slide"] & JSXBase.HTMLAttributes<HTMLCloneNodeSlideElement>;
@@ -3311,6 +3452,7 @@ declare module "@stencil/core" {
             "cmp-level-3": LocalJSX.IntrinsicElements["cmp-level-3"] & JSXBase.HTMLAttributes<HTMLCmpLevel3Element>;
             "cmp-parent": LocalJSX.IntrinsicElements["cmp-parent"] & JSXBase.HTMLAttributes<HTMLCmpParentElement>;
             "cmp-slotted-parentnode": LocalJSX.IntrinsicElements["cmp-slotted-parentnode"] & JSXBase.HTMLAttributes<HTMLCmpSlottedParentnodeElement>;
+            "component-on-ready": LocalJSX.IntrinsicElements["component-on-ready"] & JSXBase.HTMLAttributes<HTMLComponentOnReadyElement>;
             "computed-properties-prop-decorator": LocalJSX.IntrinsicElements["computed-properties-prop-decorator"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorElement>;
             "computed-properties-prop-decorator-reflect": LocalJSX.IntrinsicElements["computed-properties-prop-decorator-reflect"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorReflectElement>;
             "computed-properties-state-decorator": LocalJSX.IntrinsicElements["computed-properties-state-decorator"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesStateDecoratorElement>;
@@ -3319,6 +3461,7 @@ declare module "@stencil/core" {
             "conditional-rerender": LocalJSX.IntrinsicElements["conditional-rerender"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderElement>;
             "conditional-rerender-root": LocalJSX.IntrinsicElements["conditional-rerender-root"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderRootElement>;
             "cross-document-style": LocalJSX.IntrinsicElements["cross-document-style"] & JSXBase.HTMLAttributes<HTMLCrossDocumentStyleElement>;
+            "css-cmp": LocalJSX.IntrinsicElements["css-cmp"] & JSXBase.HTMLAttributes<HTMLCssCmpElement>;
             "css-url-paths": LocalJSX.IntrinsicElements["css-url-paths"] & JSXBase.HTMLAttributes<HTMLCssUrlPathsElement>;
             "css-variables-no-encapsulation": LocalJSX.IntrinsicElements["css-variables-no-encapsulation"] & JSXBase.HTMLAttributes<HTMLCssVariablesNoEncapsulationElement>;
             "css-variables-shadow-dom": LocalJSX.IntrinsicElements["css-variables-shadow-dom"] & JSXBase.HTMLAttributes<HTMLCssVariablesShadowDomElement>;
@@ -3335,6 +3478,8 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
+            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "external-import-a": LocalJSX.IntrinsicElements["external-import-a"] & JSXBase.HTMLAttributes<HTMLExternalImportAElement>;
             "external-import-b": LocalJSX.IntrinsicElements["external-import-b"] & JSXBase.HTMLAttributes<HTMLExternalImportBElement>;
             "external-import-c": LocalJSX.IntrinsicElements["external-import-c"] & JSXBase.HTMLAttributes<HTMLExternalImportCElement>;
@@ -3383,9 +3528,11 @@ declare module "@stencil/core" {
              * assign tab content to the active slot based on user interaction.
              */
             "manual-slot-tabs": LocalJSX.IntrinsicElements["manual-slot-tabs"] & JSXBase.HTMLAttributes<HTMLManualSlotTabsElement>;
+            "multiple-styles-cmp": LocalJSX.IntrinsicElements["multiple-styles-cmp"] & JSXBase.HTMLAttributes<HTMLMultipleStylesCmpElement>;
             "no-delegates-focus": LocalJSX.IntrinsicElements["no-delegates-focus"] & JSXBase.HTMLAttributes<HTMLNoDelegatesFocusElement>;
             "node-resolution": LocalJSX.IntrinsicElements["node-resolution"] & JSXBase.HTMLAttributes<HTMLNodeResolutionElement>;
             "parent-reflect-nan-attribute": LocalJSX.IntrinsicElements["parent-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLParentReflectNanAttributeElement>;
+            "parent-tag-transform": LocalJSX.IntrinsicElements["parent-tag-transform"] & JSXBase.HTMLAttributes<HTMLParentTagTransformElement>;
             "parent-with-reflect-child": LocalJSX.IntrinsicElements["parent-with-reflect-child"] & JSXBase.HTMLAttributes<HTMLParentWithReflectChildElement>;
             "prefix-attr-nested": LocalJSX.IntrinsicElements["prefix-attr-nested"] & JSXBase.HTMLAttributes<HTMLPrefixAttrNestedElement>;
             "prefix-attr-root": LocalJSX.IntrinsicElements["prefix-attr-root"] & JSXBase.HTMLAttributes<HTMLPrefixAttrRootElement>;
@@ -3400,6 +3547,7 @@ declare module "@stencil/core" {
             "remove-child-patch": LocalJSX.IntrinsicElements["remove-child-patch"] & JSXBase.HTMLAttributes<HTMLRemoveChildPatchElement>;
             "reparent-style-no-vars": LocalJSX.IntrinsicElements["reparent-style-no-vars"] & JSXBase.HTMLAttributes<HTMLReparentStyleNoVarsElement>;
             "reparent-style-with-vars": LocalJSX.IntrinsicElements["reparent-style-with-vars"] & JSXBase.HTMLAttributes<HTMLReparentStyleWithVarsElement>;
+            "sass-cmp": LocalJSX.IntrinsicElements["sass-cmp"] & JSXBase.HTMLAttributes<HTMLSassCmpElement>;
             "scoped-add-remove-classes": LocalJSX.IntrinsicElements["scoped-add-remove-classes"] & JSXBase.HTMLAttributes<HTMLScopedAddRemoveClassesElement>;
             "scoped-basic": LocalJSX.IntrinsicElements["scoped-basic"] & JSXBase.HTMLAttributes<HTMLScopedBasicElement>;
             "scoped-basic-root": LocalJSX.IntrinsicElements["scoped-basic-root"] & JSXBase.HTMLAttributes<HTMLScopedBasicRootElement>;

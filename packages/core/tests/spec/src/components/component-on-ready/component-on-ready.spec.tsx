@@ -2,7 +2,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('component-on-ready', () => {
   it('should resolve componentOnReady promise when component is ready', async () => {
-    const { root } = await render<HTMLComponentOnReadyElement>(<component-on-ready prop-val={88} />);
+    const { root } = await render<HTMLComponentOnReadyElement>(<component-on-ready propVal={88} />);
     await waitForExist('component-on-ready.hydrated');
 
     const isReady = root.shadowRoot!.querySelector('#isReady');
@@ -10,7 +10,7 @@ describe('component-on-ready', () => {
   });
 
   it('should initialize props and state correctly', async () => {
-    const { root } = await render<HTMLComponentOnReadyElement>(<component-on-ready prop-val={88} />);
+    const { root } = await render<HTMLComponentOnReadyElement>(<component-on-ready propVal={88} />);
     await waitForExist('component-on-ready.hydrated');
 
     const propVal = root.shadowRoot!.querySelector('#propVal');
@@ -24,7 +24,7 @@ describe('component-on-ready', () => {
   });
 
   it('should handle click events via @Listen and emit events via @Method', async () => {
-    const { root, waitForChanges } = await render<HTMLComponentOnReadyElement>(<component-on-ready prop-val={88} />);
+    const { root, waitForChanges } = await render<HTMLComponentOnReadyElement>(<component-on-ready propVal={88} />);
     await waitForExist('component-on-ready.hydrated');
 
     const button = root.shadowRoot!.querySelector('button')!;
