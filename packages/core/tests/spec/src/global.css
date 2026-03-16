@@ -1,0 +1,5 @@
+/* Global styles for testing */
+global-styles, :host(global-styles) {
+  display: block;
+  border: 5px dotted rgb(255, 0, 0);
+}

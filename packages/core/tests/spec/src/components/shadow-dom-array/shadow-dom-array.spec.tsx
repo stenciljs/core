@@ -6,21 +6,21 @@ describe('shadow-dom-array', () => {
 
     const shadowRoot = document.body.querySelector('shadow-dom-array')!.shadowRoot!;
 
-    expect(shadowRoot.children.length).toBe(1);
-    expect(shadowRoot.children[0].textContent!.trim()).toBe('0');
+    expect(shadowRoot.children.length).toBe(2);
+    expect(shadowRoot.children[1].textContent!.trim()).toBe('0');
 
     const button = document.querySelector('button')!;
 
     button.click();
     await waitForChanges();
 
-    expect(shadowRoot.children.length).toBe(2);
-    expect(shadowRoot.children[1].textContent!.trim()).toBe('1');
+    expect(shadowRoot.children.length).toBe(3);
+    expect(shadowRoot.children[2].textContent!.trim()).toBe('1');
 
     button.click();
     await waitForChanges();
 
-    expect(shadowRoot.children.length).toBe(3);
-    expect(shadowRoot.children[2].textContent!.trim()).toBe('2');
+    expect(shadowRoot.children.length).toBe(4);
+    expect(shadowRoot.children[3].textContent!.trim()).toBe('2');
   });
 });

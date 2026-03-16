@@ -167,6 +167,10 @@ export namespace Components {
     }
     interface ConditionalRerenderRoot {
     }
+    interface CrossDocumentStyle {
+    }
+    interface CssUrlPaths {
+    }
     interface CssVariablesNoEncapsulation {
     }
     interface CssVariablesShadowDom {
@@ -211,6 +215,9 @@ export namespace Components {
     }
     interface DynamicCssVariable {
     }
+    interface DynamicImport {
+        "update": () => Promise<void>;
+    }
     interface Es5AddclassSvg {
     }
     interface EventBasic {
@@ -219,6 +226,12 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExternalImportA {
+    }
+    interface ExternalImportB {
+    }
+    interface ExternalImportC {
+    }
     interface FactoryJsx {
     }
     interface FormAssociated {
@@ -226,7 +239,17 @@ export namespace Components {
     interface FormAssociatedPropCheck {
         "disabled": boolean;
     }
+    interface GlobalScriptTest {
+    }
+    interface GlobalStyles {
+    }
     interface HostAttrOverride {
+    }
+    interface ImageImport {
+    }
+    interface ImportAliasing {
+        "myMethod": () => Promise<HTMLElement>;
+        "user": string;
     }
     interface InputBasicRoot {
         "value"?: string;
@@ -326,7 +349,23 @@ export namespace Components {
     }
     interface ListenWindow {
     }
+    /**
+     * A filterable list that uses manual slot assignment to show/hide items
+     * based on a filter criteria.
+     */
+    interface ManualSlotFilter {
+        "setFilter": (filter: string) => Promise<void>;
+    }
+    /**
+     * A tabbed container that uses manual slot assignment to dynamically
+     * assign tab content to the active slot based on user interaction.
+     */
+    interface ManualSlotTabs {
+        "setActiveTab": (index: number) => Promise<void>;
+    }
     interface NoDelegatesFocus {
+    }
+    interface NodeResolution {
     }
     interface ParentReflectNanAttribute {
     }
@@ -675,6 +714,10 @@ export interface EventCustomTypeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventCustomTypeElement;
 }
+export interface ImportAliasingCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLImportAliasingElement;
+}
 export interface IonRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLIonRadioElement;
@@ -892,6 +935,18 @@ declare global {
         prototype: HTMLConditionalRerenderRootElement;
         new (): HTMLConditionalRerenderRootElement;
     };
+    interface HTMLCrossDocumentStyleElement extends Components.CrossDocumentStyle, HTMLStencilElement {
+    }
+    var HTMLCrossDocumentStyleElement: {
+        prototype: HTMLCrossDocumentStyleElement;
+        new (): HTMLCrossDocumentStyleElement;
+    };
+    interface HTMLCssUrlPathsElement extends Components.CssUrlPaths, HTMLStencilElement {
+    }
+    var HTMLCssUrlPathsElement: {
+        prototype: HTMLCssUrlPathsElement;
+        new (): HTMLCssUrlPathsElement;
+    };
     interface HTMLCssVariablesNoEncapsulationElement extends Components.CssVariablesNoEncapsulation, HTMLStencilElement {
     }
     var HTMLCssVariablesNoEncapsulationElement: {
@@ -952,6 +1007,12 @@ declare global {
         prototype: HTMLDynamicCssVariableElement;
         new (): HTMLDynamicCssVariableElement;
     };
+    interface HTMLDynamicImportElement extends Components.DynamicImport, HTMLStencilElement {
+    }
+    var HTMLDynamicImportElement: {
+        prototype: HTMLDynamicImportElement;
+        new (): HTMLDynamicImportElement;
+    };
     interface HTMLEs5AddclassSvgElement extends Components.Es5AddclassSvg, HTMLStencilElement {
     }
     var HTMLEs5AddclassSvgElement: {
@@ -998,6 +1059,24 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExternalImportAElement extends Components.ExternalImportA, HTMLStencilElement {
+    }
+    var HTMLExternalImportAElement: {
+        prototype: HTMLExternalImportAElement;
+        new (): HTMLExternalImportAElement;
+    };
+    interface HTMLExternalImportBElement extends Components.ExternalImportB, HTMLStencilElement {
+    }
+    var HTMLExternalImportBElement: {
+        prototype: HTMLExternalImportBElement;
+        new (): HTMLExternalImportBElement;
+    };
+    interface HTMLExternalImportCElement extends Components.ExternalImportC, HTMLStencilElement {
+    }
+    var HTMLExternalImportCElement: {
+        prototype: HTMLExternalImportCElement;
+        new (): HTMLExternalImportCElement;
+    };
     interface HTMLFactoryJsxElement extends Components.FactoryJsx, HTMLStencilElement {
     }
     var HTMLFactoryJsxElement: {
@@ -1016,11 +1095,46 @@ declare global {
         prototype: HTMLFormAssociatedPropCheckElement;
         new (): HTMLFormAssociatedPropCheckElement;
     };
+    interface HTMLGlobalScriptTestElement extends Components.GlobalScriptTest, HTMLStencilElement {
+    }
+    var HTMLGlobalScriptTestElement: {
+        prototype: HTMLGlobalScriptTestElement;
+        new (): HTMLGlobalScriptTestElement;
+    };
+    interface HTMLGlobalStylesElement extends Components.GlobalStyles, HTMLStencilElement {
+    }
+    var HTMLGlobalStylesElement: {
+        prototype: HTMLGlobalStylesElement;
+        new (): HTMLGlobalStylesElement;
+    };
     interface HTMLHostAttrOverrideElement extends Components.HostAttrOverride, HTMLStencilElement {
     }
     var HTMLHostAttrOverrideElement: {
         prototype: HTMLHostAttrOverrideElement;
         new (): HTMLHostAttrOverrideElement;
+    };
+    interface HTMLImageImportElement extends Components.ImageImport, HTMLStencilElement {
+    }
+    var HTMLImageImportElement: {
+        prototype: HTMLImageImportElement;
+        new (): HTMLImageImportElement;
+    };
+    interface HTMLImportAliasingElementEventMap {
+        "myEvent": void;
+    }
+    interface HTMLImportAliasingElement extends Components.ImportAliasing, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLImportAliasingElementEventMap>(type: K, listener: (this: HTMLImportAliasingElement, ev: ImportAliasingCustomEvent<HTMLImportAliasingElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLImportAliasingElementEventMap>(type: K, listener: (this: HTMLImportAliasingElement, ev: ImportAliasingCustomEvent<HTMLImportAliasingElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLImportAliasingElement: {
+        prototype: HTMLImportAliasingElement;
+        new (): HTMLImportAliasingElement;
     };
     interface HTMLInputBasicRootElement extends Components.InputBasicRoot, HTMLStencilElement {
     }
@@ -1256,11 +1370,37 @@ declare global {
         prototype: HTMLListenWindowElement;
         new (): HTMLListenWindowElement;
     };
+    /**
+     * A filterable list that uses manual slot assignment to show/hide items
+     * based on a filter criteria.
+     */
+    interface HTMLManualSlotFilterElement extends Components.ManualSlotFilter, HTMLStencilElement {
+    }
+    var HTMLManualSlotFilterElement: {
+        prototype: HTMLManualSlotFilterElement;
+        new (): HTMLManualSlotFilterElement;
+    };
+    /**
+     * A tabbed container that uses manual slot assignment to dynamically
+     * assign tab content to the active slot based on user interaction.
+     */
+    interface HTMLManualSlotTabsElement extends Components.ManualSlotTabs, HTMLStencilElement {
+    }
+    var HTMLManualSlotTabsElement: {
+        prototype: HTMLManualSlotTabsElement;
+        new (): HTMLManualSlotTabsElement;
+    };
     interface HTMLNoDelegatesFocusElement extends Components.NoDelegatesFocus, HTMLStencilElement {
     }
     var HTMLNoDelegatesFocusElement: {
         prototype: HTMLNoDelegatesFocusElement;
         new (): HTMLNoDelegatesFocusElement;
+    };
+    interface HTMLNodeResolutionElement extends Components.NodeResolution, HTMLStencilElement {
+    }
+    var HTMLNodeResolutionElement: {
+        prototype: HTMLNodeResolutionElement;
+        new (): HTMLNodeResolutionElement;
     };
     interface HTMLParentReflectNanAttributeElement extends Components.ParentReflectNanAttribute, HTMLStencilElement {
     }
@@ -1889,6 +2029,8 @@ declare global {
         "conditional-basic": HTMLConditionalBasicElement;
         "conditional-rerender": HTMLConditionalRerenderElement;
         "conditional-rerender-root": HTMLConditionalRerenderRootElement;
+        "cross-document-style": HTMLCrossDocumentStyleElement;
+        "css-url-paths": HTMLCssUrlPathsElement;
         "css-variables-no-encapsulation": HTMLCssVariablesNoEncapsulationElement;
         "css-variables-shadow-dom": HTMLCssVariablesShadowDomElement;
         "custom-event-root": HTMLCustomEventRootElement;
@@ -1899,14 +2041,22 @@ declare global {
         "dom-reattach-clone-deep-slot": HTMLDomReattachCloneDeepSlotElement;
         "dom-reattach-clone-host": HTMLDomReattachCloneHostElement;
         "dynamic-css-variable": HTMLDynamicCssVariableElement;
+        "dynamic-import": HTMLDynamicImportElement;
         "es5-addclass-svg": HTMLEs5AddclassSvgElement;
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "external-import-a": HTMLExternalImportAElement;
+        "external-import-b": HTMLExternalImportBElement;
+        "external-import-c": HTMLExternalImportCElement;
         "factory-jsx": HTMLFactoryJsxElement;
         "form-associated": HTMLFormAssociatedElement;
         "form-associated-prop-check": HTMLFormAssociatedPropCheckElement;
+        "global-script-test": HTMLGlobalScriptTestElement;
+        "global-styles": HTMLGlobalStylesElement;
         "host-attr-override": HTMLHostAttrOverrideElement;
+        "image-import": HTMLImageImportElement;
+        "import-aliasing": HTMLImportAliasingElement;
         "input-basic-root": HTMLInputBasicRootElement;
         "ion-child": HTMLIonChildElement;
         "ion-host": HTMLIonHostElement;
@@ -1934,7 +2084,10 @@ declare global {
         "listen-jsx-root": HTMLListenJsxRootElement;
         "listen-reattach": HTMLListenReattachElement;
         "listen-window": HTMLListenWindowElement;
+        "manual-slot-filter": HTMLManualSlotFilterElement;
+        "manual-slot-tabs": HTMLManualSlotTabsElement;
         "no-delegates-focus": HTMLNoDelegatesFocusElement;
+        "node-resolution": HTMLNodeResolutionElement;
         "parent-reflect-nan-attribute": HTMLParentReflectNanAttributeElement;
         "parent-with-reflect-child": HTMLParentWithReflectChildElement;
         "prefix-attr-nested": HTMLPrefixAttrNestedElement;
@@ -2037,6 +2190,8 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in `attr:${K}` | `prop:${K}`]?: never } | { [P in `attr:${K}`]: AttrT } & { [P in K | `prop:${K}`]?: never } | { [P in `prop:${K}`]: PropT } & { [P in K | `attr:${K}`]?: never };
+
     interface AsyncRerender {
     }
     interface AttributeBasic {
@@ -2183,6 +2338,10 @@ declare namespace LocalJSX {
     }
     interface ConditionalRerenderRoot {
     }
+    interface CrossDocumentStyle {
+    }
+    interface CssUrlPaths {
+    }
     interface CssVariablesNoEncapsulation {
     }
     interface CssVariablesShadowDom {
@@ -2215,6 +2374,8 @@ declare namespace LocalJSX {
     }
     interface DynamicCssVariable {
     }
+    interface DynamicImport {
+    }
     interface Es5AddclassSvg {
     }
     interface EventBasic {
@@ -2224,6 +2385,12 @@ declare namespace LocalJSX {
         "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
     }
     interface EventListenerCapture {
+    }
+    interface ExternalImportA {
+    }
+    interface ExternalImportB {
+    }
+    interface ExternalImportC {
     }
     interface FactoryJsx {
     }
@@ -2252,7 +2419,29 @@ declare namespace LocalJSX {
          */
         "name"?: string;
     }
+    interface GlobalScriptTest {
+    }
+    interface GlobalStyles {
+    }
     interface HostAttrOverride {
+    }
+    interface ImageImport {
+    }
+    interface ImportAliasing {
+        /**
+          * If `true`, the user cannot interact with the element.
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
+        "onMyEvent"?: (event: ImportAliasingCustomEvent<void>) => void;
+        "user": string;
     }
     interface InputBasicRoot {
         "value"?: string;
@@ -2362,7 +2551,21 @@ declare namespace LocalJSX {
     }
     interface ListenWindow {
     }
+    /**
+     * A filterable list that uses manual slot assignment to show/hide items
+     * based on a filter criteria.
+     */
+    interface ManualSlotFilter {
+    }
+    /**
+     * A tabbed container that uses manual slot assignment to dynamically
+     * assign tab content to the active slot based on user interaction.
+     */
+    interface ManualSlotTabs {
+    }
     interface NoDelegatesFocus {
+    }
+    interface NodeResolution {
     }
     interface ParentReflectNanAttribute {
     }
@@ -2758,6 +2961,9 @@ declare namespace LocalJSX {
     interface FormAssociatedPropCheckAttributes {
         "disabled": boolean;
     }
+    interface ImportAliasingAttributes {
+        "user": string;
+    }
     interface InputBasicRootAttributes {
         "value": string;
     }
@@ -2916,6 +3122,8 @@ declare namespace LocalJSX {
         "conditional-basic": ConditionalBasic;
         "conditional-rerender": ConditionalRerender;
         "conditional-rerender-root": ConditionalRerenderRoot;
+        "cross-document-style": CrossDocumentStyle;
+        "css-url-paths": CssUrlPaths;
         "css-variables-no-encapsulation": CssVariablesNoEncapsulation;
         "css-variables-shadow-dom": CssVariablesShadowDom;
         "custom-event-root": CustomEventRoot;
@@ -2926,14 +3134,22 @@ declare namespace LocalJSX {
         "dom-reattach-clone-deep-slot": DomReattachCloneDeepSlot;
         "dom-reattach-clone-host": DomReattachCloneHost;
         "dynamic-css-variable": DynamicCssVariable;
+        "dynamic-import": DynamicImport;
         "es5-addclass-svg": Es5AddclassSvg;
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "external-import-a": ExternalImportA;
+        "external-import-b": ExternalImportB;
+        "external-import-c": ExternalImportC;
         "factory-jsx": FactoryJsx;
         "form-associated": FormAssociated;
         "form-associated-prop-check": Omit<FormAssociatedPropCheck, keyof FormAssociatedPropCheckAttributes> & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes]?: FormAssociatedPropCheck[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `attr:${K}`]?: FormAssociatedPropCheckAttributes[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `prop:${K}`]?: FormAssociatedPropCheck[K] };
+        "global-script-test": GlobalScriptTest;
+        "global-styles": GlobalStyles;
         "host-attr-override": HostAttrOverride;
+        "image-import": ImageImport;
+        "import-aliasing": Omit<ImportAliasing, keyof ImportAliasingAttributes> & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes]?: ImportAliasing[K] } & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes as `attr:${K}`]?: ImportAliasingAttributes[K] } & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes as `prop:${K}`]?: ImportAliasing[K] } & OneOf<"user", ImportAliasing["user"], ImportAliasingAttributes["user"]>;
         "input-basic-root": Omit<InputBasicRoot, keyof InputBasicRootAttributes> & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes]?: InputBasicRoot[K] } & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes as `attr:${K}`]?: InputBasicRootAttributes[K] } & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes as `prop:${K}`]?: InputBasicRoot[K] };
         "ion-child": IonChild;
         "ion-host": IonHost;
@@ -2961,7 +3177,10 @@ declare namespace LocalJSX {
         "listen-jsx-root": ListenJsxRoot;
         "listen-reattach": ListenReattach;
         "listen-window": ListenWindow;
+        "manual-slot-filter": ManualSlotFilter;
+        "manual-slot-tabs": ManualSlotTabs;
         "no-delegates-focus": NoDelegatesFocus;
+        "node-resolution": NodeResolution;
         "parent-reflect-nan-attribute": ParentReflectNanAttribute;
         "parent-with-reflect-child": ParentWithReflectChild;
         "prefix-attr-nested": Omit<PrefixAttrNested, keyof PrefixAttrNestedAttributes> & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes]?: PrefixAttrNested[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `attr:${K}`]?: PrefixAttrNestedAttributes[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `prop:${K}`]?: PrefixAttrNested[K] };
@@ -3099,6 +3318,8 @@ declare module "@stencil/core" {
             "conditional-basic": LocalJSX.IntrinsicElements["conditional-basic"] & JSXBase.HTMLAttributes<HTMLConditionalBasicElement>;
             "conditional-rerender": LocalJSX.IntrinsicElements["conditional-rerender"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderElement>;
             "conditional-rerender-root": LocalJSX.IntrinsicElements["conditional-rerender-root"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderRootElement>;
+            "cross-document-style": LocalJSX.IntrinsicElements["cross-document-style"] & JSXBase.HTMLAttributes<HTMLCrossDocumentStyleElement>;
+            "css-url-paths": LocalJSX.IntrinsicElements["css-url-paths"] & JSXBase.HTMLAttributes<HTMLCssUrlPathsElement>;
             "css-variables-no-encapsulation": LocalJSX.IntrinsicElements["css-variables-no-encapsulation"] & JSXBase.HTMLAttributes<HTMLCssVariablesNoEncapsulationElement>;
             "css-variables-shadow-dom": LocalJSX.IntrinsicElements["css-variables-shadow-dom"] & JSXBase.HTMLAttributes<HTMLCssVariablesShadowDomElement>;
             "custom-event-root": LocalJSX.IntrinsicElements["custom-event-root"] & JSXBase.HTMLAttributes<HTMLCustomEventRootElement>;
@@ -3109,14 +3330,22 @@ declare module "@stencil/core" {
             "dom-reattach-clone-deep-slot": LocalJSX.IntrinsicElements["dom-reattach-clone-deep-slot"] & JSXBase.HTMLAttributes<HTMLDomReattachCloneDeepSlotElement>;
             "dom-reattach-clone-host": LocalJSX.IntrinsicElements["dom-reattach-clone-host"] & JSXBase.HTMLAttributes<HTMLDomReattachCloneHostElement>;
             "dynamic-css-variable": LocalJSX.IntrinsicElements["dynamic-css-variable"] & JSXBase.HTMLAttributes<HTMLDynamicCssVariableElement>;
+            "dynamic-import": LocalJSX.IntrinsicElements["dynamic-import"] & JSXBase.HTMLAttributes<HTMLDynamicImportElement>;
             "es5-addclass-svg": LocalJSX.IntrinsicElements["es5-addclass-svg"] & JSXBase.HTMLAttributes<HTMLEs5AddclassSvgElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "external-import-a": LocalJSX.IntrinsicElements["external-import-a"] & JSXBase.HTMLAttributes<HTMLExternalImportAElement>;
+            "external-import-b": LocalJSX.IntrinsicElements["external-import-b"] & JSXBase.HTMLAttributes<HTMLExternalImportBElement>;
+            "external-import-c": LocalJSX.IntrinsicElements["external-import-c"] & JSXBase.HTMLAttributes<HTMLExternalImportCElement>;
             "factory-jsx": LocalJSX.IntrinsicElements["factory-jsx"] & JSXBase.HTMLAttributes<HTMLFactoryJsxElement>;
             "form-associated": LocalJSX.IntrinsicElements["form-associated"] & JSXBase.HTMLAttributes<HTMLFormAssociatedElement>;
             "form-associated-prop-check": LocalJSX.IntrinsicElements["form-associated-prop-check"] & JSXBase.HTMLAttributes<HTMLFormAssociatedPropCheckElement>;
+            "global-script-test": LocalJSX.IntrinsicElements["global-script-test"] & JSXBase.HTMLAttributes<HTMLGlobalScriptTestElement>;
+            "global-styles": LocalJSX.IntrinsicElements["global-styles"] & JSXBase.HTMLAttributes<HTMLGlobalStylesElement>;
             "host-attr-override": LocalJSX.IntrinsicElements["host-attr-override"] & JSXBase.HTMLAttributes<HTMLHostAttrOverrideElement>;
+            "image-import": LocalJSX.IntrinsicElements["image-import"] & JSXBase.HTMLAttributes<HTMLImageImportElement>;
+            "import-aliasing": LocalJSX.IntrinsicElements["import-aliasing"] & JSXBase.HTMLAttributes<HTMLImportAliasingElement>;
             "input-basic-root": LocalJSX.IntrinsicElements["input-basic-root"] & JSXBase.HTMLAttributes<HTMLInputBasicRootElement>;
             "ion-child": LocalJSX.IntrinsicElements["ion-child"] & JSXBase.HTMLAttributes<HTMLIonChildElement>;
             "ion-host": LocalJSX.IntrinsicElements["ion-host"] & JSXBase.HTMLAttributes<HTMLIonHostElement>;
@@ -3144,7 +3373,18 @@ declare module "@stencil/core" {
             "listen-jsx-root": LocalJSX.IntrinsicElements["listen-jsx-root"] & JSXBase.HTMLAttributes<HTMLListenJsxRootElement>;
             "listen-reattach": LocalJSX.IntrinsicElements["listen-reattach"] & JSXBase.HTMLAttributes<HTMLListenReattachElement>;
             "listen-window": LocalJSX.IntrinsicElements["listen-window"] & JSXBase.HTMLAttributes<HTMLListenWindowElement>;
+            /**
+             * A filterable list that uses manual slot assignment to show/hide items
+             * based on a filter criteria.
+             */
+            "manual-slot-filter": LocalJSX.IntrinsicElements["manual-slot-filter"] & JSXBase.HTMLAttributes<HTMLManualSlotFilterElement>;
+            /**
+             * A tabbed container that uses manual slot assignment to dynamically
+             * assign tab content to the active slot based on user interaction.
+             */
+            "manual-slot-tabs": LocalJSX.IntrinsicElements["manual-slot-tabs"] & JSXBase.HTMLAttributes<HTMLManualSlotTabsElement>;
             "no-delegates-focus": LocalJSX.IntrinsicElements["no-delegates-focus"] & JSXBase.HTMLAttributes<HTMLNoDelegatesFocusElement>;
+            "node-resolution": LocalJSX.IntrinsicElements["node-resolution"] & JSXBase.HTMLAttributes<HTMLNodeResolutionElement>;
             "parent-reflect-nan-attribute": LocalJSX.IntrinsicElements["parent-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLParentReflectNanAttributeElement>;
             "parent-with-reflect-child": LocalJSX.IntrinsicElements["parent-with-reflect-child"] & JSXBase.HTMLAttributes<HTMLParentWithReflectChildElement>;
             "prefix-attr-nested": LocalJSX.IntrinsicElements["prefix-attr-nested"] & JSXBase.HTMLAttributes<HTMLPrefixAttrNestedElement>;

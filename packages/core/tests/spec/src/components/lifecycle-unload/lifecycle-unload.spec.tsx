@@ -19,9 +19,9 @@ describe('lifecycle-unload', () => {
     expect(children[0].textContent!.trim()).toBe('cmp-a - top');
     expect(children[1].textContent!.trim()).toBe('cmp-a - middle');
     expect(children[2].textContent!.trim()).toBe('cmp-a - bottom');
-    expect((children[1] as HTMLElement).shadowRoot!.children[0].textContent!.trim()).toBe('cmp-b - top');
-    expect((children[1] as HTMLElement).shadowRoot!.children[1].textContent!.trim()).toBe('');
-    expect((children[1] as HTMLElement).shadowRoot!.children[2].textContent!.trim()).toBe('cmp-b - bottom');
+    expect((children[1] as HTMLElement).shadowRoot!.children[1].textContent!.trim()).toBe('cmp-b - top');
+    expect((children[1] as HTMLElement).shadowRoot!.children[2].textContent!.trim()).toBe('');
+    expect((children[1] as HTMLElement).shadowRoot!.children[3].textContent!.trim()).toBe('cmp-b - bottom');
 
     let unload = document.body.querySelector('#lifecycle-unload-results')!;
     expect(unload.children.length).toBe(0);
@@ -47,9 +47,9 @@ describe('lifecycle-unload', () => {
     expect(main.children[0].textContent!.trim()).toBe('cmp-a - top');
     expect(main.children[1].textContent!.trim()).toBe('cmp-a - middle');
     expect(main.children[2].textContent!.trim()).toBe('cmp-a - bottom');
-    expect((main.children[1] as HTMLElement).shadowRoot!.children[0].textContent!.trim()).toBe('cmp-b - top');
-    expect((main.children[1] as HTMLElement).shadowRoot!.children[1].textContent!.trim()).toBe('');
-    expect((main.children[1] as HTMLElement).shadowRoot!.children[2].textContent!.trim()).toBe('cmp-b - bottom');
+    expect((main.children[1] as HTMLElement).shadowRoot!.children[1].textContent!.trim()).toBe('cmp-b - top');
+    expect((main.children[1] as HTMLElement).shadowRoot!.children[2].textContent!.trim()).toBe('');
+    expect((main.children[1] as HTMLElement).shadowRoot!.children[3].textContent!.trim()).toBe('cmp-b - bottom');
 
     document.querySelector('button')!.click();
     await waitForChanges();

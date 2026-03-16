@@ -262,35 +262,29 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | static-styles | static-styles |
 | stencil-sibling | stencil-sibling |
 | template-render | template-render |
+| cross-document-constructed-styles | cross-document-constructed-styles |
+| dynamic-imports | dynamic-imports |
+| external-imports | external-imports |
+| global-script | global-script |
+| global-styles | global-styles |
+| image-import | image-import |
+| import-aliasing | import-aliasing |
+| init-css-shim | css-url-paths |
+| manual-slot-assignment | manual-slot-assignment |
+| node-resolution | node-resolution |
 
 ### Remaining Tests (Not Yet Migrated)
 
 All standard tests have been migrated.
 
 #### Skipped Tests (need special handling or are not applicable)
-- slot-ng-if (uses Angular and iframes)
 - test-sibling (special setup)
-- auto-loader (special setup)
 - complex-properties (uses SSR renderToString)
-- cross-document-constructed-styles (iframes)
-- custom-elements-delegates-focus (custom elements output)
-- custom-elements-hierarchy-lifecycle (custom elements output)
-- custom-elements-output (custom elements output)
-- custom-elements-output-tag-class-different (custom elements output)
 - declarative-shadow-dom (special SSR)
-- dynamic-imports (module loading)
 - esm-import (module loading)
 - exclude-component (special build config)
-- external-imports (module loading)
-- global-script (global setup)
-- global-styles (global setup)
-- image-import (asset imports)
-- import-aliasing (module resolution)
-- init-css-shim (CSS shim)
 - invisible-prehydration (SSR)
-- manual-slot-assignment (new slot API)
 - no-external-runtime (special build)
-- node-resolution (module resolution)
 - prerender-test (SSR)
 - render (special)
 - serialize-deserialize-e2e (SSR)

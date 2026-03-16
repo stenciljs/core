@@ -5,7 +5,15 @@ import { setupApp } from './index';
 // `stencil-sibling` test suite
 // import 'test-sibling';
 
+declare global {
+  interface Window {
+    __globalScriptTimestamp?: number;
+  }
+}
+
 const globalScript = () => {
+  // Track when global script runs for testing
+  window.__globalScriptTimestamp = Date.now();
   setupApp();
 };
 

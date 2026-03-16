@@ -17,6 +17,7 @@ export const config: Config = {
     },
   ],
   globalScript: 'src/global.ts',
+  globalStyle: 'src/global.css',
   buildDist: true,
   extras: {
     lifecycleDOMEvents: true,
