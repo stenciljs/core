@@ -1,7 +1,13 @@
 import { render, h, describe, it, expect } from '@stencil/vitest';
 
 describe('exclude-component', () => {
-  it('should not define the excluded component', async () => {
+  it('should not define the excluded component', async (ctx) => {
+    // Check build mode - skip in dev since excludeComponents only works in prod
+    const { root: buildData } = await render(<build-data />);
+    if (buildData.querySelector('.is-dev')?.textContent === 'isDev: true') {
+      ctx.skip();
+    }
+
     const { root } = await render(<exclude-component-root />);
 
     // The excluded-component element should exist in the DOM as an unknown element
@@ -14,7 +20,13 @@ describe('exclude-component', () => {
     expect(isComponentDefined).toBe(false);
   });
 
-  it('should not render excluded component content', async () => {
+  it('should not render excluded component content', async (ctx) => {
+    // Check build mode - skip in dev since excludeComponents only works in prod
+    const { root: buildData } = await render(<build-data />);
+    if (buildData.querySelector('.is-dev')?.textContent === 'isDev: true') {
+      ctx.skip();
+    }
+
     const { root } = await render(<exclude-component-root />);
 
     // The excluded component's content should not be rendered
