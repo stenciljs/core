@@ -42,11 +42,13 @@ describe('attribute-basic', () => {
 ### @stencil/vitest
 ```tsx
 import { render, h, describe, it, expect } from '@stencil/vitest';
-import { Fragme } from '@stencil/core';
+import { Fragment } from '@stencil/core';
 
 describe('attribute-basic', () => {
   it('button click rerenders', async () => {
     const { root, waitForChanges } = await render(<attribute-basic-root />);
+    await waitForExist('attribute-basic-root.hydrated');
+    
     // `root` is the main component
     expect(root.querySelector('.single')).toHaveTextContent('single');
     expect(root.querySelector('.multiWord')).toHaveTextContent('multiWord');
@@ -82,12 +84,13 @@ describe('event-re-register', () => {
 
 ### @stencil/vitest (userEvent)
 ```tsx
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 import { userEvent } from 'vitest/browser';
 
 describe('event-re-register', () => {
   it('should handle keyboard events', async () => {
     const { root, waitForChanges } = await render(<event-re-register />);
+    await waitForExist('event-re-register.hydrated');
 
     root.focus();
     await userEvent.keyboard('a');
@@ -272,6 +275,7 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | init-css-shim | css-url-paths |
 | manual-slot-assignment | manual-slot-assignment |
 | node-resolution | node-resolution |
+| esm-import | component-on-ready |
 
 ### Remaining Tests (Not Yet Migrated)
 
@@ -281,12 +285,10 @@ All standard tests have been migrated.
 - test-sibling (special setup)
 - complex-properties (uses SSR renderToString)
 - declarative-shadow-dom (special SSR)
-- esm-import (module loading)
 - exclude-component (special build config)
 - invisible-prehydration (SSR)
 - no-external-runtime (special build)
 - prerender-test (SSR)
-- render (special)
 - serialize-deserialize-e2e (SSR)
 - ssr-hydration (SSR)
 - style-plugin (build config)
