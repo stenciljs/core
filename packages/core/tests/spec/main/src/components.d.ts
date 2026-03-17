@@ -242,6 +242,392 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExtendedCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendedCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    /**
+     * A component that extends from an abstract base class.
+     * Tests that decorated members in abstract parent classes are
+     * properly inherited and have reactivity.
+     */
+    interface ExtendsAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    /**
+     * Tests conflict resolution when component has duplicate
+     * @Prop ,
+     * @State , and
+     * @Method names as the base class.
+     * Component versions should override base versions.
+     */
+    interface ExtendsConflicts {
+        /**
+          * Non-duplicate method for comparison
+         */
+        "baseOnlyMethod": () => Promise<string>;
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp": string;
+        /**
+          * Duplicate method - same name as base, should override Component version should be called, not base version
+         */
+        "duplicateMethod": () => Promise<string>;
+        /**
+          * @default 'component prop value'
+         */
+        "duplicateProp": string;
+        /**
+          * Method to get component method call log
+         */
+        "getComponentMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method to get the call log for testing
+         */
+        "getMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method to reset component call log
+         */
+        "resetComponentMethodCallLog": () => Promise<void>;
+        /**
+          * Method to reset call log for testing
+         */
+        "resetMethodCallLog": () => Promise<void>;
+        /**
+          * Method to update component-only state
+         */
+        "updateComponentOnlyState": (value: string) => Promise<void>;
+        /**
+          * Method to update duplicate state for testing
+         */
+        "updateDuplicateState": (value: string) => Promise<void>;
+    }
+    /**
+     * Tests the requestUpdate pattern where the base class (controller)
+     * calls requestUpdate() to trigger the component to update its
+     * @State .
+     * This simulates Lit's ReactiveController pattern:
+     * - Controller calls this.host.requestUpdate()
+     * - Host component updates its state and re-renders
+     */
+    interface ExtendsControllerUpdates {
+        "getIsRunning": () => Promise<boolean>;
+        "getTime": () => Promise<string>;
+        "toggle": () => Promise<void>;
+    }
+    /**
+     * Tests direct state manipulation from a base class.
+     * The base class has
+     * @State properties that are directly updated
+     * without needing requestUpdate() - Stencil handles this automatically.
+     * This is simpler than Lit's ReactiveController pattern:
+     * - No controller instance creation needed
+     * - No host reference needed
+     * - No requestUpdate() calls needed
+     * - Just extend the base class and inherit
+     * @State directly
+     */
+    interface ExtendsDirectState {
+        "getIsRunning": () => Promise<boolean>;
+        "getTime": () => Promise<string>;
+        "toggle": () => Promise<void>;
+    }
+    interface ExtendsEvents {
+    }
+    /**
+     * A component that extends from an external library's component class.
+     * Tests that decorated members from external library components are
+     * properly inherited and have reactivity.
+     */
+    interface ExtendsExternal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface ExtendsExternalAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface ExtendsExternalWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsLifecycleBasic {
+    }
+    /**
+     * Tests multi-level lifecycle inheritance.
+     * Component -> ParentBase -> GrandparentBase
+     * Each level calls super() and adds its own lifecycle tracking.
+     */
+    interface ExtendsLifecycleMultilevel {
+        "triggerUpdate": () => Promise<void>;
+    }
+    interface ExtendsLocal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+    }
+    interface ExtendsMethods {
+        "baseMethod": () => Promise<string>;
+        "childMethod": () => Promise<string>;
+        "composedMethod": () => Promise<string>;
+        "getCallLog": () => Promise<string[]>;
+        "getInternalValue": () => Promise<string>;
+        "overridableMethod": () => Promise<string>;
+        "reset": () => Promise<void>;
+        "updateDisplay": (value: string) => Promise<void>;
+    }
+    /**
+     * Tests mixed decorator type conflicts between base class and component.
+     * - Base has
+     * @Prop , component has
+     * @State for same property
+     * - Base has
+     * @State , component has
+     * @Prop for same property
+     * - Verifies that component decorators override base decorators
+     */
+    interface ExtendsMixedDecorators {
+        /**
+          * Non-conflicting method for comparison
+         */
+        "baseOnlyMethod": () => Promise<string>;
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp": string;
+        /**
+          * Method to get the call log for testing
+         */
+        "getMethodCallLog": () => Promise<string[]>;
+        /**
+          * Method that will conflict with
+          * @Prop in component
+         */
+        "mixedMethodName": () => Promise<string>;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName": string;
+        /**
+          * Method to reset call log for testing
+         */
+        "resetMethodCallLog": () => Promise<void>;
+        /**
+          * Method to update component-only state
+         */
+        "updateComponentOnlyState": (value: string) => Promise<void>;
+        /**
+          * Method to update mixedName state for testing
+         */
+        "updateMixedName": (value: string) => Promise<void>;
+    }
+    /**
+     * A component that uses the Mixin() helper with multiple mixin factory functions.
+     * Tests that decorated members from multiple mixin factories are properly merged
+     * and have reactivity.
+     */
+    interface ExtendsMixinCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp": string;
+        "method1": () => Promise<void>;
+        "method2": () => Promise<void>;
+        "method3": () => Promise<void>;
+        /**
+          * @default 'default text'
+         */
+        "prop1": string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2": string;
+        /**
+          * @default 'mixin b text'
+         */
+        "prop3": string;
+    }
+    interface ExtendsMixinSlotCmp {
+    }
+    /**
+     * Test Case: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount": number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp": string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp": string;
+        "incrementBaseCount": () => Promise<void>;
+        "toggleBaseEnabled": () => Promise<void>;
+        "updateBaseState": (value: string) => Promise<void>;
+        "updateComponentState": (value: string) => Promise<void>;
+    }
+    interface ExtendsRender {
+    }
+    /**
+     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * Tests that the controller pattern works correctly with Stencil components.
+     */
+    interface ExtendsViaHostCmp {
+    }
+    interface ExtendsWatch {
+        /**
+          * @default 0
+         */
+        "baseCount": number;
+        /**
+          * @default 'base prop initial'
+         */
+        "baseProp": string;
+        /**
+          * @default 'child prop initial'
+         */
+        "childProp": string;
+        /**
+          * @default 'override prop initial'
+         */
+        "overrideProp": string;
+        "resetWatchLogs": () => Promise<void>;
+        "updateBaseCount": (value: number) => Promise<void>;
+        "updateBaseCounter": (value: number) => Promise<void>;
+        "updateBaseProp": (value: string) => Promise<void>;
+        "updateBaseState": (value: string) => Promise<void>;
+        "updateChildCounter": (value: number) => Promise<void>;
+        "updateChildProp": (value: string) => Promise<void>;
+        "updateOverrideProp": (value: string) => Promise<void>;
+    }
     interface ExternalImportA {
     }
     interface ExternalImportB {
@@ -266,6 +652,18 @@ export namespace Components {
     interface ImportAliasing {
         "myMethod": () => Promise<HTMLElement>;
         "user": string;
+    }
+    interface InheritanceCheckboxGroup {
+    }
+    interface InheritanceRadioGroup {
+    }
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface InheritanceScalingDemo {
+    }
+    interface InheritanceTextInput {
     }
     interface InputBasicRoot {
         "value"?: string;
@@ -746,9 +1144,21 @@ export interface EventCustomTypeCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventCustomTypeElement;
 }
+export interface ExtendsLocalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLExtendsLocalElement;
+}
 export interface ImportAliasingCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLImportAliasingElement;
+}
+export interface InheritanceCheckboxGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLInheritanceCheckboxGroupElement;
+}
+export interface InheritanceRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLInheritanceRadioGroupElement;
 }
 export interface IonRadioCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1120,6 +1530,232 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
+    }
+    var HTMLExtendedCmpElement: {
+        prototype: HTMLExtendedCmpElement;
+        new (): HTMLExtendedCmpElement;
+    };
+    interface HTMLExtendedCmpCmpElement extends Components.ExtendedCmpCmp, HTMLStencilElement {
+    }
+    var HTMLExtendedCmpCmpElement: {
+        prototype: HTMLExtendedCmpCmpElement;
+        new (): HTMLExtendedCmpCmpElement;
+    };
+    /**
+     * A component that extends from an abstract base class.
+     * Tests that decorated members in abstract parent classes are
+     * properly inherited and have reactivity.
+     */
+    interface HTMLExtendsAbstractElement extends Components.ExtendsAbstract, HTMLStencilElement {
+    }
+    var HTMLExtendsAbstractElement: {
+        prototype: HTMLExtendsAbstractElement;
+        new (): HTMLExtendsAbstractElement;
+    };
+    interface HTMLExtendsCmpCmpElement extends Components.ExtendsCmpCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsCmpCmpElement: {
+        prototype: HTMLExtendsCmpCmpElement;
+        new (): HTMLExtendsCmpCmpElement;
+    };
+    /**
+     * Tests conflict resolution when component has duplicate
+     * @Prop ,
+     * @State , and
+     * @Method names as the base class.
+     * Component versions should override base versions.
+     */
+    interface HTMLExtendsConflictsElement extends Components.ExtendsConflicts, HTMLStencilElement {
+    }
+    var HTMLExtendsConflictsElement: {
+        prototype: HTMLExtendsConflictsElement;
+        new (): HTMLExtendsConflictsElement;
+    };
+    /**
+     * Tests the requestUpdate pattern where the base class (controller)
+     * calls requestUpdate() to trigger the component to update its
+     * @State .
+     * This simulates Lit's ReactiveController pattern:
+     * - Controller calls this.host.requestUpdate()
+     * - Host component updates its state and re-renders
+     */
+    interface HTMLExtendsControllerUpdatesElement extends Components.ExtendsControllerUpdates, HTMLStencilElement {
+    }
+    var HTMLExtendsControllerUpdatesElement: {
+        prototype: HTMLExtendsControllerUpdatesElement;
+        new (): HTMLExtendsControllerUpdatesElement;
+    };
+    /**
+     * Tests direct state manipulation from a base class.
+     * The base class has
+     * @State properties that are directly updated
+     * without needing requestUpdate() - Stencil handles this automatically.
+     * This is simpler than Lit's ReactiveController pattern:
+     * - No controller instance creation needed
+     * - No host reference needed
+     * - No requestUpdate() calls needed
+     * - Just extend the base class and inherit
+     * @State directly
+     */
+    interface HTMLExtendsDirectStateElement extends Components.ExtendsDirectState, HTMLStencilElement {
+    }
+    var HTMLExtendsDirectStateElement: {
+        prototype: HTMLExtendsDirectStateElement;
+        new (): HTMLExtendsDirectStateElement;
+    };
+    interface HTMLExtendsEventsElement extends Components.ExtendsEvents, HTMLStencilElement {
+    }
+    var HTMLExtendsEventsElement: {
+        prototype: HTMLExtendsEventsElement;
+        new (): HTMLExtendsEventsElement;
+    };
+    /**
+     * A component that extends from an external library's component class.
+     * Tests that decorated members from external library components are
+     * properly inherited and have reactivity.
+     */
+    interface HTMLExtendsExternalElement extends Components.ExtendsExternal, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalElement: {
+        prototype: HTMLExtendsExternalElement;
+        new (): HTMLExtendsExternalElement;
+    };
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface HTMLExtendsExternalAbstractElement extends Components.ExtendsExternalAbstract, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalAbstractElement: {
+        prototype: HTMLExtendsExternalAbstractElement;
+        new (): HTMLExtendsExternalAbstractElement;
+    };
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface HTMLExtendsExternalWithMixinElement extends Components.ExtendsExternalWithMixin, HTMLStencilElement {
+    }
+    var HTMLExtendsExternalWithMixinElement: {
+        prototype: HTMLExtendsExternalWithMixinElement;
+        new (): HTMLExtendsExternalWithMixinElement;
+    };
+    interface HTMLExtendsLifecycleBasicElement extends Components.ExtendsLifecycleBasic, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleBasicElement: {
+        prototype: HTMLExtendsLifecycleBasicElement;
+        new (): HTMLExtendsLifecycleBasicElement;
+    };
+    /**
+     * Tests multi-level lifecycle inheritance.
+     * Component -> ParentBase -> GrandparentBase
+     * Each level calls super() and adds its own lifecycle tracking.
+     */
+    interface HTMLExtendsLifecycleMultilevelElement extends Components.ExtendsLifecycleMultilevel, HTMLStencilElement {
+    }
+    var HTMLExtendsLifecycleMultilevelElement: {
+        prototype: HTMLExtendsLifecycleMultilevelElement;
+        new (): HTMLExtendsLifecycleMultilevelElement;
+    };
+    interface HTMLExtendsLocalElementEventMap {
+        "myEvent": string;
+    }
+    interface HTMLExtendsLocalElement extends Components.ExtendsLocal, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLExtendsLocalElementEventMap>(type: K, listener: (this: HTMLExtendsLocalElement, ev: ExtendsLocalCustomEvent<HTMLExtendsLocalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLExtendsLocalElementEventMap>(type: K, listener: (this: HTMLExtendsLocalElement, ev: ExtendsLocalCustomEvent<HTMLExtendsLocalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLExtendsLocalElement: {
+        prototype: HTMLExtendsLocalElement;
+        new (): HTMLExtendsLocalElement;
+    };
+    interface HTMLExtendsMethodsElement extends Components.ExtendsMethods, HTMLStencilElement {
+    }
+    var HTMLExtendsMethodsElement: {
+        prototype: HTMLExtendsMethodsElement;
+        new (): HTMLExtendsMethodsElement;
+    };
+    /**
+     * Tests mixed decorator type conflicts between base class and component.
+     * - Base has
+     * @Prop , component has
+     * @State for same property
+     * - Base has
+     * @State , component has
+     * @Prop for same property
+     * - Verifies that component decorators override base decorators
+     */
+    interface HTMLExtendsMixedDecoratorsElement extends Components.ExtendsMixedDecorators, HTMLStencilElement {
+    }
+    var HTMLExtendsMixedDecoratorsElement: {
+        prototype: HTMLExtendsMixedDecoratorsElement;
+        new (): HTMLExtendsMixedDecoratorsElement;
+    };
+    /**
+     * A component that uses the Mixin() helper with multiple mixin factory functions.
+     * Tests that decorated members from multiple mixin factories are properly merged
+     * and have reactivity.
+     */
+    interface HTMLExtendsMixinCmpElement extends Components.ExtendsMixinCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsMixinCmpElement: {
+        prototype: HTMLExtendsMixinCmpElement;
+        new (): HTMLExtendsMixinCmpElement;
+    };
+    interface HTMLExtendsMixinSlotCmpElement extends Components.ExtendsMixinSlotCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsMixinSlotCmpElement: {
+        prototype: HTMLExtendsMixinSlotCmpElement;
+        new (): HTMLExtendsMixinSlotCmpElement;
+    };
+    /**
+     * Test Case: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface HTMLExtendsPropsStateElement extends Components.ExtendsPropsState, HTMLStencilElement {
+    }
+    var HTMLExtendsPropsStateElement: {
+        prototype: HTMLExtendsPropsStateElement;
+        new (): HTMLExtendsPropsStateElement;
+    };
+    interface HTMLExtendsRenderElement extends Components.ExtendsRender, HTMLStencilElement {
+    }
+    var HTMLExtendsRenderElement: {
+        prototype: HTMLExtendsRenderElement;
+        new (): HTMLExtendsRenderElement;
+    };
+    /**
+     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * Tests that the controller pattern works correctly with Stencil components.
+     */
+    interface HTMLExtendsViaHostCmpElement extends Components.ExtendsViaHostCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsViaHostCmpElement: {
+        prototype: HTMLExtendsViaHostCmpElement;
+        new (): HTMLExtendsViaHostCmpElement;
+    };
+    interface HTMLExtendsWatchElement extends Components.ExtendsWatch, HTMLStencilElement {
+    }
+    var HTMLExtendsWatchElement: {
+        prototype: HTMLExtendsWatchElement;
+        new (): HTMLExtendsWatchElement;
+    };
     interface HTMLExternalImportAElement extends Components.ExternalImportA, HTMLStencilElement {
     }
     var HTMLExternalImportAElement: {
@@ -1196,6 +1832,56 @@ declare global {
     var HTMLImportAliasingElement: {
         prototype: HTMLImportAliasingElement;
         new (): HTMLImportAliasingElement;
+    };
+    interface HTMLInheritanceCheckboxGroupElementEventMap {
+        "valueChange": string[];
+    }
+    interface HTMLInheritanceCheckboxGroupElement extends Components.InheritanceCheckboxGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLInheritanceCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceCheckboxGroupElement, ev: InheritanceCheckboxGroupCustomEvent<HTMLInheritanceCheckboxGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLInheritanceCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceCheckboxGroupElement, ev: InheritanceCheckboxGroupCustomEvent<HTMLInheritanceCheckboxGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLInheritanceCheckboxGroupElement: {
+        prototype: HTMLInheritanceCheckboxGroupElement;
+        new (): HTMLInheritanceCheckboxGroupElement;
+    };
+    interface HTMLInheritanceRadioGroupElementEventMap {
+        "valueChange": string;
+    }
+    interface HTMLInheritanceRadioGroupElement extends Components.InheritanceRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLInheritanceRadioGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceRadioGroupElement, ev: InheritanceRadioGroupCustomEvent<HTMLInheritanceRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLInheritanceRadioGroupElementEventMap>(type: K, listener: (this: HTMLInheritanceRadioGroupElement, ev: InheritanceRadioGroupCustomEvent<HTMLInheritanceRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLInheritanceRadioGroupElement: {
+        prototype: HTMLInheritanceRadioGroupElement;
+        new (): HTMLInheritanceRadioGroupElement;
+    };
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface HTMLInheritanceScalingDemoElement extends Components.InheritanceScalingDemo, HTMLStencilElement {
+    }
+    var HTMLInheritanceScalingDemoElement: {
+        prototype: HTMLInheritanceScalingDemoElement;
+        new (): HTMLInheritanceScalingDemoElement;
+    };
+    interface HTMLInheritanceTextInputElement extends Components.InheritanceTextInput, HTMLStencilElement {
+    }
+    var HTMLInheritanceTextInputElement: {
+        prototype: HTMLInheritanceTextInputElement;
+        new (): HTMLInheritanceTextInputElement;
     };
     interface HTMLInputBasicRootElement extends Components.InputBasicRoot, HTMLStencilElement {
     }
@@ -2134,6 +2820,28 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "extended-cmp": HTMLExtendedCmpElement;
+        "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
+        "extends-abstract": HTMLExtendsAbstractElement;
+        "extends-cmp-cmp": HTMLExtendsCmpCmpElement;
+        "extends-conflicts": HTMLExtendsConflictsElement;
+        "extends-controller-updates": HTMLExtendsControllerUpdatesElement;
+        "extends-direct-state": HTMLExtendsDirectStateElement;
+        "extends-events": HTMLExtendsEventsElement;
+        "extends-external": HTMLExtendsExternalElement;
+        "extends-external-abstract": HTMLExtendsExternalAbstractElement;
+        "extends-external-with-mixin": HTMLExtendsExternalWithMixinElement;
+        "extends-lifecycle-basic": HTMLExtendsLifecycleBasicElement;
+        "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
+        "extends-local": HTMLExtendsLocalElement;
+        "extends-methods": HTMLExtendsMethodsElement;
+        "extends-mixed-decorators": HTMLExtendsMixedDecoratorsElement;
+        "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
+        "extends-mixin-slot-cmp": HTMLExtendsMixinSlotCmpElement;
+        "extends-props-state": HTMLExtendsPropsStateElement;
+        "extends-render": HTMLExtendsRenderElement;
+        "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
+        "extends-watch": HTMLExtendsWatchElement;
         "external-import-a": HTMLExternalImportAElement;
         "external-import-b": HTMLExternalImportBElement;
         "external-import-c": HTMLExternalImportCElement;
@@ -2145,6 +2853,10 @@ declare global {
         "host-attr-override": HTMLHostAttrOverrideElement;
         "image-import": HTMLImageImportElement;
         "import-aliasing": HTMLImportAliasingElement;
+        "inheritance-checkbox-group": HTMLInheritanceCheckboxGroupElement;
+        "inheritance-radio-group": HTMLInheritanceRadioGroupElement;
+        "inheritance-scaling-demo": HTMLInheritanceScalingDemoElement;
+        "inheritance-text-input": HTMLInheritanceTextInputElement;
         "input-basic-root": HTMLInputBasicRootElement;
         "ion-child": HTMLIonChildElement;
         "ion-host": HTMLIonHostElement;
@@ -2493,6 +3205,290 @@ declare namespace LocalJSX {
     }
     interface EventListenerCapture {
     }
+    interface ExtendedCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendedCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'ExtendedCmp text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * A component that extends from an abstract base class.
+     * Tests that decorated members in abstract parent classes are
+     * properly inherited and have reactivity.
+     */
+    interface ExtendsAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsCmpCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * Tests conflict resolution when component has duplicate
+     * @Prop ,
+     * @State , and
+     * @Method names as the base class.
+     * Component versions should override base versions.
+     */
+    interface ExtendsConflicts {
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "duplicateProp"?: string;
+    }
+    /**
+     * Tests the requestUpdate pattern where the base class (controller)
+     * calls requestUpdate() to trigger the component to update its
+     * @State .
+     * This simulates Lit's ReactiveController pattern:
+     * - Controller calls this.host.requestUpdate()
+     * - Host component updates its state and re-renders
+     */
+    interface ExtendsControllerUpdates {
+    }
+    /**
+     * Tests direct state manipulation from a base class.
+     * The base class has
+     * @State properties that are directly updated
+     * without needing requestUpdate() - Stencil handles this automatically.
+     * This is simpler than Lit's ReactiveController pattern:
+     * - No controller instance creation needed
+     * - No host reference needed
+     * - No requestUpdate() calls needed
+     * - Just extend the base class and inherit
+     * @State directly
+     */
+    interface ExtendsDirectState {
+    }
+    interface ExtendsEvents {
+    }
+    /**
+     * A component that extends from an external library's component class.
+     * Tests that decorated members from external library components are
+     * properly inherited and have reactivity.
+     */
+    interface ExtendsExternal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * A component that extends from an external library's abstract mixin class.
+     * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+     * members should be properly merged in and have reactivity.
+     */
+    interface ExtendsExternalAbstract {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    /**
+     * A component that extends from an external library's component which itself uses a mixin pattern.
+     * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+     * class pattern - the decorated class members should be properly merged and have reactivity.
+     */
+    interface ExtendsExternalWithMixin {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsLifecycleBasic {
+    }
+    /**
+     * Tests multi-level lifecycle inheritance.
+     * Component -> ParentBase -> GrandparentBase
+     * Each level calls super() and adds its own lifecycle tracking.
+     */
+    interface ExtendsLifecycleMultilevel {
+    }
+    interface ExtendsLocal {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        "onMyEvent"?: (event: ExtendsLocalCustomEvent<string>) => void;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+    }
+    interface ExtendsMethods {
+    }
+    /**
+     * Tests mixed decorator type conflicts between base class and component.
+     * - Base has
+     * @Prop , component has
+     * @State for same property
+     * - Base has
+     * @State , component has
+     * @Prop for same property
+     * - Verifies that component decorators override base decorators
+     */
+    interface ExtendsMixedDecorators {
+        /**
+          * @default 'base only prop value'
+         */
+        "baseOnlyProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "mixedStateName"?: string;
+    }
+    /**
+     * A component that uses the Mixin() helper with multiple mixin factory functions.
+     * Tests that decorated members from multiple mixin factories are properly merged
+     * and have reactivity.
+     */
+    interface ExtendsMixinCmp {
+        /**
+          * @default 'getter default value'
+         */
+        "getterProp"?: string;
+        /**
+          * @default 'default text'
+         */
+        "prop1"?: string;
+        /**
+          * @default 'ExtendedCmp prop2 text'
+         */
+        "prop2"?: string;
+        /**
+          * @default 'mixin b text'
+         */
+        "prop3"?: string;
+    }
+    interface ExtendsMixinSlotCmp {
+    }
+    /**
+     * Test Case: Property & State Inheritance Basics
+     * This component extends PropsStateBase to test:
+     * -
+     * @Prop inheritance from base class
+     * -
+     * @State inheritance from base class
+     * - Additional
+     * @Prop and
+     * @State without conflicts
+     * - Property reactivity (inherited props/state trigger re-renders)
+     */
+    interface ExtendsPropsState {
+        /**
+          * @default 0
+         */
+        "baseCount"?: number;
+        /**
+          * @default 'base prop value'
+         */
+        "baseProp"?: string;
+        /**
+          * @default 'component prop value'
+         */
+        "componentProp"?: string;
+    }
+    interface ExtendsRender {
+    }
+    /**
+     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * Tests that the controller pattern works correctly with Stencil components.
+     */
+    interface ExtendsViaHostCmp {
+    }
+    interface ExtendsWatch {
+        /**
+          * @default 0
+         */
+        "baseCount"?: number;
+        /**
+          * @default 'base prop initial'
+         */
+        "baseProp"?: string;
+        /**
+          * @default 'child prop initial'
+         */
+        "childProp"?: string;
+        /**
+          * @default 'override prop initial'
+         */
+        "overrideProp"?: string;
+    }
     interface ExternalImportA {
     }
     interface ExternalImportB {
@@ -2549,6 +3545,20 @@ declare namespace LocalJSX {
         "name"?: string;
         "onMyEvent"?: (event: ImportAliasingCustomEvent<void>) => void;
         "user": string;
+    }
+    interface InheritanceCheckboxGroup {
+        "onValueChange"?: (event: InheritanceCheckboxGroupCustomEvent<string[]>) => void;
+    }
+    interface InheritanceRadioGroup {
+        "onValueChange"?: (event: InheritanceRadioGroupCustomEvent<string>) => void;
+    }
+    /**
+     * Main component that demonstrates inheritance-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface InheritanceScalingDemo {
+    }
+    interface InheritanceTextInput {
     }
     interface InputBasicRoot {
         "value"?: string;
@@ -3079,6 +4089,71 @@ declare namespace LocalJSX {
         "didLoad": number;
         "didUnload": number;
     }
+    interface ExtendedCmpAttributes {
+        "getterProp": string;
+        "prop1": string;
+        "prop2": string;
+    }
+    interface ExtendedCmpCmpAttributes {
+        "getterProp": string;
+        "prop1": string;
+        "prop2": string;
+    }
+    interface ExtendsAbstractAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsCmpCmpAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsConflictsAttributes {
+        "baseOnlyProp": string;
+        "duplicateProp": string;
+    }
+    interface ExtendsExternalAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsExternalAbstractAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsExternalWithMixinAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsLocalAttributes {
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsMixedDecoratorsAttributes {
+        "baseOnlyProp": string;
+        "mixedStateName": string;
+    }
+    interface ExtendsMixinCmpAttributes {
+        "prop3": string;
+        "getterProp": string;
+        "prop2": string;
+        "prop1": string;
+    }
+    interface ExtendsPropsStateAttributes {
+        "baseProp": string;
+        "baseCount": number;
+        "componentProp": string;
+    }
+    interface ExtendsWatchAttributes {
+        "baseProp": string;
+        "baseCount": number;
+        "overrideProp": string;
+        "childProp": string;
+    }
     interface FormAssociatedPropCheckAttributes {
         "disabled": boolean;
     }
@@ -3263,6 +4338,28 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
+        "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
+        "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
+        "extends-cmp-cmp": Omit<ExtendsCmpCmp, keyof ExtendsCmpCmpAttributes> & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes]?: ExtendsCmpCmp[K] } & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes as `attr:${K}`]?: ExtendsCmpCmpAttributes[K] } & { [K in keyof ExtendsCmpCmp & keyof ExtendsCmpCmpAttributes as `prop:${K}`]?: ExtendsCmpCmp[K] };
+        "extends-conflicts": Omit<ExtendsConflicts, keyof ExtendsConflictsAttributes> & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes]?: ExtendsConflicts[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `attr:${K}`]?: ExtendsConflictsAttributes[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `prop:${K}`]?: ExtendsConflicts[K] };
+        "extends-controller-updates": ExtendsControllerUpdates;
+        "extends-direct-state": ExtendsDirectState;
+        "extends-events": ExtendsEvents;
+        "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
+        "extends-external-abstract": Omit<ExtendsExternalAbstract, keyof ExtendsExternalAbstractAttributes> & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes]?: ExtendsExternalAbstract[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `attr:${K}`]?: ExtendsExternalAbstractAttributes[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `prop:${K}`]?: ExtendsExternalAbstract[K] };
+        "extends-external-with-mixin": Omit<ExtendsExternalWithMixin, keyof ExtendsExternalWithMixinAttributes> & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes]?: ExtendsExternalWithMixin[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `attr:${K}`]?: ExtendsExternalWithMixinAttributes[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `prop:${K}`]?: ExtendsExternalWithMixin[K] };
+        "extends-lifecycle-basic": ExtendsLifecycleBasic;
+        "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
+        "extends-local": Omit<ExtendsLocal, keyof ExtendsLocalAttributes> & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes]?: ExtendsLocal[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `attr:${K}`]?: ExtendsLocalAttributes[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `prop:${K}`]?: ExtendsLocal[K] };
+        "extends-methods": ExtendsMethods;
+        "extends-mixed-decorators": Omit<ExtendsMixedDecorators, keyof ExtendsMixedDecoratorsAttributes> & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes]?: ExtendsMixedDecorators[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `attr:${K}`]?: ExtendsMixedDecoratorsAttributes[K] } & { [K in keyof ExtendsMixedDecorators & keyof ExtendsMixedDecoratorsAttributes as `prop:${K}`]?: ExtendsMixedDecorators[K] };
+        "extends-mixin-cmp": Omit<ExtendsMixinCmp, keyof ExtendsMixinCmpAttributes> & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes]?: ExtendsMixinCmp[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `attr:${K}`]?: ExtendsMixinCmpAttributes[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `prop:${K}`]?: ExtendsMixinCmp[K] };
+        "extends-mixin-slot-cmp": ExtendsMixinSlotCmp;
+        "extends-props-state": Omit<ExtendsPropsState, keyof ExtendsPropsStateAttributes> & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes]?: ExtendsPropsState[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `attr:${K}`]?: ExtendsPropsStateAttributes[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `prop:${K}`]?: ExtendsPropsState[K] };
+        "extends-render": ExtendsRender;
+        "extends-via-host-cmp": ExtendsViaHostCmp;
+        "extends-watch": Omit<ExtendsWatch, keyof ExtendsWatchAttributes> & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes]?: ExtendsWatch[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `attr:${K}`]?: ExtendsWatchAttributes[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `prop:${K}`]?: ExtendsWatch[K] };
         "external-import-a": ExternalImportA;
         "external-import-b": ExternalImportB;
         "external-import-c": ExternalImportC;
@@ -3274,6 +4371,10 @@ declare namespace LocalJSX {
         "host-attr-override": HostAttrOverride;
         "image-import": ImageImport;
         "import-aliasing": Omit<ImportAliasing, keyof ImportAliasingAttributes> & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes]?: ImportAliasing[K] } & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes as `attr:${K}`]?: ImportAliasingAttributes[K] } & { [K in keyof ImportAliasing & keyof ImportAliasingAttributes as `prop:${K}`]?: ImportAliasing[K] } & OneOf<"user", ImportAliasing["user"], ImportAliasingAttributes["user"]>;
+        "inheritance-checkbox-group": InheritanceCheckboxGroup;
+        "inheritance-radio-group": InheritanceRadioGroup;
+        "inheritance-scaling-demo": InheritanceScalingDemo;
+        "inheritance-text-input": InheritanceTextInput;
         "input-basic-root": Omit<InputBasicRoot, keyof InputBasicRootAttributes> & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes]?: InputBasicRoot[K] } & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes as `attr:${K}`]?: InputBasicRootAttributes[K] } & { [K in keyof InputBasicRoot & keyof InputBasicRootAttributes as `prop:${K}`]?: InputBasicRoot[K] };
         "ion-child": IonChild;
         "ion-host": IonHost;
@@ -3466,6 +4567,111 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
+            "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
+            /**
+             * A component that extends from an abstract base class.
+             * Tests that decorated members in abstract parent classes are
+             * properly inherited and have reactivity.
+             */
+            "extends-abstract": LocalJSX.IntrinsicElements["extends-abstract"] & JSXBase.HTMLAttributes<HTMLExtendsAbstractElement>;
+            "extends-cmp-cmp": LocalJSX.IntrinsicElements["extends-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsCmpCmpElement>;
+            /**
+             * Tests conflict resolution when component has duplicate
+             * @Prop ,
+             * @State , and
+             * @Method names as the base class.
+             * Component versions should override base versions.
+             */
+            "extends-conflicts": LocalJSX.IntrinsicElements["extends-conflicts"] & JSXBase.HTMLAttributes<HTMLExtendsConflictsElement>;
+            /**
+             * Tests the requestUpdate pattern where the base class (controller)
+             * calls requestUpdate() to trigger the component to update its
+             * @State .
+             * This simulates Lit's ReactiveController pattern:
+             * - Controller calls this.host.requestUpdate()
+             * - Host component updates its state and re-renders
+             */
+            "extends-controller-updates": LocalJSX.IntrinsicElements["extends-controller-updates"] & JSXBase.HTMLAttributes<HTMLExtendsControllerUpdatesElement>;
+            /**
+             * Tests direct state manipulation from a base class.
+             * The base class has
+             * @State properties that are directly updated
+             * without needing requestUpdate() - Stencil handles this automatically.
+             * This is simpler than Lit's ReactiveController pattern:
+             * - No controller instance creation needed
+             * - No host reference needed
+             * - No requestUpdate() calls needed
+             * - Just extend the base class and inherit
+             * @State directly
+             */
+            "extends-direct-state": LocalJSX.IntrinsicElements["extends-direct-state"] & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
+            "extends-events": LocalJSX.IntrinsicElements["extends-events"] & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
+            /**
+             * A component that extends from an external library's component class.
+             * Tests that decorated members from external library components are
+             * properly inherited and have reactivity.
+             */
+            "extends-external": LocalJSX.IntrinsicElements["extends-external"] & JSXBase.HTMLAttributes<HTMLExtendsExternalElement>;
+            /**
+             * A component that extends from an external library's abstract mixin class.
+             * This tests Bug B: importing abstract mixin classes from a lib - those classes'
+             * members should be properly merged in and have reactivity.
+             */
+            "extends-external-abstract": LocalJSX.IntrinsicElements["extends-external-abstract"] & JSXBase.HTMLAttributes<HTMLExtendsExternalAbstractElement>;
+            /**
+             * A component that extends from an external library's component which itself uses a mixin pattern.
+             * This tests Bug A: a project importing/rendering from a lib whose component utilises a mixin/abstract
+             * class pattern - the decorated class members should be properly merged and have reactivity.
+             */
+            "extends-external-with-mixin": LocalJSX.IntrinsicElements["extends-external-with-mixin"] & JSXBase.HTMLAttributes<HTMLExtendsExternalWithMixinElement>;
+            "extends-lifecycle-basic": LocalJSX.IntrinsicElements["extends-lifecycle-basic"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
+            /**
+             * Tests multi-level lifecycle inheritance.
+             * Component -> ParentBase -> GrandparentBase
+             * Each level calls super() and adds its own lifecycle tracking.
+             */
+            "extends-lifecycle-multilevel": LocalJSX.IntrinsicElements["extends-lifecycle-multilevel"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleMultilevelElement>;
+            "extends-local": LocalJSX.IntrinsicElements["extends-local"] & JSXBase.HTMLAttributes<HTMLExtendsLocalElement>;
+            "extends-methods": LocalJSX.IntrinsicElements["extends-methods"] & JSXBase.HTMLAttributes<HTMLExtendsMethodsElement>;
+            /**
+             * Tests mixed decorator type conflicts between base class and component.
+             * - Base has
+             * @Prop , component has
+             * @State for same property
+             * - Base has
+             * @State , component has
+             * @Prop for same property
+             * - Verifies that component decorators override base decorators
+             */
+            "extends-mixed-decorators": LocalJSX.IntrinsicElements["extends-mixed-decorators"] & JSXBase.HTMLAttributes<HTMLExtendsMixedDecoratorsElement>;
+            /**
+             * A component that uses the Mixin() helper with multiple mixin factory functions.
+             * Tests that decorated members from multiple mixin factories are properly merged
+             * and have reactivity.
+             */
+            "extends-mixin-cmp": LocalJSX.IntrinsicElements["extends-mixin-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsMixinCmpElement>;
+            "extends-mixin-slot-cmp": LocalJSX.IntrinsicElements["extends-mixin-slot-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsMixinSlotCmpElement>;
+            /**
+             * Test Case: Property & State Inheritance Basics
+             * This component extends PropsStateBase to test:
+             * -
+             * @Prop inheritance from base class
+             * -
+             * @State inheritance from base class
+             * - Additional
+             * @Prop and
+             * @State without conflicts
+             * - Property reactivity (inherited props/state trigger re-renders)
+             */
+            "extends-props-state": LocalJSX.IntrinsicElements["extends-props-state"] & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
+            "extends-render": LocalJSX.IntrinsicElements["extends-render"] & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
+            /**
+             * A component that extends ReactiveControllerHost to use reactive controllers.
+             * Tests that the controller pattern works correctly with Stencil components.
+             */
+            "extends-via-host-cmp": LocalJSX.IntrinsicElements["extends-via-host-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;
+            "extends-watch": LocalJSX.IntrinsicElements["extends-watch"] & JSXBase.HTMLAttributes<HTMLExtendsWatchElement>;
             "external-import-a": LocalJSX.IntrinsicElements["external-import-a"] & JSXBase.HTMLAttributes<HTMLExternalImportAElement>;
             "external-import-b": LocalJSX.IntrinsicElements["external-import-b"] & JSXBase.HTMLAttributes<HTMLExternalImportBElement>;
             "external-import-c": LocalJSX.IntrinsicElements["external-import-c"] & JSXBase.HTMLAttributes<HTMLExternalImportCElement>;
@@ -3477,6 +4683,14 @@ declare module "@stencil/core" {
             "host-attr-override": LocalJSX.IntrinsicElements["host-attr-override"] & JSXBase.HTMLAttributes<HTMLHostAttrOverrideElement>;
             "image-import": LocalJSX.IntrinsicElements["image-import"] & JSXBase.HTMLAttributes<HTMLImageImportElement>;
             "import-aliasing": LocalJSX.IntrinsicElements["import-aliasing"] & JSXBase.HTMLAttributes<HTMLImportAliasingElement>;
+            "inheritance-checkbox-group": LocalJSX.IntrinsicElements["inheritance-checkbox-group"] & JSXBase.HTMLAttributes<HTMLInheritanceCheckboxGroupElement>;
+            "inheritance-radio-group": LocalJSX.IntrinsicElements["inheritance-radio-group"] & JSXBase.HTMLAttributes<HTMLInheritanceRadioGroupElement>;
+            /**
+             * Main component that demonstrates inheritance-based scaling
+             * with 3 components and 2 controllers (ValidationController and FocusController)
+             */
+            "inheritance-scaling-demo": LocalJSX.IntrinsicElements["inheritance-scaling-demo"] & JSXBase.HTMLAttributes<HTMLInheritanceScalingDemoElement>;
+            "inheritance-text-input": LocalJSX.IntrinsicElements["inheritance-text-input"] & JSXBase.HTMLAttributes<HTMLInheritanceTextInputElement>;
             "input-basic-root": LocalJSX.IntrinsicElements["input-basic-root"] & JSXBase.HTMLAttributes<HTMLInputBasicRootElement>;
             "ion-child": LocalJSX.IntrinsicElements["ion-child"] & JSXBase.HTMLAttributes<HTMLIonChildElement>;
             "ion-host": LocalJSX.IntrinsicElements["ion-host"] & JSXBase.HTMLAttributes<HTMLIonHostElement>;

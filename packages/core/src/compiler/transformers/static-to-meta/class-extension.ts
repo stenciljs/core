@@ -516,8 +516,12 @@ export function mergeExtendedClassMeta(
       if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, extendedClass.classNode);
     }
 
-    properties = [...deDupeMembers(mixinProps, properties), ...properties];
-    states = [...deDupeMembers(mixinStates, states), ...states];
+    // Cross-type deduplication: if the component overrides a base @Prop with @State (or vice versa),
+    // exclude the base member from the opposite type to prevent it appearing in both.
+    const mixinPropsExcludingComponentStates = mixinProps.filter((mp) => !states.some((s) => s.name === mp.name));
+    const mixinStatesExcludingComponentProps = mixinStates.filter((ms) => !properties.some((p) => p.name === ms.name));
+    properties = [...deDupeMembers(mixinPropsExcludingComponentStates, properties), ...properties];
+    states = [...deDupeMembers(mixinStatesExcludingComponentProps, states), ...states];
     methods = [...deDupeMembers(mixinMethods, methods), ...methods];
     events = [...deDupeMembers(mixinEvents, events), ...events];
     listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];

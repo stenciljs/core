@@ -279,9 +279,38 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | exclude-component | exclude-component |
 | style-plugin | style-plugin |
 | tag-transform | tag-transform |
+| sibling-spec | new project setup in spec/sibling |
+
+### ts-target Tests (Pending Migration)
+
+These tests verify component class inheritance patterns. Previously required es2022 target and iframe isolation for testing both `dist` and `dist-custom-elements` outputs. Now these can run directly via vitest projects.
+
+| wdio test | vitest test | status |
+|-----------|-------------|--------|
+| ts-target/extends-abstract | extends-abstract | ✅ done |
+| ts-target/extends-cmp | extends-cmp | ✅ done |
+| ts-target/extends-composition-scaling | extends-composition-scaling | pending |
+| ts-target/extends-conflicts | extends-conflicts | ✅ done |
+| ts-target/extends-controller-updates | extends-controller-updates | ✅ done |
+| ts-target/extends-direct-state | extends-direct-state | ✅ done |
+| ts-target/extends-events | extends-events | ✅ done |
+| ts-target/extends-external | extends-external | ✅ done |
+| ts-target/extends-inheritance-scaling | extends-inheritance-scaling | pending |
+| ts-target/extends-lifecycle-basic | extends-lifecycle-basic | ✅ done |
+| ts-target/extends-lifecycle-multilevel | extends-lifecycle-multilevel | ✅ done |
+| ts-target/extends-local | extends-local | ✅ done |
+| ts-target/extends-methods | extends-methods | ✅ done |
+| ts-target/extends-mixed-decorators | extends-mixed-decorators | ✅ done |
+| ts-target/extends-mixin | extends-mixin | ✅ done |
+| ts-target/extends-props-state | extends-props-state | ✅ done |
+| ts-target/extends-render | extends-render | ✅ done |
+| ts-target/extends-via-host | extends-via-host | ✅ done |
+| ts-target/extends-external-abstract | extends-external-abstract | ✅ done |
+| ts-target/extends-external-with-mixin | extends-external-with-mixin | ✅ done |
+| ts-target/extends-mixin-slot | extends-mixin-slot | ✅ done |
+| ts-target/extends-watch | extends-watch | ✅ done |
 
 #### Skipped Tests (need special handling or are not applicable)
-- test-sibling (special setup)
 - complex-properties (uses SSR renderToString)
 - declarative-shadow-dom (special SSR)
 - invisible-prehydration (SSR)
@@ -290,5 +319,4 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 - serialize-deserialize-e2e (SSR)
 - ssr-hydration (SSR)
 - test-prerender (SSR)
-- ts-target (build config)
 

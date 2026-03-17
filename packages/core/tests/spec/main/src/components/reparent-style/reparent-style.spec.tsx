@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('reparent behavior (style)', () => {
   it('should have styles applied by default', async () => {
@@ -8,7 +8,8 @@ describe('reparent behavior (style)', () => {
         <reparent-style-no-vars></reparent-style-no-vars>
       </div>,
     );
-
+    await waitForExist('reparent-style-with-vars.hydrated');
+    await waitForExist('reparent-style-no-vars.hydrated');
     const varsContainer = document.querySelector('reparent-style-with-vars')!;
     const novarsContainer = document.querySelector('reparent-style-no-vars')!;
 
@@ -24,7 +25,8 @@ describe('reparent behavior (style)', () => {
         <button class="reparent-no-vars">Reparent (no vars)</button>
       </div>,
     );
-
+    await waitForExist('reparent-style-with-vars.hydrated');
+    await waitForExist('reparent-style-no-vars.hydrated');
     const reparentContainer = document.querySelector('.reparent-container')!;
     document.querySelector('.reparent-no-vars')!.addEventListener('click', () => {
       const component = document.querySelector('reparent-style-no-vars')!;
@@ -46,7 +48,8 @@ describe('reparent behavior (style)', () => {
         <button class="reparent-vars">Reparent (with vars)</button>
       </div>,
     );
-
+    await waitForExist('reparent-style-with-vars.hydrated');
+    await waitForExist('reparent-style-no-vars.hydrated');
     const reparentContainer = document.querySelector('.reparent-container')!;
     document.querySelector('.reparent-vars')!.addEventListener('click', () => {
       const component = document.querySelector('reparent-style-with-vars')!;
