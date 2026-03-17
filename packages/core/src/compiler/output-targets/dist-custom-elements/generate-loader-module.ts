@@ -117,7 +117,7 @@ async function load(root, lookup) {
         // upgraded (constructor + connectedCallback have run synchronously),
         // at which point __stencil__getHostRef and $onReadyPromise$ are set.
         ancestor['s-p'].push(
-          customElements.whenDefined(tag).then(() => el.__stencil__getHostRef?.()?.['$onReadyPromise$'])
+          customElements.whenDefined(tag).then(() => el['s-rp'])
         );
         break;
       }

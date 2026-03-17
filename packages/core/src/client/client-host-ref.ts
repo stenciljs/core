@@ -60,6 +60,10 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
   }
   if (BUILD.asyncLoading) {
     hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
+    // Expose the ready promise on the element itself under a stable string key
+    // ('s-rp') so the autoloader can access it without going through the
+    // minified hostRef internals
+    hostElement['s-rp'] = hostRef.$onReadyPromise$;
     // Preserve any existing s-p/s-rc arrays (e.g. pre-set by the autoloader
     // before this element was upgraded) so that promises pushed by children
     // that connected before this element's constructor ran are not lost.

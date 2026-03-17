@@ -15,7 +15,7 @@ describe('lifecycle-nested', () => {
     );
 
     await waitForChanges();
-    await waitForStable('ol'); //?
+    await waitForStable('ol'); 
 
     const loads = document.querySelectorAll('.lifecycle-loads li');
     expect(loads).toHaveLength(6);

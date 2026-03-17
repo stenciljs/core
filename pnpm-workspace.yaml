@@ -8,4 +8,4 @@ catalog:
   "@vitest/browser-playwright": ^4.0.18
   playwright: ^1.52.0
   "@playwright/test": ^1.52.0
-  "@stencil/vitest": "^1.7.1"
+  "@stencil/vitest": "^1.8.0"

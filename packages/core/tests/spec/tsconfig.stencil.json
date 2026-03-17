@@ -9,7 +9,8 @@
     "jsxFragmentFactory": "Fragment",
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": ["@stencil/vitest/globals"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
