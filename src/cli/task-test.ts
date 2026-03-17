@@ -6,6 +6,15 @@ import type { TestingRunOptions, ValidatedConfig } from '../declarations';
  * @returns a void promise
  */
 export const taskTest = async (config: ValidatedConfig): Promise<void> => {
+  config.logger.warn(
+    config.logger.yellow(
+      `[DEPRECATION] Stencil's integrated testing (the 'test' task, --spec and --e2e flags) is deprecated and will be removed in Stencil v5. ` +
+        `Migrate spec tests to @stencil/vitest (https://github.com/stenciljs/vitest) and ` +
+        `e2e / browser tests to either @stencil/vitest (https://github.com/stenciljs/vitest) or ` +
+        `@stencil/playwright (https://github.com/stenciljs/playwright). ` +
+        `See https://github.com/stenciljs/core/issues/6584 for full details.`,
+    ),
+  );
   config.buildDocs = false;
   const testingRunOpts: TestingRunOptions = {
     e2e: !!config.flags.e2e,
