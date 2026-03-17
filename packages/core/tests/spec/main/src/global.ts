@@ -1,9 +1,9 @@
 import { setupApp } from './index';
 
-// this imports the build from the `./test-sibling` project. The ability to use
+// this imports the build from the `../sibling` project. The ability to use
 // a Stencil component defined in that 'sibling' project is tested in the
 // `stencil-sibling` test suite
-// import 'test-sibling';
+import 'sibling-spec';
 
 declare global {
   interface Window {

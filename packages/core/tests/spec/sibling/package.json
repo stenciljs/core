@@ -1,0 +1,15 @@
+{
+  "name": "sibling-spec",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "collection": "dist/collection/collection-manifest.json",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

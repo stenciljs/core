@@ -719,6 +719,8 @@ export namespace Components {
     }
     interface StaticStyles {
     }
+    interface StencilSibling {
+    }
     interface SvgAttr {
     }
     interface SvgClass {
@@ -2041,6 +2043,12 @@ declare global {
         prototype: HTMLStaticStylesElement;
         new (): HTMLStaticStylesElement;
     };
+    interface HTMLStencilSiblingElement extends Components.StencilSibling, HTMLStencilElement {
+    }
+    var HTMLStencilSiblingElement: {
+        prototype: HTMLStencilSiblingElement;
+        new (): HTMLStencilSiblingElement;
+    };
     interface HTMLSvgAttrElement extends Components.SvgAttr, HTMLStencilElement {
     }
     var HTMLSvgAttrElement: {
@@ -2280,6 +2288,7 @@ declare global {
         "static-members-separate-export": HTMLStaticMembersSeparateExportElement;
         "static-members-separate-initializer": HTMLStaticMembersSeparateInitializerElement;
         "static-styles": HTMLStaticStylesElement;
+        "stencil-sibling": HTMLStencilSiblingElement;
         "svg-attr": HTMLSvgAttrElement;
         "svg-class": HTMLSvgClassElement;
         "tag-3d-component": HTMLTag3dComponentElement;
@@ -3008,6 +3017,8 @@ declare namespace LocalJSX {
     }
     interface StaticStyles {
     }
+    interface StencilSibling {
+    }
     interface SvgAttr {
     }
     interface SvgClass {
@@ -3412,6 +3423,7 @@ declare namespace LocalJSX {
         "static-members-separate-export": StaticMembersSeparateExport;
         "static-members-separate-initializer": StaticMembersSeparateInitializer;
         "static-styles": StaticStyles;
+        "stencil-sibling": StencilSibling;
         "svg-attr": SvgAttr;
         "svg-class": SvgClass;
         "tag-3d-component": Tag3dComponent;
@@ -3624,6 +3636,7 @@ declare module "@stencil/core" {
             "static-members-separate-export": LocalJSX.IntrinsicElements["static-members-separate-export"] & JSXBase.HTMLAttributes<HTMLStaticMembersSeparateExportElement>;
             "static-members-separate-initializer": LocalJSX.IntrinsicElements["static-members-separate-initializer"] & JSXBase.HTMLAttributes<HTMLStaticMembersSeparateInitializerElement>;
             "static-styles": LocalJSX.IntrinsicElements["static-styles"] & JSXBase.HTMLAttributes<HTMLStaticStylesElement>;
+            "stencil-sibling": LocalJSX.IntrinsicElements["stencil-sibling"] & JSXBase.HTMLAttributes<HTMLStencilSiblingElement>;
             "svg-attr": LocalJSX.IntrinsicElements["svg-attr"] & JSXBase.HTMLAttributes<HTMLSvgAttrElement>;
             "svg-class": LocalJSX.IntrinsicElements["svg-class"] & JSXBase.HTMLAttributes<HTMLSvgClassElement>;
             "tag-3d-component": LocalJSX.IntrinsicElements["tag-3d-component"] & JSXBase.HTMLAttributes<HTMLTag3dComponentElement>;

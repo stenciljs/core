@@ -4,8 +4,8 @@ import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
   tag: 'sibling-extended-base',
 })
 export class SiblingExtendedBase {
-
   private _getterProp: string = 'getter default value';
+
   @Prop()
   get getterProp(): string {
     return this._getterProp;
@@ -19,6 +19,7 @@ export class SiblingExtendedBase {
   prop1Changed(newValue: string) {
     console.info('extended class handler prop1:', newValue);
   }
+
   @Prop() prop2: string = 'ExtendedCmp prop2 text';
   @Watch('prop2')
   prop2Changed(newValue: string) {
@@ -30,6 +31,7 @@ export class SiblingExtendedBase {
   state1Changed(newValue: string) {
     console.info('extended class handler state1:', newValue);
   }
+
   @State() state2: string = 'ExtendedCmp state2 text';
   @Watch('state2')
   state2Changed(newValue: string) {
