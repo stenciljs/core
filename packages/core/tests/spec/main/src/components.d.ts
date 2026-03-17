@@ -242,10 +242,6 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
-    interface ExcludeComponentRoot {
-    }
-    interface ExcludedComponent {
-    }
     interface ExternalImportA {
     }
     interface ExternalImportB {
@@ -1123,18 +1119,6 @@ declare global {
     var HTMLEventListenerCaptureElement: {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
-    };
-    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
-    }
-    var HTMLExcludeComponentRootElement: {
-        prototype: HTMLExcludeComponentRootElement;
-        new (): HTMLExcludeComponentRootElement;
-    };
-    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
-    }
-    var HTMLExcludedComponentElement: {
-        prototype: HTMLExcludedComponentElement;
-        new (): HTMLExcludedComponentElement;
     };
     interface HTMLExternalImportAElement extends Components.ExternalImportA, HTMLStencilElement {
     }
@@ -2150,8 +2134,6 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
-        "exclude-component-root": HTMLExcludeComponentRootElement;
-        "excluded-component": HTMLExcludedComponentElement;
         "external-import-a": HTMLExternalImportAElement;
         "external-import-b": HTMLExternalImportBElement;
         "external-import-c": HTMLExternalImportCElement;
@@ -2510,10 +2492,6 @@ declare namespace LocalJSX {
         "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
     }
     interface EventListenerCapture {
-    }
-    interface ExcludeComponentRoot {
-    }
-    interface ExcludedComponent {
     }
     interface ExternalImportA {
     }
@@ -3285,8 +3263,6 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
-        "exclude-component-root": ExcludeComponentRoot;
-        "excluded-component": ExcludedComponent;
         "external-import-a": ExternalImportA;
         "external-import-b": ExternalImportB;
         "external-import-c": ExternalImportC;
@@ -3490,8 +3466,6 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
-            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
-            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "external-import-a": LocalJSX.IntrinsicElements["external-import-a"] & JSXBase.HTMLAttributes<HTMLExternalImportAElement>;
             "external-import-b": LocalJSX.IntrinsicElements["external-import-b"] & JSXBase.HTMLAttributes<HTMLExternalImportBElement>;
             "external-import-c": LocalJSX.IntrinsicElements["external-import-c"] & JSXBase.HTMLAttributes<HTMLExternalImportCElement>;
