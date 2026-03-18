@@ -50,6 +50,32 @@ export namespace Components {
     }
     interface CmpWithSlot {
     }
+    interface ComplexProperties {
+        /**
+          * map objects
+         */
+        "baz": Map<string, { qux: symbol }>;
+        /**
+          * basic object
+         */
+        "foo": { bar: string; loo: number[]; qux: { quux: symbol } };
+        /**
+          * infinity
+         */
+        "grault": typeof Infinity;
+        /**
+          * basic array
+         */
+        "kidsNames": any;
+        /**
+          * set objects
+         */
+        "quux": Set<string>;
+        /**
+          * null
+         */
+        "waldo": null;
+    }
     interface DomApi {
     }
     interface DomInteraction {
@@ -161,6 +187,12 @@ export namespace Components {
     }
     interface NonShadowWrapper {
     }
+    interface PartSsrShadowCmp {
+        "selected": boolean;
+    }
+    interface PartWrapSsrShadowCmp {
+        "selected": boolean;
+    }
     interface PathAliasCmp {
     }
     interface PrerenderCmp {
@@ -206,7 +238,22 @@ export namespace Components {
         "cars": CarData[];
         "selected": CarData;
     }
+    interface ScopedSsrChildCmp {
+    }
+    interface ScopedSsrParentCmp {
+    }
+    interface SerializeDeserializer {
+        "array": string[];
+        "getArray": () => Promise<any>;
+        "getGetSet": () => Promise<any[]>;
+        "getSet": { [key: string]: string; };
+        "reset": () => Promise<void>;
+    }
     interface ShadowChild {
+    }
+    interface ShadowSsrChildCmp {
+    }
+    interface ShadowSsrParentCmp {
     }
     interface ShadowWrapper {
     }
@@ -216,6 +263,16 @@ export namespace Components {
     }
     interface SlotParentCmp {
         "label": string;
+    }
+    interface SlowSsrProp {
+        /**
+          * @default []
+         */
+        "anArray": any[];
+    }
+    interface SsrOrderCmp {
+    }
+    interface SsrOrderWrapCmp {
     }
     interface SsrShadowCmp {
         "selected": boolean;
@@ -352,6 +409,12 @@ declare global {
     var HTMLCmpWithSlotElement: {
         prototype: HTMLCmpWithSlotElement;
         new (): HTMLCmpWithSlotElement;
+    };
+    interface HTMLComplexPropertiesElement extends Components.ComplexProperties, HTMLStencilElement {
+    }
+    var HTMLComplexPropertiesElement: {
+        prototype: HTMLComplexPropertiesElement;
+        new (): HTMLComplexPropertiesElement;
     };
     interface HTMLDomApiElement extends Components.DomApi, HTMLStencilElement {
     }
@@ -498,6 +561,18 @@ declare global {
         prototype: HTMLNonShadowWrapperElement;
         new (): HTMLNonShadowWrapperElement;
     };
+    interface HTMLPartSsrShadowCmpElement extends Components.PartSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLPartSsrShadowCmpElement: {
+        prototype: HTMLPartSsrShadowCmpElement;
+        new (): HTMLPartSsrShadowCmpElement;
+    };
+    interface HTMLPartWrapSsrShadowCmpElement extends Components.PartWrapSsrShadowCmp, HTMLStencilElement {
+    }
+    var HTMLPartWrapSsrShadowCmpElement: {
+        prototype: HTMLPartWrapSsrShadowCmpElement;
+        new (): HTMLPartWrapSsrShadowCmpElement;
+    };
     interface HTMLPathAliasCmpElement extends Components.PathAliasCmp, HTMLStencilElement {
     }
     var HTMLPathAliasCmpElement: {
@@ -566,11 +641,41 @@ declare global {
         prototype: HTMLScopedCarListElement;
         new (): HTMLScopedCarListElement;
     };
+    interface HTMLScopedSsrChildCmpElement extends Components.ScopedSsrChildCmp, HTMLStencilElement {
+    }
+    var HTMLScopedSsrChildCmpElement: {
+        prototype: HTMLScopedSsrChildCmpElement;
+        new (): HTMLScopedSsrChildCmpElement;
+    };
+    interface HTMLScopedSsrParentCmpElement extends Components.ScopedSsrParentCmp, HTMLStencilElement {
+    }
+    var HTMLScopedSsrParentCmpElement: {
+        prototype: HTMLScopedSsrParentCmpElement;
+        new (): HTMLScopedSsrParentCmpElement;
+    };
+    interface HTMLSerializeDeserializerElement extends Components.SerializeDeserializer, HTMLStencilElement {
+    }
+    var HTMLSerializeDeserializerElement: {
+        prototype: HTMLSerializeDeserializerElement;
+        new (): HTMLSerializeDeserializerElement;
+    };
     interface HTMLShadowChildElement extends Components.ShadowChild, HTMLStencilElement {
     }
     var HTMLShadowChildElement: {
         prototype: HTMLShadowChildElement;
         new (): HTMLShadowChildElement;
+    };
+    interface HTMLShadowSsrChildCmpElement extends Components.ShadowSsrChildCmp, HTMLStencilElement {
+    }
+    var HTMLShadowSsrChildCmpElement: {
+        prototype: HTMLShadowSsrChildCmpElement;
+        new (): HTMLShadowSsrChildCmpElement;
+    };
+    interface HTMLShadowSsrParentCmpElement extends Components.ShadowSsrParentCmp, HTMLStencilElement {
+    }
+    var HTMLShadowSsrParentCmpElement: {
+        prototype: HTMLShadowSsrParentCmpElement;
+        new (): HTMLShadowSsrParentCmpElement;
     };
     interface HTMLShadowWrapperElement extends Components.ShadowWrapper, HTMLStencilElement {
     }
@@ -595,6 +700,24 @@ declare global {
     var HTMLSlotParentCmpElement: {
         prototype: HTMLSlotParentCmpElement;
         new (): HTMLSlotParentCmpElement;
+    };
+    interface HTMLSlowSsrPropElement extends Components.SlowSsrProp, HTMLStencilElement {
+    }
+    var HTMLSlowSsrPropElement: {
+        prototype: HTMLSlowSsrPropElement;
+        new (): HTMLSlowSsrPropElement;
+    };
+    interface HTMLSsrOrderCmpElement extends Components.SsrOrderCmp, HTMLStencilElement {
+    }
+    var HTMLSsrOrderCmpElement: {
+        prototype: HTMLSsrOrderCmpElement;
+        new (): HTMLSsrOrderCmpElement;
+    };
+    interface HTMLSsrOrderWrapCmpElement extends Components.SsrOrderWrapCmp, HTMLStencilElement {
+    }
+    var HTMLSsrOrderWrapCmpElement: {
+        prototype: HTMLSsrOrderWrapCmpElement;
+        new (): HTMLSsrOrderWrapCmpElement;
     };
     interface HTMLSsrShadowCmpElement extends Components.SsrShadowCmp, HTMLStencilElement {
     }
@@ -628,6 +751,7 @@ declare global {
         "cmp-dsd-focus": HTMLCmpDsdFocusElement;
         "cmp-server-vs-client": HTMLCmpServerVsClientElement;
         "cmp-with-slot": HTMLCmpWithSlotElement;
+        "complex-properties": HTMLComplexPropertiesElement;
         "dom-api": HTMLDomApiElement;
         "dom-interaction": HTMLDomInteractionElement;
         "dom-visible": HTMLDomVisibleElement;
@@ -650,6 +774,8 @@ declare global {
         "non-shadow-forwarded-slot": HTMLNonShadowForwardedSlotElement;
         "non-shadow-multi-slots": HTMLNonShadowMultiSlotsElement;
         "non-shadow-wrapper": HTMLNonShadowWrapperElement;
+        "part-ssr-shadow-cmp": HTMLPartSsrShadowCmpElement;
+        "part-wrap-ssr-shadow-cmp": HTMLPartWrapSsrShadowCmpElement;
         "path-alias-cmp": HTMLPathAliasCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
         "prop-cmp": HTMLPropCmpElement;
@@ -657,11 +783,19 @@ declare global {
         "runtime-decorators": HTMLRuntimeDecoratorsElement;
         "scoped-car-detail": HTMLScopedCarDetailElement;
         "scoped-car-list": HTMLScopedCarListElement;
+        "scoped-ssr-child-cmp": HTMLScopedSsrChildCmpElement;
+        "scoped-ssr-parent-cmp": HTMLScopedSsrParentCmpElement;
+        "serialize-deserializer": HTMLSerializeDeserializerElement;
         "shadow-child": HTMLShadowChildElement;
+        "shadow-ssr-child-cmp": HTMLShadowSsrChildCmpElement;
+        "shadow-ssr-parent-cmp": HTMLShadowSsrParentCmpElement;
         "shadow-wrapper": HTMLShadowWrapperElement;
         "slot-cmp": HTMLSlotCmpElement;
         "slot-cmp-container": HTMLSlotCmpContainerElement;
         "slot-parent-cmp": HTMLSlotParentCmpElement;
+        "slow-ssr-prop": HTMLSlowSsrPropElement;
+        "ssr-order-cmp": HTMLSsrOrderCmpElement;
+        "ssr-order-wrap-cmp": HTMLSsrOrderWrapCmpElement;
         "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
         "state-cmp": HTMLStateCmpElement;
         "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
@@ -711,6 +845,32 @@ declare namespace LocalJSX {
     interface CmpServerVsClient {
     }
     interface CmpWithSlot {
+    }
+    interface ComplexProperties {
+        /**
+          * map objects
+         */
+        "baz"?: Map<string, { qux: symbol }>;
+        /**
+          * basic object
+         */
+        "foo"?: { bar: string; loo: number[]; qux: { quux: symbol } };
+        /**
+          * infinity
+         */
+        "grault"?: typeof Infinity;
+        /**
+          * basic array
+         */
+        "kidsNames"?: any;
+        /**
+          * set objects
+         */
+        "quux"?: Set<string>;
+        /**
+          * null
+         */
+        "waldo"?: null;
     }
     interface DomApi {
     }
@@ -797,6 +957,12 @@ declare namespace LocalJSX {
     }
     interface NonShadowWrapper {
     }
+    interface PartSsrShadowCmp {
+        "selected"?: boolean;
+    }
+    interface PartWrapSsrShadowCmp {
+        "selected"?: boolean;
+    }
     interface PathAliasCmp {
     }
     interface PrerenderCmp {
@@ -843,7 +1009,19 @@ declare namespace LocalJSX {
         "onCarSelected"?: (event: ScopedCarListCustomEvent<CarData>) => void;
         "selected"?: CarData;
     }
+    interface ScopedSsrChildCmp {
+    }
+    interface ScopedSsrParentCmp {
+    }
+    interface SerializeDeserializer {
+        "array"?: string[];
+        "getSet"?: { [key: string]: string; };
+    }
     interface ShadowChild {
+    }
+    interface ShadowSsrChildCmp {
+    }
+    interface ShadowSsrParentCmp {
     }
     interface ShadowWrapper {
     }
@@ -853,6 +1031,16 @@ declare namespace LocalJSX {
     }
     interface SlotParentCmp {
         "label"?: string;
+    }
+    interface SlowSsrProp {
+        /**
+          * @default []
+         */
+        "anArray"?: any[];
+    }
+    interface SsrOrderCmp {
+    }
+    interface SsrOrderWrapCmp {
     }
     interface SsrShadowCmp {
         "selected"?: boolean;
@@ -878,6 +1066,10 @@ declare namespace LocalJSX {
     interface CmpDsdAttributes {
         "initialCounter": number;
     }
+    interface ComplexPropertiesAttributes {
+        "grault": typeof Infinity;
+        "kidsNames": string;
+    }
     interface ListenCmpAttributes {
         "opened": boolean;
     }
@@ -891,6 +1083,12 @@ declare namespace LocalJSX {
     interface MyJsxCmpAttributes {
         "fooProp": string;
         "barProp": string;
+    }
+    interface PartSsrShadowCmpAttributes {
+        "selected": boolean;
+    }
+    interface PartWrapSsrShadowCmpAttributes {
+        "selected": boolean;
     }
     interface PropCmpAttributes {
         "first": string;
@@ -908,6 +1106,10 @@ declare namespace LocalJSX {
     }
     interface ScopedCarListAttributes {
         "cars": string;
+    }
+    interface SerializeDeserializerAttributes {
+        "array": string;
+        "getSet": string;
     }
     interface SlotParentCmpAttributes {
         "label": string;
@@ -933,6 +1135,7 @@ declare namespace LocalJSX {
         "cmp-dsd-focus": CmpDsdFocus;
         "cmp-server-vs-client": CmpServerVsClient;
         "cmp-with-slot": CmpWithSlot;
+        "complex-properties": Omit<ComplexProperties, keyof ComplexPropertiesAttributes> & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes]?: ComplexProperties[K] } & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes as `attr:${K}`]?: ComplexPropertiesAttributes[K] } & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes as `prop:${K}`]?: ComplexProperties[K] };
         "dom-api": DomApi;
         "dom-interaction": DomInteraction;
         "dom-visible": DomVisible;
@@ -955,6 +1158,8 @@ declare namespace LocalJSX {
         "non-shadow-forwarded-slot": NonShadowForwardedSlot;
         "non-shadow-multi-slots": NonShadowMultiSlots;
         "non-shadow-wrapper": NonShadowWrapper;
+        "part-ssr-shadow-cmp": Omit<PartSsrShadowCmp, keyof PartSsrShadowCmpAttributes> & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes]?: PartSsrShadowCmp[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `attr:${K}`]?: PartSsrShadowCmpAttributes[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `prop:${K}`]?: PartSsrShadowCmp[K] };
+        "part-wrap-ssr-shadow-cmp": Omit<PartWrapSsrShadowCmp, keyof PartWrapSsrShadowCmpAttributes> & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes]?: PartWrapSsrShadowCmp[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `attr:${K}`]?: PartWrapSsrShadowCmpAttributes[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `prop:${K}`]?: PartWrapSsrShadowCmp[K] };
         "path-alias-cmp": PathAliasCmp;
         "prerender-cmp": PrerenderCmp;
         "prop-cmp": Omit<PropCmp, keyof PropCmpAttributes> & { [K in keyof PropCmp & keyof PropCmpAttributes]?: PropCmp[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `attr:${K}`]?: PropCmpAttributes[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `prop:${K}`]?: PropCmp[K] };
@@ -962,11 +1167,19 @@ declare namespace LocalJSX {
         "runtime-decorators": Omit<RuntimeDecorators, keyof RuntimeDecoratorsAttributes> & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes]?: RuntimeDecorators[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `attr:${K}`]?: RuntimeDecoratorsAttributes[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `prop:${K}`]?: RuntimeDecorators[K] };
         "scoped-car-detail": Omit<ScopedCarDetail, keyof ScopedCarDetailAttributes> & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes]?: ScopedCarDetail[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `attr:${K}`]?: ScopedCarDetailAttributes[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `prop:${K}`]?: ScopedCarDetail[K] };
         "scoped-car-list": Omit<ScopedCarList, keyof ScopedCarListAttributes> & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes]?: ScopedCarList[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `attr:${K}`]?: ScopedCarListAttributes[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `prop:${K}`]?: ScopedCarList[K] };
+        "scoped-ssr-child-cmp": ScopedSsrChildCmp;
+        "scoped-ssr-parent-cmp": ScopedSsrParentCmp;
+        "serialize-deserializer": Omit<SerializeDeserializer, keyof SerializeDeserializerAttributes> & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes]?: SerializeDeserializer[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `attr:${K}`]?: SerializeDeserializerAttributes[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `prop:${K}`]?: SerializeDeserializer[K] };
         "shadow-child": ShadowChild;
+        "shadow-ssr-child-cmp": ShadowSsrChildCmp;
+        "shadow-ssr-parent-cmp": ShadowSsrParentCmp;
         "shadow-wrapper": ShadowWrapper;
         "slot-cmp": SlotCmp;
         "slot-cmp-container": SlotCmpContainer;
         "slot-parent-cmp": Omit<SlotParentCmp, keyof SlotParentCmpAttributes> & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes]?: SlotParentCmp[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `attr:${K}`]?: SlotParentCmpAttributes[K] } & { [K in keyof SlotParentCmp & keyof SlotParentCmpAttributes as `prop:${K}`]?: SlotParentCmp[K] };
+        "slow-ssr-prop": SlowSsrProp;
+        "ssr-order-cmp": SsrOrderCmp;
+        "ssr-order-wrap-cmp": SsrOrderWrapCmp;
         "ssr-shadow-cmp": Omit<SsrShadowCmp, keyof SsrShadowCmpAttributes> & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes]?: SsrShadowCmp[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `attr:${K}`]?: SsrShadowCmpAttributes[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `prop:${K}`]?: SsrShadowCmp[K] };
         "state-cmp": StateCmp;
         "wrap-ssr-shadow-cmp": Omit<WrapSsrShadowCmp, keyof WrapSsrShadowCmpAttributes> & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes]?: WrapSsrShadowCmp[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `attr:${K}`]?: WrapSsrShadowCmpAttributes[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `prop:${K}`]?: WrapSsrShadowCmp[K] };
@@ -995,6 +1208,7 @@ declare module "@stencil/core" {
             "cmp-dsd-focus": LocalJSX.IntrinsicElements["cmp-dsd-focus"] & JSXBase.HTMLAttributes<HTMLCmpDsdFocusElement>;
             "cmp-server-vs-client": LocalJSX.IntrinsicElements["cmp-server-vs-client"] & JSXBase.HTMLAttributes<HTMLCmpServerVsClientElement>;
             "cmp-with-slot": LocalJSX.IntrinsicElements["cmp-with-slot"] & JSXBase.HTMLAttributes<HTMLCmpWithSlotElement>;
+            "complex-properties": LocalJSX.IntrinsicElements["complex-properties"] & JSXBase.HTMLAttributes<HTMLComplexPropertiesElement>;
             "dom-api": LocalJSX.IntrinsicElements["dom-api"] & JSXBase.HTMLAttributes<HTMLDomApiElement>;
             "dom-interaction": LocalJSX.IntrinsicElements["dom-interaction"] & JSXBase.HTMLAttributes<HTMLDomInteractionElement>;
             "dom-visible": LocalJSX.IntrinsicElements["dom-visible"] & JSXBase.HTMLAttributes<HTMLDomVisibleElement>;
@@ -1017,6 +1231,8 @@ declare module "@stencil/core" {
             "non-shadow-forwarded-slot": LocalJSX.IntrinsicElements["non-shadow-forwarded-slot"] & JSXBase.HTMLAttributes<HTMLNonShadowForwardedSlotElement>;
             "non-shadow-multi-slots": LocalJSX.IntrinsicElements["non-shadow-multi-slots"] & JSXBase.HTMLAttributes<HTMLNonShadowMultiSlotsElement>;
             "non-shadow-wrapper": LocalJSX.IntrinsicElements["non-shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
+            "part-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartSsrShadowCmpElement>;
+            "part-wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartWrapSsrShadowCmpElement>;
             "path-alias-cmp": LocalJSX.IntrinsicElements["path-alias-cmp"] & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
             "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
             "prop-cmp": LocalJSX.IntrinsicElements["prop-cmp"] & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
@@ -1027,11 +1243,19 @@ declare module "@stencil/core" {
              * Component that helps display a list of cars
              */
             "scoped-car-list": LocalJSX.IntrinsicElements["scoped-car-list"] & JSXBase.HTMLAttributes<HTMLScopedCarListElement>;
+            "scoped-ssr-child-cmp": LocalJSX.IntrinsicElements["scoped-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSsrChildCmpElement>;
+            "scoped-ssr-parent-cmp": LocalJSX.IntrinsicElements["scoped-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSsrParentCmpElement>;
+            "serialize-deserializer": LocalJSX.IntrinsicElements["serialize-deserializer"] & JSXBase.HTMLAttributes<HTMLSerializeDeserializerElement>;
             "shadow-child": LocalJSX.IntrinsicElements["shadow-child"] & JSXBase.HTMLAttributes<HTMLShadowChildElement>;
+            "shadow-ssr-child-cmp": LocalJSX.IntrinsicElements["shadow-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrChildCmpElement>;
+            "shadow-ssr-parent-cmp": LocalJSX.IntrinsicElements["shadow-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrParentCmpElement>;
             "shadow-wrapper": LocalJSX.IntrinsicElements["shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;
             "slot-cmp": LocalJSX.IntrinsicElements["slot-cmp"] & JSXBase.HTMLAttributes<HTMLSlotCmpElement>;
             "slot-cmp-container": LocalJSX.IntrinsicElements["slot-cmp-container"] & JSXBase.HTMLAttributes<HTMLSlotCmpContainerElement>;
             "slot-parent-cmp": LocalJSX.IntrinsicElements["slot-parent-cmp"] & JSXBase.HTMLAttributes<HTMLSlotParentCmpElement>;
+            "slow-ssr-prop": LocalJSX.IntrinsicElements["slow-ssr-prop"] & JSXBase.HTMLAttributes<HTMLSlowSsrPropElement>;
+            "ssr-order-cmp": LocalJSX.IntrinsicElements["ssr-order-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderCmpElement>;
+            "ssr-order-wrap-cmp": LocalJSX.IntrinsicElements["ssr-order-wrap-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderWrapCmpElement>;
             "ssr-shadow-cmp": LocalJSX.IntrinsicElements["ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;
             "state-cmp": LocalJSX.IntrinsicElements["state-cmp"] & JSXBase.HTMLAttributes<HTMLStateCmpElement>;
             "wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;

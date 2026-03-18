@@ -1,0 +1,14 @@
+import type { Config } from '@stencil/core';
+
+export const config: Config = {
+  namespace: 'TestExternalRuntime',
+  tsconfig: 'tsconfig.stencil.json',
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      dir: 'dist/custom-elements',
+      externalRuntime: true,
+    },
+  ],
+  buildDist: true,
+};

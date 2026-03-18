@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "types": ["@stencil/vitest/globals"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
+}

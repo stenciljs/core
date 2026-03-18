@@ -43,6 +43,14 @@
       "types": "./dist/runtime/client/index.d.ts",
       "import": "./dist/runtime/client/index.js"
     },
+    "./runtime/app-data": {
+      "types": "./dist/runtime/app-data/index.d.ts",
+      "import": "./dist/runtime/app-data/index.js"
+    },
+    "./runtime/app-globals": {
+      "types": "./dist/runtime/app-globals/index.d.ts",
+      "import": "./dist/runtime/app-globals/index.js"
+    },
     "./runtime/server": {
       "types": "./dist/runtime/server/index.d.mts",
       "import": "./dist/runtime/server/index.mjs"

@@ -18,6 +18,92 @@ import { HYDRATED_STYLE_ID, NODE_TYPE, SLOT_FB_CSS } from './runtime-constants';
 export const rootAppliedStyles: d.RootAppliedStyleMap = /*@__PURE__*/ new WeakMap();
 
 /**
+ * Get or initialize the set of applied style scope IDs for a container element.
+ *
+ * @param container the container element to track styles for
+ * @returns the set of applied scope IDs
+ */
+const getAppliedStyles = (container: Element): Set<string> => {
+  let applied = rootAppliedStyles.get(container);
+  if (!applied) {
+    applied = new Set();
+    rootAppliedStyles.set(container, applied);
+  }
+  return applied;
+};
+
+/**
+ * Safely adopt a stylesheet into a container's adoptedStyleSheets.
+ * Handles both mutable and immutable adoptedStyleSheets arrays.
+ *
+ * @param container the shadow root or document to adopt styles into
+ * @param sheet the CSSStyleSheet to adopt
+ * @param prepend if true, add to beginning; if false, add to end
+ */
+const adoptStylesheet = (
+  container: ShadowRoot | Document,
+  sheet: CSSStyleSheet,
+  prepend: boolean = false,
+) => {
+  if (supportsMutableAdoptedStyleSheets) {
+    if (prepend) {
+      container.adoptedStyleSheets.unshift(sheet);
+    } else {
+      container.adoptedStyleSheets.push(sheet);
+    }
+  } else {
+    if (prepend) {
+      container.adoptedStyleSheets = [sheet, ...container.adoptedStyleSheets];
+    } else {
+      container.adoptedStyleSheets = [...container.adoptedStyleSheets, sheet];
+    }
+  }
+};
+
+/**
+ * Create a CSSStyleSheet for the correct window context.
+ * Constructable stylesheets can't be shared between windows,
+ * so we need to create one for the current window.
+ *
+ * @param container the container node (used to determine the window context)
+ * @param cssText the CSS text to populate the stylesheet with
+ * @returns a new CSSStyleSheet for the correct window
+ */
+const createStylesheetForWindow = (container: Node, cssText: string): CSSStyleSheet => {
+  const currentWindow = (
+    (container as Document).defaultView ??
+    (container as Element).ownerDocument?.defaultView ??
+    win
+  ) as Window & typeof globalThis;
+  const sheet = new currentWindow.CSSStyleSheet();
+  sheet.replaceSync(cssText);
+  return sheet;
+};
+
+/**
+ * Get the style for a component, appending slot fallback CSS if needed.
+ * Returns a new value without mutating the cached style.
+ *
+ * @param scopeId the scope ID for the component
+ * @param cmpMeta runtime metadata for the component
+ * @returns the style (string or CSSStyleSheet) with slot CSS appended if needed, or undefined
+ */
+const getStyleWithSlotCss = (
+  style: string | CSSStyleSheet | undefined,
+): string | CSSStyleSheet | undefined => {
+
+  // Component needs slot fallback CSS
+  if (!style) {
+    return SLOT_FB_CSS;
+  }
+  if (typeof style === 'string') {
+    return style + SLOT_FB_CSS;
+  }
+  
+  return style;
+};
+
+/**
  * Register the styles for a component by creating a stylesheet and then
  * registering it under the component's scope ID in a `WeakMap` for later use.
  *
@@ -29,18 +115,13 @@ export const rootAppliedStyles: d.RootAppliedStyleMap = /*@__PURE__*/ new WeakMa
  * @param allowCS whether or not to use a constructable stylesheet
  */
 export const registerStyle = (scopeId: string, cssText: string, allowCS: boolean) => {
-  let style = styles.get(scopeId);
   if (supportsConstructableStylesheets && allowCS) {
-    style = (style || new CSSStyleSheet()) as CSSStyleSheet;
-    if (typeof style === 'string') {
-      style = cssText;
-    } else {
-      style.replaceSync(cssText);
-    }
+    const sheet = (styles.get(scopeId) as CSSStyleSheet) ?? new CSSStyleSheet();
+    sheet.replaceSync(cssText);
+    styles.set(scopeId, sheet);
   } else {
-    style = cssText;
+    styles.set(scopeId, cssText);
   }
-  styles.set(scopeId, style);
 };
 
 /**
@@ -58,16 +139,15 @@ export const registerStyle = (scopeId: string, cssText: string, allowCS: boolean
  */
 export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMeta, mode?: string) => {
   const scopeId = getScopeId(cmpMeta, mode);
-  let style = styles.get(scopeId);
 
   if (!BUILD.attachStyles || !win.document) {
     return scopeId;
   }
-        
-  // Add styles for `slot-fb` elements if we're using slots outside the Shadow DOM
-  if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
-    if (!style) style = '';
-    style+= SLOT_FB_CSS;
+
+  let style = styles.get(scopeId);
+
+  if ((cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation)) {
+    style = getStyleWithSlotCss(style);
   }
 
   // if an element is NOT connected then getRootNode() will return the wrong root node
@@ -77,12 +157,8 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
   if (style) {
     if (typeof style === 'string') {
       styleContainerNode = styleContainerNode.head || (styleContainerNode as HTMLElement);
-      let appliedStyles = rootAppliedStyles.get(styleContainerNode);
+      const appliedStyles = getAppliedStyles(styleContainerNode);
       let styleElm: HTMLStyleElement;
-
-      if (!appliedStyles) {
-        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
-      }
 
       // Check if style element already exists (for HMR updates)
       // For shadow DOM components, directly update their dedicated style element
@@ -133,29 +209,9 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
             );
           } else if ('host' in styleContainerNode) {
             if (supportsConstructableStylesheets) {
-              /**
-               * If a scoped component is used within a shadow root then turn the styles into a
-               * constructable stylesheet and add it to the shadow root's adopted stylesheets.
-               *
-               * Note: order of how styles are adopted is important. The new stylesheet should be
-               * adopted before the existing styles.
-               *
-               * Note: constructable stylesheets can't be shared between windows,
-               * we need to create a new one for the current window if necessary
-               */
-              const currentWindow = styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView;
-              const stylesheet = new currentWindow.CSSStyleSheet();
-              stylesheet.replaceSync(style);
-
-              /**
-               * > If the array needs to be modified, use in-place mutations like push().
-               * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
-               */
-              if (supportsMutableAdoptedStyleSheets) {
-                styleContainerNode.adoptedStyleSheets.unshift(stylesheet);
-              } else {
-                styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
-              }
+              // Scoped component in shadow root: create stylesheet and prepend to adoptedStyleSheets
+              const stylesheet = createStylesheetForWindow(styleContainerNode, style);
+              adoptStylesheet(styleContainerNode, stylesheet, true);
             } else {
               /**
                * If a scoped component is used within a shadow root and constructable stylesheets are
@@ -195,35 +251,23 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         }
       }
     } else if (BUILD.constructableCSS) {
-      let appliedStyles = rootAppliedStyles.get(styleContainerNode);
-      if (!appliedStyles) {
-        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
-      }
+      const appliedStyles = getAppliedStyles(styleContainerNode);
       if (!appliedStyles.has(scopeId)) {
-        /**
-         * Constructable stylesheets can't be shared between windows,
-         * we need to create a new one for the current window if necessary
-         */
-        const currentWindow = styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView;
+        // Ensure stylesheet is for the correct window context
+        const currentWindow = (
+          styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView
+        ) as Window & typeof globalThis;
         let stylesheet: CSSStyleSheet;
         if (style.constructor === currentWindow.CSSStyleSheet) {
           stylesheet = style;
         } else {
+          // Copy rules to a new stylesheet for this window
           stylesheet = new currentWindow.CSSStyleSheet();
           for (let i = 0; i < style.cssRules.length; i++) {
             stylesheet.insertRule(style.cssRules[i].cssText, i);
           }
         }
-        /**
-         * > If the array needs to be modified, use in-place mutations like push().
-         * https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets
-         */
-        if (supportsMutableAdoptedStyleSheets) {
-          styleContainerNode.adoptedStyleSheets.push(stylesheet);
-        } else {
-          styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, stylesheet];
-        }
-
+        adoptStylesheet(styleContainerNode, stylesheet);
         appliedStyles.add(scopeId);
 
         // Remove SSR style element from shadow root now that adoptedStyleSheets is in use

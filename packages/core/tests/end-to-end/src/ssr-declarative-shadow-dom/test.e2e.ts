@@ -372,7 +372,7 @@ test.describe('renderToString', () => {
     expect(html).toBe(`<nested-cmp-parent class=\"sc-nested-cmp-parent-h\" custom-hydrate-flag=\"\" s-id=\"1\">
   <template shadowrootmode=\"open\">
     <style sty-id=\"sc-nested-cmp-parent\">
-      .sc-nested-scope-cmp-h{color:green}:host{display:inline-block}
+      .sc-nested-scope-cmp-h{color:green}slot-fb{display:contents}slot-fb[hidden]{display:none}:host{display:inline-block}
     </style>
     <div c-id=\"1.0.0.0\" class=\"sc-nested-cmp-parent some-class\">
       <nested-scope-cmp c-id=\"1.1.1.0\" class=\"sc-nested-cmp-parent sc-nested-scope-cmp-h\" custom-hydrate-flag=\"\" s-id=\"3\">

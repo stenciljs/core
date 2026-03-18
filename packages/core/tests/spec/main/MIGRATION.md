@@ -280,6 +280,7 @@ Tests that use iframes (`setupIFrameTest`, `browser.switchToFrame()`, etc.) are 
 | style-plugin | style-plugin |
 | tag-transform | tag-transform |
 | sibling-spec | new project setup in spec/sibling |
+| no-external-runtime | migrated to `spec/external-runtime` (tests `externalRuntime: true` build) |
 
 ### ts-target Tests (Pending Migration)
 
@@ -289,13 +290,13 @@ These tests verify component class inheritance patterns. Previously required es2
 |-----------|-------------|--------|
 | ts-target/extends-abstract | extends-abstract | ✅ done |
 | ts-target/extends-cmp | extends-cmp | ✅ done |
-| ts-target/extends-composition-scaling | extends-composition-scaling | pending |
+| ts-target/extends-composition-scaling | extends-composition-scaling | ✅ done |
 | ts-target/extends-conflicts | extends-conflicts | ✅ done |
 | ts-target/extends-controller-updates | extends-controller-updates | ✅ done |
 | ts-target/extends-direct-state | extends-direct-state | ✅ done |
 | ts-target/extends-events | extends-events | ✅ done |
 | ts-target/extends-external | extends-external | ✅ done |
-| ts-target/extends-inheritance-scaling | extends-inheritance-scaling | pending |
+| ts-target/extends-inheritance-scaling | extends-inheritance-scaling | ✅ done |
 | ts-target/extends-lifecycle-basic | extends-lifecycle-basic | ✅ done |
 | ts-target/extends-lifecycle-multilevel | extends-lifecycle-multilevel | ✅ done |
 | ts-target/extends-local | extends-local | ✅ done |
@@ -310,13 +311,24 @@ These tests verify component class inheritance patterns. Previously required es2
 | ts-target/extends-mixin-slot | extends-mixin-slot | ✅ done |
 | ts-target/extends-watch | extends-watch | ✅ done |
 
-#### Skipped Tests (need special handling or are not applicable)
-- complex-properties (uses SSR renderToString)
-- declarative-shadow-dom (special SSR)
-- invisible-prehydration (SSR)
-- no-external-runtime (special build)
-- prerender-test (SSR)
-- serialize-deserialize-e2e (SSR)
-- ssr-hydration (SSR)
-- test-prerender (SSR)
+### SSR Tests (migrated to tests/end-to-end)
+
+These tests use `renderToString` / `hydrateDocument` and have been migrated to Playwright e2e tests.
+
+| wdio test | e2e location | status |
+|-----------|--------------|--------|
+| complex-properties | `ssr-complex-properties` | ✅ done |
+| declarative-shadow-dom | `ssr-declarative-shadow-dom` | ✅ done (already existed, renamed) |
+| serialize-deserialize-e2e | `ssr-serialize-deserialize` | ✅ done |
+| ssr-hydration | `ssr-hydration` | ✅ done |
+| scoped-hydration | `ssr-scoped-hydration` | ✅ done (already existed, renamed) |
+
+### SSR Tests (pending - require isolated mini-projects)
+
+These tests require their own `stencil.config.ts` to test specific build configurations.
+
+| wdio test | notes |
+|-----------|-------|
+| invisible-prehydration | Tests `invisiblePrehydration: false` config. Needs own stencil.config.ts |
+| prerender-test + test-prerender | Tests prerender with `prerenderConfig`. Needs own stencil.config.ts |
 

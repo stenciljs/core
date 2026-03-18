@@ -3,8 +3,8 @@ import { sass } from '@stencil/sass';
 import type { Config } from '@stencil/core';
 
 export const config: Config = {
-  tsconfig: 'tsconfig.stencil.json',
   namespace: 'TestApp',
+  tsconfig: 'tsconfig.stencil.json',
   excludeComponents: ['excluded-component', 'exclude-*'],
   outputTargets: [
     {

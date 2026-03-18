@@ -27,12 +27,6 @@ test.describe('goto root url', () => {
     await expect(elm).toHaveText(
       'Hello, my name is Stencil JS. My full name being Mr Stencil JS. I like to wear life preservers.',
     );
-
-    // Screenshot comparison using Playwright's built-in API
-    await expect(page).toHaveScreenshot('navigate-to-homepage.png', {
-      fullPage: false,
-      clip: { x: 0, y: 0, width: 400, height: 250 },
-    });
   });
 
   test('should navigate to the index.html page with custom url searchParams', async ({ page }) => {

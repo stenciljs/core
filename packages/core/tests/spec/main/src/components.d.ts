@@ -134,6 +134,18 @@ export namespace Components {
         "propVal": number;
         "someMethod": () => Promise<void>;
     }
+    interface CompositionCheckboxGroup {
+    }
+    interface CompositionRadioGroup {
+    }
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface CompositionScalingDemo {
+    }
+    interface CompositionTextInput {
+    }
     interface ComputedPropertiesPropDecorator {
         /**
           * @default 'no'
@@ -1136,6 +1148,14 @@ export interface ComponentOnReadyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLComponentOnReadyElement;
 }
+export interface CompositionCheckboxGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCompositionCheckboxGroupElement;
+}
+export interface CompositionRadioGroupCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCompositionRadioGroupElement;
+}
 export interface EventBasicCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventBasicElement;
@@ -1357,6 +1377,56 @@ declare global {
     var HTMLComponentOnReadyElement: {
         prototype: HTMLComponentOnReadyElement;
         new (): HTMLComponentOnReadyElement;
+    };
+    interface HTMLCompositionCheckboxGroupElementEventMap {
+        "valueChange": string[];
+    }
+    interface HTMLCompositionCheckboxGroupElement extends Components.CompositionCheckboxGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCompositionCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLCompositionCheckboxGroupElement, ev: CompositionCheckboxGroupCustomEvent<HTMLCompositionCheckboxGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCompositionCheckboxGroupElementEventMap>(type: K, listener: (this: HTMLCompositionCheckboxGroupElement, ev: CompositionCheckboxGroupCustomEvent<HTMLCompositionCheckboxGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCompositionCheckboxGroupElement: {
+        prototype: HTMLCompositionCheckboxGroupElement;
+        new (): HTMLCompositionCheckboxGroupElement;
+    };
+    interface HTMLCompositionRadioGroupElementEventMap {
+        "valueChange": string;
+    }
+    interface HTMLCompositionRadioGroupElement extends Components.CompositionRadioGroup, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCompositionRadioGroupElementEventMap>(type: K, listener: (this: HTMLCompositionRadioGroupElement, ev: CompositionRadioGroupCustomEvent<HTMLCompositionRadioGroupElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCompositionRadioGroupElementEventMap>(type: K, listener: (this: HTMLCompositionRadioGroupElement, ev: CompositionRadioGroupCustomEvent<HTMLCompositionRadioGroupElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCompositionRadioGroupElement: {
+        prototype: HTMLCompositionRadioGroupElement;
+        new (): HTMLCompositionRadioGroupElement;
+    };
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface HTMLCompositionScalingDemoElement extends Components.CompositionScalingDemo, HTMLStencilElement {
+    }
+    var HTMLCompositionScalingDemoElement: {
+        prototype: HTMLCompositionScalingDemoElement;
+        new (): HTMLCompositionScalingDemoElement;
+    };
+    interface HTMLCompositionTextInputElement extends Components.CompositionTextInput, HTMLStencilElement {
+    }
+    var HTMLCompositionTextInputElement: {
+        prototype: HTMLCompositionTextInputElement;
+        new (): HTMLCompositionTextInputElement;
     };
     interface HTMLComputedPropertiesPropDecoratorElement extends Components.ComputedPropertiesPropDecorator, HTMLStencilElement {
     }
@@ -2795,6 +2865,10 @@ declare global {
         "cmp-parent": HTMLCmpParentElement;
         "cmp-slotted-parentnode": HTMLCmpSlottedParentnodeElement;
         "component-on-ready": HTMLComponentOnReadyElement;
+        "composition-checkbox-group": HTMLCompositionCheckboxGroupElement;
+        "composition-radio-group": HTMLCompositionRadioGroupElement;
+        "composition-scaling-demo": HTMLCompositionScalingDemoElement;
+        "composition-text-input": HTMLCompositionTextInputElement;
         "computed-properties-prop-decorator": HTMLComputedPropertiesPropDecoratorElement;
         "computed-properties-prop-decorator-reflect": HTMLComputedPropertiesPropDecoratorReflectElement;
         "computed-properties-state-decorator": HTMLComputedPropertiesStateDecoratorElement;
@@ -3108,6 +3182,20 @@ declare namespace LocalJSX {
           * @default 0
          */
         "propVal"?: number;
+    }
+    interface CompositionCheckboxGroup {
+        "onValueChange"?: (event: CompositionCheckboxGroupCustomEvent<string[]>) => void;
+    }
+    interface CompositionRadioGroup {
+        "onValueChange"?: (event: CompositionRadioGroupCustomEvent<string>) => void;
+    }
+    /**
+     * Main component that demonstrates composition-based scaling
+     * with 3 components and 2 controllers (ValidationController and FocusController)
+     */
+    interface CompositionScalingDemo {
+    }
+    interface CompositionTextInput {
     }
     interface ComputedPropertiesPropDecorator {
         /**
@@ -4313,6 +4401,10 @@ declare namespace LocalJSX {
         "cmp-parent": CmpParent;
         "cmp-slotted-parentnode": CmpSlottedParentnode;
         "component-on-ready": Omit<ComponentOnReady, keyof ComponentOnReadyAttributes> & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes]?: ComponentOnReady[K] } & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes as `attr:${K}`]?: ComponentOnReadyAttributes[K] } & { [K in keyof ComponentOnReady & keyof ComponentOnReadyAttributes as `prop:${K}`]?: ComponentOnReady[K] };
+        "composition-checkbox-group": CompositionCheckboxGroup;
+        "composition-radio-group": CompositionRadioGroup;
+        "composition-scaling-demo": CompositionScalingDemo;
+        "composition-text-input": CompositionTextInput;
         "computed-properties-prop-decorator": Omit<ComputedPropertiesPropDecorator, keyof ComputedPropertiesPropDecoratorAttributes> & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes]?: ComputedPropertiesPropDecorator[K] } & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes as `attr:${K}`]?: ComputedPropertiesPropDecoratorAttributes[K] } & { [K in keyof ComputedPropertiesPropDecorator & keyof ComputedPropertiesPropDecoratorAttributes as `prop:${K}`]?: ComputedPropertiesPropDecorator[K] };
         "computed-properties-prop-decorator-reflect": Omit<ComputedPropertiesPropDecoratorReflect, keyof ComputedPropertiesPropDecoratorReflectAttributes> & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes]?: ComputedPropertiesPropDecoratorReflect[K] } & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes as `attr:${K}`]?: ComputedPropertiesPropDecoratorReflectAttributes[K] } & { [K in keyof ComputedPropertiesPropDecoratorReflect & keyof ComputedPropertiesPropDecoratorReflectAttributes as `prop:${K}`]?: ComputedPropertiesPropDecoratorReflect[K] };
         "computed-properties-state-decorator": ComputedPropertiesStateDecorator;
@@ -4542,6 +4634,14 @@ declare module "@stencil/core" {
             "cmp-parent": LocalJSX.IntrinsicElements["cmp-parent"] & JSXBase.HTMLAttributes<HTMLCmpParentElement>;
             "cmp-slotted-parentnode": LocalJSX.IntrinsicElements["cmp-slotted-parentnode"] & JSXBase.HTMLAttributes<HTMLCmpSlottedParentnodeElement>;
             "component-on-ready": LocalJSX.IntrinsicElements["component-on-ready"] & JSXBase.HTMLAttributes<HTMLComponentOnReadyElement>;
+            "composition-checkbox-group": LocalJSX.IntrinsicElements["composition-checkbox-group"] & JSXBase.HTMLAttributes<HTMLCompositionCheckboxGroupElement>;
+            "composition-radio-group": LocalJSX.IntrinsicElements["composition-radio-group"] & JSXBase.HTMLAttributes<HTMLCompositionRadioGroupElement>;
+            /**
+             * Main component that demonstrates composition-based scaling
+             * with 3 components and 2 controllers (ValidationController and FocusController)
+             */
+            "composition-scaling-demo": LocalJSX.IntrinsicElements["composition-scaling-demo"] & JSXBase.HTMLAttributes<HTMLCompositionScalingDemoElement>;
+            "composition-text-input": LocalJSX.IntrinsicElements["composition-text-input"] & JSXBase.HTMLAttributes<HTMLCompositionTextInputElement>;
             "computed-properties-prop-decorator": LocalJSX.IntrinsicElements["computed-properties-prop-decorator"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorElement>;
             "computed-properties-prop-decorator-reflect": LocalJSX.IntrinsicElements["computed-properties-prop-decorator-reflect"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesPropDecoratorReflectElement>;
             "computed-properties-state-decorator": LocalJSX.IntrinsicElements["computed-properties-state-decorator"] & JSXBase.HTMLAttributes<HTMLComputedPropertiesStateDecoratorElement>;
