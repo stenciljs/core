@@ -218,18 +218,11 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
  * @param s the MagicString to append the global styles onto
  * @param platform the platform that is being built
  */
-const appendGlobalStyles = async (
-  buildCtx: d.BuildCtx, 
-  s: MagicString, 
-  platform: BundlePlatform,
-) => {
+const appendGlobalStyles = async (buildCtx: d.BuildCtx, s: MagicString, platform: BundlePlatform) => {
   const { addGlobalStyleToComponents } = buildCtx.config.extras;
-  const shouldIncludeGlobalStyles =  
+  const shouldIncludeGlobalStyles =
     addGlobalStyleToComponents === true || (addGlobalStyleToComponents === 'client' && platform === 'client');
-  const globalStyles =
-    buildCtx.config.globalStyle && shouldIncludeGlobalStyles
-      ? await buildCtx.stylesPromise
-      : '';
+  const globalStyles = buildCtx.config.globalStyle && shouldIncludeGlobalStyles ? await buildCtx.stylesPromise : '';
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 

@@ -428,13 +428,13 @@ interface ConfigExtrasBase {
 
   /**
    * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
-   * and adds it to each component when rendered on the client which can be useful for sharing styles 
+   * and adds it to each component when rendered on the client which can be useful for sharing styles
    * efficiently across components.
-   * 
-   * If you want Stencil to also add the `globalStyle` to each component when rendering on the server 
-   * then set this to `true`. If your `globalStyle` sheet is large then doing this may bloat the size 
+   *
+   * If you want Stencil to also add the `globalStyle` to each component when rendering on the server
+   * then set this to `true`. If your `globalStyle` sheet is large then doing this may bloat the size
    * of your SSR output when using declarative-shadow-dom.
-   * 
+   *
    * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
    *
    * Defaults to `'client'`.
