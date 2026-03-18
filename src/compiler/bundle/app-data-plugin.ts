@@ -5,6 +5,7 @@ import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rollu
 import ts from 'typescript';
 
 import type * as d from '../../declarations';
+import type { BundlePlatform } from './bundle-interface';
 import { removeCollectionImports } from '../transformers/remove-collection-imports';
 import { APP_DATA_CONDITIONAL, STENCIL_APP_DATA_ID, STENCIL_APP_GLOBALS_ID } from './entry-alias-ids';
 
@@ -23,7 +24,7 @@ export const appDataPlugin = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   buildConditionals: d.BuildConditionals,
-  platform: 'client' | 'hydrate' | 'worker',
+  platform: BundlePlatform,
 ): Plugin => {
   if (!platform) {
     return {
@@ -62,7 +63,7 @@ export const appDataPlugin = (
       if (id === STENCIL_APP_GLOBALS_ID) {
         const s = new MagicString(``);
         appendGlobalScripts(globalScripts, s);
-        await appendGlobalStyles(buildCtx, s);
+        await appendGlobalStyles(buildCtx, s, platform);
         return s.toString();
       }
       if (id === STENCIL_APP_DATA_ID) {
@@ -215,10 +216,18 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
  *
  * @param buildCtx the build context
  * @param s the MagicString to append the global styles onto
+ * @param platform the platform that is being built
  */
-const appendGlobalStyles = async (buildCtx: d.BuildCtx, s: MagicString) => {
+const appendGlobalStyles = async (
+  buildCtx: d.BuildCtx, 
+  s: MagicString, 
+  platform: BundlePlatform,
+) => {
+  const { addGlobalStyleToComponents } = buildCtx.config.extras;
+  const shouldIncludeGlobalStyles =  
+    addGlobalStyleToComponents === true || (addGlobalStyleToComponents === 'client' && platform === 'client');
   const globalStyles =
-    buildCtx.config.globalStyle && buildCtx.config.extras.addGlobalStyleToComponents !== false
+    buildCtx.config.globalStyle && shouldIncludeGlobalStyles
       ? await buildCtx.stylesPromise
       : '';
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);

@@ -155,7 +155,9 @@ export const validateConfig = (
   validatedConfig.extras.additionalTagTransformers =
     validatedConfig.extras.additionalTagTransformers === true ||
     (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
-  validatedConfig.extras.addGlobalStyleToComponents = validatedConfig.extras.addGlobalStyleToComponents !== false;
+  validatedConfig.extras.addGlobalStyleToComponents = isBoolean(validatedConfig.extras.addGlobalStyleToComponents) 
+    ? validatedConfig.extras.addGlobalStyleToComponents 
+    : 'client';
 
   // TODO(STENCIL-914): remove when `experimentalSlotFixes` is the default behavior
   // If the user set `experimentalSlotFixes` and any individual slot fix flags to `false`, we need to log a warning
