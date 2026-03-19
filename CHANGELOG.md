@@ -1,3 +1,12 @@
+## 🐕 [4.43.3](https://github.com/stenciljs/core/compare/v4.43.2...v4.43.3) (2026-03-19)
+
+
+### Features
+
+* **testing:** deprecate all integrated testing options ([#6642](https://github.com/stenciljs/core/issues/6642)) ([02f91b3](https://github.com/stenciljs/core/commit/02f91b3b59461d55ea8527b328cd48056cb6130a))
+
+
+
 ## 🌙 [4.43.2](https://github.com/stenciljs/core/compare/v4.43.1...v4.43.2) (2026-02-27)
 
 

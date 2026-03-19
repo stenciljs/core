@@ -14,6 +14,7 @@ export const BOOLEAN_CLI_FLAGS = [
   'dev',
   'devtools',
   'docs',
+  // @deprecated - integrated testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'e2e',
   'es5',
   'esm',
@@ -25,16 +26,21 @@ export const BOOLEAN_CLI_FLAGS = [
   'prod',
   'profile',
   'serviceWorker',
+  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'screenshot',
   'serve',
   'skipNodeCheck',
+  // @deprecated - integrated testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'spec',
   'ssr',
+  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'updateScreenshot',
   'verbose',
   'version',
   'watch',
 
+  // @deprecated - all JEST CLI options below are only used by integrated testing, which will be removed in Stencil v5.
+  // See https://github.com/stenciljs/core/issues/6584.
   // JEST CLI OPTIONS
   'all',
   'automock',
@@ -89,6 +95,8 @@ export const BOOLEAN_CLI_FLAGS = [
  */
 export const NUMBER_CLI_FLAGS = [
   'port',
+  // @deprecated - all JEST CLI args below are only used by integrated testing, which will be removed in Stencil v5.
+  // See https://github.com/stenciljs/core/issues/6584.
   // JEST CLI ARGS
   'maxConcurrency',
   'testTimeout',
@@ -104,8 +112,11 @@ export const STRING_CLI_FLAGS = [
   'docsJson',
   'emulate',
   'root',
+  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'screenshotConnector',
 
+  // @deprecated - all JEST CLI args below are only used by integrated testing, which will be removed in Stencil v5.
+  // See https://github.com/stenciljs/core/issues/6584.
   // JEST CLI ARGS
   'cacheDirectory',
   'changedSince',
@@ -139,6 +150,8 @@ export const STRING_CLI_FLAGS = [
   'transform',
 ] as const;
 
+// @deprecated - all entries below are JEST CLI args only used by integrated testing, which will be removed in Stencil v5.
+// See https://github.com/stenciljs/core/issues/6584.
 export const STRING_ARRAY_CLI_FLAGS = [
   'collectCoverageOnlyFrom',
   'coveragePathIgnorePatterns',

@@ -284,6 +284,15 @@ export interface StencilConfig {
 
   globalScript?: string;
   srcIndexHtml?: string;
+  /**
+   * Configuration for Stencil's integrated testing (Jest + Puppeteer).
+   *
+   * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+   * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+   * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+   * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+   * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+   */
   testing?: TestingConfig;
   maxConcurrentWorkers?: number;
   preamble?: string;
@@ -410,15 +419,18 @@ interface ConfigExtrasBase {
 
   /**
    * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
-   * and adds it to each component which can be useful for sharing styles efficiently across components.
-   * In some cases this can be undesirable:
-   * - If `globalStyle` is intended to configure the lightDOM only
-   * - If `globalStyle` is large it can bloat the size of SSR output when using declarative-shadow-dom
+   * and adds it to each component when rendered on the client which can be useful for sharing styles
+   * efficiently across components.
+   *
+   * If you want Stencil to also add the `globalStyle` to each component when rendering on the server
+   * then set this to `true`. If your `globalStyle` sheet is large then doing this may bloat the size
+   * of your SSR output when using declarative-shadow-dom.
+   *
    * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
    *
-   * Defaults to `true`.
+   * Defaults to `'client'`.
    */
-  addGlobalStyleToComponents?: boolean;
+  addGlobalStyleToComponents?: boolean | 'client';
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
@@ -1921,6 +1933,13 @@ export interface RollupOutputOptions {
   globals?: { [name: string]: string } | ((name: string) => string);
 }
 
+/**
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+ */
 export interface Testing {
   run(opts: TestingRunOptions): Promise<boolean>;
   destroy(): Promise<void>;
@@ -1931,6 +1950,12 @@ export declare type TransformerConfig = [string, Record<string, unknown>];
 
 /**
  * Options for initiating a run of Stencil tests (spec and/or end-to-end)
+ *
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
  */
 export interface TestingRunOptions {
   /**
@@ -1951,6 +1976,13 @@ export interface TestingRunOptions {
   updateScreenshot?: boolean;
 }
 
+/**
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+ */
 export interface JestConfig {
   /**
    * This option tells Jest that all imported modules in your tests should be mocked automatically.
@@ -2083,6 +2115,15 @@ export interface JestConfig {
   watchPathIgnorePatterns?: any[];
 }
 
+/**
+ * Configuration for Stencil's integrated testing (Jest + Puppeteer).
+ *
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+ */
 export interface TestingConfig extends JestConfig {
   /**
    * The `allowableMismatchedPixels` value is used to determine an acceptable
@@ -2190,6 +2231,13 @@ export interface TestingConfig extends JestConfig {
   waitBeforeScreenshot?: number;
 }
 
+/**
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+ */
 export interface EmulateConfig {
   /**
    * Predefined device descriptor name, such as "iPhone X" or "Nexus 10".
@@ -2205,6 +2253,13 @@ export interface EmulateConfig {
   viewport?: EmulateViewport;
 }
 
+/**
+ * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
+ * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
+ * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+ * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
+ */
 export interface EmulateViewport {
   /**
    * Page width in pixels.

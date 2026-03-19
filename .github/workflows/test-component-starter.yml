@@ -10,12 +10,11 @@ permissions:
 
 jobs:
   analysis_test:
-    name: (${{ matrix.os }}.node-${{ matrix.node }}.jest-${{ matrix.jest }})
+    name: (${{ matrix.os }}.node-${{ matrix.node }})
     strategy:
       fail-fast: false
       matrix:
-        jest: ['24', '25', '26', '27', '28', '29']
-        node: ['18', '20', '22']
+        node: ['20', '22']
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
@@ -89,8 +88,8 @@ jobs:
         working-directory: ./tmp-component-starter
         shell: bash
 
-      - name: Install Jest
-        run: npm install --dev-dependencies jest@29 jest-cli@29 @types/jest@29
+      - name: Install Playwright Browsers
+        run: npx playwright install
 
       - name: Build Starter Project
         run: npm run build
@@ -102,33 +101,36 @@ jobs:
         working-directory: ./tmp-component-starter
         shell: bash
 
-      - name: Test npx stencil generate
-        # `stencil generate` doesn't have a way to skip file generation, so we provide it with a component name and run
-        # `echo` with a newline to select "all files" to generate (and use -e to interpret that backslash for a newline)
-        run: echo -e '\n' | npm run generate -- hello-world
-        working-directory: ./tmp-component-starter
-        shell: bash
+      # TEMPORARILY DISABLE
+      # Disable until we update the generate task in v5 to work with new testing setup.
 
-      - name: Verify Files Exist
-        run: |
-          file_list=(
-            src/components/hello-world/hello-world.tsx
-            src/components/hello-world/hello-world.css
-            src/components/hello-world/test/hello-world.spec.tsx
-            src/components/hello-world/test/hello-world.e2e.ts
-          )
-          for file in "${file_list[@]}"; do
-              if [ -f "$file" ]; then
-                  echo "File '$file' exists."
-              else
-                  echo "File '$file' does not exist."
-                  exit 1
-              fi
-          done
-        working-directory: ./tmp-component-starter
-        shell: bash
+      # - name: Test npx stencil generate
+      #   # `stencil generate` doesn't have a way to skip file generation, so we provide it with a component name and run
+      #   # `echo` with a newline to select "all files" to generate (and use -e to interpret that backslash for a newline)
+      #   run: echo -e '\n' | npm run generate -- hello-world
+      #   working-directory: ./tmp-component-starter
+      #   shell: bash
 
-      - name: Test Generated Files
-        run: npm run test
-        working-directory: ./tmp-component-starter
-        shell: bash
+      # - name: Verify Files Exist
+      #   run: |
+      #     file_list=(
+      #       src/components/hello-world/hello-world.tsx
+      #       src/components/hello-world/hello-world.css
+      #       src/components/hello-world/test/hello-world.spec.tsx
+      #       src/components/hello-world/test/hello-world.e2e.ts
+      #     )
+      #     for file in "${file_list[@]}"; do
+      #         if [ -f "$file" ]; then
+      #             echo "File '$file' exists."
+      #         else
+      #             echo "File '$file' does not exist."
+      #             exit 1
+      #         fi
+      #     done
+      #   working-directory: ./tmp-component-starter
+      #   shell: bash
+
+      # - name: Test Generated Files
+      #   run: npm run test
+      #   working-directory: ./tmp-component-starter
+      #   shell: bash

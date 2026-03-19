@@ -2,6 +2,7 @@ import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
 import type { Plugin, PluginContext, TransformResult } from 'rollup';
 
 import type * as d from '@stencil/core';
+import type { BundlePlatform } from './bundle-interface';
 import { optimizeModule } from '../optimize/optimize-module';
 import { bundleOutput } from './bundle-output';
 import { STENCIL_INTERNAL_ID } from './entry-alias-ids';
@@ -10,7 +11,7 @@ export const workerPlugin = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  platform: string,
+  platform: BundlePlatform,
   inlineWorkers: boolean,
 ): Plugin => {
   if (platform === 'worker' || platform === 'hydrate') {

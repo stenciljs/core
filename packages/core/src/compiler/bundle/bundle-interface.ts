@@ -17,7 +17,7 @@ export interface BundleOptions {
    * and omitted from the generated bundle.
    */
   externalRuntime?: boolean;
-  platform: 'client' | 'hydrate' | 'worker';
+  platform: BundlePlatform;
   /**
    * A collection of TypeScript transformation factories to apply during the "before" stage of the TypeScript
    * compilation pipeline (before built-in .js transformations)
@@ -59,3 +59,5 @@ export interface BundleOptions {
    */
   preserveEntrySignatures?: PreserveEntrySignaturesOption;
 }
+
+export type BundlePlatform = 'client' | 'hydrate' | 'worker';
