@@ -10,11 +10,10 @@ permissions:
 
 jobs:
   analysis_test:
-    name: (${{ matrix.os }}.node-${{ matrix.node }}.jest-${{ matrix.jest }})
+    name: (${{ matrix.os }}.node-${{ matrix.node }})
     strategy:
       fail-fast: false
       matrix:
-        jest: ['27', '28', '29']
         node: ['20', '22']
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
@@ -89,8 +88,8 @@ jobs:
         working-directory: ./tmp-component-starter
         shell: bash
 
-      - name: Install Jest
-        run: npx playwright install && npm install --dev-dependencies jest@29 jest-cli@29 @types/jest@29
+      - name: Install Playwright Browsers
+        run: npx playwright install
 
       - name: Build Starter Project
         run: npm run build
