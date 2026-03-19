@@ -428,15 +428,18 @@ interface ConfigExtrasBase {
 
   /**
    * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
-   * and adds it to each component which can be useful for sharing styles efficiently across components.
-   * In some cases this can be undesirable:
-   * - If `globalStyle` is intended to configure the lightDOM only
-   * - If `globalStyle` is large it can bloat the size of SSR output when using declarative-shadow-dom
+   * and adds it to each component when rendered on the client which can be useful for sharing styles
+   * efficiently across components.
+   *
+   * If you want Stencil to also add the `globalStyle` to each component when rendering on the server
+   * then set this to `true`. If your `globalStyle` sheet is large then doing this may bloat the size
+   * of your SSR output when using declarative-shadow-dom.
+   *
    * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
    *
-   * Defaults to `true`.
+   * Defaults to `'client'`.
    */
-  addGlobalStyleToComponents?: boolean;
+  addGlobalStyleToComponents?: boolean | 'client';
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior

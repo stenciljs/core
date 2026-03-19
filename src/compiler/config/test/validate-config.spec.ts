@@ -407,7 +407,7 @@ describe('validation', () => {
     expect(config.extras.tagNameTransform).toBe(false);
     expect(config.extras.additionalTagTransformers).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
-    expect(config.extras.addGlobalStyleToComponents).toBe(true);
+    expect(config.extras.addGlobalStyleToComponents).toBe('client');
     expect(config.extras.additionalTagTransformers).toBe(false);
   });
 
