@@ -3,8 +3,9 @@ import { isAbsolute } from 'path';
 import type { Plugin } from 'rollup';
 
 import type * as d from '../../declarations';
+import type { BundlePlatform } from './bundle-interface';
 
-export const serverPlugin = (config: d.ValidatedConfig, platform: string): Plugin => {
+export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform): Plugin => {
   const isHydrateBundle = platform === 'hydrate';
   const serverVarid = `@removed-server-code`;
 

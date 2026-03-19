@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import type { Plugin } from 'rollup';
 
 import type * as d from '../../declarations';
+import type { BundlePlatform } from './bundle-interface';
 import { HYDRATED_CSS } from '../../runtime/runtime-constants';
 import { fetchModuleAsync } from '../sys/fetch/fetch-module-async';
 import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';
@@ -20,7 +21,7 @@ import {
 export const coreResolvePlugin = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
-  platform: 'client' | 'hydrate' | 'worker',
+  platform: BundlePlatform,
   externalRuntime: boolean,
   lazyLoad: boolean,
 ): Plugin => {
