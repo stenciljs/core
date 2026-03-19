@@ -323,12 +323,266 @@ These tests use `renderToString` / `hydrateDocument` and have been migrated to P
 | ssr-hydration | `ssr-hydration` | ✅ done |
 | scoped-hydration | `ssr-scoped-hydration` | ✅ done (already existed, renamed) |
 
-### SSR Tests (pending - require isolated mini-projects)
+### Config Option Tests (pending - require isolated mini-projects)
 
 These tests require their own `stencil.config.ts` to test specific build configurations.
 
-| wdio test | notes |
-|-----------|-------|
-| invisible-prehydration | Tests `invisiblePrehydration: false` config. Needs own stencil.config.ts |
-| prerender-test + test-prerender | Tests prerender with `prerenderConfig`. Needs own stencil.config.ts |
+| wdio test | destination | notes |
+|-----------|-------------|-------|
+| invisible-prehydration | `config/invisible-prehydration/` | Tests `invisiblePrehydration: false` config (client-side hydration CSS behavior) |
+| prerender-test + test-prerender | `config/prerender/` | Tests prerender with `prerenderConfig` |
+
+---
+
+# Test Directory Reorganization
+
+> **Status:** Planning - this section outlines the proposed reorganization of the test directory structure.
+
+## Current Problems
+
+1. **Chaotic organization** - 18+ top-level directories with unclear boundaries
+2. **Naming inconsistency** - `.test.tsx` vs `.spec.tsx` vs `.e2e.ts`
+3. **Redundancy** - Some functionality tested in multiple places (wdio, spec, end-to-end)
+4. **wdio is legacy** - Being migrated away but still contains 142 directories
+5. **Mixed concerns** - Sample apps, fixtures, and tests all in same directory
+6. **Flat structure** - 130+ component tests in spec/main with no categorization
+
+## Proposed Structure
+
+```
+tests/
+├── fixtures/                  # Reference apps + shared fixtures
+│   ├── hello-world/           # Bundle size reference
+│   ├── hello-vdom/            # Bundle size reference
+│   ├── todo-app/              # Bundle size reference
+│   ├── ionic-app/             # Integration validation
+│   └── sibling/               # Component fixture imported by runtime tests
+│
+├── unit/                      # Pure unit tests (no Stencil compilation)
+│   ├── copy-task/
+│   └── type-tests/
+│
+├── runtime/                   # Component runtime behavior (vitest)
+│   ├── stencil.config.ts      # Shared config for all runtime tests
+│   ├── vitest.config.ts
+│   └── src/
+│       ├── attributes/        # attribute-basic, attribute-boolean, etc.
+│       ├── events/            # event-basic, listen-*, custom-event, etc.
+│       ├── lifecycle/         # lifecycle-basic, lifecycle-async, etc.
+│       ├── slots/             # slot-basic, slot-nested-*, etc.
+│       ├── shadow-dom/        # shadow-dom-basic, delegates-focus, etc.
+│       ├── scoped/            # scoped-basic, scoped-slot-*, etc.
+│       ├── rendering/         # async-rerender, conditional-*, key-reorder, etc.
+│       ├── state/             # computed-properties-*, reflect-*, watch-*, etc.
+│       ├── forms/             # form-associated, input-basic
+│       ├── inheritance/       # extends-*, mixin-*
+│       ├── dom/               # dom-reattach, clone-node, text-content-patch, etc.
+│       └── misc/              # Other one-offs
+│
+├── ssr/                       # Server-side rendering tests (playwright)
+│   ├── stencil.config.ts      # Needs dist-hydrate-script output
+│   ├── playwright.config.ts
+│   └── src/
+│       ├── declarative-shadow-dom/
+│       ├── scoped/
+│       ├── serialize/
+│       ├── complex-properties/
+│       └── ...
+│
+├── config/                    # Config option tests (each has own stencil.config.ts)
+│   ├── external-runtime/      # externalRuntime: true
+│   ├── invisible-prehydration/# invisiblePrehydration: false
+│   ├── prerender/             # prerenderConfig
+│   ├── prerender-shadow/      # Shadow DOM + prerender
+│   └── style-modes/           # Style mode testing
+│
+├── build/                     # Build output/tooling tests
+│   ├── bundle-size/           # Bundle size validation
+│   ├── bundler/               # Vite bundling tests
+│   ├── docs-json/             # JSON docs generation
+│   └── docs-readme/           # README docs generation
+│
+└── perf/                      # Performance benchmarks
+    ├── runtime-benchmark/
+    └── performance/
+```
+
+## Category Definitions
+
+### `fixtures/`
+Reference applications and shared component fixtures. NOT tests themselves.
+- **hello-world, hello-vdom, todo-app** - Bundle size baselines
+- **ionic-app** - Integration validation with real Ionic components
+- **sibling** - Component fixture imported by runtime/inheritance tests
+
+### `unit/`
+Pure unit tests that don't require Stencil compilation.
+- **copy-task** - Tests copy task utilities
+- **type-tests** - TypeScript type validation
+
+### `runtime/`
+Component runtime behavior tests using `@stencil/vitest`. All tests share one `stencil.config.ts`.
+
+Components are organized by feature area:
+- **attributes/** - Attribute binding, reflection, serialization
+- **events/** - Event emission, listeners, capturing
+- **lifecycle/** - Component lifecycle hooks
+- **slots/** - Slot behavior (basic, named, nested, fallback)
+- **shadow-dom/** - Shadow DOM specific behavior
+- **scoped/** - Scoped CSS behavior
+- **rendering/** - Re-rendering, conditional rendering, keyed lists
+- **state/** - @State, @Prop, @Watch, computed properties
+- **forms/** - Form-associated custom elements
+- **inheritance/** - Component extension patterns (extends-*, mixins)
+- **dom/** - DOM API patches, node manipulation
+- **misc/** - Tests that don't fit elsewhere
+
+### `ssr/`
+Server-side rendering tests using `renderToString()` + Playwright.
+
+These tests:
+1. Call `renderToString()` to generate HTML server-side
+2. Load that HTML into a browser via Playwright
+3. Verify client-side rehydration behavior
+
+Requires `dist-hydrate-script` output target.
+
+### `config/`
+Tests for specific Stencil config options. Each subdirectory has its own `stencil.config.ts` because the config option itself is what's being tested.
+
+| Directory | Config Option | What it tests |
+|-----------|---------------|---------------|
+| external-runtime/ | `externalRuntime: true` | External runtime bundling |
+| invisible-prehydration/ | `invisiblePrehydration: false` | Client-side hydration CSS behavior |
+| prerender/ | `prerenderConfig` | Build-time prerendering |
+| prerender-shadow/ | Shadow DOM + prerender | Prerender with shadow DOM |
+| style-modes/ | Style modes | Style mode switching |
+
+### `build/`
+Tests for build outputs and tooling integration.
+- **bundle-size/** - Validates bundle sizes haven't regressed
+- **bundler/** - Vite integration tests
+- **docs-json/** - JSON documentation generation
+- **docs-readme/** - README documentation generation
+
+### `perf/`
+Performance benchmarks.
+- **runtime-benchmark/** - Runtime performance
+- **performance/** - General performance tests
+
+---
+
+## End-to-End Audit
+
+The current `end-to-end/` directory contains a mix of:
+1. **SSR tests** (ssr-*) → Move to `ssr/`
+2. **Component behavior tests** (car-list, dom-api, etc.) → Audit for redundancy
+
+### Audit Needed
+
+For each non-SSR test in end-to-end, determine:
+- Is this functionality already covered in runtime tests? → **Delete**
+- Is this testing unique functionality? → **Migrate to runtime/**
+- Does this specifically need the e2e build validation? → **Keep**
+
+| e2e test | status | action | notes |
+|----------|--------|--------|-------|
+| **SSR Tests** ||||
+| ssr-complex-properties | SSR | → `ssr/` | |
+| ssr-declarative-shadow-dom | SSR | → `ssr/` | |
+| ssr-hydration | SSR | → `ssr/` | |
+| ssr-scoped-hydration | SSR | → `ssr/` | |
+| ssr-serialize-deserialize | SSR | → `ssr/` | |
+| ssr-runtime-decorators | SSR | → `ssr/` | |
+| hydrate-props | SSR | → `ssr/` | |
+| prerender-cmp | SSR | → `ssr/` | |
+| **REDUNDANT - Delete** ||||
+| build-data | ✅ redundant | **delete** | Covered by `build-data.spec.tsx` |
+| event-cmp | ✅ redundant | **delete** | Covered by `event-basic.spec.tsx`, `custom-event.spec.tsx` |
+| listen-cmp | ✅ redundant | **delete** | Covered by `listen-jsx.spec.tsx` |
+| method-cmp | ✅ redundant | **delete** | Covered by `extends-methods.spec.tsx` |
+| prop-cmp | ✅ redundant | **delete** | Covered by `attribute-basic.spec.tsx`, `computed-properties-prop-decorator.spec.tsx` |
+| slot-cmp | ✅ redundant | **delete** | Covered by 50+ slot runtime tests |
+| slot-cmp-container | ✅ redundant | **delete** | Covered by slot runtime tests |
+| slot-parent-cmp | ✅ redundant | **delete** | Covered by slot runtime tests |
+| state-cmp | ✅ redundant | **delete** | Covered by `computed-properties-state-decorator.spec.tsx` |
+| **UNIQUE - Migrate to runtime/** ||||
+| car-list + car-detail | unique | → `runtime/` | Complex component composition with nested shadow DOM |
+| dom-api | unique | → `runtime/dom/` | DOM manipulation patterns (classList, attributes, innerHTML) |
+| dom-interaction | unique | → `runtime/dom/` | User interaction (click, focus, keyboard) |
+| dom-visible | unique | → `runtime/dom/` | Visibility state and async patterns |
+| element-cmp | unique | → `runtime/misc/` | @Element decorator usage |
+| env-data | unique | → `runtime/misc/` | Environment variable injection |
+| non-existent-element | unique | → `runtime/dom/` | Edge case: querying non-existent elements |
+| resolve-var-events | unique | → `runtime/events/` | Event resolution via variables |
+| path-alias-cmp | unique | → `runtime/misc/` | TypeScript path alias imports |
+| **BUILD-SPECIFIC - Keep** ||||
+| app-root | build | **keep** | Tests hydration flags, global styles - build output validation |
+| deep-selector | build | **keep** | Validates Playwright shadow DOM piercing |
+| import-assets | build | **keep** | Tests build-time asset handling (text, HTML, SVG, base64) |
+| miscellaneous | build | **keep** | Tests build-time style ordering |
+
+### Value of end-to-end Project
+
+Even after migrating tests, the end-to-end project has value as a **complex build validation**:
+- Its `stencil.config.ts` has rollup plugins, multiple output targets, react output target, etc.
+- Validates that Stencil can compile a "gnarly" real-world config
+- May not need individual component tests if runtime coverage is sufficient
+
+---
+
+## Migration Plan
+
+### Phase 1: Structure Setup
+- [ ] Create new directory structure
+- [ ] Move fixtures (hello-world, etc.) to `fixtures/`
+- [ ] Move copy-task, type-tests to `unit/`
+- [ ] Rename spec/main → runtime/ (or reorganize in place)
+
+### Phase 2: Runtime Organization
+- [ ] Organize runtime tests into feature subdirectories
+- [ ] Update imports if needed
+- [ ] Verify all tests still pass
+
+### Phase 3: SSR Tests
+- [ ] Create `ssr/` directory with proper config
+- [ ] Move ssr-* tests from end-to-end
+- [ ] Verify SSR tests pass
+
+### Phase 4: Config Option Tests
+- [ ] Migrate invisible-prehydration from wdio → `config/`
+- [ ] Migrate prerender-test from wdio → `config/`
+- [ ] Move external-runtime, prerender-shadow, style-modes to `config/`
+
+### Phase 5: End-to-End Audit
+- [ ] Audit each non-SSR test for redundancy
+- [ ] Delete redundant tests
+- [ ] Migrate unique tests to runtime/
+- [ ] Decide fate of end-to-end project (keep as build validation or remove)
+
+### Phase 6: Cleanup
+- [ ] Delete wdio/ directory
+- [ ] Update documentation
+- [ ] Update CI/scripts
+
+---
+
+## File Extension Conventions
+
+| Location | Test Extension | Rationale |
+|----------|----------------|-----------|
+| runtime/ | `.spec.tsx` | @stencil/vitest convention |
+| ssr/ | `.e2e.ts` | @stencil/playwright convention |
+| config/*/ | `.spec.tsx` or `.e2e.ts` | Depends on test runner used |
+| unit/ | `.spec.ts` | Standard vitest |
+
+---
+
+## Open Questions
+
+1. **sibling/** - Currently in spec/sibling with its own stencil.config.ts. Should it move to fixtures/ and have runtime tests import from there?
+
+2. **perf/** - Are runtime-benchmark and performance actively used? Should they stay separate or consolidate?
+
+3. **end-to-end as build validation** - After migrating tests out, should we keep a minimal end-to-end project just to validate the complex stencil.config.ts compiles?
 
