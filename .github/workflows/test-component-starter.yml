@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jest: ['24', '25', '26', '27', '28', '29']
-        node: ['18', '20', '22']
+        jest: ['27', '28', '29']
+        node: ['20', '22']
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
@@ -90,7 +90,7 @@ jobs:
         shell: bash
 
       - name: Install Jest
-        run: npm install --dev-dependencies jest@29 jest-cli@29 @types/jest@29
+        run: npx playwright install && npm install --dev-dependencies jest@29 jest-cli@29 @types/jest@29
 
       - name: Build Starter Project
         run: npm run build
