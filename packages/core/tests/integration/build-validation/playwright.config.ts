@@ -6,7 +6,7 @@ expect.extend(matchers);
 
 export default createConfig(
   {
-    snapshotPathTemplate: '{testFileDir}/__snapshots__/{testFileName}{arg}{ext}',
+    snapshotPathTemplate: '{testDir}/{testFileDir}/__snapshots__/{testFileName}{arg}{ext}',
   },
   { cwd: import.meta.dirname },
 );

@@ -5,10 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
-import { CarData } from "./__fixtures__/car-data";
-import { CarData as CarData1 } from "./car-list/car-data";
-export { CarData } from "./__fixtures__/car-data";
-export { CarData as CarData1 } from "./car-list/car-data";
+import { CarData } from "./components/car-list/car-data";
+export { CarData } from "./components/car-list/car-data";
 export namespace Components {
     interface AnotherCarDetail {
         "car": CarData;
@@ -21,14 +19,14 @@ export namespace Components {
         "selected": CarData;
     }
     interface CarDetail {
-        "car": CarData1;
+        "car": CarData;
     }
     /**
      * Component that helps display a list of cars
      */
     interface CarList {
-        "cars": CarData1[];
-        "selected": CarData1;
+        "cars": CarData[];
+        "selected": CarData;
     }
     interface CmpDsd {
         /**
@@ -247,7 +245,7 @@ declare global {
         new (): HTMLCarDetailElement;
     };
     interface HTMLCarListElementEventMap {
-        "carSelected": CarData1;
+        "carSelected": CarData;
     }
     /**
      * Component that helps display a list of cars
@@ -545,15 +543,15 @@ declare namespace LocalJSX {
         "selected"?: CarData;
     }
     interface CarDetail {
-        "car"?: CarData1;
+        "car"?: CarData;
     }
     /**
      * Component that helps display a list of cars
      */
     interface CarList {
-        "cars"?: CarData1[];
-        "onCarSelected"?: (event: CarListCustomEvent<CarData1>) => void;
-        "selected"?: CarData1;
+        "cars"?: CarData[];
+        "onCarSelected"?: (event: CarListCustomEvent<CarData>) => void;
+        "selected"?: CarData;
     }
     interface CmpDsd {
         /**
