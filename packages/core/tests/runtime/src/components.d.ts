@@ -5,14 +5,16 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
-import { SomeTypes } from "./components/attribute-complex/types.js";
-import { TestEventDetail } from "./components/event-custom-type/event-custom-type";
-import { RadioGroupCompareFn } from "./components/radio-group-blur/ion-radio-group";
-import { Item } from "./components/scoped-add-remove-classes/scoped-add-remove-classes";
-export { SomeTypes } from "./components/attribute-complex/types.js";
-export { TestEventDetail } from "./components/event-custom-type/event-custom-type";
-export { RadioGroupCompareFn } from "./components/radio-group-blur/ion-radio-group";
-export { Item } from "./components/scoped-add-remove-classes/scoped-add-remove-classes";
+import { SomeTypes } from "./components/attributes/attribute-complex/types.js";
+import { CarData } from "./components/misc/parent-child-props/car-data";
+import { TestEventDetail } from "./components/events/event-custom-type/event-custom-type";
+import { RadioGroupCompareFn } from "./components/forms/radio-group-blur/ion-radio-group";
+import { Item } from "./components/scoped/scoped-add-remove-classes/scoped-add-remove-classes";
+export { SomeTypes } from "./components/attributes/attribute-complex/types.js";
+export { CarData } from "./components/misc/parent-child-props/car-data";
+export { TestEventDetail } from "./components/events/event-custom-type/event-custom-type";
+export { RadioGroupCompareFn } from "./components/forms/radio-group-blur/ion-radio-group";
+export { Item } from "./components/scoped/scoped-add-remove-classes/scoped-add-remove-classes";
 export namespace Components {
     interface AsyncRerender {
     }
@@ -89,6 +91,16 @@ export namespace Components {
     interface BadSharedJsx {
     }
     interface BuildData {
+    }
+    interface CarDetail {
+        "car": CarData;
+    }
+    /**
+     * Component that helps display a list of cars
+     */
+    interface CarList {
+        "cars": CarData[];
+        "selected": CarData;
     }
     interface ChildReflectNanAttribute {
         "val": number;
@@ -221,6 +233,10 @@ export namespace Components {
     }
     interface DelegatesFocus {
     }
+    interface DomApi {
+    }
+    interface DomInteraction {
+    }
     interface DomReattach {
         /**
           * @default 0
@@ -241,10 +257,20 @@ export namespace Components {
     }
     interface DomReattachCloneHost {
     }
+    interface DomVisible {
+    }
     interface DynamicCssVariable {
     }
     interface DynamicImport {
         "update": () => Promise<void>;
+    }
+    interface ElementCmp {
+    }
+    interface EmptyCmp {
+    }
+    interface EmptyCmpShadow {
+    }
+    interface EnvData {
     }
     interface Es5AddclassSvg {
     }
@@ -805,6 +831,8 @@ export namespace Components {
     }
     interface ParentWithReflectChild {
     }
+    interface PathAliasCmp {
+    }
     interface PrefixAttrNested {
         "count"?: number;
         "enabled"?: boolean;
@@ -881,6 +909,10 @@ export namespace Components {
     interface ReparentStyleNoVars {
     }
     interface ReparentStyleWithVars {
+    }
+    interface ResolveVarEvents {
+        "emitMyEvent": () => Promise<void>;
+        "emitOtherEvent": () => Promise<void>;
     }
     interface SassCmp {
     }
@@ -1127,6 +1159,28 @@ export namespace Components {
     }
     interface StencilSibling {
     }
+    /**
+     * Tests style modes with scoped CSS.
+     * Mode 'buford' = limegreen background
+     * Mode 'griff' = plum background
+     */
+    interface StyleModeScoped {
+        /**
+          * The style mode
+         */
+        "mode"?: 'buford' | 'griff';
+    }
+    /**
+     * Tests style modes with shadow DOM.
+     * Mode 'buford' = yellow background
+     * Mode 'griff' = red background
+     */
+    interface StyleModeShadow {
+        /**
+          * The style mode
+         */
+        "mode"?: 'buford' | 'griff';
+    }
     interface SvgAttr {
     }
     interface SvgClass {
@@ -1143,6 +1197,10 @@ export namespace Components {
     }
     interface WatchNativeAttributes {
     }
+}
+export interface CarListCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCarListElement;
 }
 export interface ComponentOnReadyCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -1203,6 +1261,10 @@ export interface LifecycleBasicBCustomEvent<T> extends CustomEvent<T> {
 export interface LifecycleBasicCCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLLifecycleBasicCElement;
+}
+export interface ResolveVarEventsCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLResolveVarEventsElement;
 }
 declare global {
     interface HTMLAsyncRerenderElement extends Components.AsyncRerender, HTMLStencilElement {
@@ -1270,6 +1332,32 @@ declare global {
     var HTMLBuildDataElement: {
         prototype: HTMLBuildDataElement;
         new (): HTMLBuildDataElement;
+    };
+    interface HTMLCarDetailElement extends Components.CarDetail, HTMLStencilElement {
+    }
+    var HTMLCarDetailElement: {
+        prototype: HTMLCarDetailElement;
+        new (): HTMLCarDetailElement;
+    };
+    interface HTMLCarListElementEventMap {
+        "carSelected": CarData;
+    }
+    /**
+     * Component that helps display a list of cars
+     */
+    interface HTMLCarListElement extends Components.CarList, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCarListElementEventMap>(type: K, listener: (this: HTMLCarListElement, ev: CarListCustomEvent<HTMLCarListElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCarListElementEventMap>(type: K, listener: (this: HTMLCarListElement, ev: CarListCustomEvent<HTMLCarListElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCarListElement: {
+        prototype: HTMLCarListElement;
+        new (): HTMLCarListElement;
     };
     interface HTMLChildReflectNanAttributeElement extends Components.ChildReflectNanAttribute, HTMLStencilElement {
     }
@@ -1518,6 +1606,18 @@ declare global {
         prototype: HTMLDelegatesFocusElement;
         new (): HTMLDelegatesFocusElement;
     };
+    interface HTMLDomApiElement extends Components.DomApi, HTMLStencilElement {
+    }
+    var HTMLDomApiElement: {
+        prototype: HTMLDomApiElement;
+        new (): HTMLDomApiElement;
+    };
+    interface HTMLDomInteractionElement extends Components.DomInteraction, HTMLStencilElement {
+    }
+    var HTMLDomInteractionElement: {
+        prototype: HTMLDomInteractionElement;
+        new (): HTMLDomInteractionElement;
+    };
     interface HTMLDomReattachElement extends Components.DomReattach, HTMLStencilElement {
     }
     var HTMLDomReattachElement: {
@@ -1542,6 +1642,12 @@ declare global {
         prototype: HTMLDomReattachCloneHostElement;
         new (): HTMLDomReattachCloneHostElement;
     };
+    interface HTMLDomVisibleElement extends Components.DomVisible, HTMLStencilElement {
+    }
+    var HTMLDomVisibleElement: {
+        prototype: HTMLDomVisibleElement;
+        new (): HTMLDomVisibleElement;
+    };
     interface HTMLDynamicCssVariableElement extends Components.DynamicCssVariable, HTMLStencilElement {
     }
     var HTMLDynamicCssVariableElement: {
@@ -1553,6 +1659,30 @@ declare global {
     var HTMLDynamicImportElement: {
         prototype: HTMLDynamicImportElement;
         new (): HTMLDynamicImportElement;
+    };
+    interface HTMLElementCmpElement extends Components.ElementCmp, HTMLStencilElement {
+    }
+    var HTMLElementCmpElement: {
+        prototype: HTMLElementCmpElement;
+        new (): HTMLElementCmpElement;
+    };
+    interface HTMLEmptyCmpElement extends Components.EmptyCmp, HTMLStencilElement {
+    }
+    var HTMLEmptyCmpElement: {
+        prototype: HTMLEmptyCmpElement;
+        new (): HTMLEmptyCmpElement;
+    };
+    interface HTMLEmptyCmpShadowElement extends Components.EmptyCmpShadow, HTMLStencilElement {
+    }
+    var HTMLEmptyCmpShadowElement: {
+        prototype: HTMLEmptyCmpShadowElement;
+        new (): HTMLEmptyCmpShadowElement;
+    };
+    interface HTMLEnvDataElement extends Components.EnvData, HTMLStencilElement {
+    }
+    var HTMLEnvDataElement: {
+        prototype: HTMLEnvDataElement;
+        new (): HTMLEnvDataElement;
     };
     interface HTMLEs5AddclassSvgElement extends Components.Es5AddclassSvg, HTMLStencilElement {
     }
@@ -2243,6 +2373,12 @@ declare global {
         prototype: HTMLParentWithReflectChildElement;
         new (): HTMLParentWithReflectChildElement;
     };
+    interface HTMLPathAliasCmpElement extends Components.PathAliasCmp, HTMLStencilElement {
+    }
+    var HTMLPathAliasCmpElement: {
+        prototype: HTMLPathAliasCmpElement;
+        new (): HTMLPathAliasCmpElement;
+    };
     interface HTMLPrefixAttrNestedElement extends Components.PrefixAttrNested, HTMLStencilElement {
     }
     var HTMLPrefixAttrNestedElement: {
@@ -2320,6 +2456,24 @@ declare global {
     var HTMLReparentStyleWithVarsElement: {
         prototype: HTMLReparentStyleWithVarsElement;
         new (): HTMLReparentStyleWithVarsElement;
+    };
+    interface HTMLResolveVarEventsElementEventMap {
+        "myEvent": any;
+        "otherEvent": any;
+    }
+    interface HTMLResolveVarEventsElement extends Components.ResolveVarEvents, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLResolveVarEventsElement: {
+        prototype: HTMLResolveVarEventsElement;
+        new (): HTMLResolveVarEventsElement;
     };
     interface HTMLSassCmpElement extends Components.SassCmp, HTMLStencilElement {
     }
@@ -2789,6 +2943,28 @@ declare global {
         prototype: HTMLStencilSiblingElement;
         new (): HTMLStencilSiblingElement;
     };
+    /**
+     * Tests style modes with scoped CSS.
+     * Mode 'buford' = limegreen background
+     * Mode 'griff' = plum background
+     */
+    interface HTMLStyleModeScopedElement extends Components.StyleModeScoped, HTMLStencilElement {
+    }
+    var HTMLStyleModeScopedElement: {
+        prototype: HTMLStyleModeScopedElement;
+        new (): HTMLStyleModeScopedElement;
+    };
+    /**
+     * Tests style modes with shadow DOM.
+     * Mode 'buford' = yellow background
+     * Mode 'griff' = red background
+     */
+    interface HTMLStyleModeShadowElement extends Components.StyleModeShadow, HTMLStencilElement {
+    }
+    var HTMLStyleModeShadowElement: {
+        prototype: HTMLStyleModeShadowElement;
+        new (): HTMLStyleModeShadowElement;
+    };
     interface HTMLSvgAttrElement extends Components.SvgAttr, HTMLStencilElement {
     }
     var HTMLSvgAttrElement: {
@@ -2849,6 +3025,8 @@ declare global {
         "attribute-html-root": HTMLAttributeHtmlRootElement;
         "bad-shared-jsx": HTMLBadSharedJsxElement;
         "build-data": HTMLBuildDataElement;
+        "car-detail": HTMLCarDetailElement;
+        "car-list": HTMLCarListElement;
         "child-reflect-nan-attribute": HTMLChildReflectNanAttributeElement;
         "child-tag-transform": HTMLChildTagTransformElement;
         "child-with-reflection": HTMLChildWithReflectionElement;
@@ -2884,12 +3062,19 @@ declare global {
         "custom-event-root": HTMLCustomEventRootElement;
         "custom-states-cmp": HTMLCustomStatesCmpElement;
         "delegates-focus": HTMLDelegatesFocusElement;
+        "dom-api": HTMLDomApiElement;
+        "dom-interaction": HTMLDomInteractionElement;
         "dom-reattach": HTMLDomReattachElement;
         "dom-reattach-clone": HTMLDomReattachCloneElement;
         "dom-reattach-clone-deep-slot": HTMLDomReattachCloneDeepSlotElement;
         "dom-reattach-clone-host": HTMLDomReattachCloneHostElement;
+        "dom-visible": HTMLDomVisibleElement;
         "dynamic-css-variable": HTMLDynamicCssVariableElement;
         "dynamic-import": HTMLDynamicImportElement;
+        "element-cmp": HTMLElementCmpElement;
+        "empty-cmp": HTMLEmptyCmpElement;
+        "empty-cmp-shadow": HTMLEmptyCmpShadowElement;
+        "env-data": HTMLEnvDataElement;
         "es5-addclass-svg": HTMLEs5AddclassSvgElement;
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
@@ -2966,6 +3151,7 @@ declare global {
         "parent-reflect-nan-attribute": HTMLParentReflectNanAttributeElement;
         "parent-tag-transform": HTMLParentTagTransformElement;
         "parent-with-reflect-child": HTMLParentWithReflectChildElement;
+        "path-alias-cmp": HTMLPathAliasCmpElement;
         "prefix-attr-nested": HTMLPrefixAttrNestedElement;
         "prefix-attr-root": HTMLPrefixAttrRootElement;
         "prefix-prop-nested": HTMLPrefixPropNestedElement;
@@ -2979,6 +3165,7 @@ declare global {
         "remove-child-patch": HTMLRemoveChildPatchElement;
         "reparent-style-no-vars": HTMLReparentStyleNoVarsElement;
         "reparent-style-with-vars": HTMLReparentStyleWithVarsElement;
+        "resolve-var-events": HTMLResolveVarEventsElement;
         "sass-cmp": HTMLSassCmpElement;
         "scoped-add-remove-classes": HTMLScopedAddRemoveClassesElement;
         "scoped-basic": HTMLScopedBasicElement;
@@ -3057,6 +3244,8 @@ declare global {
         "static-members-separate-initializer": HTMLStaticMembersSeparateInitializerElement;
         "static-styles": HTMLStaticStylesElement;
         "stencil-sibling": HTMLStencilSiblingElement;
+        "style-mode-scoped": HTMLStyleModeScopedElement;
+        "style-mode-shadow": HTMLStyleModeShadowElement;
         "svg-attr": HTMLSvgAttrElement;
         "svg-class": HTMLSvgClassElement;
         "tag-3d-component": HTMLTag3dComponentElement;
@@ -3139,6 +3328,17 @@ declare namespace LocalJSX {
     interface BadSharedJsx {
     }
     interface BuildData {
+    }
+    interface CarDetail {
+        "car"?: CarData;
+    }
+    /**
+     * Component that helps display a list of cars
+     */
+    interface CarList {
+        "cars"?: CarData[];
+        "onCarSelected"?: (event: CarListCustomEvent<CarData>) => void;
+        "selected"?: CarData;
     }
     interface ChildReflectNanAttribute {
         "val"?: number;
@@ -3259,6 +3459,10 @@ declare namespace LocalJSX {
     }
     interface DelegatesFocus {
     }
+    interface DomApi {
+    }
+    interface DomInteraction {
+    }
     interface DomReattach {
         /**
           * @default 0
@@ -3279,9 +3483,19 @@ declare namespace LocalJSX {
     }
     interface DomReattachCloneHost {
     }
+    interface DomVisible {
+    }
     interface DynamicCssVariable {
     }
     interface DynamicImport {
+    }
+    interface ElementCmp {
+    }
+    interface EmptyCmp {
+    }
+    interface EmptyCmpShadow {
+    }
+    interface EnvData {
     }
     interface Es5AddclassSvg {
     }
@@ -3780,6 +3994,8 @@ declare namespace LocalJSX {
     }
     interface ParentWithReflectChild {
     }
+    interface PathAliasCmp {
+    }
     interface PrefixAttrNested {
         "count"?: number;
         "enabled"?: boolean;
@@ -3851,6 +4067,10 @@ declare namespace LocalJSX {
     interface ReparentStyleNoVars {
     }
     interface ReparentStyleWithVars {
+    }
+    interface ResolveVarEvents {
+        "onMyEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
+        "onOtherEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
     }
     interface SassCmp {
     }
@@ -4095,6 +4315,28 @@ declare namespace LocalJSX {
     }
     interface StencilSibling {
     }
+    /**
+     * Tests style modes with scoped CSS.
+     * Mode 'buford' = limegreen background
+     * Mode 'griff' = plum background
+     */
+    interface StyleModeScoped {
+        /**
+          * The style mode
+         */
+        "mode"?: 'buford' | 'griff';
+    }
+    /**
+     * Tests style modes with shadow DOM.
+     * Mode 'buford' = yellow background
+     * Mode 'griff' = red background
+     */
+    interface StyleModeShadow {
+        /**
+          * The style mode
+         */
+        "mode"?: 'buford' | 'griff';
+    }
     interface SvgAttr {
     }
     interface SvgClass {
@@ -4145,6 +4387,12 @@ declare namespace LocalJSX {
         "strAttr": string;
         "anyAttr": string;
         "nuAttr": number;
+    }
+    interface CarDetailAttributes {
+        "car": string;
+    }
+    interface CarListAttributes {
+        "cars": string;
     }
     interface ChildReflectNanAttributeAttributes {
         "val": number;
@@ -4385,6 +4633,8 @@ declare namespace LocalJSX {
         "attribute-html-root": Omit<AttributeHtmlRoot, keyof AttributeHtmlRootAttributes> & { [K in keyof AttributeHtmlRoot & keyof AttributeHtmlRootAttributes]?: AttributeHtmlRoot[K] } & { [K in keyof AttributeHtmlRoot & keyof AttributeHtmlRootAttributes as `attr:${K}`]?: AttributeHtmlRootAttributes[K] } & { [K in keyof AttributeHtmlRoot & keyof AttributeHtmlRootAttributes as `prop:${K}`]?: AttributeHtmlRoot[K] };
         "bad-shared-jsx": BadSharedJsx;
         "build-data": BuildData;
+        "car-detail": Omit<CarDetail, keyof CarDetailAttributes> & { [K in keyof CarDetail & keyof CarDetailAttributes]?: CarDetail[K] } & { [K in keyof CarDetail & keyof CarDetailAttributes as `attr:${K}`]?: CarDetailAttributes[K] } & { [K in keyof CarDetail & keyof CarDetailAttributes as `prop:${K}`]?: CarDetail[K] };
+        "car-list": Omit<CarList, keyof CarListAttributes> & { [K in keyof CarList & keyof CarListAttributes]?: CarList[K] } & { [K in keyof CarList & keyof CarListAttributes as `attr:${K}`]?: CarListAttributes[K] } & { [K in keyof CarList & keyof CarListAttributes as `prop:${K}`]?: CarList[K] };
         "child-reflect-nan-attribute": Omit<ChildReflectNanAttribute, keyof ChildReflectNanAttributeAttributes> & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes]?: ChildReflectNanAttribute[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `attr:${K}`]?: ChildReflectNanAttributeAttributes[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `prop:${K}`]?: ChildReflectNanAttribute[K] };
         "child-tag-transform": Omit<ChildTagTransform, keyof ChildTagTransformAttributes> & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes]?: ChildTagTransform[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `attr:${K}`]?: ChildTagTransformAttributes[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `prop:${K}`]?: ChildTagTransform[K] };
         "child-with-reflection": Omit<ChildWithReflection, keyof ChildWithReflectionAttributes> & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes]?: ChildWithReflection[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `attr:${K}`]?: ChildWithReflectionAttributes[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `prop:${K}`]?: ChildWithReflection[K] };
@@ -4420,12 +4670,19 @@ declare namespace LocalJSX {
         "custom-event-root": CustomEventRoot;
         "custom-states-cmp": CustomStatesCmp;
         "delegates-focus": DelegatesFocus;
+        "dom-api": DomApi;
+        "dom-interaction": DomInteraction;
         "dom-reattach": Omit<DomReattach, keyof DomReattachAttributes> & { [K in keyof DomReattach & keyof DomReattachAttributes]?: DomReattach[K] } & { [K in keyof DomReattach & keyof DomReattachAttributes as `attr:${K}`]?: DomReattachAttributes[K] } & { [K in keyof DomReattach & keyof DomReattachAttributes as `prop:${K}`]?: DomReattach[K] };
         "dom-reattach-clone": DomReattachClone;
         "dom-reattach-clone-deep-slot": DomReattachCloneDeepSlot;
         "dom-reattach-clone-host": DomReattachCloneHost;
+        "dom-visible": DomVisible;
         "dynamic-css-variable": DynamicCssVariable;
         "dynamic-import": DynamicImport;
+        "element-cmp": ElementCmp;
+        "empty-cmp": EmptyCmp;
+        "empty-cmp-shadow": EmptyCmpShadow;
+        "env-data": EnvData;
         "es5-addclass-svg": Es5AddclassSvg;
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
@@ -4502,6 +4759,7 @@ declare namespace LocalJSX {
         "parent-reflect-nan-attribute": ParentReflectNanAttribute;
         "parent-tag-transform": ParentTagTransform;
         "parent-with-reflect-child": ParentWithReflectChild;
+        "path-alias-cmp": PathAliasCmp;
         "prefix-attr-nested": Omit<PrefixAttrNested, keyof PrefixAttrNestedAttributes> & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes]?: PrefixAttrNested[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `attr:${K}`]?: PrefixAttrNestedAttributes[K] } & { [K in keyof PrefixAttrNested & keyof PrefixAttrNestedAttributes as `prop:${K}`]?: PrefixAttrNested[K] };
         "prefix-attr-root": PrefixAttrRoot;
         "prefix-prop-nested": Omit<PrefixPropNested, keyof PrefixPropNestedAttributes> & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes]?: PrefixPropNested[K] } & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes as `attr:${K}`]?: PrefixPropNestedAttributes[K] } & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes as `prop:${K}`]?: PrefixPropNested[K] };
@@ -4515,6 +4773,7 @@ declare namespace LocalJSX {
         "remove-child-patch": RemoveChildPatch;
         "reparent-style-no-vars": ReparentStyleNoVars;
         "reparent-style-with-vars": ReparentStyleWithVars;
+        "resolve-var-events": ResolveVarEvents;
         "sass-cmp": SassCmp;
         "scoped-add-remove-classes": ScopedAddRemoveClasses;
         "scoped-basic": ScopedBasic;
@@ -4593,6 +4852,8 @@ declare namespace LocalJSX {
         "static-members-separate-initializer": StaticMembersSeparateInitializer;
         "static-styles": StaticStyles;
         "stencil-sibling": StencilSibling;
+        "style-mode-scoped": StyleModeScoped;
+        "style-mode-shadow": StyleModeShadow;
         "svg-attr": SvgAttr;
         "svg-class": SvgClass;
         "tag-3d-component": Tag3dComponent;
@@ -4618,6 +4879,11 @@ declare module "@stencil/core" {
             "attribute-html-root": LocalJSX.IntrinsicElements["attribute-html-root"] & JSXBase.HTMLAttributes<HTMLAttributeHtmlRootElement>;
             "bad-shared-jsx": LocalJSX.IntrinsicElements["bad-shared-jsx"] & JSXBase.HTMLAttributes<HTMLBadSharedJsxElement>;
             "build-data": LocalJSX.IntrinsicElements["build-data"] & JSXBase.HTMLAttributes<HTMLBuildDataElement>;
+            "car-detail": LocalJSX.IntrinsicElements["car-detail"] & JSXBase.HTMLAttributes<HTMLCarDetailElement>;
+            /**
+             * Component that helps display a list of cars
+             */
+            "car-list": LocalJSX.IntrinsicElements["car-list"] & JSXBase.HTMLAttributes<HTMLCarListElement>;
             "child-reflect-nan-attribute": LocalJSX.IntrinsicElements["child-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLChildReflectNanAttributeElement>;
             "child-tag-transform": LocalJSX.IntrinsicElements["child-tag-transform"] & JSXBase.HTMLAttributes<HTMLChildTagTransformElement>;
             "child-with-reflection": LocalJSX.IntrinsicElements["child-with-reflection"] & JSXBase.HTMLAttributes<HTMLChildWithReflectionElement>;
@@ -4657,12 +4923,19 @@ declare module "@stencil/core" {
             "custom-event-root": LocalJSX.IntrinsicElements["custom-event-root"] & JSXBase.HTMLAttributes<HTMLCustomEventRootElement>;
             "custom-states-cmp": LocalJSX.IntrinsicElements["custom-states-cmp"] & JSXBase.HTMLAttributes<HTMLCustomStatesCmpElement>;
             "delegates-focus": LocalJSX.IntrinsicElements["delegates-focus"] & JSXBase.HTMLAttributes<HTMLDelegatesFocusElement>;
+            "dom-api": LocalJSX.IntrinsicElements["dom-api"] & JSXBase.HTMLAttributes<HTMLDomApiElement>;
+            "dom-interaction": LocalJSX.IntrinsicElements["dom-interaction"] & JSXBase.HTMLAttributes<HTMLDomInteractionElement>;
             "dom-reattach": LocalJSX.IntrinsicElements["dom-reattach"] & JSXBase.HTMLAttributes<HTMLDomReattachElement>;
             "dom-reattach-clone": LocalJSX.IntrinsicElements["dom-reattach-clone"] & JSXBase.HTMLAttributes<HTMLDomReattachCloneElement>;
             "dom-reattach-clone-deep-slot": LocalJSX.IntrinsicElements["dom-reattach-clone-deep-slot"] & JSXBase.HTMLAttributes<HTMLDomReattachCloneDeepSlotElement>;
             "dom-reattach-clone-host": LocalJSX.IntrinsicElements["dom-reattach-clone-host"] & JSXBase.HTMLAttributes<HTMLDomReattachCloneHostElement>;
+            "dom-visible": LocalJSX.IntrinsicElements["dom-visible"] & JSXBase.HTMLAttributes<HTMLDomVisibleElement>;
             "dynamic-css-variable": LocalJSX.IntrinsicElements["dynamic-css-variable"] & JSXBase.HTMLAttributes<HTMLDynamicCssVariableElement>;
             "dynamic-import": LocalJSX.IntrinsicElements["dynamic-import"] & JSXBase.HTMLAttributes<HTMLDynamicImportElement>;
+            "element-cmp": LocalJSX.IntrinsicElements["element-cmp"] & JSXBase.HTMLAttributes<HTMLElementCmpElement>;
+            "empty-cmp": LocalJSX.IntrinsicElements["empty-cmp"] & JSXBase.HTMLAttributes<HTMLEmptyCmpElement>;
+            "empty-cmp-shadow": LocalJSX.IntrinsicElements["empty-cmp-shadow"] & JSXBase.HTMLAttributes<HTMLEmptyCmpShadowElement>;
+            "env-data": LocalJSX.IntrinsicElements["env-data"] & JSXBase.HTMLAttributes<HTMLEnvDataElement>;
             "es5-addclass-svg": LocalJSX.IntrinsicElements["es5-addclass-svg"] & JSXBase.HTMLAttributes<HTMLEs5AddclassSvgElement>;
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
@@ -4834,6 +5107,7 @@ declare module "@stencil/core" {
             "parent-reflect-nan-attribute": LocalJSX.IntrinsicElements["parent-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLParentReflectNanAttributeElement>;
             "parent-tag-transform": LocalJSX.IntrinsicElements["parent-tag-transform"] & JSXBase.HTMLAttributes<HTMLParentTagTransformElement>;
             "parent-with-reflect-child": LocalJSX.IntrinsicElements["parent-with-reflect-child"] & JSXBase.HTMLAttributes<HTMLParentWithReflectChildElement>;
+            "path-alias-cmp": LocalJSX.IntrinsicElements["path-alias-cmp"] & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
             "prefix-attr-nested": LocalJSX.IntrinsicElements["prefix-attr-nested"] & JSXBase.HTMLAttributes<HTMLPrefixAttrNestedElement>;
             "prefix-attr-root": LocalJSX.IntrinsicElements["prefix-attr-root"] & JSXBase.HTMLAttributes<HTMLPrefixAttrRootElement>;
             "prefix-prop-nested": LocalJSX.IntrinsicElements["prefix-prop-nested"] & JSXBase.HTMLAttributes<HTMLPrefixPropNestedElement>;
@@ -4847,6 +5121,7 @@ declare module "@stencil/core" {
             "remove-child-patch": LocalJSX.IntrinsicElements["remove-child-patch"] & JSXBase.HTMLAttributes<HTMLRemoveChildPatchElement>;
             "reparent-style-no-vars": LocalJSX.IntrinsicElements["reparent-style-no-vars"] & JSXBase.HTMLAttributes<HTMLReparentStyleNoVarsElement>;
             "reparent-style-with-vars": LocalJSX.IntrinsicElements["reparent-style-with-vars"] & JSXBase.HTMLAttributes<HTMLReparentStyleWithVarsElement>;
+            "resolve-var-events": LocalJSX.IntrinsicElements["resolve-var-events"] & JSXBase.HTMLAttributes<HTMLResolveVarEventsElement>;
             "sass-cmp": LocalJSX.IntrinsicElements["sass-cmp"] & JSXBase.HTMLAttributes<HTMLSassCmpElement>;
             "scoped-add-remove-classes": LocalJSX.IntrinsicElements["scoped-add-remove-classes"] & JSXBase.HTMLAttributes<HTMLScopedAddRemoveClassesElement>;
             "scoped-basic": LocalJSX.IntrinsicElements["scoped-basic"] & JSXBase.HTMLAttributes<HTMLScopedBasicElement>;
@@ -4925,6 +5200,18 @@ declare module "@stencil/core" {
             "static-members-separate-initializer": LocalJSX.IntrinsicElements["static-members-separate-initializer"] & JSXBase.HTMLAttributes<HTMLStaticMembersSeparateInitializerElement>;
             "static-styles": LocalJSX.IntrinsicElements["static-styles"] & JSXBase.HTMLAttributes<HTMLStaticStylesElement>;
             "stencil-sibling": LocalJSX.IntrinsicElements["stencil-sibling"] & JSXBase.HTMLAttributes<HTMLStencilSiblingElement>;
+            /**
+             * Tests style modes with scoped CSS.
+             * Mode 'buford' = limegreen background
+             * Mode 'griff' = plum background
+             */
+            "style-mode-scoped": LocalJSX.IntrinsicElements["style-mode-scoped"] & JSXBase.HTMLAttributes<HTMLStyleModeScopedElement>;
+            /**
+             * Tests style modes with shadow DOM.
+             * Mode 'buford' = yellow background
+             * Mode 'griff' = red background
+             */
+            "style-mode-shadow": LocalJSX.IntrinsicElements["style-mode-shadow"] & JSXBase.HTMLAttributes<HTMLStyleModeShadowElement>;
             "svg-attr": LocalJSX.IntrinsicElements["svg-attr"] & JSXBase.HTMLAttributes<HTMLSvgAttrElement>;
             "svg-class": LocalJSX.IntrinsicElements["svg-class"] & JSXBase.HTMLAttributes<HTMLSvgClassElement>;
             "tag-3d-component": LocalJSX.IntrinsicElements["tag-3d-component"] & JSXBase.HTMLAttributes<HTMLTag3dComponentElement>;

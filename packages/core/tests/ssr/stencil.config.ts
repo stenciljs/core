@@ -5,6 +5,9 @@ export const config: Config = {
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
     {
+      type: 'dist',
+    },
+    {
       type: 'www',
       serviceWorker: null,
     },
@@ -13,7 +16,7 @@ export const config: Config = {
     },
   ],
   hydratedFlag: {
-    name: 'hydrated',
+    name: 'custom-hydrate-flag',
     selector: 'attribute',
   },
   extras: {

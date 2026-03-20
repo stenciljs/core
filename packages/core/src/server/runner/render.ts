@@ -22,21 +22,11 @@ import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
 
-export function streamToString(html: string | any, option?: SerializeDocumentOptions) {
-  return renderToString(html, option, true);
-}
-
-export function renderToString(html: string | any, options?: SerializeDocumentOptions): Promise<HydrateResults>;
-export function renderToString(
-  html: string | any,
-  options: SerializeDocumentOptions | undefined,
-  asStream: true,
-): Readable;
-export function renderToString(
-  html: string | any,
-  options?: SerializeDocumentOptions,
-  asStream?: boolean,
-): Promise<HydrateResults> | Readable {
+/**
+ * Renders HTML to a string, returning the full hydration results.
+ * This is the primary SSR function and is portable (no Node.js dependencies).
+ */
+export function renderToString(html: string | any, options?: SerializeDocumentOptions): Promise<HydrateResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Makes the rendered DOM not being rendered to a string.
@@ -56,20 +46,27 @@ export function renderToString(
    */
   opts.constrainTimeouts = false;
 
-  return hydrateDocument(html, opts, asStream);
+  return hydrateDocument(html, opts);
 }
 
-export function hydrateDocument(doc: any | string, options?: HydrateDocumentOptions): Promise<HydrateResults>;
-export function hydrateDocument(
-  doc: any | string,
-  options: HydrateDocumentOptions | undefined,
-  asStream?: boolean,
-): Readable;
-export function hydrateDocument(
-  doc: any | string,
-  options?: HydrateDocumentOptions,
-  asStream?: boolean,
-): Promise<HydrateResults> | Readable {
+/**
+ * Renders HTML and returns a Node.js Readable stream.
+ * This is a Node.js-specific convenience wrapper around renderToString.
+ * Note: This function requires Node.js and cannot be used in QuickJS/WASM environments.
+ */
+export function streamToString(html: string | any, options?: SerializeDocumentOptions): Readable {
+  async function* generateStream() {
+    const result = await renderToString(html, options);
+    yield result.html;
+  }
+  return Readable.from(generateStream());
+}
+
+/**
+ * Hydrates a document or HTML string, returning the full hydration results.
+ * This is portable (no Node.js dependencies).
+ */
+export function hydrateDocument(doc: any | string, options?: HydrateDocumentOptions): Promise<HydrateResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
@@ -89,12 +86,7 @@ export function hydrateDocument(
       opts.destroyWindow = true;
       opts.destroyDocument = true;
       win = new MockWindow(doc);
-
-      if (!asStream) {
-        return render(win, opts, results).then(() => results);
-      }
-
-      return renderStream(win, opts, results);
+      return render(win, opts, results).then(() => results);
     } catch (e) {
       if (win && win.close) {
         win.close();
@@ -109,12 +101,7 @@ export function hydrateDocument(
     try {
       opts.destroyDocument = false;
       win = patchDomImplementation(doc, opts);
-
-      if (!asStream) {
-        return render(win, opts, results).then(() => results);
-      }
-
-      return renderStream(win, opts, results);
+      return render(win, opts, results).then(() => results);
     } catch (e) {
       if (win && win.close) {
         win.close();
@@ -156,22 +143,6 @@ async function render(win: MockWindow, opts: HydrateFactoryOptions, results: Hyd
     renderCatchError(results, e);
     return finalizeHydrate(win, win.document, opts, results);
   }
-}
-
-/**
- * Wrapper around `render` method to enable streaming by returning a Readable instead of a promise.
- * @param win MockDoc window object
- * @param opts serialization options
- * @param results render result object
- * @returns a Readable that can be passed into a response
- */
-function renderStream(win: MockWindow, opts: HydrateFactoryOptions, results: HydrateResults) {
-  async function* processRender() {
-    const renderResult = await render(win, opts, results);
-    yield renderResult.html;
-  }
-
-  return Readable.from(processRender());
 }
 
 async function afterHydrate(

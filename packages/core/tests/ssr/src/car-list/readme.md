@@ -1,4 +1,4 @@
-# car-detail
+# car-list
 
 
 
@@ -42,7 +42,7 @@ Component that helps display a list of cars
 
 ### Depends on
 
-- [car-detail](.)
+- [car-detail](../car-detail)
 
 ### Graph
 ```mermaid

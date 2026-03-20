@@ -6,7 +6,7 @@ const isCustomElementsProject = (import.meta as { env?: Record<string, string> }
 // Dynamically import loader only for custom-elements project
 let loaderModule: { start: (root?: Element) => void; stop: () => void } | null = null;
 if (isCustomElementsProject) {
-  loaderModule = await import('../../../dist/custom-elements/loader');
+  loaderModule = await import('../../../../dist/custom-elements/loader');
 }
 
 describe('cross-document-constructed-styles', () => {

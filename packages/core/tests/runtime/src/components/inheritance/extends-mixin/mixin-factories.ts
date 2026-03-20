@@ -57,13 +57,13 @@ export const MixinBFactory = <B extends new (...args: any[]) => any>(Base: B) =>
      * Test getter/setter pattern in mixin - ensures default value is preserved
      * and not overwritten with undefined during component initialization.
      */
-    private _getterProp: string = 'getter default value';
+    #_getterProp: string = 'getter default value';
     @Prop()
     get getterProp(): string {
-      return this._getterProp;
+      return this.#_getterProp;
     }
     set getterProp(newValue: string) {
-      this._getterProp = newValue;
+      this.#_getterProp = newValue;
     }
 
     @State() state3: string = 'mixin b state text';

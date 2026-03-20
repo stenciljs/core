@@ -10,7 +10,12 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "types": ["@stencil/vitest/globals"]
+    "types": ["@stencil/vitest/globals"],
+    "paths": {
+      "@path-alias": [
+        "./src/components/build/path-alias-cmp/path-alias-lib"
+      ]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.spec.tsx"]

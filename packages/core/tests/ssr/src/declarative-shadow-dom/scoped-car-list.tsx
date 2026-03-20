@@ -1,6 +1,6 @@
 import { Component, Event, EventEmitter, h, Prop, AttrDeserialize } from '@stencil/core';
 
-import { CarData } from '../car-list/car-data';
+import { CarData } from '../__fixtures__/car-data';
 
 /**
  * Component that helps display a list of cars
@@ -8,9 +8,9 @@ import { CarData } from '../car-list/car-data';
  * @part car - The shadow part to target to style the car.
  */
 @Component({
-  tag: 'another-car-list',
+  tag: 'scoped-car-list',
   styleUrl: 'another-car-list.css',
-  shadow: true,
+  scoped: true,
 })
 export class CarList {
   @Prop() cars: CarData[];

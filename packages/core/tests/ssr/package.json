@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil build && playwright test"
+    "test": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@stencil/core": "workspace:*",
     "@stencil/playwright": "catalog:",
-    "@playwright/test": "catalog:"
+    "file-saver": "^2.0.5"
   }
 }

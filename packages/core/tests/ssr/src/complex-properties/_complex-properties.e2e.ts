@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../../hydrate');
+type HydrateModule = typeof import('../../hydrate/index.mjs');
 let renderToString: HydrateModule['renderToString'];
 let serializeProperty: HydrateModule['serializeProperty'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];

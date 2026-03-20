@@ -1,6 +1,6 @@
 import { Component, Event, EventEmitter, h, Prop, AttrDeserialize } from '@stencil/core';
 
-import { CarData } from '../car-list/car-data';
+import { CarData } from './car-data';
 
 /**
  * Component that helps display a list of cars
@@ -8,9 +8,10 @@ import { CarData } from '../car-list/car-data';
  * @part car - The shadow part to target to style the car.
  */
 @Component({
-  tag: 'scoped-car-list',
-  styleUrl: 'another-car-list.css',
-  scoped: true,
+  tag: 'car-list',
+  styleUrl: 'car-list.css',
+  shadow: true,
+  assetsDirs: ['assets-a'],
 })
 export class CarList {
   @Prop() cars: CarData[];
@@ -39,8 +40,8 @@ export class CarList {
       <ul>
         {this.cars.map((car) => {
           return (
-            <li class={car === this.selected ? 'selected' : ''}>
-              <another-car-detail car={car}></another-car-detail>
+            <li class={car === this.selected ? 'selected' : ''} onClick={() => this.selectCar(car)}>
+              <car-detail car={car}></car-detail>
             </li>
           );
         })}

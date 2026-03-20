@@ -345,12 +345,12 @@ importers:
 
   packages/core/tests/runtime:
     dependencies:
+      '@stencil-core-tests/runtime-external':
+        specifier: workspace:*
+        version: link:fixtures/external-base-classes
       '@stencil/core':
         specifier: workspace:*
         version: link:../..
-      sibling-spec:
-        specifier: workspace:*
-        version: link:fixtures/external-base-classes
     devDependencies:
       '@stencil/sass':
         specifier: ^3.0.12
@@ -424,6 +424,11 @@ importers:
       '@stencil/playwright':
         specifier: 'catalog:'
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
+      file-saver:
+        specifier: ^2.0.5
+        version: 2.0.5
+
+  packages/core/tests/ssr/hydrate: {}
 
   packages/dev-server:
     dependencies:

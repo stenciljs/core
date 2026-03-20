@@ -3,15 +3,18 @@ import { Component, h, Prop, AttrDeserialize } from '@stencil/core';
 import { CarData } from '../car-list/car-data';
 
 @Component({
-  tag: 'scoped-car-detail',
-  styleUrl: 'another-car-detail.css',
-  scoped: true,
+  tag: 'car-detail',
+  assetsDirs: ['assets-a'],
 })
 export class CarDetail {
   @Prop() car: CarData;
   @AttrDeserialize('car')
   parseCars(newValue: string) {
     return JSON.parse(newValue);
+  }
+
+  componentWillLoad() {
+    return new Promise((resolve) => setTimeout(resolve, 20));
   }
 
   render() {

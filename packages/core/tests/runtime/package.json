@@ -5,15 +5,15 @@
   "main": "dist/lazy/index.cjs.js",
   "collection": "dist/lazy/collection/collection-manifest.json",
   "scripts": {
-    "build:sibling": "pnpm --filter sibling-spec build",
-    "test": "pnpm build:sibling && stencil-test",
+    "build:external": "pnpm --filter @stencil-core-tests/runtime-external build",
+    "test": "pnpm build:external && stencil-test --prod",
     "test:watch": "stencil-test --watch",
-    "test:dist": "pnpm build:sibling && stencil-test --project dist",
-    "test:custom-elements": "pnpm build:sibling && stencil-test --project custom-elements"
+    "test:dist": "pnpm build:external && stencil-test --project dist",
+    "test:custom-elements": "pnpm build:external && stencil-test --project custom-elements"
   },
   "dependencies": {
     "@stencil/core": "workspace:*",
-    "sibling-spec": "workspace:*"
+    "@stencil-core-tests/runtime-external": "workspace:*"
   },
   "devDependencies": {
     "@stencil/sass": "^3.0.12",

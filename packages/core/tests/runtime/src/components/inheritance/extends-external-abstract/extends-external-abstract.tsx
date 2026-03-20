@@ -1,5 +1,5 @@
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
-import { SiblingAbstractMixin } from 'sibling-spec/dist/collection/sibling-abstract-mixin/sibling-abstract-mixin';
+import { SiblingAbstractMixin } from '@stencil-core-tests/runtime-external/dist/collection/sibling-abstract-mixin/sibling-abstract-mixin';
 
 /**
  * A component that extends from an external library's abstract mixin class.

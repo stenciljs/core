@@ -10,9 +10,9 @@ import { State, forceUpdate } from '@stencil/core';
 
 export const FocusControllerMixin = (Base: any) => {
   class FocusMixin extends Base {
-    @State() protected isFocused: boolean = false;
-    @State() protected focusCount: number = 0;
-    @State() protected blurCount: number = 0;
+    @State() isFocused: boolean = false;
+    @State() focusCount: number = 0;
+    @State() blurCount: number = 0;
 
     // Lifecycle methods
     componentDidLoad() {
@@ -25,11 +25,11 @@ export const FocusControllerMixin = (Base: any) => {
       this.cleanupFocusTracking();
     }
 
-    protected setupFocusTracking() {
+    setupFocusTracking() {
       // Default implementation - can be extended
     }
 
-    protected cleanupFocusTracking() {
+    cleanupFocusTracking() {
       // Default implementation - can be extended
     }
 

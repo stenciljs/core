@@ -3,7 +3,7 @@ import { Readable } from 'node:stream';
 import { expect } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
-import { CarData } from '../car-list/car-data';
+import { CarData } from '../__fixtures__/car-data';
 
 const vento = new CarData('VW', 'Vento', 2024);
 const beetle = new CarData('VW', 'Beetle', 2023);
@@ -27,7 +27,7 @@ async function readableToString(readable: Readable) {
 }
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../../hydrate');
+type HydrateModule = typeof import('../../hydrate/index.mjs');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
 let hydrateDocument: HydrateModule['hydrateDocument'];
@@ -63,11 +63,9 @@ test.describe('renderToString', () => {
     expect(html).toContain('<body><div>Hello World</div></body>');
   });
 
-  test('can render a simple dom node (sync)', async () => {
+  test('can render a simple dom node (stream)', async () => {
     const input = '<div>Hello World</div>';
     const renderedHTML = '<body><div>Hello World</div></body>';
-    const stream = renderToString(input, {}, true);
-    expect(await readableToString(stream)).toContain(renderedHTML);
     expect(await readableToString(streamToString(input))).toContain(renderedHTML);
   });
 
@@ -168,7 +166,7 @@ test.describe('renderToString', () => {
     );
   });
 
-  test('can render a scoped component within a shadow component (sync)', async () => {
+  test('can render a scoped component within a shadow component (stream)', async () => {
     const input = `<car-list cars=${JSON.stringify([vento, beetle])}></car-list>`;
     const opts = {
       serializeShadowRoot: true,
@@ -176,19 +174,11 @@ test.describe('renderToString', () => {
       clientHydrateAnnotations: false,
     };
 
-    const resultRenderToString = await readableToString(renderToString(input, opts, true));
-    expect(resultRenderToString).toContain(
+    const result = await readableToString(streamToString(input, opts));
+    expect(result).toContain(
       '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
     );
-    expect(resultRenderToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>',
-    );
-
-    const resultStreamToString = await readableToString(streamToString(input, opts));
-    expect(resultStreamToString).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
-    );
-    expect(resultStreamToString).toContain(
+    expect(result).toContain(
       '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>',
     );
   });

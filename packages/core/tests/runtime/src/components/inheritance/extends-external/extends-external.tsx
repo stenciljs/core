@@ -1,5 +1,5 @@
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
-import { SiblingExtended } from 'sibling-spec/dist/collection/sibling-extended/sibling-extended';
+import { SiblingExtended } from '@stencil-core-tests/runtime-external/dist/collection/sibling-extended/sibling-extended';
 
 /**
  * A component that extends from an external library's component class.
