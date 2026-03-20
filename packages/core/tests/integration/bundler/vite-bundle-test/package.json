@@ -1,8 +1,8 @@
 {
-  "name": "vite-bundle-test",
+  "name": "@stencil-core-tests/bundler-vite",
   "private": true,
   "version": "1.0.0",
-  "description": "Test package to verify Vite can bundle Stencil's lazy loaded output",
+  "description": "Verifies Vite can bundle Stencil's lazy loaded output",
   "scripts": {
     "build": "vite build",
     "start": "vite"
@@ -12,6 +12,6 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "component-library": "file:../component-library"
+    "@stencil-core-tests/bundler-component-library": "workspace:*"
   }
 }

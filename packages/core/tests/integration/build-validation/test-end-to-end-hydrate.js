@@ -1,6 +1,6 @@
-const whyIsNodeRunning = require('why-is-node-running');
-const hydrate = require('./hydrate');
-const mockDoc = require('../../mock-doc');
+import whyIsNodeRunning from 'why-is-node-running';
+import * as hydrate from './hydrate/index.mjs';
+import { createDocument } from '@stencil/mock-doc';
 
 async function main() {
   const html = `
@@ -53,7 +53,7 @@ async function main() {
     throw new Error(`missing html`);
   }
 
-  const doc = mockDoc.createDocument(results.html);
+  const doc = createDocument(results.html);
   if (doc.title !== 'End To End') {
     throw new Error(`invalid doc.title: ${doc.title}`);
   }
@@ -67,7 +67,7 @@ async function main() {
 
   clearTimeout(tmr);
 
-  console.log('🛁  validated test/end-to-end/hydrate\n');
+  console.log('✅ validated test/end-to-end/hydrate\n');
 }
 
 const tmr = setTimeout(() => {

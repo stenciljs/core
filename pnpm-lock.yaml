@@ -198,6 +198,12 @@ importers:
         specifier: workspace:*
         version: link:../../..
 
+  packages/core/tests/build/exports:
+    devDependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../..
+
   packages/core/tests/build/type-tests:
     devDependencies:
       '@stencil/core':
@@ -209,13 +215,16 @@ importers:
   packages/core/tests/integration/build-validation:
     devDependencies:
       '@playwright/test':
-        specifier: ^1.50
+        specifier: 'catalog:'
         version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
         version: link:../../..
+      '@stencil/mock-doc':
+        specifier: workspace:*
+        version: link:../../../../mock-doc
       '@stencil/playwright':
-        specifier: 1.2.3-next.11
+        specifier: 'catalog:'
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
       '@stencil/react-output-target':
         specifier: ^0.0.9
@@ -260,10 +269,12 @@ importers:
         specifier: ^2.2.0
         version: 2.3.0
 
+  packages/core/tests/integration/build-validation/hydrate: {}
+
   packages/core/tests/integration/bundler:
     devDependencies:
       '@playwright/test':
-        specifier: ^1.50.0
+        specifier: 'catalog:'
         version: 1.58.2
       serve:
         specifier: ^14.2.4
@@ -277,9 +288,9 @@ importers:
 
   packages/core/tests/integration/bundler/vite-bundle-test:
     dependencies:
-      component-library:
-        specifier: file:../component-library
-        version: file:packages/core/tests/integration/bundler/component-library
+      '@stencil-core-tests/bundler-component-library':
+        specifier: workspace:*
+        version: link:../component-library
     devDependencies:
       vite:
         specifier: ^6.0.0
@@ -2414,9 +2425,6 @@ packages:
 
   component-emitter@1.3.1:
     resolution: {integrity: sha512-T0+barUSQRTUQASh8bx02dl+DhF54GtIDY13Y3m9oWTklKbb3Wv974meRpeZ3lp1JpLVECWWNHC4vaG2XHXouQ==}
-
-  component-library@file:packages/core/tests/integration/bundler/component-library:
-    resolution: {directory: packages/core/tests/integration/bundler/component-library, type: directory}
 
   compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
@@ -6664,10 +6672,6 @@ snapshots:
   commondir@1.0.1: {}
 
   component-emitter@1.3.1: {}
-
-  component-library@file:packages/core/tests/integration/bundler/component-library:
-    dependencies:
-      '@stencil/core': link:packages/core
 
   compressible@2.0.18:
     dependencies:

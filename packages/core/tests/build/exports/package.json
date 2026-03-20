@@ -1,0 +1,13 @@
+{
+  "name": "@stencil-core-tests/build-exports",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Validates @stencil/core package exports resolve correctly",
+  "scripts": {
+    "test": "node ./test-exports.mts"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

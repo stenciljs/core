@@ -10,7 +10,7 @@ import { Component, h, Host, Prop } from '@stencil/core';
   `,
 })
 export class MyApp {
-  @Prop() anArray = [];
+  @Prop() anArray: string[] = [];
 
   render() {
     return (

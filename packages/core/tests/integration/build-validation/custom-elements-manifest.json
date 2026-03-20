@@ -3,7 +3,7 @@
   "modules": [
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/another-car-detail.tsx",
+      "path": "src/ssr-declarative-shadow-dom/another-car-detail.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -63,7 +63,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/another-car-list.tsx",
+      "path": "src/ssr-declarative-shadow-dom/another-car-list.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -463,7 +463,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/cmp-dsd.tsx",
+      "path": "src/ssr-declarative-shadow-dom/cmp-dsd.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -513,7 +513,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/cmp-dsd-focus.tsx",
+      "path": "src/ssr-declarative-shadow-dom/cmp-dsd-focus.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -541,7 +541,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/server-vs-client.tsx",
+      "path": "src/ssr-declarative-shadow-dom/server-vs-client.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -569,7 +569,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/cmp-with-slot.tsx",
+      "path": "src/ssr-declarative-shadow-dom/cmp-with-slot.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -591,6 +591,122 @@
           "name": "cmp-with-slot",
           "declaration": {
             "name": "CmpWithSlot"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-complex-properties/complex-properties.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "complex-properties",
+          "name": "ComplexProperties",
+          "attributes": [
+            {
+              "name": "grault",
+              "description": "infinity",
+              "type": {
+                "text": "number"
+              },
+              "fieldName": "grault"
+            },
+            {
+              "name": "kids-names",
+              "description": "basic array",
+              "type": {
+                "text": "any"
+              },
+              "fieldName": "kidsNames"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "baz",
+              "description": "map objects",
+              "type": {
+                "text": "Map<string, { qux: symbol; }>",
+                "references": [
+                  {
+                    "name": "Map",
+                    "package": "global:"
+                  }
+                ]
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "foo",
+              "description": "basic object",
+              "type": {
+                "text": "{ bar: string; loo: number[]; qux: { quux: symbol; }; }"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "grault",
+              "description": "infinity",
+              "type": {
+                "text": "number"
+              },
+              "readonly": true,
+              "attribute": "grault"
+            },
+            {
+              "kind": "field",
+              "name": "kidsNames",
+              "description": "basic array",
+              "type": {
+                "text": "any"
+              },
+              "readonly": true,
+              "attribute": "kids-names"
+            },
+            {
+              "kind": "field",
+              "name": "quux",
+              "description": "set objects",
+              "type": {
+                "text": "Set<string>",
+                "references": [
+                  {
+                    "name": "Set",
+                    "package": "global:"
+                  }
+                ]
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "waldo",
+              "description": "null",
+              "type": {
+                "text": "null"
+              },
+              "readonly": true
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ComplexProperties",
+          "declaration": {
+            "name": "ComplexProperties"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "complex-properties",
+          "declaration": {
+            "name": "ComplexProperties"
           }
         }
       ]
@@ -681,7 +797,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/dsd-listen-cmp.tsx",
+      "path": "src/ssr-declarative-shadow-dom/dsd-listen-cmp.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -949,7 +1065,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/non-shadow-slotted-siblings.tsx",
+      "path": "src/ssr-scoped-hydration/non-shadow-slotted-siblings.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1342,7 +1458,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/nested-child-cmp.tsx",
+      "path": "src/ssr-declarative-shadow-dom/nested-child-cmp.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1370,7 +1486,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/parent-cmp.tsx",
+      "path": "src/ssr-declarative-shadow-dom/parent-cmp.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1398,7 +1514,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/nested-scope-cmp.tsx",
+      "path": "src/ssr-declarative-shadow-dom/nested-scope-cmp.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1426,7 +1542,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/non-shadow.tsx",
+      "path": "src/ssr-scoped-hydration/non-shadow.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1454,7 +1570,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/non-shadow-forwarded-slot.tsx",
+      "path": "src/ssr-scoped-hydration/non-shadow-forwarded-slot.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1482,7 +1598,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/non-shadow-multi-slots.tsx",
+      "path": "src/ssr-scoped-hydration/non-shadow-multi-slots.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1510,7 +1626,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/non-shadow-wrapper.tsx",
+      "path": "src/ssr-scoped-hydration/non-shadow-wrapper.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1532,6 +1648,107 @@
           "name": "non-shadow-wrapper",
           "declaration": {
             "name": "NonShadowWrapper"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/part-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "part-ssr-shadow-cmp",
+          "name": "PartSsrShadowCmp",
+          "attributes": [
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "selected"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "attribute": "selected"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "container"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PartSsrShadowCmp",
+          "declaration": {
+            "name": "PartSsrShadowCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "part-ssr-shadow-cmp",
+          "declaration": {
+            "name": "PartSsrShadowCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/part-wrap-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "part-wrap-ssr-shadow-cmp",
+          "name": "PartWrapSsrShadowCmp",
+          "attributes": [
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "selected"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "attribute": "selected"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PartWrapSsrShadowCmp",
+          "declaration": {
+            "name": "PartWrapSsrShadowCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "part-wrap-ssr-shadow-cmp",
+          "declaration": {
+            "name": "PartWrapSsrShadowCmp"
           }
         }
       ]
@@ -1871,7 +2088,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/scoped-car-detail.tsx",
+      "path": "src/ssr-declarative-shadow-dom/scoped-car-detail.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -1931,7 +2148,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/scoped-car-list.tsx",
+      "path": "src/ssr-declarative-shadow-dom/scoped-car-list.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -2031,7 +2248,174 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/shadow.tsx",
+      "path": "src/ssr-hydration/scoped-child-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "scoped-ssr-child-cmp",
+          "name": "ScopedSsrChildCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ScopedSsrChildCmp",
+          "declaration": {
+            "name": "ScopedSsrChildCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "scoped-ssr-child-cmp",
+          "declaration": {
+            "name": "ScopedSsrChildCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/scoped-parent-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "scoped-ssr-parent-cmp",
+          "name": "ScopedSsrParentCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ScopedSsrParentCmp",
+          "declaration": {
+            "name": "ScopedSsrParentCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "scoped-ssr-parent-cmp",
+          "declaration": {
+            "name": "ScopedSsrParentCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-serialize-deserialize/serialize-deserializer.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "serialize-deserializer",
+          "name": "SerializeDeserializer",
+          "attributes": [
+            {
+              "name": "array",
+              "type": {
+                "text": "string[]"
+              },
+              "fieldName": "array"
+            },
+            {
+              "name": "get-set",
+              "type": {
+                "text": "{ [key: string]: string; }"
+              },
+              "fieldName": "getSet"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "array",
+              "type": {
+                "text": "string[]"
+              },
+              "readonly": true,
+              "attribute": "array",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "getSet",
+              "type": {
+                "text": "{ [key: string]: string; }"
+              },
+              "readonly": true,
+              "attribute": "get-set",
+              "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "getArray",
+              "return": {
+                "type": {
+                  "text": "Promise<any>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getGetSet",
+              "return": {
+                "type": {
+                  "text": "Promise<any[]>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reset",
+              "return": {
+                "type": {
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SerializeDeserializer",
+          "declaration": {
+            "name": "SerializeDeserializer"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "serialize-deserializer",
+          "declaration": {
+            "name": "SerializeDeserializer"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-scoped-hydration/shadow.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -2059,7 +2443,63 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/scoped-hydration/shadow-wrapper.tsx",
+      "path": "src/ssr-hydration/shadow-child-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "shadow-ssr-child-cmp",
+          "name": "ShadowSsrChildCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ShadowSsrChildCmp",
+          "declaration": {
+            "name": "ShadowSsrChildCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "shadow-ssr-child-cmp",
+          "declaration": {
+            "name": "ShadowSsrChildCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/shadow-parent-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "shadow-ssr-parent-cmp",
+          "name": "ShadowSsrParentCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ShadowSsrParentCmp",
+          "declaration": {
+            "name": "ShadowSsrParentCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "shadow-ssr-parent-cmp",
+          "declaration": {
+            "name": "ShadowSsrParentCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-scoped-hydration/shadow-wrapper.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -2191,7 +2631,102 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/ssr-shadow-cmp.tsx",
+      "path": "src/ssr-hydration/slow-prop.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slow-ssr-prop",
+          "name": "SlowSsrProp",
+          "members": [
+            {
+              "kind": "field",
+              "name": "anArray",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "readonly": true
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlowSsrProp",
+          "declaration": {
+            "name": "SlowSsrProp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slow-ssr-prop",
+          "declaration": {
+            "name": "SlowSsrProp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/order-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "ssr-order-cmp",
+          "name": "SsrOrderCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SsrOrderCmp",
+          "declaration": {
+            "name": "SsrOrderCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ssr-order-cmp",
+          "declaration": {
+            "name": "SsrOrderCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-hydration/order-wrap-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "ssr-order-wrap-cmp",
+          "name": "SsrOrderWrapCmp"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SsrOrderWrapCmp",
+          "declaration": {
+            "name": "SsrOrderWrapCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ssr-order-wrap-cmp",
+          "declaration": {
+            "name": "SsrOrderWrapCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ssr-declarative-shadow-dom/ssr-shadow-cmp.tsx",
       "declarations": [
         {
           "kind": "class",
@@ -2267,7 +2802,7 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/declarative-shadow-dom/wrap-ssr-shadow-cmp.tsx",
+      "path": "src/ssr-declarative-shadow-dom/wrap-ssr-shadow-cmp.tsx",
       "declarations": [
         {
           "kind": "class",

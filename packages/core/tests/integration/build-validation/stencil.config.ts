@@ -1,7 +1,10 @@
 import { reactOutputTarget } from '@stencil/react-output-target';
+// @ts-ignore
 import linaria from 'linaria/rollup';
 import path from 'path';
+// @ts-ignore
 import css from 'rollup-plugin-css-only';
+// @ts-ignore
 import builtins from 'rollup-plugin-node-builtins';
 
 import { Config } from '@stencil/core';

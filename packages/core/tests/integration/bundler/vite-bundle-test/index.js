@@ -1,3 +1,3 @@
-import { defineCustomElements } from 'component-library/loader';
+import { defineCustomElements } from '@stencil-core-tests/bundler-component-library/loader';
 
 defineCustomElements();

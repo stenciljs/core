@@ -1,7 +1,8 @@
 {
-  "name": "component-library",
-  "version": "0.0.1",
-  "description": "Stencil Component Starter",
+  "name": "@stencil-core-tests/bundler-component-library",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Test component library for bundler integration tests",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "exports": {

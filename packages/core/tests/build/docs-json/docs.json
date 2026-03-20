@@ -1,4 +1,10 @@
 {
+  "timestamp": "2026-03-20T23:39:52",
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "5.0.0-next.0-dev.1774023116.9552c15",
+    "typescriptVersion": "5.8.3"
+  },
   "components": [
     {
       "filePath": "src/components/my-component/my-component.tsx",

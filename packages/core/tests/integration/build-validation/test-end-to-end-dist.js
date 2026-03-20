@@ -1,5 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist');
 fs.accessSync(path.join(distDir, 'cjs'));
@@ -45,4 +48,4 @@ fs.accessSync(path.join(__dirname, 'docs.d.ts'));
 
 fs.accessSync(path.join(__dirname, 'custom-elements-manifest.json'));
 
-console.log('🍄  validated test/end-to-end/dist files\n');
+console.log('✅ validated test/end-to-end/dist files\n');
