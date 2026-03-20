@@ -1,0 +1,14 @@
+{
+  "name": "@stencil-core-tests/perf-runtime-benchmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "node benchmark-runtime.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "playwright": "catalog:"
+  }
+}

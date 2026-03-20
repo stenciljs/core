@@ -1,0 +1,9 @@
+{
+  "name": "@stencil-core-tests/perf-build-benchmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "benchmark": "node benchmark.mjs",
+    "benchmark:verbose": "node benchmark.mjs --verbose"
+  }
+}

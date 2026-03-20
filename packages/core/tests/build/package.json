@@ -1,0 +1,7 @@
+{
+  "name": "@stencil-core-tests/build",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter \"@stencil-core-tests/build-*\" test"
+  }
+}

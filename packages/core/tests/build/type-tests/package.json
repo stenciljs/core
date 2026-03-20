@@ -1,0 +1,12 @@
+{
+  "name": "@stencil-core-tests/build-type-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && tsc"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*"
+  }
+}

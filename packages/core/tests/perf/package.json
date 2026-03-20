@@ -1,0 +1,7 @@
+{
+  "name": "@stencil-core-tests/perf",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter \"@stencil-core-tests/perf-*\" test"
+  }
+}

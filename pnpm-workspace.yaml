@@ -9,3 +9,4 @@ catalog:
   playwright: ^1.52.0
   "@playwright/test": ^1.52.0
   "@stencil/vitest": "^1.8.0"
+  "@stencil/playwright": "1.2.3-next.11"

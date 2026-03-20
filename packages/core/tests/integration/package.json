@@ -1,0 +1,7 @@
+{
+  "name": "@stencil-core-tests/integration",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter \"@stencil-core-tests/integration-*\" test"
+  }
+}

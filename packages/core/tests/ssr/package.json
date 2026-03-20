@@ -1,0 +1,14 @@
+{
+  "name": "@stencil-core-tests/ssr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && playwright test"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "@stencil/playwright": "catalog:",
+    "@playwright/test": "catalog:"
+  }
+}
