@@ -9,7 +9,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "stencil build --debug",
+    "build": "stencil build",
     "build.dev": "stencil build --dev",
     "start": "stencil build --dev --watch --serve",
     "test": "stencil-test && playwright test",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@stencil/playwright": "1.2.3-next.11",
+    "@stencil/playwright": "catalog:",
     "@stencil/vitest": "catalog:",
     "vitest": "catalog:"
   }
