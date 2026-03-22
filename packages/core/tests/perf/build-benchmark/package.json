@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "benchmark": "node benchmark.mjs",
+    "test": "node benchmark.mjs",
     "benchmark:verbose": "node benchmark.mjs --verbose"
   }
 }

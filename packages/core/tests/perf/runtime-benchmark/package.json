@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "benchmark": "node benchmark-runtime.js"
+    "test": "node benchmark-runtime.js"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"

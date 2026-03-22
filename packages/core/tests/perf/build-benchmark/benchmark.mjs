@@ -11,12 +11,12 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const integrationDir = join(__dirname, '../../build/integration');
+const integrationDir = join(__dirname, '../../build/e2e');
 const verbose = process.argv.includes('--verbose');
 
 console.log('Build Benchmark');
 console.log('================');
-console.log(`Fixture: build/integration`);
+console.log(`Fixture: build/e2e`);
 console.log('');
 
 // Clean previous build

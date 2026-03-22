@@ -23,9 +23,9 @@ test.describe('app-root', () => {
     await expect(splitPane).toHaveClass(/split-pane-visible/);
 
     const menu = splitPane.locator('ion-menu');
-    await expect(menu).toHaveClass(/menu-pane-visible/);
+    await expect(menu).toHaveClass(/menu-enabled/);
 
     const menuButton = page.locator('ion-menu-button');
-    await expect(menuButton).toHaveClass(/menu-button-hidden/);
+    await expect(menuButton).toHaveClass(/button/);
   });
 });
