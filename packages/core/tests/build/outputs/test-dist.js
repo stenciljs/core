@@ -3,8 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');
 
-const distDir = path.join(__dirname, 'dist');
+const distDir = path.join(e2eDir, 'dist');
 fs.accessSync(path.join(distDir, 'cjs'));
 fs.accessSync(path.join(distDir, 'endtoend'));
 fs.accessSync(path.join(distDir, 'esm'));
@@ -31,7 +32,7 @@ fs.accessSync(path.join(typesDir, 'app-root', 'interfaces.d.ts'));
 fs.accessSync(path.join(typesDir, 'car-list', 'car-data.d.ts'));
 fs.accessSync(path.join(typesDir, 'car-list', 'car-list.d.ts'));
 
-const wwwDir = path.join(__dirname, 'www');
+const wwwDir = path.join(e2eDir, 'www');
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.js'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.esm.js'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.esm.js.map'));
@@ -41,11 +42,11 @@ fs.accessSync(path.join(wwwDir, 'build', 'assets-a/file-2.txt'));
 fs.accessSync(path.join(wwwDir, 'build', 'assets-b/file-3.txt'));
 fs.accessSync(path.join(wwwDir, 'index.html'));
 
-fs.accessSync(path.join(__dirname, 'dist-react', 'components.ts'));
+fs.accessSync(path.join(e2eDir, 'dist-react', 'components.ts'));
 
-fs.accessSync(path.join(__dirname, 'docs.json'));
-fs.accessSync(path.join(__dirname, 'docs.d.ts'));
+fs.accessSync(path.join(e2eDir, 'docs.json'));
+fs.accessSync(path.join(e2eDir, 'docs.d.ts'));
 
-fs.accessSync(path.join(__dirname, 'custom-elements-manifest.json'));
+fs.accessSync(path.join(e2eDir, 'custom-elements-manifest.json'));
 
-console.log('✅ validated test/end-to-end/dist files\n');
+console.log('✅ validated build outputs: dist files\n');

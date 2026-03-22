@@ -1,6 +1,12 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import whyIsNodeRunning from 'why-is-node-running';
-import * as hydrate from './hydrate/index.mjs';
 import { createDocument } from '@stencil/mock-doc';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');
+
+const hydrate = await import(path.join(e2eDir, 'hydrate', 'index.mjs'));
 
 async function main() {
   const html = `
@@ -67,7 +73,7 @@ async function main() {
 
   clearTimeout(tmr);
 
-  console.log('✅ validated test/end-to-end/hydrate\n');
+  console.log('✅ validated build outputs: hydrate\n');
 }
 
 const tmr = setTimeout(() => {

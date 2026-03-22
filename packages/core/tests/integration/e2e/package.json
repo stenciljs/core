@@ -9,11 +9,7 @@
   "scripts": {
     "build": "stencil build --config ./stencil.build.config.ts --docs",
     "start": "stencil build --watch --dev --serve",
-    "test": "pnpm test.e2e && pnpm test.build",
-    "test.build": "npm run build && node test-end-to-end-dist.js && node test-end-to-end-hydrate.js",
-    "test.e2e": "playwright test",
-    "test.hydrate": "node test-end-to-end-hydrate.js",
-    "benchmark": "node benchmark-compile-time.js"
+    "test": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
