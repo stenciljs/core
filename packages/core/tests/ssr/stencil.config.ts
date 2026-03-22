@@ -2,6 +2,9 @@ import type { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'SSRTests',
+  devServer: {
+    port: 3336,
+  },
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
     {

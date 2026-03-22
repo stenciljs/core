@@ -18,8 +18,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve vite-bundle-test/dist -l 3333',
-    port: 3333,
+    command: 'npx serve vite-bundle-test/dist -l 4333',
+    port: 4333,
     reuseExistingServer: !process.env.CI,
+    cwd: import.meta.dirname,
   },
 });

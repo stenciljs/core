@@ -1,6 +1,7 @@
 {
   "name": "@stencil-core-tests/integration-bundler",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "pnpm -C component-library run build && pnpm -C vite-bundle-test run build",
     "test": "pnpm build && playwright test"

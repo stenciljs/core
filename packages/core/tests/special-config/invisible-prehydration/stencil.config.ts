@@ -2,6 +2,9 @@ import type { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'TestInvisiblePrehydrationFalse',
+  devServer: {
+    port: 3337,
+  },
   tsconfig: 'tsconfig.stencil.json',
   invisiblePrehydration: false,
   outputTargets: [
