@@ -3,12 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "stencil build",
-    "test": "stencil build && playwright test"
+    "test": "stencil build --prerender && playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@stencil/core": "workspace:*",
-    "@stencil/playwright": "catalog:",
-    "@playwright/test": "catalog:"
+    "serve": "^14.2.4"
   }
 }

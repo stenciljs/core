@@ -3,6 +3,22 @@ import ts from 'typescript';
 
 import type { Diagnostic } from '@stencil/core';
 
+/**
+ * Transform ES module syntax to CommonJS for config files.
+ * Handles common patterns like `export default { ... }` and named exports.
+ */
+const transformEsmToCjs = (sourceText: string): string => {
+  // Handle `export default { ... }` or `export default expression`
+  sourceText = sourceText.replace(/export\s+default\s+/g, 'module.exports = ');
+
+  // Handle named exports: `export const foo = ...` -> `exports.foo = ...`
+  // and `export function foo` -> `exports.foo = function foo`
+  sourceText = sourceText.replace(/export\s+(const|let|var)\s+(\w+)\s*=/g, 'exports.$2 =');
+  sourceText = sourceText.replace(/export\s+(function|class)\s+(\w+)/g, 'exports.$2 = $1 $2');
+
+  return sourceText;
+};
+
 export const nodeRequire = (id: string) => {
   const results = {
     module: undefined as any,
@@ -19,37 +35,44 @@ export const nodeRequire = (id: string) => {
     // ensure we cleared out node's internal require() cache for this file
     delete require.cache[results.id];
 
-    // let's override node's require for a second
-    // don't worry, we'll revert this when we're done
+    // Save original extension handlers to restore later
+    const originalTsHandler = require.extensions['.ts'];
+    const originalJsHandler = require.extensions['.js'];
+
+    // Handler for .ts files - transpile TypeScript to CommonJS
     require.extensions['.ts'] = (module: NodeJS.Module, fileName: string) => {
       let sourceText = fs.readFileSync(fileName, 'utf8');
 
-      if (fileName.endsWith('.ts')) {
-        // looks like we've got a typed config file
-        // let's transpile it to .js quick
-        const tsResults = ts.transpileModule(sourceText, {
-          fileName,
-          compilerOptions: {
-            module: ts.ModuleKind.CommonJS,
-            moduleResolution: ts.ModuleResolutionKind.NodeJs,
-            esModuleInterop: true,
-            target: ts.ScriptTarget.ES2017,
-            allowJs: true,
-          },
-        });
-        sourceText = tsResults.outputText;
+      // Transpile TypeScript to CommonJS JavaScript
+      const tsResults = ts.transpileModule(sourceText, {
+        fileName,
+        compilerOptions: {
+          module: ts.ModuleKind.CommonJS,
+          moduleResolution: ts.ModuleResolutionKind.NodeJs,
+          esModuleInterop: true,
+          target: ts.ScriptTarget.ES2017,
+          allowJs: true,
+        },
+      });
+      sourceText = tsResults.outputText;
 
-        results.diagnostics.push(...tsResults.diagnostics.map(loadTypeScriptDiagnostic));
-      } else {
-        // quick hack to turn a modern es module
-        // into and old school commonjs module
-        sourceText = sourceText.replace(/export\s+\w+\s+(\w+)/gm, 'exports.$1');
-      }
+      results.diagnostics.push(...tsResults.diagnostics.map(loadTypeScriptDiagnostic));
 
       try {
-        // we need to coerce because of the requirements for the arguments to
-        // this function. It's safe enough since it's already wrapped in a
-        // `try { } catch`.
+        (module as NodeModuleWithCompile)._compile(sourceText, fileName);
+      } catch (e: any) {
+        catchError(results.diagnostics, e);
+      }
+    };
+
+    // Handler for .js files - transform ES module syntax to CommonJS
+    require.extensions['.js'] = (module: NodeJS.Module, fileName: string) => {
+      let sourceText = fs.readFileSync(fileName, 'utf8');
+
+      // Transform ES module syntax to CommonJS
+      sourceText = transformEsmToCjs(sourceText);
+
+      try {
         (module as NodeModuleWithCompile)._compile(sourceText, fileName);
       } catch (e: any) {
         catchError(results.diagnostics, e);
@@ -59,8 +82,17 @@ export const nodeRequire = (id: string) => {
     // let's do this!
     results.module = require(results.id);
 
-    // all set, let's go ahead and reset the require back to the default
-    require.extensions['.ts'] = undefined;
+    // Restore original extension handlers
+    if (originalTsHandler) {
+      require.extensions['.ts'] = originalTsHandler;
+    } else {
+      delete require.extensions['.ts'];
+    }
+    if (originalJsHandler) {
+      require.extensions['.js'] = originalJsHandler;
+    } else {
+      delete require.extensions['.js'];
+    }
   } catch (e: any) {
     catchError(results.diagnostics, e);
   }

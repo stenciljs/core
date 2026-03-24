@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   beforeHydrate(doc) {
     doc.documentElement.setAttribute('dir', 'ltr');
   },

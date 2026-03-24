@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "stencil build --serve --watch --dev",
     "build": "stencil build",
-    "test": "stencil build && playwright test"
+    "test": "playwright test"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",

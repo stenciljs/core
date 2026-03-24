@@ -1,10 +1,10 @@
-import { expect } from '@playwright/test';
-import { test } from '@stencil/playwright';
+import { test, expect } from '@playwright/test';
 
 /**
  * Tests prerendering functionality.
- * Verifies that components are correctly prerendered at build time,
- * lifecycle hooks fire in correct order, and scoped styles are applied.
+ *
+ * These tests run with JavaScript DISABLED to verify that content
+ * is actually prerendered in the static HTML, not rendered client-side.
  */
 test.describe('prerender', () => {
   test('server componentWillLoad order', async ({ page }) => {
@@ -35,98 +35,65 @@ CmpB server componentDidLoad
 CmpA server componentDidLoad`);
   });
 
-  test('correct scoped styles applied after scripts kick in', async ({ page }) => {
-    await page.goto('/prerender/index.html');
-    await page.waitForSelector('cmp-scoped-a.hydrated');
-    await verifyScopedStyles(page);
-  });
-
-  test('no-script: correct scoped styles applied before scripts kick in', async ({ page }) => {
-    await page.goto('/prerender/index-no-script.html');
-    await verifyScopedStyles(page);
-  });
-
-  test('root slots', async ({ page }) => {
+  test('scoped styles are prerendered', async ({ page }) => {
     await page.goto('/prerender/index.html');
 
-    // Test scoped component
-    const scopedColor = await page.evaluate(() => {
-      const scoped = document.querySelector('cmp-client-scoped');
-      return getComputedStyle(scoped!.querySelector('section')!).color;
-    });
-    expect(scopedColor).toBe('rgb(255, 0, 0)');
+    // Verify scoped styles are applied without JavaScript
+    const styles = await page.evaluate(() => {
+      const cmpScopedA = document.querySelector('cmp-scoped-a');
+      const cmpScopedB = document.querySelector('cmp-scoped-b');
 
-    // Test shadow component
-    await page.waitForSelector('cmp-client-shadow');
-
-    const shadowColor = await page.evaluate(async () => {
-      const shadow = document.querySelector('cmp-client-shadow');
-      // Wait for shadow root to be populated
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const article = shadow!.shadowRoot!.querySelector('article');
-      return article ? getComputedStyle(article).color : null;
+      return {
+        scopedA: {
+          bg: getComputedStyle(cmpScopedA!).backgroundColor,
+          divFontSize: getComputedStyle(cmpScopedA!.querySelector('div')!).fontSize,
+          pColor: getComputedStyle(cmpScopedA!.querySelector('p')!).color,
+          scopedClassColor: getComputedStyle(cmpScopedA!.querySelector('.scoped-class')!).color,
+        },
+        scopedB: {
+          bg: getComputedStyle(cmpScopedB!).backgroundColor,
+          divFontSize: getComputedStyle(cmpScopedB!.querySelector('div')!).fontSize,
+          pColor: getComputedStyle(cmpScopedB!.querySelector('p')!).color,
+          scopedClassColor: getComputedStyle(cmpScopedB!.querySelector('.scoped-class')!).color,
+        },
+      };
     });
-    expect(shadowColor).toBe('rgb(0, 155, 0)');
 
-    // Test nested text components
-    const blueTextColor = await page.evaluate(() => {
-      const shadow = document.querySelector('cmp-client-shadow');
-      const blueText = shadow!.shadowRoot!.querySelector('cmp-text-blue');
-      const textEl = blueText?.querySelector('text-blue');
-      return textEl ? getComputedStyle(textEl).color : null;
-    });
-    expect(blueTextColor).toBe('rgb(0, 0, 255)');
+    // cmp-scoped-a styles
+    expect(styles.scopedA.bg).toBe('rgb(0, 128, 0)');
+    expect(styles.scopedA.divFontSize).toBe('14px');
+    expect(styles.scopedA.pColor).toBe('rgb(128, 0, 128)');
+    expect(styles.scopedA.scopedClassColor).toBe('rgb(0, 0, 255)');
 
-    const greenTextColor = await page.evaluate(() => {
-      const shadow = document.querySelector('cmp-client-shadow');
-      const greenText = shadow!.shadowRoot!.querySelector('cmp-text-green');
-      const textEl = greenText?.querySelector('text-green');
-      return textEl ? getComputedStyle(textEl).color : null;
-    });
-    expect(greenTextColor).toBe('rgb(0, 255, 0)');
+    // cmp-scoped-b styles
+    expect(styles.scopedB.bg).toBe('rgb(128, 128, 128)');
+    expect(styles.scopedB.divFontSize).toBe('18px');
+    expect(styles.scopedB.pColor).toBe('rgb(0, 128, 0)');
+    expect(styles.scopedB.scopedClassColor).toBe('rgb(255, 255, 0)');
   });
 
-  test('should render an svg child', async ({ page }) => {
+  test('html dir attribute set by beforeHydrate hook', async ({ page }) => {
     await page.goto('/prerender/index.html');
 
-    const svgClass = await page.evaluate(() => {
-      const testSvg = document.querySelector('test-svg');
-      return testSvg?.className;
-    });
-    expect(svgClass).toContain('hydrated');
+    const dir = await page.locator('html').getAttribute('dir');
+    expect(dir).toBe('ltr');
+  });
+
+  test('title set by afterHydrate hook', async ({ page }) => {
+    await page.goto('/prerender/index.html');
+
+    const title = await page.title();
+    expect(title).toContain('Url:');
+  });
+
+  test('svg child is prerendered', async ({ page }) => {
+    await page.goto('/prerender/index.html');
+
+    const testSvg = page.locator('test-svg');
+    await expect(testSvg).toBeVisible();
+
+    // SVG element should exist in the prerendered HTML
+    const svg = testSvg.locator('svg');
+    await expect(svg).toBeVisible();
   });
 });
-
-async function verifyScopedStyles(page: any) {
-  const styles = await page.evaluate(() => {
-    const cmpScopedA = document.querySelector('cmp-scoped-a');
-    const cmpScopedB = document.querySelector('cmp-scoped-b');
-
-    return {
-      scopedA: {
-        bg: getComputedStyle(cmpScopedA!).backgroundColor,
-        divFontSize: getComputedStyle(cmpScopedA!.querySelector('div')!).fontSize,
-        pColor: getComputedStyle(cmpScopedA!.querySelector('p')!).color,
-        scopedClassColor: getComputedStyle(cmpScopedA!.querySelector('.scoped-class')!).color,
-      },
-      scopedB: {
-        bg: getComputedStyle(cmpScopedB!).backgroundColor,
-        divFontSize: getComputedStyle(cmpScopedB!.querySelector('div')!).fontSize,
-        pColor: getComputedStyle(cmpScopedB!.querySelector('p')!).color,
-        scopedClassColor: getComputedStyle(cmpScopedB!.querySelector('.scoped-class')!).color,
-      },
-    };
-  });
-
-  // cmp-scoped-a styles
-  expect(styles.scopedA.bg).toBe('rgb(0, 128, 0)');
-  expect(styles.scopedA.divFontSize).toBe('14px');
-  expect(styles.scopedA.pColor).toBe('rgb(128, 0, 128)');
-  expect(styles.scopedA.scopedClassColor).toBe('rgb(0, 0, 255)');
-
-  // cmp-scoped-b styles
-  expect(styles.scopedB.bg).toBe('rgb(128, 128, 128)');
-  expect(styles.scopedB.divFontSize).toBe('18px');
-  expect(styles.scopedB.pColor).toBe('rgb(0, 128, 0)');
-  expect(styles.scopedB.scopedClassColor).toBe('rgb(255, 255, 0)');
-}

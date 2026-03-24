@@ -335,9 +335,11 @@ importers:
       '@stencil/core':
         specifier: workspace:*
         version: link:../../..
-      '@stencil/playwright':
-        specifier: 'catalog:'
-        version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
+      serve:
+        specifier: ^14.2.4
+        version: 14.2.5
+
+  packages/core/tests/integration/prerender/dist/hydrate: {}
 
   packages/core/tests/perf: {}
 
