@@ -1,1 +1,0 @@
-import"./p-DI1vMKXY.js";let t=0;let o=0;async function e(){const e=(await import("./p-BEJleKox.js")).concat;return o++,e((t++,"hello"+t),"world")+o}export{e as getResult}

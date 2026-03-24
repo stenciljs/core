@@ -1,1 +1,0 @@
-import{r as s,h as e}from"./p-Bbh3isT_.js";const r=class{constructor(e){s(this,e)}render(){return e("svg",{key:"7b28bfc62ae6f8fb4d70548cee387424cd69f1e0"})}};export{r as test_svg}

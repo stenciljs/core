@@ -82,6 +82,58 @@ describe('parse-property-value', () => {
       });
     });
 
+    describe('form-associated boolean coercion', () => {
+      // For form-associated components, per HTML spec, the presence of any boolean
+      // attribute (regardless of value) should make the property true.
+      // This differs from legacy behavior where "false" string becomes boolean false.
+
+      it('coerces "false" to true for form-associated components (HTML spec behavior)', () => {
+        const result = parsePropertyValue('false', MEMBER_FLAGS.Boolean, true);
+        expect(result).toBe(true);
+      });
+
+      it('coerces "false" to false for non-form-associated components (legacy behavior)', () => {
+        const result = parsePropertyValue('false', MEMBER_FLAGS.Boolean, false);
+        expect(result).toBe(false);
+      });
+
+      it('coerces "true" to true for form-associated components', () => {
+        const result = parsePropertyValue('true', MEMBER_FLAGS.Boolean, true);
+        expect(result).toBe(true);
+      });
+
+      it('coerces "true" to true for non-form-associated components', () => {
+        const result = parsePropertyValue('true', MEMBER_FLAGS.Boolean, false);
+        expect(result).toBe(true);
+      });
+
+      it('coerces empty string to true for form-associated components', () => {
+        const result = parsePropertyValue('', MEMBER_FLAGS.Boolean, true);
+        expect(result).toBe(true);
+      });
+
+      it('coerces empty string to true for non-form-associated components', () => {
+        const result = parsePropertyValue('', MEMBER_FLAGS.Boolean, false);
+        expect(result).toBe(true);
+      });
+
+      it('preserves boolean false for form-associated components (non-string value)', () => {
+        const result = parsePropertyValue(false, MEMBER_FLAGS.Boolean, true);
+        expect(result).toBe(false);
+      });
+
+      it('preserves boolean true for form-associated components (non-string value)', () => {
+        const result = parsePropertyValue(true, MEMBER_FLAGS.Boolean, true);
+        expect(result).toBe(true);
+      });
+
+      it('coerces any non-empty string to true for form-associated components', () => {
+        expect(parsePropertyValue('disabled', MEMBER_FLAGS.Boolean, true)).toBe(true);
+        expect(parsePropertyValue('0', MEMBER_FLAGS.Boolean, true)).toBe(true);
+        expect(parsePropertyValue('no', MEMBER_FLAGS.Boolean, true)).toBe(true);
+      });
+    });
+
     describe('number coercion', () => {
       it('coerces a number value to a number', () => {
         const result = parsePropertyValue(42, MEMBER_FLAGS.Number);

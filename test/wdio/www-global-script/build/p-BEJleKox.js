@@ -1,1 +1,0 @@
-import"./p-DI1vMKXY.js";let t=0;function r(r,e){return t++,`${t} ${r} ${e}`}export{r as concat}
