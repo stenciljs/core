@@ -1,6 +1,7 @@
+import { BUILD } from 'virtual:app-data';
 import { MEMBER_FLAGS } from '../../utils';
 import { parsePropertyValue } from '../parse-property-value';
-import { expect, describe, it } from '@stencil/vitest';
+import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
 
 describe('parse-property-value', () => {
   describe('parsePropertyValue', () => {
@@ -86,6 +87,14 @@ describe('parse-property-value', () => {
       // For form-associated components, per HTML spec, the presence of any boolean
       // attribute (regardless of value) should make the property true.
       // This differs from legacy behavior where "false" string becomes boolean false.
+
+      beforeEach(() => {
+        BUILD.formAssociated = true;
+      });
+
+      afterEach(() => {
+        BUILD.formAssociated = false;
+      });
 
       it('coerces "false" to true for form-associated components (HTML spec behavior)', () => {
         const result = parsePropertyValue('false', MEMBER_FLAGS.Boolean, true);

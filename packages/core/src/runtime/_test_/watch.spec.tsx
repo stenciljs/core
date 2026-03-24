@@ -78,23 +78,23 @@ describe('watch', () => {
       componentWillLoad() {
         expect(this.watchCalled).toBe(0);
         this.prop = 1;
-        expect(this.watchCalled).toBe(1);
+        expect(this.watchCalled).toBe(0);
         this.value = 1;
-        expect(this.watchCalled).toBe(2);
+        expect(this.watchCalled).toBe(0);
         this.someState = 'hello';
-        expect(this.watchCalled).toBe(3);
+        expect(this.watchCalled).toBe(0);
       }
 
       componentDidLoad() {
-        expect(this.watchCalled).toBe(3);
+        expect(this.watchCalled).toBe(0);
         this.prop = 1;
         this.value = 1;
         this.someState = 'hello';
-        expect(this.watchCalled).toBe(3);
+        expect(this.watchCalled).toBe(0);
         this.prop = 20;
         this.value = 30;
         this.someState = 'bye';
-        expect(this.watchCalled).toBe(6);
+        expect(this.watchCalled).toBe(0);
       }
     }
 
@@ -105,18 +105,20 @@ describe('watch', () => {
       }),
     );
 
-    expect(rootInstance.watchCalled).toBe(6);
+    expect(rootInstance.watchCalled).toBe(0);
     vi.spyOn(rootInstance, 'method');
 
     // trigger updates in element
     root.prop = 1000;
     expect(rootInstance.method).toHaveBeenLastCalledWith(1000, 20, 'prop');
+     expect(rootInstance.watchCalled).toBe(1);
 
     root.value = 1300;
     expect(rootInstance.method).toHaveBeenLastCalledWith(1300, 30, 'value');
+     expect(rootInstance.watchCalled).toBe(2);
   });
 
-  it('should Watch from lifecycles', async () => {
+  it('should *not* watch from lifecycle as per documentation', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       renderCount = 0;
@@ -136,22 +138,22 @@ describe('watch', () => {
       connectedCallback() {
         expect(this.watchCalled).toBe(0);
         this.state = 1;
-        expect(this.watchCalled).toBe(1);
+        expect(this.watchCalled).toBe(0);
         this.state = 1;
-        expect(this.watchCalled).toBe(1);
+        expect(this.watchCalled).toBe(0);
         this.state = 2;
-        expect(this.watchCalled).toBe(2);
+        expect(this.watchCalled).toBe(0);
       }
 
       componentWillLoad() {
-        expect(this.watchCalled).toBe(2);
+        expect(this.watchCalled).toBe(0);
         this.state = 3;
-        expect(this.watchCalled).toBe(3);
+        expect(this.watchCalled).toBe(0);
       }
 
       componentDidLoad() {
         this.state = 4;
-        expect(this.watchCalled).toBe(4);
+        expect(this.watchCalled).toBe(0);
       }
 
       render() {
@@ -168,18 +170,18 @@ describe('watch', () => {
     );
 
     expect(root).toEqualHtml(`<cmp-a>
-      2 4 4
+      2 4 0
     </cmp-a>`);
     await waitForChanges();
     await waitForChanges();
     expect(root).toEqualHtml(`<cmp-a>
-      2 4 4
+      2 4 0
     </cmp-a>`);
 
     await root.pushState();
     await waitForChanges();
     expect(root).toEqualHtml(`<cmp-a>
-      3 5 5
+      3 5 1
     </cmp-a>`);
   });
 

@@ -23,7 +23,8 @@ describe('validateDevServer', () => {
 
   it('should default address', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.address).toBe('0.0.0.0');
+    // Default to localhost to avoid Chrome's Private Network Access policy
+    expect(config.devServer.address).toBe('localhost');
   });
 
   it.each(['https://localhost', 'http://localhost', 'https://localhost/', 'http://localhost/', 'localhost/'])(

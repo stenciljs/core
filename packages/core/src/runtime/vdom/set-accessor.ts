@@ -192,22 +192,26 @@ export const setAccessor = (
     // module is loaded (e.g., with lazy-loading custom-elements).
     // We only queue props, not standard HTML attributes like aria-*, data-*, etc.
     // which should be set directly as attributes.
-    const isStandardAttr = ln.startsWith('aria-') || ln.startsWith('data-');
-    const isUndefinedCE =
-      !isProp &&
-      !isStandardAttr &&
-      elm.tagName?.includes('-') &&
-      elm.tagName !== 'SLOT-FB' &&
-      typeof customElements !== 'undefined' &&
-      !customElements.get(elm.tagName.toLowerCase());
+    // Note: This only applies to non-lazy-load builds (custom-elements bundle) since
+    // lazy-load builds handle component loading differently.
+    if (!BUILD.lazyLoad) {
+      const isStandardAttr = ln.startsWith('aria-') || ln.startsWith('data-');
+      const isUndefinedCE =
+        !isProp &&
+        !isStandardAttr &&
+        elm.tagName?.includes('-') &&
+        elm.tagName !== 'SLOT-FB' &&
+        typeof customElements !== 'undefined' &&
+        !customElements.get(elm.tagName.toLowerCase());
 
-    if (isUndefinedCE) {
-      // Queue the prop for when the element is defined and upgraded
-      if (!(elm as any)['s-pp']) {
-        (elm as any)['s-pp'] = new Map();
+      if (isUndefinedCE) {
+        // Queue the prop for when the element is defined and upgraded
+        if (!(elm as any)['s-pp']) {
+          (elm as any)['s-pp'] = new Map();
+        }
+        (elm as any)['s-pp'].set(memberName, newValue);
+        return;
       }
-      (elm as any)['s-pp'].set(memberName, newValue);
-      return;
     }
 
     if ((isProp || (isComplex && newValue !== null)) && !isSvg) {
