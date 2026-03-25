@@ -73,10 +73,6 @@ export default defineConfig([
     copy: [
       // Copy curated public types (paths resolve via declarations entry below)
       { from: 'src/index.d.mts', to: 'dist' },
-      // Copy stencil-public-docs.d.ts for docs-json output target
-      { from: '../../internal/stencil-public-docs.d.ts', to: 'dist/declarations' },
-      // Copy ext-modules types for CSS/SVG/etc imports
-      { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
     ],
   },
 
@@ -85,6 +81,7 @@ export default defineConfig([
     entry: {
       'declarations/stencil-public-runtime': 'src/declarations/stencil-public-runtime.ts',
       'declarations/stencil-public-compiler': 'src/declarations/stencil-public-compiler.ts',
+      'declarations/stencil-public-docs': 'src/declarations/stencil-public-docs.ts',
     },
     outDir: 'dist',
     format: ['esm'],
@@ -95,6 +92,10 @@ export default defineConfig([
     },
     dts: true,
     clean: false,
+     copy: [
+      // Copy ext-modules types for CSS/SVG/etc imports
+      { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
+    ],
   },
 
   // Server/SSR platform (virtuals externalized for runtime swapping)
