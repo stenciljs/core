@@ -15,11 +15,18 @@
     "prefer-rest-params": "error",
     "prefer-spread": "error",
     "no-async-promise-executor": "off",
+    "no-control-regex": "off",
+    "no-await-in-loop": "off",
+    "no-new": "off",
+    "@typescript-eslint/no-extraneous-class": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
+    "import/no-unassigned-import": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
         "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^(h|Fragment)$"
+        "varsIgnorePattern": "^(_.*|h|Fragment|IntrinsicElements)$"
       }
     ]
   },
