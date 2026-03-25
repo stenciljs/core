@@ -27,14 +27,17 @@ describe('validateDevServer', () => {
     expect(config.devServer.address).toBe('localhost');
   });
 
-  it.each(['https://localhost', 'http://localhost', 'https://localhost/', 'http://localhost/', 'localhost/'])(
-    'should remove extraneous stuff from address %p',
-    (address) => {
-      inputConfig.devServer = { ...inputDevServerConfig, address };
-      const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-      expect(config.devServer.address).toBe('localhost');
-    },
-  );
+  it.each([
+    'https://localhost',
+    'http://localhost',
+    'https://localhost/',
+    'http://localhost/',
+    'localhost/',
+  ])('should remove extraneous stuff from address %p', (address) => {
+    inputConfig.devServer = { ...inputDevServerConfig, address };
+    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+    expect(config.devServer.address).toBe('localhost');
+  });
 
   it('should set address', () => {
     inputConfig.devServer = { ...inputDevServerConfig, address: '123.123.123.123' };
@@ -77,7 +80,9 @@ describe('validateDevServer', () => {
   it('should set relative root', () => {
     inputConfig.devServer = { ...inputDevServerConfig, root: 'my-rel-root' };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.root).toBe(normalizePath(path.join(root, 'some', 'path', 'my-rel-root')));
+    expect(config.devServer.root).toBe(
+      normalizePath(path.join(root, 'some', 'path', 'my-rel-root')),
+    );
   });
 
   it('should set absolute root', () => {
@@ -86,7 +91,9 @@ describe('validateDevServer', () => {
       root: normalizePath(path.join(root, 'some', 'path', 'my-abs-root')),
     };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.root).toBe(normalizePath(path.join(root, 'some', 'path', 'my-abs-root')));
+    expect(config.devServer.root).toBe(
+      normalizePath(path.join(root, 'some', 'path', 'my-abs-root')),
+    );
   });
 
   it('should default gzip', () => {
@@ -127,15 +134,21 @@ describe('validateDevServer', () => {
     expect(config.devServer.port).toBe(3333);
   });
 
-  it.each(['localhost:20/', 'localhost:20'])('should set port from address %p if no port prop', (address) => {
-    inputConfig.devServer = { ...inputDevServerConfig, address };
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.port).toBe(20);
-    expect(config.devServer.address).toBe('localhost');
-  });
+  it.each(['localhost:20/', 'localhost:20'])(
+    'should set port from address %p if no port prop',
+    (address) => {
+      inputConfig.devServer = { ...inputDevServerConfig, address };
+      const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+      expect(config.devServer.port).toBe(20);
+      expect(config.devServer.address).toBe('localhost');
+    },
+  );
 
   it('should set address, port null, protocol', () => {
-    inputConfig.devServer = { ...inputDevServerConfig, address: 'https://subdomain.stenciljs.com/' };
+    inputConfig.devServer = {
+      ...inputDevServerConfig,
+      address: 'https://subdomain.stenciljs.com/',
+    };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.port).toBe(undefined);
     expect(config.devServer.address).toBe('subdomain.stenciljs.com');
@@ -171,13 +184,16 @@ describe('validateDevServer', () => {
     expect(config.devServer.historyApiFallback!.index).toBe('index.html');
   });
 
-  it.each([1, []])('should default historyApiFallback when an invalid value (%s) is provided', (badValue) => {
-    // this test explicitly checks for a bad value in the stencil.config file, hence the type assertion
-    inputConfig.devServer = { ...inputDevServerConfig, historyApiFallback: badValue as any };
-    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.historyApiFallback).toBeDefined();
-    expect(config.devServer.historyApiFallback!.index).toBe('index.html');
-  });
+  it.each([1, []])(
+    'should default historyApiFallback when an invalid value (%s) is provided',
+    (badValue) => {
+      // this test explicitly checks for a bad value in the stencil.config file, hence the type assertion
+      inputConfig.devServer = { ...inputDevServerConfig, historyApiFallback: badValue as any };
+      const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+      expect(config.devServer.historyApiFallback).toBeDefined();
+      expect(config.devServer.historyApiFallback!.index).toBe('index.html');
+    },
+  );
 
   it('should set historyApiFallback', () => {
     inputConfig.devServer = { ...inputDevServerConfig, historyApiFallback: {} };
@@ -196,7 +212,10 @@ describe('validateDevServer', () => {
 
   it('should disable historyApiFallback', () => {
     // we intentionally set the value to `null` for the purposes of this test, hence the type assertion
-    inputConfig.devServer = { ...inputDevServerConfig, historyApiFallback: null as unknown as d.HistoryApiFallback };
+    inputConfig.devServer = {
+      ...inputDevServerConfig,
+      historyApiFallback: null as unknown as d.HistoryApiFallback,
+    };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.historyApiFallback).toBe(null);
   });
@@ -229,7 +248,10 @@ describe('validateDevServer', () => {
   });
 
   it('should set https protocol if credentials are set', () => {
-    inputConfig.devServer = { ...inputDevServerConfig, https: { key: 'fake-key', cert: 'fake-cert' } };
+    inputConfig.devServer = {
+      ...inputDevServerConfig,
+      https: { key: 'fake-key', cert: 'fake-cert' },
+    };
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.protocol).toBe('https');
   });
@@ -253,7 +275,9 @@ describe('validateDevServer', () => {
 
   it('should set default srcIndexHtml from config', () => {
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
-    expect(config.devServer.srcIndexHtml).toBe(normalizePath(path.join(root, 'some', 'path', 'src', 'index.html')));
+    expect(config.devServer.srcIndexHtml).toBe(
+      normalizePath(path.join(root, 'some', 'path', 'src', 'index.html')),
+    );
   });
 
   it('should set prerenderConfig from output target when ssr is true', () => {

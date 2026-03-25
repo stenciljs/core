@@ -1,8 +1,7 @@
 import { tagRequiresScoped } from '../hydrate-app';
-import { expect, describe, it, afterEach, vi } from '@stencil/vitest'
+import { expect, describe, it, afterEach, vi } from '@stencil/vitest';
 
 describe('tagRequiresScoped', () => {
-
   afterEach(async () => {
     vi.resetModules();
   });
@@ -32,16 +31,23 @@ describe('tagRequiresScoped', () => {
   });
 
   it('should return false for a component when tag is not scoped list', () => {
-    expect(tagRequiresScoped('cmp-g', { scoped: ['cmp-f'], default: 'declarative-shadow-dom' })).toBe(false);
+    expect(
+      tagRequiresScoped('cmp-g', { scoped: ['cmp-f'], default: 'declarative-shadow-dom' }),
+    ).toBe(false);
   });
 
   it('should return true for a component when default is scoped', () => {
-    expect(tagRequiresScoped('cmp-g', { 'declarative-shadow-dom': ['cmp-f'], default: 'scoped' })).toBe(true);
+    expect(
+      tagRequiresScoped('cmp-g', { 'declarative-shadow-dom': ['cmp-f'], default: 'scoped' }),
+    ).toBe(true);
   });
 
   it('should return false for a component when default is declarative-shadow-dom', () => {
-    expect(tagRequiresScoped('cmp-g', { 'declarative-shadow-dom': ['cmp-f'], default: 'declarative-shadow-dom' })).toBe(
-      false,
-    );
+    expect(
+      tagRequiresScoped('cmp-g', {
+        'declarative-shadow-dom': ['cmp-f'],
+        default: 'declarative-shadow-dom',
+      }),
+    ).toBe(false);
   });
 });

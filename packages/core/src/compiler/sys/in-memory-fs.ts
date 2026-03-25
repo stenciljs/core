@@ -275,7 +275,10 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
    * @param opts an optional object containing configuration options
    * @returns a Promise wrapping a list of directory contents
    */
-  const readdir = async (dirPath: string, opts: FsReaddirOptions = {}): Promise<FsReaddirItem[]> => {
+  const readdir = async (
+    dirPath: string,
+    opts: FsReaddirOptions = {},
+  ): Promise<FsReaddirItem[]> => {
     dirPath = normalizePath(dirPath);
 
     const collectedPaths: FsReaddirItem[] = [];
@@ -295,7 +298,10 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
 
         const parts = filePath.split('/');
 
-        if (parts.length === inMemoryDirs.length + 1 || (opts.recursive && parts.length > inMemoryDirs.length)) {
+        if (
+          parts.length === inMemoryDirs.length + 1 ||
+          (opts.recursive && parts.length > inMemoryDirs.length)
+        ) {
           if (dir.exists) {
             const item: FsReaddirItem = {
               absPath: filePath,
@@ -659,7 +665,11 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
    * @param opts an optional object which controls how the file is written
    * @returns a Promise wrapping a write result object
    */
-  const writeFile = async (filePath: string, content: string, opts?: FsWriteOptions): Promise<FsWriteResults> => {
+  const writeFile = async (
+    filePath: string,
+    content: string,
+    opts?: FsWriteOptions,
+  ): Promise<FsWriteResults> => {
     if (typeof filePath !== 'string') {
       throw new Error(`writeFile, invalid filePath: ${filePath}`);
     }
@@ -728,7 +738,8 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
         // so let's just double check that the file is actually different first
         const existingFile = await sys.readFile(filePath);
         if (typeof existingFile === 'string') {
-          results.changedContent = item.fileText.replace(/\r/g, '') !== existingFile.replace(/\r/g, '');
+          results.changedContent =
+            item.fileText.replace(/\r/g, '') !== existingFile.replace(/\r/g, '');
         }
 
         if (results.changedContent) {
@@ -761,7 +772,10 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
    * @param opts an optional set of options passed to `writeFile`
    * @returns a Promise wrapping all write result objects for all the files
    */
-  const writeFiles = (files: { [filePath: string]: string } | Map<string, string>, opts?: FsWriteOptions) => {
+  const writeFiles = (
+    files: { [filePath: string]: string } | Map<string, string>,
+    opts?: FsWriteOptions,
+  ) => {
     const writes: Promise<FsWriteResults>[] = [];
 
     if (isIterable(files)) {
@@ -870,7 +884,10 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
    * in-memory cache
    * @returns a Promise wrapping a list of directories created
    */
-  const commitEnsureDirs = async (dirsToEnsure: string[], inMemoryOnly: boolean): Promise<string[]> => {
+  const commitEnsureDirs = async (
+    dirsToEnsure: string[],
+    inMemoryOnly: boolean,
+  ): Promise<string[]> => {
     const dirsAdded: string[] = [];
 
     for (const dirPath of dirsToEnsure) {

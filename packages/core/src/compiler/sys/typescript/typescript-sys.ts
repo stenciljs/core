@@ -130,12 +130,15 @@ export const patchTsSystemFileSystem = (
   };
 
   tsSys.readFile = (filePath) => {
-    return inMemoryFs ? inMemoryFs.readFileSync(filePath, { useCache: false }) : compilerSys.readFileSync(filePath);
+    return inMemoryFs
+      ? inMemoryFs.readFileSync(filePath, { useCache: false })
+      : compilerSys.readFileSync(filePath);
   };
 
   // At present the typing for `inMemoryFs` in this function is not accurate
   // TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
-  tsSys.writeFile = (p, data) => (inMemoryFs ? inMemoryFs.writeFile(p, data) : compilerSys.writeFile(p, data));
+  tsSys.writeFile = (p, data) =>
+    inMemoryFs ? inMemoryFs.writeFile(p, data) : compilerSys.writeFile(p, data);
 
   return tsSys;
 };
@@ -210,7 +213,11 @@ const patchTypeScriptSysMinimum = () => {
 };
 patchTypeScriptSysMinimum();
 
-export const getTypescriptPathFromUrl = (config: d.ValidatedConfig, tsExecutingUrl: string, url: string) => {
+export const getTypescriptPathFromUrl = (
+  config: d.ValidatedConfig,
+  tsExecutingUrl: string,
+  url: string,
+) => {
   const tsBaseUrl = new URL('..', tsExecutingUrl).href;
   if (url.startsWith(tsBaseUrl)) {
     const tsFilePath = url.replace(tsBaseUrl, '/');

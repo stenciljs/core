@@ -14,7 +14,9 @@ describe('location.href', () => {
   });
 
   it('window.location.href', () => {
-    expect(win.location.href).toBe('http://stencil:secret@stenciljs.com:3000/path/to/page?var=var#hash');
+    expect(win.location.href).toBe(
+      'http://stencil:secret@stenciljs.com:3000/path/to/page?var=var#hash',
+    );
   });
   it('window.location.protocol', () => {
     expect(win.location.protocol).toBe('http:');
@@ -61,7 +63,9 @@ describe('location', () => {
   });
 
   it('window.location.href', () => {
-    expect(win.location.href).toBe('http://stencil:secret@stenciljs.com:3000/path/to/page?var=var#hash');
+    expect(win.location.href).toBe(
+      'http://stencil:secret@stenciljs.com:3000/path/to/page?var=var#hash',
+    );
   });
   it('window.location.protocol', () => {
     expect(win.location.protocol).toBe('http:');

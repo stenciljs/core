@@ -23,7 +23,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
             'Shadow' first text node
             <article>
               <div>
-                <slot name="second-slot">Second slot fallback text</slot>
+                <slot name='second-slot'>Second slot fallback text</slot>
               </div>
               <div>
                 <slot>Default slot fallback text</slot>
@@ -105,19 +105,29 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   it('patches nextSibling / previousSibling accessors of slotted nodes', async () => {
     specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
     expect(nodeOrEleContent(specPage.root.firstChild)).toBe('Some default slot, slotted text');
-    expect(nodeOrEleContent(specPage.root.firstChild.nextSibling)).toBe('<span>a default slot, slotted element</span>');
+    expect(nodeOrEleContent(specPage.root.firstChild.nextSibling)).toBe(
+      '<span>a default slot, slotted element</span>',
+    );
     expect(nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling)).toBe(``);
     expect(nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling.nextSibling)).toBe(
       `<div slot=\"second-slot\"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>`,
     );
     // back we go!
-    expect(nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling)).toBe(``);
     expect(
-      nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling.previousSibling),
+      nodeOrEleContent(
+        specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling,
+      ),
+    ).toBe(``);
+    expect(
+      nodeOrEleContent(
+        specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling
+          .previousSibling,
+      ),
     ).toBe(`<span>a default slot, slotted element</span>`);
     expect(
       nodeOrEleContent(
-        specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling.previousSibling.previousSibling,
+        specPage.root.firstChild.nextSibling.nextSibling.nextSibling.previousSibling.previousSibling
+          .previousSibling,
       ),
     ).toBe(`Some default slot, slotted text`);
   });
@@ -127,9 +137,9 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     expect(nodeOrEleContent(specPage.root.children[0].nextElementSibling)).toBe(
       '<div slot="second-slot"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>',
     );
-    expect(nodeOrEleContent(specPage.root.children[0].nextElementSibling.previousElementSibling)).toBe(
-      '<span>a default slot, slotted element</span>',
-    );
+    expect(
+      nodeOrEleContent(specPage.root.children[0].nextElementSibling.previousElementSibling),
+    ).toBe('<span>a default slot, slotted element</span>');
   });
 
   it('patches parentNode of slotted nodes', async () => {

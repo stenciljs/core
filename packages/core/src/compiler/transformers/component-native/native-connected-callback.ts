@@ -11,7 +11,10 @@ import type * as d from '@stencil/core';
  * @param classMembers the members on the component's class
  * @param cmp metadata about the component
  */
-export const addNativeConnectedCallback = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta) => {
+export const addNativeConnectedCallback = (
+  classMembers: ts.ClassElement[],
+  cmp: d.ComponentCompilerMeta,
+) => {
   // function call to stencil's exported connectedCallback(elm, plt)
 
   // TODO: fast path
@@ -27,7 +30,10 @@ export const addNativeConnectedCallback = (classMembers: ts.ClassElement[], cmp:
       ),
     );
     const connectedCallback = classMembers.find((classMember) => {
-      return ts.isMethodDeclaration(classMember) && (classMember.name as any).escapedText === CONNECTED_CALLBACK;
+      return (
+        ts.isMethodDeclaration(classMember) &&
+        (classMember.name as any).escapedText === CONNECTED_CALLBACK
+      );
     }) as ts.MethodDeclaration;
 
     if (connectedCallback != null) {

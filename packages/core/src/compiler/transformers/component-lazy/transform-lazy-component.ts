@@ -4,7 +4,12 @@ import type * as d from '@stencil/core';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile, updateConstructor, updateMixin } from '../transform-utils';
+import {
+  getComponentMeta,
+  getModuleFromSourceFile,
+  updateConstructor,
+  updateMixin,
+} from '../transform-utils';
 import { updateLazyComponentClass } from './lazy-component';
 
 /**
@@ -35,7 +40,14 @@ export const lazyComponentTransform = (
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           const module = compilerCtx.moduleMap.get(tsSourceFile.fileName);
           if (cmp != null) {
-            return updateLazyComponentClass(transformOpts, styleStatements, node, moduleFile, cmp, buildCtx);
+            return updateLazyComponentClass(
+              transformOpts,
+              styleStatements,
+              node,
+              moduleFile,
+              cmp,
+              buildCtx,
+            );
           } else if (module?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           } else if (buildCtx.config._isTesting && node.parent === tsSourceFile) {
@@ -65,10 +77,18 @@ export const lazyComponentTransform = (
         addLegacyApis(moduleFile);
       }
 
-      tsSourceFile = addImports(transformOpts, tsSourceFile, moduleFile.coreRuntimeApis, transformOpts.coreImportPath);
+      tsSourceFile = addImports(
+        transformOpts,
+        tsSourceFile,
+        moduleFile.coreRuntimeApis,
+        transformOpts.coreImportPath,
+      );
 
       if (styleStatements.length > 0) {
-        tsSourceFile = ts.factory.updateSourceFile(tsSourceFile, [...tsSourceFile.statements, ...styleStatements]);
+        tsSourceFile = ts.factory.updateSourceFile(tsSourceFile, [
+          ...tsSourceFile.statements,
+          ...styleStatements,
+        ]);
       }
 
       return tsSourceFile;

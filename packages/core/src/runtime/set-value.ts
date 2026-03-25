@@ -6,9 +6,15 @@ import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
-export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref).$instanceValues$.get(propName);
+export const getValue = (ref: d.RuntimeRef, propName: string) =>
+  getHostRef(ref).$instanceValues$.get(propName);
 
-export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMeta: d.ComponentRuntimeMeta) => {
+export const setValue = (
+  ref: d.RuntimeRef,
+  propName: string,
+  newVal: any,
+  cmpMeta: d.ComponentRuntimeMeta,
+) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
   if (!hostRef) {
@@ -59,7 +65,10 @@ export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMe
   // explicitly check for NaN on both sides, as `NaN === NaN` is always false
   const areBothNaN = Number.isNaN(oldVal) && Number.isNaN(newVal);
   const didValueChange = newVal !== oldVal && !areBothNaN;
-  if ((!BUILD.lazyLoad || !(flags & HOST_FLAGS.isConstructingInstance) || oldVal === undefined) && didValueChange) {
+  if (
+    (!BUILD.lazyLoad || !(flags & HOST_FLAGS.isConstructingInstance) || oldVal === undefined) &&
+    didValueChange
+  ) {
     // gadzooks! the property's value has changed!!
     // set our new value!
     hostRef.$instanceValues$.set(propName, newVal);

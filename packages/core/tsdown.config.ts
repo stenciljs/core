@@ -1,37 +1,37 @@
-import { resolve } from 'node:path'
-import { defineConfig } from 'tsdown'
+import { resolve } from 'node:path';
+import { defineConfig } from 'tsdown';
 
-import { createDefines, getBuildVersionInfo } from './build/version-utils.ts'
+import { createDefines, getBuildVersionInfo } from './build/version-utils.ts';
 
-const __dirname = import.meta.dirname
+const __dirname = import.meta.dirname;
 
 // Get build-time version info for string replacements
-const isProd = process.env.NODE_ENV === 'production'
-const versionInfo = getBuildVersionInfo(resolve(__dirname, 'package.json'), isProd)
-const defines = createDefines(versionInfo)
+const isProd = process.env.NODE_ENV === 'production';
+const versionInfo = getBuildVersionInfo(resolve(__dirname, 'package.json'), isProd);
+const defines = createDefines(versionInfo);
 
-console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji}`)
+console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji}`);
 
 /**
  * Virtual module plugin for Stencil internal builds.
  * Maps virtual:app-data, virtual:app-globals, virtual:platform to real files or external packages.
  */
 function virtualModules(options: {
-  resolve?: Record<string, string>
-  external?: Record<string, string>
+  resolve?: Record<string, string>;
+  external?: Record<string, string>;
 }) {
-  const resolveMap = new Map(Object.entries(options.resolve ?? {}))
+  const resolveMap = new Map(Object.entries(options.resolve ?? {}));
 
   return {
     name: 'stencil-virtual-modules',
 
     resolveId(id: string) {
       if (resolveMap.has(id)) {
-        return resolveMap.get(id)
+        return resolveMap.get(id);
       }
-      return null
+      return null;
     },
-  }
+  };
 }
 
 const browserTargets = ['es2022'];
@@ -42,7 +42,7 @@ const virtualResolve = {
   'virtual:app-data': resolve(__dirname, 'src/app-data/index.ts'),
   'virtual:app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
   'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
-}
+};
 
 export default defineConfig([
   // ============================================
@@ -92,7 +92,7 @@ export default defineConfig([
     },
     dts: true,
     clean: false,
-     copy: [
+    copy: [
       // Copy ext-modules types for CSS/SVG/etc imports
       { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
     ],
@@ -141,7 +141,7 @@ export default defineConfig([
     clean: false,
     deps: {
       onlyAllowBundle: ['parse5', 'entities'],
-      alwaysBundle: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'], 
+      alwaysBundle: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'],
       neverBundle: ['@stencil/core/runtime/server/hydrate-factory', 'virtual:app-data'],
     },
     outputOptions: {
@@ -211,4 +211,4 @@ export default defineConfig([
       }),
     ],
   },
-])
+]);

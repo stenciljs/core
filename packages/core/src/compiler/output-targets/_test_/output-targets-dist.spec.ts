@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 import path from 'path';
 import { createCompiler } from '../../compiler';
 
@@ -41,8 +41,10 @@ describe.skip('outputTarget, dist', () => {
             md: 'cmp-a.md.css'
           }
         }) export class CmpA {}`,
-      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.ios.css')]: `cmp-a { color: blue; }`,
-      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.md.css')]: `cmp-a { color: green; }`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.ios.css')]:
+        `cmp-a { color: blue; }`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.md.css')]:
+        `cmp-a { color: green; }`,
       [path.join(root, 'User', 'testing', 'src', 'global.ts')]:
         `export default function() { console.log('my global'); }`,
     });

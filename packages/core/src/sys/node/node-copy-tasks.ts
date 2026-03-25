@@ -44,7 +44,10 @@ export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: s
   return results;
 }
 
-async function processGlobs(copyTask: Required<d.CopyTask>, srcDir: string): Promise<Required<d.CopyTask>[]> {
+async function processGlobs(
+  copyTask: Required<d.CopyTask>,
+  srcDir: string,
+): Promise<Required<d.CopyTask>[]> {
   return isGlob(copyTask.src)
     ? await processGlobTask(copyTask, srcDir)
     : [
@@ -65,7 +68,10 @@ function getSrcAbsPath(srcDir: string, src: string) {
   return path.join(srcDir, src);
 }
 
-async function processGlobTask(copyTask: Required<d.CopyTask>, srcDir: string): Promise<Required<d.CopyTask>[]> {
+async function processGlobTask(
+  copyTask: Required<d.CopyTask>,
+  srcDir: string,
+): Promise<Required<d.CopyTask>[]> {
   const files = await asyncGlob(copyTask.src, {
     cwd: srcDir,
     nodir: true,
@@ -74,8 +80,15 @@ async function processGlobTask(copyTask: Required<d.CopyTask>, srcDir: string): 
   return files.map((globRelPath) => createGlobCopyTask(copyTask, srcDir, globRelPath));
 }
 
-function createGlobCopyTask(copyTask: Required<d.CopyTask>, srcDir: string, globRelPath: string): Required<d.CopyTask> {
-  const dest = path.join(copyTask.dest, copyTask.keepDirStructure ? globRelPath : path.basename(globRelPath));
+function createGlobCopyTask(
+  copyTask: Required<d.CopyTask>,
+  srcDir: string,
+  globRelPath: string,
+): Required<d.CopyTask> {
+  const dest = path.join(
+    copyTask.dest,
+    copyTask.keepDirStructure ? globRelPath : path.basename(globRelPath),
+  );
   return {
     src: path.join(srcDir, globRelPath),
     dest,
@@ -85,7 +98,11 @@ function createGlobCopyTask(copyTask: Required<d.CopyTask>, srcDir: string, glob
   };
 }
 
-async function processCopyTask(results: d.CopyResults, allCopyTasks: d.CopyTask[], copyTask: d.CopyTask) {
+async function processCopyTask(
+  results: d.CopyResults,
+  allCopyTasks: d.CopyTask[],
+  copyTask: d.CopyTask,
+) {
   try {
     copyTask.src = normalizePath(copyTask.src);
     copyTask.dest = normalizePath(copyTask.dest);
@@ -117,7 +134,11 @@ async function processCopyTask(results: d.CopyResults, allCopyTasks: d.CopyTask[
   }
 }
 
-async function processCopyTaskDirectory(results: d.CopyResults, allCopyTasks: d.CopyTask[], copyTask: d.CopyTask) {
+async function processCopyTaskDirectory(
+  results: d.CopyResults,
+  allCopyTasks: d.CopyTask[],
+  copyTask: d.CopyTask,
+) {
   try {
     const dirItems = await readdir(copyTask.src);
 

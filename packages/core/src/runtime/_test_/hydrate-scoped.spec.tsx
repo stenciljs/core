@@ -111,7 +111,7 @@ describe('hydrate scoped', () => {
       render() {
         return (
           <Host>
-            <p class="hi">Hello</p>
+            <p class='hi'>Hello</p>
           </Host>
         );
       }
@@ -157,8 +157,8 @@ describe('hydrate scoped', () => {
       render() {
         return (
           <Host>
-            <div class="wrapper">
-              <p class="hi">
+            <div class='wrapper'>
+              <p class='hi'>
                 <slot />
               </p>
             </div>

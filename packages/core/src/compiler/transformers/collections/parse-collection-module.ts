@@ -15,7 +15,9 @@ export const parseCollection = (
   // note this MUST be synchronous because this is used during transpile
   const collectionName = pkgData.name;
 
-  let collection: d.CollectionCompilerMeta = compilerCtx.collections.find((c) => c.collectionName === collectionName);
+  let collection: d.CollectionCompilerMeta = compilerCtx.collections.find(
+    (c) => c.collectionName === collectionName,
+  );
   if (collection != null) {
     // we've already cached the collection, no need for another resolve/readFile/parse
     // thought being that /node_modules/ isn't changing between watch builds
@@ -42,7 +44,14 @@ export const parseCollection = (
   const collectionDir = normalizePath(dirname(collectionFilePath));
 
   // parse the json string into our collection data
-  collection = parseCollectionManifest(config, compilerCtx, buildCtx, collectionName, collectionDir, collectionJsonStr);
+  collection = parseCollectionManifest(
+    config,
+    compilerCtx,
+    buildCtx,
+    collectionName,
+    collectionDir,
+    collectionJsonStr,
+  );
 
   collection.moduleId = moduleId;
 

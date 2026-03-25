@@ -10,16 +10,17 @@ Previously named `hydrate/`, renamed to `server/` in v5 for clarity.
 
 ## Directory Structure
 
-| Directory | Purpose |
-|-----------|---------|
+| Directory   | Purpose                                            |
+| ----------- | -------------------------------------------------- |
 | `platform/` | Server platform implementation (mirrors `client/`) |
-| `runner/` | Hydrate script execution and orchestration |
+| `runner/`   | Hydrate script execution and orchestration         |
 
 ## Key Concepts
 
 ### Hydration
 
 The process of:
+
 1. Rendering components to HTML on the server
 2. Serializing component state into the HTML
 3. "Hydrating" on the client - attaching event listeners and state without re-rendering
@@ -27,6 +28,7 @@ The process of:
 ### Platform Abstraction
 
 The runtime uses `@platform` imports that resolve differently:
+
 - Browser build → `client/`
 - Server build → `server/`
 
@@ -46,6 +48,7 @@ console.log(result.html);
 ## Public API
 
 Exposed via `@stencil/core/runtime/server`:
+
 - `renderToString()` - Render to HTML string
 - `hydrateDocument()` - Hydrate an existing document
 - `serializeDocumentToString()` - Serialize DOM to string

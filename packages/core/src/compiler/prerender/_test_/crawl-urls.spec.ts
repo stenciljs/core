@@ -25,7 +25,13 @@ describe('crawlAnchorsForNextUrls', () => {
       return true;
     };
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -44,7 +50,13 @@ describe('crawlAnchorsForNextUrls', () => {
       return url;
     };
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -64,7 +76,13 @@ describe('crawlAnchorsForNextUrls', () => {
       return true;
     };
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(2);
@@ -75,7 +93,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('normalize with encoded characters', () => {
     parsedAnchors = [{ href: '/about%20us' }, { href: '/about us' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -93,7 +117,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '/docs/index.html' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(3);
@@ -112,7 +142,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '/docs/index.html' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(3);
@@ -131,7 +167,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '/docs/components' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(2);
@@ -149,7 +191,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: 'https://ionicons.com/' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(2);
@@ -164,7 +212,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '/about-us', target: 'custom-target' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -174,7 +228,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('trim up hrefs', () => {
     parsedAnchors = [{ href: '/     ' }, { href: '  /' }, { href: '  /  ' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -182,9 +242,19 @@ describe('crawlAnchorsForNextUrls', () => {
   });
 
   it('disregard querystring', () => {
-    parsedAnchors = [{ href: '/?' }, { href: '/?some=querystring' }, { href: '/?some=querystring2' }];
+    parsedAnchors = [
+      { href: '/?' },
+      { href: '/?some=querystring' },
+      { href: '/?some=querystring2' },
+    ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -194,7 +264,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('disregard hash', () => {
     parsedAnchors = [{ href: '/#' }, { href: '/#some-hash' }, { href: '/#some-hash2' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -205,7 +281,13 @@ describe('crawlAnchorsForNextUrls', () => {
     currentUrl = new URL('https://stenciljs.com/docs');
     parsedAnchors = [{ href: 'http://stenciljs.com/' }, { href: 'https://stenciljs.com/' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -216,7 +298,13 @@ describe('crawlAnchorsForNextUrls', () => {
     currentUrl = new URL('http://stenciljs.com/docs');
     parsedAnchors = [{ href: 'http://stenciljs.com/' }, { href: 'https://stenciljs.com/' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -226,7 +314,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('normalize /docs/index.htm', () => {
     parsedAnchors = [{ href: '/docs/index.htm' }, { href: './docs/index.htm' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -236,7 +330,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('normalize index.html', () => {
     parsedAnchors = [{ href: '/index.html' }, { href: './index.html' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(1);
@@ -246,7 +346,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('parse absolute paths', () => {
     parsedAnchors = [{ href: 'http://stenciljs.com/' }, { href: 'http://stenciljs.com/docs' }];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(2);
@@ -264,7 +370,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '/docs/..' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(2);
@@ -282,7 +394,13 @@ describe('crawlAnchorsForNextUrls', () => {
       { href: '?some=querystring' },
     ];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(0);
@@ -291,7 +409,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('do nothing for empty array', () => {
     parsedAnchors = [];
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(0);
@@ -300,7 +424,13 @@ describe('crawlAnchorsForNextUrls', () => {
   it('do nothing for invalid parsedAnchors', () => {
     parsedAnchors = null;
 
-    const hrefs = crawlAnchorsForNextUrls(prerenderConfig, diagnostics, baseUrl, currentUrl, parsedAnchors);
+    const hrefs = crawlAnchorsForNextUrls(
+      prerenderConfig,
+      diagnostics,
+      baseUrl,
+      currentUrl,
+      parsedAnchors,
+    );
     expect(diagnostics).toHaveLength(0);
 
     expect(hrefs).toHaveLength(0);

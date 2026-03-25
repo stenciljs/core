@@ -43,8 +43,12 @@ describe('writeExportMaps', () => {
 
     expect(execSyncMock).toHaveBeenCalledTimes(3);
     expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][require]"="./dist/index.cjs.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[.][require]"="./dist/index.cjs.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
+    );
   });
 
   it('should generate the default exports for the custom elements build if present', () => {
@@ -59,8 +63,12 @@ describe('writeExportMaps', () => {
     writeExportMaps(config, buildCtx);
 
     expect(execSyncMock).toHaveBeenCalledTimes(2);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/components/index.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][types]"="./dist/components/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[.][import]"="./dist/components/index.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[.][types]"="./dist/components/index.d.ts"`,
+    );
   });
 
   it('should generate the lazy loader exports if the output target is present', () => {
@@ -77,9 +85,15 @@ describe('writeExportMaps', () => {
     writeExportMaps(config, buildCtx);
 
     expect(execSyncMock).toHaveBeenCalledTimes(3);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][import]"="./dist/lazy-loader/index.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][require]"="./dist/lazy-loader/index.cjs"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./loader][types]"="./dist/lazy-loader/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][import]"="./dist/lazy-loader/index.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][require]"="./dist/lazy-loader/index.cjs"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][types]"="./dist/lazy-loader/index.d.ts"`,
+    );
   });
 
   it('should generate the custom elements exports if the output target is present', () => {

@@ -73,7 +73,13 @@ export const escapeWithPattern = (
   } else {
     const flags = pattern.flags;
     const hasG = flags.includes('g');
-    const newFlags = replaceAll ? (hasG ? flags : flags + 'g') : hasG ? flags.replace(/g/g, '') : flags;
+    const newFlags = replaceAll
+      ? hasG
+        ? flags
+        : flags + 'g'
+      : hasG
+        ? flags.replace(/g/g, '')
+        : flags;
     regex = new RegExp(pattern.source, newFlags);
   }
 
@@ -231,4 +237,5 @@ export const isNumber = (v: any): v is number => typeof v === 'number';
 export const isObject = (val: Object): val is Object =>
   val != null && typeof val === 'object' && Array.isArray(val) === false;
 export const isString = (v: any): v is string => typeof v === 'string';
-export const isIterable = <T>(v: any): v is Iterable<T> => isDefined(v) && isFunction(v[Symbol.iterator]);
+export const isIterable = <T>(v: any): v is Iterable<T> =>
+  isDefined(v) && isFunction(v[Symbol.iterator]);

@@ -21,7 +21,9 @@ export * from '../../app-data';
 export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures => {
   const slot = cmps.some((c) => c.htmlTagNames.includes('slot'));
   const shadowDom = cmps.some((c) => c.encapsulation === 'shadow');
-  const slotRelocation = cmps.some((c) => c.encapsulation !== 'shadow' && c.htmlTagNames.includes('slot'));
+  const slotRelocation = cmps.some(
+    (c) => c.encapsulation !== 'shadow' && c.htmlTagNames.includes('slot'),
+  );
   const f: BuildFeatures = {
     allRenderFn: cmps.every((c) => c.hasRenderFn),
     formAssociated: cmps.some((c) => c.formAssociated),
@@ -43,7 +45,9 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     observeAttribute: cmps.some((c) => c.hasAttribute || c.hasWatchCallback || c.hasDeserializer),
     prop: cmps.some((c) => c.hasProp),
     propBoolean: cmps.some((c) => c.hasPropBoolean),
-    propChangeCallback: cmps.some((c) => c.hasWatchCallback || c.hasDeserializer || c.hasSerializer),
+    propChangeCallback: cmps.some(
+      (c) => c.hasWatchCallback || c.hasDeserializer || c.hasSerializer,
+    ),
     propNumber: cmps.some((c) => c.hasPropNumber),
     propString: cmps.some((c) => c.hasPropString),
     propMutable: cmps.some((c) => c.hasPropMutable),
@@ -78,7 +82,10 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
   return f;
 };
 
-export const updateComponentBuildConditionals = (moduleMap: ModuleMap, cmps: ComponentCompilerMeta[]) => {
+export const updateComponentBuildConditionals = (
+  moduleMap: ModuleMap,
+  cmps: ComponentCompilerMeta[],
+) => {
   cmps.forEach((cmp) => {
     const importedModules = getModuleImports(moduleMap, cmp.sourceFilePath, []);
     importedModules.forEach((importedModule) => {
@@ -119,7 +126,10 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
     }
   }
 
-  if (moduleFile != null && !importedModules.some((m) => m.sourceFilePath === moduleFile.sourceFilePath)) {
+  if (
+    moduleFile != null &&
+    !importedModules.some((m) => m.sourceFilePath === moduleFile.sourceFilePath)
+  ) {
     importedModules.push(moduleFile);
 
     moduleFile.localImports.forEach((localImport) => {
@@ -174,7 +184,8 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.scopedSlotTextContentFix = !!config.extras.scopedSlotTextContentFix;
   // TODO(STENCIL-1305): remove this option
   b.attachStyles = true;
-  b.invisiblePrehydration = typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
+  b.invisiblePrehydration =
+    typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   if (b.shadowDomShim) {
     b.slotRelocation = b.slot;

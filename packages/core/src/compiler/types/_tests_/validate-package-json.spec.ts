@@ -30,7 +30,10 @@ describe('validate-package-json', () => {
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
     buildCtx.packageJson = {};
-    await compilerCtx.fs.writeFile(config.packageJsonFilePath, JSON.stringify(buildCtx.packageJson));
+    await compilerCtx.fs.writeFile(
+      config.packageJsonFilePath,
+      JSON.stringify(buildCtx.packageJson),
+    );
   });
 
   describe('files', () => {
@@ -73,7 +76,9 @@ describe('validate-package-json', () => {
     it('should error when files array misses dist/', async () => {
       buildCtx.packageJson.files = [];
       await v.validatePackageFiles(config, compilerCtx, buildCtx, collectionOutputTarget);
-      expect(buildCtx.diagnostics[0].messageText).toMatch(/array must contain the distribution directory/);
+      expect(buildCtx.diagnostics[0].messageText).toMatch(
+        /array must contain the distribution directory/,
+      );
       expect(buildCtx.diagnostics[0].messageText).toMatch(/"dist\/"/);
     });
   });
@@ -104,7 +109,9 @@ describe('validate-package-json', () => {
     it('should produce a warning when missing collection property', async () => {
       v.validateCollection(config, compilerCtx, buildCtx, collectionOutputTarget);
 
-      expect(buildCtx.diagnostics[0].messageText).toMatch(/package.json "collection" property is required/);
+      expect(buildCtx.diagnostics[0].messageText).toMatch(
+        /package.json "collection" property is required/,
+      );
       expect(buildCtx.diagnostics[0].level).toBe('warn');
     });
 

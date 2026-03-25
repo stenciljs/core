@@ -8,7 +8,10 @@ import { generateServiceWorker } from '../service-worker/generate-sw';
  * @param config the Stencil configuration used for the build
  * @param buildCtx the build context associated with the build to mark as done
  */
-export const outputServiceWorkers = async (config: d.ValidatedConfig, buildCtx: d.BuildCtx): Promise<void> => {
+export const outputServiceWorkers = async (
+  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
+): Promise<void> => {
   const wwwServiceOutputs = config.outputTargets
     .filter(isOutputTargetWww)
     .filter((o) => typeof o.indexHtml === 'string' && !!o.serviceWorker);
@@ -26,7 +29,9 @@ export const outputServiceWorkers = async (config: d.ValidatedConfig, buildCtx: 
     const workbox: d.Workbox = config.sys.lazyRequire.require(config.rootDir, 'workbox-build');
 
     await Promise.all(
-      wwwServiceOutputs.map((outputTarget) => generateServiceWorker(config, buildCtx, workbox, outputTarget)),
+      wwwServiceOutputs.map((outputTarget) =>
+        generateServiceWorker(config, buildCtx, workbox, outputTarget),
+      ),
     );
   }
 };

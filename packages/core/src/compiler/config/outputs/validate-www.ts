@@ -18,7 +18,11 @@ import { validateCopy } from '../validate-copy';
 import { validatePrerender } from '../validate-prerender';
 import { validateServiceWorker } from '../validate-service-worker';
 
-export const validateWww = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
+export const validateWww = (
+  config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
+  userOutputs: d.OutputTarget[],
+) => {
   const hasOutputTargets = userOutputs.length > 0;
   const hasE2eTests = !!config.e2eTests;
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
@@ -37,7 +41,12 @@ export const validateWww = (config: d.ValidatedConfig, diagnostics: d.Diagnostic
 
   return userWwwOutputs.reduce(
     (
-      outputs: (d.OutputTargetWww | d.OutputTargetDistLazy | d.OutputTargetCopy | d.OutputTargetDistGlobalStyles)[],
+      outputs: (
+        | d.OutputTargetWww
+        | d.OutputTargetDistLazy
+        | d.OutputTargetCopy
+        | d.OutputTargetDistGlobalStyles
+      )[],
       o,
     ) => {
       const outputTarget = validateWwwOutputTarget(config, o, diagnostics);

@@ -15,7 +15,12 @@ export const startCheckVersion = async (
   currentVersion: string,
   flags: ConfigFlags,
 ): Promise<(() => void) | null> => {
-  if (config.devMode && !flags.ci && !currentVersion.includes('-dev.') && isFunction(config.sys.checkVersion)) {
+  if (
+    config.devMode &&
+    !flags.ci &&
+    !currentVersion.includes('-dev.') &&
+    isFunction(config.sys.checkVersion)
+  ) {
     return config.sys.checkVersion(config.logger, currentVersion);
   }
   return null;
@@ -28,7 +33,9 @@ export const startCheckVersion = async (
  *
  * @param versionChecker the function to invoke.
  */
-export const printCheckVersionResults = async (versionChecker: Promise<(() => void) | null>): Promise<void> => {
+export const printCheckVersionResults = async (
+  versionChecker: Promise<(() => void) | null>,
+): Promise<void> => {
   if (versionChecker) {
     const checkVersionResults = await versionChecker;
     if (isFunction(checkVersionResults)) {

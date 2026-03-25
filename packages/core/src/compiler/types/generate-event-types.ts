@@ -18,7 +18,12 @@ export const generateEventTypes = (
   return cmpMeta.events.map((cmpEvent) => {
     const name = `on${toTitleCase(cmpEvent.name)}`;
     const cmpEventDetailInterface = `${cmpClassName}CustomEvent`;
-    const type = getEventType(cmpEvent, cmpEventDetailInterface, typeImportData, cmpMeta.sourceFilePath);
+    const type = getEventType(
+      cmpEvent,
+      cmpEventDetailInterface,
+      typeImportData,
+      cmpMeta.sourceFilePath,
+    );
 
     const typeInfo: d.TypeInfo[0] = {
       name,

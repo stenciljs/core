@@ -105,7 +105,14 @@ export const workerPlugin = (
       // Proxy worker path
       const workerEntryPath = getWorkerEntryPath(id);
       if (workerEntryPath != null) {
-        const worker = await getWorker(config, compilerCtx, buildCtx, this, workersMap, workerEntryPath);
+        const worker = await getWorker(
+          config,
+          compilerCtx,
+          buildCtx,
+          this,
+          workersMap,
+          workerEntryPath,
+        );
         if (worker) {
           if (inlineWorkers) {
             return {
@@ -191,7 +198,9 @@ const buildWorker = async (
     });
     const entryPoint = output.output[0];
     if (entryPoint.imports.length > 0) {
-      ctx.error('Workers should not have any external imports: ' + JSON.stringify(entryPoint.imports));
+      ctx.error(
+        'Workers should not have any external imports: ' + JSON.stringify(entryPoint.imports),
+      );
     }
 
     // Optimize code
@@ -212,7 +221,9 @@ const buildWorker = async (
       code,
       exports: entryPoint.exports,
       workerMsgId,
-      dependencies: Object.keys(entryPoint.modules).filter((id) => !/\0/.test(id) && id !== workerEntryPath),
+      dependencies: Object.keys(entryPoint.modules).filter(
+        (id) => !/\0/.test(id) && id !== workerEntryPath,
+      ),
     };
   }
   return null;
@@ -454,7 +465,11 @@ ${exportedMethods
 `;
 };
 
-const getInlineWorkerProxy = (workerEntryPath: string, workerMsgId: string, exportedMethods: string[]) => {
+const getInlineWorkerProxy = (
+  workerEntryPath: string,
+  workerMsgId: string,
+  exportedMethods: string[],
+) => {
   return `
 import { createWorkerProxy } from '${WORKER_HELPER_ID}';
 const workerPromise = import('${workerEntryPath}?worker-inline').then(m => m.worker);

@@ -17,7 +17,9 @@ describe('proxy-custom-element-function', () => {
   let transformOpts: d.TransformOptions;
 
   let getModuleFromSourceFileSpy: MockInstance<typeof TransformUtils.getModuleFromSourceFile>;
-  let createClassMetadataProxySpy: MockInstance<typeof AddComponentMetaProxy.createClassMetadataProxy>;
+  let createClassMetadataProxySpy: MockInstance<
+    typeof AddComponentMetaProxy.createClassMetadataProxy
+  >;
 
   beforeEach(() => {
     compilerCtx = mockCompilerCtx();
@@ -33,23 +35,26 @@ describe('proxy-custom-element-function', () => {
     };
 
     getModuleFromSourceFileSpy = vi.spyOn(TransformUtils, 'getModuleFromSourceFile');
-    getModuleFromSourceFileSpy.mockImplementation((_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
-      return mockModule({
-        cmps: [
-          stubComponentCompilerMeta({
-            componentClassName,
-          }),
-        ],
-      });
-    });
+    getModuleFromSourceFileSpy.mockImplementation(
+      (_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
+        return mockModule({
+          cmps: [
+            stubComponentCompilerMeta({
+              componentClassName,
+            }),
+          ],
+        });
+      },
+    );
 
     createClassMetadataProxySpy = vi.spyOn(AddComponentMetaProxy, 'createClassMetadataProxy');
-    createClassMetadataProxySpy.mockImplementation((_compilerMeta: d.ComponentCompilerMeta, clazz: ts.Expression) =>
-      ts.factory.createCallExpression(
-        ts.factory.createIdentifier(PROXY_CUSTOM_ELEMENT),
-        [],
-        [clazz, ts.factory.createTrue()],
-      ),
+    createClassMetadataProxySpy.mockImplementation(
+      (_compilerMeta: d.ComponentCompilerMeta, clazz: ts.Expression) =>
+        ts.factory.createCallExpression(
+          ts.factory.createIdentifier(PROXY_CUSTOM_ELEMENT),
+          [],
+          [clazz, ts.factory.createTrue()],
+        ),
     );
   });
 
@@ -140,9 +145,11 @@ describe('proxy-custom-element-function', () => {
 
   describe('source file unchanged', () => {
     it('returns the source file when no Stencil module is found', async () => {
-      getModuleFromSourceFileSpy.mockImplementation((_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
-        return mockModule();
-      });
+      getModuleFromSourceFileSpy.mockImplementation(
+        (_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
+          return mockModule();
+        },
+      );
 
       const code = `const ${componentClassName} = class extends HTMLElement {};`;
 
@@ -153,11 +160,13 @@ describe('proxy-custom-element-function', () => {
     });
 
     it('returns the source file when no variable statements are found', () => {
-      getModuleFromSourceFileSpy.mockImplementation((_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
-        return mockModule({
-          cmps: [stubComponentCompilerMeta({ componentClassName })],
-        });
-      });
+      getModuleFromSourceFileSpy.mockImplementation(
+        (_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
+          return mockModule({
+            cmps: [stubComponentCompilerMeta({ componentClassName })],
+          });
+        },
+      );
 
       const code = `helloWorld();`;
 
@@ -168,15 +177,17 @@ describe('proxy-custom-element-function', () => {
     });
 
     it("returns the source file when variable statements don't match the component name", () => {
-      getModuleFromSourceFileSpy.mockImplementation((_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
-        return mockModule({
-          cmps: [
-            stubComponentCompilerMeta({
-              componentClassName: 'ComponentNameDoesNotExist',
-            }),
-          ],
-        });
-      });
+      getModuleFromSourceFileSpy.mockImplementation(
+        (_compilerCtx: d.CompilerCtx, _tsSourceFile: ts.SourceFile) => {
+          return mockModule({
+            cmps: [
+              stubComponentCompilerMeta({
+                componentClassName: 'ComponentNameDoesNotExist',
+              }),
+            ],
+          });
+        },
+      );
 
       const code = `const ${componentClassName} = class extends HTMLElement { };`;
 

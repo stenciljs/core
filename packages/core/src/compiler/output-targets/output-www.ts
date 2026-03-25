@@ -38,7 +38,9 @@ export const outputWww = async (
   const criticalBundles = getCriticalPath(buildCtx);
 
   await Promise.all(
-    outputTargets.map((outputTarget) => generateWww(config, compilerCtx, buildCtx, criticalBundles, outputTarget)),
+    outputTargets.map((outputTarget) =>
+      generateWww(config, compilerCtx, buildCtx, criticalBundles, outputTarget),
+    ),
   );
 
   timespan.finish(`generate www finished`);
@@ -124,7 +126,9 @@ const generateHostConfig = (compilerCtx: d.CompilerCtx, outputTarget: d.OutputTa
     '  ',
   );
 
-  return compilerCtx.fs.writeFile(hostConfigPath, hostConfigContent, { outputTargetType: outputTarget.type });
+  return compilerCtx.fs.writeFile(hostConfigPath, hostConfigContent, {
+    outputTargetType: outputTarget.type,
+  });
 };
 
 /**
@@ -173,7 +177,9 @@ const generateIndexHtml = async (
     }
 
     const indexContent = serializeNodeToHtml(doc);
-    await compilerCtx.fs.writeFile(outputTarget.indexHtml, indexContent, { outputTargetType: outputTarget.type });
+    await compilerCtx.fs.writeFile(outputTarget.indexHtml, indexContent, {
+      outputTargetType: outputTarget.type,
+    });
 
     if (outputTarget.serviceWorker && config.prerender) {
       await compilerCtx.fs.writeFile(join(outputTarget.appDir, INDEX_ORG), indexContent, {

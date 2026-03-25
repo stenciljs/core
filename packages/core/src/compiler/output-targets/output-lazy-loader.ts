@@ -1,4 +1,10 @@
-import { generatePreamble, isOutputTargetDistLazyLoader, join, relative, relativeImport } from '../../utils';
+import {
+  generatePreamble,
+  isOutputTargetDistLazyLoader,
+  join,
+  relative,
+  relativeImport,
+} from '../../utils';
 
 import type * as d from '@stencil/core';
 import { getClientPolyfill } from '../app-core/app-polyfills';
@@ -49,13 +55,18 @@ const generateLoader = async (
   const indexCjsContent = filterAndJoin([
     generatePreamble(config),
     `module.exports = require('${relative(loaderPath, cjsEntryPoint)}');`,
-    config.buildEs5 ? `module.exports.applyPolyfills = function() { return Promise.resolve() };` : null,
+    config.buildEs5
+      ? `module.exports.applyPolyfills = function() { return Promise.resolve() };`
+      : null,
   ]);
 
   const indexDtsPath = join(loaderPath, 'index.d.ts');
 
   await Promise.all([
-    compilerCtx.fs.writeFile(join(loaderPath, 'index.d.ts'), generateIndexDts(indexDtsPath, outputTarget.componentDts)),
+    compilerCtx.fs.writeFile(
+      join(loaderPath, 'index.d.ts'),
+      generateIndexDts(indexDtsPath, outputTarget.componentDts),
+    ),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.js'), indexContent),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs.js'), indexCjsContent),
     compilerCtx.fs.writeFile(join(loaderPath, 'cdn.js'), indexCjsContent),

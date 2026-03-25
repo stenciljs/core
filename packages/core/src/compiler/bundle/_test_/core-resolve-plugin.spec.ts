@@ -3,7 +3,11 @@ import { describe, expect, it } from 'vitest';
 
 import { createSystem } from '../../../compiler/sys/stencil-sys';
 import type * as d from '@stencil/core';
-import { coreResolvePlugin, getHydratedFlagHead, getStencilInternalModule } from '../core-resolve-plugin';
+import {
+  coreResolvePlugin,
+  getHydratedFlagHead,
+  getStencilInternalModule,
+} from '../core-resolve-plugin';
 import { APP_DATA_CONDITIONAL, STENCIL_JSX_RUNTIME_ID } from '../entry-alias-ids';
 
 describe('core resolve plugin', () => {

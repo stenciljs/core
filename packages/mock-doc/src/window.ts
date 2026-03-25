@@ -388,7 +388,9 @@ export class MockWindow {
     }, 0) as number;
   }
 
-  requestIdleCallback(callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void) {
+  requestIdleCallback(
+    callback: (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void,
+  ) {
     return this.setTimeout(() => {
       callback({
         didTimeout: false,
@@ -805,7 +807,10 @@ export function createWindow(html: string | boolean = null): Window {
   return new MockWindow(html) as any;
 }
 
-export function cloneWindow(srcWin: Window, opts: { customElementProxy?: boolean } = {}): MockWindow | null {
+export function cloneWindow(
+  srcWin: Window,
+  opts: { customElementProxy?: boolean } = {},
+): MockWindow | null {
   if (srcWin == null) {
     return null;
   }
@@ -864,7 +869,12 @@ function resetWindow(win: MockWindow) {
     resetPerformance(win.performance);
 
     for (const key in win) {
-      if (win.hasOwnProperty(key) && key !== 'document' && key !== 'performance' && key !== 'customElements') {
+      if (
+        win.hasOwnProperty(key) &&
+        key !== 'document' &&
+        key !== 'performance' &&
+        key !== 'customElements'
+      ) {
         delete (win as any)[key];
       }
     }

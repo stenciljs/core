@@ -45,7 +45,10 @@ describe('stencil-types', () => {
 
       it('returns the provided type when no type reference matches are found in the import data', () => {
         const typeReferences: d.ComponentCompilerTypeReferences = {
-          AnotherType: stubComponentCompilerTypeReference({ location: 'import', path: 'some/stubbed/path' }),
+          AnotherType: stubComponentCompilerTypeReference({
+            location: 'import',
+            path: 'some/stubbed/path',
+          }),
         };
         const expectedTypeName = 'CustomType';
 
@@ -164,7 +167,11 @@ describe('stencil-types', () => {
        * @param initialType the original type found in a class member
        * @param expectedType the type that is expected to be generated
        */
-      const expectTypeTransformForPath = (basePath: string, initialType: string, expectedType: string): void => {
+      const expectTypeTransformForPath = (
+        basePath: string,
+        initialType: string,
+        expectedType: string,
+      ): void => {
         const typePath = `${basePath}/my-types`;
 
         const componentCompilerMeta = stubComponentCompilerMeta({
@@ -315,7 +322,10 @@ describe('stencil-types', () => {
       });
 
       const typeReferences: d.ComponentCompilerTypeReferences = {
-        [initialType]: stubComponentCompilerTypeReference({ location: 'import', path: `${basePath}/my-types` }),
+        [initialType]: stubComponentCompilerTypeReference({
+          location: 'import',
+          path: `${basePath}/my-types`,
+        }),
       };
       const typeImports = stubTypesImportData({
         [`${basePath}/my-types`]: typeMemberNames,

@@ -7,7 +7,11 @@ import { runPrerenderTask } from './task-prerender';
 import { taskWatch } from './task-watch';
 import { telemetryBuildFinishedAction } from './telemetry/telemetry';
 
-export const taskBuild = async (coreCompiler: CoreCompiler, config: d.ValidatedConfig, flags: ConfigFlags) => {
+export const taskBuild = async (
+  coreCompiler: CoreCompiler,
+  config: d.ValidatedConfig,
+  flags: ConfigFlags,
+) => {
   if (flags.watch) {
     // watch build
     await taskWatch(coreCompiler, config, flags);

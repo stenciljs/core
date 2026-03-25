@@ -17,7 +17,9 @@
   background: rgba(0, 0, 0, 0.66) !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch !important;
-  font-family: -apple-system, 'Roboto', BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !important;
+  font-family:
+    -apple-system, 'Roboto', BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !important;
   font-size: 14px !important;
   line-height: 1.5 !important;
   -webkit-font-smoothing: antialiased;
@@ -156,7 +158,8 @@ td.dev-server-diagnostic-blob-num::before {
   font-weight: bold;
 }
 
-.dev-server-diagnostic-open-in-editor.dev-server-diagnostic-error-line td.dev-server-diagnostic-blob-num:hover {
+.dev-server-diagnostic-open-in-editor.dev-server-diagnostic-error-line
+  td.dev-server-diagnostic-blob-num:hover {
   background-color: #ffdada !important;
 }
 
@@ -271,12 +274,15 @@ td.dev-server-diagnostic-blob-code::before {
   color: white !important;
   border: none !important;
   border-radius: 8px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif !important;
   font-size: 14px !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  transition: transform 0.2s, box-shadow 0.2s !important;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s !important;
 }
 
 .dev-server-error-badge:hover {

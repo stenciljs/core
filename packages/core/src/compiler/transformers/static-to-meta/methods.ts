@@ -3,8 +3,13 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import { getStaticValue, isInternal } from '../transform-utils';
 
-export const parseStaticMethods = (staticMembers: ts.ClassElement[]): d.ComponentCompilerMethod[] => {
-  const parsedMethods: { [key: string]: d.ComponentCompilerStaticMethod } = getStaticValue(staticMembers, 'methods');
+export const parseStaticMethods = (
+  staticMembers: ts.ClassElement[],
+): d.ComponentCompilerMethod[] => {
+  const parsedMethods: { [key: string]: d.ComponentCompilerStaticMethod } = getStaticValue(
+    staticMembers,
+    'methods',
+  );
   if (!parsedMethods) {
     return [];
   }

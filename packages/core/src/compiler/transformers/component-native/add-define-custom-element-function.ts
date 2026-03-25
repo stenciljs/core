@@ -33,7 +33,10 @@ export const addDefineCustomElementFunctions = (
 
         // define the current component - `customElements.define(transformTag(tagName), MyProxiedComponent);`
         const customElementsDefineCallExpression = ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'define'),
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier('customElements'),
+            'define',
+          ),
           undefined,
           [
             ts.factory.createCallExpression(
@@ -46,7 +49,10 @@ export const addDefineCustomElementFunctions = (
         );
         // create a `case` block that defines the current component. We'll add them to our switch statement later.
         caseStatements.push(
-          createCustomElementsDefineCase(principalComponent.tagName, customElementsDefineCallExpression),
+          createCustomElementsDefineCase(
+            principalComponent.tagName,
+            customElementsDefineCallExpression,
+          ),
         );
 
         setupComponentDependencies(moduleFile, components, newStatements, caseStatements, tagNames);
@@ -60,7 +66,10 @@ export const addDefineCustomElementFunctions = (
         }
       }
 
-      tsSourceFile = ts.factory.updateSourceFile(tsSourceFile, [...tsSourceFile.statements, ...newStatements]);
+      tsSourceFile = ts.factory.updateSourceFile(tsSourceFile, [
+        ...tsSourceFile.statements,
+        ...newStatements,
+      ]);
 
       return tsSourceFile;
     };
@@ -90,10 +99,16 @@ const setupComponentDependencies = (
       tagNames.push(foundDep.tagName);
 
       // Will add `import { defineCustomElement as $ComponentDefineCustomElement } from 'my-nested-component.tsx';`
-      newStatements.push(createImportStatement([`defineCustomElement as ${importAs}`], foundDep.sourceFilePath));
+      newStatements.push(
+        createImportStatement([`defineCustomElement as ${importAs}`], foundDep.sourceFilePath),
+      );
 
       // define a dependent component by recursively calling their own `defineCustomElement()`
-      const callExpression = ts.factory.createCallExpression(ts.factory.createIdentifier(importAs), undefined, []);
+      const callExpression = ts.factory.createCallExpression(
+        ts.factory.createIdentifier(importAs),
+        undefined,
+        [],
+      );
       // `case` blocks that define the dependent components. We'll add them to our switch statement later.
       caseStatements.push(createCustomElementsDefineCase(foundDep.tagName, callExpression));
     });
@@ -116,13 +131,19 @@ const setupComponentDependencies = (
  * @param actionExpression the actual expression to call to define the customElement
  * @returns ts AST CaseClause
  */
-const createCustomElementsDefineCase = (tagName: string, actionExpression: ts.Expression): ts.CaseClause => {
+const createCustomElementsDefineCase = (
+  tagName: string,
+  actionExpression: ts.Expression,
+): ts.CaseClause => {
   return ts.factory.createCaseClause(ts.factory.createStringLiteral(tagName), [
     ts.factory.createIfStatement(
       ts.factory.createPrefixUnaryExpression(
         ts.SyntaxKind.ExclamationToken,
         ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('customElements'), 'get'),
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier('customElements'),
+            'get',
+          ),
           undefined,
           [
             ts.factory.createCallExpression(
@@ -203,7 +224,10 @@ const addDefineCustomElementFunction = (
         ),
         ts.factory.createExpressionStatement(
           ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('components'), 'forEach'),
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createIdentifier('components'),
+              'forEach',
+            ),
             undefined,
             [
               ts.factory.createArrowFunction(

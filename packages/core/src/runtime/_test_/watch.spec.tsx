@@ -111,11 +111,11 @@ describe('watch', () => {
     // trigger updates in element
     root.prop = 1000;
     expect(rootInstance.method).toHaveBeenLastCalledWith(1000, 20, 'prop');
-     expect(rootInstance.watchCalled).toBe(1);
+    expect(rootInstance.watchCalled).toBe(1);
 
     root.value = 1300;
     expect(rootInstance.method).toHaveBeenLastCalledWith(1300, 30, 'value');
-     expect(rootInstance.watchCalled).toBe(2);
+    expect(rootInstance.watchCalled).toBe(2);
   });
 
   it('should *not* watch from lifecycle as per documentation', async () => {

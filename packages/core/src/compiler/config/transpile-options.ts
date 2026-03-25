@@ -65,7 +65,9 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
   const compileOpts: TranspileOptions = {
     componentExport: getTranspileConfigOpt(input.componentExport, VALID_EXPORT, 'customelement'),
     componentMetadata: getTranspileConfigOpt(input.componentMetadata, VALID_METADATA, null),
-    coreImportPath: isString(input.coreImportPath) ? input.coreImportPath : STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+    coreImportPath: isString(input.coreImportPath)
+      ? input.coreImportPath
+      : STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
     currentDirectory: isString(input.currentDirectory)
       ? input.currentDirectory
       : transpileCtx.sys.getCurrentDirectory(),
@@ -74,7 +76,11 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     module: getTranspileConfigOpt(input.module, VALID_MODULE, 'esm'),
     sourceMap: input.sourceMap === 'inline' ? 'inline' : input.sourceMap !== false,
     style: getTranspileConfigOpt(input.style, VALID_STYLE, 'static'),
-    styleImportData: getTranspileConfigOpt(input.styleImportData, VALID_STYLE_IMPORT_DATA, 'queryparams'),
+    styleImportData: getTranspileConfigOpt(
+      input.styleImportData,
+      VALID_STYLE_IMPORT_DATA,
+      'queryparams',
+    ),
     target: getTranspileConfigOpt(input.target, VALID_TARGET, 'latest'),
   };
 
@@ -202,4 +208,14 @@ const VALID_MODULE = new Set(['cjs', 'esm']);
 const VALID_PROXY = new Set(['defineproperty', null]);
 const VALID_STYLE = new Set(['static']);
 const VALID_STYLE_IMPORT_DATA = new Set(['queryparams']);
-const VALID_TARGET = new Set(['latest', 'esnext', 'es2020', 'es2019', 'es2018', 'es2017', 'es2016', 'es2015', 'es5']);
+const VALID_TARGET = new Set([
+  'latest',
+  'esnext',
+  'es2020',
+  'es2019',
+  'es2018',
+  'es2017',
+  'es2016',
+  'es2015',
+  'es5',
+]);

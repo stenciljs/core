@@ -54,7 +54,9 @@ export const addTagTransform = (
           const methodName = node.expression.name.text;
 
           if (
-            (methodName === 'querySelector' || methodName === 'querySelectorAll' || methodName === 'closest') &&
+            (methodName === 'querySelector' ||
+              methodName === 'querySelectorAll' ||
+              methodName === 'closest') &&
             node.arguments.length > 0
           ) {
             const selectorArgument = node.arguments[0];
@@ -89,10 +91,12 @@ export const addTagTransform = (
                 // If no placeholders for whatever reason, fallback to original literal
                 if (!splitParts || splitParts.length === 0) {
                   // fallback — keep original string literal
-                  newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
-                    ts.factory.createStringLiteral(selectorText),
-                    ...node.arguments.slice(1),
-                  ]);
+                  newNode = ts.factory.updateCallExpression(
+                    node,
+                    node.expression,
+                    node.typeArguments,
+                    [ts.factory.createStringLiteral(selectorText), ...node.arguments.slice(1)],
+                  );
                 } else {
                   // Build TemplateExpression: head + spans
                   const firstLiteral = splitParts[0] ?? '';
@@ -123,10 +127,12 @@ export const addTagTransform = (
                   const templateExpr = ts.factory.createTemplateExpression(head, spans);
 
                   // Replace the original selector arg with the template expression
-                  newNode = ts.factory.updateCallExpression(node, node.expression, node.typeArguments, [
-                    templateExpr,
-                    ...node.arguments.slice(1),
-                  ]);
+                  newNode = ts.factory.updateCallExpression(
+                    node,
+                    node.expression,
+                    node.typeArguments,
+                    [templateExpr, ...node.arguments.slice(1)],
+                  );
                 }
               }
             }

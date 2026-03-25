@@ -67,7 +67,9 @@ export const outputDocs = async (
       docsData.components.map(async (component) => {
         if (component.styles.length === 0) {
           // Find the README output target to get the correct path
-          const readmeTarget = docsOutputTargets.find(isOutputTargetDocsReadme) as d.OutputTargetDocsReadme | undefined;
+          const readmeTarget = docsOutputTargets.find(isOutputTargetDocsReadme) as
+            | d.OutputTargetDocsReadme
+            | undefined;
           const readmeDir = readmeTarget?.dir || config.srcDir;
           const readmePath =
             normalizePath(readmeDir) === normalizePath(config.srcDir)

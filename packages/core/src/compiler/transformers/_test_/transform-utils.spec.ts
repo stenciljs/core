@@ -88,7 +88,9 @@ describe('transform-utils', () => {
     });
 
     it('returns false when the member has a non-private modifier', () => {
-      const methodDeclaration = createMemberWithModifiers([ts.factory.createModifier(ts.SyntaxKind.PublicKeyword)]);
+      const methodDeclaration = createMemberWithModifiers([
+        ts.factory.createModifier(ts.SyntaxKind.PublicKeyword),
+      ]);
 
       expect(isMemberPrivate(methodDeclaration)).toBe(false);
     });
@@ -112,7 +114,9 @@ describe('transform-utils', () => {
 
     it('returns all decorators and modifiers on a node', () => {
       const privateModifier = ts.factory.createModifier(ts.SyntaxKind.PrivateKeyword);
-      const nonSenseDecorator = ts.factory.createDecorator(ts.factory.createStringLiteral('NonSenseDecorator'));
+      const nonSenseDecorator = ts.factory.createDecorator(
+        ts.factory.createStringLiteral('NonSenseDecorator'),
+      );
 
       const methodDeclaration = createMemberWithModifiers([privateModifier, nonSenseDecorator]);
       const modifierLikes = retrieveModifierLike(methodDeclaration);
@@ -134,7 +138,13 @@ describe('transform-utils', () => {
 
     it('returns undefined when a node has undefined decorators', () => {
       // create a class declaration with name 'MyClass' and no decorators
-      const node = ts.factory.createClassDeclaration(undefined, 'MyClass', undefined, undefined, []);
+      const node = ts.factory.createClassDeclaration(
+        undefined,
+        'MyClass',
+        undefined,
+        undefined,
+        [],
+      );
 
       const decorators = retrieveTsDecorators(node);
 
@@ -157,7 +167,13 @@ describe('transform-utils', () => {
       ];
 
       // create a class declaration with name 'MyClass' and a decorator
-      const node = ts.factory.createClassDeclaration(initialDecorators, 'MyClass', undefined, undefined, []);
+      const node = ts.factory.createClassDeclaration(
+        initialDecorators,
+        'MyClass',
+        undefined,
+        undefined,
+        [],
+      );
 
       const decorators = retrieveTsDecorators(node);
 
@@ -177,7 +193,13 @@ describe('transform-utils', () => {
 
     it('returns undefined when a node has undefined modifiers', () => {
       // create a class declaration with name 'MyClass' and no modifiers
-      const node = ts.factory.createClassDeclaration(undefined, 'MyClass', undefined, undefined, []);
+      const node = ts.factory.createClassDeclaration(
+        undefined,
+        'MyClass',
+        undefined,
+        undefined,
+        [],
+      );
 
       const modifiers = retrieveTsModifiers(node);
 
@@ -197,7 +219,13 @@ describe('transform-utils', () => {
       const initialModifiers = [ts.factory.createModifier(ts.SyntaxKind.AbstractKeyword)];
 
       // create a class declaration with name 'MyClass' and a 'abstract' modifier
-      const node = ts.factory.createClassDeclaration(initialModifiers, 'MyClass', undefined, undefined, []);
+      const node = ts.factory.createClassDeclaration(
+        initialModifiers,
+        'MyClass',
+        undefined,
+        undefined,
+        [],
+      );
 
       const modifiers = retrieveTsModifiers(node);
 
@@ -217,7 +245,13 @@ describe('transform-utils', () => {
         classMembers,
       );
       const printer: ts.Printer = ts.createPrinter();
-      let sourceFile = ts.createSourceFile('dummy.ts', '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
+      let sourceFile = ts.createSourceFile(
+        'dummy.ts',
+        '',
+        ts.ScriptTarget.ESNext,
+        false,
+        ts.ScriptKind.TS,
+      );
       sourceFile = ts.factory.updateSourceFile(sourceFile, [updatedClass]);
       return printer.printFile(sourceFile).replace(/\n/g, '').replace(/    /g, ' ');
     }
@@ -228,11 +262,15 @@ describe('transform-utils', () => {
       ]);
       const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), []);
 
-      expect(printClassMembers(classNode, updatedMembers)).toBe(`class MyClass { constructor() { }}`);
+      expect(printClassMembers(classNode, updatedMembers)).toBe(
+        `class MyClass { constructor() { }}`,
+      );
     });
 
     it('adds a constructor when none is present and statements are provided', () => {
-      const ctorStatements = [ts.factory.createExpressionStatement(ts.factory.createIdentifier('someMethod()'))];
+      const ctorStatements = [
+        ts.factory.createExpressionStatement(ts.factory.createIdentifier('someMethod()')),
+      ];
 
       const classNode = ts.factory.createClassDeclaration([], 'MyClass', undefined, undefined, [
         ts.factory.createMethodDeclaration(
@@ -254,7 +292,11 @@ describe('transform-utils', () => {
         ),
       ]);
 
-      const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), ctorStatements);
+      const updatedMembers = updateConstructor(
+        classNode,
+        Array.from(classNode.members),
+        ctorStatements,
+      );
 
       expect(printClassMembers(classNode, updatedMembers)).toBe(
         `class MyClass { constructor() {  someMethod(); } myMethod() { } myProperty;}`,
@@ -268,15 +310,21 @@ describe('transform-utils', () => {
         undefined,
         [
           ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+            ts.factory.createExpressionWithTypeArguments(
+              ts.factory.createIdentifier('BaseClass'),
+              [],
+            ),
           ]),
         ],
         [ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], false))],
       );
 
-      expect(printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), []))).toBe(
-        `class MyClass extends BaseClass { constructor() { super(); }}`,
-      );
+      expect(
+        printClassMembers(
+          classNode,
+          updateConstructor(classNode, Array.from(classNode.members), []),
+        ),
+      ).toBe(`class MyClass extends BaseClass { constructor() { super(); }}`);
     });
 
     it('makes sure super call is the first statement in the constructor body', () => {
@@ -286,7 +334,10 @@ describe('transform-utils', () => {
         undefined,
         [
           ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+            ts.factory.createExpressionWithTypeArguments(
+              ts.factory.createIdentifier('BaseClass'),
+              [],
+            ),
           ]),
         ],
         [
@@ -301,9 +352,12 @@ describe('transform-utils', () => {
         ],
       );
 
-      expect(printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), []))).toBe(
-        `class MyClass extends BaseClass { constructor() { super(); someMethod(); }}`,
-      );
+      expect(
+        printClassMembers(
+          classNode,
+          updateConstructor(classNode, Array.from(classNode.members), []),
+        ),
+      ).toBe(`class MyClass extends BaseClass { constructor() { super(); someMethod(); }}`);
     });
 
     it('adds false argument to super call when no parameters are provided', () => {
@@ -313,14 +367,20 @@ describe('transform-utils', () => {
         undefined,
         [
           ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
-            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+            ts.factory.createExpressionWithTypeArguments(
+              ts.factory.createIdentifier('BaseClass'),
+              [],
+            ),
           ]),
         ],
         [ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], false))],
       );
 
       expect(
-        printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], true)),
+        printClassMembers(
+          classNode,
+          updateConstructor(classNode, Array.from(classNode.members), [], [], true),
+        ),
       ).toBe(`class MyClass extends BaseClass { constructor() { super(false); }}`);
     });
   });
@@ -347,7 +407,8 @@ describe('transform-utils', () => {
     });
 
     it('should only transform specified tag names', () => {
-      const cssCode = 'my-component { color: red; } other-component { color: blue; } .class { color: green; }';
+      const cssCode =
+        'my-component { color: red; } other-component { color: blue; } .class { color: green; }';
       const tagNames = ['my-component'];
 
       const result = addTagTransformToCssString(cssCode, tagNames);
@@ -455,7 +516,8 @@ describe('transform-utils', () => {
     });
 
     it('should handle complex selectors with mixed content', () => {
-      const cssCode = '.class { color: green; } my-component:hover { color: red; } #id { color: yellow; }';
+      const cssCode =
+        '.class { color: green; } my-component:hover { color: red; } #id { color: yellow; }';
       const tagNames = ['my-component'];
 
       const result = addTagTransformToCssTsAST(cssCode, tagNames);

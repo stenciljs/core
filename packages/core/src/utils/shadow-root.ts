@@ -1,6 +1,9 @@
 import { BUILD } from 'virtual:app-data';
 import { globalStyles } from 'virtual:app-globals';
-import { supportsConstructableStylesheets, supportsMutableAdoptedStyleSheets } from 'virtual:platform';
+import {
+  supportsConstructableStylesheets,
+  supportsMutableAdoptedStyleSheets,
+} from 'virtual:platform';
 import { CMP_FLAGS } from './constants';
 
 import type * as d from '@stencil/core';
@@ -29,7 +32,8 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
   const shadowRoot = this.attachShadow(opts);
 
   // Initialize if undefined, set to CSSStyleSheet or null
-  if (globalStyleSheet === undefined) globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;
+  if (globalStyleSheet === undefined)
+    globalStyleSheet = createStyleSheetIfNeededAndSupported(globalStyles) ?? null;
 
   // Use initialized global stylesheet if available
   if (globalStyleSheet) {

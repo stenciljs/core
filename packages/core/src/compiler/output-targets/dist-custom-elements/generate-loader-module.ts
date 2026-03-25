@@ -15,10 +15,13 @@ export const generateLoaderModule = (
   outputTarget: d.OutputTargetDistCustomElements,
 ): string => {
   const autoLoaderConfig = outputTarget.autoLoader;
-  const autoStart = typeof autoLoaderConfig === 'object' ? autoLoaderConfig.autoStart !== false : true;
+  const autoStart =
+    typeof autoLoaderConfig === 'object' ? autoLoaderConfig.autoStart !== false : true;
 
   // Build component map: { 'my-button': './my-button.js', ... }
-  const componentMap = components.map((cmp) => `  '${cmp.tagName}': './${cmp.tagName}.js'`).join(',\n');
+  const componentMap = components
+    .map((cmp) => `  '${cmp.tagName}': './${cmp.tagName}.js'`)
+    .join(',\n');
 
   return `
 import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';

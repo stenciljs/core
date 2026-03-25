@@ -11,12 +11,12 @@ class CmpA {
   render() {
     return (
       <div>
-        <slot name="start"></slot>
+        <slot name='start'></slot>
         <span>
           <slot />
         </span>
-        <div class="end">
-          <slot name="end"></slot>
+        <div class='end'>
+          <slot name='end'></slot>
         </div>
       </div>
     );

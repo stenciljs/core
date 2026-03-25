@@ -63,8 +63,14 @@ describe('generate-lazy-module', () => {
         expect([childCmp, parentCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
         expect([parentCmp, childCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
 
-        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
-        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
+        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
+        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
 
         expect([parentCmp, grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
           parentCmp,
@@ -99,8 +105,14 @@ describe('generate-lazy-module', () => {
         expect([childCmp, parentCmp].sort(sortBundleComponents)).toEqual([childCmp, parentCmp]);
         expect([parentCmp, childCmp].sort(sortBundleComponents)).toEqual([childCmp, parentCmp]);
 
-        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([grandChildCmp, childCmp]);
-        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([grandChildCmp, childCmp]);
+        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+          grandChildCmp,
+          childCmp,
+        ]);
+        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+          grandChildCmp,
+          childCmp,
+        ]);
 
         expect([childCmp, grandChildCmp, parentCmp].sort(sortBundleComponents)).toEqual([
           parentCmp,
@@ -132,8 +144,14 @@ describe('generate-lazy-module', () => {
       });
 
       it('orders components by their dependent', () => {
-        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
-        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
+        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
+        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
 
         // `parentCmp` doesn't have any tags in its `dependents` field, but `childCmp` has `parentCmp`'s tag name in its
         // `dependents` list
@@ -189,8 +207,14 @@ describe('generate-lazy-module', () => {
 
         // `grandChildCmp` doesn't have any tags in its `dependencies` field, but `childCmp` has `grandChildCmp`'s tag
         // name in its `dependencies` list
-        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([grandChildCmp, childCmp]);
-        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([grandChildCmp, childCmp]);
+        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+          grandChildCmp,
+          childCmp,
+        ]);
+        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+          grandChildCmp,
+          childCmp,
+        ]);
 
         expect([parentCmp, grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
           grandChildCmp,
@@ -218,8 +242,14 @@ describe('generate-lazy-module', () => {
           expect([parentCmp, childCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
           expect([childCmp, parentCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
 
-          expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
-          expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
+          expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+            childCmp,
+            grandChildCmp,
+          ]);
+          expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+            childCmp,
+            grandChildCmp,
+          ]);
 
           expect([parentCmp, grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
             parentCmp,
@@ -257,8 +287,14 @@ describe('generate-lazy-module', () => {
         expect([parentCmp, childCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
         expect([childCmp, parentCmp].sort(sortBundleComponents)).toEqual([parentCmp, childCmp]);
 
-        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
-        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([childCmp, grandChildCmp]);
+        expect([childCmp, grandChildCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
+        expect([grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
+          childCmp,
+          grandChildCmp,
+        ]);
 
         expect([parentCmp, grandChildCmp, childCmp].sort(sortBundleComponents)).toEqual([
           parentCmp,

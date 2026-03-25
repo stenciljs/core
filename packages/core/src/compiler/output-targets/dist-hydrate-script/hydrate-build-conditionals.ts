@@ -9,7 +9,10 @@ import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-da
  * @param cmps component metadata
  * @returns a populated build conditional object
  */
-export const getHydrateBuildConditionals = (config: d.ValidatedConfig, cmps: d.ComponentCompilerMeta[]) => {
+export const getHydrateBuildConditionals = (
+  config: d.ValidatedConfig,
+  cmps: d.ComponentCompilerMeta[],
+) => {
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
   // we need to make sure that things like the hydratedClass and flag are
   // set for the hydrate build

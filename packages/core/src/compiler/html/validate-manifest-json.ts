@@ -3,7 +3,11 @@ import { dirname } from 'path';
 
 import type * as d from '@stencil/core';
 
-export const validateManifestJson = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+export const validateManifestJson = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   if (config.devMode) {
     return null;
   }
@@ -68,6 +72,12 @@ const validateManifestJsonIcon = async (
   const hasAccess = await compilerCtx.fs.access(iconPath);
   if (!hasAccess) {
     const msg = `Unable to find manifest icon "${manifestIcon.src}"`;
-    buildJsonFileError(compilerCtx, buildCtx.diagnostics, manifestFilePath, msg, `"${manifestIcon.src}"`);
+    buildJsonFileError(
+      compilerCtx,
+      buildCtx.diagnostics,
+      manifestFilePath,
+      msg,
+      `"${manifestIcon.src}"`,
+    );
   }
 };

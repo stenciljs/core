@@ -31,7 +31,8 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef | null | 
 
   if (hostRef == null) {
     const Cstr = lazyInstance.constructor as d.ComponentTestingConstructor;
-    const tagName = Cstr.COMPILER_META && Cstr.COMPILER_META.tagName ? Cstr.COMPILER_META.tagName : 'div';
+    const tagName =
+      Cstr.COMPILER_META && Cstr.COMPILER_META.tagName ? Cstr.COMPILER_META.tagName : 'div';
     const elm = document.createElement(tagName);
     registerHost(elm, { $flags$: 0, $tagName$: tagName });
     hostRef = getHostRef(elm);
@@ -41,7 +42,10 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef | null | 
   hostRef.$lazyInstance$ = lazyInstance;
 
   // Re-wire getters/setters for ES2022+ class fields
-  if (hostRef.$cmpMeta$?.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
+  if (
+    hostRef.$cmpMeta$?.$flags$ & CMP_FLAGS.hasModernPropertyDecls &&
+    (BUILD.state || BUILD.prop)
+  ) {
     reWireGetterSetter(lazyInstance, hostRef);
   }
 

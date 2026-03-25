@@ -1,4 +1,11 @@
-import { dashToPascalCase, escapeWithPattern, isDef, mergeIntoWith, toCamelCase, toDashCase } from '../helpers';
+import {
+  dashToPascalCase,
+  escapeWithPattern,
+  isDef,
+  mergeIntoWith,
+  toCamelCase,
+  toDashCase,
+} from '../helpers';
 import { expect, describe, it } from '@stencil/vitest';
 
 describe('util helpers', () => {
@@ -121,7 +128,9 @@ describe('util helpers', () => {
       const text = 'foo/bar foo/bar foo/bar';
       const pattern = '/';
       const replacement = '\\/';
-      expect(escapeWithPattern(text, pattern, replacement, false)).toBe('foo\\/bar foo/bar foo/bar');
+      expect(escapeWithPattern(text, pattern, replacement, false)).toBe(
+        'foo\\/bar foo/bar foo/bar',
+      );
     });
 
     it('replaces all occurrences using a RegExp pattern with no g flag by default', () => {

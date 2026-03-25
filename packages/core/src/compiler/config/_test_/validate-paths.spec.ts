@@ -47,7 +47,9 @@ describe('validatePaths', () => {
 
   it('should set default wwwIndexHtml and convert to absolute path', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe('index.html');
+    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(
+      'index.html',
+    );
     expect(path.isAbsolute((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(true);
   });
 
@@ -61,7 +63,9 @@ describe('validatePaths', () => {
       },
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe('custom-index.html');
+    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(
+      'custom-index.html',
+    );
     expect(path.isAbsolute((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(true);
   });
 
@@ -105,8 +109,12 @@ describe('validatePaths', () => {
       },
     ];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe('collection');
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(true);
+    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
+      'collection',
+    );
+    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
+      true,
+    );
   });
 
   it('should set default types dir and convert to absolute path', () => {
@@ -116,7 +124,9 @@ describe('validatePaths', () => {
       },
     ];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe('types');
+    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(
+      'types',
+    );
     expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(true);
   });
 

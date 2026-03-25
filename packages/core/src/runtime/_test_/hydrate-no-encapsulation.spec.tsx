@@ -35,7 +35,7 @@ describe('hydrate no encapsulation', () => {
       render() {
         return (
           <Host>
-            <p class="hi">Hello</p>
+            <p class='hi'>Hello</p>
           </Host>
         );
       }
@@ -167,8 +167,8 @@ describe('hydrate no encapsulation', () => {
     class CmpA {
       render() {
         return (
-          <Host key="test">
-            <cmp-b key="my-test-key">light-dom</cmp-b>
+          <Host key='test'>
+            <cmp-b key='my-test-key'>light-dom</cmp-b>
           </Host>
         );
       }
@@ -178,8 +178,8 @@ describe('hydrate no encapsulation', () => {
       render() {
         return (
           <Host>
-            <slot key="key1"></slot>
-            <footer key="key2"></footer>
+            <slot key='key1'></slot>
+            <footer key='key2'></footer>
           </Host>
         );
       }
@@ -413,8 +413,8 @@ describe('hydrate no encapsulation', () => {
         return (
           <Host>
             <cmp-b>
-              <div slot="bottom">bottom light-dom</div>
-              <div slot="top">top light-dom</div>
+              <div slot='bottom'>bottom light-dom</div>
+              <div slot='top'>top light-dom</div>
               middle light-dom
             </cmp-b>
           </Host>
@@ -427,9 +427,9 @@ describe('hydrate no encapsulation', () => {
         return (
           <Host>
             <header></header>
-            <slot name="top"></slot>
+            <slot name='top'></slot>
             <slot></slot>
-            <slot name="bottom"></slot>
+            <slot name='bottom'></slot>
             <footer></footer>
           </Host>
         );

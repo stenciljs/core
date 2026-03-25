@@ -4,7 +4,11 @@ import ts from 'typescript';
 
 import type * as d from '@stencil/core';
 import { getScopeId } from '../style/scope-css';
-import { addTagTransformToCssTsAST, createStaticGetter, getExternalStyles } from './transform-utils';
+import {
+  addTagTransformToCssTsAST,
+  createStaticGetter,
+  getExternalStyles,
+} from './transform-utils';
 
 /**
  * Adds static "style" getter within the class
@@ -48,7 +52,10 @@ export const addStaticStylePropertyToClass = (
   if (styleLiteral) {
     const statement = ts.factory.createExpressionStatement(
       ts.factory.createAssignment(
-        ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier(cmp.componentClassName), 'style'),
+        ts.factory.createPropertyAccessExpression(
+          ts.factory.createIdentifier(cmp.componentClassName),
+          'style',
+        ),
         styleLiteral,
       ),
     );
@@ -58,7 +65,10 @@ export const addStaticStylePropertyToClass = (
 
 const getStyleLiteral = (cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
-    if (cmp.styles.length > 1 || (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)) {
+    if (
+      cmp.styles.length > 1 ||
+      (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)
+    ) {
       // multiple style modes
       return getMultipleModeStyle(cmp, cmp.styles, buildCtx);
     } else {
@@ -69,7 +79,11 @@ const getStyleLiteral = (cmp: d.ComponentCompilerMeta, buildCtx: d.BuildCtx) => 
   return null;
 };
 
-const getMultipleModeStyle = (cmp: d.ComponentCompilerMeta, styles: d.StyleCompiler[], buildCtx: d.BuildCtx) => {
+const getMultipleModeStyle = (
+  cmp: d.ComponentCompilerMeta,
+  styles: d.StyleCompiler[],
+  buildCtx: d.BuildCtx,
+) => {
   const styleModes: ts.ObjectLiteralElementLike[] = [];
 
   styles.forEach((style) => {
@@ -90,7 +104,10 @@ const getMultipleModeStyle = (cmp: d.ComponentCompilerMeta, styles: d.StyleCompi
       // import myTagIosStyle from './import-path.css';
       // static get style() { return { ios: myTagIosStyle }; }
       const styleUrlIdentifier = createStyleIdentifier(cmp, style);
-      const propUrlIdentifier = ts.factory.createPropertyAssignment(style.modeName, styleUrlIdentifier);
+      const propUrlIdentifier = ts.factory.createPropertyAssignment(
+        style.modeName,
+        styleUrlIdentifier,
+      );
       styleModes.push(propUrlIdentifier);
     } else if (typeof style.styleIdentifier === 'string') {
       // direct import already written in the source code
@@ -105,7 +122,11 @@ const getMultipleModeStyle = (cmp: d.ComponentCompilerMeta, styles: d.StyleCompi
   return ts.factory.createObjectLiteralExpression(styleModes, true);
 };
 
-const getSingleStyle = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {
+const getSingleStyle = (
+  cmp: d.ComponentCompilerMeta,
+  style: d.StyleCompiler,
+  buildCtx: d.BuildCtx,
+) => {
   /**
    * the order of these if statements must match with
    * - {@link src/compiler/transformers/component-native/native-static-style.ts#addSingleStyleGetter}
@@ -143,7 +164,11 @@ const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   return addTagTransformToCssTsAST(cssCode, tagNames);
 };
 
-const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {
+const createStyleLiteral = (
+  cmp: d.ComponentCompilerMeta,
+  style: d.StyleCompiler,
+  buildCtx: d.BuildCtx,
+) => {
   if (cmp.encapsulation === 'scoped') {
     // scope the css first
     const scopeId = getScopeId(cmp.tagName, style.modeName);
@@ -170,7 +195,9 @@ export const createStyleIdentifier = (cmp: d.ComponentCompilerMeta, style: d.Sty
    * the component, see `compilerCtx.worker.transformCssToEsm` in
    * `src/compiler/bundle/ext-transforms-plugin.ts`
    */
-  style.styleIdentifier = dashToPascalCase(cmp.tagName.charAt(0).toLowerCase() + cmp.tagName.substring(1));
+  style.styleIdentifier = dashToPascalCase(
+    cmp.tagName.charAt(0).toLowerCase() + cmp.tagName.substring(1),
+  );
   if (style.modeName !== DEFAULT_STYLE_MODE) {
     style.styleIdentifier += dashToPascalCase(style.modeName);
   }
@@ -216,7 +243,11 @@ const createIdentifierFromStyleIdentifier = (
   const id = externalStyleIds[0];
 
   if (externalStyleIds.length === 1) {
-    return ts.factory.createCallExpression(ts.factory.createIdentifier(styleIdentifier + id), undefined, []);
+    return ts.factory.createCallExpression(
+      ts.factory.createIdentifier(styleIdentifier + id),
+      undefined,
+      [],
+    );
   }
 
   return ts.factory.createBinaryExpression(

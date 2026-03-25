@@ -74,7 +74,16 @@ export function transpileModule(
   const emitCallback: ts.WriteFileCallback = (emitFilePath, data, _w, _e, tsSourceFiles) => {
     if (emitFilePath.endsWith('.js')) {
       outputText = prettifyTSOutput(data);
-      updateModule(mergedConfig, compilerCtx, buildCtx, tsSourceFiles[0], data, emitFilePath, tsTypeChecker, null);
+      updateModule(
+        mergedConfig,
+        compilerCtx,
+        buildCtx,
+        tsSourceFiles[0],
+        data,
+        emitFilePath,
+        tsTypeChecker,
+        null,
+      );
     }
     if (emitFilePath.endsWith('.d.ts')) {
       declarationOutputText = prettifyTSOutput(data);

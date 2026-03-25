@@ -128,9 +128,9 @@ describe('util', () => {
   });
 
   it('createJsVarName', () => {
-    expect(util.createJsVarName('./scoped-style-import.css?tag=my-button&encapsulation=scoped')).toBe(
-      'scopedStyleImportCss',
-    );
+    expect(
+      util.createJsVarName('./scoped-style-import.css?tag=my-button&encapsulation=scoped'),
+    ).toBe('scopedStyleImportCss');
     expect(util.createJsVarName('./scoped-style-import.css#hash')).toBe('scopedStyleImportCss');
     expect(util.createJsVarName('./scoped-style-import.css&data')).toBe('scopedStyleImportCss');
     expect(util.createJsVarName('./scoped-style-import.css=data')).toBe('scopedStyleImportCss');
@@ -272,9 +272,12 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
       expect(util.isTsFile('d.ts')).toEqual(true);
     });
 
-    it.each(['foo.tS', 'foo.Ts', 'foo.TS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
-      expect(util.isTsFile(fileName)).toEqual(true);
-    });
+    it.each(['foo.tS', 'foo.Ts', 'foo.TS'])(
+      'returns true for non-lowercase extensions (%s)',
+      (fileName) => {
+        expect(util.isTsFile(fileName)).toEqual(true);
+      },
+    );
   });
 
   describe('isJsFile', () => {
@@ -296,9 +299,12 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
       expect(util.isJsFile('spec.js')).toEqual(true);
     });
 
-    it.each(['foo.jS', 'foo.Js', 'foo.JS'])('returns true for non-lowercase extensions (%s)', (fileName) => {
-      expect(util.isJsFile(fileName)).toEqual(true);
-    });
+    it.each(['foo.jS', 'foo.Js', 'foo.JS'])(
+      'returns true for non-lowercase extensions (%s)',
+      (fileName) => {
+        expect(util.isJsFile(fileName)).toEqual(true);
+      },
+    );
   });
 
   describe('getTextDocs', () => {

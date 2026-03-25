@@ -24,8 +24,9 @@ export const updateReferenceTypeImports = (
 
   return [...cmp.properties, ...cmp.events, ...cmp.methods]
     .filter(
-      (cmpProp: d.ComponentCompilerProperty | d.ComponentCompilerEvent | d.ComponentCompilerMethod) =>
-        cmpProp.complexType && cmpProp.complexType.references,
+      (
+        cmpProp: d.ComponentCompilerProperty | d.ComponentCompilerEvent | d.ComponentCompilerMethod,
+      ) => cmpProp.complexType && cmpProp.complexType.references,
     )
     .reduce((typesImportData: d.TypesImportData, cmpProp) => {
       return updateImportReferences(typesImportData, cmpProp.complexType.references);
@@ -105,7 +106,11 @@ const updateImportReferenceFactory = (
               ts.createCompilerHost(config.tsCompilerOptions),
             );
 
-            if (resolvedModule && !resolvedModule.isExternalLibraryImport && resolvedModule.resolvedFileName) {
+            if (
+              resolvedModule &&
+              !resolvedModule.isExternalLibraryImport &&
+              resolvedModule.resolvedFileName
+            ) {
               importResolvedFile = resolvedModule.resolvedFileName;
             }
           }
@@ -115,7 +120,8 @@ const updateImportReferenceFactory = (
         if (importResolvedFile.startsWith('.')) {
           importResolvedFile = resolve(dirname(filePath), importResolvedFile);
         }
-        existingTypeImportData[importResolvedFile] = existingTypeImportData[importResolvedFile] || [];
+        existingTypeImportData[importResolvedFile] =
+          existingTypeImportData[importResolvedFile] || [];
 
         // If this file already has a reference to this type move on
         if (existingTypeImportData[importResolvedFile].find((df) => df.localName === typeName)) {
@@ -132,7 +138,8 @@ const updateImportReferenceFactory = (
           originalExportName = typeReference.referenceLocation;
         } else {
           const typeIdParts = typeReference.id.split('::');
-          originalExportName = typeIdParts.length > 1 ? typeIdParts[typeIdParts.length - 1] : typeName;
+          originalExportName =
+            typeIdParts.length > 1 ? typeIdParts[typeIdParts.length - 1] : typeName;
         }
 
         existingTypeImportData[importResolvedFile].push({

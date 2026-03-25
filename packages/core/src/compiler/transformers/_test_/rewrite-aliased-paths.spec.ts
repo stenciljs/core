@@ -6,7 +6,10 @@ import path from 'path';
 import ts from 'typescript';
 
 import { patchTypescript } from '../../sys/typescript/typescript-sys';
-import { rewriteAliasedDTSImportPaths, rewriteAliasedSourceFileImportPaths } from '../rewrite-aliased-paths';
+import {
+  rewriteAliasedDTSImportPaths,
+  rewriteAliasedSourceFileImportPaths,
+} from '../rewrite-aliased-paths';
 import { transpileModule } from './transpile';
 import { formatCode } from './utils';
 
@@ -38,8 +41,14 @@ async function pathTransformTranspile(component: string, inputFileName = 'module
   // we need to have files in the `inMemoryFs` which TypeScript
   // can resolve, otherwise it won't find the module and won't
   // transform the module ID
-  await compilerContext.fs.writeFile(path.join(config.rootDir, 'name/space.ts'), 'export const foo = x => x');
-  await compilerContext.fs.writeFile(path.join(config.rootDir, 'name/space/subdir.ts'), 'export const bar = x => x;');
+  await compilerContext.fs.writeFile(
+    path.join(config.rootDir, 'name/space.ts'),
+    'export const foo = x => x',
+  );
+  await compilerContext.fs.writeFile(
+    path.join(config.rootDir, 'name/space/subdir.ts'),
+    'export const bar = x => x;',
+  );
   await compilerContext.fs.writeFile(
     path.join(config.rootDir, 'name/space/keyboard.ts'),
     'export const keyboard = "keyboard"',
@@ -107,7 +116,9 @@ describe('rewrite alias module paths transform', () => {
     `);
 
     expect(await formatCode(t.declarationOutputText)).toBe(
-      await formatCode('import { Foo } from "./name/space";export declare class CmpA { field: Foo; render(): any;}'),
+      await formatCode(
+        'import { Foo } from "./name/space";export declare class CmpA { field: Foo; render(): any;}',
+      ),
     );
   });
 
@@ -121,7 +132,9 @@ describe('rewrite alias module paths transform', () => {
     `);
 
     expect(await formatCode(t.declarationOutputText)).toBe(
-      await formatCode('import { Foo } from "./name/space/subdir";export declare function fooUtil(foo: Foo): Foo;'),
+      await formatCode(
+        'import { Foo } from "./name/space/subdir";export declare function fooUtil(foo: Foo): Foo;',
+      ),
     );
   });
 

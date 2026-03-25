@@ -1,5 +1,5 @@
-import { defineConfig } from 'tsdown'
-import postcss from "rollup-plugin-postcss";
+import { defineConfig } from 'tsdown';
+import postcss from 'rollup-plugin-postcss';
 
 export default defineConfig([
   // Server-side Node targets
@@ -34,7 +34,7 @@ export default defineConfig([
     plugins: [postcss({ autoModules: true })],
     inputOptions: {
       moduleTypes: {
-        ".css": "js",
+        '.css': 'js',
       },
     },
     outDir: 'dist',
@@ -45,6 +45,6 @@ export default defineConfig([
     clean: false,
     deps: {
       onlyAllowBundle: ['style-inject'],
-    }
+    },
   },
-])
+]);

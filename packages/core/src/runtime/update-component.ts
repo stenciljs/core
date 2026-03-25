@@ -10,7 +10,12 @@ import { attachStyles } from './styles';
 import { renderVdom } from './vdom/vdom-render';
 
 export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostElement) => {
-  if (BUILD.asyncLoading && ancestorComponent && !hostRef.$onRenderResolve$ && ancestorComponent['s-p']) {
+  if (
+    BUILD.asyncLoading &&
+    ancestorComponent &&
+    !hostRef.$onRenderResolve$ &&
+    ancestorComponent['s-p']
+  ) {
     const index = ancestorComponent['s-p'].push(
       new Promise(
         (r) =>
@@ -23,7 +28,10 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
   }
 };
 
-export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void> | void => {
+export const scheduleUpdate = (
+  hostRef: d.HostRef,
+  isInitialLoad: boolean,
+): Promise<void> | void => {
   if (BUILD.taskQueue && BUILD.updatable) {
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
@@ -107,7 +115,9 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
       if (BUILD.hostListener) {
         hostRef.$flags$ |= HOST_FLAGS.isListenReady;
         if (hostRef.$queuedListeners$) {
-          hostRef.$queuedListeners$.map(([methodName, event]) => safeCall(instance, methodName, event, elm));
+          hostRef.$queuedListeners$.map(([methodName, event]) =>
+            safeCall(instance, methodName, event, elm),
+          );
           hostRef.$queuedListeners$ = undefined;
         }
       }
@@ -136,7 +146,9 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
   }
 
   emitLifecycleEvent(elm, 'componentWillRender');
-  maybePromise = enqueue(maybePromise, () => safeCall(instance, 'componentWillRender', undefined, elm));
+  maybePromise = enqueue(maybePromise, () =>
+    safeCall(instance, 'componentWillRender', undefined, elm),
+  );
 
   endSchedule();
 
@@ -159,7 +171,10 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
  * @param fn a function to enqueue
  * @returns either a `Promise` or the return value of the provided function
  */
-const enqueue = (maybePromise: Promise<void> | undefined, fn: () => Promise<void>): Promise<void> | undefined =>
+const enqueue = (
+  maybePromise: Promise<void> | undefined,
+  fn: () => Promise<void>,
+): Promise<void> | undefined =>
   isPromisey(maybePromise)
     ? maybePromise.then(fn).catch((err) => {
         console.error(err);
@@ -179,7 +194,9 @@ const enqueue = (maybePromise: Promise<void> | undefined, fn: () => Promise<void
  */
 const isPromisey = (maybePromise: Promise<void> | unknown): maybePromise is Promise<void> =>
   maybePromise instanceof Promise ||
-  (maybePromise && (maybePromise as any).then && typeof (maybePromise as Promise<void>).then === 'function');
+  (maybePromise &&
+    (maybePromise as any).then &&
+    typeof (maybePromise as Promise<void>).then === 'function');
 
 /**
  * Update a component given reference to its host elements and so on.
@@ -278,7 +295,12 @@ let renderingRef: any = null;
  * @param isInitialLoad whether or not this function is being called as part of
  * @returns an empty promise
  */
-const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isInitialLoad: boolean) => {
+const callRender = (
+  hostRef: d.HostRef,
+  instance: any,
+  elm: HTMLElement,
+  isInitialLoad: boolean,
+) => {
   // in order for bundlers to correctly tree-shake the BUILD object
   // we need to ensure BUILD is not deoptimized within a try/catch
   // https://rollupjs.org/guide/en/#treeshake tryCatchDeoptimization
@@ -308,7 +330,9 @@ const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isIniti
         // or we need to update the css class/attrs on the host element
         // DOM WRITE!
         if (BUILD.hydrateServerSide) {
-          return Promise.resolve(instance).then((value) => renderVdom(hostRef, value, isInitialLoad));
+          return Promise.resolve(instance).then((value) =>
+            renderVdom(hostRef, value, isInitialLoad),
+          );
         } else {
           renderVdom(hostRef, instance, isInitialLoad);
         }
@@ -421,7 +445,8 @@ export const forceUpdate = (ref: any) => {
     const isConnected = hostRef?.$hostElement$?.isConnected;
     if (
       isConnected &&
-      (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) === HOST_FLAGS.hasRendered
+      (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) ===
+        HOST_FLAGS.hasRendered
     ) {
       scheduleUpdate(hostRef, false);
     }

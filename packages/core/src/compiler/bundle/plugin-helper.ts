@@ -3,7 +3,11 @@ import { buildError, relative } from '../../utils';
 import type * as d from '@stencil/core';
 import type { BundlePlatform } from './bundle-interface';
 
-export const pluginHelper = (config: d.ValidatedConfig, builtCtx: d.BuildCtx, platform: BundlePlatform) => {
+export const pluginHelper = (
+  config: d.ValidatedConfig,
+  builtCtx: d.BuildCtx,
+  platform: BundlePlatform,
+) => {
   return {
     name: 'pluginHelper',
     resolveId(importee: string, importer: string): null {

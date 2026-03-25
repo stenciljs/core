@@ -17,7 +17,12 @@ import type {
 } from '@stencil/core';
 import { inspectElement } from './inspect-element';
 import { patchDomImplementation } from './patch-dom-implementation';
-import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';
+import {
+  generateHydrateResults,
+  normalizeHydrateOptions,
+  renderBuildError,
+  renderCatchError,
+} from './render-utils';
 import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
@@ -26,7 +31,10 @@ const NOOP = () => {};
  * Renders HTML to a string, returning the full hydration results.
  * This is the primary SSR function and is portable (no Node.js dependencies).
  */
-export function renderToString(html: string | any, options?: SerializeDocumentOptions): Promise<HydrateResults> {
+export function renderToString(
+  html: string | any,
+  options?: SerializeDocumentOptions,
+): Promise<HydrateResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Makes the rendered DOM not being rendered to a string.
@@ -40,7 +48,9 @@ export function renderToString(html: string | any, options?: SerializeDocumentOp
    * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
    */
   opts.serializeShadowRoot =
-    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
+    typeof opts.serializeShadowRoot === 'undefined'
+      ? 'declarative-shadow-dom'
+      : opts.serializeShadowRoot;
   /**
    * Make sure we wait for components to be hydrated.
    */
@@ -66,13 +76,18 @@ export function streamToString(html: string | any, options?: SerializeDocumentOp
  * Hydrates a document or HTML string, returning the full hydration results.
  * This is portable (no Node.js dependencies).
  */
-export function hydrateDocument(doc: any | string, options?: HydrateDocumentOptions): Promise<HydrateResults> {
+export function hydrateDocument(
+  doc: any | string,
+  options?: HydrateDocumentOptions,
+): Promise<HydrateResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
    */
   opts.serializeShadowRoot =
-    typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot;
+    typeof opts.serializeShadowRoot === 'undefined'
+      ? 'declarative-shadow-dom'
+      : opts.serializeShadowRoot;
 
   let win: MockWindow | null = null;
   const results = generateHydrateResults(opts);
@@ -112,12 +127,19 @@ export function hydrateDocument(doc: any | string, options?: HydrateDocumentOpti
     }
   }
 
-  renderBuildError(results, `Invalid html or document. Must be either a valid "html" string, or DOM "document".`);
+  renderBuildError(
+    results,
+    `Invalid html or document. Must be either a valid "html" string, or DOM "document".`,
+  );
   return Promise.resolve(results);
 }
 
 async function render(win: MockWindow, opts: HydrateFactoryOptions, results: HydrateResults) {
-  if ('process' in globalThis && typeof process.on === 'function' && !(process as any).__stencilErrors) {
+  if (
+    'process' in globalThis &&
+    typeof process.on === 'function' &&
+    !(process as any).__stencilErrors
+  ) {
     (process as any).__stencilErrors = true;
     process.on('unhandledRejection', (e) => {
       console.log('unhandledRejection', e);
@@ -161,7 +183,12 @@ async function afterHydrate(
   }
 }
 
-function finalizeHydrate(win: MockWindow, doc: Document, opts: HydrateFactoryOptions, results: HydrateResults) {
+function finalizeHydrate(
+  win: MockWindow,
+  doc: Document,
+  opts: HydrateFactoryOptions,
+  results: HydrateResults,
+) {
   try {
     inspectElement(results, doc.documentElement, 0);
 
@@ -237,7 +264,12 @@ function finalizeHydrate(win: MockWindow, doc: Document, opts: HydrateFactoryOpt
   return results;
 }
 
-function destroyWindow(win: MockWindow, doc: Document, opts: HydrateFactoryOptions, results: HydrateResults) {
+function destroyWindow(
+  win: MockWindow,
+  doc: Document,
+  opts: HydrateFactoryOptions,
+  results: HydrateResults,
+) {
   if (!opts.destroyWindow) {
     return;
   }
@@ -287,7 +319,10 @@ function removeScripts(elm: HTMLElement) {
     const child = children[i];
     removeScripts(child as any);
 
-    if (child.nodeName === 'SCRIPT' || (child.nodeName === 'LINK' && child.getAttribute('rel') === 'modulepreload')) {
+    if (
+      child.nodeName === 'SCRIPT' ||
+      (child.nodeName === 'LINK' && child.getAttribute('rel') === 'modulepreload')
+    ) {
       child.remove();
     }
   }

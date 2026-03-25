@@ -1,7 +1,6 @@
-
 import { BUILD } from 'virtual:app-data';
 import { plt } from 'virtual:platform';
-import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest'
+import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest';
 import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {
@@ -851,7 +850,15 @@ describe('setAccessor for standard html elements', () => {
       expect(elm.className).toEqual('something-new a-scope-id');
 
       elm.className = '';
-      setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0, true);
+      setAccessor(
+        elm,
+        'class',
+        'something-old a-scope-id-something',
+        'something-new',
+        false,
+        0,
+        true,
+      );
       expect(elm.className).toEqual('something-new a-scope-id a-scope-id-something');
 
       // just check it reverts to normal behavior after initial render
@@ -947,9 +954,18 @@ describe('setAccessor for standard html elements', () => {
       elm.style.setProperty('margin', '20px');
       elm.style.setProperty('font-size', '88px');
 
-      expect(elm.style.cssText).toEqual('color: black; padding: 20px; margin: 20px; font-size: 88px;');
+      expect(elm.style.cssText).toEqual(
+        'color: black; padding: 20px; margin: 20px; font-size: 88px;',
+      );
 
-      setAccessor(elm, 'style', { color: 'black', padding: '20px', fontSize: '88px' }, undefined, false, 0);
+      setAccessor(
+        elm,
+        'style',
+        { color: 'black', padding: '20px', fontSize: '88px' },
+        undefined,
+        false,
+        0,
+      );
       expect(elm.style.cssText).toEqual('margin: 20px;');
 
       setAccessor(elm, 'style', { margin: '20px' }, { margin: '30px', color: 'orange' }, false, 0);

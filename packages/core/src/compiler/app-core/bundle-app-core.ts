@@ -23,7 +23,8 @@ export const generateRollupOutput = async (
     return null;
   }
 
-  const { output }: { output: [OutputChunk, ...(OutputChunk | OutputAsset)[]] } = await build.generate(options);
+  const { output }: { output: [OutputChunk, ...(OutputChunk | OutputAsset)[]] } =
+    await build.generate(options);
   return output.map((chunk: OutputChunk | OutputAsset) => {
     if (chunk.type === 'chunk') {
       const isCore = Object.keys(chunk.modules).some((m) => m.includes(STENCIL_CORE_ID));

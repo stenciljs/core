@@ -3,21 +3,21 @@
  * Consolidated from dev-server-constants.ts and dev-server-utils.ts
  */
 
-import type { OutgoingHttpHeaders } from 'node:http'
+import type { OutgoingHttpHeaders } from 'node:http';
 
-import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types'
+import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types';
 
 // =============================================================================
 // Constants
 // =============================================================================
 
-export const DEV_SERVER_URL = '/~dev-server'
-export const DEV_MODULE_URL = '/~dev-module'
-export const DEV_SERVER_INIT_URL = `${DEV_SERVER_URL}-init`
-export const OPEN_IN_EDITOR_URL = `${DEV_SERVER_URL}-open-in-editor`
+export const DEV_SERVER_URL = '/~dev-server';
+export const DEV_MODULE_URL = '/~dev-module';
+export const DEV_SERVER_INIT_URL = `${DEV_SERVER_URL}-init`;
+export const OPEN_IN_EDITOR_URL = `${DEV_SERVER_URL}-open-in-editor`;
 
 // Dev server version - will be injected at build time
-export const VERSION = '5.0.0'
+export const VERSION = '5.0.0';
 
 // =============================================================================
 // Response Headers
@@ -30,16 +30,19 @@ const DEFAULT_HEADERS: DevResponseHeaders = {
   server: `Stencil Dev Server ${VERSION}`,
   'access-control-allow-origin': '*',
   'access-control-expose-headers': '*',
-}
+};
 
-export function responseHeaders(headers: DevResponseHeaders, httpCache = false): OutgoingHttpHeaders {
-  const result: OutgoingHttpHeaders = { ...DEFAULT_HEADERS, ...headers }
+export function responseHeaders(
+  headers: DevResponseHeaders,
+  httpCache = false,
+): OutgoingHttpHeaders {
+  const result: OutgoingHttpHeaders = { ...DEFAULT_HEADERS, ...headers };
   if (httpCache) {
-    result['cache-control'] = 'max-age=3600'
-    delete result['date']
-    delete result['expires']
+    result['cache-control'] = 'max-age=3600';
+    delete result['date'];
+    delete result['expires'];
   }
-  return result
+  return result;
 }
 
 // =============================================================================
@@ -51,33 +54,33 @@ export function getBrowserUrl(
   address: string,
   port: number,
   basePath: string,
-  pathname: string
+  pathname: string,
 ): string {
-  address = address === '0.0.0.0' ? 'localhost' : address
-  const portSuffix = !port || port === 80 || port === 443 ? '' : ':' + port
+  address = address === '0.0.0.0' ? 'localhost' : address;
+  const portSuffix = !port || port === 80 || port === 443 ? '' : ':' + port;
 
-  let path = basePath
+  let path = basePath;
   if (pathname.startsWith('/')) {
-    pathname = pathname.substring(1)
+    pathname = pathname.substring(1);
   }
-  path += pathname
+  path += pathname;
 
-  protocol = protocol.replace(/:/g, '')
+  protocol = protocol.replace(/:/g, '');
 
-  return `${protocol}://${address}${portSuffix}${path}`
+  return `${protocol}://${address}${portSuffix}${path}`;
 }
 
 export function getDevServerClientUrl(
   devServerConfig: DevServerConfig,
   host: string | undefined,
-  protocol: string | undefined
+  protocol: string | undefined,
 ): string {
-  let address = devServerConfig.address!
-  let port: number | null = devServerConfig.port!
+  let address = devServerConfig.address!;
+  let port: number | null = devServerConfig.port!;
 
   if (host) {
-    address = host
-    port = null
+    address = host;
+    port = null;
   }
 
   return getBrowserUrl(
@@ -85,8 +88,8 @@ export function getDevServerClientUrl(
     address,
     port!,
     devServerConfig.basePath!,
-    DEV_SERVER_URL
-  )
+    DEV_SERVER_URL,
+  );
 }
 
 // =============================================================================
@@ -127,16 +130,16 @@ const CONTENT_TYPES: Record<string, string> = {
   md: 'text/markdown',
   ts: 'text/typescript',
   tsx: 'text/typescript-jsx',
-}
+};
 
 export function getContentType(filePath: string): string {
-  const last = filePath.replace(/^.*[/\\]/, '').toLowerCase()
-  const ext = last.replace(/^.*\./, '').toLowerCase()
+  const last = filePath.replace(/^.*[/\\]/, '').toLowerCase();
+  const ext = last.replace(/^.*\./, '').toLowerCase();
 
-  const hasPath = last.length < filePath.length
-  const hasDot = ext.length < last.length - 1
+  const hasPath = last.length < filePath.length;
+  const hasDot = ext.length < last.length - 1;
 
-  return ((hasDot || !hasPath) && CONTENT_TYPES[ext]) || 'application/octet-stream'
+  return ((hasDot || !hasPath) && CONTENT_TYPES[ext]) || 'application/octet-stream';
 }
 
 // =============================================================================
@@ -144,49 +147,49 @@ export function getContentType(filePath: string): string {
 // =============================================================================
 
 export function isHtmlFile(filePath: string): boolean {
-  const lower = filePath.toLowerCase().trim()
-  return lower.endsWith('.html') || lower.endsWith('.htm')
+  const lower = filePath.toLowerCase().trim();
+  return lower.endsWith('.html') || lower.endsWith('.htm');
 }
 
 export function isCssFile(filePath: string): boolean {
-  return filePath.toLowerCase().trim().endsWith('.css')
+  return filePath.toLowerCase().trim().endsWith('.css');
 }
 
-const TXT_EXT = ['css', 'html', 'htm', 'js', 'json', 'svg', 'xml', 'mjs', 'ts', 'tsx', 'md', 'txt']
+const TXT_EXT = ['css', 'html', 'htm', 'js', 'json', 'svg', 'xml', 'mjs', 'ts', 'tsx', 'md', 'txt'];
 
 export function isSimpleText(filePath: string): boolean {
-  const ext = filePath.toLowerCase().trim().split('.').pop()
-  return ext ? TXT_EXT.includes(ext) : false
+  const ext = filePath.toLowerCase().trim().split('.').pop();
+  return ext ? TXT_EXT.includes(ext) : false;
 }
 
 export function isExtensionLessPath(pathname: string): boolean {
-  const parts = pathname.split('/')
-  const lastPart = parts[parts.length - 1]
-  return !lastPart.includes('.')
+  const parts = pathname.split('/');
+  const lastPart = parts[parts.length - 1];
+  return !lastPart.includes('.');
 }
 
 export function isSsrStaticDataPath(pathname: string): boolean {
-  const parts = pathname.split('/')
-  const fileName = parts[parts.length - 1].split('?')[0]
-  return fileName === 'page.state.json'
+  const parts = pathname.split('/');
+  const fileName = parts[parts.length - 1].split('?')[0];
+  return fileName === 'page.state.json';
 }
 
 export function getSsrStaticDataPath(req: HttpRequest): {
-  ssrPath: string
-  fileName: string
-  hasQueryString: boolean
+  ssrPath: string;
+  fileName: string;
+  hasQueryString: boolean;
 } {
-  const parts = req.url!.href.split('/')
-  const fileName = parts[parts.length - 1]
-  const fileNameParts = fileName.split('?')
+  const parts = req.url!.href.split('/');
+  const fileName = parts[parts.length - 1];
+  const fileNameParts = fileName.split('?');
 
-  parts.pop()
+  parts.pop();
 
-  let ssrPath = new URL(parts.join('/')).href
+  let ssrPath = new URL(parts.join('/')).href;
   if (!ssrPath.endsWith('/') && req.headers) {
-    const h = new Headers(req.headers as HeadersInit)
+    const h = new Headers(req.headers as HeadersInit);
     if (h.get('referer')?.endsWith('/')) {
-      ssrPath += '/'
+      ssrPath += '/';
     }
   }
 
@@ -194,7 +197,7 @@ export function getSsrStaticDataPath(req: HttpRequest): {
     ssrPath,
     fileName: fileNameParts[0],
     hasQueryString: typeof fileNameParts[1] === 'string' && fileNameParts[1].length > 0,
-  }
+  };
 }
 
 // =============================================================================
@@ -202,23 +205,23 @@ export function getSsrStaticDataPath(req: HttpRequest): {
 // =============================================================================
 
 export function isDevClient(pathname: string): boolean {
-  return pathname.startsWith(DEV_SERVER_URL)
+  return pathname.startsWith(DEV_SERVER_URL);
 }
 
 export function isDevModule(pathname: string): boolean {
-  return pathname.includes(DEV_MODULE_URL)
+  return pathname.includes(DEV_MODULE_URL);
 }
 
 export function isOpenInEditor(pathname: string): boolean {
-  return pathname === OPEN_IN_EDITOR_URL
+  return pathname === OPEN_IN_EDITOR_URL;
 }
 
 export function isInitialDevServerLoad(pathname: string): boolean {
-  return pathname === DEV_SERVER_INIT_URL
+  return pathname === DEV_SERVER_INIT_URL;
 }
 
 export function isDevServerClient(pathname: string): boolean {
-  return pathname === DEV_SERVER_URL
+  return pathname === DEV_SERVER_URL;
 }
 
 // =============================================================================
@@ -227,19 +230,19 @@ export function isDevServerClient(pathname: string): boolean {
 
 export function shouldCompress(devServerConfig: DevServerConfig, req: HttpRequest): boolean {
   if (!devServerConfig.gzip) {
-    return false
+    return false;
   }
 
   if (req.method !== 'GET') {
-    return false
+    return false;
   }
 
-  const acceptEncoding = req.headers?.['accept-encoding']
+  const acceptEncoding = req.headers?.['accept-encoding'];
   if (typeof acceptEncoding !== 'string') {
-    return false
+    return false;
   }
 
-  return acceptEncoding.includes('gzip')
+  return acceptEncoding.includes('gzip');
 }
 
 // =============================================================================
@@ -251,15 +254,15 @@ export function shouldCompress(devServerConfig: DevServerConfig, req: HttpReques
  */
 export function normalizePath(path: string): string {
   // Convert backslashes to forward slashes
-  let normalized = path.replace(/\\/g, '/')
+  let normalized = path.replace(/\\/g, '/');
 
   // Remove redundant slashes (but keep leading double slash for UNC paths)
-  normalized = normalized.replace(/\/+/g, '/')
+  normalized = normalized.replace(/\/+/g, '/');
 
   // Handle Windows UNC paths
   if (path.startsWith('\\\\')) {
-    normalized = '/' + normalized
+    normalized = '/' + normalized;
   }
 
-  return normalized
+  return normalized;
 }

@@ -23,7 +23,9 @@ export const taskInfo = (coreCompiler: CoreCompiler, sys: CompilerSystem, logger
   }
   console.log(`${logger.cyan('    Compiler:')} ${sys.getCompilerExecutingPath()}`);
   console.log(`${logger.cyan('       Build:')} ${coreCompiler.buildId}`);
-  console.log(`${logger.cyan('     Stencil:')} ${coreCompiler.version}${logger.emoji(' ' + coreCompiler.vermoji)}`);
+  console.log(
+    `${logger.cyan('     Stencil:')} ${coreCompiler.version}${logger.emoji(' ' + coreCompiler.vermoji)}`,
+  );
   console.log(`${logger.cyan('  TypeScript:')} ${versions.typescript}`);
   console.log(`${logger.cyan('      Rollup:')} ${versions.rollup}`);
   console.log(`${logger.cyan('      Terser:')} ${versions.terser}`);

@@ -89,13 +89,17 @@ describe('resolve modules', () => {
   });
 
   it('getPackageDirPath', () => {
-    expect(getPackageDirPath('/node_modules/@my/pkg/some/path.js', '@my/pkg')).toBe('/node_modules/@my/pkg');
+    expect(getPackageDirPath('/node_modules/@my/pkg/some/path.js', '@my/pkg')).toBe(
+      '/node_modules/@my/pkg',
+    );
     expect(getPackageDirPath('\\node_modules\\my-pkg\\', 'my-pkg')).toBe('/node_modules/my-pkg');
     expect(getPackageDirPath('/node_modules/my-pkg/', 'my-pkg')).toBe('/node_modules/my-pkg');
-    expect(getPackageDirPath('/node_modules/my-pkg/some/path.js', 'my-pkg')).toBe('/node_modules/my-pkg');
-    expect(getPackageDirPath('/node_modules/something/node_modules/my-pkg/some/path.js', 'my-pkg')).toBe(
-      '/node_modules/something/node_modules/my-pkg',
+    expect(getPackageDirPath('/node_modules/my-pkg/some/path.js', 'my-pkg')).toBe(
+      '/node_modules/my-pkg',
     );
+    expect(
+      getPackageDirPath('/node_modules/something/node_modules/my-pkg/some/path.js', 'my-pkg'),
+    ).toBe('/node_modules/something/node_modules/my-pkg');
     expect(getPackageDirPath('/node_modules/idk/some/path.js', 'my-pkg')).toBe(null);
     expect(getPackageDirPath('/my-pkg/node_modules/some/path.js', 'my-pkg')).toBe(null);
     expect(getPackageDirPath('/node_modules/some/my-pkg/path.js', 'my-pkg')).toBe(null);

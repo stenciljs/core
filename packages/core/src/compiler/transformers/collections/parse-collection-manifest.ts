@@ -1,7 +1,10 @@
 import { join, normalizePath } from '../../../utils';
 
 import type * as d from '@stencil/core';
-import { parseCollectionComponents, transpileCollectionModule } from './parse-collection-components';
+import {
+  parseCollectionComponents,
+  transpileCollectionModule,
+} from './parse-collection-components';
 
 export const parseCollectionManifest = (
   config: d.ValidatedConfig,
@@ -30,7 +33,14 @@ export const parseCollectionManifest = (
   };
 
   parseGlobal(config, compilerCtx, buildCtx, collectionDir, collectionManifest, collection);
-  parseCollectionComponents(config, compilerCtx, buildCtx, collectionDir, collectionManifest, collection);
+  parseCollectionComponents(
+    config,
+    compilerCtx,
+    buildCtx,
+    collectionDir,
+    collectionManifest,
+    collection,
+  );
 
   return collection;
 };
@@ -52,7 +62,13 @@ export const parseGlobal = (
   }
 
   const sourceFilePath = normalizePath(join(collectionDir, collectionManifest.global));
-  const globalModule = transpileCollectionModule(config, compilerCtx, buildCtx, collection, sourceFilePath);
+  const globalModule = transpileCollectionModule(
+    config,
+    compilerCtx,
+    buildCtx,
+    collection,
+    sourceFilePath,
+  );
   collection.global = globalModule;
 };
 

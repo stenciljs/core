@@ -37,7 +37,9 @@ export const createWorkerContext = (sys: d.CompilerSystem): d.CompilerWorkerCont
 export const createWorkerMessageHandler = (sys: d.CompilerSystem): d.WorkerMsgHandler => {
   const workerCtx = createWorkerContext(sys);
 
-  return <T extends d.WorkerContextMethod>(msgToWorker: d.MsgToWorker<T>): ReturnType<d.CompilerWorkerContext[T]> => {
+  return <T extends d.WorkerContextMethod>(
+    msgToWorker: d.MsgToWorker<T>,
+  ): ReturnType<d.CompilerWorkerContext[T]> => {
     const fnName = msgToWorker.method;
     const fnArgs = msgToWorker.args;
     const fn = workerCtx[fnName];

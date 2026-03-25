@@ -59,7 +59,11 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
             }
           } else {
             // otherwise, convert from string to correct type
-            attrPropVal = parsePropertyValue(attrValue, memberFlags, !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated));
+            attrPropVal = parsePropertyValue(
+              attrValue,
+              memberFlags,
+              !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+            );
           }
         }
 

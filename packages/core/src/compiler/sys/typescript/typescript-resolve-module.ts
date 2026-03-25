@@ -1,4 +1,14 @@
-import { isDtsFile, isJsFile, isJsxFile, isString, isTsFile, isTsxFile, join, normalizePath, resolve } from '../../../utils';
+import {
+  isDtsFile,
+  isJsFile,
+  isJsxFile,
+  isString,
+  isTsFile,
+  isTsxFile,
+  join,
+  normalizePath,
+  resolve,
+} from '../../../utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
 
@@ -11,10 +21,16 @@ export const tsResolveModuleName = (
   moduleName: string,
   containingFile: string,
 ) => {
-  const resolveModuleName: typeof ts.resolveModuleName = (ts as any).__resolveModuleName || ts.resolveModuleName;
+  const resolveModuleName: typeof ts.resolveModuleName =
+    (ts as any).__resolveModuleName || ts.resolveModuleName;
 
   if (moduleName && resolveModuleName && config.tsCompilerOptions) {
-    const host: ts.ModuleResolutionHost = patchTsSystemFileSystem(config, config.sys, compilerCtx.fs, ts.sys);
+    const host: ts.ModuleResolutionHost = patchTsSystemFileSystem(
+      config,
+      config.sys,
+      compilerCtx.fs,
+      ts.sys,
+    );
 
     const compilerOptions: ts.CompilerOptions = { ...config.tsCompilerOptions };
     compilerOptions.resolveJsonModule = true;
@@ -24,7 +40,10 @@ export const tsResolveModuleName = (
   return null;
 };
 
-export const tsGetSourceFile = (config: d.ValidatedConfig, module: ts.ResolvedModuleWithFailedLookupLocations) => {
+export const tsGetSourceFile = (
+  config: d.ValidatedConfig,
+  module: ts.ResolvedModuleWithFailedLookupLocations,
+) => {
   if (!module || !module.resolvedModule) {
     return null;
   }
@@ -42,7 +61,11 @@ export const tsResolveModuleNamePackageJsonPath = (
 ) => {
   try {
     const resolvedModule = tsResolveModuleName(config, compilerCtx, moduleName, containingFile);
-    if (resolvedModule && resolvedModule.resolvedModule && resolvedModule.resolvedModule.resolvedFileName) {
+    if (
+      resolvedModule &&
+      resolvedModule.resolvedModule &&
+      resolvedModule.resolvedModule.resolvedFileName
+    ) {
       const rootDir = resolve('/');
       let resolvedFileName = resolvedModule.resolvedModule.resolvedFileName;
 

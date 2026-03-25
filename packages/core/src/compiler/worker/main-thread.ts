@@ -9,7 +9,9 @@ import { CompilerWorkerContext, WorkerMainController } from '@stencil/core';
  * context by passing them to worker threads
  * @returns a worker context
  */
-export const createWorkerMainContext = (workerCtrl: WorkerMainController): CompilerWorkerContext => ({
+export const createWorkerMainContext = (
+  workerCtrl: WorkerMainController,
+): CompilerWorkerContext => ({
   optimizeCss: workerCtrl.handler('optimizeCss'),
   prepareModule: workerCtrl.handler('prepareModule'),
   prerenderWorker: workerCtrl.handler('prerenderWorker'),

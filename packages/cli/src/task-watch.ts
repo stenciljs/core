@@ -4,7 +4,11 @@ import { printCheckVersionResults, startCheckVersion } from './check-version';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 
-export const taskWatch = async (coreCompiler: CoreCompiler, config: ValidatedConfig, flags: ConfigFlags) => {
+export const taskWatch = async (
+  coreCompiler: CoreCompiler,
+  config: ValidatedConfig,
+  flags: ConfigFlags,
+) => {
   let devServer: DevServer | null = null;
   let exitCode = 0;
 

@@ -27,7 +27,7 @@ describe('mapImportsToPathAliases', () => {
   let module: ReturnType<typeof transpileModule>;
   let config: ValidatedConfig;
   let outputTarget: OutputTargetDistCollection;
-  
+
   beforeEach(() => {
     config = mockValidatedConfig({ tsCompilerOptions: {} });
 
@@ -48,7 +48,7 @@ describe('mapImportsToPathAliases', () => {
     resolveModuleNameSpy.mockReturnValue({
       resolvedModule: {
         isExternalLibraryImport: false,
-          
+
         resolvedFileName: 'utils.js',
       },
     });
@@ -58,7 +58,13 @@ describe('mapImportsToPathAliases', () => {
         utils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import { utils } from "@utils/utils";');
   });
@@ -77,7 +83,13 @@ describe('mapImportsToPathAliases', () => {
         dateUtils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import * as dateUtils from "../utils";');
   });
@@ -96,7 +108,13 @@ describe('mapImportsToPathAliases', () => {
         utils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import { utils } from "@stencil/core";');
   });
@@ -111,7 +129,13 @@ describe('mapImportsToPathAliases', () => {
         utils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import { utils } from "@utils";');
   });
@@ -131,7 +155,13 @@ describe('mapImportsToPathAliases', () => {
         utils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import { utils } from "./utils";');
   });
@@ -150,7 +180,13 @@ describe('mapImportsToPathAliases', () => {
         utils.test();
     `;
 
-    module = transpileModule(inputText, config, null, [], [mapImportsToPathAliases(config, '', outputTarget)]);
+    module = transpileModule(
+      inputText,
+      config,
+      null,
+      [],
+      [mapImportsToPathAliases(config, '', outputTarget)],
+    );
 
     expect(module.outputText).toContain('import { utils } from "./utils/something-ending-with-d";');
   });
@@ -179,7 +215,9 @@ describe('mapImportsToPathAliases', () => {
       [mapImportsToPathAliases(config, '/dist/collection/test.js', outputTarget)],
     );
 
-    expect(module.outputText).toContain(`import { utils } from "../../some-compiled-dir/utils/utils";`);
+    expect(module.outputText).toContain(
+      `import { utils } from "../../some-compiled-dir/utils/utils";`,
+    );
   });
 
   // Source module and resolved module are in the same output directory

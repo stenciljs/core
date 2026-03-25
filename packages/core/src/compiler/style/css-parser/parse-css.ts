@@ -1,5 +1,10 @@
 import type * as d from '@stencil/core';
-import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults } from './css-parse-declarations';
+import {
+  type CssNode,
+  CssNodeType,
+  type CssParsePosition,
+  type ParseCssResults,
+} from './css-parse-declarations';
 
 // (note - We can't use something like postcss / lightningCSS here
 // because it would be bundled in the user's hydrate-script)
@@ -340,7 +345,12 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     if (!decls) return null;
 
     return pos({
-      type: name === 'media' ? CssNodeType.Media : name === 'container' ? CssNodeType.Container : CssNodeType.Supports,
+      type:
+        name === 'media'
+          ? CssNodeType.Media
+          : name === 'container'
+            ? CssNodeType.Container
+            : CssNodeType.Supports,
       media: media,
       declarations: decls,
     });

@@ -2,7 +2,12 @@ import { createNodeSys } from '../../sys/node';
 import { buildError, catchError, hasError, isString, normalizePath } from '../../utils';
 import { dirname } from 'path';
 
-import type { Diagnostic, LoadConfigInit, LoadConfigResults, UnvalidatedConfig } from '@stencil/core';
+import type {
+  Diagnostic,
+  LoadConfigInit,
+  LoadConfigResults,
+  UnvalidatedConfig,
+} from '@stencil/core';
 import { nodeRequire } from '../sys/node-require';
 import { validateTsConfig } from '../sys/typescript/typescript-config';
 import { validateConfig } from './validate-config';
@@ -85,7 +90,9 @@ export const loadConfig = async (init: LoadConfigInit = {}): Promise<LoadConfigR
       results.config.tsWatchOptions = tsConfigResults.watchOptions;
 
       results.tsconfig.path = tsConfigResults.path;
-      results.tsconfig.compilerOptions = JSON.parse(JSON.stringify(tsConfigResults.compilerOptions));
+      results.tsconfig.compilerOptions = JSON.parse(
+        JSON.stringify(tsConfigResults.compilerOptions),
+      );
       results.tsconfig.files = tsConfigResults.files;
       results.tsconfig.include = tsConfigResults.include;
       results.tsconfig.exclude = tsConfigResults.exclude;
@@ -109,7 +116,10 @@ export const loadConfig = async (init: LoadConfigInit = {}): Promise<LoadConfigR
  * diagnostics may be pushed to the provided `diagnostics` argument and `null`
  * will be returned.
  */
-const loadConfigFile = async (diagnostics: Diagnostic[], configPath: string): Promise<UnvalidatedConfig | null> => {
+const loadConfigFile = async (
+  diagnostics: Diagnostic[],
+  configPath: string,
+): Promise<UnvalidatedConfig | null> => {
   let config: UnvalidatedConfig | null = null;
 
   if (isString(configPath)) {

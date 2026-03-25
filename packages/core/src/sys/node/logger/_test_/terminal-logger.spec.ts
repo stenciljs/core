@@ -65,7 +65,9 @@ describe('terminal-logger', () => {
       const { logger, logMock } = setup();
       logger.setLevel('debug');
       logger.debug('my debug message');
-      expect(logMock).toHaveBeenCalledWith(`${cyan('[32:32.0]')}  my debug message ${dim('MEM: 10.0MB')}`);
+      expect(logMock).toHaveBeenCalledWith(
+        `${cyan('[32:32.0]')}  my debug message ${dim('MEM: 10.0MB')}`,
+      );
     });
 
     it("supports 'info' level", () => {
@@ -148,8 +150,14 @@ describe('terminal-logger', () => {
         vi.advanceTimersByTime(10_000);
         timespan.finish('finish the timespan');
 
-        expect(logMock).toHaveBeenNthCalledWith(1, `${dim('[32:32.0]')}  start the timespan ${dim('...')}`);
-        expect(logMock).toHaveBeenNthCalledWith(2, `${dim('[32:42.0]')}  finish the timespan ${dim('in 10.00 s')}`);
+        expect(logMock).toHaveBeenNthCalledWith(
+          1,
+          `${dim('[32:32.0]')}  start the timespan ${dim('...')}`,
+        );
+        expect(logMock).toHaveBeenNthCalledWith(
+          2,
+          `${dim('[32:42.0]')}  finish the timespan ${dim('in 10.00 s')}`,
+        );
       });
 
       describe('debug timespan', function () {
@@ -206,8 +214,14 @@ describe('terminal-logger', () => {
         vi.advanceTimersByTime(10);
         timespan.finish('finish the timespan');
 
-        expect(logMock).toHaveBeenNthCalledWith(1, `${dim('[32:32.0]')}  start the timespan ${dim('...')}`);
-        expect(logMock).toHaveBeenNthCalledWith(2, `${dim('[32:32.0]')}  finish the timespan ${dim('in 10 ms')}`);
+        expect(logMock).toHaveBeenNthCalledWith(
+          1,
+          `${dim('[32:32.0]')}  start the timespan ${dim('...')}`,
+        );
+        expect(logMock).toHaveBeenNthCalledWith(
+          2,
+          `${dim('[32:32.0]')}  finish the timespan ${dim('in 10 ms')}`,
+        );
       });
 
       it("doesn't report an exact time if it's less than 1ms", function () {
@@ -215,7 +229,10 @@ describe('terminal-logger', () => {
         const timespan = logger.createTimeSpan('start the timespan');
         timespan.finish('finish the timespan');
 
-        expect(logMock).toHaveBeenNthCalledWith(1, `${dim('[32:32.0]')}  start the timespan ${dim('...')}`);
+        expect(logMock).toHaveBeenNthCalledWith(
+          1,
+          `${dim('[32:32.0]')}  start the timespan ${dim('...')}`,
+        );
         expect(logMock).toHaveBeenNthCalledWith(
           2,
           `${dim('[32:32.0]')}  finish the timespan ${dim('in less than 1 ms')}`,

@@ -10,7 +10,7 @@ describe('queryNonceMetaTagContent', () => {
     expect(nonce).toEqual(undefined);
   });
 
-   it('should return the nonce value if the tag exists', () => {
+  it('should return the nonce value if the tag exists', () => {
     const meta = document.createElement('meta');
     meta.setAttribute('name', 'csp-nonce');
     meta.setAttribute('content', '1234');

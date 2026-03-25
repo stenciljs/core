@@ -23,7 +23,10 @@ import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
 export { setNonce } from 'virtual:platform';
 
-export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.CustomElementsDefineOptions = {}) => {
+export const bootstrapLazy = (
+  lazyBundles: d.LazyBundlesRuntimeData,
+  options: d.CustomElementsDefineOptions = {},
+) => {
   if (BUILD.profile && performance.mark) {
     performance.mark('st:app:start');
   }
@@ -82,7 +85,11 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         cmpMeta.$serializers$ = compactMeta[5] ?? {};
         cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }
-      if (BUILD.shadowDom && !supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
+      if (
+        BUILD.shadowDom &&
+        !supportsShadow &&
+        cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation
+      ) {
         // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
         cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
       }
@@ -190,7 +197,10 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         }
       };
 
-      if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasSlot) {
+      if (
+        !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+        cmpMeta.$flags$ & CMP_FLAGS.hasSlot
+      ) {
         if (BUILD.experimentalSlotFixes) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
@@ -203,7 +213,10 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
           if (BUILD.appendChildSlotFix) {
             patchSlotAppendChild(HostElement.prototype);
           }
-          if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+          if (
+            BUILD.scopedSlotTextContentFix &&
+            cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation
+          ) {
             patchTextContent(HostElement.prototype);
           }
         }
@@ -222,7 +235,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         // if we're in an HMR dev build then we need to set up the callback
         // which will carry out the work of actually replacing the module for
         // this particular component
-        ((HostElement as any).prototype as d.HostElement)['s-hmr'] = function (hmrVersionId: string) {
+        ((HostElement as any).prototype as d.HostElement)['s-hmr'] = function (
+          hmrVersionId: string,
+        ) {
           hmrStart(this, cmpMeta, hmrVersionId);
         };
       }

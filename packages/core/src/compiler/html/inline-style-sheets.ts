@@ -12,7 +12,11 @@ export const inlineStyleSheets = (
   return Promise.all(
     globalLinks.map(async (link) => {
       const href = link.getAttribute('href');
-      if (typeof href !== 'string' || !href.startsWith('/') || link.getAttribute('media') !== null) {
+      if (
+        typeof href !== 'string' ||
+        !href.startsWith('/') ||
+        link.getAttribute('media') !== null
+      ) {
         return;
       }
 

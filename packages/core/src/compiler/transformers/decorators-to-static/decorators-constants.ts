@@ -21,7 +21,9 @@ export type StencilDecorator = (typeof STENCIL_DECORATORS)[number];
  * Decorators on class declarations that we remove as part of the compilation
  * process
  */
-export const CLASS_DECORATORS_TO_REMOVE = ['Component'] as const satisfies readonly StencilDecorator[];
+export const CLASS_DECORATORS_TO_REMOVE = [
+  'Component',
+] as const satisfies readonly StencilDecorator[];
 
 /**
  * Decorators on class members that we remove as part of the compilation

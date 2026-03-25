@@ -68,11 +68,14 @@ export class NodeLazyRequire implements d.LazyRequire {
 
     ensureModuleIds.forEach((ensureModuleId) => {
       if (!this.ensured.has(ensureModuleId)) {
-        const { minVersion, recommendedVersion, maxVersion } = this.lazyDependencies[ensureModuleId];
+        const { minVersion, recommendedVersion, maxVersion } =
+          this.lazyDependencies[ensureModuleId];
 
         try {
           const pkgJsonPath = this.nodeResolveModule.resolveModule(fromDir, ensureModuleId);
-          const installedPkgJson: d.PackageJsonData = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+          const installedPkgJson: d.PackageJsonData = JSON.parse(
+            fs.readFileSync(pkgJsonPath, 'utf8'),
+          );
 
           const installedVersionIsGood = maxVersion
             ? // if maxVersion, check that `minVersion <= installedVersion <= maxVersion`

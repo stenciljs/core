@@ -2,7 +2,11 @@ import { normalizePath, relative } from '../../../utils';
 
 import type * as d from '@stencil/core';
 
-export const depsToMarkdown = (cmp: d.JsonDocsComponent, cmps: d.JsonDocsComponent[], config: d.ValidatedConfig) => {
+export const depsToMarkdown = (
+  cmp: d.JsonDocsComponent,
+  cmps: d.JsonDocsComponent[],
+  config: d.ValidatedConfig,
+) => {
   const content: string[] = [];
 
   const deps = Object.entries(cmp.dependencyGraph);

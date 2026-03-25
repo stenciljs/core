@@ -289,6 +289,8 @@ const NODE_KEYS = [
 
 const JSX_KEYS = ['ref', 'key'];
 
-const ALL_KEYS = [...HTML_ELEMENT_KEYS, ...ELEMENT_KEYS, ...NODE_KEYS, ...JSX_KEYS].map((p) => p.toLowerCase());
+const ALL_KEYS = [...HTML_ELEMENT_KEYS, ...ELEMENT_KEYS, ...NODE_KEYS, ...JSX_KEYS].map((p) =>
+  p.toLowerCase(),
+);
 
 const RESERVED_PUBLIC_MEMBERS = new Set(ALL_KEYS);

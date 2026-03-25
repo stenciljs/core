@@ -76,8 +76,10 @@ const appendDiagnostic = (
   file.className = 'dev-server-diagnostic-file';
   card.appendChild(file);
 
-  const isUrl = typeof diagnostic.absFilePath === 'string' && diagnostic.absFilePath.indexOf('http') === 0;
-  const canOpenInEditor = typeof openInEditor === 'function' && typeof diagnostic.absFilePath === 'string' && !isUrl;
+  const isUrl =
+    typeof diagnostic.absFilePath === 'string' && diagnostic.absFilePath.indexOf('http') === 0;
+  const canOpenInEditor =
+    typeof openInEditor === 'function' && typeof diagnostic.absFilePath === 'string' && !isUrl;
 
   if (isUrl) {
     const fileHeader = doc.createElement('a');
@@ -197,17 +199,17 @@ const addOpenInEditor = (
 const getDevServerModal = (doc: Document, _openInEditor?: OpenInEditorCallback): HTMLElement => {
   let outer = doc.getElementById(DEV_SERVER_MODAL);
   let isNewModal = false;
-  
+
   if (!outer) {
     isNewModal = true;
     outer = doc.createElement('div');
     outer.id = DEV_SERVER_MODAL;
     outer.setAttribute('role', 'dialog');
     doc.body.appendChild(outer);
-    
+
     // Set up structure with style tag
     outer.innerHTML = `<style>${appErrorCss}</style><div id="${DEV_SERVER_MODAL}-inner"></div>`;
-    
+
     // Close on ESC key
     const closeOnEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.code === 'Escape') {
@@ -216,7 +218,7 @@ const getDevServerModal = (doc: Document, _openInEditor?: OpenInEditorCallback):
     };
     doc.addEventListener('keydown', closeOnEsc);
     (outer as any).__closeOnEsc = closeOnEsc;
-    
+
     // Close on backdrop click (after innerHTML is set)
     outer.addEventListener('click', (e) => {
       if (e.target === outer) {
@@ -224,22 +226,22 @@ const getDevServerModal = (doc: Document, _openInEditor?: OpenInEditorCallback):
       }
     });
   }
-  
+
   // Reset display to show modal
   outer.style.display = 'block';
-  
+
   const inner = doc.getElementById(`${DEV_SERVER_MODAL}-inner`) as HTMLElement;
-  
+
   // Clear previous errors
   inner.innerHTML = '';
-  
+
   // Prevent clicks inside modal from closing it (only set once)
   if (isNewModal) {
     inner.addEventListener('click', (e) => {
       e.stopPropagation();
     });
   }
-  
+
   return inner;
 };
 
@@ -268,7 +270,7 @@ export const clearAppErrorModal = (data: { window: Window }) => {
 
 const showErrorBadge = (doc: Document) => {
   if (errorCount === 0) return;
-  
+
   let badge = doc.getElementById(ERROR_BADGE_ID);
   if (!badge) {
     badge = doc.createElement('button');
@@ -276,7 +278,7 @@ const showErrorBadge = (doc: Document) => {
     badge.className = 'dev-server-error-badge';
     badge.setAttribute('aria-label', 'Show build errors');
     doc.body.appendChild(badge);
-    
+
     badge.addEventListener('click', () => {
       const modal = doc.getElementById(DEV_SERVER_MODAL);
       if (modal) {
@@ -285,7 +287,7 @@ const showErrorBadge = (doc: Document) => {
       }
     });
   }
-  
+
   badge.innerHTML = `<span class="error-badge-icon">!</span><span class="error-badge-count">${errorCount}</span>`;
   badge.style.display = 'flex';
 };
@@ -386,4 +388,5 @@ const eachLineHasLeadingWhitespace = (lines: PrintLine[]) => {
   return true;
 };
 
-const DEV_SERVER_MODAL = `dev-server-modal`;const ERROR_BADGE_ID = 'dev-server-error-badge';
+const DEV_SERVER_MODAL = `dev-server-modal`;
+const ERROR_BADGE_ID = 'dev-server-error-badge';

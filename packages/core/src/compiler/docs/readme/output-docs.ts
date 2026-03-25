@@ -67,7 +67,13 @@ export const generateReadme = async (
                 userContent;
 
         // CSS Custom Properties preservation is now handled centrally in outputDocs
-        const readmeContent = generateMarkdown(currentReadmeContent, docsData, cmps, readmeOutput, config);
+        const readmeContent = generateMarkdown(
+          currentReadmeContent,
+          docsData,
+          cmps,
+          readmeOutput,
+          config,
+        );
 
         const results = await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
         if (results.changedContent) {

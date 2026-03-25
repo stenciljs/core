@@ -1,7 +1,12 @@
 import { createTestingSystem } from '../../../testing/testing-sys';
 import { normalizePath } from '../../../utils';
 import type { FsItem, FsItems } from '../in-memory-fs';
-import { createInMemoryFs, getCommitInstructions, InMemoryFileSystem, shouldIgnore } from '../in-memory-fs';
+import {
+  createInMemoryFs,
+  getCommitInstructions,
+  InMemoryFileSystem,
+  shouldIgnore,
+} from '../in-memory-fs';
 import { describe, expect, it, beforeEach } from 'vitest';
 
 describe(`in-memory-fs, getCommitInstructions`, () => {
@@ -98,7 +103,10 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
   });
 
   it(`do not delete a files/directory if we also want to ensure it`, () => {
-    items.set(`/dir1/file1.js`, fsItem({ queueWriteToDisk: true, queueDeleteFromDisk: true, isFile: true }));
+    items.set(
+      `/dir1/file1.js`,
+      fsItem({ queueWriteToDisk: true, queueDeleteFromDisk: true, isFile: true }),
+    );
     items.set(`/dir1`, fsItem({ queueDeleteFromDisk: true, isDirectory: true }));
     const i = getCommitInstructions(items);
     expect(i.filesToDelete).toEqual([]);
@@ -135,7 +143,10 @@ describe(`in-memory-fs, getCommitInstructions`, () => {
   });
 
   it(`write file queued even if it's also queueDeleteFromDisk`, () => {
-    items.set(`/dir1/file1.js`, fsItem({ queueWriteToDisk: true, queueDeleteFromDisk: true, isFile: true }));
+    items.set(
+      `/dir1/file1.js`,
+      fsItem({ queueWriteToDisk: true, queueDeleteFromDisk: true, isFile: true }),
+    );
     const i = getCommitInstructions(items);
     expect(i.filesToDelete).toEqual([]);
     expect(i.filesToWrite).toEqual([`/dir1/file1.js`]);
@@ -681,7 +692,12 @@ describe(`in-memory-fs`, () => {
     });
 
     it('shouldIgnore', () => {
-      const filePaths = ['/User/.DS_Store', '/User/.gitignore', '/User/desktop.ini', '/User/thumbs.db'];
+      const filePaths = [
+        '/User/.DS_Store',
+        '/User/.gitignore',
+        '/User/desktop.ini',
+        '/User/thumbs.db',
+      ];
       filePaths.forEach((filePath) => {
         expect(shouldIgnore(filePath)).toBe(true);
       });

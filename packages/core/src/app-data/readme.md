@@ -27,7 +27,7 @@ User-defined environment variables from `stencil.config.ts`:
 ```ts
 // stencil.config.ts
 export const config = {
-  env: { apiUrl: 'https://api.example.com' }
+  env: { apiUrl: 'https://api.example.com' },
 };
 
 // component
@@ -42,6 +42,7 @@ The project's namespace from config (defaults to `'app'`).
 ## Why Defaults Exist
 
 The defaults in `index.ts` serve as:
+
 1. **TypeScript scaffolding** - enables type checking and IDE support
 2. **Fallback values** - used when the plugin doesn't replace them
 3. **Module resolution** - gives bundlers a real file to resolve

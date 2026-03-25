@@ -11,13 +11,20 @@ import { serializeCss } from '../style/css-parser/serialize-css';
  * @param input An object containing the CSS string and an optional resolveUrl function to handle URL resolution.
  * @returns A promise that resolves to the minified CSS string.
  */
-export const minifyCss = async (input: { css: string; resolveUrl?: (url: string) => Promise<string> | string }) => {
+export const minifyCss = async (input: {
+  css: string;
+  resolveUrl?: (url: string) => Promise<string> | string;
+}) => {
   const parseResults = parseCss(input.css);
 
   if (hasError(parseResults.diagnostics)) {
     return input.css;
   }
-  if (isFunction(input.resolveUrl) && parseResults.stylesheet && Array.isArray(parseResults.stylesheet.rules)) {
+  if (
+    isFunction(input.resolveUrl) &&
+    parseResults.stylesheet &&
+    Array.isArray(parseResults.stylesheet.rules)
+  ) {
     await resolveStylesheetUrl(parseResults.stylesheet.rules, input.resolveUrl, new Map());
   }
 
@@ -30,7 +37,11 @@ const resolveStylesheetUrl = async (
   resolved: Map<string, string>,
 ) => {
   for (const node of nodes) {
-    if (node.type === CssNodeType.Declaration && isString(node.value) && node.value.includes('url(')) {
+    if (
+      node.type === CssNodeType.Declaration &&
+      isString(node.value) &&
+      node.value.includes('url(')
+    ) {
       const urlSplt = node.value.split(',').map((n) => n.trim());
       for (let i = 0; i < urlSplt.length; i++) {
         const r = /url\((.*?)\)/.exec(urlSplt[i]);

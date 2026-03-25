@@ -4,7 +4,9 @@ type CustomMethodDecorator<T> = (
   descriptor: TypedPropertyDescriptor<T>,
 ) => TypedPropertyDescriptor<T> | void;
 
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
 
 type MixinInstance<F> = F extends (base: MixedInCtor) => MixedInCtor<infer I> ? I : never;
 
@@ -213,15 +215,21 @@ export interface WatchDecorator {
     watchOptions?: {
       immediate?: boolean;
     },
-  ): CustomMethodDecorator<(newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void>;
+  ): CustomMethodDecorator<
+    (newValue?: any, oldValue?: any, propName?: any, ...args: any[]) => any | void
+  >;
 }
 
 export interface PropSerializeDecorator {
-  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => string | null>;
+  (
+    propName: any,
+  ): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => string | null>;
 }
 
 export interface AttrDeserializeDecorator {
-  (propName: any): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => any>;
+  (
+    propName: any,
+  ): CustomMethodDecorator<(newValue?: any, propName?: string, ...args: any[]) => any>;
 }
 
 export interface UserBuildConditionals {
@@ -716,13 +724,19 @@ export interface FunctionalUtilities {
    * not recommended to read the children directly, and is preferable to use
    * this utility to, for instance, perform a side effect for each child.
    */
-  forEach: (children: VNode[], cb: (vnode: ChildNode, index: number, array: ChildNode[]) => void) => void;
+  forEach: (
+    children: VNode[],
+    cb: (vnode: ChildNode, index: number, array: ChildNode[]) => void,
+  ) => void;
   /**
    * Utility for transforming the children of a functional component. Given an
    * array of children and a callback this will return a list of the results of
    * passing each child to the supplied callback.
    */
-  map: (children: VNode[], cb: (vnode: ChildNode, index: number, array: ChildNode[]) => ChildNode) => VNode[];
+  map: (
+    children: VNode[],
+    cb: (vnode: ChildNode, index: number, array: ChildNode[]) => ChildNode,
+  ) => VNode[];
 }
 
 export interface FunctionalComponent<T = {}> {
@@ -771,9 +785,17 @@ export declare namespace h {
   export function h(sel: any, text: string): VNode;
   export function h(sel: any, children: Array<VNode | undefined | null>): VNode;
   export function h(sel: any, data: VNodeData | null, text: string): VNode;
-  export function h(sel: any, data: VNodeData | null, children: Array<VNode | undefined | null>): VNode;
+  export function h(
+    sel: any,
+    data: VNodeData | null,
+    children: Array<VNode | undefined | null>,
+  ): VNode;
   export function h(sel: any, data: VNodeData | null, children: VNode): VNode;
-  export function h(sel: any, data: VNodeData | null, ...children: (VNode | string | number)[]): VNode;
+  export function h(
+    sel: any,
+    data: VNodeData | null,
+    ...children: (VNode | string | number)[]
+  ): VNode;
 
   export namespace JSX {
     interface IntrinsicElements extends LocalJSX.IntrinsicElements, JSXBase.IntrinsicElements {
@@ -790,9 +812,17 @@ export declare function h(sel: any, data: VNodeData | null): VNode;
 export declare function h(sel: any, text: string): VNode;
 export declare function h(sel: any, children: Array<VNode | undefined | null>): VNode;
 export declare function h(sel: any, data: VNodeData | null, text: string): VNode;
-export declare function h(sel: any, data: VNodeData | null, children: Array<VNode | undefined | null>): VNode;
+export declare function h(
+  sel: any,
+  data: VNodeData | null,
+  children: Array<VNode | undefined | null>,
+): VNode;
 export declare function h(sel: any, data: VNodeData | null, children: VNode): VNode;
-export declare function h(sel: any, data: VNodeData | null, ...children: (VNode | string | number)[]): VNode;
+export declare function h(
+  sel: any,
+  data: VNodeData | null,
+  ...children: (VNode | string | number)[]
+): VNode;
 
 /**
  * Automatic JSX runtime functions for TypeScript's react-jsx mode.

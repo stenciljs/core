@@ -26,12 +26,22 @@ describe('generateBuildStats', () => {
       delete compilerBuildStats.timestamp;
     }
 
-    if (compilerBuildStats.hasOwnProperty('compiler') && compilerBuildStats.compiler.hasOwnProperty('version')) {
+    if (
+      compilerBuildStats.hasOwnProperty('compiler') &&
+      compilerBuildStats.compiler.hasOwnProperty('version')
+    ) {
       delete compilerBuildStats.compiler.version;
     }
 
     expect(compilerBuildStats).toStrictEqual({
-      app: { bundles: 0, components: 0, entries: 0, fsNamespace: 'testing', namespace: 'Testing', outputs: [] },
+      app: {
+        bundles: 0,
+        components: 0,
+        entries: 0,
+        fsNamespace: 'testing',
+        namespace: 'Testing',
+        outputs: [],
+      },
       collections: [],
       compiler: { name: 'in-memory' },
       componentGraph: {},

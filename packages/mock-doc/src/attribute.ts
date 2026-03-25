@@ -59,7 +59,8 @@ export class MockAttributeMap {
     namespaceURI = getNamespaceURI(namespaceURI);
     return (
       this.__items.find(
-        (attr) => attr.localName === attrName && getNamespaceURI(attr.namespaceURI) === namespaceURI,
+        (attr) =>
+          attr.localName === attrName && getNamespaceURI(attr.namespaceURI) === namespaceURI,
       ) || null
     );
   }
@@ -70,7 +71,10 @@ export class MockAttributeMap {
 
   removeNamedItemNS(attr: MockAttr) {
     for (let i = 0, ii = this.__items.length; i < ii; i++) {
-      if (this.__items[i].localName === attr.localName && this.__items[i].namespaceURI === attr.namespaceURI) {
+      if (
+        this.__items[i].localName === attr.localName &&
+        this.__items[i].namespaceURI === attr.namespaceURI
+      ) {
         this.__items.splice(i, 1);
         break;
       }
@@ -107,7 +111,12 @@ export function cloneAttributes(srcAttrs: MockAttributeMap, sortByName = false) 
       const sortedAttrs: MockAttr[] = [];
       for (let i = 0; i < attrLen; i++) {
         const srcAttr = srcAttrs.item(i);
-        const dstAttr = new MockAttr(srcAttr.localName, srcAttr.value, srcAttr.namespaceURI, srcAttr.prefix);
+        const dstAttr = new MockAttr(
+          srcAttr.localName,
+          srcAttr.value,
+          srcAttr.namespaceURI,
+          srcAttr.prefix,
+        );
         sortedAttrs.push(dstAttr);
       }
 
@@ -117,7 +126,12 @@ export function cloneAttributes(srcAttrs: MockAttributeMap, sortByName = false) 
     } else {
       for (let i = 0; i < attrLen; i++) {
         const srcAttr = srcAttrs.item(i);
-        const dstAttr = new MockAttr(srcAttr.localName, srcAttr.value, srcAttr.namespaceURI, srcAttr.prefix);
+        const dstAttr = new MockAttr(
+          srcAttr.localName,
+          srcAttr.value,
+          srcAttr.namespaceURI,
+          srcAttr.prefix,
+        );
         dstAttrs.setNamedItemNS(dstAttr);
       }
     }
@@ -137,7 +151,12 @@ export class MockAttr {
   private _value: string;
   private _namespaceURI: string | null;
 
-  constructor(attrName: string, attrValue: string, namespaceURI: string | null = null, prefix: string | null = null) {
+  constructor(
+    attrName: string,
+    attrValue: string,
+    namespaceURI: string | null = null,
+    prefix: string | null = null,
+  ) {
     // If prefix provided, use it directly with localName = attrName
     // Otherwise, parse prefix from attrName if it contains ':'
     if (prefix != null) {

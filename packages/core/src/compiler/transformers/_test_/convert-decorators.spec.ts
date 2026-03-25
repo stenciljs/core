@@ -470,7 +470,10 @@ describe('convert-decorators', () => {
         ts.factory.createCallExpression(ts.factory.createIdentifier('Prop'), undefined, []),
       );
 
-      const filteredDecorators = filterDecorators([customDecorator, decorator], ['Prop', 'CustomProp']);
+      const filteredDecorators = filterDecorators(
+        [customDecorator, decorator],
+        ['Prop', 'CustomProp'],
+      );
 
       expect(filteredDecorators).toBeUndefined();
     });

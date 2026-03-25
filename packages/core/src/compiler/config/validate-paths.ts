@@ -43,7 +43,10 @@ export const validatePaths = (config: d.Config): ConfigPaths => {
     cacheDir = normalizePath(cacheDir);
   }
 
-  let srcIndexHtml = typeof config.srcIndexHtml !== 'string' ? join(srcDir, DEFAULT_INDEX_HTML) : config.srcIndexHtml;
+  let srcIndexHtml =
+    typeof config.srcIndexHtml !== 'string'
+      ? join(srcDir, DEFAULT_INDEX_HTML)
+      : config.srcIndexHtml;
 
   if (!isAbsolute(srcIndexHtml)) {
     srcIndexHtml = join(rootDir, srcIndexHtml);
@@ -69,7 +72,9 @@ export const validatePaths = (config: d.Config): ConfigPaths => {
 
   if (config.writeLog) {
     validatedPaths.buildLogFilePath =
-      typeof config.buildLogFilePath === 'string' ? config.buildLogFilePath : DEFAULT_BUILD_LOG_FILE_NAME;
+      typeof config.buildLogFilePath === 'string'
+        ? config.buildLogFilePath
+        : DEFAULT_BUILD_LOG_FILE_NAME;
 
     if (!isAbsolute(validatedPaths.buildLogFilePath)) {
       validatedPaths.buildLogFilePath = join(rootDir, config.buildLogFilePath);

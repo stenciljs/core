@@ -38,7 +38,10 @@ export const reWireGetterSetter = (instance: any, hostRef: d.HostRef) => {
   const members = Object.entries(cmpMeta.$members$ ?? {});
 
   members.map(([memberName, [memberFlags]]) => {
-    if ((BUILD.state || BUILD.prop) && (memberFlags & MEMBER_FLAGS.Prop || memberFlags & MEMBER_FLAGS.State)) {
+    if (
+      (BUILD.state || BUILD.prop) &&
+      (memberFlags & MEMBER_FLAGS.Prop || memberFlags & MEMBER_FLAGS.State)
+    ) {
       const ogValue = instance[memberName];
 
       // Get the original Stencil prototype `get` / `set`

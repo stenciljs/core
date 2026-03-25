@@ -2,7 +2,7 @@
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import path from 'path';
-import { describe, it, beforeEach } from 'vitest'; 
+import { describe, it, beforeEach } from 'vitest';
 
 // TODO(STENCIL-464): investigate getting these tests to run again
 describe.skip('component-styles', () => {
@@ -63,7 +63,8 @@ describe.skip('component-styles', () => {
     };
 
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,
+      [path.join(root, 'src', 'cmp-a.tsx')]:
+        `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,
       [path.join(root, 'src', 'cmp-a.css')]: `body{color:red}`,
     });
     await compiler.fs.commit();
@@ -71,7 +72,9 @@ describe.skip('component-styles', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const content = await compiler.fs.readFile(path.join(root, 'www', 'build', 'p-hashed.entry.js'));
+    const content = await compiler.fs.readFile(
+      path.join(root, 'www', 'build', 'p-hashed.entry.js'),
+    );
     expect(content).toContain(`body{color:red}`);
   });
 });

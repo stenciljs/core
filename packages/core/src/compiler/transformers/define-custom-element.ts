@@ -2,7 +2,12 @@ import { formatComponentRuntimeMeta } from '../../utils';
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { addCoreRuntimeApi, DEFINE_CUSTOM_ELEMENT, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
+import {
+  addCoreRuntimeApi,
+  DEFINE_CUSTOM_ELEMENT,
+  RUNTIME_APIS,
+  TRANSFORM_TAG,
+} from './core-runtime-apis';
 import { convertValueToLiteral } from './transform-utils';
 
 export const defineCustomElement = (

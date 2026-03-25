@@ -30,7 +30,8 @@ export const insertVdomAnnotations = (doc: Document, staticComponents: string[])
      * Initiated `docData` object from the document if it exists to ensure we
      * maintain the same `docData` object across multiple hydration hydration runs.
      */
-    const docData: d.DocData = STENCIL_DOC_DATA in doc ? (doc[STENCIL_DOC_DATA] as d.DocData) : { ...DEFAULT_DOC_DATA };
+    const docData: d.DocData =
+      STENCIL_DOC_DATA in doc ? (doc[STENCIL_DOC_DATA] as d.DocData) : { ...DEFAULT_DOC_DATA };
     docData.staticComponents = new Set(staticComponents);
     const orgLocationNodes: d.RenderNode[] = [];
 
@@ -126,7 +127,10 @@ const parseVNodeAnnotations = (
      * we need to insert the vnode annotations on the host element children as well
      * as on the children from its shadowRoot if there is one
      */
-    const childNodes = [...Array.from(node.childNodes), ...Array.from(node.shadowRoot?.childNodes || [])];
+    const childNodes = [
+      ...Array.from(node.childNodes),
+      ...Array.from(node.shadowRoot?.childNodes || []),
+    ];
     childNodes.forEach((childNode) => {
       const hostRef = getHostRef(childNode as d.RuntimeRef);
       if (hostRef != null && !docData.staticComponents.has(childNode.nodeName.toLowerCase())) {

@@ -16,7 +16,13 @@ import {
   MockTitleElement,
   MockUListElement,
 } from './element';
-import { MockCustomEvent, MockEvent, MockFocusEvent, MockKeyboardEvent, MockMouseEvent } from './event';
+import {
+  MockCustomEvent,
+  MockEvent,
+  MockFocusEvent,
+  MockKeyboardEvent,
+  MockMouseEvent,
+} from './event';
 import { MockHeaders } from './headers';
 import { MockDOMParser } from './parser';
 import { MockRequest, MockResponse } from './request-response';

@@ -2,7 +2,11 @@ import { flatOne } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+} from '../transform-utils';
 import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
 export const watchDecoratorsToStatic = (
@@ -30,7 +34,10 @@ const parseWatchDecorator = (
   const methodName = method.name.getText();
   const decorators = retrieveTsDecorators(method) ?? [];
   return decorators.filter(isDecoratorNamed(decoratorName)).map((decorator) => {
-    const [propName, handlerOptions] = getDecoratorParameters<string, { immediate?: boolean }>(decorator, typeChecker);
+    const [propName, handlerOptions] = getDecoratorParameters<string, { immediate?: boolean }>(
+      decorator,
+      typeChecker,
+    );
 
     if (handlerOptions) {
       return {

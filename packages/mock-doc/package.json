@@ -1,25 +1,28 @@
 {
   "name": "@stencil/mock-doc",
+  "version": "5.0.0-next.0",
   "description": "A minimal mock DOM implementation for SSR and testing",
-  "author": "StencilJs Contributors",
-  "homepage": "https://stenciljs.com/",
   "keywords": [
-    "node",
     "dom",
+    "happy-dom",
+    "jsdom",
+    "mock",
+    "node",
     "ssr",
     "testing",
-    "mock",
-    "virtual",
-    "jsdom",
-    "happy-dom"
+    "virtual"
   ],
-  "version": "5.0.0-next.0",
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
   },
+  "files": [
+    "dist/"
+  ],
   "type": "module",
-  "license": "MIT",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -28,19 +31,16 @@
       "import": "./dist/index.mjs"
     }
   },
-  "files": [
-    "dist/"
-  ],
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "parse5": "7.2.1"
+  },
   "devDependencies": {
     "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068"
-  },
-  "dependencies": {
-    "parse5": "7.2.1"    
   },
   "volta": {
     "extends": "../../package.json"

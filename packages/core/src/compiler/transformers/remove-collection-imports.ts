@@ -2,7 +2,9 @@ import ts from 'typescript';
 
 import type * as d from '@stencil/core';
 
-export const removeCollectionImports = (compilerCtx: d.CompilerCtx): ts.TransformerFactory<ts.SourceFile> => {
+export const removeCollectionImports = (
+  compilerCtx: d.CompilerCtx,
+): ts.TransformerFactory<ts.SourceFile> => {
   /*
     // remove side effect collection imports like:
     import 'ionicons';

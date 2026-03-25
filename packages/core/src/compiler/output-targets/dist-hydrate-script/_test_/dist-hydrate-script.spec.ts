@@ -160,7 +160,13 @@ describe('dist-hydrate-script', () => {
 
       const [validatedOutputTarget] = validateHydrateScript(config, [outputTarget]);
 
-      await writeHydrateOutputs(config, compilerCtx, buildCtx, [validatedOutputTarget], rollupOutput as any);
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [validatedOutputTarget],
+        rollupOutput as any,
+      );
 
       expect(mockFs.copyFile).toHaveBeenCalled();
       expect(mockFs.writeFile).not.toHaveBeenCalledWith(
@@ -198,7 +204,13 @@ describe('dist-hydrate-script', () => {
 
       const [validatedOutputTarget] = validateHydrateScript(config, [outputTarget]);
 
-      await writeHydrateOutputs(config, compilerCtx, buildCtx, [validatedOutputTarget], rollupOutput as any);
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [validatedOutputTarget],
+        rollupOutput as any,
+      );
 
       expect(mockFs.copyFile).toHaveBeenCalled();
       expect(mockFs.writeFile).toHaveBeenCalledWith(

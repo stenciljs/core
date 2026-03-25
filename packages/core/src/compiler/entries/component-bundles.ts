@@ -65,7 +65,10 @@ export function generateComponentBundles(
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
 ): readonly d.ComponentCompilerMeta[][] {
-  const components = sortBy(buildCtx.components, (cmp: d.ComponentCompilerMeta) => cmp.dependents.length);
+  const components = sortBy(
+    buildCtx.components,
+    (cmp: d.ComponentCompilerMeta) => cmp.dependents.length,
+  );
 
   const defaultBundles = getDefaultBundles(config, buildCtx, components);
   // this is most likely all the components
@@ -85,7 +88,9 @@ export function generateComponentBundles(
   });
 
   const bundlers: readonly d.ComponentCompilerMeta[][] = components
-    .filter((cmp: d.ComponentCompilerMeta) => usedComponents.has(cmp.tagName) && !alreadyBundled.has(cmp))
+    .filter(
+      (cmp: d.ComponentCompilerMeta) => usedComponents.has(cmp.tagName) && !alreadyBundled.has(cmp),
+    )
     .map((c: d.ComponentCompilerMeta) => [c]);
 
   return [...defaultBundles, ...optimizeBundlers(bundlers, 0.6)].filter(

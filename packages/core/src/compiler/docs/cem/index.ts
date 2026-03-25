@@ -24,7 +24,11 @@ export const generateCustomElementsManifestDocs = async (
   const manifest = generateManifest(docsData);
   const jsonContent = JSON.stringify(manifest, null, 2);
 
-  await Promise.all(cemOutputTargets.map((outputTarget) => compilerCtx.fs.writeFile(outputTarget.file!, jsonContent)));
+  await Promise.all(
+    cemOutputTargets.map((outputTarget) =>
+      compilerCtx.fs.writeFile(outputTarget.file!, jsonContent),
+    ),
+  );
 };
 
 /**
@@ -47,7 +51,9 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
   const modules: JavaScriptModule[] = [];
 
   for (const [filePath, components] of componentsByFile) {
-    const declarations: CustomElementDeclaration[] = components.map((component) => componentToDeclaration(component));
+    const declarations: CustomElementDeclaration[] = components.map((component) =>
+      componentToDeclaration(component),
+    );
 
     const exports: (JavaScriptExport | CustomElementExport)[] = components.flatMap((component) => {
       const className = dashToPascalCase(component.tag);
@@ -88,7 +94,9 @@ const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
  * @param references Stencil's type references map
  * @returns CEM TypeReference array
  */
-const convertTypeReferences = (references?: d.ComponentCompilerTypeReferences): TypeReference[] | undefined => {
+const convertTypeReferences = (
+  references?: d.ComponentCompilerTypeReferences,
+): TypeReference[] | undefined => {
   if (!references || Object.keys(references).length === 0) {
     return undefined;
   }
@@ -168,7 +176,9 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
           }),
         ...(method.returns && {
           return: {
-            ...(method.returns.type && { type: createType(method.returns.type, method.complexType?.references) }),
+            ...(method.returns.type && {
+              type: createType(method.returns.type, method.complexType?.references),
+            }),
             ...(method.returns.docs && { description: method.returns.docs }),
           },
         }),
@@ -179,7 +189,10 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
   const events: Event[] = component.events.map((event) => ({
     name: event.event,
     ...(event.docs && { description: event.docs }),
-    type: createType(event.detail ? `CustomEvent<${event.detail}>` : 'CustomEvent', event.complexType?.references),
+    type: createType(
+      event.detail ? `CustomEvent<${event.detail}>` : 'CustomEvent',
+      event.complexType?.references,
+    ),
     ...(event.deprecation !== undefined && { deprecated: event.deprecation || true }),
   }));
 

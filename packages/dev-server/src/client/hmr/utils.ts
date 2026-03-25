@@ -1,4 +1,4 @@
-import { NODE_TYPE_DOCUMENT_FRAGMENT, NODE_TYPE_ELEMENT } from '../constants'
+import { NODE_TYPE_DOCUMENT_FRAGMENT, NODE_TYPE_ELEMENT } from '../constants';
 
 export const getHmrHref = (versionId: string, fileName: string, testUrl: string) => {
   if (typeof testUrl === 'string' && testUrl.trim() !== '') {
@@ -41,7 +41,8 @@ export const setQueryString = (url: string, qsKey: string, qsValue: string) => {
   return urlPath + '?' + stringifyQuerystring(qs);
 };
 
-export const setHmrQueryString = (url: string, versionId: string) => setQueryString(url, 's-hmr', versionId);
+export const setHmrQueryString = (url: string, versionId: string) =>
+  setQueryString(url, 's-hmr', versionId);
 
 export const updateCssUrlValue = (versionId: string, fileName: string, oldCss: string) => {
   const reg = /url\((['"]?)(.*)\1\)/gi;
@@ -97,7 +98,9 @@ export const setHmrAttr = (elm: Element, versionId: string) => {
  * @returns whether or not it has a shadow root
  */
 export const hasShadowRoot = (elm: Element): boolean =>
-  !!elm.shadowRoot && elm.shadowRoot.nodeType === NODE_TYPE_DOCUMENT_FRAGMENT && elm.shadowRoot !== (elm as any);
+  !!elm.shadowRoot &&
+  elm.shadowRoot.nodeType === NODE_TYPE_DOCUMENT_FRAGMENT &&
+  elm.shadowRoot !== (elm as any);
 
 /**
  * Determine whether or not an element is an element node

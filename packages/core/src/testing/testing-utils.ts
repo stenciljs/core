@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
-import { InMemoryFileSystem } from "src/compiler/sys/in-memory-fs";
-import { afterAll, Mock, vi } from "vitest";
-import { isString, isOutputTargetWww, join, relative, isOutputTargetDistLazy } from '../utils'
+import { InMemoryFileSystem } from 'src/compiler/sys/in-memory-fs';
+import { afterAll, Mock, vi } from 'vitest';
+import { isString, isOutputTargetWww, join, relative, isOutputTargetDistLazy } from '../utils';
 
 /**
  * Shuffle an array using Fisher-Yates algorithm
@@ -141,7 +141,9 @@ export async function withSilentWarn<T>(cb: SilentWarnFunc<T>): Promise<T> {
  * @throws when one or more of the provided file paths cannot be found
  */
 export function expectFilesExist(fs: InMemoryFileSystem, filePaths: string[]): void {
-  const notFoundFiles: ReadonlyArray<string> = filePaths.filter((filePath: string) => !fs.statSync(filePath).exists);
+  const notFoundFiles: ReadonlyArray<string> = filePaths.filter(
+    (filePath: string) => !fs.statSync(filePath).exists,
+  );
 
   if (notFoundFiles.length > 0) {
     throw new Error(
@@ -160,7 +162,9 @@ export function expectFilesExist(fs: InMemoryFileSystem, filePaths: string[]): v
  * @throws when one or more of the provided file paths is found
  */
 export function expectFilesDoNotExist(fs: InMemoryFileSystem, filePaths: string[]): void {
-  const existentFiles: ReadonlyArray<string> = filePaths.filter((filePath: string) => fs.statSync(filePath).exists);
+  const existentFiles: ReadonlyArray<string> = filePaths.filter(
+    (filePath: string) => fs.statSync(filePath).exists,
+  );
 
   if (existentFiles.length > 0) {
     throw new Error(

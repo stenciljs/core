@@ -2,7 +2,11 @@ import { augmentDiagnosticWithNode, buildError, validateComponentTag } from '../
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+} from '../transform-utils';
 import { getDecoratorParameters } from './decorator-utils';
 import { styleToStatic } from './style-to-static';
 
@@ -35,12 +39,25 @@ export const componentDecoratorToStatic = (
   newMembers: ts.ClassElement[],
   componentDecorator: ts.Decorator,
 ) => {
-  const [componentOptions] = getDecoratorParameters<d.ComponentOptions>(componentDecorator, typeChecker, diagnostics);
+  const [componentOptions] = getDecoratorParameters<d.ComponentOptions>(
+    componentDecorator,
+    typeChecker,
+    diagnostics,
+  );
   if (!componentOptions) {
     return;
   }
 
-  if (!validateComponent(config, diagnostics, typeChecker, componentOptions, cmpNode, componentDecorator)) {
+  if (
+    !validateComponent(
+      config,
+      diagnostics,
+      typeChecker,
+      componentOptions,
+      cmpNode,
+      componentDecorator,
+    )
+  ) {
     return;
   }
 
@@ -107,7 +124,10 @@ const validateComponent = (
 
   // Validate slotAssignment is only used with shadow: true
   if (typeof componentOptions.shadow === 'object' && componentOptions.shadow.slotAssignment) {
-    if (componentOptions.shadow.slotAssignment !== 'manual' && componentOptions.shadow.slotAssignment !== 'named') {
+    if (
+      componentOptions.shadow.slotAssignment !== 'manual' &&
+      componentOptions.shadow.slotAssignment !== 'named'
+    ) {
       const err = buildError(diagnostics);
       err.messageText = `The "slotAssignment" option must be either "manual" or "named".`;
       augmentDiagnosticWithNode(err, findTagNode('slotAssignment', componentDecorator));
@@ -154,7 +174,10 @@ const validateComponent = (
     const nonTypeExports = typeChecker
       .getExportsOfModule(typeChecker.getSymbolAtLocation(cmpNode.getSourceFile()))
       .filter(
-        (symbol) => (symbol.flags & (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)) === 0,
+        (symbol) =>
+          (symbol.flags &
+            (ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias | ts.SymbolFlags.Enum)) ===
+          0,
       )
       .filter((symbol) => symbol.name !== cmpNode.name.text);
 

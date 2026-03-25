@@ -43,7 +43,6 @@ interface TrackableData {
   yarn: boolean;
 }
 
-
 /**
  * Used to within taskBuild to provide the component_count property.
  *
@@ -66,13 +65,24 @@ export async function telemetryBuildFinishedAction(
     return;
   }
 
-  const component_count = result.componentGraph ? Object.keys(result.componentGraph).length : undefined;
+  const component_count = result.componentGraph
+    ? Object.keys(result.componentGraph).length
+    : undefined;
 
-  const data = await prepareData(coreCompiler, config, sys, flags, result.duration, component_count);
+  const data = await prepareData(
+    coreCompiler,
+    config,
+    sys,
+    flags,
+    result.duration,
+    component_count,
+  );
 
   await sendMetric(sys, flags, 'stencil_cli_command', data);
 
-  config.logger.debug(`${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`);
+  config.logger.debug(
+    `${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`,
+  );
 }
 
 /**
@@ -118,7 +128,9 @@ export async function telemetryAction(
   const data = await prepareData(coreCompiler, config, sys, flags, duration);
 
   await sendMetric(sys, flags, 'stencil_cli_command', data);
-  config.logger.debug(`${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`);
+  config.logger.debug(
+    `${config.logger.blue('Telemetry')}: ${config.logger.gray(JSON.stringify(data))}`,
+  );
 
   if (error) {
     throw error;
@@ -136,7 +148,9 @@ export async function telemetryAction(
  */
 export function hasAppTarget(config: d.ValidatedConfig): boolean {
   return config.outputTargets.some(
-    (target) => isOutputTargetWww(target) && (!!target.serviceWorker || (!!target.baseUrl && target.baseUrl !== '/')),
+    (target) =>
+      isOutputTargetWww(target) &&
+      (!!target.serviceWorker || (!!target.baseUrl && target.baseUrl !== '/')),
   );
 }
 
@@ -176,7 +190,10 @@ export const prepareData = async (
   duration_ms: number | undefined,
   component_count: number | undefined = undefined,
 ): Promise<TrackableData> => {
-  const { typescript, rollup } = coreCompiler.versions || { typescript: 'unknown', rollup: 'unknown' };
+  const { typescript, rollup } = coreCompiler.versions || {
+    typescript: 'unknown',
+    rollup: 'unknown',
+  };
   const { packages, packagesNoVersions } = await getInstalledPackages(sys, flags);
   const targets = getActiveTargets(config);
   const yarn = isUsingYarn(sys);
@@ -351,7 +368,9 @@ async function getInstalledPackages(
     );
 
     try {
-      packages = yarn ? await yarnPackages(sys, ionicPackages) : await npmPackages(sys, ionicPackages);
+      packages = yarn
+        ? await yarnPackages(sys, ionicPackages)
+        : await npmPackages(sys, ionicPackages);
     } catch (e) {
       packages = ionicPackages.map(([k, v]) => `${k}@${v.replace('^', '')}`);
     }
@@ -371,12 +390,22 @@ async function getInstalledPackages(
  * @param ionicPackages a list of the found packages matching `@stencil`, `@capacitor`, or `@ionic` from the package.json file.
  * @returns an array of strings of all the packages and their versions.
  */
-async function npmPackages(sys: d.CompilerSystem, ionicPackages: [string, string][]): Promise<string[]> {
+async function npmPackages(
+  sys: d.CompilerSystem,
+  ionicPackages: [string, string][],
+): Promise<string[]> {
   const appRootDir = sys.getCurrentDirectory();
-  const packageLockJson: any = await tryFn(readJson, sys, sys.resolvePath(appRootDir + '/package-lock.json'));
+  const packageLockJson: any = await tryFn(
+    readJson,
+    sys,
+    sys.resolvePath(appRootDir + '/package-lock.json'),
+  );
 
   return ionicPackages.map(([k, v]) => {
-    let version = packageLockJson?.dependencies[k]?.version ?? packageLockJson?.devDependencies[k]?.version ?? v;
+    let version =
+      packageLockJson?.dependencies[k]?.version ??
+      packageLockJson?.devDependencies[k]?.version ??
+      v;
     version = version.includes('file:') ? sanitizeDeclaredVersion(v) : version;
     return `${k}@${version}`;
   });
@@ -388,7 +417,10 @@ async function npmPackages(sys: d.CompilerSystem, ionicPackages: [string, string
  * @param ionicPackages a list of the found packages matching `@stencil`, `@capacitor`, or `@ionic` from the package.json file.
  * @returns an array of strings of all the packages and their versions.
  */
-async function yarnPackages(sys: d.CompilerSystem, ionicPackages: [string, string][]): Promise<string[]> {
+async function yarnPackages(
+  sys: d.CompilerSystem,
+  ionicPackages: [string, string][],
+): Promise<string[]> {
   const appRootDir = sys.getCurrentDirectory();
   const yarnLock = sys.readFileSync(sys.resolvePath(appRootDir + '/yarn.lock'));
   const yarnLockYml = sys.parseYarnLockFile?.(yarnLock);
@@ -396,7 +428,10 @@ async function yarnPackages(sys: d.CompilerSystem, ionicPackages: [string, strin
   return ionicPackages.map(([k, v]) => {
     const identifiedVersion = `${k}@${v}`;
     let version = yarnLockYml?.object[identifiedVersion]?.version;
-    version = version && version.includes('undefined') ? sanitizeDeclaredVersion(identifiedVersion) : version;
+    version =
+      version && version.includes('undefined')
+        ? sanitizeDeclaredVersion(identifiedVersion)
+        : version;
     return `${k}@${version}`;
   });
 }
@@ -460,7 +495,11 @@ async function getTelemetryToken(sys: d.CompilerSystem) {
  * @param flags The CLI flags (owned by CLI, not part of core config)
  * @param data Data to be tracked
  */
-async function sendTelemetry(sys: d.CompilerSystem, flags: ConfigFlags, data: Metric): Promise<void> {
+async function sendTelemetry(
+  sys: d.CompilerSystem,
+  flags: ConfigFlags,
+  data: Metric,
+): Promise<void> {
   try {
     const now = new Date().toISOString();
 
@@ -483,11 +522,20 @@ async function sendTelemetry(sys: d.CompilerSystem, flags: ConfigFlags, data: Me
     });
 
     hasVerbose(flags) &&
-      console.debug('\nSent %O metric to events service (status: %O)', data.name, response.status, '\n');
+      console.debug(
+        '\nSent %O metric to events service (status: %O)',
+        data.name,
+        response.status,
+        '\n',
+      );
 
     if (response.status !== 204) {
       hasVerbose(flags) &&
-        console.debug('\nBad response from events service. Request body: %O', response.body.toString(), '\n');
+        console.debug(
+          '\nBad response from events service. Request body: %O',
+          response.body.toString(),
+          '\n',
+        );
     }
   } catch (e) {
     hasVerbose(flags) && console.debug('Telemetry request failed:', e);

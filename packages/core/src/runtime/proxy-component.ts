@@ -40,7 +40,11 @@ export const proxyComponent = (
    * proxy form associated custom element lifecycle callbacks
    * @ref https://web.dev/articles/more-capable-form-controls#lifecycle_callbacks
    */
-  if (BUILD.formAssociated && cmpMeta.$flags$ & CMP_FLAGS.formAssociated && flags & PROXY_FLAGS.isElementConstructor) {
+  if (
+    BUILD.formAssociated &&
+    cmpMeta.$flags$ & CMP_FLAGS.formAssociated &&
+    flags & PROXY_FLAGS.isElementConstructor
+  ) {
     FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS.forEach((cbName) => {
       const originalFormAssociatedCallback = prototype[cbName];
       Object.defineProperty(prototype, cbName, {
@@ -86,7 +90,8 @@ export const proxyComponent = (
       ) {
         // preserve any getters / setters that already exist on the prototype;
         // we'll call them via our new accessors. On a lazy component, this would only be called on the class instance.
-        const { get: origGetter, set: origSetter } = getPropertyDescriptor(prototype, memberName) || {};
+        const { get: origGetter, set: origSetter } =
+          getPropertyDescriptor(prototype, memberName) || {};
         if (origGetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Getter;
         if (origSetter) cmpMeta.$members$[memberName][0] |= MEMBER_FLAGS.Setter;
 
@@ -261,7 +266,11 @@ export const proxyComponent = (
     if (BUILD.observeAttribute && (!BUILD.lazyLoad || flags & PROXY_FLAGS.isElementConstructor)) {
       const attrNameToPropName = new Map();
 
-      prototype.attributeChangedCallback = function (attrName: string, oldValue: string, newValue: string) {
+      prototype.attributeChangedCallback = function (
+        attrName: string,
+        oldValue: string,
+        newValue: string,
+      ) {
         plt.jmp(() => {
           const propName = attrNameToPropName.get(attrName);
           const hostRef = getHostRef(this);
@@ -358,7 +367,12 @@ export const proxyComponent = (
             // 1. The instance is ready
             // 2. The watchers are ready
             // 3. The value has changed
-            if (hostRef && flags && !(flags & HOST_FLAGS.isConstructingInstance) && newValue !== oldValue) {
+            if (
+              hostRef &&
+              flags &&
+              !(flags & HOST_FLAGS.isConstructingInstance) &&
+              newValue !== oldValue
+            ) {
               const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : this;
               const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
               const entry = cmpMeta.$watchers$?.[attrName];

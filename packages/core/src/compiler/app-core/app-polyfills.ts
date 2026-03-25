@@ -19,7 +19,10 @@ export const getClientPolyfill = async (
   return compilerCtx.fs.readFile(polyfillFilePath);
 };
 
-export const getAppBrowserCorePolyfills = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
+export const getAppBrowserCorePolyfills = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+) => {
   // read all the polyfill content, in this particular order
   const polyfills = INLINE_POLYFILLS.slice();
 

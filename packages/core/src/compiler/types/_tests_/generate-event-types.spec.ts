@@ -69,7 +69,9 @@ describe('generate-event-types', () => {
       const actualTypeInfo = generateEventTypes(componentMeta, stubImportTypes, cmpClassName);
 
       expect(actualTypeInfo).toHaveLength(1);
-      expect(actualTypeInfo[0].type).toBe('(event: MyComponentCustomEvent<UserImplementedEventType>) => void');
+      expect(actualTypeInfo[0].type).toBe(
+        '(event: MyComponentCustomEvent<UserImplementedEventType>) => void',
+      );
     });
 
     it('uses an updated type name to avoid naming collisions', () => {
@@ -85,7 +87,9 @@ describe('generate-event-types', () => {
       const actualTypeInfo = generateEventTypes(componentMeta, stubImportTypes, cmpClassName);
 
       expect(actualTypeInfo).toHaveLength(1);
-      expect(actualTypeInfo[0].type).toBe(`(event: MyComponentCustomEvent<${updatedTypeName}>) => void`);
+      expect(actualTypeInfo[0].type).toBe(
+        `(event: MyComponentCustomEvent<${updatedTypeName}>) => void`,
+      );
     });
 
     it('derives CustomEvent type when there is no original typing field', () => {

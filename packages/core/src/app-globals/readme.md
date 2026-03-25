@@ -15,11 +15,11 @@ A function that executes your project's global initialization script:
 ```ts
 // stencil.config.ts
 export const config = {
-  globalScript: 'src/global.ts'
+  globalScript: 'src/global.ts',
 };
 
 // src/global.ts
-export default function() {
+export default function () {
   console.log('App initialized!');
 }
 ```
@@ -33,7 +33,7 @@ A string containing compiled global CSS:
 ```ts
 // stencil.config.ts
 export const config = {
-  globalStyle: 'src/global.css'
+  globalStyle: 'src/global.css',
 };
 ```
 
@@ -42,12 +42,14 @@ At build time, the CSS is compiled and inlined as a string constant.
 ## Runtime Usage
 
 The `globalScripts()` function is called during app initialization:
+
 - In the browser: during lazy-load bootstrap
 - During SSR: in `server/platform/hydrate-app.ts`
 
 ## Why Stubs Exist
 
 The empty stubs in `index.ts` serve as:
+
 1. **TypeScript scaffolding** - enables type checking and IDE support
 2. **Fallback values** - used when no `globalScript`/`globalStyle` is configured
 3. **Module resolution** - gives bundlers a real file to resolve before replacement

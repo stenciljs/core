@@ -11,8 +11,13 @@ import { getStaticValue, isInternal } from '../transform-utils';
  * @param staticMembers TypeScript IR for the properties on our component
  * @returns a manifest of compiler properties in our own Stencil IR
  */
-export const parseStaticProps = (staticMembers: ts.ClassElement[]): d.ComponentCompilerProperty[] => {
-  const parsedProps: { [key: string]: d.ComponentCompilerStaticProperty } = getStaticValue(staticMembers, 'properties');
+export const parseStaticProps = (
+  staticMembers: ts.ClassElement[],
+): d.ComponentCompilerProperty[] => {
+  const parsedProps: { [key: string]: d.ComponentCompilerStaticProperty } = getStaticValue(
+    staticMembers,
+    'properties',
+  );
   if (!parsedProps) {
     return [];
   }

@@ -1,6 +1,6 @@
 /**
  * Compiler utilities exported for CLI and other tools
- * 
+ *
  * Excludes runtime-dependent utilities like shadow-root, style
  */
 export * from './byte-size';

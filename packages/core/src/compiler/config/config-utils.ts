@@ -50,7 +50,10 @@ export const setBooleanConfig = <K extends keyof d.Config>(
  * @returns a string container a mis-capitalized config name found on the
  * config object, if any.
  */
-const getUserConfigName = (config: d.UnvalidatedConfig, correctConfigName: keyof d.Config): string => {
+const getUserConfigName = (
+  config: d.UnvalidatedConfig,
+  correctConfigName: keyof d.Config,
+): string => {
   const userConfigNames = Object.keys(config);
 
   for (const userConfigName of userConfigNames) {

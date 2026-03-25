@@ -14,7 +14,14 @@ import { parseStringLiteral } from './string-literal';
  * Stencil static getter names that indicate a class has Stencil metadata
  * and can be extended by other components (mixin/abstract class pattern).
  */
-const STENCIL_MIXIN_STATIC_MEMBERS = ['properties', 'states', 'methods', 'events', 'listeners', 'watchers'];
+const STENCIL_MIXIN_STATIC_MEMBERS = [
+  'properties',
+  'states',
+  'methods',
+  'events',
+  'listeners',
+  'watchers',
+];
 
 /**
  * Gets the name of a class member as a string, safely handling cases where
@@ -107,7 +114,10 @@ export const updateModule = (
       // Look for mixin patterns like `const MyMixin = (Base) => class MyMixin extends Base { ... }`
       node.declarationList.declarations.forEach((declaration) => {
         if (declaration.initializer) {
-          if (ts.isArrowFunction(declaration.initializer) || ts.isFunctionExpression(declaration.initializer)) {
+          if (
+            ts.isArrowFunction(declaration.initializer) ||
+            ts.isFunctionExpression(declaration.initializer)
+          ) {
             const funcBody = declaration.initializer.body;
             // Handle functions with block body: (Base) => { class MyMixin ... }
             if (ts.isBlock(funcBody)) {

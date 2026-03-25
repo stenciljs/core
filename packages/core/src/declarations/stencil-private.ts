@@ -1045,7 +1045,12 @@ export interface EntryModule {
 export interface HostElement extends HTMLElement {
   // web component APIs
   connectedCallback?: () => void;
-  attributeChangedCallback?: (attribName: string, oldVal: string, newVal: string, namespace: string) => void;
+  attributeChangedCallback?: (
+    attribName: string,
+    oldVal: string,
+    newVal: string,
+    namespace: string,
+  ) => void;
   disconnectedCallback?: () => void;
   host?: Element;
   forceUpdate?: () => void;

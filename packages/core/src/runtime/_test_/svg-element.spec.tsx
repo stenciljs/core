@@ -13,7 +13,7 @@ describe('SVG element', () => {
 
       render() {
         return (
-          <svg viewBox="0 0 100 4">
+          <svg viewBox='0 0 100 4'>
             {this.lines.map((a) => {
               return [<text>Hola {a}</text>];
             })}
@@ -61,9 +61,9 @@ describe('SVG element', () => {
       render() {
         const A = 'a' as any;
         return (
-          <svg id="my-svg" viewBox="0 0 100 4" preserveAspectRatio="none">
-            <A xlinkHref="/path"></A>
-            <a href="/path"></a>
+          <svg id='my-svg' viewBox='0 0 100 4' preserveAspectRatio='none'>
+            <A xlinkHref='/path'></A>
+            <a href='/path'></a>
           </svg>
         );
       }
@@ -88,9 +88,15 @@ describe('SVG element', () => {
       render() {
         return (
           <div>
-            <a href="#">Dude!!</a>
-            <svg id="my-svg" viewBox="0 0 100 4" preserveAspectRatio="none">
-              <path id="my-svg-path" d="M 0,2 L 100,2" stroke="#FFEA82" stroke-width="4" fill-opacity="0" />
+            <a href='#'>Dude!!</a>
+            <svg id='my-svg' viewBox='0 0 100 4' preserveAspectRatio='none'>
+              <path
+                id='my-svg-path'
+                d='M 0,2 L 100,2'
+                stroke='#FFEA82'
+                stroke-width='4'
+                fill-opacity='0'
+              />
             </svg>
           </div>
         );

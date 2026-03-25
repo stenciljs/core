@@ -14,6 +14,28 @@ export {
 export { newSpecPage } from './spec-page';
 export { setupConsoleMocker, shuffleArray } from './testing-utils';
 export { createTestingSystem } from './testing-sys';
-export { registerInstance, getHostRef, registerHost, setErrorHandler, writeTask, readTask, Build, Env, setMode, getMode } from './platform';
-export { h, Host, createEvent, getElement, Fragment, getAssetPath, setAssetPath, forceUpdate, Mixin, getRenderingRef } from '../runtime';
+export {
+  registerInstance,
+  getHostRef,
+  registerHost,
+  setErrorHandler,
+  writeTask,
+  readTask,
+  Build,
+  Env,
+  setMode,
+  getMode,
+} from './platform';
+export {
+  h,
+  Host,
+  createEvent,
+  getElement,
+  Fragment,
+  getAssetPath,
+  setAssetPath,
+  forceUpdate,
+  Mixin,
+  getRenderingRef,
+} from '../runtime';
 export type { SpecPage, Testing } from '@stencil/core';

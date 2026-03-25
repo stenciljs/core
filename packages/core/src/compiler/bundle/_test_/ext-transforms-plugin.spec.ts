@@ -1,4 +1,9 @@
-import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import {
+  mockBuildCtx,
+  mockCompilerCtx,
+  mockModule,
+  mockValidatedConfig,
+} from '@stencil/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { normalizePath } from '../../../utils';
 
@@ -52,15 +57,17 @@ describe('extTransformsPlugin', () => {
     // mock out compilerCtx.worker.transformCssToEsm because 1) we want to
     // test what arguments are passed to it and 2) calling it un-mocked causes
     // the infamous autoprefixer-spew-issue :(
-    const transformCssToEsmSpy = vi.spyOn(compilerCtx.worker, 'transformCssToEsm').mockResolvedValue({
-      styleText: cssText,
-      output: cssText,
-      map: null,
-      diagnostics: [],
-      imports: [],
-      defaultVarName: 'foo',
-      styleDocs: [],
-    });
+    const transformCssToEsmSpy = vi
+      .spyOn(compilerCtx.worker, 'transformCssToEsm')
+      .mockResolvedValue({
+        styleText: cssText,
+        output: cssText,
+        map: null,
+        diagnostics: [],
+        imports: [],
+        defaultVarName: 'foo',
+        styleDocs: [],
+      });
 
     const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
     return {

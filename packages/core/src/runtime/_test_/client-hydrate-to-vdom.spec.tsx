@@ -57,7 +57,9 @@ describe('initializeClientHydrate', () => {
     expect(cmpAvnode.$children$[0].$children$[0].$children$[0].$tag$).toBe('title');
 
     expect(cmpAvnode.$children$[0].$children$[0].$children$[0].$children$).toHaveLength(1);
-    expect(cmpAvnode.$children$[0].$children$[0].$children$[0].$children$[0].$text$).toBe('Ionic Docs');
+    expect(cmpAvnode.$children$[0].$children$[0].$children$[0].$children$[0].$text$).toBe(
+      'Ionic Docs',
+    );
   });
 
   it('text child', async () => {

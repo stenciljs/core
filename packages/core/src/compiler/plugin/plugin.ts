@@ -1,4 +1,11 @@
-import { buildError, catchError, isFunction, isOutputTargetDocs, isString, relative } from '../../utils';
+import {
+  buildError,
+  catchError,
+  isFunction,
+  isOutputTargetDocs,
+  isString,
+  relative,
+} from '../../utils';
 import { basename } from 'path';
 
 import type * as d from '@stencil/core';
@@ -122,7 +129,14 @@ export const runPluginTransforms = async (
       transformResults.code = cssParseResults.styleText;
       transformResults.dependencies = cssParseResults.imports;
     } else {
-      const cssParseResults = await parseCssImports(config, compilerCtx, buildCtx, id, id, transformResults.code);
+      const cssParseResults = await parseCssImports(
+        config,
+        compilerCtx,
+        buildCtx,
+        id,
+        id,
+        transformResults.code,
+      );
       transformResults.code = cssParseResults.styleText;
       transformResults.dependencies = cssParseResults.imports;
     }
@@ -156,7 +170,10 @@ export const runPluginTransforms = async (
                * add dependencies from plugin transform results, e.g. transformed sass files
                */
               transformResults.dependencies.push(
-                ...getDependencySubset(pluginTransformResults.dependencies, transformResults.dependencies),
+                ...getDependencySubset(
+                  pluginTransformResults.dependencies,
+                  transformResults.dependencies,
+                ),
               );
             }
           }
@@ -237,7 +254,14 @@ export const runPluginTransformsEsmImports = async (
     // concat all css @imports into one file
     // when the entry file is a .css file (not .scss)
     // do this BEFORE transformations on css files
-    const cssParseResults = await parseCssImports(config, compilerCtx, buildCtx, id, id, transformResults.code);
+    const cssParseResults = await parseCssImports(
+      config,
+      compilerCtx,
+      buildCtx,
+      id,
+      id,
+      transformResults.code,
+    );
     transformResults.code = cssParseResults.styleText;
     if (Array.isArray(cssParseResults.imports)) {
       transformResults.dependencies.push(...cssParseResults.imports);
@@ -299,7 +323,9 @@ export const runPluginTransformsEsmImports = async (
     );
     transformResults.code = cssParseResults.styleText;
     if (Array.isArray(cssParseResults.imports)) {
-      const imports = cssParseResults.imports.filter((f) => !transformResults.dependencies.includes(f));
+      const imports = cssParseResults.imports.filter(
+        (f) => !transformResults.dependencies.includes(f),
+      );
       transformResults.dependencies.push(...imports);
     }
   }

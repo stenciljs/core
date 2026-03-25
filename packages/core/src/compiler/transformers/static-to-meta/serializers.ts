@@ -7,7 +7,10 @@ export const parseStaticSerializers = (
   staticMembers: ts.ClassElement[],
   translateType: 'serializers' | 'deserializers',
 ): d.ComponentCompilerChangeHandler[] => {
-  const parsedSerializers: d.ComponentCompilerChangeHandler[] = getStaticValue(staticMembers, translateType);
+  const parsedSerializers: d.ComponentCompilerChangeHandler[] = getStaticValue(
+    staticMembers,
+    translateType,
+  );
   if (!parsedSerializers || parsedSerializers.length === 0) {
     return [];
   }

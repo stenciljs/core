@@ -17,7 +17,10 @@ import type { ImportData, ParsedImport, SerializeImportData } from '@stencil/cor
  * will be added to the path (formatted as query params)
  * @returns a formatted string
  */
-export const serializeImportPath = (data: SerializeImportData, styleImportData: string | undefined | null): string => {
+export const serializeImportPath = (
+  data: SerializeImportData,
+  styleImportData: string | undefined | null,
+): string => {
   let p = data.importeePath;
 
   if (isString(p)) {

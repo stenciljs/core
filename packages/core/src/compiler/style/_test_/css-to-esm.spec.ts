@@ -14,7 +14,6 @@ vi.mock('../../../utils/shadow-css', async (importOriginal) => {
   };
 });
 
-
 describe('transformCssToEsm', () => {
   let mockInput: d.TransformCssToEsmInput;
 
@@ -48,7 +47,9 @@ describe('transformCssToEsm', () => {
     it('should transform basic CSS to ESM module synchronously', () => {
       const result = transformCssToEsmSync(mockInput);
 
-      expect(result.output).toContain('const mdMyComponentCss = () => `.my-class { color: red; }`;');
+      expect(result.output).toContain(
+        'const mdMyComponentCss = () => `.my-class { color: red; }`;',
+      );
       expect(result.output).toContain('export default mdMyComponentCss;');
       expect(result.diagnostics).toEqual([]);
       expect(result.imports).toEqual([]);
@@ -230,7 +231,9 @@ describe('transformCssToEsm', () => {
 
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.output).toContain("import { transformTag as __stencil_transformTag  } from '@stencil/core'");
+      expect(result.output).toContain(
+        "import { transformTag as __stencil_transformTag  } from '@stencil/core'",
+      );
     });
 
     it('should add tag transformers when requested for CommonJS', async () => {
@@ -240,7 +243,9 @@ describe('transformCssToEsm', () => {
 
       const result = await transformCssToEsm(mockInput);
 
-      expect(result.output).toContain("const __stencil_transformTag = require('@stencil/core').transformTag;");
+      expect(result.output).toContain(
+        "const __stencil_transformTag = require('@stencil/core').transformTag;",
+      );
     });
   });
 

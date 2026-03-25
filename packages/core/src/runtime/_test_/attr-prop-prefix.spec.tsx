@@ -22,7 +22,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:something="test label" />;
+          return <div attr:something='test label' />;
         }
       }
 
@@ -39,7 +39,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:something-else="button" attr:a-number="0" />;
+          return <div attr:something-else='button' attr:a-number='0' />;
         }
       }
 
@@ -100,7 +100,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <input attr:value="500px" type="text" />;
+          return <input attr:value='500px' type='text' />;
         }
       }
 
@@ -155,7 +155,7 @@ describe('attr: and prop: prefix', () => {
         render() {
           return (
             <div>
-              <cmp-child attr:overlayIndex={42} attr:customAttr="test" />
+              <cmp-child attr:overlayIndex={42} attr:customAttr='test' />
             </div>
           );
         }
@@ -184,7 +184,13 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:dataTestId="test-123" attr:ariaLabel="Test Label" attr:customAttribute="value" />;
+          return (
+            <div
+              attr:dataTestId='test-123'
+              attr:ariaLabel='Test Label'
+              attr:customAttribute='value'
+            />
+          );
         }
       }
 
@@ -211,7 +217,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <input prop:value="test value" />;
+          return <input prop:value='test value' />;
         }
       }
 
@@ -265,7 +271,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div prop:customProp="test" />;
+          return <div prop:customProp='test' />;
         }
       }
 
@@ -326,7 +332,14 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div id="normal-id" class="normal-class" attr:role="button" prop:customData={{ value: 123 }} />;
+          return (
+            <div
+              id='normal-id'
+              class='normal-class'
+              attr:role='button'
+              prop:customData={{ value: 123 }}
+            />
+          );
         }
       }
 
@@ -346,7 +359,9 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div attr:aria-label="Label" attr:role="button" prop:propOne="a" prop:propTwo="b" />;
+          return (
+            <div attr:aria-label='Label' attr:role='button' prop:propOne='a' prop:propTwo='b' />
+          );
         }
       }
 
@@ -379,7 +394,7 @@ describe('attr: and prop: prefix', () => {
       @Component({ tag: 'cmp-parent' })
       class CmpParent {
         render() {
-          return <cmp-child normalProp="via-normal" prop:complexData={{ test: 'data' }} />;
+          return <cmp-child normalProp='via-normal' prop:complexData={{ test: 'data' }} />;
         }
       }
 

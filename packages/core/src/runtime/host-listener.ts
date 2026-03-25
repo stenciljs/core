@@ -32,11 +32,15 @@ export const addHostEventListeners = (
     }
 
     listeners.map(([flags, name, method]) => {
-      const target = BUILD.hostListenerTarget ? getHostListenerTarget(win.document, elm, flags) : elm;
+      const target = BUILD.hostListenerTarget
+        ? getHostListenerTarget(win.document, elm, flags)
+        : elm;
       const handler = hostListenerProxy(hostRef, method);
       const opts = hostListenerOpts(flags);
       plt.ael(target, name, handler, opts);
-      (hostRef.$rmListeners$ = hostRef.$rmListeners$ || []).push(() => plt.rel(target, name, handler, opts));
+      (hostRef.$rmListeners$ = hostRef.$rmListeners$ || []).push(() =>
+        plt.rel(target, name, handler, opts),
+      );
     });
   }
 };

@@ -13,7 +13,9 @@ describe('add-component-meta-proxy', () => {
     let htmlElementHeritageClause: ts.HeritageClause;
     let literalMetadata: ts.StringLiteral;
 
-    let formatComponentRuntimeMetaSpy: MockInstance<typeof FormatComponentRuntimeMeta.formatComponentRuntimeMeta>;
+    let formatComponentRuntimeMetaSpy: MockInstance<
+      typeof FormatComponentRuntimeMeta.formatComponentRuntimeMeta
+    >;
     let convertValueToLiteralSpy: MockInstance<typeof TransformUtils.convertValueToLiteral>;
 
     beforeEach(() => {
@@ -30,13 +32,18 @@ describe('add-component-meta-proxy', () => {
       );
       literalMetadata = ts.factory.createStringLiteral('MyComponent');
 
-      formatComponentRuntimeMetaSpy = vi.spyOn(FormatComponentRuntimeMeta, 'formatComponentRuntimeMeta');
+      formatComponentRuntimeMetaSpy = vi.spyOn(
+        FormatComponentRuntimeMeta,
+        'formatComponentRuntimeMeta',
+      );
       formatComponentRuntimeMetaSpy.mockImplementation(
         (_compilerMeta: d.ComponentCompilerMeta, _includeMethods: boolean) => [0, 'tag-name'],
       );
 
       convertValueToLiteralSpy = vi.spyOn(TransformUtils, 'convertValueToLiteral');
-      convertValueToLiteralSpy.mockImplementation((_compactMeta: d.ComponentRuntimeMetaCompact) => literalMetadata);
+      convertValueToLiteralSpy.mockImplementation(
+        (_compactMeta: d.ComponentRuntimeMetaCompact) => literalMetadata,
+      );
     });
 
     afterEach(() => {
@@ -45,25 +52,39 @@ describe('add-component-meta-proxy', () => {
     });
 
     it('returns a call expression', () => {
-      const result: ts.CallExpression = createClassMetadataProxy(stubComponentCompilerMeta(), classExpr);
+      const result: ts.CallExpression = createClassMetadataProxy(
+        stubComponentCompilerMeta(),
+        classExpr,
+      );
 
       expect(ts.isCallExpression(result)).toBe(true);
     });
 
     it('wraps the initializer in PROXY_CUSTOM_ELEMENT', () => {
-      const result: ts.CallExpression = createClassMetadataProxy(stubComponentCompilerMeta(), classExpr);
+      const result: ts.CallExpression = createClassMetadataProxy(
+        stubComponentCompilerMeta(),
+        classExpr,
+      );
 
-      expect((result.expression as ts.Identifier).escapedText).toBe('___stencil_proxyCustomElement');
+      expect((result.expression as ts.Identifier).escapedText).toBe(
+        '___stencil_proxyCustomElement',
+      );
     });
 
     it("doesn't add any type arguments to the call", () => {
-      const result: ts.CallExpression = createClassMetadataProxy(stubComponentCompilerMeta(), classExpr);
+      const result: ts.CallExpression = createClassMetadataProxy(
+        stubComponentCompilerMeta(),
+        classExpr,
+      );
 
       expect(result.typeArguments).toHaveLength(0);
     });
 
     it('adds the correct arguments to the PROXY_CUSTOM_ELEMENT call', () => {
-      const result: ts.CallExpression = createClassMetadataProxy(stubComponentCompilerMeta(), classExpr);
+      const result: ts.CallExpression = createClassMetadataProxy(
+        stubComponentCompilerMeta(),
+        classExpr,
+      );
 
       expect(result.arguments).toHaveLength(2);
       expect(result.arguments[0]).toBe(classExpr);
@@ -71,14 +92,19 @@ describe('add-component-meta-proxy', () => {
     });
 
     it('includes the heritage clause', () => {
-      const result: ts.CallExpression = createClassMetadataProxy(stubComponentCompilerMeta(), classExpr);
+      const result: ts.CallExpression = createClassMetadataProxy(
+        stubComponentCompilerMeta(),
+        classExpr,
+      );
 
       expect(result.arguments.length).toBeGreaterThanOrEqual(1);
       const createdClassExpression = result.arguments[0];
 
       expect(ts.isClassExpression(createdClassExpression)).toBe(true);
       expect((createdClassExpression as ts.ClassExpression).heritageClauses).toHaveLength(1);
-      expect((createdClassExpression as ts.ClassExpression).heritageClauses[0]).toBe(htmlElementHeritageClause);
+      expect((createdClassExpression as ts.ClassExpression).heritageClauses[0]).toBe(
+        htmlElementHeritageClause,
+      );
     });
   });
 });

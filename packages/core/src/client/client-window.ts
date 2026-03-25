@@ -6,7 +6,9 @@ interface StencilWindow extends Omit<Window, 'document'> {
   document?: Document;
 }
 
-export const win = (typeof window !== 'undefined' ? window : ({} as StencilWindow)) as StencilWindow;
+export const win = (
+  typeof window !== 'undefined' ? window : ({} as StencilWindow)
+) as StencilWindow;
 
 export const H = ((win as any).HTMLElement || (class {} as any)) as HTMLElement;
 
@@ -66,7 +68,8 @@ export const supportsConstructableStylesheets = BUILD.constructableCSS
 // https://github.com/salesforce/lwc/blob/5af18fdd904bc6cfcf7b76f3c539490ff11515b2/packages/%40lwc/engine-dom/src/renderer.ts#L41-L43
 export const supportsMutableAdoptedStyleSheets = supportsConstructableStylesheets
   ? /*@__PURE__*/ (() =>
-      !!win.document && Object.getOwnPropertyDescriptor(win.document.adoptedStyleSheets, 'length')!.writable)()
+      !!win.document &&
+      Object.getOwnPropertyDescriptor(win.document.adoptedStyleSheets, 'length')!.writable)()
   : false;
 
 export { H as HTMLElement };

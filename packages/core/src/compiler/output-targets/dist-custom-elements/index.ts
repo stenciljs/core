@@ -15,7 +15,11 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
-import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_PLATFORM_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
+import {
+  STENCIL_APP_GLOBALS_ID,
+  STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+  USER_INDEX_ENTRY_ID,
+} from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
@@ -55,7 +59,9 @@ export const outputCustomElements = async (
   const bundlingEventMessage = `generate custom elements${config.sourceMap ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`);
 
-  await Promise.all(outputTargets.map((target) => bundleCustomElements(config, compilerCtx, buildCtx, target)));
+  await Promise.all(
+    outputTargets.map((target) => bundleCustomElements(config, compilerCtx, buildCtx, target)),
+  );
 
   timespan.finish(`${bundlingEventMessage} finished`);
 };
@@ -129,7 +135,8 @@ export const bundleCustomElements = async (
         banner: generatePreamble(config),
         format: 'esm',
         sourcemap: config.sourceMap,
-        chunkFileNames: outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
+        chunkFileNames:
+          outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
         entryFileNames: '[name].js',
         hoistTransitiveImports: false,
       });
@@ -143,7 +150,8 @@ export const bundleCustomElements = async (
         buildCtx.diagnostics.push({
           level: 'error',
           type: 'build',
-          messageText: 'dist-custom-elements output target provided with no output target directory!',
+          messageText:
+            'dist-custom-elements output target provided with no output target directory!',
           lines: [],
         });
         return;
@@ -162,15 +170,22 @@ export const bundleCustomElements = async (
             sourceMap,
           });
           buildCtx.diagnostics.push(...optimizeResults.diagnostics);
-          if (!hasError(optimizeResults.diagnostics) && typeof optimizeResults.output === 'string') {
+          if (
+            !hasError(optimizeResults.diagnostics) &&
+            typeof optimizeResults.output === 'string'
+          ) {
             code = optimizeResults.output;
           }
           if (optimizeResults.sourceMap) {
             sourceMap = optimizeResults.sourceMap;
             code = code + getSourceMappingUrlForEndOfFile(bundle.fileName);
-            await compilerCtx.fs.writeFile(join(outputTargetDir, bundle.fileName + '.map'), JSON.stringify(sourceMap), {
-              outputTargetType: outputTarget.type,
-            });
+            await compilerCtx.fs.writeFile(
+              join(outputTargetDir, bundle.fileName + '.map'),
+              JSON.stringify(sourceMap),
+              {
+                outputTargetType: outputTarget.type,
+              },
+            );
           }
           await compilerCtx.fs.writeFile(join(outputTargetDir, bundle.fileName), code, {
             outputTargetType: outputTarget.type,
@@ -241,12 +256,19 @@ export const addCustomElementInputs = (
   });
 
   // Generate the contents of the entry file to be created by the bundler
-  bundleOpts.loader!['\0core'] = generateEntryPoint(outputTarget, indexImports, indexExports, exportNames);
+  bundleOpts.loader!['\0core'] = generateEntryPoint(
+    outputTarget,
+    indexImports,
+    indexExports,
+    exportNames,
+  );
 
   // Generate auto-loader module if enabled
   if (outputTarget.autoLoader) {
     const loaderFileName =
-      typeof outputTarget.autoLoader === 'object' ? outputTarget.autoLoader.fileName || 'loader' : 'loader';
+      typeof outputTarget.autoLoader === 'object'
+        ? outputTarget.autoLoader.fileName || 'loader'
+        : 'loader';
 
     bundleOpts.inputs[loaderFileName] = '\0loader';
     bundleOpts.loader!['\0loader'] = generateLoaderModule(components, outputTarget);

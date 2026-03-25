@@ -16,7 +16,9 @@ import type { ConfigFlags } from './config-flags';
  */
 export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags): Promise<void> => {
   if (!config.configPath) {
-    config.logger.error('Please run this command in your root directory (i. e. the one containing stencil.config.ts).');
+    config.logger.error(
+      'Please run this command in your root directory (i. e. the one containing stencil.config.ts).',
+    );
     return config.sys.exit(1);
   }
 
@@ -31,7 +33,8 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
 
   const input =
     flags.unknownArgs.find((arg: string) => !arg.startsWith('-')) ||
-    ((await prompt({ name: 'tagName', type: 'text', message: 'Component tag name (dash-case):' })).tagName as string);
+    ((await prompt({ name: 'tagName', type: 'text', message: 'Component tag name (dash-case):' }))
+      .tagName as string);
 
   if (undefined === input) {
     // in some shells (e.g. Windows PowerShell), hitting Ctrl+C results in a TypeError printed to the console.
@@ -109,7 +112,9 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
  * @returns a read-only array of `GeneratableExtension`, the extensions that the user has decided
  * to generate
  */
-const chooseFilesToGenerate = async (cssExtension: string): Promise<ReadonlyArray<GeneratableExtension>> => {
+const chooseFilesToGenerate = async (
+  cssExtension: string,
+): Promise<ReadonlyArray<GeneratableExtension>> => {
   const { prompt } = await import('prompts');
   return (
     await prompt({
@@ -153,7 +158,11 @@ const chooseSassExtension = async () => {
  * @returns the full filepath to the component (with a possible `test` directory
  * added)
  */
-const getFilepathForFile = (filePath: string, componentName: string, extension: GeneratableExtension): string =>
+const getFilepathForFile = (
+  filePath: string,
+  componentName: string,
+  extension: GeneratableExtension,
+): string =>
   isTest(extension)
     ? normalizePath(join(filePath, 'test', `${componentName}.${extension}`))
     : normalizePath(join(filePath, `${componentName}.${extension}`));
@@ -176,7 +185,12 @@ const getBoilerplateAndWriteFile = async (
   file: BoilerplateFile,
   styleExtension: GeneratableStylingExtension,
 ): Promise<string> => {
-  const boilerplate = getBoilerplateByExtension(componentName, file.extension, withCss, styleExtension);
+  const boilerplate = getBoilerplateByExtension(
+    componentName,
+    file.extension,
+    withCss,
+    styleExtension,
+  );
   await config.sys.writeFile(normalizePath(file.path), boilerplate);
   return file.path;
 };
@@ -193,7 +207,10 @@ const getBoilerplateAndWriteFile = async (
  * @param files  the files we want to check
  * @param config the Config object, used here to get access to `sys.readFile`
  */
-const checkForOverwrite = async (files: readonly BoilerplateFile[], config: ValidatedConfig): Promise<void> => {
+const checkForOverwrite = async (
+  files: readonly BoilerplateFile[],
+  config: ValidatedConfig,
+): Promise<void> => {
   const alreadyPresent: string[] = [];
 
   await Promise.all(

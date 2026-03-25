@@ -1,6 +1,11 @@
 import ts from 'typescript';
 
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators, tsPropDeclName } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+  tsPropDeclName,
+} from '../transform-utils';
 import { isDecoratorNamed } from './decorator-utils';
 
 /**
@@ -27,7 +32,9 @@ export const stateDecoratorsToStatic = (
     .filter((state): state is ts.PropertyAssignment => !!state);
 
   if (states.length > 0) {
-    newMembers.push(createStaticGetter('states', ts.factory.createObjectLiteralExpression(states, true)));
+    newMembers.push(
+      createStaticGetter('states', ts.factory.createObjectLiteralExpression(states, true)),
+    );
   }
 };
 
@@ -59,5 +66,8 @@ const stateDecoratorToStatic = (
   const meta: any = {};
   if (ogPropName && ogPropName !== stateName) meta.ogPropName = ogPropName;
 
-  return ts.factory.createPropertyAssignment(ts.factory.createStringLiteral(stateName), convertValueToLiteral(meta));
+  return ts.factory.createPropertyAssignment(
+    ts.factory.createStringLiteral(stateName),
+    convertValueToLiteral(meta),
+  );
 };

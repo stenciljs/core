@@ -3,14 +3,19 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import { isMethod } from '../transform-utils';
 
-export const parseClassMethods = (classMethods: ts.MethodDeclaration[], cmpMeta: d.ComponentCompilerMeta) => {
+export const parseClassMethods = (
+  classMethods: ts.MethodDeclaration[],
+  cmpMeta: d.ComponentCompilerMeta,
+) => {
   if (!classMethods?.length) {
     return;
   }
 
   const hasHostData = classMethods.some((m) => isMethod(m, 'hostData'));
 
-  cmpMeta.hasAttributeChangedCallbackFn = classMethods.some((m) => isMethod(m, 'attributeChangedCallback'));
+  cmpMeta.hasAttributeChangedCallbackFn = classMethods.some((m) =>
+    isMethod(m, 'attributeChangedCallback'),
+  );
   cmpMeta.hasConnectedCallbackFn = classMethods.some((m) => isMethod(m, 'connectedCallback'));
   cmpMeta.hasDisconnectedCallbackFn = classMethods.some((m) => isMethod(m, 'disconnectedCallback'));
   cmpMeta.hasComponentWillLoadFn = classMethods.some((m) => isMethod(m, 'componentWillLoad'));
@@ -18,7 +23,9 @@ export const parseClassMethods = (classMethods: ts.MethodDeclaration[], cmpMeta:
   cmpMeta.hasComponentWillRenderFn = classMethods.some((m) => isMethod(m, 'componentWillRender'));
   cmpMeta.hasComponentDidRenderFn = classMethods.some((m) => isMethod(m, 'componentDidRender'));
   cmpMeta.hasComponentDidLoadFn = classMethods.some((m) => isMethod(m, 'componentDidLoad'));
-  cmpMeta.hasComponentShouldUpdateFn = classMethods.some((m) => isMethod(m, 'componentShouldUpdate'));
+  cmpMeta.hasComponentShouldUpdateFn = classMethods.some((m) =>
+    isMethod(m, 'componentShouldUpdate'),
+  );
   cmpMeta.hasComponentDidUpdateFn = classMethods.some((m) => isMethod(m, 'componentDidUpdate'));
   cmpMeta.hasLifecycle =
     cmpMeta.hasComponentWillLoadFn ||

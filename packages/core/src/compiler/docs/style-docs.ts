@@ -11,7 +11,11 @@ import type * as d from '@stencil/core';
  * @param styleText the CSS text we're working with
  * @param mode a mode associated with the parsed style, if applicable (e.g. this is not applicable for global styles)
  */
-export function parseStyleDocs(styleDocs: d.StyleDoc[], styleText: string | null, mode?: string | undefined) {
+export function parseStyleDocs(
+  styleDocs: d.StyleDoc[],
+  styleText: string | null,
+  mode?: string | undefined,
+) {
   if (typeof styleText !== 'string') {
     return;
   }

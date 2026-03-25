@@ -1,6 +1,6 @@
 import { Component, forceUpdate, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-import { expect, describe, it } from '@stencil/vitest'
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('scoped slot', () => {
   it('should relocate nested default slot nodes', async () => {
@@ -70,7 +70,9 @@ describe('scoped slot', () => {
 
     expect(root.firstElementChild.nodeName).toBe('SPIDER');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('SLOT-FB');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe('default content');
+    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe(
+      'default content',
+    );
   });
 
   it('should relocate nested named slot nodes', async () => {
@@ -79,7 +81,7 @@ describe('scoped slot', () => {
       render() {
         return (
           <monkey>
-            <slot name="start"></slot>
+            <slot name='start'></slot>
           </monkey>
         );
       }
@@ -192,13 +194,15 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('HIPPO');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('AARDVARK');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe('parent message');
+    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe(
+      'parent message',
+    );
   });
 
   it('should relocate parent content after child content dynamically changes slot wrapper tag', async () => {
     @Component({ tag: 'ion-parent', scoped: true })
     class Parent {
-      @Prop() innerH = (<h1>parent text</h1>);
+      @Prop() innerH = <h1>parent text</h1>;
 
       render() {
         return <ion-child>{this.innerH}</ion-child>;
@@ -281,12 +285,16 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('BADGER');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('CAMEL');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('OWL');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('OWL');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .nodeName,
     ).toBe('DINGO');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .textContent,
     ).toBe('parent message');
 
     forceUpdate(root);
@@ -295,12 +303,16 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('BADGER');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('CAMEL');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('OWL');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('OWL');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .nodeName,
     ).toBe('DINGO');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .textContent,
     ).toBe('parent message');
   });
 
@@ -397,10 +409,12 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('CHEETAH');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('CHIPMUNK');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('BEAR');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent).toBe(
-      'parent message',
-    );
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('BEAR');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+    ).toBe('parent message');
 
     root.msg = 'change 1';
     await waitForChanges();
@@ -408,8 +422,12 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('CHEETAH');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('CHIPMUNK');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('BEAR');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent).toBe('change 1');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('BEAR');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+    ).toBe('change 1');
 
     root.msg = 'change 2';
     await waitForChanges();
@@ -417,8 +435,12 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('CHEETAH');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('CHIPMUNK');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('BEAR');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent).toBe('change 2');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('BEAR');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+    ).toBe('change 2');
   });
 
   it('should update parent content inner text in child nested default slot', async () => {
@@ -453,7 +475,9 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('ION-CHILD');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('BULL');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('WHALE');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe('parent message');
+    expect(root.firstElementChild.firstElementChild.firstElementChild.textContent).toBe(
+      'parent message',
+    );
 
     root.msg = 'change 1';
     await waitForChanges();
@@ -480,8 +504,8 @@ describe('scoped slot', () => {
       render() {
         return (
           <ion-child>
-            <falcon slot="start">{++values}</falcon>
-            <eagle slot="start">{++values}</eagle>
+            <falcon slot='start'>{++values}</falcon>
+            <eagle slot='start'>{++values}</eagle>
           </ion-child>
         );
       }
@@ -493,8 +517,8 @@ describe('scoped slot', () => {
         return (
           <mouse>
             <slot></slot>
-            <slot name="start"></slot>
-            <slot name="end"></slot>
+            <slot name='start'></slot>
+            <slot name='end'></slot>
           </mouse>
         );
       }
@@ -542,8 +566,8 @@ describe('scoped slot', () => {
         return (
           <ion-child>
             <butterfly>{(++values).toString()}</butterfly>
-            <fox slot="end">{++values}</fox>
-            <ferret slot="start">{++values}</ferret>
+            <fox slot='end'>{++values}</fox>
+            <ferret slot='start'>{++values}</ferret>
           </ion-child>
         );
       }
@@ -554,11 +578,11 @@ describe('scoped slot', () => {
       render() {
         return (
           <flamingo>
-            <slot name="start"></slot>
+            <slot name='start'></slot>
             <horse>
               <slot></slot>
               <bullfrog>
-                <slot name="end"></slot>
+                <slot name='end'></slot>
               </bullfrog>
             </horse>
           </flamingo>
@@ -576,11 +600,19 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.firstElementChild.children[0].nodeName).toBe('FERRET');
     expect(root.firstElementChild.firstElementChild.children[0].textContent).toBe('3');
     expect(root.firstElementChild.firstElementChild.children[1].nodeName).toBe('HORSE');
-    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe('BUTTERFLY');
+    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe(
+      'BUTTERFLY',
+    );
     expect(root.firstElementChild.firstElementChild.children[1].children[0].textContent).toBe('1');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe('BULLFROG');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName).toBe('FOX');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent).toBe('2');
+    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe(
+      'BULLFROG',
+    );
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName,
+    ).toBe('FOX');
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent,
+    ).toBe('2');
 
     forceUpdate(root);
     await waitForChanges();
@@ -590,11 +622,19 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.firstElementChild.children[0].nodeName).toBe('FERRET');
     expect(root.firstElementChild.firstElementChild.children[0].textContent).toBe('6');
     expect(root.firstElementChild.firstElementChild.children[1].nodeName).toBe('HORSE');
-    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe('BUTTERFLY');
+    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe(
+      'BUTTERFLY',
+    );
     expect(root.firstElementChild.firstElementChild.children[1].children[0].textContent).toBe('4');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe('BULLFROG');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName).toBe('FOX');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent).toBe('5');
+    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe(
+      'BULLFROG',
+    );
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName,
+    ).toBe('FOX');
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent,
+    ).toBe('5');
 
     forceUpdate(root);
     await waitForChanges();
@@ -604,11 +644,19 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.firstElementChild.children[0].nodeName).toBe('FERRET');
     expect(root.firstElementChild.firstElementChild.children[0].textContent).toBe('9');
     expect(root.firstElementChild.firstElementChild.children[1].nodeName).toBe('HORSE');
-    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe('BUTTERFLY');
+    expect(root.firstElementChild.firstElementChild.children[1].children[0].nodeName).toBe(
+      'BUTTERFLY',
+    );
     expect(root.firstElementChild.firstElementChild.children[1].children[0].textContent).toBe('7');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe('BULLFROG');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName).toBe('FOX');
-    expect(root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent).toBe('8');
+    expect(root.firstElementChild.firstElementChild.children[1].children[1].nodeName).toBe(
+      'BULLFROG',
+    );
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].nodeName,
+    ).toBe('FOX');
+    expect(
+      root.firstElementChild.firstElementChild.children[1].children[1].children[0].textContent,
+    ).toBe('8');
   });
 
   it('should allow nested default slots', async () => {
@@ -657,12 +705,16 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('TEST-1');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('SEAL');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('TEST-2');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('GOOSE');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('GOOSE');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .nodeName,
     ).toBe('GOAT');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .textContent,
     ).toBe('1');
 
     forceUpdate(root);
@@ -671,12 +723,16 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('TEST-1');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('SEAL');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('TEST-2');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('GOOSE');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('GOOSE');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .nodeName,
     ).toBe('GOAT');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .textContent,
     ).toBe('2');
 
     forceUpdate(root);
@@ -685,12 +741,16 @@ describe('scoped slot', () => {
     expect(root.firstElementChild.nodeName).toBe('TEST-1');
     expect(root.firstElementChild.firstElementChild.nodeName).toBe('SEAL');
     expect(root.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('TEST-2');
-    expect(root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName).toBe('GOOSE');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.nodeName,
+    ).toBe('GOOSE');
+    expect(
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .nodeName,
     ).toBe('GOAT');
     expect(
-      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent,
+      root.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild
+        .textContent,
     ).toBe('3');
   });
 

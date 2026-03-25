@@ -3,7 +3,10 @@ import { catchError, join } from '../../utils';
 import type * as d from '@stencil/core';
 import { getSitemapUrls } from './sitemap-xml';
 
-export const generateRobotsTxt = async (manager: d.PrerenderManager, sitemapResults: d.SitemapXmpResults) => {
+export const generateRobotsTxt = async (
+  manager: d.PrerenderManager,
+  sitemapResults: d.SitemapXmpResults,
+) => {
   if (manager.prerenderConfig.robotsTxt === null) {
     // if it's set to null then let's not create a robots.txt file
     return null;

@@ -5,9 +5,12 @@ import { validateCopy } from '../validate-copy';
 
 describe('validate-copy', () => {
   describe('validateCopy', () => {
-    it.each([false, null, undefined, []])('returns an empty array when the copy task is `%s`', (copyValue) => {
-      expect(validateCopy(copyValue, [])).toEqual([]);
-    });
+    it.each([false, null, undefined, []])(
+      'returns an empty array when the copy task is `%s`',
+      (copyValue) => {
+        expect(validateCopy(copyValue, [])).toEqual([]);
+      },
+    );
 
     it('pushes default tasks not found in the original copy list', () => {
       const defaultCopyTasks: d.CopyTask[] = [
@@ -19,13 +22,18 @@ describe('validate-copy', () => {
     });
 
     it('combines provided and default tasks', () => {
-      const tasksToValidate: d.CopyTask[] = [{ src: 'someSrc', dest: 'someDest', keepDirStructure: true, warn: false }];
+      const tasksToValidate: d.CopyTask[] = [
+        { src: 'someSrc', dest: 'someDest', keepDirStructure: true, warn: false },
+      ];
       const defaultCopyTasks: d.CopyTask[] = [
         { src: 'defaultSrc' },
         { src: 'anotherDefaultSrc', dest: 'anotherDefaultDest' },
       ];
 
-      expect(validateCopy(tasksToValidate, defaultCopyTasks)).toEqual([...tasksToValidate, ...defaultCopyTasks]);
+      expect(validateCopy(tasksToValidate, defaultCopyTasks)).toEqual([
+        ...tasksToValidate,
+        ...defaultCopyTasks,
+      ]);
     });
 
     it('prefers provided tasks over default tasks', () => {
@@ -45,7 +53,12 @@ describe('validate-copy', () => {
     });
 
     it('de-duplicates copy tasks', () => {
-      const copyTask: d.CopyTask = { src: 'aDuplicateSrc', dest: 'someDest', keepDirStructure: true, warn: false };
+      const copyTask: d.CopyTask = {
+        src: 'aDuplicateSrc',
+        dest: 'someDest',
+        keepDirStructure: true,
+        warn: false,
+      };
       const tasksToValidate: d.CopyTask[] = [{ ...copyTask }, { ...copyTask }];
 
       expect(validateCopy(tasksToValidate, [])).toEqual([{ ...copyTask }]);

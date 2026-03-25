@@ -37,7 +37,9 @@ import { deriveJSXKey } from './utils';
  * @param transformCtx a transformation context
  * @returns a typescript transformer for inserting keys into JSX nodes
  */
-export const performAutomaticKeyInsertion = (transformCtx: ts.TransformationContext): ts.Transformer<ts.SourceFile> => {
+export const performAutomaticKeyInsertion = (
+  transformCtx: ts.TransformationContext,
+): ts.Transformer<ts.SourceFile> => {
   /**
    * This is our outer-most visitor function which serves to locate a class
    * declaration which is also a Stencil component, at which point it hands
@@ -98,7 +100,11 @@ export const performAutomaticKeyInsertion = (transformCtx: ts.TransformationCont
     // the children (the text nodes in this case). If our key insertion
     // transformer put unique keys onto each tag then this wouldn't happen any
     // longer.
-    if (ts.isMethodDeclaration(node) && node.name.getText() === 'render' && numReturnStatements(node) === 1) {
+    if (
+      ts.isMethodDeclaration(node) &&
+      node.name.getText() === 'render' &&
+      numReturnStatements(node) === 1
+    ) {
       return ts.visitEachChild(node, jsxElementVisitor, transformCtx);
     } else {
       return ts.visitEachChild(node, findRenderMethodVisitor, transformCtx);

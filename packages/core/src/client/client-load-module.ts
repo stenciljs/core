@@ -3,7 +3,10 @@ import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
 import { consoleDevError, consoleError } from './client-log';
 
-export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();
+export const cmpModules = /*@__PURE__*/ new Map<
+  string,
+  { [exportName: string]: d.ComponentConstructor }
+>();
 
 /**
  * We need to separate out this prefix so that Esbuild doesn't try to resolve

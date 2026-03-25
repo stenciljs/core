@@ -1,5 +1,5 @@
 import { minifyCss } from '../../../optimize/minify-css';
-import { describe, it, expect } from 'vitest'; 
+import { describe, it, expect } from 'vitest';
 
 describe('minifyCss', () => {
   it('adds background-image url hash', async () => {

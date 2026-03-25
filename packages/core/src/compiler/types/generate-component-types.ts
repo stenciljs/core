@@ -57,10 +57,15 @@ export const generateComponentTypes = (
   const propAttributes = generatePropTypes(cmp, typeImportData);
   const methodAttributes = generateMethodTypes(cmp, typeImportData);
   const eventAttributes = generateEventTypes(cmp, typeImportData, tagNameAsPascal);
-  const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(cmp, typeImportData);
+  const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(
+    cmp,
+    typeImportData,
+  );
 
   // Check for method conflicts with HTMLElement
-  const conflictingMethods = methodAttributes.filter((method) => HTML_ELEMENT_METHODS.has(method.name));
+  const conflictingMethods = methodAttributes.filter((method) =>
+    HTML_ELEMENT_METHODS.has(method.name),
+  );
   const hasMethodConflicts = conflictingMethods.length > 0;
 
   const componentAttributes = attributesToMultiLineString(
@@ -89,7 +94,12 @@ export const generateComponentTypes = (
         htmlElementEventListenerProperties,
         cmp.docs,
       )
-    : generateStandardElementInterface(htmlElementName, tagNameAsPascal, htmlElementEventListenerProperties, cmp.docs);
+    : generateStandardElementInterface(
+        htmlElementName,
+        tagNameAsPascal,
+        htmlElementEventListenerProperties,
+        cmp.docs,
+      );
 
   const element = [
     ...htmlElementEventMap,
@@ -147,7 +157,11 @@ export const generateComponentTypes = (
     tagName,
     tagNameAsPascal,
     htmlElementName,
-    component: addDocBlock(`    interface ${tagNameAsPascal} {\n${componentAttributes}    }`, cmp.docs, 4),
+    component: addDocBlock(
+      `    interface ${tagNameAsPascal} {\n${componentAttributes}    }`,
+      cmp.docs,
+      4,
+    ),
     jsx: `    interface ${tagNameAsPascal} {\n${jsxAttributes}    }`,
     element: element.join(`\n`),
     explicitAttributes: hasExplicitAttributes
@@ -211,8 +225,11 @@ function generateElementInterfaceWithConflictResolution(
       let docBlock = '';
       if (method.jsdoc) {
         docBlock =
-          [`        /**`, ...method.jsdoc.split('\n').map((line) => '          * ' + line), `         */`].join('\n') +
-          '\n';
+          [
+            `        /**`,
+            ...method.jsdoc.split('\n').map((line) => '          * ' + line),
+            `         */`,
+          ].join('\n') + '\n';
       }
       return `${docBlock}        "${method.name}"${optional}: ${method.type};`;
     })
@@ -230,7 +247,11 @@ function generateElementInterfaceWithConflictResolution(
   ];
 }
 
-const attributesToMultiLineString = (attributes: d.TypeInfo, jsxAttributes: boolean, internal: boolean) => {
+const attributesToMultiLineString = (
+  attributes: d.TypeInfo,
+  jsxAttributes: boolean,
+  internal: boolean,
+) => {
   const attributesStr = sortBy(attributes, (a) => a.name)
     .filter((type) => {
       if (jsxAttributes && !internal && type.internal) {

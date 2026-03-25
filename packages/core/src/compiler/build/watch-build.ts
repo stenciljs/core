@@ -105,7 +105,9 @@ export const createWatchBuild = async (
     buildCtx.hasServiceWorkerChanges = hasServiceWorkerChanges(config, buildCtx);
 
     if (config.logLevel === 'debug') {
-      config.logger.debug(`WATCH_BUILD::watchBuild::onBuild filesAdded: ${formatFilesForDebug(buildCtx.filesAdded)}`);
+      config.logger.debug(
+        `WATCH_BUILD::watchBuild::onBuild filesAdded: ${formatFilesForDebug(buildCtx.filesAdded)}`,
+      );
       config.logger.debug(
         `WATCH_BUILD::watchBuild::onBuild filesDeleted: ${formatFilesForDebug(buildCtx.filesDeleted)}`,
       );
@@ -310,7 +312,11 @@ export const createWatchBuild = async (
   // This method will add the specified file path to the watched files collection and instruct
   // the `CompilerSystem` what to do when a file change occurs (the `onFsChange()` callback)
   compilerCtx.addWatchFile = (filePath) => {
-    if (isString(filePath) && !watchingFiles.has(filePath) && !isWatchIgnorePath(config, filePath)) {
+    if (
+      isString(filePath) &&
+      !watchingFiles.has(filePath) &&
+      !isWatchIgnorePath(config, filePath)
+    ) {
       watchingFiles.set(filePath, config.sys.watchFile(filePath, onFsChange));
     }
   };
@@ -400,7 +406,9 @@ const watchFiles = async (
    * Iterate over each file in the collection (filter out directories) and add
    * a watcher for each
    */
-  rootFiles.filter(({ isFile }) => isFile).forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
+  rootFiles
+    .filter(({ isFile }) => isFile)
+    .forEach(({ absPath }) => compilerCtx.addWatchFile(absPath));
 };
 
 const emitFsChange = (compilerCtx: d.CompilerCtx, buildCtx: BuildContext) => {

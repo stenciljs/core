@@ -70,7 +70,13 @@ export const parseCssImports = async (
       parseStyleDocs(styleDocs, styleText);
     }
 
-    const cssImports = await getCssImports(config, compilerCtx, buildCtx, resolvedFilePath, styleText);
+    const cssImports = await getCssImports(
+      config,
+      compilerCtx,
+      buildCtx,
+      resolvedFilePath,
+      styleText,
+    );
     if (cssImports.length === 0) {
       return styleText;
     }
@@ -131,7 +137,10 @@ interface ParseCSSReturn {
  * @param cssImportData the import data for the file we want to read
  * @returns the contents of the file, if it can be read without error
  */
-const loadStyleText = async (compilerCtx: d.CompilerCtx, cssImportData: d.CssImportData): Promise<string | null> => {
+const loadStyleText = async (
+  compilerCtx: d.CompilerCtx,
+  cssImportData: d.CssImportData,
+): Promise<string | null> => {
   let styleText: string | null = null;
 
   try {
@@ -197,7 +206,13 @@ export const getCssImports = async (
 
     if (isCssNodeModule(cssImportData.url)) {
       // node resolve this path cuz it starts with ~
-      await resolveCssNodeModule(config, compilerCtx, buildCtx.diagnostics, filePath, cssImportData);
+      await resolveCssNodeModule(
+        config,
+        compilerCtx,
+        buildCtx.diagnostics,
+        filePath,
+        cssImportData,
+      );
     } else if (isAbsolute(cssImportData.url)) {
       // absolute path already
       cssImportData.filePath = normalizePath(cssImportData.url);
@@ -287,7 +302,11 @@ export const isLocalCssImport = (srcImport: string) => {
  * @param isCssEntry whether we're dealing with a CSS file
  * @returns an updated string with the requisite substitutions
  */
-export const replaceImportDeclarations = (styleText: string, cssImports: d.CssImportData[], isCssEntry: boolean) => {
+export const replaceImportDeclarations = (
+  styleText: string,
+  cssImports: d.CssImportData[],
+  isCssEntry: boolean,
+) => {
   for (const cssImport of cssImports) {
     if (isCssEntry) {
       if (typeof cssImport.styleText === 'string') {

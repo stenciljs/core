@@ -74,7 +74,8 @@ function updateSelectorError(selector: string, e: unknown) {
   if (selectorsPresent.length > 0 && (e as Error).message) {
     (e as Error).message =
       `At present jQuery does not support the ${humanReadableList(selectorsPresent)} ${selectorsPresent.length === 1 ? 'selector' : 'selectors'}.
-If you need this in your test, consider writing an end-to-end test instead.\n` + (e as Error).message;
+If you need this in your test, consider writing an end-to-end test instead.\n` +
+      (e as Error).message;
   }
 }
 

@@ -14,7 +14,9 @@ export const generateEsm = async (
   rollupBuild: RollupBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
-  const esmEs5Outputs = config.buildEs5 ? outputTargets.filter((o) => !!o.esmEs5Dir && !o.isBrowserBuild) : [];
+  const esmEs5Outputs = config.buildEs5
+    ? outputTargets.filter((o) => !!o.esmEs5Dir && !o.isBrowserBuild)
+    : [];
   const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !o.isBrowserBuild);
   if (esmOutputs.length + esmEs5Outputs.length > 0) {
     const esmOpts: OutputOptions = {
@@ -89,7 +91,14 @@ const copyPolyfills = async (
     return;
   }
 
-  const src = join(config.sys.getCompilerExecutingPath(), '..', '..', 'internal', 'client', 'polyfills');
+  const src = join(
+    config.sys.getCompilerExecutingPath(),
+    '..',
+    '..',
+    'internal',
+    'client',
+    'polyfills',
+  );
   const files = await compilerCtx.fs.readdir(src);
 
   await Promise.all(
@@ -115,11 +124,15 @@ const generateShortcuts = (
     outputTargets.map(async (o) => {
       if (o.esmDir && o.esmIndexFile) {
         const entryPointPath =
-          config.buildEs5 && o.esmEs5Dir ? join(o.esmEs5Dir, indexFilename) : join(o.esmDir, indexFilename);
+          config.buildEs5 && o.esmEs5Dir
+            ? join(o.esmEs5Dir, indexFilename)
+            : join(o.esmDir, indexFilename);
 
         const relativePath = relativeImport(o.esmIndexFile, entryPointPath);
         const shortcutContent = `export * from '${relativePath}';`;
-        await compilerCtx.fs.writeFile(o.esmIndexFile, shortcutContent, { outputTargetType: o.type });
+        await compilerCtx.fs.writeFile(o.esmIndexFile, shortcutContent, {
+          outputTargetType: o.type,
+        });
       }
     }),
   );

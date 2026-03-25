@@ -14,7 +14,9 @@ describe('serializeNodeToHtml', () => {
     elm.innerHTML = `<div>\n\n\n   <span></span>\t\t  \n<b></b><code>  \t<b>var</b>    <span>88 </span>  </code>  </div>`;
 
     const html = serializeNodeToHtml(elm);
-    expect(html).toBe(`<div> <span></span> <b></b><code>  \t<b>var</b>    <span>88 </span>  </code> </div>`);
+    expect(html).toBe(
+      `<div> <span></span> <b></b><code>  \t<b>var</b>    <span>88 </span>  </code> </div>`,
+    );
   });
 
   it('remove most whitespace in text nodes, but not all of it when not in pretty print', () => {
@@ -23,7 +25,9 @@ describe('serializeNodeToHtml', () => {
     elm.innerHTML = `<div><span>var \n \t </span><b>\n\n\n\t     value\n\n\n\n\n    \t</b><span>    =</span><code>     88     </code>;</div>`;
 
     const html = serializeNodeToHtml(elm);
-    expect(html).toBe(`<div><span>var </span><b> value </b><span> =</span><code>     88     </code>;</div>`);
+    expect(html).toBe(
+      `<div><span>var </span><b> value </b><span> =</span><code>     88     </code>;</div>`,
+    );
   });
 
   it('do not add extra indentation when pretty print <pre><code>', () => {
@@ -32,7 +36,9 @@ describe('serializeNodeToHtml', () => {
     elm.innerHTML = `<section><article><pre><code><span>88</span></code></pre></article></section>`;
 
     const html = serializeNodeToHtml(elm, { prettyHtml: true });
-    expect(html).toBe(`<section>\n  <article><pre><code><span>88</span></code></pre>\n  </article>\n</section>`);
+    expect(html).toBe(
+      `<section>\n  <article><pre><code><span>88</span></code></pre>\n  </article>\n</section>`,
+    );
   });
 
   it('do not pretty print <pre><code>', () => {
@@ -50,7 +56,9 @@ describe('serializeNodeToHtml', () => {
     elm.innerHTML = `<pre><code><span>install</span> cordova-plugin-purchase\nnpx cap update</code></pre>`;
 
     const html = serializeNodeToHtml(elm, { prettyHtml: true });
-    expect(html).toBe(`<pre><code><span>install</span> cordova-plugin-purchase\nnpx cap update</code></pre>`);
+    expect(html).toBe(
+      `<pre><code><span>install</span> cordova-plugin-purchase\nnpx cap update</code></pre>`,
+    );
   });
 
   it('do not pretty print <pre><code> w/ html comments', () => {
@@ -251,7 +259,9 @@ describe('serializeNodeToHtml', () => {
     elm.setAttribute('title', '');
 
     const html = serializeNodeToHtml(elm, { outerHtml: true, removeEmptyAttributes: false });
-    expect(html).toBe(`<button class="" dir="" my-attr="" id="" data-custom="" lang="" name="" title=""></button>`);
+    expect(html).toBe(
+      `<button class="" dir="" my-attr="" id="" data-custom="" lang="" name="" title=""></button>`,
+    );
   });
 
   it('remove empty attrs', () => {

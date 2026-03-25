@@ -70,11 +70,9 @@ const adoptStylesheet = (
  * @returns a new CSSStyleSheet for the correct window
  */
 const createStylesheetForWindow = (container: Node, cssText: string): CSSStyleSheet => {
-  const currentWindow = (
-    (container as Document).defaultView ??
+  const currentWindow = ((container as Document).defaultView ??
     (container as Element).ownerDocument?.defaultView ??
-    win
-  ) as Window & typeof globalThis;
+    win) as Window & typeof globalThis;
   const sheet = new currentWindow.CSSStyleSheet();
   sheet.replaceSync(cssText);
   return sheet;
@@ -91,7 +89,6 @@ const createStylesheetForWindow = (container: Node, cssText: string): CSSStyleSh
 const getStyleWithSlotCss = (
   style: string | CSSStyleSheet | undefined,
 ): string | CSSStyleSheet | undefined => {
-
   // Component needs slot fallback CSS
   if (!style) {
     return SLOT_FB_CSS;
@@ -99,7 +96,7 @@ const getStyleWithSlotCss = (
   if (typeof style === 'string') {
     return style + SLOT_FB_CSS;
   }
-  
+
   return style;
 };
 
@@ -137,7 +134,11 @@ export const registerStyle = (scopeId: string, cssText: string, allowCS: boolean
  * @param mode an optional current mode
  * @returns the scope ID for the component of interest
  */
-export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMeta, mode?: string) => {
+export const addStyle = (
+  styleContainerNode: any,
+  cmpMeta: d.ComponentRuntimeMeta,
+  mode?: string,
+) => {
   const scopeId = getScopeId(cmpMeta, mode);
 
   if (!BUILD.attachStyles || !win.document) {
@@ -146,13 +147,14 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
 
   let style = styles.get(scopeId);
 
-  if ((cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation)) {
+  if (cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
     style = getStyleWithSlotCss(style);
   }
 
   // if an element is NOT connected then getRootNode() will return the wrong root node
   // so the fallback is to always use the document for the root node in those cases
-  styleContainerNode = styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : win.document;
+  styleContainerNode =
+    styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : win.document;
 
   if (style) {
     if (typeof style === 'string') {
@@ -222,11 +224,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
                *
                * Note: order of how styles are applied is important. The new style node
                * should be inserted before the existing style node.
-               * 
+               *
                * During HMR, create separate style elements for scoped components so they can be
                * updated independently without affecting other components' styles.
                */
-              const existingStyleContainer: HTMLStyleElement = styleContainerNode.querySelector('style');
+              const existingStyleContainer: HTMLStyleElement =
+                styleContainerNode.querySelector('style');
               if (existingStyleContainer && !BUILD.hotModuleReplacement) {
                 existingStyleContainer.textContent = style + existingStyleContainer.textContent;
               } else {
@@ -245,7 +248,6 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleContainerNode.insertBefore(styleElm, null);
         }
 
-
         if (appliedStyles) {
           appliedStyles.add(scopeId);
         }
@@ -254,9 +256,8 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       const appliedStyles = getAppliedStyles(styleContainerNode);
       if (!appliedStyles.has(scopeId)) {
         // Ensure stylesheet is for the correct window context
-        const currentWindow = (
-          styleContainerNode.defaultView ?? styleContainerNode.ownerDocument.defaultView
-        ) as Window & typeof globalThis;
+        const currentWindow = (styleContainerNode.defaultView ??
+          styleContainerNode.ownerDocument.defaultView) as Window & typeof globalThis;
         let stylesheet: CSSStyleSheet;
         if (style.constructor === currentWindow.CSSStyleSheet) {
           stylesheet = style;
@@ -273,7 +274,9 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         // Remove SSR style element from shadow root now that adoptedStyleSheets is in use
         // Only remove from shadow roots, not from document head (for scoped components)
         if (BUILD.hydrateClientSide && 'host' in styleContainerNode) {
-          const ssrStyleElm = styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
+          const ssrStyleElm = styleContainerNode.querySelector(
+            `[${HYDRATED_STYLE_ID}="${scopeId}"]`,
+          );
           if (ssrStyleElm) {
             writeTask(() => ssrStyleElm.remove());
           }
@@ -297,12 +300,18 @@ export const attachStyles = (hostRef: d.HostRef) => {
   const flags = cmpMeta.$flags$;
   const endAttachStyles = createTime('attachStyles', cmpMeta.$tagName$);
   const scopeId = addStyle(
-    BUILD.shadowDom && supportsShadow && elm.shadowRoot ? elm.shadowRoot : (elm.getRootNode() as ShadowRoot),
+    BUILD.shadowDom && supportsShadow && elm.shadowRoot
+      ? elm.shadowRoot
+      : (elm.getRootNode() as ShadowRoot),
     cmpMeta,
     hostRef.$modeName$,
   );
 
-  if ((BUILD.shadowDom || BUILD.scoped) && BUILD.cssAnnotations && flags & CMP_FLAGS.needsScopedEncapsulation) {
+  if (
+    (BUILD.shadowDom || BUILD.scoped) &&
+    BUILD.cssAnnotations &&
+    flags & CMP_FLAGS.needsScopedEncapsulation
+  ) {
     // only required when we're NOT using native shadow dom (slot)
     // or this browser doesn't support native shadow dom
     // and this host element was NOT created with SSR
@@ -324,7 +333,10 @@ export const attachStyles = (hostRef: d.HostRef) => {
  * @returns a scope ID for the component of interest
  */
 export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
-  'sc-' + (BUILD.mode && mode && cmp.$flags$ & CMP_FLAGS.hasMode ? cmp.$tagName$ + '-' + mode : cmp.$tagName$);
+  'sc-' +
+  (BUILD.mode && mode && cmp.$flags$ & CMP_FLAGS.hasMode
+    ? cmp.$tagName$ + '-' + mode
+    : cmp.$tagName$);
 
 /**
  * Convert a 'scoped' CSS string to one appropriate for use in the shadow DOM.
@@ -352,7 +364,8 @@ export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
  * @param css a CSS string to convert
  * @returns the converted string
  */
-export const convertScopedToShadow = (css: string) => css.replace(/\/\*!@([^\/]+)\*\/[^\{]+\{/g, '$1{');
+export const convertScopedToShadow = (css: string) =>
+  css.replace(/\/\*!@([^\/]+)\*\/[^\{]+\{/g, '$1{');
 
 /**
  * Hydrate styles after SSR for components *not* using DSD. Convert 'scoped' styles to 'shadow'
@@ -366,7 +379,11 @@ export const hydrateScopedToShadow = () => {
   const styles = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
   let i = 0;
   for (; i < styles.length; i++) {
-    registerStyle(styles[i].getAttribute(HYDRATED_STYLE_ID), convertScopedToShadow(styles[i].innerHTML), true);
+    registerStyle(
+      styles[i].getAttribute(HYDRATED_STYLE_ID),
+      convertScopedToShadow(styles[i].innerHTML),
+      true,
+    );
   }
 };
 

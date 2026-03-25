@@ -1,8 +1,14 @@
 import ts from 'typescript';
 
-import { STENCIL_CORE_ID, STENCIL_JSX_DEV_RUNTIME_ID, STENCIL_JSX_RUNTIME_ID } from '../bundle/entry-alias-ids';
+import {
+  STENCIL_CORE_ID,
+  STENCIL_JSX_DEV_RUNTIME_ID,
+  STENCIL_JSX_RUNTIME_ID,
+} from '../bundle/entry-alias-ids';
 
-export const updateStencilCoreImports = (updatedCoreImportPath: string): ts.TransformerFactory<ts.SourceFile> => {
+export const updateStencilCoreImports = (
+  updatedCoreImportPath: string,
+): ts.TransformerFactory<ts.SourceFile> => {
   return () => {
     return (tsSourceFile) => {
       if (STENCIL_CORE_ID === updatedCoreImportPath) {
@@ -18,7 +24,10 @@ export const updateStencilCoreImports = (updatedCoreImportPath: string): ts.Tran
             const moduleSpecifierText = s.moduleSpecifier.text;
 
             // Handle @stencil/core/jsx-runtime and @stencil/core/jsx-dev-runtime imports
-            if (moduleSpecifierText === STENCIL_JSX_RUNTIME_ID || moduleSpecifierText === STENCIL_JSX_DEV_RUNTIME_ID) {
+            if (
+              moduleSpecifierText === STENCIL_JSX_RUNTIME_ID ||
+              moduleSpecifierText === STENCIL_JSX_DEV_RUNTIME_ID
+            ) {
               // Rewrite to import from the updated core import path
               const newImport = ts.factory.updateImportDeclaration(
                 s,
@@ -40,7 +49,9 @@ export const updateStencilCoreImports = (updatedCoreImportPath: string): ts.Tran
               ) {
                 const origImports = s.importClause.namedBindings.elements;
 
-                const keepImports = origImports.map((e) => e.getText()).filter((name) => KEEP_IMPORTS.has(name));
+                const keepImports = origImports
+                  .map((e) => e.getText())
+                  .filter((name) => KEEP_IMPORTS.has(name));
 
                 if (keepImports.length > 0) {
                   const newImport = ts.factory.updateImportDeclaration(
@@ -51,7 +62,11 @@ export const updateStencilCoreImports = (updatedCoreImportPath: string): ts.Tran
                       undefined,
                       ts.factory.createNamedImports(
                         keepImports.map((name) =>
-                          ts.factory.createImportSpecifier(false, undefined, ts.factory.createIdentifier(name)),
+                          ts.factory.createImportSpecifier(
+                            false,
+                            undefined,
+                            ts.factory.createIdentifier(name),
+                          ),
                         ),
                       ),
                     ),

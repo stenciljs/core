@@ -189,7 +189,10 @@ const resolveVariableValue = (
  * Extracts a string value from a TypeScript expression.
  * Returns null if the expression doesn't represent a string literal.
  */
-const extractStringFromExpression = (expr: ts.Expression, typeChecker: ts.TypeChecker): string | null => {
+const extractStringFromExpression = (
+  expr: ts.Expression,
+  typeChecker: ts.TypeChecker,
+): string | null => {
   // String literal
   if (ts.isStringLiteral(expr)) {
     return expr.text;
@@ -226,6 +229,14 @@ export const isDecoratorNamed = (propName: string) => {
 
 export interface GetDecoratorParameters {
   <T>(decorator: ts.Decorator, typeChecker: ts.TypeChecker, diagnostics?: d.Diagnostic[]): [T];
-  <T, T1>(decorator: ts.Decorator, typeChecker: ts.TypeChecker, diagnostics?: d.Diagnostic[]): [T, T1];
-  <T, T1, T2>(decorator: ts.Decorator, typeChecker: ts.TypeChecker, diagnostics?: d.Diagnostic[]): [T, T1, T2];
+  <T, T1>(
+    decorator: ts.Decorator,
+    typeChecker: ts.TypeChecker,
+    diagnostics?: d.Diagnostic[],
+  ): [T, T1];
+  <T, T1, T2>(
+    decorator: ts.Decorator,
+    typeChecker: ts.TypeChecker,
+    diagnostics?: d.Diagnostic[],
+  ): [T, T1, T2];
 }

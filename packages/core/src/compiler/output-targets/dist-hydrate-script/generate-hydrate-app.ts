@@ -1,5 +1,11 @@
 import type * as d from '@stencil/core';
-import { catchError, createOnWarnFn, generatePreamble, join, loadRollupDiagnostics } from '../../../utils';
+import {
+  catchError,
+  createOnWarnFn,
+  generatePreamble,
+  join,
+  loadRollupDiagnostics,
+} from '../../../utils';
 import MagicString from 'magic-string';
 import { RollupOptions } from 'rollup';
 import { rollup, type RollupBuild } from 'rollup';
@@ -107,12 +113,21 @@ export const generateHydrateApp = async (
   }
 };
 
-const generateHydrateFactory = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const generateHydrateFactory = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   if (!buildCtx.hasError) {
     try {
       const appFactoryEntryCode = await generateHydrateFactoryEntry(buildCtx);
 
-      const rollupFactoryBuild = await bundleHydrateFactory(config, compilerCtx, buildCtx, appFactoryEntryCode);
+      const rollupFactoryBuild = await bundleHydrateFactory(
+        config,
+        compilerCtx,
+        buildCtx,
+        appFactoryEntryCode,
+      );
       if (rollupFactoryBuild != null) {
         const rollupOutput = await rollupFactoryBuild.generate({
           format: 'cjs',
@@ -139,7 +154,9 @@ const generateHydrateFactoryEntry = async (buildCtx: d.BuildCtx) => {
   const hydrateCmps = await updateToHydrateComponents(cmps);
   const s = new MagicString('');
 
-  s.append(`import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_HYDRATE_PLATFORM_ID}';\n`);
+  s.append(
+    `import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_HYDRATE_PLATFORM_ID}';\n`,
+  );
 
   hydrateCmps.forEach((cmpData) => s.append(cmpData.importLine + '\n'));
 

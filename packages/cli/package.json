@@ -1,25 +1,32 @@
 {
   "name": "@stencil/cli",
-  "description": "CLI for Stencil - Web component compiler",
-  "author": "StencilJs Contributors",
-  "homepage": "https://stenciljs.com/",
-  "keywords": [
-    "web components",
-    "components",
-    "stencil",
-    "ionic",
-    "webapp",
-    "custom elements",
-    "pwa",
-    "progressive web app"
-  ],
   "version": "5.0.0-next.0",
+  "description": "CLI for Stencil - Web component compiler",
+  "keywords": [
+    "components",
+    "custom elements",
+    "ionic",
+    "progressive web app",
+    "pwa",
+    "stencil",
+    "web components",
+    "webapp"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
   },
+  "bin": {
+    "stencil": "./bin/stencil.mjs"
+  },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
   "type": "module",
-  "license": "MIT",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -29,29 +36,22 @@
     },
     "./cli": "./bin/stencil.mjs"
   },
-  "bin": {
-    "stencil": "./bin/stencil.mjs"
-  },
-  "files": [
-    "bin/",
-    "dist/"
-  ],
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "peerDependencies": {
-    "@stencil/core": "5.0.0-next.0"
+  "dependencies": {
+    "@stencil/dev-server": "workspace:*",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*"
   },
+  "peerDependencies": {
+    "@stencil/core": "5.0.0-next.0"
+  },
   "volta": {
     "extends": "../../package.json"
-  },
-  "dependencies": {
-    "@stencil/dev-server": "workspace:*",
-    "prompts": "^2.4.2"
   }
 }

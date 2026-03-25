@@ -11,14 +11,14 @@ export const usageToMarkdown = (usages: d.JsonDocsUsage) => {
 
   content.push(`## Usage`);
 
-  merged.forEach(({ name, text }) => {
+  (merged.forEach(({ name, text }) => {
     content.push('');
     content.push(`### ${toTitleCase(name)}`);
     content.push('');
     content.push(text);
     content.push('');
   }),
-    content.push('');
+    content.push(''));
   content.push('');
 
   return content;

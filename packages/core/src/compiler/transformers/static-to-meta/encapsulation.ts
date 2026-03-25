@@ -54,7 +54,10 @@ export const parseStaticShadowDelegatesFocus = (
  * @param staticMembers a collection of static getters to search
  * @returns `manual` if explicitly set. Otherwise `null`.
  */
-export const parseStaticSlotAssignment = (encapsulation: string, staticMembers: ts.ClassElement[]): 'manual' | null => {
+export const parseStaticSlotAssignment = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): 'manual' | null => {
   if (encapsulation === 'shadow') {
     const slotAssignment: string = getStaticValue(staticMembers, 'slotAssignment');
     return slotAssignment === 'manual' ? 'manual' : null;

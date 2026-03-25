@@ -45,7 +45,10 @@ export const generateVscodeDocs = async (
             value: cmp.docs,
           },
           attributes: cmp.props
-            .filter((p: d.JsonDocsProp): p is DocPropWithAttribute => p.attr !== undefined && p.attr.length > 0)
+            .filter(
+              (p: d.JsonDocsProp): p is DocPropWithAttribute =>
+                p.attr !== undefined && p.attr.length > 0,
+            )
             .map(serializeAttribute),
           references: getReferences(cmp, outputTarget.sourceCodeBaseUrl),
         })),
@@ -74,7 +77,10 @@ type TagReference = {
  * @param repoBaseUrl an optional URL, that when provided, will add a reference to the source code for the component
  * @returns the generated references section, or undefined if no references could be generated
  */
-const getReferences = (cmp: d.JsonDocsComponent, repoBaseUrl: string | undefined): TagReference[] | undefined => {
+const getReferences = (
+  cmp: d.JsonDocsComponent,
+  repoBaseUrl: string | undefined,
+): TagReference[] | undefined => {
   // collect any `@reference` JSDoc tags on the component
   const references = getNameText('reference', cmp.docsTags).map(([name, url]) => ({ name, url }));
 

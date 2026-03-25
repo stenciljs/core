@@ -30,7 +30,14 @@ export const updateLazyComponentClass = (
   cmp: d.ComponentCompilerMeta,
   buildCtx: d.BuildCtx,
 ): ts.VariableStatement | ts.ClassDeclaration => {
-  const members = updateLazyComponentMembers(transformOpts, styleStatements, classNode, moduleFile, cmp, buildCtx);
+  const members = updateLazyComponentMembers(
+    transformOpts,
+    styleStatements,
+    classNode,
+    moduleFile,
+    cmp,
+    buildCtx,
+  );
   return updateComponentClass(transformOpts, classNode, classNode.heritageClauses, members);
 };
 

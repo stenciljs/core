@@ -1,6 +1,11 @@
 import type * as d from '@stencil/core';
 import { afterEach, describe, expect, it, MockInstance, vi } from 'vitest';
-import { mockBuildCtx, mockCompilerCtx, mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
+import {
+  mockBuildCtx,
+  mockCompilerCtx,
+  mockCompilerSystem,
+  mockValidatedConfig,
+} from '@stencil/core/testing';
 import { DIST, resolve } from '../../../utils';
 
 import { validateDist } from '../../config/outputs/validate-dist';
@@ -47,15 +52,24 @@ describe('Lazy Loader Output Target', () => {
 
     const expectedIndexOutput = `export * from '../esm/polyfills/index.js';
 export * from '../esm-es5/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.js'), expectedIndexOutput);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.js'),
+      expectedIndexOutput,
+    );
 
     const expectedCjsIndexOutput = `module.exports = require('../cjs/loader.cjs.js');
 module.exports.applyPolyfills = function() { return Promise.resolve() };`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.cjs.js'), expectedCjsIndexOutput);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.cjs.js'),
+      expectedCjsIndexOutput,
+    );
 
     const expectedES2017Output = `export * from '../esm/polyfills/index.js';
 export * from '../esm/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.es2017.js'), expectedES2017Output);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.es2017.js'),
+      expectedES2017Output,
+    );
   });
 
   it('should exclude polyfill code when buildEs5=false', async () => {
@@ -63,12 +77,21 @@ export * from '../esm/loader.js';`;
     await outputLazyLoader(config, compilerCtx);
 
     const expectedIndexOutput = `export * from '../esm/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.js'), expectedIndexOutput);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.js'),
+      expectedIndexOutput,
+    );
 
     const expectedCjsIndexOutput = `module.exports = require('../cjs/loader.cjs.js');`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.cjs.js'), expectedCjsIndexOutput);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.cjs.js'),
+      expectedCjsIndexOutput,
+    );
 
     const expectedES2017Output = `export * from '../esm/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(resolve('/my-test-dir/loader/index.es2017.js'), expectedES2017Output);
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      resolve('/my-test-dir/loader/index.es2017.js'),
+      expectedES2017Output,
+    );
   });
 });

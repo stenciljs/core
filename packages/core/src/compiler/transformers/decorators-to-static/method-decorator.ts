@@ -29,12 +29,22 @@ export const methodDecoratorsToStatic = (
   const methods = decoratedProps
     .filter(ts.isMethodDeclaration)
     .map((method) =>
-      parseMethodDecorator(config, diagnostics, tsSourceFile, typeChecker, program, method, decoratorName),
+      parseMethodDecorator(
+        config,
+        diagnostics,
+        tsSourceFile,
+        typeChecker,
+        program,
+        method,
+        decoratorName,
+      ),
     )
     .filter((method) => !!method);
 
   if (methods.length > 0) {
-    newMembers.push(createStaticGetter('methods', ts.factory.createObjectLiteralExpression(methods, true)));
+    newMembers.push(
+      createStaticGetter('methods', ts.factory.createObjectLiteralExpression(methods, true)),
+    );
   }
 };
 
@@ -62,7 +72,12 @@ const parseMethodDecorator = (
     ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.NoTypeReduction,
   );
   let returnString = typeToString(typeChecker, returnType);
-  let signatureString = typeChecker.signatureToString(signature, method, flags, ts.SignatureKind.Call);
+  let signatureString = typeChecker.signatureToString(
+    signature,
+    method,
+    flags,
+    ts.SignatureKind.Call,
+  );
 
   if (!config._isTesting) {
     if (returnString === 'void') {
@@ -123,7 +138,10 @@ const isTypePromise = (typeStr: string) => {
   return /^Promise<.+>$/.test(typeStr);
 };
 
-export const validateMethods = (diagnostics: d.Diagnostic[], members: ts.NodeArray<ts.ClassElement>) => {
+export const validateMethods = (
+  diagnostics: d.Diagnostic[],
+  members: ts.NodeArray<ts.ClassElement>,
+) => {
   members.filter(ts.isMethodDeclaration).map((method) => {
     if (method.name.getText() === 'componentDidUnload') {
       const err = buildError(diagnostics);

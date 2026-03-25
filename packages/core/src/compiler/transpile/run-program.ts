@@ -56,14 +56,25 @@ export const runTsProgram = async (
     }
 
     if (emitFilePath.endsWith('.js') || emitFilePath.endsWith('js.map')) {
-      updateModule(config, compilerCtx, buildCtx, tsSourceFiles[0], data, emitFilePath, tsTypeChecker, null);
+      updateModule(
+        config,
+        compilerCtx,
+        buildCtx,
+        tsSourceFiles[0],
+        data,
+        emitFilePath,
+        tsTypeChecker,
+        null,
+      );
     } else if (emitFilePath.endsWith('.d.ts')) {
       const srcDtsPath = normalizePath(tsSourceFiles[0].fileName);
       const relativeEmitFilepath = getRelativeDts(config, srcDtsPath, emitFilePath);
 
       emittedDts.push(srcDtsPath);
       typesOutputTarget.forEach((o) => {
-        const distPath = normalizePath(join(normalizePath(o.typesDir), normalizePath(relativeEmitFilepath)));
+        const distPath = normalizePath(
+          join(normalizePath(o.typesDir), normalizePath(relativeEmitFilepath)),
+        );
         data = updateStencilTypesImports(o.typesDir, distPath, data);
         compilerCtx.fs.writeFile(distPath, data);
       });
@@ -130,7 +141,10 @@ export const runTsProgram = async (
   const allComponents = getComponentsFromModules(buildCtx.moduleFiles);
 
   // Filter out excluded components based on config patterns
-  const { components: filteredComponents, excludedComponents } = filterExcludedComponents(allComponents, config);
+  const { components: filteredComponents, excludedComponents } = filterExcludedComponents(
+    allComponents,
+    config,
+  );
   buildCtx.components = filteredComponents;
 
   // Queue deletion of .d.ts files for excluded components in the in-memory FS
@@ -274,7 +288,11 @@ export const validateTypesAfterGeneration = async (
  * @returns a relative path to a suitable location where the typedef file can be
  * written
  */
-export const getRelativeDts = (config: d.ValidatedConfig, srcPath: string, emitDtsPath: string): string => {
+export const getRelativeDts = (
+  config: d.ValidatedConfig,
+  srcPath: string,
+  emitDtsPath: string,
+): string => {
   const parts: string[] = [];
   for (let i = 0; i < 30; i++) {
     if (normalizePath(config.srcDir) === srcPath) {

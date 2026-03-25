@@ -1,6 +1,9 @@
 import ts from 'typescript';
 import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../utils';
-import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
+import {
+  tsResolveModuleName,
+  tsGetSourceFile,
+} from '../../sys/typescript/typescript-resolve-module';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
@@ -80,7 +83,12 @@ function resolveAndProcessExtendedClass(
   typeChecker: ts.TypeChecker,
   ogModule: d.Module,
 ): ts.ClassDeclaration | undefined {
-  const foundFile = tsResolveModuleName(buildCtx.config, compilerCtx, moduleSpecifier, currentSource.fileName);
+  const foundFile = tsResolveModuleName(
+    buildCtx.config,
+    compilerCtx,
+    moduleSpecifier,
+    currentSource.fileName,
+  );
 
   if (!foundFile?.resolvedModule || !className) {
     return undefined;
@@ -131,7 +139,10 @@ function resolveAndProcessExtendedClass(
     keepLooking = false;
   }
 
-  if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
+  if (
+    foundClassDeclaration &&
+    !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+  ) {
     // 3) if we found the class declaration, push it and check if it itself extends from another class
     dependentClasses.push({
       classNode: foundClassDeclaration,
@@ -140,7 +151,14 @@ function resolveAndProcessExtendedClass(
     });
 
     if (keepLooking) {
-      buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
+      buildExtendsTree(
+        compilerCtx,
+        foundClassDeclaration,
+        dependentClasses,
+        typeChecker,
+        buildCtx,
+        ogModule,
+      );
     }
   }
 
@@ -194,7 +212,9 @@ function findClassWalk(node?: ts.Node, name?: string, depth = 0): ts.ClassDeclar
  * @returns a function that checks if a statement is a named declaration
  */
 function matchesNamedDeclaration(name: string) {
-  return function (stmt: ts.Statement): stmt is ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement {
+  return function (
+    stmt: ts.Statement,
+  ): stmt is ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement {
     // ClassDeclaration: class Foo {}
     if (ts.isClassDeclaration(stmt) && stmt.name?.text === name) {
       return true;
@@ -228,7 +248,9 @@ function matchesNamedDeclaration(name: string) {
  * @returns the corresponding .js source file
  */
 function convertDtsToJs(declarationSourceFile: string, compilerCtx: d.CompilerCtx): ts.SourceFile {
-  const jsPath = normalizePath(declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'));
+  const jsPath = normalizePath(
+    declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'),
+  );
   const jsModule = compilerCtx.moduleMap.get(jsPath);
   return jsModule?.staticSourceFile as ts.SourceFile;
 }
@@ -255,7 +277,9 @@ function buildExtendsTree(
   const hasHeritageClauses = classDeclaration.heritageClauses;
   if (!hasHeritageClauses?.length) return dependentClasses;
 
-  const extendsClause = hasHeritageClauses.find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword);
+  const extendsClause = hasHeritageClauses.find(
+    (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
   if (!extendsClause) return dependentClasses;
 
   let classIdentifiers: ts.Identifier[] = [];
@@ -306,17 +330,33 @@ function buildExtendsTree(
         keepLooking = false;
       }
 
-      if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
-        const foundModule = compilerCtx.moduleMap.get(foundClassDeclaration.getSourceFile().fileName);
+      if (
+        foundClassDeclaration &&
+        !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+      ) {
+        const foundModule = compilerCtx.moduleMap.get(
+          foundClassDeclaration.getSourceFile().fileName,
+        );
 
         if (foundModule) {
           const source = foundModule.staticSourceFile as ts.SourceFile;
           const sourceClass = findClassWalk(source, foundClassDeclaration.name?.getText());
 
           if (sourceClass) {
-            dependentClasses.push({ classNode: sourceClass, sourceFile: source, fileName: source.fileName });
+            dependentClasses.push({
+              classNode: sourceClass,
+              sourceFile: source,
+              fileName: source.fileName,
+            });
             if (keepLooking) {
-              buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
+              buildExtendsTree(
+                compilerCtx,
+                foundClassDeclaration,
+                dependentClasses,
+                typeChecker,
+                buildCtx,
+                ogModule,
+              );
             }
           }
         }
@@ -329,7 +369,9 @@ function buildExtendsTree(
       let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
 
       if (currentSource) {
-        matchedStatement = currentSource.statements.find(matchesNamedDeclaration(extendee.getText()));
+        matchedStatement = currentSource.statements.find(
+          matchesNamedDeclaration(extendee.getText()),
+        );
       }
 
       if (!currentSource) {
@@ -355,13 +397,19 @@ function buildExtendsTree(
         keepLooking = false;
       }
 
-      if (foundClassDeclaration && !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)) {
+      if (
+        foundClassDeclaration &&
+        !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+      ) {
         // we found the class declaration in the current module
-        // Try to get the transformed version from the module map 
+        // Try to get the transformed version from the module map
         const foundModule = compilerCtx.moduleMap.get(currentSource.fileName);
         if (foundModule?.staticSourceFile) {
           const transformedSource = foundModule.staticSourceFile as ts.SourceFile;
-          const transformedClass = findClassWalk(transformedSource, foundClassDeclaration.name?.getText());
+          const transformedClass = findClassWalk(
+            transformedSource,
+            foundClassDeclaration.name?.getText(),
+          );
 
           if (transformedClass) {
             dependentClasses.push({
@@ -370,7 +418,14 @@ function buildExtendsTree(
               fileName: transformedSource.fileName,
             });
             if (keepLooking) {
-              buildExtendsTree(compilerCtx, transformedClass, dependentClasses, typeChecker, buildCtx, ogModule);
+              buildExtendsTree(
+                compilerCtx,
+                transformedClass,
+                dependentClasses,
+                typeChecker,
+                buildCtx,
+                ogModule,
+              );
             }
             return;
           }
@@ -383,7 +438,14 @@ function buildExtendsTree(
           fileName: currentSource.fileName,
         });
         if (keepLooking) {
-          buildExtendsTree(compilerCtx, foundClassDeclaration, dependentClasses, typeChecker, buildCtx, ogModule);
+          buildExtendsTree(
+            compilerCtx,
+            foundClassDeclaration,
+            dependentClasses,
+            typeChecker,
+            buildCtx,
+            ogModule,
+          );
         }
         return;
       }
@@ -392,7 +454,10 @@ function buildExtendsTree(
       const importStatements = currentSource.statements.filter(ts.isImportDeclaration);
       importStatements.forEach((statement) => {
         // 1) loop through import declarations in the current source file
-        if (statement.importClause?.namedBindings && ts.isNamedImports(statement.importClause?.namedBindings)) {
+        if (
+          statement.importClause?.namedBindings &&
+          ts.isNamedImports(statement.importClause?.namedBindings)
+        ) {
           statement.importClause?.namedBindings.elements.forEach((element) => {
             // 2) loop through the named bindings of the import declaration
 
@@ -431,7 +496,10 @@ function buildExtendsTree(
               declaration.initializer.arguments.length === 1 &&
               ts.isStringLiteral(declaration.initializer.arguments[0])
             ) {
-              const moduleSpecifier = declaration.initializer.arguments[0].text.replaceAll(/['"]/g, '');
+              const moduleSpecifier = declaration.initializer.arguments[0].text.replaceAll(
+                /['"]/g,
+                '',
+              );
               const className = extendee.getText();
 
               resolveAndProcessExtendedClass(
@@ -497,7 +565,10 @@ export function mergeExtendedClassMeta(
     const mixinMethods = parseStaticMethods(extendedStaticMembers) ?? [];
     const mixinEvents = parseStaticEvents(extendedStaticMembers) ?? [];
     const isMixin =
-      mixinProps.length > 0 || mixinStates.length > 0 || mixinMethods.length > 0 || mixinEvents.length > 0;
+      mixinProps.length > 0 ||
+      mixinStates.length > 0 ||
+      mixinMethods.length > 0 ||
+      mixinEvents.length > 0;
     const module = compilerCtx.moduleMap.get(extendedClass.fileName);
     if (!module) return;
 
@@ -518,23 +589,42 @@ export function mergeExtendedClassMeta(
 
     // Cross-type deduplication: if the component overrides a base @Prop with @State (or vice versa),
     // exclude the base member from the opposite type to prevent it appearing in both.
-    const mixinPropsExcludingComponentStates = mixinProps.filter((mp) => !states.some((s) => s.name === mp.name));
-    const mixinStatesExcludingComponentProps = mixinStates.filter((ms) => !properties.some((p) => p.name === ms.name));
+    const mixinPropsExcludingComponentStates = mixinProps.filter(
+      (mp) => !states.some((s) => s.name === mp.name),
+    );
+    const mixinStatesExcludingComponentProps = mixinStates.filter(
+      (ms) => !properties.some((p) => p.name === ms.name),
+    );
     properties = [...deDupeMembers(mixinPropsExcludingComponentStates, properties), ...properties];
     states = [...deDupeMembers(mixinStatesExcludingComponentProps, states), ...states];
     methods = [...deDupeMembers(mixinMethods, methods), ...methods];
     events = [...deDupeMembers(mixinEvents, events), ...events];
-    listeners = [...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners), ...listeners];
-    watchers = [...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers), ...watchers];
+    listeners = [
+      ...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners),
+      ...listeners,
+    ];
+    watchers = [
+      ...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers),
+      ...watchers,
+    ];
     serializers = [
-      ...deDupeMembers(parseStaticSerializers(extendedStaticMembers, 'serializers') ?? [], serializers),
+      ...deDupeMembers(
+        parseStaticSerializers(extendedStaticMembers, 'serializers') ?? [],
+        serializers,
+      ),
       ...serializers,
     ];
     deserializers = [
-      ...deDupeMembers(parseStaticSerializers(extendedStaticMembers, 'deserializers') ?? [], deserializers),
+      ...deDupeMembers(
+        parseStaticSerializers(extendedStaticMembers, 'deserializers') ?? [],
+        deserializers,
+      ),
       ...deserializers,
     ];
-    classMethods = [...classMethods, ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? [])];
+    classMethods = [
+      ...classMethods,
+      ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? []),
+    ];
 
     if (isMixin) hasMixin = true;
   });

@@ -8,7 +8,8 @@ import { format } from 'prettier';
  * @param code the string to format
  * @returns a Promise wrapping the formatted code
  */
-export const formatCode = (code: string): Promise<string> => format(code, { ...ionicConfig, parser: 'typescript' });
+export const formatCode = (code: string): Promise<string> =>
+  format(code, { ...ionicConfig, parser: 'typescript' });
 
 /**
  * c for compact, c for class declaration, make of it what you will!

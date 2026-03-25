@@ -40,7 +40,10 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
   let i = 0;
   for (i = 0; i < childNodes.length; i++) {
     const childNode = childNodes[i] as d.RenderNode;
-    if (childNode.nodeType === NODE_TYPE.ElementNode && internalCall(childNode, 'childNodes').length) {
+    if (
+      childNode.nodeType === NODE_TYPE.ElementNode &&
+      internalCall(childNode, 'childNodes').length
+    ) {
       // keep drilling down
       updateFallbackSlotVisibility(childNode);
     }
@@ -75,7 +78,11 @@ export const getSlottedChildNodes = (childNodes: NodeListOf<ChildNode>): d.Patch
  * @param slotName the name of the slot to match on.
  * @returns a reference to the slot node that matches the provided name, `null` otherwise
  */
-export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName?: string, slotName?: string) {
+export function getHostSlotNodes(
+  childNodes: NodeListOf<ChildNode>,
+  hostName?: string,
+  slotName?: string,
+) {
   let i = 0;
   let slottedNodes: d.RenderNode[] = [];
   let childNode: d.RenderNode;
@@ -108,7 +115,8 @@ export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, inclu
   let node = slot;
 
   while ((node = node.nextSibling as any)) {
-    if (getSlotName(node) === slotName && (includeSlot || !node['s-sr'])) childNodes.push(node as any);
+    if (getSlotName(node) === slotName && (includeSlot || !node['s-sr']))
+      childNodes.push(node as any);
   }
   return childNodes;
 };
@@ -167,7 +175,9 @@ export const addSlotRelocateNode = (
   if (!slotNode['s-cr'] || !slotNode['s-cr'].parentNode) return;
 
   const parent = slotNode['s-cr'].parentNode as any;
-  const appendMethod = prepend ? internalCall(parent, 'prepend') : internalCall(parent, 'appendChild');
+  const appendMethod = prepend
+    ? internalCall(parent, 'prepend')
+    : internalCall(parent, 'appendChild');
 
   if (BUILD.hydrateClientSide && typeof position !== 'undefined') {
     slottedNodeLocation['s-oo'] = position;
@@ -219,7 +229,9 @@ export function patchSlotNode(node: d.RenderNode) {
 
       const parent = this['s-cr'].parentElement as d.RenderNode;
       // get all light dom nodes
-      const slottedNodes = parent.__childNodes ? parent.childNodes : getSlottedChildNodes(parent.childNodes);
+      const slottedNodes = parent.__childNodes
+        ? parent.childNodes
+        : getSlottedChildNodes(parent.childNodes);
 
       (slottedNodes as d.RenderNode[]).forEach((n) => {
         // find all the nodes assigned to slots we care about
@@ -245,7 +257,9 @@ export function patchSlotNode(node: d.RenderNode) {
  */
 export function dispatchSlotChangeEvent(elm: d.RenderNode) {
   (elm as any).name = elm['s-sn'] || '';
-  elm.dispatchEvent(new CustomEvent('slotchange', { bubbles: false, cancelable: false, composed: false }));
+  elm.dispatchEvent(
+    new CustomEvent('slotchange', { bubbles: false, cancelable: false, composed: false }),
+  );
 }
 
 /**

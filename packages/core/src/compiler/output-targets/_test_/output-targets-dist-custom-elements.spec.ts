@@ -11,7 +11,11 @@ import path from 'path';
 
 import type * as d from '@stencil/core';
 import { OutputTargetDistCustomElements } from '@stencil/core';
-import { STENCIL_APP_GLOBALS_ID, STENCIL_INTERNAL_CLIENT_PLATFORM_ID, USER_INDEX_ENTRY_ID } from '../../bundle/entry-alias-ids';
+import {
+  STENCIL_APP_GLOBALS_ID,
+  STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+  USER_INDEX_ENTRY_ID,
+} from '../../bundle/entry-alias-ids';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../dist-custom-elements';
 import {
@@ -96,7 +100,9 @@ export * from '${USER_INDEX_ENTRY_ID}';
   describe('getBundleOptions', () => {
     it('should set basic properties on BundleOptions', () => {
       const { config, buildCtx, compilerCtx } = setup();
-      const options = getBundleOptions(config, buildCtx, compilerCtx, { type: DIST_CUSTOM_ELEMENTS });
+      const options = getBundleOptions(config, buildCtx, compilerCtx, {
+        type: DIST_CUSTOM_ELEMENTS,
+      });
       expect(options.id).toBe('customElements');
       expect(options.platform).toBe('client');
       expect(options.inlineWorkers).toBe(true);
@@ -107,31 +113,38 @@ export * from '${USER_INDEX_ENTRY_ID}';
       expect(options.preserveEntrySignatures).toEqual('allow-extension');
     });
 
-    it.each([true, false, undefined])('should set externalRuntime correctly when %p', (externalRuntime) => {
-      const { config, buildCtx, compilerCtx } = setup();
-      const options = getBundleOptions(config, buildCtx, compilerCtx, {
-        type: DIST_CUSTOM_ELEMENTS,
-        externalRuntime,
-      });
-      if (externalRuntime) {
-        expect(options.externalRuntime).toBe(true);
-      } else {
-        expect(options.externalRuntime).toBe(false);
-      }
-    });
+    it.each([true, false, undefined])(
+      'should set externalRuntime correctly when %p',
+      (externalRuntime) => {
+        const { config, buildCtx, compilerCtx } = setup();
+        const options = getBundleOptions(config, buildCtx, compilerCtx, {
+          type: DIST_CUSTOM_ELEMENTS,
+          externalRuntime,
+        });
+        if (externalRuntime) {
+          expect(options.externalRuntime).toBe(true);
+        } else {
+          expect(options.externalRuntime).toBe(false);
+        }
+      },
+    );
   });
 
   describe('bundleCustomElements', () => {
     it('should set a diagnostic if no `dir` prop on the output target', async () => {
       const { config, compilerCtx, buildCtx } = setup();
-      const outputTarget: OutputTargetDistCustomElements = { type: DIST_CUSTOM_ELEMENTS, externalRuntime: true };
+      const outputTarget: OutputTargetDistCustomElements = {
+        type: DIST_CUSTOM_ELEMENTS,
+        externalRuntime: true,
+      };
       await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
       expect(buildCtx.diagnostics).toEqual([
         {
           level: 'error',
           lines: [],
           type: 'build',
-          messageText: 'dist-custom-elements output target provided with no output target directory!',
+          messageText:
+            'dist-custom-elements output target provided with no output target directory!',
         },
       ]);
     });
@@ -162,7 +175,11 @@ export * from '${USER_INDEX_ENTRY_ID}';
           compilerCtx,
           config.outputTargets[0] as OutputTargetDistCustomElements,
         );
-        addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
+        addCustomElementInputs(
+          buildCtx,
+          bundleOptions,
+          config.outputTargets[0] as OutputTargetDistCustomElements,
+        );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
 export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
@@ -195,7 +212,11 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetDistCustomElements,
         );
-        addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
+        addCustomElementInputs(
+          buildCtx,
+          bundleOptions,
+          config.outputTargets[0] as OutputTargetDistCustomElements,
+        );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
 export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
@@ -222,7 +243,11 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetDistCustomElements,
         );
-        addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
+        addCustomElementInputs(
+          buildCtx,
+          bundleOptions,
+          config.outputTargets[0] as OutputTargetDistCustomElements,
+        );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
 export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
@@ -237,7 +262,8 @@ globalScripts();
 
     describe('CustomElementsExportBehavior.BUNDLE', () => {
       beforeEach(() => {
-        (config.outputTargets[0] as OutputTargetDistCustomElements).customElementsExportBehavior = 'bundle';
+        (config.outputTargets[0] as OutputTargetDistCustomElements).customElementsExportBehavior =
+          'bundle';
       });
 
       it('should add a `defineCustomElements` function to the index.js file', () => {
@@ -255,7 +281,11 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetDistCustomElements,
         );
-        addCustomElementInputs(buildCtx, bundleOptions, config.outputTargets[0] as OutputTargetDistCustomElements);
+        addCustomElementInputs(
+          buildCtx,
+          bundleOptions,
+          config.outputTargets[0] as OutputTargetDistCustomElements,
+        );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
 import { transformTag } from '@stencil/core/runtime/client';
@@ -303,7 +333,9 @@ export const defineCustomElements = (opts) => {
 
         // Check loader module content
         const loaderContent = bundleOptions.loader['\0loader'];
-        expect(loaderContent).toContain(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}'`);
+        expect(loaderContent).toContain(
+          `import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}'`,
+        );
         expect(loaderContent).toContain("'stub-cmp': './stub-cmp.js'");
         expect(loaderContent).toContain("'my-best-component': './my-best-component.js'");
         expect(loaderContent).toContain('export function start(');

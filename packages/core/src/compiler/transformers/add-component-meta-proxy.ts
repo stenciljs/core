@@ -29,7 +29,9 @@ export const addModuleMetadataProxies = (tsSourceFile: ts.SourceFile, moduleFile
  * @param compilerMeta compiler metadata associated with the component to be wrapped in a proxy
  * @returns the generated call expression
  */
-const createComponentMetadataProxy = (compilerMeta: d.ComponentCompilerMeta): ts.ExpressionStatement => {
+const createComponentMetadataProxy = (
+  compilerMeta: d.ComponentCompilerMeta,
+): ts.ExpressionStatement => {
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(compilerMeta, true);
 
   const literalCmpClassName = ts.factory.createIdentifier(compilerMeta.componentClassName);
@@ -70,5 +72,9 @@ export const createClassMetadataProxy = (
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(compilerMeta, true);
   const literalMeta = convertValueToLiteral(compactMeta);
 
-  return ts.factory.createCallExpression(ts.factory.createIdentifier(PROXY_CUSTOM_ELEMENT), [], [clazz, literalMeta]);
+  return ts.factory.createCallExpression(
+    ts.factory.createIdentifier(PROXY_CUSTOM_ELEMENT),
+    [],
+    [clazz, literalMeta],
+  );
 };

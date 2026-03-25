@@ -282,7 +282,9 @@ const parseClassListRegex = /\s/;
  * @param value className string, e.g. "foo bar baz"
  * @returns list of classes, e.g. ["foo", "bar", "baz"]
  */
-export const parseClassList = /*@__PURE__*/ (value: string | SVGAnimatedString | undefined | null): string[] => {
+export const parseClassList = /*@__PURE__*/ (
+  value: string | SVGAnimatedString | undefined | null,
+): string[] => {
   // Can't use `value instanceof SVGAnimatedString` because it'll break in non-browser environments
   // see https://developer.mozilla.org/docs/Web/API/SVGAnimatedString for more information
   if (typeof value === 'object' && value && 'baseVal' in value) {

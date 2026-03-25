@@ -8,8 +8,14 @@ import { optimizeJs } from '../optimize/optimize-js';
 import { getScopeId } from '../style/scope-css';
 import { PrerenderContext } from './prerender-worker-ctx';
 
-export const inlineExternalStyleSheets = async (sys: d.CompilerSystem, appDir: string, doc: Document) => {
-  const documentLinks = Array.from(doc.querySelectorAll('link[rel=stylesheet]')) as HTMLLinkElement[];
+export const inlineExternalStyleSheets = async (
+  sys: d.CompilerSystem,
+  appDir: string,
+  doc: Document,
+) => {
+  const documentLinks = Array.from(
+    doc.querySelectorAll('link[rel=stylesheet]'),
+  ) as HTMLLinkElement[];
   if (documentLinks.length === 0) {
     return;
   }
@@ -59,7 +65,11 @@ export const minifyScriptElements = async (doc: Document, addMinifiedAttr: boole
       return false;
     }
     const scriptType = scriptElm.getAttribute('type');
-    if (typeof scriptType === 'string' && scriptType !== 'module' && scriptType !== 'text/javascript') {
+    if (
+      typeof scriptType === 'string' &&
+      scriptType !== 'module' &&
+      scriptType !== 'text/javascript'
+    ) {
       return false;
     }
     return true;
@@ -185,7 +195,11 @@ export const addModulePreloads = (
   const cmpTags = hydrateResults.components.filter((cmp) => !staticComponents.includes(cmp.tag));
 
   const modulePreloads = unique(
-    flatOne(cmpTags.map((cmp) => getScopeId(cmp.tag, cmp.mode)).map((scopeId) => componentGraph.get(scopeId) || [])),
+    flatOne(
+      cmpTags
+        .map((cmp) => getScopeId(cmp.tag, cmp.mode))
+        .map((scopeId) => componentGraph.get(scopeId) || []),
+    ),
   );
 
   injectModulePreloads(doc, modulePreloads);
@@ -265,7 +279,9 @@ export const hashAssets = async (
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="preload"]', ['href']);
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="modulepreload"]', ['href']);
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="icon"]', ['href']);
-  await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="apple-touch-icon"]', ['href']);
+  await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="apple-touch-icon"]', [
+    'href',
+  ]);
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'link[rel="manifest"]', ['href']);
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'script', ['src']);
   await hashAsset(sys, hydrateOpts, appDir, doc, currentUrl, 'img', ['src', 'srcset']);
@@ -281,7 +297,14 @@ export const hashAssets = async (
         if (pageState && Array.isArray(pageState.ast)) {
           for (const node of pageState.ast) {
             if (Array.isArray(node)) {
-              await hashPageStateAstAssets(sys, hydrateOpts, appDir, currentUrl, pageStateScript, node);
+              await hashPageStateAstAssets(
+                sys,
+                hydrateOpts,
+                appDir,
+                currentUrl,
+                pageStateScript,
+                node,
+              );
             }
           }
           pageStateScript.textContent = JSON.stringify(pageState);
@@ -362,7 +385,14 @@ const hashPageStateAstAssets = async (
 
     for (let i = 2, l = node.length; i < l; i++) {
       if (Array.isArray(node[i])) {
-        await hashPageStateAstAssets(sys, hydrateOpts, appDir, currentUrl, pageStateScript, node[i]);
+        await hashPageStateAstAssets(
+          sys,
+          hydrateOpts,
+          appDir,
+          currentUrl,
+          pageStateScript,
+          node[i],
+        );
       }
     }
   }

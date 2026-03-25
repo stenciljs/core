@@ -589,7 +589,10 @@ describe('element', () => {
       expect(foreignObject.tagName).toEqual('FOREIGNOBJECT');
       expect(foreignObject.nodeName).toEqual('FOREIGNOBJECT');
 
-      const foreignObject2 = document.createElementNS('http://www.w3.org/1999/xhtml', 'foreignObject');
+      const foreignObject2 = document.createElementNS(
+        'http://www.w3.org/1999/xhtml',
+        'foreignObject',
+      );
       expect(foreignObject2.tagName).toEqual('FOREIGNOBJECT');
       expect(foreignObject2.nodeName).toEqual('FOREIGNOBJECT');
 
@@ -709,7 +712,9 @@ describe('element', () => {
       elm.innerHTML = '';
       expect(slot.assignedNodes().length).toEqual(0);
       expect(slot.assignedNodes({ flatten: true }).length).toEqual(1);
-      expect(slot.assignedNodes({ flatten: true })[0].textContent.trim()).toEqual('Fallback content');
+      expect(slot.assignedNodes({ flatten: true })[0].textContent.trim()).toEqual(
+        'Fallback content',
+      );
     });
 
     it('returns correct elements with `assignedElements`', () => {
@@ -745,7 +750,9 @@ describe('element', () => {
       elm.innerHTML = '';
       expect(slot.assignedElements().length).toEqual(0);
       expect(slot.assignedElements({ flatten: true }).length).toEqual(1);
-      expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual('Fallback content');
+      expect(slot.assignedElements({ flatten: true })[0].textContent.trim()).toEqual(
+        'Fallback content',
+      );
     });
   });
 

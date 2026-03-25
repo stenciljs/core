@@ -1,6 +1,11 @@
 import ts from 'typescript';
 
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators, tsPropDeclName } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+  tsPropDeclName,
+} from '../transform-utils';
 import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
 export const serializeDecoratorsToStatic = (

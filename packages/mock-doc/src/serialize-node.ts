@@ -30,14 +30,22 @@ function normalizeSerializationOptions(opts: Partial<SerializeNodeToHtmlOptions>
           indentSpaces: typeof opts.indentSpaces !== 'number' ? 0 : opts.indentSpaces,
           newLines: typeof opts.newLines !== 'boolean' ? false : opts.newLines,
         }),
-    approximateLineWidth: typeof opts.approximateLineWidth !== 'number' ? -1 : opts.approximateLineWidth,
-    removeEmptyAttributes: typeof opts.removeEmptyAttributes !== 'boolean' ? true : opts.removeEmptyAttributes,
-    removeAttributeQuotes: typeof opts.removeAttributeQuotes !== 'boolean' ? false : opts.removeAttributeQuotes,
+    approximateLineWidth:
+      typeof opts.approximateLineWidth !== 'number' ? -1 : opts.approximateLineWidth,
+    removeEmptyAttributes:
+      typeof opts.removeEmptyAttributes !== 'boolean' ? true : opts.removeEmptyAttributes,
+    removeAttributeQuotes:
+      typeof opts.removeAttributeQuotes !== 'boolean' ? false : opts.removeAttributeQuotes,
     removeBooleanAttributeQuotes:
-      typeof opts.removeBooleanAttributeQuotes !== 'boolean' ? false : opts.removeBooleanAttributeQuotes,
-    removeHtmlComments: typeof opts.removeHtmlComments !== 'boolean' ? false : opts.removeHtmlComments,
+      typeof opts.removeBooleanAttributeQuotes !== 'boolean'
+        ? false
+        : opts.removeBooleanAttributeQuotes,
+    removeHtmlComments:
+      typeof opts.removeHtmlComments !== 'boolean' ? false : opts.removeHtmlComments,
     serializeShadowRoot:
-      typeof opts.serializeShadowRoot === 'undefined' ? 'declarative-shadow-dom' : opts.serializeShadowRoot,
+      typeof opts.serializeShadowRoot === 'undefined'
+        ? 'declarative-shadow-dom'
+        : opts.serializeShadowRoot,
     fullDocument: typeof opts.fullDocument !== 'boolean' ? true : opts.fullDocument,
   } as const;
 }
@@ -53,7 +61,10 @@ function normalizeSerializationOptions(opts: Partial<SerializeNodeToHtmlOptions>
  * @param serializationOptions options to control serialization behavior
  * @returns an html string
  */
-export function serializeNodeToHtml(elm: Node | MockNode, serializationOptions: SerializeNodeToHtmlOptions = {}) {
+export function serializeNodeToHtml(
+  elm: Node | MockNode,
+  serializationOptions: SerializeNodeToHtmlOptions = {},
+) {
   const opts = normalizeSerializationOptions(serializationOptions);
   const output: SerializeOutput = {
     currentLineWidth: 0,
@@ -307,9 +318,15 @@ function* streamToHtml(
             // skip over empty text nodes
           } else {
             const isWithinWhitespaceSensitiveNode =
-              opts.newLines || (opts.indentSpaces ?? 0) > 0 ? isWithinWhitespaceSensitive(node) : false;
+              opts.newLines || (opts.indentSpaces ?? 0) > 0
+                ? isWithinWhitespaceSensitive(node)
+                : false;
 
-            if (!isWithinWhitespaceSensitiveNode && (opts.indentSpaces ?? 0) > 0 && ignoreTag === false) {
+            if (
+              !isWithinWhitespaceSensitiveNode &&
+              (opts.indentSpaces ?? 0) > 0 &&
+              ignoreTag === false
+            ) {
               output.indent = output.indent + (opts.indentSpaces ?? 0);
             }
 
@@ -323,7 +340,8 @@ function* streamToHtml(
                * is set on the node.
                */
               const sId = (node as HTMLElement).attributes.getNamedItem(HYDRATE_ID);
-              const isStencilDeclarativeShadowDOM = childNodes[i].nodeName.toLowerCase() === 'template' && sId;
+              const isStencilDeclarativeShadowDOM =
+                childNodes[i].nodeName.toLowerCase() === 'template' && sId;
               if (isStencilDeclarativeShadowDOM) {
                 yield `\n${' '.repeat(output.indent)}<!--r.${sId.value}-->`;
                 continue;
@@ -402,7 +420,9 @@ function* streamToHtml(
       } else {
         // this text node has text content
         const isWithinWhitespaceSensitiveNode =
-          opts.newLines || (opts.indentSpaces ?? 0) > 0 || opts.prettyHtml ? isWithinWhitespaceSensitive(node) : false;
+          opts.newLines || (opts.indentSpaces ?? 0) > 0 || opts.prettyHtml
+            ? isWithinWhitespaceSensitive(node)
+            : false;
         if (opts.newLines && !isWithinWhitespaceSensitiveNode) {
           yield '\n';
           output.currentLineWidth = 0;

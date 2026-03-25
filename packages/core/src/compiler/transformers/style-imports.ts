@@ -72,7 +72,13 @@ const updateEsmStyleImports = (
           styleImports.push(...createStyleImport(transformOpts, tsSourceFile, cmp, style));
         } else {
           // update existing esm import of a style identifier
-          statements = updateEsmStyleImportPath(transformOpts, tsSourceFile, statements, cmp, style);
+          statements = updateEsmStyleImportPath(
+            transformOpts,
+            tsSourceFile,
+            statements,
+            cmp,
+            style,
+          );
         }
       }
     });
@@ -104,10 +110,21 @@ const updateEsmStyleImportPath = (
 ): ts.Statement[] => {
   for (let i = 0; i < statements.length; i++) {
     const n = statements[i];
-    if (ts.isImportDeclaration(n) && n.importClause && n.moduleSpecifier && ts.isStringLiteral(n.moduleSpecifier)) {
+    if (
+      ts.isImportDeclaration(n) &&
+      n.importClause &&
+      n.moduleSpecifier &&
+      ts.isStringLiteral(n.moduleSpecifier)
+    ) {
       if (n.importClause.name && n.importClause.name.escapedText === style.styleIdentifier) {
         const orgImportPath = n.moduleSpecifier.text;
-        const importPath = getStyleImportPath(transformOpts, tsSourceFile, cmp, style, orgImportPath);
+        const importPath = getStyleImportPath(
+          transformOpts,
+          tsSourceFile,
+          cmp,
+          style,
+          orgImportPath,
+        );
 
         statements[i] = ts.factory.updateImportDeclaration(
           n,
@@ -239,7 +256,10 @@ const updateCjsStyleRequires = (
   });
 
   if (styleRequires.length > 0) {
-    return ts.factory.updateSourceFile(tsSourceFile, [...styleRequires, ...tsSourceFile.statements]);
+    return ts.factory.updateSourceFile(tsSourceFile, [
+      ...styleRequires,
+      ...tsSourceFile.statements,
+    ]);
   }
 
   return tsSourceFile;

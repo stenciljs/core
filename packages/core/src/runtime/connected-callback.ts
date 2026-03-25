@@ -1,5 +1,12 @@
 import { BUILD } from 'virtual:app-data';
-import { addHostEventListeners, getHostRef, nextTick, plt, supportsShadow, win } from 'virtual:platform';
+import {
+  addHostEventListeners,
+  getHostRef,
+  nextTick,
+  plt,
+  supportsShadow,
+  win,
+} from 'virtual:platform';
 
 import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
@@ -34,7 +41,11 @@ export const connectedCallback = (elm: d.HostElement) => {
       if (BUILD.hydrateClientSide) {
         hostId = elm.getAttribute(HYDRATE_ID);
         if (hostId) {
-          if (BUILD.shadowDom && supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
+          if (
+            BUILD.shadowDom &&
+            supportsShadow &&
+            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation
+          ) {
             const scopeId = BUILD.mode
               ? addStyle(elm.shadowRoot, cmpMeta, elm.getAttribute('s-mode'))
               : addStyle(elm.shadowRoot, cmpMeta);
@@ -42,7 +53,10 @@ export const connectedCallback = (elm: d.HostElement) => {
           } else if (BUILD.scoped && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
             // set the scope id on the element now. Useful when hydrating,
             // to more quickly set the initial scoped classes for scoped css
-            const scopeId = getScopeId(cmpMeta, BUILD.mode ? elm.getAttribute('s-mode') : undefined);
+            const scopeId = getScopeId(
+              cmpMeta,
+              BUILD.mode ? elm.getAttribute('s-mode') : undefined,
+            );
             elm['s-sc'] = scopeId;
           }
           initializeClientHydrate(elm, cmpMeta.$tagName$, hostId, hostRef);
@@ -69,7 +83,10 @@ export const connectedCallback = (elm: d.HostElement) => {
         // this component as one of the actively loading child components for its ancestor
         let ancestorComponent = elm;
 
-        while ((ancestorComponent = (ancestorComponent.parentNode as any) || (ancestorComponent.host as any))) {
+        while (
+          (ancestorComponent =
+            (ancestorComponent.parentNode as any) || (ancestorComponent.host as any))
+        ) {
           // climb up the ancestors looking for the first
           // component that hasn't finished its lifecycle update yet
           if (
@@ -91,7 +108,10 @@ export const connectedCallback = (elm: d.HostElement) => {
       // https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
       if (BUILD.prop && !BUILD.hydrateServerSide && cmpMeta.$members$) {
         Object.entries(cmpMeta.$members$).map(([memberName, [memberFlags]]) => {
-          if (memberFlags & MEMBER_FLAGS.Prop && Object.prototype.hasOwnProperty.call(elm, memberName)) {
+          if (
+            memberFlags & MEMBER_FLAGS.Prop &&
+            Object.prototype.hasOwnProperty.call(elm, memberName)
+          ) {
             // Skip accessor properties created by reWireGetterSetter for ES2022 class field support.
             // ES2022 rewiring creates instance accessors that delegate to the prototype, and these
             // should not be treated as lazy data properties that need to be re-set.

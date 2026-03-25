@@ -1,4 +1,12 @@
-import { catchError, createJsVarName, DEFAULT_STYLE_MODE, hasError, isString, normalizePath, resolve } from '../../utils';
+import {
+  catchError,
+  createJsVarName,
+  DEFAULT_STYLE_MODE,
+  hasError,
+  isString,
+  normalizePath,
+  resolve,
+} from '../../utils';
 import { scopeCss } from '../../utils/shadow-css';
 import MagicString from 'magic-string';
 import path from 'path';
@@ -61,7 +69,9 @@ const CSS_IMPORT_RE = /(@import)\s+(url\()?\s?(.*?)\s?\)?([^;]*);?/gi;
  * @param input CSS input to be transformed to ESM
  * @returns a promise wrapping transformed ESM output
  */
-export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promise<d.TransformCssToEsmOutput> => {
+export const transformCssToEsm = async (
+  input: d.TransformCssToEsmInput,
+): Promise<d.TransformCssToEsmOutput> => {
   const results = transformCssToEsmModule(input);
 
   const optimizeResults = await optimizeCss({
@@ -87,7 +97,9 @@ export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promis
  * @param input the input CSS we're going to transform
  * @returns transformed ESM output
  */
-export const transformCssToEsmSync = (input: d.TransformCssToEsmInput): d.TransformCssToEsmOutput => {
+export const transformCssToEsmSync = (
+  input: d.TransformCssToEsmInput,
+): d.TransformCssToEsmOutput => {
   const results = transformCssToEsmModule(input);
   return generateTransformCssToEsm(input, results);
 };

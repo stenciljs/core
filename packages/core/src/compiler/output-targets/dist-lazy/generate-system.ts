@@ -57,7 +57,9 @@ const generateSystemLoaders = (
 ): Promise<void[]> => {
   const loaderFilename = rollupResult.find((r) => r.type === 'chunk' && r.isBrowserLoader).fileName;
 
-  return Promise.all(systemOutputs.map((o) => writeSystemLoader(config, compilerCtx, loaderFilename, o)));
+  return Promise.all(
+    systemOutputs.map((o) => writeSystemLoader(config, compilerCtx, loaderFilename, o)),
+  );
 };
 
 const writeSystemLoader = async (
@@ -69,7 +71,12 @@ const writeSystemLoader = async (
   if (outputTarget.systemLoaderFile) {
     const entryPointPath = join(outputTarget.systemDir, loaderFilename);
     const relativePath = relativeImport(outputTarget.systemLoaderFile, entryPointPath);
-    const loaderContent = await getSystemLoader(config, compilerCtx, relativePath, !!outputTarget.polyfills);
+    const loaderContent = await getSystemLoader(
+      config,
+      compilerCtx,
+      relativePath,
+      !!outputTarget.polyfills,
+    );
     await compilerCtx.fs.writeFile(outputTarget.systemLoaderFile, loaderContent, {
       outputTargetType: outputTarget.type,
     });

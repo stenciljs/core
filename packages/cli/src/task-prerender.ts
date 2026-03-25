@@ -1,10 +1,18 @@
 import { catchError } from '@stencil/core/compiler/utils';
-import type { BuildResultsComponentGraph, Diagnostic, ValidatedConfig } from '@stencil/core/compiler';
+import type {
+  BuildResultsComponentGraph,
+  Diagnostic,
+  ValidatedConfig,
+} from '@stencil/core/compiler';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 
-export const taskPrerender = async (coreCompiler: CoreCompiler, config: ValidatedConfig, flags: ConfigFlags) => {
+export const taskPrerender = async (
+  coreCompiler: CoreCompiler,
+  config: ValidatedConfig,
+  flags: ConfigFlags,
+) => {
   startupCompilerLog(coreCompiler, config);
 
   const hydrateAppFilePath = flags.unknownArgs[0];
@@ -16,7 +24,13 @@ export const taskPrerender = async (coreCompiler: CoreCompiler, config: Validate
 
   const srcIndexHtmlPath = config.srcIndexHtml;
 
-  const diagnostics = await runPrerenderTask(coreCompiler, config, hydrateAppFilePath, undefined, srcIndexHtmlPath);
+  const diagnostics = await runPrerenderTask(
+    coreCompiler,
+    config,
+    hydrateAppFilePath,
+    undefined,
+    srcIndexHtmlPath,
+  );
   config.logger.printDiagnostics(diagnostics);
 
   if (diagnostics.some((d) => d.level === 'error')) {

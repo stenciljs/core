@@ -11,9 +11,12 @@ import {
 
 describe('output-utils tests', () => {
   describe('isValidConfigOutputTarget', () => {
-    it.each(VALID_CONFIG_OUTPUT_TARGETS)('should return true for valid output type "%s"', (outputTargetType) => {
-      expect(isValidConfigOutputTarget(outputTargetType)).toBe(true);
-    });
+    it.each(VALID_CONFIG_OUTPUT_TARGETS)(
+      'should return true for valid output type "%s"',
+      (outputTargetType) => {
+        expect(isValidConfigOutputTarget(outputTargetType)).toBe(true);
+      },
+    );
 
     it.each(['', 'my-target-that-i-made-up', DIST_TYPES])(
       'should return false for invalid config output type "%s"',
@@ -194,7 +197,9 @@ describe('output-utils tests', () => {
 
       filterExcludedComponents(components, config);
 
-      expect(config.logger.debug).toHaveBeenCalledWith('Excluding component from build: demo-widget');
+      expect(config.logger.debug).toHaveBeenCalledWith(
+        'Excluding component from build: demo-widget',
+      );
     });
 
     it('should return empty array when all components are excluded', () => {
@@ -246,7 +251,9 @@ describe('output-utils tests', () => {
 
       filterExcludedComponents(components, config);
 
-      expect(config.logger.info).toHaveBeenCalledWith('Excluding 1 component from production build: demo-widget');
+      expect(config.logger.info).toHaveBeenCalledWith(
+        'Excluding 1 component from production build: demo-widget',
+      );
     });
 
     it('should not exclude components in dev mode', () => {

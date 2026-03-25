@@ -5,7 +5,8 @@ describe('regular expression utils', () => {
   describe('escapeRegExpSpecialCharacters', () => {
     it('should escape all special characters', () => {
       const text = 'This is a string with special characters: $ ^ * + ? . ( ) | { } [ ]';
-      const expected = 'This is a string with special characters: \\$ \\^ \\* \\+ \\? \\. \\( \\) \\| \\{ \\} \\[ \\]';
+      const expected =
+        'This is a string with special characters: \\$ \\^ \\* \\+ \\? \\. \\( \\) \\| \\{ \\} \\[ \\]';
       const result = escapeRegExpSpecialCharacters(text);
       expect(result).toEqual(expected);
     });

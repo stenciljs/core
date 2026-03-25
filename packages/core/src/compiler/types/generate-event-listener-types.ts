@@ -25,7 +25,12 @@ export const generateEventListenerTypes = (
     return { htmlElementEventMap: [], htmlElementEventListenerProperties: [] };
   }
   return {
-    htmlElementEventMap: getHtmlElementEventMap(cmpEvents, typeImportData, cmp.sourceFilePath, htmlElementEventMapName),
+    htmlElementEventMap: getHtmlElementEventMap(
+      cmpEvents,
+      typeImportData,
+      cmp.sourceFilePath,
+      htmlElementEventMapName,
+    ),
     htmlElementEventListenerProperties: [
       `        addEventListener<K extends keyof ${htmlElementEventMapName}>(type: K, listener: (this: ${htmlElementName}, ev: ${cmpEventInterface}<${htmlElementEventMapName}[K]>) => any, options?: boolean | AddEventListenerOptions): void;`,
       '        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;',

@@ -434,7 +434,10 @@ interface ConfigExtrasBase {
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
-type ConfigExtrasSlotFixes<ExperimentalFixesEnabled extends boolean, IndividualFlags extends boolean> = {
+type ConfigExtrasSlotFixes<
+  ExperimentalFixesEnabled extends boolean,
+  IndividualFlags extends boolean,
+> = {
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   /**
    * By default, the slot polyfill does not update `appendChild()` so that it appends
@@ -1204,11 +1207,17 @@ export interface CompilerSystem {
   /**
    * Does not throw.
    */
-  createDir(p: string, opts?: CompilerSystemCreateDirectoryOptions): Promise<CompilerSystemCreateDirectoryResults>;
+  createDir(
+    p: string,
+    opts?: CompilerSystemCreateDirectoryOptions,
+  ): Promise<CompilerSystemCreateDirectoryResults>;
   /**
    * SYNC! Does not throw.
    */
-  createDirSync(p: string, opts?: CompilerSystemCreateDirectoryOptions): CompilerSystemCreateDirectoryResults;
+  createDirSync(
+    p: string,
+    opts?: CompilerSystemCreateDirectoryOptions,
+  ): CompilerSystemCreateDirectoryResults;
   homeDir(): string;
   /**
    * Used to determine if the current context of the terminal is TTY.
@@ -1241,7 +1250,11 @@ export interface CompilerSystem {
   /**
    * @deprecated
    */
-  ensureResources?(opts: { rootDir: string; logger: Logger; dependencies: CompilerDependency[] }): Promise<void>;
+  ensureResources?(opts: {
+    rootDir: string;
+    logger: Logger;
+    dependencies: CompilerDependency[];
+  }): Promise<void>;
   /**
    * process.exit()
    */
@@ -1280,7 +1293,10 @@ export interface CompilerSystem {
   /**
    * Async glob task. Only available in NodeJS compiler system.
    */
-  glob?(pattern: string, options: { cwd?: string; nodir?: boolean; [key: string]: any }): Promise<string[]>;
+  glob?(
+    pattern: string,
+    options: { cwd?: string; nodir?: boolean; [key: string]: any },
+  ): Promise<string[]>;
   /**
    * The number of logical processors available to run threads on the user's computer (cpus).
    */
@@ -1340,11 +1356,17 @@ export interface CompilerSystem {
   /**
    * Does not throw.
    */
-  removeDir(p: string, opts?: CompilerSystemRemoveDirectoryOptions): Promise<CompilerSystemRemoveDirectoryResults>;
+  removeDir(
+    p: string,
+    opts?: CompilerSystemRemoveDirectoryOptions,
+  ): Promise<CompilerSystemRemoveDirectoryResults>;
   /**
    * SYNC! Does not throw.
    */
-  removeDirSync(p: string, opts?: CompilerSystemRemoveDirectoryOptions): CompilerSystemRemoveDirectoryResults;
+  removeDirSync(
+    p: string,
+    opts?: CompilerSystemRemoveDirectoryOptions,
+  ): CompilerSystemRemoveDirectoryResults;
   /**
    * Does not throw.
    */
@@ -1364,7 +1386,11 @@ export interface CompilerSystem {
    */
   statSync(p: string): CompilerFsStats;
   tmpDirSync(): string;
-  watchDirectory?(p: string, callback: CompilerFileWatcherCallback, recursive?: boolean): CompilerFileWatcher;
+  watchDirectory?(
+    p: string,
+    callback: CompilerFileWatcherCallback,
+    recursive?: boolean,
+  ): CompilerFileWatcher;
 
   /**
    * A `watchFile` implementation in order to hook into the rest of the {@link CompilerSystem} implementation that is
@@ -1500,8 +1526,14 @@ export interface BuildOnEvents {
   on(eventName: CompilerEventDirAdd, cb: (path: string) => void): BuildOnEventRemove;
   on(eventName: CompilerEventDirDelete, cb: (path: string) => void): BuildOnEventRemove;
 
-  on(eventName: CompilerEventBuildStart, cb: (buildStart: CompilerBuildStart) => void): BuildOnEventRemove;
-  on(eventName: CompilerEventBuildFinish, cb: (buildResults: CompilerBuildResults) => void): BuildOnEventRemove;
+  on(
+    eventName: CompilerEventBuildStart,
+    cb: (buildStart: CompilerBuildStart) => void,
+  ): BuildOnEventRemove;
+  on(
+    eventName: CompilerEventBuildFinish,
+    cb: (buildResults: CompilerBuildResults) => void,
+  ): BuildOnEventRemove;
   on(eventName: CompilerEventBuildLog, cb: (buildLog: BuildLog) => void): BuildOnEventRemove;
   on(eventName: CompilerEventBuildNoChange, cb: () => void): BuildOnEventRemove;
 }
@@ -1610,7 +1642,10 @@ export interface CompilerBuildStart {
  * @param fileName the path of the file tied to event
  * @param eventKind a variant describing the type of event that was emitter (added, edited, etc.)
  */
-export type CompilerFileWatcherCallback = (fileName: string, eventKind: CompilerFileWatcherEvent) => void;
+export type CompilerFileWatcherCallback = (
+  fileName: string,
+  eventKind: CompilerFileWatcherEvent,
+) => void;
 
 /**
  * A type describing the different types of events that Stencil expects may happen when a file being watched is altered
@@ -1926,7 +1961,11 @@ export interface RollupInputOptions {
     | (string | RegExp)[]
     | string
     | RegExp
-    | ((source: string, importer: string | undefined, isResolved: boolean) => boolean | null | undefined);
+    | ((
+        source: string,
+        importer: string | undefined,
+        isResolved: boolean,
+      ) => boolean | null | undefined);
 }
 
 export interface RollupOutputOptions {
@@ -2506,7 +2545,12 @@ export interface OutputTargetCustom extends OutputTargetBase {
    */
   taskShouldRun?: 'onBuildOnly' | 'always';
   validate?: (config: Config, diagnostics: Diagnostic[]) => void;
-  generator: (config: Config, compilerCtx: CompilerCtx, buildCtx: BuildCtx, docs: JsonDocs) => Promise<void>;
+  generator: (
+    config: Config,
+    compilerCtx: CompilerCtx,
+    buildCtx: BuildCtx,
+    docs: JsonDocs,
+  ) => Promise<void>;
   copy?: CopyTask[];
 }
 

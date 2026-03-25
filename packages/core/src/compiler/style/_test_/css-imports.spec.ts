@@ -144,7 +144,9 @@ describe('css-imports', () => {
           },
         ];
         const output = replaceImportDeclarations(styleText, cssImports, true);
-        expect(output).toBe(`@media screen and (max-width: 768px) {\n.mobile { font-size: 14px; }\n}`);
+        expect(output).toBe(
+          `@media screen and (max-width: 768px) {\n.mobile { font-size: 14px; }\n}`,
+        );
       });
 
       it('should wrap imported styles with layer and media query modifiers', () => {
@@ -159,7 +161,9 @@ describe('css-imports', () => {
           },
         ];
         const output = replaceImportDeclarations(styleText, cssImports, true);
-        expect(output).toBe(`@media screen and (min-width: 1024px) {\n@layer utils {\n.util { padding: 1rem; }\n}\n}`);
+        expect(output).toBe(
+          `@media screen and (min-width: 1024px) {\n@layer utils {\n.util { padding: 1rem; }\n}\n}`,
+        );
       });
 
       it('should wrap imported styles with supports and media query modifiers', () => {
@@ -328,7 +332,9 @@ describe('css-imports', () => {
       const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
       expect(results).toEqual([
         {
-          filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'css', 'normalize.css')),
+          filePath: normalizePath(
+            path.join(root, 'node_modules', '@ionic', 'core', 'css', 'normalize.css'),
+          ),
           srcImport: `@import url(../../node_modules/@ionic/core/css/normalize.css);`,
           url: `../../node_modules/@ionic/core/css/normalize.css`,
         },
@@ -468,7 +474,15 @@ describe('css-imports', () => {
       const nodeModuleMainPath = path.join(root, 'node_modules', '@ionic', 'core', 'index.js');
       files.set(nodeModuleMainPath, `// index.js`);
 
-      const nodeModuleCss = path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css');
+      const nodeModuleCss = path.join(
+        root,
+        'node_modules',
+        '@ionic',
+        'core',
+        'dist',
+        'ionic',
+        'ionic.css',
+      );
       files.set(nodeModuleCss, `/*ionic.css*/`);
 
       await compilerCtx.fs.writeFiles(files);
@@ -481,7 +495,9 @@ describe('css-imports', () => {
       const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
       expect(results).toEqual([
         {
-          filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
+          filePath: normalizePath(
+            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
+          ),
           srcImport: `@import '~@ionic/core/dist/ionic/ionic.css';`,
           updatedImport: `@import "${normalizePath(
             path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
@@ -525,7 +541,15 @@ describe('css-imports', () => {
       const nodeModuleMainPath = path.join(root, 'node_modules', '@ionic', 'core', 'index.js');
       files.set(nodeModuleMainPath, `// index.js`);
 
-      const nodeModuleCss = path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css');
+      const nodeModuleCss = path.join(
+        root,
+        'node_modules',
+        '@ionic',
+        'core',
+        'dist',
+        'ionic',
+        'ionic.css',
+      );
       files.set(nodeModuleCss, `/*ionic.css*/`);
 
       await compilerCtx.fs.writeFiles(files);
@@ -538,7 +562,9 @@ describe('css-imports', () => {
       const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
       expect(results).toEqual([
         {
-          filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
+          filePath: normalizePath(
+            path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
+          ),
           srcImport: `@import '~@ionic/core/dist/ionic/ionic.css';`,
           updatedImport: `@import "${normalizePath(
             path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
@@ -695,7 +721,15 @@ describe('css-imports', () => {
         const nodeModuleMainPath = path.join(root, 'node_modules', '@ionic', 'core', 'index.js');
         files.set(nodeModuleMainPath, `// index.js`);
 
-        const nodeModuleCss = path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css');
+        const nodeModuleCss = path.join(
+          root,
+          'node_modules',
+          '@ionic',
+          'core',
+          'dist',
+          'ionic',
+          'ionic.css',
+        );
         files.set(nodeModuleCss, `/*ionic.css*/`);
 
         await compilerCtx.fs.writeFiles(files);
@@ -706,7 +740,9 @@ describe('css-imports', () => {
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toEqual([
           {
-            filePath: normalizePath(path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css')),
+            filePath: normalizePath(
+              path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
+            ),
             srcImport: `@import '~@ionic/core/dist/ionic/ionic.css' layer(framework);`,
             updatedImport: `@import "${normalizePath(
               path.join(root, 'node_modules', '@ionic', 'core', 'dist', 'ionic', 'ionic.css'),
@@ -725,7 +761,15 @@ describe('css-imports', () => {
       const resolvedFilePath = normalizePath(path.join(root, 'boop', 'file-a.css'));
       const content = '@import "missing"';
 
-      await parseCssImports(config, compilerCtx, buildCtx, srcFilePath, resolvedFilePath, content, []);
+      await parseCssImports(
+        config,
+        compilerCtx,
+        buildCtx,
+        srcFilePath,
+        resolvedFilePath,
+        content,
+        [],
+      );
       expect(buildCtx.diagnostics).toEqual([
         {
           ...buildError(),

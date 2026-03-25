@@ -28,7 +28,9 @@ const incrementer = (function* () {
  */
 export function deriveJSXKey(jsxElement: ts.JsxOpeningElement | ts.JsxSelfClosingElement): string {
   const hash = createHash('sha1')
-    .update(`${incrementer.next().value}__${jsxElement.tagName}__${jsxElement.pos}_${jsxElement.end}`)
+    .update(
+      `${incrementer.next().value}__${jsxElement.tagName}__${jsxElement.pos}_${jsxElement.end}`,
+    )
     .digest('hex')
     .toLowerCase();
   return hash;

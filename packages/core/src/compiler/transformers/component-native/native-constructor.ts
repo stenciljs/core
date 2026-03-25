@@ -32,7 +32,11 @@ export const updateNativeConstructor = (
   }
 
   const cstrMethodArgs = [
-    ts.factory.createParameterDeclaration(undefined, undefined, ts.factory.createIdentifier('registerHost')),
+    ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createIdentifier('registerHost'),
+    ),
   ];
 
   const nativeCstrStatements: ts.Statement[] = [
@@ -48,8 +52,12 @@ export const updateNativeConstructor = (
  * @param cmp the component's metadata
  * @returns the generated expression statements
  */
-const nativeInit = (cmp: d.ComponentCompilerMeta): ReadonlyArray<ts.ExpressionStatement | ts.IfStatement> => {
-  const initStatements: (ts.ExpressionStatement | ts.IfStatement)[] = [nativeRegisterHostStatement()];
+const nativeInit = (
+  cmp: d.ComponentCompilerMeta,
+): ReadonlyArray<ts.ExpressionStatement | ts.IfStatement> => {
+  const initStatements: (ts.ExpressionStatement | ts.IfStatement)[] = [
+    nativeRegisterHostStatement(),
+  ];
   if (cmp.encapsulation === 'shadow') {
     initStatements.push(nativeAttachShadowStatement());
   }
@@ -92,7 +100,10 @@ const nativeAttachShadowStatement = (): ts.ExpressionStatement => {
   // Create an expression statement, `this.__attachShadow();`
   return ts.factory.createExpressionStatement(
     ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('__attachShadow')),
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createThis(),
+        ts.factory.createIdentifier('__attachShadow'),
+      ),
       undefined,
       undefined,
     ),

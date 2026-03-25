@@ -16,14 +16,18 @@ let cssProcessor: CssProcessor;
  * @param opts an optional param with options for Autoprefixer
  * @returns a Promise wrapping some prefixed CSS as well as diagnostics
  */
-export const autoprefixCss = async (cssText: string, opts: boolean | null | d.AutoprefixerOptions) => {
+export const autoprefixCss = async (
+  cssText: string,
+  opts: boolean | null | d.AutoprefixerOptions,
+) => {
   const output: d.OptimizeCssOutput = {
     output: cssText,
     diagnostics: [],
   };
 
   try {
-    const autoprefixerOpts = opts != null && typeof opts === 'object' ? opts : DEFAULT_AUTOPREFIX_OPTIONS;
+    const autoprefixerOpts =
+      opts != null && typeof opts === 'object' ? opts : DEFAULT_AUTOPREFIX_OPTIONS;
 
     const processor = await getProcessor(autoprefixerOpts);
     const result = await processor.process(cssText, { map: null });
@@ -121,7 +125,13 @@ const getProcessor = async (autoprefixerOpts: d.AutoprefixerOptions): Promise<Cs
  *   final and IE 10 versions of the specification
  */
 const DEFAULT_AUTOPREFIX_OPTIONS: d.AutoprefixerOptions = {
-  overrideBrowserslist: ['last 2 versions', 'iOS >= 9', 'Android >= 4.4', 'Explorer >= 11', 'ExplorerMobile >= 11'],
+  overrideBrowserslist: [
+    'last 2 versions',
+    'iOS >= 9',
+    'Android >= 4.4',
+    'Explorer >= 11',
+    'ExplorerMobile >= 11',
+  ],
   cascade: false,
   remove: false,
   flexbox: 'no-2009',

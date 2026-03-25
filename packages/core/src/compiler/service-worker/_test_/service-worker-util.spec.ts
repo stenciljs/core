@@ -20,7 +20,10 @@ describe('generateServiceWorkerUrl', () => {
     });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     outputTarget = config.outputTargets[0] as d.OutputTargetWww;
-    const swUrl = generateServiceWorkerUrl(outputTarget, outputTarget.serviceWorker as d.ServiceWorkerConfig);
+    const swUrl = generateServiceWorkerUrl(
+      outputTarget,
+      outputTarget.serviceWorker as d.ServiceWorkerConfig,
+    );
     expect(swUrl).toBe('/docs/sw.js');
   });
 
@@ -28,7 +31,10 @@ describe('generateServiceWorkerUrl', () => {
     userConfig = mockConfig({ devMode: false });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     outputTarget = config.outputTargets[0] as d.OutputTargetWww;
-    const swUrl = generateServiceWorkerUrl(outputTarget, outputTarget.serviceWorker as d.ServiceWorkerConfig);
+    const swUrl = generateServiceWorkerUrl(
+      outputTarget,
+      outputTarget.serviceWorker as d.ServiceWorkerConfig,
+    );
     expect(swUrl).toBe('/sw.js');
   });
 });

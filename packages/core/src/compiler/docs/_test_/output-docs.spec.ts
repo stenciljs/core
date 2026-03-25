@@ -38,10 +38,21 @@ describe('css-props to markdown', () => {
       {
         name: 'component styles when available',
         componentStyles: [
-          { name: '--background', docs: 'Background color', annotation: 'prop' as const, mode: undefined },
+          {
+            name: '--background',
+            docs: 'Background color',
+            annotation: 'prop' as const,
+            mode: undefined,
+          },
           { name: '--color', docs: 'Text color', annotation: 'prop' as const, mode: undefined },
         ],
-        shouldContain: ['## CSS Custom Properties', '`--background`', 'Background color', '`--color`', 'Text color'],
+        shouldContain: [
+          '## CSS Custom Properties',
+          '`--background`',
+          'Background color',
+          '`--color`',
+          'Text color',
+        ],
         shouldNotContain: [],
       },
       {
@@ -53,9 +64,18 @@ describe('css-props to markdown', () => {
             annotation: 'prop' as const,
             mode: undefined,
           },
-          { name: '--text-color', docs: 'Text color of the component', annotation: 'prop' as const, mode: undefined },
+          {
+            name: '--text-color',
+            docs: 'Text color of the component',
+            annotation: 'prop' as const,
+            mode: undefined,
+          },
         ],
-        shouldContain: ['## CSS Custom Properties', '`--bg`', 'Defaults to var(--nano-color-blue-cerulean-1000);'],
+        shouldContain: [
+          '## CSS Custom Properties',
+          '`--bg`',
+          'Defaults to var(--nano-color-blue-cerulean-1000);',
+        ],
         shouldNotContain: [],
       },
       {
@@ -67,7 +87,12 @@ describe('css-props to markdown', () => {
       {
         name: 'updated component styles',
         componentStyles: [
-          { name: '--new-prop', docs: 'New property from build', annotation: 'prop' as const, mode: undefined },
+          {
+            name: '--new-prop',
+            docs: 'New property from build',
+            annotation: 'prop' as const,
+            mode: undefined,
+          },
         ],
         shouldContain: ['`--new-prop`', 'New property from build'],
         shouldNotContain: [],
@@ -105,7 +130,9 @@ describe('css-props to markdown', () => {
       const markdown = generateMarkdown('# my-component', component, [], mockReadmeOutput);
 
       // Pipe characters are escaped in markdown tables
-      expect(markdown).toContain('Defaults to var(--nano-color-blue-cerulean-1000); with \\| pipes');
+      expect(markdown).toContain(
+        'Defaults to var(--nano-color-blue-cerulean-1000); with \\| pipes',
+      );
     });
   });
 });

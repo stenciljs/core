@@ -113,7 +113,11 @@ export const loadRollupDiagnostics = (
 export const createOnWarnFn = (diagnostics: d.Diagnostic[], bundleModulesFiles?: d.Module[]) => {
   const previousWarns = new Set<string>();
 
-  return function onWarningMessage(warning: { code?: string; importer?: string; message?: string }) {
+  return function onWarningMessage(warning: {
+    code?: string;
+    importer?: string;
+    message?: string;
+  }) {
     if (
       warning == null ||
       (warning.code && ignoreWarnCodes.has(warning.code)) ||
@@ -155,7 +159,25 @@ const ignoreWarnCodes = new Set([
   'UNUSED_EXTERNAL_IMPORT',
 ]);
 
-const charBreak = new Set([' ', '=', '.', ',', '?', ':', ';', '(', ')', '{', '}', '[', ']', '|', `'`, `"`, '`']);
+const charBreak = new Set([
+  ' ',
+  '=',
+  '.',
+  ',',
+  '?',
+  ':',
+  ';',
+  '(',
+  ')',
+  '{',
+  '}',
+  '[',
+  ']',
+  '|',
+  `'`,
+  `"`,
+  '`',
+]);
 
 const formatErrorCode = (errorCode: any) => {
   if (typeof errorCode === 'string') {

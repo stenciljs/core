@@ -19,8 +19,15 @@ export const updateIndexHtmlServiceWorker = async (
   }
 };
 
-const injectRegisterServiceWorker = async (buildCtx: d.BuildCtx, outputTarget: d.OutputTargetWww, doc: Document) => {
-  const swUrl = generateServiceWorkerUrl(outputTarget, outputTarget.serviceWorker as d.ServiceWorkerConfig);
+const injectRegisterServiceWorker = async (
+  buildCtx: d.BuildCtx,
+  outputTarget: d.OutputTargetWww,
+  doc: Document,
+) => {
+  const swUrl = generateServiceWorkerUrl(
+    outputTarget,
+    outputTarget.serviceWorker as d.ServiceWorkerConfig,
+  );
   const serviceWorker = getRegisterSwScript(doc, buildCtx, swUrl);
   doc.body.appendChild(serviceWorker);
 };

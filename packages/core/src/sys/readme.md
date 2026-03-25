@@ -9,6 +9,7 @@ This directory provides abstractions over Node.js file system, path, and other s
 ## Historical Context
 
 In earlier versions of Stencil, this abstraction supported:
+
 - Node.js (primary)
 - In-browser compilation (deprecated in v5)
 - Different file system backends
@@ -19,9 +20,9 @@ With v5 targeting Node.js 18+ only and removing in-browser compilation, much of 
 
 ## Directory Structure
 
-| Directory | Purpose |
-|-----------|---------|
-| `node/` | Node.js-specific implementations |
+| Directory | Purpose                          |
+| --------- | -------------------------------- |
+| `node/`   | Node.js-specific implementations |
 
 ## Key Interfaces
 
@@ -32,6 +33,7 @@ With v5 targeting Node.js 18+ only and removing in-browser compilation, much of 
 ## Migration Notes
 
 As part of v5 modernization, code should prefer:
+
 - Direct `node:fs` imports over `sys.readFile()`
 - Direct `node:path` imports over `sys.path`
 - Standard Node.js patterns over abstractions

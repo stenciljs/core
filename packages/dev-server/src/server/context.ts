@@ -3,10 +3,10 @@
  * Creates the shared context object passed to request handlers.
  */
 
-import * as fs from 'node:fs'
-import * as path from 'node:path'
-import { inspect } from 'node:util'
-import type { ServerResponse } from 'node:http'
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { inspect } from 'node:util';
+import type { ServerResponse } from 'node:http';
 
 import type {
   CompilerBuildResults,
@@ -16,18 +16,18 @@ import type {
   DevServerContext,
   DevServerSendMessage,
   HttpRequest,
-} from './types'
-import { responseHeaders } from './utils'
+} from './types';
+import { responseHeaders } from './utils';
 
 export interface CompilerRequestResolve {
-  path: string
-  resolve: (results: CompilerRequestResponse) => void
-  reject: (msg: unknown) => void
+  path: string;
+  resolve: (results: CompilerRequestResponse) => void;
+  reject: (msg: unknown) => void;
 }
 
 export interface BuildRequestResolve {
-  resolve: (results: CompilerBuildResults) => void
-  reject: (msg: unknown) => void
+  resolve: (results: CompilerBuildResults) => void;
+  reject: (msg: unknown) => void;
 }
 
 export function createServerContext(
@@ -35,7 +35,7 @@ export function createServerContext(
   sendMsg: DevServerSendMessage,
   devServerConfig: DevServerConfig,
   buildResultsResolves: BuildRequestResolve[],
-  compilerRequestResolves: CompilerRequestResolve[]
+  compilerRequestResolves: CompilerRequestResolve[],
 ): DevServerContext {
   const logRequest = (req: HttpRequest, status: number): void => {
     if (devServerConfig) {
@@ -45,104 +45,110 @@ export function createServerContext(
           url: req.pathname || '?',
           status,
         },
-      })
+      });
     }
-  }
+  };
 
   const serve500 = (
     req: HttpRequest,
     res: ServerResponse,
     error: unknown,
-    xSource: string
+    xSource: string,
   ): void => {
     try {
       if (res.headersSent) {
         // Headers already sent, just end the response
-        res.end()
-        return
+        res.end();
+        return;
       }
       res.writeHead(
         500,
         responseHeaders({
           'content-type': 'text/plain; charset=utf-8',
           'x-source': xSource,
-        })
-      )
-      res.write(inspect(error))
-      res.end()
-      logRequest(req, 500)
+        }),
+      );
+      res.write(inspect(error));
+      res.end();
+      logRequest(req, 500);
     } catch (e) {
-      sendMsg({ error: { message: 'serve500: ' + e } })
+      sendMsg({ error: { message: 'serve500: ' + e } });
     }
-  }
+  };
 
   const serve404 = (
     req: HttpRequest,
     res: ServerResponse,
     xSource: string,
-    content: string | null = null
+    content: string | null = null,
   ): void => {
     try {
       if (res.headersSent) {
-        res.end()
-        return
+        res.end();
+        return;
       }
 
       if (req.pathname === '/favicon.ico') {
-        const defaultFavicon = path.join(devServerConfig.devServerDir!, 'static', 'favicon.ico')
-        const rs = fs.createReadStream(defaultFavicon)
+        const defaultFavicon = path.join(devServerConfig.devServerDir!, 'static', 'favicon.ico');
+        const rs = fs.createReadStream(defaultFavicon);
         rs.on('error', () => {
           // Favicon not found - just end the response silently
           if (!res.headersSent) {
-            res.writeHead(404)
+            res.writeHead(404);
           }
-          res.end()
-        })
+          res.end();
+        });
         res.writeHead(
           200,
           responseHeaders({
             'content-type': 'image/x-icon',
             'x-source': `favicon: ${xSource}`,
-          })
-        )
-        rs.pipe(res)
-        return
+          }),
+        );
+        rs.pipe(res);
+        return;
       }
 
       if (content == null) {
-        content = ['404 File Not Found', 'Url: ' + req.pathname, 'File: ' + req.filePath].join('\n')
+        content = ['404 File Not Found', 'Url: ' + req.pathname, 'File: ' + req.filePath].join(
+          '\n',
+        );
       }
       res.writeHead(
         404,
         responseHeaders({
           'content-type': 'text/plain; charset=utf-8',
           'x-source': xSource,
-        })
-      )
-      res.write(content)
-      res.end()
+        }),
+      );
+      res.write(content);
+      res.end();
 
-      logRequest(req, 404)
+      logRequest(req, 404);
     } catch (e) {
-      serve500(req, res, e, xSource)
+      serve500(req, res, e, xSource);
     }
-  }
+  };
 
-  const serve302 = (req: HttpRequest, res: ServerResponse, pathname: string | null = null): void => {
-    logRequest(req, 302)
-    res.writeHead(302, { location: pathname || devServerConfig.basePath || '/' })
-    res.end()
-  }
+  const serve302 = (
+    req: HttpRequest,
+    res: ServerResponse,
+    pathname: string | null = null,
+  ): void => {
+    logRequest(req, 302);
+    res.writeHead(302, { location: pathname || devServerConfig.basePath || '/' });
+    res.end();
+  };
 
   const getBuildResults = (): Promise<CompilerBuildResults> =>
     new Promise((resolve, reject) => {
       if (serverCtx.isServerListening) {
-        buildResultsResolves.push({ resolve, reject })
-        sendMsg({ requestBuildResults: true })
+        buildResultsResolves.push({ resolve, reject });
+        sendMsg({ requestBuildResults: true });
       } else {
-        reject('dev server closed')
+        reject('dev server closed');
       }
-    })
+    });
 
   const getCompilerRequest = (compilerRequestPath: string): Promise<CompilerRequestResponse> =>
     new Promise((resolve, reject) => {
@@ -151,12 +157,12 @@ export function createServerContext(
           path: compilerRequestPath,
           resolve,
           reject,
-        })
-        sendMsg({ compilerRequestPath })
+        });
+        sendMsg({ compilerRequestPath });
       } else {
-        reject('dev server closed')
+        reject('dev server closed');
       }
-    })
+    });
 
   const serverCtx: DevServerContext = {
     connectorHtml: null,
@@ -170,7 +176,7 @@ export function createServerContext(
     serve404,
     serve500,
     sys,
-  }
+  };
 
-  return serverCtx
+  return serverCtx;
 }

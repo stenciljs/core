@@ -1,4 +1,9 @@
-import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import {
+  mockBuildCtx,
+  mockCompilerCtx,
+  mockModule,
+  mockValidatedConfig,
+} from '@stencil/core/testing';
 import { describe, expect, it, beforeEach } from 'vitest';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 
@@ -338,28 +343,31 @@ auto-generated content
       },
     );
 
-    it.each(['', null, undefined])("defaults the docs to an empty string if '%s' is provided", (docsValue) => {
-      const compilerStyleDoc: d.CompilerStyleDoc = {
-        annotation: 'prop',
-        docs: 'these are the docs for this prop',
-        name: 'my-style-one',
-        mode: DEFAULT_STYLE_MODE,
-      };
-      // @ts-ignore the intent of this test to verify the fallback of this field if it's falsy
-      compilerStyleDoc.docs = docsValue;
-
-      const compilerMeta = stubComponentCompilerMeta({ styleDocs: [compilerStyleDoc] });
-
-      const actual = getDocsStyles(compilerMeta);
-
-      expect(actual).toEqual([
-        {
+    it.each(['', null, undefined])(
+      "defaults the docs to an empty string if '%s' is provided",
+      (docsValue) => {
+        const compilerStyleDoc: d.CompilerStyleDoc = {
           annotation: 'prop',
-          docs: '',
+          docs: 'these are the docs for this prop',
           name: 'my-style-one',
-        },
-      ]);
-    });
+          mode: DEFAULT_STYLE_MODE,
+        };
+        // @ts-ignore the intent of this test to verify the fallback of this field if it's falsy
+        compilerStyleDoc.docs = docsValue;
+
+        const compilerMeta = stubComponentCompilerMeta({ styleDocs: [compilerStyleDoc] });
+
+        const actual = getDocsStyles(compilerMeta);
+
+        expect(actual).toEqual([
+          {
+            annotation: 'prop',
+            docs: '',
+            name: 'my-style-one',
+          },
+        ]);
+      },
+    );
 
     it.each(['', undefined, null, DEFAULT_STYLE_MODE])(
       "uses 'undefined' for the mode value when '%s' is provided",

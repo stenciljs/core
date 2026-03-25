@@ -37,7 +37,12 @@ export const hydrateComponentTransform = (
       if (moduleFile.isLegacy) {
         addLegacyApis(moduleFile);
       }
-      tsSourceFile = addImports(transformOpts, tsSourceFile, moduleFile.coreRuntimeApis, transformOpts.coreImportPath);
+      tsSourceFile = addImports(
+        transformOpts,
+        tsSourceFile,
+        moduleFile.coreRuntimeApis,
+        transformOpts.coreImportPath,
+      );
 
       return tsSourceFile;
     };

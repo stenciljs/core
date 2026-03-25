@@ -64,7 +64,10 @@ export const transpileModule = (
 
   tsCompilerOptions.target = getScriptTargetKind(transformOpts);
 
-  if ((sourceFilePath.endsWith('.tsx') || sourceFilePath.endsWith('.jsx')) && tsCompilerOptions.jsx == null) {
+  if (
+    (sourceFilePath.endsWith('.tsx') || sourceFilePath.endsWith('.jsx')) &&
+    tsCompilerOptions.jsx == null
+  ) {
     // ensure we're setup for JSX in typescript
     tsCompilerOptions.jsx = ts.JsxEmit.React;
   }
@@ -72,13 +75,22 @@ export const transpileModule = (
   // Only set jsxFactory and jsxFragmentFactory for classic React mode
   // For ReactJSX and ReactJSXDev modes (automatic runtime), these should not be set
   const isAutomaticRuntime =
-    tsCompilerOptions.jsx === ts.JsxEmit.ReactJSX || tsCompilerOptions.jsx === ts.JsxEmit.ReactJSXDev;
+    tsCompilerOptions.jsx === ts.JsxEmit.ReactJSX ||
+    tsCompilerOptions.jsx === ts.JsxEmit.ReactJSXDev;
 
-  if (tsCompilerOptions.jsx != null && !isAutomaticRuntime && !isString(tsCompilerOptions.jsxFactory)) {
+  if (
+    tsCompilerOptions.jsx != null &&
+    !isAutomaticRuntime &&
+    !isString(tsCompilerOptions.jsxFactory)
+  ) {
     tsCompilerOptions.jsxFactory = 'h';
   }
 
-  if (tsCompilerOptions.jsx != null && !isAutomaticRuntime && !isString(tsCompilerOptions.jsxFragmentFactory)) {
+  if (
+    tsCompilerOptions.jsx != null &&
+    !isAutomaticRuntime &&
+    !isString(tsCompilerOptions.jsxFragmentFactory)
+  ) {
     tsCompilerOptions.jsxFragmentFactory = 'Fragment';
   }
 
@@ -123,7 +135,10 @@ export const transpileModule = (
       updateStencilCoreImports(transformOpts.coreImportPath),
     ],
     after: [convertStaticToMeta(config, compilerCtx, buildCtx, typeChecker, null, transformOpts)],
-    afterDeclarations: [] as (ts.CustomTransformerFactory | ts.TransformerFactory<ts.SourceFile | ts.Bundle>)[],
+    afterDeclarations: [] as (
+      | ts.CustomTransformerFactory
+      | ts.TransformerFactory<ts.SourceFile | ts.Bundle>
+    )[],
   } satisfies ts.CustomTransformers;
 
   if (config.transformAliasedImportPaths) {
@@ -143,7 +158,10 @@ export const transpileModule = (
     transformers.afterDeclarations.push(rewriteAliasedDTSImportPaths);
   }
 
-  if (transformOpts.componentExport === 'customelement' || transformOpts.componentExport === 'module') {
+  if (
+    transformOpts.componentExport === 'customelement' ||
+    transformOpts.componentExport === 'module'
+  ) {
     transformers.after.push(nativeComponentTransform(compilerCtx, transformOpts, buildCtx));
   } else {
     transformers.after.push(lazyComponentTransform(compilerCtx, transformOpts, buildCtx));

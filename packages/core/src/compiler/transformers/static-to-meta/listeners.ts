@@ -3,7 +3,9 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import { getStaticValue } from '../transform-utils';
 
-export const parseStaticListeners = (staticMembers: ts.ClassElement[]): d.ComponentCompilerListener[] => {
+export const parseStaticListeners = (
+  staticMembers: ts.ClassElement[],
+): d.ComponentCompilerListener[] => {
   const parsedListeners: d.ComponentCompilerListener[] = getStaticValue(staticMembers, 'listeners');
   if (!parsedListeners || parsedListeners.length === 0) {
     return [];

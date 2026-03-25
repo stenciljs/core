@@ -186,9 +186,17 @@ const cleanupUpdateMsg = (logger: d.Logger, msg: string, fileNames: string[]) =>
  * @param config the Stencil configuration associated with the current build
  * @param diagnostics the diagnostics to update
  */
-const cleanDiagnosticsRelativePath = (config: d.Config, diagnostics: ReadonlyArray<d.Diagnostic>): void => {
+const cleanDiagnosticsRelativePath = (
+  config: d.Config,
+  diagnostics: ReadonlyArray<d.Diagnostic>,
+): void => {
   diagnostics.forEach((diagnostic) => {
-    if (!diagnostic.relFilePath && diagnostic.absFilePath && !isRemoteUrl(diagnostic.absFilePath) && config.rootDir) {
+    if (
+      !diagnostic.relFilePath &&
+      diagnostic.absFilePath &&
+      !isRemoteUrl(diagnostic.absFilePath) &&
+      config.rootDir
+    ) {
       diagnostic.relFilePath = relative(config.rootDir, diagnostic.absFilePath);
     }
   });

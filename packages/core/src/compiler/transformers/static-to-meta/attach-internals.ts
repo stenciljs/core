@@ -11,7 +11,10 @@ import { getStaticValue } from '../transform-utils';
  * @returns the parsed value, if present, else null
  */
 export const parseAttachInternals = (staticMembers: ts.ClassElement[]): string | null => {
-  const parsedAttachInternalsMemberName = getStaticValue(staticMembers, 'attachInternalsMemberName');
+  const parsedAttachInternalsMemberName = getStaticValue(
+    staticMembers,
+    'attachInternalsMemberName',
+  );
   if (parsedAttachInternalsMemberName && typeof parsedAttachInternalsMemberName === 'string') {
     return parsedAttachInternalsMemberName;
   } else {
@@ -30,11 +33,13 @@ export const parseAttachInternalsCustomStates = (
 ): d.ComponentCompilerCustomState[] => {
   const parsedCustomStates = getStaticValue(staticMembers, 'attachInternalsCustomStates');
   if (Array.isArray(parsedCustomStates)) {
-    return parsedCustomStates.map((state: { name: string; initialValue: boolean; docs?: string }) => ({
-      name: String(state.name),
-      initialValue: Boolean(state.initialValue),
-      docs: state.docs ?? '',
-    }));
+    return parsedCustomStates.map(
+      (state: { name: string; initialValue: boolean; docs?: string }) => ({
+        name: String(state.name),
+        initialValue: Boolean(state.initialValue),
+        docs: state.docs ?? '',
+      }),
+    );
   }
   return [];
 };

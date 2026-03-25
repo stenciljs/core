@@ -47,7 +47,9 @@ export const createFullBuild = async (
           tsWatchProgram.close();
           tsWatchProgram = null;
         }
-        config.logger.debug('Rebuilding with fresh TypeScript program after components.d.ts generation');
+        config.logger.debug(
+          'Rebuilding with fresh TypeScript program after components.d.ts generation',
+        );
         createTsBuildProgram(config, onBuild).then((program) => {
           tsWatchProgram = program;
         });

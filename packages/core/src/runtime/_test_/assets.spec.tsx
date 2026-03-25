@@ -1,4 +1,4 @@
-import { expect, describe, it, beforeEach } from '@stencil/vitest'
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { getAssetPath, setAssetPath } from '@stencil/core';
 import { newSpecPage } from '../../testing/spec-page';
 import { CmpAsset } from './fixtures/cmp-asset';

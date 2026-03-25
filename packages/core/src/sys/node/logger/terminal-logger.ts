@@ -16,7 +16,16 @@ const { bgRed, blue, bold, cyan, dim, gray, green, magenta, red, yellow } = chal
 /**
  * A type to capture chalk style names
  */
-type ChalkColorVariant = 'yellow' | 'red' | 'magenta' | 'green' | 'gray' | 'cyan' | 'blue' | 'bold' | 'dim';
+type ChalkColorVariant =
+  | 'yellow'
+  | 'red'
+  | 'magenta'
+  | 'green'
+  | 'gray'
+  | 'cyan'
+  | 'blue'
+  | 'bold'
+  | 'dim';
 
 /**
  * Map of color names to chalk functions for dynamic access
@@ -416,7 +425,11 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
    * @param errorLength the length of the error, how many characters should be highlighted
    * @returns the highlighted error
    */
-  const highlightError = (errorLine: string, errorCharStart: number, errorLength: number = 0): string => {
+  const highlightError = (
+    errorLine: string,
+    errorCharStart: number,
+    errorLength: number = 0,
+  ): string => {
     let rightSideChars = errorLine.length - errorCharStart + errorLength - 1;
     while (errorLine.length + INDENT.length > loggerSys.getColumns()) {
       if (errorCharStart > errorLine.length - errorCharStart + errorLength && errorCharStart > 5) {

@@ -206,9 +206,9 @@ describe('lifecycle sync', () => {
         render() {
           return (
             <Host>
-              <cmp-b id="b1" prop={this.prop}>
-                <cmp-b id="b2" prop={this.prop}>
-                  <cmp-b id="b3" prop={this.prop}></cmp-b>
+              <cmp-b id='b1' prop={this.prop}>
+                <cmp-b id='b2' prop={this.prop}>
+                  <cmp-b id='b3' prop={this.prop}></cmp-b>
                 </cmp-b>
               </cmp-b>
             </Host>

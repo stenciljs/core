@@ -1,6 +1,6 @@
 import { jsx, jsxs } from '../jsx-runtime';
 import { jsxDEV } from '../jsx-dev-runtime';
-import { expect, describe, it, vi } from '@stencil/vitest'
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('jsx-runtime', () => {
   describe('jsx() and jsxs()', () => {

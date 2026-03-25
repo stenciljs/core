@@ -1,6 +1,6 @@
 import { parseCss } from '../parse-css';
 import { serializeCss } from '../serialize-css';
-import { describe, it, expect } from 'vitest'; 
+import { describe, it, expect } from 'vitest';
 
 describe('css parse/serialize', () => {
   // Modified tests from Rework CSS
@@ -8,7 +8,11 @@ describe('css parse/serialize', () => {
   // https://github.com/reworkcss/css/blob/master/LICENSE
 
   it.each([
-    ['at-namespace', '@namespace svg "http://www.w3.org/2000/svg";\n', '@namespace svg "http://www.w3.org/2000/svg";'],
+    [
+      'at-namespace',
+      '@namespace svg "http://www.w3.org/2000/svg";\n',
+      '@namespace svg "http://www.w3.org/2000/svg";',
+    ],
     [
       'charset',
       '@charset "UTF-8";       /* Set the encoding of the style sheet to Unicode UTF-8 */\n@charset \'iso-8859-15\'; /* Set the encoding of the style sheet to Latin-9 (Western European languages, with euro sign) */\n',
@@ -17,7 +21,11 @@ describe('css parse/serialize', () => {
     ['charset-linebreak', '@charset\n    "UTF-8"\n    ;\n', '@charset "UTF-8";'],
     ['colon-space', 'a {\n    margin  : auto;\n    padding : 0;\n}\n', 'a{margin:auto;padding:0}'],
     ['duplicate', 'h1, h1, h2, h2, h3 {color:red}', 'h1,h2,h3{color:red}'],
-    ['comma-attribute 1', '.foo[bar="baz,quz"] {\n  foobar: 123;\n}\n\n', '.foo[bar="baz,quz"]{foobar:123}'],
+    [
+      'comma-attribute 1',
+      '.foo[bar="baz,quz"] {\n  foobar: 123;\n}\n\n',
+      '.foo[bar="baz,quz"]{foobar:123}',
+    ],
     [
       'comma-attribute 2',
       '.bar,\n#bar[baz="qux,foo"],\n#qux {\n  foobar: 456;\n}\n\n',
@@ -94,14 +102,22 @@ describe('css parse/serialize', () => {
       '@font-face{font-family:"Bitstream Vera Serif Bold";src:url("http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf")}body{font-family:"Bitstream Vera Serif Bold", serif}',
     ],
     ['empty font-face', '@font-face;', ''],
-    ['hose-linebreak', '@host\n    {\n        :scope { color: white; }\n    }\n', '@host{:scope{color:white}}'],
+    [
+      'hose-linebreak',
+      '@host\n    {\n        :scope { color: white; }\n    }\n',
+      '@host{:scope{color:white}}',
+    ],
     ['host', '@host {\n  :scope {\n    display: block;\n  }\n}\n', '@host{:scope{display:block}}'],
     [
       'import',
       '@import url("fineprint.css") print;\n@import url("bluish.css") projection, tv;\n@import \'custom.css\';\n@import "common.css" screen, projection;\n@import url(\'landscape.css\') screen and (orientation:landscape);\n',
       '@import url("fineprint.css") print;@import url("bluish.css") projection, tv;@import \'custom.css\';@import "common.css" screen, projection;@import url(\'landscape.css\') screen and (orientation:landscape);',
     ],
-    ['import-linebreak', '@import\n    url(test.css)\n    screen\n    ;\n', '@import url(test.css)\n    screen;'],
+    [
+      'import-linebreak',
+      '@import\n    url(test.css)\n    screen\n    ;\n',
+      '@import url(test.css)\n    screen;',
+    ],
     [
       'import-messed',
       '\n   @import url("fineprint.css") print;\n  @import url("bluish.css") projection, tv;\n      @import \'custom.css\';\n  @import "common.css" screen, projection  ;\n\n  @import url(\'landscape.css\') screen and (orientation:landscape);\n',
@@ -182,7 +198,11 @@ describe('css parse/serialize', () => {
       '\ntobi loki jane {\n  are: \'all\';\n  the-species: called "ferrets"\n}\n',
       'tobi loki jane{are:\'all\';the-species:called "ferrets"}',
     ],
-    ['page-linebreak', '@page\n    toc\n    {\n        color: black;\n    }\n', '@page toc{color:black}'],
+    [
+      'page-linebreak',
+      '@page\n    toc\n    {\n        color: black;\n    }\n',
+      '@page toc{color:black}',
+    ],
     [
       'paged-media',
       '/* toc above */\n@page toc, index:blank {\n  /* toc inside */\n  color: green;\n}\n\n@page {\n  font-size: 16pt;\n}\n\n@page :left {\n  margin-left: 5cm;\n}\n',
@@ -255,7 +275,11 @@ describe('css parse/serialize', () => {
       `.clear:after,.container:before{content:"."}`,
     ],
     [`* html`, `*   html a[id] .clear  {\n height  :  1%;\t}`, `* html a[id] .clear{height:1%}`],
-    [`:not`, `a  :not(b >  w):not( #c )    :nth(2 ) {  color  :  red  ;  }`, `a :not(b>w):not(#c) :nth(2){color:red}`],
+    [
+      `:not`,
+      `a  :not(b >  w):not( #c )    :nth(2 ) {  color  :  red  ;  }`,
+      `a :not(b>w):not(#c) :nth(2){color:red}`,
+    ],
     [
       `:host(.a)`,
       `:host ( .a )  [id]   ::slotted( b    ),\n    div   {  color : red ;  }`,
@@ -272,7 +296,11 @@ describe('css parse/serialize', () => {
       `audio:not(  [controls] )   #a[b] {color:red ;; }`,
       `audio:not([controls]) #a[b]{color:red}`,
     ],
-    [`svg:not(:root)`, `svg:not(:root)   {\t\n\roverflow \r: hidden;}`, `svg:not(:root){overflow:hidden}`],
+    [
+      `svg:not(:root)`,
+      `svg:not(:root)   {\t\n\roverflow \r: hidden;}`,
+      `svg:not(:root){overflow:hidden}`,
+    ],
     [
       `hr~a>[`,
       `hr  ~ a  >  [id] b + c  {   -webkit-box-sizing: content-box;  -moz-box-sizing  : content-box;      box-sizing: content-box;  }`,

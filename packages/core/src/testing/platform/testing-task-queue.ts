@@ -142,7 +142,13 @@ export function flushQueue(): Promise<void> {
 }
 
 export async function flushAll(): Promise<void> {
-  while (queuedTicks.length + queuedLoadModules.length + queuedWriteTasks.length + queuedReadTasks.length > 0) {
+  while (
+    queuedTicks.length +
+      queuedLoadModules.length +
+      queuedWriteTasks.length +
+      queuedReadTasks.length >
+    0
+  ) {
     await flushTicks();
     await flushLoadModule();
     await flushQueue();
@@ -167,7 +173,11 @@ export async function flushAll(): Promise<void> {
  * @param _hmrVersionId an unused parameter denoting the current hot-module reloading version
  * @returns A promise that loads the component onto `queuedLoadModules`
  */
-export function loadModule(cmpMeta: d.ComponentRuntimeMeta, _hostRef: d.HostRef, _hmrVersionId?: string): Promise<any> {
+export function loadModule(
+  cmpMeta: d.ComponentRuntimeMeta,
+  _hostRef: d.HostRef,
+  _hmrVersionId?: string,
+): Promise<any> {
   return new Promise<any>((resolve) => {
     queuedLoadModules.push({
       bundleId: cmpMeta.$lazyBundleId$,

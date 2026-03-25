@@ -80,7 +80,8 @@ describe('scopeCSS', function () {
 
   it('should handle media rules', () => {
     const css = '@media screen and (max-width:800px, max-height:100%) {div {font-size:50px;}}';
-    const expected = '@media screen and (max-width:800px, max-height:100%) {div.a {font-size:50px;}}';
+    const expected =
+      '@media screen and (max-width:800px, max-height:100%) {div.a {font-size:50px;}}';
     expect(s(css, 'a')).toEqual(expected);
   });
 
@@ -221,7 +222,12 @@ describe('scopeCSS', function () {
     });
 
     it('should not replace the selector in a `@supports` rule', () => {
-      expect(s('@supports selector(:host-context(.class1)) {:host-context(.class1) {color: red; }}', 'a')).toEqual(
+      expect(
+        s(
+          '@supports selector(:host-context(.class1)) {:host-context(.class1) {color: red; }}',
+          'a',
+        ),
+      ).toEqual(
         '@supports selector(:host-context(.class1)) {.class1.a-h, .class1 .a-h {color:red;}}',
       );
     });
@@ -275,7 +281,9 @@ describe('scopeCSS', function () {
 
     it('should combine parent selector', () => {
       const r = s('div{} .a .b .c ::slotted(*) {}', 'sc-ion-tag');
-      expect(r).toEqual('div.sc-ion-tag{} .a .b .c.sc-ion-tag-s > *, .a .b .c .sc-ion-tag-s > * {}');
+      expect(r).toEqual(
+        'div.sc-ion-tag{} .a .b .c.sc-ion-tag-s > *, .a .b .c .sc-ion-tag-s > * {}',
+      );
     });
 
     it('same selectors', () => {
@@ -285,7 +293,9 @@ describe('scopeCSS', function () {
 
     it('should combine parent selector when comma', () => {
       const r = s('.a .b, .c ::slotted(*) {}', 'sc-ion-tag');
-      expect(r).toEqual('.a.sc-ion-tag .b.sc-ion-tag, .c.sc-ion-tag-s > *, .c .sc-ion-tag-s > * {}');
+      expect(r).toEqual(
+        '.a.sc-ion-tag .b.sc-ion-tag, .c.sc-ion-tag-s > *, .c .sc-ion-tag-s > * {}',
+      );
     });
 
     it('should not replace the selector in a `@supports` rule', () => {
@@ -340,8 +350,12 @@ describe('scopeCSS', function () {
   });
 
   it('should keep sourceMappingURL comments', () => {
-    expect(s('b {c}/*# sourceMappingURL=data:x */', 'a')).toEqual('b.a {c}/*# sourceMappingURL=data:x */');
-    expect(s('b {c}/* #sourceMappingURL=data:x */', 'a')).toEqual('b.a {c}/* #sourceMappingURL=data:x */');
+    expect(s('b {c}/*# sourceMappingURL=data:x */', 'a')).toEqual(
+      'b.a {c}/*# sourceMappingURL=data:x */',
+    );
+    expect(s('b {c}/* #sourceMappingURL=data:x */', 'a')).toEqual(
+      'b.a {c}/* #sourceMappingURL=data:x */',
+    );
   });
 
   describe('expands ::part selectors', () => {
@@ -350,14 +364,20 @@ describe('scopeCSS', function () {
       expect(r).toEqual('.sc-ion-tag::part(part), .sc-ion-tag [part~="part"] {}');
     });
     it('complex', () => {
-      const r = s(':where(something something-else) > .something::part(part part2):hover::after {}', 'sc-ion-tag');
+      const r = s(
+        ':where(something something-else) > .something::part(part part2):hover::after {}',
+        'sc-ion-tag',
+      );
 
       expect(r).toEqual(
         '.sc-ion-tag:where(something something-else) > .something.sc-ion-tag::part(part part2):hover::after, .sc-ion-tag:where(something something-else) > .something.sc-ion-tag [part~="part"][part~="part2"]:hover::after {}',
       );
     });
     it('ignores already processed', () => {
-      const r = s('.something::part(part part2), .something [part~="part"][part~="part2"] {}', 'sc-ion-tag');
+      const r = s(
+        '.something::part(part part2), .something [part~="part"][part~="part2"] {}',
+        'sc-ion-tag',
+      );
       expect(r).toEqual(
         '.something.sc-ion-tag::part(part part2), .something.sc-ion-tag [part~="part"][part~="part2"] {}',
       );

@@ -73,7 +73,9 @@ export const outputCollection = async (
             if (mod.sourceMapPath) {
               const relativeSourceMapPath = relative(config.srcDir, mod.sourceMapPath);
               const sourceMapOutputFilePath = join(target.collectionDir, relativeSourceMapPath);
-              await compilerCtx.fs.writeFile(sourceMapOutputFilePath, mapCode, { outputTargetType: target.type });
+              await compilerCtx.fs.writeFile(sourceMapOutputFilePath, mapCode, {
+                outputTargetType: target.type,
+              });
             }
           }),
         );
@@ -94,8 +96,14 @@ const writeCollectionManifests = async (
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetDistCollection[],
 ) => {
-  const collectionData = JSON.stringify(serializeCollectionManifest(config, compilerCtx, buildCtx), null, 2);
-  return Promise.all(outputTargets.map((o) => writeCollectionManifest(compilerCtx, collectionData, o)));
+  const collectionData = JSON.stringify(
+    serializeCollectionManifest(config, compilerCtx, buildCtx),
+    null,
+    2,
+  );
+  return Promise.all(
+    outputTargets.map((o) => writeCollectionManifest(compilerCtx, collectionData, o)),
+  );
 };
 
 // this maps the json data to our internal data structure
@@ -118,7 +126,11 @@ const writeCollectionManifest = async (
   await compilerCtx.fs.writeFile(collectionFilePath, collectionData);
 };
 
-const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const serializeCollectionManifest = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   // create the single collection we're going to fill up with data
   const collectionManifest: d.CollectionManifest = {
     entries: buildCtx.moduleFiles
@@ -127,7 +139,9 @@ const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.C
     // Include mixin/abstract class modules that can be extended by consuming projects
     // These are modules with Stencil static members but no @Component decorator
     mixins: buildCtx.moduleFiles
-      .filter((mod) => !mod.isCollectionDependency && mod.hasExportableMixins && mod.cmps.length === 0)
+      .filter(
+        (mod) => !mod.isCollectionDependency && mod.hasExportableMixins && mod.cmps.length === 0,
+      )
       .map((mod) => relative(config.srcDir, mod.jsFilePath)),
     compiler: {
       name: '@stencil/core',
@@ -148,7 +162,9 @@ const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.C
   return collectionManifest;
 };
 
-const serializeCollectionDependencies = (compilerCtx: d.CompilerCtx): d.CollectionDependencyData[] => {
+const serializeCollectionDependencies = (
+  compilerCtx: d.CompilerCtx,
+): d.CollectionDependencyData[] => {
   const collectionDeps = compilerCtx.collections.map((c) => ({
     name: c.collectionName,
     tags: flatOne(c.moduleFiles.map((m) => m.cmps))

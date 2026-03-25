@@ -221,6 +221,8 @@ const validateInputProperties = (inputElm: HTMLInputElement): void => {
   const maxIndex = props.indexOf('max');
   const stepIndex = props.indexOf('step');
   if (value < typeIndex || value < minIndex || value < maxIndex || value < stepIndex) {
-    consoleDevWarn(`The "value" prop of <input> should be set after "min", "max", "type" and "step"`);
+    consoleDevWarn(
+      `The "value" prop of <input> should be set after "min", "max", "type" and "step"`,
+    );
   }
 };

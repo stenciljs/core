@@ -23,7 +23,11 @@ export const generateGlobalStyles = async (
   return globalStyles;
 };
 
-const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const buildGlobalStyles = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   let globalStylePath = config.globalStyle;
   if (!globalStylePath) {
     return null;
@@ -38,7 +42,12 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
     globalStylePath = normalizePath(globalStylePath);
     compilerCtx.addWatchFile(globalStylePath);
 
-    const transformResults = await runPluginTransforms(config, compilerCtx, buildCtx, globalStylePath);
+    const transformResults = await runPluginTransforms(
+      config,
+      compilerCtx,
+      buildCtx,
+      globalStylePath,
+    );
 
     if (transformResults) {
       let cssCode: string;
@@ -58,7 +67,13 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         return null;
       }
 
-      const optimizedCss = await optimizeCss(config, compilerCtx, buildCtx.diagnostics, cssCode, globalStylePath);
+      const optimizedCss = await optimizeCss(
+        config,
+        compilerCtx,
+        buildCtx.diagnostics,
+        cssCode,
+        globalStylePath,
+      );
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
       if (Array.isArray(dependencies)) {
@@ -92,7 +107,11 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
   return null;
 };
 
-const canSkipGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const canSkipGlobalStyles = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   if (!compilerCtx.cachedGlobalStyle) {
     return false;
   }
@@ -173,7 +192,14 @@ const hasChangedImportContent = async (
   const promises = cssImports.map(async (cssImportData) => {
     try {
       const content = await compilerCtx.fs.readFile(cssImportData.filePath);
-      return hasChangedImportFile(config, compilerCtx, buildCtx, cssImportData.filePath, content, checkedFiles);
+      return hasChangedImportFile(
+        config,
+        compilerCtx,
+        buildCtx,
+        cssImportData.filePath,
+        content,
+        checkedFiles,
+      );
     } catch (e) {
       return false;
     }

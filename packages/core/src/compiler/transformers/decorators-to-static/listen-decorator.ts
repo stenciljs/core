@@ -2,7 +2,11 @@ import { augmentDiagnosticWithNode, buildError, flatOne } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+} from '../transform-utils';
 import { getDecoratorParameters, isDecoratorNamed } from './decorator-utils';
 
 export const listenDecoratorsToStatic = (
@@ -28,7 +32,9 @@ const parseListenDecorators = (
   method: ts.MethodDeclaration,
   decoratorName: string,
 ): d.ComponentCompilerListener[] => {
-  const listenDecorators = (retrieveTsDecorators(method) ?? []).filter(isDecoratorNamed(decoratorName));
+  const listenDecorators = (retrieveTsDecorators(method) ?? []).filter(
+    isDecoratorNamed(decoratorName),
+  );
   if (listenDecorators.length === 0) {
     return [];
   }
@@ -44,7 +50,8 @@ const parseListenDecorators = (
     const eventNames = listenText.split(',');
     if (eventNames.length > 1) {
       const err = buildError(diagnostics);
-      err.messageText = 'Please use multiple @Listen() decorators instead of comma-separated names.';
+      err.messageText =
+        'Please use multiple @Listen() decorators instead of comma-separated names.';
       augmentDiagnosticWithNode(err, listenDecorator);
     }
 
@@ -59,7 +66,11 @@ const parseListenDecorators = (
   });
 };
 
-export const parseListener = (eventName: string, opts: d.ListenOptions = {}, methodName: string) => {
+export const parseListener = (
+  eventName: string,
+  opts: d.ListenOptions = {},
+  methodName: string,
+) => {
   const rawEventName = eventName.trim();
   const listener: d.ComponentCompilerListener = {
     name: rawEventName,

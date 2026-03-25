@@ -3,18 +3,24 @@ import { join } from '../../utils';
 import type * as d from '@stencil/core';
 import { getAbsoluteBuildDir } from './html-utils';
 
-export const optimizeCriticalPath = (doc: Document, criticalBundlers: string[], outputTarget: d.OutputTargetWww) => {
+export const optimizeCriticalPath = (
+  doc: Document,
+  criticalBundlers: string[],
+  outputTarget: d.OutputTargetWww,
+) => {
   const buildDir = getAbsoluteBuildDir(outputTarget);
   const paths = criticalBundlers.map((path) => join(buildDir, path));
   injectModulePreloads(doc, paths);
 };
 
 export const injectModulePreloads = (doc: Document, paths: string[]) => {
-  const existingLinks = (Array.from(doc.querySelectorAll('link[rel=modulepreload]')) as HTMLLinkElement[]).map((link) =>
-    link.getAttribute('href'),
-  );
+  const existingLinks = (
+    Array.from(doc.querySelectorAll('link[rel=modulepreload]')) as HTMLLinkElement[]
+  ).map((link) => link.getAttribute('href'));
 
-  const addLinks = paths.filter((path) => !existingLinks.includes(path)).map((path) => createModulePreload(doc, path));
+  const addLinks = paths
+    .filter((path) => !existingLinks.includes(path))
+    .map((path) => createModulePreload(doc, path));
 
   const head = doc.head;
   const firstScript = head.querySelector('script');

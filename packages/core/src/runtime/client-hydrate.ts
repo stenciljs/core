@@ -129,7 +129,8 @@ export const initializeClientHydrate = (
     }
 
     if (childRenderNode.$tag$ === 'slot') {
-      childRenderNode.$name$ = childRenderNode.$elm$['s-sn'] || (childRenderNode.$elm$ as any)['name'] || null;
+      childRenderNode.$name$ =
+        childRenderNode.$elm$['s-sn'] || (childRenderNode.$elm$ as any)['name'] || null;
       if (childRenderNode.$children$) {
         childRenderNode.$flags$ |= VNODE_FLAGS.isSlotFallback;
 
@@ -224,7 +225,12 @@ export const initializeClientHydrate = (
           }
         }
         // Create our 'Original Location' node
-        addSlotRelocateNode(slottedItem.node, slottedItem.slot, false, slottedItem.node['s-oo'] || currentPos);
+        addSlotRelocateNode(
+          slottedItem.node,
+          slottedItem.slot,
+          false,
+          slottedItem.node['s-oo'] || currentPos,
+        );
 
         if (
           slottedItem.node.parentElement?.shadowRoot &&
@@ -277,8 +283,15 @@ export const initializeClientHydrate = (
 
       Array.from(hostElm.childNodes).forEach((node) => {
         // don't remove slotted or original location nodes
-        if (typeof (node as d.RenderNode)['s-en'] !== 'string' && typeof (node as d.RenderNode)['s-sn'] !== 'string') {
-          if (node.nodeType === NODE_TYPE.ElementNode && (node as HTMLElement).slot && (node as HTMLElement).hidden) {
+        if (
+          typeof (node as d.RenderNode)['s-en'] !== 'string' &&
+          typeof (node as d.RenderNode)['s-sn'] !== 'string'
+        ) {
+          if (
+            node.nodeType === NODE_TYPE.ElementNode &&
+            (node as HTMLElement).slot &&
+            (node as HTMLElement).hidden
+          ) {
             // this is a slotted node that doesn't have a home ... yet.
             // we can safely leave it be, native behavior will mean it's hidden
             (node as HTMLElement).removeAttribute('hidden');
@@ -545,7 +558,10 @@ const clientHydrate = (
  * @param node The node to search.
  * @param orgLocNodes A map of the original location annotations and the current node being searched.
  */
-export const initializeDocumentHydrate = (node: d.RenderNode, orgLocNodes: d.PlatformRuntime['$orgLocNodes$']) => {
+export const initializeDocumentHydrate = (
+  node: d.RenderNode,
+  orgLocNodes: d.PlatformRuntime['$orgLocNodes$'],
+) => {
   if (node.nodeType === NODE_TYPE.ElementNode) {
     // Add all the loaded component IDs in this document; required to find nodes later when deciding where slotted nodes should live
     const componentId = node[HYDRATE_ID] || node.getAttribute(HYDRATE_ID);
@@ -616,13 +632,17 @@ function addSlot(
 
   // Find this slots' current host parent (as dictated by the VDOM tree).
   // Important because where it is now in the constructed SSR markup might be different to where to *should* be
-  const parentNodeId = parentVNode?.$elm$ ? parentVNode.$elm$['s-id'] || parentVNode.$elm$.getAttribute('s-id') : '';
+  const parentNodeId = parentVNode?.$elm$
+    ? parentVNode.$elm$['s-id'] || parentVNode.$elm$.getAttribute('s-id')
+    : '';
 
   if (BUILD.shadowDom && shadowRootNodes && win.document) {
     /* SHADOW */
 
     // Browser supports shadowRoot and this is a shadow dom component; create an actual slot element
-    const slot = (childVNode.$elm$ = win.document.createElement(childVNode.$tag$ as string) as d.RenderNode);
+    const slot = (childVNode.$elm$ = win.document.createElement(
+      childVNode.$tag$ as string,
+    ) as d.RenderNode);
 
     if (childVNode.$name$) {
       // Add the slot name attribute
@@ -632,7 +652,10 @@ function addSlot(
     if (parentVNode.$elm$.shadowRoot && parentNodeId && parentNodeId !== childVNode.$hostId$) {
       // Shadow component's slot is placed inside a nested component's shadowDOM; it doesn't belong to this host - it was forwarded by the SSR markup.
       // Insert it in the root of this host; it's lightDOM. It doesn't really matter where in the host root; the component will take care of it.
-      internalCall(parentVNode.$elm$, 'insertBefore')(slot, internalCall(parentVNode.$elm$, 'children')[0]);
+      internalCall(parentVNode.$elm$, 'insertBefore')(
+        slot,
+        internalCall(parentVNode.$elm$, 'children')[0],
+      );
     } else {
       // Insert the new slot element before the slot comment
       internalCall(internalCall(node, 'parentNode') as d.RenderNode, 'insertBefore')(slot, node);
@@ -651,10 +674,17 @@ function addSlot(
 
     // Test to see if this non-shadow component's mock 'slot' is placed inside a nested component's shadowDOM. If so, it doesn't belong here;
     // it was forwarded by the SSR markup. So we'll insert it into the root of this host; it's lightDOM with accompanying 'slotted' nodes
-    const shouldMove = parentNodeId && parentNodeId !== childVNode.$hostId$ && parentVNode.$elm$.shadowRoot;
+    const shouldMove =
+      parentNodeId && parentNodeId !== childVNode.$hostId$ && parentVNode.$elm$.shadowRoot;
 
     // attempt to find any mock slotted nodes which we'll move later
-    addSlottedNodes(slottedNodes, slotId, slotName, node, shouldMove ? parentNodeId : childVNode.$hostId$);
+    addSlottedNodes(
+      slottedNodes,
+      slotId,
+      slotName,
+      node,
+      shouldMove ? parentNodeId : childVNode.$hostId$,
+    );
     patchSlotNode(node);
 
     if (shouldMove) {
@@ -699,11 +729,13 @@ const addSlottedNodes = (
   do {
     if (
       slottedNode &&
-      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
+      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) ||
+        slottedNode['s-sn']) === slotName ||
         (slotName === '' &&
           !slottedNode['s-sn'] &&
           (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&
-          (slottedNode.nodeType === NODE_TYPE.CommentNode || slottedNode.nodeType === NODE_TYPE.TextNode)))
+          (slottedNode.nodeType === NODE_TYPE.CommentNode ||
+            slottedNode.nodeType === NODE_TYPE.TextNode)))
     ) {
       // Looking for nodes that match this slot's name,
       // OR are text / comment nodes and the slot is a default slot (no name) - text / comments cannot be direct descendants of *named* slots.
@@ -724,7 +756,10 @@ const addSlottedNodes = (
  * @param type - the type of node to find
  * @returns the first corresponding node of the type
  */
-const findCorrespondingNode = (node: Node, type: typeof NODE_TYPE.CommentNode | typeof NODE_TYPE.TextNode) => {
+const findCorrespondingNode = (
+  node: Node,
+  type: typeof NODE_TYPE.CommentNode | typeof NODE_TYPE.TextNode,
+) => {
   let sibling = node;
   do {
     sibling = sibling.nextSibling;

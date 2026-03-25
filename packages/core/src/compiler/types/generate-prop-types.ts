@@ -9,7 +9,10 @@ import { updateTypeIdentifierNames } from './stencil-types';
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
  * @returns the generated type metadata
  */
-export const generatePropTypes = (cmpMeta: d.ComponentCompilerMeta, typeImportData: d.TypesImportData): d.TypeInfo => {
+export const generatePropTypes = (
+  cmpMeta: d.ComponentCompilerMeta,
+  typeImportData: d.TypesImportData,
+): d.TypeInfo => {
   return [
     ...cmpMeta.properties.map((cmpProp) => {
       let doc = getTextDocs(cmpProp.docs);
@@ -20,7 +23,10 @@ export const generatePropTypes = (cmpMeta: d.ComponentCompilerMeta, typeImportDa
       }
       if (cmpProp.defaultValue !== undefined && !doc?.match('@default')) {
         cmpProp.docs = cmpProp.docs || { tags: [], text: '' };
-        cmpProp.docs.tags = [...(cmpProp.docs.tags || []), { name: 'default', text: cmpProp.defaultValue }];
+        cmpProp.docs.tags = [
+          ...(cmpProp.docs.tags || []),
+          { name: 'default', text: cmpProp.defaultValue },
+        ];
         doc = getTextDocs(cmpProp.docs);
       }
       return {

@@ -1,6 +1,6 @@
 import { parseCss } from '../parse-css';
 import { serializeCss } from '../serialize-css';
-import { describe, it, expect } from 'vitest'; 
+import { describe, it, expect } from 'vitest';
 
 describe('CSS Nesting', () => {
   it('should parse and serialize basic nested rules', () => {

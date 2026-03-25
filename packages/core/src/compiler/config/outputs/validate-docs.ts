@@ -16,7 +16,11 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 import { NOTE } from '../../docs/constants';
 
-export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[], userOutputs: d.OutputTarget[]) => {
+export const validateDocs = (
+  config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
+  userOutputs: d.OutputTarget[],
+) => {
   const docsOutputs: d.OutputTarget[] = [];
 
   // json docs from --docsJson flag (set via config.docsJsonPath)
@@ -62,7 +66,9 @@ export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnosti
   });
 
   // custom elements manifest docs
-  const customElementsManifestOutputs = userOutputs.filter(isOutputTargetDocsCustomElementsManifest);
+  const customElementsManifestOutputs = userOutputs.filter(
+    isOutputTargetDocsCustomElementsManifest,
+  );
   customElementsManifestOutputs.forEach((cemOutput) => {
     docsOutputs.push(validateCustomElementsManifestOutputTarget(config, cemOutput));
   });
@@ -70,7 +76,10 @@ export const validateDocs = (config: d.ValidatedConfig, diagnostics: d.Diagnosti
   return docsOutputs;
 };
 
-const validateReadmeOutputTarget = (config: d.ValidatedConfig, outputTarget: d.OutputTargetDocsReadme) => {
+const validateReadmeOutputTarget = (
+  config: d.ValidatedConfig,
+  outputTarget: d.OutputTargetDocsReadme,
+) => {
   if (!isString(outputTarget.dir)) {
     outputTarget.dir = config.srcDir;
   }
@@ -108,7 +117,10 @@ const validateJsonDocsOutputTarget = (
   return outputTarget;
 };
 
-const validateCustomDocsOutputTarget = (diagnostics: d.Diagnostic[], outputTarget: d.OutputTargetDocsCustom) => {
+const validateCustomDocsOutputTarget = (
+  diagnostics: d.Diagnostic[],
+  outputTarget: d.OutputTargetDocsCustom,
+) => {
   if (!isFunction(outputTarget.generator)) {
     const err = buildError(diagnostics);
     err.messageText = `docs-custom outputTarget missing the "generator" function`;
@@ -118,7 +130,10 @@ const validateCustomDocsOutputTarget = (diagnostics: d.Diagnostic[], outputTarge
   return outputTarget;
 };
 
-const validateVScodeDocsOutputTarget = (diagnostics: d.Diagnostic[], outputTarget: d.OutputTargetDocsVscode) => {
+const validateVScodeDocsOutputTarget = (
+  diagnostics: d.Diagnostic[],
+  outputTarget: d.OutputTargetDocsVscode,
+) => {
   if (!isString(outputTarget.file)) {
     const err = buildError(diagnostics);
     err.messageText = `docs-vscode outputTarget missing the "file" path`;

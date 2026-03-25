@@ -111,7 +111,13 @@ export function addFileToLibrary(config: ValidatedConfig, filePath: string): voi
           return;
         }
 
-        const exportHomeModule = getHomeModule(sourceFile, node.moduleSpecifier.text, options, compilerHost, program);
+        const exportHomeModule = getHomeModule(
+          sourceFile,
+          node.moduleSpecifier.text,
+          options,
+          compilerHost,
+          program,
+        );
 
         if (!exportHomeModule) {
           return;
@@ -207,7 +213,10 @@ export function getHomeModule(
  * @returns a type declaration for the type of interest or `undefined` if it
  * cannot be found
  */
-export function findTypeWithName(module: ts.SourceFile, typeName: string): TypeDeclLike | undefined {
+export function findTypeWithName(
+  module: ts.SourceFile,
+  typeName: string,
+): TypeDeclLike | undefined {
   let typeWithName;
   ts.forEachChild(module, (child) => {
     if (isTypeDeclLike(child) && child.name.getText() === typeName) {
@@ -226,7 +235,10 @@ export function findTypeWithName(module: ts.SourceFile, typeName: string): TypeD
  * @returns the type's original, un-aliased name (if successful) or `undefined`
  * if not
  */
-export function getOriginalTypeName(identifier: ts.Node, checker: ts.TypeChecker): string | undefined {
+export function getOriginalTypeName(
+  identifier: ts.Node,
+  checker: ts.TypeChecker,
+): string | undefined {
   const possiblyAliasedSymbol = checker.getSymbolAtLocation(identifier);
   if (!possiblyAliasedSymbol) {
     return undefined;
@@ -263,7 +275,9 @@ type TypeDeclLike = ts.InterfaceDeclaration | ts.TypeAliasDeclaration | ts.EnumD
  * @returns whether or not this node is a type-declaration-like node
  */
 function isTypeDeclLike(node: ts.Node): node is TypeDeclLike {
-  return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node);
+  return (
+    ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)
+  );
 }
 
 /**

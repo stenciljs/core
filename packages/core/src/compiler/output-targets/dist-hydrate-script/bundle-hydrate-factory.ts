@@ -36,7 +36,8 @@ export const bundleHydrateFactory = async (
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       inlineDynamicImports: true,
       inputs: {
-        '@stencil/core/runtime/server/hydrate-factory': '@stencil/core/runtime/server/hydrate-factory'
+        '@stencil/core/runtime/server/hydrate-factory':
+          '@stencil/core/runtime/server/hydrate-factory',
       },
       loader: {
         '@stencil/core/runtime/server/hydrate-factory': appFactoryEntryCode,

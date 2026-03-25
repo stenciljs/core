@@ -136,7 +136,8 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     }
   };
 
-  const createDir = async (p: string, opts?: CompilerSystemCreateDirectoryOptions) => createDirSync(p, opts);
+  const createDir = async (p: string, opts?: CompilerSystemCreateDirectoryOptions) =>
+    createDirSync(p, opts);
 
   const encodeToBase64 = (str: string) => btoa(unescape(encodeURIComponent(str)));
 
@@ -154,7 +155,10 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     const dir = items.get(p);
     if (dir && dir.isDirectory) {
       items.forEach((item, itemPath) => {
-        if (itemPath !== '/' && (item.isDirectory || (item.isFile && typeof item.data === 'string'))) {
+        if (
+          itemPath !== '/' &&
+          (item.isDirectory || (item.isFile && typeof item.data === 'string'))
+        ) {
           if (p.endsWith('/') && `${p}${item.basename}` === itemPath) {
             dirItems.push(itemPath);
           } else if (`${p}/${item.basename}` === itemPath) {
@@ -242,7 +246,11 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     return results;
   };
 
-  const renameNewRecursiveSync = (oldPath: string, newPath: string, results: CompilerSystemRenameResults) => {
+  const renameNewRecursiveSync = (
+    oldPath: string,
+    newPath: string,
+    results: CompilerSystemRenameResults,
+  ) => {
     const itemStat = statSync(oldPath);
     if (!itemStat.error && !results.error) {
       if (itemStat.isFile) {
@@ -339,7 +347,8 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     }
   };
 
-  const removeDir = async (p: string, opts: CompilerSystemRemoveDirectoryOptions = {}) => removeDirSync(p, opts);
+  const removeDir = async (p: string, opts: CompilerSystemRemoveDirectoryOptions = {}) =>
+    removeDirSync(p, opts);
 
   const statSync = (p: string): CompilerFsStats => {
     p = normalize(p);

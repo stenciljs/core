@@ -137,7 +137,10 @@ const arrayToArrayLiteral = (list: any[], refs: WeakSet<any>): ts.ArrayLiteralEx
  * @param refs a set of references to objects, used to avoid circular references
  * @returns a TypeScript object literal expression
  */
-const objectToObjectLiteral = (obj: { [key: string]: any }, refs: WeakSet<any>): ts.ObjectLiteralExpression => {
+const objectToObjectLiteral = (
+  obj: { [key: string]: any },
+  refs: WeakSet<any>,
+): ts.ObjectLiteralExpression => {
   if (refs.has(obj)) {
     return ts.factory.createIdentifier('undefined') as any;
   }
@@ -430,7 +433,9 @@ const resolveVarInObjectLiteral = (
   if (ts.isPropertyAccessExpression(node)) {
     const objectType = typeChecker.getTypeAtLocation(node.expression);
     if (!objectType) {
-      throw new Error(`resolveVar() cannot resolve the object type for "${node.getText()}" at compile time.`);
+      throw new Error(
+        `resolveVar() cannot resolve the object type for "${node.getText()}" at compile time.`,
+      );
     }
 
     const propertyName = node.name.text;
@@ -479,7 +484,10 @@ const resolveVarInObjectLiteral = (
   );
 };
 
-const extractStringFromExpressionInline = (expr: ts.Expression, typeChecker: ts.TypeChecker): string | null => {
+const extractStringFromExpressionInline = (
+  expr: ts.Expression,
+  typeChecker: ts.TypeChecker,
+): string | null => {
   if (ts.isStringLiteral(expr)) {
     return expr.text;
   }
@@ -574,7 +582,10 @@ interface TypeReferenceIR {
  * @param node the node to walk to retrieve type information
  * @returns the collected type references
  */
-export const getAllTypeReferences = (checker: ts.TypeChecker, node: ts.Node): ReadonlyArray<TypeReferenceIR> => {
+export const getAllTypeReferences = (
+  checker: ts.TypeChecker,
+  node: ts.Node,
+): ReadonlyArray<TypeReferenceIR> => {
   const referencedTypes: TypeReferenceIR[] = [];
 
   const visit = (node: ts.Node): ts.VisitResult<ts.Node> => {
@@ -591,7 +602,9 @@ export const getAllTypeReferences = (checker: ts.TypeChecker, node: ts.Node): Re
       if (node.typeArguments) {
         // a type may contain types itself (e.g. generics - Foo<Bar>)
         node.typeArguments
-          .filter((typeArg: ts.TypeNode): typeArg is ts.TypeReferenceNode => ts.isTypeReferenceNode(typeArg))
+          .filter((typeArg: ts.TypeNode): typeArg is ts.TypeReferenceNode =>
+            ts.isTypeReferenceNode(typeArg),
+          )
           .forEach((typeRef: ts.TypeReferenceNode) => {
             const typeName = typeRef.typeName as ts.Identifier;
             if (typeName && typeName.escapedText) {
@@ -660,21 +673,36 @@ const getTypeReferenceLocation = (
     const localImportPath = (<ts.StringLiteral>importTypeDeclaration.moduleSpecifier).text;
     const options = program.getCompilerOptions();
     const compilerHost = ts.createCompilerHost(options);
-    const importHomeModule = getHomeModule(sourceFile, localImportPath, options, compilerHost, program);
+    const importHomeModule = getHomeModule(
+      sourceFile,
+      localImportPath,
+      options,
+      compilerHost,
+      program,
+    );
 
     if (importHomeModule) {
-      const importElement = namedImportBindings.elements.find((nbe) => nbe.name.getText() === typeName);
+      const importElement = namedImportBindings.elements.find(
+        (nbe) => nbe.name.getText() === typeName,
+      );
       const importName = importElement.name;
       const originalTypeName = getOriginalTypeName(importName, checker);
 
       // Get the name as it appears in the import statement (before any user alias)
       // For "import { XAxisOption as moo }", propertyName is "XAxisOption"
-      const importedAs = importElement.propertyName ? importElement.propertyName.getText() : typeName;
+      const importedAs = importElement.propertyName
+        ? importElement.propertyName.getText()
+        : typeName;
 
       const typeDecl = findTypeWithName(importHomeModule, originalTypeName);
       type = checker.getTypeAtLocation(typeDecl);
 
-      const id = addToLibrary(type, originalTypeName, checker, normalizePath(importHomeModule.fileName, false));
+      const id = addToLibrary(
+        type,
+        originalTypeName,
+        checker,
+        normalizePath(importHomeModule.fileName, false),
+      );
       return {
         location: 'import',
         path: localImportPath,
@@ -688,15 +716,19 @@ const getTypeReferenceLocation = (
   const isExported = sourceFile.statements.some((st) => {
     const statementModifiers = retrieveTsModifiers(st);
 
-    const isDeclarationExported = (statement: ts.InterfaceDeclaration | ts.TypeAliasDeclaration | ts.EnumDeclaration) =>
+    const isDeclarationExported = (
+      statement: ts.InterfaceDeclaration | ts.TypeAliasDeclaration | ts.EnumDeclaration,
+    ) =>
       (<ts.Identifier>statement.name).getText() === typeName &&
       Array.isArray(statementModifiers) &&
       statementModifiers.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword);
 
     // Is the interface defined in the file and exported
-    const isInterfaceDeclarationExported = ts.isInterfaceDeclaration(st) && isDeclarationExported(st);
+    const isInterfaceDeclarationExported =
+      ts.isInterfaceDeclaration(st) && isDeclarationExported(st);
 
-    const isTypeAliasDeclarationExported = ts.isTypeAliasDeclaration(st) && isDeclarationExported(st);
+    const isTypeAliasDeclarationExported =
+      ts.isTypeAliasDeclaration(st) && isDeclarationExported(st);
 
     const isEnumDeclarationExported = ts.isEnumDeclaration(st) && isDeclarationExported(st);
 
@@ -746,7 +778,13 @@ const getTypeReferenceLocation = (
     const localImportPath = (<ts.StringLiteral>defaultImportDeclaration.moduleSpecifier).text;
     const options = program.getCompilerOptions();
     const compilerHost = ts.createCompilerHost(options);
-    const importHomeModule = getHomeModule(sourceFile, localImportPath, options, compilerHost, program);
+    const importHomeModule = getHomeModule(
+      sourceFile,
+      localImportPath,
+      options,
+      compilerHost,
+      program,
+    );
 
     if (importHomeModule) {
       // For default imports, the original type name is 'default' in the module's exports
@@ -763,7 +801,12 @@ const getTypeReferenceLocation = (
         const typeDecl = findTypeWithName(importHomeModule, typeName);
         type = checker.getTypeAtLocation(typeDecl);
 
-        const id = addToLibrary(type, typeName, checker, normalizePath(importHomeModule.fileName, false));
+        const id = addToLibrary(
+          type,
+          typeName,
+          checker,
+          normalizePath(importHomeModule.fileName, false),
+        );
         return {
           location: 'import',
           path: localImportPath,
@@ -845,7 +888,9 @@ export const resolveType = (checker: ts.TypeChecker, type: ts.Type): string => {
  */
 export const typeToString = (checker: ts.TypeChecker, type: ts.Type): string => {
   const TYPE_FORMAT_FLAGS =
-    ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.InTypeAlias | ts.TypeFormatFlags.InElementType;
+    ts.TypeFormatFlags.NoTruncation |
+    ts.TypeFormatFlags.InTypeAlias |
+    ts.TypeFormatFlags.InElementType;
 
   return checker.typeToString(type, undefined, TYPE_FORMAT_FLAGS);
 };
@@ -1067,8 +1112,13 @@ export const isInternal = (jsDocs: d.CompilerJsDoc | undefined): boolean => {
   return !!(jsDocs && jsDocs.tags.some((s) => s.name === 'internal'));
 };
 
-export const isMethod = (member: ts.ClassElement, methodName: string): member is ts.MethodDeclaration => {
-  return ts.isMethodDeclaration(member) && member.name && (member.name as any).escapedText === methodName;
+export const isMethod = (
+  member: ts.ClassElement,
+  methodName: string,
+): member is ts.MethodDeclaration => {
+  return (
+    ts.isMethodDeclaration(member) && member.name && (member.name as any).escapedText === methodName
+  );
 };
 
 export const createImportStatement = (importFnNames: string[], importPath: string) => {
@@ -1096,7 +1146,11 @@ export const createImportStatement = (importFnNames: string[], importPath: strin
 
   return ts.factory.createImportDeclaration(
     undefined,
-    ts.factory.createImportClause(false, undefined, ts.factory.createNamedImports(importSpecifiers)),
+    ts.factory.createImportClause(
+      false,
+      undefined,
+      ts.factory.createNamedImports(importSpecifiers),
+    ),
     ts.factory.createStringLiteral(importPath),
   );
 };
@@ -1202,7 +1256,8 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
       ts.isExpressionStatement(s) &&
       ts.isCallExpression(s.expression) &&
       (s.expression.expression.kind === ts.SyntaxKind.SuperKeyword ||
-        (ts.isIdentifier(s.expression.expression) && s.expression.expression.escapedText === 'super')),
+        (ts.isIdentifier(s.expression.expression) &&
+          s.expression.expression.escapedText === 'super')),
   );
 }
 
@@ -1244,7 +1299,11 @@ export const updateConstructor = (
       // 1. the `super()` call
       // 2. the new statements we've created to initialize fields
       // 3. the statements currently comprising the body of the constructor
-      statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements, ...constructorBodyStatements];
+      statements = [
+        createConstructorBodyWithSuper(includeFalseArg),
+        ...statements,
+        ...constructorBodyStatements,
+      ];
     } else {
       const updatedStatements = constructorBodyStatements.filter((s) => s !== foundSuperCall);
       // if no new super is needed. The body of the constructor should be:
@@ -1277,7 +1336,11 @@ export const updateConstructor = (
     // add the new constructor to the class members, putting it at the
     // beginning
     classMembers.unshift(
-      ts.factory.createConstructorDeclaration(undefined, parameters ?? [], ts.factory.createBlock(statements, true)),
+      ts.factory.createConstructorDeclaration(
+        undefined,
+        parameters ?? [],
+        ts.factory.createBlock(statements, true),
+      ),
     );
   }
   return classMembers;
@@ -1292,7 +1355,8 @@ export const updateConstructor = (
  * @returns whether this class has parents or not
  */
 const needsSuper = (classDeclaration: ts.ClassDeclaration): boolean => {
-  const hasHeritageClauses = classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
+  const hasHeritageClauses =
+    classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
 
   if (hasHeritageClauses) {
     // A {@link ts.SyntaxKind.HeritageClause} node may be for extending a
@@ -1301,7 +1365,9 @@ const needsSuper = (classDeclaration: ts.ClassDeclaration): boolean => {
     // is a superclass, so we can check for that situation by checking for the
     // presence of a heritage clause with the `.token` property set to
     // `ts.SyntaxKind.ExtendsKeyword`.
-    return classDeclaration.heritageClauses.some((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword);
+    return classDeclaration.heritageClauses.some(
+      (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
+    );
   }
   return false;
 };
@@ -1485,9 +1551,11 @@ export function addTagTransformToCssTsAST(
     const exprIndex = Number(idxStr);
     const tagName = placeholders[exprIndex];
     // build call expression: tagTransform("tag-name")
-    const expr = ts.factory.createCallExpression(ts.factory.createIdentifier(TRANSFORM_TAG), undefined, [
-      ts.factory.createStringLiteral(tagName),
-    ]);
+    const expr = ts.factory.createCallExpression(
+      ts.factory.createIdentifier(TRANSFORM_TAG),
+      undefined,
+      [ts.factory.createStringLiteral(tagName)],
+    );
 
     // Determine if this span is the last span -> TemplateTail else TemplateMiddle
     const isLastSpan = i + 1 >= splitParts.length - 1;

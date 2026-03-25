@@ -5,7 +5,10 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import { ConvertIdentifier, convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
-export const styleToStatic = (newMembers: ts.ClassElement[], componentOptions: d.ComponentOptions) => {
+export const styleToStatic = (
+  newMembers: ts.ClassElement[],
+  componentOptions: d.ComponentOptions,
+) => {
   const defaultModeStyles = [];
 
   if (componentOptions.styleUrls) {

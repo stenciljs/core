@@ -6,7 +6,9 @@ import { MarkdownTable } from './docs-util';
  * @param customStates the Custom States metadata to convert
  * @returns a list of strings that make up the Markdown table
  */
-export const customStatesToMarkdown = (customStates: d.JsonDocsCustomState[]): ReadonlyArray<string> => {
+export const customStatesToMarkdown = (
+  customStates: d.JsonDocsCustomState[],
+): ReadonlyArray<string> => {
   const content: string[] = [];
   if (customStates.length === 0) {
     return content;
@@ -19,7 +21,11 @@ export const customStatesToMarkdown = (customStates: d.JsonDocsCustomState[]): R
   table.addHeader(['State', 'Initial Value', 'Description']);
 
   customStates.forEach((state) => {
-    table.addRow([`\`:state(${state.name})\``, state.initialValue ? '`true`' : '`false`', state.docs]);
+    table.addRow([
+      `\`:state(${state.name})\``,
+      state.initialValue ? '`true`' : '`false`',
+      state.docs,
+    ]);
   });
 
   content.push(...table.toMarkdown());

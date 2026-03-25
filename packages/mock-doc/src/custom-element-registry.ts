@@ -113,7 +113,11 @@ export class MockCustomElementRegistry implements CustomElementRegistry {
   }
 }
 
-export function createCustomElement(customElements: MockCustomElementRegistry, ownerDocument: any, tagName: string) {
+export function createCustomElement(
+  customElements: MockCustomElementRegistry,
+  ownerDocument: any,
+  tagName: string,
+) {
   const Cstr = customElements.get(tagName);
 
   if (Cstr != null) {
@@ -172,7 +176,11 @@ export function connectNode(ownerDocument: any, node: MockNode) {
   if (node.nodeType === NODE_TYPES.ELEMENT_NODE) {
     if (ownerDocument != null && node.nodeName.includes('-')) {
       const win = ownerDocument.defaultView as Window;
-      if (win != null && typeof (node as any).connectedCallback === 'function' && node.isConnected) {
+      if (
+        win != null &&
+        typeof (node as any).connectedCallback === 'function' &&
+        node.isConnected
+      ) {
         fireConnectedCallback(node);
       }
 
@@ -208,7 +216,10 @@ function fireConnectedCallback(node: any) {
 
 export function disconnectNode(node: MockNode) {
   if (node.nodeType === NODE_TYPES.ELEMENT_NODE) {
-    if (node.nodeName.includes('-') === true && typeof (node as any).disconnectedCallback === 'function') {
+    if (
+      node.nodeName.includes('-') === true &&
+      typeof (node as any).disconnectedCallback === 'function'
+    ) {
       if (tempDisableCallbacks.has(node.ownerDocument) === false) {
         try {
           (node as any).disconnectedCallback();
@@ -221,7 +232,12 @@ export function disconnectNode(node: MockNode) {
   }
 }
 
-export function attributeChanged(node: MockNode, attrName: string, oldValue: string | null, newValue: string | null) {
+export function attributeChanged(
+  node: MockNode,
+  attrName: string,
+  oldValue: string | null,
+  newValue: string | null,
+) {
   attrName = attrName.toLowerCase();
 
   const observedAttributes = (node as any).constructor.observedAttributes as string[];
@@ -238,7 +254,10 @@ export function attributeChanged(node: MockNode, attrName: string, oldValue: str
 }
 
 export function checkAttributeChanged(node: MockNode) {
-  return node.nodeName.includes('-') === true && typeof (node as any).attributeChangedCallback === 'function';
+  return (
+    node.nodeName.includes('-') === true &&
+    typeof (node as any).attributeChangedCallback === 'function'
+  );
 }
 
 const tempDisableCallbacks = new Set();

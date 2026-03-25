@@ -4,8 +4,14 @@ import type * as d from '@stencil/core';
 import { getBuildTimestamp } from './build-ctx';
 import { generateHmr } from './build-hmr';
 
-export const generateBuildResults = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
-  const componentGraph = buildCtx.componentGraph ? fromEntries(buildCtx.componentGraph.entries()) : undefined;
+export const generateBuildResults = (
+  config: d.Config,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
+  const componentGraph = buildCtx.componentGraph
+    ? fromEntries(buildCtx.componentGraph.entries())
+    : undefined;
 
   const buildResults: d.CompilerBuildResults = {
     buildId: buildCtx.buildId,

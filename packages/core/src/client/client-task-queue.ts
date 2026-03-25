@@ -79,7 +79,9 @@ const flush = () => {
       queueDomWrites.length = 0;
     }
 
-    if ((queuePending = queueDomReads.length + queueDomWrites.length + queueDomWritesLow.length > 0)) {
+    if (
+      (queuePending = queueDomReads.length + queueDomWrites.length + queueDomWritesLow.length > 0)
+    ) {
       // still more to do yet, but we've run out of time
       // let's let this thing cool off and try again in the next tick
       plt.raf(flush);

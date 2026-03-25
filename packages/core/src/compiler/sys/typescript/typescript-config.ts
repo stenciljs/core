@@ -13,7 +13,11 @@ import ts from 'typescript';
 
 import type * as d from '@stencil/core';
 
-export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.CompilerSystem, init: d.LoadConfigInit) => {
+export const validateTsConfig = async (
+  config: d.ValidatedConfig,
+  sys: d.CompilerSystem,
+  init: d.LoadConfigInit,
+) => {
   const tsconfig = {
     path: '',
     compilerOptions: {} as ts.CompilerOptions,
@@ -101,7 +105,12 @@ export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.Compile
 
           const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES5;
           if (
-            [ts.ScriptTarget.ES3, ts.ScriptTarget.ES5, ts.ScriptTarget.ES2015, ts.ScriptTarget.ES2016].includes(target)
+            [
+              ts.ScriptTarget.ES3,
+              ts.ScriptTarget.ES5,
+              ts.ScriptTarget.ES2015,
+              ts.ScriptTarget.ES2016,
+            ].includes(target)
           ) {
             const warn = buildWarn(tsconfig.diagnostics);
             warn.messageText = `To improve bundling, it is always recommended to set the tsconfig.json “target” setting to "es2017". Note that the compiler will automatically handle transpilation for ES5-only browsers.`;

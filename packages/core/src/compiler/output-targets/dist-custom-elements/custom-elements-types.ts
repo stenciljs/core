@@ -1,4 +1,10 @@
-import { dashToPascalCase, isOutputTargetDistCustomElements, join, normalizePath, relative } from '../../../utils';
+import {
+  dashToPascalCase,
+  isOutputTargetDistCustomElements,
+  join,
+  normalizePath,
+  relative,
+} from '../../../utils';
 import { dirname } from 'path';
 
 import type * as d from '@stencil/core';
@@ -78,7 +84,10 @@ const generateCustomElementsTypesOutput = async (
             // - get the relative path to the component's source file from the source directory
             // - join that relative path to the relative path from the `index.d.ts` file to the
             //   directory where typedefs are saved
-            const componentSourceRelPath = relative(config.srcDir, component.sourceFilePath).replace(/\.tsx$/, '');
+            const componentSourceRelPath = relative(
+              config.srcDir,
+              component.sourceFilePath,
+            ).replace(/\.tsx$/, '');
             const componentDTSPath = join(componentsTypeDirectoryRelPath, componentSourceRelPath);
 
             const defineFunctionExportName = `defineCustomElement${exportName}`;
@@ -174,10 +183,14 @@ const generateCustomElementsTypesOutput = async (
   // Generate loader.d.ts if autoLoader is enabled
   if (outputTarget.autoLoader) {
     const loaderFileName =
-      typeof outputTarget.autoLoader === 'object' ? outputTarget.autoLoader.fileName || 'loader' : 'loader';
+      typeof outputTarget.autoLoader === 'object'
+        ? outputTarget.autoLoader.fileName || 'loader'
+        : 'loader';
     const loaderDtsPath = join(outputTarget.dir!, `${loaderFileName}.d.ts`);
     const loaderDtsCode = generateLoaderType();
-    await compilerCtx.fs.writeFile(loaderDtsPath, loaderDtsCode, { outputTargetType: outputTarget.type });
+    await compilerCtx.fs.writeFile(loaderDtsPath, loaderDtsCode, {
+      outputTargetType: outputTarget.type,
+    });
   }
 };
 
@@ -210,7 +223,10 @@ const generateLoaderType = (): string => {
  * @param cmp the component to generate the type declaration file for
  * @returns the contents of the type declaration file for the provided `cmp`
  */
-const generateCustomElementType = (componentsDtsRelPath: string, cmp: d.ComponentCompilerMeta): string => {
+const generateCustomElementType = (
+  componentsDtsRelPath: string,
+  cmp: d.ComponentCompilerMeta,
+): string => {
   const tagNameAsPascal = dashToPascalCase(cmp.tagName);
   const o: string[] = [
     `import type { Components, JSX } from "${componentsDtsRelPath}";`,

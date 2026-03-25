@@ -6,8 +6,8 @@ import { hmrInlineStyles, hmrExternalStyles } from './style';
 import type { HmrResults, HotModuleReplacement } from '../types';
 
 interface HmrWindowData {
-  window: Window
-  hmr: HotModuleReplacement
+  window: Window;
+  hmr: HotModuleReplacement;
 }
 
 export const hmrWindow = (data: HmrWindowData): HmrResults => {
@@ -17,7 +17,7 @@ export const hmrWindow = (data: HmrWindowData): HmrResults => {
     updatedInlineStyles: [],
     updatedImages: [],
     versionId: '',
-  }
+  };
 
   try {
     if (
@@ -27,36 +27,44 @@ export const hmrWindow = (data: HmrWindowData): HmrResults => {
       !data.hmr ||
       typeof data.hmr.versionId !== 'string'
     ) {
-      return results
+      return results;
     }
 
-    const win = data.window
-    const doc = win.document
-    const hmr = data.hmr
-    const documentElement = doc.documentElement
-    const versionId = hmr.versionId!
-    results.versionId = versionId
+    const win = data.window;
+    const doc = win.document;
+    const hmr = data.hmr;
+    const documentElement = doc.documentElement;
+    const versionId = hmr.versionId!;
+    results.versionId = versionId;
 
     if (hmr.componentsUpdated) {
-      results.updatedComponents = hmrComponents(documentElement, versionId, hmr.componentsUpdated)
+      results.updatedComponents = hmrComponents(documentElement, versionId, hmr.componentsUpdated);
     }
 
     if (hmr.inlineStylesUpdated) {
-      results.updatedInlineStyles = hmrInlineStyles(documentElement, versionId, hmr.inlineStylesUpdated)
+      results.updatedInlineStyles = hmrInlineStyles(
+        documentElement,
+        versionId,
+        hmr.inlineStylesUpdated,
+      );
     }
 
     if (hmr.externalStylesUpdated) {
-      results.updatedExternalStyles = hmrExternalStyles(documentElement, versionId, hmr.externalStylesUpdated)
+      results.updatedExternalStyles = hmrExternalStyles(
+        documentElement,
+        versionId,
+        hmr.externalStylesUpdated,
+      );
     }
 
     if (hmr.imagesUpdated) {
-      results.updatedImages = hmrImages(win, doc, versionId, hmr.imagesUpdated)
+      results.updatedImages = hmrImages(win, doc, versionId, hmr.imagesUpdated);
     }
 
-    setHmrAttr(documentElement, versionId)
+    setHmrAttr(documentElement, versionId);
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
 
-  return results
-}
+  return results;
+};

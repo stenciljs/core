@@ -1,7 +1,10 @@
 import type * as d from '@stencil/core';
 
 export function inspectElement(results: d.HydrateResults, elm: Element, depth: number) {
-  const children = [...Array.from(elm.children), ...Array.from(elm.shadowRoot ? elm.shadowRoot.children : [])];
+  const children = [
+    ...Array.from(elm.children),
+    ...Array.from(elm.shadowRoot ? elm.shadowRoot.children : []),
+  ];
 
   for (let i = 0, ii = children.length; i < ii; i++) {
     const childElm = children[i];

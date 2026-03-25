@@ -11,8 +11,12 @@ import { DEFAULT_TARGET_COMPONENT_STYLES } from './constants';
  * @param logger the logger that will be set on the config
  * @returns a suitable/default value for the docs property
  */
-export const validateDocs = (config: UnvalidatedConfig, logger: d.Logger): d.ValidatedConfig['docs'] => {
-  const { background: defaultBackground, textColor: defaultTextColor } = DEFAULT_TARGET_COMPONENT_STYLES;
+export const validateDocs = (
+  config: UnvalidatedConfig,
+  logger: d.Logger,
+): d.ValidatedConfig['docs'] => {
+  const { background: defaultBackground, textColor: defaultTextColor } =
+    DEFAULT_TARGET_COMPONENT_STYLES;
 
   let { background = defaultBackground, textColor = defaultTextColor } =
     config.docs?.markdown?.targetComponent ?? DEFAULT_TARGET_COMPONENT_STYLES;

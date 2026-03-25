@@ -7,7 +7,9 @@ import * as d from '@stencil/core';
  * provided by this function.
  * @returns the stubbed `TypesImportData`
  */
-export const stubTypesImportData = (overrides: Partial<d.TypesImportData> = {}): d.TypesImportData => {
+export const stubTypesImportData = (
+  overrides: Partial<d.TypesImportData> = {},
+): d.TypesImportData => {
   /**
    * By design, we do not provide any default values. the keys used in this data structure will be highly dependent on
    * the tests being written, and providing default values may lead to unexpected behavior when enumerating the returned

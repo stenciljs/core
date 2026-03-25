@@ -170,7 +170,10 @@ export function hydrateApp(
       return elm;
     };
 
-    win.document.createElementNS = function patchedCreateElement(namespaceURI: string, tagName: string) {
+    win.document.createElementNS = function patchedCreateElement(
+      namespaceURI: string,
+      tagName: string,
+    ) {
       const elm = orgDocumentCreateElementNS.call(win.document, namespaceURI, tagName);
       patchElement(elm as d.HostElement);
       return elm;
@@ -375,7 +378,10 @@ function waitingOnElementsMsg(waitingElements: Set<HTMLElement>) {
  * @param opts - serializeShadowRoot options
  * @returns `true` when the tag requires a scoped / light dom during SSR
  */
-export function tagRequiresScoped(tagName: string, opts: d.HydrateFactoryOptions['serializeShadowRoot']) {
+export function tagRequiresScoped(
+  tagName: string,
+  opts: d.HydrateFactoryOptions['serializeShadowRoot'],
+) {
   if (typeof opts === 'string') {
     return opts === 'scoped';
   }
@@ -387,7 +393,10 @@ export function tagRequiresScoped(tagName: string, opts: d.HydrateFactoryOptions
   if (typeof opts === 'object') {
     tagName = tagName.toLowerCase();
 
-    if (Array.isArray(opts['declarative-shadow-dom']) && opts['declarative-shadow-dom'].includes(tagName)) {
+    if (
+      Array.isArray(opts['declarative-shadow-dom']) &&
+      opts['declarative-shadow-dom'].includes(tagName)
+    ) {
       // if the tag is in the dsd array, return dsd
       return false;
     } else if (

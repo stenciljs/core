@@ -282,12 +282,20 @@ describe('removeUnusedStyles', () => {
   });
 
   function expectSelector(css: string, selector: string) {
-    selector = selector.replace(/ \{ /g, '{').replace(/ \} /g, '}').replace(/\: /g, ':').replace(/\; /g, ';');
+    selector = selector
+      .replace(/ \{ /g, '{')
+      .replace(/ \} /g, '}')
+      .replace(/\: /g, ':')
+      .replace(/\; /g, ';');
     expect(css).toContain(selector);
   }
 
   function expectNoSelector(css: string, selector: string) {
-    selector = selector.replace(/ \{ /g, '{').replace(/ \} /g, '}').replace(/\: /g, ':').replace(/\; /g, ';');
+    selector = selector
+      .replace(/ \{ /g, '{')
+      .replace(/ \} /g, '}')
+      .replace(/\: /g, ':')
+      .replace(/\; /g, ';');
     expect(css).not.toContain(selector);
   }
 });

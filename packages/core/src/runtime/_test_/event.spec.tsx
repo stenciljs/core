@@ -1,4 +1,14 @@
-import { Component, Element, Event, EventEmitter, h, Listen, Method, resolveVar, State } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  h,
+  Listen,
+  Method,
+  resolveVar,
+  State,
+} from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
@@ -378,15 +388,13 @@ describe('event', () => {
       }
 
       render() {
-        return h(
-          'div',
-          null,
-          [h('input', {
+        return h('div', null, [
+          h('input', {
             value: this.inputValue,
             onInput: (e: any) => (this.inputValue = (e.target as HTMLInputElement).value),
           }),
-          h('div', null, `Blur count: ${this.blurCount}`),]
-        );
+          h('div', null, `Blur count: ${this.blurCount}`),
+        ]);
       }
     }
 

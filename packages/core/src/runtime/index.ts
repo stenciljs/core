@@ -1,6 +1,10 @@
 export { getAssetPath, setAssetPath } from './asset-path';
 export type { HTMLStencilElement, JSXBase } from '../declarations/stencil-public-runtime';
-export { defineCustomElement, forceModeUpdate, proxyCustomElement } from './bootstrap-custom-element';
+export {
+  defineCustomElement,
+  forceModeUpdate,
+  proxyCustomElement,
+} from './bootstrap-custom-element';
 export { bootstrapLazy } from './bootstrap-lazy';
 export { connectedCallback } from './connected-callback';
 export { disconnectedCallback } from './disconnected-callback';

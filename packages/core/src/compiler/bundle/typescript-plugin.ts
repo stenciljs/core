@@ -65,7 +65,9 @@ export const typescriptPlugin = (
               before: bundleOpts.customBeforeTransformers ?? [],
             },
           });
-          const sourceMap: d.SourceMap = tsResult.sourceMapText ? JSON.parse(tsResult.sourceMapText) : null;
+          const sourceMap: d.SourceMap = tsResult.sourceMapText
+            ? JSON.parse(tsResult.sourceMapText)
+            : null;
           return { code: tsResult.outputText, map: sourceMap };
         }
       }
@@ -74,7 +76,10 @@ export const typescriptPlugin = (
   };
 };
 
-export const resolveIdWithTypeScript = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx): Plugin => {
+export const resolveIdWithTypeScript = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+): Plugin => {
   return {
     name: `resolveIdWithTypeScript`,
 

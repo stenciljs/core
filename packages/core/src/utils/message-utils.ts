@@ -136,7 +136,11 @@ export const buildJsonFileError = (
  * @param msg an optional message to use in place of `err` to generate the diagnostic
  * @returns the generated diagnostic
  */
-export const catchError = (diagnostics: d.Diagnostic[], err: Error | null | undefined, msg?: string): d.Diagnostic => {
+export const catchError = (
+  diagnostics: d.Diagnostic[],
+  err: Error | null | undefined,
+  msg?: string,
+): d.Diagnostic => {
   const diagnostic: d.Diagnostic = {
     level: 'error',
     type: 'build',

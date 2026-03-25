@@ -3,7 +3,11 @@ import { catchError, isOutputTargetCustom } from '../../utils';
 import type * as d from '@stencil/core';
 import { generateDocData } from '../docs/generate-doc-data';
 
-export const outputCustom = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+export const outputCustom = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   if (config._isTesting) {
     return;
   }

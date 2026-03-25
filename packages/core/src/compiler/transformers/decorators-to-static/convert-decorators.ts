@@ -91,9 +91,13 @@ const visitClassDeclaration = (
 ): ts.ClassDeclaration => {
   const importAliasMap = new ImportAliasMap(sourceFile);
 
-  const componentDecorator = retrieveTsDecorators(classNode)?.find(isDecoratorNamed(importAliasMap.get('Component')));
+  const componentDecorator = retrieveTsDecorators(classNode)?.find(
+    isDecoratorNamed(importAliasMap.get('Component')),
+  );
   const classMembers = classNode.members;
-  const decoratedMembers = classMembers.filter((member) => (retrieveTsDecorators(member)?.length ?? 0) > 0);
+  const decoratedMembers = classMembers.filter(
+    (member) => (retrieveTsDecorators(member)?.length ?? 0) > 0,
+  );
 
   if (!decoratedMembers.length && !componentDecorator) {
     return classNode;
@@ -102,7 +106,11 @@ const visitClassDeclaration = (
   // create an array of all class members which are _not_ methods decorated
   // with a Stencil decorator. We do this here because we'll implement the
   // behavior specified for those decorated methods later on.
-  const filteredMethodsAndFields = removeStencilMethodDecorators(Array.from(classMembers), diagnostics, importAliasMap);
+  const filteredMethodsAndFields = removeStencilMethodDecorators(
+    Array.from(classMembers),
+    diagnostics,
+    importAliasMap,
+  );
 
   if (componentDecorator) {
     // parse component decorator
@@ -146,7 +154,12 @@ const visitClassDeclaration = (
       serializers,
       deserializers,
     );
-    stateDecoratorsToStatic(decoratedMembers, filteredMethodsAndFields, typeChecker, importAliasMap.get('State'));
+    stateDecoratorsToStatic(
+      decoratedMembers,
+      filteredMethodsAndFields,
+      typeChecker,
+      importAliasMap.get('State'),
+    );
     eventDecoratorsToStatic(
       diagnostics,
       decoratedMembers,
@@ -165,8 +178,18 @@ const visitClassDeclaration = (
       filteredMethodsAndFields,
       importAliasMap.get('Method'),
     );
-    elementDecoratorsToStatic(diagnostics, decoratedMembers, filteredMethodsAndFields, importAliasMap.get('Element'));
-    watchDecoratorsToStatic(typeChecker, decoratedMembers, filteredMethodsAndFields, importAliasMap.get('Watch'));
+    elementDecoratorsToStatic(
+      diagnostics,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('Element'),
+    );
+    watchDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      filteredMethodsAndFields,
+      importAliasMap.get('Watch'),
+    );
     listenDecoratorsToStatic(
       diagnostics,
       typeChecker,
@@ -186,7 +209,11 @@ const visitClassDeclaration = (
   validateMethods(diagnostics, classMembers);
 
   const currentDecorators = retrieveTsDecorators(classNode);
-  const updatedClassFields: ts.ClassElement[] = updateConstructor(classNode, filteredMethodsAndFields, []);
+  const updatedClassFields: ts.ClassElement[] = updateConstructor(
+    classNode,
+    filteredMethodsAndFields,
+    [],
+  );
 
   return ts.factory.updateClassDeclaration(
     classNode,

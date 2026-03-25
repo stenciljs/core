@@ -66,7 +66,9 @@ export const patchCloneNode = (HostElementPrototype: any) => {
 
       for (; i < childNodes.length; i++) {
         slotted = (childNodes[i] as any)['s-nr'];
-        nonStencilNode = stencilPrivates.every((privateField) => !(childNodes[i] as any)[privateField]);
+        nonStencilNode = stencilPrivates.every(
+          (privateField) => !(childNodes[i] as any)[privateField],
+        );
         if (slotted) {
           if (BUILD.appendChildSlotFix && (clonedNode as any).__appendChild) {
             (clonedNode as any).__appendChild(slotted.cloneNode(true));
@@ -104,7 +106,10 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
       const appendAfter = slotChildNodes[slotChildNodes.length - 1];
 
       const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
-      const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(newChild, appendAfter.nextSibling);
+      const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(
+        newChild,
+        appendAfter.nextSibling,
+      );
       dispatchSlotChangeEvent(slotNode);
 
       // Check if there is fallback content that should be hidden
@@ -152,7 +157,10 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__prepend) return;
   (HostElementPrototype as any).__prepend = HostElementPrototype.prepend;
 
-  HostElementPrototype.prepend = function (this: d.HostElement, ...newChildren: (d.RenderNode | string)[]) {
+  HostElementPrototype.prepend = function (
+    this: d.HostElement,
+    ...newChildren: (d.RenderNode | string)[]
+  ) {
     newChildren.forEach((newChild: d.RenderNode | string) => {
       if (typeof newChild === 'string') {
         newChild = this.ownerDocument.createTextNode(newChild) as unknown as d.RenderNode;
@@ -166,7 +174,10 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
         const appendAfter = slotChildNodes[0];
 
         const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
-        const toReturn = internalCall(parent, 'insertBefore')(newChild, internalCall(appendAfter, 'nextSibling'));
+        const toReturn = internalCall(parent, 'insertBefore')(
+          newChild,
+          internalCall(appendAfter, 'nextSibling'),
+        );
         dispatchSlotChangeEvent(slotNode);
         return toReturn;
       }
@@ -189,7 +200,10 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
 export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__append) return;
   (HostElementPrototype as any).__append = HostElementPrototype.append;
-  HostElementPrototype.append = function (this: d.HostElement, ...newChildren: (d.RenderNode | string)[]) {
+  HostElementPrototype.append = function (
+    this: d.HostElement,
+    ...newChildren: (d.RenderNode | string)[]
+  ) {
     newChildren.forEach((newChild: d.RenderNode | string) => {
       if (typeof newChild === 'string') {
         newChild = this.ownerDocument.createTextNode(newChild) as unknown as d.RenderNode;
@@ -210,7 +224,11 @@ export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) =
   if ((HostElementPrototype as any).__insertAdjacentHTML) return;
   const originalInsertAdjacentHtml = HostElementPrototype.insertAdjacentHTML;
 
-  HostElementPrototype.insertAdjacentHTML = function (this: d.HostElement, position: InsertPosition, text: string) {
+  HostElementPrototype.insertAdjacentHTML = function (
+    this: d.HostElement,
+    position: InsertPosition,
+    text: string,
+  ) {
     if (position !== 'afterbegin' && position !== 'beforeend') {
       return originalInsertAdjacentHtml.call(this, position, text);
     }
@@ -238,7 +256,11 @@ export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) =
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
-  HostElementPrototype.insertAdjacentText = function (this: d.HostElement, position: InsertPosition, text: string) {
+  HostElementPrototype.insertAdjacentText = function (
+    this: d.HostElement,
+    position: InsertPosition,
+    text: string,
+  ) {
     this.insertAdjacentHTML(position, text);
   };
 };
@@ -267,7 +289,9 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
     currentChild: d.RenderNode | null,
   ) {
     const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
-    const slottedNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
+    const slottedNodes = this.__childNodes
+      ? this.childNodes
+      : getSlottedChildNodes(this.childNodes);
 
     if (slotNode) {
       let found = false;
@@ -358,12 +382,16 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
   Object.defineProperty(hostElementPrototype, 'textContent', {
     get: function () {
       let text = '';
-      const childNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
+      const childNodes = this.__childNodes
+        ? this.childNodes
+        : getSlottedChildNodes(this.childNodes);
       childNodes.forEach((node: d.RenderNode) => (text += node.textContent || ''));
       return text;
     },
     set: function (value) {
-      const childNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
+      const childNodes = this.__childNodes
+        ? this.childNodes
+        : getSlottedChildNodes(this.childNodes);
       childNodes.forEach((node: d.RenderNode) => {
         if (node['s-ol']) node['s-ol'].remove();
         node.remove();
@@ -602,7 +630,10 @@ function patchHostOriginalAccessor(
  *
  * @returns the original accessor or method of the node
  */
-export function internalCall<T extends d.RenderNode, P extends keyof d.RenderNode>(node: T, method: P): T[P] {
+export function internalCall<T extends d.RenderNode, P extends keyof d.RenderNode>(
+  node: T,
+  method: P,
+): T[P] {
   if ('__' + method in node) {
     const toReturn = node[('__' + method) as keyof d.RenderNode] as T[P];
     if (typeof toReturn !== 'function') return toReturn;

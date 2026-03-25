@@ -25,14 +25,19 @@ describe('validation', () => {
     });
 
     it('should error on comma', () => {
-      expect(validateComponentTag('my-tag,your-tag')).toBe('"my-tag,your-tag" tag cannot be used for multiple tags');
-    });
-
-    it.each(['你-好', 'my-@component', '!@#$!@#4-ohno'])('should error on any invalid characters', (funkyTag) => {
-      expect(validateComponentTag(funkyTag)).toBe(
-        `"${funkyTag}" tag contains invalid characters: ${funkyTag.replace(/\w|-/g, '')}`,
+      expect(validateComponentTag('my-tag,your-tag')).toBe(
+        '"my-tag,your-tag" tag cannot be used for multiple tags',
       );
     });
+
+    it.each(['你-好', 'my-@component', '!@#$!@#4-ohno'])(
+      'should error on any invalid characters',
+      (funkyTag) => {
+        expect(validateComponentTag(funkyTag)).toBe(
+          `"${funkyTag}" tag contains invalid characters: ${funkyTag.replace(/\w|-/g, '')}`,
+        );
+      },
+    );
 
     it('should error if no dash', () => {
       expect(validateComponentTag('dashless')).toBe(

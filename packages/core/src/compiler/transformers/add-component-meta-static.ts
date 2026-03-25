@@ -19,7 +19,10 @@ export const addComponentMetaStatic = (
 ): ts.ClassDeclaration => {
   const publicCompilerMeta = getPublicCompilerMeta(cmpMeta);
 
-  const cmpMetaStaticProp = createStaticGetter('COMPILER_META', convertValueToLiteral(publicCompilerMeta));
+  const cmpMetaStaticProp = createStaticGetter(
+    'COMPILER_META',
+    convertValueToLiteral(publicCompilerMeta),
+  );
   const classMembers = [...cmpNode.members, cmpMetaStaticProp];
 
   return ts.factory.updateClassDeclaration(

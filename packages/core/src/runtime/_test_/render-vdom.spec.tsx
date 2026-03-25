@@ -1,4 +1,14 @@
-import { Component, Element, forceUpdate, getRenderingRef, h, Host, Prop, setErrorHandler, State } from '@stencil/core';
+import {
+  Component,
+  Element,
+  forceUpdate,
+  getRenderingRef,
+  h,
+  Host,
+  Prop,
+  setErrorHandler,
+  State,
+} from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 import { withSilentWarn } from '../../testing/testing-utils';
@@ -100,7 +110,7 @@ describe('render-vdom', () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         render() {
-          return <div class="hola"></div>;
+          return <div class='hola'></div>;
         }
       }
 
@@ -303,7 +313,7 @@ describe('render-vdom', () => {
       class CmpA {
         props: any;
         render() {
-          return <div {...this.props} role="dialog"></div>;
+          return <div {...this.props} role='dialog'></div>;
         }
       }
 
@@ -327,7 +337,7 @@ describe('render-vdom', () => {
         prop: any;
 
         render() {
-          return <Host role="hola" onevent="adios"></Host>;
+          return <Host role='hola' onevent='adios'></Host>;
         }
       }
 
@@ -353,7 +363,7 @@ describe('render-vdom', () => {
           return (
             <Host class={{ hola: true }}>
               <div
-                aria-hidden="true"
+                aria-hidden='true'
                 onClick={() => {
                   return;
                 }}
@@ -363,7 +373,7 @@ describe('render-vdom', () => {
                   ref={() => {
                     return;
                   }}
-                  key="adios"
+                  key='adios'
                 ></Span>
               </div>
             </Host>
@@ -566,7 +576,7 @@ describe('render-vdom', () => {
     class CmpA {
       render() {
         return (
-          <a href="#">
+          <a href='#'>
             <slot></slot>
           </a>
         );
@@ -860,14 +870,14 @@ describe('render-vdom', () => {
         render() {
           return (
             <Host>
-              <button type="button"></button>
-              <button type="submit"></button>
-              <input type="text" value="" />
-              <input type="number" />
-              <input type="password" />
-              <input type="email" />
-              <input type="date" />
-              <input list="my-list" />
+              <button type='button'></button>
+              <button type='submit'></button>
+              <input type='text' value='' />
+              <input type='number' />
+              <input type='password' />
+              <input type='email' />
+              <input type='date' />
+              <input list='my-list' />
             </Host>
           );
         }
@@ -940,12 +950,12 @@ describe('render-vdom', () => {
             <div>
               <div>
                 {this.isOpen ? (
-                  <svg viewBox="0 0 54 54">
-                    <rect transform="rotate(45 27 27)" y="22" width="54" height="10" rx="2" />
+                  <svg viewBox='0 0 54 54'>
+                    <rect transform='rotate(45 27 27)' y='22' width='54' height='10' rx='2' />
                   </svg>
                 ) : (
-                  <svg viewBox="0 0 54 54">
-                    <rect y="0" width="54" height="10" rx="2" />
+                  <svg viewBox='0 0 54 54'>
+                    <rect y='0' width='54' height='10' rx='2' />
                   </svg>
                 )}
               </div>
@@ -978,20 +988,20 @@ describe('render-vdom', () => {
       class CmpA {
         render() {
           return (
-            <svg class="is-svg">
-              <foreignObject class="is-svg">
-                <div class="is-html">hello</div>
-                <svg class="is-svg">
-                  <feGaussianBlur class="is-svg"></feGaussianBlur>
-                  <foreignObject class="is-svg">
-                    <foreignObject class="is-html"></foreignObject>
-                    <div class="is-html">Still outside svg</div>
+            <svg class='is-svg'>
+              <foreignObject class='is-svg'>
+                <div class='is-html'>hello</div>
+                <svg class='is-svg'>
+                  <feGaussianBlur class='is-svg'></feGaussianBlur>
+                  <foreignObject class='is-svg'>
+                    <foreignObject class='is-html'></foreignObject>
+                    <div class='is-html'>Still outside svg</div>
                   </foreignObject>
                 </svg>
-                <feGaussianBlur class="is-html">bye</feGaussianBlur>
+                <feGaussianBlur class='is-html'>bye</feGaussianBlur>
               </foreignObject>
-              <text class="is-svg">Hello</text>
-              <text class="is-svg">Bye</text>
+              <text class='is-svg'>Hello</text>
+              <text class='is-svg'>Bye</text>
             </svg>
           );
         }
@@ -1173,7 +1183,7 @@ describe('render-vdom', () => {
 
         renderA() {
           return (
-            <div class="a" ref={(el) => (this.divRef = el)}>
+            <div class='a' ref={(el) => (this.divRef = el)}>
               A
             </div>
           );
@@ -1217,7 +1227,7 @@ describe('render-vdom', () => {
 
         renderA() {
           return (
-            <div key="a" class="a" ref={(el) => (this.divRef = el)}>
+            <div key='a' class='a' ref={(el) => (this.divRef = el)}>
               A
             </div>
           );
@@ -1271,7 +1281,7 @@ describe('render-vdom', () => {
 
         renderInner() {
           return (
-            <div class="inner" ref={this.captureDiv}>
+            <div class='inner' ref={this.captureDiv}>
               hello
             </div>
           );
@@ -1302,7 +1312,9 @@ describe('render-vdom', () => {
       expect(rootInstance.divRef).not.toBeNull();
       const initialCallCount = rootInstance.refCallHistory.length;
       expect(initialCallCount).toBeGreaterThan(0);
-      expect(rootInstance.refCallHistory[initialCallCount - 1]).toEqual(root.querySelector('.inner'));
+      expect(rootInstance.refCallHistory[initialCallCount - 1]).toEqual(
+        root.querySelector('.inner'),
+      );
 
       root.wrap = true;
       await waitForChanges();

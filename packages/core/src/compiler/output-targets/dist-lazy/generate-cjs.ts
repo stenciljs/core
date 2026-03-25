@@ -67,7 +67,9 @@ const generateShortcuts = (
         const entryPointPath = join(o.cjsDir, indexFilename);
         const relativePath = relativeImport(o.cjsIndexFile, entryPointPath);
         const shortcutContent = `module.exports = require('${relativePath}');\n`;
-        await compilerCtx.fs.writeFile(o.cjsIndexFile, shortcutContent, { outputTargetType: o.type });
+        await compilerCtx.fs.writeFile(o.cjsIndexFile, shortcutContent, {
+          outputTargetType: o.type,
+        });
       }
     }),
   );

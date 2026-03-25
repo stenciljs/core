@@ -340,7 +340,10 @@ describe('add-static-style', () => {
     it('should create binary expression for multiple external styles', () => {
       const style: d.StyleCompiler = {
         modeName: 'md',
-        externalStyles: [{ absolutePath: '/path/to/style1.css' }, { absolutePath: '/path/to/style2.css' }],
+        externalStyles: [
+          { absolutePath: '/path/to/style1.css' },
+          { absolutePath: '/path/to/style2.css' },
+        ],
       } as d.StyleCompiler;
 
       const result = createStyleIdentifier(mockComponent, style);
@@ -413,7 +416,9 @@ describe('add-static-style', () => {
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentIosStyle0() + (MyComponentIosStyle1() + MyComponentIosStyle2())');
+      expect(output).toBe(
+        'MyComponentIosStyle0() + (MyComponentIosStyle1() + MyComponentIosStyle2())',
+      );
     });
   });
 

@@ -36,7 +36,9 @@ describe('automatic key insertion', () => {
   });
 
   it('should add a key to nested JSX', async () => {
-    vi.spyOn(keyInsertionUtils, 'deriveJSXKey').mockReturnValueOnce('key1').mockReturnValueOnce('key2');
+    vi.spyOn(keyInsertionUtils, 'deriveJSXKey')
+      .mockReturnValueOnce('key1')
+      .mockReturnValueOnce('key2');
     const t = transpile(`
     @Component({tag: 'cmp-a'})
       export class CmpA {
@@ -128,7 +130,9 @@ describe('automatic key insertion', () => {
   });
 
   it('should add unique keys to multiple JSX elements', async () => {
-    vi.spyOn(keyInsertionUtils, 'deriveJSXKey').mockReturnValueOnce('first-key').mockReturnValueOnce('second-key');
+    vi.spyOn(keyInsertionUtils, 'deriveJSXKey')
+      .mockReturnValueOnce('first-key')
+      .mockReturnValueOnce('second-key');
     const t = transpile(`
      @Component({tag: 'cmp-a'})
       export class CmpA {
@@ -264,8 +268,7 @@ describe('automatic key insertion', () => {
   });
 
   it('should add a key to a conditionally-rendered static element', async () => {
-    vi
-      .spyOn(keyInsertionUtils, 'deriveJSXKey')
+    vi.spyOn(keyInsertionUtils, 'deriveJSXKey')
       .mockReturnValueOnce('my-best-key')
       .mockReturnValueOnce('my-worst-key');
     const t = transpile(`
@@ -297,8 +300,7 @@ describe('automatic key insertion', () => {
   });
 
   it('should not add a key to an IIFE in JSX', async () => {
-    vi
-      .spyOn(keyInsertionUtils, 'deriveJSXKey')
+    vi.spyOn(keyInsertionUtils, 'deriveJSXKey')
       .mockReturnValueOnce('my-best-key')
       .mockReturnValueOnce('my-worst-key');
     const t = transpile(`
@@ -330,8 +332,7 @@ describe('automatic key insertion', () => {
   });
 
   it('should not add a key within function arguments in JSX', async () => {
-    vi
-      .spyOn(keyInsertionUtils, 'deriveJSXKey')
+    vi.spyOn(keyInsertionUtils, 'deriveJSXKey')
       .mockReturnValueOnce('my-best-key')
       .mockReturnValueOnce('my-worst-key');
     const t = transpile(`

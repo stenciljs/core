@@ -36,7 +36,11 @@ export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMe
 
 export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
   // Set the app start mark on first component (for consistent profiling with lazy build)
-  if (BUILD.profile && performance.mark && performance.getEntriesByName('st:app:start', 'mark').length === 0) {
+  if (
+    BUILD.profile &&
+    performance.mark &&
+    performance.getEntriesByName('st:app:start', 'mark').length === 0
+  ) {
     performance.mark('st:app:start');
   }
 
@@ -64,7 +68,10 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
     }
 
-    if (!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) && cmpMeta.$flags$ & CMP_FLAGS.hasSlot) {
+    if (
+      !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+      cmpMeta.$flags$ & CMP_FLAGS.hasSlot
+    ) {
       if (BUILD.experimentalSlotFixes) {
         patchPseudoShadowDom(Cstr.prototype);
       } else {

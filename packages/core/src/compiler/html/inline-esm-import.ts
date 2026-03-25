@@ -36,7 +36,9 @@ export const optimizeEsmImport = async (
 
   const script = Array.from(doc.querySelectorAll('script')).find(
     (s) =>
-      s.getAttribute('type') === 'module' && !s.hasAttribute('crossorigin') && s.getAttribute('src') === expectedSrc,
+      s.getAttribute('type') === 'module' &&
+      !s.hasAttribute('crossorigin') &&
+      s.getAttribute('src') === expectedSrc,
   );
 
   if (!script) {
@@ -116,7 +118,10 @@ export const updateImportPaths = (code: string, newDir: string) => {
  * @returns an updated path or `null`
  */
 const updateImportPathDir = (orgImportPath: string, newDir: string): string | null => {
-  if (orgImportPath.startsWith('./') && (orgImportPath.endsWith('.js') || orgImportPath.endsWith('.mjs'))) {
+  if (
+    orgImportPath.startsWith('./') &&
+    (orgImportPath.endsWith('.js') || orgImportPath.endsWith('.mjs'))
+  ) {
     return newDir + orgImportPath.substring(2);
   }
   return null;
@@ -153,7 +158,9 @@ function readModulePaths(code: string): string[] {
  * @param stmt the statement of interest
  * @returns whether this is an import or export declaration or neither
  */
-function isImportOrExportDecl(stmt: ts.Statement): stmt is ts.ImportDeclaration | ts.ExportDeclaration {
+function isImportOrExportDecl(
+  stmt: ts.Statement,
+): stmt is ts.ImportDeclaration | ts.ExportDeclaration {
   return ts.isExportDeclaration(stmt) || ts.isImportDeclaration(stmt);
 }
 

@@ -10,7 +10,9 @@ import type * as d from '@stencil/core';
 export function rollupToStencilSourceMap(rollupSourceMap: null): null;
 export function rollupToStencilSourceMap(rollupSourceMap: undefined): null;
 export function rollupToStencilSourceMap(rollupSourceMap: RollupSourceMap): d.SourceMap;
-export function rollupToStencilSourceMap(rollupSourceMap: RollupSourceMap | undefined | null): d.SourceMap | null {
+export function rollupToStencilSourceMap(
+  rollupSourceMap: RollupSourceMap | undefined | null,
+): d.SourceMap | null {
   if (!rollupSourceMap || !rollupSourceMap.file) {
     return null;
   }

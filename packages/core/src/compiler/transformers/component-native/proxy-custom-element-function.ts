@@ -42,7 +42,10 @@ export const proxyCustomElement = (
 
       for (const [stmtIndex, stmt] of tsSourceFile.statements.entries()) {
         if (ts.isVariableStatement(stmt)) {
-          for (const [declarationIndex, declaration] of stmt.declarationList.declarations.entries()) {
+          for (const [
+            declarationIndex,
+            declaration,
+          ] of stmt.declarationList.declarations.entries()) {
             if (declaration.name.getText() !== principalComponent.componentClassName) {
               continue;
             }
@@ -62,8 +65,16 @@ export const proxyCustomElement = (
             );
 
             // wrap the Stencil component's class declaration in a component proxy
-            const proxyCreationCall = createClassMetadataProxy(principalComponent, renamedClassExpression);
-            ts.addSyntheticLeadingComment(proxyCreationCall, ts.SyntaxKind.MultiLineCommentTrivia, '@__PURE__', false);
+            const proxyCreationCall = createClassMetadataProxy(
+              principalComponent,
+              renamedClassExpression,
+            );
+            ts.addSyntheticLeadingComment(
+              proxyCreationCall,
+              ts.SyntaxKind.MultiLineCommentTrivia,
+              '@__PURE__',
+              false,
+            );
 
             // update the component's variable declaration to use the new initializer
             const proxiedComponentDeclaration = ts.factory.updateVariableDeclaration(
@@ -75,11 +86,14 @@ export const proxyCustomElement = (
             );
 
             // update the declaration list that contains the updated variable declaration
-            const updatedDeclarationList = ts.factory.updateVariableDeclarationList(stmt.declarationList, [
-              ...stmt.declarationList.declarations.slice(0, declarationIndex),
-              proxiedComponentDeclaration,
-              ...stmt.declarationList.declarations.slice(declarationIndex + 1),
-            ]);
+            const updatedDeclarationList = ts.factory.updateVariableDeclarationList(
+              stmt.declarationList,
+              [
+                ...stmt.declarationList.declarations.slice(0, declarationIndex),
+                proxiedComponentDeclaration,
+                ...stmt.declarationList.declarations.slice(declarationIndex + 1),
+              ],
+            );
 
             // update the variable statement containing the updated declaration list
             const updatedVariableStatement = ts.factory.updateVariableStatement(

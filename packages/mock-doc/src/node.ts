@@ -1,7 +1,12 @@
 import { createAttributeProxy, MockAttr, MockAttributeMap } from './attribute';
 import { getPrefixForNamespace, NODE_NAMES, NODE_TYPES } from './constants';
 import { createCSSStyleDeclaration, MockCSSStyleDeclaration } from './css-style-declaration';
-import { attributeChanged, checkAttributeChanged, connectNode, disconnectNode } from './custom-element-registry';
+import {
+  attributeChanged,
+  checkAttributeChanged,
+  connectNode,
+  disconnectNode,
+} from './custom-element-registry';
 import { dataset } from './dataset';
 import {
   addEventListener,
@@ -13,7 +18,11 @@ import {
 } from './event';
 import { parseFragmentUtil } from './parse-util';
 import { matches, selectAll, selectOne } from './selector';
-import { NON_ESCAPABLE_CONTENT, serializeNodeToHtml, SerializeNodeToHtmlOptions } from './serialize-node';
+import {
+  NON_ESCAPABLE_CONTENT,
+  serializeNodeToHtml,
+  SerializeNodeToHtmlOptions,
+} from './serialize-node';
 import { MockTokenList } from './token-list';
 
 export class MockNode {
@@ -24,7 +33,12 @@ export class MockNode {
   parentNode: MockNode | null;
   private _childNodes: MockNode[] = [];
 
-  constructor(ownerDocument: any, nodeType: number, nodeName: string | null, nodeValue: string | null) {
+  constructor(
+    ownerDocument: any,
+    nodeType: number,
+    nodeName: string | null,
+    nodeValue: string | null,
+  ) {
     this.ownerDocument = ownerDocument;
     this.nodeType = nodeType;
     this.nodeName = nodeName;
@@ -65,7 +79,10 @@ export class MockNode {
     const firstChild = this.firstChild;
     items.forEach((item) => {
       const isNode = typeof item === 'object' && item !== null && 'nodeType' in item;
-      this.insertBefore(isNode ? item : this.ownerDocument.createTextNode(String(item)), firstChild);
+      this.insertBefore(
+        isNode ? item : this.ownerDocument.createTextNode(String(item)),
+        firstChild,
+      );
     });
   }
 
@@ -186,7 +203,9 @@ export class MockNode {
 
   remove() {
     if (this.parentNode != null) {
-      (this as any).__parentNode ? (this as any).__parentNode.removeChild(this) : this.parentNode.removeChild(this);
+      (this as any).__parentNode
+        ? (this as any).__parentNode.removeChild(this)
+        : this.parentNode.removeChild(this);
     }
   }
 
@@ -265,7 +284,12 @@ export class MockElement extends MockNode {
   }
 
   constructor(ownerDocument: any, nodeName: string | null, namespaceURI: string | null = null) {
-    super(ownerDocument, NODE_TYPES.ELEMENT_NODE, typeof nodeName === 'string' ? nodeName : null, null);
+    super(
+      ownerDocument,
+      NODE_TYPES.ELEMENT_NODE,
+      typeof nodeName === 'string' ? nodeName : null,
+      null,
+    );
     this.__namespaceURI = namespaceURI;
     // Store original case-sensitive local name (important for SVG elements like foreignObject)
     this.__localName = typeof nodeName === 'string' ? nodeName : null;
@@ -295,7 +319,12 @@ export class MockElement extends MockNode {
     try {
       dispatchEvent(
         this,
-        new MockFocusEvent('blur', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
+        new MockFocusEvent('blur', {
+          relatedTarget: null,
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        }),
       );
     } finally {
       unmarkAsDispatching(this, 'blur');
@@ -387,7 +416,10 @@ export class MockElement extends MockNode {
   }
 
   click() {
-    dispatchEvent(this, new MockEvent('click', { bubbles: true, cancelable: true, composed: true }));
+    dispatchEvent(
+      this,
+      new MockEvent('click', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   override cloneNode(_deep?: boolean): MockElement {
@@ -429,7 +461,12 @@ export class MockElement extends MockNode {
   focus(_options?: { preventScroll?: boolean }) {
     dispatchEvent(
       this,
-      new MockFocusEvent('focus', { relatedTarget: null, bubbles: true, cancelable: true, composed: true }),
+      new MockFocusEvent('focus', {
+        relatedTarget: null,
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      }),
     );
   }
 
@@ -549,7 +586,10 @@ export class MockElement extends MockNode {
     setTextContent(this, value);
   }
 
-  insertAdjacentElement(position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend', elm: MockHTMLElement) {
+  insertAdjacentElement(
+    position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend',
+    elm: MockHTMLElement,
+  ) {
     if (position === 'beforebegin' && this.parentNode) {
       insertBefore(this.parentNode, elm, this);
     } else if (position === 'afterbegin') {
@@ -562,7 +602,10 @@ export class MockElement extends MockNode {
     return elm;
   }
 
-  insertAdjacentHTML(position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend', html: string) {
+  insertAdjacentHTML(
+    position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend',
+    html: string,
+  ) {
     const frag = parseFragmentUtil(this.ownerDocument, html);
     if (position === 'beforebegin') {
       while (frag.childNodes.length > 0) {
@@ -581,13 +624,20 @@ export class MockElement extends MockNode {
     } else if (position === 'afterend') {
       while (frag.childNodes.length > 0) {
         if (this.parentNode) {
-          insertBefore(this.parentNode, frag.childNodes[frag.childNodes.length - 1], this.nextSibling);
+          insertBefore(
+            this.parentNode,
+            frag.childNodes[frag.childNodes.length - 1],
+            this.nextSibling,
+          );
         }
       }
     }
   }
 
-  insertAdjacentText(position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend', text: string) {
+  insertAdjacentText(
+    position: 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend',
+    text: string,
+  ) {
     const elm = this.ownerDocument.createTextNode(text);
     if (position === 'beforebegin' && this.parentNode) {
       insertBefore(this.parentNode, elm, this);

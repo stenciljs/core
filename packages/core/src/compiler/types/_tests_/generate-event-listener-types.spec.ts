@@ -35,7 +35,9 @@ describe('generate-event-listener-types', () => {
         htmlElementEventListenerProperties: [],
       };
 
-      expect(generateEventListenerTypes(componentMeta, stubImportTypes)).toEqual(expectedEventListenerTypes);
+      expect(generateEventListenerTypes(componentMeta, stubImportTypes)).toEqual(
+        expectedEventListenerTypes,
+      );
     });
 
     it('returns the correct event map type that contains each user implemented event type', () => {
@@ -100,9 +102,14 @@ describe('generate-event-listener-types', () => {
         '        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;',
       ];
 
-      const { htmlElementEventListenerProperties } = generateEventListenerTypes(componentMeta, stubImportTypes);
+      const { htmlElementEventListenerProperties } = generateEventListenerTypes(
+        componentMeta,
+        stubImportTypes,
+      );
 
-      expect(htmlElementEventListenerProperties).toEqual(expectedHtmlElementEventListenerProperties);
+      expect(htmlElementEventListenerProperties).toEqual(
+        expectedHtmlElementEventListenerProperties,
+      );
     });
 
     it('uses an updated type name to avoid naming collisions', () => {
@@ -257,7 +264,9 @@ describe('generate-event-listener-types', () => {
         htmlElementEventListenerProperties: [],
       };
 
-      expect(generateEventListenerTypes(componentMeta, stubImportTypes)).toEqual(expectedEventListenerTypes);
+      expect(generateEventListenerTypes(componentMeta, stubImportTypes)).toEqual(
+        expectedEventListenerTypes,
+      );
     });
   });
 });

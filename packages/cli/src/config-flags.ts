@@ -334,7 +334,8 @@ type LogLevelFlags = ObjectFromKeys<typeof LOG_LEVEL_CLI_FLAGS, LogLevel>;
  * on actual flags passed by the user.
  */
 export interface ConfigFlags
-  extends BooleanConfigFlags,
+  extends
+    BooleanConfigFlags,
     StringConfigFlags,
     StringArrayConfigFlags,
     NumberConfigFlags,

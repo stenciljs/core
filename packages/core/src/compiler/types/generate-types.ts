@@ -49,7 +49,11 @@ const generateTypesOutput = async (
       const distPath = join(outputTarget.typesDir, relPath);
 
       const originalDtsContent = await compilerCtx.fs.readFile(srcDtsFile.absPath);
-      const distDtsContent = updateStencilTypesImports(outputTarget.typesDir, distPath, originalDtsContent);
+      const distDtsContent = updateStencilTypesImports(
+        outputTarget.typesDir,
+        distPath,
+        originalDtsContent,
+      );
 
       await compilerCtx.fs.writeFile(distPath, distDtsContent);
       return distPath;

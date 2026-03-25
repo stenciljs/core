@@ -18,7 +18,11 @@ import { initializeComponent } from './initialize-component';
  * @param cmpMeta runtime metadata for the component
  * @param hmrVersionId the current HMR version ID
  */
-export const hmrStart = (hostElement: d.HostElement, cmpMeta: d.ComponentRuntimeMeta, hmrVersionId: string) => {
+export const hmrStart = (
+  hostElement: d.HostElement,
+  cmpMeta: d.ComponentRuntimeMeta,
+  hmrVersionId: string,
+) => {
   // ¯\_(ツ)_/¯
   const hostRef = getHostRef(hostElement);
   if (!hostRef) {

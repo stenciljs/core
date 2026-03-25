@@ -1,4 +1,4 @@
-import { expect, describe, it } from '@stencil/vitest'
+import { expect, describe, it } from '@stencil/vitest';
 import { h, newVNode } from '../h';
 import { isSameVnode, patch } from '../vdom-render';
 
@@ -9,7 +9,11 @@ describe('template elements', () => {
     vnode0.$elm$ = hostElm;
 
     // Create a template with children
-    const vnode1 = h('div', null, h('template', null, h('span', null, 'Hello'), h('p', null, 'World')));
+    const vnode1 = h(
+      'div',
+      null,
+      h('template', null, h('span', null, 'Hello'), h('p', null, 'World')),
+    );
 
     patch(vnode0, vnode1);
 
@@ -32,7 +36,11 @@ describe('template elements', () => {
     const vnode0 = newVNode(null, null);
     vnode0.$elm$ = hostElm;
 
-    const vnode1 = h('div', null, h('template', null, h('div', { class: 'test' }, 'Content to clone')));
+    const vnode1 = h(
+      'div',
+      null,
+      h('template', null, h('div', { class: 'test' }, 'Content to clone')),
+    );
 
     patch(vnode0, vnode1);
 

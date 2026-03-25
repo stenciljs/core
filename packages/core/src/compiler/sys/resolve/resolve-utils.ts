@@ -2,15 +2,34 @@ import { normalizePath } from '../../../utils';
 
 import type * as d from '@stencil/core';
 
-const COMMON_DIR_MODULE_EXTS = ['.tsx', '.ts', '.mts', '.cts', '.mjs', '.js', '.cjs', '.jsx', '.json', '.md'];
+const COMMON_DIR_MODULE_EXTS = [
+  '.tsx',
+  '.ts',
+  '.mts',
+  '.cts',
+  '.mjs',
+  '.js',
+  '.cjs',
+  '.jsx',
+  '.json',
+  '.md',
+];
 
-export const isCommonDirModuleFile = (p: string) => COMMON_DIR_MODULE_EXTS.some((ext) => p.endsWith(ext));
+export const isCommonDirModuleFile = (p: string) =>
+  COMMON_DIR_MODULE_EXTS.some((ext) => p.endsWith(ext));
 
-export const setPackageVersion = (pkgVersions: Map<string, string>, pkgName: string, pkgVersion: string) => {
+export const setPackageVersion = (
+  pkgVersions: Map<string, string>,
+  pkgName: string,
+  pkgVersion: string,
+) => {
   pkgVersions.set(pkgName, pkgVersion);
 };
 
-export const setPackageVersionByContent = (pkgVersions: Map<string, string>, pkgContent: string) => {
+export const setPackageVersionByContent = (
+  pkgVersions: Map<string, string>,
+  pkgContent: string,
+) => {
   try {
     const pkg = JSON.parse(pkgContent) as d.PackageJsonData;
     if (pkg.name && pkg.version) {

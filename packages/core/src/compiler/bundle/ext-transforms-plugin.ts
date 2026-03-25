@@ -1,4 +1,11 @@
-import { hasError, isOutputTargetDistCollection, join, mergeIntoWith, normalizeFsPath, relative } from '../../utils';
+import {
+  hasError,
+  isOutputTargetDistCollection,
+  join,
+  mergeIntoWith,
+  normalizeFsPath,
+  relative,
+} from '../../utils';
 import type { Plugin } from 'rollup';
 
 import type * as d from '@stencil/core';
@@ -85,15 +92,26 @@ export const extTransformsPlugin = (
         /**
          * add file to watch list if it is outside of the `srcDir` config path
          */
-        if (config.watch && (id.startsWith('/') || id.startsWith('.')) && !id.startsWith(config.srcDir)) {
+        if (
+          config.watch &&
+          (id.startsWith('/') || id.startsWith('.')) &&
+          !id.startsWith(config.srcDir)
+        ) {
           compilerCtx.addWatchFile(id.split('?')[0]);
         }
 
-        const pluginTransforms = await runPluginTransformsEsmImports(config, compilerCtx, buildCtx, code, filePath);
+        const pluginTransforms = await runPluginTransformsEsmImports(
+          config,
+          compilerCtx,
+          buildCtx,
+          code,
+          filePath,
+        );
 
         if (data.tag) {
           cmp = buildCtx.components.find((c) => c.tagName === data.tag);
-          const moduleFile = cmp && !cmp.isCollectionDependency && compilerCtx.moduleMap.get(cmp.sourceFilePath);
+          const moduleFile =
+            cmp && !cmp.isCollectionDependency && compilerCtx.moduleMap.get(cmp.sourceFilePath);
 
           if (moduleFile) {
             const collectionDirs = config.outputTargets.filter(isOutputTargetDistCollection);
@@ -144,7 +162,11 @@ export const extTransformsPlugin = (
         // Set style docs
         if (cmp) {
           cmp.styleDocs ||= [];
-          mergeIntoWith(cmp.styleDocs, cssTransformResults.styleDocs, (docs) => `${docs.name},${docs.mode}`);
+          mergeIntoWith(
+            cmp.styleDocs,
+            cssTransformResults.styleDocs,
+            (docs) => `${docs.name},${docs.mode}`,
+          );
         }
 
         // Track dependencies
@@ -155,13 +177,18 @@ export const extTransformsPlugin = (
 
         buildCtx.diagnostics.push(...pluginTransforms.diagnostics);
         buildCtx.diagnostics.push(...cssTransformResults.diagnostics);
-        const didError = hasError(cssTransformResults.diagnostics) || hasError(pluginTransforms.diagnostics);
+        const didError =
+          hasError(cssTransformResults.diagnostics) || hasError(pluginTransforms.diagnostics);
         if (didError) {
           this.error('Plugin CSS transform error');
         }
 
         const hasUpdatedStyle = buildCtx.stylesUpdated.some((s) => {
-          return s.styleTag === data.tag && s.styleMode === data.mode && s.styleText === cssTransformResults.styleText;
+          return (
+            s.styleTag === data.tag &&
+            s.styleMode === data.mode &&
+            s.styleText === cssTransformResults.styleText
+          );
         });
 
         /**
@@ -182,7 +209,10 @@ export const extTransformsPlugin = (
                  * e.g. through `npm link` or `npm install`
                  */
                 externalStyles
-                  .map((es) => cmpStyles.get(es.originalComponentPath) || cmpStyles.get(es.absolutePath))
+                  .map(
+                    (es) =>
+                      cmpStyles.get(es.originalComponentPath) || cmpStyles.get(es.absolutePath),
+                  )
                   .join('\n')
               : /**
                  * if `externalStyles` is not defined, then created the style text in the

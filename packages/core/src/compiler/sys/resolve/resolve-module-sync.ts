@@ -27,7 +27,11 @@ export const resolveRemoteModuleIdSync = (
   return null;
 };
 
-const resolveRemotePackageJsonSync = (config: d.Config, inMemoryFs: InMemoryFileSystem, moduleId: string) => {
+const resolveRemotePackageJsonSync = (
+  config: d.Config,
+  inMemoryFs: InMemoryFileSystem,
+  moduleId: string,
+) => {
   if (inMemoryFs) {
     const filePath = normalizePath(
       config.sys.getLocalModulePath({ rootDir: config.rootDir, moduleId, path: 'package.json' }),

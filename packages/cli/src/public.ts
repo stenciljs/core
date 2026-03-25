@@ -17,7 +17,11 @@ export declare function run(init: CliInitOptions): Promise<void>;
  * @param task The task command to run, such as `build`.
  * @returns an empty promise
  */
-export declare function runTask(coreCompiler: any, config: Config, task: TaskCommand): Promise<void>;
+export declare function runTask(
+  coreCompiler: any,
+  config: Config,
+  task: TaskCommand,
+): Promise<void>;
 
 export declare function parseFlags(args: string[]): ConfigFlags;
 

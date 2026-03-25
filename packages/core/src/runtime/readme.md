@@ -5,6 +5,7 @@ Platform-agnostic core runtime for Stencil components.
 ## Overview
 
 This directory contains the core logic that powers Stencil components at runtime:
+
 - **Reactivity** - `@Prop` and `@State` change detection
 - **Virtual DOM** - Diffing and patching (`vdom/`)
 - **Lifecycle** - Component initialization, updates, and teardown
@@ -12,7 +13,8 @@ This directory contains the core logic that powers Stencil components at runtime
 
 ## Architecture
 
-The runtime is platform-agnostic - it defines *what* needs to happen but not *how*. Platform-specific behavior is provided by:
+The runtime is platform-agnostic - it defines _what_ needs to happen but not _how_. Platform-specific behavior is provided by:
+
 - `client/` - Browser implementation (uses real DOM, `requestAnimationFrame`, etc.)
 - `server/` - SSR implementation (uses mock-doc, synchronous rendering)
 
@@ -20,14 +22,14 @@ Both platforms implement the `@platform` interface, allowing the same runtime co
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `connected-callback.ts` | Component connection and ancestor detection |
-| `initialize-component.ts` | First-time component setup |
-| `update-component.ts` | Re-rendering and lifecycle dispatch |
-| `set-value.ts` | Reactive property updates |
-| `proxy-component.ts` | Property/attribute reflection |
-| `vdom/` | Virtual DOM implementation |
+| File                      | Purpose                                     |
+| ------------------------- | ------------------------------------------- |
+| `connected-callback.ts`   | Component connection and ancestor detection |
+| `initialize-component.ts` | First-time component setup                  |
+| `update-component.ts`     | Re-rendering and lifecycle dispatch         |
+| `set-value.ts`            | Reactive property updates                   |
+| `proxy-component.ts`      | Property/attribute reflection               |
+| `vdom/`                   | Virtual DOM implementation                  |
 
 ---
 
@@ -50,19 +52,15 @@ cmp-b - componentDidLoad
 cmp-a - componentDidLoad
 ```
 
-
 ## Hydrated CSS Visibility
 
 By default, components are assigned `visibility: hidden` using their tag name as the css selector. Therefore, before the components and their descendants have finished hydrating, each component is hidden by default. This is done to prevent janky flickering as components hydrate asynchronously. As each component fully loads the `hydrated` css class is then added.
 
 The `hydrated` css class that's added to the component assigns `visibility: inherit` style to the element. If any parent component is still hydrating then this component will not show until the top most component has added the `hydrated` css class.
 
-
-
 ## Lifecycle Process
 
 - **Connect**: Synchronously within `connectedCallback`, each component looks for an ancestor component and adds itself as a child component if an ancestor is found.
-
   - Climb up the parent elements with a while loop.
 
   - Stop at the first element that has an `s-init` function.
@@ -71,9 +69,7 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
 
   - If no ancestor component is found then continue without the component setting an ancestor component.
 
-
 - **Initialize Component**: Initialize the component for the first time within `initializeComponent`.
-
   - If the component has already initialized loading then do nothing. Data to know if the component has started to initialize is in the host ref data, which ensures it doesn't try to initialize more than once.
 
   - Async request the lazy-loaded component constructor and await the response.
@@ -88,9 +84,7 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
 
   - When ready, `updateComponent` will be added as an async write task and ran asynchronously.
 
-
 - **First Update**: The first component update and render from within `updateComponent`.
-
   - Set the lifecycle ready value `s-lr` to `false` signifying that the lifecycle update is not ready for this component.
 
   - Fire off `componentWillLoad` lifecycle.
@@ -127,9 +121,7 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
 
   - Fire all `componentOnReady` resolves.
 
-
 - **Subsequent Updates**: All subsequent component updates and re-renders from within `updateComponent`.
-
   - Somehow `setValue` is triggered, either through a `Prop` or `State` update, or calling `forceUpdate()` on a component. If there is a change or a forced update, then `setValue` will add `updateComponent` to an async write task.
 
   - Fire `updateComponent` from async task queue.
@@ -145,8 +137,6 @@ The `hydrated` css class that's added to the component assigns `visibility: inhe
   - Fire off `componentDidUpdate` lifecycle.
 
   - Fire off `componentDidRender` lifecycle.
-
-
 
 ## Property Descriptions
 

@@ -17,10 +17,11 @@ describe('decorator utils', () => {
 
     it('should return correct parameters for decorator with multiple string arguments', () => {
       const decorator: ts.Decorator = {
-        expression: ts.factory.createCallExpression(ts.factory.createIdentifier('DecoratorName'), undefined, [
-          ts.factory.createStringLiteral('arg1'),
-          ts.factory.createStringLiteral('arg2'),
-        ]),
+        expression: ts.factory.createCallExpression(
+          ts.factory.createIdentifier('DecoratorName'),
+          undefined,
+          [ts.factory.createStringLiteral('arg1'), ts.factory.createStringLiteral('arg2')],
+        ),
       } as unknown as ts.Decorator;
 
       const typeCheckerMock = {} as ts.TypeChecker;
@@ -38,12 +39,16 @@ describe('decorator utils', () => {
       } as unknown as ts.TypeChecker;
 
       const decorator: ts.Decorator = {
-        expression: ts.factory.createCallExpression(ts.factory.createIdentifier('DecoratorName'), undefined, [
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier('EnumName'),
-            ts.factory.createIdentifier('EnumMemberName'),
-          ),
-        ]),
+        expression: ts.factory.createCallExpression(
+          ts.factory.createIdentifier('DecoratorName'),
+          undefined,
+          [
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createIdentifier('EnumName'),
+              ts.factory.createIdentifier('EnumMemberName'),
+            ),
+          ],
+        ),
       } as unknown as ts.Decorator;
 
       const result = getDecoratorParameters(decorator, typeCheckerMock);
@@ -74,9 +79,17 @@ describe('decorator utils', () => {
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventIdentifier]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventIdentifier],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const result = getDecoratorParameters(decorator, typeCheckerMock);
@@ -106,9 +119,17 @@ describe('decorator utils', () => {
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventIdentifier]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventIdentifier],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const result = getDecoratorParameters(decorator, typeCheckerMock);
@@ -118,7 +139,10 @@ describe('decorator utils', () => {
 
       it('should resolve object property', () => {
         const eventsIdentifier = ts.factory.createIdentifier('EVENTS');
-        const myEventProperty = ts.factory.createPropertyAccessExpression(eventsIdentifier, 'MY_EVENT');
+        const myEventProperty = ts.factory.createPropertyAccessExpression(
+          eventsIdentifier,
+          'MY_EVENT',
+        );
 
         const propertySymbolMock = {
           valueDeclaration: ts.factory.createPropertyDeclaration(
@@ -151,9 +175,17 @@ describe('decorator utils', () => {
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventProperty]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventProperty],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const result = getDecoratorParameters(decorator, typeCheckerMock);
@@ -169,9 +201,17 @@ describe('decorator utils', () => {
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventIdentifier]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventIdentifier],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const diagnostics: any[] = [];
@@ -186,7 +226,10 @@ describe('decorator utils', () => {
 
       it('should throw error for non-existent object property', () => {
         const eventsIdentifier = ts.factory.createIdentifier('EVENTS');
-        const myEventProperty = ts.factory.createPropertyAccessExpression(eventsIdentifier, 'MY_EVENT');
+        const myEventProperty = ts.factory.createPropertyAccessExpression(
+          eventsIdentifier,
+          'MY_EVENT',
+        );
 
         const objectTypeMock = {};
 
@@ -196,9 +239,17 @@ describe('decorator utils', () => {
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventProperty]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventProperty],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const diagnostics: any[] = [];

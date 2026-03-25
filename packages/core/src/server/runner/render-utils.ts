@@ -31,13 +31,17 @@ export function normalizeHydrateOptions(inputOpts?: d.HydrateDocumentOptions) {
   }
 
   if (Array.isArray(outputOpts.excludeComponents)) {
-    outputOpts.excludeComponents = outputOpts.excludeComponents.filter(filterValidTags).map(mapValidTags);
+    outputOpts.excludeComponents = outputOpts.excludeComponents
+      .filter(filterValidTags)
+      .map(mapValidTags);
   } else {
     outputOpts.excludeComponents = [];
   }
 
   if (Array.isArray(outputOpts.staticComponents)) {
-    outputOpts.staticComponents = outputOpts.staticComponents.filter(filterValidTags).map(mapValidTags);
+    outputOpts.staticComponents = outputOpts.staticComponents
+      .filter(filterValidTags)
+      .map(mapValidTags);
   } else {
     outputOpts.staticComponents = [];
   }

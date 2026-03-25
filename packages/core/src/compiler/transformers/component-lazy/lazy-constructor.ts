@@ -23,7 +23,11 @@ export const updateLazyComponentConstructor = (
   cmp: d.ComponentCompilerMeta,
 ) => {
   const cstrMethodArgs = [
-    ts.factory.createParameterDeclaration(undefined, undefined, ts.factory.createIdentifier(HOST_REF_ARG)),
+    ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      ts.factory.createIdentifier(HOST_REF_ARG),
+    ),
   ];
 
   const cstrStatements = [

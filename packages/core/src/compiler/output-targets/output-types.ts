@@ -21,7 +21,11 @@ export const outputTypes = async (
 
   const timespan = buildCtx.createTimeSpan(`generate types started`, true);
 
-  await Promise.all(outputTargets.map((outputsTarget) => generateTypes(config, compilerCtx, buildCtx, outputsTarget)));
+  await Promise.all(
+    outputTargets.map((outputsTarget) =>
+      generateTypes(config, compilerCtx, buildCtx, outputsTarget),
+    ),
+  );
 
   timespan.finish(`generate types finished`);
 };

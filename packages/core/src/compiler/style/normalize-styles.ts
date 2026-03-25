@@ -3,7 +3,11 @@ import { dirname, isAbsolute } from 'path';
 
 import type * as d from '@stencil/core';
 
-export const normalizeStyles = (tagName: string, componentFilePath: string, styles: d.StyleCompiler[]) => {
+export const normalizeStyles = (
+  tagName: string,
+  componentFilePath: string,
+  styles: d.StyleCompiler[],
+) => {
   styles.forEach((style) => {
     if (style.modeName === DEFAULT_STYLE_MODE) {
       style.styleId = tagName.toUpperCase();
@@ -19,7 +23,10 @@ export const normalizeStyles = (tagName: string, componentFilePath: string, styl
   });
 };
 
-const normalizeExternalStyle = (componentFilePath: string, externalStyle: d.ExternalStyleCompiler) => {
+const normalizeExternalStyle = (
+  componentFilePath: string,
+  externalStyle: d.ExternalStyleCompiler,
+) => {
   if (
     typeof externalStyle.originalComponentPath !== 'string' ||
     externalStyle.originalComponentPath.trim().length === 0
@@ -36,13 +43,17 @@ const normalizeExternalStyle = (componentFilePath: string, externalStyle: d.Exte
     externalStyle.absolutePath = normalizePath(externalStyle.originalComponentPath);
 
     // if this is an absolute path already, let's convert it to be relative
-    externalStyle.relativePath = normalizePath(relative(componentDir, externalStyle.originalComponentPath));
+    externalStyle.relativePath = normalizePath(
+      relative(componentDir, externalStyle.originalComponentPath),
+    );
   } else {
     // this path is relative to the component
     // add to our list of style relative paths
     externalStyle.relativePath = normalizePath(externalStyle.originalComponentPath);
 
     // create the absolute path to the style file
-    externalStyle.absolutePath = normalizePath(join(componentDir, externalStyle.originalComponentPath));
+    externalStyle.absolutePath = normalizePath(
+      join(componentDir, externalStyle.originalComponentPath),
+    );
   }
 };

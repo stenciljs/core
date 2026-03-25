@@ -1,4 +1,11 @@
-import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative, unique } from '../../../utils';
+import {
+  augmentDiagnosticWithNode,
+  buildWarn,
+  join,
+  normalizePath,
+  relative,
+  unique,
+} from '../../../utils';
 import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 
@@ -6,12 +13,22 @@ import type * as d from '@stencil/core';
 import { addComponentMetaStatic } from '../add-component-meta-static';
 import { setComponentBuildConditionals } from '../component-build-conditionals';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
-import { getComponentTagName, getStaticValue, isInternal, isStaticGetter, serializeSymbol } from '../transform-utils';
+import {
+  getComponentTagName,
+  getStaticValue,
+  isInternal,
+  isStaticGetter,
+  serializeSymbol,
+} from '../transform-utils';
 import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach-internals';
 import { parseCallExpression } from './call-expression';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
-import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus, parseStaticSlotAssignment } from './encapsulation';
+import {
+  parseStaticEncapsulation,
+  parseStaticShadowDelegatesFocus,
+  parseStaticSlotAssignment,
+} from './encapsulation';
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
@@ -76,7 +93,14 @@ export const parseStaticComponentMeta = (
     classMethods,
     serializers,
     deserializers,
-  } = mergeExtendedClassMeta(compilerCtx, typeChecker, buildCtx, cmpNode, staticMembers, moduleFile);
+  } = mergeExtendedClassMeta(
+    compilerCtx,
+    typeChecker,
+    buildCtx,
+    cmpNode,
+    staticMembers,
+    moduleFile,
+  );
   const symbol = typeChecker ? typeChecker.getSymbolAtLocation(cmpNode.name) : undefined;
   const docs = serializeSymbol(typeChecker, symbol);
   const isCollectionDependency = moduleFile.isCollectionDependency;
@@ -101,7 +125,13 @@ export const parseStaticComponentMeta = (
     events,
     watchers,
     doesExtend,
-    styles: parseStaticStyles(compilerCtx, tagName, moduleFile.sourceFilePath, isCollectionDependency, staticMembers),
+    styles: parseStaticStyles(
+      compilerCtx,
+      tagName,
+      moduleFile.sourceFilePath,
+      isCollectionDependency,
+      staticMembers,
+    ),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
     styleDocs: [],
@@ -269,7 +299,10 @@ const parseVirtualProp = (tag: d.CompilerJsDocTagInfo): d.ComponentCompilerVirtu
   };
 };
 
-const parseAssetsDirs = (staticMembers: ts.ClassElement[], componentFilePath: string): d.AssetsMeta[] => {
+const parseAssetsDirs = (
+  staticMembers: ts.ClassElement[],
+  componentFilePath: string,
+): d.AssetsMeta[] => {
   const dirs: string[] = getStaticValue(staticMembers, 'assetsDirs') || [];
   const componentDir = normalizePath(dirname(componentFilePath));
 

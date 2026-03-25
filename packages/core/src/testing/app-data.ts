@@ -55,7 +55,7 @@ export const BUILD: BuildConditionals = {
   hydrateServerSide: false,
   hydrateClientSide: false,
   lifecycleDOMEvents: false,
-  lazyLoad: true,  // Critical for getElement() to work
+  lazyLoad: true, // Critical for getElement() to work
   profile: false,
   slotRelocation: true,
   appendChildSlotFix: false,

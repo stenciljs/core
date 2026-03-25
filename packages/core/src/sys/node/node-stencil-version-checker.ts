@@ -127,7 +127,10 @@ function printUpdateMessage(logger: Logger, currentVersion: string, latestVersio
     CHANGELOG,
   ];
 
-  const lineLength = msg.reduce((longest, line) => (line.length > longest ? line.length : longest), 0);
+  const lineLength = msg.reduce(
+    (longest, line) => (line.length > longest ? line.length : longest),
+    0,
+  );
 
   const o: string[] = [];
 

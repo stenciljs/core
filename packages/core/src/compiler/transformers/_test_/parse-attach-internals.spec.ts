@@ -116,7 +116,9 @@ describe('parse attachInternals', function () {
     `);
     expect(t.cmp!.formAssociated).toBe(true);
     expect(t.cmp!.attachInternalsMemberName).toBe('internals');
-    expect(t.cmp!.attachInternalsCustomStates).toEqual([{ name: 'checked', initialValue: true, docs: '' }]);
+    expect(t.cmp!.attachInternalsCustomStates).toEqual([
+      { name: 'checked', initialValue: true, docs: '' },
+    ]);
   });
 
   it('should parse JSDoc comments from state properties', async () => {

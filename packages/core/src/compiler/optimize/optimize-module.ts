@@ -1,8 +1,20 @@
 import sourceMapMerge from 'merge-source-map';
-import type { CompressOptions, MangleOptions, ManglePropertiesOptions, MinifyOptions, SourceMapOptions } from 'terser';
+import type {
+  CompressOptions,
+  MangleOptions,
+  ManglePropertiesOptions,
+  MinifyOptions,
+  SourceMapOptions,
+} from 'terser';
 import ts from 'typescript';
 
-import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedConfig } from '@stencil/core';
+import type {
+  CompilerCtx,
+  OptimizeJsResult,
+  SourceMap,
+  SourceTarget,
+  ValidatedConfig,
+} from '@stencil/core';
 import { getToolVersion } from '../../version';
 import { minifyJs } from './minify-js';
 
@@ -37,7 +49,12 @@ export const optimizeModule = async (
   }
 
   const isDebug = config.logLevel === 'debug';
-  const cacheKey = await compilerCtx.cache.createKey('optimizeModule', getToolVersion('terser'), opts, isDebug);
+  const cacheKey = await compilerCtx.cache.createKey(
+    'optimizeModule',
+    getToolVersion('terser'),
+    opts,
+    isDebug,
+  );
   const cachedContent = await compilerCtx.cache.get(cacheKey);
   if (cachedContent != null) {
     const cachedMap = await compilerCtx.cache.get(cacheKey + 'Map');
@@ -98,7 +115,12 @@ export const optimizeModule = async (
   }
 
   const shouldTranspile = opts.sourceTarget === 'es5';
-  const results = await compilerCtx.worker.prepareModule(code, minifyOpts, shouldTranspile, !!opts.inlineHelpers);
+  const results = await compilerCtx.worker.prepareModule(
+    code,
+    minifyOpts,
+    shouldTranspile,
+    !!opts.inlineHelpers,
+  );
   if (
     results != null &&
     typeof results.output === 'string' &&

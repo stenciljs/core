@@ -90,41 +90,43 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     flushQueue: flushQueue,
   };
 
-  const lazyBundles: LazyBundlesRuntimeData = opts.components.map((Cstr: ComponentTestingConstructor) => {
-    /**
-     * just pass through functional components that don't have styles nor any other metadata
-     */
-    if (Cstr.COMPILER_META == null) {
+  const lazyBundles: LazyBundlesRuntimeData = opts.components.map(
+    (Cstr: ComponentTestingConstructor) => {
       /**
-       * the bundleId can be arbitrary, but must be unique
+       * just pass through functional components that don't have styles nor any other metadata
        */
-      const arbitraryBundleId = `fc.${generateRandBundleId()}`;
-      return formatLazyBundleRuntimeMeta(arbitraryBundleId, []);
-    }
-
-    cmpTags.add(Cstr.COMPILER_META.tagName);
-    Cstr.isProxied = false;
-
-    proxyComponentLifeCycles(Cstr);
-
-    const bundleId = `${Cstr.COMPILER_META.tagName}.${generateRandBundleId()}`;
-    const stylesMeta = Cstr.COMPILER_META.styles;
-    if (Array.isArray(stylesMeta)) {
-      if (stylesMeta.length > 1) {
-        const styles: any = {};
-        stylesMeta.forEach((style) => {
-          styles[style.modeName] = style.styleStr;
-        });
-        Cstr.style = styles;
-      } else if (stylesMeta.length === 1) {
-        Cstr.style = stylesMeta[0].styleStr;
+      if (Cstr.COMPILER_META == null) {
+        /**
+         * the bundleId can be arbitrary, but must be unique
+         */
+        const arbitraryBundleId = `fc.${generateRandBundleId()}`;
+        return formatLazyBundleRuntimeMeta(arbitraryBundleId, []);
       }
-    }
-    registerModule(bundleId, Cstr);
 
-    const lazyBundleRuntimeMeta = formatLazyBundleRuntimeMeta(bundleId, [Cstr.COMPILER_META]);
-    return lazyBundleRuntimeMeta;
-  });
+      cmpTags.add(Cstr.COMPILER_META.tagName);
+      Cstr.isProxied = false;
+
+      proxyComponentLifeCycles(Cstr);
+
+      const bundleId = `${Cstr.COMPILER_META.tagName}.${generateRandBundleId()}`;
+      const stylesMeta = Cstr.COMPILER_META.styles;
+      if (Array.isArray(stylesMeta)) {
+        if (stylesMeta.length > 1) {
+          const styles: any = {};
+          stylesMeta.forEach((style) => {
+            styles[style.modeName] = style.styleStr;
+          });
+          Cstr.style = styles;
+        } else if (stylesMeta.length === 1) {
+          Cstr.style = stylesMeta[0].styleStr;
+        }
+      }
+      registerModule(bundleId, Cstr);
+
+      const lazyBundleRuntimeMeta = formatLazyBundleRuntimeMeta(bundleId, [Cstr.COMPILER_META]);
+      return lazyBundleRuntimeMeta;
+    },
+  );
 
   const cmpCompilerMeta = opts.components
     .filter((Cstr) => Cstr.COMPILER_META != null)
@@ -239,7 +241,9 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   if (opts.autoApplyChanges) {
     startAutoApplyChanges();
     page.waitForChanges = () => {
-      console.error('waitForChanges() cannot be used manually if the "startAutoApplyChanges" option is enabled');
+      console.error(
+        'waitForChanges() cannot be used manually if the "startAutoApplyChanges" option is enabled',
+      );
       return Promise.resolve();
     };
   }

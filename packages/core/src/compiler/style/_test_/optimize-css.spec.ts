@@ -44,7 +44,9 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{background:linear-gradient(to bottom, #ffe500 0%, #ffe500 50%, #121 50%, #121 100%)}`);
+    expect(output).toBe(
+      `h1{background:linear-gradient(to bottom, #ffe500 0%, #ffe500 50%, #121 50%, #121 100%)}`,
+    );
   });
 
   it('reduce-initial', async () => {
@@ -137,7 +139,9 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`@media only screen and ( min-width: 400px, min-height: 500px ){h2{color:red}}`);
+    expect(output).toBe(
+      `@media only screen and ( min-width: 400px, min-height: 500px ){h2{color:red}}`,
+    );
   });
 
   it('normalize-string', async () => {
@@ -162,7 +166,9 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`p{font-family:\"Helvetica Neue\", Arial, sans-serif, Helvetica;font-weight:normal}`);
+    expect(output).toBe(
+      `p{font-family:\"Helvetica Neue\", Arial, sans-serif, Helvetica;font-weight:normal}`,
+    );
   });
 
   it('normalize-repeat-style', async () => {
@@ -266,12 +272,24 @@ describe('optimizeCss', () => {
 
   it('do nothing for invalid data', async () => {
     // we intentionally pass `null` as an argument for the provided styles, hence the type assertion
-    let output = await optimizeCss(config, compilerCtx, diagnostics, null as unknown as string, MOCK_FILE_PATH);
+    let output = await optimizeCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      null as unknown as string,
+      MOCK_FILE_PATH,
+    );
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(null);
 
     // we intentionally pass `null` as an argument for the provided styles, hence the type assertion
-    output = await optimizeCss(config, compilerCtx, diagnostics, undefined as unknown as string, MOCK_FILE_PATH);
+    output = await optimizeCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      undefined as unknown as string,
+      MOCK_FILE_PATH,
+    );
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(undefined);
 

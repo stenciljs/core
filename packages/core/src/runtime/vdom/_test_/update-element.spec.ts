@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import { expect, describe, it, vi } from '@stencil/vitest'
+import { expect, describe, it, vi } from '@stencil/vitest';
 import { NODE_TYPE } from '../../runtime-constants';
 import { newVNode } from '../h';
 import * as setAccessor from '../set-accessor';
@@ -174,7 +174,16 @@ describe('updateElement', () => {
     });
     updateElement(initialVNode, firstVNode, false);
     expect(spy).toHaveBeenCalledTimes(4);
-    expect(spy).toHaveBeenNthCalledWith(1, elm, 'content', undefined, 'attributes removed', false, 0, undefined);
+    expect(spy).toHaveBeenNthCalledWith(
+      1,
+      elm,
+      'content',
+      undefined,
+      'attributes removed',
+      false,
+      0,
+      undefined,
+    );
     expect(spy).toHaveBeenNthCalledWith(2, elm, 'padding', undefined, false, false, 0, undefined);
     expect(spy).toHaveBeenNthCalledWith(3, elm, 'bold', undefined, 'false', false, 0, undefined);
     expect(spy).toHaveBeenNthCalledWith(4, elm, 'no-attr', undefined, null, false, 0, undefined);

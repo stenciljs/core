@@ -9,7 +9,11 @@ import { checkTelemetry, disableTelemetry, enableTelemetry } from './telemetry/t
  * @param sys the abstraction for interfacing with the operating system
  * @param logger a logging implementation to log the results out to the user
  */
-export const taskTelemetry = async (flags: ConfigFlags, sys: d.CompilerSystem, logger: d.Logger): Promise<void> => {
+export const taskTelemetry = async (
+  flags: ConfigFlags,
+  sys: d.CompilerSystem,
+  logger: d.Logger,
+): Promise<void> => {
   const prompt = logger.dim(sys.details?.platform === 'windows' ? '>' : '$');
   const isEnabling = flags.args.includes('on');
   const isDisabling = flags.args.includes('off');

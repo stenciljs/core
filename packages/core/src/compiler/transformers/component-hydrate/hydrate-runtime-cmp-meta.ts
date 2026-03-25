@@ -34,11 +34,16 @@ const fakeBundleIds = (_cmp: d.ComponentCompilerMeta) => {
   return '-';
 };
 
-const getHydrateAttrsToReflect = (cmp: d.ComponentCompilerMeta): d.ComponentRuntimeReflectingAttr[] => {
-  return cmp.properties.reduce((attrs: d.ComponentRuntimeReflectingAttr[], prop: d.ComponentCompilerProperty) => {
-    if (prop.reflect) {
-      attrs.push([prop.name, prop.attribute]);
-    }
-    return attrs;
-  }, []);
+const getHydrateAttrsToReflect = (
+  cmp: d.ComponentCompilerMeta,
+): d.ComponentRuntimeReflectingAttr[] => {
+  return cmp.properties.reduce(
+    (attrs: d.ComponentRuntimeReflectingAttr[], prop: d.ComponentCompilerProperty) => {
+      if (prop.reflect) {
+        attrs.push([prop.name, prop.attribute]);
+      }
+      return attrs;
+    },
+    [],
+  );
 };

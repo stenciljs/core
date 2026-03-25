@@ -2,7 +2,10 @@ import ts from 'typescript';
 
 import type * as d from '@stencil/core';
 
-export const gatherVdomMeta = (m: d.Module | d.ComponentCompilerMeta, args: ts.NodeArray<ts.Expression>) => {
+export const gatherVdomMeta = (
+  m: d.Module | d.ComponentCompilerMeta,
+  args: ts.NodeArray<ts.Expression>,
+) => {
   m.hasVdomRender = true;
 
   // Parse vdom tag
@@ -53,7 +56,11 @@ export const gatherVdomMeta = (m: d.Module | d.ComponentCompilerMeta, args: ts.N
             m.hasVdomPropOrAttr = true;
           }
           ts.SyntaxKind.StringLiteral;
-          if (attrName === 'part' && ts.isPropertyAssignment(prop) && ts.isStringLiteral(prop.initializer)) {
+          if (
+            attrName === 'part' &&
+            ts.isPropertyAssignment(prop) &&
+            ts.isStringLiteral(prop.initializer)
+          ) {
             m.htmlParts.push(
               ...prop.initializer.text
                 .toLowerCase()
@@ -71,7 +78,11 @@ export const gatherVdomMeta = (m: d.Module | d.ComponentCompilerMeta, args: ts.N
   if (!m.hasVdomText) {
     for (let i = 2; i < args.length; i++) {
       const arg = args[i];
-      if (!ts.isCallExpression(arg) || !ts.isIdentifier(arg.expression) || arg.expression.text !== 'h') {
+      if (
+        !ts.isCallExpression(arg) ||
+        !ts.isIdentifier(arg.expression) ||
+        arg.expression.text !== 'h'
+      ) {
         m.hasVdomText = true;
         break;
       }

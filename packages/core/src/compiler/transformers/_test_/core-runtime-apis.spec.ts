@@ -3,7 +3,12 @@ import * as ts from 'typescript';
 import { describe, expect, it, beforeEach } from 'vitest';
 import * as d from '@stencil/core';
 import { createModule } from '../../transpile/transpiled-module';
-import { addCoreRuntimeApi, addLegacyApis, addOutputTargetCoreRuntimeApi, RUNTIME_APIS } from '../core-runtime-apis';
+import {
+  addCoreRuntimeApi,
+  addLegacyApis,
+  addOutputTargetCoreRuntimeApi,
+  RUNTIME_APIS,
+} from '../core-runtime-apis';
 
 describe('addCoreRuntimeApi()', () => {
   let mockModule: d.Module;
@@ -58,7 +63,9 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
     addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
-    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({ [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host] });
+    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
+      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+    });
 
     addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.createEvent);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
@@ -71,11 +78,15 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
     addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
-    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({ [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host] });
+    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
+      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+    });
 
     // attempt to add the api again, doing so shall not create a duplicate entry
     addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
-    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({ [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host] });
+    expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
+      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+    });
   });
 });
 

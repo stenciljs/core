@@ -17,7 +17,9 @@ export const elementDecoratorsToStatic = (
     .filter((element): element is string => !!element);
 
   if (elementRefs.length > 0) {
-    newMembers.push(createStaticGetter('elementRef', ts.factory.createStringLiteral(elementRefs[0])));
+    newMembers.push(
+      createStaticGetter('elementRef', ts.factory.createStringLiteral(elementRefs[0])),
+    );
     if (elementRefs.length > 1) {
       const error = buildError(diagnostics);
       error.messageText = `It's not valid to add more than one Element() decorator`;
@@ -25,7 +27,10 @@ export const elementDecoratorsToStatic = (
   }
 };
 
-const parseElementDecorator = (prop: ts.PropertyDeclaration, decoratorName: string): string | null => {
+const parseElementDecorator = (
+  prop: ts.PropertyDeclaration,
+  decoratorName: string,
+): string | null => {
   const elementDecorator = retrieveTsDecorators(prop)?.find(isDecoratorNamed(decoratorName));
 
   if (elementDecorator == null) {

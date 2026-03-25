@@ -21,7 +21,11 @@ export function rewriteAliasedDTSImportPaths(
       ? tsBundleOrSourceFile.getSourceFile().fileName
       : tsBundleOrSourceFile.fileName;
 
-    return ts.visitEachChild(tsBundleOrSourceFile, visit(compilerHost, transformCtx, fileName), transformCtx);
+    return ts.visitEachChild(
+      tsBundleOrSourceFile,
+      visit(compilerHost, transformCtx, fileName),
+      transformCtx,
+    );
   };
 }
 
@@ -38,7 +42,11 @@ export function rewriteAliasedSourceFileImportPaths(
   const compilerHost = ts.createCompilerHost(transformCtx.getCompilerOptions());
 
   return (tsSourceFile) => {
-    return ts.visitEachChild(tsSourceFile, visit(compilerHost, transformCtx, tsSourceFile.fileName), transformCtx);
+    return ts.visitEachChild(
+      tsSourceFile,
+      visit(compilerHost, transformCtx, tsSourceFile.fileName),
+      transformCtx,
+    );
   };
 }
 
@@ -51,7 +59,11 @@ export function rewriteAliasedSourceFileImportPaths(
  * @param sourceFilePath the path to the source file being visited
  * @returns a visitor which takes a node and optionally transforms imports
  */
-function visit(compilerHost: ts.CompilerHost, transformCtx: ts.TransformationContext, sourceFilePath: string) {
+function visit(
+  compilerHost: ts.CompilerHost,
+  transformCtx: ts.TransformationContext,
+  sourceFilePath: string,
+) {
   return (node: ts.Node): ts.VisitResult<ts.Node> => {
     if (!ts.isImportDeclaration(node)) {
       return node;
@@ -141,7 +153,12 @@ function rewriteAliasedImport(
     return node;
   }
 
-  const module = ts.resolveModuleName(importPath, sourceFilePath, transformCtx.getCompilerOptions(), compilerHost);
+  const module = ts.resolveModuleName(
+    importPath,
+    sourceFilePath,
+    transformCtx.getCompilerOptions(),
+    compilerHost,
+  );
 
   const hasResolvedFileName = module.resolvedModule?.resolvedFileName != null;
   const isModuleFromNodeModules = module.resolvedModule?.isExternalLibraryImport === true;
@@ -167,7 +184,9 @@ function rewriteAliasedImport(
 
   const resolvePathInDestination = module.resolvedModule.resolvedFileName;
   // get the normalized relative path from the importer to the importee
-  importPath = normalizePath(relative(dirname(sourceFilePath), resolvePathInDestination).replace(extensionRegex, ''));
+  importPath = normalizePath(
+    relative(dirname(sourceFilePath), resolvePathInDestination).replace(extensionRegex, ''),
+  );
 
   return transformCtx.factory.updateImportDeclaration(
     node,

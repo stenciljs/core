@@ -20,7 +20,9 @@ export const getDestAbsPath = (src: string, destAbsPath: string, destRelPath: st
   }
 
   if (isAbsolute(src)) {
-    throw new Error(`copy task, "dest" property must exist if "src" property is an absolute path: ${src}`);
+    throw new Error(
+      `copy task, "dest" property must exist if "src" property is an absolute path: ${src}`,
+    );
   }
 
   return destAbsPath;

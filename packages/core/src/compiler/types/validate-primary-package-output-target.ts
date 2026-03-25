@@ -1,4 +1,11 @@
-import { buildWarn, isEligiblePrimaryPackageOutputTarget, isString, join, normalizePath, relative } from '../../utils';
+import {
+  buildWarn,
+  isEligiblePrimaryPackageOutputTarget,
+  isString,
+  join,
+  normalizePath,
+  relative,
+} from '../../utils';
 
 import type * as d from '@stencil/core';
 import { packageJsonError, packageJsonWarn } from './package-json-log-utils';
@@ -79,7 +86,10 @@ export const PRIMARY_PACKAGE_TARGET_CONFIGS = {
       normalizePath(relative(rootDir, join(outputTargetConfig.typesDir, 'index.d.ts'))),
     getMainPath: () => null,
   },
-} satisfies Record<d.EligiblePrimaryPackageOutputTarget['type'], PrimaryPackageOutputTargetRecommendedConfig>;
+} satisfies Record<
+  d.EligiblePrimaryPackageOutputTarget['type'],
+  PrimaryPackageOutputTargetRecommendedConfig
+>;
 
 /**
  * Performs validation for specified fields in a Stencil project's
@@ -114,7 +124,9 @@ export const validatePrimaryPackageOutputTarget = (
     // If there are no output targets designated as "primary", then we should warn the user
     // to designate one. In this case, we aren't gonna do any validation
     if (eligiblePrimaryTargets.length) {
-      const targetsMarkedToValidate = eligiblePrimaryTargets.filter((ref) => ref.isPrimaryPackageOutputTarget);
+      const targetsMarkedToValidate = eligiblePrimaryTargets.filter(
+        (ref) => ref.isPrimaryPackageOutputTarget,
+      );
 
       if (targetsMarkedToValidate.length) {
         // A user should only designate one target to validate against
@@ -149,7 +161,10 @@ export const validatePrimaryPackageOutputTarget = (
     }
 
     // Log a warning if any targets that cannot be validated were marked as "primary"
-    if (nonPrimaryTargets.length && nonPrimaryTargets.some((ref: any) => ref.isPrimaryPackageOutputTarget)) {
+    if (
+      nonPrimaryTargets.length &&
+      nonPrimaryTargets.some((ref: any) => ref.isPrimaryPackageOutputTarget)
+    ) {
       logValidationWarning(
         buildCtx,
         `Your Stencil project has assigned one or more ineligible output targets as the primary package output target. No validation will take place. Please remove the 'isPrimaryPackageOutputTarget' flag from the following output targets in your Stencil config: ${nonPrimaryTargets
@@ -205,7 +220,10 @@ export const validateModulePath = (
     if (recommendedModulePath != null) {
       warningMessage += ` It's recommended to set the "module" property to: ${recommendedModulePath}`;
     }
-  } else if (recommendedModulePath != null && recommendedModulePath !== normalizePath(currentModulePath)) {
+  } else if (
+    recommendedModulePath != null &&
+    recommendedModulePath !== normalizePath(currentModulePath)
+  ) {
     warningMessage = `package.json "module" property is set to "${currentModulePath}". It's recommended to set the "module" property to: ${recommendedModulePath}`;
   }
 
@@ -248,7 +266,10 @@ export const validateTypesPath = (
     warningMessage = `package.json "types" property is required when generating a distribution. It's recommended to set the "types" property to: ${recommendedTypesPath}`;
   } else if (!currentTypesPath.endsWith('.d.ts')) {
     warningMessage = `package.json "types" file must have a ".d.ts" extension. The "types" property is currently set to: ${currentTypesPath}`;
-  } else if (recommendedTypesPath != null && recommendedTypesPath !== normalizePath(currentTypesPath)) {
+  } else if (
+    recommendedTypesPath != null &&
+    recommendedTypesPath !== normalizePath(currentTypesPath)
+  ) {
     warningMessage = `package.json "types" property is set to "${currentTypesPath}". It's recommended to set the "types" property to: ${recommendedTypesPath}`;
   } else {
     const typesFile = join(config.rootDir, currentTypesPath);

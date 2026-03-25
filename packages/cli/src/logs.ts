@@ -32,7 +32,11 @@ export const startupLog = (logger: Logger, task: TaskCommand): void => {
  * @param task the current task
  * @param coreCompiler the compiler instance to derive version information from
  */
-export const startupLogVersion = (logger: Logger, task: TaskCommand, coreCompiler: CoreCompiler): void => {
+export const startupLogVersion = (
+  logger: Logger,
+  task: TaskCommand,
+  coreCompiler: CoreCompiler,
+): void => {
   if (task === 'info' || task === 'serve' || task === 'version') {
     return;
   }

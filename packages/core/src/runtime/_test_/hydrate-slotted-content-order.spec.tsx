@@ -108,7 +108,7 @@ describe("hydrated components' slotted node order", () => {
         return (
           <main>
             <aside>
-              <slot name="second" />
+              <slot name='second' />
             </aside>
             <section>
               <slot />
@@ -382,7 +382,7 @@ describe("hydrated components' slotted node order", () => {
         return (
           <main>
             <aside>
-              <slot name="second" />
+              <slot name='second' />
             </aside>
             <section>
               <slot />

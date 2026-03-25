@@ -8,7 +8,11 @@ export const validateTranspiledComponents = (config: d.ValidatedConfig, buildCtx
   }
 };
 
-const validateUniqueTagNames = (config: d.ValidatedConfig, buildCtx: d.BuildCtx, cmp: d.ComponentCompilerMeta) => {
+const validateUniqueTagNames = (
+  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
+  cmp: d.ComponentCompilerMeta,
+) => {
   const tagName = cmp.tagName;
   const cmpsWithTagName = buildCtx.components.filter((c) => c.tagName === tagName);
   if (cmpsWithTagName.length > 1) {

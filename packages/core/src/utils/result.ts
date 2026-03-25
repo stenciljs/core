@@ -102,7 +102,10 @@ export const err = <T>(value: T): Err<T> => ({
  * @returns a new `Result`, with the a new wrapped value (if `Ok`) or the
  * same (if `Err)
  */
-export function map<T1, T2, E>(result: Result<T1, E>, fn: (t: T1) => Promise<T2>): Promise<Result<T2, E>>;
+export function map<T1, T2, E>(
+  result: Result<T1, E>,
+  fn: (t: T1) => Promise<T2>,
+): Promise<Result<T2, E>>;
 export function map<T1, T2, E>(result: Result<T1, E>, fn: (t: T1) => T2): Result<T2, E>;
 export function map<T1, T2, E>(
   result: Result<T1, E>,

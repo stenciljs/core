@@ -29,22 +29,30 @@ export const strictCheckDocs = (config: d.ValidatedConfig, docsData: d.JsonDocs)
   docsData.components.forEach((component) => {
     component.props.forEach((prop) => {
       if (!prop.docs && prop.deprecation === undefined) {
-        config.logger.warn(`Property "${prop.name}" of "${component.tag}" is not documented. ${component.filePath}`);
+        config.logger.warn(
+          `Property "${prop.name}" of "${component.tag}" is not documented. ${component.filePath}`,
+        );
       }
     });
     component.methods.forEach((method) => {
       if (!method.docs && method.deprecation === undefined) {
-        config.logger.warn(`Method "${method.name}" of "${component.tag}" is not documented. ${component.filePath}`);
+        config.logger.warn(
+          `Method "${method.name}" of "${component.tag}" is not documented. ${component.filePath}`,
+        );
       }
     });
     component.events.forEach((ev) => {
       if (!ev.docs && ev.deprecation === undefined) {
-        config.logger.warn(`Event "${ev.event}" of "${component.tag}" is not documented. ${component.filePath}`);
+        config.logger.warn(
+          `Event "${ev.event}" of "${component.tag}" is not documented. ${component.filePath}`,
+        );
       }
     });
     component.parts.forEach((ev) => {
       if (ev.docs === '') {
-        config.logger.warn(`Part "${ev.name}" of "${component.tag}" is not documented. ${component.filePath}`);
+        config.logger.warn(
+          `Part "${ev.name}" of "${component.tag}" is not documented. ${component.filePath}`,
+        );
       }
     });
   });

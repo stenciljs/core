@@ -119,9 +119,13 @@ describe('Custom Elements Typedef generation', () => {
         '',
       ].join('\n');
 
-      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith('my-best-dir/index.d.ts', expectedTypedefOutput, {
-        outputTargetType: DIST_CUSTOM_ELEMENTS,
-      });
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        'my-best-dir/index.d.ts',
+        expectedTypedefOutput,
+        {
+          outputTargetType: DIST_CUSTOM_ELEMENTS,
+        },
+      );
     });
 
     it('should generate an index.d.ts file corresponding to the index.js file when outputting to top-level of dist', async () => {
@@ -173,9 +177,13 @@ describe('Custom Elements Typedef generation', () => {
         '',
       ].join('\n');
 
-      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith('dist/index.d.ts', expectedTypedefOutput, {
-        outputTargetType: DIST_CUSTOM_ELEMENTS,
-      });
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        'dist/index.d.ts',
+        expectedTypedefOutput,
+        {
+          outputTargetType: DIST_CUSTOM_ELEMENTS,
+        },
+      );
     });
   });
 
@@ -237,9 +245,13 @@ describe('Custom Elements Typedef generation', () => {
       '',
     ].join('\n');
 
-    expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith('my-best-dir/index.d.ts', expectedTypedefOutput, {
-      outputTargetType: DIST_CUSTOM_ELEMENTS,
-    });
+    expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+      'my-best-dir/index.d.ts',
+      expectedTypedefOutput,
+      {
+        outputTargetType: DIST_CUSTOM_ELEMENTS,
+      },
+    );
 
     writeFileSpy.mockRestore();
   });
@@ -255,7 +267,8 @@ describe('Custom Elements Typedef generation', () => {
       tagName: 'my-best-component',
     });
     const { config, compilerCtx, buildCtx } = setup();
-    (config.outputTargets[0] as d.OutputTargetDistCustomElements).customElementsExportBehavior = 'bundle';
+    (config.outputTargets[0] as d.OutputTargetDistCustomElements).customElementsExportBehavior =
+      'bundle';
     buildCtx.components = [componentOne, componentTwo];
 
     const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
@@ -311,9 +324,13 @@ describe('Custom Elements Typedef generation', () => {
       '',
     ].join('\n');
 
-    expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith('my-best-dir/index.d.ts', expectedTypedefOutput, {
-      outputTargetType: DIST_CUSTOM_ELEMENTS,
-    });
+    expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+      'my-best-dir/index.d.ts',
+      expectedTypedefOutput,
+      {
+        outputTargetType: DIST_CUSTOM_ELEMENTS,
+      },
+    );
 
     writeFileSpy.mockRestore();
   });

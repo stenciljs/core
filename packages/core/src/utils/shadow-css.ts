@@ -370,25 +370,38 @@ const selectorNeedsScoping = (selector: string, scopeSelector: string) => {
 };
 
 const injectScopingSelector = (selector: string, scopingSelector: string) => {
-  return selector.replace(_selectorPartsRe, (_: string, before = '', _colonGroup: string, colon = '', after = '') => {
-    return before + scopingSelector + colon + after;
-  });
+  return selector.replace(
+    _selectorPartsRe,
+    (_: string, before = '', _colonGroup: string, colon = '', after = '') => {
+      return before + scopingSelector + colon + after;
+    },
+  );
 };
 
-const applySimpleSelectorScope = (selector: string, scopeSelector: string, hostSelector: string) => {
+const applySimpleSelectorScope = (
+  selector: string,
+  scopeSelector: string,
+  hostSelector: string,
+) => {
   // In Android browser, the lastIndex is not reset when the regex is used in String.replace()
   _polyfillHostRe.lastIndex = 0;
   if (_polyfillHostRe.test(selector)) {
     const replaceBy = `.${hostSelector}`;
     return selector
-      .replace(_polyfillHostNoCombinatorRe, (_, selector) => injectScopingSelector(selector, replaceBy))
+      .replace(_polyfillHostNoCombinatorRe, (_, selector) =>
+        injectScopingSelector(selector, replaceBy),
+      )
       .replace(_polyfillHostRe, replaceBy + ' ');
   }
 
   return scopeSelector + ' ' + selector;
 };
 
-const applyStrictSelectorScope = (selector: string, scopeSelector: string, hostSelector: string) => {
+const applyStrictSelectorScope = (
+  selector: string,
+  scopeSelector: string,
+  hostSelector: string,
+) => {
   const isRe = /\[is=([^\]]*)\]/g;
   scopeSelector = scopeSelector.replace(isRe, (_: string, ...parts: string[]) => parts[0]);
 
@@ -447,14 +460,20 @@ const applyStrictSelectorScope = (selector: string, scopeSelector: string, hostS
   }
 
   const part = selector.substring(startIndex);
-  shouldScope = !part.match(_safePartRe) && (shouldScope || part.indexOf(_polyfillHostNoCombinator) > -1);
+  shouldScope =
+    !part.match(_safePartRe) && (shouldScope || part.indexOf(_polyfillHostNoCombinator) > -1);
   scopedSelector += shouldScope ? _scopeSelectorPart(part) : part;
 
   // replace the placeholders with their original values
   return restoreSafeSelector(safeContent.placeholders, scopedSelector);
 };
 
-const scopeSelector = (selector: string, scopeSelectorText: string, hostSelector: string, slotSelector: string) => {
+const scopeSelector = (
+  selector: string,
+  scopeSelectorText: string,
+  hostSelector: string,
+  slotSelector: string,
+) => {
   return selector
     .split(',')
     .map((shallowPart) => {
@@ -489,7 +508,13 @@ const scopeSelectors = (
       rule.selector.startsWith('@page') ||
       rule.selector.startsWith('@document')
     ) {
-      content = scopeSelectors(rule.content, scopeSelectorText, hostSelector, slotSelector, commentOriginalSelector);
+      content = scopeSelectors(
+        rule.content,
+        scopeSelectorText,
+        hostSelector,
+        slotSelector,
+        commentOriginalSelector,
+      );
     }
 
     const cssRule: CssRule = {
@@ -647,7 +672,10 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
   scoped.slottedSelectors.forEach((slottedSelector) => {
     // Use lookahead to ensure we only match complete selectors, not partial substrings
     // A selector ends at ',' (separator), '{' (declaration block), or end of string
-    const regex = new RegExp(escapeRegExpSpecialCharacters(slottedSelector.orgSelector) + '(?=\\s*[,{]|$)', 'g');
+    const regex = new RegExp(
+      escapeRegExpSpecialCharacters(slottedSelector.orgSelector) + '(?=\\s*[,{]|$)',
+      'g',
+    );
     cssText = cssText.replace(regex, slottedSelector.updatedSelector);
   });
 

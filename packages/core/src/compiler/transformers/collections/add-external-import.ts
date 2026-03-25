@@ -24,7 +24,12 @@ export const addExternalImport = (
     return;
   }
 
-  let pkgJsonFilePath = tsResolveModuleNamePackageJsonPath(config, compilerCtx, moduleId, containingFile);
+  let pkgJsonFilePath = tsResolveModuleNamePackageJsonPath(
+    config,
+    compilerCtx,
+    moduleId,
+    containingFile,
+  );
 
   // cache that we've already parsed this
   compilerCtx.resolvedCollections.add(moduleId);
@@ -57,7 +62,10 @@ export const addExternalImport = (
     return;
   }
 
-  if (!isString(parsedPkgJson.data.collection) || !parsedPkgJson.data.collection.endsWith('.json')) {
+  if (
+    !isString(parsedPkgJson.data.collection) ||
+    !parsedPkgJson.data.collection.endsWith('.json')
+  ) {
     // this import is not a stencil collection
     return;
   }

@@ -111,7 +111,13 @@ describe('validatePrimaryPackageOutputTarget', () => {
       };
       const recommendedOutputTargetConfig = PRIMARY_PACKAGE_TARGET_CONFIGS[targetToValidate.type];
 
-      validateModulePath(config, compilerCtx, buildCtx, recommendedOutputTargetConfig, targetToValidate);
+      validateModulePath(
+        config,
+        compilerCtx,
+        buildCtx,
+        recommendedOutputTargetConfig,
+        targetToValidate,
+      );
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toEqual('warn');
@@ -197,7 +203,13 @@ describe('validatePrimaryPackageOutputTarget', () => {
     it('should log a warning if no types path is provided', () => {
       delete buildCtx.packageJson.types;
 
-      validateTypesPath(config, compilerCtx, buildCtx, recommendedOutputTargetConfig, targetToValidate);
+      validateTypesPath(
+        config,
+        compilerCtx,
+        buildCtx,
+        recommendedOutputTargetConfig,
+        targetToValidate,
+      );
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toEqual('warn');
@@ -209,7 +221,13 @@ describe('validatePrimaryPackageOutputTarget', () => {
     it('should log a warning if the types path does not have a ".d.ts" extension', () => {
       buildCtx.packageJson.types = '/dist/types/index.ts';
 
-      validateTypesPath(config, compilerCtx, buildCtx, recommendedOutputTargetConfig, targetToValidate);
+      validateTypesPath(
+        config,
+        compilerCtx,
+        buildCtx,
+        recommendedOutputTargetConfig,
+        targetToValidate,
+      );
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toEqual('warn');
@@ -221,7 +239,13 @@ describe('validatePrimaryPackageOutputTarget', () => {
     it('should log a error if the types file cannot be accessed', () => {
       compilerCtx.fs.accessSync = () => false;
 
-      validateTypesPath(config, compilerCtx, buildCtx, recommendedOutputTargetConfig, targetToValidate);
+      validateTypesPath(
+        config,
+        compilerCtx,
+        buildCtx,
+        recommendedOutputTargetConfig,
+        targetToValidate,
+      );
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toEqual('error');

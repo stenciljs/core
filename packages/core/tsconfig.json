@@ -35,7 +35,5 @@
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": [
-    "dist"
-  ]
+  "exclude": ["dist"]
 }

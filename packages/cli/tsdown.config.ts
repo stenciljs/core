@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -11,5 +11,4 @@ export default defineConfig({
   deps: {
     neverBundle: [/^node:/],
   },
-})
-
+});

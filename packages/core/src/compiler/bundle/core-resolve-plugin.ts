@@ -115,7 +115,13 @@ export const Build = {
 
           if (typeof code !== 'string' && isRemoteUrl(compilerExe)) {
             const url = getStencilModuleUrl(compilerExe, filePath);
-            code = await fetchModuleAsync(config.sys, compilerCtx.fs, packageVersions, url, filePath);
+            code = await fetchModuleAsync(
+              config.sys,
+              compilerCtx.fs,
+              packageVersions,
+              url,
+              filePath,
+            );
           }
 
           if (typeof code === 'string') {
@@ -125,10 +131,22 @@ export const Build = {
               if (HYDRATED_CSS !== hydratedFlagHead) {
                 code = code.replace(HYDRATED_CSS, hydratedFlagHead);
                 if (hydratedFlag.name !== 'hydrated') {
-                  code = code.replace(`.classList.add("hydrated")`, `.classList.add("${hydratedFlag.name}")`);
-                  code = code.replace(`.classList.add('hydrated')`, `.classList.add('${hydratedFlag.name}')`);
-                  code = code.replace(`.setAttribute("hydrated",`, `.setAttribute("${hydratedFlag.name}",`);
-                  code = code.replace(`.setAttribute('hydrated',`, `.setAttribute('${hydratedFlag.name}',`);
+                  code = code.replace(
+                    `.classList.add("hydrated")`,
+                    `.classList.add("${hydratedFlag.name}")`,
+                  );
+                  code = code.replace(
+                    `.classList.add('hydrated')`,
+                    `.classList.add('${hydratedFlag.name}')`,
+                  );
+                  code = code.replace(
+                    `.setAttribute("hydrated",`,
+                    `.setAttribute("${hydratedFlag.name}",`,
+                  );
+                  code = code.replace(
+                    `.setAttribute('hydrated',`,
+                    `.setAttribute('${hydratedFlag.name}',`,
+                  );
                 }
               }
             } else {
@@ -144,7 +162,11 @@ export const Build = {
   };
 };
 
-export const getStencilInternalModule = (config: d.ValidatedConfig, compilerExe: string, internalModule: string) => {
+export const getStencilInternalModule = (
+  config: d.ValidatedConfig,
+  compilerExe: string,
+  internalModule: string,
+) => {
   if (isRemoteUrl(compilerExe)) {
     return normalizePath(
       config.sys.getLocalModulePath({

@@ -13,13 +13,20 @@ export const generateServiceWorker = async (
   if (serviceWorker.unregister) {
     await config.sys.writeFile(serviceWorker.swDest, SELF_UNREGISTER_SW);
   } else if (serviceWorker.swSrc) {
-    return Promise.all([copyLib(buildCtx, outputTarget, workbox), injectManifest(buildCtx, serviceWorker, workbox)]);
+    return Promise.all([
+      copyLib(buildCtx, outputTarget, workbox),
+      injectManifest(buildCtx, serviceWorker, workbox),
+    ]);
   } else {
     return generateSW(buildCtx, serviceWorker, workbox);
   }
 };
 
-const copyLib = async (buildCtx: d.BuildCtx, outputTarget: d.OutputTargetWww, workbox: d.Workbox) => {
+const copyLib = async (
+  buildCtx: d.BuildCtx,
+  outputTarget: d.OutputTargetWww,
+  workbox: d.Workbox,
+) => {
   const timeSpan = buildCtx.createTimeSpan(`copy service worker library started`, true);
 
   try {
@@ -32,7 +39,11 @@ const copyLib = async (buildCtx: d.BuildCtx, outputTarget: d.OutputTargetWww, wo
   timeSpan.finish(`copy service worker library finished`);
 };
 
-const generateSW = async (buildCtx: d.BuildCtx, serviceWorker: d.ServiceWorkerConfig, workbox: d.Workbox) => {
+const generateSW = async (
+  buildCtx: d.BuildCtx,
+  serviceWorker: d.ServiceWorkerConfig,
+  workbox: d.Workbox,
+) => {
   const timeSpan = buildCtx.createTimeSpan(`generate service worker started`);
 
   try {
@@ -43,7 +54,11 @@ const generateSW = async (buildCtx: d.BuildCtx, serviceWorker: d.ServiceWorkerCo
   }
 };
 
-const injectManifest = async (buildCtx: d.BuildCtx, serviceWorker: d.ServiceWorkerConfig, workbox: d.Workbox) => {
+const injectManifest = async (
+  buildCtx: d.BuildCtx,
+  serviceWorker: d.ServiceWorkerConfig,
+  workbox: d.Workbox,
+) => {
   const timeSpan = buildCtx.createTimeSpan(`inject manifest into service worker started`);
 
   try {
@@ -66,7 +81,10 @@ export const hasServiceWorkerChanges = (config: d.ValidatedConfig, buildCtx: d.B
   return wwwServiceOutputs.some((outputTarget) => {
     return buildCtx.filesChanged.some((fileChanged) => {
       if (outputTarget.serviceWorker) {
-        return basename(fileChanged).toLowerCase() === basename(outputTarget.serviceWorker.swSrc).toLowerCase();
+        return (
+          basename(fileChanged).toLowerCase() ===
+          basename(outputTarget.serviceWorker.swSrc).toLowerCase()
+        );
       }
       return false;
     });

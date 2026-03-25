@@ -123,6 +123,8 @@ describe('parse slotAssignment', () => {
     }
 
     expect(error).toBeDefined();
-    expect(error.message).toContain('The "slotAssignment" option must be either "manual" or "named".');
+    expect(error.message).toContain(
+      'The "slotAssignment" option must be either "manual" or "named".',
+    );
   });
 });

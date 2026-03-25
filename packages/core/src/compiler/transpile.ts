@@ -8,7 +8,11 @@ import type {
 } from '@stencil/core';
 import { catchError, getInlineSourceMappingUrlLinker, isString } from '../utils';
 
-import { getTranspileConfig, getTranspileCssConfig, getTranspileResults } from './config/transpile-options';
+import {
+  getTranspileConfig,
+  getTranspileCssConfig,
+  getTranspileResults,
+} from './config/transpile-options';
 import { validateConfig } from './config/validate-config';
 import { transformCssToEsm, transformCssToEsmSync } from './style/css-to-esm';
 import { patchTypescript } from './sys/typescript/typescript-sys';
@@ -35,7 +39,10 @@ import { transpileModule } from './transpile/transpile-module';
  * @param opts options for the transpilation process
  * @returns a Promise wrapping the results of the transpilation
  */
-export const transpile = async (code: string, opts: TranspileOptions = {}): Promise<TranspileResults> => {
+export const transpile = async (
+  code: string,
+  opts: TranspileOptions = {},
+): Promise<TranspileResults> => {
   const { importData, results } = getTranspileResults(code, opts);
 
   try {
@@ -115,7 +122,8 @@ const transpileCode = (
 
         const sourceMapComment = results.code.lastIndexOf('//#');
         results.code =
-          results.code.slice(0, sourceMapComment) + getInlineSourceMappingUrlLinker(JSON.stringify(mapObject));
+          results.code.slice(0, sourceMapComment) +
+          getInlineSourceMappingUrlLinker(JSON.stringify(mapObject));
       } catch (e) {
         console.error(e);
       }

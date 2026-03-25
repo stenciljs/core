@@ -4,7 +4,10 @@ import type * as d from '@stencil/core';
 import { crawlAnchorsForNextUrls } from './crawl-urls';
 import { getWriteFilePathFromUrlPath } from './prerendered-write-path';
 
-export const initializePrerenderEntryUrls = (results: d.PrerenderResults, manager: d.PrerenderManager) => {
+export const initializePrerenderEntryUrls = (
+  results: d.PrerenderResults,
+  manager: d.PrerenderManager,
+) => {
   const entryAnchors: d.HydrateAnchorElement[] = [];
 
   if (Array.isArray(manager.prerenderConfig.entryUrls)) {
@@ -36,7 +39,13 @@ export const initializePrerenderEntryUrls = (results: d.PrerenderResults, manage
 
   const base = new URL(manager.outputTarget.baseUrl);
 
-  const hrefs = crawlAnchorsForNextUrls(manager.prerenderConfig, results.diagnostics, base, base, entryAnchors);
+  const hrefs = crawlAnchorsForNextUrls(
+    manager.prerenderConfig,
+    results.diagnostics,
+    base,
+    base,
+    entryAnchors,
+  );
   for (const href of hrefs) {
     addUrlToPendingQueue(manager, href, '#entryUrl');
   }
@@ -60,7 +69,9 @@ const addUrlToPendingQueue = (manager: d.PrerenderManager, queueUrl: string, fro
 
   if (manager.isDebug) {
     const url = new URL(queueUrl, manager.outputTarget.baseUrl).pathname;
-    const from = fromUrl.startsWith('#') ? fromUrl : new URL(fromUrl, manager.outputTarget.baseUrl).pathname;
+    const from = fromUrl.startsWith('#')
+      ? fromUrl
+      : new URL(fromUrl, manager.outputTarget.baseUrl).pathname;
     manager.config.logger.debug(`prerender queue: ${url} (from ${from})`);
   }
 };
@@ -103,7 +114,11 @@ export const drainPrerenderQueue = (results: d.PrerenderResults, manager: d.Prer
   }
 };
 
-const prerenderUrl = async (results: d.PrerenderResults, manager: d.PrerenderManager, url: string) => {
+const prerenderUrl = async (
+  results: d.PrerenderResults,
+  manager: d.PrerenderManager,
+  url: string,
+) => {
   let previewUrl = url;
   try {
     previewUrl = new URL(url).pathname;

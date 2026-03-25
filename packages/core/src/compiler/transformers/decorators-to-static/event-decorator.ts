@@ -60,7 +60,11 @@ const parseEventDecorator = (
     return null;
   }
 
-  const [eventOpts] = getDecoratorParameters<d.EventOptions>(eventDecorator, typeChecker, diagnostics);
+  const [eventOpts] = getDecoratorParameters<d.EventOptions>(
+    eventDecorator,
+    typeChecker,
+    diagnostics,
+  );
   const symbol = typeChecker.getSymbolAtLocation(prop.name);
   const eventName = getEventName(eventOpts, memberName);
 
@@ -70,7 +74,8 @@ const parseEventDecorator = (
     method: memberName,
     name: eventName,
     bubbles: eventOpts && typeof eventOpts.bubbles === 'boolean' ? eventOpts.bubbles : true,
-    cancelable: eventOpts && typeof eventOpts.cancelable === 'boolean' ? eventOpts.cancelable : true,
+    cancelable:
+      eventOpts && typeof eventOpts.cancelable === 'boolean' ? eventOpts.cancelable : true,
     composed: eventOpts && typeof eventOpts.composed === 'boolean' ? eventOpts.composed : true,
     docs: serializeSymbol(typeChecker, symbol),
     complexType: getComplexType(typeChecker, program, prop),
@@ -79,7 +84,11 @@ const parseEventDecorator = (
 };
 
 export const getEventName = (eventOptions: d.EventOptions, memberName: string) => {
-  if (eventOptions && typeof eventOptions.eventName === 'string' && eventOptions.eventName.trim().length > 0) {
+  if (
+    eventOptions &&
+    typeof eventOptions.eventName === 'string' &&
+    eventOptions.eventName.trim().length > 0
+  ) {
     // always use the event name if given
     return eventOptions.eventName.trim();
   }
@@ -102,7 +111,9 @@ const getComplexType = (
   const eventType = node.type ? getEventType(node.type) : null;
   return {
     original: eventType ? eventType.getText() : 'any',
-    resolved: eventType ? resolveType(typeChecker, typeChecker.getTypeFromTypeNode(eventType)) : 'any',
+    resolved: eventType
+      ? resolveType(typeChecker, typeChecker.getTypeFromTypeNode(eventType))
+      : 'any',
     references: eventType ? getAttributeTypeInfo(eventType, sourceFile, typeChecker, program) : {},
   };
 };

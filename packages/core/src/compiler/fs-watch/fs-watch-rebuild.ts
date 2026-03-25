@@ -1,11 +1,21 @@
-import { isOutputTargetDocsJson, isOutputTargetDocsVscode, isOutputTargetStats, isString, unique } from '../../utils';
+import {
+  isOutputTargetDocsJson,
+  isOutputTargetDocsVscode,
+  isOutputTargetStats,
+  isString,
+  unique,
+} from '../../utils';
 import { basename } from 'path';
 
 import type * as d from '@stencil/core';
 
 export const filesChanged = (buildCtx: d.BuildCtx) => {
   // files changed include updated, added and deleted
-  return unique([...buildCtx.filesUpdated, ...buildCtx.filesAdded, ...buildCtx.filesDeleted]).sort();
+  return unique([
+    ...buildCtx.filesUpdated,
+    ...buildCtx.filesAdded,
+    ...buildCtx.filesDeleted,
+  ]).sort();
 };
 
 /**
@@ -86,7 +96,8 @@ export const scriptsDeleted = (buildCtx: d.BuildCtx): string[] =>
  * @param buildCtx the build context
  * @returns whether or not there are script changes
  */
-export const hasScriptChanges = (buildCtx: d.BuildCtx): boolean => buildCtx.filesChanged.some(hasScriptExt);
+export const hasScriptChanges = (buildCtx: d.BuildCtx): boolean =>
+  buildCtx.filesChanged.some(hasScriptExt);
 
 /**
  * Check whether a build has style changes
@@ -94,7 +105,8 @@ export const hasScriptChanges = (buildCtx: d.BuildCtx): boolean => buildCtx.file
  * @param buildCtx the build context
  * @returns whether or not there are style changes
  */
-export const hasStyleChanges = (buildCtx: d.BuildCtx): boolean => buildCtx.filesChanged.some(hasStyleExt);
+export const hasStyleChanges = (buildCtx: d.BuildCtx): boolean =>
+  buildCtx.filesChanged.some(hasStyleExt);
 
 /**
  * Check whether a build has html changes

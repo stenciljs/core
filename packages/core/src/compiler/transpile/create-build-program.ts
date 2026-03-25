@@ -110,7 +110,9 @@ export const createTsBuildProgram = async (
    * argument to this function.
    * @param tsBuilder a {@link ts.BuilderProgram} to manage the {@link ts.Program} in the provided build context
    */
-  tsWatchHost.afterProgramCreate = async (tsBuilder: ts.EmitAndSemanticDiagnosticsBuilderProgram): Promise<void> => {
+  tsWatchHost.afterProgramCreate = async (
+    tsBuilder: ts.EmitAndSemanticDiagnosticsBuilderProgram,
+  ): Promise<void> => {
     isBuildRunning = true;
     await buildCallback(tsBuilder);
     isBuildRunning = false;

@@ -1,22 +1,27 @@
 {
   "name": "@stencil/dev-server",
+  "version": "5.0.0-next.0",
   "description": "Development server for Stencil with DOM-based HMR",
-  "author": "StencilJs Contributors",
-  "homepage": "https://stenciljs.com/",
   "keywords": [
-    "web components",
-    "stencil",
     "dev server",
     "hmr",
-    "hot module replacement"
+    "hot module replacement",
+    "stencil",
+    "web components"
   ],
-  "version": "5.0.0-next.0",
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
   },
+  "files": [
+    "dist/",
+    "templates/",
+    "static/"
+  ],
   "type": "module",
-  "license": "MIT",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -29,11 +34,6 @@
       "import": "./dist/client/index.mjs"
     }
   },
-  "files": [
-    "dist/",
-    "templates/",
-    "static/"
-  ],
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
@@ -44,13 +44,13 @@
     "open": "^11.0.0",
     "ws": "^8.0.0"
   },
-  "peerDependencies": {
-    "@stencil/core": "^5.0.0"
-  },
   "devDependencies": {
     "@stencil/core": "workspace:*",
     "@types/ws": "^8.0.0",
     "rollup-plugin-postcss": "^4.0.2"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0"
   },
   "volta": {
     "extends": "../../package.json"

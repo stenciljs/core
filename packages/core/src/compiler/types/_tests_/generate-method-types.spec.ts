@@ -95,7 +95,9 @@ describe('generate-method-types', () => {
         internal: true,
         complexType: {
           parameters: [{ name: 'age', type: 'Bar', docs: '' }],
-          references: { Bar: { location: 'local', id: 'placeholder_id', path: './other-resources' } },
+          references: {
+            Bar: { location: 'local', id: 'placeholder_id', path: './other-resources' },
+          },
           return: 'Promise<boolean>',
           signature: '(age: Bar) => Promise<boolean>',
         },

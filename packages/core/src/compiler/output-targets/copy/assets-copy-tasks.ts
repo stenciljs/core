@@ -33,7 +33,10 @@ export const getComponentAssetsCopyTasks = (
         });
       } else if (!cmp.excludeFromCollection && !cmp.isCollectionDependency) {
         cmp.assetsDirs.forEach((assetsMeta) => {
-          const collectionDirDestination = join(dest, relative(config.srcDir, assetsMeta.absolutePath));
+          const collectionDirDestination = join(
+            dest,
+            relative(config.srcDir, assetsMeta.absolutePath),
+          );
           copyTasks.push({
             src: assetsMeta.absolutePath,
             dest: collectionDirDestination,

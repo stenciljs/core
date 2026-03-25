@@ -21,7 +21,13 @@ export const packageJsonError = (
   msg: string,
   jsonField: string,
 ): d.Diagnostic => {
-  const err = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, jsonField);
+  const err = buildJsonFileError(
+    compilerCtx,
+    buildCtx.diagnostics,
+    config.packageJsonFilePath,
+    msg,
+    jsonField,
+  );
   err.header = `Package Json`;
   return err;
 };
@@ -45,7 +51,13 @@ export const packageJsonWarn = (
   msg: string,
   jsonField: string,
 ): d.Diagnostic => {
-  const warn = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, jsonField);
+  const warn = buildJsonFileError(
+    compilerCtx,
+    buildCtx.diagnostics,
+    config.packageJsonFilePath,
+    msg,
+    jsonField,
+  );
   warn.header = `Package Json`;
   warn.level = 'warn';
   return warn;

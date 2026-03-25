@@ -21,7 +21,8 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
   const eligiblePrimaryTargets = config.outputTargets.filter(isEligiblePrimaryPackageOutputTarget);
   if (eligiblePrimaryTargets.length > 0) {
     const primaryTarget =
-      eligiblePrimaryTargets.find((o) => o.isPrimaryPackageOutputTarget) ?? eligiblePrimaryTargets[0];
+      eligiblePrimaryTargets.find((o) => o.isPrimaryPackageOutputTarget) ??
+      eligiblePrimaryTargets[0];
     const outputTargetConfig = PRIMARY_PACKAGE_TARGET_CONFIGS[primaryTarget.type];
 
     if (outputTargetConfig.getModulePath) {

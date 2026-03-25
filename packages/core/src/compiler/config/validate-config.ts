@@ -107,7 +107,7 @@ export const validateConfig = (
     process.env.TEST_PARALLEL_INDEX ||
     process.env.NODE_ENV === 'test'
   );
-  
+
   const hashFileNames = config.hashFileNames ?? !devMode;
 
   const validatedConfig: ValidatedConfig = {
@@ -127,7 +127,8 @@ export const validateConfig = (
     outputTargets: config.outputTargets ?? [],
     rollupConfig: validateRollupConfig(config),
     sourceMap:
-      config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
+      config.sourceMap === true ||
+      (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
     testing: config.testing ?? {},
     docs: validateDocs(config, logger),
@@ -145,7 +146,9 @@ export const validateConfig = (
   validatedConfig.extras.additionalTagTransformers =
     validatedConfig.extras.additionalTagTransformers === true ||
     (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
-  validatedConfig.extras.addGlobalStyleToComponents = isBoolean(validatedConfig.extras.addGlobalStyleToComponents)
+  validatedConfig.extras.addGlobalStyleToComponents = isBoolean(
+    validatedConfig.extras.addGlobalStyleToComponents,
+  )
     ? validatedConfig.extras.addGlobalStyleToComponents
     : 'client';
 
@@ -182,16 +185,22 @@ export const validateConfig = (
     validatedConfig.extras.appendChildSlotFix = !!validatedConfig.extras.appendChildSlotFix;
     validatedConfig.extras.cloneNodeFix = !!validatedConfig.extras.cloneNodeFix;
     validatedConfig.extras.slotChildNodesFix = !!validatedConfig.extras.slotChildNodesFix;
-    validatedConfig.extras.scopedSlotTextContentFix = !!validatedConfig.extras.scopedSlotTextContentFix;
+    validatedConfig.extras.scopedSlotTextContentFix =
+      !!validatedConfig.extras.scopedSlotTextContentFix;
     // TODO(STENCIL-1086): remove this option when it's the default behavior
-    validatedConfig.extras.experimentalScopedSlotChanges = !!validatedConfig.extras.experimentalScopedSlotChanges;
+    validatedConfig.extras.experimentalScopedSlotChanges =
+      !!validatedConfig.extras.experimentalScopedSlotChanges;
   }
 
   // Set boolean config values with defaults
   // CLI is responsible for merging flags into config before validation
   setBooleanConfig(validatedConfig, 'watch', false);
   setBooleanConfig(validatedConfig, 'buildDocs', !validatedConfig.devMode);
-  setBooleanConfig(validatedConfig, 'buildDist', !validatedConfig.devMode || !!validatedConfig.buildEs5);
+  setBooleanConfig(
+    validatedConfig,
+    'buildDist',
+    !validatedConfig.devMode || !!validatedConfig.buildEs5,
+  );
   setBooleanConfig(validatedConfig, 'profile', validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'writeLog', false);
   setBooleanConfig(validatedConfig, 'buildAppCore', true);
@@ -234,7 +243,10 @@ export const validateConfig = (
 
   // bundles
   if (Array.isArray(validatedConfig.bundles)) {
-    validatedConfig.bundles = sortBy(validatedConfig.bundles, (a: ConfigBundle) => a.components.length);
+    validatedConfig.bundles = sortBy(
+      validatedConfig.bundles,
+      (a: ConfigBundle) => a.components.length,
+    );
   } else {
     validatedConfig.bundles = [];
   }
@@ -256,10 +268,15 @@ export const validateConfig = (
 
   setBooleanConfig(validatedConfig, 'enableCache', true);
 
-  if (!Array.isArray(validatedConfig.watchIgnoredRegex) && validatedConfig.watchIgnoredRegex != null) {
+  if (
+    !Array.isArray(validatedConfig.watchIgnoredRegex) &&
+    validatedConfig.watchIgnoredRegex != null
+  ) {
     validatedConfig.watchIgnoredRegex = [validatedConfig.watchIgnoredRegex];
   }
-  validatedConfig.watchIgnoredRegex = ((validatedConfig.watchIgnoredRegex as RegExp[]) || []).reduce((arr, reg) => {
+  validatedConfig.watchIgnoredRegex = (
+    (validatedConfig.watchIgnoredRegex as RegExp[]) || []
+  ).reduce((arr, reg) => {
     if (reg instanceof RegExp) {
       arr.push(reg);
     }

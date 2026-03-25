@@ -87,7 +87,10 @@ export async function writeBuildStats(
     await Promise.all(
       statsTargets.map(async (outputTarget) => {
         if (outputTarget.file) {
-          const result = await config.sys.writeFile(outputTarget.file, JSON.stringify(compilerBuildStats, null, 2));
+          const result = await config.sys.writeFile(
+            outputTarget.file,
+            JSON.stringify(compilerBuildStats, null, 2),
+          );
 
           if (result.error) {
             config.logger.warn([`Stats failed to write file to ${outputTarget.file}`]);
@@ -98,7 +101,9 @@ export async function writeBuildStats(
   });
 }
 
-function sanitizeBundlesForStats(bundleArray: ReadonlyArray<d.BundleModule>): ReadonlyArray<d.CompilerBuildStatBundle> {
+function sanitizeBundlesForStats(
+  bundleArray: ReadonlyArray<d.BundleModule>,
+): ReadonlyArray<d.CompilerBuildStatBundle> {
   if (!bundleArray) {
     return [];
   }
@@ -122,7 +127,9 @@ function getSourceGraph(config: d.ValidatedConfig, buildCtx: d.BuildCtx) {
 
   sortBy(buildCtx.moduleFiles, (m) => m.sourceFilePath).forEach((moduleFile) => {
     const key = relativePath(config, moduleFile.sourceFilePath);
-    sourceGraph[key] = moduleFile.localImports.map((localImport) => relativePath(config, localImport)).sort();
+    sourceGraph[key] = moduleFile.localImports
+      .map((localImport) => relativePath(config, localImport))
+      .sort();
   });
 
   return sourceGraph;
@@ -166,13 +173,18 @@ function getComponentsFileMap(config: d.ValidatedConfig, buildCtx: d.BuildCtx) {
   });
 }
 
-function getCollections(config: d.ValidatedConfig, buildCtx: d.BuildCtx): d.CompilerBuildStatCollection[] {
+function getCollections(
+  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
+): d.CompilerBuildStatCollection[] {
   return buildCtx.collections
     .map((c) => {
       return {
         name: c.collectionName,
         source: relativePath(config, c.moduleDir),
-        tags: c.moduleFiles.map((m) => m.cmps.map((cmp: d.ComponentCompilerMeta) => cmp.tagName)).sort(),
+        tags: c.moduleFiles
+          .map((m) => m.cmps.map((cmp: d.ComponentCompilerMeta) => cmp.tagName))
+          .sort(),
       };
     })
     .sort((a, b) => {

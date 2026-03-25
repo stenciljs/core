@@ -3,7 +3,11 @@ import { join } from '../../utils';
 import type * as d from '@stencil/core';
 import { getAbsoluteBuildDir } from './html-utils';
 
-export const addScriptDataAttribute = (config: d.ValidatedConfig, doc: Document, outputTarget: d.OutputTargetWww) => {
+export const addScriptDataAttribute = (
+  config: d.ValidatedConfig,
+  doc: Document,
+  outputTarget: d.OutputTargetWww,
+) => {
   const resourcesUrl = getAbsoluteBuildDir(outputTarget);
   const entryEsmFilename = `${config.fsNamespace}.esm.js`;
   const entryNoModuleFilename = `${config.fsNamespace}.js`;

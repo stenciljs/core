@@ -84,7 +84,9 @@ function resolveTransitiveDependencies(
   visited.add(cmp);
 
   // create a collection of dependencies of web components that the build knows about
-  const dependencies = unique(cmp.potentialCmpRefs.filter((tagName) => cmps.some((c) => c.tagName === tagName)));
+  const dependencies = unique(
+    cmp.potentialCmpRefs.filter((tagName) => cmps.some((c) => c.tagName === tagName)),
+  );
 
   cmp.dependencies = cmp.directDependencies = dependencies;
 
@@ -111,7 +113,10 @@ function resolveTransitiveDependencies(
  * @param cmp the metadata for the component whose dependents are being calculated
  * @param cmps the metadata for all components that participate in the current build
  */
-function resolveTransitiveDependents(cmp: d.ComponentCompilerMeta, cmps: d.ComponentCompilerMeta[]): void {
+function resolveTransitiveDependents(
+  cmp: d.ComponentCompilerMeta,
+  cmps: d.ComponentCompilerMeta[],
+): void {
   // the dependents of a component are any other components that list it as a direct or transitive dependency
   cmp.dependents = cmps
     .filter((c) => c.dependencies.includes(cmp.tagName))

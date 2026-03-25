@@ -28,7 +28,9 @@ export const generateLazyModules = async (
   const shouldMinify = !!(config.minifyJs && isBrowserBuild);
   const rollupResults = results.filter((r): r is d.RollupChunkResult => r.type === 'chunk');
   const entryComponentsResults = rollupResults.filter((rollupResult) => rollupResult.isComponent);
-  const chunkResults = rollupResults.filter((rollupResult) => !rollupResult.isComponent && !rollupResult.isEntry);
+  const chunkResults = rollupResults.filter(
+    (rollupResult) => !rollupResult.isComponent && !rollupResult.isEntry,
+  );
 
   const bundleModules = await Promise.all(
     entryComponentsResults.map((rollupResult) => {
@@ -46,7 +48,10 @@ export const generateLazyModules = async (
     }),
   );
 
-  if ((!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) && !isBrowserBuild) {
+  if (
+    (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) &&
+    !isBrowserBuild
+  ) {
     addStaticImports(rollupResults, bundleModules);
   }
 
@@ -67,7 +72,9 @@ export const generateLazyModules = async (
   );
 
   const lazyRuntimeData = formatLazyBundlesRuntimeMeta(bundleModules);
-  const entryResults = rollupResults.filter((rollupResult) => !rollupResult.isComponent && rollupResult.isEntry);
+  const entryResults = rollupResults.filter(
+    (rollupResult) => !rollupResult.isComponent && rollupResult.isEntry,
+  );
   await Promise.all(
     entryResults.map((rollupResult) => {
       return writeLazyEntry(
@@ -107,7 +114,10 @@ export const generateLazyModules = async (
  * @param rollupChunkResults the results of running Rollup across a Stencil project
  * @param bundleModules lazy-loadable modules that can be resolved at runtime
  */
-const addStaticImports = (rollupChunkResults: d.RollupChunkResult[], bundleModules: d.BundleModule[]): void => {
+const addStaticImports = (
+  rollupChunkResults: d.RollupChunkResult[],
+  bundleModules: d.BundleModule[],
+): void => {
   rollupChunkResults.filter(isStencilCoreResult).forEach((index: d.RollupChunkResult) => {
     const generateCjs = isCjsFormat(index) ? generateCaseClauseCjs : generateCaseClause;
     index.code = index.code.replace(
@@ -189,7 +199,9 @@ const generateLazyEntryModule = async (
   shouldMinify: boolean,
   isBrowserBuild: boolean,
 ): Promise<d.BundleModule> => {
-  const entryModule = buildCtx.entryModules.find((entryModule) => entryModule.entryKey === rollupResult.entryKey);
+  const entryModule = buildCtx.entryModules.find(
+    (entryModule) => entryModule.entryKey === rollupResult.entryKey,
+  );
 
   const { code, sourceMap } = await convertChunk(
     config,
@@ -203,7 +215,14 @@ const generateLazyEntryModule = async (
     rollupResult.map,
   );
 
-  const output = await writeLazyModule(compilerCtx, outputTargetType, destinations, code, sourceMap, rollupResult);
+  const output = await writeLazyModule(
+    compilerCtx,
+    outputTargetType,
+    destinations,
+    code,
+    sourceMap,
+    rollupResult,
+  );
 
   return {
     rollupResult,
@@ -243,7 +262,11 @@ const writeLazyChunk = async (
       const writes: Promise<any>[] = [];
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rollupResult.fileName);
-        writes.push(compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType }));
+        writes.push(
+          compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), {
+            outputTargetType,
+          }),
+        );
       }
       writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
       return Promise.all(writes);
@@ -286,7 +309,11 @@ const writeLazyEntry = async (
       const writes: Promise<any>[] = [];
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rollupResult.fileName);
-        writes.push(compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), { outputTargetType }));
+        writes.push(
+          compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), {
+            outputTargetType,
+          }),
+        );
       }
       writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
       return Promise.all(writes);
@@ -377,7 +404,10 @@ export const sortBundleModules = (a: d.BundleModule, b: d.BundleModule): -1 | 1 
   return 0;
 };
 
-export const sortBundleComponents = (a: d.ComponentCompilerMeta, b: d.ComponentCompilerMeta): -1 | 1 | 0 => {
+export const sortBundleComponents = (
+  a: d.ComponentCompilerMeta,
+  b: d.ComponentCompilerMeta,
+): -1 | 1 | 0 => {
   // <cmp-a>
   //   <cmp-b>
   //     <cmp-c></cmp-c>

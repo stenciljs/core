@@ -13,7 +13,10 @@ export const addNativeStaticStyle = (
   buildCtx: d.BuildCtx,
 ) => {
   if (Array.isArray(cmp.styles) && cmp.styles.length > 0) {
-    if (cmp.styles.length > 1 || (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)) {
+    if (
+      cmp.styles.length > 1 ||
+      (cmp.styles.length === 1 && cmp.styles[0].modeName !== DEFAULT_STYLE_MODE)
+    ) {
       // multiple style modes
       addMultipleModeStyleGetter(classMembers, cmp, cmp.styles, buildCtx);
     } else {
@@ -49,7 +52,10 @@ const addMultipleModeStyleGetter = (
       // import myTagIosStyle from './import-path.css';
       // static get style() { return { "ios": myTagIosStyle }; }
       const styleUrlIdentifier = createStyleIdentifier(cmp, style);
-      const propUrlIdentifier = ts.factory.createPropertyAssignment(style.modeName, styleUrlIdentifier);
+      const propUrlIdentifier = ts.factory.createPropertyAssignment(
+        style.modeName,
+        styleUrlIdentifier,
+      );
       styleModes.push(propUrlIdentifier);
     } else if (typeof style.styleIdentifier === 'string') {
       // direct import already written in the source code
@@ -106,7 +112,11 @@ const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
   return addTagTransformToCssTsAST(cssCode, tagNames);
 };
 
-const createStyleLiteral = (cmp: d.ComponentCompilerMeta, style: d.StyleCompiler, buildCtx: d.BuildCtx) => {
+const createStyleLiteral = (
+  cmp: d.ComponentCompilerMeta,
+  style: d.StyleCompiler,
+  buildCtx: d.BuildCtx,
+) => {
   if (cmp.encapsulation === 'scoped') {
     // scope the css first
     const scopeId = getScopeId(cmp.tagName, style.modeName);

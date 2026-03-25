@@ -3,8 +3,8 @@
  * Migrated from ssr-request.ts.
  */
 
-import * as path from 'node:path'
-import type { ServerResponse } from 'node:http'
+import * as path from 'node:path';
+import type { ServerResponse } from 'node:http';
 
 import type {
   DevServerConfig,
@@ -13,25 +13,22 @@ import type {
   HttpRequest,
   PrerenderHydrateOptions,
   HydrateResults,
-} from './types'
-import { getSsrStaticDataPath, responseHeaders } from './utils'
-import { appendDevServerClientScript } from './handlers'
+} from './types';
+import { getSsrStaticDataPath, responseHeaders } from './utils';
+import { appendDevServerClientScript } from './handlers';
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface HydrateApp {
-  renderToString: (
-    html: string,
-    options: PrerenderHydrateOptions
-  ) => Promise<HydrateResults>
+  renderToString: (html: string, options: PrerenderHydrateOptions) => Promise<HydrateResults>;
 }
 
 interface SetupResult {
-  hydrateApp: HydrateApp | null
-  srcIndexHtml: string | null
-  diagnostics: Diagnostic[]
+  hydrateApp: HydrateApp | null;
+  srcIndexHtml: string | null;
+  diagnostics: Diagnostic[];
 }
 
 // =============================================================================
@@ -42,53 +39,53 @@ export async function ssrPageRequest(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
   req: HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ): Promise<void> {
   try {
-    let status = 500
-    let content = ''
+    let status = 500;
+    let content = '';
 
     const { hydrateApp, srcIndexHtml, diagnostics } = await setupHydrateApp(
       devServerConfig,
-      serverCtx
-    )
+      serverCtx,
+    );
 
     if (!diagnostics.some((diagnostic) => diagnostic.level === 'error')) {
       try {
-        const opts = getSsrHydrateOptions(devServerConfig, serverCtx, req.url!)
+        const opts = getSsrHydrateOptions(devServerConfig, serverCtx, req.url!);
 
-        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts)
+        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts);
 
-        diagnostics.push(...ssrResults.diagnostics)
-        status = ssrResults.httpStatus ?? 500
-        content = ssrResults.html ?? ''
+        diagnostics.push(...ssrResults.diagnostics);
+        status = ssrResults.httpStatus ?? 500;
+        content = ssrResults.html ?? '';
       } catch (e) {
-        catchError(diagnostics, e)
+        catchError(diagnostics, e);
       }
     }
 
     if (diagnostics.some((diagnostic) => diagnostic.level === 'error')) {
-      content = getSsrErrorContent(diagnostics)
-      status = 500
+      content = getSsrErrorContent(diagnostics);
+      status = 500;
     }
 
     if (devServerConfig.websocket) {
-      content = appendDevServerClientScript(devServerConfig, req, content)
+      content = appendDevServerClientScript(devServerConfig, req, content);
     }
 
-    serverCtx.logRequest(req, status)
+    serverCtx.logRequest(req, status);
 
     res.writeHead(
       status,
       responseHeaders({
         'content-type': 'text/html; charset=utf-8',
         'content-length': Buffer.byteLength(content, 'utf8'),
-      })
-    )
-    res.write(content)
-    res.end()
+      }),
+    );
+    res.write(content);
+    res.end();
   } catch (e) {
-    serverCtx.serve500(req, res, e, 'ssrPageRequest')
+    serverCtx.serve500(req, res, e, 'ssrPageRequest');
   }
 }
 
@@ -100,49 +97,49 @@ export async function ssrStaticDataRequest(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
   req: HttpRequest,
-  res: ServerResponse
+  res: ServerResponse,
 ): Promise<void> {
   try {
-    const data: Record<string, unknown> = {}
-    let httpCache = false
+    const data: Record<string, unknown> = {};
+    let httpCache = false;
 
     const { hydrateApp, srcIndexHtml, diagnostics } = await setupHydrateApp(
       devServerConfig,
-      serverCtx
-    )
+      serverCtx,
+    );
 
     if (!diagnostics.some((diagnostic) => diagnostic.level === 'error')) {
       try {
-        const { ssrPath, hasQueryString } = getSsrStaticDataPath(req)
-        const url = new URL(ssrPath, req.url!)
+        const { ssrPath, hasQueryString } = getSsrStaticDataPath(req);
+        const url = new URL(ssrPath, req.url!);
 
-        const opts = getSsrHydrateOptions(devServerConfig, serverCtx, url)
+        const opts = getSsrHydrateOptions(devServerConfig, serverCtx, url);
 
-        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts)
+        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts);
 
-        diagnostics.push(...ssrResults.diagnostics)
+        diagnostics.push(...ssrResults.diagnostics);
 
         ssrResults.staticData.forEach((s: { type: string; id: string; content: string }) => {
           if (s.type === 'application/json') {
-            data[s.id] = JSON.parse(s.content)
+            data[s.id] = JSON.parse(s.content);
           } else {
-            data[s.id] = s.content
+            data[s.id] = s.content;
           }
-        })
-        data.components = ssrResults.components.map((c: { tag: string }) => c.tag).sort()
-        httpCache = hasQueryString
+        });
+        data.components = ssrResults.components.map((c: { tag: string }) => c.tag).sort();
+        httpCache = hasQueryString;
       } catch (e) {
-        catchError(diagnostics, e)
+        catchError(diagnostics, e);
       }
     }
 
     if (diagnostics.length > 0) {
-      data.diagnostics = diagnostics
+      data.diagnostics = diagnostics;
     }
 
-    const status = diagnostics.some((diagnostic) => diagnostic.level === 'error') ? 500 : 200
-    const content = JSON.stringify(data)
-    serverCtx.logRequest(req, status)
+    const status = diagnostics.some((diagnostic) => diagnostic.level === 'error') ? 500 : 200;
+    const content = JSON.stringify(data);
+    serverCtx.logRequest(req, status);
 
     res.writeHead(
       status,
@@ -151,13 +148,13 @@ export async function ssrStaticDataRequest(
           'content-type': 'application/json; charset=utf-8',
           'content-length': Buffer.byteLength(content, 'utf8'),
         },
-        httpCache && status === 200
-      )
-    )
-    res.write(content)
-    res.end()
+        httpCache && status === 200,
+      ),
+    );
+    res.write(content);
+    res.end();
   } catch (e) {
-    serverCtx.serve500(req, res, e, 'ssrStaticDataRequest')
+    serverCtx.serve500(req, res, e, 'ssrStaticDataRequest');
   }
 }
 
@@ -167,25 +164,25 @@ export async function ssrStaticDataRequest(
 
 async function setupHydrateApp(
   devServerConfig: DevServerConfig,
-  serverCtx: DevServerContext
+  serverCtx: DevServerContext,
 ): Promise<SetupResult> {
-  let srcIndexHtml: string | null = null
-  let hydrateApp: HydrateApp | null = null
+  let srcIndexHtml: string | null = null;
+  let hydrateApp: HydrateApp | null = null;
 
-  const buildResults = await serverCtx.getBuildResults()
-  const diagnostics: Diagnostic[] = []
+  const buildResults = await serverCtx.getBuildResults();
+  const diagnostics: Diagnostic[] = [];
 
   if (serverCtx.prerenderConfig == null && isString(devServerConfig.prerenderConfig)) {
     try {
       // Dynamic import the compiler
-      const compiler = await import('@stencil/core/compiler')
-      const prerenderConfigResults = compiler.nodeRequire(devServerConfig.prerenderConfig)
-      diagnostics.push(...prerenderConfigResults.diagnostics)
+      const compiler = await import('@stencil/core/compiler');
+      const prerenderConfigResults = compiler.nodeRequire(devServerConfig.prerenderConfig);
+      diagnostics.push(...prerenderConfigResults.diagnostics);
       if (prerenderConfigResults.module?.config) {
-        serverCtx.prerenderConfig = prerenderConfigResults.module.config
+        serverCtx.prerenderConfig = prerenderConfigResults.module.config;
       }
     } catch (e) {
-      catchError(diagnostics, e)
+      catchError(diagnostics, e);
     }
   }
 
@@ -195,34 +192,34 @@ async function setupHydrateApp(
       level: 'error',
       type: 'ssr',
       lines: [],
-    })
+    });
   } else if (!isString(devServerConfig.srcIndexHtml)) {
     diagnostics.push({
       messageText: 'Missing srcIndexHtml',
       level: 'error',
       type: 'ssr',
       lines: [],
-    })
+    });
   } else {
-    srcIndexHtml = await serverCtx.sys.readFile(devServerConfig.srcIndexHtml, 'utf8')
+    srcIndexHtml = await serverCtx.sys.readFile(devServerConfig.srcIndexHtml, 'utf8');
     if (!isString(srcIndexHtml)) {
       diagnostics.push({
         level: 'error',
         lines: [],
         messageText: `Unable to load src index html: ${devServerConfig.srcIndexHtml}`,
         type: 'ssr',
-      })
+      });
     } else {
-      const hydrateAppFilePath = path.resolve(buildResults.hydrateAppFilePath)
+      const hydrateAppFilePath = path.resolve(buildResults.hydrateAppFilePath);
 
       try {
         // Use cache-busting query string for ESM dynamic import
         // This ensures we get a fresh module on each build
-        const cacheBuster = `?t=${Date.now()}`
-        const hydrateModule = await import(`file://${hydrateAppFilePath}${cacheBuster}`)
-        hydrateApp = hydrateModule.default || hydrateModule
+        const cacheBuster = `?t=${Date.now()}`;
+        const hydrateModule = await import(`file://${hydrateAppFilePath}${cacheBuster}`);
+        hydrateApp = hydrateModule.default || hydrateModule;
       } catch (e) {
-        catchError(diagnostics, e)
+        catchError(diagnostics, e);
       }
     }
   }
@@ -231,7 +228,7 @@ async function setupHydrateApp(
     hydrateApp,
     srcIndexHtml,
     diagnostics,
-  }
+  };
 }
 
 // =============================================================================
@@ -241,7 +238,7 @@ async function setupHydrateApp(
 function getSsrHydrateOptions(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
-  url: URL
+  url: URL,
 ): PrerenderHydrateOptions {
   const opts: PrerenderHydrateOptions = {
     url: url.href,
@@ -255,35 +252,35 @@ function getSsrHydrateOptions(
     removeEmptyAttributes: false,
     removeHtmlComments: false,
     prettyHtml: true,
-  }
+  };
 
-  const prerenderConfig = serverCtx?.prerenderConfig
+  const prerenderConfig = serverCtx?.prerenderConfig;
 
   if (isFunction(prerenderConfig?.hydrateOptions)) {
-    const userOpts = prerenderConfig.hydrateOptions(url)
+    const userOpts = prerenderConfig.hydrateOptions(url);
     if (userOpts) {
-      Object.assign(opts, userOpts)
+      Object.assign(opts, userOpts);
     }
   }
 
   if (isFunction(serverCtx.sys.applyPrerenderGlobalPatch)) {
-    const orgBeforeHydrate = opts.beforeHydrate
-    const applyPatch = serverCtx.sys.applyPrerenderGlobalPatch
+    const orgBeforeHydrate = opts.beforeHydrate;
+    const applyPatch = serverCtx.sys.applyPrerenderGlobalPatch;
     opts.beforeHydrate = (document: Document) => {
-      const devServerBaseUrl = new URL(devServerConfig.browserUrl!)
-      const devServerHostUrl = devServerBaseUrl.origin
+      const devServerBaseUrl = new URL(devServerConfig.browserUrl!);
+      const devServerHostUrl = devServerBaseUrl.origin;
       applyPatch({
         devServerHostUrl,
         window: document.defaultView,
-      })
+      });
 
       if (typeof orgBeforeHydrate === 'function') {
-        return orgBeforeHydrate(document)
+        return orgBeforeHydrate(document);
       }
-    }
+    };
   }
 
-  return opts
+  return opts;
 }
 
 // =============================================================================
@@ -309,11 +306,11 @@ function getSsrErrorContent(diagnostics: Diagnostic[]): string {
   <p>
     ${diagnostic.messageText}
   </p>
-  `
+  `,
     )
     .join('')}
 </body>
-</html>`
+</html>`;
 }
 
 function catchError(diagnostics: Diagnostic[], err: unknown): void {
@@ -322,18 +319,18 @@ function catchError(diagnostics: Diagnostic[], err: unknown): void {
     type: 'runtime',
     messageText: '',
     lines: [],
-  }
+  };
 
   if (err instanceof Error) {
-    diagnostic.messageText = err.message
+    diagnostic.messageText = err.message;
     if (err.stack) {
-      diagnostic.messageText += '\n' + err.stack
+      diagnostic.messageText += '\n' + err.stack;
     }
   } else {
-    diagnostic.messageText = String(err)
+    diagnostic.messageText = String(err);
   }
 
-  diagnostics.push(diagnostic)
+  diagnostics.push(diagnostic);
 }
 
 // =============================================================================
@@ -341,9 +338,9 @@ function catchError(diagnostics: Diagnostic[], err: unknown): void {
 // =============================================================================
 
 function isString(val: unknown): val is string {
-  return typeof val === 'string'
+  return typeof val === 'string';
 }
 
 function isFunction(val: unknown): val is Function {
-  return typeof val === 'function'
+  return typeof val === 'function';
 }

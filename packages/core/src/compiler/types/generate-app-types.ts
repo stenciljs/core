@@ -1,4 +1,11 @@
-import { addDocBlock, GENERATED_DTS, getComponentsDtsSrcFilePath, normalizePath, relative, resolve } from '../../utils';
+import {
+  addDocBlock,
+  GENERATED_DTS,
+  getComponentsDtsSrcFilePath,
+  normalizePath,
+  relative,
+  resolve,
+} from '../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '@stencil/core';
@@ -43,9 +50,13 @@ export const generateAppTypes = async (
     );
   }
 
-  const writeResults = await compilerCtx.fs.writeFile(normalizePath(componentsDtsFilePath), componentTypesFileContent, {
-    immediateWrite: true,
-  });
+  const writeResults = await compilerCtx.fs.writeFile(
+    normalizePath(componentsDtsFilePath),
+    componentTypesFileContent,
+    {
+      immediateWrite: true,
+    },
+  );
   const hasComponentsDtsChanged = writeResults.changedContent;
 
   const componentsDtsRelFileName = relative(config.rootDir, componentsDtsFilePath);
@@ -82,7 +93,13 @@ const generateComponentTypesFile = (
      * data structure for each Stencil component in series, therefore the memory footprint of this entity will likely
      * grow as more components (with additional types) are processed.
      */
-    typeImportData = updateReferenceTypeImports(typeImportData, allTypes, cmp, cmp.sourceFilePath, config);
+    typeImportData = updateReferenceTypeImports(
+      typeImportData,
+      allTypes,
+      cmp,
+      cmp.sourceFilePath,
+      config,
+    );
     if (cmp.events.length > 0) {
       /**
        * Only generate event detail types for components that have events.
@@ -104,7 +121,10 @@ const generateComponentTypesFile = (
 
     let importFilePath = filePath;
     if (isAbsolute(filePath)) {
-      importFilePath = normalizePath('./' + relative(config.srcDir, filePath)).replace(/\.(tsx|ts)$/, '');
+      importFilePath = normalizePath('./' + relative(config.srcDir, filePath)).replace(
+        /\.(tsx|ts)$/,
+        '',
+      );
     }
 
     // Check if this file has any default imports
@@ -131,8 +151,12 @@ const generateComponentTypesFile = (
           }
         })
         .join(`, `);
-      imports.push(`import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`);
-      exports.push(`export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`);
+      imports.push(
+        `import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`,
+      );
+      exports.push(
+        `export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`,
+      );
     } else {
       // Named imports only
       const namedPart = typeData
@@ -189,7 +213,9 @@ const generateComponentTypesFile = (
     }),
   );
 
-  const attributeInterfaces = modules.filter((m) => m.explicitAttributes).map((m) => m.explicitAttributes);
+  const attributeInterfaces = modules
+    .filter((m) => m.explicitAttributes)
+    .map((m) => m.explicitAttributes);
   if (attributeInterfaces.length > 0) {
     c.push(``);
     c.push(...attributeInterfaces);

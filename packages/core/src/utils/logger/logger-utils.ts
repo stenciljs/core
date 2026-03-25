@@ -6,7 +6,10 @@ import type * as d from '@stencil/core';
  * @param diagnostics the diagnostics to normalize
  * @returns the normalize documents
  */
-export const normalizeDiagnostics = (compilerCtx: d.CompilerCtx, diagnostics: d.Diagnostic[]): d.Diagnostic[] => {
+export const normalizeDiagnostics = (
+  compilerCtx: d.CompilerCtx,
+  diagnostics: d.Diagnostic[],
+): d.Diagnostic[] => {
   const maxErrorsToNormalize = 25;
   const normalizedErrors: d.Diagnostic[] = [];
   const normalizedOthers: d.Diagnostic[] = [];
@@ -15,7 +18,11 @@ export const normalizeDiagnostics = (compilerCtx: d.CompilerCtx, diagnostics: d.
   for (let i = 0; i < diagnostics.length; i++) {
     const diagnostic = normalizeDiagnostic(compilerCtx, diagnostics[i]);
 
-    const key = (diagnostic.absFilePath ?? '') + (diagnostic.code ?? '') + diagnostic.messageText + diagnostic.type;
+    const key =
+      (diagnostic.absFilePath ?? '') +
+      (diagnostic.code ?? '') +
+      diagnostic.messageText +
+      diagnostic.type;
     if (dups.has(key)) {
       continue;
     }
@@ -39,11 +46,17 @@ export const normalizeDiagnostics = (compilerCtx: d.CompilerCtx, diagnostics: d.
  * @param diagnostic the diagnostic to normalize
  * @returns the altered diagnostic
  */
-const normalizeDiagnostic = (compilerCtx: d.CompilerCtx, diagnostic: d.Diagnostic): d.Diagnostic => {
+const normalizeDiagnostic = (
+  compilerCtx: d.CompilerCtx,
+  diagnostic: d.Diagnostic,
+): d.Diagnostic => {
   if (diagnostic.messageText) {
     if (typeof (<any>diagnostic.messageText).message === 'string') {
       diagnostic.messageText = (<any>diagnostic.messageText).message;
-    } else if (typeof diagnostic.messageText === 'string' && diagnostic.messageText.indexOf('Error: ') === 0) {
+    } else if (
+      typeof diagnostic.messageText === 'string' &&
+      diagnostic.messageText.indexOf('Error: ') === 0
+    ) {
       diagnostic.messageText = diagnostic.messageText.slice(7);
     }
   }

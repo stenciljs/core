@@ -45,7 +45,13 @@ export const getCssSelectors = (sel: string) => {
   return SELECTORS;
 };
 
-const SELECTORS: { all: string[]; tags: string[]; classNames: string[]; ids: string[]; attrs: string[] } = {
+const SELECTORS: {
+  all: string[];
+  tags: string[];
+  classNames: string[];
+  ids: string[];
+  attrs: string[];
+} = {
   all: [],
   tags: [],
   classNames: [],

@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 import { h, newVNode } from '../h';
-import { expect, describe, it } from '@stencil/vitest'
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('h()', () => {
   it('should render nested functional components', () => {
@@ -180,7 +180,9 @@ describe('h()', () => {
   });
 
   it('should add class from className map of classnames and booleans', () => {
-    const vnode = h('div', { className: { save: true, the: true, clock: true, tower: true, hillvalley: false } });
+    const vnode = h('div', {
+      className: { save: true, the: true, clock: true, tower: true, hillvalley: false },
+    });
     expect(vnode.$attrs$.class).toBeDefined();
     expect(vnode.$attrs$.class).toEqual('save the clock tower');
   });

@@ -27,7 +27,9 @@ describe('generateComponentTypes', () => {
 
       const result = generateComponentTypes(cmpMeta, {}, false);
 
-      expect(result.element).toContain('interface HTMLMyButtonElement extends Components.MyButton, HTMLStencilElement');
+      expect(result.element).toContain(
+        'interface HTMLMyButtonElement extends Components.MyButton, HTMLStencilElement',
+      );
       expect(result.element).not.toContain('Omit');
     });
 

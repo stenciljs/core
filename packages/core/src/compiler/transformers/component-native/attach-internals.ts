@@ -31,7 +31,9 @@ import ts from 'typescript';
  * compilation
  * @returns an expression statement syntax tree node
  */
-export function createNativeAttachInternalsBinding(cmp: d.ComponentCompilerMeta): ts.ExpressionStatement[] {
+export function createNativeAttachInternalsBinding(
+  cmp: d.ComponentCompilerMeta,
+): ts.ExpressionStatement[] {
   if (!cmp.attachInternalsMemberName) {
     return [];
   }
@@ -88,7 +90,10 @@ function createStatesAddCall(memberName: string, stateName: string): ts.Expressi
     ts.factory.createCallExpression(
       ts.factory.createPropertyAccessExpression(
         ts.factory.createPropertyAccessExpression(
-          ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier(memberName)),
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createThis(),
+            ts.factory.createIdentifier(memberName),
+          ),
           ts.factory.createIdentifier('states'),
         ),
         ts.factory.createIdentifier('add'),

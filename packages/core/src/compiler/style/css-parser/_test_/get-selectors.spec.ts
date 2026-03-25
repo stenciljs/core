@@ -1,5 +1,5 @@
 import { getCssSelectors } from '../get-css-selectors';
-import { describe, it, expect } from 'vitest'; 
+import { describe, it, expect } from 'vitest';
 
 describe('getCssSelectors', () => {
   it('attribute containing selector', () => {
@@ -16,7 +16,9 @@ describe('getCssSelectors', () => {
   });
 
   it('should get complex selectors', () => {
-    const s = getCssSelectors('button.my-button#id[attr="value"]::before > + ~ @ button:not(.label)');
+    const s = getCssSelectors(
+      'button.my-button#id[attr="value"]::before > + ~ @ button:not(.label)',
+    );
 
     expect(s.tags).toHaveLength(2);
     expect(s.tags[0]).toBe('button');

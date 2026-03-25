@@ -25,7 +25,9 @@ export const writeLazyModule = async (
       const mapPath = jsPath + '.map';
       const writes: Promise<any>[] = [compilerCtx.fs.writeFile(jsPath, code, { outputTargetType })];
       if (!!sourceMap) {
-        writes.push(compilerCtx.fs.writeFile(mapPath, JSON.stringify(sourceMap), { outputTargetType }));
+        writes.push(
+          compilerCtx.fs.writeFile(mapPath, JSON.stringify(sourceMap), { outputTargetType }),
+        );
       }
       return Promise.all(writes);
     }),

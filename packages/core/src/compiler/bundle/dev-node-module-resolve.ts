@@ -41,7 +41,12 @@ export const devNodeModuleResolveId = async (
     return resolvedId;
   }
 
-  resolvedId.id = serializeDevNodeModuleUrl(config, pkgJsonData.name, pkgJsonData.version, resolvedPath);
+  resolvedId.id = serializeDevNodeModuleUrl(
+    config,
+    pkgJsonData.name,
+    pkgJsonData.version,
+    resolvedPath,
+  );
   resolvedId.external = true;
 
   return resolvedId;

@@ -2,7 +2,6 @@
 
 Stencil is able to generate components into various formats so they can be best integrated into the many different apps types, no matter what framework or bundler is used.
 
-
 ## Output Target Terms
 
 `script`: A prebuilt, stand-alone webapp already built from the components. These are already built to be loaded by just a script tag, no additional builds or bundling required. Both the `www` and `dist` output target types save an "app" into their directories. When saving the webapp into the `dist/` directory, it can be easily packaged up and used with a service like `unpkg.com`. See https://www.npmjs.com/package/@ionic/core
@@ -15,10 +14,9 @@ Stencil is able to generate components into various formats so they can be best 
 
 `module`: Component code meant to be imported by other bundlers in order for them to be integrated within other apps.
 
-`native`: Lazy-loaded components split the host custom element and the component implementation apart. A "native" component is a traditional custom element in that the instance and host element are the same. 
+`native`: Lazy-loaded components split the host custom element and the component implementation apart. A "native" component is a traditional custom element in that the instance and host element are the same.
 
 `custom-element`: Individual custom elements packaged up into stand-alone, self-contained code. Each component imports shared runtime from `@stencil/core`. Opposite of lazy-loaded components that define themselves and load on demand, the custom elements builds must be imported and defined by the consumer, and any lazy-loaded depends on the consumer's bundling methods.
-
 
 ## Output Target Types
 
@@ -28,26 +26,22 @@ Stencil is able to generate components into various formats so they can be best 
 - Generates a stand-alone `app` into the `www/` directory.
 - Depending on the number of components and configuration, the app may be lazy-loaded of single-file.
 
-
 ### `dist`
 
 - Generates `modules` to be imported by other bundlers, such as `dist/esm/` and `dist/esm-es5/` (when enabling buildEs5 config).
 - Generates an `app` at the root of the `dist/` directory. It's the same stand-alone webapp as the `www` type, but located in dist so it's easy to package up and shared.
 - Generates a `collection` into the `dist/collection/` directory to be used by other projects.
 
-
 ### `angular`
 
 - Generates a wrapper Angular component proxy.
 - Web components themselves work fine within Angular, but you loose out on many of Angular's features, such as types or `@ViewChild`. In order for a Stencil project to fit right into the Angular ecosystem, this output target generates thin wrapper that can be imported by Angular.
 
-
 ### `dist-hydrate-script`
 
-- Used by NodeJS to do Static Site Generation (SSG) and/or Server Side Rendering (SSR). 
+- Used by NodeJS to do Static Site Generation (SSG) and/or Server Side Rendering (SSR).
 - Used by Stencil prerendering commands.
 - Formats the components so that the server can generate new global window environments that are scoped to each rendering, rather than having global information bleed between each URL rendered.
-
 
 ## Output Folder Structure Defaults
 
@@ -64,7 +58,7 @@ Stencil is able to generate components into various formats so they can be best 
       - my-cmp.css
     - collection-manifest.json
     - global.js
-  
+
   - custom-elements (bundler ready custom elements, esm only)
     - index.js (esm)
     - index.d.ts

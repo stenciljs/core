@@ -1,6 +1,6 @@
 /**
- * This file: 
- * 1) Overrides client specific functions with server specific implementations  
+ * This file:
+ * 1) Overrides client specific functions with server specific implementations
  * 2) Re-export the rest of the runtime API from the client index, so that the server platform can use it as well
  **/
 
@@ -107,7 +107,8 @@ const defaultConsoleError = (e: any) => {
   }
 };
 
-export const consoleError: d.ErrorHandler = (e: any, el?: any) => (customError || defaultConsoleError)(e, el);
+export const consoleError: d.ErrorHandler = (e: any, el?: any) =>
+  (customError || defaultConsoleError)(e, el);
 
 export const consoleDevError = (..._: any[]) => {
   /* noop for hydrate */
@@ -204,7 +205,9 @@ export const modeResolutionChain: d.ResolutionHandler[] = [];
  */
 export const setScopedSSR = (opts: d.HydrateFactoryOptions) => {
   scopedSSR =
-    BUILD.shadowDom && opts.serializeShadowRoot !== false && opts.serializeShadowRoot !== 'declarative-shadow-dom';
+    BUILD.shadowDom &&
+    opts.serializeShadowRoot !== false &&
+    opts.serializeShadowRoot !== 'declarative-shadow-dom';
 };
 export const needsScopedSSR = () => scopedSSR;
 

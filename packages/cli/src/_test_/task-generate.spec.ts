@@ -99,23 +99,28 @@ describe('generate task', () => {
     expect(errorSpy).toHaveBeenCalledWith('error error error');
   });
 
-  it.each([true, false])('should create a directory for the generated components', async (includeTests) => {
-    const { config, flags } = await setup();
-    if (!includeTests) {
-      promptMock.mockResolvedValue({
-        tagName: 'my-component',
-        // simulate the user picking only the css option
-        filesToGenerate: ['css'],
-      });
-    }
+  it.each([true, false])(
+    'should create a directory for the generated components',
+    async (includeTests) => {
+      const { config, flags } = await setup();
+      if (!includeTests) {
+        promptMock.mockResolvedValue({
+          tagName: 'my-component',
+          // simulate the user picking only the css option
+          filesToGenerate: ['css'],
+        });
+      }
 
-    const createDirSpy = vi.spyOn(config.sys, 'createDir');
-    await silentGenerate(config, flags);
-    expect(createDirSpy).toHaveBeenCalledWith(
-      includeTests ? `${config.srcDir}/components/my-component/test` : `${config.srcDir}/components/my-component`,
-      { recursive: true },
-    );
-  });
+      const createDirSpy = vi.spyOn(config.sys, 'createDir');
+      await silentGenerate(config, flags);
+      expect(createDirSpy).toHaveBeenCalledWith(
+        includeTests
+          ? `${config.srcDir}/components/my-component/test`
+          : `${config.srcDir}/components/my-component`,
+        { recursive: true },
+      );
+    },
+  );
 
   it('should generate the files the user picked', async () => {
     const { config, flags } = await setup();

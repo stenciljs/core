@@ -20,7 +20,9 @@ describe('validateDocs', () => {
       } as d.OutputTargetDocsReadme,
     ];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    const o = config.outputTargets.find((o) => o.type === 'docs-readme') as d.OutputTargetDocsReadme;
+    const o = config.outputTargets.find(
+      (o) => o.type === 'docs-readme',
+    ) as d.OutputTargetDocsReadme;
     expect(o.dir).toContain('my-dir');
   });
 
@@ -37,7 +39,9 @@ describe('validateDocs', () => {
 
   it('should use default values for docs.markdown.targetComponent', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.docs.markdown.targetComponent.background).toBe(DEFAULT_TARGET_COMPONENT_STYLES.background);
+    expect(config.docs.markdown.targetComponent.background).toBe(
+      DEFAULT_TARGET_COMPONENT_STYLES.background,
+    );
   });
 
   it('should use user values for docs.markdown.targetComponent.background', () => {
@@ -51,7 +55,9 @@ describe('validateDocs', () => {
       },
     });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.docs.markdown.targetComponent.background).toBe(userConfig.docs.markdown.targetComponent.background);
+    expect(config.docs.markdown.targetComponent.background).toBe(
+      userConfig.docs.markdown.targetComponent.background,
+    );
   });
 
   it('should use user values for docs.markdown.targetComponent.textColor', () => {
@@ -65,6 +71,8 @@ describe('validateDocs', () => {
       },
     });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.docs.markdown.targetComponent.textColor).toBe(userConfig.docs.markdown.targetComponent.textColor);
+    expect(config.docs.markdown.targetComponent.textColor).toBe(
+      userConfig.docs.markdown.targetComponent.textColor,
+    );
   });
 });

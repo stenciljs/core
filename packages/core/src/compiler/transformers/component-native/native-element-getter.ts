@@ -11,7 +11,10 @@ import type * as d from '@stencil/core';
  * @param classMembers members of the class in question
  * @param cmp metadata about the stencil component of interest
  */
-export const addNativeElementGetter = (classMembers: ts.ClassElement[], cmp: d.ComponentCompilerMeta) => {
+export const addNativeElementGetter = (
+  classMembers: ts.ClassElement[],
+  cmp: d.ComponentCompilerMeta,
+) => {
   // @Element() element;
   // is transformed into:
   // get element() { return this; }
@@ -30,7 +33,8 @@ export const addNativeElementGetter = (classMembers: ts.ClassElement[], cmp: d.C
     // ref identifier we have
     const index = classMembers.findIndex(
       (member) =>
-        member.kind === ts.SyntaxKind.PropertyDeclaration && (member.name as any)?.escapedText === cmp.elementRef,
+        member.kind === ts.SyntaxKind.PropertyDeclaration &&
+        (member.name as any)?.escapedText === cmp.elementRef,
     );
 
     // Index should never not be a valid integer, but we'll be safe just in case.

@@ -49,7 +49,12 @@ export const mapImportsToPathAliases = (
           // We will ignore transforming any paths that are already relative paths or
           // imports from external modules/packages
           if (!importPath.startsWith('.')) {
-            const module = ts.resolveModuleName(importPath, sourceFile, config.tsCompilerOptions, compilerHost);
+            const module = ts.resolveModuleName(
+              importPath,
+              sourceFile,
+              config.tsCompilerOptions,
+              compilerHost,
+            );
 
             const hasResolvedFileName = module.resolvedModule?.resolvedFileName != null;
             const isModuleFromNodeModules = module.resolvedModule?.isExternalLibraryImport === true;
@@ -72,7 +77,10 @@ export const mapImportsToPathAliases = (
               );
 
               importPath = normalizePath(
-                relative(dirname(destinationFilePath), resolvePathInDestination).replace(extensionRegex, ''),
+                relative(dirname(destinationFilePath), resolvePathInDestination).replace(
+                  extensionRegex,
+                  '',
+                ),
               );
               // if the importee is a sibling file of the importer then `relative` will
               // produce a somewhat confusing result. We use `dirname` to get the

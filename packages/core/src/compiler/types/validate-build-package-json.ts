@@ -85,7 +85,12 @@ export const validatePackageFiles = async (
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
-    const validPaths = [`${actualDistDir}`, `${actualDistDir}/`, `./${actualDistDir}`, `./${actualDistDir}/`];
+    const validPaths = [
+      `${actualDistDir}`,
+      `${actualDistDir}/`,
+      `./${actualDistDir}`,
+      `./${actualDistDir}/`,
+    ];
 
     const containsDistDir = buildCtx.packageJson.files.some((userPath) =>
       validPaths.some((validPath) => normalizePath(userPath) === validPath),
@@ -161,7 +166,10 @@ export const validateCollection = (
       join(relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME),
       false,
     );
-    if (!buildCtx.packageJson.collection || normalizePath(buildCtx.packageJson.collection, false) !== collectionRel) {
+    if (
+      !buildCtx.packageJson.collection ||
+      normalizePath(buildCtx.packageJson.collection, false) !== collectionRel
+    ) {
       const msg = `package.json "collection" property is required when generating a distribution and must be set to: ${collectionRel}`;
       packageJsonWarn(config, compilerCtx, buildCtx, msg, `"collection"`);
     }
@@ -176,7 +184,11 @@ export const validateCollection = (
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  */
-export const validateBrowser = (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+export const validateBrowser = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   if (isString(buildCtx.packageJson.browser)) {
     const msg = `package.json "browser" property is set to "${buildCtx.packageJson.browser}". However, for maximum compatibility with all bundlers it's recommended to not set the "browser" property and instead ensure both "module" and "main" properties are set.`;
     packageJsonWarn(config, compilerCtx, buildCtx, msg, `"browser"`);

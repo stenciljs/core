@@ -99,11 +99,19 @@ const getComponentsUpdated = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) 
 
   const changedScriptFiles: string[] = [];
   const checkedFiles = new Set<string>();
-  const allModuleFiles = buildCtx.moduleFiles.filter((m) => m.localImports && m.localImports.length > 0);
+  const allModuleFiles = buildCtx.moduleFiles.filter(
+    (m) => m.localImports && m.localImports.length > 0,
+  );
 
   while (filesToLookForImporters.length > 0) {
     const scriptFile = filesToLookForImporters.shift();
-    addTsFileImporters(allModuleFiles, filesToLookForImporters, checkedFiles, changedScriptFiles, scriptFile);
+    addTsFileImporters(
+      allModuleFiles,
+      filesToLookForImporters,
+      checkedFiles,
+      changedScriptFiles,
+      scriptFile,
+    );
   }
 
   const tags = changedScriptFiles.reduce((tags, changedTsFile) => {
@@ -228,7 +236,11 @@ const getImagesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTarget
  * currently under consideration
  * @returns a sorted list of files to exclude
  */
-const excludeHmrFiles = (config: d.Config, excludeHmr: string[], filesChanged: string[]): string[] => {
+const excludeHmrFiles = (
+  config: d.Config,
+  excludeHmr: string[],
+  filesChanged: string[],
+): string[] => {
   const excludeFiles: string[] = [];
 
   if (!excludeHmr || excludeHmr.length === 0) {

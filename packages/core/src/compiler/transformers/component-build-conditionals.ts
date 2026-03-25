@@ -47,7 +47,11 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
   }
 
   cmpMeta.hasMember =
-    cmpMeta.hasProp || cmpMeta.hasState || cmpMeta.hasElement || cmpMeta.hasMethod || cmpMeta.formAssociated;
+    cmpMeta.hasProp ||
+    cmpMeta.hasState ||
+    cmpMeta.hasElement ||
+    cmpMeta.hasMethod ||
+    cmpMeta.formAssociated;
 
   cmpMeta.isUpdateable = cmpMeta.hasProp || cmpMeta.hasState;
   if (cmpMeta.styles.length > 0) {
@@ -63,5 +67,9 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     cmpMeta.hasComponentWillRenderFn ||
     cmpMeta.hasComponentDidRenderFn;
   cmpMeta.isPlain =
-    !cmpMeta.hasMember && !cmpMeta.hasStyle && !cmpMeta.hasLifecycle && !cmpMeta.hasListener && !cmpMeta.hasVdomRender;
+    !cmpMeta.hasMember &&
+    !cmpMeta.hasStyle &&
+    !cmpMeta.hasLifecycle &&
+    !cmpMeta.hasListener &&
+    !cmpMeta.hasVdomRender;
 };

@@ -16,7 +16,11 @@ const DEFAULT_IGNORE = [
   '**/thumbs.db',
 ];
 
-export const outputCopy = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+export const outputCopy = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   const outputTargets = config.outputTargets.filter(isOutputTargetCopy);
   if (outputTargets.length === 0) {
     return;
@@ -24,10 +28,16 @@ export const outputCopy = async (config: d.ValidatedConfig, compilerCtx: d.Compi
 
   const changedFiles = [...buildCtx.filesUpdated, ...buildCtx.filesAdded, ...buildCtx.dirsAdded];
   const copyTasks: Required<d.CopyTask>[] = [];
-  const needsCopyAssets = !canSkipAssetsCopy(compilerCtx, buildCtx.entryModules, buildCtx.filesChanged);
+  const needsCopyAssets = !canSkipAssetsCopy(
+    compilerCtx,
+    buildCtx.entryModules,
+    buildCtx.filesChanged,
+  );
   outputTargets.forEach((o) => {
     if (needsCopyAssets && o.copyAssets) {
-      copyTasks.push(...getComponentAssetsCopyTasks(config, buildCtx, o.dir, o.copyAssets === 'collection'));
+      copyTasks.push(
+        ...getComponentAssetsCopyTasks(config, buildCtx, o.dir, o.copyAssets === 'collection'),
+      );
     }
     copyTasks.push(...getCopyTasks(config, buildCtx, o, changedFiles));
   });
@@ -63,12 +73,18 @@ const getCopyTasks = (
     return [];
   }
   const copyTasks =
-    !buildCtx.isRebuild || buildCtx.requiresFullBuild ? o.copy : filterCopyTasks(config, o.copy, changedFiles);
+    !buildCtx.isRebuild || buildCtx.requiresFullBuild
+      ? o.copy
+      : filterCopyTasks(config, o.copy, changedFiles);
 
   return copyTasks.map((t) => transformToAbs(t, o.dir));
 };
 
-const filterCopyTasks = (config: d.ValidatedConfig, tasks: d.CopyTask[], changedFiles: string[]) => {
+const filterCopyTasks = (
+  config: d.ValidatedConfig,
+  tasks: d.CopyTask[],
+  changedFiles: string[],
+) => {
   if (Array.isArray(tasks)) {
     return tasks.filter((copy) => {
       let copySrc = copy.src;
@@ -96,7 +112,9 @@ const transformToAbs = (copyTask: d.CopyTask, dest: string): Required<d.CopyTask
     dest: getDestAbsPath(copyTask.src, dest, copyTask.dest),
     ignore: copyTask.ignore || DEFAULT_IGNORE,
     keepDirStructure:
-      typeof copyTask.keepDirStructure === 'boolean' ? copyTask.keepDirStructure : copyTask.dest == null,
+      typeof copyTask.keepDirStructure === 'boolean'
+        ? copyTask.keepDirStructure
+        : copyTask.dest == null,
     warn: copyTask.warn !== false,
   };
 };

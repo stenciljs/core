@@ -65,7 +65,13 @@ export class NodeResolveModule {
 
     while (dir !== root) {
       dir = normalizePath(path.dirname(dir));
-      typesPackageJsonFilePath = path.join(dir, 'node_modules', moduleSplt[0], moduleSplt[1], 'package.json');
+      typesPackageJsonFilePath = path.join(
+        dir,
+        'node_modules',
+        moduleSplt[0],
+        moduleSplt[1],
+        'package.json',
+      );
 
       if (!fs.existsSync(typesPackageJsonFilePath)) {
         continue;

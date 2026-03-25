@@ -1,4 +1,4 @@
-import { expect, describe, it, beforeEach } from '@stencil/vitest'
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { SVG_NS } from '../../../utils';
 
 import type * as d from '@stencil/core';
@@ -53,7 +53,10 @@ describe('renderer', () => {
     it('should not affect subsequence element', () => {
       patch(
         vnode0,
-        h('div', null, [h('svg', null, [h('title', null, 'Title'), h('circle', null)] as any), h('div', null)] as any),
+        h('div', null, [
+          h('svg', null, [h('title', null, 'Title'), h('circle', null)] as any),
+          h('div', null),
+        ] as any),
       );
 
       expect(hostElm.tagName).toEqual('DIV');

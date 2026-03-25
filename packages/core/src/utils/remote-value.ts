@@ -40,7 +40,9 @@ export class RemoteValue {
         return value;
 
       case NonPrimitiveType.Array:
-        return (value as ScriptLocalValue[]).map((item: ScriptLocalValue) => RemoteValue.fromLocalValue(item));
+        return (value as ScriptLocalValue[]).map((item: ScriptLocalValue) =>
+          RemoteValue.fromLocalValue(item),
+        );
 
       case NonPrimitiveType.Date:
         return new Date(value as string);
@@ -48,7 +50,8 @@ export class RemoteValue {
       case NonPrimitiveType.Map:
         const map = new Map();
         for (const [key, val] of value as unknown as [string, ScriptLocalValue][]) {
-          const deserializedKey = typeof key === 'object' && key !== null ? RemoteValue.fromLocalValue(key) : key;
+          const deserializedKey =
+            typeof key === 'object' && key !== null ? RemoteValue.fromLocalValue(key) : key;
           const deserializedValue = RemoteValue.fromLocalValue(val);
           map.set(deserializedKey, deserializedValue);
         }

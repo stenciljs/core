@@ -140,7 +140,9 @@ describe('hasAppTarget()', () => {
   });
 
   it("returns 'true' when `outputTargets` contains `www` with serviceWorker and baseUrl", () => {
-    config.outputTargets = [{ type: WWW, baseUrl: 'https://example.com', serviceWorker: { swDest: './tmp' } }];
+    config.outputTargets = [
+      { type: WWW, baseUrl: 'https://example.com', serviceWorker: { swDest: './tmp' } },
+    ];
     expect(telemetry.hasAppTarget(config)).toBe(true);
   });
 });
@@ -213,7 +215,14 @@ describe('prepareData', () => {
       outputTargets: [{ type: 'www' }],
     });
 
-    const data = await telemetry.prepareData(coreCompiler, config, sys, flags, 1000, COMPONENT_COUNT);
+    const data = await telemetry.prepareData(
+      coreCompiler,
+      config,
+      sys,
+      flags,
+      1000,
+      COMPONENT_COUNT,
+    );
 
     expect(data.component_count).toEqual(COMPONENT_COUNT);
   });
@@ -259,7 +268,11 @@ describe('anonymizeConfigForTelemetry', () => {
     'testing',
     'tsCompilerOptions',
   ])("should remove objects under prop '%s'", (prop: keyof d.ValidatedConfig) => {
-    const anonymizedConfig = anonymizeConfigForTelemetry({ ...config, [prop]: {}, outputTargets: [] });
+    const anonymizedConfig = anonymizeConfigForTelemetry({
+      ...config,
+      [prop]: {},
+      outputTargets: [],
+    });
     expect(anonymizedConfig.hasOwnProperty(prop)).toBe(false);
     expect(anonymizedConfig.outputTargets).toEqual([]);
   });

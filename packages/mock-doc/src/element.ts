@@ -259,7 +259,8 @@ export class MockLabelElement extends MockHTMLElement {
       return this.ownerDocument?.getElementById(forAttr) ?? null;
     }
     // If no "for" attribute, look for the first labelable descendant
-    const labelableSelector = 'button, input:not([type="hidden"]), meter, output, progress, select, textarea';
+    const labelableSelector =
+      'button, input:not([type="hidden"]), meter, output, progress, select, textarea';
     return this.querySelector(labelableSelector);
   }
 }
@@ -459,7 +460,12 @@ export class MockSVGElement extends MockElement {
 }
 
 export class MockSVGGraphicsElement extends MockSVGElement {
-  getBBox(_options?: { clipped: boolean; fill: boolean; markers: boolean; stroke: boolean }): MockSVGRect {
+  getBBox(_options?: {
+    clipped: boolean;
+    fill: boolean;
+    markers: boolean;
+    stroke: boolean;
+  }): MockSVGRect {
     return new MockSVGRect();
   }
   getCTM(): MockDOMMatrix {
@@ -567,7 +573,8 @@ export class MockSlotElement extends MockHTMLElement {
       if ((this as any).name) {
         nodesToReturn = ownerHost.childNodes.filter(
           (n) =>
-            n.nodeType === NODE_TYPES.ELEMENT_NODE && (n as MockElement).getAttribute('slot') === (this as any).name,
+            n.nodeType === NODE_TYPES.ELEMENT_NODE &&
+            (n as MockElement).getAttribute('slot') === (this as any).name,
         );
       } else {
         // find elements that do not have a slot attribute or
@@ -607,7 +614,9 @@ export class MockSlotElement extends MockHTMLElement {
     if (ownerHost.children.length) {
       // try to find lightDOM elements matching this slot's name (or lack of)
       if ((this as any).name) {
-        elesToReturn = ownerHost.children.filter((n) => (n as MockElement).getAttribute('slot') == (this as any).name);
+        elesToReturn = ownerHost.children.filter(
+          (n) => (n as MockElement).getAttribute('slot') == (this as any).name,
+        );
       } else {
         elesToReturn = ownerHost.children.filter((n) => !(n as MockElement).getAttribute('slot'));
       }
@@ -687,7 +696,10 @@ export class MockCanvasElement extends MockHTMLElement {
   constructor(ownerDocument: any) {
     super(ownerDocument, 'canvas');
   }
-  getContext(context: CanvasContext, contextAttributes?: WebGLContextAttributes): CanvasRenderingContext {
+  getContext(
+    context: CanvasContext,
+    contextAttributes?: WebGLContextAttributes,
+  ): CanvasRenderingContext {
     return new CanvasRenderingContext(context, contextAttributes);
   }
 }

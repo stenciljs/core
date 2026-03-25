@@ -52,7 +52,9 @@ export const initializeComponent = async (
           Cstr = CstrImport as d.ComponentConstructor | undefined;
         }
         if (!Cstr) {
-          throw new Error(`Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`);
+          throw new Error(
+            `Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`,
+          );
         }
         if (BUILD.member && !Cstr.isProxied) {
           // we've never proxied this Constructor before
@@ -93,7 +95,8 @@ export const initializeComponent = async (
 
         // For components that relocate slots, defer connectedCallback until after first render
         // so that slotted content is available
-        const needsDeferredCallback = BUILD.slotRelocation && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation;
+        const needsDeferredCallback =
+          BUILD.slotRelocation && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation;
         if (!needsDeferredCallback) {
           fireConnectedCallback(hostRef.$lazyInstance$, elm);
         } else {

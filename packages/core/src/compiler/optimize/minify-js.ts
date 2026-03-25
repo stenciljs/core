@@ -1,5 +1,11 @@
 import { splitLineBreaks } from '../../utils';
-import { CompressOptions, MangleOptions, ManglePropertiesOptions, minify, MinifyOptions } from 'terser';
+import {
+  CompressOptions,
+  MangleOptions,
+  ManglePropertiesOptions,
+  minify,
+  MinifyOptions,
+} from 'terser';
 
 import type * as d from '@stencil/core';
 
@@ -9,7 +15,10 @@ import type * as d from '@stencil/core';
  * @param opts the options used by the minifier
  * @returns the resulting minified JavaScript
  */
-export const minifyJs = async (input: string, opts?: MinifyOptions): Promise<d.OptimizeJsResult> => {
+export const minifyJs = async (
+  input: string,
+  opts?: MinifyOptions,
+): Promise<d.OptimizeJsResult> => {
   const results: d.OptimizeJsResult = {
     output: input,
     sourceMap: null,
@@ -39,7 +48,8 @@ export const minifyJs = async (input: string, opts?: MinifyOptions): Promise<d.O
     const minifyResults = await minify(input, opts);
 
     results.output = minifyResults.code;
-    results.sourceMap = typeof minifyResults.map === 'string' ? JSON.parse(minifyResults.map) : minifyResults.map;
+    results.sourceMap =
+      typeof minifyResults.map === 'string' ? JSON.parse(minifyResults.map) : minifyResults.map;
     const compress = opts.compress as CompressOptions;
     if (compress && compress.module && results.output.endsWith('};')) {
       // stripping the semicolon here _shouldn't_ be of significant consequence for the already generated sourcemap

@@ -147,7 +147,9 @@ describe('style-docs', () => {
       }
     `;
     parseStyleDocs(styleDocs, styleText);
-    expect(styleDocs).toEqual([{ name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' }]);
+    expect(styleDocs).toEqual([
+      { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' },
+    ]);
   });
 
   it('works with multiple, mixed comment types', () => {
@@ -169,8 +171,10 @@ describe('style-docs', () => {
     ]);
   });
 
-  it.each(['ios', 'md', undefined, '', DEFAULT_STYLE_MODE])("attaches mode metadata for a style mode '%s'", (mode) => {
-    const styleText = `
+  it.each(['ios', 'md', undefined, '', DEFAULT_STYLE_MODE])(
+    "attaches mode metadata for a style mode '%s'",
+    (mode) => {
+      const styleText = `
     /*!
      * @prop --max-width: Max width of the alert
      */
@@ -179,8 +183,11 @@ describe('style-docs', () => {
     }
   `;
 
-    parseStyleDocs(styleDocs, styleText, mode);
+      parseStyleDocs(styleDocs, styleText, mode);
 
-    expect(styleDocs).toEqual([{ name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop', mode }]);
-  });
+      expect(styleDocs).toEqual([
+        { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop', mode },
+      ]);
+    },
+  );
 });

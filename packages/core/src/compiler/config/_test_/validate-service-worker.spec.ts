@@ -40,7 +40,9 @@ describe('validateServiceWorker', () => {
     if (target.serviceWorker) {
       return target.serviceWorker;
     } else {
-      throw new Error('the serviceWorker on the provided target was unexpectedly falsy, so this test needs to fail!');
+      throw new Error(
+        'the serviceWorker on the provided target was unexpectedly falsy, so this test needs to fail!',
+      );
     }
   }
 

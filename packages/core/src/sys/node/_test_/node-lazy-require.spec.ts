@@ -23,7 +23,6 @@ const mockPackageJson = (version: string) => JSON.stringify({ version });
 describe('node-lazy-require', () => {
   describe('NodeLazyRequire', () => {
     describe('ensure', () => {
-
       const jestTestRange = (maxVersion = '38.0.1'): LazyDependencies => ({
         jest: {
           minVersion: '2.0.7',
@@ -58,17 +57,21 @@ describe('node-lazy-require', () => {
         },
       );
 
-      it.each(['38', undefined])('should error w/ installed version too low and maxVersion=%p', async (maxVersion) => {
-        const range = jestTestRange(maxVersion);
-        const nodeLazyRequire = setup(range);
-        vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson('1.1.1'));
-        const [error] = await nodeLazyRequire.ensure('.', ['jest']);
-        expect(error).toEqual({
-          ...buildError([]),
-          header: 'Please install supported versions of dev dependencies with either npm or yarn.',
-          messageText: `npm install --save-dev jest@${range.jest.recommendedVersion}`,
-        });
-      });
+      it.each(['38', undefined])(
+        'should error w/ installed version too low and maxVersion=%p',
+        async (maxVersion) => {
+          const range = jestTestRange(maxVersion);
+          const nodeLazyRequire = setup(range);
+          vi.mocked(fs.readFileSync).mockReturnValue(mockPackageJson('1.1.1'));
+          const [error] = await nodeLazyRequire.ensure('.', ['jest']);
+          expect(error).toEqual({
+            ...buildError([]),
+            header:
+              'Please install supported versions of dev dependencies with either npm or yarn.',
+            messageText: `npm install --save-dev jest@${range.jest.recommendedVersion}`,
+          });
+        },
+      );
 
       it.each(['100.1.1', '38.0.1-alpha.0'])(
         'should error if the installed version of a package is too high (%p)',
@@ -79,7 +82,8 @@ describe('node-lazy-require', () => {
           const [error] = await nodeLazyRequire.ensure('.', ['jest']);
           expect(error).toEqual({
             ...buildError([]),
-            header: 'Please install supported versions of dev dependencies with either npm or yarn.',
+            header:
+              'Please install supported versions of dev dependencies with either npm or yarn.',
             messageText: `npm install --save-dev jest@${range.jest.recommendedVersion}`,
           });
         },

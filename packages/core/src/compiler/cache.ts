@@ -50,7 +50,9 @@ export class Cache implements d.Cache {
     if (this.failed >= MAX_FAILED) {
       if (!this.skip) {
         this.skip = true;
-        this.logger.debug(`cache had ${this.failed} failed ops, skip disk ops for remainder of build`);
+        this.logger.debug(
+          `cache had ${this.failed} failed ops, skip disk ops for remainder of build`,
+        );
       }
       return null;
     }
@@ -143,7 +145,9 @@ export class Cache implements d.Cache {
 
       await Promise.all(promises);
 
-      this.logger.debug(`clearExpiredCache, cachedFileNames: ${cachedFileNames.length}, totalCleared: ${totalCleared}`);
+      this.logger.debug(
+        `clearExpiredCache, cachedFileNames: ${cachedFileNames.length}, totalCleared: ${totalCleared}`,
+      );
     }
 
     this.logger.debug(`clearExpiredCache, set last clear`);

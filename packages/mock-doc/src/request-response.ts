@@ -51,7 +51,8 @@ export class MockRequest {
   }
 
   get url() {
-    const baseUrl = typeof location !== 'undefined' && location.href ? location.href : 'http://localhost/';
+    const baseUrl =
+      typeof location !== 'undefined' && location.href ? location.href : 'http://localhost/';
     if (typeof this._url === 'string') {
       return new URL(this._url, baseUrl).href;
     }

@@ -65,11 +65,11 @@ describe('scoped', () => {
         return (
           <div>
             {this.slot ? (
-              <div key="one">
+              <div key='one'>
                 <slot></slot>
               </div>
             ) : (
-              <div key="two"></div>
+              <div key='two'></div>
             )}
           </div>
         );

@@ -24,7 +24,9 @@ export type FindConfigResults = {
  * @param opts the options needed to find the configuration file
  * @returns the results of attempting to find a configuration file on disk
  */
-export const findConfig = async (opts: FindConfigOptions): Promise<result.Result<FindConfigResults, Diagnostic[]>> => {
+export const findConfig = async (
+  opts: FindConfigOptions,
+): Promise<result.Result<FindConfigResults, Diagnostic[]>> => {
   const sys = opts.sys;
   const cwd = sys.getCurrentDirectory();
   const rootDir = normalizePath(cwd);

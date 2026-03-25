@@ -2,7 +2,12 @@ import { buildError } from '../../../utils';
 import ts from 'typescript';
 
 import type * as d from '@stencil/core';
-import { convertValueToLiteral, createStaticGetter, retrieveTsDecorators, tsPropDeclName } from '../transform-utils';
+import {
+  convertValueToLiteral,
+  createStaticGetter,
+  retrieveTsDecorators,
+  tsPropDeclName,
+} from '../transform-utils';
 import { isDecoratorNamed } from './decorator-utils';
 
 /**
@@ -37,9 +42,11 @@ export const attachInternalsDecoratorsToStatic = (
   typeChecker: ts.TypeChecker,
   decoratorName: string,
 ) => {
-  const attachInternalsMembers = decoratedMembers.filter(ts.isPropertyDeclaration).filter((prop) => {
-    return !!retrieveTsDecorators(prop)?.find(isDecoratorNamed(decoratorName));
-  });
+  const attachInternalsMembers = decoratedMembers
+    .filter(ts.isPropertyDeclaration)
+    .filter((prop) => {
+      return !!retrieveTsDecorators(prop)?.find(isDecoratorNamed(decoratorName));
+    });
 
   // no decorated fields, return!
   if (attachInternalsMembers.length === 0) {
@@ -65,7 +72,9 @@ export const attachInternalsDecoratorsToStatic = (
 
   // Only add custom states static getter if there are states defined
   if (customStates.length > 0) {
-    newMembers.push(createStaticGetter('attachInternalsCustomStates', convertValueToLiteral(customStates)));
+    newMembers.push(
+      createStaticGetter('attachInternalsCustomStates', convertValueToLiteral(customStates)),
+    );
   }
 };
 

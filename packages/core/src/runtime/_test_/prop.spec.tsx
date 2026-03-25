@@ -168,9 +168,21 @@ describe('prop', () => {
 
     // componentShouldUpdate should have been called for each prop
     expect(shouldUpdateCalls).toHaveLength(3);
-    expect(shouldUpdateCalls[0]).toEqual({ value: 'new-first', old: 'initial-first', prop: 'first' });
-    expect(shouldUpdateCalls[1]).toEqual({ value: 'new-second', old: 'initial-second', prop: 'second' });
-    expect(shouldUpdateCalls[2]).toEqual({ value: 'new-third', old: 'initial-third', prop: 'third' });
+    expect(shouldUpdateCalls[0]).toEqual({
+      value: 'new-first',
+      old: 'initial-first',
+      prop: 'first',
+    });
+    expect(shouldUpdateCalls[1]).toEqual({
+      value: 'new-second',
+      old: 'initial-second',
+      prop: 'second',
+    });
+    expect(shouldUpdateCalls[2]).toEqual({
+      value: 'new-third',
+      old: 'initial-third',
+      prop: 'third',
+    });
 
     // All values should be rendered
     expect(root).toEqualHtml(`
@@ -325,7 +337,7 @@ describe('prop', () => {
     class CmpA {
       @Prop() value: any;
       render() {
-        return <input id="internal-input" value={this.value}></input>;
+        return <input id='internal-input' value={this.value}></input>;
       }
     }
 

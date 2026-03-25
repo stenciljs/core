@@ -16,7 +16,10 @@ import {
 } from './prerender-optimize';
 import { getPrerenderCtx, PrerenderContext } from './prerender-worker-ctx';
 
-export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d.PrerenderUrlRequest) => {
+export const prerenderWorker = async (
+  sys: d.CompilerSystem,
+  prerenderRequest: d.PrerenderUrlRequest,
+) => {
   // worker thread!
   const results: d.PrerenderUrlResults = {
     diagnostics: [],
@@ -29,7 +32,11 @@ export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d
 
     const url = new URL(prerenderRequest.url, prerenderRequest.devServerHostUrl);
     const baseUrl = new URL(prerenderRequest.baseUrl);
-    const componentGraph = getComponentGraph(sys, prerenderCtx, prerenderRequest.componentGraphPath);
+    const componentGraph = getComponentGraph(
+      sys,
+      prerenderCtx,
+      prerenderRequest.componentGraphPath,
+    );
 
     // webpack work-around/hack
     const hydrateApp = require(prerenderRequest.hydrateAppFilePath);
@@ -40,7 +47,10 @@ export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d
     }
 
     // create a new window by cloning the cached parsed window
-    const win = hydrateApp.createWindowFromHtml(prerenderCtx.templateHtml, prerenderRequest.templateId);
+    const win = hydrateApp.createWindowFromHtml(
+      prerenderCtx.templateHtml,
+      prerenderRequest.templateId,
+    );
     const doc = win.document;
     win.location.href = url.href;
 
@@ -53,7 +63,10 @@ export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d
     }
 
     if (prerenderCtx.prerenderConfig == null) {
-      prerenderCtx.prerenderConfig = getPrerenderConfig(results.diagnostics, prerenderRequest.prerenderConfigPath);
+      prerenderCtx.prerenderConfig = getPrerenderConfig(
+        results.diagnostics,
+        prerenderRequest.prerenderConfigPath,
+      );
     }
     const prerenderConfig = prerenderCtx.prerenderConfig;
 
@@ -122,7 +135,15 @@ export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d
     if (hydrateOpts.hashAssets && !prerenderRequest.isDebug) {
       try {
         docPromises.push(
-          hashAssets(sys, prerenderCtx, results.diagnostics, hydrateOpts, prerenderRequest.appDir, doc, url),
+          hashAssets(
+            sys,
+            prerenderCtx,
+            results.diagnostics,
+            hydrateOpts,
+            prerenderRequest.appDir,
+            doc,
+            url,
+          ),
         );
       } catch (e: any) {
         catchError(results.diagnostics, e);
@@ -199,7 +220,11 @@ export const prerenderWorker = async (sys: d.CompilerSystem, prerenderRequest: d
   return results;
 };
 
-const getComponentGraph = (sys: d.CompilerSystem, prerenderCtx: PrerenderContext, componentGraphPath: string) => {
+const getComponentGraph = (
+  sys: d.CompilerSystem,
+  prerenderCtx: PrerenderContext,
+  componentGraphPath: string,
+) => {
   if (componentGraphPath == null) {
     return undefined;
   }

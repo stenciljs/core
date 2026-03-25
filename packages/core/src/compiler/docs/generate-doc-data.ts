@@ -216,7 +216,9 @@ const getRealProperties = (properties: d.ComponentCompilerProperty[]): d.JsonDoc
  * @param virtualProps the component's virtual property metadata to derive JSDoc metadata from
  * @returns the derived metadata
  */
-const getVirtualProperties = (virtualProps: d.ComponentCompilerVirtualProperty[]): d.JsonDocsProp[] => {
+const getVirtualProperties = (
+  virtualProps: d.ComponentCompilerVirtualProperty[],
+): d.JsonDocsProp[] => {
   return virtualProps.map(
     (member): d.JsonDocsProp => ({
       name: member.name,
@@ -336,13 +338,17 @@ export const getDocsStyles = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsStyle
 
   return sortBy(
     cmpMeta.styleDocs,
-    (compilerStyleDoc) => `${compilerStyleDoc.name.toLowerCase()},${compilerStyleDoc.mode.toLowerCase()}}`,
+    (compilerStyleDoc) =>
+      `${compilerStyleDoc.name.toLowerCase()},${compilerStyleDoc.mode.toLowerCase()}}`,
   ).map((compilerStyleDoc) => {
     return {
       name: compilerStyleDoc.name,
       annotation: compilerStyleDoc.annotation || '',
       docs: compilerStyleDoc.docs || '',
-      mode: compilerStyleDoc.mode && compilerStyleDoc.mode !== DEFAULT_STYLE_MODE ? compilerStyleDoc.mode : undefined,
+      mode:
+        compilerStyleDoc.mode && compilerStyleDoc.mode !== DEFAULT_STYLE_MODE
+          ? compilerStyleDoc.mode
+          : undefined,
     };
   });
 };
@@ -497,7 +503,10 @@ const generateDocs = (readme: string | undefined, jsdoc: d.CompilerJsDoc): strin
  * @returns an object that maps the filename containing the usage example, to the file's contents. If an error occurs,
  * an empty object is returned.
  */
-const generateUsages = async (compilerCtx: d.CompilerCtx, usagesDir: string): Promise<d.JsonDocsUsage> => {
+const generateUsages = async (
+  compilerCtx: d.CompilerCtx,
+  usagesDir: string,
+): Promise<d.JsonDocsUsage> => {
   const rtn: d.JsonDocsUsage = {};
 
   try {

@@ -524,7 +524,10 @@ describe('custom-elements-manifest', () => {
     const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
     const declaration = writtenContent.modules[0].declarations[0];
     expect(declaration.cssProperties).toHaveLength(1);
-    expect(declaration.cssProperties[0]).toEqual({ name: '--my-color', description: 'The primary color' });
+    expect(declaration.cssProperties[0]).toEqual({
+      name: '--my-color',
+      description: 'The primary color',
+    });
   });
 
   it('includes deprecation info', async () => {

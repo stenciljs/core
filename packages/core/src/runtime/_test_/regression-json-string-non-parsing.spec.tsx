@@ -71,7 +71,7 @@ describe('regression: do not parse JSON strings into objects', () => {
         return (
           <div>
             <input value={this.value} onInput={this.onInput} />
-            <span id="out">
+            <span id='out'>
               {typeof this.value}:{this.value}
             </span>
           </div>

@@ -12,7 +12,11 @@ import { isCommonDirModuleFile } from '../resolve/resolve-utils';
  * @param init an optional `RequestInit` object
  * @returns a Promise wrapping a response
  */
-export const httpFetch = (sys: d.CompilerSystem, input: RequestInfo, init?: RequestInit): Promise<Response> => {
+export const httpFetch = (
+  sys: d.CompilerSystem,
+  input: RequestInfo,
+  init?: RequestInit,
+): Promise<Response> => {
   if (sys && isFunction(sys.fetch)) {
     return sys.fetch(input, init);
   }

@@ -243,19 +243,21 @@ describe('nativeComponentTransform', () => {
         import CmpAMdStyle0 from './cmp-a.md.css?tag=cmp-a&mode=md';`,
         `{ ios: CmpAIosStyle0(), md: CmpAMdStyle0() }`,
       ],
-    ])('adds a static style property when %s', async (styleConfig, expectedImport, expectedStyleReturn) => {
-      const code = `
+    ])(
+      'adds a static style property when %s',
+      async (styleConfig, expectedImport, expectedStyleReturn) => {
+        const code = `
         @Component({
           tag: 'cmp-a',
           ${styleConfig}
         }
         export class CmpA {}
       `;
-      const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
-      const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
+        const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
+        const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
-      expect(await formatCode(transpiledModule.outputText)).toContain(
-        await formatCode(`import { 
+        expect(await formatCode(transpiledModule.outputText)).toContain(
+          await formatCode(`import { 
           transformTag as __stencil_transformTag, 
           defineCustomElement as __stencil_defineCustomElement, 
           HTMLElement 
@@ -273,7 +275,8 @@ describe('nativeComponentTransform', () => {
             }
           };
         `),
-      );
-    });
+        );
+      },
+    );
   });
 });

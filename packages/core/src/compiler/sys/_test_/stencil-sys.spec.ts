@@ -65,7 +65,9 @@ describe('stencil system', () => {
       },
     ]);
 
-    expect((await sys.stat('/dir/file-old')).error).toBe(`ENOENT: no such file or directory, statSync '/dir/file-old'`);
+    expect((await sys.stat('/dir/file-old')).error).toBe(
+      `ENOENT: no such file or directory, statSync '/dir/file-old'`,
+    );
 
     const newStat = await sys.stat('/dir/file-new');
     expect(newStat.isFile).toBe(true);

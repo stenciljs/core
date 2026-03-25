@@ -40,8 +40,19 @@ export const updateNativeComponentClass = (
   buildCtx: d.BuildCtx,
 ): ts.ClassDeclaration | ts.VariableStatement => {
   const withHeritageClauses = updateNativeHostComponentHeritageClauses(classNode, moduleFile);
-  const members = updateNativeHostComponentMembers(transformOpts, withHeritageClauses, moduleFile, cmp, buildCtx);
-  return updateComponentClass(transformOpts, withHeritageClauses, withHeritageClauses.heritageClauses, members);
+  const members = updateNativeHostComponentMembers(
+    transformOpts,
+    withHeritageClauses,
+    moduleFile,
+    cmp,
+    buildCtx,
+  );
+  return updateComponentClass(
+    transformOpts,
+    withHeritageClauses,
+    withHeritageClauses.heritageClauses,
+    members,
+  );
 };
 
 /**
@@ -72,7 +83,13 @@ export const updateNativeExtendedClass = (
       withHeritageClauses.name,
       withHeritageClauses.typeParameters,
       withHeritageClauses.heritageClauses,
-      updateConstructor(withHeritageClauses, Array.from(withHeritageClauses.members), [], params, true),
+      updateConstructor(
+        withHeritageClauses,
+        Array.from(withHeritageClauses.members),
+        [],
+        params,
+        true,
+      ),
     );
   }
 

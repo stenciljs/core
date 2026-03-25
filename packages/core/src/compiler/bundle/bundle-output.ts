@@ -62,7 +62,19 @@ export const getRollupOptions = (
     browser: bundleOpts.platform !== 'hydrate',
     rootDir: config.rootDir,
     exportConditions: ['default', 'module', 'import', 'require'],
-    extensions: ['.tsx', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs', '.json', '.d.ts', '.d.mts', '.d.cts'],
+    extensions: [
+      '.tsx',
+      '.ts',
+      '.mts',
+      '.cts',
+      '.js',
+      '.mjs',
+      '.cjs',
+      '.json',
+      '.d.ts',
+      '.d.mts',
+      '.d.cts',
+    ],
     ...config.nodeResolve,
   });
 
@@ -93,7 +105,10 @@ export const getRollupOptions = (
   nodeResolvePlugin.resolveId.order = null;
   const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
 
-  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (importee: string, importer: string) {
+  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (
+    importee: string,
+    importer: string,
+  ) {
     const [realImportee, query] = importee.split('?');
     const resolved = await orgNodeResolveId.call(
       nodeResolvePlugin as unknown as PluginContext,
@@ -188,7 +203,10 @@ export const getRollupOptions = (
   return rollupOptions;
 };
 
-const getTreeshakeOption = (config: d.ValidatedConfig, bundleOpts: BundleOptions): TreeshakingOptions | boolean => {
+const getTreeshakeOption = (
+  config: d.ValidatedConfig,
+  bundleOpts: BundleOptions,
+): TreeshakingOptions | boolean => {
   if (bundleOpts.platform === 'hydrate') {
     return {
       propertyReadSideEffects: false,
@@ -206,6 +224,9 @@ const getTreeshakeOption = (config: d.ValidatedConfig, bundleOpts: BundleOptions
   return treeshake;
 };
 
-function assertIsObjectHook<T>(hook: ObjectHook<T>): asserts hook is { handler: T; order?: 'pre' | 'post' | null } {
-  if (typeof hook !== 'object') throw new Error(`expected the rollup plugin hook ${hook} to be an object`);
+function assertIsObjectHook<T>(
+  hook: ObjectHook<T>,
+): asserts hook is { handler: T; order?: 'pre' | 'post' | null } {
+  if (typeof hook !== 'object')
+    throw new Error(`expected the rollup plugin hook ${hook} to be an object`);
 }

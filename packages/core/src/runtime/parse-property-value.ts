@@ -28,7 +28,11 @@ import { deserializeProperty } from '../utils/serialize';
  * @param isFormAssociated whether the component is form-associated (optional)
  * @returns the parsed/coerced value
  */
-export const parsePropertyValue = (propValue: unknown, propType: number, isFormAssociated?: boolean): any => {
+export const parsePropertyValue = (
+  propValue: unknown,
+  propType: number,
+  isFormAssociated?: boolean,
+): any => {
   /**
    * Allow hydrate parameters that contain a complex non-serialized values.
    * This is SSR-specific and should only run during hydration.
@@ -65,7 +69,11 @@ export const parsePropertyValue = (propValue: unknown, propType: number, isFormA
      * force it to be a number
      */
     if (BUILD.propNumber && propType & MEMBER_FLAGS.Number) {
-      return typeof propValue === 'string' ? parseFloat(propValue) : typeof propValue === 'number' ? propValue : NaN;
+      return typeof propValue === 'string'
+        ? parseFloat(propValue)
+        : typeof propValue === 'number'
+          ? propValue
+          : NaN;
     }
 
     /**

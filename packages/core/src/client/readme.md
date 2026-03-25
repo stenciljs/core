@@ -8,14 +8,14 @@ This directory provides the browser platform layer that connects the platform-ag
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `client-host-ref.ts` | Maps host elements to their internal state (`HostRef`) |
-| `client-load-module.ts` | Lazy-loads component modules on demand |
-| `client-style.ts` | Attaches component styles to the DOM |
-| `client-task-queue.ts` | Schedules DOM updates using `requestAnimationFrame` |
-| `client-window.ts` | Provides `window`, `document`, and other globals |
-| `client-build.ts` | Provides the `Build` object with runtime feature flags |
+| File                    | Purpose                                                |
+| ----------------------- | ------------------------------------------------------ |
+| `client-host-ref.ts`    | Maps host elements to their internal state (`HostRef`) |
+| `client-load-module.ts` | Lazy-loads component modules on demand                 |
+| `client-style.ts`       | Attaches component styles to the DOM                   |
+| `client-task-queue.ts`  | Schedules DOM updates using `requestAnimationFrame`    |
+| `client-window.ts`      | Provides `window`, `document`, and other globals       |
+| `client-build.ts`       | Provides the `Build` object with runtime feature flags |
 
 ## Architecture
 
@@ -35,6 +35,7 @@ The runtime imports from `@platform`, which resolves to either `client/` or `ser
 ## Exports
 
 The `index.ts` re-exports:
+
 - All platform implementations (`client-*.ts` files)
 - `BUILD`, `Env`, `NAMESPACE` from `virtual:app-data`
 - Everything from `@runtime`

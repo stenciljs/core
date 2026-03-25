@@ -175,7 +175,7 @@ describe('hydrate, shadow parent', () => {
             <div>
               <slot></slot>
             </div>
-            <slot name="fixed"></slot>
+            <slot name='fixed'></slot>
           </Host>
         );
       }
@@ -289,13 +289,13 @@ describe('hydrate, shadow parent', () => {
         return (
           <Host>
             <section>
-              <slot name="start"></slot>
-              <slot name="secondary"></slot>
+              <slot name='start'></slot>
+              <slot name='secondary'></slot>
               <div>
                 <slot></slot>
               </div>
-              <slot name="primary"></slot>
-              <slot name="end"></slot>
+              <slot name='primary'></slot>
+              <slot name='end'></slot>
             </section>
           </Host>
         );

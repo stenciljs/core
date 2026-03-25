@@ -23,7 +23,10 @@ import type * as d from '@stencil/core';
  * configuration we want to validate. **Note**: the `.serviceWorker` object
  * _will be mutated_ if it is present.
  */
-export const validateServiceWorker = (config: d.ValidatedConfig, outputTarget: d.OutputTargetWww): void => {
+export const validateServiceWorker = (
+  config: d.ValidatedConfig,
+  outputTarget: d.OutputTargetWww,
+): void => {
   if (outputTarget.serviceWorker === false) {
     return;
   }
@@ -77,8 +80,14 @@ export const validateServiceWorker = (config: d.ValidatedConfig, outputTarget: d
     outputTarget.serviceWorker.swSrc = join(config.rootDir, outputTarget.serviceWorker.swSrc);
   }
 
-  if (isString(outputTarget.serviceWorker.swDest) && !isAbsolute(outputTarget.serviceWorker.swDest)) {
-    outputTarget.serviceWorker.swDest = join(outputTarget.appDir ?? '', outputTarget.serviceWorker.swDest);
+  if (
+    isString(outputTarget.serviceWorker.swDest) &&
+    !isAbsolute(outputTarget.serviceWorker.swDest)
+  ) {
+    outputTarget.serviceWorker.swDest = join(
+      outputTarget.appDir ?? '',
+      outputTarget.serviceWorker.swDest,
+    );
   }
 };
 

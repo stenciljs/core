@@ -75,7 +75,9 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("const queriedEl = document.querySelector(`${__stencil_transformTag('cmp-b')}#id`);");
+      expect(res).toContain(
+        "const queriedEl = document.querySelector(`${__stencil_transformTag('cmp-b')}#id`);",
+      );
     });
 
     it('should not transform querySelector calls with non-component tags', async () => {
@@ -128,7 +130,9 @@ describe('add-tag-transform', () => {
       const res = await formatCode(transpileResult.outputText);
 
       expect(transpileResult.diagnostics).toHaveLength(0);
-      expect(res).toContain("`${__stencil_transformTag('cmp-a')}, ${__stencil_transformTag('cmp-b')}`");
+      expect(res).toContain(
+        "`${__stencil_transformTag('cmp-a')}, ${__stencil_transformTag('cmp-b')}`",
+      );
     });
 
     it('should transform closest calls with component tags', async () => {

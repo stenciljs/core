@@ -59,7 +59,9 @@ export const propDecoratorsToStatic = (
     .filter((prop): prop is ts.PropertyAssignment => prop != null);
 
   if (properties.length > 0) {
-    newMembers.push(createStaticGetter('properties', ts.factory.createObjectLiteralExpression(properties, true)));
+    newMembers.push(
+      createStaticGetter('properties', ts.factory.createObjectLiteralExpression(properties, true)),
+    );
   }
 };
 
@@ -155,7 +157,9 @@ const parsePropDecorator = (
     propMeta.defaultValue = prop.initializer.getText();
   } else if (ts.isGetAccessorDeclaration(prop)) {
     // shallow comb to find default value for a getter
-    const returnStatement = prop.body?.statements.find((st) => ts.isReturnStatement(st)) as ts.ReturnStatement;
+    const returnStatement = prop.body?.statements.find((st) =>
+      ts.isReturnStatement(st),
+    ) as ts.ReturnStatement;
     const returnExpression = returnStatement.expression;
 
     if (returnExpression && ts.isLiteralExpression(returnExpression)) {
@@ -211,7 +215,11 @@ const getAttributeName = (propName: string, propOptions: d.PropOptions): string 
  * @param propOptions the options passed in to the `@Prop` call expression
  * @returns `true` if the prop should be reflected in the DOM, `false` otherwise
  */
-const getReflect = (diagnostics: d.Diagnostic[], propDecorator: ts.Decorator, propOptions: d.PropOptions) => {
+const getReflect = (
+  diagnostics: d.Diagnostic[],
+  propDecorator: ts.Decorator,
+  propOptions: d.PropOptions,
+) => {
   if (typeof propOptions.reflect === 'boolean') {
     return propOptions.reflect;
   }
@@ -260,7 +268,9 @@ const getComplexType = (
  * @param type the prop type to narrow
  * @returns a valid Stencil prop type
  */
-export const propTypeFromTSType = (type: ts.Type): 'any' | 'boolean' | 'number' | 'string' | 'unknown' => {
+export const propTypeFromTSType = (
+  type: ts.Type,
+): 'any' | 'boolean' | 'number' | 'string' | 'unknown' => {
   const isAnyType = checkType(type, isAny);
 
   if (isAnyType) {
@@ -328,7 +338,10 @@ const isBoolean = (t: ts.Type): boolean => {
  */
 const isNumber = (t: ts.Type): boolean => {
   if (t) {
-    return !!(t.flags & (ts.TypeFlags.Number | ts.TypeFlags.NumberLike | ts.TypeFlags.NumberLiteral));
+    return !!(
+      t.flags &
+      (ts.TypeFlags.Number | ts.TypeFlags.NumberLike | ts.TypeFlags.NumberLiteral)
+    );
   }
   return false;
 };
@@ -340,7 +353,10 @@ const isNumber = (t: ts.Type): boolean => {
  */
 const isString = (t: ts.Type): boolean => {
   if (t) {
-    return !!(t.flags & (ts.TypeFlags.String | ts.TypeFlags.StringLike | ts.TypeFlags.StringLiteral));
+    return !!(
+      t.flags &
+      (ts.TypeFlags.String | ts.TypeFlags.StringLike | ts.TypeFlags.StringLiteral)
+    );
   }
   return false;
 };
@@ -363,7 +379,10 @@ const isAny = (t: ts.Type): boolean => {
  * @param members - all the component class members
  * @returns the found typescript AST setter node
  */
-const findSetter = (propName: string, members: ts.ClassElement[]): ts.SetAccessorDeclaration | undefined => {
+const findSetter = (
+  propName: string,
+  members: ts.ClassElement[],
+): ts.SetAccessorDeclaration | undefined => {
   return members.find((m) => ts.isSetAccessor(m) && m.name.getText() === propName) as
     | ts.SetAccessorDeclaration
     | undefined;
@@ -376,6 +395,11 @@ const findSetter = (propName: string, members: ts.ClassElement[]): ts.SetAccesso
  * @param members - all the component class members
  * @returns the found typescript AST class member
  */
-const findGetProp = (propName: string, members: ts.ClassElement[]): ts.PropertyDeclaration | undefined => {
-  return members.find((m) => ts.isPropertyDeclaration(m) && m.name.getText() === propName) as ts.PropertyDeclaration;
+const findGetProp = (
+  propName: string,
+  members: ts.ClassElement[],
+): ts.PropertyDeclaration | undefined => {
+  return members.find(
+    (m) => ts.isPropertyDeclaration(m) && m.name.getText() === propName,
+  ) as ts.PropertyDeclaration;
 };

@@ -11,7 +11,11 @@ import { addCustomElementInputs, bundleCustomElements } from '../index';
 
 describe('dist-custom-elements', () => {
   it('should export plain component', () => {
-    const cmpMeta = stubComponentCompilerMeta({ isPlain: true, sourceFilePath: './foo/bar.tsx', tagName: 'my-tag' });
+    const cmpMeta = stubComponentCompilerMeta({
+      isPlain: true,
+      sourceFilePath: './foo/bar.tsx',
+      tagName: 'my-tag',
+    });
     const buildCtx = mockBuildCtx();
     buildCtx.components = [cmpMeta];
     const bundleOpts: BundleOptions = {
@@ -25,12 +29,17 @@ describe('dist-custom-elements', () => {
       customElementsExportBehavior: 'single-export-module',
     };
     addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
-    expect(bundleOpts.loader['\x00MyTag']).toContain("export { StubCmp as MyTag } from './foo/bar.tsx';");
+    expect(bundleOpts.loader['\x00MyTag']).toContain(
+      "export { StubCmp as MyTag } from './foo/bar.tsx';",
+    );
     expect(bundleOpts.loader['\x00core']).toContain(`export { MyTag } from '\x00MyTag';\n`);
   });
 
   it('should export component with a defineCustomElement function', () => {
-    const cmpMeta = stubComponentCompilerMeta({ sourceFilePath: './foo/bar.tsx', tagName: 'my-tag' });
+    const cmpMeta = stubComponentCompilerMeta({
+      sourceFilePath: './foo/bar.tsx',
+      tagName: 'my-tag',
+    });
     const buildCtx = mockBuildCtx();
     buildCtx.components = [cmpMeta];
     const bundleOpts: BundleOptions = {
@@ -44,7 +53,9 @@ describe('dist-custom-elements', () => {
       customElementsExportBehavior: 'single-export-module',
     };
     addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
-    expect(bundleOpts.loader['\x00MyTag']).toContain('export const defineCustomElement = cmpDefCustomEle;');
+    expect(bundleOpts.loader['\x00MyTag']).toContain(
+      'export const defineCustomElement = cmpDefCustomEle;',
+    );
     expect(bundleOpts.loader['\x00MyTag']).toContain(
       "import { StubCmp as $CmpMyTag, defineCustomElement as cmpDefCustomEle } from './foo/bar.tsx';",
     );

@@ -77,7 +77,11 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
   const ref = hostRef;
   hostElement.__stencil__getHostRef = () => ref;
 
-  if (!BUILD.lazyLoad && cmpMeta.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
+  if (
+    !BUILD.lazyLoad &&
+    cmpMeta.$flags$ & CMP_FLAGS.hasModernPropertyDecls &&
+    (BUILD.state || BUILD.prop)
+  ) {
     reWireGetterSetter(hostElement, hostRef);
   }
 

@@ -7,7 +7,11 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import type { BundlePlatform } from './bundle-interface';
 import { removeCollectionImports } from '../transformers/remove-collection-imports';
-import { APP_DATA_CONDITIONAL, STENCIL_APP_DATA_ID, STENCIL_APP_GLOBALS_ID } from './entry-alias-ids';
+import {
+  APP_DATA_CONDITIONAL,
+  STENCIL_APP_DATA_ID,
+  STENCIL_APP_GLOBALS_ID,
+} from './entry-alias-ids';
 
 /**
  * A Rollup plugin which bundles application data.
@@ -97,7 +101,9 @@ export const appDataPlugin = (
       id = normalizePath(id);
       if (globalScripts.some((s) => s.path === id)) {
         const program = this.parse(code, {});
-        const needsDefault = !(program as any).body.some((s: any) => s.type === 'ExportDefaultDeclaration');
+        const needsDefault = !(program as any).body.some(
+          (s: any) => s.type === 'ExportDefaultDeclaration',
+        );
 
         if (needsDefault) {
           const diagnostic: d.Diagnostic = {
@@ -111,7 +117,9 @@ export const appDataPlugin = (
           buildCtx.diagnostics.push(diagnostic);
         }
 
-        const defaultExport = needsDefault ? '\nexport const globalFn = () => {};\nexport default globalFn;' : '';
+        const defaultExport = needsDefault
+          ? '\nexport const globalFn = () => {};\nexport default globalFn;'
+          : '';
         code = code + defaultExport;
 
         const compilerOptions: ts.CompilerOptions = { ...config.tsCompilerOptions };
@@ -196,7 +204,9 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
   } else if (globalScripts.length > 1) {
     globalScripts.forEach((globalScript) => {
       s.prepend(`import * as ${globalScript.defaultName}Ns from '${globalScript.path}';\n`);
-      s.prepend(`const ${globalScript.defaultName} = ${globalScript.defaultName}Ns.default || (() => {});\n`);
+      s.prepend(
+        `const ${globalScript.defaultName} = ${globalScript.defaultName}Ns.default || (() => {});\n`,
+      );
     });
 
     s.append(`export const globalScripts = () => {\n`);
@@ -218,11 +228,17 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
  * @param s the MagicString to append the global styles onto
  * @param platform the platform that is being built
  */
-const appendGlobalStyles = async (buildCtx: d.BuildCtx, s: MagicString, platform: BundlePlatform) => {
+const appendGlobalStyles = async (
+  buildCtx: d.BuildCtx,
+  s: MagicString,
+  platform: BundlePlatform,
+) => {
   const { addGlobalStyleToComponents } = buildCtx.config.extras;
   const shouldIncludeGlobalStyles =
-    addGlobalStyleToComponents === true || (addGlobalStyleToComponents === 'client' && platform === 'client');
-  const globalStyles = buildCtx.config.globalStyle && shouldIncludeGlobalStyles ? await buildCtx.stylesPromise : '';
+    addGlobalStyleToComponents === true ||
+    (addGlobalStyleToComponents === 'client' && platform === 'client');
+  const globalStyles =
+    buildCtx.config.globalStyle && shouldIncludeGlobalStyles ? await buildCtx.stylesPromise : '';
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 

@@ -6,7 +6,7 @@
  * are discovered at runtime from the DOM.
  */
 
-import * as path from 'node:path'
+import * as path from 'node:path';
 
 import type {
   CompilerBuildResults,
@@ -16,9 +16,9 @@ import type {
   DevServerMessage,
   Logger,
   StencilDevServerConfig,
-} from './types'
-import { initServerProcess } from './server'
-import { initServerProcessWorkerProxy } from './worker-main'
+} from './types';
+import { initServerProcess } from './server';
+import { initServerProcessWorkerProxy } from './worker-main';
 
 // Re-export types for consumers
 export type {
@@ -27,17 +27,19 @@ export type {
   StencilDevServerConfig,
   Logger,
   CompilerWatcher,
-} from './types'
+} from './types';
 
 /**
  * Callback to remove the watcher listener.
  */
-type BuildOnEventRemove = () => void
+type BuildOnEventRemove = () => void;
 
 /**
  * Function signature for initializing the server process (either in-process or worker)
  */
-type InitServerProcess = (receiveFromMain: (msg: DevServerMessage) => void) => (msg: DevServerMessage) => void
+type InitServerProcess = (
+  receiveFromMain: (msg: DevServerMessage) => void,
+) => (msg: DevServerMessage) => void;
 
 /**
  * Start the Stencil development server.
@@ -50,7 +52,7 @@ type InitServerProcess = (receiveFromMain: (msg: DevServerMessage) => void) => (
 export function start(
   stencilDevServerConfig: StencilDevServerConfig,
   logger: Logger,
-  watcher?: CompilerWatcher
+  watcher?: CompilerWatcher,
 ): Promise<DevServer> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -58,28 +60,28 @@ export function start(
         // Point to dist/ where templates/, static/, and connector.html are copied during build
         devServerDir: import.meta.dirname,
         ...stencilDevServerConfig,
-      }
+      };
 
       if (!path.isAbsolute(devServerConfig.root!)) {
-        devServerConfig.root = path.join(process.cwd(), devServerConfig.root!)
+        devServerConfig.root = path.join(process.cwd(), devServerConfig.root!);
       }
 
       // Determine whether to use worker architecture or run in-process
-      let initServerProcessFn: InitServerProcess
+      let initServerProcessFn: InitServerProcess;
 
       if (stencilDevServerConfig.worker === true || stencilDevServerConfig.worker === undefined) {
         // Fork a worker process (default for stability and isolation)
-        initServerProcessFn = initServerProcessWorkerProxy
+        initServerProcessFn = initServerProcessWorkerProxy;
       } else {
         // Run server in the same process (useful for debugging)
-        initServerProcessFn = initServerProcess
+        initServerProcessFn = initServerProcess;
       }
 
-      startServer(devServerConfig, logger, watcher, initServerProcessFn, resolve, reject)
+      startServer(devServerConfig, logger, watcher, initServerProcessFn, resolve, reject);
     } catch (e) {
-      reject(e)
+      reject(e);
     }
-  })
+  });
 }
 
 function startServer(
@@ -88,70 +90,70 @@ function startServer(
   watcher: CompilerWatcher | undefined,
   initServerProcessFn: InitServerProcess,
   resolve: (devServer: DevServer) => void,
-  reject: (err: unknown) => void
+  reject: (err: unknown) => void,
 ): void {
-  const timespan = logger.createTimeSpan('starting dev server', true)
+  const timespan = logger.createTimeSpan('starting dev server', true);
 
   const startupTimeout =
     logger.getLevel() !== 'debug' || devServerConfig.startupTimeout !== 0
       ? setTimeout(() => {
-          reject('dev server startup timeout')
+          reject('dev server startup timeout');
         }, devServerConfig.startupTimeout ?? 15000)
-      : null
+      : null;
 
-  let isActivelyBuilding = false
-  let lastBuildResults: CompilerBuildResults | null = null
-  let devServer: DevServer | null = null
-  let removeWatcher: BuildOnEventRemove | null = null
-  let closeResolve: (() => void) | null = null
-  let hasStarted = false
-  let browserUrl = ''
+  let isActivelyBuilding = false;
+  let lastBuildResults: CompilerBuildResults | null = null;
+  let devServer: DevServer | null = null;
+  let removeWatcher: BuildOnEventRemove | null = null;
+  let closeResolve: (() => void) | null = null;
+  let hasStarted = false;
+  let browserUrl = '';
 
-  let sendToServer: ((msg: DevServerMessage) => void) | null = null
+  let sendToServer: ((msg: DevServerMessage) => void) | null = null;
 
   const closePromise = new Promise<void>((res) => {
-    closeResolve = res
-  })
+    closeResolve = res;
+  });
 
   const close = async (): Promise<void> => {
     if (startupTimeout) {
-      clearTimeout(startupTimeout)
+      clearTimeout(startupTimeout);
     }
-    isActivelyBuilding = false
+    isActivelyBuilding = false;
 
     if (removeWatcher) {
-      removeWatcher()
+      removeWatcher();
     }
     if (devServer) {
-      devServer = null
+      devServer = null;
     }
     if (sendToServer) {
-      sendToServer({ closeServer: true })
-      sendToServer = null
+      sendToServer({ closeServer: true });
+      sendToServer = null;
     }
-    return closePromise
-  }
+    return closePromise;
+  };
 
   const emit = (eventName: string, data: any): void => {
     if (sendToServer) {
       if (eventName === 'buildFinish') {
-        isActivelyBuilding = false
-        lastBuildResults = { ...(data as CompilerBuildResults) }
-        sendToServer({ buildResults: { ...lastBuildResults }, isActivelyBuilding })
+        isActivelyBuilding = false;
+        lastBuildResults = { ...(data as CompilerBuildResults) };
+        sendToServer({ buildResults: { ...lastBuildResults }, isActivelyBuilding });
       } else if (eventName === 'buildLog') {
-        sendToServer({ buildLog: { ...data } })
+        sendToServer({ buildLog: { ...data } });
       } else if (eventName === 'buildStart') {
-        isActivelyBuilding = true
+        isActivelyBuilding = true;
       }
     }
-  }
+  };
 
   const serverStarted = (msg: DevServerMessage): void => {
-    hasStarted = true
+    hasStarted = true;
     if (startupTimeout) {
-      clearTimeout(startupTimeout)
+      clearTimeout(startupTimeout);
     }
-    devServerConfig = msg.serverStarted!
+    devServerConfig = msg.serverStarted!;
 
     devServer = {
       address: devServerConfig.address!,
@@ -162,43 +164,51 @@ function startServer(
       root: devServerConfig.root!,
       emit,
       close,
-    }
+    };
 
-    browserUrl = devServerConfig.browserUrl!
+    browserUrl = devServerConfig.browserUrl!;
 
-    timespan.finish(`dev server started: ${browserUrl}`)
+    timespan.finish(`dev server started: ${browserUrl}`);
 
-    resolve(devServer)
-  }
+    resolve(devServer);
+  };
 
   const requestLog = (msg: DevServerMessage): void => {
     if (devServerConfig.logRequests && msg.requestLog) {
       if (msg.requestLog.status >= 500) {
-        logger.info(logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`))
+        logger.info(
+          logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`),
+        );
       } else if (msg.requestLog.status >= 400) {
         logger.info(
-          logger.dim(logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`))
-        )
+          logger.dim(
+            logger.red(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`),
+          ),
+        );
       } else if (msg.requestLog.status >= 300) {
         logger.info(
-          logger.dim(logger.magenta(`${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`))
-        )
+          logger.dim(
+            logger.magenta(
+              `${msg.requestLog.method} ${msg.requestLog.url} (${msg.requestLog.status})`,
+            ),
+          ),
+        );
       } else {
-        logger.info(logger.dim(`${logger.cyan(msg.requestLog.method)} ${msg.requestLog.url}`))
+        logger.info(logger.dim(`${logger.cyan(msg.requestLog.method)} ${msg.requestLog.url}`));
       }
     }
-  }
+  };
 
   const serverError = async (msg: DevServerMessage): Promise<void> => {
     if (msg.error) {
       if (hasStarted) {
-        logger.error(msg.error.message + ' ' + msg.error.stack)
+        logger.error(msg.error.message + ' ' + msg.error.stack);
       } else {
-        await close()
-        reject(msg.error.message)
+        await close();
+        reject(msg.error.message);
       }
     }
-  }
+  };
 
   const requestBuildResults = (): void => {
     if (sendToServer) {
@@ -206,60 +216,60 @@ function startServer(
         const msg: DevServerMessage = {
           buildResults: { ...lastBuildResults },
           isActivelyBuilding,
-        }
+        };
         // Don't send previous live reload data
-        delete msg.buildResults!.hmr
-        sendToServer(msg)
+        delete msg.buildResults!.hmr;
+        sendToServer(msg);
       } else {
-        sendToServer({ isActivelyBuilding: true })
+        sendToServer({ isActivelyBuilding: true });
       }
     }
-  }
+  };
 
   const compilerRequest = async (compilerRequestPath: string): Promise<void> => {
     if (watcher?.request && sendToServer) {
-      const compilerRequestResults = await watcher.request({ path: compilerRequestPath })
-      sendToServer({ compilerRequestResults })
+      const compilerRequestResults = await watcher.request({ path: compilerRequestPath });
+      sendToServer({ compilerRequestResults });
     }
-  }
+  };
 
   const receiveFromServer = (msg: DevServerMessage): void => {
     try {
       if (msg.serverStarted) {
-        serverStarted(msg)
+        serverStarted(msg);
       } else if (msg.serverClosed) {
-        logger.debug(`dev server closed: ${browserUrl}`)
-        closeResolve?.()
+        logger.debug(`dev server closed: ${browserUrl}`);
+        closeResolve?.();
       } else if (msg.requestBuildResults) {
-        requestBuildResults()
+        requestBuildResults();
       } else if (msg.compilerRequestPath) {
-        compilerRequest(msg.compilerRequestPath)
+        compilerRequest(msg.compilerRequestPath);
       } else if (msg.requestLog) {
-        requestLog(msg)
+        requestLog(msg);
       } else if (msg.error) {
-        serverError(msg)
+        serverError(msg);
       } else {
-        logger.debug(`server msg not handled: ${JSON.stringify(msg)}`)
+        logger.debug(`server msg not handled: ${JSON.stringify(msg)}`);
       }
     } catch (e) {
-      logger.error('receiveFromServer: ' + e)
+      logger.error('receiveFromServer: ' + e);
     }
-  }
+  };
 
   try {
     if (watcher) {
       // Cast emit to the generic callback signature that watcher.on accepts
-      removeWatcher = watcher.on(emit as (eventName: string, data: any) => void)
+      removeWatcher = watcher.on(emit as (eventName: string, data: any) => void);
     }
 
     // Initialize server process (either worker or in-process)
-    sendToServer = initServerProcessFn(receiveFromServer)
+    sendToServer = initServerProcessFn(receiveFromServer);
 
-    sendToServer({ startServer: devServerConfig })
+    sendToServer({ startServer: devServerConfig });
   } catch (e) {
-    close()
-    reject(e)
+    close();
+    reject(e);
   }
 }
 
-export { initServerProcess } from './server'
+export { initServerProcess } from './server';

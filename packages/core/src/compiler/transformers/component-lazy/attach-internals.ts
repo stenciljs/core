@@ -159,7 +159,10 @@ function createStatesAddCall(memberName: string, stateName: string): ts.Expressi
     ts.factory.createCallExpression(
       ts.factory.createPropertyAccessExpression(
         ts.factory.createPropertyAccessExpression(
-          ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier(memberName)),
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createThis(),
+            ts.factory.createIdentifier(memberName),
+          ),
           ts.factory.createIdentifier('states'),
         ),
         ts.factory.createIdentifier('add'),

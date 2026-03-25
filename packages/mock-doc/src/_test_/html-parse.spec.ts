@@ -2,7 +2,13 @@ import { describe, it, expect, beforeEach } from '@stencil/vitest';
 import { NODE_TYPES } from '../constants';
 import { createFragment } from '../document';
 import { MockDocument } from '../document';
-import { MockDOMMatrix, MockDOMPoint, MockSVGRect, MockSVGSVGElement, MockSVGTextContentElement } from '../element';
+import {
+  MockDOMMatrix,
+  MockDOMPoint,
+  MockSVGRect,
+  MockSVGSVGElement,
+  MockSVGTextContentElement,
+} from '../element';
 import { parseHtmlToDocument, parseHtmlToFragment } from '../parse-html';
 
 describe('parseHtml', () => {
@@ -58,10 +64,18 @@ describe('parseHtml', () => {
     expect(doc.body?.firstElementChild?.tagName).toEqual('DIV');
     expect(doc.body?.firstElementChild?.firstElementChild?.tagName).toEqual('svg');
     expect(doc.body?.firstElementChild?.firstElementChild?.children?.[0]?.tagName).toEqual('a');
-    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[1]?.tagName).toEqual('feImage');
-    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.tagName).toEqual('foreignObject');
-    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2].children?.[0]?.tagName).toEqual('A');
-    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.children?.[1]?.tagName).toEqual('FEIMAGE');
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[1]?.tagName).toEqual(
+      'feImage',
+    );
+    expect(doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.tagName).toEqual(
+      'foreignObject',
+    );
+    expect(
+      doc.body?.firstElementChild?.firstElementChild?.children?.[2].children?.[0]?.tagName,
+    ).toEqual('A');
+    expect(
+      doc.body?.firstElementChild?.firstElementChild?.children?.[2]?.children?.[1]?.tagName,
+    ).toEqual('FEIMAGE');
     expect(doc.body).toEqualHtml(`
       <body>
         <div>
@@ -99,7 +113,8 @@ describe('parseHtml', () => {
         </svg>
       </svg>
     `);
-    const svgElem: MockSVGSVGElement = doc.body.firstElementChild?.firstElementChild as MockSVGSVGElement;
+    const svgElem: MockSVGSVGElement = doc.body.firstElementChild
+      ?.firstElementChild as MockSVGSVGElement;
     expect(svgElem).toBeDefined();
     expect(svgElem.getBBox()).toEqual(new MockSVGRect());
     expect(svgElem.createSVGPoint()).toEqual(new MockDOMPoint());
@@ -116,7 +131,8 @@ describe('parseHtml', () => {
         </text>
       </svg>
     `);
-    const text: MockSVGTextContentElement = doc.body.firstElementChild?.firstElementChild as MockSVGTextContentElement;
+    const text: MockSVGTextContentElement = doc.body.firstElementChild
+      ?.firstElementChild as MockSVGTextContentElement;
     expect(text).toBeDefined();
     expect(text.tagName).toEqual('text');
 
@@ -291,7 +307,9 @@ describe('parseHtml', () => {
   });
 
   it('should respect case in svg', () => {
-    const elm = parseHtmlToFragment('<svg  viewbox="0 0 97 20"><symbol viewbox="0 0 97 20"></symbol></svg>');
+    const elm = parseHtmlToFragment(
+      '<svg  viewbox="0 0 97 20"><symbol viewbox="0 0 97 20"></symbol></svg>',
+    );
     expect(elm.children.length).toBe(1);
     expect(elm.children[0].attributes.item(0).name).toBe('viewBox');
     expect(elm.children[0].children[0].attributes.item(0).name).toBe('viewBox');

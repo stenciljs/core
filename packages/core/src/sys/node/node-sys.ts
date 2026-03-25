@@ -210,7 +210,9 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     },
     async ensureResources() {
       // TODO(STENCIL-727): Remove this from the sys interface
-      console.warn(`ensureResources is a no-op, and will be removed in a future version of Stencil`);
+      console.warn(
+        `ensureResources is a no-op, and will be removed in a future version of Stencil`,
+      );
     },
     exit: async (exitCode) => {
       await runInterruptsCallbacks();
@@ -457,7 +459,9 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
               }
               for (const event of events) {
                 const fileName = normalizePath(event.path);
-                logger?.debug(`NODE_SYS_DEBUG::watchDir:callback dir=${p} changedPath=${fileName} type=${event.type}`);
+                logger?.debug(
+                  `NODE_SYS_DEBUG::watchDir:callback dir=${p} changedPath=${fileName} type=${event.type}`,
+                );
 
                 // Map @parcel/watcher event types to Stencil's event types
                 if (event.type === 'create') {
@@ -503,7 +507,10 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
        * Watch an individual file for changes using @parcel/watcher.
        * Watches the parent directory and filters events for the specific file.
        */
-      sys.watchFile = (filePath: string, callback: CompilerFileWatcherCallback): CompilerFileWatcher => {
+      sys.watchFile = (
+        filePath: string,
+        callback: CompilerFileWatcherCallback,
+      ): CompilerFileWatcher => {
         logger?.debug(`NODE_SYS_DEBUG::watchFile ${filePath}`);
 
         const normalizedPath = normalizePath(filePath);
@@ -521,7 +528,9 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
                 const eventPath = normalizePath(event.path);
                 // Only process events for the specific file we're watching
                 if (eventPath === normalizedPath) {
-                  logger?.debug(`NODE_SYS_DEBUG::watchFile:callback file=${filePath} type=${event.type}`);
+                  logger?.debug(
+                    `NODE_SYS_DEBUG::watchFile:callback file=${filePath} type=${event.type}`,
+                  );
 
                   if (event.type === 'create') {
                     callback(eventPath, 'fileAdd');
@@ -547,7 +556,10 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
           });
 
         const subscriptionKey = `file:${filePath}`;
-        activeSubscriptions.set(subscriptionKey, subscriptionPromise as Promise<parcelWatcher.AsyncSubscription>);
+        activeSubscriptions.set(
+          subscriptionKey,
+          subscriptionPromise as Promise<parcelWatcher.AsyncSubscription>,
+        );
 
         const close = () => {
           const sub = activeSubscriptions.get(subscriptionKey);
@@ -660,12 +672,17 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     },
     copy: nodeCopyTasks,
     details: {
-      cpuModel: (Array.isArray(sysCpus) && sysCpus.length > 0 ? sysCpus[0] && sysCpus[0].model : '') || '',
+      cpuModel:
+        (Array.isArray(sysCpus) && sysCpus.length > 0 ? sysCpus[0] && sysCpus[0].model : '') || '',
       freemem() {
         return freemem();
       },
       platform:
-        osPlatform === 'darwin' || osPlatform === 'linux' ? osPlatform : osPlatform === 'win32' ? 'windows' : '',
+        osPlatform === 'darwin' || osPlatform === 'linux'
+          ? osPlatform
+          : osPlatform === 'win32'
+            ? 'windows'
+            : '',
       release: release(),
       totalmem: totalmem(),
     },

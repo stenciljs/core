@@ -1,4 +1,9 @@
-import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import {
+  mockBuildCtx,
+  mockCompilerCtx,
+  mockModule,
+  mockValidatedConfig,
+} from '@stencil/core/testing';
 
 import type * as d from '@stencil/core';
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';

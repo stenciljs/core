@@ -39,7 +39,9 @@ const writeHydrateOutput = async (
   const hydrateCoreIndexPathESM = join(hydrateAppDirPath, 'index.mjs');
   const hydrateCoreIndexDtsFilePath = join(hydrateAppDirPath, 'index.d.ts');
 
-  const writeOperations: Promise<unknown>[] = [copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath)];
+  const writeOperations: Promise<unknown>[] = [
+    copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath),
+  ];
 
   if (outputTarget.generatePackageJson) {
     const pkgJsonPath = join(hydrateAppDirPath, 'package.json');
@@ -122,7 +124,10 @@ const writeHydrateOutput = async (
           });
 
           buildCtx.diagnostics.push(...optimizeResults.diagnostics);
-          if (!hasError(optimizeResults.diagnostics) && typeof optimizeResults.output === 'string') {
+          if (
+            !hasError(optimizeResults.diagnostics) &&
+            typeof optimizeResults.output === 'string'
+          ) {
             code = optimizeResults.output;
           }
         }

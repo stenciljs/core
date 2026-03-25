@@ -217,7 +217,12 @@ const normalizeFlagName = (flagName: string): string => {
  * `--no-`, etc) removed
  * @param value the raw value to be set onto the config flags object
  */
-const setCLIArg = (flags: ConfigFlags, rawArg: string, normalizedArg: string, value: CLIValueResult) => {
+const setCLIArg = (
+  flags: ConfigFlags,
+  rawArg: string,
+  normalizedArg: string,
+  value: CLIValueResult,
+) => {
   normalizedArg = desugarAlias(normalizedArg);
 
   // We're setting a boolean!
@@ -336,7 +341,10 @@ const setCLIArg = (flags: ConfigFlags, rawArg: string, normalizedArg: string, va
         flags.knownArgs.push(rawArg);
         flags.knownArgs.push(value);
       } else {
-        throwCLIParsingError(rawArg, `expected to receive a valid log level but received "${String(value)}"`);
+        throwCLIParsingError(
+          rawArg,
+          `expected to receive a valid log level but received "${String(value)}"`,
+        );
       }
     } else {
       throwCLIParsingError(rawArg, 'expected to receive a valid log level but received nothing');
@@ -515,4 +523,5 @@ const desugarAlias = (maybeAlias: string): string => {
  * @param rawAlias a CLI flag alias as found on the command line (like `"-c"`)
  * @returns an equivalent full command (like `"--config"`)
  */
-const desugarRawAlias = (rawAlias: string): string => '--' + desugarAlias(normalizeFlagName(rawAlias));
+const desugarRawAlias = (rawAlias: string): string =>
+  '--' + desugarAlias(normalizeFlagName(rawAlias));

@@ -1,9 +1,20 @@
-import { buildError, isBoolean, isNumber, isOutputTargetWww, isString, join, normalizePath } from '../../utils';
+import {
+  buildError,
+  isBoolean,
+  isNumber,
+  isOutputTargetWww,
+  isString,
+  join,
+  normalizePath,
+} from '../../utils';
 import { isAbsolute } from 'path';
 
 import type * as d from '@stencil/core';
 
-export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diagnostic[]): d.DevServerConfig => {
+export const validateDevServer = (
+  config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
+): d.DevServerConfig => {
   if ((config.devServer === null || (config.devServer as any)) === false) {
     return {};
   }
@@ -46,7 +57,8 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
   // so we can safely split on `:` here.
   const addressSplit = devServer.address.split(':');
 
-  const isLocalhost = addressSplit[0] === 'localhost' || !isNaN(addressSplit[0].split('.')[0] as any);
+  const isLocalhost =
+    addressSplit[0] === 'localhost' || !isNaN(addressSplit[0].split('.')[0] as any);
 
   // if localhost we use 3333 as a default port
   let addressPort: number | undefined = isLocalhost ? 3333 : undefined;
@@ -115,7 +127,10 @@ export const validateDevServer = (config: d.ValidatedConfig, diagnostics: d.Diag
   }
 
   if (devServer.historyApiFallback !== null) {
-    if (Array.isArray(devServer.historyApiFallback) || typeof devServer.historyApiFallback !== 'object') {
+    if (
+      Array.isArray(devServer.historyApiFallback) ||
+      typeof devServer.historyApiFallback !== 'object'
+    ) {
       devServer.historyApiFallback = {};
     }
 

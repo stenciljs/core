@@ -66,7 +66,9 @@ export class MockDocument extends MockHTMLElement {
   }
 
   get baseURI() {
-    const baseNode = this.head.childNodes.find((node) => node.nodeName === 'BASE') as MockBaseElement;
+    const baseNode = this.head.childNodes.find(
+      (node) => node.nodeName === 'BASE',
+    ) as MockBaseElement;
     if (baseNode) {
       return baseNode.href;
     }

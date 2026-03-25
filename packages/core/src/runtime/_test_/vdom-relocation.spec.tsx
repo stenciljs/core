@@ -31,7 +31,7 @@ describe('vdom-relocation', () => {
     class Child {
       render() {
         return (
-          <div class="wrapper">
+          <div class='wrapper'>
             <slot></slot>
           </div>
         );

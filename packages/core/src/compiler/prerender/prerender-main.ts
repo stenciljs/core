@@ -15,7 +15,13 @@ import { generateSitemapXml } from './sitemap-xml';
 
 export const createPrerenderer = async (config: d.ValidatedConfig) => {
   const start = (opts: d.PrerenderStartOptions) => {
-    return runPrerender(config, opts.hydrateAppFilePath, opts.componentGraph, opts.srcIndexHtmlPath, opts.buildId);
+    return runPrerender(
+      config,
+      opts.hydrateAppFilePath,
+      opts.componentGraph,
+      opts.srcIndexHtmlPath,
+      opts.buildId,
+    );
   };
   return {
     start,
@@ -38,7 +44,9 @@ const runPrerender = async (
     duration: 0,
     average: 0,
   };
-  const outputTargets = config.outputTargets.filter(isOutputTargetWww).filter((o) => isString(o.indexHtml));
+  const outputTargets = config.outputTargets
+    .filter(isOutputTargetWww)
+    .filter((o) => isString(o.indexHtml));
 
   if (!isString(results.buildId)) {
     results.buildId = createHydrateBuildId();
@@ -158,7 +166,8 @@ const runPrerenderOutputTarget = async (
     // get the prerender urls to queue up
     const prerenderDiagnostics: d.Diagnostic[] = [];
     const manager: d.PrerenderManager = {
-      prerenderUrlWorker: (prerenderRequest: d.PrerenderUrlRequest) => workerCtx.prerenderWorker(prerenderRequest),
+      prerenderUrlWorker: (prerenderRequest: d.PrerenderUrlRequest) =>
+        workerCtx.prerenderWorker(prerenderRequest),
       componentGraphPath: null,
       config: config,
       diagnostics: prerenderDiagnostics,
@@ -206,7 +215,11 @@ const runPrerenderOutputTarget = async (
 
     manager.templateId = await createPrerenderTemplate(config, templateData.html);
     manager.staticSite = templateData.staticSite;
-    manager.componentGraphPath = await createComponentGraphPath(config, componentGraph, outputTarget);
+    manager.componentGraphPath = await createComponentGraphPath(
+      config,
+      componentGraph,
+      outputTarget,
+    );
 
     await new Promise((resolve) => {
       manager.resolve = resolve;
@@ -283,7 +296,10 @@ const createComponentGraphPath = async (
   return null;
 };
 
-const getComponentPathContent = (componentGraph: { [scopeId: string]: string[] }, outputTarget: d.OutputTargetWww) => {
+const getComponentPathContent = (
+  componentGraph: { [scopeId: string]: string[] },
+  outputTarget: d.OutputTargetWww,
+) => {
   const buildDir = getAbsoluteBuildDir(outputTarget);
   const object: { [key: string]: string[] } = {};
   const entries = Object.entries(componentGraph);

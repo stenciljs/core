@@ -1,30 +1,34 @@
 {
   "name": "@stencil/core",
-  "description": "A Compiler for Web Components and Progressive Web Apps",
-  "author": "StencilJs Contributors",
-  "homepage": "https://stenciljs.com/",
-  "keywords": [
-    "web components",
-    "components",
-    "stencil",
-    "ionic",
-    "webapp",
-    "custom elements",
-    "pwa",
-    "progressive web app"
-  ],
   "version": "5.0.0-next.0",
+  "description": "A Compiler for Web Components and Progressive Web Apps",
+  "keywords": [
+    "components",
+    "custom elements",
+    "ionic",
+    "progressive web app",
+    "pwa",
+    "stencil",
+    "web components",
+    "webapp"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
   },
-  "license": "MIT",
-  "type": "module",
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
   "bin": {
     "stencil": "./bin/stencil.mjs"
   },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -77,10 +81,6 @@
       "default": "./dist/mock-doc.mjs"
     }
   },
-  "files": [
-    "bin/",
-    "dist/"
-  ],
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
@@ -115,11 +115,11 @@
     "terser": "5.37.0",
     "typescript": "~5.8.3"
   },
-  "volta": {
-    "extends": "../../package.json"
-  },
   "devDependencies": {
     "@ionic/prettier-config": "^4.0.0",
     "prettier": "^3.5.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

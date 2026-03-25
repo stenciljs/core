@@ -88,7 +88,10 @@ export const outputLazy = async (
       });
 
       if (buildCtx.esmBrowserComponentBundle != null) {
-        buildCtx.componentGraph = generateModuleGraph(buildCtx.components, buildCtx.esmBrowserComponentBundle);
+        buildCtx.componentGraph = generateModuleGraph(
+          buildCtx.components,
+          buildCtx.esmBrowserComponentBundle,
+        );
       }
     }
   } catch (e: any) {

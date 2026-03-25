@@ -55,7 +55,9 @@ const lowerPathParam = (fn: (p: string) => boolean) => (p: string) => fn(p.toLow
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.d.ts` (case-sensitive), `false` otherwise.
  */
-export const isDtsFile = lowerPathParam((p) => p.endsWith('.d.ts') || p.endsWith('.d.mts') || p.endsWith('.d.cts'));
+export const isDtsFile = lowerPathParam(
+  (p) => p.endsWith('.d.ts') || p.endsWith('.d.mts') || p.endsWith('.d.cts'),
+);
 
 /**
  * Determine if a stringified file path is a TypeScript file based on the extension at the end of the path. This
@@ -90,7 +92,9 @@ export const isJsxFile = lowerPathParam(
  * @param p the path to evaluate
  * @returns `true` if the path ends in `.js` (case-sensitive), `false` otherwise.
  */
-export const isJsFile = lowerPathParam((p: string) => p.endsWith('.js') || p.endsWith('.mjs') || p.endsWith('.cjs'));
+export const isJsFile = lowerPathParam(
+  (p: string) => p.endsWith('.js') || p.endsWith('.mjs') || p.endsWith('.cjs'),
+);
 
 /**
  * Generate the preamble to be placed atop the main file of the build
@@ -118,12 +122,22 @@ export function getTextDocs(docs: d.CompilerJsDoc | undefined | null) {
     return '';
   }
 
-  const mainText = escapeWithPattern(docs.text.replace(LINE_BREAK_REGEX, ' '), /\*\//, '*\\/', true);
+  const mainText = escapeWithPattern(
+    docs.text.replace(LINE_BREAK_REGEX, ' '),
+    /\*\//,
+    '*\\/',
+    true,
+  );
 
   const tags = docs.tags
     .filter((tag) => tag.name !== 'internal')
     .map((tag) => {
-      const tagText = escapeWithPattern((tag.text || '').replace(LINE_BREAK_REGEX, ' '), /\*\//, '*\\/', true);
+      const tagText = escapeWithPattern(
+        (tag.text || '').replace(LINE_BREAK_REGEX, ' '),
+        /\*\//,
+        '*\\/',
+        true,
+      );
       return `@${tag.name} ${tagText}`;
     });
 
@@ -159,7 +173,9 @@ function formatDocBlock(docs: d.CompilerJsDoc, indentation: number = 0): string 
 
   const spaces = new Array(indentation + 1).join(' ');
 
-  return [spaces + '/**', ...textDocs.map((line) => spaces + ` * ${line}`), spaces + ' */'].join(`\n`);
+  return [spaces + '/**', ...textDocs.map((line) => spaces + ` * ${line}`), spaces + ' */'].join(
+    `\n`,
+  );
 }
 
 /**
@@ -185,7 +201,9 @@ function getDocBlockLines(docs: d.CompilerJsDoc): string[] {
  * @returns a list of package names the project is dependent on
  */
 const getDependencies = (buildCtx: d.BuildCtx): ReadonlyArray<string> =>
-  Object.keys(buildCtx?.packageJson?.dependencies ?? {}).filter((pkgName) => !SKIP_DEPS.includes(pkgName));
+  Object.keys(buildCtx?.packageJson?.dependencies ?? {}).filter(
+    (pkgName) => !SKIP_DEPS.includes(pkgName),
+  );
 
 /**
  * Utility to determine whether a project has a dependency on a package
@@ -197,7 +215,11 @@ export const hasDependency = (buildCtx: d.BuildCtx, depName: string): boolean =>
   return getDependencies(buildCtx).includes(depName);
 };
 
-export const readPackageJson = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+export const readPackageJson = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
   try {
     const pkgJson = await compilerCtx.fs.readFile(config.packageJsonFilePath);
 
@@ -233,7 +255,10 @@ export type ParsePackageJsonResult = {
  * @param pkgJsonFilePath the path to the already read `package.json` file
  * @returns the results of parsing the provided contents of the `package.json` file
  */
-export const parsePackageJson = (pkgJsonStr: string, pkgJsonFilePath: string): ParsePackageJsonResult => {
+export const parsePackageJson = (
+  pkgJsonStr: string,
+  pkgJsonFilePath: string,
+): ParsePackageJsonResult => {
   const parseResult: ParsePackageJsonResult = {
     diagnostic: null,
     data: null,

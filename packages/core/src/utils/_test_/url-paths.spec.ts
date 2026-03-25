@@ -17,9 +17,12 @@ describe('url-paths', () => {
       },
     );
 
-    it.each(['C:/file.txt', 'C:\\file.txt', '/User/file.txt'])("returns false for file paths '%s'", (fileName) => {
-      expect(isRemoteUrl(fileName)).toBe(false);
-    });
+    it.each(['C:/file.txt', 'C:\\file.txt', '/User/file.txt'])(
+      "returns false for file paths '%s'",
+      (fileName) => {
+        expect(isRemoteUrl(fileName)).toBe(false);
+      },
+    );
 
     it('returns false if the provided url is an empty string', () => {
       expect(isRemoteUrl('')).toBe(false);
