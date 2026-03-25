@@ -1,6 +1,6 @@
 packages:
   - 'packages/*'
-  - 'packages/*/tests/**/*'
+  - 'test/**/*'
 
 catalog:
   vitest: ^4.0.18

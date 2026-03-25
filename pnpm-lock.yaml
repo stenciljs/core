@@ -164,64 +164,99 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(prettier@3.8.1)
 
-  packages/core/tests/build: {}
+  packages/dev-server:
+    dependencies:
+      launch-editor:
+        specifier: ^2.9.1
+        version: 2.13.0
+      open:
+        specifier: ^11.0.0
+        version: 11.0.0
+      ws:
+        specifier: ^8.0.0
+        version: 8.19.0
+    devDependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../core
+      '@types/ws':
+        specifier: ^8.0.0
+        version: 8.18.1
+      rollup-plugin-postcss:
+        specifier: ^4.0.2
+        version: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.15.11)(@swc/wasm@1.15.11)(@types/node@24.10.13)(typescript@5.9.3))
 
-  packages/core/tests/build/bundle-size:
+  packages/mock-doc:
+    dependencies:
+      parse5:
+        specifier: 7.2.1
+        version: 7.2.1
+    devDependencies:
+      jquery:
+        specifier: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
+        version: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
+
+  test/build: {}
+
+  test/build/bundle-size:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
     devDependencies:
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
 
-  packages/core/tests/build/copy-task:
+  test/build/copy-task:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
     devDependencies:
       rimraf:
         specifier: ^6.0.1
         version: 6.1.3
 
-  packages/core/tests/build/docs-json:
+  test/build/docs-json:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
 
-  packages/core/tests/build/docs-readme:
+  test/build/docs-readme:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
 
-  packages/core/tests/build/exports:
+  test/build/exports:
     devDependencies:
+      '@stencil/cli':
+        specifier: workspace:*
+        version: link:../../../packages/cli
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
 
-  packages/core/tests/build/outputs:
+  test/build/outputs:
     devDependencies:
       '@stencil/mock-doc':
         specifier: workspace:*
-        version: link:../../../../mock-doc
+        version: link:../../../packages/mock-doc
       why-is-node-running:
         specifier: ^2.2.0
         version: 2.3.0
 
-  packages/core/tests/build/type-tests:
+  test/build/type-tests:
     devDependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
 
-  packages/core/tests/integration: {}
+  test/integration: {}
 
-  packages/core/tests/integration/bundler:
+  test/integration/bundler:
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
@@ -230,13 +265,13 @@ importers:
         specifier: ^14.2.4
         version: 14.2.5
 
-  packages/core/tests/integration/bundler/component-library:
+  test/integration/bundler/component-library:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../../..
+        version: link:../../../../packages/core
 
-  packages/core/tests/integration/bundler/vite-bundle-test:
+  test/integration/bundler/vite-bundle-test:
     dependencies:
       '@stencil-core-tests/bundler-component-library':
         specifier: workspace:*
@@ -246,17 +281,17 @@ importers:
         specifier: ^6.0.0
         version: 6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
-  packages/core/tests/integration/e2e:
+  test/integration/e2e:
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
       '@stencil/mock-doc':
         specifier: workspace:*
-        version: link:../../../../mock-doc
+        version: link:../../../packages/mock-doc
       '@stencil/playwright':
         specifier: 'catalog:'
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
@@ -303,16 +338,16 @@ importers:
         specifier: ^2.2.0
         version: 2.3.0
 
-  packages/core/tests/integration/e2e/hydrate: {}
+  test/integration/e2e/hydrate: {}
 
-  packages/core/tests/integration/ionic-app:
+  test/integration/ionic-app:
     dependencies:
       '@ionic/core':
         specifier: ^7.0.0
         version: 7.8.6
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
@@ -327,42 +362,42 @@ importers:
         specifier: 'catalog:'
         version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
-  packages/core/tests/integration/prerender:
+  test/integration/prerender:
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
       serve:
         specifier: ^14.2.4
         version: 14.2.5
 
-  packages/core/tests/integration/prerender/dist/hydrate: {}
+  test/integration/prerender/dist/hydrate: {}
 
-  packages/core/tests/perf: {}
+  test/perf: {}
 
-  packages/core/tests/perf/build-benchmark: {}
+  test/perf/build-benchmark: {}
 
-  packages/core/tests/perf/runtime-benchmark:
+  test/perf/runtime-benchmark:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
     devDependencies:
       playwright:
         specifier: 'catalog:'
         version: 1.58.2
 
-  packages/core/tests/runtime:
+  test/runtime:
     dependencies:
       '@stencil-core-tests/runtime-external':
         specifier: workspace:*
         version: link:fixtures/external-base-classes
       '@stencil/core':
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/core
     devDependencies:
       '@stencil/sass':
         specifier: ^3.0.12
@@ -386,19 +421,19 @@ importers:
         specifier: 'catalog:'
         version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
-  packages/core/tests/runtime/fixtures/external-base-classes:
+  test/runtime/fixtures/external-base-classes:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../../..
+        version: link:../../../../packages/core
 
-  packages/core/tests/special-config: {}
+  test/special-config: {}
 
-  packages/core/tests/special-config/external-runtime:
+  test/special-config/external-runtime:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
     devDependencies:
       '@stencil/vitest':
         specifier: 'catalog:'
@@ -413,26 +448,26 @@ importers:
         specifier: 'catalog:'
         version: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
 
-  packages/core/tests/special-config/invisible-prehydration:
+  test/special-config/invisible-prehydration:
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../..
+        version: link:../../../packages/core
       '@stencil/playwright':
         specifier: 'catalog:'
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
 
-  packages/core/tests/ssr:
+  test/ssr:
     devDependencies:
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.58.2
       '@stencil/core':
         specifier: workspace:*
-        version: link:../..
+        version: link:../../packages/core
       '@stencil/playwright':
         specifier: 'catalog:'
         version: 1.2.3-next.11(@playwright/test@1.58.2)(@stencil/core@packages+core)
@@ -440,39 +475,7 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5
 
-  packages/core/tests/ssr/hydrate: {}
-
-  packages/dev-server:
-    dependencies:
-      launch-editor:
-        specifier: ^2.9.1
-        version: 2.13.0
-      open:
-        specifier: ^11.0.0
-        version: 11.0.0
-      ws:
-        specifier: ^8.0.0
-        version: 8.19.0
-    devDependencies:
-      '@stencil/core':
-        specifier: workspace:*
-        version: link:../core
-      '@types/ws':
-        specifier: ^8.0.0
-        version: 8.18.1
-      rollup-plugin-postcss:
-        specifier: ^4.0.2
-        version: 4.0.2(postcss@8.5.6)(ts-node@10.9.2(@swc/core@1.15.11)(@swc/wasm@1.15.11)(@types/node@24.10.13)(typescript@5.9.3))
-
-  packages/mock-doc:
-    dependencies:
-      parse5:
-        specifier: 7.2.1
-        version: 7.2.1
-    devDependencies:
-      jquery:
-        specifier: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
-        version: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
+  test/ssr/hydrate: {}
 
 packages:
 

@@ -8,6 +8,7 @@
     "test": "node ./test-exports.mts"
   },
   "devDependencies": {
-    "@stencil/core": "workspace:*"
+    "@stencil/core": "workspace:*",
+    "@stencil/cli": "workspace:*"
   }
 }
