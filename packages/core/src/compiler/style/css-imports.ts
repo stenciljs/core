@@ -56,29 +56,29 @@ export const parseCssImports = async (
    * @returns concatenated styles assembled from the various imported stylesheets
    */
   async function resolveAndFlattenImports(
-    srcFilePath: string,
-    resolvedFilePath: string,
-    styleText: string,
+    srcPath: string,
+    resolvedPath: string,
+    css: string,
   ): Promise<string> {
     // if we've seen this path before we early return
-    if (resolvedFilePaths.has(resolvedFilePath)) {
-      return styleText;
+    if (resolvedFilePaths.has(resolvedPath)) {
+      return css;
     }
-    resolvedFilePaths.add(resolvedFilePath);
+    resolvedFilePaths.add(resolvedPath);
 
     if (styleDocs != null) {
-      parseStyleDocs(styleDocs, styleText);
+      parseStyleDocs(styleDocs, css);
     }
 
     const cssImports = await getCssImports(
       config,
       compilerCtx,
       buildCtx,
-      resolvedFilePath,
-      styleText,
+      resolvedPath,
+      css,
     );
     if (cssImports.length === 0) {
-      return styleText;
+      return css;
     }
 
     // add any newly-found imports to the 'global' list
@@ -105,13 +105,13 @@ export const parseCssImports = async (
           // we had some error loading the file from disk, so write a diagnostic
           const err = buildError(buildCtx.diagnostics);
           err.messageText = `Unable to read css import: ${cssImportData.srcImport}`;
-          err.absFilePath = srcFilePath;
+          err.absFilePath = srcPath;
         }
       }),
     );
 
     // replace import statements with the actual CSS code in children modules
-    return replaceImportDeclarations(styleText, cssImports, isCssEntry);
+    return replaceImportDeclarations(css, cssImports, isCssEntry);
   }
 };
 

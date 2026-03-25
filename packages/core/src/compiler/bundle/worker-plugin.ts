@@ -74,7 +74,7 @@ export const workerPlugin = (
           source: code,
           name: workerName + '.js',
         });
-        dependencies.forEach((id) => this.addWatchFile(id));
+        dependencies.forEach((dep) => this.addWatchFile(dep));
         return {
           code: getWorkerMain(referenceId, workerName, workerMsgId),
           moduleSideEffects: false,
@@ -95,7 +95,7 @@ export const workerPlugin = (
           source: code,
           name: workerName + '.js',
         });
-        dependencies.forEach((id) => this.addWatchFile(id));
+        dependencies.forEach((dep) => this.addWatchFile(dep));
         return {
           code: getInlineWorker(referenceId, workerName, workerMsgId),
           moduleSideEffects: false,

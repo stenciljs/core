@@ -35,19 +35,19 @@ export const setPlatformHelpers = (helpers: {
 export const supportsShadow = BUILD.shadowDom;
 
 export const supportsListenerOptions = /*@__PURE__*/ (() => {
-  let supportsListenerOptions = false;
+  let supported = false;
   try {
     win.document?.addEventListener(
       'e',
       null,
       Object.defineProperty({}, 'passive', {
         get() {
-          supportsListenerOptions = true;
+          supported = true;
         },
       }),
     );
   } catch {}
-  return supportsListenerOptions;
+  return supported;
 })();
 
 export const promiseResolve = (v?: any) => Promise.resolve(v);

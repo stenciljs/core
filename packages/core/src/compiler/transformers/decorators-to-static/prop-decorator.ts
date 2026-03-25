@@ -173,9 +173,9 @@ const parsePropDecorator = (
         propMeta.defaultValue = foundProp.initializer.getText();
 
         if (propMeta.type === 'unknown') {
-          const type = typeChecker.getTypeAtLocation(foundProp);
-          propMeta.type = propTypeFromTSType(type);
-          propMeta.complexType = getComplexType(typeChecker, foundProp, type, program);
+          const foundType = typeChecker.getTypeAtLocation(foundProp);
+          propMeta.type = propTypeFromTSType(foundType);
+          propMeta.complexType = getComplexType(typeChecker, foundProp, foundType, program);
         }
       }
     }
@@ -312,7 +312,7 @@ const checkType = (type: ts.Type, check: (type: ts.Type) => boolean): boolean =>
   if (type.flags & ts.TypeFlags.Union) {
     // if the type is a union, check each type in the union
     const union = type as ts.UnionType;
-    if (union.types.some((type) => checkType(type, check))) {
+    if (union.types.some((t) => checkType(t, check))) {
       return true;
     }
   }

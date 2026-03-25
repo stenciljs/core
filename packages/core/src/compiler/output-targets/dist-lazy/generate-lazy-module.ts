@@ -200,7 +200,7 @@ const generateLazyEntryModule = async (
   isBrowserBuild: boolean,
 ): Promise<d.BundleModule> => {
   const entryModule = buildCtx.entryModules.find(
-    (entryModule) => entryModule.entryKey === rollupResult.entryKey,
+    (em) => em.entryKey === rollupResult.entryKey,
   );
 
   const { code, sourceMap } = await convertChunk(

@@ -1,4 +1,4 @@
-import path from 'node:path';
+import nodePath from 'node:path';
 
 /**
  * Convert Windows backslash paths to slash paths: foo\\bar ➔ foo/bar
@@ -211,7 +211,7 @@ export function relative(from: string, to: string): string {
    * path. However, our algorithm does differ from that of Node's, as described in this function's JSDoc when a zero
    * length string is encountered.
    */
-  return normalizePath(path.relative(from, to), false);
+  return normalizePath(nodePath.relative(from, to), false);
 }
 
 /**
@@ -235,7 +235,7 @@ export function join(...paths: string[]): string {
    * Note that our algorithm does differ from Node's, as described in this function's JSDoc regarding trailing
    * slashes.
    */
-  return normalizePath(path.join(...paths), false);
+  return normalizePath(nodePath.join(...paths), false);
 }
 
 /**
@@ -253,7 +253,7 @@ export function resolve(...paths: string[]): string {
    * When normalizing, we should _not_ attempt to relativize the path returned by the native Node `resolve` method. When
    * calculating the path from each of the string-based parts, Node does not prepend './' to the calculated path.
    */
-  return normalizePath(path.resolve(...paths), false);
+  return normalizePath(nodePath.resolve(...paths), false);
 }
 
 /**
@@ -271,5 +271,5 @@ export function normalize(toNormalize: string): string {
    * When normalizing, we should _not_ attempt to relativize the path returned by the native Node `normalize` method.
    * When calculating the path from each of the string-based parts, Node does not prepend './' to the calculated path.
    */
-  return normalizePath(path.normalize(toNormalize), false);
+  return normalizePath(nodePath.normalize(toNormalize), false);
 }

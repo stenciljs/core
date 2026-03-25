@@ -231,11 +231,11 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
     dirs = dirs
       .filter(isString)
       .map((s) => normalizePath(s))
-      .reduce((dirs, dir) => {
-        if (!dirs.includes(dir)) {
-          dirs.push(dir);
+      .reduce((acc, dir) => {
+        if (!acc.includes(dir)) {
+          acc.push(dir);
         }
-        return dirs;
+        return acc;
       }, [] as string[]);
 
     const allFsItems = await Promise.all(dirs.map((dir) => readdir(dir, { recursive: true })));
@@ -532,11 +532,11 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
       const dirItems = await readdir(dirPath, { recursive: true });
 
       await Promise.all(
-        dirItems.map((item) => {
-          if (item.relPath.endsWith('.gitkeep')) {
+        dirItems.map((dirItem) => {
+          if (dirItem.relPath.endsWith('.gitkeep')) {
             return null;
           }
-          return removeItem(item.absPath);
+          return removeItem(dirItem.absPath);
         }),
       );
     } catch (e) {
@@ -572,17 +572,17 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
     const item = getItem(itemPath);
 
     if (typeof item.isDirectory !== 'boolean' || typeof item.isFile !== 'boolean') {
-      const stat = await sys.stat(itemPath);
-      if (!stat.error) {
+      const fsStat = await sys.stat(itemPath);
+      if (!fsStat.error) {
         item.exists = true;
-        if (stat.isFile) {
+        if (fsStat.isFile) {
           item.isFile = true;
           item.isDirectory = false;
-          item.size = stat.size;
-        } else if (stat.isDirectory) {
+          item.size = fsStat.size;
+        } else if (fsStat.isDirectory) {
           item.isFile = false;
           item.isDirectory = true;
-          item.size = stat.size;
+          item.size = fsStat.size;
         } else {
           item.isFile = false;
           item.isDirectory = false;

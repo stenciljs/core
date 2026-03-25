@@ -100,10 +100,10 @@ export function addFileToLibrary(config: ValidatedConfig, filePath: string): voi
   // like the `ts.Program`, `ts.CompilerHost`, etc it's easier to do it inside
   // the scope of the outer `addFileToLibrary` function.
   function exportedTypesInSourceFile(
-    sourceFile: ts.SourceFile,
+    sf: ts.SourceFile,
     exportedTypeNodes: TypeDeclLike[] = [],
   ): TypeDeclLike[] {
-    ts.forEachChild(sourceFile, (node) => {
+    ts.forEachChild(sf, (node) => {
       if (isTypeDeclLike(node) && isExported(node) && isNotPrivate(node)) {
         exportedTypeNodes.push(node);
       } else if (ts.isExportDeclaration(node)) {
@@ -112,7 +112,7 @@ export function addFileToLibrary(config: ValidatedConfig, filePath: string): voi
         }
 
         const exportHomeModule = getHomeModule(
-          sourceFile,
+          sf,
           node.moduleSpecifier.text,
           options,
           compilerHost,

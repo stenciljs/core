@@ -203,15 +203,15 @@ export const parseStaticComponentMeta = (
     directDependencies: [],
   };
 
-  const visitComponentChildNode = (node: ts.Node, buildCtx: d.BuildCtx) => {
-    validateComponentMembers(node, buildCtx);
+  const visitComponentChildNode = (node: ts.Node, ctx: d.BuildCtx) => {
+    validateComponentMembers(node, ctx);
 
     if (ts.isCallExpression(node)) {
       parseCallExpression(cmp, node, typeChecker);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }
-    node.forEachChild((child) => visitComponentChildNode(child, buildCtx));
+    node.forEachChild((child) => visitComponentChildNode(child, ctx));
   };
   visitComponentChildNode(cmpNode, buildCtx);
   parseClassMethods(classMethods, cmp);

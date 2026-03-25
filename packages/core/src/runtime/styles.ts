@@ -376,12 +376,12 @@ export const hydrateScopedToShadow = () => {
     return;
   }
 
-  const styles = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
+  const styleElements = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
   let i = 0;
-  for (; i < styles.length; i++) {
+  for (; i < styleElements.length; i++) {
     registerStyle(
-      styles[i].getAttribute(HYDRATED_STYLE_ID),
-      convertScopedToShadow(styles[i].innerHTML),
+      styleElements[i].getAttribute(HYDRATED_STYLE_ID),
+      convertScopedToShadow(styleElements[i].innerHTML),
       true,
     );
   }

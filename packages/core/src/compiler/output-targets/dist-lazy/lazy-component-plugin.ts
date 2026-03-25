@@ -11,7 +11,7 @@ export const lazyComponentPlugin = (buildCtx: d.BuildCtx): Plugin => {
 
     resolveId(importee) {
       const entryModule = buildCtx.entryModules.find(
-        (entryModule) => entryModule.entryKey === importee,
+        (em) => em.entryKey === importee,
       );
       if (entryModule) {
         entrys.set(importee, entryModule);

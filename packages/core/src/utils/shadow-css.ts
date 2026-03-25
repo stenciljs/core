@@ -388,8 +388,8 @@ const applySimpleSelectorScope = (
   if (_polyfillHostRe.test(selector)) {
     const replaceBy = `.${hostSelector}`;
     return selector
-      .replace(_polyfillHostNoCombinatorRe, (_, selector) =>
-        injectScopingSelector(selector, replaceBy),
+      .replace(_polyfillHostNoCombinatorRe, (_, sel) =>
+        injectScopingSelector(sel, replaceBy),
       )
       .replace(_polyfillHostRe, replaceBy + ' ');
   }
