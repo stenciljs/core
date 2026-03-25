@@ -27,7 +27,7 @@ export const createNodeLogger = (): Logger => {
 export function createNodeLoggerSys(): TerminalLoggerSys {
   const cwd = () => process.cwd();
 
-  const emoji = (emoji: string) => (process.platform !== 'win32' ? emoji : '');
+  const emoji = (e: string) => (process.platform !== 'win32' ? e : '');
 
   /**
    * Get the number of columns for the terminal to use when printing

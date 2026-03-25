@@ -134,8 +134,8 @@ const buildDocsDepGraph = (
   const dependencies: d.JsonDocsDependencyGraph = {};
   function walk(tagName: string): void {
     if (!dependencies[tagName]) {
-      const cmp = cmps.find((c) => c.tagName === tagName);
-      const deps = cmp?.directDependencies;
+      const foundCmp = cmps.find((c) => c.tagName === tagName);
+      const deps = foundCmp?.directDependencies;
       if (deps?.length > 0) {
         dependencies[tagName] = deps;
         deps.forEach(walk);

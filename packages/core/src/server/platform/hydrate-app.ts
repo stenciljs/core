@@ -387,7 +387,7 @@ export function tagRequiresScoped(
   }
 
   if (typeof opts === 'boolean') {
-    return opts === true ? false : true;
+    return !opts;
   }
 
   if (typeof opts === 'object') {

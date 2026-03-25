@@ -37,8 +37,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "parse5": "7.2.1",
-    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068"
+    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068",
+    "parse5": "7.2.1"
   },
   "devDependencies": {
     "@stencil/vitest": "catalog:"

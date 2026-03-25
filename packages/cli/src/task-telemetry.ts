@@ -38,7 +38,7 @@ export const taskTelemetry = async (
   if (isDisabling) {
     const result = await disableTelemetry(sys);
     if (result) {
-      console.log(`\n  ${logger.bold('Telemetry is now ') + DISABLED_MESSAGE}`)
+      console.log(`\n  ${logger.bold('Telemetry is now ') + DISABLED_MESSAGE}`);
     } else {
       console.log(`Something went wrong when disabling Telemetry.`);
     }

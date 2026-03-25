@@ -37,7 +37,9 @@ export const createWatchBuild = async (
   let isBuilding = false;
   let incrementalCompiler: IncrementalCompiler;
   let closeResolver: Function;
-  const watchWaiter = new Promise<d.WatcherCloseResults>((resolvePromise) => (closeResolver = resolvePromise));
+  const watchWaiter = new Promise<d.WatcherCloseResults>(
+    (resolvePromise) => (closeResolver = resolvePromise),
+  );
 
   const dirsAdded = new Set<string>();
   const dirsDeleted = new Set<string>();

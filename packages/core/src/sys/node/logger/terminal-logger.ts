@@ -135,10 +135,10 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
     }
   };
 
-  const timespanStart = (startMsg: string, debug: boolean, appendTo?: string[]) => {
+  const timespanStart = (startMsg: string, isDebug: boolean, appendTo?: string[]) => {
     const msg = [`${startMsg} ${dim('...')}`];
 
-    if (debug) {
+    if (isDebug) {
       if (shouldLog(currentLogLevel, 'debug')) {
         formatMemoryUsage(msg);
         const lines = wordWrap(msg, loggerSys.getColumns());
@@ -175,7 +175,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
     colorName: ChalkColorVariant,
     textBold: boolean,
     newLineSuffix: boolean,
-    debug: boolean,
+    isDebug: boolean,
     appendTo?: string[],
   ) => {
     let msg = finishMsg;
@@ -189,7 +189,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
 
     msg += ' ' + dim(timeSuffix);
 
-    if (debug) {
+    if (isDebug) {
       if (shouldLog(currentLogLevel, 'debug')) {
         const m = [msg];
         formatMemoryUsage(m);
@@ -215,7 +215,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
     }
   };
 
-  const createTimeSpan = (startMsg: string, debug = false, appendTo?: string[]) => {
+  const createTimeSpan = (startMsg: string, isDebug = false, appendTo?: string[]) => {
     const start = Date.now();
     const duration = () => Date.now() - start;
     const timeSpan: LoggerTimeSpan = {
@@ -235,12 +235,12 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
           }
         }
 
-        timespanFinish(finishMsg, time, colorName, !!textBold, !!newLineSuffix, debug, appendTo);
+        timespanFinish(finishMsg, time, colorName, !!textBold, !!newLineSuffix, isDebug, appendTo);
 
         return dur;
       },
     };
-    timespanStart(startMsg, debug, appendTo);
+    timespanStart(startMsg, isDebug, appendTo);
     return timeSpan;
   };
 

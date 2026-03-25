@@ -39,8 +39,8 @@ export const depsToMarkdown = (
   content.push(`### Graph`);
   content.push('```mermaid');
   content.push('graph TD;');
-  deps.forEach(([key, deps]) => {
-    deps.forEach((dep) => {
+  deps.forEach(([key, depList]) => {
+    depList.forEach((dep) => {
       content.push(`  ${key} --> ${dep}`);
     });
   });

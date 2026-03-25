@@ -1,6 +1,4 @@
 export class MockIntersectionObserver {
-  
-
   disconnect() {
     /**/
   }

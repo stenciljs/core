@@ -386,7 +386,7 @@ export const proxyComponent = (
                   instance[watchMethodName] != null &&
                   (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate)
                 ) {
-                  instance[watchMethodName].call(instance, newValue, oldValue, attrName);
+                  instance[watchMethodName](newValue, oldValue, attrName);
                 }
               });
             }
@@ -398,7 +398,7 @@ export const proxyComponent = (
           // everything else means true (including an empty string
           const propFlags = members.find(([m]) => m === propName);
           if (propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean) {
-            (newValue as any) = newValue === null || newValue === 'false' ? false : true;
+            (newValue as any) = newValue !== null && newValue !== 'false';
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'

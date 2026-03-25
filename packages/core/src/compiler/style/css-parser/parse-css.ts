@@ -114,16 +114,16 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   const rules = () => {
     let node: CssNode | void;
-    const rules: CssNode[] = [];
+    const nodeList: CssNode[] = [];
 
     whitespace();
-    comments(rules);
+    comments(nodeList);
 
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
-      rules.push(node);
-      comments(rules);
+      nodeList.push(node);
+      comments(nodeList);
     }
-    return rules;
+    return nodeList;
   };
 
   /**
@@ -132,13 +132,13 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   const whitespace = () => match(/^\s*/);
 
-  const comments = (rules?: CssNode[]) => {
+  const comments = (ruleList?: CssNode[]) => {
     let c;
-    rules = rules || [];
+    ruleList = ruleList || [];
     while ((c = comment())) {
-      rules.push(c);
+      ruleList.push(c);
     }
-    return rules;
+    return ruleList;
   };
 
   const comment = () => {
@@ -153,15 +153,15 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
       return error('End of comment missing');
     }
 
-    const comment = css.slice(2, i - 2);
+    const commentText = css.slice(2, i - 2);
     column += 2;
-    updatePosition(comment);
+    updatePosition(commentText);
     css = css.slice(i);
     column += 2;
 
     return pos({
       type: CssNodeType.Comment,
-      comment,
+      comment: commentText,
     });
   };
 
@@ -171,8 +171,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
     return trim(m[0])
       .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
-      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, function (m) {
-        return m.replace(/,/g, '\u200C');
+      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, function (str) {
+        return str.replace(/,/g, '\u200C');
       })
       .split(/\s*(?![^(]*\)),\s*/)
       .map(function (s) {

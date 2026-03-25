@@ -33,7 +33,7 @@ describe('state', () => {
 
       @Method()
       async update() {
-        this.boolFalse = true; 
+        this.boolFalse = true;
         this.boolTrue = false;
         this.str = 'hello';
         this.num = 99;

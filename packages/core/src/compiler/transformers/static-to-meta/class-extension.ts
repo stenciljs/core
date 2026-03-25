@@ -340,7 +340,10 @@ function buildExtendsTree(
 
         if (foundModule) {
           const moduleSourceFile = foundModule.staticSourceFile as ts.SourceFile;
-          const sourceClass = findClassWalk(moduleSourceFile, foundClassDeclaration.name?.getText());
+          const sourceClass = findClassWalk(
+            moduleSourceFile,
+            foundClassDeclaration.name?.getText(),
+          );
 
           if (sourceClass) {
             dependentClasses.push({

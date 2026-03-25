@@ -18,6 +18,7 @@
     "no-control-regex": "off",
     "no-await-in-loop": "off",
     "no-new": "off",
+    "no-unmodified-loop-condition": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/triple-slash-reference": "off",
@@ -37,6 +38,7 @@
     "**/*.d.ts",
     "**/*.spec.ts",
     "**/_test_/**",
-    "packages/core/src/client/polyfills/**"
+    "packages/core/src/client/polyfills/**",
+    "packages/core/src/declarations/stencil-public-runtime.ts"
   ]
 }

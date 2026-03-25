@@ -19,7 +19,11 @@ export const lazyBundleIdPlugin = (
   suffix: string,
   isBrowserBuild?: boolean,
 ): Plugin => {
-  const getBundleId = async (entryKey: string, code: string, fileSuffix: string): Promise<string> => {
+  const getBundleId = async (
+    entryKey: string,
+    code: string,
+    fileSuffix: string,
+  ): Promise<string> => {
     if (shouldHash && config.sys?.generateContentHash) {
       const hash = await config.sys.generateContentHash(code, config.hashedFileNameLength);
       return `p-${hash}${fileSuffix}`;

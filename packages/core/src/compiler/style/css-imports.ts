@@ -70,13 +70,7 @@ export const parseCssImports = async (
       parseStyleDocs(styleDocs, css);
     }
 
-    const cssImports = await getCssImports(
-      config,
-      compilerCtx,
-      buildCtx,
-      resolvedPath,
-      css,
-    );
+    const cssImports = await getCssImports(config, compilerCtx, buildCtx, resolvedPath, css);
     if (cssImports.length === 0) {
       return css;
     }

@@ -34,8 +34,8 @@ const collectUsedSelectors = (usedSelectors: UsedSelectors, elm: Element) => {
       if (attrName === 'class') {
         // classes
         const classList = elm.classList;
-        for (let i = 0, l = classList.length; i < l; i++) {
-          usedSelectors.classNames.add(classList.item(i));
+        for (let j = 0, len = classList.length; j < len; j++) {
+          usedSelectors.classNames.add(classList.item(j));
         }
       } else if (attrName === 'id') {
         // ids

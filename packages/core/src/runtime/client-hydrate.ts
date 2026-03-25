@@ -116,11 +116,11 @@ export const initializeClientHydrate = (
       // let's find and add its styles to the shadowRoot, so we don't get a visual flicker
       const cmpMeta = getHostRef(childRenderNode.$elm$);
       if (cmpMeta) {
-        const scopeId = getScopeId(
+        const childScopeId = getScopeId(
           cmpMeta.$cmpMeta$,
           BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
         );
-        const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
+        const styleSheet = win.document.querySelector(`style[sty-id="${childScopeId}"]`);
 
         if (styleSheet) {
           shadowRootNodes.unshift(styleSheet.cloneNode(true) as d.RenderNode);

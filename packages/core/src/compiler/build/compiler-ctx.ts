@@ -75,9 +75,9 @@ export class CompilerContext implements d.CompilerCtx {
 export const getModuleLegacy = (compilerCtx: d.CompilerCtx, sourceFilePath: string): d.Module => {
   sourceFilePath = normalizePath(sourceFilePath);
 
-  const moduleFile = compilerCtx.moduleMap.get(sourceFilePath);
-  if (moduleFile != null) {
-    return moduleFile;
+  const existingModule = compilerCtx.moduleMap.get(sourceFilePath);
+  if (existingModule != null) {
+    return existingModule;
   } else {
     const sourceFileDir = dirname(sourceFilePath);
     const sourceFileExt = extname(sourceFilePath);

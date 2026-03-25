@@ -21,7 +21,7 @@ import {
   patchSlotNode,
   updateFallbackSlotVisibility,
 } from '../slot-polyfill-utils';
-import { h, isHost, newVNode } from './h';
+import { h, isHost, newVNode as createVNode } from './h';
 import { updateElement } from './update-element';
 
 let scopeId: string;
@@ -1028,23 +1028,23 @@ function addRemoveSlotScopedClass(
 ) {
   // if the new node to move is slotted,
   // find it's original parent component and see if has a scope id
-  let scopeId: string;
+  let slotScopeId: string;
   if (
     reference &&
     typeof slotNode['s-sn'] === 'string' &&
     !!slotNode['s-sr'] &&
     reference.parentNode &&
     (reference.parentNode as d.RenderNode)['s-sc'] &&
-    (scopeId = slotNode['s-si'] || (reference.parentNode as d.RenderNode)['s-sc'])
+    (slotScopeId = slotNode['s-si'] || (reference.parentNode as d.RenderNode)['s-sc'])
   ) {
     const scopeName = slotNode['s-sn'];
     const hostName = slotNode['s-hn'];
 
     // we found the original parent component's scoped id
     // let's add a scoped-slot class to this slotted node's parent
-    newParent.classList?.add(scopeId + '-s');
+    newParent.classList?.add(slotScopeId + '-s');
 
-    if (oldParent && oldParent.classList?.contains(scopeId + '-s')) {
+    if (oldParent && oldParent.classList?.contains(slotScopeId + '-s')) {
       let child = ((oldParent as d.RenderNode).__childNodes ||
         oldParent.childNodes)[0] as d.RenderNode;
       let found = false;
@@ -1092,7 +1092,7 @@ export const renderVdom = (
 ) => {
   const hostElm = hostRef.$hostElement$;
   const cmpMeta = hostRef.$cmpMeta$;
-  const oldVNode: d.VNode = hostRef.$vnode$ || newVNode(null, null);
+  const oldVNode: d.VNode = hostRef.$vnode$ || createVNode(null, null);
   const isHostElement = isHost(renderFnResults);
 
   // if `renderFnResults` is a Host node then we can use it directly. If not,

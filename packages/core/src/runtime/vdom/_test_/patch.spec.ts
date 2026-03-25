@@ -384,7 +384,9 @@ describe('renderer', () => {
           const vnode2 = h(
             'span',
             { key: 'span' },
-            spanNum(1), h('i', { key: 2 }, '2'), spanNum(3),
+            spanNum(1),
+            h('i', { key: 2 }, '2'),
+            spanNum(3),
           );
           patch(vnode0, vnode1);
           expect(map(inner, hostElm.children)).toEqual(['1', '2', '3']);
@@ -780,7 +782,9 @@ describe('renderer', () => {
         const vnode1 = h(
           'div',
           null,
-          h('span', null, 'One'), h('span', null, 'Two'), h('span', null, 'Three'),
+          h('span', null, 'One'),
+          h('span', null, 'Two'),
+          h('span', null, 'Three'),
         );
         const vnode2 = h('div', null, h('span', null, 'One'), h('span', null, 'Three'));
 
@@ -847,12 +851,16 @@ describe('renderer', () => {
         const vnode1 = h(
           'div',
           null,
-          h('span', null, 'One'), h('div', null, 'Two'), h('b', null, 'Three'),
+          h('span', null, 'One'),
+          h('div', null, 'Two'),
+          h('b', null, 'Three'),
         );
         const vnode2 = h(
           'div',
           null,
-          h('b', null, 'Three'), h('span', null, 'One'), h('div', null, 'Two'),
+          h('b', null, 'Three'),
+          h('span', null, 'One'),
+          h('div', null, 'Two'),
         );
 
         patch(vnode0, vnode1);
@@ -868,12 +876,22 @@ describe('renderer', () => {
         const vnode2 = h(
           'i',
           null,
-          h('i', null, '2'), undefined, undefined, h('i', null, '1'), undefined,
+          h('i', null, '2'),
+          undefined,
+          undefined,
+          h('i', null, '1'),
+          undefined,
         );
         const vnode3 = h(
           'i',
           null,
-          null, h('i', null, '1'), undefined, null, h('i', null, '2'), undefined, null,
+          null,
+          h('i', null, '1'),
+          undefined,
+          null,
+          h('i', null, '2'),
+          undefined,
+          null,
         );
 
         patch(vnode0, vnode1);

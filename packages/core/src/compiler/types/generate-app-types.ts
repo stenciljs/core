@@ -208,7 +208,7 @@ const generateComponentTypesFile = (
 
   c.push(
     ...modules.map((m) => {
-      const docs = components.find((c) => c.tagName === m.tagName).docs;
+      const docs = components.find((cmp) => cmp.tagName === m.tagName).docs;
       return addDocBlock(m.jsx, docs, 4);
     }),
   );
@@ -258,7 +258,7 @@ const generateComponentTypesFile = (
   c.push(`        interface IntrinsicElements {`);
   c.push(
     ...modules.map((m) => {
-      const docs = components.find((c) => c.tagName === m.tagName).docs;
+      const docs = components.find((cmp) => cmp.tagName === m.tagName).docs;
 
       return addDocBlock(
         `            "${m.tagName}": LocalJSX.IntrinsicElements["${m.tagName}"] & JSXBase.HTMLAttributes<${m.htmlElementName}>;`,

@@ -533,11 +533,11 @@ async function sendTelemetry(
     }
 
     if (response.status !== 204 && hasVerbose(flags)) {
-        console.debug(
-          '\nBad response from events service. Request body: %O',
-          response.body.toString(),
-          '\n',
-        );
+      console.debug(
+        '\nBad response from events service. Request body: %O',
+        response.body.toString(),
+        '\n',
+      );
     }
   } catch (e) {
     if (hasVerbose(flags)) {
