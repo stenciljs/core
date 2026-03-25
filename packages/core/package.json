@@ -119,6 +119,7 @@
     "extends": "../../package.json"
   },
   "devDependencies": {
-    "@ionic/prettier-config": "^4.0.0"
+    "@ionic/prettier-config": "^4.0.0",
+    "prettier": "^3.5.0"
   }
 }
