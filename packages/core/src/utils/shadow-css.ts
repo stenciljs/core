@@ -74,7 +74,7 @@ const _polyfillHost = '-shadowcsshost';
 const _polyfillSlotted = '-shadowcssslotted';
 // note: :host-context pre-processed to -shadowcsshostcontext.
 const _polyfillHostContext = '-shadowcsscontext';
-const _parenSuffix = ')(?:\\((' + '(?:\\([^)(]*\\)|[^)(]*)+?' + ')\\))?([^,{]*)';
+const _parenSuffix = ')(?:\\(((?:\\([^)(]*\\)|[^)(]*)+?)\\))?([^,{]*)';
 const _cssColonHostRe = new RegExp('(' + _polyfillHost + _parenSuffix, 'gim');
 const _cssColonHostContextRe = new RegExp('(' + _polyfillHostContext + _parenSuffix, 'gim');
 const _cssColonSlottedRe = new RegExp('(' + _polyfillSlotted + _parenSuffix, 'gim');
@@ -105,7 +105,7 @@ const _polyfillHostRe = /-shadowcsshost/gim;
  */
 const createSupportsRuleRe = (selector: string) => {
   // We need to match any occurrence of the selector that's NOT inside @supports selector(...)
-  const safeSelector = escapeRegExpSpecialCharacters(selector);
+  const escapedSelector = escapeRegExpSpecialCharacters(selector);
 
   // This regex needs to:
   // 1. Skip selectors inside @supports selector(...) rule conditions
@@ -117,9 +117,9 @@ const createSupportsRuleRe = (selector: string) => {
   return new RegExp(
     // First capture group: match any context before the selector that's not inside @supports selector()
     // Using negative lookahead to avoid matching inside @supports selector(...) condition
-    `(^|[^@]|@(?!supports\\s+selector\\s*\\([^{]*?${safeSelector}))` +
+    `(^|[^@]|@(?!supports\\s+selector\\s*\\([^{]*?${escapedSelector}))` +
       // Then match the selector
-      `(${safeSelector}\\b)`,
+      `(${escapedSelector}\\b)`,
     'g',
   );
 };

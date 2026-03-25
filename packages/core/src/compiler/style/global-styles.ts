@@ -191,16 +191,16 @@ const hasChangedImportContent = async (
   // keep digging
   const promises = cssImports.map(async (cssImportData) => {
     try {
-      const content = await compilerCtx.fs.readFile(cssImportData.filePath);
+      const importContent = await compilerCtx.fs.readFile(cssImportData.filePath);
       return hasChangedImportFile(
         config,
         compilerCtx,
         buildCtx,
         cssImportData.filePath,
-        content,
+        importContent,
         checkedFiles,
       );
-    } catch (e) {
+    } catch {
       return false;
     }
   });

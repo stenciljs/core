@@ -28,7 +28,6 @@ export const addNativeElementGetter = (
       ts.factory.createBlock([ts.factory.createReturnStatement(ts.factory.createThis())]),
     );
 
-    ts.SyntaxKind.AmpersandToken;
     // Find the index in the class members array that correlates with the element
     // ref identifier we have
     const index = classMembers.findIndex(

@@ -660,8 +660,8 @@ export const wordWrap = (msg: any[], columns: number): string[] => {
     lines.push(line);
   }
 
-  return lines.map((line) => {
-    return (line as any).trimRight();
+  return lines.map((l) => {
+    return (l as any).trimRight();
   });
 };
 
@@ -680,10 +680,10 @@ const removeLeadingWhitespace = (orgLines: PrintLine[]): ReadonlyArray<PrintLine
       return lines;
     }
     // each line has at least one line of whitespace. remove the leading character from each
-    for (let i = 0; i < lines.length; i++) {
-      lines[i].text = lines[i].text.slice(1);
-      lines[i].errorCharStart--;
-      if (!lines[i].text.length) {
+    for (let j = 0; j < lines.length; j++) {
+      lines[j].text = lines[j].text.slice(1);
+      lines[j].errorCharStart--;
+      if (!lines[j].text.length) {
         return lines;
       }
     }

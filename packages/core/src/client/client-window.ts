@@ -58,8 +58,8 @@ export const supportsConstructableStylesheets = BUILD.constructableCSS
         if (!win.document.adoptedStyleSheets) {
           return false;
         }
-        new CSSStyleSheet();
-        return typeof new CSSStyleSheet().replaceSync === 'function';
+        const sheet = new CSSStyleSheet();
+        return typeof sheet.replaceSync === 'function';
       } catch {}
       return false;
     })()

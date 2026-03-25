@@ -149,7 +149,7 @@ const resolveFunctionalComponentDep = (
         moduleFile.functionalComponentDeps.push(sourceFilePath);
       }
     }
-  } catch (_e) {
+  } catch {
     // Symbol resolution can fail in some edge cases - silently ignore
   }
 };

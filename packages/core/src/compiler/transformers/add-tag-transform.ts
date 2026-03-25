@@ -169,8 +169,6 @@ export const addTagTransform = (
                 ...restArgs,
               ]);
             }
-          } else {
-            node.expression;
           }
         }
 

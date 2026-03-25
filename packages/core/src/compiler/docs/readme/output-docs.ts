@@ -206,7 +206,7 @@ export const extractExistingCssProps = async (
     }
 
     return styles.length > 0 ? styles : undefined;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };

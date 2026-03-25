@@ -29,7 +29,7 @@ export const initializePrerenderEntryUrls = (
     // and has a domain
     try {
       new URL(entryAnchor.href, manager.outputTarget.baseUrl);
-    } catch (e) {
+    } catch {
       const diagnostic = buildError(results.diagnostics);
       diagnostic.header = `Invalid Prerender Entry Url: ${entryAnchor.href}`;
       diagnostic.messageText = `Entry Urls must include the protocol and domain of the site being prerendered.`;

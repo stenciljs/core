@@ -257,8 +257,8 @@ const insertChildVNodeAnnotations = (
   if (vnodeChild.$children$ != null) {
     // Increment depth each time we recur deeper into the tree
     const childDepth = depth + 1;
-    vnodeChild.$children$.forEach((vnode, index) => {
-      insertChildVNodeAnnotations(doc, vnode, cmpData, hostId, childDepth, index);
+    vnodeChild.$children$.forEach((vnode, childIndex) => {
+      insertChildVNodeAnnotations(doc, vnode, cmpData, hostId, childDepth, childIndex);
     });
   }
 };

@@ -13,13 +13,13 @@ export function runtimeLogging(
 
     win.console.error = (...msgs: any[]) => {
       const errMsg = msgs
-        .reduce<string>((errMsg, m) => {
+        .reduce<string>((acc, m) => {
           if (m) {
             if (m.stack != null) {
-              return errMsg + ' ' + String(m.stack);
+              return acc + ' ' + String(m.stack);
             } else {
               if (m.message != null) {
-                return errMsg + ' ' + String(m.message);
+                return acc + ' ' + String(m.message);
               }
             }
           }

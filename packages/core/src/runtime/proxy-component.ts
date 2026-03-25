@@ -54,12 +54,16 @@ export const proxyComponent = (
           if (!instance) {
             hostRef?.$onReadyPromise$?.then((asyncInstance: d.ComponentInterface) => {
               const cb = asyncInstance[cbName];
-              typeof cb === 'function' && cb.call(asyncInstance, ...args);
+              if (typeof cb === 'function') {
+                cb.call(asyncInstance, ...args);
+              }
             });
           } else {
             // Use the method on `instance` if `lazyLoad` is set, otherwise call the original method to avoid an infinite loop.
             const cb = BUILD.lazyLoad ? instance[cbName] : originalFormAssociatedCallback;
-            typeof cb === 'function' && cb.call(instance, ...args);
+            if (typeof cb === 'function') {
+              cb.call(instance, ...args);
+            }
           }
         },
       });
@@ -361,7 +365,7 @@ export const proxyComponent = (
           } else if (propName == null) {
             // At this point we should know this is not a "member", so we can treat it like watching an attribute
             // on a vanilla web component
-            const flags = hostRef?.$flags$;
+            const hostFlags = hostRef?.$flags$;
 
             // We only want to trigger the callback(s) if:
             // 1. The instance is ready
@@ -369,8 +373,8 @@ export const proxyComponent = (
             // 3. The value has changed
             if (
               hostRef &&
-              flags &&
-              !(flags & HOST_FLAGS.isConstructingInstance) &&
+              hostFlags &&
+              !(hostFlags & HOST_FLAGS.isConstructingInstance) &&
               newValue !== oldValue
             ) {
               const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : this;

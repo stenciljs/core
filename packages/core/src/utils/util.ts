@@ -231,7 +231,7 @@ export const readPackageJson = async (
         buildCtx.packageJson = parseResults.data;
       }
     }
-  } catch (e) {
+  } catch {
     if (!config.outputTargets.some((o) => o.type.includes('dist'))) {
       const diagnostic = buildError(buildCtx.diagnostics);
       diagnostic.header = `Missing "package.json"`;

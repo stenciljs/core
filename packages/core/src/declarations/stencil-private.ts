@@ -10,7 +10,6 @@ import type {
   Config,
   CopyResults,
   Diagnostic,
-  Logger,
   LoggerLineUpdater,
   LoggerTimeSpan,
   OptimizeCssInput,

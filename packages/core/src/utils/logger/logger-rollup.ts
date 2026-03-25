@@ -96,7 +96,7 @@ export const loadRollupDiagnostics = (
 
               diagnostic.lines.push(nextLine);
             }
-          } catch (e) {
+          } catch {
             diagnostic.messageText += `\nError parsing: ${diagnostic.absFilePath}, line: ${loc.line}, column: ${loc.column}`;
             diagnostic.debugText = sourceText;
           }

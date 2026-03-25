@@ -588,20 +588,20 @@ export const getAllTypeReferences = (
 ): ReadonlyArray<TypeReferenceIR> => {
   const referencedTypes: TypeReferenceIR[] = [];
 
-  const visit = (node: ts.Node): ts.VisitResult<ts.Node> => {
+  const visit = (currentNode: ts.Node): ts.VisitResult<ts.Node> => {
     /**
      * A type reference node will refer to some type T.
      * e.g: In `const foo: Bar = {...}` the reference node will contain semantic information about `Bar`.
      * In TypeScript, types that are also keywords (e.g. `number` in `const foo: number`) are not `TypeReferenceNode`s.
      */
-    if (ts.isTypeReferenceNode(node)) {
+    if (ts.isTypeReferenceNode(currentNode)) {
       referencedTypes.push({
-        name: getEntityName(node.typeName),
-        type: checker.getTypeFromTypeNode(node),
+        name: getEntityName(currentNode.typeName),
+        type: checker.getTypeFromTypeNode(currentNode),
       });
-      if (node.typeArguments) {
+      if (currentNode.typeArguments) {
         // a type may contain types itself (e.g. generics - Foo<Bar>)
-        node.typeArguments
+        currentNode.typeArguments
           .filter((typeArg: ts.TypeNode): typeArg is ts.TypeReferenceNode =>
             ts.isTypeReferenceNode(typeArg),
           )
@@ -616,7 +616,7 @@ export const getAllTypeReferences = (
           });
       }
     }
-    return ts.forEachChild(node, visit);
+    return ts.forEachChild(currentNode, visit);
   };
 
   visit(node);

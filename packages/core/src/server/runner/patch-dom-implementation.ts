@@ -40,7 +40,7 @@ export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) 
   try {
     // @ts-expect-error Assigning the baseURI prevents JavaScript optimizers from treating this as dead code
     win.__stencil_baseURI = doc.baseURI;
-  } catch (e) {
+  } catch {
     Object.defineProperty(doc, 'baseURI', {
       get() {
         const baseElm = doc.querySelector('base[href]');

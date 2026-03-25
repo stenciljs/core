@@ -539,7 +539,7 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
           return removeItem(dirItem.absPath);
         }),
       );
-    } catch (e) {
+    } catch {
       // do not throw error if the directory never existed
     }
   };
@@ -614,17 +614,17 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
   const statSync = (itemPath: string): FsStat => {
     const item = getItem(itemPath);
     if (typeof item.isDirectory !== 'boolean' || typeof item.isFile !== 'boolean') {
-      const stat = sys.statSync(itemPath);
-      if (!stat.error) {
+      const sysStat = sys.statSync(itemPath);
+      if (!sysStat.error) {
         item.exists = true;
-        if (stat.isFile) {
+        if (sysStat.isFile) {
           item.isFile = true;
           item.isDirectory = false;
-          item.size = stat.size;
-        } else if (stat.isDirectory) {
+          item.size = sysStat.size;
+        } else if (sysStat.isDirectory) {
           item.isFile = false;
           item.isDirectory = true;
-          item.size = stat.size;
+          item.size = sysStat.size;
         } else {
           item.isFile = false;
           item.isDirectory = false;

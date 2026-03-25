@@ -31,7 +31,7 @@ const copyLib = async (
 
   try {
     await workbox.copyWorkboxLibraries(outputTarget.appDir);
-  } catch (e) {
+  } catch {
     const d = buildWarn(buildCtx.diagnostics);
     d.messageText = 'Service worker library already exists';
   }

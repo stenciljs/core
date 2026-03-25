@@ -55,7 +55,6 @@ export const gatherVdomMeta = (
           } else {
             m.hasVdomPropOrAttr = true;
           }
-          ts.SyntaxKind.StringLiteral;
           if (
             attrName === 'part' &&
             ts.isPropertyAssignment(prop) &&

@@ -176,7 +176,7 @@ export const setAccessor = (
     const propName = memberName.slice(5);
     try {
       (elm as any)[propName] = newValue;
-    } catch (e) {
+    } catch {
       /**
        * in case someone tries to set a read-only property, we just ignore it
        */
@@ -232,7 +232,7 @@ export const setAccessor = (
         } else if ((elm as any)[memberName] !== newValue) {
           (elm as any)[memberName] = newValue;
         }
-      } catch (e) {
+      } catch {
         /**
          * in case someone tries to set a read-only property, e.g. "namespaceURI", we just ignore it
          */

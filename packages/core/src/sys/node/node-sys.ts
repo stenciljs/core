@@ -245,7 +245,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
               resolve(stats.isSymbolicLink());
             }
           });
-        } catch (e) {
+        } catch {
           resolve(false);
         }
       });

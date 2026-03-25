@@ -14,11 +14,13 @@ export function hydrateFactory<DocOptions extends d.SerializeDocumentOptions>(
   ) => void,
   resolve: (results: d.HydrateResults) => void,
 ) {
-  win;
-  opts;
-  results;
-  afterHydrate;
-  resolve;
+  // These statements prevent the parameters from being tree-shaken
+  // The actual implementation is injected during the build process
+  void win;
+  void opts;
+  void results;
+  void afterHydrate;
+  void resolve;
 }
 
 /**

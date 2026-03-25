@@ -30,7 +30,7 @@ export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: s
 
     try {
       await Promise.all(mkDirs.map((dir) => mkdir(dir, { recursive: true })));
-    } catch (mkDirErr) {}
+    } catch {}
 
     while (allCopyTasks.length > 0) {
       const tasks = allCopyTasks.splice(0, 100);

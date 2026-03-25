@@ -50,7 +50,7 @@ export function createNodeLoggerSys(): TerminalLoggerSys {
     if (append) {
       try {
         fs.accessSync(logFilePath);
-      } catch (e) {
+      } catch {
         append = false;
       }
     }

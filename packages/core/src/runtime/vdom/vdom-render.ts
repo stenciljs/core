@@ -915,7 +915,9 @@ export const nullifyVNodeRefs = (vNode: d.VNode) => {
       // Queue the ref removal callback to be called later
       refCallbacksToRemove.push(() => vNode.$attrs$.ref(null));
     }
-    vNode.$children$ && vNode.$children$.map(nullifyVNodeRefs);
+    if (vNode.$children$) {
+      vNode.$children$.map(nullifyVNodeRefs);
+    }
   }
 };
 
@@ -1312,9 +1314,9 @@ render() {
               }
             }
           }
-          nodeToRelocate &&
-            typeof slotRefNode['s-rf'] === 'function' &&
+          if (nodeToRelocate && typeof slotRefNode['s-rf'] === 'function') {
             slotRefNode['s-rf'](slotRefNode);
+          }
         } else if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
           // this node doesn't have a slot home to go to, so let's hide it
           nodeToRelocate.hidden = true;

@@ -145,7 +145,7 @@ const loadStyleText = async (
 
   try {
     styleText = await compilerCtx.fs.readFile(cssImportData.filePath);
-  } catch (e) {
+  } catch {
     if (cssImportData.altFilePath) {
       try {
         styleText = await compilerCtx.fs.readFile(cssImportData.filePath);
@@ -270,7 +270,7 @@ export const resolveCssNodeModule = async (
     // Preserve modifiers (layer, supports, media queries) in the updated import
     const modifiers = cssImportData.modifiers ? ` ${cssImportData.modifiers}` : '';
     cssImportData.updatedImport = `@import "${cssImportData.filePath}"${modifiers};`;
-  } catch (e) {
+  } catch {
     const d = buildError(diagnostics);
     d.messageText = `Unable to resolve node module for CSS @import: ${cssImportData.url}`;
     d.absFilePath = filePath;

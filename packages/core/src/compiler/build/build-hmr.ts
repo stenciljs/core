@@ -114,18 +114,18 @@ const getComponentsUpdated = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) 
     );
   }
 
-  const tags = changedScriptFiles.reduce((tags, changedTsFile) => {
+  const tags = changedScriptFiles.reduce((acc, changedTsFile) => {
     const moduleFile = compilerCtx.moduleMap.get(changedTsFile);
     if (moduleFile != null) {
       moduleFile.cmps.forEach((cmp) => {
         if (typeof cmp.tagName === 'string') {
-          if (!tags.includes(cmp.tagName)) {
-            tags.push(cmp.tagName);
+          if (!acc.includes(cmp.tagName)) {
+            acc.push(cmp.tagName);
           }
         }
       });
     }
-    return tags;
+    return acc;
   }, [] as string[]);
 
   if (tags.length === 0) {
@@ -247,15 +247,15 @@ const excludeHmrFiles = (
     return excludeFiles;
   }
 
-  excludeHmr.forEach((excludeHmr) => {
+  excludeHmr.forEach((pattern) => {
     return filesChanged
       .map((fileChanged) => {
         let shouldExclude = false;
 
-        if (isGlob(excludeHmr)) {
-          shouldExclude = minimatch(fileChanged, excludeHmr);
+        if (isGlob(pattern)) {
+          shouldExclude = minimatch(fileChanged, pattern);
         } else {
-          shouldExclude = normalizePath(excludeHmr) === normalizePath(fileChanged);
+          shouldExclude = normalizePath(pattern) === normalizePath(fileChanged);
         }
 
         if (shouldExclude) {

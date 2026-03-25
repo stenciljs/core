@@ -339,14 +339,14 @@ function buildExtendsTree(
         );
 
         if (foundModule) {
-          const source = foundModule.staticSourceFile as ts.SourceFile;
-          const sourceClass = findClassWalk(source, foundClassDeclaration.name?.getText());
+          const moduleSourceFile = foundModule.staticSourceFile as ts.SourceFile;
+          const sourceClass = findClassWalk(moduleSourceFile, foundClassDeclaration.name?.getText());
 
           if (sourceClass) {
             dependentClasses.push({
               classNode: sourceClass,
-              sourceFile: source,
-              fileName: source.fileName,
+              sourceFile: moduleSourceFile,
+              fileName: moduleSourceFile.fileName,
             });
             if (keepLooking) {
               buildExtendsTree(
@@ -361,7 +361,7 @@ function buildExtendsTree(
           }
         }
       }
-    } catch (_e) {
+    } catch {
       // sad path (>1 levels removed or node_modules): the extends type does not resolve so let's find it manually:
 
       const currentSource: ts.SourceFile =
