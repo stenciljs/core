@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../../package.json"
   }
 }

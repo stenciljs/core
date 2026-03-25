@@ -18,5 +18,8 @@
   "dependencies": {
     "@stencil/core": "workspace:*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "volta": {
+    "extends": "../../../package.json"
+  }
 }

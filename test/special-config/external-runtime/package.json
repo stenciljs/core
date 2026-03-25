@@ -14,5 +14,8 @@
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
   }
 }

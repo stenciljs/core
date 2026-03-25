@@ -23,5 +23,8 @@
     "bootstrap": "^5.3.3",
     "normalize.css": "^8.0.1",
     "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

@@ -26,5 +26,8 @@
     "@stencil/playwright": "catalog:",
     "@stencil/vitest": "catalog:",
     "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
   }
 }

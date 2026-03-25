@@ -9,5 +9,8 @@
   "devDependencies": {
     "@playwright/test": "catalog:",
     "serve": "^14.2.4"
+  },
+  "volta": {
+    "extends": "../../../package.json"
   }
 }

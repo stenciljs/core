@@ -11,5 +11,8 @@
     "@stencil/core": "workspace:*",
     "@stencil/playwright": "catalog:",
     "@playwright/test": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
   }
 }

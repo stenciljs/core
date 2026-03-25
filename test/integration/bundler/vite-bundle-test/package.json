@@ -13,5 +13,8 @@
   },
   "dependencies": {
     "@stencil-core-tests/bundler-component-library": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../../package.json"
   }
 }

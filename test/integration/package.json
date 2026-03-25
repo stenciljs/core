@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "test": "pnpm --filter \"@stencil-core-tests/integration-*\" test"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
