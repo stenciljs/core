@@ -31,7 +31,9 @@ export const taskWatch = async (
 
     config.sys.onProcessInterrupt(() => {
       config.logger.debug(`close watch`);
-      compiler && compiler.destroy();
+      if (compiler) {
+        compiler.destroy();
+      }
     });
 
     const rmVersionCheckerLog = watcher.on('buildFinish', async () => {

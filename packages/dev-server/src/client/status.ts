@@ -147,7 +147,7 @@ export const initBuildProgress = (data: { window: Window }) => {
     clearTimeout(addBarTimerId);
     clearTimeout(removeBarTimerId);
 
-    const progressBar = getProgressBar();
+    let progressBar = getProgressBar();
     if (progressBar) {
       if (currentProgress >= 1) {
         progressBar.style.transform = `scaleX(1)`;
@@ -155,20 +155,20 @@ export const initBuildProgress = (data: { window: Window }) => {
 
       opacityTimerId = setTimeout(() => {
         try {
-          const progressBar = getProgressBar();
+          progressBar = getProgressBar();
           if (progressBar) {
             progressBar.style.opacity = `0`;
           }
-        } catch (e) {}
+        } catch {}
       }, 150);
 
       removeBarTimerId = setTimeout(() => {
         try {
-          const progressBar = getProgressBar();
+          progressBar = getProgressBar();
           if (progressBar?.parentNode) {
             progressBar.parentNode.removeChild(progressBar);
           }
-        } catch (e) {}
+        } catch {}
       }, 1000);
     }
   }

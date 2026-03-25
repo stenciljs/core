@@ -175,7 +175,7 @@ export const prerenderWorker = async (
     if (typeof hydrateResults.httpStatus === 'number' && hydrateResults.httpStatus >= 400) {
       try {
         win.close();
-      } catch (e) {}
+      } catch {}
       return results;
     }
 
@@ -211,7 +211,7 @@ export const prerenderWorker = async (
 
     try {
       win.close();
-    } catch (e) {}
+    } catch {}
   } catch (e: any) {
     // ahh man! what happened!
     catchError(results.diagnostics, e);

@@ -443,7 +443,7 @@ export const getUserReadmeContent = async (
     if (userContentIndex >= 0) {
       return existingContent.substring(0, userContentIndex);
     }
-  } catch (e) {}
+  } catch {}
   return undefined;
 };
 
@@ -538,7 +538,7 @@ const generateUsages = async (
       .forEach((key) => {
         rtn[key] = usages[key];
       });
-  } catch (e) {}
+  } catch {}
 
   return rtn;
 };

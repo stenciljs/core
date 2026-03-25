@@ -32,7 +32,7 @@ export const inlineStyleSheets = (
         inlinedStyles.innerHTML = styles;
         link.parentNode.insertBefore(inlinedStyles, link);
         link.remove();
-      } catch (e) {}
+      } catch {}
     }),
   );
 };

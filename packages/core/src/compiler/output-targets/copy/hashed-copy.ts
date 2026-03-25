@@ -45,6 +45,6 @@ export const generateHashedCopy = async (
     const hashedFileName = `p-${hash}${extname(path)}`;
     await compilerCtx.fs.writeFile(join(dirname(path), hashedFileName), content);
     return hashedFileName;
-  } catch (e) {}
+  } catch {}
   return undefined;
 };

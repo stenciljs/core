@@ -308,7 +308,7 @@ describe('renderer', () => {
       }
 
       function vnodeMap(arr: number[]) {
-        return h.apply(null, ['span', null, ...arr.map(spanNum)]);
+        return h(null, ['span', null, ...arr.map(spanNum)]);
       }
 
       describe('addition of elements', () => {

@@ -112,11 +112,11 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
       const stylesMeta = Cstr.COMPILER_META.styles;
       if (Array.isArray(stylesMeta)) {
         if (stylesMeta.length > 1) {
-          const styles: any = {};
+          const styleModes: any = {};
           stylesMeta.forEach((style) => {
-            styles[style.modeName] = style.styleStr;
+            styleModes[style.modeName] = style.styleStr;
           });
-          Cstr.style = styles;
+          Cstr.style = styleModes;
         } else if (stylesMeta.length === 1) {
           Cstr.style = stylesMeta[0].styleStr;
         }
@@ -169,19 +169,19 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   if (typeof opts.cookie === 'string') {
     try {
       page.doc.cookie = opts.cookie;
-    } catch (e) {}
+    } catch {}
   }
 
   if (typeof opts.referrer === 'string') {
     try {
       (page.doc as any).referrer = opts.referrer;
-    } catch (e) {}
+    } catch {}
   }
 
   if (typeof opts.userAgent === 'string') {
     try {
       (page.win.navigator as any).userAgent = opts.userAgent;
-    } catch (e) {}
+    } catch {}
   }
 
   bootstrapLazy(lazyBundles);

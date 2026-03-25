@@ -50,9 +50,9 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   }
 
   let cssExtension: GeneratableStylingExtension = 'css';
-  if (!!config.plugins.find((plugin) => plugin.name === 'sass')) {
+  if (config.plugins.find((plugin) => plugin.name === 'sass')) {
     cssExtension = await chooseSassExtension();
-  } else if (!!config.plugins.find((plugin) => plugin.name === 'less')) {
+  } else if (config.plugins.find((plugin) => plugin.name === 'less')) {
     cssExtension = 'less';
   }
   const filesToGenerateExt = await chooseFilesToGenerate(cssExtension);

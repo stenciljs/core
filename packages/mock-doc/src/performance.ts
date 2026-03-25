@@ -93,6 +93,6 @@ export function resetPerformance(perf: Performance) {
   if (perf != null) {
     try {
       (perf as MockPerformance).timeOrigin = Date.now();
-    } catch (e) {}
+    } catch {}
   }
 }

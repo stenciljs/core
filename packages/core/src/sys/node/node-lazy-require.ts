@@ -87,7 +87,7 @@ export class NodeLazyRequire implements d.LazyRequire {
             this.ensured.add(ensureModuleId);
             return;
           }
-        } catch (e) {}
+        } catch {}
         // if we get here we didn't get to the `return` above, so either 1) there was some error
         // reading the package.json or 2) the version wasn't in our specified version range.
         problemDeps.push(`${ensureModuleId}@${recommendedVersion}`);

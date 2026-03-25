@@ -54,7 +54,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       try {
         const rtn = cb();
         returnValues.push(rtn);
-      } catch (e) {}
+      } catch {}
     }
     return Promise.all(returnValues).then(() => {});
   };
@@ -72,7 +72,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       try {
         fs.accessSync(p);
         hasAccess = true;
-      } catch (e) {}
+      } catch {}
       return hasAccess;
     },
     addDestroy(cb) {
@@ -281,7 +281,7 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
         return fs.readdirSync(p).map((f) => {
           return normalizePath(path.join(p, f));
         });
-      } catch (e) {}
+      } catch {}
       return [];
     },
     readFile(p: string, encoding?: string) {
@@ -301,13 +301,13 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     readFileSync(p) {
       try {
         return fs.readFileSync(p, 'utf8');
-      } catch (e) {}
+      } catch {}
       return undefined;
     },
     homeDir() {
       try {
         return os.homedir();
-      } catch (e) {}
+      } catch {}
       return undefined;
     },
     realpath(p) {

@@ -103,7 +103,7 @@ export const loadRollupDiagnostics = (
         } else if (typeof rollupError.frame === 'string') {
           diagnostic.messageText += '\n' + rollupError.frame;
         }
-      } catch (e) {}
+      } catch {}
     }
   }
 

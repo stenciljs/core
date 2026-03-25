@@ -62,12 +62,12 @@ describe('component error handling', () => {
     doc.body.appendChild(cmpA);
     try {
       await waitForChanges();
-    } catch (e) {}
+    } catch {}
 
     cmpA.reRender = true;
     try {
       await waitForChanges();
-    } catch (e) {}
+    } catch {}
 
     return Promise.resolve().then(() => {
       expect(handler).toHaveBeenCalledTimes(9);

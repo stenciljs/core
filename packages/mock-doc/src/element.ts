@@ -714,7 +714,7 @@ function fullUrl(elm: MockElement, attrName: string) {
         try {
           const url = new URL(val, loc.href);
           return url.href;
-        } catch (e) {}
+        } catch {}
       }
     }
   }

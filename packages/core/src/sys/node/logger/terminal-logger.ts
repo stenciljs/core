@@ -273,7 +273,7 @@ export const createTerminalLogger = (loggerSys: TerminalLoggerSys): Logger => {
       try {
         queueWriteLog('F', ['--------------------------------------']);
         loggerSys.writeLogs(logFilePath, writeLogQueue.join('\n'), append);
-      } catch (e) {}
+      } catch {}
     }
 
     writeLogQueue.length = 0;

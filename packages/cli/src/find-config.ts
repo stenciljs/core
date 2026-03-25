@@ -69,8 +69,8 @@ export const findConfig = async (
     // this is only a directory, so let's make some assumptions
     for (const configName of ['stencil.config.ts', 'stencil.config.js']) {
       const testConfigFilePath = sys.platformPath.join(configPath, configName);
-      const stat = await sys.stat(testConfigFilePath);
-      if (stat.isFile) {
+      const conf = await sys.stat(testConfigFilePath);
+      if (conf.isFile) {
         results.configPath = testConfigFilePath;
         results.rootDir = sys.platformPath.dirname(testConfigFilePath);
         break;

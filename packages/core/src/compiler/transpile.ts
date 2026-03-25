@@ -1,4 +1,4 @@
-import rollupPluginUtils from '@rollup/pluginutils';
+import { dataToEsm } from '@rollup/pluginutils';
 import type {
   TransformCssToEsmInput,
   TransformOptions,
@@ -167,7 +167,7 @@ const transpileCssSync = (transformInput: TransformCssToEsmInput, results: Trans
 };
 
 const transpileJson = (results: TranspileResults) => {
-  results.code = rollupPluginUtils.dataToEsm(JSON.parse(results.code), {
+  results.code = dataToEsm(JSON.parse(results.code), {
     preferConst: true,
     compact: false,
     indent: '  ',

@@ -149,7 +149,7 @@ const loadStyleText = async (
     if (cssImportData.altFilePath) {
       try {
         styleText = await compilerCtx.fs.readFile(cssImportData.filePath);
-      } catch (e) {}
+      } catch {}
     }
   }
 

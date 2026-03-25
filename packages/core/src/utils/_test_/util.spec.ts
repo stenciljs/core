@@ -231,8 +231,8 @@ interface Foo extends Components.Foo, HTMLStencilElement {`);
 
     it.each<[d.CompilerJsDoc | undefined]>([[undefined], [{ tags: [], text: '' }]])(
       'does not add a doc block when docs are empty (%j)',
-      (docs) => {
-        expect(util.addDocBlock(str, docs)).toEqual(str);
+      (documents) => {
+        expect(util.addDocBlock(str, documents)).toEqual(str);
       },
     );
   });

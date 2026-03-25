@@ -30,7 +30,7 @@ export const validateManifestJson = (
             err.absFilePath = manifestFilePath;
           }
         }
-      } catch (e) {}
+      } catch {}
     }),
   );
 };

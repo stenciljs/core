@@ -40,7 +40,7 @@ const resolveRemotePackageJsonSync = (
     if (typeof pkgJson === 'string') {
       try {
         return JSON.parse(pkgJson) as d.PackageJsonData;
-      } catch (e) {}
+      } catch {}
     }
   }
   return null;

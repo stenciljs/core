@@ -354,7 +354,7 @@ const highlightError = (text: string, errorCharStart: number, errorLength: numbe
 const prepareLines = (orgLines: PrintLine[]) => {
   const lines: PrintLine[] = JSON.parse(JSON.stringify(orgLines));
 
-  for (let i = 0; i < 100; i++) {
+  for (let x = 0; x < 100; x++) {
     if (!eachLineHasLeadingWhitespace(lines)) {
       return lines;
     }

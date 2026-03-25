@@ -62,7 +62,7 @@ export class Cache implements d.Cache {
       result = await this.cacheFs.readFile(this.getCacheFilePath(key));
       this.failed = 0;
       this.skip = false;
-    } catch (e: unknown) {
+    } catch {
       this.failed++;
       result = null;
     }
@@ -78,7 +78,7 @@ export class Cache implements d.Cache {
     try {
       await this.cacheFs.writeFile(this.getCacheFilePath(key), value);
       return true;
-    } catch (e: unknown) {
+    } catch {
       this.failed++;
       return false;
     }

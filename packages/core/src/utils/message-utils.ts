@@ -123,7 +123,7 @@ export const buildJsonFileError = (
           break;
         }
       }
-    } catch (e) {}
+    } catch {}
   }
 
   return err;

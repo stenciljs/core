@@ -35,7 +35,7 @@ export const setPackageVersionByContent = (
     if (pkg.name && pkg.version) {
       setPackageVersion(pkgVersions, pkg.name, pkg.version);
     }
-  } catch (e) {}
+  } catch {}
 };
 
 export const isLocalModule = (p: string) => p.startsWith('.') || p.startsWith('/');

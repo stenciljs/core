@@ -37,10 +37,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "parse5": "7.2.1"
+    "parse5": "7.2.1",
+    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068"
   },
   "devDependencies": {
-    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068"
+    "@stencil/vitest": "catalog:"
   },
   "volta": {
     "extends": "../../package.json"

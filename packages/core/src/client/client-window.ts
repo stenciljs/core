@@ -46,7 +46,7 @@ export const supportsListenerOptions = /*@__PURE__*/ (() => {
         },
       }),
     );
-  } catch (e) {}
+  } catch {}
   return supportsListenerOptions;
 })();
 
@@ -60,7 +60,7 @@ export const supportsConstructableStylesheets = BUILD.constructableCSS
         }
         new CSSStyleSheet();
         return typeof new CSSStyleSheet().replaceSync === 'function';
-      } catch (e) {}
+      } catch {}
       return false;
     })()
   : false;

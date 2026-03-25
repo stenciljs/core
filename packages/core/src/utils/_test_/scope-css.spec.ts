@@ -231,7 +231,6 @@ describe('scopeCSS', function () {
         '@supports selector(:host-context(.class1)) {.class1.a-h, .class1 .a-h {color:red;}}',
       );
     });
-    ``;
   });
 
   describe('::slotted', () => {

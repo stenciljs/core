@@ -371,7 +371,7 @@ async function getInstalledPackages(
       packages = yarn
         ? await yarnPackages(sys, ionicPackages)
         : await npmPackages(sys, ionicPackages);
-    } catch (e) {
+    } catch {
       packages = ionicPackages.map(([k, v]) => `${k}@${v.replace('^', '')}`);
     }
 
@@ -379,7 +379,9 @@ async function getInstalledPackages(
 
     return { packages, packagesNoVersions };
   } catch (err) {
-    hasDebug(flags) && console.error(err);
+    if (hasDebug(flags)) {
+      console.error(err);
+    }
     return { packages, packagesNoVersions };
   }
 }
@@ -521,16 +523,16 @@ async function sendTelemetry(
       body: JSON.stringify(body),
     });
 
-    hasVerbose(flags) &&
+    if (hasVerbose(flags)) {
       console.debug(
         '\nSent %O metric to events service (status: %O)',
         data.name,
         response.status,
         '\n',
       );
+    }
 
-    if (response.status !== 204) {
-      hasVerbose(flags) &&
+    if (response.status !== 204 && hasVerbose(flags)) {
         console.debug(
           '\nBad response from events service. Request body: %O',
           response.body.toString(),
@@ -538,7 +540,9 @@ async function sendTelemetry(
         );
     }
   } catch (e) {
-    hasVerbose(flags) && console.debug('Telemetry request failed:', e);
+    if (hasVerbose(flags)) {
+      console.debug('Telemetry request failed:', e);
+    }
   }
 }
 

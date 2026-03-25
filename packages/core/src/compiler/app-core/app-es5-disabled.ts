@@ -123,7 +123,7 @@ h2 {
       try {
         new Function('import("")');
         return true;
-      } catch (e) {}
+      } catch {}
       return false;
     }
     var supportsEsModules = !!('noModule' in document.createElement('script'));

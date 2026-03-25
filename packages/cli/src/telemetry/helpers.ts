@@ -38,7 +38,7 @@ export const isInteractive = (
   const terminalInfo =
     object ||
     Object.freeze({
-      tty: sys.isTTY() ? true : false,
+      tty: sys.isTTY(),
       ci:
         ['CI', 'BUILD_ID', 'BUILD_NUMBER', 'BITBUCKET_COMMIT', 'CODEBUILD_BUILD_ARN'].filter(
           (v) => !!sys.getEnvironmentVar?.(v),

@@ -50,7 +50,7 @@ const resolveStylesheetUrl = async (
             const orgUrl = r[1].replace(/('|")/g, '');
             const newUrl = await resolveUrl(orgUrl);
             urlSplt[i] = urlSplt[i].replace(orgUrl, newUrl);
-          } catch (e) {}
+          } catch {}
         }
       }
       node.value = urlSplt.join(',');

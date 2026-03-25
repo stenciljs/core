@@ -233,7 +233,7 @@ function finalizeHydrate(
 
     try {
       relocateMetaCharset(doc);
-    } catch (_e) {}
+    } catch {}
 
     if (!hasError(results.diagnostics)) {
       results.httpStatus = 200;
@@ -247,7 +247,9 @@ function finalizeHydrate(
           results.httpStatus = parseInt(metaStatusContent, 10);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      renderCatchError(results, e);
+    }
 
     if (opts.clientHydrateAnnotations) {
       doc.documentElement.classList.add('hydrated');

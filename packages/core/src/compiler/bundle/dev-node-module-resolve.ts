@@ -35,7 +35,7 @@ export const devNodeModuleResolveId = async (
   let pkgJsonData: d.PackageJsonData;
   try {
     pkgJsonData = JSON.parse(pkgJsonStr);
-  } catch (e) {}
+  } catch {}
 
   if (!pkgJsonData || !pkgJsonData.version) {
     return resolvedId;

@@ -3,13 +3,13 @@ import { createDocument, MockDocument } from '../document';
 import { cloneDocument } from '../window';
 
 describe('cloneNode', () => {
-  let doc: MockDocument;
+  let document: MockDocument;
   beforeEach(() => {
-    doc = new MockDocument();
+    document = new MockDocument();
   });
 
   it('style', () => {
-    const elm = doc.createElement('div');
+    const elm = document.createElement('div');
     elm.setAttribute('style', 'color: red;');
 
     const cloned = elm.cloneNode(true);
@@ -17,7 +17,7 @@ describe('cloneNode', () => {
   });
 
   it('id', () => {
-    const elm = doc.createElement('div');
+    const elm = document.createElement('div');
     elm.setAttribute('id', 'value');
 
     const cloned = elm.cloneNode(true);

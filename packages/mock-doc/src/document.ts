@@ -276,16 +276,16 @@ export function resetDocument(doc: Document) {
 
     try {
       (doc as any).nodeName = NODE_NAMES.DOCUMENT_NODE;
-    } catch (e) {}
+    } catch {}
     try {
       (doc as any).nodeType = NODE_TYPES.DOCUMENT_NODE;
-    } catch (e) {}
+    } catch {}
     try {
       (doc as any).cookie = '';
-    } catch (e) {}
+    } catch {}
     try {
       (doc as any).referrer = '';
-    } catch (e) {}
+    } catch {}
   }
 }
 

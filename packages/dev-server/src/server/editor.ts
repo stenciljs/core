@@ -37,7 +37,7 @@ async function loadLaunchEditor(): Promise<void> {
   try {
     const mod = await import('launch-editor');
     launchEditor = mod.default || mod;
-  } catch (e) {
+  } catch {
     console.warn(
       'launch-editor package is not available. Open in editor functionality will be disabled.',
     );

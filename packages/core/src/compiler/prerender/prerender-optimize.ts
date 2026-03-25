@@ -54,7 +54,7 @@ export const inlineExternalStyleSheets = async (
 
         // move <link rel="stylesheet"> to the end of <body>
         doc.body.appendChild(link);
-      } catch (e) {}
+      } catch {}
     }),
   );
 };
@@ -340,7 +340,7 @@ const hashAsset = async (
                 const attrValue = setAttrUrls(assetUrl, srcValue.descriptor);
                 elm.setAttribute(attrName, attrValue);
               }
-            } catch (e) {}
+            } catch {}
           }
         }
       }
@@ -375,7 +375,7 @@ const hashPageStateAstAssets = async (
                     const attrValue = setAttrUrls(assetUrl, srcValue.descriptor);
                     attrs[attrName] = attrValue;
                   }
-                } catch (e) {}
+                } catch {}
               }
             }
           }

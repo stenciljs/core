@@ -909,7 +909,7 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
         }
 
         dirsAdded.push(dirPath);
-      } catch (e) {}
+      } catch {}
     }
 
     return dirsAdded;

@@ -169,7 +169,7 @@ const getHydratePackageName = async (config: d.ValidatedConfig, compilerCtx: d.C
     const pkgData = JSON.parse(pkgStr) as d.PackageJsonData;
     const scope = pkgData.name || directoryName;
     return `${scope}/hydrate`;
-  } catch (e) {}
+  } catch {}
 
   return `${config.fsNamespace || directoryName}/hydrate`;
 };

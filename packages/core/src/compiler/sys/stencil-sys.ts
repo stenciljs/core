@@ -575,8 +575,8 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
 
   const getRemoteModuleUrl = (opts: { moduleId: string; path: string; version?: string }) => {
     const npmBaseUrl = 'https://cdn.jsdelivr.net/npm/';
-    const path = `${opts.moduleId}${opts.version ? '@' + opts.version : ''}/${opts.path}`;
-    return new URL(path, npmBaseUrl).href;
+    const modPath = `${opts.moduleId}${opts.version ? '@' + opts.version : ''}/${opts.path}`;
+    return new URL(modPath, npmBaseUrl).href;
   };
 
   const fileWatchTimeout = 32;

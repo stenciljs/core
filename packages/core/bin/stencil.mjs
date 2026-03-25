@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-import '@stencil/cli/cli';
+import '@stencil/cli';

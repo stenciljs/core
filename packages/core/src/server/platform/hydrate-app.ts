@@ -314,7 +314,7 @@ function renderCatchError(opts: d.HydrateFactoryOptions, results: d.HydrateResul
       if (u.pathname !== '/') {
         diagnostic.header += ': ' + u.pathname;
       }
-    } catch (e) {}
+    } catch {}
   }
 
   if (err != null) {

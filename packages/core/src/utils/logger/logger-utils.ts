@@ -114,7 +114,7 @@ const normalizeDiagnostic = (
               break;
             }
           }
-        } catch (e) {}
+        } catch {}
       }
     }
   }

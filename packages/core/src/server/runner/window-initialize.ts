@@ -32,45 +32,45 @@ export function initializeWindow(
   if (typeof opts.url === 'string') {
     try {
       win.location.href = opts.url;
-    } catch (e) {}
+    } catch {}
   }
 
   if (typeof opts.userAgent === 'string') {
     try {
       win.navigator.userAgent = opts.userAgent;
-    } catch (e) {}
+    } catch {}
   }
   if (typeof opts.cookie === 'string') {
     try {
       doc.cookie = opts.cookie;
-    } catch (e) {}
+    } catch {}
   }
   if (typeof opts.referrer === 'string') {
     try {
       (doc as any).referrer = opts.referrer;
-    } catch (e) {}
+    } catch {}
   }
   if (typeof opts.direction === 'string') {
     try {
       doc.documentElement.setAttribute('dir', opts.direction);
-    } catch (e) {}
+    } catch {}
   }
   if (typeof opts.language === 'string') {
     try {
       doc.documentElement.setAttribute('lang', opts.language);
-    } catch (e) {}
+    } catch {}
   }
   if (typeof opts.buildId === 'string') {
     try {
       doc.documentElement.setAttribute('data-stencil-build', opts.buildId);
-    } catch (e) {}
+    } catch {}
   }
 
   try {
     // TODO(STENCIL-345) - Evaluate reconciling MockWindow, Window differences
     // @ts-ignore
     win.customElements = null;
-  } catch (e) {}
+  } catch {}
 
   if (opts.constrainTimeouts) {
     constrainTimeouts(win);

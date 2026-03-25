@@ -885,7 +885,7 @@ function resetWindow(win: MockWindow) {
     if (win.document != null) {
       try {
         (win.document as any).defaultView = win;
-      } catch (e) {}
+      } catch {}
     }
 
     // ensure we don't hold onto nodeFetch values
@@ -929,5 +929,5 @@ function resetWindowDimensions(win: MockWindow) {
       pixelDepth: 24,
       width: win.innerWidth,
     } as any;
-  } catch (e) {}
+  } catch {}
 }

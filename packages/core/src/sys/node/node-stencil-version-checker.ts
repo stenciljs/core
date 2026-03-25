@@ -98,7 +98,7 @@ function getLastCheck() {
       if (!err && isString(data)) {
         try {
           resolve(JSON.parse(data));
-        } catch (e) {}
+        } catch {}
       }
       resolve(null);
     });

@@ -42,8 +42,8 @@ importers:
         specifier: ^0.42.0
         version: 0.42.0
       oxlint:
-        specifier: ^1.47.0
-        version: 1.47.0
+        specifier: ^1.57.0
+        version: 1.57.0
       rolldown:
         specifier: ^1.0.0-rc.7
         version: 1.0.0-rc.7
@@ -191,13 +191,16 @@ importers:
 
   packages/mock-doc:
     dependencies:
+      jquery:
+        specifier: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
+        version: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
       parse5:
         specifier: 7.2.1
         version: 7.2.1
     devDependencies:
-      jquery:
-        specifier: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
-        version: https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.8.0(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
 
   test/build: {}
 
@@ -1174,124 +1177,124 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@oxlint/binding-android-arm-eabi@1.47.0':
-    resolution: {integrity: sha512-UHqo3te9K/fh29brCuQdHjN+kfpIi9cnTPABuD5S9wb9ykXYRGTOOMVuSV/CK43sOhU4wwb2nT1RVjcbrrQjFw==}
+  '@oxlint/binding-android-arm-eabi@1.57.0':
+    resolution: {integrity: sha512-C7EiyfAJG4B70496eV543nKiq5cH0o/xIh/ufbjQz3SIvHhlDDsyn+mRFh+aW8KskTyUpyH2LGWL8p2oN6bl1A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [android]
 
-  '@oxlint/binding-android-arm64@1.47.0':
-    resolution: {integrity: sha512-xh02lsTF1TAkR+SZrRMYHR/xCx8Wg2MAHxJNdHVpAKELh9/yE9h4LJeqAOBbIb3YYn8o/D97U9VmkvkfJfrHfw==}
+  '@oxlint/binding-android-arm64@1.57.0':
+    resolution: {integrity: sha512-9i80AresjZ/FZf5xK8tKFbhQnijD4s1eOZw6/FHUwD59HEZbVLRc2C88ADYJfLZrF5XofWDiRX/Ja9KefCLy7w==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [android]
 
-  '@oxlint/binding-darwin-arm64@1.47.0':
-    resolution: {integrity: sha512-OSOfNJqabOYbkyQDGT5pdoL+05qgyrmlQrvtCO58M4iKGEQ/xf3XkkKj7ws+hO+k8Y4VF4zGlBsJlwqy7qBcHA==}
+  '@oxlint/binding-darwin-arm64@1.57.0':
+    resolution: {integrity: sha512-0eUfhRz5L2yKa9I8k3qpyl37XK3oBS5BvrgdVIx599WZK63P8sMbg+0s4IuxmIiZuBK68Ek+Z+gcKgeYf0otsg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [darwin]
 
-  '@oxlint/binding-darwin-x64@1.47.0':
-    resolution: {integrity: sha512-hP2bOI4IWNS+F6pVXWtRshSTuJ1qCRZgDgVUg6EBUqsRy+ExkEPJkx+YmIuxgdCduYK1LKptLNFuQLJP8voPbQ==}
+  '@oxlint/binding-darwin-x64@1.57.0':
+    resolution: {integrity: sha512-UvrSuzBaYOue+QMAcuDITe0k/Vhj6KZGjfnI6x+NkxBTke/VoM7ZisaxgNY0LWuBkTnd1OmeQfEQdQ48fRjkQg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [darwin]
 
-  '@oxlint/binding-freebsd-x64@1.47.0':
-    resolution: {integrity: sha512-F55jIEH5xmGu7S661Uho8vGiLFk0bY3A/g4J8CTKiLJnYu/PSMZ2WxFoy5Hji6qvFuujrrM9Q8XXbMO0fKOYPg==}
+  '@oxlint/binding-freebsd-x64@1.57.0':
+    resolution: {integrity: sha512-wtQq0dCoiw4bUwlsNVDJJ3pxJA218fOezpgtLKrbQqUtQJcM9yP8z+I9fu14aHg0uyAxIY+99toL6uBa2r7nxA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [freebsd]
 
-  '@oxlint/binding-linux-arm-gnueabihf@1.47.0':
-    resolution: {integrity: sha512-wxmOn/wns/WKPXUC1fo5mu9pMZPVOu8hsynaVDrgmmXMdHKS7on6bA5cPauFFN9tJXNdsjW26AK9lpfu3IfHBQ==}
+  '@oxlint/binding-linux-arm-gnueabihf@1.57.0':
+    resolution: {integrity: sha512-qxFWl2BBBFcT4djKa+OtMdnLgoHEJXpqjyGwz8OhW35ImoCwR5qtAGqApNYce5260FQqoAHW8S8eZTjiX67Tsg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [linux]
 
-  '@oxlint/binding-linux-arm-musleabihf@1.47.0':
-    resolution: {integrity: sha512-KJTmVIA/GqRlM2K+ZROH30VMdydEU7bDTY35fNg3tOPzQRIs2deLZlY/9JWwdWo1F/9mIYmpbdCmPqtKhWNOPg==}
+  '@oxlint/binding-linux-arm-musleabihf@1.57.0':
+    resolution: {integrity: sha512-SQoIsBU7J0bDW15/f0/RvxHfY3Y0+eB/caKBQtNFbuerTiA6JCYx9P1MrrFTwY2dTm/lMgTSgskvCEYk2AtG/Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [linux]
 
-  '@oxlint/binding-linux-arm64-gnu@1.47.0':
-    resolution: {integrity: sha512-PF7ELcFg1GVlS0X0ZB6aWiXobjLrAKer3T8YEkwIoO8RwWiAMkL3n3gbleg895BuZkHVlJ2kPRUwfrhHrVkD1A==}
+  '@oxlint/binding-linux-arm64-gnu@1.57.0':
+    resolution: {integrity: sha512-jqxYd1W6WMeozsCmqe9Rzbu3SRrGTyGDAipRlRggetyYbUksJqJKvUNTQtZR/KFoJPb+grnSm5SHhdWrywv3RQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@oxlint/binding-linux-arm64-musl@1.47.0':
-    resolution: {integrity: sha512-4BezLRO5cu0asf0Jp1gkrnn2OHiXrPPPEfBTxq1k5/yJ2zdGGTmZxHD2KF2voR23wb8Elyu3iQawXo7wvIZq0Q==}
+  '@oxlint/binding-linux-arm64-musl@1.57.0':
+    resolution: {integrity: sha512-i66WyEPVEvq9bxRUCJ/MP5EBfnTDN3nhwEdFZFTO5MmLLvzngfWEG3NSdXQzTT3vk5B9i6C2XSIYBh+aG6uqyg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@oxlint/binding-linux-ppc64-gnu@1.47.0':
-    resolution: {integrity: sha512-aI5ds9jq2CPDOvjeapiIj48T/vlWp+f4prkxs+FVzrmVN9BWIj0eqeJ/hV8WgXg79HVMIz9PU6deI2ki09bR1w==}
+  '@oxlint/binding-linux-ppc64-gnu@1.57.0':
+    resolution: {integrity: sha512-oMZDCwz4NobclZU3pH+V1/upVlJZiZvne4jQP+zhJwt+lmio4XXr4qG47CehvrW1Lx2YZiIHuxM2D4YpkG3KVA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@oxlint/binding-linux-riscv64-gnu@1.47.0':
-    resolution: {integrity: sha512-mO7ycp9Elvgt5EdGkQHCwJA6878xvo9tk+vlMfT1qg++UjvOMB8INsOCQIOH2IKErF/8/P21LULkdIrocMw9xA==}
+  '@oxlint/binding-linux-riscv64-gnu@1.57.0':
+    resolution: {integrity: sha512-uoBnjJ3MMEBbfnWC1jSFr7/nSCkcQYa72NYoNtLl1imshDnWSolYCjzb8LVCwYCCfLJXD+0gBLD7fyC14c0+0g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
     libc: [glibc]
 
-  '@oxlint/binding-linux-riscv64-musl@1.47.0':
-    resolution: {integrity: sha512-24D0wsYT/7hDFn3Ow32m3/+QT/1ZwrUhShx4/wRDAmz11GQHOZ1k+/HBuK/MflebdnalmXWITcPEy4BWTi7TCA==}
+  '@oxlint/binding-linux-riscv64-musl@1.57.0':
+    resolution: {integrity: sha512-BdrwD7haPZ8a9KrZhKJRSj6jwCor+Z8tHFZ3PT89Y3Jq5v3LfMfEePeAmD0LOTWpiTmzSzdmyw9ijneapiVHKQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [riscv64]
     os: [linux]
     libc: [musl]
 
-  '@oxlint/binding-linux-s390x-gnu@1.47.0':
-    resolution: {integrity: sha512-8tPzPne882mtML/uy3mApvdCyuVOpthJ7xUv3b67gVfz63hOOM/bwO0cysSkPyYYFDFRn6/FnUb7Jhmsesntvg==}
+  '@oxlint/binding-linux-s390x-gnu@1.57.0':
+    resolution: {integrity: sha512-BNs+7ZNsRstVg2tpNxAXfMX/Iv5oZh204dVyb8Z37+/gCh+yZqNTlg6YwCLIMPSk5wLWIGOaQjT0GUOahKYImw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@oxlint/binding-linux-x64-gnu@1.47.0':
-    resolution: {integrity: sha512-q58pIyGIzeffEBhEgbRxLFHmHfV9m7g1RnkLiahQuEvyjKNiJcvdHOwKH2BdgZxdzc99Cs6hF5xTa86X40WzPw==}
+  '@oxlint/binding-linux-x64-gnu@1.57.0':
+    resolution: {integrity: sha512-AghS18w+XcENcAX0+BQGLiqjpqpaxKJa4cWWP0OWNLacs27vHBxu7TYkv9LUSGe5w8lOJHeMxcYfZNOAPqw2bg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@oxlint/binding-linux-x64-musl@1.47.0':
-    resolution: {integrity: sha512-e7DiLZtETZUCwTa4EEHg9G+7g3pY+afCWXvSeMG7m0TQ29UHHxMARPaEQUE4mfKgSqIWnJaUk2iZzRPMRdga5g==}
+  '@oxlint/binding-linux-x64-musl@1.57.0':
+    resolution: {integrity: sha512-E/FV3GB8phu/Rpkhz5T96hAiJlGzn91qX5yj5gU754P5cmVGXY1Jw/VSjDSlZBCY3VHjsVLdzgdkJaomEmcNOg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@oxlint/binding-openharmony-arm64@1.47.0':
-    resolution: {integrity: sha512-3AFPfQ0WKMleT/bKd7zsks3xoawtZA6E/wKf0DjwysH7wUiMMJkNKXOzYq1R/00G98JFgSU1AkrlOQrSdNNhlg==}
+  '@oxlint/binding-openharmony-arm64@1.57.0':
+    resolution: {integrity: sha512-xvZ2yZt0nUVfU14iuGv3V25jpr9pov5N0Wr28RXnHFxHCRxNDMtYPHV61gGLhN9IlXM96gI4pyYpLSJC5ClLCQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [openharmony]
 
-  '@oxlint/binding-win32-arm64-msvc@1.47.0':
-    resolution: {integrity: sha512-cLMVVM6TBxp+N7FldQJ2GQnkcLYEPGgiuEaXdvhgvSgODBk9ov3jed+khIXSAWtnFOW0wOnG3RjwqPh0rCuheA==}
+  '@oxlint/binding-win32-arm64-msvc@1.57.0':
+    resolution: {integrity: sha512-Z4D8Pd0AyHBKeazhdIXeUUy5sIS3Mo0veOlzlDECg6PhRRKgEsBJCCV1n+keUZtQ04OP+i7+itS3kOykUyNhDg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [win32]
 
-  '@oxlint/binding-win32-ia32-msvc@1.47.0':
-    resolution: {integrity: sha512-VpFOSzvTnld77/Edje3ZdHgZWnlTb5nVWXyTgjD3/DKF/6t5bRRbwn3z77zOdnGy44xAMvbyAwDNOSeOdVUmRA==}
+  '@oxlint/binding-win32-ia32-msvc@1.57.0':
+    resolution: {integrity: sha512-StOZ9nFMVKvevicbQfql6Pouu9pgbeQnu60Fvhz2S6yfMaii+wnueLnqQ5I1JPgNF0Syew4voBlAaHD13wH6tw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ia32]
     os: [win32]
 
-  '@oxlint/binding-win32-x64-msvc@1.47.0':
-    resolution: {integrity: sha512-+q8IWptxXx2HMTM6JluR67284t0h8X/oHJgqpxH1siowxPMqZeIpAcWCUq+tY+Rv2iQK8TUugjZnSBQAVV5CmA==}
+  '@oxlint/binding-win32-x64-msvc@1.57.0':
+    resolution: {integrity: sha512-6PuxhYgth8TuW0+ABPOIkGdBYw+qYGxgIdXPHSVpiCDm+hqTTWCmC739St1Xni0DJBt8HnSHTG67i1y6gr8qrA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
@@ -3658,12 +3661,12 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
-  oxlint@1.47.0:
-    resolution: {integrity: sha512-v7xkK1iv1qdvTxJGclM97QzN8hHs5816AneFAQ0NGji1BMUquhiDAhXpMwp8+ls16uRVJtzVHxP9pAAXblDeGA==}
+  oxlint@1.57.0:
+    resolution: {integrity: sha512-DGFsuBX5MFZX9yiDdtKjTrYPq45CZ8Fft6qCltJITYZxfwYjVdGf/6wycGYTACloauwIPxUnYhBVeZbHvleGhw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
-      oxlint-tsgolint: '>=0.11.2'
+      oxlint-tsgolint: '>=0.15.0'
     peerDependenciesMeta:
       oxlint-tsgolint:
         optional: true
@@ -5573,61 +5576,61 @@ snapshots:
   '@oxfmt/binding-win32-x64-msvc@0.42.0':
     optional: true
 
-  '@oxlint/binding-android-arm-eabi@1.47.0':
+  '@oxlint/binding-android-arm-eabi@1.57.0':
     optional: true
 
-  '@oxlint/binding-android-arm64@1.47.0':
+  '@oxlint/binding-android-arm64@1.57.0':
     optional: true
 
-  '@oxlint/binding-darwin-arm64@1.47.0':
+  '@oxlint/binding-darwin-arm64@1.57.0':
     optional: true
 
-  '@oxlint/binding-darwin-x64@1.47.0':
+  '@oxlint/binding-darwin-x64@1.57.0':
     optional: true
 
-  '@oxlint/binding-freebsd-x64@1.47.0':
+  '@oxlint/binding-freebsd-x64@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-arm-gnueabihf@1.47.0':
+  '@oxlint/binding-linux-arm-gnueabihf@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-arm-musleabihf@1.47.0':
+  '@oxlint/binding-linux-arm-musleabihf@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-arm64-gnu@1.47.0':
+  '@oxlint/binding-linux-arm64-gnu@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-arm64-musl@1.47.0':
+  '@oxlint/binding-linux-arm64-musl@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-ppc64-gnu@1.47.0':
+  '@oxlint/binding-linux-ppc64-gnu@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-riscv64-gnu@1.47.0':
+  '@oxlint/binding-linux-riscv64-gnu@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-riscv64-musl@1.47.0':
+  '@oxlint/binding-linux-riscv64-musl@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-s390x-gnu@1.47.0':
+  '@oxlint/binding-linux-s390x-gnu@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-x64-gnu@1.47.0':
+  '@oxlint/binding-linux-x64-gnu@1.57.0':
     optional: true
 
-  '@oxlint/binding-linux-x64-musl@1.47.0':
+  '@oxlint/binding-linux-x64-musl@1.57.0':
     optional: true
 
-  '@oxlint/binding-openharmony-arm64@1.47.0':
+  '@oxlint/binding-openharmony-arm64@1.57.0':
     optional: true
 
-  '@oxlint/binding-win32-arm64-msvc@1.47.0':
+  '@oxlint/binding-win32-arm64-msvc@1.57.0':
     optional: true
 
-  '@oxlint/binding-win32-ia32-msvc@1.47.0':
+  '@oxlint/binding-win32-ia32-msvc@1.57.0':
     optional: true
 
-  '@oxlint/binding-win32-x64-msvc@1.47.0':
+  '@oxlint/binding-win32-x64-msvc@1.57.0':
     optional: true
 
   '@parcel/watcher-android-arm64@2.5.6':
@@ -6033,6 +6036,17 @@ snapshots:
       vitest-environment-stencil: 1.8.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
     optionalDependencies:
       '@stencil/mock-doc': link:packages/mock-doc
+      '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
+      jsdom: 28.0.0
+      playwright: 1.58.2
+
+  '@stencil/vitest@1.8.0(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)':
+    dependencies:
+      jiti: 2.6.1
+      local-pkg: 1.1.2
+      vitest: 4.0.18(@types/node@24.10.13)(@vitest/browser-playwright@4.0.18)(jiti@2.6.1)(jsdom@28.0.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)
+      vitest-environment-stencil: 1.8.0(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    optionalDependencies:
       '@vitest/browser-playwright': 4.0.18(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0))(vitest@4.0.18)
       jsdom: 28.0.0
       playwright: 1.58.2
@@ -8029,27 +8043,27 @@ snapshots:
       '@oxfmt/binding-win32-ia32-msvc': 0.42.0
       '@oxfmt/binding-win32-x64-msvc': 0.42.0
 
-  oxlint@1.47.0:
+  oxlint@1.57.0:
     optionalDependencies:
-      '@oxlint/binding-android-arm-eabi': 1.47.0
-      '@oxlint/binding-android-arm64': 1.47.0
-      '@oxlint/binding-darwin-arm64': 1.47.0
-      '@oxlint/binding-darwin-x64': 1.47.0
-      '@oxlint/binding-freebsd-x64': 1.47.0
-      '@oxlint/binding-linux-arm-gnueabihf': 1.47.0
-      '@oxlint/binding-linux-arm-musleabihf': 1.47.0
-      '@oxlint/binding-linux-arm64-gnu': 1.47.0
-      '@oxlint/binding-linux-arm64-musl': 1.47.0
-      '@oxlint/binding-linux-ppc64-gnu': 1.47.0
-      '@oxlint/binding-linux-riscv64-gnu': 1.47.0
-      '@oxlint/binding-linux-riscv64-musl': 1.47.0
-      '@oxlint/binding-linux-s390x-gnu': 1.47.0
-      '@oxlint/binding-linux-x64-gnu': 1.47.0
-      '@oxlint/binding-linux-x64-musl': 1.47.0
-      '@oxlint/binding-openharmony-arm64': 1.47.0
-      '@oxlint/binding-win32-arm64-msvc': 1.47.0
-      '@oxlint/binding-win32-ia32-msvc': 1.47.0
-      '@oxlint/binding-win32-x64-msvc': 1.47.0
+      '@oxlint/binding-android-arm-eabi': 1.57.0
+      '@oxlint/binding-android-arm64': 1.57.0
+      '@oxlint/binding-darwin-arm64': 1.57.0
+      '@oxlint/binding-darwin-x64': 1.57.0
+      '@oxlint/binding-freebsd-x64': 1.57.0
+      '@oxlint/binding-linux-arm-gnueabihf': 1.57.0
+      '@oxlint/binding-linux-arm-musleabihf': 1.57.0
+      '@oxlint/binding-linux-arm64-gnu': 1.57.0
+      '@oxlint/binding-linux-arm64-musl': 1.57.0
+      '@oxlint/binding-linux-ppc64-gnu': 1.57.0
+      '@oxlint/binding-linux-riscv64-gnu': 1.57.0
+      '@oxlint/binding-linux-riscv64-musl': 1.57.0
+      '@oxlint/binding-linux-s390x-gnu': 1.57.0
+      '@oxlint/binding-linux-x64-gnu': 1.57.0
+      '@oxlint/binding-linux-x64-musl': 1.57.0
+      '@oxlint/binding-openharmony-arm64': 1.57.0
+      '@oxlint/binding-win32-arm64-msvc': 1.57.0
+      '@oxlint/binding-win32-ia32-msvc': 1.57.0
+      '@oxlint/binding-win32-x64-msvc': 1.57.0
 
   p-finally@1.0.0: {}
 
@@ -9348,6 +9362,22 @@ snapshots:
   vitest-environment-stencil@1.8.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
     dependencies:
       '@stencil/vitest': 1.8.0(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
+    transitivePeerDependencies:
+      - '@playwright/test'
+      - '@stencil/core'
+      - '@stencil/mock-doc'
+      - '@vitest/browser-playwright'
+      - '@vitest/browser-preview'
+      - '@vitest/browser-webdriverio'
+      - '@wdio/globals'
+      - happy-dom
+      - jsdom
+      - playwright
+      - vitest
+
+  vitest-environment-stencil@1.8.0(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18):
+    dependencies:
+      '@stencil/vitest': 1.8.0(@vitest/browser-playwright@4.0.18)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.0.18)
     transitivePeerDependencies:
       - '@playwright/test'
       - '@stencil/core'
