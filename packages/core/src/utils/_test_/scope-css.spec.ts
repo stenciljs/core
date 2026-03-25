@@ -24,7 +24,7 @@ describe('scopeCSS', function () {
       .replace(/:\s/g, ':')
       .replace(/'/g, '"')
       .replace(/ }/g, '}')
-      .replace(/url\((\"|\s)(.+)(\"|\s)\)(\s*)/g, (...match: string[]) => `url("${match[2]}")`)
+      .replace(/url\(("|\s)(.+)("|\s)\)(\s*)/g, (...match: string[]) => `url("${match[2]}")`)
       .replace(/\[(.+)=([^"\]]+)\]/g, (...match: string[]) => `[${match[1]}="${match[2]}"]`);
   }
 

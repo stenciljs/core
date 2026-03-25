@@ -889,14 +889,14 @@ describe('render-vdom', () => {
       });
       expect(root).toEqualHtml(`
         <cmp-a>
-          <button type=\"button\"></button>
-          <button type=\"submit\"></button>
-          <input type=\"text\" value>
-          <input type=\"number\">
-          <input type=\"password\">
-          <input type=\"email\">
-          <input type=\"date\">
-          <input list=\"my-list\">
+          <button type="button"></button>
+          <button type="submit"></button>
+          <input type="text" value>
+          <input type="number">
+          <input type="password">
+          <input type="email">
+          <input type="date">
+          <input list="my-list">
         </cmp-a>
       `);
     });

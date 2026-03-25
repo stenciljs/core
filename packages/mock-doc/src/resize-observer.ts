@@ -1,7 +1,5 @@
 export class MockResizeObserver {
-  constructor() {
-    /**/
-  }
+  
 
   disconnect() {
     /**/

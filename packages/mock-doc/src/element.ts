@@ -718,7 +718,7 @@ function fullUrl(elm: MockElement, attrName: string) {
       }
     }
   }
-  return val.replace(/\'|\"/g, '').trim();
+  return val.replace(/'|"/g, '').trim();
 }
 
 function getLabelsForElement(elm: MockHTMLElement): MockHTMLElement[] {

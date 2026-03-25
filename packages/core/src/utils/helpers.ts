@@ -234,7 +234,7 @@ const isDefined = (v: any): v is NonNullable<typeof v> => v !== null && v !== un
 export const isBoolean = (v: any): v is boolean => typeof v === 'boolean';
 export const isFunction = (v: any): v is Function => typeof v === 'function';
 export const isNumber = (v: any): v is number => typeof v === 'number';
-export const isObject = (val: Object): val is Object =>
+export const isObject = (val: object): val is object =>
   val != null && typeof val === 'object' && Array.isArray(val) === false;
 export const isString = (v: any): v is string => typeof v === 'string';
 export const isIterable = <T>(v: any): v is Iterable<T> =>

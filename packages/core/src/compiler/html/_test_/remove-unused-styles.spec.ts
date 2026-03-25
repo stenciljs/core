@@ -285,8 +285,8 @@ describe('removeUnusedStyles', () => {
     selector = selector
       .replace(/ \{ /g, '{')
       .replace(/ \} /g, '}')
-      .replace(/\: /g, ':')
-      .replace(/\; /g, ';');
+      .replace(/: /g, ':')
+      .replace(/; /g, ';');
     expect(css).toContain(selector);
   }
 
@@ -294,8 +294,8 @@ describe('removeUnusedStyles', () => {
     selector = selector
       .replace(/ \{ /g, '{')
       .replace(/ \} /g, '}')
-      .replace(/\: /g, ':')
-      .replace(/\; /g, ';');
+      .replace(/: /g, ':')
+      .replace(/; /g, ';');
     expect(css).not.toContain(selector);
   }
 });

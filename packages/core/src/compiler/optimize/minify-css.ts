@@ -47,7 +47,7 @@ const resolveStylesheetUrl = async (
         const r = /url\((.*?)\)/.exec(urlSplt[i]);
         if (r) {
           try {
-            const orgUrl = r[1].replace(/(\'|\")/g, '');
+            const orgUrl = r[1].replace(/('|")/g, '');
             const newUrl = await resolveUrl(orgUrl);
             urlSplt[i] = urlSplt[i].replace(orgUrl, newUrl);
           } catch (e) {}

@@ -96,7 +96,7 @@ function parseCssComment(styleDocs: d.StyleDoc[], comment: string, mode: string 
  * Opening syntax for a CSS docstring.
  * This will match a traditional docstring or a "loud" comment in sass
  */
-const CSS_DOC_START = /\/\*(\*|\!)/;
+const CSS_DOC_START = /\/\*(\*|!)/;
 /**
  * Closing syntax for a CSS docstring
  */

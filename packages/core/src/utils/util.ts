@@ -27,7 +27,7 @@ export const createJsVarName = (fileName: string): string => {
     fileName = fileName.split('&')[0];
     fileName = fileName.split('=')[0];
     fileName = toDashCase(fileName);
-    fileName = fileName.replace(/[|;$%@"<>()+,.{}_\!\/\\]/g, '-');
+    fileName = fileName.replace(/[|;$%@"<>()+,.{}_!/\\]/g, '-');
     fileName = dashToPascalCase(fileName);
 
     if (fileName.length > 1) {

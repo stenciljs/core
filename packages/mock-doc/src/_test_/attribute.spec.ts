@@ -78,7 +78,7 @@ describe('attributes', () => {
     expect(element.getAttribute('prop6')).toBe('');
 
     expect(element).toEqualHtml(
-      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`,
+      `<div prop1="null" prop2="undefined" prop3="0" prop4="1" prop5="hola" prop6></div>`,
     );
   });
 
@@ -99,7 +99,7 @@ describe('attributes', () => {
     expect(element.getAttribute('prop6')).toBe('');
 
     expect(element).toEqualHtml(
-      `<div prop1=\"null\" prop2=\"undefined\" prop3=\"0\" prop4=\"1\" prop5=\"hola\" prop6></div>`,
+      `<div prop1="null" prop2="undefined" prop3="0" prop4="1" prop5="hola" prop6></div>`,
     );
   });
 

@@ -579,7 +579,7 @@ export interface Config extends StencilConfig {
  * conforming to a given interface. For best results, pair with a validation
  * function as shown in the example.
  */
-type Loose<T extends Object> = Record<string, any> & Partial<T>;
+type Loose<T extends object> = Record<string, any> & Partial<T>;
 
 /**
  * A Loose version of the Config interface. This is intended to let us load a partial config
@@ -3036,7 +3036,7 @@ export interface OptimizeCssInput {
  * Instead, this basically just serves as a label type to track
  * that arguments are being passed consistently.
  */
-export type AutoprefixerOptions = Object;
+export type AutoprefixerOptions = object;
 
 /**
  * Output from CSS optimization functions, wrapping up optimized

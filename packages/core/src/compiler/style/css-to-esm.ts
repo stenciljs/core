@@ -269,7 +269,7 @@ const getCssToEsmImports = (
   while ((r = CSS_IMPORT_RE.exec(cssText))) {
     const cssImportData: d.CssToEsmImportData = {
       srcImportText: r[0],
-      url: r[4].replace(/[\"\'\)]/g, ''),
+      url: r[4].replace(/["')]/g, ''),
       filePath: null,
       varName: null,
       isNodeModule: false,
@@ -325,8 +325,8 @@ const isLocalCssImport = (srcImport: string) => {
   srcImport = srcImport.toLowerCase();
 
   if (srcImport.includes('url(')) {
-    srcImport = srcImport.replace(/\"/g, '');
-    srcImport = srcImport.replace(/\'/g, '');
+    srcImport = srcImport.replace(/"/g, '');
+    srcImport = srcImport.replace(/'/g, '');
     srcImport = srcImport.replace(/\s/g, '');
     if (srcImport.includes('url(http') || srcImport.includes('url(//')) {
       return false;

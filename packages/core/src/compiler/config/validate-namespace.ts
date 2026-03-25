@@ -28,7 +28,7 @@ export const validateNamespace = (
   namespace = isString(namespace) ? namespace : DEFAULT_NAMESPACE;
   namespace = namespace.trim();
 
-  const invalidNamespaceChars = namespace.replace(/(\w)|(\-)|(\$)/g, '');
+  const invalidNamespaceChars = namespace.replace(/(\w)|(-)|(\$)/g, '');
   if (invalidNamespaceChars !== '') {
     const err = buildError(diagnostics);
     err.messageText = `Namespace "${namespace}" contains invalid characters: ${invalidNamespaceChars}`;

@@ -871,7 +871,7 @@
         l = s('IE_PROTO'),
         p = function () {},
         h = function (t) {
-          return '<script>' + t + '<\/script>';
+          return '<script>' + t + '</script>';
         },
         v = function () {
           try {

@@ -167,7 +167,7 @@ describe('optimizeCss', () => {
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(
-      `p{font-family:\"Helvetica Neue\", Arial, sans-serif, Helvetica;font-weight:normal}`,
+      `p{font-family:"Helvetica Neue", Arial, sans-serif, Helvetica;font-weight:normal}`,
     );
   });
 

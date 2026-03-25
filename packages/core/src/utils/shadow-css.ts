@@ -136,7 +136,7 @@ const extractCommentsWithHash = (input: string): string[] => {
   return input.match(_commentWithHashRe) || [];
 };
 
-const _ruleRe = /(\s*)([^;\{\}]+?)(\s*)((?:{%BLOCK%}?\s*;?)|(?:\s*;))/g;
+const _ruleRe = /(\s*)([^;{}]+?)(\s*)((?:{%BLOCK%}?\s*;?)|(?:\s*;))/g;
 const _curlyRe = /([{}])/g;
 const _selectorPartsRe = /(^.*?[^\\])??((:+)(.*)|$)/;
 const OPEN_CURLY = '{';

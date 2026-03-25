@@ -24,7 +24,7 @@ export const validateHydrated = (config: UnvalidatedConfig): HydratedFlag | null
 
   // Here we start building up a default config since `.hydratedFlag` wasn't set to
   // `null` on the provided config.
-  const hydratedFlag: HydratedFlag = { ...(config.hydratedFlag ?? {}) };
+  const hydratedFlag: HydratedFlag = { ...config.hydratedFlag };
 
   if (!isString(hydratedFlag.name) || hydratedFlag.property === '') {
     hydratedFlag.name = `hydrated`;

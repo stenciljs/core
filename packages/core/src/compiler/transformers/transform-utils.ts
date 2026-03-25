@@ -1323,7 +1323,7 @@ export const updateConstructor = (
     classMembers[constructorIndex] = ts.factory.updateConstructorDeclaration(
       constructorMethod,
       retrieveTsModifiers(constructorMethod),
-      [...[...(parameters ?? []), ...constructorMethod.parameters]],
+      [...(parameters ?? []), ...constructorMethod.parameters],
       ts.factory.updateBlock(constructorMethod?.body ?? ts.factory.createBlock([]), statements),
     );
   } else {

@@ -9,13 +9,13 @@ export const getCssSelectors = (sel: string) => {
 
   sel = sel
     .replace(/\./g, ' .')
-    .replace(/\#/g, ' #')
+    .replace(/#/g, ' #')
     .replace(/\[/g, ' [')
-    .replace(/\>/g, ' > ')
+    .replace(/>/g, ' > ')
     .replace(/\+/g, ' + ')
-    .replace(/\~/g, ' ~ ')
+    .replace(/~/g, ' ~ ')
     .replace(/\*/g, ' * ')
-    .replace(/\:not\((.*?)\)/g, ' ');
+    .replace(/:not\((.*?)\)/g, ' ');
 
   const items = sel.split(' ');
 

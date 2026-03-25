@@ -338,5 +338,5 @@ const removeMediaWhitespace = (media: string | undefined) => {
 };
 
 const CSS_WS_REG = /\s/;
-const CSS_NEXT_CHAR_REG = /[>\(\)\~\,\+\s]/;
-const CSS_PREV_CHAR_REG = /[>\(\~\,\+]/;
+const CSS_NEXT_CHAR_REG = /[>()~,+\s]/;
+const CSS_PREV_CHAR_REG = /[>(~,+]/;

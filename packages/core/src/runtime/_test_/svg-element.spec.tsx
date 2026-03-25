@@ -27,7 +27,7 @@ describe('SVG element', () => {
     });
     expect(root).toEqualHtml(`
       <cmp-a>
-        <svg viewBox=\"0 0 100 4\">
+        <svg viewBox="0 0 100 4">
           <text>
             Hola 1
           </text>
@@ -38,7 +38,7 @@ describe('SVG element', () => {
     await waitForChanges();
     expect(root).toEqualHtml(`
       <cmp-a>
-        <svg viewBox=\"0 0 100 4\">
+        <svg viewBox="0 0 100 4">
           <text>
             Hola 1
           </text>

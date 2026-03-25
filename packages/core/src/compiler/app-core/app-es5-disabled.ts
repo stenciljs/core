@@ -148,5 +148,5 @@ h2 {
 };
 
 const inlineHTML = (html: string) => {
-  return html.replace(/\n/g, '\\n').replace(/\'/g, `\\'`).trim();
+  return html.replace(/\n/g, '\\n').replace(/'/g, `\\'`).trim();
 };

@@ -60,11 +60,11 @@ describe('shadow', () => {
 
     expect(page.root).toEqualLightHtml(`
     <cmp-a class="hydrated">
-      <span slot=\"end\">
+      <span slot="end">
         End
       </span>
       Text
-      <span slot=\"start\">
+      <span slot="start">
         Start
       </span>
     </cmp-a>`);

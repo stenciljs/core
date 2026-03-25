@@ -365,7 +365,7 @@ export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
  * @returns the converted string
  */
 export const convertScopedToShadow = (css: string) =>
-  css.replace(/\/\*!@([^\/]+)\*\/[^\{]+\{/g, '$1{');
+  css.replace(/\/\*!@([^/]+)\*\/[^{]+\{/g, '$1{');
 
 /**
  * Hydrate styles after SSR for components *not* using DSD. Convert 'scoped' styles to 'shadow'

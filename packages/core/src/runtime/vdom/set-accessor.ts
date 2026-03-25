@@ -248,7 +248,7 @@ export const setAccessor = (
      */
     let xlink = false;
     if (BUILD.vdomXlink) {
-      if (ln !== (ln = ln.replace(/^xlink\:?/, ''))) {
+      if (ln !== (ln = ln.replace(/^xlink:?/, ''))) {
         memberName = ln;
         xlink = true;
       }

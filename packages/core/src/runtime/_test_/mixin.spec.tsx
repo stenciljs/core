@@ -6,9 +6,7 @@ describe('mixin', () => {
   it('can call a constructor with args', async () => {
     const MyMixin = <B extends MixedInCtor>(Base: B) => {
       class Test extends Base {
-        constructor(...args: any[]) {
-          super(...args);
-        }
+        
 
         @State() test = 'testing!!';
       }

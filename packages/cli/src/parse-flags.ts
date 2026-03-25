@@ -377,7 +377,7 @@ const setCLIArg = (
  * be parsed as a string literal, rather than using `Number` to convert it
  * to a number.
  */
-const CLI_ARG_STRING_REGEX = /[^\d\.Ee\+\-]+/g;
+const CLI_ARG_STRING_REGEX = /[^\d.Ee+-]+/g;
 
 export const Empty = Symbol('Empty');
 

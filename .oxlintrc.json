@@ -26,6 +26,7 @@
     "node_modules/**",
     "dist/**",
     "**/dist/**",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "packages/core/src/client/polyfills/**"
   ]
 }

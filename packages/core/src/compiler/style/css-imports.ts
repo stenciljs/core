@@ -185,7 +185,7 @@ export const getCssImports = async (
   const importeeExt = (filePath.split('.').pop() ?? '').toLowerCase();
 
   let r: RegExpExecArray | null;
-  const IMPORT_RE = /@import\s+(?:url\()?\s*(['"]?)([^'"\)]+)\1\s*\)?([^;]*);?/gi;
+  const IMPORT_RE = /@import\s+(?:url\()?\s*(['"]?)([^'")]+)\1\s*\)?([^;]*);?/gi;
 
   while ((r = IMPORT_RE.exec(styleText))) {
     const urlMatch = r[2].trim();
@@ -281,8 +281,8 @@ export const isLocalCssImport = (srcImport: string) => {
   srcImport = srcImport.toLowerCase();
 
   if (srcImport.includes('url(')) {
-    srcImport = srcImport.replace(/\"/g, '');
-    srcImport = srcImport.replace(/\'/g, '');
+    srcImport = srcImport.replace(/"/g, '');
+    srcImport = srcImport.replace(/'/g, '');
     srcImport = srcImport.replace(/\s/g, '');
     if (srcImport.includes('url(http') || srcImport.includes('url(//')) {
       return false;

@@ -233,7 +233,7 @@ function finalizeHydrate(
 
     try {
       relocateMetaCharset(doc);
-    } catch (e) {}
+    } catch (_e) {}
 
     if (!hasError(results.diagnostics)) {
       results.httpStatus = 200;

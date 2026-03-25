@@ -98,7 +98,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
 
   it('lastChild', async () => {
     expect(nodeOrEleContent(specPage.root.lastChild)).toBe(
-      `<div slot=\"second-slot\"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>`,
+      `<div slot="second-slot"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>`,
     );
   });
 
@@ -110,7 +110,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     );
     expect(nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling)).toBe(``);
     expect(nodeOrEleContent(specPage.root.firstChild.nextSibling.nextSibling.nextSibling)).toBe(
-      `<div slot=\"second-slot\"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>`,
+      `<div slot="second-slot"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>`,
     );
     // back we go!
     expect(

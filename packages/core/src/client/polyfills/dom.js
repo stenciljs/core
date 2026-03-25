@@ -15,7 +15,7 @@
   );
   function g(a) {
     var b = aa.has(a);
-    a = /^[a-z][.0-9_a-z]*-[\-.0-9_a-z]*$/.test(a);
+    a = /^[a-z][.0-9_a-z]*-[-.0-9_a-z]*$/.test(a);
     return !b && a;
   }
   function l(a) {

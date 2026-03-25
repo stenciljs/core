@@ -173,7 +173,7 @@ describe('hydrate scoped', () => {
       hydrateServerSide: true,
     });
     expect(serverHydrated.root).toEqualHtml(`
-      <cmp-a class=\"hydrated\" s-id=\"1\">
+      <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <div  class="wrapper" c-id="1.0.0.0">
           <p class="hi" c-id="1.1.1.0">
@@ -190,10 +190,10 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root.querySelector('p').className).toBe('hi sc-cmp-a-s sc-cmp-a');
 
     expect(clientHydrated.root).toEqualHtml(`
-      <cmp-a class=\"hydrated sc-cmp-a-h\">
+      <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <div class=\"wrapper sc-cmp-a\">
-          <p class=\"hi sc-cmp-a-s sc-cmp-a\">
+        <div class="wrapper sc-cmp-a">
+          <p class="hi sc-cmp-a-s sc-cmp-a">
             <!--s.1.2.2.0.-->
           </p>
         </div>

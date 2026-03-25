@@ -186,7 +186,7 @@ export class LocalValue {
    * @param {Symbol} symbol - The Symbol value
    * @returns {LocalValue} - The created LocalValue object
    */
-  static createSymbolValue(symbol: Symbol) {
+  static createSymbolValue(symbol: symbol) {
     // Store the symbol description or 'Symbol()' if undefined
     const description = symbol.description || 'Symbol()';
     return new LocalValue(NonPrimitiveType.Symbol, description);
@@ -210,7 +210,7 @@ export class LocalValue {
       case PrimitiveType.Undefined:
         return LocalValue.createUndefinedValue();
       case NonPrimitiveType.Symbol:
-        return LocalValue.createSymbolValue(argument as Symbol);
+        return LocalValue.createSymbolValue(argument as symbol);
       case NonPrimitiveType.Object:
         if (argument === null) {
           return LocalValue.createNullValue();

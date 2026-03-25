@@ -184,7 +184,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     const pos = position();
 
     // prop
-    let prop = match(/^(\*?[-#\/\*\\\w]+(\[[0-9a-z_-]+\])?)\s*/);
+    let prop = match(/^(\*?[-#/*\\\w]+(\[[0-9a-z_-]+\])?)\s*/);
     if (!prop) return null;
     prop = trim(prop[0]);
 
@@ -192,7 +192,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     if (!match(/^:\s*/)) return error(`property missing ':'`);
 
     // val
-    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^\)]*?\)|[^};])+)/);
+    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
 
     const ret = pos({
       type: CssNodeType.Declaration,
@@ -522,7 +522,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
       // Check if this looks like a nested rule (look ahead for '{')
       // Nested rules can start with &, :, or be selectors (class, id, element, attribute)
-      if (nextChar === '&' || nextChar === ':' || /[a-zA-Z\.\#\[]/.test(nextChar)) {
+      if (nextChar === '&' || nextChar === ':' || /[a-zA-Z.#[]/.test(nextChar)) {
         // Look ahead to see if there's a '{' before a declaration-style ':'
         // For selectors starting with '&' or ':', we need special handling
         let hasOpenBrace = false;

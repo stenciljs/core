@@ -37,8 +37,8 @@ let isSvgMode = false;
  * These ensure that ref callbacks are called in the correct order:
  * first all removal callbacks (with null), then all attachment callbacks (with elements).
  */
-let refCallbacksToRemove: Array<() => void> = [];
-let refCallbacksToAttach: Array<() => void> = [];
+const refCallbacksToRemove: Array<() => void> = [];
+const refCallbacksToAttach: Array<() => void> = [];
 
 /**
  * Create a DOM Node corresponding to one of the children of a given VNode.

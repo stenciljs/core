@@ -2,5 +2,5 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "singleQuote": true,
   "jsxSingleQuote": true,
-  "ignorePatterns": ["**/dist/**", "**/*.d.ts"]
+  "ignorePatterns": ["**/dist/**", "**/*.d.ts", "packages/core/src/client/polyfills/**"]
 }

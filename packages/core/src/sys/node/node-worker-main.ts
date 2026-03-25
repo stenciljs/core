@@ -104,7 +104,7 @@ export class NodeWorkerMain extends EventEmitter {
       }
     });
 
-    if (!success || /^win/.test(process.platform)) {
+    if (!success || process.platform.startsWith('win')) {
       this.processQueue = false;
     }
   }

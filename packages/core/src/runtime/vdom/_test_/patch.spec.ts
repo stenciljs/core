@@ -384,7 +384,7 @@ describe('renderer', () => {
           const vnode2 = h(
             'span',
             { key: 'span' },
-            ...[spanNum(1), h('i', { key: 2 }, '2'), spanNum(3)],
+            spanNum(1), h('i', { key: 2 }, '2'), spanNum(3),
           );
           patch(vnode0, vnode1);
           expect(map(inner, hostElm.children)).toEqual(['1', '2', '3']);
@@ -677,7 +677,7 @@ describe('renderer', () => {
 
       it('supports all null/undefined children', () => {
         const vnode1 = h('v1', null, ...[0, 1, 2, 3, 4, 5].map(spanNum));
-        const vnode2 = h('v2', null, ...[null, null, undefined, null, null, undefined]);
+        const vnode2 = h('v2', null, null, null, undefined, null, null, undefined);
         const vnode3 = h('v3', null, ...[5, 4, 3, 2, 1, 0].map(spanNum));
 
         patch(vnode0, vnode1);
@@ -732,8 +732,8 @@ describe('renderer', () => {
       });
 
       it('handles unmoved text nodes', () => {
-        const vnode1 = h('div', null, ...['Text', h('span', null, 'Span')]);
-        const vnode2 = h('div', null, ...['Text', h('span', null, 'Span')]);
+        const vnode1 = h('div', null, 'Text', h('span', null, 'Span'));
+        const vnode2 = h('div', null, 'Text', h('span', null, 'Span'));
 
         patch(vnode0, vnode1);
         expect(hostElm.childNodes[0].textContent).toEqual('Text');
@@ -743,8 +743,8 @@ describe('renderer', () => {
       });
 
       it('handles changing text children', () => {
-        const vnode1 = h('div', null, ...['Text', h('span', null, 'Span')]);
-        const vnode2 = h('div', null, ...['Text2', h('span', null, 'Span')]);
+        const vnode1 = h('div', null, 'Text', h('span', null, 'Span'));
+        const vnode2 = h('div', null, 'Text2', h('span', null, 'Span'));
 
         patch(vnode0, vnode1);
         expect(hostElm.childNodes[0].textContent).toEqual('Text');
@@ -754,8 +754,8 @@ describe('renderer', () => {
       });
 
       it('prepends element', () => {
-        const vnode1 = h('div', null, ...[h('span', null, 'World')]);
-        const vnode2 = h('div', null, ...[h('span', null, 'Hello'), h('span', null, 'World')]);
+        const vnode1 = h('div', null, h('span', null, 'World'));
+        const vnode2 = h('div', null, h('span', null, 'Hello'), h('span', null, 'World'));
 
         patch(vnode0, vnode1);
         expect(map(inner, hostElm.children)).toEqual(['World']);
@@ -765,8 +765,8 @@ describe('renderer', () => {
       });
 
       it('prepends element of different tag type', () => {
-        const vnode1 = h('div', null, ...[h('span', null, 'World')]);
-        const vnode2 = h('div', null, ...[h('div', null, 'Hello'), h('span', null, 'World')]);
+        const vnode1 = h('div', null, h('span', null, 'World'));
+        const vnode2 = h('div', null, h('div', null, 'Hello'), h('span', null, 'World'));
 
         patch(vnode0, vnode1);
         expect(map(inner, hostElm.children)).toEqual(['World']);
@@ -780,9 +780,9 @@ describe('renderer', () => {
         const vnode1 = h(
           'div',
           null,
-          ...[h('span', null, 'One'), h('span', null, 'Two'), h('span', null, 'Three')],
+          h('span', null, 'One'), h('span', null, 'Two'), h('span', null, 'Three'),
         );
-        const vnode2 = h('div', null, ...[h('span', null, 'One'), h('span', null, 'Three')]);
+        const vnode2 = h('div', null, h('span', null, 'One'), h('span', null, 'Three'));
 
         patch(vnode0, vnode1);
         expect(map(inner, hostElm.children)).toEqual(['One', 'Two', 'Three']);
@@ -804,7 +804,7 @@ describe('renderer', () => {
 
       it('removes a single text node when children are updated', () => {
         const vnode1 = h('div', null, 'One');
-        const vnode2 = h('div', null, ...[h('div', null, 'Two'), h('span', null, 'Three')]);
+        const vnode2 = h('div', null, h('div', null, 'Two'), h('span', null, 'Three'));
 
         patch(vnode0, vnode1);
         expect(hostElm.textContent).toEqual('One');
@@ -830,8 +830,8 @@ describe('renderer', () => {
       });
 
       it('removes a text node among other elements', () => {
-        const vnode1 = h('div', null, ...['One', h('span', null, 'Two')]);
-        const vnode2 = h('div', null, ...[h('div', null, 'Three')]);
+        const vnode1 = h('div', null, 'One', h('span', null, 'Two'));
+        const vnode2 = h('div', null, h('div', null, 'Three'));
 
         patch(vnode0, vnode1);
         expect(map(prop('textContent'), hostElm.childNodes)).toEqual(['One', 'Two']);
@@ -847,12 +847,12 @@ describe('renderer', () => {
         const vnode1 = h(
           'div',
           null,
-          ...[h('span', null, 'One'), h('div', null, 'Two'), h('b', null, 'Three')],
+          h('span', null, 'One'), h('div', null, 'Two'), h('b', null, 'Three'),
         );
         const vnode2 = h(
           'div',
           null,
-          ...[h('b', null, 'Three'), h('span', null, 'One'), h('div', null, 'Two')],
+          h('b', null, 'Three'), h('span', null, 'One'), h('div', null, 'Two'),
         );
 
         patch(vnode0, vnode1);
@@ -864,16 +864,16 @@ describe('renderer', () => {
       });
 
       it('supports null/undefined children', () => {
-        const vnode1 = h('i', null, ...[null, h('i', null, '1'), h('i', null, '2'), null]);
+        const vnode1 = h('i', null, null, h('i', null, '1'), h('i', null, '2'), null);
         const vnode2 = h(
           'i',
           null,
-          ...[h('i', null, '2'), undefined, undefined, h('i', null, '1'), undefined],
+          h('i', null, '2'), undefined, undefined, h('i', null, '1'), undefined,
         );
         const vnode3 = h(
           'i',
           null,
-          ...[null, h('i', null, '1'), undefined, null, h('i', null, '2'), undefined, null],
+          null, h('i', null, '1'), undefined, null, h('i', null, '2'), undefined, null,
         );
 
         patch(vnode0, vnode1);
@@ -887,9 +887,9 @@ describe('renderer', () => {
       });
 
       it('supports all null/undefined children', () => {
-        const vnode1 = h('i', null, ...[h('i', null, '1'), h('i', null, '2')]);
-        const vnode2 = h('i', null, ...[null, null, undefined]);
-        const vnode3 = h('i', null, ...[h('i', null, '2'), h('i', null, '1')]);
+        const vnode1 = h('i', null, h('i', null, '1'), h('i', null, '2'));
+        const vnode2 = h('i', null, null, null, undefined);
+        const vnode3 = h('i', null, h('i', null, '2'), h('i', null, '1'));
 
         patch(vnode0, vnode1);
 

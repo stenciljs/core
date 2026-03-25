@@ -364,7 +364,7 @@ function buildExtendsTree(
     } catch (_e) {
       // sad path (>1 levels removed or node_modules): the extends type does not resolve so let's find it manually:
 
-      let currentSource: ts.SourceFile =
+      const currentSource: ts.SourceFile =
         classDeclaration.getSourceFile() ?? extendee.getSourceFile() ?? ogModule?.staticSourceFile;
       let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
 

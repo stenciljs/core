@@ -46,7 +46,7 @@ describe('vdom-relocation', () => {
     expect(root).toEqualHtml(`
 <my-root>
   <my-child>
-    <div class=\"wrapper\">
+    <div class="wrapper">
       <div>
         1
       </div>
@@ -66,7 +66,7 @@ describe('vdom-relocation', () => {
     expect(root).toEqualHtml(`
   <my-root>
     <my-child>
-      <div class=\"wrapper\">
+      <div class="wrapper">
         <div>
           1
         </div>
