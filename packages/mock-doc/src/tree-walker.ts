@@ -4,7 +4,6 @@ import type { MockElement } from './node';
  * NodeFilter constants for use in Node.js environment.
  */
 const FILTER_ACCEPT = 1;
-const FILTER_REJECT = 2;
 const FILTER_SKIP = 3;
 
 /**
