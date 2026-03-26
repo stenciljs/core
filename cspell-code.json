@@ -11,7 +11,7 @@
   "ignoreRegExpList": [
     "/`[a-zA-Z-_., /*']+`/g"
   ],
-  "ignorePaths": ["**/node_modules/**", "**/third-party/**"],
+  "ignorePaths": ["**/node_modules/**"],
   "includeRegExpList": [
     "CStyleComment"
   ]
