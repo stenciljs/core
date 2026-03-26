@@ -6,7 +6,7 @@ describe('radio-group-blur', () => {
     const { waitForChanges } = await render(<radio-group-blur-test />);
     await waitForExist('radio-group-blur-test.hydrated');
     await waitForExist('ion-radio.hydrated');
-    
+
     expect(document.querySelector('#blur-count')).toHaveTextContent('0');
 
     const radio = document.querySelector('ion-radio')!;

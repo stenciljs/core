@@ -7,7 +7,7 @@ export class SlotLightList {
   render() {
     return [
       <section>These are my items:</section>,
-      <article class="list-wrapper" style={{ border: '2px solid blue' }}>
+      <article class='list-wrapper' style={{ border: '2px solid blue' }}>
         <slot></slot>
       </article>,
       <div>That's it....</div>,

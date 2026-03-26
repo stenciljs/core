@@ -1,3 +1,5 @@
+import nwsapi from 'nwsapi';
+
 import { MockAttr } from './attribute';
 import { MockComment } from './comment-node';
 import { NODE_NAMES, NODE_TYPES } from './constants';
@@ -8,12 +10,35 @@ import { resetEventListeners } from './event';
 import { MockElement, MockHTMLElement, MockTextNode, resetElement } from './node';
 import { parseHtmlToFragment } from './parse-html';
 import { parseDocumentUtil } from './parse-util';
+import { MockTreeWalker } from './tree-walker';
 import { MockWindow } from './window';
+
+/**
+ * Interface for nwsapi instance methods we use.
+ */
+interface NwsapiInstance {
+  configure(config: { LOGERRORS?: boolean; VERBOSITY?: boolean }): void;
+  match(selector: string, element: unknown): boolean;
+  first(selector: string, context: unknown): unknown | null;
+  select(selector: string, context: unknown): unknown[];
+  closest(selector: string, element: unknown): unknown | null;
+}
 
 export class MockDocument extends MockHTMLElement {
   defaultView: any;
   cookie: string;
   referrer: string;
+  /**
+   * Returns 'CSS1Compat' for standards mode (the default).
+   * Required by nwsapi for quirks mode detection.
+   */
+  readonly compatMode = 'CSS1Compat';
+  /**
+   * Returns the MIME type of the document.
+   * Required by nwsapi for HTML document detection.
+   */
+  readonly contentType = 'text/html';
+  #nwsapi: NwsapiInstance | null = null;
 
   constructor(html: string | boolean | null = null, win: any = null) {
     super(null, null);
@@ -40,6 +65,36 @@ export class MockDocument extends MockHTMLElement {
       documentElement.appendChild(new MockHTMLElement(this, 'head'));
       documentElement.appendChild(new MockHTMLElement(this, 'body'));
     }
+  }
+
+  /**
+   * Get the nwsapi instance for this document.
+   * Lazily creates one if it doesn't exist.
+   * Creates a window if the document doesn't have one.
+   */
+  _getDOMSelector(): NwsapiInstance {
+    if (!this.#nwsapi) {
+      // Ensure we have a window for nwsapi
+      if (!this.defaultView) {
+        const win = new MockWindow(false);
+        (win as { document: unknown }).document = this;
+        this.defaultView = win;
+      }
+      // nwsapi expects a global-like object with document property
+      this.#nwsapi = nwsapi({ document: this });
+      this.#nwsapi.configure({
+        LOGERRORS: false,
+        VERBOSITY: false,
+      });
+    }
+    return this.#nwsapi;
+  }
+
+  /**
+   * Clear the nwsapi cache. Call this when the document structure changes significantly.
+   */
+  _clearDOMSelector(): void {
+    this.#nwsapi = null;
   }
 
   override get dir() {
@@ -217,6 +272,18 @@ export class MockDocument extends MockHTMLElement {
 
   createDocumentTypeNode() {
     return new MockDocumentTypeNode(this);
+  }
+
+  /**
+   * Creates a TreeWalker for traversing the document tree.
+   * This is a simplified implementation for dom-selector compatibility.
+   */
+  createTreeWalker(
+    root: MockElement,
+    whatToShow = 0xffffffff,
+    filter: NodeFilter | null = null,
+  ): TreeWalker {
+    return new MockTreeWalker(root, whatToShow, filter);
   }
 
   getElementById(id: string) {

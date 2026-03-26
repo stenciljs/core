@@ -1,10 +1,18 @@
 {
   "name": "@stencil-core-tests/bundler-component-library",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "description": "Test component library for bundler integration tests",
+  "license": "MIT",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "unpkg": "dist/component-library/component-library.esm.js",
+  "es2015": "dist/esm/index.mjs",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -15,16 +23,6 @@
       "require": "./loader/index.cjs"
     }
   },
-  "es2015": "dist/esm/index.mjs",
-  "es2017": "dist/esm/index.mjs",
-  "types": "dist/types/index.d.ts",
-  "collection": "dist/collection/collection-manifest.json",
-  "collection:main": "dist/collection/index.js",
-  "unpkg": "dist/component-library/component-library.esm.js",
-  "files": [
-    "dist/",
-    "loader/"
-  ],
   "scripts": {
     "build": "stencil build --docs",
     "start": "stencil build --dev --watch --serve"
@@ -32,8 +30,10 @@
   "dependencies": {
     "@stencil/core": "workspace:*"
   },
-  "license": "MIT",
   "volta": {
     "extends": "../../../../package.json"
-  }
+  },
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "es2017": "dist/esm/index.mjs"
 }

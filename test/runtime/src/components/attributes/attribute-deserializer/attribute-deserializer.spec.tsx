@@ -3,7 +3,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 describe('attribute-deserializer', () => {
   it('correctly deserializes basic attributes', async () => {
     const { root, waitForChanges } = await render<HTMLAttributeDeserializerElement>(
-      `<attribute-deserializer bool array="[1,2,3]" json='{"foo":"bar"}' get-set='{"foo":"bar"}'></attribute-deserializer>`
+      `<attribute-deserializer bool array="[1,2,3]" json='{"foo":"bar"}' get-set='{"foo":"bar"}'></attribute-deserializer>`,
     );
     await waitForExist('attribute-deserializer.hydrated');
 
@@ -53,10 +53,9 @@ describe('attribute-deserializer', () => {
 
   it('correctly deserializes get / set properties in the correct order', async () => {
     const { root, waitForChanges } = await render<HTMLAttributeDeserializerElement>(
-      `<attribute-deserializer bool array="[1,2,3]" json='{"foo":"bar"}' get-set='{"foo":"bar"}'></attribute-deserializer>`
+      `<attribute-deserializer bool array="[1,2,3]" json='{"foo":"bar"}' get-set='{"foo":"bar"}'></attribute-deserializer>`,
     );
     await waitForExist('attribute-deserializer.hydrated');
-
 
     expect(root.getSet).toEqual({ foo: 'bar' });
     // On initial load: deserializer ('1.') and setter ('2.') fire, but NOT watcher ('3.')

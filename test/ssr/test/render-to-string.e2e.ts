@@ -84,11 +84,14 @@ test.describe('renderToString API', () => {
   });
 
   test('can render a scoped component within a shadow component', async () => {
-    const { html } = await renderToString(`<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`, {
-      serializeShadowRoot: true,
-      fullDocument: false,
-      clientHydrateAnnotations: false,
-    });
+    const { html } = await renderToString(
+      `<car-list cars='${JSON.stringify([vento, beetle])}'></car-list>`,
+      {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        clientHydrateAnnotations: false,
+      },
+    );
     expect(html).toMatchSnapshot();
     expect(html).toContain(
       `<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>`,

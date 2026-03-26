@@ -11,11 +11,21 @@ describe('extends-abstract', () => {
       const { root } = await render(<extends-abstract />);
 
       // Main component values (overridden defaults)
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: default text');
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: ExtendedCmp prop2 text');
-      expect(root.querySelector('.main-getter-prop')).toHaveTextContent('Main class getterProp: getter default value');
-      expect(root.querySelector('.main-state-1')).toHaveTextContent('Main class state1: default state text');
-      expect(root.querySelector('.main-state-2')).toHaveTextContent('Main class state2: ExtendedCmp state2 text');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: default text',
+      );
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: ExtendedCmp prop2 text',
+      );
+      expect(root.querySelector('.main-getter-prop')).toHaveTextContent(
+        'Main class getterProp: getter default value',
+      );
+      expect(root.querySelector('.main-state-1')).toHaveTextContent(
+        'Main class state1: default state text',
+      );
+      expect(root.querySelector('.main-state-2')).toHaveTextContent(
+        'Main class state2: ExtendedCmp state2 text',
+      );
     });
 
     it('re-renders values via attributes', async () => {
@@ -25,8 +35,12 @@ describe('extends-abstract', () => {
       root.setAttribute('prop-2', 'base via attribute');
       await waitForChanges();
 
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main via attribute');
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: base via attribute');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main via attribute',
+      );
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: base via attribute',
+      );
     });
 
     it('re-renders values via props', async () => {
@@ -36,8 +50,12 @@ describe('extends-abstract', () => {
       (root as any).prop2 = 'base via prop';
       await waitForChanges();
 
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main via prop');
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: base via prop');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main via prop',
+      );
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: base via prop',
+      );
     });
 
     it('calls watch handlers', async () => {
@@ -72,11 +90,15 @@ describe('extends-abstract', () => {
 
       await (root as any).method1();
       await waitForChanges();
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main class method1 called');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main class method1 called',
+      );
 
       await (root as any).method2();
       await waitForChanges();
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: ExtendedCmp method2 called');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: ExtendedCmp method2 called',
+      );
     });
   });
 });

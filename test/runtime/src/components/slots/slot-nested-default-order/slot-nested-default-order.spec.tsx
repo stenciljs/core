@@ -8,7 +8,9 @@ describe('slot-nested-default-order', () => {
       </slot-nested-default-order-parent>,
     );
 
-    const childCmps = root.querySelectorAll('slot-nested-default-order-parent slot-nested-default-order-child > *');
+    const childCmps = root.querySelectorAll(
+      'slot-nested-default-order-parent slot-nested-default-order-child > *',
+    );
 
     expect(childCmps).toHaveLength(2);
     expect(childCmps[0].tagName.toLowerCase()).toBe('div');

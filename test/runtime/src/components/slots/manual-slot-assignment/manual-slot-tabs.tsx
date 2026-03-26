@@ -81,7 +81,9 @@ export class ManualSlotTabs {
     if (!this.activeSlot) return;
 
     const tabs = this.el.querySelectorAll('[slot^="tab-"]');
-    const activeTabElement = Array.from(tabs).find((tab) => tab.getAttribute('slot') === `tab-${this.activeTab}`);
+    const activeTabElement = Array.from(tabs).find(
+      (tab) => tab.getAttribute('slot') === `tab-${this.activeTab}`,
+    );
 
     // Manually assign only the active tab to the slot
     if (activeTabElement) {
@@ -97,22 +99,28 @@ export class ManualSlotTabs {
 
   render() {
     return [
-      <div class="tabs">
+      <div class='tabs'>
         <button
           ref={(el) => (this.btns[0] = el as HTMLButtonElement)}
-          class="active"
+          class='active'
           onClick={() => this.handleTabClick(0)}
         >
           Tab 1
         </button>
-        <button ref={(el) => (this.btns[1] = el as HTMLButtonElement)} onClick={() => this.handleTabClick(1)}>
+        <button
+          ref={(el) => (this.btns[1] = el as HTMLButtonElement)}
+          onClick={() => this.handleTabClick(1)}
+        >
           Tab 2
         </button>
-        <button ref={(el) => (this.btns[2] = el as HTMLButtonElement)} onClick={() => this.handleTabClick(2)}>
+        <button
+          ref={(el) => (this.btns[2] = el as HTMLButtonElement)}
+          onClick={() => this.handleTabClick(2)}
+        >
           Tab 3
         </button>
       </div>,
-      <div class="content">
+      <div class='content'>
         <slot ref={(el) => (this.activeSlot = el)}></slot>
       </div>,
     ];

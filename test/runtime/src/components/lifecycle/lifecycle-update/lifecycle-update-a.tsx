@@ -52,7 +52,7 @@ export class LifecycleUpdateA {
   render() {
     return (
       <div>
-        <button onClick={this.testClick.bind(this)} class="test">
+        <button onClick={this.testClick.bind(this)} class='test'>
           Add Child Components
         </button>
         <hr />

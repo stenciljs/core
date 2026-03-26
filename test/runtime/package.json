@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "main": "dist/lazy/index.cjs.js",
-  "collection": "dist/lazy/collection/collection-manifest.json",
   "scripts": {
     "build:external": "pnpm --filter @stencil-core-tests/runtime-external build",
     "test": "pnpm build:external && stencil-test --prod",
@@ -12,8 +11,8 @@
     "test:custom-elements": "pnpm build:external && stencil-test --project custom-elements"
   },
   "dependencies": {
-    "@stencil/core": "workspace:*",
-    "@stencil-core-tests/runtime-external": "workspace:*"
+    "@stencil-core-tests/runtime-external": "workspace:*",
+    "@stencil/core": "workspace:*"
   },
   "devDependencies": {
     "@stencil/sass": "^3.0.12",
@@ -26,5 +25,6 @@
   },
   "volta": {
     "extends": "../../package.json"
-  }
+  },
+  "collection": "dist/lazy/collection/collection-manifest.json"
 }

@@ -8,7 +8,9 @@ export class DynamicCssVariables {
   @State() bgColor = 'white';
 
   getBackgroundStyle() {
-    return this.bgColor && this.bgColor !== 'white' ? { background: this.bgColor, '--font-color': 'white' } : {};
+    return this.bgColor && this.bgColor !== 'white'
+      ? { background: this.bgColor, '--font-color': 'white' }
+      : {};
   }
 
   changeColor() {

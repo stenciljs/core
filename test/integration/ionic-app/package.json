@@ -1,13 +1,13 @@
 {
   "name": "@stencil-core-tests/integration-ionic-app",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "description": "ionic-app",
   "license": "MIT",
-  "type": "module",
   "files": [
     "dist/"
   ],
+  "type": "module",
   "scripts": {
     "build": "stencil build",
     "build.dev": "stencil build --dev",

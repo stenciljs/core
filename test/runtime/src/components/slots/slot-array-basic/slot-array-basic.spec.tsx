@@ -4,24 +4,25 @@ describe('slot array basic', () => {
   it('renders slotted content between header/footer', async () => {
     await render(
       <div>
-        <slot-array-basic class="results1"></slot-array-basic>
+        <slot-array-basic class='results1'></slot-array-basic>
 
-        <slot-array-basic class="results2">
+        <slot-array-basic class='results2'>
           <content-top>Content</content-top>
         </slot-array-basic>
 
-        <slot-array-basic class="results3">
+        <slot-array-basic class='results3'>
           <content-top>Content Top</content-top>
           <content-bottom>Content Bottom</content-bottom>
         </slot-array-basic>
 
-        <slot-array-basic class="results4">
+        <slot-array-basic class='results4'>
           <content-top>Content Top</content-top>
           <content-middle>Content Middle</content-middle>
           <content-bottom>Content Bottom</content-bottom>
         </slot-array-basic>
       </div>,
-     {waitForReady: false});
+      { waitForReady: false },
+    );
 
     await waitForExist('.results1.hydrated');
     let children = document.querySelectorAll('.results1 > *');

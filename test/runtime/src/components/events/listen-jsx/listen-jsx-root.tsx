@@ -11,6 +11,9 @@ export class ListenJsxRoot {
   };
 
   render() {
-    return [<span id="result-root">{this.wasClicked}</span>, <listen-jsx onClick={this.onClick}></listen-jsx>];
+    return [
+      <span id='result-root'>{this.wasClicked}</span>,
+      <listen-jsx onClick={this.onClick}></listen-jsx>,
+    ];
   }
 }

@@ -4,7 +4,7 @@ describe('exclude-component', () => {
   it('should not define the excluded component', async (ctx) => {
     if (!__STENCIL_PROD__) ctx.skip(); // excludeComponents only works in production builds
 
-    const { root } = await render(<exclude-component-root />, {waitForReady: false});
+    const { root } = await render(<exclude-component-root />, { waitForReady: false });
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // The excluded-component element should not exist in the DOM
@@ -20,7 +20,7 @@ describe('exclude-component', () => {
   it('should not render excluded component content', async (ctx) => {
     if (!__STENCIL_PROD__) ctx.skip(); // excludeComponents only works in production builds
 
-    const { root } = await render(<exclude-component-root />, {waitForReady: false});
+    const { root } = await render(<exclude-component-root />, { waitForReady: false });
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // The excluded component's content should not be rendered
@@ -31,7 +31,7 @@ describe('exclude-component', () => {
   it('should not be hydrated', async (ctx) => {
     if (!__STENCIL_PROD__) ctx.skip(); // excludeComponents only works in production builds
 
-    const { root } = await render(<exclude-component-root />, {waitForReady: false});
+    const { root } = await render(<exclude-component-root />, { waitForReady: false });
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // The root component should not have the hydrated class

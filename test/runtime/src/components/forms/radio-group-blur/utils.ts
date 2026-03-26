@@ -52,7 +52,9 @@ export const compareOptions = (
   } else if (typeof compareWith === 'string') {
     return currentValue[compareWith] === compareValue[compareWith];
   } else {
-    return Array.isArray(compareValue) ? compareValue.includes(currentValue) : currentValue === compareValue;
+    return Array.isArray(compareValue)
+      ? compareValue.includes(currentValue)
+      : currentValue === compareValue;
   }
 };
 

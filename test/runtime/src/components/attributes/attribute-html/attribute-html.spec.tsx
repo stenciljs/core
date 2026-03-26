@@ -3,7 +3,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 describe('attribute-html', () => {
   it('should have proper values', async () => {
     const { root } = await render(
-      `<attribute-html-root str-attr="my string" any-attr="0" nu-attr="12" />`
+      `<attribute-html-root str-attr="my string" any-attr="0" nu-attr="12" />`,
     );
 
     await waitForExist('#str-attr');

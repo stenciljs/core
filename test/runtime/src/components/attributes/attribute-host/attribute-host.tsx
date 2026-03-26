@@ -45,7 +45,9 @@ export class AttributeHost {
     }
 
     return [
-      <button onClick={this.testClick.bind(this)}>{this.attrsAdded ? 'Remove' : 'Add'} Attributes</button>,
+      <button onClick={this.testClick.bind(this)}>
+        {this.attrsAdded ? 'Remove' : 'Add'} Attributes
+      </button>,
       <section
         {...propsToRender}
         style={{

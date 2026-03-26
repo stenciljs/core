@@ -2,7 +2,13 @@ import { Component, Listen, Prop, h } from '@stencil/core';
 
 @Component({
   tag: 'listen-cmp',
-  styles: `listen-cmp { display: block; padding: 10px; background: #eee; }`,
+  styles: `
+    listen-cmp {
+      display: block;
+      padding: 10px;
+      background: #eee;
+    }
+  `,
 })
 export class ListenCmp {
   @Prop({ mutable: true }) opened = false;

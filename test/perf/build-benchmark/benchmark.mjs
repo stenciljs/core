@@ -21,7 +21,12 @@ const RESULTS_FILE = path.join(__dirname, 'benchmark-results.json');
 const SUMMARY_FILE = path.join(__dirname, 'benchmark-results.md');
 
 function getStencilVersion() {
-  const pkg = JSON.parse(fs.readFileSync(path.join(E2E_DIR, 'node_modules', '@stencil', 'core', 'package.json'), 'utf-8'));
+  const pkg = JSON.parse(
+    fs.readFileSync(
+      path.join(E2E_DIR, 'node_modules', '@stencil', 'core', 'package.json'),
+      'utf-8',
+    ),
+  );
   return pkg.version;
 }
 

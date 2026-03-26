@@ -18,7 +18,7 @@ export class ScopedConditional {
         {/* Note: Need the conditional's first half, _and_ the innerHTML attr */}
         {/* Interestingly, if we replace innerHTML with a text node as a child of the <div>, */}
         {/* we get a separate error where the slot doesn't get put in the correct place */}
-        {this.renderHello && <div class="tag" innerHTML={'Hello'} />}
+        {this.renderHello && <div class='tag' innerHTML={'Hello'} />}
         {/* This div below must be there too */}
         <div>
           before slot-&gt;

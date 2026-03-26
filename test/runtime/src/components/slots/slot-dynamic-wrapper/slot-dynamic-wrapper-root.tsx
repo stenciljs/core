@@ -17,7 +17,7 @@ export class SlotDynamicWrapperRoot {
   render() {
     return [
       <button onClick={this.changeWrapper.bind(this)}>Change Wrapper</button>,
-      <slot-dynamic-wrapper tag={this.tag} class="results1">
+      <slot-dynamic-wrapper tag={this.tag} class='results1'>
         <h1>parent text</h1>
       </slot-dynamic-wrapper>,
     ];

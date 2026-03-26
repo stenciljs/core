@@ -18,7 +18,7 @@ export class MyApp {
           Scoped parent with named slot.
           <shadow-ssr-child-cmp>
             <slot />
-            <slot name="things" />
+            <slot name='things' />
           </shadow-ssr-child-cmp>
         </div>
       </Host>

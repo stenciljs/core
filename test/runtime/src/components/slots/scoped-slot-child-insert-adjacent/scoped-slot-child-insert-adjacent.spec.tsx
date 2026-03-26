@@ -23,7 +23,10 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
 
       // insert an additional <p> elm
-      host.insertAdjacentHTML('beforeend', `<p>Added via insertAdjacentHTMLBeforeEnd. I should have a red background.</p>`);
+      host.insertAdjacentHTML(
+        'beforeend',
+        `<p>Added via insertAdjacentHTMLBeforeEnd. I should have a red background.</p>`,
+      );
 
       // now we should have 2 <p> elms
       paragraphElms = host.querySelectorAll('p');
@@ -33,7 +36,9 @@ describe('scoped-slot-child-insert-adjacent', () => {
       // 1. have the <div> as it's parent
       // 2. the <div> should have the same style (which gets acquired by both <p> elms)
       const secondParagraph = paragraphElms[1];
-      expect(secondParagraph.textContent).toBe('Added via insertAdjacentHTMLBeforeEnd. I should have a red background.');
+      expect(secondParagraph.textContent).toBe(
+        'Added via insertAdjacentHTMLBeforeEnd. I should have a red background.',
+      );
       expect(secondParagraph.parentElement).toBe(parentDiv);
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
     });
@@ -59,7 +64,10 @@ describe('scoped-slot-child-insert-adjacent', () => {
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
 
       // insert an additional <p> elm
-      host.insertAdjacentHTML('afterbegin', `<p>Added via insertAdjacentHTMLAfterBegin. I should have a red background.</p>`);
+      host.insertAdjacentHTML(
+        'afterbegin',
+        `<p>Added via insertAdjacentHTMLAfterBegin. I should have a red background.</p>`,
+      );
 
       // now we should have 2 <p> elms
       paragraphElms = host.querySelectorAll('p');
@@ -69,7 +77,9 @@ describe('scoped-slot-child-insert-adjacent', () => {
       // 1. have the <div> as it's parent
       // 2. the <div> should have the same style (which gets acquired by both <p> elms)
       const insertedParagraph = paragraphElms[0];
-      expect(insertedParagraph.textContent).toBe('Added via insertAdjacentHTMLAfterBegin. I should have a red background.');
+      expect(insertedParagraph.textContent).toBe(
+        'Added via insertAdjacentHTMLAfterBegin. I should have a red background.',
+      );
       expect(insertedParagraph.parentElement).toBe(parentDiv);
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
     });
@@ -88,11 +98,16 @@ describe('scoped-slot-child-insert-adjacent', () => {
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
 
       expect(parentDiv).toBeDefined();
-      expect(parentDiv.textContent).toBe('Here is my slot. It is red.I am slotted and will receive a red background');
+      expect(parentDiv.textContent).toBe(
+        'Here is my slot. It is red.I am slotted and will receive a red background',
+      );
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
 
       // insert an additional text node
-      host.insertAdjacentText('beforeend', `Added via insertAdjacentTextBeforeEnd. I should have a red background.`);
+      host.insertAdjacentText(
+        'beforeend',
+        `Added via insertAdjacentTextBeforeEnd. I should have a red background.`,
+      );
 
       expect(parentDiv.textContent).toBe(
         'Here is my slot. It is red.I am slotted and will receive a red backgroundAdded via insertAdjacentTextBeforeEnd. I should have a red background.',
@@ -112,11 +127,16 @@ describe('scoped-slot-child-insert-adjacent', () => {
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
 
       expect(parentDiv).toBeDefined();
-      expect(parentDiv.textContent).toBe('Here is my slot. It is red.I am slotted and will receive a red background');
+      expect(parentDiv.textContent).toBe(
+        'Here is my slot. It is red.I am slotted and will receive a red background',
+      );
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
 
       // insert an additional text node
-      host.insertAdjacentText('afterbegin', `Added via insertAdjacentTextAfterBegin. I should have a red background.`);
+      host.insertAdjacentText(
+        'afterbegin',
+        `Added via insertAdjacentTextAfterBegin. I should have a red background.`,
+      );
 
       expect(parentDiv.textContent).toBe(
         'Here is my slot. It is red.Added via insertAdjacentTextAfterBegin. I should have a red background.I am slotted and will receive a red background',
@@ -150,7 +170,9 @@ describe('scoped-slot-child-insert-adjacent', () => {
 
       children = parentDiv.children;
       expect(children.length).toBe(2);
-      expect(children[1].textContent).toBe('Added via insertAdjacentElementBeforeEnd. I should have a red background.');
+      expect(children[1].textContent).toBe(
+        'Added via insertAdjacentElementBeforeEnd. I should have a red background.',
+      );
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
     });
 
@@ -178,7 +200,9 @@ describe('scoped-slot-child-insert-adjacent', () => {
 
       children = parentDiv.children;
       expect(children.length).toBe(2);
-      expect(children[0].textContent).toBe('Added via insertAdjacentElementAfterBegin. I should have a red background.');
+      expect(children[0].textContent).toBe(
+        'Added via insertAdjacentElementAfterBegin. I should have a red background.',
+      );
       expect(getComputedStyle(parentDiv).backgroundColor).toBe('rgb(255, 0, 0)');
     });
   });

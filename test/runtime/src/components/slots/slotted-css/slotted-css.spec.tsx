@@ -4,11 +4,11 @@ describe('slotted-css', () => {
   it('assign slotted css', async () => {
     const { root } = await render(
       <slotted-css>
-        <div class="red" slot="header-slot-name">
+        <div class='red' slot='header-slot-name'>
           header-slot-name: red color and border
         </div>
-        <div class="green">default slot: green background, blue border and color</div>
-        <div class="blue" slot="footer-slot-name">
+        <div class='green'>default slot: green background, blue border and color</div>
+        <div class='blue' slot='footer-slot-name'>
           footer-slot-name: blue color and border
         </div>
       </slotted-css>,

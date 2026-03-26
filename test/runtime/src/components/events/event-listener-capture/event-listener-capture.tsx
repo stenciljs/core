@@ -11,8 +11,8 @@ export class EventListenerCapture {
       <div>
         <p>Click the text below to trigger a capture style event</p>
         <div>
-          <p id="incrementer" onClickCapture={() => this.counter++}>
-            Clicked: <span id="counter">{this.counter}</span> time(s)
+          <p id='incrementer' onClickCapture={() => this.counter++}>
+            Clicked: <span id='counter'>{this.counter}</span> time(s)
           </p>
         </div>
       </div>

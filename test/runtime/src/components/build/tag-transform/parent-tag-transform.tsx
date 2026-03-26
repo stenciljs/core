@@ -31,8 +31,8 @@ export class TagTransformParent {
     return (
       <div>
         <h2>Parent Component</h2>
-        <child-tag-transform message="Hello from Parent!"></child-tag-transform>
-        <child-tag-transform message="Another Child"></child-tag-transform>
+        <child-tag-transform message='Hello from Parent!'></child-tag-transform>
+        <child-tag-transform message='Another Child'></child-tag-transform>
       </div>
     );
   }

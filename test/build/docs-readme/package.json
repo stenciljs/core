@@ -1,11 +1,12 @@
 {
   "name": "@stencil-core-tests/build-docs-readme",
   "version": "1.0.0",
-  "type": "module",
   "description": "A test app for the docs-readme output target",
+  "license": "MIT",
   "files": [
     "dist/"
   ],
+  "type": "module",
   "scripts": {
     "prepare.readmes": "node ./copy-readme.js",
     "build": "stencil build",
@@ -18,7 +19,6 @@
   "dependencies": {
     "@stencil/core": "workspace:*"
   },
-  "license": "MIT",
   "volta": {
     "extends": "../../../package.json"
   }

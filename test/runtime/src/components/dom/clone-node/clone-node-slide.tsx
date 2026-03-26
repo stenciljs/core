@@ -7,7 +7,7 @@ export class CloneNodeSlide {
   render() {
     return (
       <Host>
-        <p class="slide-content">Slide Content</p>
+        <p class='slide-content'>Slide Content</p>
         <slot></slot>
       </Host>
     );

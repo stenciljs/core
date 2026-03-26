@@ -9,12 +9,12 @@ export class IonParent {
     return (
       <Fragment>
         <label>
-          <slot name="label" />
+          <slot name='label' />
         </label>
         <ion-child>
-          <slot name="suffix" slot="suffix" />
+          <slot name='suffix' slot='suffix' />
         </ion-child>
-        <slot name="message" />
+        <slot name='message' />
       </Fragment>
     );
   }

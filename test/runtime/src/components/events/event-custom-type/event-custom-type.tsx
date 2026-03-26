@@ -31,10 +31,10 @@ export class EventCustomType {
         <p>testEvent is emitted on componentDidLoad</p>
         <div>
           <p>
-            Emission count: <span id="counter">{this.counter}</span>
+            Emission count: <span id='counter'>{this.counter}</span>
           </p>
           <p>
-            Last emitted value: <span id="lastValue">{JSON.stringify(this.lastEventValue)}</span>
+            Last emitted value: <span id='lastValue'>{JSON.stringify(this.lastEventValue)}</span>
           </p>
         </div>
       </div>

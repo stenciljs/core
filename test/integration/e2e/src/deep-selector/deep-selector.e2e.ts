@@ -34,7 +34,11 @@ test.describe('Shadow DOM piercing', () => {
     const spanCmpB = page.locator('cmp-a').locator('cmp-b').locator('span').first();
     await expect(spanCmpB).toHaveText('I am in component B');
 
-    const spanCmpC = page.locator('cmp-a').locator('div > cmp-b').locator('div cmp-c').locator('span');
+    const spanCmpC = page
+      .locator('cmp-a')
+      .locator('div > cmp-b')
+      .locator('div cmp-c')
+      .locator('span');
     await expect(spanCmpC).toHaveText('I am in component C');
 
     // we can skip through the shadow dom hierarchy

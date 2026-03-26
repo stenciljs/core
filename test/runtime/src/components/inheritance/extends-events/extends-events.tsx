@@ -42,35 +42,51 @@ export class ExtendsEvents extends EventBase {
   }
 
   triggerBaseWindowEvent() {
-    window.dispatchEvent(new Event('base-window-event', { bubbles: true, cancelable: true, composed: true }));
+    window.dispatchEvent(
+      new Event('base-window-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerBaseDocumentEvent() {
-    document.dispatchEvent(new Event('base-document-event', { bubbles: true, cancelable: true, composed: true }));
+    document.dispatchEvent(
+      new Event('base-document-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerBaseHostEvent() {
-    this.el.dispatchEvent(new Event('base-host-event', { bubbles: true, cancelable: true, composed: true }));
+    this.el.dispatchEvent(
+      new Event('base-host-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerChildWindowEvent() {
-    window.dispatchEvent(new Event('child-window-event', { bubbles: true, cancelable: true, composed: true }));
+    window.dispatchEvent(
+      new Event('child-window-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerChildDocumentEvent() {
-    document.dispatchEvent(new Event('child-document-event', { bubbles: true, cancelable: true, composed: true }));
+    document.dispatchEvent(
+      new Event('child-document-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerChildHostEvent() {
-    this.el.dispatchEvent(new Event('child-host-event', { bubbles: true, cancelable: true, composed: true }));
+    this.el.dispatchEvent(
+      new Event('child-host-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerOverrideEvent() {
-    this.el.dispatchEvent(new Event('override-event', { bubbles: true, cancelable: true, composed: true }));
+    this.el.dispatchEvent(
+      new Event('override-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   triggerBubbleEvent() {
-    this.el.dispatchEvent(new Event('bubble-event', { bubbles: true, cancelable: true, composed: true }));
+    this.el.dispatchEvent(
+      new Event('bubble-event', { bubbles: true, cancelable: true, composed: true }),
+    );
   }
 
   getCombinedEventLog(): string[] {
@@ -86,45 +102,45 @@ export class ExtendsEvents extends EventBase {
       <div>
         <h2>Event Handling Inheritance Test</h2>
 
-        <div class="event-info">
-          <p class="base-events">Base Events: {this.baseEventLog.length}</p>
-          <p class="child-events">Child Events: {this.childEventLog.length}</p>
-          <p class="total-events">Total Events: {combinedLog.length}</p>
-          <p class="global-count">Global Events: {totalGlobal}</p>
-          <p class="local-count">Local Events: {totalLocal}</p>
+        <div class='event-info'>
+          <p class='base-events'>Base Events: {this.baseEventLog.length}</p>
+          <p class='child-events'>Child Events: {this.childEventLog.length}</p>
+          <p class='total-events'>Total Events: {combinedLog.length}</p>
+          <p class='global-count'>Global Events: {totalGlobal}</p>
+          <p class='local-count'>Local Events: {totalLocal}</p>
         </div>
 
-        <div class="event-log">
-          <ul id="event-log-list">
+        <div class='event-log'>
+          <ul id='event-log-list'>
             {combinedLog.map((event, index) => (
               <li key={index}>{event}</li>
             ))}
           </ul>
         </div>
 
-        <div class="controls">
-          <button class="trigger-base-window" onClick={() => this.triggerBaseWindowEvent()}>
+        <div class='controls'>
+          <button class='trigger-base-window' onClick={() => this.triggerBaseWindowEvent()}>
             Base Window Event
           </button>
-          <button class="trigger-base-document" onClick={() => this.triggerBaseDocumentEvent()}>
+          <button class='trigger-base-document' onClick={() => this.triggerBaseDocumentEvent()}>
             Base Document Event
           </button>
-          <button class="trigger-base-host" onClick={() => this.triggerBaseHostEvent()}>
+          <button class='trigger-base-host' onClick={() => this.triggerBaseHostEvent()}>
             Base Host Event
           </button>
-          <button class="trigger-child-window" onClick={() => this.triggerChildWindowEvent()}>
+          <button class='trigger-child-window' onClick={() => this.triggerChildWindowEvent()}>
             Child Window Event
           </button>
-          <button class="trigger-child-document" onClick={() => this.triggerChildDocumentEvent()}>
+          <button class='trigger-child-document' onClick={() => this.triggerChildDocumentEvent()}>
             Child Document Event
           </button>
-          <button class="trigger-child-host" onClick={() => this.triggerChildHostEvent()}>
+          <button class='trigger-child-host' onClick={() => this.triggerChildHostEvent()}>
             Child Host Event
           </button>
-          <button class="trigger-override" onClick={() => this.triggerOverrideEvent()}>
+          <button class='trigger-override' onClick={() => this.triggerOverrideEvent()}>
             Override Event
           </button>
-          <button class="trigger-bubble" onClick={() => this.triggerBubbleEvent()}>
+          <button class='trigger-bubble' onClick={() => this.triggerBubbleEvent()}>
             Bubble Event
           </button>
         </div>

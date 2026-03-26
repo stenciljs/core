@@ -4,11 +4,11 @@ describe('slot-no-default', () => {
   it('only renders slots that have a location', async () => {
     const { root } = await render(
       <slot-no-default>
-        <a slot="a-slot-name">A-Show</a>
-        <header slot="header-slot-name">Header-No-Show</header>
+        <a slot='a-slot-name'>A-Show</a>
+        <header slot='header-slot-name'>Header-No-Show</header>
         <main>Default-Slot-No-Show</main>
-        <nav slot="nav-slot-name">Nav-Show</nav>
-        <footer slot="footer-slot-name">Footer-Show</footer>
+        <nav slot='nav-slot-name'>Nav-Show</nav>
+        <footer slot='footer-slot-name'>Footer-Show</footer>
       </slot-no-default>,
     );
 

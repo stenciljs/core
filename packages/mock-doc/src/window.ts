@@ -227,6 +227,10 @@ export class MockWindow {
     return MockElement;
   }
 
+  get DOMException() {
+    return globalThis.DOMException;
+  }
+
   fetch(input: any, init?: any): any {
     if (typeof fetch === 'function') {
       return fetch(input, init);

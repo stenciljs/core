@@ -4,9 +4,9 @@ packages:
 
 catalog:
   vitest: ^4.0.18
-  "@vitest/browser": ^4.0.18
-  "@vitest/browser-playwright": ^4.0.18
+  '@vitest/browser': ^4.0.18
+  '@vitest/browser-playwright': ^4.0.18
   playwright: ^1.52.0
-  "@playwright/test": ^1.52.0
-  "@stencil/vitest": "^1.8.0"
-  "@stencil/playwright": "1.2.3-next.11"
+  '@playwright/test': ^1.52.0
+  '@stencil/vitest': '^1.8.0'
+  '@stencil/playwright': '1.2.3-next.11'

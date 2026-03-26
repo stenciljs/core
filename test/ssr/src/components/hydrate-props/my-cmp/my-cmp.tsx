@@ -27,8 +27,8 @@ export class MyCmp {
     return (
       <div>
         {this.fooProp} - {this.barProp}
-        <my-jsx-cmp fooProp="foo3" barProp="bar3"></my-jsx-cmp>
-        <my-jsx-cmp foo-prop="foo4" bar-prop="bar4"></my-jsx-cmp>
+        <my-jsx-cmp fooProp='foo3' barProp='bar3'></my-jsx-cmp>
+        <my-jsx-cmp foo-prop='foo4' bar-prop='bar4'></my-jsx-cmp>
       </div>
     );
   }

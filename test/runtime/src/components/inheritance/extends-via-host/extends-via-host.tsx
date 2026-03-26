@@ -34,11 +34,11 @@ export class ExtendsViaHostCmp extends ReactiveControllerHost {
     return (
       <Host>
         <h3>The mouse is at:</h3>
-        <pre class="mouse-position">
+        <pre class='mouse-position'>
           x: {this.mouse.pos.x}
           y: {this.mouse.pos.y}
         </pre>
-        <div class="lifecycle-info" style={{ display: 'none' }}>
+        <div class='lifecycle-info' style={{ display: 'none' }}>
           Lifecycle calls: {this.lifecycleCalls.join(', ')}
         </div>
       </Host>

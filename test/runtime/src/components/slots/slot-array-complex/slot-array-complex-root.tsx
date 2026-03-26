@@ -14,9 +14,9 @@ export class SlotArrayComplexRoot {
     return (
       <main>
         <slot-array-complex>
-          <header slot="start">slot - start</header>
+          <header slot='start'>slot - start</header>
           slot - default
-          {this.endSlot ? <footer slot="end">slot - end</footer> : null}
+          {this.endSlot ? <footer slot='end'>slot - end</footer> : null}
         </slot-array-complex>
       </main>
     );

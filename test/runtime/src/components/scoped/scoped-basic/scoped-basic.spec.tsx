@@ -2,7 +2,7 @@ import { render, h, describe, it, expect } from '@stencil/vitest';
 
 describe('scoped-basic', () => {
   it('render', async () => {
-    const { root } = await render(<scoped-basic-root colormode="md" />);
+    const { root } = await render(<scoped-basic-root colormode='md' />);
 
     // Check root has scoped host class and hydrated
     expect(root.classList.toString()).toContain('sc-scoped-basic-root-md-h');

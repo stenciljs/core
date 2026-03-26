@@ -32,7 +32,19 @@ const adjectives = [
   'expensive',
   'fancy',
 ];
-const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'brown', 'white', 'black', 'orange'];
+const colours = [
+  'red',
+  'yellow',
+  'blue',
+  'green',
+  'pink',
+  'brown',
+  'purple',
+  'brown',
+  'white',
+  'black',
+  'orange',
+];
 const nouns = [
   'table',
   'chair',
@@ -150,14 +162,14 @@ export class PerfRows {
   render() {
     return (
       <div>
-        <table class="table">
+        <table class='table'>
           <tbody>
             {this.rows.map((row) => (
               <tr key={row.id} class={row.id === this.selectedId ? 'selected' : ''}>
-                <td class="id">{row.id}</td>
-                <td class="label">{row.label}</td>
+                <td class='id'>{row.id}</td>
+                <td class='label'>{row.label}</td>
                 <td>
-                  <span class="remove" onClick={() => this.removeRow(row.id)}>
+                  <span class='remove' onClick={() => this.removeRow(row.id)}>
                     x
                   </span>
                 </td>

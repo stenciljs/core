@@ -37,7 +37,9 @@ describe('template-render', () => {
 
     const shadowRoot = root.shadowRoot!;
 
-    const nestedTemplate = shadowRoot.querySelector<HTMLTemplateElement>('template#nested-template')!;
+    const nestedTemplate = shadowRoot.querySelector<HTMLTemplateElement>(
+      'template#nested-template',
+    )!;
 
     // Template should have no direct children
     expect(nestedTemplate.childNodes.length).toBe(0);
@@ -134,7 +136,9 @@ describe('template-render', () => {
 
     const shadowRoot = root.shadowRoot!;
 
-    const simpleTemplate = shadowRoot.querySelector<HTMLTemplateElement>('template#simple-template')!;
+    const simpleTemplate = shadowRoot.querySelector<HTMLTemplateElement>(
+      'template#simple-template',
+    )!;
 
     // The template's content should not be visible in the rendered tree
     // Only when cloned and appended should it become visible

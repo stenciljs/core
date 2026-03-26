@@ -4,8 +4,8 @@ describe('delegates-focus', () => {
   it('should delegate focus', async () => {
     const { root, waitForChanges } = await render(
       <div>
-        <delegates-focus class="set-focus" />
-        <no-delegates-focus class="set-focus" />
+        <delegates-focus class='set-focus' />
+        <no-delegates-focus class='set-focus' />
       </div>,
     );
 

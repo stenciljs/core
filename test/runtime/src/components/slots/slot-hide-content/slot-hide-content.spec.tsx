@@ -4,8 +4,8 @@ describe('slot-hide-content', () => {
   describe('scoped encapsulation', () => {
     it('should hide content when no slot is provided', async () => {
       const { root, waitForChanges } = await render(
-        <slot-hide-content-scoped class="test-cmp">
-          <p id="slotted-1">Hello</p>
+        <slot-hide-content-scoped class='test-cmp'>
+          <p id='slotted-1'>Hello</p>
         </slot-hide-content-scoped>,
       );
       await waitForExist('slot-hide-content-scoped.hydrated');

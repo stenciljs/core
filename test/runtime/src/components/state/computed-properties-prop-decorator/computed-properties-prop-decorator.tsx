@@ -20,7 +20,11 @@ export class ComputedPropertiesPropDecorator {
   @Prop() [MyProp] = 'content';
 
   getText() {
-    return (this.first || '') + (this.middle ? ` ${this.middle}` : '') + (this.last ? ` ${this.last}` : '');
+    return (
+      (this.first || '') +
+      (this.middle ? ` ${this.middle}` : '') +
+      (this.last ? ` ${this.last}` : '')
+    );
   }
 
   render() {

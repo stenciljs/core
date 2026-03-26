@@ -3,7 +3,7 @@ import { userEvent } from 'vitest/browser';
 
 describe('input-basic', () => {
   it('should change value prop both ways', async () => {
-    const { root, waitForChanges } = await render(<input-basic-root value="hello" />);
+    const { root, waitForChanges } = await render(<input-basic-root value='hello' />);
 
     const input = root.querySelector('input')!;
     expect(input.value).toBe('hello');

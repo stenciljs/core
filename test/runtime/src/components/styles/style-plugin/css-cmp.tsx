@@ -9,8 +9,8 @@ export class CssCmp {
   render() {
     return (
       <Host>
-        <div class="css-entry">Css Entry</div>
-        <div class="css-importee">Css Importee</div>
+        <div class='css-entry'>Css Entry</div>
+        <div class='css-importee'>Css Importee</div>
         <hr />
       </Host>
     );

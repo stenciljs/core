@@ -5,11 +5,11 @@ describe('listen-reattach', () => {
   it('should receive click events, remove/attach, and receive more events', async () => {
     const { waitForChanges } = await render(
       <>
-        <div class="box">
+        <div class='box'>
           <listen-reattach></listen-reattach>
-          <div class="other">Some other content</div>
+          <div class='other'>Some other content</div>
         </div>
-        <button id="moveIt">Move it!!</button>
+        <button id='moveIt'>Move it!!</button>
       </>,
     );
 
@@ -21,7 +21,7 @@ describe('listen-reattach', () => {
       box.appendChild(moveable);
     });
     await waitForChanges();
-    
+
     expect(document.querySelector('#clicked')).toHaveTextContent('Clicked: 0');
 
     for (let clicks = 1; clicks <= 2; clicks++) {

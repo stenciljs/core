@@ -19,17 +19,23 @@ describe('prefix-attr', () => {
 
     const nested = root.querySelector('prefix-attr-nested')!;
 
-    const updateBtn = Array.from(root.querySelectorAll('button')).find((b) => b.textContent === 'Update Message')!;
+    const updateBtn = Array.from(root.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Update Message',
+    )!;
     updateBtn.click();
     await waitForChanges();
     expect(nested).toHaveAttribute('message', 'Updated');
 
-    const countBtn = Array.from(root.querySelectorAll('button')).find((b) => b.textContent === 'Update Count')!;
+    const countBtn = Array.from(root.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Update Count',
+    )!;
     countBtn.click();
     await waitForChanges();
     expect(nested).toHaveAttribute('count', '99');
 
-    const disableBtn = Array.from(root.querySelectorAll('button')).find((b) => b.textContent === 'Disable')!;
+    const disableBtn = Array.from(root.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Disable',
+    )!;
     disableBtn.click();
     await waitForChanges();
     expect(nested).not.toHaveAttribute('enabled');

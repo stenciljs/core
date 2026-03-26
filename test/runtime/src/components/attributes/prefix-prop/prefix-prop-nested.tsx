@@ -11,11 +11,11 @@ export class PrefixPropNested {
 
   render() {
     return (
-      <div class="nested-output">
-        <div class="message">{this.message}</div>
-        <div class="count">{this.count}</div>
-        <div class="null-value">{String(this.nullValue)}</div>
-        <div class="undefined-value">{String(this.undefinedValue)}</div>
+      <div class='nested-output'>
+        <div class='message'>{this.message}</div>
+        <div class='count'>{this.count}</div>
+        <div class='null-value'>{String(this.nullValue)}</div>
+        <div class='undefined-value'>{String(this.undefinedValue)}</div>
       </div>
     );
   }

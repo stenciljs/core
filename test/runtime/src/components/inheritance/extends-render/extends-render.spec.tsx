@@ -56,7 +56,9 @@ describe('extends-render', () => {
     it('renders component-specific additional content', async () => {
       const { root } = await render(<extends-render />);
 
-      expect(root.querySelector('.additional-content')).toHaveTextContent('Additional component content');
+      expect(root.querySelector('.additional-content')).toHaveTextContent(
+        'Additional component content',
+      );
     });
   });
 });

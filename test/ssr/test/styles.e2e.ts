@@ -157,7 +157,9 @@ test.describe('styles and modes', () => {
   });
 
   test.describe('::part CSS selectors', () => {
-    test('correctly renders ::part css selectors for scoped components in DSD', async ({ page }) => {
+    test('correctly renders ::part css selectors for scoped components in DSD', async ({
+      page,
+    }) => {
       const { html } = await renderToString(
         `<div>
           <part-wrap-ssr-shadow-cmp>Inside shadowroot</part-wrap-ssr-shadow-cmp>
@@ -185,7 +187,9 @@ test.describe('styles and modes', () => {
       expect(bgColor).toBe('rgb(255, 192, 203)'); // pink
     });
 
-    test('correctly renders ::part css selectors for scoped components in scoped mode', async ({ page }) => {
+    test('correctly renders ::part css selectors for scoped components in scoped mode', async ({
+      page,
+    }) => {
       const { html } = await renderToString(
         `<div>
           <part-wrap-ssr-shadow-cmp>Inside shadowroot</part-wrap-ssr-shadow-cmp>
@@ -200,7 +204,8 @@ test.describe('styles and modes', () => {
       await page.waitForSelector('part-wrap-ssr-shadow-cmp[custom-hydrate-flag]');
 
       const bgColor = await page.evaluate(() => {
-        const partEl = document.querySelector('part-wrap-ssr-shadow-cmp')
+        const partEl = document
+          .querySelector('part-wrap-ssr-shadow-cmp')
           ?.shadowRoot?.querySelector('part-ssr-shadow-cmp')
           ?.shadowRoot?.querySelector('[part="container"]');
         return partEl ? getComputedStyle(partEl).backgroundColor : null;

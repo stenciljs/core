@@ -11,7 +11,7 @@ export class NonShadowMultiSlots {
       <slot />,
       <div>Internal: AFTER DEFAULT SLOT</div>,
       <div>Internal: BEFORE SECOND SLOT</div>,
-      <slot name="second-slot">Second slot fallback text</slot>,
+      <slot name='second-slot'>Second slot fallback text</slot>,
       <div>Internal: AFTER SECOND SLOT</div>,
     ];
   }

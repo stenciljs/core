@@ -6,6 +6,6 @@ import { Component, h } from '@stencil/core';
 })
 export class TextContentPatchScopedWithSlot {
   render() {
-    return [<p>Top content</p>, <slot></slot>, <p>Bottom content</p>, <slot name="suffix"></slot>];
+    return [<p>Top content</p>, <slot></slot>, <p>Bottom content</p>, <slot name='suffix'></slot>];
   }
 }

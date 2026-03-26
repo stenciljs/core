@@ -11,17 +11,31 @@ describe('extends-mixin', () => {
       const { root } = await render(<extends-mixin-cmp />);
 
       // Main component values (overridden defaults)
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: default text');
-      expect(root.querySelector('.main-state-1')).toHaveTextContent('Main class state1: default state text');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: default text',
+      );
+      expect(root.querySelector('.main-state-1')).toHaveTextContent(
+        'Main class state1: default state text',
+      );
 
       // MixinA values
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: ExtendedCmp prop2 text');
-      expect(root.querySelector('.main-state-2')).toHaveTextContent('Main class state2: ExtendedCmp state2 text');
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: ExtendedCmp prop2 text',
+      );
+      expect(root.querySelector('.main-state-2')).toHaveTextContent(
+        'Main class state2: ExtendedCmp state2 text',
+      );
 
       // MixinB values
-      expect(root.querySelector('.main-prop-3')).toHaveTextContent('Main class prop3: mixin b text');
-      expect(root.querySelector('.main-getter-prop')).toHaveTextContent('Main class getterProp: getter default value');
-      expect(root.querySelector('.main-state-3')).toHaveTextContent('Main class state3: mixin b state text');
+      expect(root.querySelector('.main-prop-3')).toHaveTextContent(
+        'Main class prop3: mixin b text',
+      );
+      expect(root.querySelector('.main-getter-prop')).toHaveTextContent(
+        'Main class getterProp: getter default value',
+      );
+      expect(root.querySelector('.main-state-3')).toHaveTextContent(
+        'Main class state3: mixin b state text',
+      );
     });
 
     it('re-renders values via attributes', async () => {
@@ -32,9 +46,15 @@ describe('extends-mixin', () => {
       root.setAttribute('prop-3', 'mixinB via attribute');
       await waitForChanges();
 
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main via attribute');
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: mixinA via attribute');
-      expect(root.querySelector('.main-prop-3')).toHaveTextContent('Main class prop3: mixinB via attribute');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main via attribute',
+      );
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: mixinA via attribute',
+      );
+      expect(root.querySelector('.main-prop-3')).toHaveTextContent(
+        'Main class prop3: mixinB via attribute',
+      );
     });
 
     it('re-renders values via props', async () => {
@@ -45,9 +65,15 @@ describe('extends-mixin', () => {
       (root as any).prop3 = 'mixinB via prop';
       await waitForChanges();
 
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main via prop');
-      expect(root.querySelector('.main-prop-2')).toHaveTextContent('Main class prop2: mixinA via prop');
-      expect(root.querySelector('.main-prop-3')).toHaveTextContent('Main class prop3: mixinB via prop');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main via prop',
+      );
+      expect(root.querySelector('.main-prop-2')).toHaveTextContent(
+        'Main class prop2: mixinA via prop',
+      );
+      expect(root.querySelector('.main-prop-3')).toHaveTextContent(
+        'Main class prop3: mixinB via prop',
+      );
     });
 
     it('calls watch handlers from all mixins', async () => {
@@ -77,17 +103,23 @@ describe('extends-mixin', () => {
       // Main class method (overrides MixinA)
       await (root as any).method1();
       await waitForChanges();
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: main class method1 called');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: main class method1 called',
+      );
 
       // MixinA method
       await (root as any).method2();
       await waitForChanges();
-      expect(root.querySelector('.main-prop-1')).toHaveTextContent('Main class prop1: ExtendedCmp method2 called');
+      expect(root.querySelector('.main-prop-1')).toHaveTextContent(
+        'Main class prop1: ExtendedCmp method2 called',
+      );
 
       // MixinB method
       await (root as any).method3();
       await waitForChanges();
-      expect(root.querySelector('.main-prop-3')).toHaveTextContent('Main class prop3: mixin b method3 called');
+      expect(root.querySelector('.main-prop-3')).toHaveTextContent(
+        'Main class prop3: mixin b method3 called',
+      );
     });
   });
 });

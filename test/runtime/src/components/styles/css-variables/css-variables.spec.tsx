@@ -52,7 +52,9 @@ describe('css-variables', () => {
       const { root } = await render(<css-variables-no-encapsulation />);
       const yellowGlobalElm = root.querySelector('.yellow-global')!;
 
-      expect(yellowGlobalElm).toHaveTextContent('No encapsulation: Yellow background (global link)');
+      expect(yellowGlobalElm).toHaveTextContent(
+        'No encapsulation: Yellow background (global link)',
+      );
 
       const styles = window.getComputedStyle(yellowGlobalElm);
       expect(styles.backgroundColor).toBe('rgb(255, 255, 0)');

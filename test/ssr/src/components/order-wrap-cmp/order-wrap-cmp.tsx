@@ -16,8 +16,8 @@ export class MyApp {
       <Host>
         <div>
           <ssr-order-cmp>
-            <slot name="things" />
-            <div class="AFTER">after</div>
+            <slot name='things' />
+            <div class='AFTER'>after</div>
           </ssr-order-cmp>
           <div>
             <slot />

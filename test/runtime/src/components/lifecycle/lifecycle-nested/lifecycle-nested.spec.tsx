@@ -10,12 +10,12 @@ describe('lifecycle-nested', () => {
             <lifecycle-nested-a></lifecycle-nested-a>
           </lifecycle-nested-b>
         </lifecycle-nested-c>
-        <ol id="lifecycle-loads" class="lifecycle-loads"></ol>
+        <ol id='lifecycle-loads' class='lifecycle-loads'></ol>
       </>,
     );
 
     await waitForChanges();
-    await waitForStable('ol'); 
+    await waitForStable('ol');
 
     const loads = document.querySelectorAll('.lifecycle-loads li');
     expect(loads).toHaveLength(6);

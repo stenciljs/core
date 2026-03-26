@@ -93,7 +93,9 @@ describe('extends-watch', () => {
       await (root as any).updateBaseProp('base prop updated');
       await waitForChanges();
 
-      expect(root.querySelector('.base-state-value')).toHaveTextContent('state updated by baseProp');
+      expect(root.querySelector('.base-state-value')).toHaveTextContent(
+        'state updated by baseProp',
+      );
     });
 
     it('reactive property chains work: baseCount change triggers baseChainCount change', async () => {
@@ -116,7 +118,9 @@ describe('extends-watch', () => {
       await (root as any).updateBaseCounter(10);
       await waitForChanges();
 
-      expect(root.querySelector('.base-chain-triggered')).toHaveTextContent('Base Chain Triggered: true');
+      expect(root.querySelector('.base-chain-triggered')).toHaveTextContent(
+        'Base Chain Triggered: true',
+      );
     });
 
     it('reactive property chains work: childProp change triggers childState change', async () => {
@@ -127,7 +131,9 @@ describe('extends-watch', () => {
       await (root as any).updateChildProp('child prop updated');
       await waitForChanges();
 
-      expect(root.querySelector('.child-state-value')).toHaveTextContent('state updated by childProp');
+      expect(root.querySelector('.child-state-value')).toHaveTextContent(
+        'state updated by childProp',
+      );
     });
 
     it('reactive property chains work: childCounter change triggers childChainTriggered', async () => {
@@ -138,7 +144,9 @@ describe('extends-watch', () => {
       await (root as any).updateChildCounter(20);
       await waitForChanges();
 
-      expect(root.querySelector('.child-chain-triggered')).toHaveTextContent('Child Chain Triggered: true');
+      expect(root.querySelector('.child-chain-triggered')).toHaveTextContent(
+        'Child Chain Triggered: true',
+      );
     });
   });
 });

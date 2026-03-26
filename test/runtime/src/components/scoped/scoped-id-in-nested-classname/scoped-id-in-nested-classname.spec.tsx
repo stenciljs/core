@@ -17,7 +17,7 @@ describe('scope-id-in-nested-classname', () => {
   it('should not have root scope id in slotted / user provided nested element as classname', async () => {
     await render(
       <cmp-level-1>
-        <span id="test-element">Test</span>
+        <span id='test-element'>Test</span>
       </cmp-level-1>,
     );
 

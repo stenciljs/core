@@ -17,27 +17,37 @@ describe('extends-conflicts', () => {
       const { root } = await render(<extends-conflicts />);
 
       // Component's duplicateProp value should win
-      expect(root.querySelector('.duplicate-prop-value')).toHaveTextContent('Duplicate Prop: component prop value');
+      expect(root.querySelector('.duplicate-prop-value')).toHaveTextContent(
+        'Duplicate Prop: component prop value',
+      );
     });
 
     it('component @State overrides base @State (duplicateState)', async () => {
       const { root } = await render(<extends-conflicts />);
 
       // Component's duplicateState value should win
-      expect(root.querySelector('.duplicate-state-value')).toHaveTextContent('Duplicate State: component state value');
+      expect(root.querySelector('.duplicate-state-value')).toHaveTextContent(
+        'Duplicate State: component state value',
+      );
     });
 
     it('base-only properties work correctly', async () => {
       const { root } = await render(<extends-conflicts />);
 
-      expect(root.querySelector('.base-only-prop-value')).toHaveTextContent('Base Only Prop: base only prop value');
-      expect(root.querySelector('.base-only-state-value')).toHaveTextContent('Base Only State: base only state value');
+      expect(root.querySelector('.base-only-prop-value')).toHaveTextContent(
+        'Base Only Prop: base only prop value',
+      );
+      expect(root.querySelector('.base-only-state-value')).toHaveTextContent(
+        'Base Only State: base only state value',
+      );
     });
 
     it('component-only state works correctly', async () => {
       const { root } = await render(<extends-conflicts />);
 
-      expect(root.querySelector('.component-only-state-value')).toHaveTextContent('Component Only State: component only state');
+      expect(root.querySelector('.component-only-state-value')).toHaveTextContent(
+        'Component Only State: component only state',
+      );
     });
 
     it('component @Method overrides base @Method (duplicateMethod)', async () => {
@@ -67,7 +77,9 @@ describe('extends-conflicts', () => {
       await (root as any).updateDuplicateState('new duplicate state');
       await waitForChanges();
 
-      expect(root.querySelector('.duplicate-state-value')).toHaveTextContent('Duplicate State: new duplicate state');
+      expect(root.querySelector('.duplicate-state-value')).toHaveTextContent(
+        'Duplicate State: new duplicate state',
+      );
     });
 
     it('updates duplicate prop via attribute', async () => {
@@ -76,7 +88,9 @@ describe('extends-conflicts', () => {
       root.setAttribute('duplicate-prop', 'new duplicate prop');
       await waitForChanges();
 
-      expect(root.querySelector('.duplicate-prop-value')).toHaveTextContent('Duplicate Prop: new duplicate prop');
+      expect(root.querySelector('.duplicate-prop-value')).toHaveTextContent(
+        'Duplicate Prop: new duplicate prop',
+      );
     });
   });
 });

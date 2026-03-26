@@ -21,6 +21,6 @@ export class ListenJsx {
     this.wasClicked = 'Host event';
   }
   render() {
-    return <span id="result">{this.wasClicked}</span>;
+    return <span id='result'>{this.wasClicked}</span>;
   }
 }

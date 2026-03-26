@@ -1,7 +1,5 @@
 import { describe, it, expect } from '@stencil/vitest';
 import { MockDocument } from '../document';
-import { MockElement } from '../node';
-import { PROBLEMATIC_SELECTORS } from '../selector';
 
 describe('selector', () => {
   it('closest', () => {
@@ -15,7 +13,7 @@ describe('selector', () => {
 
     const p = doc.querySelector('p');
     const div = doc.querySelector('div');
-    expect(p.closest('div')).toBe(div);
+    expect(p?.closest('div')).toBe(div);
   });
 
   it('no closest', () => {
@@ -28,28 +26,32 @@ describe('selector', () => {
     `);
 
     const p = doc.querySelector('p');
-    expect(p.closest('div#my-id')).toBe(null);
+    expect(p?.closest('div#my-id')).toBe(null);
   });
 
   it('matches, tag/class/id', () => {
-    const elm = new MockElement(null, 'h1');
+    const doc = new MockDocument();
+    const elm = doc.createElement('h1');
     elm.classList.add('my-class');
     elm.id = 'my-id';
     expect(elm.matches('h1.my-class#my-id')).toBe(true);
   });
 
   it('no matches, tag/class/id', () => {
-    const elm = new MockElement(null, 'h1');
+    const doc = new MockDocument();
+    const elm = doc.createElement('h1');
     expect(elm.matches('h1.my-class#my-id')).toBe(false);
   });
 
   it('matches, tag', () => {
-    const elm = new MockElement(null, 'h1');
+    const doc = new MockDocument();
+    const elm = doc.createElement('h1');
     expect(elm.matches('h1')).toBe(true);
   });
 
   it('no matches, tag', () => {
-    const elm = new MockElement(null, 'h1');
+    const doc = new MockDocument();
+    const elm = doc.createElement('h1');
     expect(elm.matches('div')).toBe(false);
   });
 
@@ -68,7 +70,7 @@ describe('selector', () => {
     `);
 
     const checkbox = doc.querySelector('input.checked');
-    expect(checkbox.id).toBe('checkbox');
+    expect(checkbox?.id).toBe('checkbox');
   });
 
   it('find input[checked=true][disabled]', () => {
@@ -77,7 +79,7 @@ describe('selector', () => {
     `);
 
     const checkbox = doc.querySelector('input[checked=true][disabled]');
-    expect(checkbox.id).toBe('checkbox');
+    expect(checkbox?.id).toBe('checkbox');
   });
 
   it('find input[checked=true]', () => {
@@ -86,7 +88,7 @@ describe('selector', () => {
     `);
 
     const checkbox = doc.querySelector('input[checked=true]');
-    expect(checkbox.id).toBe('checkbox');
+    expect(checkbox?.id).toBe('checkbox');
   });
 
   it('find input[checked]', () => {
@@ -95,7 +97,7 @@ describe('selector', () => {
     `);
 
     const checkbox = doc.querySelector('input[checked]');
-    expect(checkbox.id).toBe('checkbox');
+    expect(checkbox?.id).toBe('checkbox');
   });
 
   it('find all tag names', () => {
@@ -115,7 +117,7 @@ describe('selector', () => {
     `);
 
     const div = doc.querySelector('a,div,nav');
-    expect(div.outerHTML).toBe('<div>1</div>');
+    expect(div?.outerHTML).toBe('<div>1</div>');
   });
 
   it('find one tag name', () => {
@@ -125,10 +127,10 @@ describe('selector', () => {
     `);
 
     const div = doc.querySelector('div');
-    expect(div.outerHTML).toBe('<div>1</div>');
+    expect(div?.outerHTML).toBe('<div>1</div>');
 
     const nav = doc.querySelector('nav');
-    expect(nav.outerHTML).toBe('<nav>2</nav>');
+    expect(nav?.outerHTML).toBe('<nav>2</nav>');
   });
 
   it('finds child', () => {
@@ -139,7 +141,7 @@ describe('selector', () => {
     `);
 
     const span = doc.querySelector('div > span');
-    expect(span.outerHTML).toBe('<span></span>');
+    expect(span?.outerHTML).toBe('<span></span>');
   });
 
   it('finds child if multiple children', () => {
@@ -151,7 +153,7 @@ describe('selector', () => {
     `);
 
     const span = doc.querySelector('div > span');
-    expect(span.outerHTML).toBe('<span></span>');
+    expect(span?.outerHTML).toBe('<span></span>');
   });
 
   it('finds child if multiple selectors', () => {
@@ -166,7 +168,7 @@ describe('selector', () => {
     `);
 
     const span = doc.querySelector('div > span > .inner');
-    expect(span.outerHTML).toBe('<div class="inner"></div>');
+    expect(span?.outerHTML).toBe('<div class="inner"></div>');
   });
 
   it('not find child if does not exist', () => {
@@ -228,50 +230,84 @@ describe('selector', () => {
     expect(q2.tagName).toBe('A');
   });
 
-  it.each(PROBLEMATIC_SELECTORS)("should error for '%p' selector", (selector) => {
-    const doc = new MockDocument();
+  // Tests for selectors that previously didn't work with jQuery
+  describe('modern CSS selectors', () => {
+    it(':scope selector', () => {
+      const doc = new MockDocument(`
+        <div id="parent">
+          <span class="child">direct</span>
+          <div>
+            <span class="nested">nested</span>
+          </div>
+        </div>
+      `);
 
-    const expectedMessage = [
-      `At present jQuery does not support the ${selector} selector.`,
-      'If you need this in your test, consider writing an end-to-end test instead.',
-      `Syntax error, unrecognized expression: unsupported pseudo: ${selector.replace(':', '')}`,
-    ].join('\n');
+      const parent = doc.querySelector('#parent');
+      // :scope > span should only match direct children
+      const directChildren = parent?.querySelectorAll(':scope > span');
+      expect(directChildren?.length).toBe(1);
+      expect(directChildren?.[0].textContent).toBe('direct');
+    });
 
-    expect(() => doc.querySelector(selector)).toThrow(expectedMessage);
-    expect(() => doc.querySelectorAll(selector)).toThrow(expectedMessage);
-    expect(() => doc.matches(selector)).toThrow(expectedMessage);
-  });
+    it(':is() selector', () => {
+      const doc = new MockDocument(`
+        <div>
+          <h1>heading 1</h1>
+          <h2>heading 2</h2>
+          <p>paragraph</p>
+        </div>
+      `);
 
-  it('should error for combinations of problematic selectors', () => {
-    const doc = new MockDocument();
-    expect(() => {
-      doc.querySelector(':scope :is');
-    }).toThrow(
-      [
-        `At present jQuery does not support the :scope and :is selectors.`,
-        'If you need this in your test, consider writing an end-to-end test instead.',
-        `Syntax error, unrecognized expression: unsupported pseudo: scope`,
-      ].join('\n'),
-    );
+      const headings = doc.querySelectorAll(':is(h1, h2)');
+      expect(headings?.length).toBe(2);
+    });
 
-    expect(() => {
-      doc.querySelector(':is :where');
-    }).toThrow(
-      [
-        `At present jQuery does not support the :where and :is selectors.`,
-        'If you need this in your test, consider writing an end-to-end test instead.',
-        `Syntax error, unrecognized expression: unsupported pseudo: is`,
-      ].join('\n'),
-    );
+    it(':where() selector', () => {
+      const doc = new MockDocument(`
+        <article>
+          <p class="intro">intro</p>
+          <p>normal</p>
+        </article>
+        <section>
+          <p class="intro">section intro</p>
+        </section>
+      `);
 
-    expect(() => {
-      doc.querySelector(':scope :is :where');
-    }).toThrow(
-      [
-        `At present jQuery does not support the :scope, :where and :is selectors.`,
-        'If you need this in your test, consider writing an end-to-end test instead.',
-        `Syntax error, unrecognized expression: unsupported pseudo: scope`,
-      ].join('\n'),
-    );
+      // :where() has zero specificity but should still match
+      const intros = doc.querySelectorAll(':where(article, section) .intro');
+      expect(intros.length).toBe(2);
+    });
+
+    it(':is() with complex selectors', () => {
+      const doc = new MockDocument(`
+        <div class="card">
+          <button>card button</button>
+        </div>
+        <div class="modal">
+          <button>modal button</button>
+        </div>
+        <div class="other">
+          <button>other button</button>
+        </div>
+      `);
+
+      const buttons = doc.querySelectorAll(':is(.card, .modal) button');
+      expect(buttons.length).toBe(2);
+    });
+
+    it('combines :scope with other selectors', () => {
+      const doc = new MockDocument(`
+        <ul id="list">
+          <li class="item">1</li>
+          <li class="item active">2</li>
+          <li class="item">3</li>
+        </ul>
+      `);
+
+      const list = doc.querySelector('#list');
+      const activeItems = list?.querySelectorAll(':scope > .item.active');
+      expect(activeItems?.length).toBe(1);
+      expect(activeItems?.[0].textContent).toBe('2');
+    });
   });
 });

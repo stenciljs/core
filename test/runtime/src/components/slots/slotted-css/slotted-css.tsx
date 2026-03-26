@@ -11,13 +11,13 @@ export class SlottedCss {
       <Host>
         <section>
           <header>
-            <slot name="header-slot-name" />
+            <slot name='header-slot-name' />
           </header>
-          <section class="content">
+          <section class='content'>
             <slot />
           </section>
           <footer>
-            <slot name="footer-slot-name" />
+            <slot name='footer-slot-name' />
           </footer>
         </section>
       </Host>

@@ -33,7 +33,9 @@ test.describe('goto root url', () => {
     await page.goto('/?first=Doc&last=Brown&clothes=lab coats');
 
     const elm = page.locator('prop-cmp').locator('div');
-    await expect(elm).toHaveText('Hello, my name is Doc Brown. My full name being Mr Doc Brown. I like to wear lab coats.');
+    await expect(elm).toHaveText(
+      'Hello, my name is Doc Brown. My full name being Mr Doc Brown. I like to wear lab coats.',
+    );
   });
 
   test('should apply global style when navigating to root page', async ({ page }) => {

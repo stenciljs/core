@@ -28,7 +28,11 @@ export class StateCmp {
         <label>What is your favorite day?</label>
         <div>
           {this.days.map((day) => (
-            <button class={day === this.selected ? 'selected' : ''} onClick={() => this.dayClicked(day)} key={day}>
+            <button
+              class={day === this.selected ? 'selected' : ''}
+              onClick={() => this.dayClicked(day)}
+              key={day}
+            >
               {day}
             </button>
           ))}

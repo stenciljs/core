@@ -7,7 +7,7 @@ import { Component, h, Host } from '@stencil/core';
 export class HostAttrOverride {
   render() {
     return (
-      <Host class="default" role="header">
+      <Host class='default' role='header'>
         <slot></slot>
       </Host>
     );

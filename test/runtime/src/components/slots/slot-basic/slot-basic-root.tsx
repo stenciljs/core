@@ -22,34 +22,34 @@ export class SlotBasicRoot {
   render() {
     return (
       <div>
-        <button onClick={this.testClick.bind(this)} class="test">
+        <button onClick={this.testClick.bind(this)} class='test'>
           Test
         </button>
 
-        <div class="inc">Rendered: {this.inc}</div>
+        <div class='inc'>Rendered: {this.inc}</div>
 
-        <div class="results1">
+        <div class='results1'>
           <slot-basic>
             {textA}
             {textB}
           </slot-basic>
         </div>
 
-        <div class="results2">
+        <div class='results2'>
           <slot-basic>
             {textA}
             {spanB}
           </slot-basic>
         </div>
 
-        <div class="results3">
+        <div class='results3'>
           <slot-basic>
             {textA}
             {divB}
           </slot-basic>
         </div>
 
-        <div class="results4">
+        <div class='results4'>
           <slot-basic>
             <footer>
               {textA}
@@ -58,49 +58,49 @@ export class SlotBasicRoot {
           </slot-basic>
         </div>
 
-        <div class="results5">
+        <div class='results5'>
           <slot-basic>
             {spanA}
             {textB}
           </slot-basic>
         </div>
 
-        <div class="results6">
+        <div class='results6'>
           <slot-basic>
             {spanA}
             {spanB}
           </slot-basic>
         </div>
 
-        <div class="results7">
+        <div class='results7'>
           <slot-basic>
             {spanA}
             {divB}
           </slot-basic>
         </div>
 
-        <div class="results8">
+        <div class='results8'>
           <slot-basic>
             {divA}
             {textB}
           </slot-basic>
         </div>
 
-        <div class="results9">
+        <div class='results9'>
           <slot-basic>
             {divA}
             {spanB}
           </slot-basic>
         </div>
 
-        <div class="results10">
+        <div class='results10'>
           <slot-basic>
             {divA}
             {divB}
           </slot-basic>
         </div>
 
-        <div class="results11">
+        <div class='results11'>
           <slot-basic>
             {divA}
             <footer>{divB}</footer>

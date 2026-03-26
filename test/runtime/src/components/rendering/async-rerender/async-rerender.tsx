@@ -58,7 +58,9 @@ export class MyComponent {
         </p>
         {this.display() && (
           <section class={`data-state ${this.isLoaded ? 'loaded' : ''}`}>
-            {this.data?.map((d) => <div class="number">{d.name}</div>)}
+            {this.data?.map((d) => (
+              <div class='number'>{d.name}</div>
+            ))}
           </section>
         )}
       </Host>

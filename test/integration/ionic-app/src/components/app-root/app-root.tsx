@@ -9,14 +9,14 @@ export class AppRoot {
     return (
       <ion-app>
         <ion-router useHash={false}>
-          <ion-route url="/" component="app-home" />
-          <ion-route url="/profile/:name" component="app-profile" />
+          <ion-route url='/' component='app-home' />
+          <ion-route url='/profile/:name' component='app-profile' />
         </ion-router>
 
-        <ion-split-pane contentId="main" when="sm">
-          <ion-menu contentId="main">
+        <ion-split-pane contentId='main' when='sm'>
+          <ion-menu contentId='main'>
             <ion-header>
-              <ion-toolbar color="primary">
+              <ion-toolbar color='primary'>
                 <ion-title>Ionic PWA</ion-title>
               </ion-toolbar>
             </ion-header>
@@ -26,14 +26,14 @@ export class AppRoot {
                   <ion-label>Navigation</ion-label>
                 </ion-list-header>
                 <ion-menu-toggle autoHide={false}>
-                  <ion-item href="/">
-                    <ion-icon slot="start" name="home" />
+                  <ion-item href='/'>
+                    <ion-icon slot='start' name='home' />
                     <ion-label>Home</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
                 <ion-menu-toggle autoHide={false}>
-                  <ion-item href="/profile/ionic">
-                    <ion-icon slot="start" name="person" />
+                  <ion-item href='/profile/ionic'>
+                    <ion-icon slot='start' name='person' />
                     <ion-label>Ionic's Profile</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
@@ -41,7 +41,7 @@ export class AppRoot {
             </ion-content>
           </ion-menu>
 
-          <ion-nav id="main" />
+          <ion-nav id='main' />
         </ion-split-pane>
       </ion-app>
     );

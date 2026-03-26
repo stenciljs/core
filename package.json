@@ -1,21 +1,21 @@
 {
   "name": "@stencil/monorepo",
-  "description": "A Compiler for Web Components and Progressive Web Apps",
-  "author": "StencilJs Contributors",
-  "homepage": "https://stenciljs.com/",
-  "keywords": [
-    "web components",
-    "components",
-    "stencil",
-    "ionic",
-    "webapp",
-    "custom elements",
-    "pwa",
-    "progressive web app"
-  ],
-  "private": true,
   "version": "5.0.0-next.0",
+  "private": true,
+  "description": "A Compiler for Web Components and Progressive Web Apps",
+  "keywords": [
+    "components",
+    "custom elements",
+    "ionic",
+    "progressive web app",
+    "pwa",
+    "stencil",
+    "web components",
+    "webapp"
+  ],
+  "homepage": "https://stenciljs.com/",
   "license": "MIT",
+  "author": "StencilJs Contributors",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"

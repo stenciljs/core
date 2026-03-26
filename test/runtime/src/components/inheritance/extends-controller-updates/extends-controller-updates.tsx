@@ -50,16 +50,16 @@ export class ExtendsControllerUpdates extends ClockControllerBase {
     return (
       <div>
         <h2>Controller-Initiated Updates Test</h2>
-        <div class="clock-section">
+        <div class='clock-section'>
           <h3>Clock Controller (requestUpdate Pattern)</h3>
-          <p class="current-time">Current Time: {this.currentTime}</p>
-          <button class="toggle-clock" onClick={() => this.toggle()}>
+          <p class='current-time'>Current Time: {this.currentTime}</p>
+          <button class='toggle-clock' onClick={() => this.toggle()}>
             {this.isClockRunning ? 'Stop Clock' : 'Start Clock'}
           </button>
         </div>
-        <div class="status-info">
-          <p class="clock-status">Clock Running: {this.isClockRunning ? 'Yes' : 'No'}</p>
-          <p class="pattern-info">@State lives on component, controller requests updates</p>
+        <div class='status-info'>
+          <p class='clock-status'>Clock Running: {this.isClockRunning ? 'Yes' : 'No'}</p>
+          <p class='pattern-info'>@State lives on component, controller requests updates</p>
         </div>
       </div>
     );

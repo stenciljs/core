@@ -4,7 +4,7 @@ describe('import-aliasing', () => {
   it('should render correctly with aliased imports', async () => {
     const { root, waitForChanges } = await render(
       <form>
-        <import-aliasing user="John" name="test-input"></import-aliasing>
+        <import-aliasing user='John' name='test-input'></import-aliasing>
       </form>,
     );
     await waitForExist('import-aliasing.hydrated');
@@ -38,7 +38,7 @@ describe('import-aliasing', () => {
   it('should link up to the surrounding form', async () => {
     const { root } = await render(
       <form>
-        <import-aliasing user="John" name="test-input"></import-aliasing>
+        <import-aliasing user='John' name='test-input'></import-aliasing>
       </form>,
     );
     await waitForExist('import-aliasing.hydrated');

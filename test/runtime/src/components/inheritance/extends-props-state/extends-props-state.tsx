@@ -46,42 +46,48 @@ export class ExtendsPropsState extends PropsStateBase {
 
   render() {
     return (
-      <div class="container">
+      <div class='container'>
         <h2>Props & State Inheritance Test</h2>
 
-        <div class="inherited-props">
+        <div class='inherited-props'>
           <h3>Inherited Props</h3>
-          <p class="base-prop">Base Prop: {this.baseProp}</p>
-          <p class="base-count">Base Count: {this.baseCount}</p>
+          <p class='base-prop'>Base Prop: {this.baseProp}</p>
+          <p class='base-count'>Base Count: {this.baseCount}</p>
         </div>
 
-        <div class="inherited-state">
+        <div class='inherited-state'>
           <h3>Inherited State</h3>
-          <p class="base-state">Base State: {this.baseState}</p>
-          <p class="base-enabled">Base Enabled: {this.baseEnabled ? 'true' : 'false'}</p>
+          <p class='base-state'>Base State: {this.baseState}</p>
+          <p class='base-enabled'>Base Enabled: {this.baseEnabled ? 'true' : 'false'}</p>
         </div>
 
-        <div class="component-props">
+        <div class='component-props'>
           <h3>Component Props</h3>
-          <p class="component-prop">Component Prop: {this.componentProp}</p>
+          <p class='component-prop'>Component Prop: {this.componentProp}</p>
         </div>
 
-        <div class="component-state">
+        <div class='component-state'>
           <h3>Component State</h3>
-          <p class="component-state-value">Component State: {this.componentState}</p>
+          <p class='component-state-value'>Component State: {this.componentState}</p>
         </div>
 
-        <div class="actions">
-          <button class="update-base-state" onClick={() => this.updateBaseState('base state updated')}>
+        <div class='actions'>
+          <button
+            class='update-base-state'
+            onClick={() => this.updateBaseState('base state updated')}
+          >
             Update Base State
           </button>
-          <button class="update-component-state" onClick={() => this.updateComponentState('component state updated')}>
+          <button
+            class='update-component-state'
+            onClick={() => this.updateComponentState('component state updated')}
+          >
             Update Component State
           </button>
-          <button class="toggle-base-enabled" onClick={() => this.toggleBaseEnabled()}>
+          <button class='toggle-base-enabled' onClick={() => this.toggleBaseEnabled()}>
             Toggle Base Enabled
           </button>
-          <button class="increment-base-count" onClick={() => this.incrementBaseCount()}>
+          <button class='increment-base-count' onClick={() => this.incrementBaseCount()}>
             Increment Base Count
           </button>
         </div>

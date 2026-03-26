@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
 export class CmpClientScoped {
   render() {
     return (
-      <section class="client-scoped">
+      <section class='client-scoped'>
         <slot></slot>
       </section>
     );

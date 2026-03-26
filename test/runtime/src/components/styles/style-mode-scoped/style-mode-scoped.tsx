@@ -18,7 +18,7 @@ import { Component, h } from '@stencil/core';
 export class StyleModeScoped {
   render() {
     return (
-      <section class="style-mode-content">
+      <section class='style-mode-content'>
         <slot></slot>
       </section>
     );

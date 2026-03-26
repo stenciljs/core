@@ -22,7 +22,7 @@ describe('scoped-conditional', () => {
     );
     await waitForExist('scoped-conditional.hydrated');
 
-    const host = root;  
+    const host = root;
     // toggle the 'Hello' message, which should insert a new <div/> into the DOM & _not_ remove the slotted content
     host.renderHello = true;
     await waitForChanges();
@@ -30,7 +30,9 @@ describe('scoped-conditional', () => {
     const outerDivChildren = host.querySelector('div')!.childNodes;
     expect(outerDivChildren.length).toBe(2);
     expect(outerDivChildren[0].textContent).toBe('Hello');
-    expect(outerDivChildren[1].textContent).toBe(`before slot->This div will be slotted in<-after slot`);
+    expect(outerDivChildren[1].textContent).toBe(
+      `before slot->This div will be slotted in<-after slot`,
+    );
   });
 
   it('renders the slotted content after toggling the message twice', async () => {

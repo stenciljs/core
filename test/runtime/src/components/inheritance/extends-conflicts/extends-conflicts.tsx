@@ -68,35 +68,41 @@ export class ExtendsConflicts extends ConflictsBase {
 
   render() {
     return (
-      <div class="container">
+      <div class='container'>
         <h2>Decorator Conflicts Test</h2>
 
-        <div class="duplicate-props">
+        <div class='duplicate-props'>
           <h3>Duplicate @Prop (Component Override)</h3>
-          <p class="duplicate-prop-value">Duplicate Prop: {this.duplicateProp}</p>
+          <p class='duplicate-prop-value'>Duplicate Prop: {this.duplicateProp}</p>
         </div>
 
-        <div class="duplicate-states">
+        <div class='duplicate-states'>
           <h3>Duplicate @State (Component Override)</h3>
-          <p class="duplicate-state-value">Duplicate State: {this.duplicateState}</p>
+          <p class='duplicate-state-value'>Duplicate State: {this.duplicateState}</p>
         </div>
 
-        <div class="base-only-props">
+        <div class='base-only-props'>
           <h3>Base-Only Properties (Not Duplicated)</h3>
-          <p class="base-only-prop-value">Base Only Prop: {this.baseOnlyProp}</p>
-          <p class="base-only-state-value">Base Only State: {this.baseOnlyState}</p>
+          <p class='base-only-prop-value'>Base Only Prop: {this.baseOnlyProp}</p>
+          <p class='base-only-state-value'>Base Only State: {this.baseOnlyState}</p>
         </div>
 
-        <div class="component-only-state">
+        <div class='component-only-state'>
           <h3>Component-Only State</h3>
-          <p class="component-only-state-value">Component Only State: {this.componentOnlyState}</p>
+          <p class='component-only-state-value'>Component Only State: {this.componentOnlyState}</p>
         </div>
 
-        <div class="actions">
-          <button class="update-duplicate-state" onClick={() => this.updateDuplicateState('duplicate state updated')}>
+        <div class='actions'>
+          <button
+            class='update-duplicate-state'
+            onClick={() => this.updateDuplicateState('duplicate state updated')}
+          >
             Update Duplicate State
           </button>
-          <button class="update-component-only-state" onClick={() => this.updateComponentOnlyState('component only updated')}>
+          <button
+            class='update-component-only-state'
+            onClick={() => this.updateComponentOnlyState('component only updated')}
+          >
             Update Component Only State
           </button>
         </div>

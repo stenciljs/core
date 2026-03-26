@@ -12,7 +12,7 @@ describe('remove-child-patch', () => {
           <span>Slotted 1</span>
           <span>Slotted 2</span>
         </remove-child-patch>
-        <button id="remove-child-button" type="button">
+        <button id='remove-child-button' type='button'>
           Remove Last Child
         </button>
       </>,
@@ -43,7 +43,7 @@ describe('remove-child-patch', () => {
           <span>Slotted 1</span>
           <span>Slotted 2</span>
         </remove-child-patch>
-        <button id="remove-child-button" type="button">
+        <button id='remove-child-button' type='button'>
           Remove Last Child
         </button>
       </>,
@@ -77,7 +77,7 @@ describe('remove-child-patch', () => {
         <remove-child-patch>
           <span>Slotted 1</span>
         </remove-child-patch>
-        <button id="remove-child-div-button" type="button">
+        <button id='remove-child-div-button' type='button'>
           Remove Child Div
         </button>
       </>,

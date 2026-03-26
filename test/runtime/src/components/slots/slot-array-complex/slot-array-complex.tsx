@@ -6,11 +6,11 @@ import { Component, h } from '@stencil/core';
 export class SlotArrayComplex {
   render() {
     return [
-      <slot name="start"></slot>,
+      <slot name='start'></slot>,
       <section>
         <slot></slot>
       </section>,
-      <slot name="end"></slot>,
+      <slot name='end'></slot>,
     ];
   }
 }

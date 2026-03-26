@@ -37,12 +37,15 @@ test.describe('props serialization', () => {
     });
 
     test('supports passing props to components with a simple object', async () => {
-      const { html } = await renderToString(`<another-car-detail car=${JSON.stringify(vento)}></another-car-detail>`, {
-        serializeShadowRoot: true,
-        fullDocument: false,
-        prettyHtml: true,
-        clientHydrateAnnotations: false,
-      });
+      const { html } = await renderToString(
+        `<another-car-detail car=${JSON.stringify(vento)}></another-car-detail>`,
+        {
+          serializeShadowRoot: true,
+          fullDocument: false,
+          prettyHtml: true,
+          clientHydrateAnnotations: false,
+        },
+      );
       expect(html || '').toMatchSnapshot();
       expect(html || '').toContain('2024 VW Vento');
     });
@@ -102,7 +105,9 @@ test.describe('props serialization', () => {
       expect(html || '').toMatchSnapshot();
     });
 
-    test('can render component and verify serialized properties hydrate correctly', async ({ page }) => {
+    test('can render component and verify serialized properties hydrate correctly', async ({
+      page,
+    }) => {
       const template = getTemplate(serializeProperty);
       const { html } = await renderToString(template, { fullDocument: true });
 
@@ -110,7 +115,8 @@ test.describe('props serialization', () => {
       await page.waitForSelector('complex-properties[custom-hydrate-flag]');
 
       const text = await page.evaluate(() => {
-        return document.querySelector('complex-properties')?.shadowRoot?.querySelector('ul')?.textContent;
+        return document.querySelector('complex-properties')?.shadowRoot?.querySelector('ul')
+          ?.textContent;
       });
       expect(text).toContain('this.foo.bar: 123');
       expect(text).toContain('this.foo.loo: 1, 2, 3');
@@ -141,7 +147,8 @@ test.describe('props serialization', () => {
       });
 
       const text = await page.evaluate(() => {
-        return document.querySelector('complex-properties')?.shadowRoot?.querySelector('ul')?.textContent;
+        return document.querySelector('complex-properties')?.shadowRoot?.querySelector('ul')
+          ?.textContent;
       });
       expect(text).toContain('this.foo.bar: 456');
       expect(text).toContain('this.foo.loo: 4, 5, 6');

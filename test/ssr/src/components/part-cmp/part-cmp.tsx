@@ -22,11 +22,11 @@ export class SsrShadowCmp {
         class={{
           selected: this.selected,
         }}
-        part="container"
+        part='container'
       >
-        <slot name="top" />
+        <slot name='top' />
         <slot />
-        {Build.isBrowser && <slot name="client-only" />}
+        {Build.isBrowser && <slot name='client-only' />}
       </div>
     );
   }

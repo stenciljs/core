@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
 export class CmpAvatarTextnode {
   render() {
     return (
-      <div class="container">
+      <div class='container'>
         <slot>DEFAULT</slot>
       </div>
     );

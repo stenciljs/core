@@ -9,12 +9,13 @@ describe('checks slotted node parentNode', () => {
     );
     await waitForExist('cmp-slotted-parentnode.hydrated');
 
-    expect((document.querySelector('cmp-slotted-parentnode')!.children[0].parentNode as Element).tagName).toBe(
-      'CMP-SLOTTED-PARENTNODE',
-    );
-    expect((document.querySelector('cmp-slotted-parentnode')!.childNodes[0].parentNode as Element).tagName).toBe(
-      'CMP-SLOTTED-PARENTNODE',
-    );
+    expect(
+      (document.querySelector('cmp-slotted-parentnode')!.children[0].parentNode as Element).tagName,
+    ).toBe('CMP-SLOTTED-PARENTNODE');
+    expect(
+      (document.querySelector('cmp-slotted-parentnode')!.childNodes[0].parentNode as Element)
+        .tagName,
+    ).toBe('CMP-SLOTTED-PARENTNODE');
   });
 
   it('slotted nodes and elements `__parentNode` return component internals', async () => {
@@ -25,7 +26,11 @@ describe('checks slotted node parentNode', () => {
     );
     await waitForExist('cmp-slotted-parentnode.hydrated');
 
-    expect((document.querySelector('cmp-slotted-parentnode')!.children[0] as any).__parentNode.tagName).toBe('LABEL');
-    expect((document.querySelector('cmp-slotted-parentnode')!.childNodes[0] as any).__parentNode.tagName).toBe('LABEL');
+    expect(
+      (document.querySelector('cmp-slotted-parentnode')!.children[0] as any).__parentNode.tagName,
+    ).toBe('LABEL');
+    expect(
+      (document.querySelector('cmp-slotted-parentnode')!.childNodes[0] as any).__parentNode.tagName,
+    ).toBe('LABEL');
   });
 });

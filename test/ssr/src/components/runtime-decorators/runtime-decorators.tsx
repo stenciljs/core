@@ -56,10 +56,10 @@ export class RunTimeDecorators {
   render() {
     return (
       <div>
-        <div class="basicProp">{this.basicProp}</div>
-        <div class="decoratedProp">{this.decoratedProp}</div>
-        <div class="decoratedGetterSetterProp">{this.decoratedGetterSetterProp}</div>
-        <div class="basicState">{this.basicState}</div>
+        <div class='basicProp'>{this.basicProp}</div>
+        <div class='decoratedProp'>{this.decoratedProp}</div>
+        <div class='decoratedGetterSetterProp'>{this.decoratedGetterSetterProp}</div>
+        <div class='basicState'>{this.basicState}</div>
 
         <button
           onClick={() => {
@@ -69,7 +69,7 @@ export class RunTimeDecorators {
           Change basicState
         </button>
 
-        <div class="decoratedState">{this.decoratedState}</div>
+        <div class='decoratedState'>{this.decoratedState}</div>
         <button
           onClick={() => {
             this.decoratedState -= 100;

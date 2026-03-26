@@ -15,15 +15,15 @@ export class ExtendsRender extends RenderBase {
 
   render() {
     return (
-      <div class="component-wrapper">
-        <div class="component-header">
-          <h2 class="component-title">{this.componentTitle}</h2>
+      <div class='component-wrapper'>
+        <div class='component-header'>
+          <h2 class='component-title'>{this.componentTitle}</h2>
         </div>
 
         {super.render()}
 
-        <div class="component-additional">
-          <p class="additional-content">{this.additionalContent}</p>
+        <div class='component-additional'>
+          <p class='additional-content'>{this.additionalContent}</p>
         </div>
       </div>
     );

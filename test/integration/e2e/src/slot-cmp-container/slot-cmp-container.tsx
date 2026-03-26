@@ -16,15 +16,15 @@ export class PropCmp {
     return (
       <Host>
         <slot-cmp>
-          <slot-parent-cmp label="One" />
+          <slot-parent-cmp label='One' />
         </slot-cmp>
 
         <slot-cmp>
-          <slot-parent-cmp label="Two" />
+          <slot-parent-cmp label='Two' />
         </slot-cmp>
 
         <slot-cmp>
-          <slot-parent-cmp label="Three" />
+          <slot-parent-cmp label='Three' />
         </slot-cmp>
       </Host>
     );

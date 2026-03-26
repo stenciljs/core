@@ -65,17 +65,25 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
 
   render() {
     const focusState = this.focus.getFocusState();
-    const validationData = this.validation.getValidationMessageData(this.helperTextId, this.errorTextId);
+    const validationData = this.validation.getValidationMessageData(
+      this.helperTextId,
+      this.errorTextId,
+    );
 
     return (
-      <div class="checkbox-group-container">
+      <div class='checkbox-group-container'>
         <label>Select Options</label>
-        <div class="checkbox-group" tabindex="0" onFocus={this.handleFocus} onBlur={this.handleBlur}>
+        <div
+          class='checkbox-group'
+          tabindex='0'
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+        >
           <label>
             <input
-              type="checkbox"
+              type='checkbox'
               name={this.inputId}
-              value="option1"
+              value='option1'
               checked={this.values.includes('option1')}
               onChange={this.handleChange}
             />
@@ -83,9 +91,9 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
           </label>
           <label>
             <input
-              type="checkbox"
+              type='checkbox'
               name={this.inputId}
-              value="option2"
+              value='option2'
               checked={this.values.includes('option2')}
               onChange={this.handleChange}
             />
@@ -93,9 +101,9 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
           </label>
           <label>
             <input
-              type="checkbox"
+              type='checkbox'
               name={this.inputId}
-              value="option3"
+              value='option3'
               checked={this.values.includes('option3')}
               onChange={this.handleChange}
             />
@@ -103,15 +111,15 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
           </label>
         </div>
         {validationData.hasError && (
-          <div class="validation-message">
-            <div id={validationData.errorTextId} class="error-text">
+          <div class='validation-message'>
+            <div id={validationData.errorTextId} class='error-text'>
               {validationData.errorMessage}
             </div>
           </div>
         )}
-        <div class="focus-info">
-          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} | Blur Count:{' '}
-          {focusState.blurCount}
+        <div class='focus-info'>
+          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} |
+          Blur Count: {focusState.blurCount}
         </div>
       </div>
     );

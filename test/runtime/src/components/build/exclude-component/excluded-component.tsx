@@ -5,6 +5,6 @@ import { Component, h } from '@stencil/core';
 })
 export class ExcludedComponent {
   render() {
-    return <div class="excluded-content">This component should be excluded from the build</div>;
+    return <div class='excluded-content'>This component should be excluded from the build</div>;
   }
 }

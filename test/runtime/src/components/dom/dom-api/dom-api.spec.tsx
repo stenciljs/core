@@ -3,7 +3,7 @@ import { render } from '@stencil/vitest';
 
 describe('dom-api', () => {
   it('should add css classes', async () => {
-    const { root, waitForChanges } = await render(<dom-api class="class-a" />);
+    const { root, waitForChanges } = await render(<dom-api class='class-a' />);
 
     expect(root.classList.contains('class-a')).toBe(true);
     expect(root.classList.contains('class-b')).toBe(false);
@@ -21,7 +21,7 @@ describe('dom-api', () => {
   });
 
   it('should remove css classes', async () => {
-    const { root, waitForChanges } = await render(<dom-api class="class-a" />);
+    const { root, waitForChanges } = await render(<dom-api class='class-a' />);
 
     root.classList.add('class-b', 'class-c');
     root.classList.remove('class-c');
@@ -33,7 +33,7 @@ describe('dom-api', () => {
   });
 
   it('should toggle css classes', async () => {
-    const { root, waitForChanges } = await render(<dom-api class="class-a" />);
+    const { root, waitForChanges } = await render(<dom-api class='class-a' />);
 
     root.classList.toggle('class-a');
     root.classList.toggle('class-b');
@@ -44,7 +44,7 @@ describe('dom-api', () => {
   });
 
   it('should set id', async () => {
-    const { root, waitForChanges } = await render(<dom-api id="my-cmp" />);
+    const { root, waitForChanges } = await render(<dom-api id='my-cmp' />);
 
     expect(root.id).toBe('my-cmp');
 
@@ -55,7 +55,7 @@ describe('dom-api', () => {
   });
 
   it('should get/set attributes', async () => {
-    const { root, waitForChanges } = await render(<dom-api id="my-cmp" mph="88" />);
+    const { root, waitForChanges } = await render(<dom-api id='my-cmp' mph='88' />);
 
     expect(root.hasAttribute('id')).toBe(true);
     expect(root.hasAttribute('mph')).toBe(true);

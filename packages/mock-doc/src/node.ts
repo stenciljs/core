@@ -8,6 +8,7 @@ import {
   disconnectNode,
 } from './custom-element-registry';
 import { dataset } from './dataset';
+import type { MockDocument } from './document';
 import {
   addEventListener,
   dispatchEvent,
@@ -17,7 +18,6 @@ import {
   resetEventListeners,
 } from './event';
 import { parseFragmentUtil } from './parse-util';
-import { matches, selectAll, selectOne } from './selector';
 import {
   NON_ESCAPABLE_CONTENT,
   serializeNodeToHtml,
@@ -90,10 +90,86 @@ export class MockNode {
     throw new Error(`invalid node type to clone: ${this.nodeType}, deep: ${deep}`);
   }
 
-  compareDocumentPosition(_other: MockNode) {
-    // unimplemented
+  compareDocumentPosition(other: MockNode): number {
     // https://developer.mozilla.org/en-US/docs/Web/API/Node/compareDocumentPosition
-    return -1;
+    const DOCUMENT_POSITION_DISCONNECTED = 1;
+    const DOCUMENT_POSITION_PRECEDING = 2;
+    const DOCUMENT_POSITION_FOLLOWING = 4;
+    const DOCUMENT_POSITION_CONTAINS = 8;
+    const DOCUMENT_POSITION_CONTAINED_BY = 16;
+
+    if (this === other) {
+      return 0;
+    }
+
+    // Check if either node is disconnected
+    let thisRoot: MockNode = this;
+    while (thisRoot.parentNode) {
+      thisRoot = thisRoot.parentNode;
+    }
+
+    let otherRoot: MockNode = other;
+    while (otherRoot.parentNode) {
+      otherRoot = otherRoot.parentNode;
+    }
+
+    if (thisRoot !== otherRoot) {
+      // Disconnected - return disconnected with arbitrary but consistent ordering
+      return DOCUMENT_POSITION_DISCONNECTED | DOCUMENT_POSITION_PRECEDING;
+    }
+
+    // Check if one contains the other
+    let node: MockNode | null = other;
+    while (node) {
+      if (node === this) {
+        return DOCUMENT_POSITION_CONTAINS | DOCUMENT_POSITION_PRECEDING;
+      }
+      node = node.parentNode;
+    }
+
+    node = this as MockNode;
+    while (node) {
+      if (node === other) {
+        return DOCUMENT_POSITION_CONTAINED_BY | DOCUMENT_POSITION_FOLLOWING;
+      }
+      node = node.parentNode;
+    }
+
+    // Determine document order by walking the tree
+    const getAncestors = (n: MockNode): MockNode[] => {
+      const ancestors: MockNode[] = [];
+      while (n) {
+        ancestors.unshift(n);
+        n = n.parentNode as MockNode;
+      }
+      return ancestors;
+    };
+
+    const thisAncestors = getAncestors(this);
+    const otherAncestors = getAncestors(other);
+
+    // Find the common ancestor and compare positions
+    let i = 0;
+    while (thisAncestors[i] === otherAncestors[i]) {
+      i++;
+    }
+
+    // Find which comes first among siblings
+    const commonParent = thisAncestors[i - 1];
+    const thisChild = thisAncestors[i];
+    const otherChild = otherAncestors[i];
+
+    for (const child of commonParent.childNodes) {
+      if (child === thisChild) {
+        return DOCUMENT_POSITION_FOLLOWING;
+      }
+      if (child === otherChild) {
+        return DOCUMENT_POSITION_PRECEDING;
+      }
+    }
+
+    // Should not reach here
+    return DOCUMENT_POSITION_DISCONNECTED;
   }
 
   get firstChild(): MockNode | null {
@@ -430,15 +506,12 @@ export class MockElement extends MockNode {
     return null;
   }
 
+  closest<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | null;
+  closest<K extends keyof SVGElementTagNameMap>(selector: K): SVGElementTagNameMap[K] | null;
+  closest<E extends Element = Element>(selector: string): E | null;
   closest(selector: string) {
-    let elm = this;
-    while (elm != null) {
-      if (elm.matches(selector)) {
-        return elm;
-      }
-      elm = elm.parentNode as any;
-    }
-    return null;
+    const doc = (this.ownerDocument ?? this) as MockDocument;
+    return doc._getDOMSelector().closest(selector, this as unknown as Element);
   }
 
   get dataset() {
@@ -687,7 +760,8 @@ export class MockElement extends MockNode {
   }
 
   matches(selector: string) {
-    return matches(selector, this);
+    const doc = (this.ownerDocument ?? this) as MockDocument;
+    return doc._getDOMSelector().match(selector, this as unknown as Element);
   }
 
   get nextElementSibling() {
@@ -744,12 +818,27 @@ export class MockElement extends MockNode {
     return results;
   }
 
+  // Overloads for tag name with optional class/id/attribute/pseudo selectors
+  querySelector<K extends keyof HTMLElementTagNameMap>(
+    selectors: K | `${K}.${string}` | `${K}#${string}` | `${K}[${string}` | `${K}:${string}`,
+  ): HTMLElementTagNameMap[K] | null;
+  querySelector<K extends keyof SVGElementTagNameMap>(
+    selectors: K | `${K}.${string}` | `${K}#${string}` | `${K}[${string}` | `${K}:${string}`,
+  ): SVGElementTagNameMap[K] | null;
+  querySelector<E extends Element = Element>(selectors: string): E | null;
   querySelector(selector: string) {
-    return selectOne(selector, this);
+    const doc = (this.ownerDocument ?? this) as MockDocument;
+    // Use select()[0] instead of first() to ensure proper document ordering
+    // for comma-separated selectors
+    return doc._getDOMSelector().select(selector, this as unknown as Element)[0] ?? null;
   }
 
+  querySelectorAll<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K][];
+  querySelectorAll<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K][];
+  querySelectorAll<E extends Element = Element>(selectors: string): E[];
   querySelectorAll(selector: string) {
-    return selectAll(selector, this);
+    const doc = (this.ownerDocument ?? this) as MockDocument;
+    return doc._getDOMSelector().select(selector, this as unknown as Element);
   }
 
   removeAttribute(attrName: string) {

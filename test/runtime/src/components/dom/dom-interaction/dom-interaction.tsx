@@ -13,22 +13,22 @@ export class DomInteractionCmp {
     return (
       <div>
         <section>
-          <button onClick={() => (this.clickMsg = 'Was Clicked')} class="click">
+          <button onClick={() => (this.clickMsg = 'Was Clicked')} class='click'>
             {this.clickMsg}
           </button>
         </section>
         <section>
-          <button onFocus={() => (this.focusMsg = 'Has Focus')} class="focus">
+          <button onFocus={() => (this.focusMsg = 'Has Focus')} class='focus'>
             {this.focusMsg}
           </button>
         </section>
         <section>
-          <button onClick={() => (this.tapMsg = 'Was Tapped')} class="tap">
+          <button onClick={() => (this.tapMsg = 'Was Tapped')} class='tap'>
             {this.tapMsg}
           </button>
         </section>
         <section>
-          <input class="input" />
+          <input class='input' />
         </section>
       </div>
     );

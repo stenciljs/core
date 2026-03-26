@@ -6,7 +6,7 @@ describe('textContent patch', () => {
       const { root } = await render(
         <text-content-patch-scoped-with-slot>
           Slot content
-          <p slot="suffix">Suffix content</p>
+          <p slot='suffix'>Suffix content</p>
         </text-content-patch-scoped-with-slot>,
       );
 
@@ -25,7 +25,7 @@ describe('textContent patch', () => {
       const { root, waitForChanges } = await render(
         <text-content-patch-scoped-with-slot>
           Slot content
-          <p slot="suffix">Suffix content</p>
+          <p slot='suffix'>Suffix content</p>
         </text-content-patch-scoped-with-slot>,
       );
 

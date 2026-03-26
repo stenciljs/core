@@ -10,7 +10,7 @@ export class CmpScopedB {
     return (
       <div>
         <p>cmp-scoped-b</p>
-        <p class="scoped-class">scoped-class</p>
+        <p class='scoped-class'>scoped-class</p>
       </div>
     );
   }

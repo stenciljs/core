@@ -11,9 +11,13 @@ export class InputBasicRoot {
     return (
       <div>
         <p>
-          Value: <span class="value">{this.value}</span>
+          Value: <span class='value'>{this.value}</span>
         </p>
-        <input type="text" value={this.value} onInput={(ev: any) => (this.value = ev.target.value)}></input>
+        <input
+          type='text'
+          value={this.value}
+          onInput={(ev: any) => (this.value = ev.target.value)}
+        ></input>
       </div>
     );
   }

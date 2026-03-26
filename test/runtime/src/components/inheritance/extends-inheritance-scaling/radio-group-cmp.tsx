@@ -56,14 +56,14 @@ export class RadioGroupCmp extends FormFieldBase {
     const validationData = this.getValidationMessageData(this.helperTextId, this.errorTextId);
 
     return (
-      <div class="radio-group-container">
+      <div class='radio-group-container'>
         <label>Select Option</label>
-        <div class="radio-group" tabindex="0" onFocus={this.onFocus} onBlur={this.onBlur}>
+        <div class='radio-group' tabindex='0' onFocus={this.onFocus} onBlur={this.onBlur}>
           <label>
             <input
-              type="radio"
+              type='radio'
               name={this.inputId}
-              value="option1"
+              value='option1'
               checked={this.value === 'option1'}
               onChange={this.handleChange}
             />
@@ -71,9 +71,9 @@ export class RadioGroupCmp extends FormFieldBase {
           </label>
           <label>
             <input
-              type="radio"
+              type='radio'
               name={this.inputId}
-              value="option2"
+              value='option2'
               checked={this.value === 'option2'}
               onChange={this.handleChange}
             />
@@ -81,9 +81,9 @@ export class RadioGroupCmp extends FormFieldBase {
           </label>
           <label>
             <input
-              type="radio"
+              type='radio'
               name={this.inputId}
-              value="option3"
+              value='option3'
               checked={this.value === 'option3'}
               onChange={this.handleChange}
             />
@@ -91,15 +91,15 @@ export class RadioGroupCmp extends FormFieldBase {
           </label>
         </div>
         {validationData.hasError && (
-          <div class="validation-message">
-            <div id={validationData.errorTextId} class="error-text">
+          <div class='validation-message'>
+            <div id={validationData.errorTextId} class='error-text'>
               {validationData.errorMessage}
             </div>
           </div>
         )}
-        <div class="focus-info">
-          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} | Blur Count:{' '}
-          {focusState.blurCount}
+        <div class='focus-info'>
+          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} |
+          Blur Count: {focusState.blurCount}
         </div>
       </div>
     );

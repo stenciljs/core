@@ -2,7 +2,9 @@ import { render, h, describe, it, expect } from '@stencil/vitest';
 
 describe('watch native attributes', () => {
   it('triggers the callback for the watched attribute', async () => {
-    const { root, waitForChanges } = await render(<watch-native-attributes aria-label="myStartingLabel" />);
+    const { root, waitForChanges } = await render(
+      <watch-native-attributes aria-label='myStartingLabel' />,
+    );
 
     const div = root.querySelector('div')!;
 

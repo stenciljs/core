@@ -24,7 +24,9 @@ describe('component-on-ready', () => {
   });
 
   it('should handle click events via @Listen and emit events via @Method', async () => {
-    const { root, waitForChanges } = await render<HTMLComponentOnReadyElement>(<component-on-ready propVal={88} />);
+    const { root, waitForChanges } = await render<HTMLComponentOnReadyElement>(
+      <component-on-ready propVal={88} />,
+    );
     await waitForExist('component-on-ready.hydrated');
 
     const button = root.shadowRoot!.querySelector('button')!;

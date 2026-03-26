@@ -17,7 +17,7 @@ describe('shadow-dom-slot-nested', () => {
         main content
         <shadow-dom-slot-nested-root></shadow-dom-slot-nested-root>
       </main>,
-      {waitForReady: false},
+      { waitForReady: false },
     );
     await waitForExist('shadow-dom-slot-nested-root.hydrated');
 

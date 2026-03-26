@@ -12,7 +12,7 @@ export class SlotFallbackTextnodeRoot {
     return (
       <Fragment>
         <cmp-avatar-textnode>{this.shortName}</cmp-avatar-textnode>
-        <button id="toggle-button" onClick={() => (this.shortName = this.shortName ? null : 'JD')}>
+        <button id='toggle-button' onClick={() => (this.shortName = this.shortName ? null : 'JD')}>
           Toggle ShortName
         </button>
       </Fragment>

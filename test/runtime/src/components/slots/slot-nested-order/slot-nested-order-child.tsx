@@ -13,7 +13,7 @@ export class SlotNestedOrderChild {
           <slot />
         </i>
         <cmp-5>5</cmp-5>
-        <slot name="end-slot-name" />
+        <slot name='end-slot-name' />
       </Host>
     );
   }

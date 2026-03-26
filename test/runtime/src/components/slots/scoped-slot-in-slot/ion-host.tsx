@@ -9,9 +9,9 @@ export class IonHost {
     return (
       <div>
         <ion-parent>
-          <slot name="label" slot="label" />
-          <slot name="suffix" slot="suffix" />
-          <slot name="message" slot="message" />
+          <slot name='label' slot='label' />
+          <slot name='suffix' slot='suffix' />
+          <slot name='message' slot='message' />
         </ion-parent>
       </div>
     );

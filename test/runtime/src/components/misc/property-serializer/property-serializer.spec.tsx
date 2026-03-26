@@ -49,7 +49,14 @@ describe('prop-serializer', () => {
     // hits the setter first
     // then the serializer
     // then the watcher
-    expect(await cmp.getGetSet()).toEqual(['1.', { foo: 'bar' }, '2.', { foo: 'bar' }, '3.', { foo: 'bar' }]);
+    expect(await cmp.getGetSet()).toEqual([
+      '1.',
+      { foo: 'bar' },
+      '2.',
+      { foo: 'bar' },
+      '3.',
+      { foo: 'bar' },
+    ]);
 
     cmp.getSet = { bar: 'baz' };
     await waitForChanges();

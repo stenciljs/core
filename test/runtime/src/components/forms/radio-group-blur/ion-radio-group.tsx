@@ -80,11 +80,11 @@ export class TestRadioGroup {
     }
 
     return (
-      <div class="radio-group-top">
-        <div id={helperTextId} class="helper-text">
+      <div class='radio-group-top'>
+        <div id={helperTextId} class='helper-text'>
           {helperText}
         </div>
-        <div id={errorTextId} class="error-text">
+        <div id={errorTextId} class='error-text'>
           {errorText}
         </div>
       </div>
@@ -93,7 +93,7 @@ export class TestRadioGroup {
 
   render() {
     return (
-      <Host role="radiogroup" onClick={this.onClick}>
+      <Host role='radiogroup' onClick={this.onClick}>
         {this.renderHintText()}
         <slot></slot>
       </Host>

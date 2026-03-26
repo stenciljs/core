@@ -1,7 +1,8 @@
 import { render, h } from '@stencil/core';
 import { describe, it, expect, afterEach } from 'vitest';
 
-const isCustomElementsProject = (import.meta as { env?: Record<string, string> }).env?.TEST_PROJECT === 'custom-elements';
+const isCustomElementsProject =
+  (import.meta as { env?: Record<string, string> }).env?.TEST_PROJECT === 'custom-elements';
 
 // Dynamically import loader only for custom-elements project
 let loaderModule: { start: (root?: Element) => void; stop: () => void } | null = null;
@@ -49,7 +50,7 @@ describe('cross-document-constructed-styles', () => {
       };
       check();
     });
-    
+
     const computedStyle = iframe.contentWindow!.getComputedStyle(el);
     expect(computedStyle.color).toBe('rgb(255, 0, 0)');
   });

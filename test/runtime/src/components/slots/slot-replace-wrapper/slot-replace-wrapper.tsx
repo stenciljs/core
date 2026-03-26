@@ -12,11 +12,11 @@ export class SlotReplaceWrapper {
 
     return [
       <TagType {...attrs}>
-        <slot name="start" />
+        <slot name='start' />
         <span>
           <slot />
           <span>
-            <slot name="end" />
+            <slot name='end' />
           </span>
         </span>
       </TagType>,

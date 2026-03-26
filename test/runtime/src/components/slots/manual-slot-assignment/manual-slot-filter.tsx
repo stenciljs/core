@@ -88,18 +88,27 @@ export class ManualSlotFilter {
 
   render() {
     return [
-      <div class="controls">
-        <button class={this.filter === 'all' ? 'active' : ''} onClick={() => this.handleFilterClick('all')}>
+      <div class='controls'>
+        <button
+          class={this.filter === 'all' ? 'active' : ''}
+          onClick={() => this.handleFilterClick('all')}
+        >
           All
         </button>
-        <button class={this.filter === 'fruit' ? 'active' : ''} onClick={() => this.handleFilterClick('fruit')}>
+        <button
+          class={this.filter === 'fruit' ? 'active' : ''}
+          onClick={() => this.handleFilterClick('fruit')}
+        >
           Fruits
         </button>
-        <button class={this.filter === 'vegetable' ? 'active' : ''} onClick={() => this.handleFilterClick('vegetable')}>
+        <button
+          class={this.filter === 'vegetable' ? 'active' : ''}
+          onClick={() => this.handleFilterClick('vegetable')}
+        >
           Vegetables
         </button>
       </div>,
-      <div class="content">
+      <div class='content'>
         <slot ref={(el) => (this.contentSlot = el)}></slot>
       </div>,
     ];

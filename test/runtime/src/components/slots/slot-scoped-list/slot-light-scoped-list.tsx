@@ -7,7 +7,7 @@ export class SlotLightScopedList {
   render() {
     return [
       <section>These are my items:</section>,
-      <article class="list-wrapper" style={{ border: '2px solid green' }}>
+      <article class='list-wrapper' style={{ border: '2px solid green' }}>
         <slot></slot>
       </article>,
       <div>That's it....</div>,

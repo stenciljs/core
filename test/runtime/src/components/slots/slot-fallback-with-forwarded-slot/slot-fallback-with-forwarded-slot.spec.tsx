@@ -2,7 +2,9 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('slot-fallback-with-forwarded-slot', () => {
   it('renders fallback via prop', async () => {
-    const { root, waitForChanges } = await render(<slot-forward-root label="Slot fallback via property" />);
+    const { root, waitForChanges } = await render(
+      <slot-forward-root label='Slot fallback via property' />,
+    );
     await waitForExist('slot-forward-root.hydrated');
 
     const cmp = root;
@@ -26,8 +28,8 @@ describe('slot-fallback-with-forwarded-slot', () => {
 
   it('should hide slot-fb elements when slotted content exists', async () => {
     const { root, waitForChanges } = await render(
-      <slot-forward-root label="Slot fallback via property">
-        <div slot="label">Slot content via slot</div>
+      <slot-forward-root label='Slot fallback via property'>
+        <div slot='label'>Slot content via slot</div>
       </slot-forward-root>,
     );
     await waitForExist('slot-forward-root.hydrated');

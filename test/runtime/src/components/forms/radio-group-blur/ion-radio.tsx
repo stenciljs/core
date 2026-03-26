@@ -1,4 +1,15 @@
-import { Component, Element, Event, EventEmitter, h, Host, Method, Prop, State, Watch } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  h,
+  Host,
+  Method,
+  Prop,
+  State,
+  Watch,
+} from '@stencil/core';
 
 import { addEventListener, isOptionSelected, removeEventListener } from './utils';
 
@@ -85,9 +96,9 @@ export class Radio {
 
   private renderRadioControl() {
     return (
-      <div class="radio-icon" part="container">
-        <div class="radio-inner" part="mark" />
-        <div class="radio-ripple"></div>
+      <div class='radio-icon' part='container'>
+        <div class='radio-inner' part='mark' />
+        <div class='radio-ripple'></div>
       </div>
     );
   }
@@ -100,18 +111,18 @@ export class Radio {
         onFocus={this.onFocus}
         onBlur={this.onBlur}
         onClick={this.onClick}
-        role="radio"
+        role='radio'
         aria-checked={checked ? 'true' : 'false'}
         tabindex={buttonTabindex}
         class={{
           'radio-checked': checked,
         }}
       >
-        <label class="radio-wrapper">
-          <div class="label-text-wrapper">
+        <label class='radio-wrapper'>
+          <div class='label-text-wrapper'>
             <slot></slot>
           </div>
-          <div class="native-wrapper">{this.renderRadioControl()}</div>
+          <div class='native-wrapper'>{this.renderRadioControl()}</div>
         </label>
       </Host>
     );

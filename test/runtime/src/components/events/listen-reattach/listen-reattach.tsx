@@ -16,7 +16,7 @@ export class ListenReattach {
   render() {
     return (
       <Host>
-        <div id="clicked">Clicked: {this.clicked}</div>
+        <div id='clicked'>Clicked: {this.clicked}</div>
       </Host>
     );
   }

@@ -21,7 +21,9 @@ test.describe('client hydration', () => {
   });
 
   test.describe('browser takeover', () => {
-    test('can take over a server side rendered component and re-render it in the browser', async ({ page }) => {
+    test('can take over a server side rendered component and re-render it in the browser', async ({
+      page,
+    }) => {
       const { html } = await renderToString('<cmp-dsd></cmp-dsd>', {
         serializeShadowRoot: true,
         fullDocument: false,
@@ -51,7 +53,9 @@ test.describe('client hydration', () => {
       await expect(button).toHaveText('Count me: 43!');
     });
 
-    test('can render server side component when client sender renders differently', async ({ page }) => {
+    test('can render server side component when client sender renders differently', async ({
+      page,
+    }) => {
       const { html } = await renderToString('<cmp-server-vs-client></cmp-server-vs-client>', {
         serializeShadowRoot: true,
         fullDocument: false,
@@ -223,7 +227,8 @@ test.describe('client hydration', () => {
           prettyHtml: true,
         },
       );
-      expect(html || '').toBe(`<nested-cmp-parent class="sc-nested-cmp-parent-h" custom-hydrate-flag="" s-id="1">
+      expect(html || '')
+        .toBe(`<nested-cmp-parent class="sc-nested-cmp-parent-h" custom-hydrate-flag="" s-id="1">
   <template shadowrootmode="open">
     <style sty-id="sc-nested-cmp-parent">
       .sc-nested-scope-cmp-h{color:green}slot-fb{display:contents}slot-fb[hidden]{display:none}:host{display:inline-block}

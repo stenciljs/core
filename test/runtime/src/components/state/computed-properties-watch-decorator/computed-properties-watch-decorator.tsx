@@ -60,15 +60,25 @@ export class ComputedPropertiesWatchDecorator {
   render() {
     return (
       <div>
-        <p>First name called with: {this.firstNameCalledWith ? JSON.stringify(this.firstNameCalledWith) : 'not yet'}</p>
-        <p>Last name called with: {this.lastNameCalledWith ? JSON.stringify(this.lastNameCalledWith) : 'not yet'}</p>
+        <p>
+          First name called with:{' '}
+          {this.firstNameCalledWith ? JSON.stringify(this.firstNameCalledWith) : 'not yet'}
+        </p>
+        <p>
+          Last name called with:{' '}
+          {this.lastNameCalledWith ? JSON.stringify(this.lastNameCalledWith) : 'not yet'}
+        </p>
         <p>
           First name called with immediate:{' '}
-          {this.firstNameCalledWithImmediate ? JSON.stringify(this.firstNameCalledWithImmediate) : 'not yet'}
+          {this.firstNameCalledWithImmediate
+            ? JSON.stringify(this.firstNameCalledWithImmediate)
+            : 'not yet'}
         </p>
         <p>
           Last name called with immediate:{' '}
-          {this.lastNameCalledWithImmediate ? JSON.stringify(this.lastNameCalledWithImmediate) : 'not yet'}
+          {this.lastNameCalledWithImmediate
+            ? JSON.stringify(this.lastNameCalledWithImmediate)
+            : 'not yet'}
         </p>
       </div>
     );

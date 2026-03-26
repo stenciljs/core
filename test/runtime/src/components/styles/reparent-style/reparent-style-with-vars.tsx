@@ -7,6 +7,6 @@ import { Component, h } from '@stencil/core';
 })
 export class ReparentStyleWithVars {
   render() {
-    return <div class="css-entry">With CSS Vars</div>;
+    return <div class='css-entry'>With CSS Vars</div>;
   }
 }

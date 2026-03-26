@@ -9,14 +9,14 @@ export class SlotReorder {
   render() {
     if (this.reordered) {
       return (
-        <div class="reordered">
-          <slot name="slot-b">
+        <div class='reordered'>
+          <slot name='slot-b'>
             <div>fallback slot-b</div>
           </slot>
           <slot>
             <div>fallback default</div>
           </slot>
-          <slot name="slot-a">
+          <slot name='slot-a'>
             <div>fallback slot-a</div>
           </slot>
         </div>
@@ -28,10 +28,10 @@ export class SlotReorder {
         <slot>
           <div>fallback default</div>
         </slot>
-        <slot name="slot-a">
+        <slot name='slot-a'>
           <div>fallback slot-a</div>
         </slot>
-        <slot name="slot-b">
+        <slot name='slot-b'>
           <div>fallback slot-b</div>
         </slot>
       </div>

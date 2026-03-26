@@ -1,4 +1,13 @@
-import { Component, Event, EventEmitter, Listen, Method, State, h, resolveVar } from '@stencil/core';
+import {
+  Component,
+  Event,
+  EventEmitter,
+  Listen,
+  Method,
+  State,
+  h,
+  resolveVar,
+} from '@stencil/core';
 
 const MY_EVENT = 'myEvent';
 const OTHER_EVENT = 'otherEvent';
@@ -42,8 +51,8 @@ export class ResolveVarEvents {
   render() {
     return (
       <div>
-        <div class="my-event-count">{this.myEventCount}</div>
-        <div class="other-event-count">{this.otherEventCount}</div>
+        <div class='my-event-count'>{this.myEventCount}</div>
+        <div class='other-event-count'>{this.otherEventCount}</div>
       </div>
     );
   }

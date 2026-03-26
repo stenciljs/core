@@ -2,7 +2,9 @@ import { describe, it, expect, render, waitForExist, h } from '@stencil/vitest';
 
 describe('style-mode-shadow', () => {
   it('applies default mode (buford) styles', async () => {
-    const { root } = await render(<style-mode-shadow>content</style-mode-shadow>, { waitForReady: false });
+    const { root } = await render(<style-mode-shadow>content</style-mode-shadow>, {
+      waitForReady: false,
+    });
     await waitForExist('style-mode-shadow.hydrated');
 
     const styles = getComputedStyle(root);
@@ -10,7 +12,9 @@ describe('style-mode-shadow', () => {
   });
 
   it('applies griff mode styles when mode attribute is set', async () => {
-    const { root } = await render(<style-mode-shadow mode="griff">content</style-mode-shadow>, { waitForReady: false });
+    const { root } = await render(<style-mode-shadow mode='griff'>content</style-mode-shadow>, {
+      waitForReady: false,
+    });
     await waitForExist('style-mode-shadow.hydrated');
 
     const styles = getComputedStyle(root);
@@ -18,7 +22,9 @@ describe('style-mode-shadow', () => {
   });
 
   it('applies buford mode styles when mode attribute is explicitly set', async () => {
-    const { root } = await render(<style-mode-shadow mode="buford">content</style-mode-shadow>, { waitForReady: false });
+    const { root } = await render(<style-mode-shadow mode='buford'>content</style-mode-shadow>, {
+      waitForReady: false,
+    });
     await waitForExist('style-mode-shadow.hydrated');
 
     const styles = getComputedStyle(root);

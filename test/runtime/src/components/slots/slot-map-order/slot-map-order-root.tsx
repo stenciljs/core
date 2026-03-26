@@ -11,7 +11,7 @@ export class SlotMapOrderRoot {
       <slot-map-order>
         {items.map((item) => (
           <div>
-            <input type="text" value={item} />
+            <input type='text' value={item} />
           </div>
         ))}
       </slot-map-order>

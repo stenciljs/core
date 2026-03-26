@@ -9,7 +9,7 @@ export class ScopedSlotChildren {
     return (
       <Host>
         <p>internal text 1</p>
-        <slot name="second-slot" />
+        <slot name='second-slot' />
         <div>
           <slot>This is fallback text</slot>
         </div>

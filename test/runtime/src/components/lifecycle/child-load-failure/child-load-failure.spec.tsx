@@ -6,7 +6,7 @@ describe('child-load-failure', () => {
     console.error = () => {};
 
     try {
-    const { root } = await render(<cmp-parent />, { waitForReady: false });
+      const { root } = await render(<cmp-parent />, { waitForReady: false });
       await waitForExist('cmp-parent.hydrated');
 
       expect(root).toBeTruthy();
@@ -14,7 +14,6 @@ describe('child-load-failure', () => {
 
       const parentContent = root.querySelector('.parent-content');
       expect(parentContent).toHaveTextContent('Parent Loaded');
-      
     } finally {
       console.error = originalConsoleError;
     }

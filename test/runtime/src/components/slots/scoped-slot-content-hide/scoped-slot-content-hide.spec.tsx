@@ -5,7 +5,7 @@ describe('scoped-slot-content-hide', () => {
     const { root, waitForChanges } = await render<HTMLScopedSlotContentHideElement>(
       <scoped-slot-content-hide use-slot={false}>
         testing
-        <div class="inside-slot">inside slot</div>
+        <div class='inside-slot'>inside slot</div>
       </scoped-slot-content-hide>,
     );
     await waitForExist('scoped-slot-content-hide.hydrated');

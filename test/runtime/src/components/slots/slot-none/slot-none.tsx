@@ -5,6 +5,6 @@ import { Component, h, Host } from '@stencil/core';
 })
 export class SlotNone {
   render() {
-    return <Host role="list"></Host>;
+    return <Host role='list'></Host>;
   }
 }

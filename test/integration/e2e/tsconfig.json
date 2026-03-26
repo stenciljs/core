@@ -10,11 +10,7 @@
     "jsx": "react",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
-    "lib": [
-      "dom",
-      "es2021",
-      "ESNext.Disposable"
-    ],
+    "lib": ["dom", "es2021", "ESNext.Disposable"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noImplicitAny": true,
@@ -27,12 +23,8 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@path-alias": [
-        "./src/path-alias-cmp/path-alias-lib"
-      ]
+      "@path-alias": ["./src/path-alias-cmp/path-alias-lib"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

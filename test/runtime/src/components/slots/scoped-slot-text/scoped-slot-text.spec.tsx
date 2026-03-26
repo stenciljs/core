@@ -4,7 +4,7 @@ describe('scoped-slot-text', () => {
   it('sets the textContent in the slot location', async () => {
     const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
     await waitForExist('cmp-label.hydrated');
-    
+
     root.textContent = 'New text to go in the slot';
     expect(root.textContent.trim()).toBe('New text to go in the slot');
   });

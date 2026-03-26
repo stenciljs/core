@@ -4,10 +4,10 @@ describe('slot-conditional-rendering', () => {
   it('slots are not hidden', async () => {
     const { root } = await render(
       <slot-conditional-rendering>
-        <span slot="header" id="slotted-header-element-id">
+        <span slot='header' id='slotted-header-element-id'>
           Hello
         </span>
-        <span id="slotted-content-element-id">World!</span>
+        <span id='slotted-content-element-id'>World!</span>
       </slot-conditional-rendering>,
     );
 
@@ -18,10 +18,10 @@ describe('slot-conditional-rendering', () => {
   it('header slot becomes hidden after hitting the toggle button', async () => {
     const { root, waitForChanges } = await render(
       <slot-conditional-rendering>
-        <span slot="header" id="slotted-header-element-id">
+        <span slot='header' id='slotted-header-element-id'>
           Hello
         </span>
-        <span id="slotted-content-element-id">World!</span>
+        <span id='slotted-content-element-id'>World!</span>
       </slot-conditional-rendering>,
     );
 
@@ -36,10 +36,10 @@ describe('slot-conditional-rendering', () => {
   it('content slot becomes hidden after hitting the toggle button', async () => {
     const { root, waitForChanges } = await render(
       <slot-conditional-rendering>
-        <span slot="header" id="slotted-header-element-id">
+        <span slot='header' id='slotted-header-element-id'>
           Hello
         </span>
-        <span id="slotted-content-element-id">World!</span>
+        <span id='slotted-content-element-id'>World!</span>
       </slot-conditional-rendering>,
     );
 

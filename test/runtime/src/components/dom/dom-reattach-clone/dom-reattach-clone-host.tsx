@@ -8,7 +8,7 @@ export class DomReattachCloneHost {
   render() {
     return (
       <Host>
-        <span class="component-mark-up">Component mark-up</span>
+        <span class='component-mark-up'>Component mark-up</span>
         <slot></slot>
       </Host>
     );

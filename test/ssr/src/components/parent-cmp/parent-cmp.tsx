@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
 export class NestedCmpParent {
   render() {
     return (
-      <div class="some-class">
+      <div class='some-class'>
         <nested-scope-cmp>
           <slot></slot>
         </nested-scope-cmp>

@@ -8,9 +8,9 @@
     "test": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@stencil/core": "workspace:*",
-    "@stencil/playwright": "catalog:",
-    "@playwright/test": "catalog:"
+    "@stencil/playwright": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"

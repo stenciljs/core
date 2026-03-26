@@ -27,6 +27,6 @@ export class FormAssociatedCmp {
   }
 
   render() {
-    return <input type="text" />;
+    return <input type='text' />;
   }
 }

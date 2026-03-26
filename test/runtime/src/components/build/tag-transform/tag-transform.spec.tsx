@@ -48,7 +48,9 @@ describe('tag-transform', () => {
   it('transforms tags within closest using original name', async () => {
     const { root } = await render(<parent-tag-is-transformed />);
     // closest with original tag name should find transformed parent
-    const childElement = root.querySelector<HTMLChildTagTransformElement>('child-tag-is-transformed');
+    const childElement = root.querySelector<HTMLChildTagTransformElement>(
+      'child-tag-is-transformed',
+    );
     const parent = await childElement!.closestParentTag();
     expect(parent).toBeTruthy();
   });

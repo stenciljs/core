@@ -13,10 +13,10 @@ export class ConditionalBasic {
   render() {
     return (
       <div>
-        <button onClick={this.testClick.bind(this)} class="test">
+        <button onClick={this.testClick.bind(this)} class='test'>
           Test
         </button>
-        <div class="results">{this.showContent ? 'Content' : ''}</div>
+        <div class='results'>{this.showContent ? 'Content' : ''}</div>
       </div>
     );
   }

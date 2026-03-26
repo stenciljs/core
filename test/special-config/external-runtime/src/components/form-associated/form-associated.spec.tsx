@@ -11,7 +11,7 @@ describe('external runtime - form associated', () => {
   it('should render without errors', async () => {
     const { root } = await render(
       <form>
-        <form-associated-external name="test-input"></form-associated-external>
+        <form-associated-external name='test-input'></form-associated-external>
       </form>,
     );
 
@@ -23,7 +23,7 @@ describe('external runtime - form associated', () => {
   it('should trigger formAssociatedCallback', async () => {
     const { root } = await render(
       <form>
-        <form-associated-external name="test-input"></form-associated-external>
+        <form-associated-external name='test-input'></form-associated-external>
       </form>,
     );
 
@@ -33,8 +33,8 @@ describe('external runtime - form associated', () => {
   it('should trigger formResetCallback', async () => {
     const { root, waitForChanges } = await render(
       <form>
-        <form-associated-external name="test-input"></form-associated-external>
-        <input type="reset" />
+        <form-associated-external name='test-input'></form-associated-external>
+        <input type='reset' />
       </form>,
     );
 
@@ -47,7 +47,7 @@ describe('external runtime - form associated', () => {
   it('should trigger formDisabledCallback', async () => {
     const { root, waitForChanges } = await render(
       <form>
-        <form-associated-external name="test-input"></form-associated-external>
+        <form-associated-external name='test-input'></form-associated-external>
       </form>,
     );
 
@@ -65,7 +65,7 @@ describe('external runtime - form associated', () => {
   it('should link up to the surrounding form', async () => {
     const { root } = await render<HTMLFormElement>(
       <form>
-        <form-associated-external name="test-input"></form-associated-external>
+        <form-associated-external name='test-input'></form-associated-external>
       </form>,
     );
 

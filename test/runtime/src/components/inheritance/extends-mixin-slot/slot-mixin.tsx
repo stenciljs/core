@@ -8,10 +8,10 @@ import { h } from '@stencil/core';
 export const SlotMixinFactory = <T extends new (...args: any[]) => {}>(Base: T) => {
   class SlotMixin extends Base {
     renderContent = () => (
-      <div class="mixin-wrapper">
-        <div class="mixin-header">Mixin Content Header</div>
-        <slot name="content" />
-        <div class="mixin-footer">Mixin Content Footer</div>
+      <div class='mixin-wrapper'>
+        <div class='mixin-header'>Mixin Content Header</div>
+        <slot name='content' />
+        <div class='mixin-footer'>Mixin Content Footer</div>
       </div>
     );
   }

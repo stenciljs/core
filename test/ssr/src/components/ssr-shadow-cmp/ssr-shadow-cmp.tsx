@@ -23,9 +23,9 @@ export class SsrShadowCmp {
           selected: this.selected,
         }}
       >
-        <slot name="top" />
+        <slot name='top' />
         <slot />
-        {Build.isBrowser && <slot name="client-only" />}
+        {Build.isBrowser && <slot name='client-only' />}
       </div>
     );
   }

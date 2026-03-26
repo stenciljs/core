@@ -9,7 +9,7 @@ export class RemoveChildPatch {
     return (
       <div>
         <p>I'm not in a slot</p>
-        <div class="slot-container">
+        <div class='slot-container'>
           <slot>Slot fallback content</slot>
         </div>
       </div>

@@ -129,7 +129,9 @@ async function runBenchmark(page, fn) {
     // Reset state before each run
     await page.evaluate(() => document.querySelector('#perf').clear());
     await page
-      .waitForSelector('#perf table tbody:empty, #perf table tbody:not(:has(tr))', { timeout: 5000 })
+      .waitForSelector('#perf table tbody:empty, #perf table tbody:not(:has(tr))', {
+        timeout: 5000,
+      })
       .catch(() => {});
 
     // Small delay to ensure clean state
@@ -139,7 +141,9 @@ async function runBenchmark(page, fn) {
     await fn(page);
 
     // Wait for render to complete
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    await page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    );
 
     const end = await page.evaluate(() => performance.now());
     times.push(end - start);

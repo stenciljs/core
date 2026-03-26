@@ -11,10 +11,10 @@ export class AppRoot {
   render() {
     return (
       <Host>
-        <div id="txt">{myText}</div>
-        <div id="whatever-html">{whateverHtml}</div>
-        <img id="ionic-svg-url" src={ionicSvgUrl} />
-        <div id="ionic-svg-text">{ionicSvgText}</div>
+        <div id='txt'>{myText}</div>
+        <div id='whatever-html'>{whateverHtml}</div>
+        <img id='ionic-svg-url' src={ionicSvgUrl} />
+        <div id='ionic-svg-text'>{ionicSvgText}</div>
       </Host>
     );
   }

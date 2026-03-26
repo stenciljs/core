@@ -8,13 +8,13 @@ export class SlotNoDefault {
   render() {
     return (
       <Host>
-        <slot name="a-slot-name" />
+        <slot name='a-slot-name' />
         <section>
-          <slot name="footer-slot-name" />
+          <slot name='footer-slot-name' />
         </section>
         <div>
           <article>
-            <slot name="nav-slot-name" />
+            <slot name='nav-slot-name' />
           </article>
         </div>
       </Host>

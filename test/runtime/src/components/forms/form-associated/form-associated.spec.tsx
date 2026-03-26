@@ -4,8 +4,8 @@ describe('form associated', () => {
   it('should render without errors', async () => {
     const { root } = await render(
       <form>
-        <form-associated name="test-input" />
-        <input type="reset" value="Reset" />
+        <form-associated name='test-input' />
+        <input type='reset' value='Reset' />
       </form>,
     );
     expect(root.querySelector('form-associated')).toBeTruthy();
@@ -15,8 +15,8 @@ describe('form associated', () => {
     it('should trigger "formAssociated"', async () => {
       const { root } = await render(
         <form>
-          <form-associated name="test-input" />
-          <input type="reset" value="Reset" />
+          <form-associated name='test-input' />
+          <input type='reset' value='Reset' />
         </form>,
       );
       await waitForExist('form-associated.hydrated');
@@ -27,8 +27,8 @@ describe('form associated', () => {
     it('should trigger "formResetCallback"', async () => {
       const { root, waitForChanges } = await render(
         <form>
-          <form-associated name="test-input" />
-          <input type="reset" value="Reset" />
+          <form-associated name='test-input' />
+          <input type='reset' value='Reset' />
         </form>,
       );
       await waitForExist('form-associated.hydrated');
@@ -45,8 +45,8 @@ describe('form associated', () => {
     it('should trigger "formDisabledCallback"', async () => {
       const { root, waitForChanges } = await render(
         <form>
-          <form-associated name="test-input" />
-          <input type="reset" value="Reset" />
+          <form-associated name='test-input' />
+          <input type='reset' value='Reset' />
         </form>,
       );
 
@@ -71,8 +71,8 @@ describe('form associated', () => {
   it('should link up to the surrounding form', async () => {
     const { root } = await render(
       <form>
-        <form-associated name="test-input" />
-        <input type="reset" value="Reset" />
+        <form-associated name='test-input' />
+        <input type='reset' value='Reset' />
       </form>,
     );
 
@@ -95,13 +95,17 @@ describe('form associated prop check', () => {
 
     await waitForExist('form-associated-prop-check.hydrated');
 
-    const components = root.querySelectorAll('form-associated-prop-check') as NodeListOf<
-      HTMLFormAssociatedPropCheckElement
-    >;
+    const components = root.querySelectorAll(
+      'form-associated-prop-check',
+    ) as NodeListOf<HTMLFormAssociatedPropCheckElement>;
     expect(components[0].disabled).toBe(true);
     expect(components[1].disabled).toBe(false);
 
-    expect(components[0].shadowRoot!.querySelector('p')).toHaveTextContent('Disabled prop value: true');
-    expect(components[1].shadowRoot!.querySelector('p')).toHaveTextContent('Disabled prop value: false');
+    expect(components[0].shadowRoot!.querySelector('p')).toHaveTextContent(
+      'Disabled prop value: true',
+    );
+    expect(components[1].shadowRoot!.querySelector('p')).toHaveTextContent(
+      'Disabled prop value: false',
+    );
   });
 });

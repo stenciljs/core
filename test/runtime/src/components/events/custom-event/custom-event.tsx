@@ -31,16 +31,16 @@ export class CustomEventCmp {
     return (
       <div>
         <div>
-          <button id="btnNoDetail" onClick={this.fireCustomEventNoDetail.bind(this)}>
+          <button id='btnNoDetail' onClick={this.fireCustomEventNoDetail.bind(this)}>
             Fire Custom Event, no detail
           </button>
         </div>
         <div>
-          <button id="btnWithDetail" onClick={this.fireCustomEventWithDetail.bind(this)}>
+          <button id='btnWithDetail' onClick={this.fireCustomEventWithDetail.bind(this)}>
             Fire Custom Event, with detail
           </button>
         </div>
-        <pre id="output">{this.output}</pre>
+        <pre id='output'>{this.output}</pre>
       </div>
     );
   }

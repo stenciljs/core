@@ -2,7 +2,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('attribute-complex', () => {
   it('should cast attributes', async () => {
-    const { root, waitForChanges } = await render(<attribute-complex />, {waitForReady: false});
+    const { root, waitForChanges } = await render(<attribute-complex />, { waitForReady: false });
     await waitForExist('attribute-complex.hydrated');
 
     root.setAttribute('nu-0', '3');
@@ -37,9 +37,9 @@ describe('attribute-complex', () => {
   });
 
   it('should cast element props', async () => {
-    const { root, waitForChanges } = await render(<attribute-complex />, {waitForReady: false});
+    const { root, waitForChanges } = await render(<attribute-complex />, { waitForReady: false });
     await waitForExist('attribute-complex.hydrated');
-    
+
     const instance = await (root as any).getInstance();
 
     (root as any).nu0 = '1234';

@@ -2,6 +2,7 @@
   "name": "@stencil-core-tests/build-docs-json",
   "version": "1.0.0",
   "description": "A test app for the docs-json output target",
+  "license": "MIT",
   "files": [
     "dist/"
   ],
@@ -17,7 +18,6 @@
   "dependencies": {
     "@stencil/core": "workspace:*"
   },
-  "license": "MIT",
   "volta": {
     "extends": "../../../package.json"
   }

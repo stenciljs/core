@@ -261,7 +261,7 @@ export class MockLabelElement extends MockHTMLElement {
     // If no "for" attribute, look for the first labelable descendant
     const labelableSelector =
       'button, input:not([type="hidden"]), meter, output, progress, select, textarea';
-    return this.querySelector(labelableSelector);
+    return this.querySelector(labelableSelector) as unknown as MockHTMLElement | null;
   }
 }
 

@@ -46,7 +46,10 @@ async function main() {
   if (results.httpStatus !== 200) {
     throw new Error(`invalid httpStatus: ${results.httpStatus}`);
   }
-  if (results.anchors.length !== 1 || results.anchors[0].href !== `https://hydrate.stenciljs.com/some-link`) {
+  if (
+    results.anchors.length !== 1 ||
+    results.anchors[0].href !== `https://hydrate.stenciljs.com/some-link`
+  ) {
     throw new Error(`invalid anchors: ${results.anchors}`);
   }
   if (results.url !== `https://hydrate.stenciljs.com/`) {

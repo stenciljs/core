@@ -7,6 +7,6 @@ import { foo } from './data.json';
 })
 export class JsonBasic {
   render() {
-    return <div id="json-foo">{foo}</div>;
+    return <div id='json-foo'>{foo}</div>;
   }
 }

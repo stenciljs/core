@@ -24,24 +24,24 @@ export class SlotFallbackRoot {
 
   render() {
     return [
-      <button onClick={this.changeFallbackContent.bind(this)} class="change-fallback-content">
+      <button onClick={this.changeFallbackContent.bind(this)} class='change-fallback-content'>
         Change Fallback Slot Content
       </button>,
 
-      <button onClick={this.changeLightDom.bind(this)} class="change-light-dom">
+      <button onClick={this.changeLightDom.bind(this)} class='change-light-dom'>
         {this.inc % 2 === 0 ? 'Use light dom content' : 'Use fallback slot content'}
       </button>,
 
-      <button onClick={this.changeSlotContent.bind(this)} class="change-slot-content">
+      <button onClick={this.changeSlotContent.bind(this)} class='change-slot-content'>
         Change Slot Content
       </button>,
 
-      <slot-fallback inc={this.fallbackInc} class="results1">
+      <slot-fallback inc={this.fallbackInc} class='results1'>
         {this.inc % 2 !== 0
           ? [
               <content-default>{this.slotContent} : default</content-default>,
-              <content-end slot="end">{this.slotContent} : end</content-end>,
-              <content-start slot="start">{this.slotContent} : start</content-start>,
+              <content-end slot='end'>{this.slotContent} : end</content-end>,
+              <content-start slot='start'>{this.slotContent} : start</content-start>,
             ]
           : null}
       </slot-fallback>,

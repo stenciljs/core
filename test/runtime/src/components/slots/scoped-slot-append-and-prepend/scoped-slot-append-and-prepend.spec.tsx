@@ -8,7 +8,7 @@ describe('scoped-slot-append-and-prepend', () => {
           <p>My initial slotted content.</p>
         </scoped-slot-append-and-prepend>,
       );
-      await waitForExist('scoped-slot-append-and-prepend.hydrated');  
+      await waitForExist('scoped-slot-append-and-prepend.hydrated');
       const host = root;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
 

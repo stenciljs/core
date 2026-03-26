@@ -16,7 +16,7 @@ export class MyApp {
       <Host>
         <div>
           <scoped-ssr-child-cmp>
-            <slot name="things" />
+            <slot name='things' />
           </scoped-ssr-child-cmp>
           <div>
             <slot />

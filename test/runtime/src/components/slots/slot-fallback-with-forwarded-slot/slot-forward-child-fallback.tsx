@@ -16,7 +16,7 @@ export class SlotForwardChildFallback {
     return (
       <Host>
         <div>
-          <slot name="label">{this.label}</slot>
+          <slot name='label'>{this.label}</slot>
         </div>
       </Host>
     );

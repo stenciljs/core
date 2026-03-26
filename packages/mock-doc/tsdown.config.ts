@@ -10,6 +10,6 @@ export default defineConfig({
   clean: true,
   deps: {
     neverBundle: [/^node:/],
-    alwaysBundle: ['jquery'],
+    alwaysBundle: ['nwsapi'],
   },
 });

@@ -5,15 +5,15 @@ describe('manual-slot-assignment', () => {
     it('should render with shadow DOM using manual slot assignment', async () => {
       const { root } = await render<HTMLManualSlotTabsElement>(
         <manual-slot-tabs>
-          <div slot="tab-0" data-testid="tab-0-content">
+          <div slot='tab-0' data-testid='tab-0-content'>
             <h2>Tab 1 Content</h2>
             <p>This is the content for the first tab.</p>
           </div>
-          <div slot="tab-1" data-testid="tab-1-content">
+          <div slot='tab-1' data-testid='tab-1-content'>
             <h2>Tab 2 Content</h2>
             <p>This is the content for the second tab.</p>
           </div>
-          <div slot="tab-2" data-testid="tab-2-content">
+          <div slot='tab-2' data-testid='tab-2-content'>
             <h2>Tab 3 Content</h2>
             <p>This is the content for the third tab.</p>
           </div>
@@ -33,13 +33,13 @@ describe('manual-slot-assignment', () => {
     it('should initially show tab 0 content', async () => {
       const { root } = await render<HTMLManualSlotTabsElement>(
         <manual-slot-tabs>
-          <div slot="tab-0" data-testid="tab-0-content">
+          <div slot='tab-0' data-testid='tab-0-content'>
             <h2>Tab 1 Content</h2>
           </div>
-          <div slot="tab-1" data-testid="tab-1-content">
+          <div slot='tab-1' data-testid='tab-1-content'>
             <h2>Tab 2 Content</h2>
           </div>
-          <div slot="tab-2" data-testid="tab-2-content">
+          <div slot='tab-2' data-testid='tab-2-content'>
             <h2>Tab 3 Content</h2>
           </div>
         </manual-slot-tabs>,
@@ -56,13 +56,13 @@ describe('manual-slot-assignment', () => {
     it('should show only the active tab content when switching tabs', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotTabsElement>(
         <manual-slot-tabs>
-          <div slot="tab-0" data-testid="tab-0-content">
+          <div slot='tab-0' data-testid='tab-0-content'>
             <h2>Tab 1 Content</h2>
           </div>
-          <div slot="tab-1" data-testid="tab-1-content">
+          <div slot='tab-1' data-testid='tab-1-content'>
             <h2>Tab 2 Content</h2>
           </div>
-          <div slot="tab-2" data-testid="tab-2-content">
+          <div slot='tab-2' data-testid='tab-2-content'>
             <h2>Tab 3 Content</h2>
           </div>
         </manual-slot-tabs>,
@@ -95,9 +95,15 @@ describe('manual-slot-assignment', () => {
     it('should update active button styling when switching tabs', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotTabsElement>(
         <manual-slot-tabs>
-          <div slot="tab-0" data-testid="tab-0-content">Tab 1</div>
-          <div slot="tab-1" data-testid="tab-1-content">Tab 2</div>
-          <div slot="tab-2" data-testid="tab-2-content">Tab 3</div>
+          <div slot='tab-0' data-testid='tab-0-content'>
+            Tab 1
+          </div>
+          <div slot='tab-1' data-testid='tab-1-content'>
+            Tab 2
+          </div>
+          <div slot='tab-2' data-testid='tab-2-content'>
+            Tab 3
+          </div>
         </manual-slot-tabs>,
       );
       await waitForExist('manual-slot-tabs.hydrated');
@@ -106,7 +112,8 @@ describe('manual-slot-assignment', () => {
       const buttons = el.shadowRoot!.querySelectorAll('.tabs button');
 
       // Check initial active state
-      const getActiveStates = () => Array.from(buttons).map((btn) => btn.classList.contains('active'));
+      const getActiveStates = () =>
+        Array.from(buttons).map((btn) => btn.classList.contains('active'));
       expect(getActiveStates()).toEqual([true, false, false]);
 
       // Click second tab
@@ -120,9 +127,15 @@ describe('manual-slot-assignment', () => {
     it('should support programmatic tab switching via method', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotTabsElement>(
         <manual-slot-tabs>
-          <div slot="tab-0" data-testid="tab-0-content">Tab 1</div>
-          <div slot="tab-1" data-testid="tab-1-content">Tab 2</div>
-          <div slot="tab-2" data-testid="tab-2-content">Tab 3</div>
+          <div slot='tab-0' data-testid='tab-0-content'>
+            Tab 1
+          </div>
+          <div slot='tab-1' data-testid='tab-1-content'>
+            Tab 2
+          </div>
+          <div slot='tab-2' data-testid='tab-2-content'>
+            Tab 3
+          </div>
         </manual-slot-tabs>,
       );
       await waitForExist('manual-slot-tabs.hydrated');
@@ -134,12 +147,16 @@ describe('manual-slot-assignment', () => {
 
       // Verify tab-2 is assigned
       const slot = el.shadowRoot!.querySelector('slot')!;
-      const assignedNodes = slot.assignedElements().map((el: Element) => el.getAttribute('data-testid'));
+      const assignedNodes = slot
+        .assignedElements()
+        .map((el: Element) => el.getAttribute('data-testid'));
       expect(assignedNodes).toEqual(['tab-2-content']);
 
       // Verify button state
       const buttons = el.shadowRoot!.querySelectorAll('.tabs button');
-      const activeStates = Array.from(buttons).map((btn: Element) => btn.classList.contains('active'));
+      const activeStates = Array.from(buttons).map((btn: Element) =>
+        btn.classList.contains('active'),
+      );
       expect(activeStates).toEqual([false, false, true]);
     });
   });
@@ -148,10 +165,10 @@ describe('manual-slot-assignment', () => {
     it('should render with shadow DOM using manual slot assignment', async () => {
       const { root } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
         </manual-slot-filter>,
@@ -165,19 +182,19 @@ describe('manual-slot-assignment', () => {
     it('should initially show all items', async () => {
       const { root } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="fruit" data-testid="banana">
+          <div data-category='fruit' data-testid='banana'>
             Banana
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
-          <div data-category="vegetable" data-testid="broccoli">
+          <div data-category='vegetable' data-testid='broccoli'>
             Broccoli
           </div>
-          <div data-category="fruit" data-testid="orange">
+          <div data-category='fruit' data-testid='orange'>
             Orange
           </div>
         </manual-slot-filter>,
@@ -193,19 +210,19 @@ describe('manual-slot-assignment', () => {
     it('should filter to show only fruits', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="fruit" data-testid="banana">
+          <div data-category='fruit' data-testid='banana'>
             Banana
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
-          <div data-category="vegetable" data-testid="broccoli">
+          <div data-category='vegetable' data-testid='broccoli'>
             Broccoli
           </div>
-          <div data-category="fruit" data-testid="orange">
+          <div data-category='fruit' data-testid='orange'>
             Orange
           </div>
         </manual-slot-filter>,
@@ -228,19 +245,19 @@ describe('manual-slot-assignment', () => {
     it('should filter to show only vegetables', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="fruit" data-testid="banana">
+          <div data-category='fruit' data-testid='banana'>
             Banana
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
-          <div data-category="vegetable" data-testid="broccoli">
+          <div data-category='vegetable' data-testid='broccoli'>
             Broccoli
           </div>
-          <div data-category="fruit" data-testid="orange">
+          <div data-category='fruit' data-testid='orange'>
             Orange
           </div>
         </manual-slot-filter>,
@@ -263,19 +280,19 @@ describe('manual-slot-assignment', () => {
     it('should switch back to showing all items', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="fruit" data-testid="banana">
+          <div data-category='fruit' data-testid='banana'>
             Banana
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
-          <div data-category="vegetable" data-testid="broccoli">
+          <div data-category='vegetable' data-testid='broccoli'>
             Broccoli
           </div>
-          <div data-category="fruit" data-testid="orange">
+          <div data-category='fruit' data-testid='orange'>
             Orange
           </div>
         </manual-slot-filter>,
@@ -302,21 +319,22 @@ describe('manual-slot-assignment', () => {
     it('should update active button styling when filtering', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
         </manual-slot-filter>,
       );
-      
+
       await waitForExist('manual-slot-filter.hydrated');
       const el = root;
       const buttons = el.shadowRoot!.querySelectorAll('.controls button');
 
       // Check initial active state
-      const getActiveStates = () => Array.from(buttons).map((btn) => btn.classList.contains('active'));
+      const getActiveStates = () =>
+        Array.from(buttons).map((btn) => btn.classList.contains('active'));
       expect(getActiveStates()).toEqual([true, false, false]);
 
       // Click Vegetables filter
@@ -330,16 +348,16 @@ describe('manual-slot-assignment', () => {
     it('should support programmatic filtering via method', async () => {
       const { root, waitForChanges } = await render<HTMLManualSlotFilterElement>(
         <manual-slot-filter>
-          <div data-category="fruit" data-testid="apple">
+          <div data-category='fruit' data-testid='apple'>
             Apple
           </div>
-          <div data-category="fruit" data-testid="banana">
+          <div data-category='fruit' data-testid='banana'>
             Banana
           </div>
-          <div data-category="vegetable" data-testid="carrot">
+          <div data-category='vegetable' data-testid='carrot'>
             Carrot
           </div>
-          <div data-category="fruit" data-testid="orange">
+          <div data-category='fruit' data-testid='orange'>
             Orange
           </div>
         </manual-slot-filter>,
@@ -353,7 +371,9 @@ describe('manual-slot-assignment', () => {
 
       // Verify only fruits are assigned
       const slot = el.shadowRoot!.querySelector('slot')!;
-      const assignedNodes = slot.assignedElements().map((el: Element) => el.getAttribute('data-testid'));
+      const assignedNodes = slot
+        .assignedElements()
+        .map((el: Element) => el.getAttribute('data-testid'));
       expect(assignedNodes).toEqual(['apple', 'banana', 'orange']);
     });
   });

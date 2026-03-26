@@ -4,7 +4,7 @@ describe('slot-parent-tag-change', () => {
   describe('direct slot', () => {
     it('should relocate the text node to the slot after the parent tag changes', async () => {
       const { root, waitForChanges } = await render(
-        <slot-parent-tag-change id="top-level"> Hello </slot-parent-tag-change>,
+        <slot-parent-tag-change id='top-level'> Hello </slot-parent-tag-change>,
       );
       await waitForExist('slot-parent-tag-change.hydrated');
 

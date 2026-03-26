@@ -8,7 +8,7 @@ export class IonChild {
   render() {
     return (
       <div style={{ display: 'flex', gap: '13px' }}>
-        <slot name="suffix" />
+        <slot name='suffix' />
       </div>
     );
   }

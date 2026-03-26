@@ -15,7 +15,7 @@ describe('extends-mixin-slot', () => {
     it('renders slotted content inside the mixin wrapper', async () => {
       const { root } = await render(
         <extends-mixin-slot-cmp>
-          <div slot="content" class="slotted-content">
+          <div slot='content' class='slotted-content'>
             I am slotted content
           </div>
         </extends-mixin-slot-cmp>,

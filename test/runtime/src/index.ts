@@ -8,6 +8,6 @@ export const setupApp = () => {
     if (!elm) return null;
     return (elm as any).colormode || elm.getAttribute('colormode');
   });
-}
+};
 
 export * from './components';

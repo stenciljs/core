@@ -7,6 +7,6 @@ import { Component, h } from '@stencil/core';
 })
 export class ReparentStyleNoVars {
   render() {
-    return <div class="css-entry">No CSS Variables</div>;
+    return <div class='css-entry'>No CSS Variables</div>;
   }
 }

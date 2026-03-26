@@ -3,7 +3,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 describe('reparent behavior (style)', () => {
   it('should have styles applied by default', async () => {
     await render(
-      <div class="reparent-container">
+      <div class='reparent-container'>
         <reparent-style-with-vars></reparent-style-with-vars>
         <reparent-style-no-vars></reparent-style-no-vars>
       </div>,
@@ -19,10 +19,10 @@ describe('reparent behavior (style)', () => {
 
   it('should preserve styles after reparenting a component (no css vars)', async () => {
     const { waitForChanges } = await render(
-      <div class="reparent-container">
+      <div class='reparent-container'>
         <reparent-style-with-vars></reparent-style-with-vars>
         <reparent-style-no-vars></reparent-style-no-vars>
-        <button class="reparent-no-vars">Reparent (no vars)</button>
+        <button class='reparent-no-vars'>Reparent (no vars)</button>
       </div>,
     );
     await waitForExist('reparent-style-with-vars.hydrated');
@@ -42,10 +42,10 @@ describe('reparent behavior (style)', () => {
 
   it('should preserve styles after reparenting a component (with css vars)', async () => {
     const { waitForChanges } = await render(
-      <div class="reparent-container">
+      <div class='reparent-container'>
         <reparent-style-with-vars></reparent-style-with-vars>
         <reparent-style-no-vars></reparent-style-no-vars>
-        <button class="reparent-vars">Reparent (with vars)</button>
+        <button class='reparent-vars'>Reparent (with vars)</button>
       </div>,
     );
     await waitForExist('reparent-style-with-vars.hydrated');

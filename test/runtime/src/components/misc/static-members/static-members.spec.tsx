@@ -22,6 +22,8 @@ describe('static-members', () => {
   it('renders properly with a static member initialized outside of a class', async () => {
     const { root } = await render(<static-members-separate-initializer />);
     const div = root.querySelector('div')!;
-    expect(div).toHaveTextContent('This is a component with static an externally initialized member');
+    expect(div).toHaveTextContent(
+      'This is a component with static an externally initialized member',
+    );
   });
 });

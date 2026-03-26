@@ -54,11 +54,11 @@ export class TextInputCmp extends FormFieldBase {
     const validationData = this.getValidationMessageData(this.helperTextId, this.errorTextId);
 
     return (
-      <div class="text-input-container">
+      <div class='text-input-container'>
         <label htmlFor={this.inputId}>Name</label>
         <input
           id={this.inputId}
-          type="text"
+          type='text'
           value={this.value}
           onInput={this.handleInput}
           onFocus={this.onFocus}
@@ -66,15 +66,15 @@ export class TextInputCmp extends FormFieldBase {
           class={validationState.isValid ? '' : 'invalid'}
         />
         {validationData.hasError && (
-          <div class="validation-message">
-            <div id={validationData.errorTextId} class="error-text">
+          <div class='validation-message'>
+            <div id={validationData.errorTextId} class='error-text'>
               {validationData.errorMessage}
             </div>
           </div>
         )}
-        <div class="focus-info">
-          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} | Blur Count:{' '}
-          {focusState.blurCount}
+        <div class='focus-info'>
+          Focused: {focusState.isFocused ? 'Yes' : 'No'} | Focus Count: {focusState.focusCount} |
+          Blur Count: {focusState.blurCount}
         </div>
       </div>
     );

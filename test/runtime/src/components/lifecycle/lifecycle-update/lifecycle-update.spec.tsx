@@ -5,11 +5,11 @@ describe('lifecycle-update', () => {
   it('fire load methods in order', async () => {
     const { waitForChanges } = await render(
       <>
-        <ol id="output"></ol>
+        <ol id='output'></ol>
         <hr />
         <lifecycle-update-a></lifecycle-update-a>
       </>,
-      {waitForReady: false},
+      { waitForReady: false },
     );
 
     await waitForExist('lifecycle-update-a.hydrated');

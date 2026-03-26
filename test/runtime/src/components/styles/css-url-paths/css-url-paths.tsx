@@ -6,6 +6,6 @@ import { Component, h } from '@stencil/core';
 })
 export class CssUrlPaths {
   render() {
-    return [<div id="relative"></div>, <div id="relativeToRoot"></div>, <div id="absolute"></div>];
+    return [<div id='relative'></div>, <div id='relativeToRoot'></div>, <div id='absolute'></div>];
   }
 }

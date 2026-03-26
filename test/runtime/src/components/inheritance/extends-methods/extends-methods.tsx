@@ -43,7 +43,7 @@ export class ExtendsMethods extends MethodBase {
     return (
       <div>
         <h2>Method Inheritance Test</h2>
-        <p class="display-value">Display: {this.displayValue}</p>
+        <p class='display-value'>Display: {this.displayValue}</p>
       </div>
     );
   }

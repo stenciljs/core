@@ -33,7 +33,7 @@ export class LifecycleBasicB {
       <div>
         <hr />
         <div>LifecycleBasicB {this.value}</div>
-        <div class="rendered-b">rendered b: {this.rendered}</div>
+        <div class='rendered-b'>rendered b: {this.rendered}</div>
         <lifecycle-basic-c value={this.value} />
       </div>
     );

@@ -6,7 +6,11 @@ import { Component, h } from '@stencil/core';
 export class StaticMembersWithSeparateInitializer {
   static property: string;
   render() {
-    return <div>This is a component with static an {StaticMembersWithSeparateInitializer.property} member</div>;
+    return (
+      <div>
+        This is a component with static an {StaticMembersWithSeparateInitializer.property} member
+      </div>
+    );
   }
 }
 StaticMembersWithSeparateInitializer.property = 'externally initialized';

@@ -10,7 +10,7 @@ describe('scoped-slot-children', () => {
       <scoped-slot-children>
         Some default slot, slotted text
         <span>a default slot, slotted element</span>
-        <div slot="second-slot">
+        <div slot='second-slot'>
           a second slot, slotted element
           <span> nested element in the second slot</span>
         </div>
@@ -28,24 +28,32 @@ describe('scoped-slot-children', () => {
       `<div slot="second-slot">a second slot, slotted element<span> nested element in the second slot</span></div>`,
     );
 
-    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
 
     childNodes()[0].remove();
     expect(nodeOrEleContent(childNodes()[0])).toBe(`<span>a default slot, slotted element</span>`);
 
-    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
 
     childNodes()[0].remove();
     expect(nodeOrEleContent(childNodes()[0])).toBe(
       `<div slot="second-slot">a second slot, slotted element<span> nested element in the second slot</span></div>`,
     );
 
-    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
 
     childNodes()[0].remove();
     expect(nodeOrEleContent(childNodes()[0])).toBe(undefined);
 
-    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildNodes()[4])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
   });
 
   it('patches `children` to return only elements that have been slotted', async () => {
@@ -53,7 +61,7 @@ describe('scoped-slot-children', () => {
       <scoped-slot-children>
         Some default slot, slotted text
         <span>a default slot, slotted element</span>
-        <div slot="second-slot">
+        <div slot='second-slot'>
           a second slot, slotted element
           <span> nested element in the second slot</span>
         </div>
@@ -70,17 +78,23 @@ describe('scoped-slot-children', () => {
     );
     expect(nodeOrEleContent(children()[2])).toBe(undefined);
 
-    expect(nodeOrEleContent(innerChildren()[0])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildren()[0])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
 
     children()[0].remove();
     expect(nodeOrEleContent(children()[0])).toBe(
       `<div slot="second-slot">a second slot, slotted element<span> nested element in the second slot</span></div>`,
     );
-    expect(nodeOrEleContent(innerChildren()[0])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildren()[0])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
 
     children()[0].remove();
     expect(nodeOrEleContent(children()[0])).toBe(undefined);
-    expect(nodeOrEleContent(innerChildren()[0])).toBe(`<p class="sc-scoped-slot-children">internal text 1</p>`);
+    expect(nodeOrEleContent(innerChildren()[0])).toBe(
+      `<p class="sc-scoped-slot-children">internal text 1</p>`,
+    );
   });
 
   it('patches `firstChild` to return only the first slotted node', async () => {
@@ -88,7 +102,7 @@ describe('scoped-slot-children', () => {
       <scoped-slot-children>
         Some default slot, slotted text
         <span>a default slot, slotted element</span>
-        <div slot="second-slot">
+        <div slot='second-slot'>
           a second slot, slotted element
           <span> nested element in the second slot</span>
         </div>
@@ -110,7 +124,9 @@ describe('scoped-slot-children', () => {
     );
 
     document.querySelector('scoped-slot-children')!.firstChild!.remove();
-    expect(nodeOrEleContent(document.querySelector('scoped-slot-children')!.firstChild!)).toBe(undefined);
+    expect(nodeOrEleContent(document.querySelector('scoped-slot-children')!.firstChild!)).toBe(
+      undefined,
+    );
   });
 
   it('patches `lastChild` to return only the last slotted node', async () => {
@@ -118,7 +134,7 @@ describe('scoped-slot-children', () => {
       <scoped-slot-children>
         Some default slot, slotted text
         <span>a default slot, slotted element</span>
-        <div slot="second-slot">
+        <div slot='second-slot'>
           a second slot, slotted element
           <span> nested element in the second slot</span>
         </div>
@@ -140,6 +156,8 @@ describe('scoped-slot-children', () => {
     );
 
     document.querySelector('scoped-slot-children')!.lastChild!.remove();
-    expect(nodeOrEleContent(document.querySelector('scoped-slot-children')!.lastChild!)).toBe(undefined);
+    expect(nodeOrEleContent(document.querySelector('scoped-slot-children')!.lastChild!)).toBe(
+      undefined,
+    );
   });
 });

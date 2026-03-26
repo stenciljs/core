@@ -39,7 +39,10 @@ export class ExtendsWatch extends WatchBase {
 
   @Watch('overrideProp')
   overridePropChanged(newValue: string, oldValue: string) {
-    this.childWatchLog = [...this.childWatchLog, `overridePropChanged:child:${oldValue}->${newValue}`];
+    this.childWatchLog = [
+      ...this.childWatchLog,
+      `overridePropChanged:child:${oldValue}->${newValue}`,
+    ];
     this.childWatchCallCount++;
   }
 
@@ -104,31 +107,35 @@ export class ExtendsWatch extends WatchBase {
       <div>
         <h2>Watch Decorator Inheritance Test</h2>
 
-        <div class="watch-info">
-          <p class="base-watch-count">Base Watch Calls: {this.baseWatchCallCount}</p>
-          <p class="child-watch-count">Child Watch Calls: {this.childWatchCallCount}</p>
-          <p class="total-watch-count">Total Watch Calls: {totalWatchCalls}</p>
+        <div class='watch-info'>
+          <p class='base-watch-count'>Base Watch Calls: {this.baseWatchCallCount}</p>
+          <p class='child-watch-count'>Child Watch Calls: {this.childWatchCallCount}</p>
+          <p class='total-watch-count'>Total Watch Calls: {totalWatchCalls}</p>
         </div>
 
-        <div class="property-values">
-          <p class="base-prop-value">Base Prop: {this.baseProp}</p>
-          <p class="base-count-value">Base Count: {this.baseCount}</p>
-          <p class="base-state-value">Base State: {this.baseState}</p>
-          <p class="base-counter-value">Base Counter: {this.baseCounter}</p>
-          <p class="override-prop-value">Override Prop: {this.overrideProp}</p>
-          <p class="child-prop-value">Child Prop: {this.childProp}</p>
-          <p class="child-state-value">Child State: {this.childState}</p>
-          <p class="child-counter-value">Child Counter: {this.childCounter}</p>
+        <div class='property-values'>
+          <p class='base-prop-value'>Base Prop: {this.baseProp}</p>
+          <p class='base-count-value'>Base Count: {this.baseCount}</p>
+          <p class='base-state-value'>Base State: {this.baseState}</p>
+          <p class='base-counter-value'>Base Counter: {this.baseCounter}</p>
+          <p class='override-prop-value'>Override Prop: {this.overrideProp}</p>
+          <p class='child-prop-value'>Child Prop: {this.childProp}</p>
+          <p class='child-state-value'>Child State: {this.childState}</p>
+          <p class='child-counter-value'>Child Counter: {this.childCounter}</p>
         </div>
 
-        <div class="reactive-chains">
-          <p class="base-chain-triggered">Base Chain Triggered: {this.baseChainTriggered ? 'true' : 'false'}</p>
-          <p class="base-chain-count">Base Chain Count: {this.baseChainCount}</p>
-          <p class="child-chain-triggered">Child Chain Triggered: {this.childChainTriggered ? 'true' : 'false'}</p>
+        <div class='reactive-chains'>
+          <p class='base-chain-triggered'>
+            Base Chain Triggered: {this.baseChainTriggered ? 'true' : 'false'}
+          </p>
+          <p class='base-chain-count'>Base Chain Count: {this.baseChainCount}</p>
+          <p class='child-chain-triggered'>
+            Child Chain Triggered: {this.childChainTriggered ? 'true' : 'false'}
+          </p>
         </div>
 
-        <div class="watch-log">
-          <ul id="watch-log-list">
+        <div class='watch-log'>
+          <ul id='watch-log-list'>
             {combinedLog.map((entry, index) => (
               <li key={index}>{entry}</li>
             ))}

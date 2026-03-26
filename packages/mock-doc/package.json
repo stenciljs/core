@@ -37,7 +37,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "jquery": "https://github.com/jquery/jquery/tarball/c98597eaf5e144ee5e549cb41984687cd1033068",
+    "nwsapi": "^2.2.23",
     "parse5": "7.2.1"
   },
   "devDependencies": {

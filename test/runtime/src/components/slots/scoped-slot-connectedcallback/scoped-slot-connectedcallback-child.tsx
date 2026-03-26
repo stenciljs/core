@@ -29,7 +29,7 @@ export class ScopedSlotConnectedCallbackChild {
 
   render() {
     return (
-      <div class="wrapper">
+      <div class='wrapper'>
         Before slot | <slot /> | After slot
       </div>
     );

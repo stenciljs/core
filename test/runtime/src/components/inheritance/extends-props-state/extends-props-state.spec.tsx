@@ -19,13 +19,17 @@ describe('extends-props-state', () => {
     it('renders component-specific @Prop values without conflicts', async () => {
       const { root } = await render(<extends-props-state />);
 
-      expect(root.querySelector('.component-prop')).toHaveTextContent('Component Prop: component prop value');
+      expect(root.querySelector('.component-prop')).toHaveTextContent(
+        'Component Prop: component prop value',
+      );
     });
 
     it('renders component-specific @State values without conflicts', async () => {
       const { root } = await render(<extends-props-state />);
 
-      expect(root.querySelector('.component-state-value')).toHaveTextContent('Component State: component state value');
+      expect(root.querySelector('.component-state-value')).toHaveTextContent(
+        'Component State: component state value',
+      );
     });
 
     it('updates inherited @Prop via attribute', async () => {
@@ -34,7 +38,9 @@ describe('extends-props-state', () => {
       root.setAttribute('base-prop', 'updated via attribute');
       await waitForChanges();
 
-      expect(root.querySelector('.base-prop')).toHaveTextContent('Base Prop: updated via attribute');
+      expect(root.querySelector('.base-prop')).toHaveTextContent(
+        'Base Prop: updated via attribute',
+      );
     });
 
     it('updates inherited @Prop via property', async () => {
@@ -61,7 +67,9 @@ describe('extends-props-state', () => {
       root.setAttribute('component-prop', 'updated component prop');
       await waitForChanges();
 
-      expect(root.querySelector('.component-prop')).toHaveTextContent('Component Prop: updated component prop');
+      expect(root.querySelector('.component-prop')).toHaveTextContent(
+        'Component Prop: updated component prop',
+      );
     });
 
     it('updates inherited @State and triggers re-render', async () => {
@@ -79,7 +87,9 @@ describe('extends-props-state', () => {
       root.querySelector<HTMLButtonElement>('.update-component-state')!.click();
       await waitForChanges();
 
-      expect(root.querySelector('.component-state-value')).toHaveTextContent('Component State: component state updated');
+      expect(root.querySelector('.component-state-value')).toHaveTextContent(
+        'Component State: component state updated',
+      );
     });
 
     it('toggles inherited boolean @State and re-renders', async () => {

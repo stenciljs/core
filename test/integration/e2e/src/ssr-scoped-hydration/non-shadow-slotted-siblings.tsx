@@ -11,7 +11,7 @@ export class HydratedSiblingAccessors {
         Internal text node before slot
         <slot />
         <div>Internal element before second slot, after first slot</div>
-        <slot name="second-slot">Second slot fallback text</slot>
+        <slot name='second-slot'>Second slot fallback text</slot>
       </div>
     );
   }

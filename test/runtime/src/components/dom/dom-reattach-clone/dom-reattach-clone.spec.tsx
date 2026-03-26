@@ -28,8 +28,8 @@ describe('dom-reattach-clone', () => {
 
   it('should not double render', async () => {
     const { waitForChanges } = await render(
-      <div id="simple-parent">
-        <dom-reattach-clone id="simple">
+      <div id='simple-parent'>
+        <dom-reattach-clone id='simple'>
           <p>Slot content 1</p>
         </dom-reattach-clone>
       </div>,
@@ -39,8 +39,8 @@ describe('dom-reattach-clone', () => {
 
   it('should not double render with deeper slots', async () => {
     const { waitForChanges } = await render(
-      <div id="deep-parent">
-        <dom-reattach-clone-deep-slot id="deep">
+      <div id='deep-parent'>
+        <dom-reattach-clone-deep-slot id='deep'>
           <p>Slot content 1</p>
           <p>Slot content 2</p>
         </dom-reattach-clone-deep-slot>
@@ -51,8 +51,8 @@ describe('dom-reattach-clone', () => {
 
   it('should not double render with multiple slots', async () => {
     const { waitForChanges } = await render(
-      <div id="multiple-parent">
-        <dom-reattach-clone id="multiple">
+      <div id='multiple-parent'>
+        <dom-reattach-clone id='multiple'>
           <p>Slot content 1</p>
           <p>Slot content 2</p>
           <p>Slot content 3</p>
@@ -64,8 +64,8 @@ describe('dom-reattach-clone', () => {
 
   it('should not double render with Host element', async () => {
     const { waitForChanges } = await render(
-      <div id="host-parent">
-        <dom-reattach-clone-host id="host">
+      <div id='host-parent'>
+        <dom-reattach-clone-host id='host'>
           <p>Slot content 1</p>
           <p>Slot content 2</p>
           <p>Slot content 3</p>

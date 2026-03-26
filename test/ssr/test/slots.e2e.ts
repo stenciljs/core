@@ -11,7 +11,9 @@ async function getNonShadowElementOrder(page: Page, parent: string) {
     const el = document.querySelector(parent);
     if (!el) return { internal: [], external: [] };
     const external = Array.from(el.children).map((el) => el.tagName);
-    const internal = (Array.from((el as any).__children || []) as HTMLElement[]).map((el) => el.tagName);
+    const internal = (Array.from((el as any).__children || []) as HTMLElement[]).map(
+      (el) => el.tagName,
+    );
     return { internal, external };
   }, parent);
 }
@@ -110,7 +112,10 @@ test.describe('slot handling', () => {
       );
       await page.setContent(html || '');
 
-      const { external, internal } = await getNonShadowElementOrder(page, 'non-shadow-forwarded-slot');
+      const { external, internal } = await getNonShadowElementOrder(
+        page,
+        'non-shadow-forwarded-slot',
+      );
       expect(external.length).toBe(3);
       expect(internal.length).toBe(5);
 
@@ -139,7 +144,9 @@ test.describe('slot handling', () => {
       const textContent = await page.evaluate(
         () => document.querySelector('non-shadow-forwarded-slot')?.textContent?.trim() ?? '',
       );
-      expect(textContent).toContain('Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2');
+      expect(textContent).toContain(
+        'Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2',
+      );
     });
   });
 
@@ -162,38 +169,47 @@ test.describe('slot handling', () => {
         (window as any).root = document.querySelector('hydrated-sibling-accessors');
       });
 
-      expect(await page.evaluate(() => (window as any).root.firstChild.textContent)).toBe('First slot element');
-      expect(await page.evaluate(() => (window as any).root.firstChild.nextSibling.textContent)).toBe(
-        ' Default slot text node  ',
-      );
-      expect(await page.evaluate(() => (window as any).root.firstChild.nextSibling.nextSibling.textContent)).toBe(
-        'Second slot element',
+      expect(await page.evaluate(() => (window as any).root.firstChild.textContent)).toBe(
+        'First slot element',
       );
       expect(
-        await page.evaluate(
-          () => (window as any).root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling.textContent,
-        ),
-      ).toBe(' Default slot comment node  ');
-
-      expect(await page.evaluate(() => (window as any).root.lastChild.previousSibling.textContent)).toBe(
-        ' Default slot comment node  ',
-      );
+        await page.evaluate(() => (window as any).root.firstChild.nextSibling.textContent),
+      ).toBe(' Default slot text node  ');
       expect(
         await page.evaluate(
-          () => (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.textContent,
+          () => (window as any).root.firstChild.nextSibling.nextSibling.textContent,
         ),
       ).toBe('Second slot element');
       expect(
         await page.evaluate(
           () =>
-            (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.textContent,
+            (window as any).root.firstChild.nextSibling.nextSibling.nextSibling.nextSibling
+              .textContent,
+        ),
+      ).toBe(' Default slot comment node  ');
+
+      expect(
+        await page.evaluate(() => (window as any).root.lastChild.previousSibling.textContent),
+      ).toBe(' Default slot comment node  ');
+      expect(
+        await page.evaluate(
+          () =>
+            (window as any).root.lastChild.previousSibling.previousSibling.previousSibling
+              .textContent,
+        ),
+      ).toBe('Second slot element');
+      expect(
+        await page.evaluate(
+          () =>
+            (window as any).root.lastChild.previousSibling.previousSibling.previousSibling
+              .previousSibling.textContent,
         ),
       ).toBe(' Default slot text node  ');
       expect(
         await page.evaluate(
           () =>
-            (window as any).root.lastChild.previousSibling.previousSibling.previousSibling.previousSibling.previousSibling
-              .textContent,
+            (window as any).root.lastChild.previousSibling.previousSibling.previousSibling
+              .previousSibling.previousSibling.textContent,
         ),
       ).toBe('First slot element');
     });
@@ -216,23 +232,30 @@ test.describe('slot handling', () => {
         (window as any).root = document.querySelector('hydrated-sibling-accessors');
       });
 
-      expect(await page.evaluate(() => (window as any).root.children[0].textContent)).toBe('First slot element');
-      expect(await page.evaluate(() => (window as any).root.children[0].nextElementSibling.textContent)).toBe(
-        'Second slot element',
-      );
-      expect(await page.evaluate(() => !(window as any).root.children[0].nextElementSibling.nextElementSibling)).toBe(
-        true,
+      expect(await page.evaluate(() => (window as any).root.children[0].textContent)).toBe(
+        'First slot element',
       );
       expect(
+        await page.evaluate(() => (window as any).root.children[0].nextElementSibling.textContent),
+      ).toBe('Second slot element');
+      expect(
         await page.evaluate(
-          () => (window as any).root.children[0].nextElementSibling.previousElementSibling.textContent,
+          () => !(window as any).root.children[0].nextElementSibling.nextElementSibling,
+        ),
+      ).toBe(true);
+      expect(
+        await page.evaluate(
+          () =>
+            (window as any).root.children[0].nextElementSibling.previousElementSibling.textContent,
         ),
       ).toBe('First slot element');
     });
   });
 
   test.describe('named slots in scoped components', () => {
-    test('renders named slots in the correct order in the DOM in scoped components', async ({ page }) => {
+    test('renders named slots in the correct order in the DOM in scoped components', async ({
+      page,
+    }) => {
       const { html } = await renderToString(
         `<div>
           <ssr-order-wrap-cmp>
@@ -265,7 +288,9 @@ test.describe('slot handling', () => {
       expect(result.secondText).toBe('after');
     });
 
-    test('retains the order of slotted nodes in serializeShadowRoot scoped components', async ({ page }) => {
+    test('retains the order of slotted nodes in serializeShadowRoot scoped components', async ({
+      page,
+    }) => {
       const { html } = await renderToString(
         `<wrap-ssr-shadow-cmp>
           <ssr-shadow-cmp>
@@ -294,7 +319,9 @@ test.describe('slot handling', () => {
       expect(childTexts).toContain('Should be second');
     });
 
-    test('slots nodes appropriately in a scoped parent with serializeShadowRoot scoped child', async ({ page }) => {
+    test('slots nodes appropriately in a scoped parent with serializeShadowRoot scoped child', async ({
+      page,
+    }) => {
       const { html } = await renderToString(
         `<scoped-ssr-parent-cmp>
           <div slot="things">one</div>
@@ -315,7 +342,8 @@ test.describe('slot handling', () => {
         const children = Array.from(wrapCmp?.children || []);
         return {
           textContent: wrapCmp?.textContent?.replace(/\s+/g, '').trim(),
-          visibleChildren: children.filter((c) => (c as HTMLElement).checkVisibility?.() ?? true).length,
+          visibleChildren: children.filter((c) => (c as HTMLElement).checkVisibility?.() ?? true)
+            .length,
         };
       });
 
@@ -345,7 +373,9 @@ test.describe('slot handling', () => {
         const visibleDiv = wrapCmp?.querySelector('div');
         return {
           childCount: children?.length,
-          hasVisibleDiv: visibleDiv ? (visibleDiv as HTMLElement).checkVisibility?.() ?? true : false,
+          hasVisibleDiv: visibleDiv
+            ? ((visibleDiv as HTMLElement).checkVisibility?.() ?? true)
+            : false,
           textContent: wrapCmp?.textContent?.replace(/\s+/g, ' ').trim(),
         };
       });

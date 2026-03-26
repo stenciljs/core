@@ -11,8 +11,8 @@ export class NodeResolution {
     return (
       <div>
         <h1>node-resolution</h1>
-        <p id="module-index">{moduleIndex}</p>
-        <p id="module">{module}</p>
+        <p id='module-index'>{moduleIndex}</p>
+        <p id='module'>{module}</p>
       </div>
     );
   }

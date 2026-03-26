@@ -32,9 +32,9 @@ export class ScopedSlotAssignedMethods {
             this.fbSlot = slot as HTMLSlotElement;
           }}
         >
-          <slot name="nested-slot">Fallback content</slot>
+          <slot name='nested-slot'>Fallback content</slot>
         </slot>
-        <slot name="plain-slot" ref={(s) => (this.plainSlot = s as HTMLSlotElement)} />
+        <slot name='plain-slot' ref={(s) => (this.plainSlot = s as HTMLSlotElement)} />
       </div>
     );
   }

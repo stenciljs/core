@@ -37,7 +37,7 @@ export class LifecycleAsyncC {
       <div>
         <hr />
         <div>LifecycleAsyncC {this.value}</div>
-        <div class="rendered-c">rendered c: {this.rendered}</div>
+        <div class='rendered-c'>rendered c: {this.rendered}</div>
       </div>
     );
   }

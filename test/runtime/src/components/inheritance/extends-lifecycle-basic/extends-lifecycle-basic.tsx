@@ -15,13 +15,13 @@ export class ExtendsLifecycleBasic extends LifecycleBase {
     return (
       <div>
         <h2>Lifecycle Inheritance Test</h2>
-        <p class="current-value">Current Value: {this.value}</p>
-        <button class="trigger-update" onClick={() => this.triggerUpdate()}>
+        <p class='current-value'>Current Value: {this.value}</p>
+        <button class='trigger-update' onClick={() => this.triggerUpdate()}>
           Trigger Update
         </button>
 
-        <div class="lifecycle-events">
-          <p class="lifecycle-info">Events: {(window.lifecycleCalls || []).length} total</p>
+        <div class='lifecycle-events'>
+          <p class='lifecycle-info'>Events: {(window.lifecycleCalls || []).length} total</p>
         </div>
       </div>
     );

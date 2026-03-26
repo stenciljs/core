@@ -1,4 +1,14 @@
-import { Component, Element, Event, EventEmitter, h, Listen, Method, Prop, State } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  h,
+  Listen,
+  Method,
+  Prop,
+  State,
+} from '@stencil/core';
 
 @Component({
   tag: 'component-on-ready',
@@ -48,13 +58,13 @@ export class ComponentOnReady {
       <div>
         <h1>component-on-ready</h1>
         <span>text color defined by :host</span>
-        <p id="propVal">propVal: {this.propVal}</p>
-        <p id="stateVal">stateVal: {this.stateVal}</p>
-        <p id="listenVal">listenVal: {this.listenVal}</p>
+        <p id='propVal'>propVal: {this.propVal}</p>
+        <p id='stateVal'>stateVal: {this.stateVal}</p>
+        <p id='listenVal'>listenVal: {this.listenVal}</p>
         <p>
           <button onClick={this.handleButtonClick}>Test</button>
         </p>
-        <p id="isReady">componentOnReady: {this.isReady}</p>
+        <p id='isReady'>componentOnReady: {this.isReady}</p>
       </div>
     );
   }

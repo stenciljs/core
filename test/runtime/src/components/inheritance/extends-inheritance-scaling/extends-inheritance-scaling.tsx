@@ -98,24 +98,24 @@ import { Component, h } from '@stencil/core';
 export class InheritanceScalingDemo {
   render() {
     return (
-      <div class="demo-container">
+      <div class='demo-container'>
         <h1>Inheritance-Based Scaling Demo</h1>
         <p>
-          This demo shows 3 components (TextInput, RadioGroup, CheckboxGroup) using 2 controllers (ValidationController,
-          FocusController) via inheritance.
+          This demo shows 3 components (TextInput, RadioGroup, CheckboxGroup) using 2 controllers
+          (ValidationController, FocusController) via inheritance.
         </p>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Text Input Component</h2>
           <inheritance-text-input />
         </div>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Radio Group Component</h2>
           <inheritance-radio-group />
         </div>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Checkbox Group Component</h2>
           <inheritance-checkbox-group />
         </div>

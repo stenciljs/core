@@ -98,24 +98,24 @@ import { Component, h } from '@stencil/core';
 export class CompositionScalingDemo {
   render() {
     return (
-      <div class="demo-container">
+      <div class='demo-container'>
         <h1>Composition-Based Scaling Demo</h1>
         <p>
-          This demo shows 3 components (TextInput, RadioGroup, CheckboxGroup) using 2 controllers (ValidationController,
-          FocusController) via composition.
+          This demo shows 3 components (TextInput, RadioGroup, CheckboxGroup) using 2 controllers
+          (ValidationController, FocusController) via composition.
         </p>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Text Input Component</h2>
           <composition-text-input />
         </div>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Radio Group Component</h2>
           <composition-radio-group />
         </div>
 
-        <div class="component-section">
+        <div class='component-section'>
           <h2>Checkbox Group Component</h2>
           <composition-checkbox-group />
         </div>

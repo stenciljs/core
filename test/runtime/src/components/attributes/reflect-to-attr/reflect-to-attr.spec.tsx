@@ -2,7 +2,7 @@ import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('reflect-to-attr', () => {
   it('should have proper attributes', async () => {
-    const { root, waitForChanges } = await render(<reflect-to-attr />, {waitForReady: false});
+    const { root, waitForChanges } = await render(<reflect-to-attr />, { waitForReady: false });
     await waitForExist('reflect-to-attr.hydrated');
 
     const cmp = root as HTMLReflectToAttrElement;
@@ -35,7 +35,7 @@ describe('reflect-to-attr', () => {
   });
 
   it('should reflect booleans property', async () => {
-    const { root, waitForChanges } = await render(<reflect-to-attr />, {waitForReady: false});
+    const { root, waitForChanges } = await render(<reflect-to-attr />, { waitForReady: false });
     await waitForExist('reflect-to-attr.hydrated');
 
     const cmp = root as HTMLReflectToAttrElement;

@@ -33,6 +33,6 @@ export class FormAssociatedExternal {
   }
 
   render() {
-    return <input type="text" />;
+    return <input type='text' />;
   }
 }

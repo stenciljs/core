@@ -1,4 +1,13 @@
-import { render, h, describe, it, expect, beforeEach, afterEach, waitForExist } from '@stencil/vitest';
+import {
+  render,
+  h,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  waitForExist,
+} from '@stencil/vitest';
 
 describe('scoped-slot-assigned-methods', () => {
   let originalConsoleError: typeof console.error;
@@ -16,7 +25,7 @@ describe('scoped-slot-assigned-methods', () => {
       <scoped-slot-assigned-methods>
         <p>My initial slotted content.</p>
         Plain text
-        <div slot="plain-slot">Plain slot content.</div>
+        <div slot='plain-slot'>Plain slot content.</div>
       </scoped-slot-assigned-methods>,
     );
     await waitForExist('scoped-slot-assigned-methods.hydrated');
@@ -53,7 +62,7 @@ describe('scoped-slot-assigned-methods', () => {
       <scoped-slot-assigned-methods>
         <p>My initial slotted content.</p>
         Plain text
-        <div slot="plain-slot">Plain slot content.</div>
+        <div slot='plain-slot'>Plain slot content.</div>
       </scoped-slot-assigned-methods>,
     );
 
@@ -95,7 +104,7 @@ describe('scoped-slot-assigned-methods', () => {
       <scoped-slot-assigned-methods>
         <p>My initial slotted content.</p>
         Plain text
-        <div slot="plain-slot">Plain slot content.</div>
+        <div slot='plain-slot'>Plain slot content.</div>
       </scoped-slot-assigned-methods>,
     );
 

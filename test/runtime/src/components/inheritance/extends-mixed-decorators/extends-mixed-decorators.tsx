@@ -41,37 +41,47 @@ export class ExtendsMixedDecorators extends MixedDecoratorsBase {
 
   render() {
     return (
-      <div class="container">
+      <div class='container'>
         <h2>Mixed Decorator Types Test</h2>
 
-        <div class="prop-state-conflict">
+        <div class='prop-state-conflict'>
           <h3>@Prop in Base, @State in Component (mixedName)</h3>
-          <p class="mixed-name-value">Mixed Name: {this.mixedName}</p>
-          <p class="mixed-name-type">Expected: component state value (component @State overrides base @Prop)</p>
+          <p class='mixed-name-value'>Mixed Name: {this.mixedName}</p>
+          <p class='mixed-name-type'>
+            Expected: component state value (component @State overrides base @Prop)
+          </p>
         </div>
 
-        <div class="state-prop-conflict">
+        <div class='state-prop-conflict'>
           <h3>@State in Base, @Prop in Component (mixedStateName)</h3>
-          <p class="mixed-state-name-value">Mixed State Name: {this.mixedStateName}</p>
-          <p class="mixed-state-name-type">Expected: component prop value (component @Prop overrides base @State)</p>
+          <p class='mixed-state-name-value'>Mixed State Name: {this.mixedStateName}</p>
+          <p class='mixed-state-name-type'>
+            Expected: component prop value (component @Prop overrides base @State)
+          </p>
         </div>
 
-        <div class="base-only-props">
+        <div class='base-only-props'>
           <h3>Base-Only Properties (Not Conflicted)</h3>
-          <p class="base-only-prop-value">Base Only Prop: {this.baseOnlyProp}</p>
-          <p class="base-only-state-value">Base Only State: {this.baseOnlyState}</p>
+          <p class='base-only-prop-value'>Base Only Prop: {this.baseOnlyProp}</p>
+          <p class='base-only-state-value'>Base Only State: {this.baseOnlyState}</p>
         </div>
 
-        <div class="component-only-state">
+        <div class='component-only-state'>
           <h3>Component-Only State</h3>
-          <p class="component-only-state-value">Component Only State: {this.componentOnlyState}</p>
+          <p class='component-only-state-value'>Component Only State: {this.componentOnlyState}</p>
         </div>
 
-        <div class="actions">
-          <button class="update-mixed-name" onClick={() => this.updateMixedName('mixed name updated')}>
+        <div class='actions'>
+          <button
+            class='update-mixed-name'
+            onClick={() => this.updateMixedName('mixed name updated')}
+          >
             Update Mixed Name (State)
           </button>
-          <button class="update-component-only-state" onClick={() => this.updateComponentOnlyState('component only updated')}>
+          <button
+            class='update-component-only-state'
+            onClick={() => this.updateComponentOnlyState('component only updated')}
+          >
             Update Component Only State
           </button>
         </div>

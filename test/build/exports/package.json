@@ -1,15 +1,15 @@
 {
   "name": "@stencil-core-tests/build-exports",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "private": true,
   "description": "Validates @stencil/core package exports resolve correctly",
+  "type": "module",
   "scripts": {
     "test": "node ./test-exports.mts"
   },
   "devDependencies": {
-    "@stencil/core": "workspace:*",
-    "@stencil/cli": "workspace:*"
+    "@stencil/cli": "workspace:*",
+    "@stencil/core": "workspace:*"
   },
   "volta": {
     "extends": "../../../package.json"

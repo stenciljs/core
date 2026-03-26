@@ -35,15 +35,15 @@ export class ExtendsDirectState extends ClockBase {
     return (
       <div>
         <h2>Direct State Management Test</h2>
-        <div class="clock-section">
+        <div class='clock-section'>
           <h3>Clock Controller (Direct State Pattern)</h3>
-          <p class="current-time">Current Time: {this.currentTime}</p>
-          <button class="toggle-clock" onClick={() => this.toggleClock()}>
+          <p class='current-time'>Current Time: {this.currentTime}</p>
+          <button class='toggle-clock' onClick={() => this.toggleClock()}>
             {this.isClockRunning ? 'Stop Clock' : 'Start Clock'}
           </button>
         </div>
-        <div class="status-info">
-          <p class="clock-status">Clock Running: {this.isClockRunning ? 'Yes' : 'No'}</p>
+        <div class='status-info'>
+          <p class='clock-status'>Clock Running: {this.isClockRunning ? 'Yes' : 'No'}</p>
         </div>
       </div>
     );

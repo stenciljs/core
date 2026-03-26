@@ -23,7 +23,7 @@ export class EventBasic {
         <p>testEvent is emitted on componentDidLoad</p>
         <div>
           <p>
-            Emission count: <span id="counter">{this.counter}</span>
+            Emission count: <span id='counter'>{this.counter}</span>
           </p>
         </div>
       </div>

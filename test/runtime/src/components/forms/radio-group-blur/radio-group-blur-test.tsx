@@ -31,10 +31,10 @@ export class RadioGroupBlurTest {
       <div>
         <h1>Radio Group Blur Test</h1>
         <p>
-          Blur Count: <span id="blur-count">{this.blurCount}</span>
+          Blur Count: <span id='blur-count'>{this.blurCount}</span>
         </p>
 
-        <ion-radio-group id="radio-group"></ion-radio-group>
+        <ion-radio-group id='radio-group'></ion-radio-group>
       </div>
     );
   }

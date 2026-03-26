@@ -7,15 +7,15 @@ export class RenderBase {
   render() {
     return (
       <div class={this.baseClass}>
-        <header class="base-header">
-          <h1 class="base-title">{this.baseTitle}</h1>
+        <header class='base-header'>
+          <h1 class='base-title'>{this.baseTitle}</h1>
         </header>
-        <main class="base-content">
-          <slot name="content" />
+        <main class='base-content'>
+          <slot name='content' />
           <slot />
         </main>
-        <footer class="base-footer">
-          <p class="base-footer-text">Base footer content</p>
+        <footer class='base-footer'>
+          <p class='base-footer-text'>Base footer content</p>
         </footer>
       </div>
     );

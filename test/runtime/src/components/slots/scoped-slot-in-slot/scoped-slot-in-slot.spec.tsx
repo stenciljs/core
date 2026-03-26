@@ -4,9 +4,9 @@ describe('scoped-slot-in-slot', () => {
   it('correctly renders content slotted through multiple levels of nested slots', async () => {
     const { root } = await render(
       <ion-host>
-        <span slot="label">Label text</span>
-        <span slot="suffix">Suffix text</span>
-        <span slot="message">Message text</span>
+        <span slot='label'>Label text</span>
+        <span slot='suffix'>Suffix text</span>
+        <span slot='message'>Message text</span>
       </ion-host>,
     );
     await waitForExist('ion-host.hydrated');

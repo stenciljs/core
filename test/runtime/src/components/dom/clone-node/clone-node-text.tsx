@@ -7,7 +7,7 @@ export class CloneNodeText {
   render() {
     return (
       <Host>
-        <p class="text-content">Clone Node Text</p>
+        <p class='text-content'>Clone Node Text</p>
       </Host>
     );
   }

@@ -1,11 +1,10 @@
 {
   "name": "@stencil-core-tests/integration-e2e",
   "private": true,
+  "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/types/components.d.ts",
-  "collection": " dist/collection/collection-manifest.json",
-  "type": "module",
   "scripts": {
     "build": "stencil build --config ./stencil.build.config.ts --docs",
     "start": "stencil build --watch --dev --serve",
@@ -33,5 +32,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "collection": " dist/collection/collection-manifest.json"
 }

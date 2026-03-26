@@ -12,12 +12,12 @@ export class SlotHtml {
         <hr />
         <article>
           <span>
-            <slot name="start" />
+            <slot name='start' />
           </span>
         </article>
         <slot />
         <section>
-          <slot name="end" />
+          <slot name='end' />
         </section>
       </div>
     );

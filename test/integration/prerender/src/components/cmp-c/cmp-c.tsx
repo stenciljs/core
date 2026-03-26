@@ -19,7 +19,7 @@ export class CmpC {
     return (
       <div>
         <div>CmpC</div>
-        <cmp-d uniqueId="c-child" />
+        <cmp-d uniqueId='c-child' />
       </div>
     );
   }

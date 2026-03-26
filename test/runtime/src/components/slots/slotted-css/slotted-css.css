@@ -10,13 +10,13 @@
 }
 
 /* 2. [Edge] extra border shows up on host */
-::slotted(:not([slot="header-slot-name"])) {
+::slotted(:not([slot='header-slot-name'])) {
   border: 4px solid rgb(0, 0, 255);
   color: rgb(0, 0, 255);
   font-weight: bold;
 }
 
-::slotted([slot="header-slot-name"]) {
+::slotted([slot='header-slot-name']) {
   border: 4px solid rgb(255, 0, 0);
   color: rgb(255, 0, 0);
   font-weight: bold;

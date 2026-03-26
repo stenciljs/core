@@ -10,6 +10,8 @@ test.describe('vite-bundle', () => {
 
     // Check shadow DOM content
     const shadowContent = component.locator('div');
-    await expect(shadowContent).toContainText("Hello, World! I'm Stencil 'Don't call me a framework' JS");
+    await expect(shadowContent).toContainText(
+      "Hello, World! I'm Stencil 'Don't call me a framework' JS",
+    );
   });
 });

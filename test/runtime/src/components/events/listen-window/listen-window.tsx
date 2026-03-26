@@ -20,7 +20,7 @@ export class ListenWindow {
   render() {
     return (
       <div>
-        <div id="clicked">Clicked: {this.clicked}</div>
+        <div id='clicked'>Clicked: {this.clicked}</div>
         <div>Scrolled: {this.scrolled}</div>
         <button>Click!</button>
         <div style={{ background: 'gray', paddingTop: '2000px' }}></div>

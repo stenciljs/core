@@ -12,9 +12,7 @@
     "allowJs": true,
     "types": ["@stencil/vitest/globals"],
     "paths": {
-      "@path-alias": [
-        "./src/components/build/path-alias-cmp/path-alias-lib"
-      ]
+      "@path-alias": ["./src/components/build/path-alias-cmp/path-alias-lib"]
     }
   },
   "include": ["src"],

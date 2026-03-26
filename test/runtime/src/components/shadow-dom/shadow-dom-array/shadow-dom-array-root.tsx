@@ -14,7 +14,7 @@ export class ShadowDomArrayRoot {
     return (
       <div>
         <button onClick={this.addValue.bind(this)}>Add Value</button>
-        <shadow-dom-array values={this.values} class="results1" />
+        <shadow-dom-array values={this.values} class='results1' />
       </div>
     );
   }

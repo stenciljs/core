@@ -23,12 +23,16 @@ describe('prefix-prop', () => {
 
     const nested = root.querySelector('prefix-prop-nested') as HTMLPrefixPropNestedElement;
 
-    const updateBtn = Array.from(root.querySelectorAll('button')).find((b) => b.textContent === 'Update Message')!;
+    const updateBtn = Array.from(root.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Update Message',
+    )!;
     updateBtn.click();
     await waitForChanges();
     expect(nested.message).toBe('Updated');
 
-    const countBtn = Array.from(root.querySelectorAll('button')).find((b) => b.textContent === 'Update Count')!;
+    const countBtn = Array.from(root.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Update Count',
+    )!;
     countBtn.click();
     await waitForChanges();
     expect(nested.count).toBe(99);

@@ -9,7 +9,9 @@ export class LifecycleUnloadA {
   results?: HTMLDivElement | null;
 
   componentDidLoad() {
-    this.results = this.el.ownerDocument!.body.querySelector('#lifecycle-unload-results') as HTMLDivElement;
+    this.results = this.el.ownerDocument!.body.querySelector(
+      '#lifecycle-unload-results',
+    ) as HTMLDivElement;
   }
 
   disconnectedCallback() {

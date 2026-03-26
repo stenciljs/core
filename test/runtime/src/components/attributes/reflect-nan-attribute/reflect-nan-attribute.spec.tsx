@@ -6,7 +6,9 @@ describe('reflect-nan-attribute', () => {
     // the type declaration on the prop tied to the 'val' attribute
 
     // @ts-ignore
-    const { root } = await render(<reflect-nan-attribute val="NaN" />);
-    expect(root.shadowRoot.querySelector('div')).toHaveTextContent('reflect-nan-attribute Render Count: 1');
+    const { root } = await render(<reflect-nan-attribute val='NaN' />);
+    expect(root.shadowRoot.querySelector('div')).toHaveTextContent(
+      'reflect-nan-attribute Render Count: 1',
+    );
   });
 });

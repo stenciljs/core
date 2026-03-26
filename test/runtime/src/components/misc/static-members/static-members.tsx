@@ -10,7 +10,8 @@ export class StaticMembers {
   render() {
     return (
       <div>
-        This is a component with static {StaticMembers.property} and {StaticMembers.anotherProperty} members
+        This is a component with static {StaticMembers.property} and {StaticMembers.anotherProperty}{' '}
+        members
       </div>
     );
   }

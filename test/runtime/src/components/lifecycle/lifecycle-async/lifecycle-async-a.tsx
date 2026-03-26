@@ -52,20 +52,20 @@ export class LifecycleAsyncA {
 
     return (
       <div>
-        <button onClick={this.testClick.bind(this)} class="test">
+        <button onClick={this.testClick.bind(this)} class='test'>
           Update
         </button>
         <hr />
         <div>LifecycleAsyncA {this.value}</div>
-        <div class="rendered-a">rendered a: {this.rendered}</div>
+        <div class='rendered-a'>rendered a: {this.rendered}</div>
         <div>loads a:</div>
-        <ol class="lifecycle-loads-a">
+        <ol class='lifecycle-loads-a'>
           {this.loads.map((load) => {
             return <li>{load}</li>;
           })}
         </ol>
         <div>updates a:</div>
-        <ol class="lifecycle-updates-a">
+        <ol class='lifecycle-updates-a'>
           {this.updates.map((update) => {
             return <li>{update}</li>;
           })}

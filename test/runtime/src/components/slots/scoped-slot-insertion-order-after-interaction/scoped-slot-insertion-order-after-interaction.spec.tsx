@@ -74,7 +74,7 @@ describe('scoped-slot-insertion-order-after-interaction', () => {
         </scoped-slot-insertion-order-after-interaction>,
       );
       await waitForExist('scoped-slot-insertion-order-after-interaction.hydrated');
-      const host = root;  
+      const host = root;
       expect(host).toBeDefined();
 
       expect(host.children.length).toBe(1);

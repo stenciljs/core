@@ -36,8 +36,8 @@ export class PropCmp {
     return (
       <Host>
         <div>
-          Hello, my name is {this.first} {this.lastName}. My full name being {this.fullName}. I like to wear{' '}
-          {this.clothes}.
+          Hello, my name is {this.first} {this.lastName}. My full name being {this.fullName}. I like
+          to wear {this.clothes}.
         </div>
         <button onClick={() => this.saveAs()}>File Save</button>
       </Host>

@@ -13,7 +13,7 @@ export class SlotHideContentOpen {
       <Host>
         <p>Test</p>
         {this.enabled && (
-          <div class="slot-wrapper">
+          <div class='slot-wrapper'>
             <slot>
               <span>fallback default slot</span>
             </slot>

@@ -10,7 +10,7 @@ export class SlotNestedDynamicParent {
     return (
       <Host>
         <slot-nested-dynamic-child>
-          <span slot="header">Header Text</span>
+          <span slot='header'>Header Text</span>
           <slot />
         </slot-nested-dynamic-child>
       </Host>

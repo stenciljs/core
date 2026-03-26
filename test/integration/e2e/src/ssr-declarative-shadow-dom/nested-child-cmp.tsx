@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
 export class NestedCmpChild {
   render() {
     return (
-      <div class="some-other-class">
+      <div class='some-other-class'>
         <slot></slot>
       </div>
     );

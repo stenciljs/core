@@ -13,6 +13,10 @@ export class ComponentDSD {
   initialCounter = 0;
 
   render() {
-    return <button onClick={() => this.counter++}>Count me: {this.initialCounter + this.counter}!</button>;
+    return (
+      <button onClick={() => this.counter++}>
+        Count me: {this.initialCounter + this.counter}!
+      </button>
+    );
   }
 }

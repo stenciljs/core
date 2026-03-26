@@ -12,13 +12,19 @@ export class SlotConditionalRendering {
   render() {
     return (
       <Host>
-        {this.headerVisible ? <slot name="header" /> : null}
+        {this.headerVisible ? <slot name='header' /> : null}
         {this.contentVisible ? <slot /> : null}
 
-        <button id="header-visibility-toggle" onClick={() => (this.headerVisible = !this.headerVisible)}>
+        <button
+          id='header-visibility-toggle'
+          onClick={() => (this.headerVisible = !this.headerVisible)}
+        >
           Toggle header visibility (to {this.headerVisible ? 'hidden' : 'visible'})
         </button>
-        <button id="content-visibility-toggle" onClick={() => (this.contentVisible = !this.contentVisible)}>
+        <button
+          id='content-visibility-toggle'
+          onClick={() => (this.contentVisible = !this.contentVisible)}
+        >
           Toggle content visibility (to {this.contentVisible ? 'hidden' : 'visible'})
         </button>
       </Host>
