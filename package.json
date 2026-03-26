@@ -27,6 +27,7 @@
     "dev": "pnpm typecheck && pnpm build:watch",
     "fmt": "oxfmt --write packages/",
     "fmt:check": "oxfmt --check packages/",
+    "knip": "knip",
     "lint": "oxlint packages/",
     "lint:fix": "oxlint --fix packages/",
     "test": "pnpm --stream --filter './packages/*' run test",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "^22",
+    "knip": "^6.0.5",
     "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0",
     "rolldown": "^1.0.0-rc.7",

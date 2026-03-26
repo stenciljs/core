@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    "packages/core": {
+      "entry": ["bin/stencil.mjs"],
+      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+    },
+    "packages/cli": {
+      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+    },
+    "packages/mock-doc": {
+      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+    },
+    "packages/dev-server": {
+      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+    }
+  },
+  "ignoreWorkspaces": ["test/**"]
+}
