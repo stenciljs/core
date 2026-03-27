@@ -82,46 +82,13 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       destroys.delete(cb);
     },
     applyPrerenderGlobalPatch(opts) {
-      if (typeof global.fetch !== 'function') {
-        const nodeFetch = require(path.join(__dirname, 'node-fetch.js'));
-
-        global.fetch = (input: any, init: any) => {
-          if (typeof input === 'string') {
-            // fetch(url) w/ url string
-            const urlStr = new URL(input, opts.devServerHostUrl).href;
-            return nodeFetch.fetch(urlStr, init);
-          } else {
-            // fetch(Request) w/ request object
-            input.url = new URL(input.url, opts.devServerHostUrl).href;
-            return nodeFetch.fetch(input, init);
-          }
-        };
-
-        global.Headers = nodeFetch.Headers;
-        global.Request = nodeFetch.Request;
-        global.Response = nodeFetch.Response;
-        (global as any).FetchError = nodeFetch.FetchError;
-      }
-
+      // Node 18+ has native fetch, Headers, Request, Response globally available
       opts.window.fetch = global.fetch;
       opts.window.Headers = global.Headers;
       opts.window.Request = global.Request;
       opts.window.Response = global.Response;
-      opts.window.FetchError = (global as any).FetchError;
     },
-    fetch: (input: any, init: any) => {
-      const nodeFetch = require(path.join(__dirname, 'node-fetch.js'));
-
-      if (typeof input === 'string') {
-        // fetch(url) w/ url string
-        const urlStr = new URL(input).href;
-        return nodeFetch.fetch(urlStr, init);
-      } else {
-        // fetch(Request) w/ request object
-        input.url = new URL(input.url).href;
-        return nodeFetch.fetch(input, init);
-      }
-    },
+    fetch: global.fetch,
     checkVersion,
     copyFile(src, dst) {
       return new Promise((resolve) => {
