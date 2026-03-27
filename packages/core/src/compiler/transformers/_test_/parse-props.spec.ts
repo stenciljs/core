@@ -16,7 +16,7 @@ describe('parse props', () => {
         attribute: 'val',
         complexType: {
           references: {},
-          resolved: 'string',
+          resolved: 'string | undefined',
           original: 'string',
         },
         docs: {
@@ -83,6 +83,8 @@ describe('parse props', () => {
         @Prop() val?: Foo;
       }
     `);
+    // TS6 resolves unknown types as `any` (more accurate than preserving the name)
+    // The original name is still preserved in `original` and `references`
     expect(getStaticGetter(t.outputText, 'properties')).toEqual({
       val: {
         attribute: 'val',
@@ -93,7 +95,7 @@ describe('parse props', () => {
               location: 'global',
             },
           },
-          resolved: 'Foo',
+          resolved: 'any',
           original: 'Foo',
         },
         docs: {
@@ -543,13 +545,14 @@ describe('parse props', () => {
       }
     `);
 
+    // TS6 correctly infers `null` as its own type, not `any`
+    // Props with null values have no attribute (can't reflect null)
     expect(getStaticGetter(t.outputText, 'properties')).toEqual({
       val: {
-        attribute: 'val',
         complexType: {
           references: {},
-          resolved: 'any',
-          original: 'any',
+          resolved: 'null',
+          original: 'null',
         },
         docs: {
           text: '',
@@ -558,15 +561,14 @@ describe('parse props', () => {
         defaultValue: 'null',
         mutable: false,
         optional: false,
-        reflect: false,
         required: false,
-        type: 'any',
+        type: 'unknown',
         getter: false,
         setter: false,
       },
     });
-    expect(t.property?.type).toBe('any');
-    expect(t.property?.attribute).toBe('val');
+    expect(t.property?.type).toBe('unknown');
+    expect(t.property?.attribute).toBe(undefined);
   });
 
   it('should infer string type from `get()` return value', () => {

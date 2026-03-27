@@ -68,7 +68,10 @@ export function uuidv4(): string {
  * @param path the path on the file system to read and parse
  * @returns the parsed JSON
  */
-export async function readJson<T extends object>(sys: d.CompilerSystem, path: string): Promise<T | null> {
+export async function readJson<T extends object>(
+  sys: d.CompilerSystem,
+  path: string,
+): Promise<T | null> {
   const file = await sys.readFile(path);
   return file ? (JSON.parse(file) as T) : null;
 }

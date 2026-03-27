@@ -100,13 +100,13 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     const originalDisconnectedCallback = Cstr.prototype.disconnectedCallback;
     Object.assign(Cstr.prototype, {
       __hasHostListenerAttached: false,
-      __registerHost() {
+      __registerHost(this: d.HostElement) {
         registerHost(this, cmpMeta);
       },
-      componentOnReady() {
+      componentOnReady(this: d.HostElement) {
         return getHostRef(this)?.$onReadyPromise$;
       },
-      connectedCallback() {
+      connectedCallback(this: d.HostElement & { __hasHostListenerAttached: boolean }) {
         if (!this.__hasHostListenerAttached) {
           const hostRef = getHostRef(this);
           if (!hostRef) {
@@ -121,13 +121,13 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
           originalConnectedCallback.call(this);
         }
       },
-      disconnectedCallback() {
+      disconnectedCallback(this: d.HostElement) {
         disconnectedCallback(this);
         if (originalDisconnectedCallback) {
           originalDisconnectedCallback.call(this);
         }
       },
-      __attachShadow() {
+      __attachShadow(this: d.HostElement) {
         if (supportsShadow) {
           if (!this.shadowRoot) {
             createShadowRoot.call(this, cmpMeta);

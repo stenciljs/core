@@ -47,6 +47,8 @@ export function stencilVitestPlugin(): VitePlugin {
         style: null,
         styleImportData: 'queryparams',
         target: 'es2022',
+        // Don't rewrite import paths - let Vite handle resolution via aliases
+        transformAliasedImportPaths: false,
       });
 
       const hasErrors = result.diagnostics?.some((d) => d.level === 'error');

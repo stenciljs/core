@@ -36,6 +36,7 @@ export function transpileModule(
     ...ts.getDefaultCompilerOptions(),
     allowNonTsExtensions: true,
     composite: undefined,
+    alwaysStrict: false,
     declaration: undefined,
     declarationDir: undefined,
     experimentalDecorators: true,

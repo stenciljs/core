@@ -1214,7 +1214,7 @@ render() {
         if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode && isInitialLoad) {
           // Store the initial value of `hidden` so we can reset it later when
           // moving nodes around.
-          nodeToRelocate['s-ih'] = nodeToRelocate.hidden ?? false;
+          nodeToRelocate['s-ih'] = !!nodeToRelocate.hidden;
         }
 
         if (slotRefNode) {

@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import { InMemoryFileSystem } from 'src/compiler/sys/in-memory-fs';
+import { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 import { afterAll, Mock, vi } from 'vitest';
 import { isString, isOutputTargetWww, join, relative, isOutputTargetDistLazy } from '../utils';
 
