@@ -110,4 +110,22 @@ describe('serialize', () => {
 
     expect(() => serializeProperty(circular)).toThrow();
   });
+
+  it('should serialize and deserialize Unicode characters including emoji, CJK, and currency symbols', () => {
+    const toSerialize = {
+      euroPrice: 'Price: 100€',
+      japaneseText: '日本語',
+      chineseText: '中文字符',
+      emoji: '🎉🚀👋',
+      accentedChars: 'café résumé naïve',
+      mixed: {
+        title: 'Welcome to 日本! 🎌',
+        cost: '€50.00',
+        description: 'CJK: 中文 한국어 日本語',
+      },
+    };
+
+    const deserialized = deserializeProperty(serializeProperty(toSerialize) as string);
+    expect(deserialized).toEqual(toSerialize);
+  });
 });
