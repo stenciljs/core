@@ -14,6 +14,7 @@ export {
   setAssetPath,
   setErrorHandler,
   setMode,
+  setNonce,
   setPlatformHelpers,
   setTagTransformer,
   transformTag,

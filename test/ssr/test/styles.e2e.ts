@@ -154,6 +154,21 @@ test.describe('styles and modes', () => {
         '<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>',
       );
     });
+
+    test('applies nonce from csp-nonce meta tag to rendered style tags', async () => {
+      const { html } = await renderToString(
+        '<html><head><meta name="csp-nonce" content="ssr-meta-nonce" /></head><body><another-car-detail></another-car-detail></body></html>',
+        {
+          serializeShadowRoot: true,
+          fullDocument: true,
+          clientHydrateAnnotations: false,
+        },
+      );
+
+      expect(html || '').toMatch(
+        /<style(?=[^>]*sty-id="sc-another-car-detail")(?=[^>]*nonce="ssr-meta-nonce")[^>]*>/,
+      );
+    });
   });
 
   test.describe('::part CSS selectors', () => {

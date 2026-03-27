@@ -1,5 +1,8 @@
 // Load lazy-loaded dist components
 
-await import('./dist/lazy/testapp/testapp.esm.js');
+import { setNonce, defineCustomElements } from './dist/lazy/loader';
+
+setNonce('test-csp-nonce');
+await defineCustomElements();
 
 export {};

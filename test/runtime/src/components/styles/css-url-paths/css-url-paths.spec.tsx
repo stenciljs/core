@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('css-url-paths', () => {
   it('should not replace "relative to root" paths', async () => {
-    const { root, waitForChanges } = await render(<css-url-paths />, { waitForReady: false });
+    const { root } = await render(<css-url-paths />, { waitForReady: false });
     await waitForExist('css-url-paths.hydrated');
 
     const el = root.querySelector('#relativeToRoot')!;
@@ -14,7 +14,7 @@ describe('css-url-paths', () => {
   });
 
   it('should not replace "absolute" paths', async () => {
-    const { root, waitForChanges } = await render(<css-url-paths />, { waitForReady: false });
+    const { root } = await render(<css-url-paths />, { waitForReady: false });
     await waitForExist('css-url-paths.hydrated');
 
     const el = root.querySelector('#absolute')!;

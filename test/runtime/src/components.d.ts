@@ -207,6 +207,8 @@ export namespace Components {
     }
     interface CrossDocumentStyle {
     }
+    interface CspNonceCmp {
+    }
     interface CssCmp {
     }
     interface CssUrlPaths {
@@ -1563,6 +1565,12 @@ declare global {
     var HTMLCrossDocumentStyleElement: {
         prototype: HTMLCrossDocumentStyleElement;
         new (): HTMLCrossDocumentStyleElement;
+    };
+    interface HTMLCspNonceCmpElement extends Components.CspNonceCmp, HTMLStencilElement {
+    }
+    var HTMLCspNonceCmpElement: {
+        prototype: HTMLCspNonceCmpElement;
+        new (): HTMLCspNonceCmpElement;
     };
     interface HTMLCssCmpElement extends Components.CssCmp, HTMLStencilElement {
     }
@@ -3055,6 +3063,7 @@ declare global {
         "conditional-rerender": HTMLConditionalRerenderElement;
         "conditional-rerender-root": HTMLConditionalRerenderRootElement;
         "cross-document-style": HTMLCrossDocumentStyleElement;
+        "csp-nonce-cmp": HTMLCspNonceCmpElement;
         "css-cmp": HTMLCssCmpElement;
         "css-url-paths": HTMLCssUrlPathsElement;
         "css-variables-no-encapsulation": HTMLCssVariablesNoEncapsulationElement;
@@ -3444,6 +3453,8 @@ declare namespace LocalJSX {
     interface ConditionalRerenderRoot {
     }
     interface CrossDocumentStyle {
+    }
+    interface CspNonceCmp {
     }
     interface CssCmp {
     }
@@ -4663,6 +4674,7 @@ declare namespace LocalJSX {
         "conditional-rerender": ConditionalRerender;
         "conditional-rerender-root": ConditionalRerenderRoot;
         "cross-document-style": CrossDocumentStyle;
+        "csp-nonce-cmp": CspNonceCmp;
         "css-cmp": CssCmp;
         "css-url-paths": CssUrlPaths;
         "css-variables-no-encapsulation": CssVariablesNoEncapsulation;
@@ -4916,6 +4928,7 @@ declare module "@stencil/core" {
             "conditional-rerender": LocalJSX.IntrinsicElements["conditional-rerender"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderElement>;
             "conditional-rerender-root": LocalJSX.IntrinsicElements["conditional-rerender-root"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderRootElement>;
             "cross-document-style": LocalJSX.IntrinsicElements["cross-document-style"] & JSXBase.HTMLAttributes<HTMLCrossDocumentStyleElement>;
+            "csp-nonce-cmp": LocalJSX.IntrinsicElements["csp-nonce-cmp"] & JSXBase.HTMLAttributes<HTMLCspNonceCmpElement>;
             "css-cmp": LocalJSX.IntrinsicElements["css-cmp"] & JSXBase.HTMLAttributes<HTMLCssCmpElement>;
             "css-url-paths": LocalJSX.IntrinsicElements["css-url-paths"] & JSXBase.HTMLAttributes<HTMLCssUrlPathsElement>;
             "css-variables-no-encapsulation": LocalJSX.IntrinsicElements["css-variables-no-encapsulation"] & JSXBase.HTMLAttributes<HTMLCssVariablesNoEncapsulationElement>;
