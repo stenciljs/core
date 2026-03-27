@@ -37,7 +37,7 @@ export class MockHeaders {
   entries(): any {
     const entries: string[][] = [];
     for (const kv of this.keys()) {
-      entries.push([kv, this.get(kv)]);
+      entries.push([kv, this.get(kv) ?? '']);
     }
     let index = -1;
     return {

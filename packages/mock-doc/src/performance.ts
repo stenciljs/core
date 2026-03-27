@@ -4,6 +4,7 @@
 export class MockPerformance implements Performance {
   timeOrigin: number;
   eventCounts: EventCounts;
+  interactionCount = 0;
 
   constructor() {
     this.timeOrigin = Date.now();
@@ -92,7 +93,7 @@ export class MockPerformance implements Performance {
 export function resetPerformance(perf: Performance) {
   if (perf != null) {
     try {
-      (perf as MockPerformance).timeOrigin = Date.now();
+      (perf as unknown as MockPerformance).timeOrigin = Date.now();
     } catch {}
   }
 }

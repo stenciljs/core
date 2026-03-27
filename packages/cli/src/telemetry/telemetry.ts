@@ -104,7 +104,7 @@ export async function telemetryAction(
 ) {
   const tracking = await shouldTrack(sys, flags, !!flags.ci);
 
-  let duration = undefined;
+  let duration: number | undefined = undefined;
   let error: any;
 
   if (action) {

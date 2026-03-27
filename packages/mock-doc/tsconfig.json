@@ -18,6 +18,8 @@
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": false,

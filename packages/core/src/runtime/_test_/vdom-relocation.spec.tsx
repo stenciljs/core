@@ -1,6 +1,6 @@
 import { Component, h, Listen, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-import { expect, describe, it, vi } from '@stencil/vitest';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('vdom-relocation', () => {
   it('vdom-relocation', async () => {

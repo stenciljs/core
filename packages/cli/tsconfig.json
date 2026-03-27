@@ -24,8 +24,7 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "target": "es2022",
-    "types": ["node"],
-    "baseUrl": "."
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "dist"]

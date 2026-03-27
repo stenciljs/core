@@ -18,6 +18,9 @@
     "noImplicitAny": false,
     "noImplicitOverride": false,
     "noImplicitReturns": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "resolveJsonModule": true,
@@ -25,7 +28,6 @@
     "sourceMap": false,
     "target": "es2022",
     "types": ["node"],
-    "baseUrl": ".",
     "paths": {
       "virtual:app-data": ["./src/app-data/index.ts"],
       "virtual:app-globals": ["./src/app-globals/index.ts"],

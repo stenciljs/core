@@ -312,12 +312,12 @@ export class MockDocument extends MockHTMLElement {
   }
 }
 
-export function createDocument(html: string | boolean = null): Document {
+export function createDocument(html: string | boolean | null = null): Document {
   return new MockWindow(html).document;
 }
 
 export function createFragment(html?: string): DocumentFragment {
-  return parseHtmlToFragment(html, null);
+  return parseHtmlToFragment(html ?? '', null);
 }
 
 export function resetDocument(doc: Document) {
@@ -369,7 +369,7 @@ const DOC_KEY_KEEPERS = new Set([
   'contentType',
 ]);
 
-export function getElementById(elm: MockElement, id: string): MockElement {
+export function getElementById(elm: MockElement, id: string): MockElement | null {
   const children = elm.children;
   for (let i = 0, ii = children.length; i < ii; i++) {
     const childElm = children[i];

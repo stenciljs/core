@@ -57,7 +57,7 @@ describe('event', () => {
     `);
 
     let called = false;
-    page.root.addEventListener('ionChange', (ev: CustomEvent) => {
+    page.root.addEventListener('ionChange', (ev: Event) => {
       expect(ev.bubbles).toBe(true);
       expect(ev.cancelable).toBe(true);
       expect(ev.composed).toBe(true);
@@ -127,7 +127,7 @@ describe('event', () => {
     `);
 
     let called = false;
-    root.addEventListener('ionStyle', (ev: CustomEvent) => {
+    root.addEventListener('ionStyle', (ev: Event) => {
       expect(ev.bubbles).toBe(true);
       expect(ev.cancelable).toBe(true);
       expect(ev.composed).toBe(true);
@@ -184,7 +184,7 @@ describe('event', () => {
     `);
 
     let called = false;
-    root.addEventListener('ionStyle', (ev: CustomEvent) => {
+    root.addEventListener('ionStyle', (ev: Event) => {
       expect(ev.bubbles).toBe(false);
       expect(ev.cancelable).toBe(false);
       expect(ev.composed).toBe(false);

@@ -9,7 +9,7 @@ class MockCSSRule {
 export class MockCSSStyleSheet {
   ownerNode?: MockStyleElement;
   type = 'text/css';
-  parentStyleSheet: MockCSSStyleSheet = null;
+  parentStyleSheet: MockCSSStyleSheet | null = null;
   cssRules: MockCSSRule[] = [];
 
   constructor(ownerNode?: MockStyleElement) {

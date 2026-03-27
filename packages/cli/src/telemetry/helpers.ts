@@ -17,8 +17,8 @@ export interface TelemetryConfig {
   'tokens.telemetry'?: string;
 }
 
-export const tryFn = async <T extends (...args: any[]) => Promise<R>, R>(
-  fn: T,
+export const tryFn = async <R>(
+  fn: (...args: any[]) => Promise<R>,
   ...args: any[]
 ): Promise<R | null> => {
   try {
@@ -68,9 +68,9 @@ export function uuidv4(): string {
  * @param path the path on the file system to read and parse
  * @returns the parsed JSON
  */
-export async function readJson<T extends object>(sys: d.CompilerSystem, path: string): Promise<T> {
+export async function readJson<T extends object>(sys: d.CompilerSystem, path: string): Promise<T | null> {
   const file = await sys.readFile(path);
-  return !!file && (JSON.parse(file) as T);
+  return file ? (JSON.parse(file) as T) : null;
 }
 
 /**

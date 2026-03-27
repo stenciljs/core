@@ -8,10 +8,10 @@ export class MockEvent {
   cancelBubble = false;
   cancelable = false;
   composed = false;
-  currentTarget: MockElement = null;
+  currentTarget: MockElement | null = null;
   defaultPrevented = false;
-  srcElement: MockElement = null;
-  target: MockElement = null;
+  srcElement: MockElement | null = null;
+  target: MockElement | null = null;
   timeStamp: number;
   type: string;
 
@@ -116,7 +116,7 @@ export class MockMouseEvent extends MockEvent {
   metaKey = false;
   button = 0;
   buttons = 0;
-  relatedTarget: EventTarget = null;
+  relatedTarget: EventTarget | null = null;
 
   constructor(type: string, mouseEventInitDic?: MouseEventInit) {
     super(type);
@@ -186,7 +186,7 @@ export function removeEventListener(elm: any, type: string, handler: any) {
 
 export function resetEventListeners(target: any) {
   if (target != null && (target as EventTarget).__listeners != null) {
-    (target as EventTarget).__listeners = null;
+    (target as EventTarget).__listeners = null as any;
   }
 }
 

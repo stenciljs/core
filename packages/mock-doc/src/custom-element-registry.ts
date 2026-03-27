@@ -2,8 +2,8 @@ import { NODE_TYPES } from './constants';
 import { MockHTMLElement, MockNode } from './node';
 
 export class MockCustomElementRegistry implements CustomElementRegistry {
-  private __registry: Map<string, { cstr: any; options: any }>;
-  private __whenDefined: Map<string, Function[]>;
+  private __registry!: Map<string, { cstr: any; options: any }>;
+  private __whenDefined!: Map<string, Function[]>;
 
   constructor(private win: Window) {}
 
@@ -67,16 +67,22 @@ export class MockCustomElementRegistry implements CustomElementRegistry {
     return undefined;
   }
 
-  getName(cstr: CustomElementConstructor) {
-    for (const [tagName, def] of this.__registry.entries()) {
-      if (def.cstr === cstr) {
-        return tagName;
+  getName(cstr: CustomElementConstructor): string | null {
+    if (this.__registry != null) {
+      for (const [tagName, def] of this.__registry.entries()) {
+        if (def.cstr === cstr) {
+          return tagName;
+        }
       }
     }
-    return undefined;
+    return null;
   }
 
   upgrade(_rootNode: any) {
+    //
+  }
+
+  initialize(_root: ShadowRoot) {
     //
   }
 
@@ -94,7 +100,7 @@ export class MockCustomElementRegistry implements CustomElementRegistry {
     tagName = tagName.toLowerCase();
 
     if (this.__registry != null && this.__registry.has(tagName) === true) {
-      return Promise.resolve<CustomElementConstructor>(this.__registry.get(tagName).cstr);
+      return Promise.resolve<CustomElementConstructor>(this.__registry.get(tagName)!.cstr);
     }
 
     return new Promise<CustomElementConstructor>((resolve) => {

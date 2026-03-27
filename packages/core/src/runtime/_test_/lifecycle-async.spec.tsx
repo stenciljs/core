@@ -112,7 +112,7 @@ describe('lifecycle async', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       componentWillLoad() {
-        window.addEventListener('appload', (ev: CustomEvent) => mockEvent(ev.detail));
+        window.addEventListener('appload', (ev: Event) => mockEvent((ev as CustomEvent).detail));
       }
 
       render() {

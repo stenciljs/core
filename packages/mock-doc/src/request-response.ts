@@ -91,7 +91,7 @@ export interface MockResponseInit {
 }
 
 export class MockResponse {
-  private _body: string;
+  private _body: string | undefined;
   headers: MockHeaders;
   ok = true;
   status = 200;

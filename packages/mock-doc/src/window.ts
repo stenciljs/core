@@ -866,8 +866,8 @@ function resetWindow(win: MockWindow) {
       });
       win.__timeouts.clear();
     }
-    if (win.customElements && (win.customElements as MockCustomElementRegistry).clear) {
-      (win.customElements as MockCustomElementRegistry).clear();
+    if (win.customElements && (win.customElements as unknown as MockCustomElementRegistry).clear) {
+      (win.customElements as unknown as MockCustomElementRegistry).clear();
     }
 
     resetDocument(win.document);
