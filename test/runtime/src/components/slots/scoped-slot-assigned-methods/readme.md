@@ -13,10 +13,10 @@
 
 #### Parameters
 
-| Name           | Type                    | Description |
-| -------------- | ----------------------- | ----------- |
-| `opts`         | `{ flatten: boolean; }` |             |
-| `getPlainSlot` | `boolean`               |             |
+| Name           | Type                                 | Description |
+| -------------- | ------------------------------------ | ----------- |
+| `opts`         | `{ flatten: boolean; } \| undefined` |             |
+| `getPlainSlot` | `boolean`                            |             |
 
 #### Returns
 
@@ -30,10 +30,10 @@ Type: `Promise<Element[]>`
 
 #### Parameters
 
-| Name           | Type                    | Description |
-| -------------- | ----------------------- | ----------- |
-| `opts`         | `{ flatten: boolean; }` |             |
-| `getPlainSlot` | `boolean`               |             |
+| Name           | Type                                 | Description |
+| -------------- | ------------------------------------ | ----------- |
+| `opts`         | `{ flatten: boolean; } \| undefined` |             |
+| `getPlainSlot` | `boolean`                            |             |
 
 #### Returns
 

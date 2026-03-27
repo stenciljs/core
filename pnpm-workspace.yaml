@@ -7,9 +7,9 @@ catalog:
   '@vitest/browser': ^4.1.1
   '@vitest/browser-playwright': ^4.1.1
   '@playwright/test': ^1.52.0
-  '@stencil/vitest': '^1.9.2'
-  "vitest-environment-stencil": "^1.9.2"
+  '@stencil/vitest': '^1.9.3'
+  "vitest-environment-stencil": "^1.9.3"
   '@stencil/playwright': '1.2.3-next.11'
-  playwright: ^1.52.0
-  tsdown: '^0.21.0'
-  typescript: '~5.9.3'
+  playwright: ^1.58.0
+  tsdown: '^0.21.6'
+  typescript: '~6.0.2'

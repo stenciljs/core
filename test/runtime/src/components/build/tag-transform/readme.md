@@ -17,13 +17,13 @@ Type: `Promise<HTMLChildTagTransformElement>`
 
 
 
-### `customElementsGetChild() => Promise<CustomElementConstructor>`
+### `customElementsGetChild() => Promise<CustomElementConstructor | undefined>`
 
 
 
 #### Returns
 
-Type: `Promise<CustomElementConstructor>`
+Type: `Promise<CustomElementConstructor | undefined>`
 
 
 
@@ -37,13 +37,13 @@ Type: `Promise<NodeListOf<HTMLChildTagTransformElement>>`
 
 
 
-### `querySelectorChildTags() => Promise<HTMLChildTagTransformElement>`
+### `querySelectorChildTags() => Promise<HTMLChildTagTransformElement | null>`
 
 
 
 #### Returns
 
-Type: `Promise<HTMLChildTagTransformElement>`
+Type: `Promise<HTMLChildTagTransformElement | null>`
 
 
 

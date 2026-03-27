@@ -9,7 +9,8 @@
     "moduleResolution": "bundler",
     "target": "es2022",
     "skipLibCheck": true,
-    "strict": false
+    "strict": false,
+    "rootDir": "./"
   },
   "include": ["src"]
 }

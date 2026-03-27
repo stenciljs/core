@@ -9,7 +9,7 @@ export class ElementCmp {
   hostElementAttr = '';
 
   componentWillLoad() {
-    this.hostElementAttr = this.element.getAttribute('host-element-attr');
+    this.hostElementAttr = this.element.getAttribute('host-element-attr') ?? '';
   }
 
   render() {

@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "lib": ["dom", "es2017"],
     "moduleResolution": "bundler",
     "module": "esnext",
+    "rootDir": "./",
     "target": "es2017",
     "jsx": "react",
     "jsxFactory": "h",

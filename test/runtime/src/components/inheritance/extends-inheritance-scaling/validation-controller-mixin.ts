@@ -8,7 +8,23 @@
  */
 import { State, forceUpdate } from '@stencil/core';
 
-export const ValidationControllerMixin = (Base: any) => {
+export interface ValidationControllerMixinProps {
+  isValid: boolean;
+  errorMessage: string;
+  setValidationCallback(callback: (value: any) => string | undefined): void;
+  validate(value: any): boolean;
+  getValidationState(): { isValid: boolean; errorMessage: string };
+  getValidationMessageData(
+    helperTextId?: string,
+    errorTextId?: string,
+  ): { isValid: boolean; errorMessage: string; helperTextId?: string; errorTextId?: string; hasError: boolean };
+  resetValidation(): void;
+}
+
+type Ctor = new (...args: any[]) => any;
+export type ValidationControllerMixinReturn<B extends Ctor> = B & (new (...args: any[]) => ValidationControllerMixinProps);
+
+export const ValidationControllerMixin = <B extends Ctor>(Base: B): ValidationControllerMixinReturn<B> => {
   class ValidationMixin extends Base {
     @State() isValid: boolean = true;
     @State() errorMessage: string = '';
@@ -83,5 +99,5 @@ export const ValidationControllerMixin = (Base: any) => {
     }
   }
 
-  return ValidationMixin;
+  return ValidationMixin as unknown as ValidationControllerMixinReturn<B>;
 };

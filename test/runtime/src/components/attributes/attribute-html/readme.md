@@ -7,11 +7,11 @@
 
 ## Properties
 
-| Property  | Attribute  | Description | Type     | Default     |
-| --------- | ---------- | ----------- | -------- | ----------- |
-| `anyAttr` | `any-attr` |             | `any`    | `undefined` |
-| `nuAttr`  | `nu-attr`  |             | `number` | `undefined` |
-| `strAttr` | `str-attr` |             | `string` | `undefined` |
+| Property  | Attribute  | Description | Type                  | Default     |
+| --------- | ---------- | ----------- | --------------------- | ----------- |
+| `anyAttr` | `any-attr` |             | `any`                 | `undefined` |
+| `nuAttr`  | `nu-attr`  |             | `number \| undefined` | `undefined` |
+| `strAttr` | `str-attr` |             | `string \| undefined` | `undefined` |
 
 
 ----------------------------------------------

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "lib": ["dom", "es2017"],
@@ -8,7 +9,8 @@
     "target": "es2022",
     "jsx": "react",
     "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment"
+    "jsxFragmentFactory": "Fragment",
+    "rootDir": "./"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

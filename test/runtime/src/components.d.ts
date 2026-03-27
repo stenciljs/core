@@ -106,7 +106,7 @@ export namespace Components {
         "val": number;
     }
     interface ChildTagTransform {
-        "closestParentTag": () => Promise<HTMLParentTagTransformElement>;
+        "closestParentTag": () => Promise<HTMLParentTagTransformElement | null>;
         /**
           * @default 'Hello from Child'
          */
@@ -827,9 +827,9 @@ export namespace Components {
     }
     interface ParentTagTransform {
         "createChildTagElement": () => Promise<HTMLChildTagTransformElement>;
-        "customElementsGetChild": () => Promise<CustomElementConstructor>;
+        "customElementsGetChild": () => Promise<CustomElementConstructor | undefined>;
         "querySelectorAllChildTags": () => Promise<NodeListOf<HTMLChildTagTransformElement>>;
-        "querySelectorChildTags": () => Promise<HTMLChildTagTransformElement>;
+        "querySelectorChildTags": () => Promise<HTMLChildTagTransformElement | null>;
     }
     interface ParentWithReflectChild {
     }

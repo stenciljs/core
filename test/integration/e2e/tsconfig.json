@@ -1,6 +1,7 @@
 // hey! comments in my tsconfig!!
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "alwaysStrict": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,

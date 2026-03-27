@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "declaration": false,
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -10,6 +12,7 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
+    "rootDir": "./",
     "types": ["@stencil/vitest/globals"],
     "paths": {
       "@path-alias": ["./src/components/build/path-alias-cmp/path-alias-lib"]

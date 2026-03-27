@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -10,6 +11,7 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
+    "rootDir": "./",
     "types": ["@stencil/vitest/globals"]
   },
   "include": ["src"],

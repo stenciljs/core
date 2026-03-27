@@ -29,10 +29,10 @@ Toggle a custom state on or off
 
 #### Parameters
 
-| Name        | Type      | Description                                                  |
-| ----------- | --------- | ------------------------------------------------------------ |
-| `stateName` | `string`  | the name of the state to toggle                              |
-| `force`     | `boolean` | optional boolean to force the state on (true) or off (false) |
+| Name        | Type                   | Description                                                  |
+| ----------- | ---------------------- | ------------------------------------------------------------ |
+| `stateName` | `string`               | the name of the state to toggle                              |
+| `force`     | `boolean \| undefined` | optional boolean to force the state on (true) or off (false) |
 
 #### Returns
 

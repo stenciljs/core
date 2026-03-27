@@ -12,13 +12,13 @@ export const SiblingMixinFactory = <B extends new (...args: any[]) => any>(Base:
      * and not overwritten with undefined during component initialization.
      * Using JS private field (#) instead of TS private to avoid declaration emit issues.
      */
-    #_getterProp: string = 'getter default value';
+    _getterProp: string = 'getter default value';
     @Prop()
     get getterProp(): string {
-      return this.#_getterProp;
+      return this._getterProp;
     }
     set getterProp(newValue: string) {
-      this.#_getterProp = newValue;
+      this._getterProp = newValue;
     }
 
     @Prop() prop1: string = 'ExtendedCmp text';

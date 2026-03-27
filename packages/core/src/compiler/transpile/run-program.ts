@@ -125,8 +125,7 @@ export const runTsProgram = async (
           `TypeScript cannot emit declaration files for anonymous classes with non-public members.\n\n` +
           `Possible solutions:\n` +
           `  1. Add explicit type annotations to your mixin's return type\n` +
-          `  2. Use public members in your mixin classes\n` +
-          `  3. Use JavaScript private fields (#field) instead of TypeScript's private keyword`;
+          `  2. Use public members in your mixin classes`;
       }
     });
 

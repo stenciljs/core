@@ -8,7 +8,9 @@
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
     "experimentalDecorators": true,
+    "rootDir": "./",
     "strict": true,
+    "strictPropertyInitialization": false,
     "skipLibCheck": true
   },
   "include": ["src", "test.spec.tsx"]

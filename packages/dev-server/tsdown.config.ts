@@ -1,5 +1,4 @@
 import { defineConfig } from 'tsdown';
-import postcss from 'rollup-plugin-postcss';
 
 export default defineConfig([
   // Server-side Node targets
@@ -31,7 +30,6 @@ export default defineConfig([
     entry: {
       'client/index': 'src/client/index.ts',
     },
-    plugins: [postcss({ autoModules: true })],
     inputOptions: {
       moduleTypes: {
         '.css': 'js',

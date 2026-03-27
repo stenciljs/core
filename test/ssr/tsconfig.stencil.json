@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -9,7 +10,8 @@
     "jsxFragmentFactory": "Fragment",
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "rootDir": "./"
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/**/*.e2e.ts"]
