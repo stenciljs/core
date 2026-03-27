@@ -6,7 +6,7 @@ import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';
 import { shouldTrack } from './shouldTrack';
-import type { TaskCommand } from '../public';
+import type { TaskCommand } from '../types';
 
 type TelemetryCallback = (...args: any[]) => void | Promise<void>;
 
@@ -154,7 +154,7 @@ export function hasAppTarget(config: d.ValidatedConfig): boolean {
   );
 }
 
-export function isUsingYarn(sys: d.CompilerSystem) {
+function isUsingYarn(sys: d.CompilerSystem) {
   return sys.getEnvironmentVar?.('npm_execpath')?.includes('yarn') || false;
 }
 
@@ -166,7 +166,7 @@ export function isUsingYarn(sys: d.CompilerSystem) {
  * @param config the configuration used by the Stencil project
  * @returns a unique list of output target types found in the Stencil configuration
  */
-export function getActiveTargets(config: d.ValidatedConfig): string[] {
+function getActiveTargets(config: d.ValidatedConfig): string[] {
   const result = config.outputTargets.map((t) => t.type);
   return Array.from(new Set(result));
 }
@@ -457,7 +457,7 @@ function sanitizeDeclaredVersion(version: string): string {
  * "Stencil Version". For example, "stencil_cli_command" is a name that is used to track all CLI command information.
  * @param value the data to send to the external data store under the provided name argument
  */
-export async function sendMetric(
+async function sendMetric(
   sys: d.CompilerSystem,
   flags: ConfigFlags,
   name: string,

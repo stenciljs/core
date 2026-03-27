@@ -1,19 +1,18 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreWorkspaces": ["test/**"],
+  "ignoreBinaries": ["playwright"],
   "workspaces": {
     "packages/core": {
-      "entry": ["bin/stencil.mjs"],
-      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+      "entry": ["src/testing/app-data.ts", "build/version-utils.ts"],
+      "ignore": ["src/index.d.mts", "src/**/_test_/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"]
     },
-    "packages/cli": {
-      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
-    },
-    "packages/mock-doc": {
-      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
-    },
+    "packages/cli": {},
+    "packages/mock-doc": {},
     "packages/dev-server": {
-      "ignore": ["src/**/_test_/**", "**/*.spec.ts"]
+      "ignore": ["src/server/worker-thread.js", "src/**/_test_/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"]
     }
-  },
-  "ignoreWorkspaces": ["test/**"]
+  }
 }

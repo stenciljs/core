@@ -1,12 +1,12 @@
 import type * as d from '@stencil/core/compiler';
 import { readJson, TelemetryConfig, UUID_REGEX, uuidv4 } from './telemetry/helpers';
 
-export const isTest = () => process.env.JEST_WORKER_ID !== undefined;
+const isTest = () => process.env.JEST_WORKER_ID !== undefined;
 
 export const defaultConfig = (sys: d.CompilerSystem) =>
   sys.resolvePath(`${sys.homeDir()}/.ionic/${isTest() ? 'tmp-config.json' : 'config.json'}`);
 
-export const defaultConfigDirectory = (sys: d.CompilerSystem) =>
+const defaultConfigDirectory = (sys: d.CompilerSystem) =>
   sys.resolvePath(`${sys.homeDir()}/.ionic`);
 
 /**

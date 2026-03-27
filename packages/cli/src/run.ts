@@ -17,7 +17,7 @@ import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
 import { taskTelemetry } from './task-telemetry';
 import { telemetryAction } from './telemetry/telemetry';
-import { TaskCommand } from './public';
+import type { TaskCommand } from './types';
 
 /**
  * Main entry point for the Stencil CLI

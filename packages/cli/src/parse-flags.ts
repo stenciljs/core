@@ -14,7 +14,7 @@ import {
   STRING_CLI_FLAGS,
   STRING_NUMBER_CLI_FLAGS,
 } from './config-flags';
-import type { TaskCommand } from './public';
+import type { TaskCommand } from './types';
 
 /**
  * Parse command line arguments into a structured `ConfigFlags` object
