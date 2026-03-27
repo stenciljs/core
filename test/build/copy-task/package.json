@@ -37,7 +37,8 @@
     "@stencil/core": "workspace:*"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "vitest": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"

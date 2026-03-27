@@ -28,8 +28,8 @@
     "format": "oxfmt --write packages/",
     "format:check": "oxfmt --check packages/",
     "knip": "knip",
-    "lint": "oxlint packages/",
-    "lint:fix": "oxlint --fix packages/",
+    "lint": "oxlint --fix packages/",
+    "lint:check": "oxlint packages/",
     "test": "pnpm --stream --filter './packages/*' run test",
     "test:watch": "pnpm --parallel --stream --filter './packages/*' run test --watch",
     "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck"

@@ -1,6 +1,7 @@
 // hey! comments in my tsconfig!!
 {
   "compilerOptions": {
+    "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "alwaysStrict": true,
     "allowSyntheticDefaultImports": true,
@@ -21,7 +22,6 @@
     "pretty": true,
     "target": "es2017",
     "useUnknownInCatchVariables": true,
-    "baseUrl": ".",
     "rootDir": ".",
     "paths": {
       "@path-alias": ["./src/path-alias-cmp/path-alias-lib"]

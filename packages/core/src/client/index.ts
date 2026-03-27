@@ -1,4 +1,5 @@
 export * from './client-build';
+export * from './client-decorators';
 export * from './client-host-ref';
 export * from './client-load-module';
 export * from './client-log';

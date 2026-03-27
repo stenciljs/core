@@ -1,4 +1,18 @@
 export {
+  // Decorator stubs (compile-time metadata, no-op at runtime)
+  AttachInternals,
+  AttrDeserialize,
+  Component,
+  Element,
+  Event,
+  Listen,
+  Method,
+  Prop,
+  PropSerialize,
+  resolveVar,
+  State,
+  Watch,
+  // Runtime exports
   Build,
   Fragment,
   forceUpdate,
@@ -14,7 +28,6 @@ export {
   setAssetPath,
   setErrorHandler,
   setMode,
-  setNonce,
   setPlatformHelpers,
   setTagTransformer,
   transformTag,

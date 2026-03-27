@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil build && tsc"
+    "test": "stencil build && tsc --noEmit"
   },
   "devDependencies": {
-    "@stencil/core": "workspace:*"
+    "@stencil/core": "workspace:*",
+    "typescript": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"
