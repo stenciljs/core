@@ -41,7 +41,10 @@
     "parse5": "7.2.1"
   },
   "devDependencies": {
-    "@stencil/vitest": "catalog:"
+    "@stencil/vitest": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "volta": {
     "extends": "../../package.json"

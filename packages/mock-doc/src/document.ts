@@ -365,6 +365,8 @@ const DOC_KEY_KEEPERS = new Set([
   'childNodes',
   '_childNodes',
   '_shadowRoot',
+  'compatMode',
+  'contentType',
 ]);
 
 export function getElementById(elm: MockElement, id: string): MockElement {

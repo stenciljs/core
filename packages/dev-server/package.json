@@ -46,8 +46,13 @@
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
+    "@tsdown/css": "^0.21.5",
     "@types/ws": "^8.0.0",
-    "rollup-plugin-postcss": "^4.0.2"
+    "rollup-plugin-postcss": "^4.0.2",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-environment-stencil": "catalog:"
   },
   "peerDependencies": {
     "@stencil/core": "^5.0.0"

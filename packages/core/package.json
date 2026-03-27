@@ -112,11 +112,14 @@
     "rollup": "^4.0.0",
     "semver": "^7.7.4",
     "terser": "5.37.0",
-    "typescript": "~5.8.3"
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@ionic/prettier-config": "^4.0.0",
-    "prettier": "^3.5.0"
+    "prettier": "^3.5.0",
+    "tsdown": "catalog:",
+    "vitest": "catalog:",
+    "vitest-environment-stencil": "catalog:"
   },
   "volta": {
     "extends": "../../package.json"

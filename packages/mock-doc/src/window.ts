@@ -28,6 +28,7 @@ import { MockStorage } from './storage';
 
 const nativeClearInterval = globalThis.clearInterval;
 const nativeClearTimeout = globalThis.clearTimeout;
+const nativeDOMException = globalThis.DOMException;
 const nativeSetInterval = globalThis.setInterval;
 const nativeSetTimeout = globalThis.setTimeout;
 const nativeURL = globalThis.URL;
@@ -228,7 +229,7 @@ export class MockWindow {
   }
 
   get DOMException() {
-    return globalThis.DOMException;
+    return nativeDOMException;
   }
 
   fetch(input: any, init?: any): any {
