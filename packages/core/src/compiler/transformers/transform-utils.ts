@@ -250,7 +250,7 @@ export const getStaticValue = (
   return null;
 };
 
-export const arrayLiteralToArray = (arr: ts.ArrayLiteralExpression) => {
+const arrayLiteralToArray = (arr: ts.ArrayLiteralExpression) => {
   return arr.elements.map((element) => {
     let val: any;
 
@@ -528,7 +528,7 @@ const getTextOfPropertyName = (propName: ts.PropertyName) => {
   return undefined;
 };
 
-export class ObjectMap {
+class ObjectMap {
   [key: string]: ts.Expression | ObjectMap;
 }
 
@@ -582,7 +582,7 @@ interface TypeReferenceIR {
  * @param node the node to walk to retrieve type information
  * @returns the collected type references
  */
-export const getAllTypeReferences = (
+const getAllTypeReferences = (
   checker: ts.TypeChecker,
   node: ts.Node,
 ): ReadonlyArray<TypeReferenceIR> => {
@@ -1077,7 +1077,7 @@ export const mapJSDocTagInfo = (tags: readonly ts.JSDocTagInfo[]): d.CompilerJsD
   return tags.map((tag) => ({ ...tag, text: tag.text?.map((part) => part.text).join('') }));
 };
 
-export const serializeDocsSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol) => {
+const serializeDocsSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol) => {
   const type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
   // TODO(STENCIL-365): Replace this with `return resolveType()`;
   const set = new Set<string>();

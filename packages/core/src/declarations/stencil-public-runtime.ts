@@ -844,26 +844,6 @@ export declare function jsx(type: any, props: any, key?: string): VNode;
 export declare function jsxs(type: any, props: any, key?: string): VNode;
 
 /**
- * Automatic JSX runtime functions for TypeScript's react-jsxdev mode.
- * These functions are called automatically by TypeScript when using "jsx": "react-jsxdev".
- * @param type type of node
- * @param props properties of node
- * @param key optional key for the node
- * @param isStaticChildren indicates if the children are static
- * @param source source information
- * @param self reference to the component instance
- * @returns a jsx vnode
- */
-export declare function jsxDEV(
-  type: any,
-  props: any,
-  key?: string | number,
-  isStaticChildren?: boolean,
-  source?: any,
-  self?: any,
-): VNode;
-
-/**
  * A virtual DOM node
  */
 export interface VNode {

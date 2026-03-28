@@ -66,7 +66,7 @@ const parseListenDecorators = (
   });
 };
 
-export const parseListener = (
+const parseListener = (
   eventName: string,
   opts: d.ListenOptions = {},
   methodName: string,

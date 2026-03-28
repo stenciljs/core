@@ -43,7 +43,7 @@ export const resolveModuleIdAsync = (
   });
 };
 
-export const createCustomResolverAsync = (
+const createCustomResolverAsync = (
   sys: d.CompilerSystem,
   inMemoryFs: InMemoryFileSystem,
   exts?: string[],

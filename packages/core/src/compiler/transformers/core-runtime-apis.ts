@@ -7,7 +7,7 @@ export const HOST = '__stencil_Host';
 export const HTML_ELEMENT = 'HTMLElement';
 export const PROXY_CUSTOM_ELEMENT = '__stencil_proxyCustomElement';
 export const REGISTER_INSTANCE = '__stencil_registerInstance';
-export const REGISTER_HOST = '__stencil_registerHost';
+const REGISTER_HOST = '__stencil_registerHost';
 export const H = '__stencil_h';
 export const TRANSFORM_TAG = '__stencil_transformTag';
 

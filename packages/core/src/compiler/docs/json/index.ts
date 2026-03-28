@@ -70,7 +70,7 @@ export default _default;
   );
 };
 
-export const writeDocsOutput = async (
+const writeDocsOutput = async (
   compilerCtx: d.CompilerCtx,
   jsonOutput: d.OutputTargetDocsJson,
   jsonContent: string,

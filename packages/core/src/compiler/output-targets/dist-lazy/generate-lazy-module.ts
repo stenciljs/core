@@ -356,7 +356,7 @@ const formatLazyRuntimeBundle = (bundleModule: d.BundleModule): d.LazyBundleRunt
  * @param b The second argument to compare.
  * @returns A number indicating whether the first argument is less than/greater than/equal to the second argument.
  */
-export const sortBundleModules = (a: d.BundleModule, b: d.BundleModule): -1 | 1 | 0 => {
+const sortBundleModules = (a: d.BundleModule, b: d.BundleModule): -1 | 1 | 0 => {
   const aDependents = a.cmps.reduce((dependents, cmp) => {
     dependents.push(...cmp.dependents);
     return dependents;

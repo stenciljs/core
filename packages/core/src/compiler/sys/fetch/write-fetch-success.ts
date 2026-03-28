@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { InMemoryFileSystem } from '../in-memory-fs';
 import { setPackageVersionByContent } from '../resolve/resolve-utils';
 
-export const writeFetchSuccessSync = (
+const writeFetchSuccessSync = (
   sys: d.CompilerSystem,
   inMemoryFs: InMemoryFileSystem,
   url: string,

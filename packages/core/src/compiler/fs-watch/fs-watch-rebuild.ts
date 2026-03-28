@@ -52,7 +52,7 @@ const SCRIPT_EXT = ['ts', 'tsx', 'js', 'jsx'];
  * @param filePath a file extension
  * @returns whether the filepath has a script extension or not
  */
-export const hasScriptExt = (filePath: string): boolean => {
+const hasScriptExt = (filePath: string): boolean => {
   const ext = getExt(filePath);
 
   return ext ? SCRIPT_EXT.includes(ext) : false;
@@ -66,7 +66,7 @@ const STYLE_EXT = ['css', 'scss', 'sass', 'pcss', 'styl', 'stylus', 'less'];
  * @param filePath a file extension to check
  * @returns whether the filepath has a style extension or not
  */
-export const hasStyleExt = (filePath: string): boolean => {
+const hasStyleExt = (filePath: string): boolean => {
   const ext = getExt(filePath);
 
   return ext ? STYLE_EXT.includes(ext) : false;
@@ -132,7 +132,7 @@ export const hasHtmlChanges = (config: d.ValidatedConfig, buildCtx: d.BuildCtx):
   return srcIndexHtmlChanged;
 };
 
-export const updateCacheFromRebuild = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+const updateCacheFromRebuild = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   buildCtx.filesChanged.forEach((filePath) => {
     compilerCtx.fs.clearFileCache(filePath);
   });

@@ -239,7 +239,7 @@ export const getCssImports = async (
 
 export const isCssNodeModule = (url: string) => url.startsWith('~');
 
-export const resolveCssNodeModule = async (
+const resolveCssNodeModule = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   diagnostics: d.Diagnostic[],

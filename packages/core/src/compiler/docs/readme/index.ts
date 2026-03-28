@@ -25,7 +25,7 @@ export const generateReadmeDocs = async (
   );
 };
 
-export const strictCheckDocs = (config: d.ValidatedConfig, docsData: d.JsonDocs) => {
+const strictCheckDocs = (config: d.ValidatedConfig, docsData: d.JsonDocs) => {
   docsData.components.forEach((component) => {
     component.props.forEach((prop) => {
       if (!prop.docs && prop.deprecation === undefined) {

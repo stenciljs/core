@@ -18,7 +18,7 @@ const COMMON_DIR_MODULE_EXTS = [
 export const isCommonDirModuleFile = (p: string) =>
   COMMON_DIR_MODULE_EXTS.some((ext) => p.endsWith(ext));
 
-export const setPackageVersion = (
+const setPackageVersion = (
   pkgVersions: Map<string, string>,
   pkgName: string,
   pkgVersion: string,

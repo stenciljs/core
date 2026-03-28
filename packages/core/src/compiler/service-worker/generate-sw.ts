@@ -140,7 +140,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 }
 `;
 
-export const SELF_UNREGISTER_SW = `
+const SELF_UNREGISTER_SW = `
 self.addEventListener('install', function(e) {
   self.skipWaiting();
 });

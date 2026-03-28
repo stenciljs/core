@@ -229,7 +229,7 @@ const getProgress = (completedTasks: d.BuildTask[]) => {
   return (progressIndex + 1) / taskKeys.length;
 };
 
-export const ProgressTask = {
+const ProgressTask = {
   emptyOutputTargets: {},
   transpileApp: {},
   generateStyles: {},

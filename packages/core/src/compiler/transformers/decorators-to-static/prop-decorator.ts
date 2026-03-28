@@ -268,7 +268,7 @@ const getComplexType = (
  * @param type the prop type to narrow
  * @returns a valid Stencil prop type
  */
-export const propTypeFromTSType = (
+const propTypeFromTSType = (
   type: ts.Type,
 ): 'any' | 'boolean' | 'number' | 'string' | 'unknown' => {
   const isAnyType = checkType(type, isAny);

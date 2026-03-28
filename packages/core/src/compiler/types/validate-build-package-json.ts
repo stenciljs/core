@@ -184,7 +184,7 @@ export const validateCollection = (
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  */
-export const validateBrowser = (
+const validateBrowser = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,

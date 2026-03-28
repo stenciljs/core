@@ -12,7 +12,7 @@ import type * as d from '@stencil/core';
 import { PluginCtx, PluginTransformResults } from '@stencil/core';
 import { parseCssImports } from '../style/css-imports';
 
-export const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {
+const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {
   for (const plugin of pluginCtx.config?.plugins ?? []) {
     if (isFunction(plugin.resolveId)) {
       try {
@@ -38,7 +38,7 @@ export const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string)
   return importee;
 };
 
-export const runPluginLoad = async (pluginCtx: PluginCtx, id: string) => {
+const runPluginLoad = async (pluginCtx: PluginCtx, id: string) => {
   for (const plugin of pluginCtx.config?.plugins ?? []) {
     if (isFunction(plugin.load)) {
       try {

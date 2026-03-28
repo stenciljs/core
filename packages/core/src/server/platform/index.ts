@@ -234,7 +234,6 @@ export {
   Host,
   insertVdomAnnotations,
   jsx,
-  jsxDEV,
   jsxs,
   Mixin,
   parsePropertyValue,

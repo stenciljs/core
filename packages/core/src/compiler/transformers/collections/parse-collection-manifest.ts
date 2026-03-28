@@ -45,11 +45,11 @@ export const parseCollectionManifest = (
   return collection;
 };
 
-export const parseCollectionDependencies = (collectionManifest: d.CollectionManifest) => {
+const parseCollectionDependencies = (collectionManifest: d.CollectionManifest) => {
   return (collectionManifest.collections || []).map((c) => c.name);
 };
 
-export const parseGlobal = (
+const parseGlobal = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -72,7 +72,7 @@ export const parseGlobal = (
   collection.global = globalModule;
 };
 
-export const parseBundles = (collectionManifest: d.CollectionManifest) => {
+const parseBundles = (collectionManifest: d.CollectionManifest) => {
   if (invalidArrayData(collectionManifest.bundles)) {
     return [];
   }

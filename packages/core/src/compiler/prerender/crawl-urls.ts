@@ -203,7 +203,7 @@ const standardFilterUrl = (
   return false;
 };
 
-export const standardNormalizeHref = (
+const standardNormalizeHref = (
   prerenderConfig: d.PrerenderConfig,
   diagnostics: d.Diagnostic[],
   url: URL,

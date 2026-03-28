@@ -330,7 +330,7 @@ addEventListener('message', async ({data}) => {
 });
 `;
 
-export const WORKER_HELPERS = `
+const WORKER_HELPERS = `
 import { consoleError } from '${STENCIL_INTERNAL_ID}';
 
 ${GET_TRANSFERABLES}

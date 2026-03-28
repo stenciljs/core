@@ -50,7 +50,7 @@ export function getDefaultBundles(
  * @param cmps the components that have been registered & defined for the current build
  * @returns a three dimensional array with the compiler metadata for each component used
  */
-export function getUserConfigBundles(
+function getUserConfigBundles(
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   cmps: d.ComponentCompilerMeta[],

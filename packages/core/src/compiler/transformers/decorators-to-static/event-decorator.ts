@@ -83,7 +83,7 @@ const parseEventDecorator = (
   return eventMeta;
 };
 
-export const getEventName = (eventOptions: d.EventOptions, memberName: string) => {
+const getEventName = (eventOptions: d.EventOptions, memberName: string) => {
   if (
     eventOptions &&
     typeof eventOptions.eventName === 'string' &&
