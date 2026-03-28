@@ -909,7 +909,7 @@ const markSlotContentForRelocation = (elm: d.RenderNode) => {
  *
  * @param vNode a virtual DOM node
  */
-export const nullifyVNodeRefs = (vNode: d.VNode) => {
+const nullifyVNodeRefs = (vNode: d.VNode) => {
   if (BUILD.vdomRef) {
     if (vNode.$attrs$ && vNode.$attrs$.ref) {
       // Queue the ref removal callback to be called later

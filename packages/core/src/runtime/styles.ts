@@ -364,7 +364,7 @@ export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
  * @param css a CSS string to convert
  * @returns the converted string
  */
-export const convertScopedToShadow = (css: string) =>
+const convertScopedToShadow = (css: string) =>
   css.replace(/\/\*!@([^/]+)\*\/[^{]+\{/g, '$1{');
 
 /**

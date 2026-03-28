@@ -558,7 +558,7 @@ const clientHydrate = (
  * @param node The node to search.
  * @param orgLocNodes A map of the original location annotations and the current node being searched.
  */
-export const initializeDocumentHydrate = (
+const initializeDocumentHydrate = (
   node: d.RenderNode,
   orgLocNodes: d.PlatformRuntime['$orgLocNodes$'],
 ) => {

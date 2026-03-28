@@ -175,12 +175,12 @@ export function expectFilesDoNotExist(fs: InMemoryFileSystem, filePaths: string[
   }
 }
 
-export function getAppScriptUrl(config: d.ValidatedConfig, browserUrl: string) {
+function getAppScriptUrl(config: d.ValidatedConfig, browserUrl: string) {
   const appFileName = `${config.fsNamespace}.esm.js`;
   return getAppUrl(config, browserUrl, appFileName);
 }
 
-export function getAppStyleUrl(config: d.ValidatedConfig, browserUrl: string) {
+function getAppStyleUrl(config: d.ValidatedConfig, browserUrl: string) {
   if (config.globalStyle) {
     const appFileName = `${config.fsNamespace}.css`;
     return getAppUrl(config, browserUrl, appFileName);

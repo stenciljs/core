@@ -595,7 +595,7 @@ const clampTwoDigits = (n: number): string => ('0' + n.toString()).slice(-2);
  * @param columns the maximum number of columns to occupy per line
  * @returns the wrapped message
  */
-export const wordWrap = (msg: any[], columns: number): string[] => {
+const wordWrap = (msg: any[], columns: number): string[] => {
   const lines: string[] = [];
   const words: any[] = [];
 

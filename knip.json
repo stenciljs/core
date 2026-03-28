@@ -4,9 +4,10 @@
   "ignoreBinaries": ["playwright"],
   "workspaces": {
     "packages/core": {
-      "entry": ["src/testing/app-data.ts", "build/version-utils.ts"],
-      "ignore": ["src/index.d.mts", "src/**/_test_/**"],
-      "ignoreDependencies": ["vitest-environment-stencil"]
+      "entry": ["src/testing/app-data.ts", "build/version-utils.ts", "src/index.d.mts"],
+      "ignore": ["src/**/_test_/**", "src/server/runner/hydrate-factory.ts", "src/testing/platform/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"],
+      "ignoreUnresolved": ["virtual:*"]
     },
     "packages/cli": {},
     "packages/mock-doc": {},

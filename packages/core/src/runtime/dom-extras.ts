@@ -153,7 +153,7 @@ const patchSlotRemoveChild = (ElementPrototype: any) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
+const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__prepend) return;
   (HostElementPrototype as any).__prepend = HostElementPrototype.prepend;
 
@@ -197,7 +197,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
+const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__append) return;
   (HostElementPrototype as any).__append = HostElementPrototype.append;
   HostElementPrototype.append = function (
@@ -220,7 +220,7 @@ export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
+const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__insertAdjacentHTML) return;
   const originalInsertAdjacentHtml = HostElementPrototype.insertAdjacentHTML;
 
@@ -255,7 +255,7 @@ export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) =
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-export const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
+const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
   HostElementPrototype.insertAdjacentText = function (
     this: d.HostElement,
     position: InsertPosition,
@@ -348,7 +348,7 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-export const patchSlotInsertAdjacentElement = (HostElementPrototype: HTMLElement) => {
+const patchSlotInsertAdjacentElement = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__insertAdjacentElement) return;
   const originalInsertAdjacentElement = HostElementPrototype.insertAdjacentElement;
 
