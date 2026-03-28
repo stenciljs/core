@@ -2,12 +2,21 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreWorkspaces": ["test/**"],
   "ignoreBinaries": ["playwright"],
+  "rules": {
+    "catalog": "off"
+  },
   "workspaces": {
     "packages/core": {
-      "entry": ["src/testing/app-data.ts", "build/version-utils.ts", "src/index.d.mts"],
-      "ignore": ["src/**/_test_/**", "src/server/runner/hydrate-factory.ts", "src/testing/platform/**"],
-      "ignoreDependencies": ["vitest-environment-stencil"],
-      "ignoreUnresolved": ["virtual:*"]
+      "entry": [
+        "build/version-utils.ts", 
+        "src/index.d.mts",
+        "src/runtime/bootstrap-lazy.ts", 
+        "src/server/runner/hydrate-factory.ts",
+        "src/testing/platform/index.ts",
+        "src/testing/app-data.ts"
+      ],
+       "ignore": ["src/**/_test_/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"]
     },
     "packages/cli": {},
     "packages/mock-doc": {},

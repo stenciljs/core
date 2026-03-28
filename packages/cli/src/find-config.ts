@@ -6,7 +6,7 @@ import type { CompilerSystem, Diagnostic } from '@stencil/core/compiler';
  * An object containing the {@link CompilerSystem} used to find the configuration file, as well as the location on disk
  * to search for a Stencil configuration
  */
-export type FindConfigOptions = {
+type FindConfigOptions = {
   sys: CompilerSystem;
   configPath?: string | null;
 };
@@ -14,7 +14,7 @@ export type FindConfigOptions = {
 /**
  * The results of attempting to find a Stencil configuration file on disk
  */
-export type FindConfigResults = {
+type FindConfigResults = {
   configPath: string;
   rootDir: string;
 };

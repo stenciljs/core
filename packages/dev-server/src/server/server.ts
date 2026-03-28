@@ -171,7 +171,7 @@ function createWebSocket(
 // Server Process
 // =============================================================================
 
-export interface ServerProcessOptions {
+interface ServerProcessOptions {
   sys: {
     destroy(): Promise<void>;
     stat(path: string): Promise<{ isFile: boolean; isDirectory: boolean; size: number }>;

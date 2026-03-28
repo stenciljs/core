@@ -39,7 +39,7 @@ export const nextTick = (cb: Function): void => {
  * Any callbacks that are added to `queuedTasks` while this function is running are scheduled to be flushed on the
  * next tick.
  */
-export function flushTicks(): Promise<void> {
+function flushTicks(): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     function drain() {
       try {

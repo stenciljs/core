@@ -227,7 +227,7 @@ export const isDecoratorNamed = (propName: string) => {
   };
 };
 
-export interface GetDecoratorParameters {
+interface GetDecoratorParameters {
   <T>(decorator: ts.Decorator, typeChecker: ts.TypeChecker, diagnostics?: d.Diagnostic[]): [T];
   <T, T1>(
     decorator: ts.Decorator,

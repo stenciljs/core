@@ -248,6 +248,6 @@ export function dispatchEvent(currentTarget: any, ev: MockEvent) {
   return true;
 }
 
-export interface EventTarget {
+interface EventTarget {
   __listeners: MockEventListener[];
 }

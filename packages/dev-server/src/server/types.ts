@@ -20,7 +20,6 @@ export type {
   PageReloadStrategy,
   PrerenderConfig,
   PrerenderHydrateOptions,
-  SerializeDocumentOptions,
   HydrateResults,
   StencilDevServerConfig,
 } from '@stencil/core/compiler';

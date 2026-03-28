@@ -218,15 +218,15 @@ export const LOG_LEVEL_CLI_FLAGS = ['logLevel'] as const;
  */
 type ArrayValuesAsUnion<T extends ReadonlyArray<string>> = T[number];
 
-export type BooleanCLIFlag = ArrayValuesAsUnion<typeof BOOLEAN_CLI_FLAGS>;
-export type StringCLIFlag = ArrayValuesAsUnion<typeof STRING_CLI_FLAGS>;
+type BooleanCLIFlag = ArrayValuesAsUnion<typeof BOOLEAN_CLI_FLAGS>;
+type StringCLIFlag = ArrayValuesAsUnion<typeof STRING_CLI_FLAGS>;
 export type StringArrayCLIFlag = ArrayValuesAsUnion<typeof STRING_ARRAY_CLI_FLAGS>;
-export type NumberCLIFlag = ArrayValuesAsUnion<typeof NUMBER_CLI_FLAGS>;
-export type StringNumberCLIFlag = ArrayValuesAsUnion<typeof STRING_NUMBER_CLI_FLAGS>;
+type NumberCLIFlag = ArrayValuesAsUnion<typeof NUMBER_CLI_FLAGS>;
+type StringNumberCLIFlag = ArrayValuesAsUnion<typeof STRING_NUMBER_CLI_FLAGS>;
 export type BooleanStringCLIFlag = ArrayValuesAsUnion<typeof BOOLEAN_STRING_CLI_FLAGS>;
-export type LogCLIFlag = ArrayValuesAsUnion<typeof LOG_LEVEL_CLI_FLAGS>;
+type LogCLIFlag = ArrayValuesAsUnion<typeof LOG_LEVEL_CLI_FLAGS>;
 
-export type KnownCLIFlag =
+type KnownCLIFlag =
   | BooleanCLIFlag
   | StringCLIFlag
   | StringArrayCLIFlag

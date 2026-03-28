@@ -178,7 +178,7 @@ export const runTsProgram = async (
   return emittedDts;
 };
 
-export interface ValidateTypesResult {
+interface ValidateTypesResult {
   hasTypesChanged: boolean;
   needsRebuild: boolean;
 }

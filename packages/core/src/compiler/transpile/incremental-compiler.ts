@@ -18,7 +18,7 @@ import { getTsOptionsToExtend } from './ts-config';
 /**
  * Extended compiler host with cache invalidation support.
  */
-export interface CachingCompilerHost extends ts.CompilerHost {
+interface CachingCompilerHost extends ts.CompilerHost {
   /** Invalidate a specific file's cache so it gets re-read on next compile */
   invalidateFile(fileName: string): void;
   /** Clear all caches (for full rebuild) */

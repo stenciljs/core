@@ -44,12 +44,12 @@
       "import": "./dist/compiler/utils/index.mjs"
     },
     "./jsx-runtime": {
-      "types": "./jsx-runtime.d.ts",
-      "import": "./jsx-runtime.js"
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./jsx-runtime.d.ts",
-      "import": "./jsx-runtime.js"
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
     },
     "./mock-doc": {
       "types": "./dist/mock-doc.d.mts",

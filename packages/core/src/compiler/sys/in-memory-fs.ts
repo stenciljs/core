@@ -65,7 +65,7 @@ export type FsItems = Map<string, FsItem>;
 /**
  * Options supported by write methods on the in-memory filesystem.
  */
-export interface FsWriteOptions {
+interface FsWriteOptions {
   /**
    * only use the in-memory cache and do not write the file to disk
    */
@@ -98,7 +98,7 @@ export interface FsWriteResults {
 /**
  * Options supported by read methods on the in-memory filesystem.
  */
-export interface FsReadOptions {
+interface FsReadOptions {
   useCache?: boolean;
   setHash?: boolean;
 }

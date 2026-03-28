@@ -1,7 +1,7 @@
 import { MockDocument } from './document';
 import { parseHtmlToDocument } from './parse-html';
 
-export type DOMParserSupportedType =
+type DOMParserSupportedType =
   | 'text/html'
   | 'text/xml'
   | 'application/xml'
