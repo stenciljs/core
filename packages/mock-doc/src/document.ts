@@ -396,7 +396,7 @@ function getElementsByName(elm: MockElement, elmName: string, foundElms: MockEle
   return foundElms;
 }
 
-export function setOwnerDocument(elm: MockElement, ownerDocument: any) {
+function setOwnerDocument(elm: MockElement, ownerDocument: any) {
   for (let i = 0, ii = elm.childNodes.length; i < ii; i++) {
     elm.childNodes[i].ownerDocument = ownerDocument;
 

@@ -1435,7 +1435,7 @@ const currentlyDispatching = new WeakMap<any, Set<string>>();
  * @param eventType - The type of event that is currently dispatching.
  * @returns True if the element is currently dispatching the event, false otherwise.
  */
-export function isCurrentlyDispatching(target: any, eventType: string): boolean {
+function isCurrentlyDispatching(target: any, eventType: string): boolean {
   const dispatchingEvents = currentlyDispatching.get(target);
   return dispatchingEvents != null && dispatchingEvents.has(eventType);
 }
@@ -1444,7 +1444,7 @@ export function isCurrentlyDispatching(target: any, eventType: string): boolean 
  * @param target - The element that is currently dispatching an event.
  * @param eventType - The type of event that is currently dispatching.
  */
-export function markAsDispatching(target: any, eventType: string): void {
+function markAsDispatching(target: any, eventType: string): void {
   let dispatchingEvents = currentlyDispatching.get(target);
   if (dispatchingEvents == null) {
     dispatchingEvents = new Set<string>();
@@ -1457,7 +1457,7 @@ export function markAsDispatching(target: any, eventType: string): void {
  * @param target - The element that is currently dispatching an event.
  * @param eventType - The type of event that is currently dispatching.
  */
-export function unmarkAsDispatching(target: any, eventType: string): void {
+function unmarkAsDispatching(target: any, eventType: string): void {
   const dispatchingEvents = currentlyDispatching.get(target);
   if (dispatchingEvents != null) {
     dispatchingEvents.delete(eventType);

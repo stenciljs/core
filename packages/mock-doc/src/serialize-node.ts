@@ -605,7 +605,7 @@ function getChildNodes(node: Node | MockNode) {
 /**
  * A list of whitespace sensitive tag names, such as `code`, `pre`, etc.
  */
-/*@__PURE__*/ export const WHITESPACE_SENSITIVE = new Set([
+/*@__PURE__*/ const WHITESPACE_SENSITIVE = new Set([
   'CODE',
   'OUTPUT',
   'PLAINTEXT',

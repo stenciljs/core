@@ -7,8 +7,8 @@ export const HYDRATE_ID = 's-id';
 
 // Standard XML namespaces
 export const XLINK_NS = 'http://www.w3.org/1999/xlink';
-export const XML_NS = 'http://www.w3.org/XML/1998/namespace';
-export const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
+const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 
 /**
  * Get the standard prefix for a namespace URI.

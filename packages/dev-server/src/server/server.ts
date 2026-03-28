@@ -30,7 +30,7 @@ import { openInBrowser } from './editor';
 // HTTP Server
 // =============================================================================
 
-export function createHttpServer(
+function createHttpServer(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
 ): http.Server | https.Server {
@@ -98,7 +98,7 @@ interface DevWS extends NodeWebSocket {
   isAlive: boolean;
 }
 
-export function createWebSocket(
+function createWebSocket(
   httpServer: http.Server | https.Server,
   onMessageFromClient: (msg: DevServerMessage) => void,
 ): DevWebSocket {

@@ -240,7 +240,7 @@ patchPropAttributes(MockFormElement.prototype, {
   name: String,
 });
 
-export class MockLabelElement extends MockHTMLElement {
+class MockLabelElement extends MockHTMLElement {
   constructor(ownerDocument: any) {
     super(ownerDocument, 'label');
   }
@@ -459,7 +459,7 @@ export class MockSVGElement extends MockElement {
   }
 }
 
-export class MockSVGGraphicsElement extends MockSVGElement {
+class MockSVGGraphicsElement extends MockSVGElement {
   getBBox(_options?: {
     clipped: boolean;
     fill: boolean;
@@ -557,7 +557,7 @@ export class MockUListElement extends MockHTMLElement {
   }
 }
 
-export class MockSlotElement extends MockHTMLElement {
+class MockSlotElement extends MockHTMLElement {
   constructor(ownerDocument: any) {
     super(ownerDocument, 'slot');
   }
@@ -646,7 +646,7 @@ patchPropAttributes(MockSlotElement.prototype, {
 });
 
 type CanvasContext = '2d' | 'webgl' | 'webgl2' | 'bitmaprenderer';
-export class CanvasRenderingContext {
+class CanvasRenderingContext {
   context: CanvasContext;
   contextAttributes: WebGLContextAttributes;
   constructor(context: CanvasContext, contextAttributes?: WebGLContextAttributes) {

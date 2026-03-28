@@ -216,7 +216,7 @@ function normalizeHttpRequest(
   return req;
 }
 
-export function isValidUrlBasePath(basePath: string, url: URL): boolean {
+function isValidUrlBasePath(basePath: string, url: URL): boolean {
   let pathname = url.pathname;
   if (!pathname.endsWith('/')) {
     pathname += '/';
@@ -227,7 +227,7 @@ export function isValidUrlBasePath(basePath: string, url: URL): boolean {
   return pathname.startsWith(basePath);
 }
 
-export function isValidHistoryApi(devServerConfig: DevServerConfig, req: HttpRequest): boolean {
+function isValidHistoryApi(devServerConfig: DevServerConfig, req: HttpRequest): boolean {
   if (!devServerConfig.historyApiFallback) {
     return false;
   }
@@ -249,7 +249,7 @@ export function isValidHistoryApi(devServerConfig: DevServerConfig, req: HttpReq
 
 const urlVersionIds = new Map<string, string>();
 
-export async function serveFile(
+async function serveFile(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
   req: HttpRequest,
@@ -367,7 +367,7 @@ export function appendDevServerClientScript(
   return appendDevServerClientIframe(content, iframe);
 }
 
-export function appendDevServerClientIframe(content: string, iframe: string): string {
+function appendDevServerClientIframe(content: string, iframe: string): string {
   if (content.includes('</body>')) {
     return content.replace('</body>', `${iframe}</body>`);
   }

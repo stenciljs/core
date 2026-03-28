@@ -127,7 +127,7 @@ export class MockMouseEvent extends MockEvent {
   }
 }
 
-export class MockUIEvent extends MockEvent {
+class MockUIEvent extends MockEvent {
   detail: number | null = null;
   view: MockWindow | null = null;
 
@@ -152,7 +152,7 @@ export class MockFocusEvent extends MockUIEvent {
   }
 }
 
-export class MockEventListener {
+class MockEventListener {
   type: string;
   handler: (ev?: any) => void;
 

@@ -12,9 +12,9 @@ import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types';
 // =============================================================================
 
 export const DEV_SERVER_URL = '/~dev-server';
-export const DEV_MODULE_URL = '/~dev-module';
+const DEV_MODULE_URL = '/~dev-module';
 export const DEV_SERVER_INIT_URL = `${DEV_SERVER_URL}-init`;
-export const OPEN_IN_EDITOR_URL = `${DEV_SERVER_URL}-open-in-editor`;
+const OPEN_IN_EDITOR_URL = `${DEV_SERVER_URL}-open-in-editor`;
 
 // Dev server version - will be injected at build time
 export const VERSION = '5.0.0';
