@@ -5,6 +5,9 @@ import { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 /**
  * Shuffle an array using Fisher-Yates algorithm
  * http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+ *
+ * @param array - the array to shuffle
+ * @returns the shuffled array
  */
 export function shuffleArray(array: any[]) {
   let currentIndex = array.length;

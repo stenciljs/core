@@ -65,7 +65,7 @@ const hmrStylesheetLink = (
 // =============================================================================
 
 /**
- * Track which style updates actually found and updated existing style elements.
+ * Tracks which style updates actually found and updated existing style elements.
  * Used to determine if we need to create new style elements for first-time CSS.
  */
 interface StyleUpdateTracker {
@@ -108,6 +108,9 @@ export const hmrInlineStyles = (
 
 /**
  * Traverse the DOM looking for style elements to update or remove.
+ * @param elm - the element to start traversal from
+ * @param versionId - the HMR version identifier
+ * @param trackers - the style update trackers
  */
 const hmrInlineStylesTraverse = (
   elm: Element,
@@ -143,7 +146,10 @@ const hmrInlineStylesTraverse = (
 
 /**
  * Update or remove a style element based on the HMR update.
- * Returns true if this element matched and was processed.
+ * @param elm - the style element to update
+ * @param versionId - the HMR version identifier
+ * @param stylesUpdated - the HMR style update data
+ * @returns true if this element matched and was processed
  */
 const hmrStyleElement = (
   elm: Element,
@@ -168,6 +174,9 @@ const hmrStyleElement = (
 /**
  * Find all component instances with the matching tag name and create style elements.
  * Handles both shadow DOM components (style in shadow root) and scoped components (style in head).
+ * @param rootElm - the root element to search from
+ * @param versionId - the HMR version identifier
+ * @param styleUpdate - the HMR style update data
  */
 const createStyleElementsForComponent = (
   rootElm: Element,
@@ -208,6 +217,9 @@ const createStyleElementsForComponent = (
 
 /**
  * Find all instances of a component by tag name, including in shadow roots.
+ * @param elm - the element to search from
+ * @param tagName - the tag name to search for
+ * @returns an array of matching elements
  */
 const findComponentInstances = (elm: Element, tagName: string): Element[] => {
   const instances: Element[] = [];
@@ -237,6 +249,10 @@ const findComponentInstancesTraverse = (
 
 /**
  * Create a new style element with the given content.
+ * @param container - the container to insert the style element into
+ * @param styleId - the style identifier
+ * @param styleText - the CSS content
+ * @param versionId - the HMR version identifier
  */
 const createStyleElement = (
   container: Element | ShadowRoot,

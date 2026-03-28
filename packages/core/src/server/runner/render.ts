@@ -29,6 +29,9 @@ const NOOP = () => {};
 /**
  * Renders HTML to a string, returning the full hydration results.
  * This is the primary SSR function and is portable (no Node.js dependencies).
+ * @param html - the HTML string or document to render
+ * @param options - serialization options
+ * @returns the hydration results
  */
 export function renderToString(
   html: string | any,
@@ -62,6 +65,9 @@ export function renderToString(
  * Renders HTML and returns a Node.js Readable stream.
  * This is a Node.js-specific convenience wrapper around renderToString.
  * Note: This function requires Node.js and cannot be used in QuickJS/WASM environments.
+ * @param html - the HTML string or document to render
+ * @param options - serialization options
+ * @returns a Node.js Readable stream
  */
 export function streamToString(html: string | any, options?: SerializeDocumentOptions): Readable {
   async function* generateStream() {
@@ -74,6 +80,9 @@ export function streamToString(html: string | any, options?: SerializeDocumentOp
 /**
  * Hydrates a document or HTML string, returning the full hydration results.
  * This is portable (no Node.js dependencies).
+ * @param doc - the document or HTML string to hydrate
+ * @param options - hydration options
+ * @returns the hydration results
  */
 export function hydrateDocument(
   doc: any | string,

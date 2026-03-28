@@ -1,9 +1,10 @@
 /**
- * @stencil/dev-server
+ * Stencil Dev Server
  *
  * A modern development server for Stencil with DOM-based HMR.
  * Designed for lazy-loading component architectures where module graphs
  * are discovered at runtime from the DOM.
+ * @module @stencil/dev-server
  */
 
 import * as path from 'node:path';
@@ -84,6 +85,16 @@ export function start(
   });
 }
 
+/**
+ * Internal function to start the dev server.
+ *
+ * @param devServerConfig - configuration for the dev server
+ * @param logger - logger instance for output
+ * @param watcher - optional compiler watcher for build events
+ * @param initServerProcessFn - function to initialize the server process
+ * @param resolve - promise resolve callback
+ * @param reject - promise reject callback
+ */
 function startServer(
   devServerConfig: DevServerConfig,
   logger: Logger,

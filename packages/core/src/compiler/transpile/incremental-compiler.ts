@@ -29,6 +29,8 @@ interface CachingCompilerHost extends ts.CompilerHost {
 /**
  * Create a compiler host with source file caching and invalidation support.
  * Sets version on SourceFile objects for TypeScript's builder program tracking.
+ * @param options - the TypeScript compiler options
+ * @returns a caching compiler host
  */
 export function createCachingCompilerHost(options: ts.CompilerOptions): CachingCompilerHost {
   const host = ts.createIncrementalCompilerHost(options);
@@ -146,6 +148,7 @@ export class IncrementalCompiler {
   /**
    * Invalidate files that have changed on disk.
    * Call this before rebuild() when you know specific files changed.
+   * @param fileNames - the file paths to invalidate
    */
   invalidateFiles(fileNames: string[]): void {
     for (const fileName of fileNames) {
@@ -159,6 +162,7 @@ export class IncrementalCompiler {
    *
    * TypeScript detects which source files have changed (via sf.version property)
    * and only re-emits those when emit() is called.
+   * @returns the builder program
    */
   rebuild(): ts.EmitAndSemanticDiagnosticsBuilderProgram {
     // Pass the previous builder program for incremental compilation
@@ -174,6 +178,7 @@ export class IncrementalCompiler {
 
   /**
    * Get the current builder program (may be undefined before first rebuild)
+   * @returns the current builder program or undefined
    */
   getBuilderProgram(): ts.EmitAndSemanticDiagnosticsBuilderProgram | undefined {
     return this.builderProgram;
@@ -181,6 +186,7 @@ export class IncrementalCompiler {
 
   /**
    * Get the current TypeScript program (for type checking, etc.)
+   * @returns the current TypeScript program or undefined
    */
   getProgram(): ts.Program | undefined {
     return this.builderProgram?.getProgram();

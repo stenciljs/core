@@ -9,6 +9,9 @@ import { getModuleFromSourceFile } from './transform-utils';
  * Checks if a node is inside a function, method, or class body (not at module top-level).
  * We skip transforming top-level code because the tag transformer won't be set yet
  * at module load time - it's only set when the global script function runs.
+ *
+ * @param node - the TypeScript node to check
+ * @returns true if the node is inside a function or class body
  */
 const isInsideFunctionOrClass = (node: ts.Node): boolean => {
   let parent = node.parent;
@@ -29,6 +32,14 @@ const isInsideFunctionOrClass = (node: ts.Node): boolean => {
   return false;
 };
 
+/**
+ * Creates a TypeScript transformer factory that adds tag transformation calls
+ * to querySelector, querySelectorAll, closest, customElements, and createElement calls.
+ *
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @returns a transformer factory for tag transformations
+ */
 export const addTagTransform = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,

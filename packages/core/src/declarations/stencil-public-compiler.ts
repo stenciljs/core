@@ -2221,7 +2221,7 @@ export interface TestingConfig extends JestConfig {
 
   /**
    * Whether to run browser e2e tests in headless mode using Chrome Headless Shell
-   * @ref https://developer.chrome.com/blog/chrome-headless-shell
+   * @see https://developer.chrome.com/blog/chrome-headless-shell
    * @default shell
    */
   browserHeadless?: boolean | 'shell';

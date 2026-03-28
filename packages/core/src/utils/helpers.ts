@@ -1,3 +1,9 @@
+/**
+ * Check if a value is defined (not null and not undefined).
+ *
+ * @param v - the value to check
+ * @returns true if the value is defined
+ */
 export const isDef = (v: any) => v != null && v !== undefined;
 
 /**
@@ -49,15 +55,14 @@ export const toTitleCase = (str: string): string => str.charAt(0).toUpperCase() 
 
 /**
  * Escapes all occurrences of a specified pattern in a string.
- * @description This function replaces all matches of a given pattern in the input text with a specified replacement string.
+ * This function replaces all matches of a given pattern in the input text with a specified replacement string.
  * It can handle both string and regular expression patterns and allows toggling between global and single-match replacements.
- * @param {string} text - The input string to process.
- * @param {RegExp | string} pattern - The pattern to search for in the input string. Can be a regular expression or a string.
- * @param {string} replacement - The string to replace each match with.
- * @param {boolean} [replaceAll=true] - Whether to replace all occurrences (`true`) or just the first occurrence (`false`). Defaults to `true`.
- * @returns {string} The processed string with the replacements applied.
- * @example
- * @see src\utils\util.ts
+ *
+ * @param text - The input string to process.
+ * @param pattern - The pattern to search for in the input string. Can be a regular expression or a string.
+ * @param replacement - The string to replace each match with.
+ * @param replaceAll - Whether to replace all occurrences (true) or just the first occurrence (false). Defaults to true.
+ * @returns The processed string with the replacements applied.
  */
 export const escapeWithPattern = (
   text: string,

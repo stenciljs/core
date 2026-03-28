@@ -104,9 +104,10 @@ export const outputLazy = async (
 /**
  * Generate a collection of transformations that are to be applied as a part of the `before` step in the TypeScript
  * compilation process.
- #
+ *
  * @param config the Stencil configuration associated with the current build
  * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
  * @returns a collection of transformations that should be applied to the source code, intended for the `before` part
  * of the pipeline
  */

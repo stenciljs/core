@@ -36,6 +36,8 @@ export function initServerProcessWorkerProxy(
 
   /**
    * Send a message from main to the worker process
+   *
+   * @param msg - the message to send to the worker
    */
   const receiveFromMain = (msg: DevServerMessage): void => {
     if (serverProcess && serverProcess.connected) {

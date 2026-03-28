@@ -93,6 +93,7 @@ export const attachInternalsDecoratorsToStatic = (
  * ```
  *
  * @param decorator the decorator node to parse
+ * @param typeChecker a TypeScript typechecker for resolving symbols
  * @returns array of custom state metadata with docs
  */
 function parseCustomStatesFromDecorator(

@@ -20,6 +20,7 @@ import { addLazyElementGetter } from './lazy-element-getter';
  * @param classNode the class declaration node
  * @param moduleFile information on the class' home module
  * @param cmp metadata collected during the compilation process
+ * @param buildCtx the current build context
  * @returns the updated class
  */
 export const updateLazyComponentClass = (
@@ -44,11 +45,12 @@ export const updateLazyComponentClass = (
 /**
  * Handling updating the component's members for lazy-build duty.
  *
- * @param transformOpts transform options
- * @param styleStatements an out param for style-related statements
- * @param classNode the class declaration node
- * @param moduleFile information on the class' home module
- * @param cmp metadata collected during the compilation process
+ * @param transformOpts - transform options
+ * @param styleStatements - an out param for style-related statements
+ * @param classNode - the class declaration node
+ * @param moduleFile - information on the class' home module
+ * @param cmp - metadata collected during the compilation process
+ * @param buildCtx - the current build context
  * @returns the updated class members
  */
 const updateLazyComponentMembers = (

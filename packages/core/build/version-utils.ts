@@ -325,6 +325,7 @@ const VERMOJIS = [
 
 /**
  * Generate a build identifier (epoch time in seconds)
+ * @returns the build identifier string
  */
 export function getBuildId(): string {
   return Date.now().toString(10).slice(0, -3);
@@ -332,6 +333,7 @@ export function getBuildId(): string {
 
 /**
  * Get first 7 characters of current git SHA
+ * @returns the shortened git SHA
  */
 export function getGitSha(): string {
   try {
@@ -343,6 +345,9 @@ export function getGitSha(): string {
 
 /**
  * Generate a dev version string: [BASE_VERSION]-dev.[BUILD_ID].[GIT_SHA]
+ * @param baseVersion - the base version to use
+ * @param buildId - the build identifier
+ * @returns the dev version string
  */
 export function getDevVersion(baseVersion: string, buildId: string): string {
   return `${baseVersion}-dev.${buildId}.${getGitSha()}`;
@@ -351,6 +356,8 @@ export function getDevVersion(baseVersion: string, buildId: string): string {
 /**
  * Get a deterministic vermoji based on a hash string (e.g., buildId).
  * Each unique buildId produces a consistent emoji.
+ * @param hash - the hash string to use for selecting the vermoji
+ * @returns the selected vermoji emoji
  */
 export function getVermojiFromHash(hash: string): string {
   let hashCode = 0;
@@ -365,6 +372,8 @@ export function getVermojiFromHash(hash: string): string {
 
 /**
  * Get a random vermoji that hasn't been used in the changelog (for prod releases)
+ * @param changelogPath - path to the changelog file
+ * @returns the selected vermoji emoji
  */
 export function getVermojiForRelease(changelogPath: string): string {
   try {
@@ -388,6 +397,9 @@ export interface BuildVersionInfo {
 
 /**
  * Get all build-time version info for tsdown define replacements
+ * @param packageJsonPath - path to the package.json file
+ * @param isProd - whether this is a production build
+ * @returns the build version info object
  */
 export function getBuildVersionInfo(packageJsonPath: string, isProd = false): BuildVersionInfo {
   const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
@@ -405,6 +417,8 @@ export function getBuildVersionInfo(packageJsonPath: string, isProd = false): Bu
 
 /**
  * Create the define object for tsdown string replacements
+ * @param info - the build version info
+ * @returns a record of define replacements
  */
 export function createDefines(info: BuildVersionInfo): Record<string, string> {
   return {

@@ -9,6 +9,8 @@ interface VitePlugin {
 /**
  * A Vite plugin that transforms Stencil components for use in Vitest.
  * This replaces the Jest preprocessor functionality.
+ *
+ * @returns a Vite plugin configuration object
  */
 export function stencilVitestPlugin(): VitePlugin {
   return {

@@ -352,7 +352,8 @@ export const generateEntryPoint = (
  * @param config the configuration for the Stencil project
  * @param compilerCtx the current compiler context
  * @param components the components that will be compiled as a part of the current build
- * @param outputTarget the output target configuration
+ * @param outputTarget - the output target configuration
+ * @param buildCtx - the current build context
  * @returns a list of transformers to use in the transpilation process
  */
 const getCustomBeforeTransformers = (

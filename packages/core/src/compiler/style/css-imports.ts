@@ -50,9 +50,9 @@ export const parseCssImports = async (
    * to get access to `compilerCtx`, `buildCtx`, and more without having to pass
    * a whole bunch of arguments.
    *
-   * @param srcFilePath the source filepath
-   * @param resolvedFilePath the resolved filepath
-   * @param styleText style text we start with*
+   * @param srcPath - the source filepath
+   * @param resolvedPath - the resolved filepath
+   * @param css - style text we start with
    * @returns concatenated styles assembled from the various imported stylesheets
    */
   async function resolveAndFlattenImports(

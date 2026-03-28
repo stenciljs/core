@@ -150,6 +150,11 @@ export const performAutomaticKeyInsertion = (
 function numReturnStatements(method: ts.MethodDeclaration): number {
   let count = 0;
 
+  /**
+   * Walk the node tree and count return statements.
+   *
+   * @param node - the node to walk
+   */
   function walker(node: ts.Node) {
     for (const child of node.getChildren()) {
       if (ts.isReturnStatement(child)) {

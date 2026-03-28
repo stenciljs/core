@@ -10,6 +10,8 @@ let closeTmr = null;
 
 /**
  * Handle errors when sending messages to parent process
+ *
+ * @param err - the error object from process.send
  */
 const sendHandle = (err) => {
   if (err && err.code === 'ERR_IPC_CHANNEL_CLOSED') {

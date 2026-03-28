@@ -13,6 +13,7 @@ import { convertValueToLiteral, createStaticGetter } from './transform-utils';
  *
  * @param classMembers a list of class members
  * @param cmp metadata about the stencil component of interest
+ * @param decorator the type of reactive handler to add ('watchers', 'serializers', or 'deserializers')
  */
 export const addReactivePropHandlers = (
   classMembers: ts.ClassElement[],

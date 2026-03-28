@@ -70,6 +70,11 @@ const getDecoratorParameter = (
 /**
  * Resolves a variable or object property to its string literal value at compile time.
  * Supports const variables and object properties with string literal values.
+ * @param node - the expression to resolve
+ * @param typeChecker - the TypeScript type checker
+ * @param diagnostics - optional diagnostics array for error reporting
+ * @param errorNode - optional node for error location
+ * @returns the resolved string value
  */
 const resolveVariableValue = (
   node: ts.Expression,
@@ -188,6 +193,9 @@ const resolveVariableValue = (
 /**
  * Extracts a string value from a TypeScript expression.
  * Returns null if the expression doesn't represent a string literal.
+ * @param expr - the expression to extract from
+ * @param typeChecker - the TypeScript type checker
+ * @returns the extracted string value or null
  */
 const extractStringFromExpression = (
   expr: ts.Expression,

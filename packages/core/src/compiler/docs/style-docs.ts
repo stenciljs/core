@@ -48,9 +48,8 @@ export function parseStyleDocs(
  * @param mode a mode associated with the parsed style, if applicable (e.g. this is not applicable for global styles)
  */
 function parseCssComment(styleDocs: d.StyleDoc[], comment: string, mode: string | undefined): void {
-  /**
-   * @prop --max-width: Max width of the alert
-   */
+  // Example of what these comments might look like:
+  // @property --max-width: Max width of the alert
   // (the above is an example of what these comments might look like)
 
   const lines = comment.split(/\r?\n/).map((line) => {

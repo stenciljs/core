@@ -31,6 +31,13 @@ const DEFAULT_HEADERS: DevResponseHeaders = {
   'access-control-expose-headers': '*',
 };
 
+/**
+ * Build response headers with optional HTTP caching.
+ *
+ * @param headers - custom headers to merge with defaults
+ * @param httpCache - whether to enable HTTP caching
+ * @returns the combined response headers
+ */
 export function responseHeaders(
   headers: DevResponseHeaders,
   httpCache = false,
@@ -48,6 +55,16 @@ export function responseHeaders(
 // URL Utilities
 // =============================================================================
 
+/**
+ * Build a browser URL from components.
+ *
+ * @param protocol - the URL protocol (http or https)
+ * @param address - the server address
+ * @param port - the server port
+ * @param basePath - the base path
+ * @param pathname - the URL pathname
+ * @returns the complete browser URL
+ */
 export function getBrowserUrl(
   protocol: string,
   address: string,
@@ -69,6 +86,14 @@ export function getBrowserUrl(
   return `${protocol}://${address}${portSuffix}${path}`;
 }
 
+/**
+ * Get the URL for the dev server client script.
+ *
+ * @param devServerConfig - the dev server configuration
+ * @param host - optional host override
+ * @param protocol - optional protocol override
+ * @returns the dev server client URL
+ */
 export function getDevServerClientUrl(
   devServerConfig: DevServerConfig,
   host: string | undefined,
@@ -131,6 +156,12 @@ const CONTENT_TYPES: Record<string, string> = {
   tsx: 'text/typescript-jsx',
 };
 
+/**
+ * Get the content type for a file based on its extension.
+ *
+ * @param filePath - the file path to check
+ * @returns the MIME content type
+ */
 export function getContentType(filePath: string): string {
   const last = filePath.replace(/^.*[/\\]/, '').toLowerCase();
   const ext = last.replace(/^.*\./, '').toLowerCase();
@@ -145,34 +176,70 @@ export function getContentType(filePath: string): string {
 // File Type Checks
 // =============================================================================
 
+/**
+ * Check if a file is an HTML file.
+ *
+ * @param filePath - the file path to check
+ * @returns true if the file is HTML
+ */
 export function isHtmlFile(filePath: string): boolean {
   const lower = filePath.toLowerCase().trim();
   return lower.endsWith('.html') || lower.endsWith('.htm');
 }
 
+/**
+ * Check if a file is a CSS file.
+ *
+ * @param filePath - the file path to check
+ * @returns true if the file is CSS
+ */
 export function isCssFile(filePath: string): boolean {
   return filePath.toLowerCase().trim().endsWith('.css');
 }
 
 const TXT_EXT = ['css', 'html', 'htm', 'js', 'json', 'svg', 'xml', 'mjs', 'ts', 'tsx', 'md', 'txt'];
 
+/**
+ * Check if a file is simple text (CSS, HTML, JS, JSON, etc.).
+ *
+ * @param filePath - the file path to check
+ * @returns true if the file is a simple text format
+ */
 export function isSimpleText(filePath: string): boolean {
   const ext = filePath.toLowerCase().trim().split('.').pop();
   return ext ? TXT_EXT.includes(ext) : false;
 }
 
+/**
+ * Check if a pathname has no file extension.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path has no extension
+ */
 export function isExtensionLessPath(pathname: string): boolean {
   const parts = pathname.split('/');
   const lastPart = parts[parts.length - 1];
   return !lastPart.includes('.');
 }
 
+/**
+ * Check if a pathname is for SSR static data (page.state.json).
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for SSR static data
+ */
 export function isSsrStaticDataPath(pathname: string): boolean {
   const parts = pathname.split('/');
   const fileName = parts[parts.length - 1].split('?')[0];
   return fileName === 'page.state.json';
 }
 
+/**
+ * Extract SSR static data path information from an HTTP request.
+ *
+ * @param req - the HTTP request object
+ * @returns an object containing ssrPath, fileName, and hasQueryString
+ */
 export function getSsrStaticDataPath(req: HttpRequest): {
   ssrPath: string;
   fileName: string;
@@ -203,22 +270,52 @@ export function getSsrStaticDataPath(req: HttpRequest): {
 // Path Type Checks
 // =============================================================================
 
+/**
+ * Check if a pathname is for the dev client.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for the dev client
+ */
 export function isDevClient(pathname: string): boolean {
   return pathname.startsWith(DEV_SERVER_URL);
 }
 
+/**
+ * Check if a pathname is for a dev module.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for a dev module
+ */
 export function isDevModule(pathname: string): boolean {
   return pathname.includes(DEV_MODULE_URL);
 }
 
+/**
+ * Check if a pathname is for the open-in-editor endpoint.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for opening in editor
+ */
 export function isOpenInEditor(pathname: string): boolean {
   return pathname === OPEN_IN_EDITOR_URL;
 }
 
+/**
+ * Check if a pathname is for the initial dev server load.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for initial dev server load
+ */
 export function isInitialDevServerLoad(pathname: string): boolean {
   return pathname === DEV_SERVER_INIT_URL;
 }
 
+/**
+ * Check if a pathname is for the dev server client script.
+ *
+ * @param pathname - the URL pathname to check
+ * @returns true if the path is for the dev server client
+ */
 export function isDevServerClient(pathname: string): boolean {
   return pathname === DEV_SERVER_URL;
 }
@@ -227,6 +324,13 @@ export function isDevServerClient(pathname: string): boolean {
 // Compression
 // =============================================================================
 
+/**
+ * Check if a response should be gzip compressed.
+ *
+ * @param devServerConfig - the dev server configuration
+ * @param req - the HTTP request object
+ * @returns true if the response should be compressed
+ */
 export function shouldCompress(devServerConfig: DevServerConfig, req: HttpRequest): boolean {
   if (!devServerConfig.gzip) {
     return false;
@@ -250,6 +354,9 @@ export function shouldCompress(devServerConfig: DevServerConfig, req: HttpReques
 
 /**
  * Normalize a file path to use forward slashes and remove redundant slashes.
+ *
+ * @param path - the file path to normalize
+ * @returns the normalized path
  */
 export function normalizePath(path: string): string {
   // Convert backslashes to forward slashes

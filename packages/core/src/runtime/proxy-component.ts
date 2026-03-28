@@ -17,9 +17,9 @@ import { getValue, setValue } from './set-value';
  *
  * On a traditional component, this is wired up to the element only.
  *
- * @param Cstr the constructor for a component that we need to process
- * @param cmpMeta metadata collected previously about the component
- * @param flags a number used to store a series of bit flags
+ * @param Cstr - the constructor for a component that we need to process
+ * @param cmpMeta - metadata collected previously about the component
+ * @param flags - a number used to store a series of bit flags
  * @returns a reference to the same constructor passed in (but now mutated)
  */
 export const proxyComponent = (
@@ -38,7 +38,7 @@ export const proxyComponent = (
 
   /**
    * proxy form associated custom element lifecycle callbacks
-   * @ref https://web.dev/articles/more-capable-form-controls#lifecycle_callbacks
+   * @see https://web.dev/articles/more-capable-form-controls#lifecycle_callbacks
    */
   if (
     BUILD.formAssociated &&

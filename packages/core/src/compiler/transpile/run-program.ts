@@ -21,6 +21,15 @@ import { generateAppTypes } from '../types/generate-app-types';
 import { updateStencilTypesImports } from '../types/stencil-types';
 import { validateTranspiledComponents } from './validate-components';
 
+/**
+ * Run the TypeScript program to transpile source files.
+ *
+ * @param config - the validated Stencil configuration
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @param tsBuilder - the TypeScript builder program
+ * @returns an array of emitted .d.ts file paths
+ */
 export const runTsProgram = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
@@ -185,6 +194,13 @@ interface ValidateTypesResult {
 
 /**
  * Generate types and run semantic validation AFTER components.d.ts exists on disk
+ *
+ * @param config - the validated Stencil configuration
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @param tsBuilder - the TypeScript builder program
+ * @param emittedDts - array of emitted .d.ts file paths
+ * @returns validation result indicating if types changed and if rebuild is needed
  */
 export const validateTypesAfterGeneration = async (
   config: d.ValidatedConfig,

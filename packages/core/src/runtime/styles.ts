@@ -82,8 +82,7 @@ const createStylesheetForWindow = (container: Node, cssText: string): CSSStyleSh
  * Get the style for a component, appending slot fallback CSS if needed.
  * Returns a new value without mutating the cached style.
  *
- * @param scopeId the scope ID for the component
- * @param cmpMeta runtime metadata for the component
+ * @param style - the style string or CSSStyleSheet to process
  * @returns the style (string or CSSStyleSheet) with slot CSS appended if needed, or undefined
  */
 const getStyleWithSlotCss = (
@@ -369,6 +368,8 @@ const convertScopedToShadow = (css: string) => css.replace(/\/\*!@([^/]+)\*\/[^{
 /**
  * Hydrate styles after SSR for components *not* using DSD. Convert 'scoped' styles to 'shadow'
  * and add them to a constructable stylesheet.
+ *
+ * @returns void
  */
 export const hydrateScopedToShadow = () => {
   if (!win.document) {

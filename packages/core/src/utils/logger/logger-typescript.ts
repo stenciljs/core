@@ -82,6 +82,12 @@ export const augmentDiagnosticWithNode = (d: d.Diagnostic, node: Node): d.Diagno
  * error reporting within a terminal. So, yeah, let's code it up, shall we?
  */
 
+/**
+ * Convert an array of TypeScript diagnostics to Stencil diagnostic format.
+ *
+ * @param tsDiagnostics - array of TypeScript diagnostic objects
+ * @returns array of Stencil diagnostic objects
+ */
 export const loadTypeScriptDiagnostics = (tsDiagnostics: readonly Diagnostic[]) => {
   const diagnostics: d.Diagnostic[] = [];
   const maxErrors = Math.min(tsDiagnostics.length, 50);

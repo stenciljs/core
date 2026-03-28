@@ -412,6 +412,11 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
        * Watch a directory for changes using @parcel/watcher.
        * Uses native file system events (FSEvents on macOS, inotify on Linux, ReadDirectoryChangesW on Windows)
        * for efficient, low-latency change detection.
+       *
+       * @param p - the directory path to watch
+       * @param callback - the callback function when changes occur
+       * @param _recursive - unused recursive flag
+       * @returns a file watcher with a close method
        */
       sys.watchDirectory = (p, callback, _recursive) => {
         logger?.debug(`NODE_SYS_DEBUG::watchDir ${p}`);
@@ -473,6 +478,10 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       /**
        * Watch an individual file for changes using @parcel/watcher.
        * Watches the parent directory and filters events for the specific file.
+       *
+       * @param filePath - the file path to watch
+       * @param callback - the callback function when the file changes
+       * @returns a file watcher with a close method
        */
       sys.watchFile = (
         filePath: string,

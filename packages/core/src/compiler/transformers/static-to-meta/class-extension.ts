@@ -59,16 +59,16 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
  * 3. Finding the class declaration
  * 4. Adding to dependent classes tree
  *
- * @param compilerCtx
- * @param buildCtx
- * @param classDeclaration the current class being analyzed
- * @param currentSource the source file of the current class
- * @param moduleSpecifier the module path to resolve
- * @param className the name of the class to find in the resolved module
- * @param dependentClasses the array to add found classes to
- * @param keepLooking whether to continue recursively looking for more extended classes
- * @param typeChecker
- * @param ogModule
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @param classDeclaration - the current class being analyzed
+ * @param currentSource - the source file of the current class
+ * @param moduleSpecifier - the module path to resolve
+ * @param className - the name of the class to find in the resolved module
+ * @param dependentClasses - the array to add found classes to
+ * @param keepLooking - whether to continue recursively looking for more extended classes
+ * @param typeChecker - the TypeScript type checker
+ * @param ogModule - the original module file of the class declaration
  * @returns the found class declaration or undefined
  */
 function resolveAndProcessExtendedClass(
@@ -532,12 +532,12 @@ function buildExtendsTree(
  * to find any extended classes, and then parse the static members of those
  * extended classes to merge them into the current class's metadata.
  *
- * @param compilerCtx
- * @param typeChecker
- * @param buildCtx
- * @param cmpNode the extending class declaration
- * @param staticMembers the static members of the extending class to merge with the extended class members
- * @param moduleFile the module file of the extending class
+ * @param compilerCtx - the current compiler context
+ * @param typeChecker - the TypeScript type checker
+ * @param buildCtx - the current build context
+ * @param cmpNode - the extending class declaration
+ * @param staticMembers - the static members of the extending class to merge with the extended class members
+ * @param moduleFile - the module file of the extending class
  * @returns an object containing merged metadata from extended classes
  */
 export function mergeExtendedClassMeta(

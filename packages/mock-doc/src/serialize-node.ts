@@ -100,7 +100,7 @@ const shadowRootTag = 'mock:shadow-root';
  * @param node the node to serialize
  * @param opts options to control serialization behavior
  * @param output keeps track of the current line width and indentation
- * @returns a generator that yields the serialized HTML in chunks
+ * @yields the serialized HTML in chunks
  */
 function* streamToHtml(
   node: Node | MockNode,

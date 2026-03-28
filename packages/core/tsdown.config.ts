@@ -15,6 +15,9 @@ console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji
 /**
  * Virtual module plugin for Stencil internal builds.
  * Maps virtual:app-data, virtual:app-globals, virtual:platform to real files or external packages.
+ *
+ * @param options - plugin options containing resolve and external mappings
+ * @returns a tsdown plugin object
  */
 function virtualModules(options: {
   resolve?: Record<string, string>;

@@ -28,8 +28,7 @@ import { addNativeStaticStyle } from './native-static-style';
  * @param classNode the class to transform
  * @param moduleFile information about the class' home module
  * @param cmp metadata about the stencil component of interest
- * @param compilerCtx the compiler context
- * @param tsSourceFile the TypeScript source file containing the class
+ * @param buildCtx the current build context
  * @returns an updated class
  */
 export const updateNativeComponentClass = (
@@ -143,13 +142,11 @@ const updateNativeHostComponentHeritageClauses = (
  * `connectedCallback` method, implementing the `@Element` decorator, and
  * adding static values for watchers.
  *
- * @param transformOpts options governing how Stencil components should be
- * transformed
- * @param classNode the class to transform
- * @param moduleFile information about the class' home module
- * @param cmp metadata about the stencil component of interest
- * @param compilerCtx the compiler context
- * @param tsSourceFile the TypeScript source file containing the class
+ * @param transformOpts - options governing how Stencil components should be transformed
+ * @param classNode - the class to transform
+ * @param moduleFile - information about the class' home module
+ * @param cmp - metadata about the stencil component of interest
+ * @param buildCtx - the current build context
  * @returns an updated list of class elements
  */
 const updateNativeHostComponentMembers = (

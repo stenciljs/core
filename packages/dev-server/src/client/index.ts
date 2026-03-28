@@ -1,10 +1,11 @@
 /**
- * @stencil/dev-server Client
+ * Stencil Dev Server Client
  *
  * Browser-side HMR (Hot Module Replacement) client for Stencil dev server.
  * Handles WebSocket communication, component updates, style updates, and image updates.
  *
  * This module runs in the browser and is injected into pages during development.
+ * @module @stencil/dev-server/client
  */
 
 import { DEV_SERVER_INIT_URL, OPEN_IN_EDITOR_URL } from './constants';
@@ -35,12 +36,25 @@ export { initClientWebSocket } from './websocket';
 // App Update Handler
 // =============================================================================
 
+/**
+ * Initialize the app update handler for build results.
+ *
+ * @param win - the dev client window object
+ * @param config - the dev client configuration
+ */
 const initAppUpdate = (win: DevClientWindow, config: DevClientConfig): void => {
   onBuildResults(win, (buildResults) => {
     appUpdate(win, config, buildResults);
   });
 };
 
+/**
+ * Process app update based on build results.
+ *
+ * @param win - the dev client window object
+ * @param config - the dev client configuration
+ * @param buildResults - the compiler build results
+ */
 const appUpdate = (
   win: DevClientWindow,
   config: DevClientConfig,
@@ -107,6 +121,12 @@ const appUpdate = (
   }
 };
 
+/**
+ * Apply hot module replacement updates to the window.
+ *
+ * @param win - the browser window
+ * @param hmr - the hot module replacement data
+ */
 const appHmr = (win: Window, hmr: HotModuleReplacement): void => {
   let shouldWindowReload = false;
 
@@ -165,6 +185,13 @@ const appHmr = (win: Window, hmr: HotModuleReplacement): void => {
   }
 };
 
+/**
+ * Reset the app state and unregister service workers.
+ *
+ * @param win - the dev client window object
+ * @param config - the dev client configuration
+ * @param cb - callback to invoke after reset
+ */
 const appReset = (win: DevClientWindow, config: DevClientConfig, cb: () => void): void => {
   win.history.replaceState({}, 'App', config.basePath);
 
@@ -196,6 +223,12 @@ const appReset = (win: DevClientWindow, config: DevClientConfig, cb: () => void)
 // Initialize Dev Client
 // =============================================================================
 
+/**
+ * Initialize the dev server client in the browser.
+ *
+ * @param win - the dev client window object
+ * @param config - the dev client configuration
+ */
 export const initDevClient = (win: DevClientWindow, config: DevClientConfig): void => {
   try {
     if (win['s-dev-server']) {
@@ -223,6 +256,13 @@ export const initDevClient = (win: DevClientWindow, config: DevClientConfig): vo
   }
 };
 
+/**
+ * Check if this is the initial dev server load.
+ *
+ * @param win - the dev client window object
+ * @param config - the dev client configuration
+ * @returns true if this is the initial load
+ */
 const isInitialDevServerLoad = (win: DevClientWindow, config: DevClientConfig): boolean => {
   let pathname = win.location.pathname;
   pathname = '/' + pathname.substring(config.basePath.length);

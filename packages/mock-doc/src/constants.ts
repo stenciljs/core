@@ -13,6 +13,9 @@ const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 /**
  * Get the standard prefix for a namespace URI.
  * Returns null if namespace has no standard prefix.
+ *
+ * @param namespaceURI - the namespace URI to look up
+ * @returns the standard prefix or null if not found
  */
 export function getPrefixForNamespace(namespaceURI: string | null): string | null {
   if (namespaceURI === XLINK_NS) return 'xlink';

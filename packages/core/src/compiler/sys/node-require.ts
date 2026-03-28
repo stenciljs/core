@@ -6,6 +6,9 @@ import { catchError, loadTypeScriptDiagnostic } from '../../utils';
 /**
  * Transform ES module syntax to CommonJS for config files.
  * Handles common patterns like `export default { ... }` and named exports.
+ *
+ * @param sourceText - the source text to transform
+ * @returns the transformed CommonJS source text
  */
 const transformEsmToCjs = (sourceText: string): string => {
   // Handle `export default { ... }` or `export default expression`
@@ -19,6 +22,12 @@ const transformEsmToCjs = (sourceText: string): string => {
   return sourceText;
 };
 
+/**
+ * Load a module using Node.js require with TypeScript and ESM transpilation support.
+ *
+ * @param id - the module path to require
+ * @returns an object containing the loaded module, resolved ID, and any diagnostics
+ */
 export const nodeRequire = (id: string) => {
   const results = {
     module: undefined as any,

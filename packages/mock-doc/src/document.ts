@@ -71,6 +71,7 @@ export class MockDocument extends MockHTMLElement {
    * Get the nwsapi instance for this document.
    * Lazily creates one if it doesn't exist.
    * Creates a window if the document doesn't have one.
+   * @returns the nwsapi instance
    */
   _getDOMSelector(): NwsapiInstance {
     if (!this.#nwsapi) {
@@ -277,6 +278,10 @@ export class MockDocument extends MockHTMLElement {
   /**
    * Creates a TreeWalker for traversing the document tree.
    * This is a simplified implementation for dom-selector compatibility.
+   * @param root - the root node for the tree walker
+   * @param whatToShow - a bitmask specifying which nodes to show
+   * @param filter - an optional node filter
+   * @returns a new TreeWalker instance
    */
   createTreeWalker(
     root: MockElement,

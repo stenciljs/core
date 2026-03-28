@@ -12,6 +12,11 @@ import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
 
+/**
+ * Get the TypeScript script target for compilation.
+ *
+ * @returns the ES2017 script target
+ */
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup
   return ts.ScriptTarget.ES2017;
@@ -392,6 +397,12 @@ export const objectLiteralToObjectMap = (
 /**
  * Resolves a resolveVar() call within an object literal.
  * This is a simplified version that handles the same cases as resolveVariableValue in decorator-utils.
+ *
+ * @param node - the expression node to resolve
+ * @param typeChecker - the TypeScript type checker
+ * @param _diagnostics - unused diagnostics array (for API compatibility)
+ * @param _errorNode - unused error node (for API compatibility)
+ * @returns the resolved string value
  */
 const resolveVarInObjectLiteral = (
   node: ts.Expression,
@@ -1035,6 +1046,12 @@ export const getComponentTagName = (staticMembers: ts.ClassElement[]): string | 
   return null;
 };
 
+/**
+ * Check if a class element is a static getter.
+ *
+ * @param member - the class element to check
+ * @returns true if the member is a static getter
+ */
 export const isStaticGetter = (member: ts.ClassElement): boolean => {
   const modifiers = retrieveTsModifiers(member);
   return (
@@ -1088,6 +1105,13 @@ export const isInternal = (jsDocs: d.CompilerJsDoc | undefined): boolean => {
   return !!(jsDocs && jsDocs.tags.some((s) => s.name === 'internal'));
 };
 
+/**
+ * Check if a class element is a method with a specific name.
+ *
+ * @param member - the class element to check
+ * @param methodName - the method name to match
+ * @returns true if the member is a method with the specified name
+ */
 export const isMethod = (
   member: ts.ClassElement,
   methodName: string,
@@ -1097,6 +1121,13 @@ export const isMethod = (
   );
 };
 
+/**
+ * Create an ESM import statement.
+ *
+ * @param importFnNames - the names to import
+ * @param importPath - the module path to import from
+ * @returns an import declaration AST node
+ */
 export const createImportStatement = (importFnNames: string[], importPath: string) => {
   // ESM Imports
   // import { importNames } from 'importPath';
@@ -1131,6 +1162,13 @@ export const createImportStatement = (importFnNames: string[], importPath: strin
   );
 };
 
+/**
+ * Create a CommonJS require statement.
+ *
+ * @param importFnNames - the names to destructure from require
+ * @param importPath - the module path to require
+ * @returns a variable statement AST node with destructuring
+ */
 export const createRequireStatement = (importFnNames: string[], importPath: string) => {
   // CommonJS require()
   // const { a, b, c } = require(importPath);

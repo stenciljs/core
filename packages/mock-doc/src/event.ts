@@ -40,7 +40,8 @@ export class MockEvent {
   }
 
   /**
-   * @ref https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
+   * Get the composed path of event propagation.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
    * @returns a composed path of the event
    */
   composedPath(): MockElement[] {
@@ -162,6 +163,13 @@ class MockEventListener {
   }
 }
 
+/**
+ * Add an event listener to an element.
+ *
+ * @param elm - the element to add the listener to
+ * @param type - the event type to listen for
+ * @param handler - the event handler function
+ */
 export function addEventListener(elm: any, type: string, handler: any) {
   const target: EventTarget = elm;
 
@@ -172,6 +180,13 @@ export function addEventListener(elm: any, type: string, handler: any) {
   target.__listeners.push(new MockEventListener(type, handler));
 }
 
+/**
+ * Remove an event listener from an element.
+ *
+ * @param elm - the element to remove the listener from
+ * @param type - the event type to remove
+ * @param handler - the event handler function to remove
+ */
 export function removeEventListener(elm: any, type: string, handler: any) {
   const target: EventTarget = elm;
 
@@ -184,12 +199,23 @@ export function removeEventListener(elm: any, type: string, handler: any) {
   }
 }
 
+/**
+ * Reset all event listeners on a target.
+ *
+ * @param target - the target to reset listeners on
+ */
 export function resetEventListeners(target: any) {
   if (target != null && (target as EventTarget).__listeners != null) {
     (target as EventTarget).__listeners = null as any;
   }
 }
 
+/**
+ * Trigger an event on an element and bubble through the DOM tree.
+ *
+ * @param elm - the element to trigger the event on
+ * @param ev - the mock event to trigger
+ */
 function triggerEventListener(elm: any, ev: MockEvent) {
   if (elm == null || ev.cancelBubble === true) {
     return;
@@ -223,6 +249,13 @@ function triggerEventListener(elm: any, ev: MockEvent) {
   }
 }
 
+/**
+ * Get the next event target for event bubbling.
+ *
+ * @param elm - the current element
+ * @param ev - the mock event being bubbled
+ * @returns the next target element or null
+ */
 function getNextEventTarget(elm: any, ev: MockEvent) {
   // If current element has a parent, bubble to parent
   if (elm.parentElement) {
@@ -242,6 +275,13 @@ function getNextEventTarget(elm: any, ev: MockEvent) {
   return null;
 }
 
+/**
+ * Dispatch an event on a target element.
+ *
+ * @param currentTarget - the element to dispatch the event on
+ * @param ev - the mock event to dispatch
+ * @returns true (always returns true for compatibility)
+ */
 export function dispatchEvent(currentTarget: any, ev: MockEvent) {
   ev.target = currentTarget;
   triggerEventListener(currentTarget, ev);

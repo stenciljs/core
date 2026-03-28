@@ -16,6 +16,9 @@ export const vermoji: string = __STENCIL_VERMOJI__;
  * Get the installed version of a tool/dependency.
  * Handles packages with exports maps that point to subdirectories.
  * Returns 'unknown' if the package is not found.
+ *
+ * @param name - the package name to look up
+ * @returns the version string or 'unknown' if not found
  */
 export function getToolVersion(name: string): string {
   try {

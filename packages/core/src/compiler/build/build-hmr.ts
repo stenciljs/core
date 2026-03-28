@@ -275,6 +275,10 @@ const IMAGE_EXT = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.svg'];
 
 /**
  * Detect components that had styles removed (had styles before, but not anymore).
+ *
+ * @param buildCtx - the current build context
+ * @param componentsUpdated - list of updated component tag names
+ * @returns array of style updates for removed styles
  */
 const getStylesRemoved = (
   buildCtx: d.BuildCtx,
@@ -313,6 +317,8 @@ const getStylesRemoved = (
 
 /**
  * Update the tracking map with current component styles for next build.
+ *
+ * @param buildCtx - the current build context
  */
 const updateComponentStyleTracking = (buildCtx: d.BuildCtx): void => {
   // Clear and rebuild to remove stale entries

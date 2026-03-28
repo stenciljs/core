@@ -26,6 +26,9 @@ const STENCIL_MIXIN_STATIC_MEMBERS = [
 /**
  * Gets the name of a class member as a string, safely handling cases where
  * getText() might not work (e.g., synthetic nodes without source file context).
+ *
+ * @param member - the class element to get the name from
+ * @returns the member name as a string, or undefined if not found
  */
 const getMemberName = (member: ts.ClassElement): string | undefined => {
   if (!member.name) return undefined;
@@ -42,6 +45,9 @@ const getMemberName = (member: ts.ClassElement): string | undefined => {
  * Checks if a class declaration is an exportable mixin - i.e., it has Stencil
  * static getters (properties, states, etc.) but is NOT a component (no tag name).
  * These are abstract/partial classes meant to be extended by actual components.
+ *
+ * @param classNode - the class declaration to check
+ * @returns true if the class is an exportable mixin
  */
 const isExportableMixinClass = (classNode: ts.ClassDeclaration): boolean => {
   const staticGetters = classNode.members.filter(isStaticGetter);
@@ -58,6 +64,19 @@ const isExportableMixinClass = (classNode: ts.ClassDeclaration): boolean => {
   });
 };
 
+/**
+ * Update or create a module entry for a TypeScript source file.
+ *
+ * @param config - the validated Stencil configuration
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @param tsSourceFile - the TypeScript source file
+ * @param sourceFileText - the text content of the source file
+ * @param emitFilePath - the path where the file will be emitted
+ * @param typeChecker - the TypeScript type checker
+ * @param collection - collection metadata, if this is a collection dependency
+ * @returns the updated or created module
+ */
 export const updateModule = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,

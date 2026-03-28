@@ -127,10 +127,6 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     return nodeList;
   };
 
-  /**
-   * Parse whitespace.
-   */
-
   const whitespace = () => match(/^\s*/);
 
   const comments = (ruleList?: CssNode[]) => {
@@ -333,6 +329,8 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   /**
    * Parse nested @ rule that contains declarations instead of rules
+   * @param name - the name of the at-rule
+   * @returns the parsed at-rule node or null
    */
   const nestedAtQuery = (name: 'media' | 'container' | 'supports') => {
     const pos = position();
@@ -359,6 +357,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
 
   /**
    * Try to parse a nested at-rule (one that contains declarations, not rules)
+   * @returns the parsed at-rule node or null
    */
   const nestedAtrule = () => {
     if (css[0] !== '@') return null;
@@ -601,8 +600,10 @@ const trim = (str: string) => (str ? str.trim() : '');
 
 /**
  * Adds non-enumerable parent node reference to each node.
+ * @param obj - the object to add parent references to
+ * @param parent - the parent node to reference
+ * @returns the object with parent references added
  */
-
 const addParent = (obj?: any, parent?: any) => {
   const isNode = obj && typeof obj.type === 'string';
   const childParent = isNode ? obj : parent;

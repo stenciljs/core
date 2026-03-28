@@ -272,6 +272,7 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor): void {
   // the class should be in a known 'good' state to proxy functions
   if (typeof Cstr.prototype?.componentWillLoad === 'function') {
     Cstr.prototype.__componentWillLoad = Cstr.prototype.componentWillLoad;
+    /** @returns the result from the original componentWillLoad */
     Cstr.prototype.componentWillLoad = function () {
       const result = this.__componentWillLoad();
       if (result != null && typeof result.then === 'function') {
@@ -285,6 +286,7 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor): void {
 
   if (typeof Cstr.prototype?.componentWillUpdate === 'function') {
     Cstr.prototype.__componentWillUpdate = Cstr.prototype.componentWillUpdate;
+    /** @returns the result from the original componentWillUpdate */
     Cstr.prototype.componentWillUpdate = function () {
       const result = this.__componentWillUpdate();
       if (result != null && typeof result.then === 'function') {
@@ -298,6 +300,7 @@ function proxyComponentLifeCycles(Cstr: ComponentTestingConstructor): void {
 
   if (typeof Cstr.prototype?.componentWillRender === 'function') {
     Cstr.prototype.__componentWillRender = Cstr.prototype.componentWillRender;
+    /** @returns the result from the original componentWillRender */
     Cstr.prototype.componentWillRender = function () {
       const result = this.__componentWillRender();
       if (result != null && typeof result.then === 'function') {
