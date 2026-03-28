@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 import { Fragment } from '@stencil/core';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 /**
  * Tests for the patched `removeChild()` method on `scoped` components.

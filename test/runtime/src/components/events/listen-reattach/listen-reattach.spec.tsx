@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 import { Fragment } from '@stencil/core';
+import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('listen-reattach', () => {
   it('should receive click events, remove/attach, and receive more events', async () => {

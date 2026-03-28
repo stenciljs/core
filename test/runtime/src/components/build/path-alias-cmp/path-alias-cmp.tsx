@@ -1,5 +1,5 @@
-import { Component, h } from '@stencil/core';
 import { sayHi } from '@path-alias';
+import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'path-alias-cmp',

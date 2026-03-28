@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import whyIsNodeRunning from 'why-is-node-running';
 import { createDocument } from '@stencil/mock-doc';
+import whyIsNodeRunning from 'why-is-node-running';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');

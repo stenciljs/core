@@ -8,6 +8,7 @@
  * 4. Runs a callback provided by the host for validation logic
  */
 import { forceUpdate } from '@stencil/core';
+
 import type { ReactiveControllerHost, ReactiveController } from './reactive-controller-host.js';
 
 export class ValidationController implements ReactiveController {

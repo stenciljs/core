@@ -17,14 +17,23 @@ export interface ValidationControllerMixinProps {
   getValidationMessageData(
     helperTextId?: string,
     errorTextId?: string,
-  ): { isValid: boolean; errorMessage: string; helperTextId?: string; errorTextId?: string; hasError: boolean };
+  ): {
+    isValid: boolean;
+    errorMessage: string;
+    helperTextId?: string;
+    errorTextId?: string;
+    hasError: boolean;
+  };
   resetValidation(): void;
 }
 
 type Ctor = new (...args: any[]) => any;
-export type ValidationControllerMixinReturn<B extends Ctor> = B & (new (...args: any[]) => ValidationControllerMixinProps);
+export type ValidationControllerMixinReturn<B extends Ctor> = B &
+  (new (...args: any[]) => ValidationControllerMixinProps);
 
-export const ValidationControllerMixin = <B extends Ctor>(Base: B): ValidationControllerMixinReturn<B> => {
+export const ValidationControllerMixin = <B extends Ctor>(
+  Base: B,
+): ValidationControllerMixinReturn<B> => {
   class ValidationMixin extends Base {
     @State() isValid: boolean = true;
     @State() errorMessage: string = '';

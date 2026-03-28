@@ -1,5 +1,4 @@
 import assert from 'node:assert';
-
 import { run } from '@stencil/cli';
 import { h } from '@stencil/core';
 import { version } from '@stencil/core/compiler';

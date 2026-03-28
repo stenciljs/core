@@ -8,9 +8,9 @@
   "workspaces": {
     "packages/core": {
       "entry": [
-        "build/version-utils.ts", 
+        "build/version-utils.ts",
         "src/index.d.mts",
-        "src/runtime/bootstrap-lazy.ts", 
+        "src/runtime/bootstrap-lazy.ts",
         "src/server/runner/hydrate-factory.ts",
         "src/testing/platform/index.ts",
         "src/testing/app-data.ts"

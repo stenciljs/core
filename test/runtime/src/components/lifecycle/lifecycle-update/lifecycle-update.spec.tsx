@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 import { Fragment } from '@stencil/core';
+import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 
 describe('lifecycle-update', () => {
   it('fire load methods in order', async () => {

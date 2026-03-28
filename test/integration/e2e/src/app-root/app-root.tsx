@@ -1,8 +1,9 @@
 import { Component, State, h, Host, Listen } from '@stencil/core';
+import { css } from 'linaria';
 import _ from 'lodash';
 import * as _es from 'lodash-es';
 import videojs from 'video.js';
-import { css } from 'linaria';
+
 import { MeString } from './interfaces';
 
 const linariaCss = css`

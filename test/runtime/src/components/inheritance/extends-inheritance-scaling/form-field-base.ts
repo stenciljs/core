@@ -6,8 +6,9 @@
  * validation and focus management functionality.
  */
 import { Mixin } from '@stencil/core';
-import { ValidationControllerMixin } from './validation-controller-mixin.js';
+
 import { FocusControllerMixin } from './focus-controller-mixin.js';
+import { ValidationControllerMixin } from './validation-controller-mixin.js';
 
 export abstract class FormFieldBase extends Mixin(ValidationControllerMixin, FocusControllerMixin) {
   // Convenience methods that combine both controllers

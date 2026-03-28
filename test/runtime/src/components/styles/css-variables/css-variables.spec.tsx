@@ -1,5 +1,4 @@
 import './variables.css';
-
 import { Fragment, render, h, describe, it, expect, beforeEach } from '@stencil/vitest';
 
 const css = `:root {

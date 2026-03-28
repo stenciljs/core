@@ -1,4 +1,5 @@
 import { Component, h, Prop, State, Method, Element } from '@stencil/core';
+
 import { MixedDecoratorsBase } from './mixed-decorators-base.js';
 
 /**

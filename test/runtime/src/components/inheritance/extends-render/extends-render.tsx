@@ -1,4 +1,5 @@
 import { Component, h, State } from '@stencil/core';
+
 import { RenderBase } from './render-base.js';
 
 @Component({

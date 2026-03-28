@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 import { Fragment } from '@stencil/core';
+import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 
 let childIdx = 1;
 if (__STENCIL_PROD__) {

@@ -1,4 +1,5 @@
 import { Component, h, Method, State } from '@stencil/core';
+
 import { MethodBase } from './method-base.js';
 
 @Component({

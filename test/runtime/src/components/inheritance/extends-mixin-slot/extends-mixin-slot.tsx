@@ -1,4 +1,5 @@
 import { Component, h, Mixin } from '@stencil/core';
+
 import { SlotMixinFactory } from './slot-mixin.js';
 
 @Component({

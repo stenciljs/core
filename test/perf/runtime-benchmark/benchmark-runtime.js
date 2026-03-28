@@ -1,9 +1,9 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import http from 'node:http';
 import { execSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
+import http from 'node:http';
 import { createRequire } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));

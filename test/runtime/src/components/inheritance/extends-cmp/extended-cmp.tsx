@@ -1,4 +1,5 @@
 import { Component, h } from '@stencil/core';
+
 import { ExtendedCmpCmp } from './extended-cmp-cmp.js';
 
 @Component({

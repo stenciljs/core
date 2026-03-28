@@ -1,4 +1,5 @@
 import { Component, h, Mixin } from '@stencil/core';
+
 import { SiblingMixinFactory } from './mixin-factory.js';
 
 /**

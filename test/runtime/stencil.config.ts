@@ -1,5 +1,4 @@
 import { sass } from '@stencil/sass';
-
 import type { Config } from '@stencil/core';
 
 export const config: Config = {

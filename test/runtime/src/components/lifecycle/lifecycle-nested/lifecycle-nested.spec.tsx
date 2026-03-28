@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
 import { Fragment } from '@stencil/core';
+import { render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
 
 describe('lifecycle-nested', () => {
   it('fire load methods in order for nested elements', async () => {

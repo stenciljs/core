@@ -1,4 +1,5 @@
 import { Component, h, Prop, State, Method, Watch, Mixin } from '@stencil/core';
+
 import { MixinAFactory, MixinBFactory } from './mixin-factories.js';
 
 /**

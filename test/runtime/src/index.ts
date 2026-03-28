@@ -1,4 +1,5 @@
 import { setTagTransformer, setMode } from '@stencil/core';
+
 import tagTransformer from './tag-transformer.js';
 
 export const setupApp = () => {

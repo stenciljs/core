@@ -1,5 +1,6 @@
-import { format } from './utils';
 import { describe, it, expect } from 'vitest';
+
+import { format } from './utils';
 
 describe('format', () => {
   it('returns empty string for no names defined', () => {

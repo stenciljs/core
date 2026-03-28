@@ -1,4 +1,5 @@
 import { Component, h, Method } from '@stencil/core';
+
 import { ClockBase } from './clock-base.js';
 
 /**
