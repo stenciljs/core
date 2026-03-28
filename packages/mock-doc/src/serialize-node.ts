@@ -1,3 +1,4 @@
+import { cloneAttributes } from './attribute';
 import {
   CONTENT_REF_ID,
   HYDRATE_ID,
@@ -6,7 +7,6 @@ import {
   TEXT_NODE_ID,
   XLINK_NS,
 } from './constants';
-import { cloneAttributes } from './attribute';
 import { NODE_TYPES } from './constants';
 import { type MockDocument } from './document';
 import { type MockNode } from './node';

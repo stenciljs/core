@@ -1,10 +1,10 @@
+import path from 'path';
+import { Compiler, Config } from '@stencil/core';
+import { mockConfig } from '@stencil/core/testing';
 // @ts-nocheck
 // TODO(STENCIL-462): investigate getting this file to pass (remove ts-nocheck)
 import { expect, describe, it } from '@stencil/vitest';
-import { Compiler, Config } from '@stencil/core';
 import type * as d from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import path from 'path';
 
 // TODO(STENCIL-462): investigate getting this file to pass
 describe.skip('service worker', () => {

@@ -1,7 +1,6 @@
 import * as coreCompiler from '../../compiler';
-import * as nodeApi from './';
-
 import { initNodeWorkerThread } from './node-worker-thread';
+import * as nodeApi from './';
 
 // this module is the entry point for the node.js workers that we create using
 // `child_process.fork`. They receive messages from the main thread and

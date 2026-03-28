@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { getRegisterSW, UNREGISTER_SW } from '../service-worker/generate-sw';
 import { generateServiceWorkerUrl } from '../service-worker/service-worker-util';
 

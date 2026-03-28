@@ -5,8 +5,8 @@ import {
   mockValidatedConfig,
 } from '@stencil/core/testing';
 import { describe, expect, it, vi } from 'vitest';
-import { normalizePath } from '../../../utils';
 
+import { normalizePath } from '../../../utils';
 import * as importPathLib from '../../transformers/stencil-import-path';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { BundleOptions } from '../bundle-interface';

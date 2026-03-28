@@ -1,6 +1,6 @@
-import { join } from '../utils';
-
 import type * as d from '@stencil/core';
+
+import { join } from '../utils';
 import { InMemoryFileSystem } from './sys/in-memory-fs';
 
 export class Cache implements d.Cache {

@@ -1,8 +1,9 @@
 import type { DevServer, ValidatedConfig } from '@stencil/core/compiler';
-import type { ConfigFlags } from './config-flags';
+
 import { printCheckVersionResults, startCheckVersion } from './check-version';
-import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
+import type { ConfigFlags } from './config-flags';
+import type { CoreCompiler } from './load-compiler';
 
 export const taskWatch = async (
   coreCompiler: CoreCompiler,

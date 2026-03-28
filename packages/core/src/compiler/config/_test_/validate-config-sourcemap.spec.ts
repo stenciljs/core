@@ -1,9 +1,9 @@
-import { mockCompilerSystem, mockLoadConfigInit } from '../../../testing';
 import { resolve } from 'node:path';
 import ts from 'typescript';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import type * as d from '@stencil/core';
+
+import { mockCompilerSystem, mockLoadConfigInit } from '../../../testing';
 import { loadConfig } from '../load-config';
 import { validateConfig } from '../validate-config';
 

@@ -1,8 +1,8 @@
-import { isRemoteUrl, isString, noop, normalizePath, resolve } from '../../../utils';
 import { basename } from 'path';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { isRemoteUrl, isString, noop, normalizePath, resolve } from '../../../utils';
 import { IS_CASE_SENSITIVE_FILE_NAMES } from '../environment';
 import { InMemoryFileSystem } from '../in-memory-fs';
 

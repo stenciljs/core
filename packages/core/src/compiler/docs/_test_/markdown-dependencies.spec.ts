@@ -1,7 +1,8 @@
+import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
+
 import { DEFAULT_TARGET_COMPONENT_STYLES } from '../../config/constants';
 import { depsToMarkdown } from '../readme/markdown-dependencies';
-import { describe, expect, it } from 'vitest';
 
 describe('depsToMarkdown()', () => {
   it('should use default settings if docs.markdown configuration was not provided', () => {

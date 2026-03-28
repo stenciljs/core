@@ -1,8 +1,8 @@
-import { resolve } from '../../utils';
 import { dirname } from 'path';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { resolve } from '../../utils';
 
 /**
  * Find all referenced types by a component and add them to the `importDataObj` parameter

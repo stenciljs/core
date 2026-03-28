@@ -1,8 +1,8 @@
-import { normalizePath, relative } from '../../utils';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { ValidatedConfig } from '@stencil/core';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
+import { normalizePath, relative } from '../../utils';
 import { typeToString } from './transform-utils';
 
 /**

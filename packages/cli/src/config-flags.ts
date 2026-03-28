@@ -1,4 +1,5 @@
 import type { LogLevel } from '@stencil/core/compiler';
+
 import type { TaskCommand } from './types';
 
 /**

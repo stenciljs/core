@@ -1,5 +1,6 @@
-import { join, normalize, normalizeFsPathQuery, normalizePath, relative, resolve } from '../path';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { join, normalize, normalizeFsPathQuery, normalizePath, relative, resolve } from '../path';
 
 describe('normalizePath', () => {
   it('node module', () => {

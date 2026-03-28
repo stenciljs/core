@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import type { DevServerConfig, HttpRequest } from '../types';
 import {
   DEV_SERVER_URL,
   getBrowserUrl,
@@ -11,6 +10,7 @@ import {
   isHtmlFile,
   isSsrStaticDataPath,
 } from '../utils';
+import type { DevServerConfig, HttpRequest } from '../types';
 
 describe('isHtmlFile', () => {
   it.each(['.html', 'foo.html', 'foo/bar.html'])(

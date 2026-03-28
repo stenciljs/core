@@ -1,5 +1,4 @@
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
 
 /**

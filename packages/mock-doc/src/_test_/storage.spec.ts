@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
+
 import { MockWindow } from '../window';
 
 describe('storage', () => {

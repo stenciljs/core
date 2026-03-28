@@ -1,8 +1,8 @@
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import { createNodeLogger } from '../../sys/node';
 import { isNumber, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { BuildContext } from '../build/build-ctx';
 import { CompilerContext } from '../build/compiler-ctx';
 import { performAutomaticKeyInsertion } from '../transformers/automatic-key-insertion';

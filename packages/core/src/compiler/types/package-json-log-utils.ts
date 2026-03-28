@@ -1,6 +1,6 @@
-import { buildJsonFileError } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildJsonFileError } from '../../utils';
 
 /**
  * Build a diagnostic for an error resulting from a particular field in a

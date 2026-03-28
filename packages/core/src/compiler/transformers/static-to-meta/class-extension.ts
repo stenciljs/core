@@ -1,20 +1,20 @@
 import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../utils';
 import {
   tsResolveModuleName,
   tsGetSourceFile,
 } from '../../sys/typescript/typescript-resolve-module';
+import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
 import { parseStaticMethods } from './methods';
 import { parseStaticProps } from './props';
+import { parseStaticSerializers } from './serializers';
 import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
-import { parseStaticSerializers } from './serializers';
-
-import type * as d from '@stencil/core';
-import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 
 type DeDupeMember =
   | d.ComponentCompilerProperty

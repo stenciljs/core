@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
+
 import { getDecoratorParameters } from '../decorators-to-static/decorator-utils';
 
 describe('decorator utils', () => {

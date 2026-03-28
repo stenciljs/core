@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
+
 import { MockDocument } from '../document';
 import { MockAnchorElement, MockMetaElement, MockSVGElement, MockUListElement } from '../element';
 import { MockElement, MockHTMLElement } from '../node';

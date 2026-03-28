@@ -1,6 +1,7 @@
+import { ValidatedConfig } from '@stencil/core';
 import ts from 'typescript';
 import { describe, expect, it, beforeEach, afterEach, vi, Mock } from 'vitest';
-import { ValidatedConfig } from '@stencil/core';
+
 import { mockValidatedConfig } from '../../../../testing/mocks';
 import { createTestingSystem, TestingSystem } from '../../../../testing/testing-sys';
 import * as tsConfig from '../typescript-config';

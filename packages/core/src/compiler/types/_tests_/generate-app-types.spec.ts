@@ -1,7 +1,8 @@
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import path from 'path';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
+
 import { patchTypescript } from '../../sys/typescript/typescript-sys';
 import { generateAppTypes } from '../generate-app-types';
 import { stubComponentCompilerEvent } from './ComponentCompilerEvent.stub';

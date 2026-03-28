@@ -1,6 +1,6 @@
-import { buildWarn } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildWarn } from '../../utils';
 
 export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diagnostic[]) => {
   const userPlugins = config.plugins;

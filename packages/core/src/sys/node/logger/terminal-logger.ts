@@ -1,5 +1,4 @@
 import chalk, { type ChalkInstance } from 'chalk';
-
 import type {
   Diagnostic,
   Logger,
@@ -8,6 +7,7 @@ import type {
   LogLevel,
   PrintLine,
 } from '@stencil/core';
+
 import { LOG_LEVELS } from '../../../declarations/stencil-public-compiler';
 
 // Re-export chalk color functions for convenience

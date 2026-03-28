@@ -1,8 +1,8 @@
 import { createDocument } from '@stencil/mock-doc';
-import { catchError, isString, readPackageJson } from '../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { catchError, isString, readPackageJson } from '../../utils';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
 import { generateGlobalStyles } from '../style/global-styles';

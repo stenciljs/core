@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from 'virtual:platform';
-
 import type * as d from '@stencil/core';
+
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';

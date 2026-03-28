@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+
 import { transpileModule } from './transpile';
 
 describe('parse events', () => {

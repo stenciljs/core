@@ -1,6 +1,6 @@
-import { hasError, normalizePath } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { hasError, normalizePath } from '../../utils';
 import { getToolVersion } from '../../version';
 
 // Cache key based on actual installed versions of CSS tools

@@ -1,3 +1,5 @@
+import type * as d from '@stencil/core';
+
 import {
   buildWarn,
   isEligiblePrimaryPackageOutputTarget,
@@ -6,8 +8,6 @@ import {
   normalizePath,
   relative,
 } from '../../utils';
-
-import type * as d from '@stencil/core';
 import { packageJsonError, packageJsonWarn } from './package-json-log-utils';
 
 /**

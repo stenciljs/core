@@ -1,8 +1,7 @@
 import { hmrComponents } from './component';
 import { hmrImages } from './image';
-import { setHmrAttr } from './utils';
 import { hmrInlineStyles, hmrExternalStyles } from './style';
-
+import { setHmrAttr } from './utils';
 import type { HmrResults, HotModuleReplacement } from '../types';
 
 interface HmrWindowData {

@@ -1,6 +1,6 @@
-import { byteSize, isOutputTargetStats, result, sortBy } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { byteSize, isOutputTargetStats, result, sortBy } from '../../utils';
 
 /**
  * Generates the Build Stats from the buildCtx. Writes any files to the file system.

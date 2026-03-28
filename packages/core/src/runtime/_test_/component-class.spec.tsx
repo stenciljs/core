@@ -1,7 +1,7 @@
 // @vitest-environment stencil
 
-import { expect, describe, it } from '@stencil/vitest';
 import { Component, Element } from '@stencil/core';
+import { expect, describe, it } from '@stencil/vitest';
 
 describe('component class only', () => {
   it('raw class without newSpecPage', async () => {

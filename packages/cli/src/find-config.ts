@@ -1,5 +1,4 @@
 import { buildError, isString, normalizePath, result } from '@stencil/core/compiler/utils';
-
 import type { CompilerSystem, Diagnostic } from '@stencil/core/compiler';
 
 /**

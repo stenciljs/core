@@ -1,11 +1,11 @@
-import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
+import type * as d from '@stencil/core';
 import type { Plugin, PluginContext, TransformResult } from 'rollup';
 
-import type * as d from '@stencil/core';
-import type { BundlePlatform } from './bundle-interface';
+import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
 import { optimizeModule } from '../optimize/optimize-module';
 import { bundleOutput } from './bundle-output';
 import { STENCIL_INTERNAL_ID } from './entry-alias-ids';
+import type { BundlePlatform } from './bundle-interface';
 
 export const workerPlugin = (
   config: d.ValidatedConfig,

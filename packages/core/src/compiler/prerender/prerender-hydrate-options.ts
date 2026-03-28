@@ -1,6 +1,6 @@
-import { catchError } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError } from '../../utils';
 
 export const getHydrateOptions = (
   prerenderConfig: d.PrerenderConfig,

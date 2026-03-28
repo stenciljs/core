@@ -1,6 +1,6 @@
-import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';

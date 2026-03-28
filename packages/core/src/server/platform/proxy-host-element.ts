@@ -1,9 +1,9 @@
-import { consoleError, getHostRef } from './index';
+import type * as d from '@stencil/core';
+
 import { getValue, parsePropertyValue, setValue } from '../../runtime';
 import { CMP_FLAGS, MEMBER_FLAGS } from '../../utils/constants';
 import { createShadowRoot } from '../../utils/shadow-root';
-
-import type * as d from '@stencil/core';
+import { consoleError, getHostRef } from './index';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;

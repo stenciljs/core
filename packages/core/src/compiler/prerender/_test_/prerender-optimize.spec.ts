@@ -1,5 +1,6 @@
-import { getAttrUrls, setAttrUrls } from '../prerender-optimize';
 import { describe, expect, it } from 'vitest';
+
+import { getAttrUrls, setAttrUrls } from '../prerender-optimize';
 
 describe('prerender optimize', () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/srcset

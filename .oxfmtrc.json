@@ -2,5 +2,23 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "singleQuote": true,
   "jsxSingleQuote": true,
-  "ignorePatterns": ["**/dist/**", "**/*.d.ts", "**/*.md", "packages/core/src/client/polyfills/**"]
+  "ignorePatterns": ["**/dist/**", "**/*.d.ts", "**/*.md", "packages/core/src/client/polyfills/**"],
+  "sortImports": {
+    "groups": [
+      "value-builtin",
+      "value-external",
+      "type-external",
+      { "newlinesBetween": true },
+      "value-internal",
+      "type-internal",
+      { "newlinesBetween": true },
+      "value-parent",
+      "value-sibling",
+      "value-index",
+      "type-parent",
+      "type-sibling",
+      "type-index"
+    ],
+    "newlinesBetween": false
+  }
 }

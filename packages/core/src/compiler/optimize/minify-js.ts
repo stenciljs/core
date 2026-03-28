@@ -1,4 +1,3 @@
-import { splitLineBreaks } from '../../utils';
 import {
   CompressOptions,
   MangleOptions,
@@ -6,8 +5,9 @@ import {
   minify,
   MinifyOptions,
 } from 'terser';
-
 import type * as d from '@stencil/core';
+
+import { splitLineBreaks } from '../../utils';
 
 /**
  * Performs the minification of JavaScript source

@@ -1,8 +1,8 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 import type { OutputTargetWww } from '@stencil/core';
-import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '../../../testing';
-import { beforeEach, describe, expect, it } from 'vitest';
 
+import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '../../../testing';
 import { validateServiceWorker } from '../validate-service-worker';
 
 describe('validateServiceWorker', () => {

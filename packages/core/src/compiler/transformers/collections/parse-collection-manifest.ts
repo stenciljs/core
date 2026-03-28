@@ -1,6 +1,6 @@
-import { join, normalizePath } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { join, normalizePath } from '../../../utils';
 import {
   parseCollectionComponents,
   transpileCollectionModule,

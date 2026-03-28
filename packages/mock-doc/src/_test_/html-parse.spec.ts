@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
+
 import { NODE_TYPES } from '../constants';
 import { createFragment } from '../document';
 import { MockDocument } from '../document';

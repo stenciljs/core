@@ -1,8 +1,8 @@
-import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
-import { minimatch } from 'minimatch';
 import { basename } from 'path';
-
+import { minimatch } from 'minimatch';
 import type * as d from '@stencil/core';
+
+import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
 import { getScopeId } from '../style/scope-css';
 
 /**

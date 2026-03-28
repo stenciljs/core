@@ -1,6 +1,7 @@
+import { LogLevel } from '@stencil/core/compiler';
 import { toDashCase } from '@stencil/core/compiler/utils';
 import { describe, it, expect } from 'vitest';
-import { LogLevel } from '@stencil/core/compiler';
+
 import {
   BOOLEAN_CLI_FLAGS,
   BOOLEAN_STRING_CLI_FLAGS,

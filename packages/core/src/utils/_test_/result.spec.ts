@@ -1,4 +1,5 @@
 import { expect, describe, it } from '@stencil/vitest';
+
 import * as result from '../result';
 
 describe('Result type and utility functions', () => {

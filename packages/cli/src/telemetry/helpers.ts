@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core/compiler';
+
 import { ConfigFlags } from '../config-flags';
 
 interface TerminalInfo {

@@ -1,3 +1,7 @@
+import { basename, dirname } from 'path';
+import { JsonDocsValue } from '@stencil/core';
+import type * as d from '@stencil/core';
+
 import {
   DEFAULT_STYLE_MODE,
   flatOne,
@@ -8,10 +12,6 @@ import {
   sortBy,
   unique,
 } from '../../utils';
-import { basename, dirname } from 'path';
-
-import type * as d from '@stencil/core';
-import { JsonDocsValue } from '@stencil/core';
 import { version, versions } from '../../version';
 import { getBuildTimestamp } from '../build/build-ctx';
 import { addFileToLibrary, getTypeLibrary } from '../transformers/type-library';

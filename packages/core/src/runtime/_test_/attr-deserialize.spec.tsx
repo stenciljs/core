@@ -1,6 +1,6 @@
-import { expect, describe, it, vi } from '@stencil/vitest';
 import { AttrDeserialize, Component, Element, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 import { withSilentWarn } from '../../testing/testing-utils';
 

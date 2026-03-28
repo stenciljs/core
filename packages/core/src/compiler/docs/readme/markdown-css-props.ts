@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { MarkdownTable } from './docs-util';
 
 export const stylesToMarkdown = (styles: d.JsonDocsStyle[]) => {

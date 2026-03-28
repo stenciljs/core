@@ -4,10 +4,10 @@ import {
   supportsConstructableStylesheets,
   supportsMutableAdoptedStyleSheets,
 } from 'virtual:platform';
-import { CMP_FLAGS } from './constants';
-
 import type * as d from '@stencil/core';
+
 import { HYDRATED_STYLE_ID } from '../runtime/runtime-constants';
+import { CMP_FLAGS } from './constants';
 import { createStyleSheetIfNeededAndSupported } from './style';
 
 let globalStyleSheet: CSSStyleSheet | null | undefined;

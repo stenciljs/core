@@ -1,7 +1,7 @@
-import { DEFAULT_STYLE_MODE, join, normalizePath, relative } from '../../utils';
 import { dirname, isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { DEFAULT_STYLE_MODE, join, normalizePath, relative } from '../../utils';
 
 export const normalizeStyles = (
   tagName: string,

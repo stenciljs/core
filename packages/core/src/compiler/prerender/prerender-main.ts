@@ -1,8 +1,8 @@
-import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
 import { createHydrateBuildId } from '../../server/runner/render-utils';
+import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '../../utils';
 import { getAbsoluteBuildDir } from '../html/html-utils';
 import { createWorkerMainContext } from '../worker/main-thread';
 import { createWorkerContext } from '../worker/worker-thread';

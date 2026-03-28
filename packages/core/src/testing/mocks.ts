@@ -1,13 +1,13 @@
-import type * as d from '@stencil/core';
-import { MockWindow } from '@stencil/mock-doc';
-import { noop } from '../utils';
 import path from 'node:path';
+import { MockWindow } from '@stencil/mock-doc';
+import type * as d from '@stencil/core';
 
 import { createWorkerContext } from '../compiler';
 import { BuildContext } from '../compiler/build/build-ctx';
 import { Cache as CompilerCache } from '../compiler/cache';
 import { buildEvents } from '../compiler/events';
 import { createInMemoryFs } from '../compiler/sys/in-memory-fs';
+import { noop } from '../utils';
 import { TestingLogger } from './testing-logger';
 import { createTestingSystem, TestingSystem } from './testing-sys';
 

@@ -1,8 +1,8 @@
-import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
 import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
 import type { Plugin } from 'rollup';
 
-import type * as d from '@stencil/core';
+import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
 import type { BundlePlatform } from './bundle-interface';
 
 export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform): Plugin => {

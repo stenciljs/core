@@ -1,6 +1,6 @@
-import { buildError, catchError, isFunction, isString, relative } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildError, catchError, isFunction, isString, relative } from '../../utils';
 import { crawlAnchorsForNextUrls } from './crawl-urls';
 import { getWriteFilePathFromUrlPath } from './prerendered-write-path';
 

@@ -1,5 +1,6 @@
-import { propsToMarkdown } from '../readme/markdown-props';
 import { describe, expect, it } from 'vitest';
+
+import { propsToMarkdown } from '../readme/markdown-props';
 
 describe('markdown props', () => {
   it('advanced union types', () => {

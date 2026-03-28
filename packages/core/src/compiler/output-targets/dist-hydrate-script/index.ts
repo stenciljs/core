@@ -1,6 +1,6 @@
-import { isOutputTargetHydrate } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetHydrate } from '../../../utils';
 import { generateHydrateApp } from './generate-hydrate-app';
 
 export const outputHydrateScript = async (

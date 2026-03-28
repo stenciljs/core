@@ -1,9 +1,9 @@
-import { isDtsFile, isString, normalizeFsPath } from '../../utils';
 import { basename, isAbsolute } from 'path';
-import type { LoadResult, Plugin, TransformResult } from 'rollup';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+import type { LoadResult, Plugin, TransformResult } from 'rollup';
+
+import { isDtsFile, isString, normalizeFsPath } from '../../utils';
 import { tsResolveModuleName } from '../sys/typescript/typescript-resolve-module';
 import { getModule } from '../transpile/transpiled-module';
 import type { BundleOptions } from './bundle-interface';

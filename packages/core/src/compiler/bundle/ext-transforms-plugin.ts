@@ -1,3 +1,6 @@
+import type * as d from '@stencil/core';
+import type { Plugin } from 'rollup';
+
 import {
   hasError,
   isOutputTargetDistCollection,
@@ -6,9 +9,6 @@ import {
   normalizeFsPath,
   relative,
 } from '../../utils';
-import type { Plugin } from 'rollup';
-
-import type * as d from '@stencil/core';
 import { runPluginTransformsEsmImports } from '../plugin/plugin';
 import { getScopeId } from '../style/scope-css';
 import { parseImportPath } from '../transformers/stencil-import-path';

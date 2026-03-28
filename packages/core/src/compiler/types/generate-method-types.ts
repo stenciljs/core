@@ -1,6 +1,6 @@
-import { getTextDocs } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { getTextDocs } from '../../utils';
 import { updateTypeIdentifierNames } from './stencil-types';
 
 /**

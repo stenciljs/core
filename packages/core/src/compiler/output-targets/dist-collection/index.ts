@@ -1,3 +1,6 @@
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   catchError,
   COLLECTION_MANIFEST_FILE_NAME,
@@ -9,9 +12,6 @@ import {
   relative,
   sortBy,
 } from '../../../utils';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { version, versions } from '../../../version';
 import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-aliases';
 

@@ -1,6 +1,6 @@
-import { escapeHtml, generatePreamble, join } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { escapeHtml, generatePreamble, join } from '../../utils';
 
 export const generateEs5DisabledMessage = async (
   config: d.ValidatedConfig,

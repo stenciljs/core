@@ -1,10 +1,10 @@
 import { globalScripts } from 'virtual:app-globals';
-import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index';
+import type * as d from '@stencil/core';
+
 import { connectedCallback, insertVdomAnnotations, addHostEventListeners } from '../../runtime';
 import { CMP_FLAGS } from '../../utils/constants';
-
-import type * as d from '@stencil/core';
 import { proxyHostElement } from './proxy-host-element';
+import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index';
 
 /**
  * Native setTimeout/clearTimeout captured before globalThis is shadowed in the factory closure.

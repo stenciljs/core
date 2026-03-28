@@ -1,3 +1,5 @@
+import { describe, expect, it, beforeEach } from 'vitest';
+
 import {
   getModuleId,
   getPackageDirPath,
@@ -6,7 +8,6 @@ import {
   isStencilCoreImport,
   setPackageVersionByContent,
 } from '../resolve-utils';
-import { describe, expect, it, beforeEach } from 'vitest';
 
 describe('resolve modules', () => {
   const pkgVersions = new Map<string, string>();

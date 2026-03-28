@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   DIST_HYDRATE_SCRIPT,
   isBoolean,
@@ -7,9 +10,6 @@ import {
   isString,
   join,
 } from '../../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 
 export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {
   const output: d.OutputTargetHydrate[] = [];

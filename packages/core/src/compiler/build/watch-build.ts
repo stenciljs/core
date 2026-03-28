@@ -1,8 +1,8 @@
-import { isString, resolve } from '../../utils';
 import { dirname } from 'path';
+import type * as d from '@stencil/core';
 import type ts from 'typescript';
 
-import type * as d from '@stencil/core';
+import { isString, resolve } from '../../utils';
 import { compilerRequest } from '../bundle/dev-module';
 import {
   filesChanged,

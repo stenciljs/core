@@ -1,6 +1,6 @@
-import { isFunction, isRemoteUrl, relative } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isFunction, isRemoteUrl, relative } from '../../utils';
 import { generateBuildResults } from './build-results';
 import { generateBuildStats, writeBuildStats } from './build-stats';
 

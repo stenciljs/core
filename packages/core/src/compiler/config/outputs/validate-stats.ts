@@ -1,7 +1,7 @@
-import { isOutputTargetStats, join, STATS } from '../../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetStats, join, STATS } from '../../../utils';
 
 export const validateStats = (userConfig: d.ValidatedConfig, userOutputs: d.OutputTarget[]) => {
   const outputTargets: d.OutputTargetStats[] = [];

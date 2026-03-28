@@ -1,4 +1,5 @@
 import { describe, it, expect } from '@stencil/vitest';
+
 import { createWindow } from '../window';
 
 describe('customElements', () => {

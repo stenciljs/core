@@ -1,6 +1,6 @@
-import { shouldIgnoreError } from '../../utils';
-
 import type { Logger } from '@stencil/core';
+
+import { shouldIgnoreError } from '../../utils';
 
 export function setupNodeProcess(c: { process: any; logger: Logger }) {
   c.process.on(`unhandledRejection`, (e: any) => {

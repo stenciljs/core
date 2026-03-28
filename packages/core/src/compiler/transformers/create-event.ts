@@ -1,7 +1,7 @@
-import { EVENT_FLAGS } from '../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { EVENT_FLAGS } from '../../utils';
 import { addCoreRuntimeApi, CREATE_EVENT, RUNTIME_APIS } from './core-runtime-apis';
 
 /**

@@ -1,9 +1,9 @@
-import type * as d from '@stencil/core';
-import { mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
 import path from 'path';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { mockLoadConfigInit } from '../../../testing';
+import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateOutputTargetWww', () => {

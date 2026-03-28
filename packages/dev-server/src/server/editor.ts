@@ -3,10 +3,9 @@
  * Consolidated from open-in-browser.ts, open-in-editor.ts, and open-in-editor-api.ts.
  */
 
-import type { ServerResponse } from 'node:http';
-
-import type { DevServerContext, DevServerEditor, HttpRequest, OpenInEditorData } from './types';
 import { responseHeaders } from './utils';
+import type { DevServerContext, DevServerEditor, HttpRequest, OpenInEditorData } from './types';
+import type { ServerResponse } from 'node:http';
 
 // =============================================================================
 // Open in Browser

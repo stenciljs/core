@@ -1,6 +1,7 @@
-import type * as d from '@stencil/core';
-import { crawlAnchorsForNextUrls } from '../crawl-urls';
 import { describe, expect, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
+
+import { crawlAnchorsForNextUrls } from '../crawl-urls';
 
 describe('crawlAnchorsForNextUrls', () => {
   let prerenderConfig: d.PrerenderConfig;

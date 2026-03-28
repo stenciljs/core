@@ -1,5 +1,6 @@
-import type { Config } from '@stencil/core/compiler';
 import { describe, it, expect } from 'vitest';
+import type { Config } from '@stencil/core/compiler';
+
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
 import { mergeFlags } from '../merge-flags';
 

@@ -1,6 +1,6 @@
-import { isOutputTargetWww } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetWww } from '../../utils';
 import { generateServiceWorker } from '../service-worker/generate-sw';
 
 /**

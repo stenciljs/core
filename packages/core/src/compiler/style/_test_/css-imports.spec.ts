@@ -1,9 +1,9 @@
-import type * as d from '@stencil/core';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { buildError, normalizePath } from '../../../utils';
 import path from 'path';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { buildError, normalizePath } from '../../../utils';
 import {
   getCssImports,
   isCssNodeModule,

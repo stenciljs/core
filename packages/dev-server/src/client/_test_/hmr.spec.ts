@@ -3,8 +3,8 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { getHmrHref, updateCssUrlValue } from '../hmr/utils';
 import { hmrInlineStyles } from '../hmr/style';
+import { getHmrHref, updateCssUrlValue } from '../hmr/utils';
 
 describe('updateCssUrlValue', () => {
   const versionId = '1234';

@@ -9,8 +9,8 @@ import {
   supportsShadow,
   transformTag,
 } from 'virtual:platform';
-
 import type * as d from '@stencil/core';
+
 import { CMP_FLAGS } from '../utils/constants';
 import { createShadowRoot } from '../utils/shadow-root';
 import { connectedCallback } from './connected-callback';

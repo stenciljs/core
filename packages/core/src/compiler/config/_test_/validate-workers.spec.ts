@@ -1,8 +1,8 @@
-import type * as d from '@stencil/core';
-import { mockLoadConfigInit, mockLogger } from '../../../testing';
 import path from 'path';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { mockLoadConfigInit, mockLogger } from '../../../testing';
 import { validateConfig } from '../validate-config';
 
 describe('validate-workers', () => {

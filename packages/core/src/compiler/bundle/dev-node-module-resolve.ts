@@ -1,8 +1,8 @@
-import { join, relative } from '../../utils';
 import { basename, dirname } from 'path';
 import { ResolveIdResult } from 'rollup';
-
 import type * as d from '@stencil/core';
+
+import { join, relative } from '../../utils';
 import { InMemoryFileSystem } from '../sys/in-memory-fs';
 import { DEV_MODULE_DIR } from './constants';
 

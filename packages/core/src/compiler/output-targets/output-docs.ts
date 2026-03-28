@@ -1,3 +1,5 @@
+import type * as d from '@stencil/core';
+
 import {
   isOutputTargetDocsCustom,
   isOutputTargetDocsCustomElementsManifest,
@@ -7,10 +9,8 @@ import {
   join,
   normalizePath,
 } from '../../utils';
-
-import type * as d from '@stencil/core';
-import { generateCustomDocs } from '../docs/custom';
 import { generateCustomElementsManifestDocs } from '../docs/cem';
+import { generateCustomDocs } from '../docs/custom';
 import { generateDocData } from '../docs/generate-doc-data';
 import { generateJsonDocs } from '../docs/json';
 import { generateReadmeDocs } from '../docs/readme';

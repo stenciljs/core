@@ -1,7 +1,7 @@
-import { buildError, isString, join, normalizePath } from '../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { buildError, isString, join, normalizePath } from '../../utils';
 
 export const validatePrerender = (
   config: d.ValidatedConfig,

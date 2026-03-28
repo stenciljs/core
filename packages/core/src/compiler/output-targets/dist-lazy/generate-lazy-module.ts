@@ -1,3 +1,6 @@
+import type * as d from '@stencil/core';
+import type { SourceMap as RollupSourceMap } from 'rollup';
+
 import {
   formatComponentRuntimeMeta,
   getSourceMappingUrlForEndOfFile,
@@ -6,9 +9,6 @@ import {
   rollupToStencilSourceMap,
   stringifyRuntimeData,
 } from '../../../utils';
-import type { SourceMap as RollupSourceMap } from 'rollup';
-
-import type * as d from '@stencil/core';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { writeLazyModule } from './write-lazy-entry-module';
 

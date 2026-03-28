@@ -1,7 +1,7 @@
-import { normalizePath, relative } from '../../utils';
 import { dirname } from 'path';
 import ts from 'typescript';
 
+import { normalizePath, relative } from '../../utils';
 import { retrieveTsModifiers } from './transform-utils';
 
 /**

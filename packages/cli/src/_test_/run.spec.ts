@@ -4,10 +4,10 @@ import {
   mockConfig,
   mockLogger as createMockLogger,
 } from '@stencil/core/testing';
-import { vi, type MockInstance, describe, it, beforeEach, expect, afterEach } from 'vitest';
-
-import type * as d from '@stencil/core/compiler';
 import { createTestingSystem } from '@stencil/core/testing';
+import { vi, type MockInstance, describe, it, beforeEach, expect, afterEach } from 'vitest';
+import type * as d from '@stencil/core/compiler';
+
 import { createConfigFlags } from '../config-flags';
 import * as ParseFlags from '../parse-flags';
 import { run, runTask } from '../run';

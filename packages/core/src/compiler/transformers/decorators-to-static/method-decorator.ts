@@ -1,7 +1,7 @@
-import { augmentDiagnosticWithNode, buildError, buildWarn } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { augmentDiagnosticWithNode, buildError, buildWarn } from '../../../utils';
 import { validatePublicName } from '../reserved-public-members';
 import {
   convertValueToLiteral,

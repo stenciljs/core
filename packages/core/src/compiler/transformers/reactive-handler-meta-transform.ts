@@ -1,8 +1,8 @@
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
-import { convertValueToLiteral, createStaticGetter } from './transform-utils';
+
 import { WATCH_FLAGS } from '../../utils';
+import { convertValueToLiteral, createStaticGetter } from './transform-utils';
 
 /**
  * Add a getter to a class for a static representation of the watchers

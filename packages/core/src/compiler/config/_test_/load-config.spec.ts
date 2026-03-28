@@ -1,8 +1,8 @@
-import { mockCompilerSystem } from '../../../testing';
 import { resolve, dirname } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import type * as d from '@stencil/core';
+
+import { mockCompilerSystem } from '../../../testing';
 import { normalizePath } from '../../../utils';
 import { loadConfig } from '../load-config';
 

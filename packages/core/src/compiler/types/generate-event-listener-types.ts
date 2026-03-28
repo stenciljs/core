@@ -1,6 +1,6 @@
-import { dashToPascalCase } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { dashToPascalCase } from '../../utils';
 import { updateTypeIdentifierNames } from './stencil-types';
 
 /**

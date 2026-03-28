@@ -1,10 +1,9 @@
-import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
 import { dirname } from 'path';
+import type * as d from '@stencil/core';
 import type { Plugin } from 'rollup';
 
-import type * as d from '@stencil/core';
-import type { BundlePlatform } from './bundle-interface';
 import { HYDRATED_CSS } from '../../runtime/runtime-constants';
+import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
 import { fetchModuleAsync } from '../sys/fetch/fetch-module-async';
 import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';
 import {
@@ -16,6 +15,7 @@ import {
   STENCIL_JSX_DEV_RUNTIME_ID,
   STENCIL_JSX_RUNTIME_ID,
 } from './entry-alias-ids';
+import type { BundlePlatform } from './bundle-interface';
 
 export const coreResolvePlugin = (
   config: d.ValidatedConfig,

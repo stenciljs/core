@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   buildError,
   COPY,
@@ -10,9 +13,6 @@ import {
   join,
   WWW,
 } from '../../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 import { validatePrerender } from '../validate-prerender';

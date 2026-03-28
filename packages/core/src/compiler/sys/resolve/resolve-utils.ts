@@ -1,6 +1,6 @@
-import { normalizePath } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { normalizePath } from '../../../utils';
 
 const COMMON_DIR_MODULE_EXTS = [
   '.tsx',

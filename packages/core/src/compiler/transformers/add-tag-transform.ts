@@ -1,8 +1,9 @@
+import { parse, SelectorType, stringify } from 'css-what';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
-import { getModuleFromSourceFile } from './transform-utils';
+
 import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from './core-runtime-apis';
-import { parse, SelectorType, stringify } from 'css-what';
+import { getModuleFromSourceFile } from './transform-utils';
 
 /**
  * Checks if a node is inside a function, method, or class body (not at module top-level).

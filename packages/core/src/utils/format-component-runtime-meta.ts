@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { CMP_FLAGS, LISTENER_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from './constants';
 
 export const formatLazyBundleRuntimeMeta = (

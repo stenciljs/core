@@ -1,5 +1,6 @@
-import { getStencilModuleUrl, skipFilePathFetch } from '../fetch-utils';
 import { describe, expect, it, beforeEach } from 'vitest';
+
+import { getStencilModuleUrl, skipFilePathFetch } from '../fetch-utils';
 
 describe('fetch module', () => {
   let compilerExe: string;

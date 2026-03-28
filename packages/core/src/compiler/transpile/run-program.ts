@@ -1,3 +1,7 @@
+import { basename } from 'path';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   filterExcludedComponents,
   getComponentsFromModules,
@@ -7,10 +11,6 @@ import {
   normalizePath,
   relative,
 } from '../../utils';
-import { basename } from 'path';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { updateComponentBuildConditionals } from '../app-core/app-data';
 import { resolveComponentDependencies } from '../entries/resolve-component-dependencies';
 import { performAutomaticKeyInsertion } from '../transformers/automatic-key-insertion';

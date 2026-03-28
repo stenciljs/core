@@ -1,6 +1,6 @@
-import { catchError } from '../../utils';
-
 import * as d from '@stencil/core';
+
+import { catchError } from '../../utils';
 import { outputServiceWorkers } from '../output-targets/output-service-workers';
 import { validateBuildFiles } from './validate-files';
 import { writeExportMaps } from './write-export-maps';

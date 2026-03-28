@@ -1,16 +1,16 @@
-import { loadRollupDiagnostics } from '../../../utils';
 import * as ts from 'typescript';
-
 import type * as d from '@stencil/core';
-import type { BundleOptions } from '../../bundle/bundle-interface';
+
+import { loadRollupDiagnostics } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_HYDRATE_PLATFORM_ID } from '../../bundle/entry-alias-ids';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
-import { addTagTransform } from '../../transformers/add-tag-transform';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
+import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**
  * Marshall some Rollup options for the hydrate factory and then pass it to our

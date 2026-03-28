@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   COPY,
   DIST_COLLECTION,
@@ -12,9 +15,6 @@ import {
   join,
   resolve,
 } from '../../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 

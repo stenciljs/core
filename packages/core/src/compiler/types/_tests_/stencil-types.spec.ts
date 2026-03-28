@@ -1,6 +1,6 @@
+import path from 'path';
 import * as d from '@stencil/core';
 import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
-import path from 'path';
 
 vi.mock('../../../utils', async () => {
   const originalUtils = await vi.importActual('../../../utils');

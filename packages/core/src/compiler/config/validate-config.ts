@@ -1,6 +1,3 @@
-import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { buildError, buildWarn, isBoolean, isNumber, isString, sortBy } from '../../utils';
-
 import {
   ConfigBundle,
   ConfigExtras,
@@ -10,6 +7,9 @@ import {
   UnvalidatedConfig,
   ValidatedConfig,
 } from '@stencil/core';
+
+import { createNodeLogger, createNodeSys } from '../../sys/node';
+import { buildError, buildWarn, isBoolean, isNumber, isString, sortBy } from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import {
   DEFAULT_DEV_MODE,

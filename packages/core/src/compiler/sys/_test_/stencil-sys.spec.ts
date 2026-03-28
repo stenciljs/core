@@ -1,6 +1,7 @@
-import type * as d from '@stencil/core';
-import { createSystem } from '../stencil-sys';
 import { describe, expect, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
+
+import { createSystem } from '../stencil-sys';
 
 describe('stencil system', () => {
   let sys: d.CompilerSystem;

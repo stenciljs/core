@@ -1,7 +1,8 @@
 import * as d from '@stencil/core/compiler';
-import type { ConfigFlags } from '../config-flags';
+
 import { isInteractive } from './helpers';
 import { checkTelemetry } from './telemetry';
+import type { ConfigFlags } from '../config-flags';
 
 /**
  * Used to determine if tracking should occur.

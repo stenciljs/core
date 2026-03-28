@@ -2,13 +2,12 @@ import rollupCommonjsPlugin from '@rollup/plugin-commonjs';
 import rollupJsonPlugin from '@rollup/plugin-json';
 import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import rollupReplacePlugin from '@rollup/plugin-replace';
-import { createOnWarnFn, isString, loadRollupDiagnostics } from '../../utils';
 import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
-
 import type * as d from '@stencil/core';
+
+import { createOnWarnFn, isString, loadRollupDiagnostics } from '../../utils';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
-import type { BundleOptions } from './bundle-interface';
 import { coreResolvePlugin } from './core-resolve-plugin';
 import { devNodeModuleResolveId } from './dev-node-module-resolve';
 import { extFormatPlugin } from './ext-format-plugin';
@@ -20,6 +19,7 @@ import { serverPlugin } from './server-plugin';
 import { resolveIdWithTypeScript, typescriptPlugin } from './typescript-plugin';
 import { userIndexPlugin } from './user-index-plugin';
 import { workerPlugin } from './worker-plugin';
+import type { BundleOptions } from './bundle-interface';
 
 export const bundleOutput = async (
   config: d.ValidatedConfig,

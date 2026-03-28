@@ -1,7 +1,7 @@
-import { augmentDiagnosticWithNode, buildError, flatOne } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { augmentDiagnosticWithNode, buildError, flatOne } from '../../../utils';
 import {
   convertValueToLiteral,
   createStaticGetter,

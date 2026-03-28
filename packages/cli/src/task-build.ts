@@ -1,11 +1,12 @@
 import type * as d from '@stencil/core/compiler';
-import type { ConfigFlags } from './config-flags';
+
 import { printCheckVersionResults, startCheckVersion } from './check-version';
-import type { CoreCompiler } from './load-compiler';
 import { startupCompilerLog } from './logs';
 import { runPrerenderTask } from './task-prerender';
 import { taskWatch } from './task-watch';
 import { telemetryBuildFinishedAction } from './telemetry/telemetry';
+import type { ConfigFlags } from './config-flags';
+import type { CoreCompiler } from './load-compiler';
 
 export const taskBuild = async (
   coreCompiler: CoreCompiler,

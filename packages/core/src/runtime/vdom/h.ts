@@ -9,9 +9,9 @@
 
 import { BUILD } from 'virtual:app-data';
 import { consoleDevError, consoleDevWarn, transformTag } from 'virtual:platform';
-import { isComplexType } from '../../utils/helpers';
-
 import type * as d from '@stencil/core';
+
+import { isComplexType } from '../../utils/helpers';
 
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, child?: d.ChildType): d.VNode;
 // export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;

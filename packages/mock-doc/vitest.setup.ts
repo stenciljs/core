@@ -1,4 +1,5 @@
 import { beforeEach } from 'vitest';
+
 import { setupGlobal } from './src';
 
 // Set up mock-doc globals so that Event, CustomEvent, etc. use MockEvent, MockCustomEvent

@@ -1,8 +1,8 @@
-import { hasError, join } from '../../../utils';
 import { basename } from 'path';
+import type * as d from '@stencil/core';
 import type { RollupOutput } from 'rollup';
 
-import type * as d from '@stencil/core';
+import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { MODE_RESOLUTION_CHAIN_DECLARATION } from './hydrate-factory-closure';
 import { relocateHydrateContextConst } from './relocate-hydrate-context';

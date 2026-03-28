@@ -1,7 +1,8 @@
+import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
 import { BUILD } from 'virtual:app-data';
+
 import { MEMBER_FLAGS } from '../../utils';
 import { parsePropertyValue } from '../parse-property-value';
-import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
 
 describe('parse-property-value', () => {
   describe('parsePropertyValue', () => {

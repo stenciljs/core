@@ -1,8 +1,9 @@
 import ts from 'typescript';
 import { describe, expect, it, afterEach, MockInstance, beforeEach, vi } from 'vitest';
-import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import type * as d from '@stencil/core';
+
 import * as FormatComponentRuntimeMeta from '../../../utils/format-component-runtime-meta';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { createClassMetadataProxy } from '../add-component-meta-proxy';
 import { HTML_ELEMENT } from '../core-runtime-apis';
 import * as TransformUtils from '../transform-utils';

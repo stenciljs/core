@@ -8,7 +8,6 @@ import {
   disconnectNode,
 } from './custom-element-registry';
 import { dataset } from './dataset';
-import type { MockDocument } from './document';
 import {
   addEventListener,
   dispatchEvent,
@@ -24,6 +23,7 @@ import {
   SerializeNodeToHtmlOptions,
 } from './serialize-node';
 import { MockTokenList } from './token-list';
+import type { MockDocument } from './document';
 
 export class MockNode {
   private _nodeValue: string | null;

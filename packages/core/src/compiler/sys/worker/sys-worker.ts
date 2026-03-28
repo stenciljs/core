@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
-import { isFunction } from '../../../utils';
 
+import { isFunction } from '../../../utils';
 import { createWorkerMainContext } from '../../worker/main-thread';
 import { createWorkerContext } from '../../worker/worker-thread';
 

@@ -1,10 +1,10 @@
-import { isString, noop } from '../../utils';
-import fs from 'graceful-fs';
 import { tmpdir } from 'os';
 import path from 'path';
+import fs from 'graceful-fs';
 import semverLt from 'semver/functions/lt.js';
-
 import type { Logger, PackageJsonData } from '@stencil/core';
+
+import { isString, noop } from '../../utils';
 
 const REGISTRY_URL = `https://registry.npmjs.org/@stencil/core`;
 const CHECK_INTERVAL = 1000 * 60 * 60 * 24 * 7;

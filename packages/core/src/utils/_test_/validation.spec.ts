@@ -1,4 +1,5 @@
 import { expect, describe, it } from '@stencil/vitest';
+
 import { validateComponentTag } from '../validation';
 
 describe('validation', () => {

@@ -1,9 +1,8 @@
-import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '../../../utils';
 import MagicString from 'magic-string';
 import * as ts from 'typescript';
-
 import type * as d from '@stencil/core';
-import type { BundleOptions } from '../../bundle/bundle-interface';
+
+import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   LAZY_BROWSER_ENTRY_ID,
@@ -14,6 +13,7 @@ import {
 } from '../../bundle/entry-alias-ids';
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
@@ -23,7 +23,7 @@ import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
 import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
-import { addTagTransform } from '../../transformers/add-tag-transform';
+import type { BundleOptions } from '../../bundle/bundle-interface';
 
 export const outputLazy = async (
   config: d.ValidatedConfig,

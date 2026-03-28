@@ -1,6 +1,6 @@
-import { hasError } from '../../utils';
-
 import { OptimizeCssInput, OptimizeCssOutput } from '@stencil/core';
+
+import { hasError } from '../../utils';
 import { autoprefixCss } from './autoprefixer';
 import { minifyCss } from './minify-css';
 

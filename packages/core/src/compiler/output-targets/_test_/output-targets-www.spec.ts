@@ -1,8 +1,8 @@
-// @ts-nocheck
-import { expect, describe, it } from '@stencil/vitest';
+import path from 'path';
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
-import path from 'path';
+// @ts-nocheck
+import { expect, describe, it } from '@stencil/vitest';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
 

@@ -1,5 +1,5 @@
-import type * as d from '@stencil/core';
 import { describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
 import { validateCopy } from '../validate-copy';
 

@@ -1,5 +1,6 @@
-import { updateImportPaths } from '../inline-esm-import';
 import { describe, expect, it } from 'vitest';
+
+import { updateImportPaths } from '../inline-esm-import';
 
 describe('updateImportPaths', () => {
   const newAbsDir = '/build/';

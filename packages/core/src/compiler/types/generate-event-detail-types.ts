@@ -1,6 +1,6 @@
-import { dashToPascalCase } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { dashToPascalCase } from '../../utils';
 
 /**
  * Generates the custom event interface for each component that combines the `CustomEvent` interface with

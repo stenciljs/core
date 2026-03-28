@@ -1,5 +1,4 @@
 import { getHostRef, modeResolutionChain } from 'virtual:platform';
-
 import type * as d from '@stencil/core';
 
 // Private

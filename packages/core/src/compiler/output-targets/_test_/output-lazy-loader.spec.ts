@@ -1,13 +1,13 @@
-import type * as d from '@stencil/core';
-import { afterEach, describe, expect, it, MockInstance, vi } from 'vitest';
 import {
   mockBuildCtx,
   mockCompilerCtx,
   mockCompilerSystem,
   mockValidatedConfig,
 } from '@stencil/core/testing';
-import { DIST, resolve } from '../../../utils';
+import { afterEach, describe, expect, it, MockInstance, vi } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { DIST, resolve } from '../../../utils';
 import { validateDist } from '../../config/outputs/validate-dist';
 import { outputLazyLoader } from '../output-lazy-loader';
 

@@ -1,5 +1,6 @@
-import { isHexColor, MarkdownTable } from '../readme/docs-util';
 import { describe, expect, it } from 'vitest';
+
+import { isHexColor, MarkdownTable } from '../readme/docs-util';
 
 describe('markdown-table', () => {
   it('header', () => {

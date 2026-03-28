@@ -1,6 +1,7 @@
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
 import { patchPseudoShadowDom } from '../dom-extras';
 
 describe("hydrated components' slotted node order", () => {

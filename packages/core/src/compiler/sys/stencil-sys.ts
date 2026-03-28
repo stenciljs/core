@@ -1,9 +1,6 @@
-import { createNodeLogger } from '../../sys/node';
-import { isRootPath, join, normalizePath } from '../../utils';
 import * as os from 'os';
 import path, { basename, dirname } from 'path';
 import * as process from 'process';
-
 import type {
   CompilerFileWatcherCallback,
   CompilerFsStats,
@@ -20,6 +17,9 @@ import type {
   CopyTask,
   Logger,
 } from '@stencil/core';
+
+import { createNodeLogger } from '../../sys/node';
+import { isRootPath, join, normalizePath } from '../../utils';
 import { version } from '../../version';
 import { buildEvents } from '../events';
 import { resolveModuleIdAsync } from './resolve/resolve-module-async';

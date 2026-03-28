@@ -1,6 +1,6 @@
-import { fromEntries, hasError, isString, normalizeDiagnostics } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { fromEntries, hasError, isString, normalizeDiagnostics } from '../../utils';
 import { getBuildTimestamp } from './build-ctx';
 import { generateHmr } from './build-hmr';
 

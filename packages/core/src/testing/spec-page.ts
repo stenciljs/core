@@ -8,6 +8,9 @@ import type {
   NewSpecPageOptions,
   SpecPage,
 } from '@stencil/core';
+
+import { getBuildFeatures } from '../compiler/app-core/app-data';
+import { formatLazyBundleRuntimeMeta } from '../utils';
 import {
   bootstrapLazy,
   flushAll,
@@ -25,9 +28,6 @@ import {
   win,
   writeTask,
 } from './platform';
-import { formatLazyBundleRuntimeMeta } from '../utils';
-
-import { getBuildFeatures } from '../compiler/app-core/app-data';
 import { resetBuildConditionals } from './reset-build-conditionals';
 
 /**

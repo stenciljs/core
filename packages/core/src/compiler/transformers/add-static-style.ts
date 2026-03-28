@@ -1,8 +1,8 @@
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import { dashToPascalCase, DEFAULT_STYLE_MODE } from '../../utils';
 import { scopeCss } from '../../utils/shadow-css';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { getScopeId } from '../style/scope-css';
 import {
   addTagTransformToCssTsAST,

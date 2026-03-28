@@ -1,11 +1,11 @@
+import path from 'path';
 // @ts-nocheck
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import { describe, it, expect } from 'vitest';
-import path from 'path';
-import { createCompiler } from '../../compiler';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+import { createCompiler } from '../../compiler';
 
 describe.skip('outputTarget, dist', () => {
   let compiler: Compiler;

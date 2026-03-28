@@ -1,6 +1,6 @@
-import { sortBy } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { sortBy } from '../../utils';
 import { getDefaultBundles } from './default-bundles';
 
 /**

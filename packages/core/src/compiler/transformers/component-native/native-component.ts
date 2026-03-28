@@ -1,13 +1,13 @@
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
 import { transformHostData } from '../host-data-transform';
+import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { foundSuper, updateConstructor } from '../transform-utils';
 import { updateComponentClass } from '../update-component-class';
-import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { addNativeConnectedCallback } from './native-connected-callback';
 import { updateNativeConstructor } from './native-constructor';
 import { addNativeElementGetter } from './native-element-getter';

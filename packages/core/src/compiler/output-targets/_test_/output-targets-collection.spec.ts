@@ -4,9 +4,9 @@ import {
   mockModule,
   mockValidatedConfig,
 } from '@stencil/core/testing';
-
-import type * as d from '@stencil/core';
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
+
 import * as test from '../../transformers/map-imports-to-path-aliases';
 import { outputCollection } from '../dist-collection';
 

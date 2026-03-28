@@ -1,5 +1,4 @@
 import { BUILD } from 'virtual:app-data';
-
 import type * as d from '@stencil/core';
 
 interface StencilWindow extends Omit<Window, 'document'> {

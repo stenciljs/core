@@ -1,5 +1,6 @@
-import { transpileModule } from './transpile';
 import { describe, expect, it } from 'vitest';
+
+import { transpileModule } from './transpile';
 
 describe('parse form associated', function () {
   it('should set formAssociated if passed to decorator', async () => {

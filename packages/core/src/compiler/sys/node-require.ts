@@ -1,7 +1,7 @@
-import { catchError, loadTypeScriptDiagnostic } from '../../utils';
 import ts from 'typescript';
-
 import type { Diagnostic } from '@stencil/core';
+
+import { catchError, loadTypeScriptDiagnostic } from '../../utils';
 
 /**
  * Transform ES module syntax to CommonJS for config files.

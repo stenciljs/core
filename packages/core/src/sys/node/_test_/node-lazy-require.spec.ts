@@ -1,10 +1,11 @@
 /// <reference types="vitest/globals" />
 
 import { expect, describe, it } from '@stencil/vitest';
+import fs from 'graceful-fs';
+
 import { buildError } from '../../../utils';
 import { LazyDependencies, NodeLazyRequire } from '../node-lazy-require';
 import { NodeResolveModule } from '../node-resolve-module';
-import fs from 'graceful-fs';
 
 vi.mock('graceful-fs', () => ({
   default: {

@@ -1,4 +1,8 @@
+import MagicString from 'magic-string';
+import { RollupOptions } from 'rollup';
+import { rollup, type RollupBuild } from 'rollup';
 import type * as d from '@stencil/core';
+
 import {
   catchError,
   createOnWarnFn,
@@ -6,10 +10,6 @@ import {
   join,
   loadRollupDiagnostics,
 } from '../../../utils';
-import MagicString from 'magic-string';
-import { RollupOptions } from 'rollup';
-import { rollup, type RollupBuild } from 'rollup';
-
 import {
   STENCIL_APP_DATA_ID,
   STENCIL_HYDRATE_FACTORY_ID,

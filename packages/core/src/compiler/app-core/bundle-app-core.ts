@@ -1,6 +1,6 @@
+import type * as d from '@stencil/core';
 import type { OutputAsset, OutputChunk, OutputOptions, RollupBuild } from 'rollup';
 
-import type * as d from '@stencil/core';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**

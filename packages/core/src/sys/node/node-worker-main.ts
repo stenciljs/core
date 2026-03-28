@@ -1,8 +1,8 @@
-import { TASK_CANCELED_MSG } from '../../utils';
 import * as cp from 'child_process';
 import { EventEmitter } from 'events';
-
 import type * as d from '@stencil/core';
+
+import { TASK_CANCELED_MSG } from '../../utils';
 
 /**
  * A class that holds a reference to a node worker sub-process within the main

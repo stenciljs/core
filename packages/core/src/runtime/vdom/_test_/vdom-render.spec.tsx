@@ -1,4 +1,5 @@
 import { expect, describe, it } from '@stencil/vitest';
+
 import { h, newVNode } from '../h';
 import { isSameVnode, patch } from '../vdom-render';
 

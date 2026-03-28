@@ -1,3 +1,7 @@
+import path from 'path';
+import MagicString from 'magic-string';
+import type * as d from '@stencil/core';
+
 import {
   catchError,
   createJsVarName,
@@ -8,18 +12,14 @@ import {
   resolve,
 } from '../../utils';
 import { scopeCss } from '../../utils/shadow-css';
-import MagicString from 'magic-string';
-import path from 'path';
-
-import type * as d from '@stencil/core';
+import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 import { parseStyleDocs } from '../docs/style-docs';
 import { optimizeCss } from '../optimize/optimize-css';
+import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { serializeImportPath } from '../transformers/stencil-import-path';
+import { addTagTransformToCssString } from '../transformers/transform-utils';
 import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
-import { addTagTransformToCssString } from '../transformers/transform-utils';
-import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
-import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
  * A regular expression for matching CSS import statements

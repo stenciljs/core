@@ -9,6 +9,14 @@ import * as https from 'node:https';
 import * as net from 'node:net';
 import { WebSocketServer, type WebSocket as NodeWebSocket } from 'ws';
 
+import {
+  createServerContext,
+  type BuildRequestResolve,
+  type CompilerRequestResolve,
+} from './context';
+import { openInBrowser } from './editor';
+import { createRequestHandler } from './handlers';
+import { getBrowserUrl, normalizePath, DEV_SERVER_INIT_URL } from './utils';
 import type {
   CompilerBuildResults,
   DevServerConfig,
@@ -17,14 +25,6 @@ import type {
   DevServerSendMessage,
   DevWebSocket,
 } from './types';
-import {
-  createServerContext,
-  type BuildRequestResolve,
-  type CompilerRequestResolve,
-} from './context';
-import { createRequestHandler } from './handlers';
-import { getBrowserUrl, normalizePath, DEV_SERVER_INIT_URL } from './utils';
-import { openInBrowser } from './editor';
 
 // =============================================================================
 // HTTP Server

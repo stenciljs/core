@@ -1,6 +1,6 @@
-import { join } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { join } from '../../utils';
 import { getAbsoluteBuildDir } from './html-utils';
 
 export const optimizeCriticalPath = (

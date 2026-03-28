@@ -1,6 +1,6 @@
-import { join, relative } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { join, relative } from '../../utils';
 
 /**
  * Get the path to the build directory where files written for the `www` output

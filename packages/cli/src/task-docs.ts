@@ -1,8 +1,8 @@
 import { isOutputTargetDocs } from '@stencil/core/compiler/utils';
-
 import type { ValidatedConfig } from '@stencil/core/compiler';
-import type { CoreCompiler } from './load-compiler';
+
 import { startupCompilerLog } from './logs';
+import type { CoreCompiler } from './load-compiler';
 
 export const taskDocs = async (coreCompiler: CoreCompiler, config: ValidatedConfig) => {
   config.devServer = {};

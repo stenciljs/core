@@ -1,8 +1,8 @@
-import type * as d from '@stencil/core';
-import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '../../../testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DOCS_CUSTOM, DOCS_JSON, DOCS_README, DOCS_VSCODE } from '../../../utils';
+import type * as d from '@stencil/core';
 
+import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '../../../testing';
+import { DOCS_CUSTOM, DOCS_JSON, DOCS_README, DOCS_VSCODE } from '../../../utils';
 import { isWatchIgnorePath } from '../../fs-watch/fs-watch-rebuild';
 import { validateConfig } from '../validate-config';
 

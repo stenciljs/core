@@ -1,8 +1,9 @@
 // @vitest-environment stencil
 
-import { win } from 'virtual:platform';
-import { expect, describe, it, vi } from '@stencil/vitest';
 import { LazyBundlesRuntimeData } from '@stencil/core';
+import { expect, describe, it, vi } from '@stencil/vitest';
+import { win } from 'virtual:platform';
+
 import { bootstrapLazy } from '../bootstrap-lazy';
 
 describe('bootstrap lazy', () => {

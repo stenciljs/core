@@ -1,13 +1,13 @@
 import { expect, describe, it } from '@stencil/vitest';
+import type * as d from '@stencil/core';
+import type { SourceMap as RollupSourceMap } from 'rollup';
+
 import {
   getInlineSourceMappingUrlLinker,
   getSourceMappingUrlForEndOfFile,
   getSourceMappingUrlLinker,
   rollupToStencilSourceMap,
 } from '../index';
-import type { SourceMap as RollupSourceMap } from 'rollup';
-
-import type * as d from '@stencil/core';
 
 describe('sourcemaps', () => {
   describe('rollupToStencilSourceMap', () => {

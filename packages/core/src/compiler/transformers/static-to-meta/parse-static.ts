@@ -1,8 +1,8 @@
-import { join, normalizePath } from '../../../utils';
 import { basename, dirname } from 'path';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { join, normalizePath } from '../../../utils';
 import { createModule, getModule } from '../../transpile/transpiled-module';
 import { getComponentTagName, isStaticGetter } from '../transform-utils';
 import { parseCallExpression } from './call-expression';

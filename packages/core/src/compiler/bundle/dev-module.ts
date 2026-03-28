@@ -1,8 +1,8 @@
-import { generatePreamble, join, relative } from '../../utils';
 import { basename, dirname } from 'path';
 import { OutputOptions, rollup } from 'rollup';
-
 import type * as d from '@stencil/core';
+
+import { generatePreamble, join, relative } from '../../utils';
 import { BuildContext } from '../build/build-ctx';
 import { getRollupOptions } from './bundle-output';
 import { DEV_MODULE_CACHE_BUSTER, DEV_MODULE_DIR } from './constants';

@@ -1,6 +1,6 @@
-import type * as d from '@stencil/core';
-import { describe, expect, it, beforeEach } from 'vitest';
 import { mockDocument } from '@stencil/core/testing';
+import { describe, expect, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
 
 import { removeUnusedStyles } from '../remove-unused-styles';
 

@@ -1,5 +1,6 @@
-import { transpileModule } from './transpile';
 import { describe, expect, it } from 'vitest';
+
+import { transpileModule } from './transpile';
 
 describe('parse attachInternals', function () {
   it('should set attachInternalsMemberName when set', async () => {

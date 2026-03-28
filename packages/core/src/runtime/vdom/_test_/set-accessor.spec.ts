@@ -1,6 +1,7 @@
+import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest';
 import { BUILD } from 'virtual:app-data';
 import { plt } from 'virtual:platform';
-import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest';
+
 import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import type { ValidatedConfig } from '@stencil/core';
+
 import { mockValidatedConfig } from '../../../testing/mocks';
 import { createCachingCompilerHost, IncrementalCompiler } from '../incremental-compiler';
 

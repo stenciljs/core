@@ -1,5 +1,6 @@
-import { createNodeLogger } from '../../sys/node';
 import type * as d from '@stencil/core';
+
+import { createNodeLogger } from '../../sys/node';
 import { validateConfig } from '../config/validate-config';
 
 /**

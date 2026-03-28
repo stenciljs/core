@@ -1,6 +1,6 @@
 import { MockWindow } from '@stencil/mock-doc';
-
 import type * as d from '@stencil/core';
+
 import { renderBuildDiagnostic, renderCatchError } from './render-utils';
 
 export function runtimeLogging(

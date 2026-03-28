@@ -1,6 +1,6 @@
-import { normalizePath, relative } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { normalizePath, relative } from '../../../utils';
 
 export const depsToMarkdown = (
   cmp: d.JsonDocsComponent,

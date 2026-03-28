@@ -1,5 +1,6 @@
-import { toVNode } from '../util';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { toVNode } from '../util';
 
 describe('toVNode()', () => {
   it('should create element w/ child elements and text nodes', () => {

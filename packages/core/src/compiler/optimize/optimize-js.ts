@@ -1,6 +1,6 @@
-import { catchError } from '../../utils';
-
 import { ValidatedConfig, OptimizeJsInput, OptimizeJsOutput } from '@stencil/core';
+
+import { catchError } from '../../utils';
 import { minifyJs } from './minify-js';
 import { getTerserOptions } from './optimize-module';
 

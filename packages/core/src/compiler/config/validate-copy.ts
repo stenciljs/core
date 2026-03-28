@@ -1,6 +1,6 @@
-import { unique } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { unique } from '../../utils';
 
 /**
  * Validate a series of {@link d.CopyTask}s

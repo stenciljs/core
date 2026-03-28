@@ -1,5 +1,6 @@
 import { ComponentCompilerMeta, ComponentCompilerMethod } from '@stencil/core';
 import { describe, expect, it } from 'vitest';
+
 import { generateComponentTypes } from '../generate-component-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerMethod } from './ComponentCompilerMethod.stub';

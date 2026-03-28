@@ -1,7 +1,7 @@
-import { dashToPascalCase } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { dashToPascalCase } from '../../../utils';
 import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-apis';
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 

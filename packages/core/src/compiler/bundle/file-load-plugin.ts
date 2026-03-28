@@ -1,6 +1,6 @@
-import { isDtsFile, normalizeFsPath } from '../../utils';
 import type { Plugin } from 'rollup';
 
+import { isDtsFile, normalizeFsPath } from '../../utils';
 import { InMemoryFileSystem } from '../sys/in-memory-fs';
 
 export const fileLoadPlugin = (fs: InMemoryFileSystem): Plugin => {

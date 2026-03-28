@@ -1,5 +1,6 @@
 import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
+
 import { createEvent } from '../../runtime/event-emitter';
 import { CMP_FLAGS, EVENT_FLAGS } from '../../utils';
 import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
+
 import { createDocument, MockDocument } from '../document';
 import { cloneDocument } from '../window';
 

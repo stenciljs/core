@@ -1,9 +1,10 @@
+import path from 'path';
 import { ValidatedConfig } from '@stencil/core';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+
 import { mockLogger, mockValidatedConfig, setupConsoleMocker } from '../../../testing';
 import { normalizePath } from '../../../utils';
 import { relative } from '../../../utils';
-import path from 'path';
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { addFileToLibrary, getTypeLibrary } from '../type-library';
 
 const __dirname = import.meta.dirname;

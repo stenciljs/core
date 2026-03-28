@@ -1,6 +1,6 @@
-import type { CompilerSystem } from '@stencil/core';
 import { createHash } from 'crypto';
 import path from 'path';
+import type { CompilerSystem } from '@stencil/core';
 
 import { createSystem } from '../compiler/sys/stencil-sys';
 

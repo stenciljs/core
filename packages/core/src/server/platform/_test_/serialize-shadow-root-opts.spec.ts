@@ -1,5 +1,6 @@
-import { tagRequiresScoped } from '../hydrate-app';
 import { expect, describe, it, afterEach, vi } from '@stencil/vitest';
+
+import { tagRequiresScoped } from '../hydrate-app';
 
 describe('tagRequiresScoped', () => {
   afterEach(async () => {

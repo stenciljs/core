@@ -1,3 +1,7 @@
+import { basename } from 'path';
+import { PluginCtx, PluginTransformResults } from '@stencil/core';
+import type * as d from '@stencil/core';
+
 import {
   buildError,
   catchError,
@@ -6,10 +10,6 @@ import {
   isString,
   relative,
 } from '../../utils';
-import { basename } from 'path';
-
-import type * as d from '@stencil/core';
-import { PluginCtx, PluginTransformResults } from '@stencil/core';
 import { parseCssImports } from '../style/css-imports';
 
 const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {

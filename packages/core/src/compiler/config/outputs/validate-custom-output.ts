@@ -1,6 +1,6 @@
-import { catchError, COPY, isOutputTargetCustom } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError, COPY, isOutputTargetCustom } from '../../../utils';
 
 export const validateCustomOutput = (
   config: d.ValidatedConfig,

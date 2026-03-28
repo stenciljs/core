@@ -1,6 +1,6 @@
-import type { OutputTargetDistCollection } from '@stencil/core';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
+import type { OutputTargetDistCollection } from '@stencil/core';
 
 import { ValidatedConfig } from '../../../compiler';
 import { mapImportsToPathAliases } from '../map-imports-to-path-aliases';

@@ -1,5 +1,6 @@
-import type * as d from '@stencil/core';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
+import type * as d from '@stencil/core';
+
 import { h, newVNode } from '../h';
 import { patch } from '../vdom-render';
 

@@ -1,6 +1,7 @@
 // @vitest-environment stencil
 
 import { expect, describe, it } from '@stencil/vitest';
+
 import { queryNonceMetaTagContent } from '../query-nonce-meta-tag-content';
 
 describe('queryNonceMetaTagContent', () => {

@@ -1,6 +1,6 @@
-import { readOnlyArrayHasStringMember } from '../../utils';
 import ts from 'typescript';
 
+import { readOnlyArrayHasStringMember } from '../../utils';
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
 import { retrieveTsModifiers } from './transform-utils';
 

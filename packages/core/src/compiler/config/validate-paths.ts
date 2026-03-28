@@ -1,7 +1,7 @@
-import { join, normalizePath } from '../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { join, normalizePath } from '../../utils';
 
 /**
  * The paths validated in this module. These fields can be incorporated into a

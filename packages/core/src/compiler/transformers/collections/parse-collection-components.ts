@@ -1,7 +1,7 @@
-import { join } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { join } from '../../../utils';
 import { updateModule } from '../static-to-meta/parse-static';
 
 export const parseCollectionComponents = (

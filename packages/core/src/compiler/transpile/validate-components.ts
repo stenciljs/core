@@ -1,6 +1,6 @@
-import { buildError, relative } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildError, relative } from '../../utils';
 
 export const validateTranspiledComponents = (config: d.ValidatedConfig, buildCtx: d.BuildCtx) => {
   for (const cmp of buildCtx.components) {

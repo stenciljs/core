@@ -1,10 +1,10 @@
+import path from 'path';
 import { CompilerCtx } from '@stencil/core';
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { describe, expect, it } from 'vitest';
-import { normalizePath } from '../../../utils';
-import path from 'path';
 import ts from 'typescript';
+import { describe, expect, it } from 'vitest';
 
+import { normalizePath } from '../../../utils';
 import { patchTypescript } from '../../sys/typescript/typescript-sys';
 import {
   rewriteAliasedDTSImportPaths,

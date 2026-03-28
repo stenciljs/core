@@ -1,5 +1,4 @@
 import { MockWindow } from '@stencil/mock-doc';
-
 import type * as d from '@stencil/core';
 
 export function hydrateFactory<DocOptions extends d.SerializeDocumentOptions>(

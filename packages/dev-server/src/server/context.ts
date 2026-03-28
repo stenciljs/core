@@ -6,8 +6,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { inspect } from 'node:util';
-import type { ServerResponse } from 'node:http';
 
+import { responseHeaders } from './utils';
 import type {
   CompilerBuildResults,
   CompilerRequestResponse,
@@ -17,7 +17,7 @@ import type {
   DevServerSendMessage,
   HttpRequest,
 } from './types';
-import { responseHeaders } from './utils';
+import type { ServerResponse } from 'node:http';
 
 export interface CompilerRequestResolve {
   path: string;

@@ -1,5 +1,6 @@
-import chalk from 'chalk';
 import { expect, describe, it, vi } from '@stencil/vitest';
+import chalk from 'chalk';
+
 import { LOG_LEVELS, type LogLevel } from '../../../../declarations/stencil-public-compiler';
 import { setupConsoleMocker } from '../../../../testing/testing-utils';
 import { createNodeLoggerSys } from '../index';

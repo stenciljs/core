@@ -1,7 +1,7 @@
-import { isBoolean, join } from '../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { isBoolean, join } from '../../utils';
 
 export const getAbsolutePath = (config: d.ValidatedConfig, dir: string) => {
   if (!isAbsolute(dir)) {

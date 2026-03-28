@@ -1,11 +1,3 @@
-import {
-  COPY,
-  DIST_TYPES,
-  isBoolean,
-  isOutputTargetDistCustomElements,
-  join,
-} from '../../../utils';
-
 import type {
   OutputTarget,
   OutputTargetCopy,
@@ -13,7 +5,15 @@ import type {
   OutputTargetDistTypes,
   ValidatedConfig,
 } from '@stencil/core';
+
 import { CustomElementsExportBehaviorOptions } from '../../../declarations/stencil-public-compiler';
+import {
+  COPY,
+  DIST_TYPES,
+  isBoolean,
+  isOutputTargetDistCustomElements,
+  join,
+} from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 

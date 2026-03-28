@@ -1,8 +1,8 @@
 import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
 import { createSystem } from '../../../compiler/sys/stencil-sys';
-import type * as d from '@stencil/core';
 import {
   coreResolvePlugin,
   getHydratedFlagHead,

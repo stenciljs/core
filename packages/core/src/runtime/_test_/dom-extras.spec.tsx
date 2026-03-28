@@ -1,6 +1,6 @@
 import { Component, h, Host } from '@stencil/core';
-import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 
 import { patchPseudoShadowDom, patchSlottedNode } from '../dom-extras';
 

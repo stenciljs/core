@@ -1,9 +1,9 @@
-import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
-import * as util from '../index';
-
-import { getTextDocs } from '../util';
+import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import type * as d from '@stencil/core';
+
+import * as util from '../index';
+import { getTextDocs } from '../util';
 import { stubDiagnostic } from './fixtures/Diagnostic.stub';
 
 describe('util', () => {

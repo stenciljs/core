@@ -1,8 +1,8 @@
 import { mockValidatedConfig } from '@stencil/core/testing';
-import { join, resolve } from '../../../utils';
 import { describe, expect, it, beforeEach } from 'vitest';
-
 import type * as d from '@stencil/core';
+
+import { join, resolve } from '../../../utils';
 import { validateWww } from '../../config/outputs/validate-www';
 import { getWriteFilePathFromUrlPath } from '../prerendered-write-path';
 

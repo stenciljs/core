@@ -1,7 +1,8 @@
-import type * as d from '@stencil/core';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import path from 'path';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
+
 import { validateHydrateScript } from '../../../config/outputs/validate-hydrate-script';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
 import { writeHydrateOutputs } from '../write-hydrate-outputs';

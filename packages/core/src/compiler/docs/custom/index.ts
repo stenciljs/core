@@ -1,6 +1,6 @@
-import { isOutputTargetDocsCustom } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetDocsCustom } from '../../../utils';
 
 export const generateCustomDocs = async (
   config: d.ValidatedConfig,

@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   addDocBlock,
   GENERATED_DTS,
@@ -6,9 +9,6 @@ import {
   relative,
   resolve,
 } from '../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 import { generateComponentTypes } from './generate-component-types';
 import { generateEventDetailTypes } from './generate-event-detail-types';
 import { updateStencilTypesImports } from './stencil-types';

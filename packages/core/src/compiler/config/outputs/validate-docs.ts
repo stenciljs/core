@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   buildError,
   DOCS_JSON,
@@ -11,9 +14,6 @@ import {
   isString,
   join,
 } from '../../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 import { NOTE } from '../../docs/constants';
 
 export const validateDocs = (

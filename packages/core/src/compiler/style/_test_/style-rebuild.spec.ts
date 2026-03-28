@@ -1,8 +1,9 @@
-import { createCompiler } from '../../compiler';
-import type * as d from '@stencil/core';
-import { mockCompilerSystem, mockLoadConfigInit } from '@stencil/core/testing';
 import path from 'path';
+import { mockCompilerSystem, mockLoadConfigInit } from '@stencil/core/testing';
 import { describe, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
+
+import { createCompiler } from '../../compiler';
 import { validateConfig } from '../../config/validate-config';
 
 describe.skip('component-styles', () => {

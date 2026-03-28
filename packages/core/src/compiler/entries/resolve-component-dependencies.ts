@@ -1,6 +1,6 @@
-import { flatOne, unique } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { flatOne, unique } from '../../utils';
 
 /**
  * For each entry in the provided collection of compiler metadata, generate several lists:

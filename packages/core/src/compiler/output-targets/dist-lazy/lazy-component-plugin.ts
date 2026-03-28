@@ -1,7 +1,7 @@
-import { normalizePath } from '../../../utils';
+import type * as d from '@stencil/core';
 import type { Plugin } from 'rollup';
 
-import type * as d from '@stencil/core';
+import { normalizePath } from '../../../utils';
 
 export const lazyComponentPlugin = (buildCtx: d.BuildCtx): Plugin => {
   const entrys = new Map<string, d.EntryModule>();

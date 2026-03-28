@@ -1,5 +1,6 @@
-import { parseImportPath, serializeImportPath } from '../stencil-import-path';
 import { describe, expect, it } from 'vitest';
+
+import { parseImportPath, serializeImportPath } from '../stencil-import-path';
 
 describe('stencil-import-path', () => {
   it('serialize/parse absolute, no data ext', () => {

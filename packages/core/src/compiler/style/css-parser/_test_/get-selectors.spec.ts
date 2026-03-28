@@ -1,5 +1,6 @@
-import { getCssSelectors } from '../get-css-selectors';
 import { describe, it, expect } from 'vitest';
+
+import { getCssSelectors } from '../get-css-selectors';
 
 describe('getCssSelectors', () => {
   it('attribute containing selector', () => {

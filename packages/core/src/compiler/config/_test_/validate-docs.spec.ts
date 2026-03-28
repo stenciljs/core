@@ -1,7 +1,7 @@
-import type * as d from '@stencil/core';
-import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { DEFAULT_TARGET_COMPONENT_STYLES } from '../constants';
 import { validateConfig } from '../validate-config';
 

@@ -1,8 +1,8 @@
-import { normalizePath, relative } from '../../utils';
 import { dirname } from 'path';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { normalizePath, relative } from '../../utils';
 import { retrieveTsModifiers } from './transform-utils';
 
 /**

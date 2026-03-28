@@ -1,8 +1,8 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
+
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { buildWarn } from '../../../utils';
-import { beforeEach, describe, expect, it } from 'vitest';
-
 import { validateConfig } from '../validate-config';
 
 describe('validateCustom', () => {

@@ -7,9 +7,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as zlib from 'node:zlib';
-import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import type { DevServerConfig, DevServerContext, DevClientConfig, HttpRequest } from './types';
+import { getEditors, serveOpenInEditor } from './editor';
+import { ssrPageRequest, ssrStaticDataRequest } from './ssr';
 import {
   DEV_SERVER_URL,
   VERSION,
@@ -29,8 +29,8 @@ import {
   responseHeaders,
   shouldCompress,
 } from './utils';
-import { getEditors, serveOpenInEditor } from './editor';
-import { ssrPageRequest, ssrStaticDataRequest } from './ssr';
+import type { DevServerConfig, DevServerContext, DevClientConfig, HttpRequest } from './types';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // =============================================================================
 // Main Request Handler

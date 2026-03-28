@@ -1,3 +1,6 @@
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   catchError,
   dashToPascalCase,
@@ -10,10 +13,6 @@ import {
   join,
   rollupToStencilSourceMap,
 } from '../../../utils';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
-import type { BundleOptions } from '../../bundle/bundle-interface';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   STENCIL_APP_GLOBALS_ID,
@@ -21,6 +20,7 @@ import {
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
 import { nativeComponentTransform } from '../../transformers/component-native/tranform-to-native-component';
@@ -29,7 +29,7 @@ import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getCustomElementsBuildConditionals } from './custom-elements-build-conditionals';
 import { generateLoaderModule } from './generate-loader-module';
-import { addTagTransform } from '../../transformers/add-tag-transform';
+import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**
  * Main output target function for `dist-custom-elements`. This function just

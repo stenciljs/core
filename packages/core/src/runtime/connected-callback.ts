@@ -7,8 +7,8 @@ import {
   supportsShadow,
   win,
 } from 'virtual:platform';
-
 import type * as d from '@stencil/core';
+
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
 import { initializeClientHydrate } from './client-hydrate';
 import { fireConnectedCallback, initializeComponent } from './initialize-component';

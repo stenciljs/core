@@ -1,7 +1,8 @@
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
+import * as d from '@stencil/core';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach } from 'vitest';
-import * as d from '@stencil/core';
+
+import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import { createModule } from '../../transpile/transpiled-module';
 import {
   addCoreRuntimeApi,

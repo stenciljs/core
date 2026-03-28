@@ -8,6 +8,8 @@
 
 import * as path from 'node:path';
 
+import { initServerProcess } from './server';
+import { initServerProcessWorkerProxy } from './worker-main';
 import type {
   CompilerBuildResults,
   CompilerWatcher,
@@ -17,8 +19,6 @@ import type {
   Logger,
   StencilDevServerConfig,
 } from './types';
-import { initServerProcess } from './server';
-import { initServerProcessWorkerProxy } from './worker-main';
 
 // Re-export types for consumers
 export type {

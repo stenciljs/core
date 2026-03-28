@@ -1,8 +1,6 @@
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from 'virtual:platform';
-import { addHostEventListeners } from './';
 
-import type * as d from '../declarations';
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
 import { createShadowRoot } from '../utils/shadow-root';
@@ -21,6 +19,8 @@ import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS } from './runtime-constants';
 import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
+import { addHostEventListeners } from './';
+import type * as d from '../declarations';
 export { setNonce } from 'virtual:platform';
 
 export const bootstrapLazy = (

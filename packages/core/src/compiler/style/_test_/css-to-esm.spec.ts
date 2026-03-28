@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
-import { transformCssToEsm, transformCssToEsmSync } from '../css-to-esm';
 import type * as d from '@stencil/core';
+
+import { transformCssToEsm, transformCssToEsmSync } from '../css-to-esm';
 
 // Mock the shadow-css module before any imports
 vi.mock('../../../utils/shadow-css', async (importOriginal) => {

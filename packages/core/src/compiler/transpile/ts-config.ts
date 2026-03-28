@@ -1,7 +1,7 @@
-import { isOutputTargetDistTypes } from '../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetDistTypes } from '../../utils';
 
 /**
  * Derive a {@link ts.CompilerOptions} object from the options currently set

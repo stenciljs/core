@@ -1,6 +1,6 @@
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
 import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
 export const addNativeComponentMeta = (

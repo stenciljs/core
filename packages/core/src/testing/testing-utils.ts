@@ -1,5 +1,6 @@
-import { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 import { afterAll, Mock, vi } from 'vitest';
+
+import { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 
 /**
  * Shuffle an array using Fisher-Yates algorithm

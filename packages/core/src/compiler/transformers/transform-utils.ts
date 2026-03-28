@@ -1,16 +1,16 @@
-import { normalizePath } from '../../utils';
+import postcss from 'postcss';
+import postcssSafeParser from 'postcss-safe-parser';
+import postcssSelectorParser from 'postcss-selector-parser';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { normalizePath } from '../../utils';
 import { updateLazyComponentConstructor } from './component-lazy/lazy-constructor';
+import { TRANSFORM_TAG } from './core-runtime-apis';
 import { StencilStaticGetter } from './decorators-to-static/decorators-constants';
 import { removeStaticMetaProperties } from './remove-static-meta-properties';
 import { addToLibrary, findTypeWithName, getHomeModule, getOriginalTypeName } from './type-library';
 import { updateComponentClass } from './update-component-class';
-import postcss from 'postcss';
-import postcssSafeParser from 'postcss-safe-parser';
-import postcssSelectorParser from 'postcss-selector-parser';
-import { TRANSFORM_TAG } from './core-runtime-apis';
 
 export const getScriptTarget = () => {
   // using a fn so the browser compiler doesn't require the global ts for startup

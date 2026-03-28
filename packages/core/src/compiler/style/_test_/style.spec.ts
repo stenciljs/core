@@ -1,7 +1,7 @@
+import path from 'path';
 // @ts-nocheck
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
-import path from 'path';
 import { describe, it, beforeEach } from 'vitest';
 
 // TODO(STENCIL-464): investigate getting these tests to run again

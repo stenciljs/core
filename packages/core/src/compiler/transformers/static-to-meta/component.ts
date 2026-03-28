@@ -1,3 +1,7 @@
+import { dirname, isAbsolute } from 'path';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   augmentDiagnosticWithNode,
   buildWarn,
@@ -6,10 +10,6 @@ import {
   relative,
   unique,
 } from '../../../utils';
-import { dirname, isAbsolute } from 'path';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { addComponentMetaStatic } from '../add-component-meta-static';
 import { setComponentBuildConditionals } from '../component-build-conditionals';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
@@ -22,6 +22,7 @@ import {
 } from '../transform-utils';
 import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach-internals';
 import { parseCallExpression } from './call-expression';
+import { mergeExtendedClassMeta } from './class-extension';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
 import {
@@ -32,7 +33,6 @@ import {
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
-import { mergeExtendedClassMeta } from './class-extension';
 
 const BLACKLISTED_COMPONENT_METHODS = [
   /**

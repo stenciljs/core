@@ -1,6 +1,6 @@
-import { hasError, hasWarning, result } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { hasError, hasWarning, result } from '../../utils';
 import { validateConfig } from '../config/validate-config';
 
 /**

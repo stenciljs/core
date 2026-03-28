@@ -1,6 +1,6 @@
-import { isOutputTargetDistTypes } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetDistTypes } from '../../utils';
 import { generateTypes } from '../types/generate-types';
 
 /**

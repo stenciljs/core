@@ -1,5 +1,6 @@
-import type * as d from '@stencil/core';
 import { describe, expect, it, afterEach, beforeEach, vi, MockInstance } from 'vitest';
+import type * as d from '@stencil/core';
+
 import { generatePropTypes } from '../generate-prop-types';
 import * as StencilTypes from '../stencil-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';

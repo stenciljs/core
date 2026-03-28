@@ -1,6 +1,6 @@
-import { buildError, relative } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildError, relative } from '../../utils';
 import type { BundlePlatform } from './bundle-interface';
 
 export const pluginHelper = (

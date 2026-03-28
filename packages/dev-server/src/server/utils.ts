@@ -3,9 +3,8 @@
  * Consolidated from dev-server-constants.ts and dev-server-utils.ts
  */
 
-import type { OutgoingHttpHeaders } from 'node:http';
-
 import type { DevResponseHeaders, HttpRequest, DevServerConfig } from './types';
+import type { OutgoingHttpHeaders } from 'node:http';
 
 // =============================================================================
 // Constants

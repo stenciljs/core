@@ -1,11 +1,11 @@
-import { buildError } from '../../utils';
-import fs from 'graceful-fs';
 import path from 'path';
+import fs from 'graceful-fs';
 import semverLte from 'semver/functions/lte.js';
 import major from 'semver/functions/major.js';
 import satisfies from 'semver/functions/satisfies.js';
-
 import type * as d from '@stencil/core';
+
+import { buildError } from '../../utils';
 import { NodeResolveModule } from './node-resolve-module';
 
 /**

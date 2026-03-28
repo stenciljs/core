@@ -1,5 +1,6 @@
-import type * as d from '@stencil/core';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
+import type * as d from '@stencil/core';
+
 import { getNextWorker } from '../node-worker-controller';
 import { TestWorkerMain } from './fixtures/test-worker-main';
 

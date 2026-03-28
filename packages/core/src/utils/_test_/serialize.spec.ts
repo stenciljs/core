@@ -1,4 +1,5 @@
 import { expect, describe, it } from '@stencil/vitest';
+
 import { deserializeProperty, serializeProperty } from '../serialize';
 
 describe('serialize', () => {

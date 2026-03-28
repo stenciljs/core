@@ -1,7 +1,7 @@
-import { normalizePath } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { normalizePath } from '../../../utils';
 import { H } from '../core-runtime-apis';
 import { gatherVdomMeta } from './vdom';
 

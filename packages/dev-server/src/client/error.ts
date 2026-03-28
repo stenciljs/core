@@ -1,6 +1,6 @@
-import type { CompilerBuildResults, Diagnostic, PrintLine } from './types';
 // @ts-expect-error - tsdown doesn't yet have types for css imports
 import appErrorCss from './error.css?inline';
+import type { CompilerBuildResults, Diagnostic, PrintLine } from './types';
 
 interface AppErrorData {
   window: Window;

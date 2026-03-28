@@ -1,3 +1,6 @@
+import { isAbsolute } from 'path';
+import type * as d from '@stencil/core';
+
 import {
   buildError,
   isBoolean,
@@ -7,9 +10,6 @@ import {
   join,
   normalizePath,
 } from '../../utils';
-import { isAbsolute } from 'path';
-
-import type * as d from '@stencil/core';
 
 export const validateDevServer = (
   config: d.ValidatedConfig,

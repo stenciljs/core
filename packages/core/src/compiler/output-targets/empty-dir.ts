@@ -1,3 +1,5 @@
+import type * as d from '@stencil/core';
+
 import {
   isOutputTargetDist,
   isOutputTargetDistCustomElements,
@@ -7,8 +9,6 @@ import {
   isOutputTargetWww,
   isString,
 } from '../../utils';
-
-import type * as d from '@stencil/core';
 
 type OutputTargetEmptiable =
   | d.OutputTargetDist

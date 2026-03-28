@@ -1,6 +1,5 @@
 import { BUILD } from 'virtual:app-data';
 import { getHostRef } from 'virtual:platform';
-
 import type * as d from '@stencil/core';
 
 export const getElement = (ref: any) =>

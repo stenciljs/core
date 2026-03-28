@@ -1,6 +1,6 @@
-import { isObject, pluck } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isObject, pluck } from '../../utils';
 
 /**
  * Ensure that a valid baseline rollup configuration is set on the validated

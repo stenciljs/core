@@ -1,20 +1,19 @@
 import { Readable } from 'node:stream';
-
 import { hydrateFactory } from '@stencil/core/runtime/server/hydrate-factory';
-import { modeResolutionChain, setMode } from 'virtual:platform';
-import { HYDRATED_STYLE_ID } from '../../runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
-import { hasError } from '../../utils/message-utils';
-
-import { updateCanonicalLink } from '../../compiler/html/canonical-link';
-import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';
-import { removeUnusedStyles } from '../../compiler/html/remove-unused-styles';
+import { modeResolutionChain, setMode } from 'virtual:platform';
 import type {
   HydrateDocumentOptions,
   HydrateFactoryOptions,
   HydrateResults,
   SerializeDocumentOptions,
 } from '@stencil/core';
+
+import { updateCanonicalLink } from '../../compiler/html/canonical-link';
+import { relocateMetaCharset } from '../../compiler/html/relocate-meta-charset';
+import { removeUnusedStyles } from '../../compiler/html/remove-unused-styles';
+import { HYDRATED_STYLE_ID } from '../../runtime';
+import { hasError } from '../../utils/message-utils';
 import { inspectElement } from './inspect-element';
 import { patchDomImplementation } from './patch-dom-implementation';
 import {

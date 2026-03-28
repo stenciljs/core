@@ -1,4 +1,3 @@
-import { MockHeaders } from '.';
 import { createConsole } from './console';
 import { MockCustomElementRegistry } from './custom-element-registry';
 import { MockDocument, resetDocument } from './document';
@@ -25,6 +24,7 @@ import { MockPerformance, resetPerformance } from './performance';
 import { MockResizeObserver } from './resize-observer';
 import { MockShadowRoot } from './shadow-root';
 import { MockStorage } from './storage';
+import { MockHeaders } from '.';
 
 const nativeClearInterval = globalThis.clearInterval;
 const nativeClearTimeout = globalThis.clearTimeout;

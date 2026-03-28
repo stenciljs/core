@@ -1,6 +1,7 @@
-import type * as d from '@stencil/core';
 import { expect, describe, it, vi } from '@stencil/vitest';
+import type * as d from '@stencil/core';
 import type { EligiblePrimaryPackageOutputTarget } from '@stencil/core';
+
 import { DIST_TYPES, VALID_CONFIG_OUTPUT_TARGETS } from '../constants';
 import {
   filterExcludedComponents,

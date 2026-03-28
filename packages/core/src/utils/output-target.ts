@@ -1,10 +1,7 @@
-import { flatOne, sortBy } from './helpers';
-import { isGlob } from './is-glob';
-import { join, normalizePath } from './path';
-import { minimatch } from 'minimatch';
 import { basename, dirname, relative } from 'node:path';
-
+import { minimatch } from 'minimatch';
 import type * as d from '@stencil/core';
+
 import {
   COPY,
   CUSTOM,
@@ -26,6 +23,9 @@ import {
   VALID_CONFIG_OUTPUT_TARGETS,
   WWW,
 } from './constants';
+import { flatOne, sortBy } from './helpers';
+import { isGlob } from './is-glob';
+import { join, normalizePath } from './path';
 
 /**
  * Checks if a component tag name matches any of the exclude patterns.

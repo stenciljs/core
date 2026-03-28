@@ -1,5 +1,6 @@
-import { getStaticGetter, transpileModule } from './transpile';
 import { describe, expect, it } from 'vitest';
+
+import { getStaticGetter, transpileModule } from './transpile';
 
 describe('parse slotAssignment', () => {
   it('shadow without slotAssignment', () => {

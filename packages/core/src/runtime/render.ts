@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { renderVdom } from './vdom/vdom-render';
 
 /**

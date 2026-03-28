@@ -1,6 +1,6 @@
-import { isOutputTargetDocsJson, join } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { isOutputTargetDocsJson, join } from '../../../utils';
 
 export const generateJsonDocs = async (
   config: d.ValidatedConfig,

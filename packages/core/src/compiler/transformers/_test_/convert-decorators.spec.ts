@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+
 import { filterDecorators } from '../decorators-to-static/convert-decorators';
 import { getStaticGetter, transpileModule } from './transpile';
 import { c, formatCode } from './utils';

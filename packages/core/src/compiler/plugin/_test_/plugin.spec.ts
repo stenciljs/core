@@ -1,11 +1,11 @@
-// @ts-nocheck
-import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
+import path from 'path';
 import { createCompiler } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
-import { normalizePath } from '../../../utils';
-import path from 'path';
-
+// @ts-nocheck
+import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
 import type * as d from '@stencil/core';
+
+import { normalizePath } from '../../../utils';
 
 describe.skip('plugin', () => {
   let compiler: d.Compiler;

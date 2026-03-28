@@ -1,3 +1,7 @@
+import { basename, dirname } from 'path';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   isDtsFile,
   isJsFile,
@@ -9,10 +13,6 @@ import {
   normalizePath,
   resolve,
 } from '../../../utils';
-import { basename, dirname } from 'path';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 import { patchTsSystemFileSystem } from './typescript-sys';
 
 export const tsResolveModuleName = (

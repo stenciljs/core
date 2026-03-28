@@ -1,8 +1,8 @@
-import { TASK_CANCELED_MSG } from '../../utils';
 import { EventEmitter } from 'events';
 import { cpus } from 'os';
-
 import type * as d from '@stencil/core';
+
+import { TASK_CANCELED_MSG } from '../../utils';
 import { NodeWorkerMain } from './node-worker-main';
 
 /**

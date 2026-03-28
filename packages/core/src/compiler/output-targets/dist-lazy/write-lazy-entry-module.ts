@@ -1,6 +1,6 @@
-import { getSourceMappingUrlForEndOfFile, join } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { getSourceMappingUrlForEndOfFile, join } from '../../../utils';
 
 export const writeLazyModule = async (
   compilerCtx: d.CompilerCtx,

@@ -9,9 +9,9 @@
 
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, isMemberInElement, plt, win } from 'virtual:platform';
-import { isComplexType } from '../../utils/helpers';
-
 import type * as d from '@stencil/core';
+
+import { isComplexType } from '../../utils/helpers';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
 import { queueRefAttachment } from './vdom-render';
 

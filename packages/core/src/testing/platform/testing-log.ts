@@ -1,5 +1,5 @@
-import type * as d from '../../declarations';
 import { caughtErrors } from './testing-constants';
+import type * as d from '../../declarations';
 
 let customError: d.ErrorHandler | undefined;
 

@@ -1,17 +1,17 @@
-import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
-import MagicString from 'magic-string';
 import { basename } from 'path';
-import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rollup';
+import MagicString from 'magic-string';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
-import type { BundlePlatform } from './bundle-interface';
+import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rollup';
+
+import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
 import { removeCollectionImports } from '../transformers/remove-collection-imports';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_APP_DATA_ID,
   STENCIL_APP_GLOBALS_ID,
 } from './entry-alias-ids';
+import type { BundlePlatform } from './bundle-interface';
 
 /**
  * A Rollup plugin which bundles application data.

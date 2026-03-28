@@ -1,7 +1,7 @@
-import { DEFAULT_STYLE_MODE, sortBy } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { DEFAULT_STYLE_MODE, sortBy } from '../../../utils';
 import { normalizeStyles } from '../../style/normalize-styles';
 import { ConvertIdentifier, getStaticValue } from '../transform-utils';
 

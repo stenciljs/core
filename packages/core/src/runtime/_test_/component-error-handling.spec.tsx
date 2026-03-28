@@ -1,6 +1,6 @@
 import { Component, ComponentInterface, h, Prop, setErrorHandler } from '@stencil/core';
-import { expect, describe, it, vi } from '@stencil/vitest';
 import { newSpecPage } from '@stencil/core/testing';
+import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('component error handling', () => {
   it('calls a handler with an error and element during every lifecycle hook and render', async () => {

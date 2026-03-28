@@ -1,11 +1,11 @@
 import { isOutputTargetHydrate, isOutputTargetWww } from '@stencil/core/compiler/utils';
-
 import type * as d from '@stencil/core/compiler';
-import type { ConfigFlags } from '../config-flags';
+
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
 import { CoreCompiler } from '../load-compiler';
 import { hasDebug, hasVerbose, readJson, tryFn, uuidv4 } from './helpers';
 import { shouldTrack } from './shouldTrack';
+import type { ConfigFlags } from '../config-flags';
 import type { TaskCommand } from '../types';
 
 type TelemetryCallback = (...args: any[]) => void | Promise<void>;

@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { validateManifestJson } from '../html/validate-manifest-json';
 import { validateBuildPackageJson } from '../types/validate-build-package-json';
 

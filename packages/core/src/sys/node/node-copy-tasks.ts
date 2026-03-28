@@ -1,8 +1,8 @@
-import { buildError, catchError, flatOne, isGlob, normalizePath } from '../../utils';
-import { glob } from 'glob';
 import path from 'path';
-
+import { glob } from 'glob';
 import type * as d from '@stencil/core';
+
+import { buildError, catchError, flatOne, isGlob, normalizePath } from '../../utils';
 import { copyFile, mkdir, readdir, stat } from './node-fs-promisify';
 
 export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: string) {

@@ -8,18 +8,18 @@
  */
 
 import { DEV_SERVER_INIT_URL, OPEN_IN_EDITOR_URL } from './constants';
-import { emitBuildStatus, onBuildResults } from './events';
 import { appError, clearAppErrorModal } from './error';
+import { emitBuildStatus, onBuildResults } from './events';
 import { hmrWindow } from './hmr/window';
 import { logBuild, logDiagnostic, logReload, logWarn } from './logger';
 import { initBuildProgress, initBuildStatus } from './status';
+import { initClientWebSocket } from './websocket';
 import type {
   CompilerBuildResults,
   DevClientConfig,
   DevClientWindow,
   HotModuleReplacement,
 } from './types';
-import { initClientWebSocket } from './websocket';
 
 // Re-export everything for external use
 export * from './constants';

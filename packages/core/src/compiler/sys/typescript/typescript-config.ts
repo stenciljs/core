@@ -1,3 +1,7 @@
+import { isAbsolute } from 'path';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
 import {
   buildError,
   buildWarn,
@@ -8,10 +12,6 @@ import {
   normalizePath,
   relative,
 } from '../../../utils';
-import { isAbsolute } from 'path';
-import ts from 'typescript';
-
-import type * as d from '@stencil/core';
 
 export const validateTsConfig = async (
   config: d.ValidatedConfig,

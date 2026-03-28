@@ -1,6 +1,6 @@
-import { catchError, hasError } from '../../utils/message-utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError, hasError } from '../../utils/message-utils';
 import { parseCss } from '../style/css-parser/parse-css';
 import { serializeCss } from '../style/css-parser/serialize-css';
 import { getUsedSelectors, UsedSelectors } from '../style/css-parser/used-selectors';

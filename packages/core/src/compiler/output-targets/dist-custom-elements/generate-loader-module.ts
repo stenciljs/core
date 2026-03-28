@@ -1,4 +1,5 @@
 import type * as d from '@stencil/core';
+
 import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 
 /**

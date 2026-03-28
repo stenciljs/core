@@ -1,8 +1,9 @@
-import type * as d from '@stencil/core';
-import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import os from 'os';
 import path from 'path';
+import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
+
 import { optimizeCss } from '../optimize-css';
 
 describe('optimizeCss', () => {

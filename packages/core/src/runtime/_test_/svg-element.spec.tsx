@@ -1,9 +1,9 @@
 // @vitest-environment stencil
 
 import { Component, h } from '@stencil/core';
+import { Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
-import { Prop } from '@stencil/core';
 
 describe('SVG element', () => {
   it('should render #text nodes', async () => {

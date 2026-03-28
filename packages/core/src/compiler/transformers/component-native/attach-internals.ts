@@ -1,5 +1,5 @@
-import type * as d from '@stencil/core';
 import ts from 'typescript';
+import type * as d from '@stencil/core';
 
 /**
  * Create a binding for an `ElementInternals` object compatible with a 'native'

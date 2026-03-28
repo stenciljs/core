@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
+
 import { MockDocument } from '../document';
 import { EMPTY_ELEMENTS, serializeNodeToHtml } from '../serialize-node';
 

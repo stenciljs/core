@@ -1,3 +1,4 @@
+import path from 'path';
 import {
   mockBuildCtx,
   mockCompilerCtx,
@@ -6,10 +7,9 @@ import {
   mockValidatedConfig,
 } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
-import { DIST_CUSTOM_ELEMENTS, normalizePath } from '../../../utils';
-import path from 'path';
-
 import type * as d from '@stencil/core';
+
+import { DIST_CUSTOM_ELEMENTS, normalizePath } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../dist-custom-elements';
 import { generateCustomElementsTypes } from '../dist-custom-elements/custom-elements-types';

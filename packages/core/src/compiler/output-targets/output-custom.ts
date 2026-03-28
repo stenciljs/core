@@ -1,6 +1,6 @@
-import { catchError, isOutputTargetCustom } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError, isOutputTargetCustom } from '../../utils';
 import { generateDocData } from '../docs/generate-doc-data';
 
 export const outputCustom = async (

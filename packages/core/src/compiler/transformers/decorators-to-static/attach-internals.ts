@@ -1,7 +1,7 @@
-import { buildError } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { buildError } from '../../../utils';
 import {
   convertValueToLiteral,
   createStaticGetter,

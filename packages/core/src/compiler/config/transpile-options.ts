@@ -1,7 +1,3 @@
-import { isString } from '../../utils';
-import { createNodeSys } from '../../sys/node';
-import type { CompilerOptions } from 'typescript';
-
 import type {
   CompilerSystem,
   Config,
@@ -11,6 +7,10 @@ import type {
   TranspileOptions,
   TranspileResults,
 } from '@stencil/core';
+import type { CompilerOptions } from 'typescript';
+
+import { createNodeSys } from '../../sys/node';
+import { isString } from '../../utils';
 import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../bundle/entry-alias-ids';
 import { parseImportPath } from '../transformers/stencil-import-path';
 

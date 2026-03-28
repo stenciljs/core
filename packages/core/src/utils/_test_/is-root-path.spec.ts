@@ -1,5 +1,6 @@
-import { isRootPath } from '../is-root-path';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { isRootPath } from '../is-root-path';
 
 describe('isRootPath', () => {
   it('is root', () => {

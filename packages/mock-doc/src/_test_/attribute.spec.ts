@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from '@stencil/vitest';
-import { XLINK_NS } from '../constants';
+
 import { MockAttr, MockAttributeMap } from '../attribute';
+import { XLINK_NS } from '../constants';
 import { MockDocument } from '../document';
 import { MockElement, MockHTMLElement } from '../node';
 

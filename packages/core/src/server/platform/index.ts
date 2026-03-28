@@ -5,10 +5,10 @@
  **/
 
 import { BUILD } from 'virtual:app-data';
-import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
-
 import type * as d from '@stencil/core';
+
 import { CMP_FLAGS } from '../../utils/constants';
+import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 
 /**
  * Access transformTag via the closure-scoped $stencilTagTransform object.

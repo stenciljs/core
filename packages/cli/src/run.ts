@@ -1,12 +1,12 @@
-import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
-
-import type * as d from '@stencil/core/compiler';
 import { ValidatedConfig } from '@stencil/core/compiler';
+import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
+import type * as d from '@stencil/core/compiler';
+
 import { ConfigFlags, createConfigFlags } from './config-flags';
 import { findConfig } from './find-config';
-import { mergeFlags } from './merge-flags';
 import { CoreCompiler, loadCoreCompiler } from './load-compiler';
 import { loadedCompilerLog, startupLog, startupLogVersion } from './logs';
+import { mergeFlags } from './merge-flags';
 import { parseFlags } from './parse-flags';
 import { taskBuild } from './task-build';
 import { taskDocs } from './task-docs';

@@ -1,5 +1,6 @@
 import * as d from '@stencil/core';
 import { UnvalidatedConfig } from '@stencil/core';
+
 import { isHexColor } from '../docs/readme/docs-util';
 import { DEFAULT_TARGET_COMPONENT_STYLES } from './constants';
 

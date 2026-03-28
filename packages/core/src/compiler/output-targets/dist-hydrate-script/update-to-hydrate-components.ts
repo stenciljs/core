@@ -1,6 +1,6 @@
-import { dashToPascalCase, sortBy, toTitleCase } from '../../../utils';
-
 import type * as d from '@stencil/core';
+
+import { dashToPascalCase, sortBy, toTitleCase } from '../../../utils';
 
 export const updateToHydrateComponents = async (cmps: d.ComponentCompilerMeta[]) => {
   const hydrateCmps = await Promise.all(cmps.map(updateToHydrateComponent));

@@ -1,6 +1,7 @@
+import { describe, it, expect } from 'vitest';
+
 import { parseCss } from '../parse-css';
 import { serializeCss } from '../serialize-css';
-import { describe, it, expect } from 'vitest';
 
 describe('css parse/serialize', () => {
   // Modified tests from Rework CSS

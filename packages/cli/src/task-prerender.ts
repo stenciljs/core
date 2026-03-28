@@ -4,9 +4,10 @@ import type {
   Diagnostic,
   ValidatedConfig,
 } from '@stencil/core/compiler';
+
+import { startupCompilerLog } from './logs';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
-import { startupCompilerLog } from './logs';
 
 export const taskPrerender = async (
   coreCompiler: CoreCompiler,

@@ -1,7 +1,7 @@
-import { join } from '../../../utils';
 import { dirname, extname } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { join } from '../../../utils';
 
 /**
  * Create a copy of a given file in its current directory but with a filename

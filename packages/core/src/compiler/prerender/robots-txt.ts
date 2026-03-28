@@ -1,6 +1,6 @@
-import { catchError, join } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { catchError, join } from '../../utils';
 import { getSitemapUrls } from './sitemap-xml';
 
 export const generateRobotsTxt = async (

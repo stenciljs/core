@@ -1,7 +1,7 @@
-import { augmentDiagnosticWithNode, buildError } from '../../../utils';
 import ts from 'typescript';
-
 import type * as d from '@stencil/core';
+
+import { augmentDiagnosticWithNode, buildError } from '../../../utils';
 import { retrieveTsDecorators, retrieveTsModifiers, updateConstructor } from '../transform-utils';
 import { attachInternalsDecoratorsToStatic } from './attach-internals';
 import { componentDecoratorToStatic } from './component-decorator';
@@ -13,9 +13,9 @@ import { ImportAliasMap } from './import-alias-map';
 import { listenDecoratorsToStatic } from './listen-decorator';
 import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
+import { serializeDecoratorsToStatic } from './serialize-decorators';
 import { stateDecoratorsToStatic } from './state-decorator';
 import { watchDecoratorsToStatic } from './watch-decorator';
-import { serializeDecoratorsToStatic } from './serialize-decorators';
 
 /**
  * Create a {@link ts.TransformerFactory} which will handle converting any

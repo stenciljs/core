@@ -1,12 +1,9 @@
-import { isFunction, normalizePath } from '../../utils';
 import { createHash } from 'node:crypto';
-import fs from 'graceful-fs';
 import { cpus, freemem, platform, release, tmpdir, totalmem } from 'node:os';
 import * as os from 'node:os';
 import path from 'node:path';
 import * as parcelWatcher from '@parcel/watcher';
-
-import { buildEvents } from '../../compiler/events';
+import fs from 'graceful-fs';
 import type {
   CompilerFileWatcher,
   CompilerFileWatcherCallback,
@@ -17,6 +14,9 @@ import type {
   CompilerSystemWriteFileResults,
   Logger,
 } from '@stencil/core';
+
+import { buildEvents } from '../../compiler/events';
+import { isFunction, normalizePath } from '../../utils';
 import { asyncGlob, nodeCopyTasks } from './node-copy-tasks';
 import { NodeLazyRequire } from './node-lazy-require';
 import { NodeResolveModule } from './node-resolve-module';

@@ -1,7 +1,8 @@
+import { describe, expect, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
+
 import { createSystem } from '../../stencil-sys';
 import { ensureExtension } from '../typescript-resolve-module';
-import { describe, expect, it, beforeEach } from 'vitest';
 
 describe('typescript resolve module', () => {
   const config: d.Config = { rootDir: '/some/path' };

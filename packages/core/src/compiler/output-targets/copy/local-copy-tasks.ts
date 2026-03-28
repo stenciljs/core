@@ -1,7 +1,7 @@
-import { join } from '../../../utils';
 import { isAbsolute } from 'path';
-
 import type * as d from '@stencil/core';
+
+import { join } from '../../../utils';
 
 export const getSrcAbsPath = (config: d.ValidatedConfig, src: string) => {
   if (isAbsolute(src)) {

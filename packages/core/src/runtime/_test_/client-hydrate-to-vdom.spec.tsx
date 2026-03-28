@@ -1,8 +1,8 @@
-import { expect, describe, it } from '@stencil/vitest';
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
-
+import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
+
 import { initializeClientHydrate } from '../client-hydrate';
 
 describe('initializeClientHydrate', () => {

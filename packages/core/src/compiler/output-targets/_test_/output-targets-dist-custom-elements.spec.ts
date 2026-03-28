@@ -1,3 +1,5 @@
+import path from 'path';
+import { OutputTargetDistCustomElements } from '@stencil/core';
 import {
   mockBuildCtx,
   mockCompilerCtx,
@@ -6,11 +8,9 @@ import {
   mockValidatedConfig,
 } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
-import path from 'path';
-
 import type * as d from '@stencil/core';
-import { OutputTargetDistCustomElements } from '@stencil/core';
+
+import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
 import {
   STENCIL_APP_GLOBALS_ID,
   STENCIL_INTERNAL_CLIENT_PLATFORM_ID,

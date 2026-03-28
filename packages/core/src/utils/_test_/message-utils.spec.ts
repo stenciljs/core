@@ -1,5 +1,6 @@
-import type * as d from '@stencil/core';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
+import type * as d from '@stencil/core';
+
 import { catchError } from '../message-utils';
 
 describe('message-utils', () => {

@@ -11,6 +11,7 @@ import {
 } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
 import { withSilentWarn } from '../../testing/testing-utils';
 
 describe('render-vdom', () => {

@@ -1,6 +1,6 @@
-import { buildError, dashToPascalCase, isOutputTargetDist, isString } from '../../utils';
-
 import type * as d from '@stencil/core';
+
+import { buildError, dashToPascalCase, isOutputTargetDist, isString } from '../../utils';
 import { DEFAULT_NAMESPACE } from './constants';
 
 /**

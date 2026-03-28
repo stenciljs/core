@@ -4,8 +4,9 @@
  */
 
 import * as path from 'node:path';
-import type { ServerResponse } from 'node:http';
 
+import { appendDevServerClientScript } from './handlers';
+import { getSsrStaticDataPath, responseHeaders } from './utils';
 import type {
   DevServerConfig,
   DevServerContext,
@@ -14,8 +15,7 @@ import type {
   PrerenderHydrateOptions,
   HydrateResults,
 } from './types';
-import { getSsrStaticDataPath, responseHeaders } from './utils';
-import { appendDevServerClientScript } from './handlers';
+import type { ServerResponse } from 'node:http';
 
 // =============================================================================
 // Types

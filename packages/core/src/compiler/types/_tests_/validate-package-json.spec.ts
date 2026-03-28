@@ -1,9 +1,9 @@
-import type * as d from '@stencil/core';
-import { describe, expect, it, beforeEach } from 'vitest';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
-import { normalizePath } from '../../../utils';
 import path from 'path';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it, beforeEach } from 'vitest';
+import type * as d from '@stencil/core';
 
+import { normalizePath } from '../../../utils';
 import * as v from '../validate-build-package-json';
 
 describe('validate-package-json', () => {

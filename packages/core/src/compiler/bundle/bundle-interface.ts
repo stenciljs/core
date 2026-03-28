@@ -1,7 +1,6 @@
+import type { BuildConditionals } from '@stencil/core';
 import type { PreserveEntrySignaturesOption } from 'rollup';
 import type { SourceFile, TransformerFactory } from 'typescript';
-
-import type { BuildConditionals } from '@stencil/core';
 
 /**
  * Options for bundled output passed on Rollup
