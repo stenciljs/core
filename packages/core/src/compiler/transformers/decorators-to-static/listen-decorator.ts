@@ -66,11 +66,7 @@ const parseListenDecorators = (
   });
 };
 
-const parseListener = (
-  eventName: string,
-  opts: d.ListenOptions = {},
-  methodName: string,
-) => {
+const parseListener = (eventName: string, opts: d.ListenOptions = {}, methodName: string) => {
   const rawEventName = eventName.trim();
   const listener: d.ComponentCompilerListener = {
     name: rawEventName,

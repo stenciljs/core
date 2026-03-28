@@ -1077,30 +1077,6 @@ export const mapJSDocTagInfo = (tags: readonly ts.JSDocTagInfo[]): d.CompilerJsD
   return tags.map((tag) => ({ ...tag, text: tag.text?.map((part) => part.text).join('') }));
 };
 
-const serializeDocsSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol) => {
-  const type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
-  // TODO(STENCIL-365): Replace this with `return resolveType()`;
-  const set = new Set<string>();
-  parseDocsType(checker, type, set);
-
-  // normalize booleans
-  const hasTrue = set.delete('true');
-  const hasFalse = set.delete('false');
-  if (hasTrue || hasFalse) {
-    set.add('boolean');
-  }
-
-  let parts = Array.from(set.keys()).sort();
-  if (parts.length > 1) {
-    parts = parts.map((p) => (p.indexOf('=>') >= 0 ? `(${p})` : p));
-  }
-  if (parts.length > 20) {
-    return typeToString(checker, type);
-  } else {
-    return parts.join(' | ');
-  }
-};
-
 /**
  * Given the JSDoc for a given bit of code, determine whether or not it is
  * marked 'internal'

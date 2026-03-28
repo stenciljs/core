@@ -172,4 +172,3 @@ export function expectFilesDoNotExist(fs: InMemoryFileSystem, filePaths: string[
     );
   }
 }
-

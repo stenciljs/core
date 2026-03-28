@@ -132,20 +132,6 @@ export const hasHtmlChanges = (config: d.ValidatedConfig, buildCtx: d.BuildCtx):
   return srcIndexHtmlChanged;
 };
 
-const updateCacheFromRebuild = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
-  buildCtx.filesChanged.forEach((filePath) => {
-    compilerCtx.fs.clearFileCache(filePath);
-  });
-
-  buildCtx.dirsAdded.forEach((dirAdded) => {
-    compilerCtx.fs.clearDirCache(dirAdded);
-  });
-
-  buildCtx.dirsDeleted.forEach((dirDeleted) => {
-    compilerCtx.fs.clearDirCache(dirDeleted);
-  });
-};
-
 /**
  * Checks if a path is ignored by the watch configuration
  *

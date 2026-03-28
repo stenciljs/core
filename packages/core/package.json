@@ -39,7 +39,7 @@
       "types": "./dist/compiler/index.d.mts",
       "import": "./dist/compiler/index.mjs"
     },
-     "./compiler/utils": {
+    "./compiler/utils": {
       "types": "./dist/compiler/utils/index.d.mts",
       "import": "./dist/compiler/utils/index.mjs"
     },

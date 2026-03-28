@@ -59,12 +59,7 @@ const visitCallExpressionArgs = (
     if (fnName === 'h' || fnName === H) {
       gatherVdomMeta(m, args);
     }
-  } else if (
-    fnName === 'jsx' ||
-    fnName === 'jsxs' ||
-    fnName === '_jsx' ||
-    fnName === '_jsxs'
-  ) {
+  } else if (fnName === 'jsx' || fnName === 'jsxs' || fnName === '_jsx' || fnName === '_jsxs') {
     // Handle jsx-runtime calls (jsx, jsxs)
     // These have the same signature as h() for metadata purposes
     visitCallExpressionArg(m, args[0], typeChecker);

@@ -15,7 +15,7 @@
         "src/testing/platform/index.ts",
         "src/testing/app-data.ts"
       ],
-       "ignore": ["src/**/_test_/**"],
+      "ignore": ["src/**/_test_/**"],
       "ignoreDependencies": ["vitest-environment-stencil"]
     },
     "packages/cli": {},
