@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-export let tagTransformer: d.TagTransformer | undefined = undefined;
+let tagTransformer: d.TagTransformer | undefined = undefined;
 
 /**
  * Transforms a tag name using the current tag transformer
@@ -17,11 +17,5 @@ export function transformTag<T extends string>(tag: T): T {
  * @param transformer the transformer function to use. Must return a string
  */
 export function setTagTransformer(transformer: d.TagTransformer) {
-  if (tagTransformer) {
-    console.warn(`
-      A tagTransformer has already been set. 
-      Overwriting it may lead to error and unexpected results if your components have already been defined.
-    `);
-  }
   tagTransformer = transformer;
 }

@@ -39,13 +39,26 @@
       "types": "./dist/compiler/index.d.mts",
       "import": "./dist/compiler/index.mjs"
     },
+     "./compiler/utils": {
+      "types": "./dist/compiler/utils/index.d.mts",
+      "import": "./dist/compiler/utils/index.mjs"
+    },
+    "./jsx-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "import": "./jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./jsx-runtime.d.ts",
+      "import": "./jsx-runtime.js"
+    },
+    "./mock-doc": {
+      "types": "./dist/mock-doc.d.mts",
+      "import": "./dist/mock-doc.mjs",
+      "default": "./dist/mock-doc.mjs"
+    },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
-    },
-    "./runtime/client": {
-      "types": "./dist/runtime/client/index.d.ts",
-      "import": "./dist/runtime/client/index.js"
     },
     "./runtime/app-data": {
       "types": "./dist/runtime/app-data/index.d.ts",
@@ -55,6 +68,10 @@
       "types": "./dist/runtime/app-globals/index.d.ts",
       "import": "./dist/runtime/app-globals/index.js"
     },
+    "./runtime/client": {
+      "types": "./dist/runtime/client/index.d.ts",
+      "import": "./dist/runtime/client/index.js"
+    },
     "./runtime/server": {
       "types": "./dist/runtime/server/index.d.mts",
       "import": "./dist/runtime/server/index.mjs"
@@ -63,10 +80,6 @@
       "types": "./dist/runtime/server/runner.d.mts",
       "import": "./dist/runtime/server/runner.mjs"
     },
-    "./compiler/utils": {
-      "types": "./dist/compiler/utils/index.d.mts",
-      "import": "./dist/compiler/utils/index.mjs"
-    },
     "./sys/node": {
       "types": "./dist/sys/node/index.d.mts",
       "import": "./dist/sys/node/index.mjs"
@@ -74,11 +87,6 @@
     "./testing": {
       "types": "./dist/testing/index.d.mts",
       "import": "./dist/testing/index.mjs"
-    },
-    "./mock-doc": {
-      "types": "./dist/mock-doc.d.mts",
-      "import": "./dist/mock-doc.mjs",
-      "default": "./dist/mock-doc.mjs"
     }
   },
   "scripts": {

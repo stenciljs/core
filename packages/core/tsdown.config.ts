@@ -168,6 +168,7 @@ export default defineConfig([
       'runtime/index': 'src/runtime/index.ts',
       'runtime/app-data/index': 'src/app-data/index.ts',
       'runtime/app-globals/index': 'src/app-globals/index.ts',
+      'jsx-runtime': 'src/runtime/vdom/jsx-runtime.ts',
     },
     outDir: 'dist',
     format: ['esm'],
