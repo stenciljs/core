@@ -5,6 +5,33 @@ import type * as d from '@stencil/core';
 import { buildError, catchError, flatOne, isGlob, normalizePath } from '../../utils';
 import { copyFile, mkdir, readdir, stat } from './node-fs-promisify';
 
+/**
+ * Copy a file with retry logic for transient Windows errors (EBUSY, EPERM, EACCES).
+ * These errors commonly occur on Windows CI when antivirus or indexing services
+ * temporarily lock files.
+ *
+ * @param src - The source file path to copy from
+ * @param dest - The destination file path to copy to
+ * @param maxRetries - Maximum number of retry attempts (default: 3)
+ * @returns A promise that resolves when the file is successfully copied
+ * @throws The original error if all retry attempts fail or the error is not retryable
+ */
+async function copyFileWithRetry(src: string, dest: string, maxRetries = 3): Promise<void> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      await copyFile(src, dest);
+      return;
+    } catch (err: any) {
+      const isRetryable = ['EBUSY', 'EPERM', 'EACCES'].includes(err.code);
+      if (!isRetryable || attempt === maxRetries) {
+        throw err;
+      }
+      // Exponential backoff: 100ms, 200ms, 400ms
+      await new Promise((resolve) => setTimeout(resolve, 100 * Math.pow(2, attempt)));
+    }
+  }
+}
+
 export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: string) {
   const results: d.CopyResults = {
     diagnostics: [],
@@ -35,7 +62,7 @@ export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: s
     while (allCopyTasks.length > 0) {
       const tasks = allCopyTasks.splice(0, 100);
 
-      await Promise.all(tasks.map((copyTask) => copyFile(copyTask.src, copyTask.dest)));
+      await Promise.all(tasks.map((copyTask) => copyFileWithRetry(copyTask.src, copyTask.dest)));
     }
   } catch (e: any) {
     catchError(results.diagnostics, e);

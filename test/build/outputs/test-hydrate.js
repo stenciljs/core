@@ -1,12 +1,12 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createDocument } from '@stencil/mock-doc';
 import whyIsNodeRunning from 'why-is-node-running';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');
 
-const hydrate = await import(path.join(e2eDir, 'hydrate', 'index.mjs'));
+const hydrate = await import(pathToFileURL(path.join(e2eDir, 'hydrate', 'index.mjs')).href);
 
 async function main() {
   const html = `
