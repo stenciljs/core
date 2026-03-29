@@ -33,6 +33,9 @@ jobs:
           name: stencil-build
           path: packages/
 
+      - name: Install Playwright Browsers
+        uses: ./.github/workflows/actions/install-playwright
+
       - name: Runtime Tests
         run: pnpm --filter "@stencil-core-tests/runtime" test
         shell: bash
