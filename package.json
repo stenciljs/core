@@ -32,9 +32,13 @@
     "lint:check": "oxlint packages/",
     "test": "pnpm --stream --filter './packages/*' run test",
     "test:watch": "pnpm --parallel --stream --filter './packages/*' run test --watch",
-    "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck"
+    "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "pnpm build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.0",
     "@types/node": "^24",
     "knip": "^6.1.0",
     "oxfmt": "^0.42.0",

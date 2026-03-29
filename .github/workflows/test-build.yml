@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Build Tests
 
 on:
   workflow_call:
@@ -7,8 +7,8 @@ permissions:
   contents: read
 
 jobs:
-  unit_test:
-    name: Unit (${{ matrix.os }}, node ${{ matrix.node }})
+  test_build:
+    name: Build (${{ matrix.os }}, node ${{ matrix.node }})
     strategy:
       fail-fast: false
       matrix:
@@ -33,6 +33,6 @@ jobs:
           name: stencil-build
           path: packages/
 
-      - name: Unit Tests
-        run: pnpm test
+      - name: Build Tests
+        run: pnpm --filter "@stencil-core-tests/build" test
         shell: bash

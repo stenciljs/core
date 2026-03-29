@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - 'main'
-      - 'stencil/v4-dev'
+      - 'v5'
   pull_request:
     branches:
       - '**'
@@ -18,55 +18,48 @@ permissions:
   contents: read
 
 jobs:
-  build_core:
+  # Quality and Build run in parallel
+  quality:
+    name: Quality
+    uses: ./.github/workflows/quality.yml
+
+  build:
     name: Build
     uses: ./.github/workflows/build.yml
 
-  lint_and_format:
-    name: Lint and Format
-    uses: ./.github/workflows/lint-and-format.yml
+  # Unit tests run after build
+  unit_tests:
+    name: Unit Tests
+    needs: [build]
+    uses: ./.github/workflows/test-unit.yml
 
-  type_tests:
-    name: Type Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-types.yml
+  # Integration test suites run after unit tests
+  build_tests:
+    name: Build Tests
+    needs: [unit_tests]
+    uses: ./.github/workflows/test-build.yml
 
-  analysis_tests:
-    name: Analysis Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-analysis.yml
+  integration_tests:
+    name: Integration Tests
+    needs: [unit_tests]
+    uses: ./.github/workflows/test-integration.yml
 
-  docs_build_tests:
-    name: Docs Build Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-docs-build.yml
+  runtime_tests:
+    name: Runtime Tests
+    needs: [unit_tests]
+    uses: ./.github/workflows/test-runtime.yml
 
-  bundler_tests:
-    name: Bundler Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-bundlers.yml
+  special_config_tests:
+    name: Special Config Tests
+    needs: [unit_tests]
+    uses: ./.github/workflows/test-special-config.yml
 
-  copytask_tests:
-    name: Copy Task Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-copytask.yml
+  ssr_tests:
+    name: SSR Tests
+    needs: [unit_tests]
+    uses: ./.github/workflows/test-ssr.yml
 
   component_starter_tests:
     name: Component Starter Smoke Test
-    needs: [build_core]
+    needs: [unit_tests]
     uses: ./.github/workflows/test-component-starter.yml
-
-  e2e_tests:
-    name: E2E Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-e2e.yml
-
-  unit_tests:
-    name: Unit Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-unit.yml
-
-  wdio_tests:
-    name: WebdriverIO Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-wdio.yml
