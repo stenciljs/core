@@ -48,7 +48,7 @@ jobs:
         shell: bash
 
       - name: Install Stencil from Pack
-        run: npm install ../stencil-core-*.tgz
+        run: npm install ../stencil-core-*.tgz --legacy-peer-deps
         working-directory: ./tmp-component-starter
         shell: bash
 
