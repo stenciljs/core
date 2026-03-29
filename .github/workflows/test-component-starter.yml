@@ -43,7 +43,7 @@ jobs:
         shell: bash
 
       - name: Install Component Starter Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
         working-directory: ./tmp-component-starter
         shell: bash
 
