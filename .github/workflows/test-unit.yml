@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   unit_test:
-    name: Unit
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

@@ -4,6 +4,7 @@
  */
 
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { appendDevServerClientScript } from './handlers';
 import { getSsrStaticDataPath, responseHeaders } from './utils';
@@ -215,8 +216,9 @@ async function setupHydrateApp(
       try {
         // Use cache-busting query string for ESM dynamic import
         // This ensures we get a fresh module on each build
-        const cacheBuster = `?t=${Date.now()}`;
-        const hydrateModule = await import(`file://${hydrateAppFilePath}${cacheBuster}`);
+        const hydrateUrl = pathToFileURL(hydrateAppFilePath);
+        hydrateUrl.search = `?t=${Date.now()}`;
+        const hydrateModule = await import(hydrateUrl.href);
         hydrateApp = hydrateModule.default || hydrateModule;
       } catch (e) {
         catchError(diagnostics, e);

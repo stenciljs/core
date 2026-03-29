@@ -6,6 +6,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import * as zlib from 'node:zlib';
 
 import { getEditors, serveOpenInEditor } from './editor';
@@ -50,7 +51,7 @@ export function createRequestHandler(
     if (!userHandlerLoaded && typeof devServerConfig.requestListenerPath === 'string') {
       userHandlerLoaded = true;
       try {
-        const userModule = await import(devServerConfig.requestListenerPath);
+        const userModule = await import(pathToFileURL(devServerConfig.requestListenerPath).href);
         userRequestHandler = userModule.default || userModule;
       } catch (e) {
         console.error('Failed to load user request handler:', e);

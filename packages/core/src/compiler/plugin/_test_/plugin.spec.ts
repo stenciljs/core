@@ -1,7 +1,7 @@
+// @ts-nocheck
 import path from 'path';
 import { createCompiler } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
-// @ts-nocheck
 import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 

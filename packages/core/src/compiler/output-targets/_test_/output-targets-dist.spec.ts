@@ -1,5 +1,6 @@
-import path from 'path';
 // @ts-nocheck
+
+import path from 'path';
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import { describe, it, expect } from 'vitest';

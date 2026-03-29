@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   quality:
-    name: Check
+    name: Quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

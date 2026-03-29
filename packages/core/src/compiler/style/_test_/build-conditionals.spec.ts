@@ -1,6 +1,6 @@
-import path from 'path';
 // @ts-nocheck
 // TODO(STENCIL-463): as part of getting these tests to pass, remove // @ts-nocheck
+import path from 'path';
 import { Compiler, Config } from '@stencil/core';
 import { mockConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach } from 'vitest';
