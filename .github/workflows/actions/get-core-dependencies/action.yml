@@ -15,3 +15,7 @@ runs:
     - name: Install Dependencies
       run: pnpm install --frozen-lockfile
       shell: bash
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      shell: bash

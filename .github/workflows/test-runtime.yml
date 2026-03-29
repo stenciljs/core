@@ -33,10 +33,6 @@ jobs:
           name: stencil-build
           path: packages/
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-        shell: bash
-
       - name: Runtime Tests
         run: pnpm --filter "@stencil-core-tests/runtime" test
         shell: bash
