@@ -18,48 +18,48 @@ permissions:
   contents: read
 
 jobs:
-  # Quality and Build run in parallel
-  quality:
-    name: Quality
-    uses: ./.github/workflows/quality.yml
-
+  # Build runs first
   build:
     name: Build
     uses: ./.github/workflows/build.yml
 
-  # Unit tests run after build
+  # Everything else runs in parallel after build
+  quality:
+    name: Quality
+    needs: [build]
+    uses: ./.github/workflows/quality.yml
+
   unit_tests:
     name: Unit Tests
     needs: [build]
     uses: ./.github/workflows/test-unit.yml
 
-  # Integration test suites run after unit tests
   build_tests:
     name: Build Tests
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-build.yml
 
   integration_tests:
     name: Integration Tests
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-integration.yml
 
   runtime_tests:
     name: Runtime Tests
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-runtime.yml
 
   special_config_tests:
     name: Special Config Tests
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-special-config.yml
 
   ssr_tests:
     name: SSR Tests
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-ssr.yml
 
   component_starter_tests:
     name: Component Starter Smoke Test
-    needs: [unit_tests]
+    needs: [build]
     uses: ./.github/workflows/test-component-starter.yml
