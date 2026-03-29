@@ -31,7 +31,7 @@
   },
   "scripts": {
     "build": "rimraf ./dist && stencil build",
-    "test": "npm run build && tsx validate.mts"
+    "test": "npm run build && node validate.js"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"

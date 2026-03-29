@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { cpus, freemem, platform, release, tmpdir, totalmem } from 'node:os';
 import * as os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import * as parcelWatcher from '@parcel/watcher';
 import fs from 'graceful-fs';
 import type {
@@ -159,8 +160,8 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       destroys.clear();
     },
     dynamicImport(p) {
-      // Use native import() for proper ESM support
-      return import(p);
+      // Use pathToFileURL for proper Windows support (drive letters like D: would be interpreted as URL schemes)
+      return import(pathToFileURL(p).href);
     },
     encodeToBase64(str) {
       return Buffer.from(str).toString('base64');

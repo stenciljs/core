@@ -5,7 +5,8 @@ runs:
   steps:
     - name: Get Playwright version
       id: playwright-version
-      run: echo "version=$(pnpm --filter @stencil-core-tests/ssr exec playwright --version)" >> $GITHUB_OUTPUT
+      working-directory: test/ssr
+      run: echo "version=$(npx playwright --version)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Cache Playwright browsers
@@ -20,10 +21,12 @@ runs:
 
     - name: Install Playwright Browsers
       if: steps.playwright-cache.outputs.cache-hit != 'true'
-      run: pnpm --filter "@stencil-core-tests/ssr" exec playwright install --with-deps
+      working-directory: test/ssr
+      run: npx playwright install --with-deps
       shell: bash
 
     - name: Install Playwright system deps (cache hit)
       if: steps.playwright-cache.outputs.cache-hit == 'true' && runner.os == 'Linux'
-      run: pnpm --filter "@stencil-core-tests/ssr" exec playwright install-deps
+      working-directory: test/ssr
+      run: npx playwright install-deps
       shell: bash
