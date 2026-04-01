@@ -140,6 +140,11 @@ export const validateConfig = (
     ...validatePaths(config),
   };
 
+  // Set the log file path on the logger if writeLog is enabled
+  if (validatedConfig.buildLogFilePath) {
+    logger.setLogFilePath(validatedConfig.buildLogFilePath);
+  }
+
   validatedConfig.extras.lifecycleDOMEvents = !!validatedConfig.extras.lifecycleDOMEvents;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
   validatedConfig.extras.tagNameTransform = !!validatedConfig.extras.tagNameTransform;

@@ -1,0 +1,121 @@
+name: 'Stencil Prerelease'
+
+on:
+  workflow_call:
+    inputs:
+      prerelease-tag:
+        required: true
+        type: string
+        description: 'Prerelease tag (alpha, beta, or rc)'
+        default: alpha
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release-prerelease:
+    name: Publish Stencil Prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: 🔒 Log GitHub Workflow UI Input
+        run: |
+          echo "Prerelease Tag: ${{ inputs.prerelease-tag }}"
+        shell: bash
+
+      - name: 🔎 Validate Prerelease Tag
+        run: |
+          TAG="${{ inputs.prerelease-tag }}"
+          if [[ ! "$TAG" =~ ^(alpha|beta|rc)$ ]]; then
+            echo "Invalid prerelease tag: $TAG. Must be one of: alpha, beta, rc"
+            exit 1
+          fi
+        shell: bash
+
+      - name: 📥 Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: v5
+
+      - name: � Get pnpm Version
+        id: pnpm-version
+        run: |
+          VERSION=$(node -p "require('./package.json').packageManager.split('@')[1]")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: ${{ steps.pnpm-version.outputs.version }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+
+      - name: 🔎 Get Current Version
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: ⬆️ Bump Prerelease Version
+        run: |
+          TAG="${{ inputs.prerelease-tag }}"
+          # Bump root package version
+          npm version prerelease --preid=$TAG --no-git-tag-version
+          # Bump all workspace package versions
+          pnpm -r exec npm version prerelease --preid=$TAG --no-git-tag-version
+        shell: bash
+
+      - name: 🔎 Get New Version
+        id: new-version
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: 🔨 Build Packages
+        run: pnpm build
+        shell: bash
+
+      - name: 🚀 Publish Packages
+        # npm provenance uses OIDC tokens via id-token: write permission
+        # setup-node with registry-url handles authentication automatically
+        run: pnpm --filter './packages/**' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
+        shell: bash
+
+      - name: 📝 Commit Version Bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: bump prerelease version to ${{ steps.new-version.outputs.version }}"
+          git push origin v5
+        shell: bash
+
+      - name: 📝 Summary
+        run: |
+          echo "## Prerelease Published 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.new-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ inputs.prerelease-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install with:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "npm install @stencil/core@${{ inputs.prerelease-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        shell: bash
