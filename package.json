@@ -51,10 +51,5 @@
     "node": "24.14.0",
     "npm": "11.9.0"
   },
-  "packageManager": "pnpm@10.31.0",
-  "pnpm": {
-    "overrides": {
-      "@stencil/vitest>@stencil/core": "workspace:*"
-    }
-  }
+  "packageManager": "pnpm@10.31.0"
 }
