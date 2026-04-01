@@ -96,7 +96,7 @@ jobs:
       - name: 🚀 Publish Packages
         # npm provenance uses OIDC tokens via id-token: write permission
         # setup-node with registry-url handles authentication automatically
-        run: pnpm -r publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
+        run: pnpm --filter './packages/**' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
         shell: bash
 
       - name: 📝 Summary
