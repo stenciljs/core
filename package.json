@@ -35,7 +35,8 @@
     "typecheck": "pnpm --reporter=append-only --stream --filter './packages/*' run typecheck",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:publish": "pnpm build && changeset publish"
+    "changeset:publish": "pnpm build && changeset publish",
+    "release:prerelease": "./scripts/release-prerelease.sh"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.0",
