@@ -93,10 +93,16 @@ jobs:
         run: pnpm build
         shell: bash
 
-      - name: 🚀 Publish Packages
+      - name: 🚀 Publish Packages (latest tag, except core)
         # npm provenance uses OIDC tokens via id-token: write permission
         # setup-node with registry-url handles authentication automatically
-        run: pnpm --filter './packages/**' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
+        # TEMPORARY: Publishing non-core packages as 'latest' for v5 launch
+        run: pnpm --filter './packages/**' --filter '!@stencil/core' publish --tag latest --access public --no-git-checks --provenance
+        shell: bash
+
+      - name: 🚀 Publish Core Package (prerelease tag)
+        # Core package keeps the prerelease tag
+        run: pnpm --filter '@stencil/core' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
         shell: bash
 
       - name: 📝 Commit Version Bump
