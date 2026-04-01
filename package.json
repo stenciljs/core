@@ -28,6 +28,7 @@
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "knip": "knip",
+    "spellcheck": "cspell -c cspell-code.json \"packages/**/*.ts\" && cspell -c cspell-markdown.json \"**/*.md\"",
     "lint": "oxlint --fix packages/",
     "lint:check": "oxlint packages/",
     "test": "pnpm --stream --filter './packages/*' run test",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.0",
     "@types/node": "^24",
+    "cspell": "^9.7.0",
     "knip": "^6.1.0",
     "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0"

@@ -34,3 +34,6 @@ jobs:
 
       - name: Knip
         run: pnpm knip
+
+      - name: Spellcheck
+        run: pnpm spellcheck
