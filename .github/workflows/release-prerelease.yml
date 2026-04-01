@@ -99,6 +99,14 @@ jobs:
         run: pnpm --filter './packages/**' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
         shell: bash
 
+      - name: 📝 Commit Version Bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: bump prerelease version to ${{ steps.new-version.outputs.version }}"
+          git push origin v5
+        shell: bash
+
       - name: 📝 Summary
         run: |
           echo "## Prerelease Published 🚀" >> $GITHUB_STEP_SUMMARY
