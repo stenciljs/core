@@ -67,5 +67,7 @@ export function deserializeProperty(value: string) {
   if (typeof value !== 'string' || !value.startsWith(SERIALIZED_PREFIX)) {
     return value;
   }
-  return RemoteValue.fromLocalValue(JSON.parse(decodeBase64Unicode(value.slice(SERIALIZED_PREFIX.length))));
+  return RemoteValue.fromLocalValue(
+    JSON.parse(decodeBase64Unicode(value.slice(SERIALIZED_PREFIX.length))),
+  );
 }
