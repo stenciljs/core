@@ -1,6 +1,6 @@
 {
   "name": "@stencil-core-tests/bundler-vite",
-  "version": "1.0.1-alpha.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Verifies Vite can bundle Stencil's lazy loaded output",
   "license": "MIT",
