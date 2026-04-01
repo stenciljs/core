@@ -1,0 +1,106 @@
+name: 'Stencil Prerelease'
+
+on:
+  workflow_call:
+    inputs:
+      prerelease-tag:
+        required: true
+        type: string
+        description: 'Prerelease tag (alpha, beta, or rc)'
+        default: alpha
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release-prerelease:
+    name: Publish Stencil Prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: 🔒 Log GitHub Workflow UI Input
+        run: |
+          echo "Prerelease Tag: ${{ inputs.prerelease-tag }}"
+        shell: bash
+
+      - name: 🔎 Validate Prerelease Tag
+        run: |
+          TAG="${{ inputs.prerelease-tag }}"
+          if [[ ! "$TAG" =~ ^(alpha|beta|rc)$ ]]; then
+            echo "Invalid prerelease tag: $TAG. Must be one of: alpha, beta, rc"
+            exit 1
+          fi
+        shell: bash
+
+      - name: 📥 Checkout Code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          ref: v5
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 9
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+
+      - name: 🔎 Get Current Version
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: ⬆️ Bump Prerelease Version
+        run: |
+          TAG="${{ inputs.prerelease-tag }}"
+          # Bump root package version
+          npm version prerelease --preid=$TAG --no-git-tag-version
+          # Bump all workspace package versions
+          pnpm -r exec npm version prerelease --preid=$TAG --no-git-tag-version
+        shell: bash
+
+      - name: 🔎 Get New Version
+        id: new-version
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: 🔨 Build Packages
+        run: pnpm build
+        shell: bash
+
+      - name: 🚀 Publish Packages
+        # npm provenance uses OIDC tokens via id-token: write permission
+        # setup-node with registry-url handles authentication automatically
+        run: pnpm -r publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
+        shell: bash
+
+      - name: 📝 Summary
+        run: |
+          echo "## Prerelease Published 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.new-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ inputs.prerelease-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install with:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "npm install @stencil/core@${{ inputs.prerelease-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        shell: bash

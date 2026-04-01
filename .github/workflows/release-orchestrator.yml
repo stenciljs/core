@@ -15,6 +15,7 @@ on:
           - dev
           - nightly
           - production
+          - prerelease
       tag:
         description: 'npm tag for production releases.'
         required: false
@@ -24,6 +25,15 @@ on:
           - dev
           - latest
           - use_pkg_json_version
+      prerelease-tag:
+        description: 'Prerelease tag'
+        required: false
+        type: choice
+        default: alpha
+        options:
+          - alpha
+          - beta
+          - rc
       base:
         description: 'Base branch for production releases.'
         required: false
@@ -32,6 +42,7 @@ on:
         options:
           - main
           - v3-maintenance
+          - v5
 
 permissions:
   contents: write
@@ -55,3 +66,10 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       base: ${{ inputs.base }}
+
+  run-prerelease:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release-type == 'prerelease' }}
+    uses: ./.github/workflows/release-prerelease.yml
+    secrets: inherit
+    with:
+      prerelease-tag: ${{ inputs.prerelease-tag }}
