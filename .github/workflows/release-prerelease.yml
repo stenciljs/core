@@ -102,7 +102,7 @@ jobs:
 
       - name: 🚀 Publish Core Package (prerelease tag)
         # Core package keeps the prerelease tag
-        run: pnpm --filter '@stencil/core' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
+        run: pnpm --filter './packages/core' publish --tag ${{ inputs.prerelease-tag }} --access public --no-git-checks --provenance
         shell: bash
 
       - name: 📝 Commit Version Bump
