@@ -1,6 +1,6 @@
 {
   "name": "@stencil-core-tests/build-docs-json",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "description": "A test app for the docs-json output target",
   "license": "MIT",
   "files": [

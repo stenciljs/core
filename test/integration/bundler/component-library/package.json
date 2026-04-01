@@ -1,6 +1,6 @@
 {
   "name": "@stencil-core-tests/bundler-component-library",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha.0",
   "private": true,
   "description": "Test component library for bundler integration tests",
   "license": "MIT",
