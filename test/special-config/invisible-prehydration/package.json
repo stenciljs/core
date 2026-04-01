@@ -1,5 +1,6 @@
 {
   "name": "@stencil-core-tests/special-config-invisible-prehydration",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,6 +15,5 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  },
-  "version": "0.0.1-alpha.0"
+  }
 }

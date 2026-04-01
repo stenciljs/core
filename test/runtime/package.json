@@ -1,5 +1,6 @@
 {
   "name": "@stencil-core-tests/runtime",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "dist/lazy/index.cjs.js",
@@ -26,6 +27,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "collection": "dist/lazy/collection/collection-manifest.json",
-  "version": "0.0.1-alpha.0"
+  "collection": "dist/lazy/collection/collection-manifest.json"
 }

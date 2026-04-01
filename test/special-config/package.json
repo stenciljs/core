@@ -1,11 +1,11 @@
 {
   "name": "@stencil-core-tests/special-config",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "test": "pnpm --filter \"@stencil-core-tests/special-config-*\" test"
   },
   "volta": {
     "extends": "../../package.json"
-  },
-  "version": "0.0.1-alpha.0"
+  }
 }

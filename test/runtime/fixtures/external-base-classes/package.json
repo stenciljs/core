@@ -1,5 +1,6 @@
 {
   "name": "@stencil-core-tests/runtime-external",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "dist/index.cjs.js",
@@ -14,6 +15,5 @@
   "volta": {
     "extends": "../../../../package.json"
   },
-  "collection": "dist/collection/collection-manifest.json",
-  "version": "0.0.1-alpha.0"
+  "collection": "dist/collection/collection-manifest.json"
 }

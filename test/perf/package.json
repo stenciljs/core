@@ -1,11 +1,11 @@
 {
   "name": "@stencil-core-tests/perf",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "test": "pnpm --filter \"@stencil-core-tests/perf-*\" --workspace-concurrency=1 test"
   },
   "volta": {
     "extends": "../../package.json"
-  },
-  "version": "0.0.1-alpha.0"
+  }
 }

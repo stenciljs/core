@@ -1,5 +1,6 @@
 {
   "name": "@stencil-core-tests/build-bundle-size",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "stencil build --prod",
@@ -14,6 +15,5 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  },
-  "version": "0.0.1-alpha.0"
+  }
 }
