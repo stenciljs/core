@@ -41,10 +41,17 @@ jobs:
           fetch-depth: 0
           ref: v5
 
+      - name: � Get pnpm Version
+        id: pnpm-version
+        run: |
+          VERSION=$(node -p "require('./package.json').packageManager.split('@')[1]")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: 📦 Install pnpm
         uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
-          version: 10
+          version: ${{ steps.pnpm-version.outputs.version }}
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
