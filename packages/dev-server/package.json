@@ -1,6 +1,6 @@
 {
   "name": "@stencil/dev-server",
-  "version": "5.0.0-next.0",
+  "version": "5.0.0-alpha.0",
   "description": "Development server for Stencil with DOM-based HMR",
   "keywords": [
     "dev server",
@@ -54,7 +54,7 @@
     "vitest-environment-stencil": "catalog:"
   },
   "peerDependencies": {
-    "@stencil/core": "^5.0.0"
+    "@stencil/core": "^5.0.0-0"
   },
   "volta": {
     "extends": "../../package.json"

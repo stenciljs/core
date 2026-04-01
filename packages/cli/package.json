@@ -1,6 +1,6 @@
 {
   "name": "@stencil/cli",
-  "version": "5.0.0-next.0",
+  "version": "5.0.0-alpha.0",
   "description": "CLI for Stencil - Web component compiler",
   "keywords": [
     "components",
@@ -52,7 +52,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@stencil/core": "5.0.0-next.0"
+    "@stencil/core": "^5.0.0-0"
   },
   "volta": {
     "extends": "../../package.json"
