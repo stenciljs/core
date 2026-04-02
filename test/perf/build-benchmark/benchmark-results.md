@@ -1,6 +1,6 @@
 # Stencil Compile Time Benchmark
 
-**Last Run:** 2026-04-02T10:47:57.203Z
+**Last Run:** 2026-04-02T21:07:44.856Z
 **Stencil:** 5.0.0-alpha.2 | **Node:** v24.14.0 | **Platform:** darwin (x64)
 
 ## Latest Results
@@ -9,26 +9,27 @@
 
 | Metric   |    Value |
 |----------|----------|
-| Min      |   39.23s |
-| Max      |   43.68s |
-| **Avg**  | **40.64s** |
-| Median   |   39.92s |
-| StdDev   |    1.63s |
+| Min      |   23.18s |
+| Max      |   25.15s |
+| **Avg**  | **24.01s** |
+| Median   |   24.14s |
+| StdDev   |    0.72s |
 
 ### Warm Builds (with cache)
 
 | Metric   |    Value |
 |----------|----------|
-| Min      |   29.87s |
-| Max      |   31.30s |
-| **Avg**  | **30.40s** |
-| Median   |   29.99s |
-| StdDev   |    0.57s |
+| Min      |   15.17s |
+| Max      |   16.36s |
+| **Avg**  | **15.80s** |
+| Median   |   15.84s |
+| StdDev   |    0.38s |
 
 ## History
 
 | Date       | Stencil  | Cold Avg | Warm Avg | Node     |
 |------------|----------|----------|----------|----------|
+| 4/2/2026   | 5.0.0-alpha.2 |   24.01s |   15.80s | v24.14.0 |
 | 4/2/2026   | 5.0.0-alpha.2 |   40.64s |   30.40s | v24.14.0 |
 | 4/2/2026   | 5.0.0-alpha.2 |   40.41s |   31.05s | v24.14.0 |
 | 3/24/2026  | 5.0.0-next.0 |   36.50s |   26.69s | v22.22.0 |

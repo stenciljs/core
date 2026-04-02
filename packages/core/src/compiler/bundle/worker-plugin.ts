@@ -7,6 +7,9 @@ import { bundleOutput } from './bundle-output';
 import { STENCIL_INTERNAL_ID } from './entry-alias-ids';
 import type { BundlePlatform } from './bundle-interface';
 
+// Filter for worker-related file patterns
+const WORKER_FILTER = /(\?worker(-inline)?|\.worker(\.tsx?|\/index\.tsx?))$/;
+
 export const workerPlugin = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
@@ -17,11 +20,14 @@ export const workerPlugin = (
   if (platform === 'worker' || platform === 'hydrate') {
     return {
       name: 'workerPlugin',
-      transform(_, id) {
-        if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
-          return getMockedWorkerMain();
-        }
-        return null;
+      transform: {
+        filter: { id: /\?worker(-inline)?$/ },
+        handler(_, id) {
+          if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
+            return getMockedWorkerMain();
+          }
+          return null;
+        },
       },
     };
   }
@@ -35,30 +41,38 @@ export const workerPlugin = (
       workersMap.clear();
     },
 
-    resolveId(id) {
-      if (id === WORKER_HELPER_ID) {
-        return {
-          id,
-          moduleSideEffects: false,
-        };
-      }
-      return null;
-    },
-
-    load(id) {
-      if (id === WORKER_HELPER_ID) {
-        return WORKER_HELPERS;
-      }
-      return null;
-    },
-
-    async transform(_, id): Promise<TransformResult> {
-      if (/\0/.test(id)) {
+    resolveId: {
+      filter: { id: /^@worker-helper$/ },
+      handler(id) {
+        if (id === WORKER_HELPER_ID) {
+          return {
+            id,
+            moduleSideEffects: false,
+          };
+        }
         return null;
-      }
+      },
+    },
 
-      // Canonical worker path
-      if (id.endsWith('?worker')) {
+    load: {
+      filter: { id: /^@worker-helper$/ },
+      handler(id) {
+        if (id === WORKER_HELPER_ID) {
+          return WORKER_HELPERS;
+        }
+        return null;
+      },
+    },
+
+    transform: {
+      filter: { id: WORKER_FILTER },
+      async handler(_, id): Promise<TransformResult> {
+        if (/\0/.test(id)) {
+          return null;
+        }
+
+        // Canonical worker path
+        if (id.endsWith('?worker')) {
         const workerEntryPath = normalizeFsPath(id);
         const workerName = getWorkerName(workerEntryPath);
         const { code, dependencies, workerMsgId } = await getWorker(
@@ -127,7 +141,8 @@ export const workerPlugin = (
           }
         }
       }
-      return null;
+        return null;
+      },
     },
   };
 };

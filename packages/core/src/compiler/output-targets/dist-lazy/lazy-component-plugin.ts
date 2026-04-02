@@ -4,25 +4,38 @@ import type { Plugin } from 'rolldown';
 import { normalizePath } from '../../../utils';
 
 export const lazyComponentPlugin = (buildCtx: d.BuildCtx): Plugin => {
-  const entrys = new Map<string, d.EntryModule>();
+  // Pre-index entry modules by entryKey for O(1) lookup instead of O(n) find()
+  const entryModuleMap = new Map<string, d.EntryModule>(
+    buildCtx.entryModules.map((em) => [em.entryKey, em]),
+  );
+
+  // Cache generated exports to avoid re-computing on every load
+  const exportCache = new Map<string, string>();
 
   const plugin: Plugin = {
     name: 'lazyComponentPlugin',
 
-    resolveId(importee) {
-      const entryModule = buildCtx.entryModules.find((em) => em.entryKey === importee);
-      if (entryModule) {
-        entrys.set(importee, entryModule);
-        return importee;
-      }
-
-      return null;
+    // Use Rolldown's hook filter to only process .entry imports
+    // Entry keys are always in format: "component-name.entry" or "comp1.comp2.entry"
+    resolveId: {
+      filter: { id: /\.entry$/ },
+      handler(importee) {
+        if (entryModuleMap.has(importee)) {
+          return importee;
+        }
+        return null;
+      },
     },
 
     load(id) {
-      const entryModule = entrys.get(id);
+      const entryModule = entryModuleMap.get(id);
       if (entryModule) {
-        return entryModule.cmps.map(createComponentExport).join('\n');
+        let exports = exportCache.get(id);
+        if (!exports) {
+          exports = entryModule.cmps.map(createComponentExport).join('\n');
+          exportCache.set(id, exports);
+        }
+        return exports;
       }
       return null;
     },

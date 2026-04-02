@@ -28,6 +28,21 @@ export const coreResolvePlugin = (
   const internalClient = getStencilInternalModule(config, compilerExe, 'client/index.js');
   const internalHydrate = getStencilInternalModule(config, compilerExe, 'server/index.mjs');
 
+  // Cache transformed file content - the hydrated flag replacements are deterministic
+  const transformedCodeCache = new Map<string, string>();
+
+  // Pre-compute hydrated flag replacement info once
+  const hydratedFlag = config.hydratedFlag;
+  const hydratedFlagHead = hydratedFlag ? getHydratedFlagHead(hydratedFlag) : null;
+  const hydratedReplacements: Array<[string, string]> | null =
+    hydratedFlag && hydratedFlagHead !== HYDRATED_CSS
+      ? buildHydratedReplacements(hydratedFlag, hydratedFlagHead)
+      : null;
+
+  // Build filter for load hook - only process the internal client/hydrate runtime files
+  const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const loadFilter = new RegExp(`^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})$`);
+
   return {
     name: 'coreResolvePlugin',
 
@@ -102,67 +117,61 @@ export const coreResolvePlugin = (
       },
     },
 
-    async load(filePath) {
-      if (filePath && !filePath.startsWith('\0')) {
-        filePath = normalizeFsPath(filePath);
+    load: {
+      filter: { id: loadFilter },
+      async handler(filePath) {
+        if (filePath && !filePath.startsWith('\0')) {
+          filePath = normalizeFsPath(filePath);
 
-        if (filePath === internalClient || filePath === internalHydrate) {
-          if (platform === 'worker') {
-            return `
+          if (filePath === internalClient || filePath === internalHydrate) {
+            if (platform === 'worker') {
+              return `
 export const Build = {
   isDev: ${config.devMode},
   isBrowser: true,
   isServer: false,
   isTesting: false,
 };`;
-          }
-          let code = await compilerCtx.fs.readFile(filePath);
-
-          if (typeof code !== 'string' && isRemoteUrl(compilerExe)) {
-            const url = getStencilModuleUrl(compilerExe, filePath);
-            code = await fetchModuleAsync(
-              config.sys,
-              compilerCtx.fs,
-              packageVersions,
-              url,
-              filePath,
-            );
-          }
-
-          if (typeof code === 'string') {
-            const hydratedFlag = config.hydratedFlag;
-            if (hydratedFlag) {
-              const hydratedFlagHead = getHydratedFlagHead(hydratedFlag);
-              if (HYDRATED_CSS !== hydratedFlagHead) {
-                code = code.replace(HYDRATED_CSS, hydratedFlagHead);
-                if (hydratedFlag.name !== 'hydrated') {
-                  code = code.replace(
-                    `.classList.add("hydrated")`,
-                    `.classList.add("${hydratedFlag.name}")`,
-                  );
-                  code = code.replace(
-                    `.classList.add('hydrated')`,
-                    `.classList.add('${hydratedFlag.name}')`,
-                  );
-                  code = code.replace(
-                    `.setAttribute("hydrated",`,
-                    `.setAttribute("${hydratedFlag.name}",`,
-                  );
-                  code = code.replace(
-                    `.setAttribute('hydrated',`,
-                    `.setAttribute('${hydratedFlag.name}',`,
-                  );
-                }
-              }
-            } else {
-              code = code.replace(HYDRATED_CSS, '{}');
             }
-          }
 
-          return code;
+            // Check cache first - transformed content is deterministic per file
+            const cached = transformedCodeCache.get(filePath);
+            if (cached) {
+              return cached;
+            }
+
+            let code = await compilerCtx.fs.readFile(filePath);
+
+            if (typeof code !== 'string' && isRemoteUrl(compilerExe)) {
+              const url = getStencilModuleUrl(compilerExe, filePath);
+              code = await fetchModuleAsync(
+                config.sys,
+                compilerCtx.fs,
+                packageVersions,
+                url,
+                filePath,
+              );
+            }
+
+            if (typeof code === 'string') {
+              // Apply pre-computed hydrated flag replacements in a single pass
+              if (hydratedReplacements) {
+                for (const [search, replace] of hydratedReplacements) {
+                  code = code.replace(search, replace);
+                }
+              } else if (!hydratedFlag) {
+                code = code.replace(HYDRATED_CSS, '{}');
+              }
+
+              // Cache the transformed result
+              transformedCodeCache.set(filePath, code);
+            }
+
+            return code;
+          }
         }
-      }
-      return null;
+        return null;
+      },
     },
   };
 };
@@ -207,4 +216,26 @@ export const getHydratedFlagHead = (h: d.HydratedFlag) => {
   }
 
   return initial + hydrated;
+};
+
+/**
+ * Pre-build all hydrated flag string replacements to avoid repeated computation.
+ * Returns an array of [search, replace] tuples to apply in sequence.
+ */
+const buildHydratedReplacements = (
+  hydratedFlag: d.HydratedFlag,
+  hydratedFlagHead: string,
+): Array<[string, string]> => {
+  const replacements: Array<[string, string]> = [[HYDRATED_CSS, hydratedFlagHead]];
+
+  if (hydratedFlag.name !== 'hydrated') {
+    replacements.push(
+      [`.classList.add("hydrated")`, `.classList.add("${hydratedFlag.name}")`],
+      [`.classList.add('hydrated')`, `.classList.add('${hydratedFlag.name}')`],
+      [`.setAttribute("hydrated",`, `.setAttribute("${hydratedFlag.name}",`],
+      [`.setAttribute('hydrated',`, `.setAttribute('${hydratedFlag.name}',`],
+    );
+  }
+
+  return replacements;
 };

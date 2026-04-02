@@ -1,6 +1,11 @@
 import type { LoadResult, Plugin, ResolveIdResult } from 'rolldown';
 
 /**
+ * Escape special regex characters in a string
+ */
+const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
  * Rolldown plugin that aids in resolving the entry points (1 or more files) for a Stencil project. For example, a project
  * using the `dist-custom-elements` output target may have a single 'entry point' for each file containing a component.
  * Each of those files will be independently resolved and loaded by this plugin for further processing by Rolldown later
@@ -11,6 +16,13 @@ import type { LoadResult, Plugin, ResolveIdResult } from 'rolldown';
  * @returns the rolldown plugin that loads and process a Stencil project's entry points
  */
 export const loaderPlugin = (entries: { [id: string]: string } = {}): Plugin => {
+  const entryKeys = Object.keys(entries);
+
+  // Build a regex filter from entry keys to reduce JS<->Rust boundary crossings
+  // If no entries, use a regex that matches nothing
+  const entryFilter =
+    entryKeys.length > 0 ? new RegExp(`^(${entryKeys.map(escapeRegex).join('|')})$`) : /^$/;
+
   return {
     name: 'stencilLoaderPlugin',
     /**
@@ -19,13 +31,14 @@ export const loaderPlugin = (entries: { [id: string]: string } = {}): Plugin => 
      * @param id the importee to resolve
      * @returns a string that resolves an import to some id, null otherwise
      */
-    resolveId(id: string): ResolveIdResult {
-      if (id in entries) {
-        return {
-          id,
-        };
-      }
-      return null;
+    resolveId: {
+      filter: { id: entryFilter },
+      handler(id: string): ResolveIdResult {
+        if (id in entries) {
+          return { id };
+        }
+        return null;
+      },
     },
     /**
      * A rolldown build hook for loading individual Stencil project files [Source](https://rolldownjs.org/guide/en/#load)
@@ -33,11 +46,14 @@ export const loaderPlugin = (entries: { [id: string]: string } = {}): Plugin => 
      * be an absolute or relative path to a file, but may be a Rolldown Virtual Module.
      * @returns the module matched, null otherwise
      */
-    load(id: string): LoadResult {
-      if (id in entries) {
-        return entries[id];
-      }
-      return null;
+    load: {
+      filter: { id: entryFilter },
+      handler(id: string): LoadResult {
+        if (id in entries) {
+          return entries[id];
+        }
+        return null;
+      },
     },
   };
 };

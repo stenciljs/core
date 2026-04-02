@@ -68,35 +68,48 @@ export const generateHydrateApp = async (
       plugins: [
         {
           name: 'hydrateAppPlugin',
-          resolveId(id) {
-            if (id === STENCIL_HYDRATE_FACTORY_ID) {
-              return STENCIL_HYDRATE_FACTORY_ID;
-            }
-            if (id === STENCIL_APP_DATA_ID) {
-              return appData;
-            }
-            return null;
+          // Use Rolldown's hook filter to only process specific Stencil IDs
+          resolveId: {
+            filter: { id: /^@stencil\/core\/runtime\/(hydrate-factory|app-data)$/ },
+            handler(id) {
+              if (id === STENCIL_HYDRATE_FACTORY_ID) {
+                return STENCIL_HYDRATE_FACTORY_ID;
+              }
+              if (id === STENCIL_APP_DATA_ID) {
+                return appData;
+              }
+              return null;
+            },
           },
-          load(id) {
-            if (id === STENCIL_HYDRATE_FACTORY_ID) {
-              return generateHydrateFactory(config, compilerCtx, buildCtx);
-            }
-            return null;
+          load: {
+            filter: { id: /^@stencil\/core\/runtime\/hydrate-factory$/ },
+            handler(id) {
+              if (id === STENCIL_HYDRATE_FACTORY_ID) {
+                return generateHydrateFactory(config, compilerCtx, buildCtx);
+              }
+              return null;
+            },
           },
-          transform(code) {
+          transform(code, _id) {
             /**
              * Remove the modeResolutionChain variable from the generated code.
              * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
              * use it within the hydrate and global runtime.
              */
             const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
-            const result = code.replaceAll(searchPattern, '');
-            return result;
+            // Only process if the code contains the pattern (avoid unnecessary work)
+            if (!code.includes(searchPattern)) {
+              return null;
+            }
+            return code.replaceAll(searchPattern, '');
           },
         },
       ],
       treeshake: false,
       onwarn: createOnWarnFn(buildCtx.diagnostics),
+      checks: {
+        pluginTimings: config.devMode,
+      },
     };
 
     const rolldownAppBuild = await rolldown(rolldownOptions);

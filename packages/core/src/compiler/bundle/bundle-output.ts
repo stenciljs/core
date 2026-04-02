@@ -132,6 +132,7 @@ export const getRolldownOptions = (
     // Disable warnings about built-in features we're intentionally using
     checks: {
       preferBuiltinFeature: false,
+      pluginTimings: config.devMode,
     },
 
     // Tell Rolldown to treat these files as JS - our plugins transform them to ESM
