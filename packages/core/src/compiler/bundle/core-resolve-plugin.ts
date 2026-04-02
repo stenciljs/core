@@ -41,7 +41,9 @@ export const coreResolvePlugin = (
 
   // Build filter for load hook - only process the internal client/hydrate runtime files
   const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const loadFilter = new RegExp(`^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})$`);
+  const loadFilter = new RegExp(
+    `^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})$`,
+  );
 
   return {
     name: 'coreResolvePlugin',
@@ -221,6 +223,9 @@ export const getHydratedFlagHead = (h: d.HydratedFlag) => {
 /**
  * Pre-build all hydrated flag string replacements to avoid repeated computation.
  * Returns an array of [search, replace] tuples to apply in sequence.
+ * @param hydratedFlag the hydrated flag configuration
+ * @param hydratedFlagHead the pre-computed CSS string for the hydrated flag
+ * @returns an array of [search, replace] tuples for string replacement
  */
 const buildHydratedReplacements = (
   hydratedFlag: d.HydratedFlag,

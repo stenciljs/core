@@ -73,74 +73,74 @@ export const workerPlugin = (
 
         // Canonical worker path
         if (id.endsWith('?worker')) {
-        const workerEntryPath = normalizeFsPath(id);
-        const workerName = getWorkerName(workerEntryPath);
-        const { code, dependencies, workerMsgId } = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        const referenceId = this.emitFile({
-          type: 'asset',
-          source: code,
-          name: workerName + '.js',
-        });
-        dependencies.forEach((dep) => this.addWatchFile(dep));
-        return {
-          code: getWorkerMain(referenceId, workerName, workerMsgId),
-          moduleSideEffects: false,
-        };
-      } else if (id.endsWith('?worker-inline')) {
-        const workerEntryPath = normalizeFsPath(id);
-        const workerName = getWorkerName(workerEntryPath);
-        const { code, dependencies, workerMsgId } = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        const referenceId = this.emitFile({
-          type: 'asset',
-          source: code,
-          name: workerName + '.js',
-        });
-        dependencies.forEach((dep) => this.addWatchFile(dep));
-        return {
-          code: getInlineWorker(referenceId, workerName, workerMsgId),
-          moduleSideEffects: false,
-        };
-      }
+          const workerEntryPath = normalizeFsPath(id);
+          const workerName = getWorkerName(workerEntryPath);
+          const { code, dependencies, workerMsgId } = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          const referenceId = this.emitFile({
+            type: 'asset',
+            source: code,
+            name: workerName + '.js',
+          });
+          dependencies.forEach((dep) => this.addWatchFile(dep));
+          return {
+            code: getWorkerMain(referenceId, workerName, workerMsgId),
+            moduleSideEffects: false,
+          };
+        } else if (id.endsWith('?worker-inline')) {
+          const workerEntryPath = normalizeFsPath(id);
+          const workerName = getWorkerName(workerEntryPath);
+          const { code, dependencies, workerMsgId } = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          const referenceId = this.emitFile({
+            type: 'asset',
+            source: code,
+            name: workerName + '.js',
+          });
+          dependencies.forEach((dep) => this.addWatchFile(dep));
+          return {
+            code: getInlineWorker(referenceId, workerName, workerMsgId),
+            moduleSideEffects: false,
+          };
+        }
 
-      // Proxy worker path
-      const workerEntryPath = getWorkerEntryPath(id);
-      if (workerEntryPath != null) {
-        const worker = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        if (worker) {
-          if (inlineWorkers) {
-            return {
-              code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
-              moduleSideEffects: false,
-            };
-          } else {
-            return {
-              code: getWorkerProxy(workerEntryPath, worker.exports),
-              moduleSideEffects: false,
-            };
+        // Proxy worker path
+        const workerEntryPath = getWorkerEntryPath(id);
+        if (workerEntryPath != null) {
+          const worker = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          if (worker) {
+            if (inlineWorkers) {
+              return {
+                code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
+                moduleSideEffects: false,
+              };
+            } else {
+              return {
+                code: getWorkerProxy(workerEntryPath, worker.exports),
+                moduleSideEffects: false,
+              };
+            }
           }
         }
-      }
         return null;
       },
     },

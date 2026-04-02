@@ -1,8 +1,6 @@
 import type { LoadResult, Plugin, ResolveIdResult } from 'rolldown';
 
-/**
- * Escape special regex characters in a string
- */
+// Escape special regex characters in a string
 const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
