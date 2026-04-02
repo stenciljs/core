@@ -168,7 +168,16 @@ const getTreeshakeOption = (
   bundleOpts: BundleOptions,
 ): TreeshakingOptions | boolean => {
   if (bundleOpts.platform === 'hydrate') {
-    return true;
+    return {
+      moduleSideEffects: false,
+      propertyReadSideEffects: false,
+    };
   }
-  return !config.devMode && config.rolldownConfig.inputOptions.treeshake !== false;
+  if (config.devMode || config.rolldownConfig.inputOptions.treeshake === false) {
+    return false;
+  }
+  return {
+    moduleSideEffects: false,
+    propertyReadSideEffects: false,
+  };
 };

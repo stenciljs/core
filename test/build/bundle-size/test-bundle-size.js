@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const distDir = path.join(__dirname, 'dist', 'bundlesize');
-const maxBundleSize = 12.5 * 1024; // 12.5KB in bytes
+const maxBundleSize = 12 * 1024; // 12KB in bytes
 
 console.log('\nChecking bundle size...');
 
