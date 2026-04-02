@@ -70,7 +70,7 @@ export const generateHydrateApp = async (
           name: 'hydrateAppPlugin',
           // Use Rolldown's hook filter to only process specific Stencil IDs
           resolveId: {
-            filter: { id: /^@stencil\/core\/runtime\/(hydrate-factory|app-data)$/ },
+            filter: { id: /^@stencil\/core\/runtime\/(server\/hydrate-factory|app-data)$/ },
             handler(id) {
               if (id === STENCIL_HYDRATE_FACTORY_ID) {
                 return STENCIL_HYDRATE_FACTORY_ID;
@@ -82,7 +82,7 @@ export const generateHydrateApp = async (
             },
           },
           load: {
-            filter: { id: /^@stencil\/core\/runtime\/hydrate-factory$/ },
+            filter: { id: /^@stencil\/core\/runtime\/server\/hydrate-factory$/ },
             handler(id) {
               if (id === STENCIL_HYDRATE_FACTORY_ID) {
                 return generateHydrateFactory(config, compilerCtx, buildCtx);

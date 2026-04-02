@@ -40,9 +40,10 @@ export const coreResolvePlugin = (
       : null;
 
   // Build filter for load hook - only process the internal client/hydrate runtime files
+  // Must also match paths with query strings (e.g., ?app-data=conditional for lazy builds)
   const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const loadFilter = new RegExp(
-    `^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})$`,
+    `^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})(\\?.*)?$`,
   );
 
   return {
