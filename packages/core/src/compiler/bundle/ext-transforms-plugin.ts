@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { Plugin } from 'rollup';
+import type { Plugin } from 'rolldown';
 
 import {
   hasError,

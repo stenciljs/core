@@ -1,5 +1,5 @@
 import { basename, dirname } from 'path';
-import { OutputOptions, rollup } from 'rollup';
+import { OutputOptions, rolldown } from 'rolldown';
 import type * as d from '@stencil/core';
 
 import { generatePreamble, join, relative } from '../../utils';
@@ -96,7 +96,7 @@ const bundleDevModule = async (
         index: parsedUrl.nodeResolvedPath,
       },
     });
-    const rollupBuild = await rollup(inputOpts);
+    const rollupBuild = await rolldown(inputOpts);
 
     const outputOpts: OutputOptions = {
       banner: generatePreamble(config),

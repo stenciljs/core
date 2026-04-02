@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 import type { RollupResult } from '@stencil/core';
-import type { OutputOptions, RollupBuild } from 'rollup';
+import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble, join, relativeImport } from '../../../utils';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
@@ -11,7 +11,7 @@ export const generateEsm = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RollupBuild,
+  rollupBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const esmEs5Outputs = config.buildEs5

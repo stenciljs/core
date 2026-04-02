@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { SourceMap as RollupSourceMap } from 'rollup';
+import type { SourceMap as RollupSourceMap } from 'rolldown';
 
 import {
   formatComponentRuntimeMeta,
@@ -142,9 +142,13 @@ const addStaticImports = (
  * @returns true if the output chunk contains Stencil runtime code, false otherwise
  */
 const isStencilCoreResult = (rollupChunkResult: d.RollupChunkResult): boolean => {
+  // With Rolldown, the core runtime may be in a shared chunk (not an entry)
+  // rather than bundled into the 'index' entry. We check for isCore and
+  // the module format, but not the entry name since it could be 'index',
+  // 'client' (from runtime/client/index.js), or another shared chunk name.
   return (
     rollupChunkResult.isCore &&
-    rollupChunkResult.entryKey === 'index' &&
+    !rollupChunkResult.isComponent &&
     (rollupChunkResult.moduleFormat === 'es' ||
       rollupChunkResult.moduleFormat === 'esm' ||
       isCjsFormat(rollupChunkResult))
@@ -287,7 +291,7 @@ const writeLazyEntry = async (
   if (isBrowserBuild && ['loader'].includes(rollupResult.entryKey)) {
     return;
   }
-  const inputCode = rollupResult.code.replace(`[/*!__STENCIL_LAZY_DATA__*/]`, `${lazyRuntimeData}`);
+  const inputCode = rollupResult.code.replace(`["__STENCIL_LAZY_DATA__"]`, `${lazyRuntimeData}`);
   const { code, sourceMap } = await convertChunk(
     config,
     compilerCtx,

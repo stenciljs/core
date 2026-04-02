@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
 import type * as d from '@stencil/core';
-import type { OutputChunk, Plugin } from 'rollup';
+import type { OutputChunk, Plugin } from 'rolldown';
 
 /**
  * A Rollup plugin to generate unique bundle IDs for lazy-loaded modules.

@@ -1,5 +1,4 @@
 import type * as d from '@stencil/core';
-import type { RollupCache } from 'rollup';
 
 import { outputCopy } from './copy/output-copy';
 import { outputCollection } from './dist-collection';
@@ -57,12 +56,16 @@ export const generateOutputTargets = async (
 };
 
 const invalidateRollupCaches = (compilerCtx: d.CompilerCtx) => {
+  // Note: Rolldown doesn't support caching the same way Rollup does.
+  // This function is kept for future use if caching support is added.
   const invalidatedIds = compilerCtx.changedFiles;
-  compilerCtx.rollupCache.forEach((cache: RollupCache) => {
-    cache.modules.forEach((mod) => {
-      if (mod.transformDependencies.some((id) => invalidatedIds.has(id))) {
-        mod.originalCode = null;
-      }
-    });
+  compilerCtx.rollupCache.forEach((cache: any) => {
+    if (cache?.modules) {
+      cache.modules.forEach((mod: any) => {
+        if (mod?.transformDependencies?.some((id: string) => invalidatedIds.has(id))) {
+          mod.originalCode = null;
+        }
+      });
+    }
   });
 };

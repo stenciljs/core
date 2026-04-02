@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
-import { RollupOptions } from 'rollup';
-import { rollup, type RollupBuild } from 'rollup';
+import { InputOptions } from 'rolldown';
+import { rolldown, type RolldownBuild } from 'rolldown';
 import type * as d from '@stencil/core';
 
 import {
@@ -26,7 +26,7 @@ import { writeHydrateOutputs } from './write-hydrate-outputs';
 
 const buildHydrateAppFor = async (
   format: 'esm' | 'cjs',
-  rollupBuild: RollupBuild,
+  rollupBuild: RolldownBuild,
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -61,7 +61,7 @@ export const generateHydrateApp = async (
     const input = join(packageDir, 'runtime', 'server', 'runner.mjs');
     const appData = join(packageDir, 'runtime', 'app-data', 'index.js');
 
-    const rollupOptions: RollupOptions = {
+    const rollupOptions: InputOptions = {
       ...config.rollupConfig.inputOptions,
       external: ['node:stream'],
       input,
@@ -99,7 +99,7 @@ export const generateHydrateApp = async (
       onwarn: createOnWarnFn(buildCtx.diagnostics),
     };
 
-    const rollupAppBuild = await rollup(rollupOptions);
+    const rollupAppBuild = await rolldown(rollupOptions);
     await Promise.all([
       buildHydrateAppFor('cjs', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),
       buildHydrateAppFor('esm', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),

@@ -21,7 +21,6 @@ import { updateStencilCoreImports } from '../../transformers/update-stencil-core
 import { generateCjs } from './generate-cjs';
 import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
-import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
@@ -65,18 +64,16 @@ export const outputLazy = async (
 
     const rollupBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
     if (rollupBuild != null) {
+      // Note: SystemJS output (generateSystem) has been removed in v5 as it's no longer widely used
       const results: d.UpdatedLazyBuildCtx[] = await Promise.all([
         generateEsmBrowser(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
         generateEsm(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
-        generateSystem(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
         generateCjs(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
       ]);
 
       results.forEach((result) => {
         if (result.name === 'cjs') {
           buildCtx.commonJsComponentBundle = result.buildCtx.commonJsComponentBundle;
-        } else if (result.name === 'system') {
-          buildCtx.systemComponentBundle = result.buildCtx.systemComponentBundle;
         } else if (result.name === 'esm') {
           buildCtx.esmComponentBundle = result.buildCtx.esmComponentBundle;
           buildCtx.es5ComponentBundle = result.buildCtx.es5ComponentBundle;
@@ -190,14 +187,14 @@ const getLazyEntry = (isBrowser: boolean): string => {
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     s.append(`(async () => {\n`);
     s.append(`  await globalScripts();\n`);
-    s.append(`  bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/]);\n`);
+    s.append(`  bootstrapLazy(["__STENCIL_LAZY_DATA__"]);\n`);
     s.append(`})();\n`);
   } else {
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     s.append(`export const defineCustomElements = async (win, options) => {\n`);
     s.append(`  if (typeof window === 'undefined') return undefined;\n`);
     s.append(`  await globalScripts();\n`);
-    s.append(`  return bootstrapLazy([/*!__STENCIL_LAZY_DATA__*/], options);\n`);
+    s.append(`  return bootstrapLazy(["__STENCIL_LAZY_DATA__"], options);\n`);
     s.append(`};\n`);
   }
 

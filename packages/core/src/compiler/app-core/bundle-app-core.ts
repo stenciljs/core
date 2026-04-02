@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { OutputAsset, OutputChunk, OutputOptions, RollupBuild } from 'rollup';
+import type { OutputAsset, OutputChunk, OutputOptions, RolldownBuild } from 'rolldown';
 
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
@@ -14,7 +14,7 @@ import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
  * @returns a Promise wrapping either build results or `null`
  */
 export const generateRollupOutput = async (
-  build: RollupBuild,
+  build: RolldownBuild,
   options: OutputOptions,
   config: d.ValidatedConfig,
   entryModules: d.EntryModule[],

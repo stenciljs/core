@@ -1,4 +1,4 @@
-import type { LoadResult, Plugin, ResolveIdResult } from 'rollup';
+import type { LoadResult, Plugin, ResolveIdResult } from 'rolldown';
 
 /**
  * Rollup plugin that aids in resolving the entry points (1 or more files) for a Stencil project. For example, a project

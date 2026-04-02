@@ -22,11 +22,6 @@ export const config: Config = {
     ],
   },
 
-  testing: {
-    moduleNameMapper: {
-      'lodash-es': 'lodash',
-    },
-  },
   outputTargets: [
     {
       type: 'www',

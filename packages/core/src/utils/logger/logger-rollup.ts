@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { RollupError } from 'rollup';
+import type { RollupError } from 'rolldown';
 
 import { isString, toTitleCase } from '../helpers';
 import { buildWarn } from '../message-utils';

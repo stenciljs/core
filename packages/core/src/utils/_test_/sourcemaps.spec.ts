@@ -1,6 +1,6 @@
 import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
-import type { SourceMap as RollupSourceMap } from 'rollup';
+import type { SourceMap as RollupSourceMap } from 'rolldown';
 
 import {
   getInlineSourceMappingUrlLinker,

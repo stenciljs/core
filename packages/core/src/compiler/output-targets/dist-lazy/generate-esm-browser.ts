@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { OutputOptions, RollupBuild } from 'rollup';
+import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble } from '../../../utils';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
@@ -10,7 +10,7 @@ export const generateEsmBrowser = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RollupBuild,
+  rollupBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !!o.isBrowserBuild);

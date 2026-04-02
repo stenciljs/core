@@ -1,5 +1,4 @@
 import type { BuildConditionals } from '@stencil/core';
-import type { PreserveEntrySignaturesOption } from 'rollup';
 import type { SourceFile, TransformerFactory } from 'typescript';
 
 /**
@@ -39,14 +38,14 @@ export interface BundleOptions {
    */
   loader?: { [id: string]: string };
   /**
-   * Duplicate of Rollup's `inlineDynamicImports` output option.
+   * Rolldown's `codeSplitting` output option (replaces Rollup's `inlineDynamicImports`).
    *
-   * Creates dynamic imports (i.e. `import()` calls) as a part of the same
-   * chunk being bundled. Rather than being created as separate chunks.
+   * When false, dynamic imports (i.e. `import()` calls) are inlined as part of the same
+   * chunk being bundled rather than being created as separate chunks.
    *
-   * @see {@link https://rollupjs.org/guide/en/#outputinlinedynamicimports}
+   * @see {@link https://rolldown.rs/reference/outputoptions.codesplitting}
    */
-  inlineDynamicImports?: boolean;
+  codeSplitting?: boolean;
   inlineWorkers?: boolean;
   /**
    * Duplicate of Rollup's `preserveEntrySignatures` option.
@@ -56,7 +55,7 @@ export interface BundleOptions {
    *
    * @see {@link https://rollupjs.org/guide/en/#preserveentrysignatures}
    */
-  preserveEntrySignatures?: PreserveEntrySignaturesOption;
+  preserveEntrySignatures?: false | 'strict' | 'allow-extension' | 'exports-only';
 }
 
 export type BundlePlatform = 'client' | 'hydrate' | 'worker';

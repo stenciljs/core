@@ -1,6 +1,6 @@
 import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
-import type { Plugin } from 'rollup';
+import type { Plugin } from 'rolldown';
 
 import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
 import type { BundlePlatform } from './bundle-interface';

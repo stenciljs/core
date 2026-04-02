@@ -34,7 +34,7 @@ export const bundleHydrateFactory = async (
       platform: 'hydrate',
       conditionals: getHydrateBuildConditionals(config, buildCtx.components),
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
-      inlineDynamicImports: true,
+      codeSplitting: false,
       inputs: {
         '@stencil/core/runtime/server/hydrate-factory':
           '@stencil/core/runtime/server/hydrate-factory',

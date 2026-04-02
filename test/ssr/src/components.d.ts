@@ -186,7 +186,7 @@ export namespace Components {
         /**
           * @default []
          */
-        "anArray": any[];
+        "anArray": never[];
     }
     interface SsrOrderCmp {
     }
@@ -709,7 +709,7 @@ declare namespace LocalJSX {
         /**
           * @default []
          */
-        "anArray"?: any[];
+        "anArray"?: never[];
     }
     interface SsrOrderCmp {
     }

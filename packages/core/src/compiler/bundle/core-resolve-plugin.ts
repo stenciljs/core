@@ -1,6 +1,6 @@
 import { dirname } from 'path';
 import type * as d from '@stencil/core';
-import type { Plugin } from 'rollup';
+import type { Plugin } from 'rolldown';
 
 import { HYDRATED_CSS } from '../../runtime/runtime-constants';
 import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
@@ -31,70 +31,75 @@ export const coreResolvePlugin = (
   return {
     name: 'coreResolvePlugin',
 
-    resolveId(id) {
-      if (id === STENCIL_CORE_ID || id === STENCIL_INTERNAL_ID) {
-        if (platform === 'client') {
+    // Use Rolldown's hook filter to only call this plugin for @stencil/core imports
+    // This avoids JS<->Rust boundary crossing for every import in the bundle
+    resolveId: {
+      filter: { id: /^@stencil\/core/ },
+      handler(id) {
+        if (id === STENCIL_CORE_ID || id === STENCIL_INTERNAL_ID) {
+          if (platform === 'client') {
+            if (externalRuntime) {
+              return {
+                id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+                external: true,
+              };
+            }
+            if (lazyLoad) {
+              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // use the default app-data, but build a custom one based on component meta
+              return internalClient + APP_DATA_CONDITIONAL;
+            }
+            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            // This ensures all features are available for any importer library
+            return internalClient;
+          }
+          if (platform === 'hydrate') {
+            return internalHydrate;
+          }
+        }
+        if (id === STENCIL_INTERNAL_CLIENT_PLATFORM_ID) {
           if (externalRuntime) {
+            // not bundling the client runtime and the user's component together this
+            // must be the custom elements build, where @stencil/core/runtime/client
+            // is an import, rather than bundling
             return {
               id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
               external: true,
             };
           }
-          if (lazyLoad) {
-            // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
-            // use the default app-data, but build a custom one based on component meta
-            return internalClient + APP_DATA_CONDITIONAL;
-          }
-          // for a non-lazy / dist-custom-elements build, use the default, complete core.
-          // This ensures all features are available for any importer library
+          // importing @stencil/core/runtime/client directly, so it shouldn't get
+          // the custom app-data conditionals
           return internalClient;
         }
-        if (platform === 'hydrate') {
+        if (id === STENCIL_INTERNAL_HYDRATE_PLATFORM_ID) {
           return internalHydrate;
         }
-      }
-      if (id === STENCIL_INTERNAL_CLIENT_PLATFORM_ID) {
-        if (externalRuntime) {
-          // not bundling the client runtime and the user's component together this
-          // must be the custom elements build, where @stencil/core/runtime/client
-          // is an import, rather than bundling
-          return {
-            id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
-            external: true,
-          };
-        }
-        // importing @stencil/core/runtime/client directly, so it shouldn't get
-        // the custom app-data conditionals
-        return internalClient;
-      }
-      if (id === STENCIL_INTERNAL_HYDRATE_PLATFORM_ID) {
-        return internalHydrate;
-      }
-      // Handle jsx-runtime and jsx-dev-runtime imports
-      // These must resolve to the same internal client path as @stencil/core
-      // to prevent Rollup from bundling duplicate runtime code with different
-      // minified property names, which causes VNode property mismatches during hydration
-      if (id === STENCIL_JSX_RUNTIME_ID || id === STENCIL_JSX_DEV_RUNTIME_ID) {
-        if (platform === 'client') {
-          if (externalRuntime) {
-            return {
-              id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
-              external: true,
-            };
+        // Handle jsx-runtime and jsx-dev-runtime imports
+        // These must resolve to the same internal client path as @stencil/core
+        // to prevent Rollup from bundling duplicate runtime code with different
+        // minified property names, which causes VNode property mismatches during hydration
+        if (id === STENCIL_JSX_RUNTIME_ID || id === STENCIL_JSX_DEV_RUNTIME_ID) {
+          if (platform === 'client') {
+            if (externalRuntime) {
+              return {
+                id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+                external: true,
+              };
+            }
+            if (lazyLoad) {
+              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // use the default app-data, but build a custom one based on component meta
+              return internalClient + APP_DATA_CONDITIONAL;
+            }
+            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            return internalClient;
           }
-          if (lazyLoad) {
-            // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
-            // use the default app-data, but build a custom one based on component meta
-            return internalClient + APP_DATA_CONDITIONAL;
+          if (platform === 'hydrate') {
+            return internalHydrate;
           }
-          // for a non-lazy / dist-custom-elements build, use the default, complete core.
-          return internalClient;
         }
-        if (platform === 'hydrate') {
-          return internalHydrate;
-        }
-      }
-      return null;
+        return null;
+      },
     },
 
     async load(filePath) {

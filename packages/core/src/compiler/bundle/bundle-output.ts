@@ -1,11 +1,7 @@
-import rollupCommonjsPlugin from '@rollup/plugin-commonjs';
-import rollupJsonPlugin from '@rollup/plugin-json';
-import rollupNodeResolvePlugin from '@rollup/plugin-node-resolve';
-import rollupReplacePlugin from '@rollup/plugin-replace';
-import { type ObjectHook, PluginContext, rollup, RollupOptions, TreeshakingOptions } from 'rollup';
+import { rolldown, InputOptions, TreeshakingOptions, Plugin } from 'rolldown';
 import type * as d from '@stencil/core';
 
-import { createOnWarnFn, isString, loadRollupDiagnostics } from '../../utils';
+import { createOnWarnFn, loadRollupDiagnostics } from '../../utils';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
 import { coreResolvePlugin } from './core-resolve-plugin';
@@ -16,7 +12,7 @@ import { fileLoadPlugin } from './file-load-plugin';
 import { loaderPlugin } from './loader-plugin';
 import { pluginHelper } from './plugin-helper';
 import { serverPlugin } from './server-plugin';
-import { resolveIdWithTypeScript, typescriptPlugin } from './typescript-plugin';
+import { typescriptPlugin } from './typescript-plugin';
 import { userIndexPlugin } from './user-index-plugin';
 import { workerPlugin } from './worker-plugin';
 import type { BundleOptions } from './bundle-interface';
@@ -29,9 +25,10 @@ export const bundleOutput = async (
 ) => {
   try {
     const rollupOptions = getRollupOptions(config, compilerCtx, buildCtx, bundleOpts);
-    const rollupBuild = await rollup(rollupOptions);
+    const rollupBuild = await rolldown(rollupOptions);
 
-    compilerCtx.rollupCache.set(bundleOpts.id, rollupBuild.cache);
+    // Note: Rolldown doesn't support caching the same way Rollup does
+    // compilerCtx.rollupCache.set(bundleOpts.id, rollupBuild.cache);
     return rollupBuild;
   } catch (e: any) {
     if (!buildCtx.hasError) {
@@ -56,99 +53,29 @@ export const getRollupOptions = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
-): RollupOptions => {
-  const nodeResolvePlugin = rollupNodeResolvePlugin({
-    mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'],
-    browser: bundleOpts.platform !== 'hydrate',
-    rootDir: config.rootDir,
-    exportConditions: ['default', 'module', 'import', 'require'],
-    extensions: [
-      '.tsx',
-      '.ts',
-      '.mts',
-      '.cts',
-      '.js',
-      '.mjs',
-      '.cjs',
-      '.json',
-      '.d.ts',
-      '.d.mts',
-      '.d.cts',
-    ],
-    ...config.nodeResolve,
-  });
-
-  // @ts-expect-error - this is required now.
-  nodeResolvePlugin.resolve = async function () {
-    // Investigate if we can use this to leverage Stencil's in-memory fs
-  };
-
-  // @ts-expect-error - this is required now.
-  nodeResolvePlugin.warn = (log) => {
-    const onWarn = createOnWarnFn(buildCtx.diagnostics);
-    if (typeof log === 'string') {
-      onWarn({ message: log });
-    } else if (typeof log === 'function') {
-      const result = log();
-      if (typeof result === 'string') {
-        onWarn({ message: result });
-      } else {
-        onWarn(result);
-      }
-    } else {
-      onWarn(log);
-    }
-  };
-
-  assertIsObjectHook(nodeResolvePlugin.resolveId);
-  // remove default 'post' order
-  nodeResolvePlugin.resolveId.order = null;
-  const orgNodeResolveId = nodeResolvePlugin.resolveId.handler;
-
-  const orgNodeResolveId2 = (nodeResolvePlugin.resolveId.handler = async function (
-    importee: string,
-    importer: string,
-  ) {
-    const [realImportee, query] = importee.split('?');
-    const resolved = await orgNodeResolveId.call(
-      nodeResolvePlugin as unknown as PluginContext,
-      realImportee,
-      importer,
-      {
-        attributes: {},
-        isEntry: true,
-      },
-    );
-    if (resolved) {
-      if (isString(resolved)) {
-        return query ? resolved + '?' + query : resolved;
-      }
-      return {
-        ...resolved,
-        id: query ? resolved.id + '?' + query : resolved.id,
-      };
-    }
-    return resolved;
-  });
-  if (config.devServer?.experimentalDevModules) {
-    nodeResolvePlugin.resolveId = async function (importee: string, importer: string) {
-      const resolvedId = await orgNodeResolveId2.call(
-        nodeResolvePlugin as unknown as PluginContext,
-        importee,
-        importer,
-      );
-      return devNodeModuleResolveId(config, compilerCtx.fs, resolvedId, importee);
-    };
-  }
-
+): InputOptions => {
   const beforePlugins = config.rollupPlugins.before || [];
   const afterPlugins = config.rollupPlugins.after || [];
 
-  const rollupOptions: RollupOptions = {
+  // Create a plugin for dev module resolution if enabled
+  const devModulePlugin: Plugin | null = config.devServer?.experimentalDevModules
+    ? {
+        name: 'stencil-dev-module-resolve',
+        async resolveId(importee: string, importer: string | undefined) {
+          // Let other plugins handle it first, then intercept the result
+          const resolved = await this.resolve(importee, importer, { skipSelf: true });
+          if (resolved) {
+            return devNodeModuleResolveId(config, compilerCtx.fs, resolved, importee);
+          }
+          return null;
+        },
+      }
+    : null;
+
+  const rollupOptions: InputOptions = {
     input: bundleOpts.inputs,
-    output: {
-      inlineDynamicImports: bundleOpts.inlineDynamicImports ?? false,
-    },
+    platform: bundleOpts.platform === 'hydrate' ? 'node' : 'browser',
+    tsconfig: config.tsconfig,
 
     plugins: [
       coreResolvePlugin(
@@ -168,36 +95,81 @@ export const getRollupOptions = (
       workerPlugin(config, compilerCtx, buildCtx, bundleOpts.platform, !!bundleOpts.inlineWorkers),
       serverPlugin(config, bundleOpts.platform),
       ...beforePlugins,
-      nodeResolvePlugin,
-      resolveIdWithTypeScript(config, compilerCtx),
-      rollupCommonjsPlugin({
-        include: /node_modules/,
-        sourceMap: config.sourceMap,
-        transformMixedEsModules: false,
-        ...config.commonjs,
-      }),
+      devModulePlugin,
       ...afterPlugins,
       pluginHelper(config, buildCtx, bundleOpts.platform),
-      rollupJsonPlugin({
-        preferConst: true,
-      }),
-      rollupReplacePlugin({
-        'process.env.NODE_ENV': config.devMode ? '"development"' : '"production"',
-        preventAssignment: true,
-      }),
       fileLoadPlugin(compilerCtx.fs),
-    ],
+    ].filter(Boolean) as Plugin[],
+
+    resolve: {
+      // Stencil-specific main fields plus standard ones
+      mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
+      // Export conditions for package.json exports field
+      conditionNames: (bundleOpts.platform === 'hydrate'
+        ? ['node', 'import', 'require', 'default']
+        : ['browser', 'default', 'import', 'module', 'require']) as string[],
+      // File extensions to resolve (includes .d.ts for type declaration files)
+      extensions: [
+        '.tsx',
+        '.ts',
+        '.mts',
+        '.cts',
+        '.js',
+        '.mjs',
+        '.cjs',
+        '.json',
+        '.d.ts',
+        '.d.mts',
+        '.d.cts',
+      ] as any,
+      // Apply user's nodeResolve config if provided
+      ...config.nodeResolve,
+    },
+
+    // Use Rolldown's transform.define for process.env.NODE_ENV replacement
+    // Replaces @rollup/plugin-replace
+    transform: {
+      define: {
+        'process.env.NODE_ENV': config.devMode ? '"development"' : '"production"',
+      },
+    },
+
+    // Disable warnings about built-in features we're intentionally using
+    checks: {
+      preferBuiltinFeature: false,
+    },
+
+    // Tell Rolldown to treat these files as JS - our plugins transform them to ESM
+    // CSS: ext-transforms-plugin handles CSS to ESM conversion
+    // Text/assets: ext-format-plugin handles text/url to ESM conversion
+    moduleTypes: {
+      '.css': 'js',
+      '.scss': 'js',
+      '.sass': 'js',
+      '.less': 'js',
+      '.styl': 'js',
+      '.stylus': 'js',
+      '.pcss': 'js',
+      // Text formats (from ext-format-plugin FORMAT_TEXT_EXTS)
+      '.txt': 'js',
+      '.frag': 'js',
+      '.vert': 'js',
+      // URL formats (from ext-format-plugin FORMAT_URL_MIME)
+      '.svg': 'js',
+    },
 
     treeshake: getTreeshakeOption(config, bundleOpts),
     preserveEntrySignatures: bundleOpts.preserveEntrySignatures ?? 'strict',
 
     onwarn: createOnWarnFn(buildCtx.diagnostics),
 
-    cache: compilerCtx.rollupCache.get(bundleOpts.id),
+    // Note: Rolldown doesn't support the cache option like Rollup does
+    // cache: compilerCtx.rollupCache.get(bundleOpts.id),
 
     external: config.rollupConfig.inputOptions.external,
 
-    maxParallelFileOps: config.rollupConfig.inputOptions.maxParallelFileOps,
+    // Note: maxParallelFileOps is not supported in Rolldown
+    // maxParallelFileOps: config.rollupConfig.inputOptions.maxParallelFileOps,
   };
 
   return rollupOptions;
@@ -207,26 +179,11 @@ const getTreeshakeOption = (
   config: d.ValidatedConfig,
   bundleOpts: BundleOptions,
 ): TreeshakingOptions | boolean => {
+  // Note: Rolldown's TreeshakingOptions only supports moduleSideEffects,
+  // not propertyReadSideEffects or tryCatchDeoptimization like Rollup
   if (bundleOpts.platform === 'hydrate') {
-    return {
-      propertyReadSideEffects: false,
-      tryCatchDeoptimization: false,
-    };
+    return true;
   }
 
-  const treeshake =
-    !config.devMode && config.rollupConfig.inputOptions.treeshake !== false
-      ? {
-          propertyReadSideEffects: false,
-          tryCatchDeoptimization: false,
-        }
-      : false;
-  return treeshake;
+  return !config.devMode && config.rollupConfig.inputOptions.treeshake !== false;
 };
-
-function assertIsObjectHook<T>(
-  hook: ObjectHook<T>,
-): asserts hook is { handler: T; order?: 'pre' | 'post' | null } {
-  if (typeof hook !== 'object')
-    throw new Error(`expected the rollup plugin hook ${hook} to be an object`);
-}

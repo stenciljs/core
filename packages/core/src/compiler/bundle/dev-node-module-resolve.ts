@@ -1,5 +1,5 @@
 import { basename, dirname } from 'path';
-import { ResolveIdResult } from 'rollup';
+import { ResolveIdResult } from 'rolldown';
 import type * as d from '@stencil/core';
 
 import { join, relative } from '../../utils';

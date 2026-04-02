@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { OutputOptions, RollupBuild } from 'rollup';
+import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble, join, relativeImport } from '../../../utils';
 import { generateRollupOutput } from '../../app-core/bundle-app-core';
@@ -10,7 +10,7 @@ export const generateCjs = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RollupBuild,
+  rollupBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const cjsOutputs = outputTargets.filter((o) => !!o.cjsDir);
@@ -26,8 +26,8 @@ export const generateCjs = async (
       plugins: [lazyBundleIdPlugin(buildCtx, config, false, '.cjs')],
     };
 
+    // Note: interop and dynamicImportInCjs options are not supported in Rolldown
     if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
-      esmOpts.interop = 'auto';
       esmOpts.dynamicImportInCjs = false;
     }
 

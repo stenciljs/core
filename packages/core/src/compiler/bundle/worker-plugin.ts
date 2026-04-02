@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { Plugin, PluginContext, TransformResult } from 'rollup';
+import type { Plugin, PluginContext, TransformResult } from 'rolldown';
 
 import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
 import { optimizeModule } from '../optimize/optimize-module';
@@ -183,7 +183,7 @@ const buildWorker = async (
     inputs: {
       [workerName]: workerEntryPath,
     },
-    inlineDynamicImports: true,
+    codeSplitting: false,
   });
 
   if (build) {

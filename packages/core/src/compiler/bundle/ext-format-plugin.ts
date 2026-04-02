@@ -1,6 +1,6 @@
 import { basename } from 'path';
 import type * as d from '@stencil/core';
-import type { Plugin, TransformPluginContext, TransformResult } from 'rollup';
+import type { Plugin, TransformPluginContext, TransformResult } from 'rolldown';
 
 import { createJsVarName, normalizeFsPathQuery } from '../../utils';
 

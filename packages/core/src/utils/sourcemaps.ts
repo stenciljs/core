@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { SourceMap as RollupSourceMap } from 'rollup';
+import type { SourceMap as RollupSourceMap } from 'rolldown';
 
 /**
  * Converts a rollup provided source map to one that Stencil can easily understand
