@@ -67,11 +67,11 @@ describe('dist-custom-elements', () => {
   describe('minification', () => {
     let bundleOutputSpy: MockInstance;
     let optimizeModuleSpy: MockInstance;
-    let mockRollupBuild: any;
+    let mockRolldownBuild: any;
 
     beforeEach(() => {
-      // Mock the rollup build output
-      mockRollupBuild = {
+      // Mock the rolldown build output
+      mockRolldownBuild = {
         generate: vi.fn().mockResolvedValue({
           output: [
             {
@@ -87,7 +87,7 @@ describe('dist-custom-elements', () => {
 
       // Spy on bundleOutput to return our mock build
       bundleOutputSpy = vi.spyOn(bundleOutputMod, 'bundleOutput');
-      bundleOutputSpy.mockResolvedValue(mockRollupBuild);
+      bundleOutputSpy.mockResolvedValue(mockRolldownBuild);
 
       // Spy on optimizeModule to verify it's called with correct minify parameter
       optimizeModuleSpy = vi.spyOn(optimizeModuleMod, 'optimizeModule');

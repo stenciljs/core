@@ -76,7 +76,7 @@ export const coreResolvePlugin = (
         }
         // Handle jsx-runtime and jsx-dev-runtime imports
         // These must resolve to the same internal client path as @stencil/core
-        // to prevent Rollup from bundling duplicate runtime code with different
+        // to prevent Rolldown from bundling duplicate runtime code with different
         // minified property names, which causes VNode property mismatches during hydration
         if (id === STENCIL_JSX_RUNTIME_ID || id === STENCIL_JSX_DEV_RUNTIME_ID) {
           if (platform === 'client') {

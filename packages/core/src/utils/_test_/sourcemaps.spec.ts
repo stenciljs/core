@@ -1,30 +1,30 @@
 import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
-import type { SourceMap as RollupSourceMap } from 'rolldown';
+import type { SourceMap as RolldownSourceMap } from 'rolldown';
 
 import {
   getInlineSourceMappingUrlLinker,
   getSourceMappingUrlForEndOfFile,
   getSourceMappingUrlLinker,
-  rollupToStencilSourceMap,
+  rolldownToStencilSourceMap,
 } from '../index';
 
 describe('sourcemaps', () => {
-  describe('rollupToStencilSourceMap', () => {
+  describe('rolldownToStencilSourceMap', () => {
     it('returns null if the given sourcemap is null', () => {
-      expect(rollupToStencilSourceMap(null)).toBeNull();
+      expect(rolldownToStencilSourceMap(null)).toBeNull();
     });
 
     it('returns null if the given sourcemap is undefined', () => {
-      expect(rollupToStencilSourceMap(undefined)).toBeNull();
+      expect(rolldownToStencilSourceMap(undefined)).toBeNull();
     });
 
     it('returns null if the given sourcemap has no file', () => {
-      expect(rollupToStencilSourceMap({ sourcesContent: [] } as RollupSourceMap)).toBeNull();
+      expect(rolldownToStencilSourceMap({ sourcesContent: [] } as RolldownSourceMap)).toBeNull();
     });
 
-    it('transforms a rollup sourcemap to a stencil sourcemap', () => {
-      const rollupSourceMap: RollupSourceMap = {
+    it('transforms a rolldown sourcemap to a stencil sourcemap', () => {
+      const rolldownSourceMap: RolldownSourceMap = {
         file: 'index.js',
         mappings: ';;AAAA;AAC9D,GAAG,CAAC,CAAC;AACL;;;;',
         names: ['bootstrapLazy'],
@@ -37,7 +37,7 @@ describe('sourcemaps', () => {
         toUrl: () => 'stub',
       };
 
-      const stencilSourceMap = rollupToStencilSourceMap(rollupSourceMap);
+      const stencilSourceMap = rolldownToStencilSourceMap(rolldownSourceMap);
 
       const expectedSourceMap: d.SourceMap = {
         file: 'index.js',

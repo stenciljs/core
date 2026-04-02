@@ -8,11 +8,11 @@ import { getModule } from '../transpile/transpiled-module';
 import type { BundleOptions } from './bundle-interface';
 
 /**
- * Rollup plugin that aids in resolving the TypeScript files and performing the transpilation step.
+ * Rolldown plugin that aids in resolving the TypeScript files and performing the transpilation step.
  * @param compilerCtx the current compiler context
- * @param bundleOpts Rollup bundling options to apply during TypeScript compilation
+ * @param bundleOpts Rolldown bundling options to apply during TypeScript compilation
  * @param config the Stencil configuration for the project
- * @returns the rollup plugin for handling TypeScript files.
+ * @returns the rolldown plugin for handling TypeScript files.
  */
 export const typescriptPlugin = (
   compilerCtx: d.CompilerCtx,
@@ -23,8 +23,8 @@ export const typescriptPlugin = (
     name: `${bundleOpts.id}TypescriptPlugin`,
 
     /**
-     * A rollup build hook for loading TypeScript files and their associated source maps (if they exist).
-     * [Source](https://rollupjs.org/guide/en/#load)
+     * A rolldown build hook for loading TypeScript files and their associated source maps (if they exist).
+     * [Source](https://rolldownjs.org/guide/en/#load)
      * @param id the path of the file to load
      * @returns the module matched (with its sourcemap if it exists), null otherwise
      */

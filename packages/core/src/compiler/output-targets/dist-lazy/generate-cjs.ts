@@ -2,7 +2,7 @@ import type * as d from '@stencil/core';
 import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble, join, relativeImport } from '../../../utils';
-import { generateRollupOutput } from '../../app-core/bundle-app-core';
+import { generateRolldownOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
@@ -10,7 +10,7 @@ export const generateCjs = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RolldownBuild,
+  rolldownBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const cjsOutputs = outputTargets.filter((o) => !!o.cjsDir);
@@ -31,7 +31,12 @@ export const generateCjs = async (
       esmOpts.dynamicImportInCjs = false;
     }
 
-    const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+    const results = await generateRolldownOutput(
+      rolldownBuild,
+      esmOpts,
+      config,
+      buildCtx.entryModules,
+    );
     if (results != null) {
       const destinations = cjsOutputs
         .map((o) => o.cjsDir)
@@ -57,10 +62,10 @@ export const generateCjs = async (
 
 const generateShortcuts = (
   compilerCtx: d.CompilerCtx,
-  rollupResult: d.RollupResult[],
+  rolldownResult: d.RolldownResult[],
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<void[]> => {
-  const indexFilename = rollupResult.find((r) => r.type === 'chunk' && r.isIndex).fileName;
+  const indexFilename = rolldownResult.find((r) => r.type === 'chunk' && r.isIndex).fileName;
   return Promise.all(
     outputTargets.map(async (o) => {
       if (o.cjsIndexFile) {

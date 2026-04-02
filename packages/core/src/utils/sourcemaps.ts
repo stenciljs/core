@@ -1,28 +1,28 @@
 import type * as d from '@stencil/core';
-import type { SourceMap as RollupSourceMap } from 'rolldown';
+import type { SourceMap as RolldownSourceMap } from 'rolldown';
 
 /**
- * Converts a rollup provided source map to one that Stencil can easily understand
- * @param rollupSourceMap the sourcemap to transform
+ * Converts a rolldown provided source map to one that Stencil can easily understand
+ * @param rolldownSourceMap the sourcemap to transform
  * @returns the transformed sourcemap
  */
-export function rollupToStencilSourceMap(rollupSourceMap: null): null;
-export function rollupToStencilSourceMap(rollupSourceMap: undefined): null;
-export function rollupToStencilSourceMap(rollupSourceMap: RollupSourceMap): d.SourceMap;
-export function rollupToStencilSourceMap(
-  rollupSourceMap: RollupSourceMap | undefined | null,
+export function rolldownToStencilSourceMap(rolldownSourceMap: null): null;
+export function rolldownToStencilSourceMap(rolldownSourceMap: undefined): null;
+export function rolldownToStencilSourceMap(rolldownSourceMap: RolldownSourceMap): d.SourceMap;
+export function rolldownToStencilSourceMap(
+  rolldownSourceMap: RolldownSourceMap | undefined | null,
 ): d.SourceMap | null {
-  if (!rollupSourceMap || !rollupSourceMap.file) {
+  if (!rolldownSourceMap || !rolldownSourceMap.file) {
     return null;
   }
 
   return {
-    file: rollupSourceMap.file,
-    mappings: rollupSourceMap.mappings,
-    names: rollupSourceMap.names,
-    sources: rollupSourceMap.sources,
-    sourcesContent: rollupSourceMap.sourcesContent,
-    version: rollupSourceMap.version,
+    file: rolldownSourceMap.file,
+    mappings: rolldownSourceMap.mappings,
+    names: rolldownSourceMap.names,
+    sources: rolldownSourceMap.sources,
+    sourcesContent: rolldownSourceMap.sourcesContent,
+    version: rolldownSourceMap.version,
   } satisfies d.SourceMap;
 }
 

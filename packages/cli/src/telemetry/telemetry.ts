@@ -33,7 +33,7 @@ interface TrackableData {
   os_version: string | undefined;
   packages: string[];
   packages_no_versions?: string[];
-  rollup: string;
+  rolldown: string;
   stencil: string;
   system: string;
   system_major?: string;
@@ -190,9 +190,9 @@ export const prepareData = async (
   duration_ms: number | undefined,
   component_count: number | undefined = undefined,
 ): Promise<TrackableData> => {
-  const { typescript, rollup } = coreCompiler.versions || {
+  const { typescript, rolldown } = coreCompiler.versions || {
     typescript: 'unknown',
-    rollup: 'unknown',
+    rolldown: 'unknown',
   };
   const { packages, packagesNoVersions } = await getInstalledPackages(sys, flags);
   const targets = getActiveTargets(config);
@@ -218,7 +218,7 @@ export const prepareData = async (
     os_version,
     packages,
     packages_no_versions: packagesNoVersions,
-    rollup,
+    rolldown,
     stencil,
     system,
     system_major: getMajorVersion(system),
@@ -264,7 +264,7 @@ const CONFIG_PROPS_TO_DELETE: ReadonlyArray<keyof d.Config> = [
   'devServer',
   'env',
   'logger',
-  'rollupConfig',
+  'rolldownConfig',
   'sys',
   'testing',
   'tsCompilerOptions',

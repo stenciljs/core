@@ -12,11 +12,11 @@ export const writeHydrateOutputs = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetHydrate[],
-  rollupOutput: RolldownOutput,
+  rolldownOutput: RolldownOutput,
 ) => {
   return Promise.all(
     outputTargets.map((outputTarget) => {
-      return writeHydrateOutput(config, compilerCtx, buildCtx, outputTarget, rollupOutput);
+      return writeHydrateOutput(config, compilerCtx, buildCtx, outputTarget, rolldownOutput);
     }),
   );
 };
@@ -26,7 +26,7 @@ const writeHydrateOutput = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTarget: d.OutputTargetHydrate,
-  rollupOutput: RolldownOutput,
+  rolldownOutput: RolldownOutput,
 ) => {
   const hydratePackageName = await getHydratePackageName(config, compilerCtx);
 
@@ -63,7 +63,7 @@ const writeHydrateOutput = async (
   const minify = outputTarget.minify === true;
 
   await Promise.all(
-    rollupOutput.output.map(async (output) => {
+    rolldownOutput.output.map(async (output) => {
       if (output.type === 'chunk') {
         let code = relocateHydrateContextConst(config, compilerCtx, output.code);
 

@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 
 import { generatePreamble, join, relative } from '../../utils';
 import { BuildContext } from '../build/build-ctx';
-import { getRollupOptions } from './bundle-output';
+import { getRolldownOptions } from './bundle-output';
 import { DEV_MODULE_CACHE_BUSTER, DEV_MODULE_DIR } from './constants';
 
 export const compilerRequest = async (
@@ -89,14 +89,14 @@ const bundleDevModule = async (
   const buildCtx = new BuildContext(config, compilerCtx);
 
   try {
-    const inputOpts = getRollupOptions(config, compilerCtx, buildCtx, {
+    const inputOpts = getRolldownOptions(config, compilerCtx, buildCtx, {
       id: parsedUrl.nodeModuleId,
       platform: 'client',
       inputs: {
         index: parsedUrl.nodeResolvedPath,
       },
     });
-    const rollupBuild = await rolldown(inputOpts);
+    const rolldownBuild = await rolldown(inputOpts);
 
     const outputOpts: OutputOptions = {
       banner: generatePreamble(config),
@@ -109,7 +109,7 @@ const bundleDevModule = async (
       inputOpts.input = parsedUrl.nodeResolvedPath;
     }
 
-    const r = await rollupBuild.generate(outputOpts);
+    const r = await rolldownBuild.generate(outputOpts);
 
     if (buildCtx.hasError) {
       results.status = 500;

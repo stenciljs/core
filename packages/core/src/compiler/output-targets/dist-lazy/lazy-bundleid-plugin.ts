@@ -3,13 +3,13 @@ import type * as d from '@stencil/core';
 import type { OutputChunk, Plugin } from 'rolldown';
 
 /**
- * A Rollup plugin to generate unique bundle IDs for lazy-loaded modules.
+ * A Rolldown plugin to generate unique bundle IDs for lazy-loaded modules.
  * @param buildCtx The build context
  * @param config The validated configuration
  * @param shouldHash Whether to hash the bundle ID
  * @param suffix The suffix to append to the bundle ID
  * @param isBrowserBuild Whether this is a browser build
- * @returns A Rollup plugin
+ * @returns A Rolldown plugin
  */
 export const lazyBundleIdPlugin = (
   buildCtx: d.BuildCtx,

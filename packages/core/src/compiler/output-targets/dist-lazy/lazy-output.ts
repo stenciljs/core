@@ -62,13 +62,12 @@ export const outputLazy = async (
       bundleOpts.inputs[entryModule.entryKey] = entryModule.entryKey;
     });
 
-    const rollupBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
-    if (rollupBuild != null) {
-      // Note: SystemJS output (generateSystem) has been removed in v5 as it's no longer widely used
+    const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
+    if (rolldownBuild != null) {
       const results: d.UpdatedLazyBuildCtx[] = await Promise.all([
-        generateEsmBrowser(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
-        generateEsm(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
-        generateCjs(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
+        generateEsmBrowser(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
+        generateEsm(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
+        generateCjs(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
       ]);
 
       results.forEach((result) => {

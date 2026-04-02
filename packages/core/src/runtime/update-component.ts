@@ -303,7 +303,7 @@ const callRender = (
 ) => {
   // in order for bundlers to correctly tree-shake the BUILD object
   // we need to ensure BUILD is not deoptimized within a try/catch
-  // https://rollupjs.org/guide/en/#treeshake tryCatchDeoptimization
+  // https://rolldownjs.org/guide/en/#treeshake tryCatchDeoptimization
   const allRenderFn = !!BUILD.allRenderFn;
   const lazyLoad = !!BUILD.lazyLoad;
   const taskQueue = !!BUILD.taskQueue;

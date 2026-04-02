@@ -416,7 +416,7 @@ const getWorkerMain = (referenceId: string, workerName: string, workerMsgId: str
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLUP_FILE_URL_${referenceId};
+export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export const worker = /*@__PURE__*/createWorker(workerPath, workerName, workerMsgId);
 `;
 };
@@ -426,7 +426,7 @@ const getInlineWorker = (referenceId: string, workerName: string, workerMsgId: s
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLUP_FILE_URL_${referenceId};
+export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export let worker;
 try {
   // first try directly starting the worker with the URL

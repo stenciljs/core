@@ -57,8 +57,8 @@ export const versions = {
   get typescript() {
     return getToolVersion('typescript');
   },
-  get rollup() {
-    return getToolVersion('rollup');
+  get rolldown() {
+    return getToolVersion('rolldown');
   },
   get terser() {
     return getToolVersion('terser');

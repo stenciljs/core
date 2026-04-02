@@ -2,7 +2,7 @@ import type * as d from '@stencil/core';
 import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble } from '../../../utils';
-import { generateRollupOutput } from '../../app-core/bundle-app-core';
+import { generateRolldownOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
@@ -10,7 +10,7 @@ export const generateEsmBrowser = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RolldownBuild,
+  rolldownBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !!o.isBrowserBuild);
@@ -26,7 +26,12 @@ export const generateEsmBrowser = async (
       plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '', true)],
     };
 
-    const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+    const output = await generateRolldownOutput(
+      rolldownBuild,
+      esmOpts,
+      config,
+      buildCtx.entryModules,
+    );
 
     if (output != null) {
       const es2017destinations = esmOutputs

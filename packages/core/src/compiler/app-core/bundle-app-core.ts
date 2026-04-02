@@ -4,21 +4,21 @@ import type { OutputAsset, OutputChunk, OutputOptions, RolldownBuild } from 'rol
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
- * Generate rollup output based on a rollup build and a series of options.
+ * Generate rolldown output based on a rolldown build and a series of options.
  *
- * @param build a rollup build
- * @param options output options for rollup
+ * @param build a rolldown build
+ * @param options output options for rolldown
  * @param config a user-supplied configuration object
  * @param entryModules a list of entry modules, for checking which chunks
  * contain components
  * @returns a Promise wrapping either build results or `null`
  */
-export const generateRollupOutput = async (
+export const generateRolldownOutput = async (
   build: RolldownBuild,
   options: OutputOptions,
   config: d.ValidatedConfig,
   entryModules: d.EntryModule[],
-): Promise<d.RollupResult[] | null> => {
+): Promise<d.RolldownResult[] | null> => {
   if (build == null) {
     return null;
   }

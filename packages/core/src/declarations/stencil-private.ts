@@ -205,11 +205,11 @@ export type ModuleFormat =
   | 'module'
   | 'systemjs';
 
-export interface RollupResultModule {
+export interface RolldownResultModule {
   id: string;
 }
-export interface RollupResults {
-  modules: RollupResultModule[];
+export interface RolldownResults {
+  modules: RolldownResultModule[];
 }
 
 export interface UpdatedLazyBuildCtx {
@@ -267,7 +267,7 @@ export interface BuildCtx {
   pendingCopyTasks: Promise<CopyResults>[];
   progress(task: BuildTask): void;
   requiresFullBuild: boolean;
-  rollupResults?: RollupResults;
+  rolldownResults?: RolldownResults;
   scriptsAdded: string[];
   scriptsDeleted: string[];
   startTime: number;
@@ -323,7 +323,7 @@ export interface CompilerBuildStats {
   };
   components: BuildComponent[];
   entries: EntryModule[];
-  rollupResults: RollupResults;
+  rolldownResults: RolldownResults;
   sourceGraph?: BuildSourceGraph;
   componentGraph: BuildResultsComponentGraph;
   collections: CompilerBuildStatCollection[];
@@ -357,21 +357,21 @@ export interface BuildComponent {
 export type SourceTarget = 'es5' | 'es2017' | 'latest';
 
 /**
- * A note regarding Rollup types:
+ * A note regarding Rolldown types:
  * As of this writing, there is no great way to import external types for packages that are directly embedded in the
- * Stencil source. As a result, some types are duplicated here for Rollup that will be used within the codebase.
- * Updates to rollup may require these typings to be updated.
+ * Stencil source. As a result, some types are duplicated here for Rolldown that will be used within the codebase.
+ * Updates to rolldown may require these typings to be updated.
  */
 
-export type RollupResult = RollupChunkResult | RollupAssetResult;
+export type RolldownResult = RolldownChunkResult | RolldownAssetResult;
 
-export interface RollupAssetResult {
+export interface RolldownAssetResult {
   type: 'asset';
   fileName: string;
   content: string;
 }
 
-export interface RollupChunkResult {
+export interface RolldownChunkResult {
   type: 'chunk';
   entryKey: string;
   fileName: string;
@@ -383,10 +383,10 @@ export interface RollupChunkResult {
   isBrowserLoader: boolean;
   imports: string[];
   moduleFormat: ModuleFormat;
-  map?: RollupSourceMap;
+  map?: RolldownSourceMap;
 }
 
-export interface RollupSourceMap {
+export interface RolldownSourceMap {
   file: string;
   mappings: string;
   names: string[];
@@ -408,7 +408,7 @@ export type OptimizeJsResult = {
 
 export interface BundleModule {
   entryKey: string;
-  rollupResult: RollupChunkResult;
+  rolldownResult: RolldownChunkResult;
   cmps: ComponentCompilerMeta[];
   output: BundleModuleOutput;
 }
@@ -514,15 +514,15 @@ export interface CompilerCtx {
   moduleMap: ModuleMap;
   nodeMap: NodeMap;
   resolvedCollections: Set<string>;
-  rollupCacheHydrate: any;
-  rollupCacheLazy: any;
-  rollupCacheNative: any;
+  rolldownCacheHydrate: any;
+  rolldownCacheLazy: any;
+  rolldownCacheNative: any;
   styleModeNames: Set<string>;
   changedModules: Set<string>;
   changedFiles: Set<string>;
   worker?: CompilerWorkerContext;
 
-  rollupCache: Map<string, any>;
+  rolldownCache: Map<string, any>;
 
   reset(): void;
 }

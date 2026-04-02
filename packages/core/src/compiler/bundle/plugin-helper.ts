@@ -27,7 +27,7 @@ export const pluginHelper = (
         }
         const diagnostic = buildError(builtCtx.diagnostics);
         diagnostic.header = `Node Polyfills Required`;
-        diagnostic.messageText = `For the import "${importee}" to be bundled${fromMsg}, ensure the "rollup-plugin-node-polyfills" plugin is installed and added to the stencil config plugins (${platform}). Please see the bundling docs for more information.
+        diagnostic.messageText = `For the import "${importee}" to be bundled${fromMsg}, ensure the "rolldown-plugin-node-polyfills" plugin is installed and added to the stencil config plugins (${platform}). Please see the bundling docs for more information.
         Further information: https://stenciljs.com/docs/module-bundling`;
       }
       return null;

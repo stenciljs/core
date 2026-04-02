@@ -1,9 +1,9 @@
 import type * as d from '@stencil/core';
-import type { RollupResult } from '@stencil/core';
+import type { RolldownResult } from '@stencil/core';
 import type { OutputOptions, RolldownBuild } from 'rolldown';
 
 import { generatePreamble, join, relativeImport } from '../../../utils';
-import { generateRollupOutput } from '../../app-core/bundle-app-core';
+import { generateRolldownOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
@@ -11,7 +11,7 @@ export const generateEsm = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupBuild: RolldownBuild,
+  rolldownBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
   const esmEs5Outputs = config.buildEs5
@@ -28,7 +28,12 @@ export const generateEsm = async (
       plugins: [lazyBundleIdPlugin(buildCtx, config, false, '')],
     };
     const outputTargetType = esmOutputs[0].type;
-    const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+    const output = await generateRolldownOutput(
+      rolldownBuild,
+      esmOpts,
+      config,
+      buildCtx.entryModules,
+    );
 
     if (output != null) {
       const es2017destinations = esmOutputs
@@ -116,9 +121,9 @@ const generateShortcuts = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   outputTargets: d.OutputTargetDistLazy[],
-  rollupResult: RollupResult[],
+  rolldownResult: RolldownResult[],
 ): Promise<void[]> => {
-  const indexFilename = rollupResult.find((r) => r.type === 'chunk' && r.isIndex).fileName;
+  const indexFilename = rolldownResult.find((r) => r.type === 'chunk' && r.isIndex).fileName;
 
   return Promise.all(
     outputTargets.map(async (o) => {

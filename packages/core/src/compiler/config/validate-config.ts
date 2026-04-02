@@ -25,7 +25,7 @@ import { validateDistNamespace } from './validate-namespace';
 import { validateNamespace } from './validate-namespace';
 import { validatePaths } from './validate-paths';
 import { validatePlugins } from './validate-plugins';
-import { validateRollupConfig } from './validate-rollup-config';
+import { validateRolldownConfig } from './validate-rolldown-config';
 import { validateWorkers } from './validate-workers';
 
 /**
@@ -125,7 +125,7 @@ export const validateConfig = (
     minifyCss: config.minifyCss ?? !devMode,
     minifyJs: config.minifyJs ?? !devMode,
     outputTargets: config.outputTargets ?? [],
-    rollupConfig: validateRollupConfig(config),
+    rolldownConfig: validateRolldownConfig(config),
     sourceMap:
       config.sourceMap === true ||
       (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),

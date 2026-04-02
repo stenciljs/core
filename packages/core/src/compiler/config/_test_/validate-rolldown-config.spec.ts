@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { validateRollupConfig } from '../validate-rollup-config';
+import { validateRolldownConfig } from '../validate-rolldown-config';
 
 describe('validateStats', () => {
   let config: d.Config;
@@ -11,21 +11,21 @@ describe('validateStats', () => {
   });
 
   it('should use default if no config provided', () => {
-    const rollupConfig = validateRollupConfig(config);
-    expect(rollupConfig).toEqual({
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({
       inputOptions: {},
       outputOptions: {},
     });
   });
 
   it('should set based on inputOptions if provided', () => {
-    config.rollupConfig = {
+    config.rolldownConfig = {
       inputOptions: {
         context: 'window',
       },
     };
-    const rollupConfig = validateRollupConfig(config);
-    expect(rollupConfig).toEqual({
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({
       inputOptions: {
         context: 'window',
       },
@@ -34,7 +34,7 @@ describe('validateStats', () => {
   });
 
   it('should use default if inputOptions is not provided but outputOptions is', () => {
-    config.rollupConfig = {
+    config.rolldownConfig = {
       outputOptions: {
         globals: {
           jquery: '$',
@@ -42,8 +42,8 @@ describe('validateStats', () => {
       },
     };
 
-    const rollupConfig = validateRollupConfig(config);
-    expect(rollupConfig).toEqual({
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({
       inputOptions: {},
       outputOptions: {
         globals: {
@@ -54,7 +54,7 @@ describe('validateStats', () => {
   });
 
   it('should pass all valid config data through and not those that are extraneous', () => {
-    config.rollupConfig = {
+    config.rolldownConfig = {
       inputOptions: {
         context: 'window',
         external: 'external_symbol',
@@ -65,10 +65,10 @@ describe('validateStats', () => {
           jquery: '$',
         },
       },
-    } as d.RollupConfig;
+    } as d.RolldownConfig;
 
-    const rollupConfig = validateRollupConfig(config);
-    expect(rollupConfig).toEqual({
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({
       inputOptions: {
         context: 'window',
         external: 'external_symbol',

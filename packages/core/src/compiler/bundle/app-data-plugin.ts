@@ -14,14 +14,14 @@ import {
 import type { BundlePlatform } from './bundle-interface';
 
 /**
- * A Rollup plugin which bundles application data.
+ * A Rolldown plugin which bundles application data.
  *
  * @param config the Stencil configuration for a particular project
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  * @param buildConditionals the set build conditionals for the build
  * @param platform the platform that is being built
- * @returns a Rollup plugin which carries out the necessary work
+ * @returns a Rolldown plugin which carries out the necessary work
  */
 export const appDataPlugin = (
   config: d.ValidatedConfig,
@@ -156,7 +156,7 @@ export const appDataPlugin = (
               // MagicString changed their types in this PR: https://github.com/Rich-Harris/magic-string/pull/235
               // so that their `sourcesContent` is of type `(string | null)[]`. But, it will only return `[null]` if
               // `includeContent` is set to `false`. Since we explicitly set `includeContent: true`, we can override
-              // the type to satisfy Rollup's type expectation
+              // the type to satisfy Rolldown's type expectation
               sourcesContent: codeMap.sourcesContent as string[],
             },
           };

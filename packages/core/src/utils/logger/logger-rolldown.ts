@@ -1,43 +1,43 @@
 import type * as d from '@stencil/core';
-import type { RollupError } from 'rolldown';
+import type { RolldownError } from 'rolldown';
 
 import { isString, toTitleCase } from '../helpers';
 import { buildWarn } from '../message-utils';
 import { splitLineBreaks } from './logger-utils';
 
-export const loadRollupDiagnostics = (
+export const loadRolldownDiagnostics = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  rollupError: RollupError,
+  rolldownError: RolldownError,
 ) => {
-  const formattedCode = formatErrorCode(rollupError.code);
+  const formattedCode = formatErrorCode(rolldownError.code);
 
   const diagnostic: d.Diagnostic = {
     level: 'error',
     type: 'bundling',
     language: 'javascript',
-    code: rollupError.code,
-    header: `Rollup${formattedCode.length > 0 ? ': ' + formattedCode : ''}`,
+    code: rolldownError.code,
+    header: `Rolldown${formattedCode.length > 0 ? ': ' + formattedCode : ''}`,
     messageText: formattedCode,
     relFilePath: undefined,
     absFilePath: undefined,
     lines: [],
   };
 
-  if (config.logLevel === 'debug' && rollupError.stack) {
-    diagnostic.messageText = rollupError.stack;
-  } else if (rollupError.message) {
-    diagnostic.messageText = rollupError.message;
+  if (config.logLevel === 'debug' && rolldownError.stack) {
+    diagnostic.messageText = rolldownError.stack;
+  } else if (rolldownError.message) {
+    diagnostic.messageText = rolldownError.message;
   }
 
-  if (rollupError.plugin) {
-    diagnostic.messageText += ` (plugin: ${rollupError.plugin}${rollupError.hook ? `, ${rollupError.hook}` : ''})`;
+  if (rolldownError.plugin) {
+    diagnostic.messageText += ` (plugin: ${rolldownError.plugin}${rolldownError.hook ? `, ${rolldownError.hook}` : ''})`;
   }
 
-  const loc = rollupError.loc;
+  const loc = rolldownError.loc;
   if (loc != null) {
-    const srcFile = loc.file || rollupError.id;
+    const srcFile = loc.file || rolldownError.id;
     if (isString(srcFile)) {
       try {
         const sourceText = compilerCtx.fs.readFileSync(srcFile);
@@ -100,8 +100,8 @@ export const loadRollupDiagnostics = (
             diagnostic.messageText += `\nError parsing: ${diagnostic.absFilePath}, line: ${loc.line}, column: ${loc.column}`;
             diagnostic.debugText = sourceText;
           }
-        } else if (typeof rollupError.frame === 'string') {
-          diagnostic.messageText += '\n' + rollupError.frame;
+        } else if (typeof rolldownError.frame === 'string') {
+          diagnostic.messageText += '\n' + rolldownError.frame;
         }
       } catch {}
     }

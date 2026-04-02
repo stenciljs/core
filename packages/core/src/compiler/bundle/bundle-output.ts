@@ -1,7 +1,7 @@
 import { rolldown, InputOptions, TreeshakingOptions, Plugin } from 'rolldown';
 import type * as d from '@stencil/core';
 
-import { createOnWarnFn, loadRollupDiagnostics } from '../../utils';
+import { createOnWarnFn, loadRolldownDiagnostics } from '../../utils';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
 import { coreResolvePlugin } from './core-resolve-plugin';
@@ -24,38 +24,35 @@ export const bundleOutput = async (
   bundleOpts: BundleOptions,
 ) => {
   try {
-    const rollupOptions = getRollupOptions(config, compilerCtx, buildCtx, bundleOpts);
-    const rollupBuild = await rolldown(rollupOptions);
-
-    // Note: Rolldown doesn't support caching the same way Rollup does
-    // compilerCtx.rollupCache.set(bundleOpts.id, rollupBuild.cache);
-    return rollupBuild;
+    const rolldownOptions = getRolldownOptions(config, compilerCtx, buildCtx, bundleOpts);
+    const rolldownBuild = await rolldown(rolldownOptions);
+    return rolldownBuild;
   } catch (e: any) {
     if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rollup types (which are
+      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
       // breakable) and type safety (so that the error variable may be something other than `any`)
-      loadRollupDiagnostics(config, compilerCtx, buildCtx, e);
+      loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }
   return undefined;
 };
 
 /**
- * Build the rollup options that will be used to transpile, minify, and otherwise transform a Stencil project
+ * Build the rolldown options that will be used to transpile, minify, and otherwise transform a Stencil project
  * @param config the Stencil configuration for the project
  * @param compilerCtx the current compiler context
  * @param buildCtx a context object containing information about the current build
- * @param bundleOpts Rollup bundling options to apply to the base configuration setup by this function
- * @returns the rollup options to be used
+ * @param bundleOpts Rolldown bundling options to apply to the base configuration setup by this function
+ * @returns the rolldown options to be used
  */
-export const getRollupOptions = (
+export const getRolldownOptions = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
 ): InputOptions => {
-  const beforePlugins = config.rollupPlugins.before || [];
-  const afterPlugins = config.rollupPlugins.after || [];
+  const beforePlugins = config.rolldownPlugins.before || [];
+  const afterPlugins = config.rolldownPlugins.after || [];
 
   // Create a plugin for dev module resolution if enabled
   const devModulePlugin: Plugin | null = config.devServer?.experimentalDevModules
@@ -72,7 +69,7 @@ export const getRollupOptions = (
       }
     : null;
 
-  const rollupOptions: InputOptions = {
+  const rolldownOptions: InputOptions = {
     input: bundleOpts.inputs,
     platform: bundleOpts.platform === 'hydrate' ? 'node' : 'browser',
     tsconfig: config.tsconfig,
@@ -126,8 +123,6 @@ export const getRollupOptions = (
       ...config.nodeResolve,
     },
 
-    // Use Rolldown's transform.define for process.env.NODE_ENV replacement
-    // Replaces @rollup/plugin-replace
     transform: {
       define: {
         'process.env.NODE_ENV': config.devMode ? '"development"' : '"production"',
@@ -160,30 +155,19 @@ export const getRollupOptions = (
 
     treeshake: getTreeshakeOption(config, bundleOpts),
     preserveEntrySignatures: bundleOpts.preserveEntrySignatures ?? 'strict',
-
+    external: config.rolldownConfig.inputOptions.external,
     onwarn: createOnWarnFn(buildCtx.diagnostics),
-
-    // Note: Rolldown doesn't support the cache option like Rollup does
-    // cache: compilerCtx.rollupCache.get(bundleOpts.id),
-
-    external: config.rollupConfig.inputOptions.external,
-
-    // Note: maxParallelFileOps is not supported in Rolldown
-    // maxParallelFileOps: config.rollupConfig.inputOptions.maxParallelFileOps,
   };
 
-  return rollupOptions;
+  return rolldownOptions;
 };
 
 const getTreeshakeOption = (
   config: d.ValidatedConfig,
   bundleOpts: BundleOptions,
 ): TreeshakingOptions | boolean => {
-  // Note: Rolldown's TreeshakingOptions only supports moduleSideEffects,
-  // not propertyReadSideEffects or tryCatchDeoptimization like Rollup
   if (bundleOpts.platform === 'hydrate') {
     return true;
   }
-
-  return !config.devMode && config.rollupConfig.inputOptions.treeshake !== false;
+  return !config.devMode && config.rolldownConfig.inputOptions.treeshake !== false;
 };

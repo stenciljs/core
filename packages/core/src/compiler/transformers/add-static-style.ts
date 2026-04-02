@@ -193,7 +193,7 @@ export const createStyleIdentifier = (cmp: d.ComponentCompilerMeta, style: d.Sty
   const externalStyles = getExternalStyles(style);
   /**
    * Set a styleIdentifier which will be propagated to the component and
-   * later picked up by rollup when it injects the parsed CSS directly into
+   * later picked up by rolldown when it injects the parsed CSS directly into
    * the component, see `compilerCtx.worker.transformCssToEsm` in
    * `src/compiler/bundle/ext-transforms-plugin.ts`
    */

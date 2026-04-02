@@ -55,7 +55,7 @@ describe('generateBuildStats', () => {
         minifyCss: false,
         minifyJs: false,
       },
-      rollupResults: {
+      rolldownResults: {
         modules: [],
       },
       sourceGraph: {},

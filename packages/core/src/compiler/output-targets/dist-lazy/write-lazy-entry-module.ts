@@ -8,11 +8,11 @@ export const writeLazyModule = async (
   destinations: string[],
   code: string,
   sourceMap: d.SourceMap,
-  rollupResult?: d.RollupChunkResult,
+  rolldownResult?: d.RolldownChunkResult,
 ): Promise<d.BundleModuleOutput> => {
   // code = replaceStylePlaceholders(entryModule.cmps, modeName, code);
 
-  const fileName = rollupResult.fileName;
+  const fileName = rolldownResult.fileName;
   const bundleId = fileName.replace('.entry.js', '');
 
   if (sourceMap) {

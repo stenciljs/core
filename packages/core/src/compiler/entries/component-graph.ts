@@ -11,7 +11,7 @@ export const generateModuleGraph = (
     const bundle = bundleModules.find((b) => b.cmps.includes(cmp));
     if (bundle) {
       // add default case for no mode
-      cmpMap.set(getScopeId(cmp.tagName), bundle.rollupResult.imports);
+      cmpMap.set(getScopeId(cmp.tagName), bundle.rolldownResult.imports);
     }
   });
 

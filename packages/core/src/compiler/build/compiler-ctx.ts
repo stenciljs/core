@@ -35,10 +35,10 @@ export class CompilerContext implements d.CompilerCtx {
   moduleMap: d.ModuleMap = new Map();
   nodeMap = new WeakMap();
   resolvedCollections = new Set<string>();
-  rollupCache = new Map();
-  rollupCacheHydrate: any = null;
-  rollupCacheLazy: any = null;
-  rollupCacheNative: any = null;
+  rolldownCache = new Map();
+  rolldownCacheHydrate: any = null;
+  rolldownCacheLazy: any = null;
+  rolldownCacheNative: any = null;
   cachedGlobalStyle: string;
   styleModeNames = new Set<string>();
   worker: d.CompilerWorkerContext = null;
@@ -50,9 +50,9 @@ export class CompilerContext implements d.CompilerCtx {
     this.collections.length = 0;
     this.compilerOptions = null;
     this.hasSuccessfulBuild = false;
-    this.rollupCacheHydrate = null;
-    this.rollupCacheLazy = null;
-    this.rollupCacheNative = null;
+    this.rolldownCacheHydrate = null;
+    this.rolldownCacheLazy = null;
+    this.rolldownCacheNative = null;
     this.moduleMap.clear();
     this.resolvedCollections.clear();
 

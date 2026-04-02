@@ -8,7 +8,7 @@ import {
   createOnWarnFn,
   generatePreamble,
   join,
-  loadRollupDiagnostics,
+  loadRolldownDiagnostics,
 } from '../../../utils';
 import {
   STENCIL_APP_DATA_ID,
@@ -26,20 +26,20 @@ import { writeHydrateOutputs } from './write-hydrate-outputs';
 
 const buildHydrateAppFor = async (
   format: 'esm' | 'cjs',
-  rollupBuild: RolldownBuild,
+  rolldownBuild: RolldownBuild,
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetHydrate[],
 ) => {
   const file = format === 'esm' ? 'index.mjs' : 'index.js';
-  const rollupOutput = await rollupBuild.generate({
+  const rolldownOutput = await rolldownBuild.generate({
     banner: generatePreamble(config),
     format,
     file,
   });
 
-  await writeHydrateOutputs(config, compilerCtx, buildCtx, outputTargets, rollupOutput);
+  await writeHydrateOutputs(config, compilerCtx, buildCtx, outputTargets, rolldownOutput);
 };
 
 /**
@@ -61,8 +61,8 @@ export const generateHydrateApp = async (
     const input = join(packageDir, 'runtime', 'server', 'runner.mjs');
     const appData = join(packageDir, 'runtime', 'app-data', 'index.js');
 
-    const rollupOptions: InputOptions = {
-      ...config.rollupConfig.inputOptions,
+    const rolldownOptions: InputOptions = {
+      ...config.rolldownConfig.inputOptions,
       external: ['node:stream'],
       input,
       plugins: [
@@ -99,16 +99,16 @@ export const generateHydrateApp = async (
       onwarn: createOnWarnFn(buildCtx.diagnostics),
     };
 
-    const rollupAppBuild = await rolldown(rollupOptions);
+    const rolldownAppBuild = await rolldown(rolldownOptions);
     await Promise.all([
-      buildHydrateAppFor('cjs', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),
-      buildHydrateAppFor('esm', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      buildHydrateAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      buildHydrateAppFor('esm', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
     ]);
   } catch (e: any) {
     if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rollup types (which are
+      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
       // breakable) and type safety (so that the error variable may be something other than `any`)
-      loadRollupDiagnostics(config, compilerCtx, buildCtx, e);
+      loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }
 };
@@ -122,14 +122,14 @@ const generateHydrateFactory = async (
     try {
       const appFactoryEntryCode = await generateHydrateFactoryEntry(buildCtx);
 
-      const rollupFactoryBuild = await bundleHydrateFactory(
+      const rolldownFactoryBuild = await bundleHydrateFactory(
         config,
         compilerCtx,
         buildCtx,
         appFactoryEntryCode,
       );
-      if (rollupFactoryBuild != null) {
-        const rollupOutput = await rollupFactoryBuild.generate({
+      if (rolldownFactoryBuild != null) {
+        const rolldownOutput = await rolldownFactoryBuild.generate({
           format: 'cjs',
           esModule: false,
           strict: false,
@@ -138,8 +138,8 @@ const generateHydrateFactory = async (
           inlineDynamicImports: true,
         });
 
-        if (!buildCtx.hasError && rollupOutput != null && Array.isArray(rollupOutput.output)) {
-          return rollupOutput.output[0].code;
+        if (!buildCtx.hasError && rolldownOutput != null && Array.isArray(rolldownOutput.output)) {
+          return rolldownOutput.output[0].code;
         }
       }
     } catch (e: any) {

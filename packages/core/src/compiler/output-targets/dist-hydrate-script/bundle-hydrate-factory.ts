@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { loadRollupDiagnostics } from '../../../utils';
+import { loadRolldownDiagnostics } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_HYDRATE_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { addTagTransform } from '../../transformers/add-tag-transform';
@@ -13,14 +13,14 @@ import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**
- * Marshall some Rollup options for the hydrate factory and then pass it to our
+ * Marshall some Rolldown options for the hydrate factory and then pass it to our
  * {@link bundleOutput} helper
  *
  * @param config a validated Stencil configuration
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  * @param appFactoryEntryCode an entry code for the app factory
- * @returns a promise wrapping a rollup build object
+ * @returns a promise wrapping a rolldown build object
  */
 export const bundleHydrateFactory = async (
   config: d.ValidatedConfig,
@@ -44,13 +44,13 @@ export const bundleHydrateFactory = async (
       },
     };
 
-    const rollupBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
-    return rollupBuild;
+    const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
+    return rolldownBuild;
   } catch (e: any) {
     if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rollup types (which are
+      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
       // breakable) and type safety (so that the error variable may be something other than `any`)
-      loadRollupDiagnostics(config, compilerCtx, buildCtx, e);
+      loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }
   return undefined;

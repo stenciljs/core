@@ -21,7 +21,7 @@ export const cmpModules = /*@__PURE__*/ new Map<
  * where here in the source code it must be like this, so that an undesirable
  * transformation that Esbuild would otherwise carry out doesn't occur, but we
  * actually need to then manually edit the bundled Esbuild code later on to fix
- * that. We do this with plugins in the Esbuild and Rollup bundles which
+ * that. We do this with plugins in the Esbuild and Rolldown bundles which
  * include this file.
  */
 const MODULE_IMPORT_PREFIX = './';

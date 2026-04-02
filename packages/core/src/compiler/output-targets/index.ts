@@ -24,7 +24,7 @@ export const generateOutputTargets = async (
 
   compilerCtx.changedModules.clear();
 
-  invalidateRollupCaches(compilerCtx);
+  invalidateRolldownCaches(compilerCtx);
 
   await Promise.all([
     outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
@@ -55,11 +55,9 @@ export const generateOutputTargets = async (
   timeSpan.finish('generate outputs finished');
 };
 
-const invalidateRollupCaches = (compilerCtx: d.CompilerCtx) => {
-  // Note: Rolldown doesn't support caching the same way Rollup does.
-  // This function is kept for future use if caching support is added.
+const invalidateRolldownCaches = (compilerCtx: d.CompilerCtx) => {
   const invalidatedIds = compilerCtx.changedFiles;
-  compilerCtx.rollupCache.forEach((cache: any) => {
+  compilerCtx.rolldownCache.forEach((cache: any) => {
     if (cache?.modules) {
       cache.modules.forEach((mod: any) => {
         if (mod?.transformDependencies?.some((id: string) => invalidatedIds.has(id))) {
