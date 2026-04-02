@@ -77,8 +77,8 @@ jobs:
           TAG="${{ inputs.prerelease-tag }}"
           # Bump root package version
           npm version prerelease --preid=$TAG --no-git-tag-version
-          # Bump all workspace package versions
-          pnpm -r exec npm version prerelease --preid=$TAG --no-git-tag-version
+          # Bump only ./packages/** workspace package versions
+          pnpm --filter './packages/**' exec npm version prerelease --preid=$TAG --no-git-tag-version
         shell: bash
 
       - name: 🔎 Get New Version
