@@ -1,5 +1,4 @@
 import type * as d from '@stencil/core';
-import type { RollupCache } from 'rollup';
 
 import { outputCopy } from './copy/output-copy';
 import { outputCollection } from './dist-collection';
@@ -25,7 +24,7 @@ export const generateOutputTargets = async (
 
   compilerCtx.changedModules.clear();
 
-  invalidateRollupCaches(compilerCtx);
+  invalidateRolldownCaches(compilerCtx);
 
   await Promise.all([
     outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
@@ -56,13 +55,15 @@ export const generateOutputTargets = async (
   timeSpan.finish('generate outputs finished');
 };
 
-const invalidateRollupCaches = (compilerCtx: d.CompilerCtx) => {
+const invalidateRolldownCaches = (compilerCtx: d.CompilerCtx) => {
   const invalidatedIds = compilerCtx.changedFiles;
-  compilerCtx.rollupCache.forEach((cache: RollupCache) => {
-    cache.modules.forEach((mod) => {
-      if (mod.transformDependencies.some((id) => invalidatedIds.has(id))) {
-        mod.originalCode = null;
-      }
-    });
+  compilerCtx.rolldownCache.forEach((cache: any) => {
+    if (cache?.modules) {
+      cache.modules.forEach((mod: any) => {
+        if (mod?.transformDependencies?.some((id: string) => invalidatedIds.has(id))) {
+          mod.originalCode = null;
+        }
+      });
+    }
   });
 };

@@ -33,7 +33,6 @@ fs.accessSync(path.join(typesDir, 'car-list', 'car-data.d.ts'));
 fs.accessSync(path.join(typesDir, 'car-list', 'car-list.d.ts'));
 
 const wwwDir = path.join(e2eDir, 'www');
-fs.accessSync(path.join(wwwDir, 'build', 'endtoend.js'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.esm.js'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.esm.js.map'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.css'));

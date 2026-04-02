@@ -10,7 +10,7 @@ import { retrieveTsDecorators, retrieveTsModifiers } from './transform-utils';
  * - For CommonJS, the component class is left as is
  * - For ESM, the component class is re-written as a variable statement
  *
- * @param transformOpts the options provided to TypeScript + Rollup for transforming the AST node
+ * @param transformOpts the options provided to TypeScript + Rolldown for transforming the AST node
  * @param classNode the node in the AST pertaining to the Stencil component class to transform
  * @param heritageClauses a collection of heritage clauses associated with the provided class node
  * @param members a collection of members attached to the provided class node
@@ -59,7 +59,7 @@ export const updateComponentClass = (
  * ```ts
  * const MyComponent = class {}
  * ```
- * @param transformOpts the options provided to TypeScript + Rollup for transforming the AST node
+ * @param transformOpts the options provided to TypeScript + Rolldown for transforming the AST node
  * @param classNode the node in the AST pertaining to the Stencil component class to transform
  * @param heritageClauses a collection of heritage clauses associated with the provided class node
  * @param members a collection of members attached to the provided class node

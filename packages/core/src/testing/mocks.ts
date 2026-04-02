@@ -148,7 +148,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     sys: createTestingSystem(),
     testing: {},
     transformAliasedImportPaths: true,
-    rollupConfig: {
+    rolldownConfig: {
       inputOptions: {},
       outputOptions: {},
     },
@@ -193,7 +193,7 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
       customResolveOptions: {},
     },
     outputTargets: null,
-    rollupPlugins: {
+    rolldownPlugins: {
       before: [],
       after: [],
     },
@@ -257,10 +257,10 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     nodeMap: new WeakMap(),
     reset: noop,
     resolvedCollections: new Set(),
-    rollupCache: new Map(),
-    rollupCacheHydrate: null,
-    rollupCacheLazy: null,
-    rollupCacheNative: null,
+    rolldownCache: new Map(),
+    rolldownCacheHydrate: null,
+    rolldownCacheLazy: null,
+    rolldownCacheNative: null,
     styleModeNames: new Set(),
     worker: createWorkerContext(innerConfig.sys),
   };

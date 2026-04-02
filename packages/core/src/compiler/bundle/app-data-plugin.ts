@@ -2,7 +2,7 @@ import { basename } from 'path';
 import MagicString from 'magic-string';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
-import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rollup';
+import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rolldown';
 
 import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
 import { removeCollectionImports } from '../transformers/remove-collection-imports';
@@ -14,14 +14,14 @@ import {
 import type { BundlePlatform } from './bundle-interface';
 
 /**
- * A Rollup plugin which bundles application data.
+ * A Rolldown plugin which bundles application data.
  *
  * @param config the Stencil configuration for a particular project
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  * @param buildConditionals the set build conditionals for the build
  * @param platform the platform that is being built
- * @returns a Rollup plugin which carries out the necessary work
+ * @returns a Rolldown plugin which carries out the necessary work
  */
 export const appDataPlugin = (
   config: d.ValidatedConfig,
@@ -40,27 +40,31 @@ export const appDataPlugin = (
   return {
     name: 'appDataPlugin',
 
-    resolveId(id: string, importer: string | undefined): ResolveIdResult {
-      if (id === STENCIL_APP_DATA_ID || id === STENCIL_APP_GLOBALS_ID) {
-        if (platform === 'worker') {
-          this.error('@stencil/core packages cannot be imported from a worker.');
-        }
+    // Use Rolldown's hook filter to only call resolveId for specific Stencil IDs
+    resolveId: {
+      filter: { id: /^@stencil\/core\/runtime\/app-(data|globals)$/ },
+      handler(id: string, importer: string | undefined): ResolveIdResult {
+        if (id === STENCIL_APP_DATA_ID || id === STENCIL_APP_GLOBALS_ID) {
+          if (platform === 'worker') {
+            this.error('@stencil/core packages cannot be imported from a worker.');
+          }
 
-        if (platform === 'hydrate' || STENCIL_APP_GLOBALS_ID) {
-          // hydrate will always bundle app-data and runtime
-          // and the load() fn will build a custom globals import
-          return id;
-        } else if (platform === 'client' && importer && importer.endsWith(APP_DATA_CONDITIONAL)) {
-          // since the importer ends with ?app-data=conditional we know that
-          // we need to build custom app-data based off of component metadata
-          // return the same "id" so that the "load()" method knows to
-          // build custom app-data
-          return id;
+          if (platform === 'hydrate' || STENCIL_APP_GLOBALS_ID) {
+            // hydrate will always bundle app-data and runtime
+            // and the load() fn will build a custom globals import
+            return id;
+          } else if (platform === 'client' && importer && importer.endsWith(APP_DATA_CONDITIONAL)) {
+            // since the importer ends with ?app-data=conditional we know that
+            // we need to build custom app-data based off of component metadata
+            // return the same "id" so that the "load()" method knows to
+            // build custom app-data
+            return id;
+          }
+          // for a client build that does not have ?app-data=conditional at the end then we
+          // do not want to create custom app-data, but should use the default
         }
-        // for a client build that does not have ?app-data=conditional at the end then we
-        // do not want to create custom app-data, but should use the default
-      }
-      return null;
+        return null;
+      },
     },
 
     async load(id: string): Promise<LoadResult> {
@@ -152,7 +156,7 @@ export const appDataPlugin = (
               // MagicString changed their types in this PR: https://github.com/Rich-Harris/magic-string/pull/235
               // so that their `sourcesContent` is of type `(string | null)[]`. But, it will only return `[null]` if
               // `includeContent` is set to `false`. Since we explicitly set `includeContent: true`, we can override
-              // the type to satisfy Rollup's type expectation
+              // the type to satisfy Rolldown's type expectation
               sourcesContent: codeMap.sourcesContent as string[],
             },
           };

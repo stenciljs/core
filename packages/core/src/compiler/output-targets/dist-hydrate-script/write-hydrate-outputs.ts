@@ -1,6 +1,6 @@
 import { basename } from 'path';
 import type * as d from '@stencil/core';
-import type { RollupOutput } from 'rollup';
+import type { RolldownOutput } from 'rolldown';
 
 import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
@@ -12,11 +12,11 @@ export const writeHydrateOutputs = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetHydrate[],
-  rollupOutput: RollupOutput,
+  rolldownOutput: RolldownOutput,
 ) => {
   return Promise.all(
     outputTargets.map((outputTarget) => {
-      return writeHydrateOutput(config, compilerCtx, buildCtx, outputTarget, rollupOutput);
+      return writeHydrateOutput(config, compilerCtx, buildCtx, outputTarget, rolldownOutput);
     }),
   );
 };
@@ -26,7 +26,7 @@ const writeHydrateOutput = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTarget: d.OutputTargetHydrate,
-  rollupOutput: RollupOutput,
+  rolldownOutput: RolldownOutput,
 ) => {
   const hydratePackageName = await getHydratePackageName(config, compilerCtx);
 
@@ -63,7 +63,7 @@ const writeHydrateOutput = async (
   const minify = outputTarget.minify === true;
 
   await Promise.all(
-    rollupOutput.output.map(async (output) => {
+    rolldownOutput.output.map(async (output) => {
       if (output.type === 'chunk') {
         let code = relocateHydrateContextConst(config, compilerCtx, output.code);
 
@@ -71,7 +71,7 @@ const writeHydrateOutput = async (
          * Enable the line where we define `modeResolutionChain` for the hydrate module.
          */
         code = code.replace(
-          `// let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
+          `//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
           `let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
         );
 

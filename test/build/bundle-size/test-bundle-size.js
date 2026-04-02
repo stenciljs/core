@@ -13,7 +13,9 @@ console.log('\nChecking bundle size...');
 
 // Find the index-HASH.js file
 const files = fs.readdirSync(distDir);
-const indexFile = files.find((file) => file.startsWith('index-') && file.endsWith('.js'));
+const indexFile = files.find(
+  (file) => (file.startsWith('index-') || file.startsWith('client-')) && file.endsWith('.js'),
+);
 
 if (!indexFile) {
   console.error('❌ ERROR: Could not find index-HASH.js file in dist/bundlesize/');

@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core';
-import type { Plugin } from 'rollup';
+import type { Plugin } from 'rolldown';
 
 import {
   hasError,
@@ -33,13 +33,13 @@ type ComponentStyleMap = Map<string, string>;
 const allCmpStyles = new Map<string, ComponentStyleMap>();
 
 /**
- * A Rollup plugin which bundles up some transformation of CSS imports as well
+ * A Rolldown plugin which bundles up some transformation of CSS imports as well
  * as writing some files to disk for the `DIST_COLLECTION` output target.
  *
  * @param config a user-supplied configuration
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
- * @returns a Rollup plugin which carries out the necessary work
+ * @returns a Rolldown plugin which carries out the necessary work
  */
 export const extTransformsPlugin = (
   config: d.ValidatedConfig,
@@ -50,8 +50,8 @@ export const extTransformsPlugin = (
     name: 'extTransformsPlugin',
 
     /**
-     * A custom function targeting the `transform` build hook in Rollup. See here for details:
-     * https://rollupjs.org/guide/en/#transform
+     * A custom function targeting the `transform` build hook in Rolldown. See here for details:
+     * https://rolldownjs.org/guide/en/#transform
      *
      * Here we are ignoring the first argument (which contains the module's source code) and
      * only looking at the `id` argument. We use that `id` to get information about the module
@@ -59,7 +59,7 @@ export const extTransformsPlugin = (
      *
      * @param _ an unused parameter (normally the code for a given module)
      * @param id the id of a module
-     * @returns metadata for Rollup or null if no transformation should be done
+     * @returns metadata for Rolldown or null if no transformation should be done
      */
     async transform(_, id) {
       if (/\0/.test(id)) {

@@ -41,8 +41,5 @@ export default defineConfig([
     target: ['es2022'],
     dts: true,
     clean: false,
-    deps: {
-      onlyBundle: ['style-inject'],
-    },
   },
 ]);

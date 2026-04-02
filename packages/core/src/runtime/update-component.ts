@@ -127,7 +127,9 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
         hostRef.$fetchedCbList$.forEach((cb) => cb(elm));
       }
     }
-    emitLifecycleEvent(elm, 'componentWillLoad');
+    if (BUILD.lifecycleDOMEvents) {
+      emitLifecycleEvent(elm, 'componentWillLoad');
+    }
     // If `componentWillLoad` returns a `Promise` then we want to wait on
     // whatever's going on in that `Promise` before we launch into
     // rendering the component, doing other lifecycle stuff, etc. So
@@ -135,7 +137,9 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
     // declared above to hold a possible 'queueing' Promise
     maybePromise = safeCall(instance, 'componentWillLoad', undefined, elm);
   } else {
-    emitLifecycleEvent(elm, 'componentWillUpdate');
+    if (BUILD.lifecycleDOMEvents) {
+      emitLifecycleEvent(elm, 'componentWillUpdate');
+    }
 
     // Like `componentWillLoad` above, we allow Stencil component
     // authors to return a `Promise` from this lifecycle callback, and
@@ -145,7 +149,9 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
     maybePromise = safeCall(instance, 'componentWillUpdate', undefined, elm);
   }
 
-  emitLifecycleEvent(elm, 'componentWillRender');
+  if (BUILD.lifecycleDOMEvents) {
+    emitLifecycleEvent(elm, 'componentWillRender');
+  }
   maybePromise = enqueue(maybePromise, () =>
     safeCall(instance, 'componentWillRender', undefined, elm),
   );
@@ -303,7 +309,7 @@ const callRender = (
 ) => {
   // in order for bundlers to correctly tree-shake the BUILD object
   // we need to ensure BUILD is not deoptimized within a try/catch
-  // https://rollupjs.org/guide/en/#treeshake tryCatchDeoptimization
+  // https://rolldownjs.org/guide/en/#treeshake tryCatchDeoptimization
   const allRenderFn = !!BUILD.allRenderFn;
   const lazyLoad = !!BUILD.lazyLoad;
   const taskQueue = !!BUILD.taskQueue;
@@ -368,7 +374,9 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
   if (BUILD.isDev) {
     hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
   }
-  emitLifecycleEvent(elm, 'componentDidRender');
+  if (BUILD.lifecycleDOMEvents) {
+    emitLifecycleEvent(elm, 'componentDidRender');
+  }
 
   if (!(hostRef.$flags$ & HOST_FLAGS.hasLoadedComponent)) {
     hostRef.$flags$ |= HOST_FLAGS.hasLoadedComponent;
@@ -386,7 +394,9 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
       hostRef.$flags$ &= ~HOST_FLAGS.devOnDidLoad;
     }
 
-    emitLifecycleEvent(elm, 'componentDidLoad');
+    if (BUILD.lifecycleDOMEvents) {
+      emitLifecycleEvent(elm, 'componentDidLoad');
+    }
 
     // Set isWatchReady after componentDidLoad so watchers don't fire on initial prop values.
     // Per lifecycle docs, @Watch should only fire on subsequent prop changes, not initial load.
@@ -415,7 +425,9 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
     if (BUILD.isDev) {
       hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;
     }
-    emitLifecycleEvent(elm, 'componentDidUpdate');
+    if (BUILD.lifecycleDOMEvents) {
+      emitLifecycleEvent(elm, 'componentDidUpdate');
+    }
     endPostUpdate();
   }
 

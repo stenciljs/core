@@ -78,7 +78,8 @@ describe('core resolve plugin', () => {
     it('should resolve jsx-runtime to same path as @stencil/core for lazy builds', () => {
       const compilerCtx = mockCompilerCtx(config);
       const plugin = coreResolvePlugin(config, compilerCtx, 'client', false, true);
-      const resolved = (plugin.resolveId as Function)(STENCIL_JSX_RUNTIME_ID);
+      const resolveId = plugin.resolveId as { handler: (id: string) => string };
+      const resolved = resolveId.handler(STENCIL_JSX_RUNTIME_ID);
       expect(resolved).toContain('runtime/client/index.js');
       expect(resolved).toContain(APP_DATA_CONDITIONAL);
     });

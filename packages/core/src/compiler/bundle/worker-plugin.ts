@@ -1,11 +1,14 @@
 import type * as d from '@stencil/core';
-import type { Plugin, PluginContext, TransformResult } from 'rollup';
+import type { Plugin, PluginContext, TransformResult } from 'rolldown';
 
 import { generatePreamble, hasError, normalizeFsPath } from '../../utils';
 import { optimizeModule } from '../optimize/optimize-module';
 import { bundleOutput } from './bundle-output';
 import { STENCIL_INTERNAL_ID } from './entry-alias-ids';
 import type { BundlePlatform } from './bundle-interface';
+
+// Filter for worker-related file patterns
+const WORKER_FILTER = /(\?worker(-inline)?|\.worker(\.tsx?|\/index\.tsx?))$/;
 
 export const workerPlugin = (
   config: d.ValidatedConfig,
@@ -17,11 +20,14 @@ export const workerPlugin = (
   if (platform === 'worker' || platform === 'hydrate') {
     return {
       name: 'workerPlugin',
-      transform(_, id) {
-        if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
-          return getMockedWorkerMain();
-        }
-        return null;
+      transform: {
+        filter: { id: /\?worker(-inline)?$/ },
+        handler(_, id) {
+          if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
+            return getMockedWorkerMain();
+          }
+          return null;
+        },
       },
     };
   }
@@ -35,99 +41,108 @@ export const workerPlugin = (
       workersMap.clear();
     },
 
-    resolveId(id) {
-      if (id === WORKER_HELPER_ID) {
-        return {
-          id,
-          moduleSideEffects: false,
-        };
-      }
-      return null;
-    },
-
-    load(id) {
-      if (id === WORKER_HELPER_ID) {
-        return WORKER_HELPERS;
-      }
-      return null;
-    },
-
-    async transform(_, id): Promise<TransformResult> {
-      if (/\0/.test(id)) {
+    resolveId: {
+      filter: { id: /^@worker-helper$/ },
+      handler(id) {
+        if (id === WORKER_HELPER_ID) {
+          return {
+            id,
+            moduleSideEffects: false,
+          };
+        }
         return null;
-      }
+      },
+    },
 
-      // Canonical worker path
-      if (id.endsWith('?worker')) {
-        const workerEntryPath = normalizeFsPath(id);
-        const workerName = getWorkerName(workerEntryPath);
-        const { code, dependencies, workerMsgId } = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        const referenceId = this.emitFile({
-          type: 'asset',
-          source: code,
-          name: workerName + '.js',
-        });
-        dependencies.forEach((dep) => this.addWatchFile(dep));
-        return {
-          code: getWorkerMain(referenceId, workerName, workerMsgId),
-          moduleSideEffects: false,
-        };
-      } else if (id.endsWith('?worker-inline')) {
-        const workerEntryPath = normalizeFsPath(id);
-        const workerName = getWorkerName(workerEntryPath);
-        const { code, dependencies, workerMsgId } = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        const referenceId = this.emitFile({
-          type: 'asset',
-          source: code,
-          name: workerName + '.js',
-        });
-        dependencies.forEach((dep) => this.addWatchFile(dep));
-        return {
-          code: getInlineWorker(referenceId, workerName, workerMsgId),
-          moduleSideEffects: false,
-        };
-      }
+    load: {
+      filter: { id: /^@worker-helper$/ },
+      handler(id) {
+        if (id === WORKER_HELPER_ID) {
+          return WORKER_HELPERS;
+        }
+        return null;
+      },
+    },
 
-      // Proxy worker path
-      const workerEntryPath = getWorkerEntryPath(id);
-      if (workerEntryPath != null) {
-        const worker = await getWorker(
-          config,
-          compilerCtx,
-          buildCtx,
-          this,
-          workersMap,
-          workerEntryPath,
-        );
-        if (worker) {
-          if (inlineWorkers) {
-            return {
-              code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
-              moduleSideEffects: false,
-            };
-          } else {
-            return {
-              code: getWorkerProxy(workerEntryPath, worker.exports),
-              moduleSideEffects: false,
-            };
+    transform: {
+      filter: { id: WORKER_FILTER },
+      async handler(_, id): Promise<TransformResult> {
+        if (/\0/.test(id)) {
+          return null;
+        }
+
+        // Canonical worker path
+        if (id.endsWith('?worker')) {
+          const workerEntryPath = normalizeFsPath(id);
+          const workerName = getWorkerName(workerEntryPath);
+          const { code, dependencies, workerMsgId } = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          const referenceId = this.emitFile({
+            type: 'asset',
+            source: code,
+            name: workerName + '.js',
+          });
+          dependencies.forEach((dep) => this.addWatchFile(dep));
+          return {
+            code: getWorkerMain(referenceId, workerName, workerMsgId),
+            moduleSideEffects: false,
+          };
+        } else if (id.endsWith('?worker-inline')) {
+          const workerEntryPath = normalizeFsPath(id);
+          const workerName = getWorkerName(workerEntryPath);
+          const { code, dependencies, workerMsgId } = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          const referenceId = this.emitFile({
+            type: 'asset',
+            source: code,
+            name: workerName + '.js',
+          });
+          dependencies.forEach((dep) => this.addWatchFile(dep));
+          return {
+            code: getInlineWorker(referenceId, workerName, workerMsgId),
+            moduleSideEffects: false,
+          };
+        }
+
+        // Proxy worker path
+        const workerEntryPath = getWorkerEntryPath(id);
+        if (workerEntryPath != null) {
+          const worker = await getWorker(
+            config,
+            compilerCtx,
+            buildCtx,
+            this,
+            workersMap,
+            workerEntryPath,
+          );
+          if (worker) {
+            if (inlineWorkers) {
+              return {
+                code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
+                moduleSideEffects: false,
+              };
+            } else {
+              return {
+                code: getWorkerProxy(workerEntryPath, worker.exports),
+                moduleSideEffects: false,
+              };
+            }
           }
         }
-      }
-      return null;
+        return null;
+      },
     },
   };
 };
@@ -183,7 +198,7 @@ const buildWorker = async (
     inputs: {
       [workerName]: workerEntryPath,
     },
-    inlineDynamicImports: true,
+    codeSplitting: false,
   });
 
   if (build) {
@@ -416,7 +431,7 @@ const getWorkerMain = (referenceId: string, workerName: string, workerMsgId: str
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLUP_FILE_URL_${referenceId};
+export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export const worker = /*@__PURE__*/createWorker(workerPath, workerName, workerMsgId);
 `;
 };
@@ -426,7 +441,7 @@ const getInlineWorker = (referenceId: string, workerName: string, workerMsgId: s
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLUP_FILE_URL_${referenceId};
+export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export let worker;
 try {
   // first try directly starting the worker with the URL

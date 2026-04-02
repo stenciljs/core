@@ -127,7 +127,7 @@ export interface StencilConfig {
   outputTargets?: OutputTarget[];
 
   /**
-   * The plugins config can be used to add your own rollup plugins.
+   * The plugins config can be used to add your own rolldown plugins.
    * By default, Stencil does not come with Sass or PostCSS support.
    * However, either can be added using the plugin array.
    */
@@ -166,21 +166,21 @@ export interface StencilConfig {
   validatePrimaryPackageOutputTarget?: boolean;
 
   /**
-   * Passes custom configuration down to the "@rollup/plugin-commonjs" that Stencil uses under the hood.
+   * Passes custom configuration down to the "@rolldown/plugin-commonjs" that Stencil uses under the hood.
    * For further information: https://stenciljs.com/docs/module-bundling
    */
   commonjs?: BundlingConfig;
 
   /**
-   * Passes custom configuration down to the "@rollup/plugin-node-resolve" that Stencil uses under the hood.
+   * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
    * For further information: https://stenciljs.com/docs/module-bundling
    */
   nodeResolve?: NodeResolveConfig;
 
   /**
-   * Passes custom configuration down to rollup itself, not all rollup options can be overridden.
+   * Passes custom configuration down to rolldown itself, not all rolldown options can be overridden.
    */
-  rollupConfig?: RollupConfig;
+  rolldownConfig?: RolldownConfig;
 
   /**
    * Sets if the ES5 build should be generated or not. Stencil generates a modern build without ES5,
@@ -296,7 +296,7 @@ export interface StencilConfig {
   testing?: TestingConfig;
   maxConcurrentWorkers?: number;
   preamble?: string;
-  rollupPlugins?: { before?: any[]; after?: any[] };
+  rolldownPlugins?: { before?: any[]; after?: any[] };
 
   entryComponentsHint?: string[];
   /**
@@ -619,7 +619,7 @@ type StrictConfigFields = keyof Pick<
   | 'namespace'
   | 'outputTargets'
   | 'packageJsonFilePath'
-  | 'rollupConfig'
+  | 'rolldownConfig'
   | 'rootDir'
   | 'srcDir'
   | 'srcIndexHtml'
@@ -1902,7 +1902,7 @@ export interface StencilDocsConfig {
 // TODO(STENCIL-882): Remove this interface [BREAKING_CHANGE]
 export interface BundlingConfig {
   /**
-   * @deprecated the `namedExports` field is no longer honored by `@rollup/plugin-commonjs` and is not used by Stencil.
+   * @deprecated the `namedExports` field is no longer honored by `@rolldown/plugin-commonjs` and is not used by Stencil.
    * This field can be safely removed from your Stencil configuration file.
    */
   namedExports?: {
@@ -1929,7 +1929,7 @@ export interface NodeResolveConfig {
   /**
    * @see https://github.com/browserify/resolve#resolveid-opts-cb
    * @deprecated the `customResolveOptions` field is no longer honored in future versions of
-   * `@rollup/plugin-node-resolve`. If you are currently using it, please open a new issue in the Stencil repo to
+   * `@rolldown/plugin-node-resolve`. If you are currently using it, please open a new issue in the Stencil repo to
    * describe your use case & provide input (https://github.com/stenciljs/core/issues/new/choose)
    */
   customResolveOptions?: {
@@ -1947,12 +1947,12 @@ export interface NodeResolveConfig {
   };
 }
 
-export interface RollupConfig {
-  inputOptions?: RollupInputOptions;
-  outputOptions?: RollupOutputOptions;
+export interface RolldownConfig {
+  inputOptions?: RolldownInputOptions;
+  outputOptions?: RolldownOutputOptions;
 }
 
-export interface RollupInputOptions {
+export interface RolldownInputOptions {
   context?: string;
   moduleContext?: ((id: string) => string) | { [id: string]: string };
   treeshake?: boolean;
@@ -1968,7 +1968,7 @@ export interface RollupInputOptions {
       ) => boolean | null | undefined);
 }
 
-export interface RollupOutputOptions {
+export interface RolldownOutputOptions {
   globals?: { [name: string]: string } | ((name: string) => string);
 }
 
@@ -2982,8 +2982,8 @@ export interface WorkerOptions {
   logger?: Logger;
 }
 
-export interface RollupInterface {
-  rollup: {
+export interface RolldownInterface {
+  rolldown: {
     (config: any): Promise<any>;
   };
   plugins: {

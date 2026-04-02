@@ -1,6 +1,6 @@
 import MagicString from 'magic-string';
-import { RollupOptions } from 'rollup';
-import { rollup, type RollupBuild } from 'rollup';
+import { InputOptions } from 'rolldown';
+import { rolldown, type RolldownBuild } from 'rolldown';
 import type * as d from '@stencil/core';
 
 import {
@@ -8,7 +8,7 @@ import {
   createOnWarnFn,
   generatePreamble,
   join,
-  loadRollupDiagnostics,
+  loadRolldownDiagnostics,
 } from '../../../utils';
 import {
   STENCIL_APP_DATA_ID,
@@ -26,20 +26,20 @@ import { writeHydrateOutputs } from './write-hydrate-outputs';
 
 const buildHydrateAppFor = async (
   format: 'esm' | 'cjs',
-  rollupBuild: RollupBuild,
+  rolldownBuild: RolldownBuild,
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetHydrate[],
 ) => {
   const file = format === 'esm' ? 'index.mjs' : 'index.js';
-  const rollupOutput = await rollupBuild.generate({
+  const rolldownOutput = await rolldownBuild.generate({
     banner: generatePreamble(config),
     format,
     file,
   });
 
-  await writeHydrateOutputs(config, compilerCtx, buildCtx, outputTargets, rollupOutput);
+  await writeHydrateOutputs(config, compilerCtx, buildCtx, outputTargets, rolldownOutput);
 };
 
 /**
@@ -61,54 +61,67 @@ export const generateHydrateApp = async (
     const input = join(packageDir, 'runtime', 'server', 'runner.mjs');
     const appData = join(packageDir, 'runtime', 'app-data', 'index.js');
 
-    const rollupOptions: RollupOptions = {
-      ...config.rollupConfig.inputOptions,
+    const rolldownOptions: InputOptions = {
+      ...config.rolldownConfig.inputOptions,
       external: ['node:stream'],
       input,
       plugins: [
         {
           name: 'hydrateAppPlugin',
-          resolveId(id) {
-            if (id === STENCIL_HYDRATE_FACTORY_ID) {
-              return STENCIL_HYDRATE_FACTORY_ID;
-            }
-            if (id === STENCIL_APP_DATA_ID) {
-              return appData;
-            }
-            return null;
+          // Use Rolldown's hook filter to only process specific Stencil IDs
+          resolveId: {
+            filter: { id: /^@stencil\/core\/runtime\/(server\/hydrate-factory|app-data)$/ },
+            handler(id) {
+              if (id === STENCIL_HYDRATE_FACTORY_ID) {
+                return STENCIL_HYDRATE_FACTORY_ID;
+              }
+              if (id === STENCIL_APP_DATA_ID) {
+                return appData;
+              }
+              return null;
+            },
           },
-          load(id) {
-            if (id === STENCIL_HYDRATE_FACTORY_ID) {
-              return generateHydrateFactory(config, compilerCtx, buildCtx);
-            }
-            return null;
+          load: {
+            filter: { id: /^@stencil\/core\/runtime\/server\/hydrate-factory$/ },
+            handler(id) {
+              if (id === STENCIL_HYDRATE_FACTORY_ID) {
+                return generateHydrateFactory(config, compilerCtx, buildCtx);
+              }
+              return null;
+            },
           },
-          transform(code) {
+          transform(code, _id) {
             /**
              * Remove the modeResolutionChain variable from the generated code.
              * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
              * use it within the hydrate and global runtime.
              */
             const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
-            const result = code.replaceAll(searchPattern, '');
-            return result;
+            // Only process if the code contains the pattern (avoid unnecessary work)
+            if (!code.includes(searchPattern)) {
+              return null;
+            }
+            return code.replaceAll(searchPattern, '');
           },
         },
       ],
       treeshake: false,
       onwarn: createOnWarnFn(buildCtx.diagnostics),
+      checks: {
+        pluginTimings: config.devMode,
+      },
     };
 
-    const rollupAppBuild = await rollup(rollupOptions);
+    const rolldownAppBuild = await rolldown(rolldownOptions);
     await Promise.all([
-      buildHydrateAppFor('cjs', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),
-      buildHydrateAppFor('esm', rollupAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      buildHydrateAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      buildHydrateAppFor('esm', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
     ]);
   } catch (e: any) {
     if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rollup types (which are
+      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
       // breakable) and type safety (so that the error variable may be something other than `any`)
-      loadRollupDiagnostics(config, compilerCtx, buildCtx, e);
+      loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }
 };
@@ -122,24 +135,24 @@ const generateHydrateFactory = async (
     try {
       const appFactoryEntryCode = await generateHydrateFactoryEntry(buildCtx);
 
-      const rollupFactoryBuild = await bundleHydrateFactory(
+      const rolldownFactoryBuild = await bundleHydrateFactory(
         config,
         compilerCtx,
         buildCtx,
         appFactoryEntryCode,
       );
-      if (rollupFactoryBuild != null) {
-        const rollupOutput = await rollupFactoryBuild.generate({
+      if (rolldownFactoryBuild != null) {
+        const rolldownOutput = await rolldownFactoryBuild.generate({
           format: 'cjs',
           esModule: false,
           strict: false,
           intro: HYDRATE_FACTORY_INTRO,
           outro: HYDRATE_FACTORY_OUTRO,
-          inlineDynamicImports: true,
+          codeSplitting: false,
         });
 
-        if (!buildCtx.hasError && rollupOutput != null && Array.isArray(rollupOutput.output)) {
-          return rollupOutput.output[0].code;
+        if (!buildCtx.hasError && rolldownOutput != null && Array.isArray(rolldownOutput.output)) {
+          return rolldownOutput.output[0].code;
         }
       }
     } catch (e: any) {

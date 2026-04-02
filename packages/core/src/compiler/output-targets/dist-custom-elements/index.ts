@@ -11,7 +11,7 @@ import {
   isOutputTargetDistCustomElements,
   isString,
   join,
-  rollupToStencilSourceMap,
+  rolldownToStencilSourceMap,
 } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
@@ -34,7 +34,7 @@ import type { BundleOptions } from '../../bundle/bundle-interface';
 /**
  * Main output target function for `dist-custom-elements`. This function just
  * does some organizational work to call the other functions in this module,
- * which do actual work of generating the rollup configuration, creating an
+ * which do actual work of generating the rolldown configuration, creating an
  * entry chunk, running, the build, etc.
  *
  * @param config the validated compiler configuration we're using
@@ -68,13 +68,13 @@ export const outputCustomElements = async (
 
 /**
  * Get bundle options for our current build and compiler context which we'll use
- * to generate a Rollup build and so on.
+ * to generate a Rolldown build and so on.
  *
  * @param config a validated Stencil configuration object
  * @param buildCtx the current build context
  * @param compilerCtx the current compiler context
  * @param outputTarget the outputTarget we're currently dealing with
- * @returns bundle options suitable for generating a rollup configuration
+ * @returns bundle options suitable for generating a rolldown configuration
  */
 export const getBundleOptions = (
   config: d.ValidatedConfig,
@@ -95,12 +95,12 @@ export const getBundleOptions = (
   externalRuntime: !!outputTarget.externalRuntime,
   inlineWorkers: true,
   inputs: {
-    // Here we prefix our index chunk with '\0' to tell Rollup that we're
+    // Here we prefix our index chunk with '\0' to tell Rolldown that we're
     // going to be using virtual modules with this module. A leading '\0'
     // prevents other plugins from messing with the module. We generate a
     // string for the index chunk below in the `loader` property.
     //
-    // @see {@link https://rollupjs.org/guide/en/#conventions} for more info.
+    // @see {@link https://rolldownjs.org/guide/en/#conventions} for more info.
     index: '\0core',
   },
   loader: {},
@@ -108,7 +108,7 @@ export const getBundleOptions = (
 });
 
 /**
- * Get bundle options for rollup, run the rollup build, optionally minify the
+ * Get bundle options for rolldown, run the rolldown build, optionally minify the
  * output, and write files to disk.
  *
  * @param config the validated Stencil configuration we're using
@@ -131,7 +131,7 @@ export const bundleCustomElements = async (
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
 
     if (build) {
-      const rollupOutput = await build.generate({
+      const rolldownOutput = await build.generate({
         banner: generatePreamble(config),
         format: 'esm',
         sourcemap: config.sourceMap,
@@ -158,10 +158,10 @@ export const bundleCustomElements = async (
       }
 
       const minify = isBoolean(outputTarget.minify) ? outputTarget.minify : config.minifyJs;
-      const files = rollupOutput.output.map(async (bundle) => {
+      const files = rolldownOutput.output.map(async (bundle) => {
         if (bundle.type === 'chunk') {
           let code = bundle.code;
-          let sourceMap = bundle.map ? rollupToStencilSourceMap(bundle.map) : undefined;
+          let sourceMap = bundle.map ? rolldownToStencilSourceMap(bundle.map) : undefined;
 
           const optimizeResults = await optimizeModule(config, compilerCtx, {
             input: code,

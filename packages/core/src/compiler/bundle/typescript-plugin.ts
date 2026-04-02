@@ -1,19 +1,18 @@
 import { basename, isAbsolute } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
-import type { LoadResult, Plugin, TransformResult } from 'rollup';
+import type { LoadResult, Plugin, TransformResult } from 'rolldown';
 
-import { isDtsFile, isString, normalizeFsPath } from '../../utils';
-import { tsResolveModuleName } from '../sys/typescript/typescript-resolve-module';
+import { normalizeFsPath } from '../../utils';
 import { getModule } from '../transpile/transpiled-module';
 import type { BundleOptions } from './bundle-interface';
 
 /**
- * Rollup plugin that aids in resolving the TypeScript files and performing the transpilation step.
+ * Rolldown plugin that aids in resolving the TypeScript files and performing the transpilation step.
  * @param compilerCtx the current compiler context
- * @param bundleOpts Rollup bundling options to apply during TypeScript compilation
+ * @param bundleOpts Rolldown bundling options to apply during TypeScript compilation
  * @param config the Stencil configuration for the project
- * @returns the rollup plugin for handling TypeScript files.
+ * @returns the rolldown plugin for handling TypeScript files.
  */
 export const typescriptPlugin = (
   compilerCtx: d.CompilerCtx,
@@ -24,8 +23,8 @@ export const typescriptPlugin = (
     name: `${bundleOpts.id}TypescriptPlugin`,
 
     /**
-     * A rollup build hook for loading TypeScript files and their associated source maps (if they exist).
-     * [Source](https://rollupjs.org/guide/en/#load)
+     * A rolldown build hook for loading TypeScript files and their associated source maps (if they exist).
+     * [Source](https://rolldownjs.org/guide/en/#load)
      * @param id the path of the file to load
      * @returns the module matched (with its sourcemap if it exists), null otherwise
      */
@@ -71,33 +70,6 @@ export const typescriptPlugin = (
           return { code: tsResult.outputText, map: sourceMap };
         }
       }
-      return null;
-    },
-  };
-};
-
-export const resolveIdWithTypeScript = (
-  config: d.ValidatedConfig,
-  compilerCtx: d.CompilerCtx,
-): Plugin => {
-  return {
-    name: `resolveIdWithTypeScript`,
-
-    async resolveId(importee, importer) {
-      if (/\0/.test(importee) || !isString(importer)) {
-        return null;
-      }
-
-      const tsResolved = tsResolveModuleName(config, compilerCtx, importee, importer);
-      if (tsResolved && tsResolved.resolvedModule) {
-        // this is probably a .d.ts file for whatever reason in how TS resolves this
-        // use this resolved file as the "importer"
-        const tsResolvedPath = tsResolved.resolvedModule.resolvedFileName;
-        if (isString(tsResolvedPath) && !isDtsFile(tsResolvedPath)) {
-          return tsResolvedPath;
-        }
-      }
-
       return null;
     },
   };

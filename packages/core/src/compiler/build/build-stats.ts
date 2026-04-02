@@ -53,7 +53,7 @@ export function generateBuildStats(
         entries: buildCtx.entryModules,
         componentGraph: buildResults.componentGraph ?? {},
         sourceGraph: getSourceGraph(config, buildCtx),
-        rollupResults: buildCtx.rollupResults ?? { modules: [] },
+        rolldownResults: buildCtx.rolldownResults ?? { modules: [] },
         collections: getCollections(config, buildCtx),
       };
       return result.ok(stats);
@@ -114,10 +114,10 @@ function sanitizeBundlesForStats(
       components: bundle.cmps.map((c) => c.tagName),
       bundleId: bundle.output.bundleId,
       fileName: bundle.output.fileName,
-      imports: bundle.rollupResult.imports,
-      // code: bundle.rollupResult.code, // (use this to debug)
+      imports: bundle.rolldownResult.imports,
+      // code: bundle.rolldownResult.code, // (use this to debug)
       // Currently, this number is inaccurate vs what seems to be on disk.
-      originalByteSize: byteSize(bundle.rollupResult.code),
+      originalByteSize: byteSize(bundle.rolldownResult.code),
     };
   });
 }

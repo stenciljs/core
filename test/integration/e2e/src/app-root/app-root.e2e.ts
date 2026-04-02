@@ -62,6 +62,7 @@ test.describe('goto root url', () => {
     await page.goto('/');
 
     const elm = page.locator('app-root');
+    await expect(elm).toHaveAttribute('custom-hydrate-flag');
 
     // Get app-root computed styles
     const appRootStyles = await elm.evaluate((el) => {

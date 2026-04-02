@@ -75,9 +75,16 @@ const _polyfillSlotted = '-shadowcssslotted';
 // note: :host-context pre-processed to -shadowcsshostcontext.
 const _polyfillHostContext = '-shadowcsscontext';
 const _parenSuffix = ')(?:\\(((?:\\([^)(]*\\)|[^)(]*)+?)\\))?([^,{]*)';
-const _cssColonHostRe = new RegExp('(' + _polyfillHost + _parenSuffix, 'gim');
-const _cssColonHostContextRe = new RegExp('(' + _polyfillHostContext + _parenSuffix, 'gim');
-const _cssColonSlottedRe = new RegExp('(' + _polyfillSlotted + _parenSuffix, 'gim');
+// Lazy-initialize RegExps to avoid top-level side effects that prevent tree-shaking
+let _cssColonHostRe: RegExp;
+let _cssColonHostContextRe: RegExp;
+let _cssColonSlottedRe: RegExp;
+const getCssColonHostRe = () =>
+  (_cssColonHostRe ??= new RegExp('(' + _polyfillHost + _parenSuffix, 'gim'));
+const getCssColonHostContextRe = () =>
+  (_cssColonHostContextRe ??= new RegExp('(' + _polyfillHostContext + _parenSuffix, 'gim'));
+const getCssColonSlottedRe = () =>
+  (_cssColonSlottedRe ??= new RegExp('(' + _polyfillSlotted + _parenSuffix, 'gim'));
 const _polyfillHostNoCombinator = _polyfillHost + '-no-combinator';
 const _polyfillHostNoCombinatorRe = /-shadowcsshost-no-combinator([^\s]*)/;
 const _shadowDOMSelectorsRe = [/::shadow/g, /::content/g];
@@ -297,7 +304,7 @@ const colonHostPartReplacer = (host: string, part: string, suffix: string) => {
 };
 
 const convertColonHost = (cssText: string) => {
-  return convertColonRule(cssText, _cssColonHostRe, colonHostPartReplacer);
+  return convertColonRule(cssText, getCssColonHostRe(), colonHostPartReplacer);
 };
 
 const colonHostContextPartReplacer = (host: string, part: string, suffix: string) => {
@@ -312,7 +319,7 @@ const convertColonSlotted = (cssText: string, slotScopeId: string) => {
   const slotClass = '.' + slotScopeId + ' > ';
   const selectors: { orgSelector: string; updatedSelector: string }[] = [];
 
-  cssText = cssText.replace(_cssColonSlottedRe, (...m: string[]) => {
+  cssText = cssText.replace(getCssColonSlottedRe(), (...m: string[]) => {
     if (m[2]) {
       const compound = m[2].trim();
       const suffix = m[3];
@@ -350,7 +357,7 @@ const convertColonSlotted = (cssText: string, slotScopeId: string) => {
 };
 
 const convertColonHostContext = (cssText: string) => {
-  return convertColonRule(cssText, _cssColonHostContextRe, colonHostContextPartReplacer);
+  return convertColonRule(cssText, getCssColonHostContextRe(), colonHostContextPartReplacer);
 };
 
 const convertShadowDOMSelectors = (cssText: string) => {

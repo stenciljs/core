@@ -43,7 +43,7 @@ describe('dist-hydrate-script', () => {
         minify: true,
       };
 
-      const rollupOutput = {
+      const rolldownOutput = {
         output: [
           {
             type: 'chunk' as const,
@@ -54,7 +54,13 @@ describe('dist-hydrate-script', () => {
         ],
       };
 
-      await writeHydrateOutputs(config, compilerCtx, buildCtx, [outputTarget], rollupOutput as any);
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
 
       expect(optimizeModuleSpy).toHaveBeenCalledWith(
         config,
@@ -82,7 +88,7 @@ describe('dist-hydrate-script', () => {
         minify: false,
       };
 
-      const rollupOutput = {
+      const rolldownOutput = {
         output: [
           {
             type: 'chunk' as const,
@@ -93,7 +99,13 @@ describe('dist-hydrate-script', () => {
         ],
       };
 
-      await writeHydrateOutputs(config, compilerCtx, buildCtx, [outputTarget], rollupOutput as any);
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
 
       expect(optimizeModuleSpy).not.toHaveBeenCalled();
     });
@@ -114,7 +126,7 @@ describe('dist-hydrate-script', () => {
         // minify is undefined
       };
 
-      const rollupOutput = {
+      const rolldownOutput = {
         output: [
           {
             type: 'chunk' as const,
@@ -125,7 +137,13 @@ describe('dist-hydrate-script', () => {
         ],
       };
 
-      await writeHydrateOutputs(config, compilerCtx, buildCtx, [outputTarget], rollupOutput as any);
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
 
       expect(optimizeModuleSpy).not.toHaveBeenCalled();
     });
@@ -148,7 +166,7 @@ describe('dist-hydrate-script', () => {
         generatePackageJson: false,
       };
 
-      const rollupOutput = {
+      const rolldownOutput = {
         output: [
           {
             type: 'chunk' as const,
@@ -166,7 +184,7 @@ describe('dist-hydrate-script', () => {
         compilerCtx,
         buildCtx,
         [validatedOutputTarget],
-        rollupOutput as any,
+        rolldownOutput as any,
       );
 
       expect(mockFs.copyFile).toHaveBeenCalled();
@@ -192,7 +210,7 @@ describe('dist-hydrate-script', () => {
         // generatePackageJson is undefined, should default to true after validation
       };
 
-      const rollupOutput = {
+      const rolldownOutput = {
         output: [
           {
             type: 'chunk' as const,
@@ -210,7 +228,7 @@ describe('dist-hydrate-script', () => {
         compilerCtx,
         buildCtx,
         [validatedOutputTarget],
-        rollupOutput as any,
+        rolldownOutput as any,
       );
 
       expect(mockFs.copyFile).toHaveBeenCalled();

@@ -10,7 +10,7 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
  * one module resolution chain across hydrate and core runtime.
  */
 export const HYDRATE_FACTORY_INTRO = `
-// let ${MODE_RESOLUTION_CHAIN_DECLARATION}
+//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 // Capture native setTimeout/clearTimeout at module scope (before globalThis can be shadowed inside the factory).
 // Used for the hydrate timeout timer to avoid being affected by constrainTimeouts.

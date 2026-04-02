@@ -3,7 +3,7 @@ import type * as d from '@stencil/core';
 import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 
 /**
- * Generate the auto-loader module content that will be bundled via Rollup.
+ * Generate the auto-loader module content that will be bundled via Rolldown.
  * This loader uses MutationObserver to lazily load and define custom elements
  * as they appear in the DOM.
  *

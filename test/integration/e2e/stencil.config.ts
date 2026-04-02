@@ -13,7 +13,7 @@ export const config: Config = {
   globalScript: './src/global.ts',
   globalStyle: './src/global.css',
   plugins: [builtins()],
-  rollupPlugins: {
+  rolldownPlugins: {
     after: [
       linaria(),
       css({
@@ -22,11 +22,6 @@ export const config: Config = {
     ],
   },
 
-  testing: {
-    moduleNameMapper: {
-      'lodash-es': 'lodash',
-    },
-  },
   outputTargets: [
     {
       type: 'www',

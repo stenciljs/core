@@ -56,7 +56,7 @@ describe.skip('plugin', () => {
       };
     }
 
-    config.rollupPlugins = [myPlugin()];
+    config.rolldownPlugins = [myPlugin()];
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -88,7 +88,7 @@ describe.skip('plugin', () => {
       };
     }
 
-    config.rollupPlugins = [myPlugin()];
+    config.rolldownPlugins = [myPlugin()];
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -132,7 +132,7 @@ describe.skip('plugin', () => {
       };
     }
 
-    config.rollupPlugins = [myPlugin()];
+    config.rolldownPlugins = [myPlugin()];
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -175,7 +175,7 @@ describe.skip('plugin', () => {
         name: 'myPlugin',
       };
     }
-    config.rollupPlugins = [myPlugin()];
+    config.rolldownPlugins = [myPlugin()];
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
