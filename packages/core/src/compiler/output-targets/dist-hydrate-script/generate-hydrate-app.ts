@@ -135,7 +135,7 @@ const generateHydrateFactory = async (
           strict: false,
           intro: HYDRATE_FACTORY_INTRO,
           outro: HYDRATE_FACTORY_OUTRO,
-          inlineDynamicImports: true,
+          codeSplitting: false,
         });
 
         if (!buildCtx.hasError && rolldownOutput != null && Array.isArray(rolldownOutput.output)) {
