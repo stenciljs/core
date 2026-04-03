@@ -25,7 +25,6 @@ describe.skip('outputTarget, dist', () => {
     compiler = await createCompiler(config);
 
     await compiler.sys.writeFiles({
-      [path.join(config.sys.getClientPath('polyfills/index.js'))]: `/* polyfills */`,
       [path.join(root, 'User', 'testing', 'package.json')]: `{
         "module": "dist/index.mjs",
         "main": "dist/index.js",

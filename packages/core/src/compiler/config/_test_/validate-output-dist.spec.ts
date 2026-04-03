@@ -37,7 +37,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmLoaderPath: join(rootDir, 'my-dist', 'loader'),
         type: 'dist',
-        polyfills: false,
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
@@ -46,7 +45,6 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        polyfills: true,
         type: 'dist-lazy',
       },
       {
@@ -84,7 +82,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-        polyfills: true,
       },
       {
         cjsDir: join(rootDir, 'my-dist', 'cjs'),
@@ -137,7 +134,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmLoaderPath: join(rootDir, 'my-dist', 'loader'),
         type: 'dist',
-        polyfills: false,
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
@@ -146,7 +142,6 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        polyfills: true,
         type: 'dist-lazy',
       },
       {
@@ -184,7 +179,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-        polyfills: true,
       },
       {
         cjsDir: join(rootDir, 'my-dist', 'cjs'),
@@ -221,7 +215,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmLoaderPath: join(rootDir, 'my-dist', 'loader'),
         type: 'dist',
-        polyfills: false,
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: true,
@@ -230,7 +223,6 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        polyfills: true,
         type: 'dist-lazy',
       },
       {
@@ -268,7 +260,6 @@ describe('validateDistOutputTarget', () => {
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-        polyfills: true,
       },
       {
         cjsDir: join(rootDir, 'my-dist', 'cjs'),

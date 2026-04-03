@@ -58,7 +58,6 @@ export const validateWww = (
         type: DIST_LAZY,
         dir: buildDir,
         esmDir: buildDir,
-        polyfills: outputTarget.polyfills,
         isBrowserBuild: true,
       });
 
@@ -136,11 +135,6 @@ const validateWwwOutputTarget = (
 
   validatePrerender(config, diagnostics, outputTarget);
   validateServiceWorker(config, outputTarget);
-
-  if (outputTarget.polyfills === undefined) {
-    outputTarget.polyfills = true;
-  }
-  outputTarget.polyfills = !!outputTarget.polyfills;
 
   return outputTarget;
 };

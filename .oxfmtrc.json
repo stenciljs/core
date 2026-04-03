@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "singleQuote": true,
   "jsxSingleQuote": true,
-  "ignorePatterns": ["**/dist/**", "**/*.d.ts", "**/*.md", "packages/core/src/client/polyfills/**"],
+  "ignorePatterns": ["**/dist/**", "**/*.d.ts", "**/*.md"],
   "sortImports": {
     "groups": [
       "value-builtin",
