@@ -79,12 +79,11 @@ export default defineConfig([
     ],
   },
 
-  // Declarations (types only - generates .d.mts for public API imports)
+  // Declarations (types only - generates .d.ts for public API imports)
   {
     entry: {
       'declarations/stencil-public-runtime': 'src/declarations/stencil-public-runtime.ts',
       'declarations/stencil-public-compiler': 'src/declarations/stencil-public-compiler.ts',
-      'declarations/stencil-public-docs': 'src/declarations/stencil-public-docs.ts',
     },
     outDir: 'dist',
     format: ['esm'],
@@ -99,6 +98,26 @@ export default defineConfig([
       // Copy ext-modules types for CSS/SVG/etc imports
       { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
     ],
+  },
+
+  // Declarations for JSON docs. To be self contained, `codeSplitting: false,` only works on a single entry
+  {
+    entry: {
+      'declarations/stencil-public-docs': 'src/declarations/stencil-public-docs.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    deps: {
+      neverBundle: [/^node:/],
+      skipNodeModulesBundle: true,
+    },
+    dts: true,
+    clean: false,
+    // Disable code splitting to avoid hashed chunk imports in declarations
+    outputOptions: {
+      codeSplitting: false,
+    },
   },
 
   // Server/SSR platform (virtuals externalized for runtime swapping)

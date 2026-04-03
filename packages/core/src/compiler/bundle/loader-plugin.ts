@@ -16,8 +16,6 @@ const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, 
 export const loaderPlugin = (entries: { [id: string]: string } = {}): Plugin => {
   const entryKeys = Object.keys(entries);
 
-  // Build a regex filter from entry keys to reduce JS<->Rust boundary crossings
-  // If no entries, use a regex that matches nothing
   const entryFilter =
     entryKeys.length > 0 ? new RegExp(`^(${entryKeys.map(escapeRegex).join('|')})$`) : /^$/;
 
