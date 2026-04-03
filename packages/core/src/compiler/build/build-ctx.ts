@@ -22,8 +22,6 @@ export class BuildContext implements d.BuildCtx {
   buildStats?: result.Result<d.CompilerBuildStats, { diagnostics: d.Diagnostic[] }> = undefined;
   esmBrowserComponentBundle: d.BundleModule[];
   esmComponentBundle: d.BundleModule[];
-  es5ComponentBundle: d.BundleModule[];
-  systemComponentBundle: d.BundleModule[];
   commonJsComponentBundle: d.BundleModule[];
   diagnostics: d.Diagnostic[] = [];
   dirsAdded: string[] = [];

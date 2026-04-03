@@ -113,7 +113,6 @@ export const validateConfig = (
   const validatedConfig: ValidatedConfig = {
     devServer: {}, // assign `devServer` before spreading `config`, in the event 'devServer' is not a key on `config`
     ...config,
-    buildEs5: config.buildEs5 === true || (!devMode && config.buildEs5 === 'prod'),
     devMode,
     extras: config.extras || {},
     generateExportMaps: isBoolean(config.generateExportMaps) ? config.generateExportMaps : false,
@@ -201,15 +200,11 @@ export const validateConfig = (
   // CLI is responsible for merging flags into config before validation
   setBooleanConfig(validatedConfig, 'watch', false);
   setBooleanConfig(validatedConfig, 'buildDocs', !validatedConfig.devMode);
-  setBooleanConfig(
-    validatedConfig,
-    'buildDist',
-    !validatedConfig.devMode || !!validatedConfig.buildEs5,
-  );
+  setBooleanConfig(validatedConfig, 'buildDist', !validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'profile', validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'writeLog', false);
   setBooleanConfig(validatedConfig, 'buildAppCore', true);
-  setBooleanConfig(validatedConfig, 'autoprefixCss', validatedConfig.buildEs5);
+  setBooleanConfig(validatedConfig, 'autoprefixCss', false);
   setBooleanConfig(validatedConfig, 'validateTypes', !validatedConfig._isTesting);
   setBooleanConfig(validatedConfig, 'allowInlineScripts', true);
   setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', false);

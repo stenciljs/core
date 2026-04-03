@@ -138,54 +138,6 @@ describe('validation', () => {
     });
   });
 
-  describe('es5 build', () => {
-    it('set buildEs5 false', () => {
-      userConfig.buildEs5 = false;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(false);
-    });
-
-    it('set buildEs5 true', () => {
-      userConfig.buildEs5 = true;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(true);
-    });
-
-    it('set buildEs5 true, dev mode', () => {
-      userConfig.devMode = true;
-      userConfig.buildEs5 = true;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(true);
-    });
-
-    it('prod mode, set modern and es5', () => {
-      userConfig.devMode = false;
-      userConfig.buildEs5 = true;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(true);
-    });
-
-    it('build es5 when set to "prod" and in prod', () => {
-      userConfig.devMode = false;
-      userConfig.buildEs5 = 'prod';
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(true);
-    });
-
-    it('do not build es5 when set to "prod" and in dev', () => {
-      userConfig.devMode = true;
-      userConfig.buildEs5 = 'prod';
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(false);
-    });
-
-    it('prod mode default to only modern and not es5', () => {
-      userConfig.devMode = false;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildEs5).toBe(false);
-    });
-  });
-
   describe('hashed filenames', () => {
     it('should error when hashedFileNameLength too large', () => {
       userConfig.hashedFileNameLength = 33;
@@ -566,13 +518,6 @@ describe('validation', () => {
       userConfig.devMode = devMode;
       const { config } = validateConfig(userConfig, bootstrapConfig);
       expect(config.buildDist).toBe(!devMode);
-    });
-
-    it.each([true, false])('should fallback to buildEs5 in devMode', (buildEs5) => {
-      userConfig.devMode = true;
-      userConfig.buildEs5 = buildEs5;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildDist).toBe(config.buildEs5);
     });
   });
 

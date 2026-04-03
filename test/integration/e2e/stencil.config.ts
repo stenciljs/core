@@ -30,6 +30,7 @@ export const config: Config = {
     },
     {
       type: 'dist',
+      cjs: true,
     },
     {
       type: 'dist-hydrate-script',
@@ -59,7 +60,6 @@ export const config: Config = {
     HOST: 'example.com',
   },
   hashFileNames: false,
-  buildEs5: 'prod',
   sourceMap: true,
   extras: {
     experimentalSlotFixes: true,

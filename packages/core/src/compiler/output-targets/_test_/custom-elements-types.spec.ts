@@ -19,7 +19,6 @@ const setup = () => {
   const config: d.ValidatedConfig = mockValidatedConfig({
     configPath: '/testing-path',
     buildAppCore: true,
-    buildEs5: true,
     namespace: 'TestApp',
     outputTargets: [{ type: DIST_CUSTOM_ELEMENTS, dir: 'my-best-dir' }],
     srcDir: '/src',

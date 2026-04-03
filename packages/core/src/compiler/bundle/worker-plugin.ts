@@ -222,7 +222,7 @@ const buildWorker = async (
     let code = entryPoint.code;
     const results = await optimizeModule(config, compilerCtx, {
       input: code,
-      sourceTarget: config.buildEs5 ? 'es5' : 'es2017',
+      sourceTarget: 'es2017',
       isCore: false,
       minify: config.minifyJs,
       inlineHelpers: true,

@@ -22,8 +22,7 @@ export const optimizeJs = async (inputOpts: OptimizeJsInput) => {
 
   try {
     const prettyOutput = !!inputOpts.pretty;
-    const sourceTarget = inputOpts.target === 'es5' ? 'es5' : 'latest';
-    const minifyOpts = getTerserOptions({} as ValidatedConfig, sourceTarget, prettyOutput);
+    const minifyOpts = getTerserOptions({} as ValidatedConfig, 'latest', prettyOutput);
 
     const minifyResults = await minifyJs(inputOpts.input, minifyOpts);
     if (minifyResults.diagnostics.length > 0) {

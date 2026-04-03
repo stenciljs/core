@@ -58,8 +58,6 @@ export const validateWww = (
         type: DIST_LAZY,
         dir: buildDir,
         esmDir: buildDir,
-        systemDir: config.buildEs5 ? buildDir : undefined,
-        systemLoaderFile: config.buildEs5 ? join(buildDir, `${config.fsNamespace}.js`) : undefined,
         polyfills: outputTarget.polyfills,
         isBrowserBuild: true,
       });

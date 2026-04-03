@@ -40,13 +40,10 @@ export function generateBuildStats(
           minifyCss: !!config.minifyCss,
           hashFileNames: !!config.hashFileNames,
           hashedFileNameLength: config.hashedFileNameLength,
-          buildEs5: !!config.buildEs5,
         },
         formats: {
           esmBrowser: sanitizeBundlesForStats(buildCtx.esmBrowserComponentBundle),
           esm: sanitizeBundlesForStats(buildCtx.esmComponentBundle),
-          es5: sanitizeBundlesForStats(buildCtx.es5ComponentBundle),
-          system: sanitizeBundlesForStats(buildCtx.systemComponentBundle),
           commonjs: sanitizeBundlesForStats(buildCtx.commonJsComponentBundle),
         },
         components: getComponentsFileMap(config, buildCtx),

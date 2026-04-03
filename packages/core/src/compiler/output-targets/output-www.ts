@@ -2,7 +2,6 @@ import { cloneDocument, serializeNodeToHtml } from '@stencil/mock-doc';
 import type * as d from '@stencil/core';
 
 import { catchError, flatOne, isOutputTargetWww, join, relative, unique } from '../../utils';
-import { generateEs5DisabledMessage } from '../app-core/app-es5-disabled';
 import { addScriptDataAttribute } from '../html/add-script-attr';
 import { getAbsoluteBuildDir } from '../html/html-utils';
 import { optimizeCriticalPath } from '../html/inject-module-preloads';
@@ -84,10 +83,6 @@ const generateWww = async (
   criticalPath: string[],
   outputTarget: d.OutputTargetWww,
 ): Promise<void> => {
-  if (!config.buildEs5) {
-    await generateEs5DisabledMessage(config, compilerCtx, outputTarget);
-  }
-
   // Copy global styles into the build directory
   // Process
   if (buildCtx.indexDoc && outputTarget.indexHtml) {

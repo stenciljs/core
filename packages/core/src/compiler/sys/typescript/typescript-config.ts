@@ -103,7 +103,7 @@ export const validateTsConfig = async (
         if (results.options) {
           tsconfig.compilerOptions = results.options;
 
-          const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES5;
+          const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
           if (
             [
               ts.ScriptTarget.ES3,
@@ -113,7 +113,7 @@ export const validateTsConfig = async (
             ].includes(target)
           ) {
             const warn = buildWarn(tsconfig.diagnostics);
-            warn.messageText = `To improve bundling, it is always recommended to set the tsconfig.json “target” setting to "es2017". Note that the compiler will automatically handle transpilation for ES5-only browsers.`;
+            warn.messageText = `Stencil requires the tsconfig.json "target" setting to be "es2017" or higher. ES5 build output is no longer supported.`;
           }
 
           if (tsconfig.compilerOptions.module !== ts.ModuleKind.ESNext && !config._isTesting) {

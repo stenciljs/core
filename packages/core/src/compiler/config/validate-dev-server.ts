@@ -208,7 +208,7 @@ export const validateDevServer = (
     devServer.excludeHmr = [];
   }
 
-  if (!config.devMode || config.buildEs5) {
+  if (!config.devMode) {
     devServer.experimentalDevModules = false;
   } else {
     devServer.experimentalDevModules = !!devServer.experimentalDevModules;

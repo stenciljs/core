@@ -227,8 +227,6 @@ export interface BuildCtx {
   compilerCtx: CompilerCtx;
   esmBrowserComponentBundle: ReadonlyArray<BundleModule>;
   esmComponentBundle: ReadonlyArray<BundleModule>;
-  es5ComponentBundle: ReadonlyArray<BundleModule>;
-  systemComponentBundle: ReadonlyArray<BundleModule>;
   commonJsComponentBundle: ReadonlyArray<BundleModule>;
   components: ComponentCompilerMeta[];
   componentGraph: Map<string, string[]>;
@@ -312,13 +310,10 @@ export interface CompilerBuildStats {
     minifyCss: boolean;
     hashFileNames: boolean;
     hashedFileNameLength: number;
-    buildEs5: boolean | 'prod';
   };
   formats: {
     esmBrowser: ReadonlyArray<CompilerBuildStatBundle>;
     esm: ReadonlyArray<CompilerBuildStatBundle>;
-    es5: ReadonlyArray<CompilerBuildStatBundle>;
-    system: ReadonlyArray<CompilerBuildStatBundle>;
     commonjs: ReadonlyArray<CompilerBuildStatBundle>;
   };
   components: BuildComponent[];
@@ -354,7 +349,7 @@ export interface BuildComponent {
   dependencies?: string[];
 }
 
-export type SourceTarget = 'es5' | 'es2017' | 'latest';
+export type SourceTarget = 'es2017' | 'latest';
 
 /**
  * A note regarding Rolldown types:
@@ -1921,6 +1916,7 @@ export interface TransformCssToEsmOutput {
 export interface PackageJsonData {
   name?: string;
   version?: string;
+  type?: 'module' | 'commonjs';
   main?: string;
   exports?: { [key: string]: string | { [key: string]: string } };
   description?: string;
@@ -2202,8 +2198,6 @@ export interface CompilerWorkerContext {
   prepareModule(
     input: string,
     minifyOpts: any,
-    transpile: boolean,
-    inlineHelpers: boolean,
   ): Promise<{ output: string; diagnostics: Diagnostic[]; sourceMap?: SourceMap }>;
   prerenderWorker(prerenderRequest: PrerenderUrlRequest): Promise<PrerenderUrlResults>;
   transformCssToEsm(input: TransformCssToEsmInput): Promise<TransformCssToEsmOutput>;

@@ -16,7 +16,6 @@ describe.skip('outputTarget, dist', () => {
   it('default dist files', async () => {
     config = mockConfig({
       buildAppCore: true,
-      buildEs5: true,
       globalScript: path.join(root, 'User', 'testing', 'src', 'global.ts'),
       namespace: 'TestApp',
       outputTargets: [{ type: 'dist' }],
@@ -70,11 +69,6 @@ describe.skip('outputTarget, dist', () => {
       path.join(root, 'User', 'testing', 'dist', 'esm', 'index.mjs'),
       path.join(root, 'User', 'testing', 'dist', 'esm', 'index.js.map'),
       path.join(root, 'User', 'testing', 'dist', 'esm', 'loader.mjs'),
-      path.join(root, 'User', 'testing', 'dist', 'esm-es5', 'index.mjs'),
-      path.join(root, 'User', 'testing', 'dist', 'esm-es5', 'index.js.map'),
-      path.join(root, 'User', 'testing', 'dist', 'esm-es5', 'loader.mjs'),
-      path.join(root, 'User', 'testing', 'dist', 'esm', 'polyfills', 'index.js'),
-      path.join(root, 'User', 'testing', 'dist', 'esm', 'polyfills', 'index.js.map'),
 
       path.join(root, 'User', 'testing', 'dist', 'loader'),
 
@@ -86,7 +80,6 @@ describe.skip('outputTarget, dist', () => {
     expectFilesDoNotExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'build'),
       path.join(root, 'User', 'testing', 'esm'),
-      path.join(root, 'User', 'testing', 'es5'),
       path.join(root, 'User', 'testing', 'www'),
       path.join(root, 'User', 'testing', 'index.html'),
     ]);

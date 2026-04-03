@@ -22,6 +22,7 @@ describe('validateDistOutputTarget', () => {
       dir: 'my-dist',
       buildDir: 'my-build',
       empty: false,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -29,6 +30,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -44,10 +46,7 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        legacyLoaderFile: join(rootDir, 'my-dist', 'my-build', 'testing.js'),
         polyfills: true,
-        systemDir: undefined,
-        systemLoaderFile: undefined,
         type: 'dist-lazy',
       },
       {
@@ -84,7 +83,6 @@ describe('validateDistOutputTarget', () => {
         cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
         polyfills: true,
       },
@@ -94,7 +92,6 @@ describe('validateDistOutputTarget', () => {
         dir: join(rootDir, 'my-dist', 'loader'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         type: 'dist-lazy-loader',
       },
     ]);
@@ -123,6 +120,7 @@ describe('validateDistOutputTarget', () => {
       buildDir: 'my-build',
       empty: false,
       transformAliasedImportPathsInCollection: true,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -132,6 +130,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -147,10 +146,7 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        legacyLoaderFile: join(rootDir, 'my-dist', 'my-build', 'testing.js'),
         polyfills: true,
-        systemDir: undefined,
-        systemLoaderFile: undefined,
         type: 'dist-lazy',
       },
       {
@@ -187,7 +183,6 @@ describe('validateDistOutputTarget', () => {
         cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
         polyfills: true,
       },
@@ -197,7 +192,6 @@ describe('validateDistOutputTarget', () => {
         dir: join(rootDir, 'my-dist', 'loader'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         type: 'dist-lazy-loader',
       },
     ]);
@@ -210,6 +204,7 @@ describe('validateDistOutputTarget', () => {
       buildDir: 'my-build',
       empty: false,
       isPrimaryPackageOutputTarget: true,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -219,6 +214,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -234,10 +230,7 @@ describe('validateDistOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
-        legacyLoaderFile: join(rootDir, 'my-dist', 'my-build', 'testing.js'),
         polyfills: true,
-        systemDir: undefined,
-        systemLoaderFile: undefined,
         type: 'dist-lazy',
       },
       {
@@ -274,7 +267,6 @@ describe('validateDistOutputTarget', () => {
         cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
         polyfills: true,
       },
@@ -284,7 +276,6 @@ describe('validateDistOutputTarget', () => {
         dir: join(rootDir, 'my-dist', 'loader'),
         empty: false,
         esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmEs5Dir: undefined,
         type: 'dist-lazy-loader',
       },
     ]);

@@ -12,7 +12,7 @@
   "module": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "unpkg": "dist/component-library/component-library.esm.js",
-  "es2015": "dist/esm/index.mjs",
+  "es2015": "dist/esm/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -35,5 +35,5 @@
   },
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
-  "es2017": "dist/esm/index.mjs"
+  "es2017": "dist/esm/index.js"
 }

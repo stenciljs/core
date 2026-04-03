@@ -6,7 +6,7 @@ import whyIsNodeRunning from 'why-is-node-running';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');
 
-const hydrate = await import(pathToFileURL(path.join(e2eDir, 'hydrate', 'index.mjs')).href);
+const hydrate = await import(pathToFileURL(path.join(e2eDir, 'hydrate', 'index.js')).href);
 
 async function main() {
   const html = `

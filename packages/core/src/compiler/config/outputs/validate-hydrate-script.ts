@@ -61,8 +61,8 @@ export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.
       outputTarget.minify = false;
     }
 
-    if (!isBoolean(outputTarget.generatePackageJson)) {
-      outputTarget.generatePackageJson = true;
+    if (!isBoolean(outputTarget.cjs)) {
+      outputTarget.cjs = false;
     }
 
     outputTarget.external = outputTarget.external || [];

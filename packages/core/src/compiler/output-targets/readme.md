@@ -28,7 +28,7 @@ Stencil is able to generate components into various formats so they can be best 
 
 ### `dist`
 
-- Generates `modules` to be imported by other bundlers, such as `dist/esm/` and `dist/esm-es5/` (when enabling buildEs5 config).
+- Generates `modules` to be imported by other bundlers in `dist/esm/`.
 - Generates an `app` at the root of the `dist/` directory. It's the same stand-alone webapp as the `www` type, but located in dist so it's easy to package up and shared.
 - Generates a `collection` into the `dist/collection/` directory to be used by other projects.
 
@@ -63,11 +63,7 @@ Stencil is able to generate components into various formats so they can be best 
     - index.js (esm)
     - index.d.ts
 
-  - esm (bundler ready, esm modules, es2017 source)
-    - index.js
-    - loader.js
-
-  - esm-es5 (buildEs5, bundler ready, esm modules, es5 source)
+  - esm (bundler ready, esm modules, es2017+ source)
     - index.js
     - loader.js
 
@@ -82,8 +78,6 @@ Stencil is able to generate components into various formats so they can be best 
   - myapp (browser ready script, named from stencil config namespace)
     - myapp.css
     - myapp.esm.js
-    - myapp.js (buildEs5 entry, systemjs modules, es5 source)
-    - myapp.system.js (buildEs5, systemjs modules, es5 source)
 
   - types (dts files for each component)
     - my-cmp/
@@ -100,7 +94,6 @@ Stencil is able to generate components into various formats so they can be best 
 - www/ (www output target)
   - build/
     - myapp.esm.js (browser ready esm modern script)
-    - myapp.js (buildEs5, browser ready systemjs modules, es5 script)
 
   - index.html (optimized html from src/index.html)
 

@@ -32,7 +32,7 @@ const buildHydrateAppFor = async (
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetHydrate[],
 ) => {
-  const file = format === 'esm' ? 'index.mjs' : 'index.js';
+  const file = format === 'esm' ? 'index.js' : 'index.cjs';
   const rolldownOutput = await rolldownBuild.generate({
     banner: generatePreamble(config),
     format,
@@ -113,10 +113,15 @@ export const generateHydrateApp = async (
     };
 
     const rolldownAppBuild = await rolldown(rolldownOptions);
-    await Promise.all([
-      buildHydrateAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+    const buildPromises = [
       buildHydrateAppFor('esm', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
-    ]);
+    ];
+    if (outputTargets.some((o) => o.cjs)) {
+      buildPromises.push(
+        buildHydrateAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      );
+    }
+    await Promise.all(buildPromises);
   } catch (e: any) {
     if (!buildCtx.hasError) {
       // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are

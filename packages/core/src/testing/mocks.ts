@@ -124,7 +124,6 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
 
   return {
     ...baseConfig,
-    buildEs5: false,
     cacheDir: '.stencil',
     devMode: true,
     devServer: {},
@@ -177,7 +176,6 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     _isTesting: true,
     buildAppCore: false,
     buildDist: true,
-    buildEs5: false,
     bundles: null,
     devMode: true,
     enableCache: false,

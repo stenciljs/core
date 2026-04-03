@@ -26,7 +26,6 @@ describe('validateOutputTargetWww', () => {
       dir: path.join('www', 'docs'),
     };
     userConfig.outputTargets = [outputTarget];
-    userConfig.buildEs5 = false;
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
     expect(config.outputTargets).toEqual([
@@ -59,8 +58,6 @@ describe('validateOutputTargetWww', () => {
         esmDir: join(rootDir, 'www', 'docs', 'build'),
         isBrowserBuild: true,
         polyfills: true,
-        systemDir: undefined,
-        systemLoaderFile: undefined,
         type: 'dist-lazy',
       },
       {

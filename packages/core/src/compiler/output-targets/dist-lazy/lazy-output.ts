@@ -75,7 +75,6 @@ export const outputLazy = async (
           buildCtx.commonJsComponentBundle = result.buildCtx.commonJsComponentBundle;
         } else if (result.name === 'esm') {
           buildCtx.esmComponentBundle = result.buildCtx.esmComponentBundle;
-          buildCtx.es5ComponentBundle = result.buildCtx.es5ComponentBundle;
         } else if (result.name === 'esm-browser') {
           buildCtx.esmBrowserComponentBundle = result.buildCtx.esmBrowserComponentBundle;
           buildCtx.buildResults = result.buildCtx.buildResults;

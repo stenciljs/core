@@ -89,10 +89,6 @@ export const minifyScriptElements = async (doc: Document, addMinifiedAttr: boole
           target: 'latest',
         };
 
-        if (scriptElm.getAttribute('type') !== 'module') {
-          opts.target = 'es5';
-        }
-
         const optimizeResults = await optimizeJs(opts);
 
         if (optimizeResults.diagnostics.length === 0) {

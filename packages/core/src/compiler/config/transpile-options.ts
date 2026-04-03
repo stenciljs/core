@@ -217,5 +217,4 @@ const VALID_TARGET = new Set([
   'es2017',
   'es2016',
   'es2015',
-  'es5',
 ]);

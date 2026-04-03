@@ -17,7 +17,7 @@ describe('addCoreRuntimeApi()', () => {
   beforeEach(() => {
     const sourceText = "console.log('hello world');";
     mockModule = createModule(
-      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES5),
+      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES2017),
       sourceText,
       'mock-file.js',
     );
@@ -53,7 +53,7 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
   beforeEach(() => {
     const sourceText = "console.log('hello world');";
     mockModule = createModule(
-      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES5),
+      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES2017),
       sourceText,
       'mock-file.js',
     );
@@ -97,7 +97,7 @@ describe('addLegacyApis()', () => {
   beforeEach(() => {
     const sourceText = "console.log('hello world');";
     mockModule = createModule(
-      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES5),
+      ts.createSourceFile('mock-file.ts', sourceText, ts.ScriptTarget.ES2017),
       sourceText,
       'mock-file.js',
     );
