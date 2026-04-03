@@ -62,7 +62,7 @@ export const optimizeModule = async (
     };
   }
 
-  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);;
+  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
   const code = opts.input;
 
   if (config.sourceMap) {
