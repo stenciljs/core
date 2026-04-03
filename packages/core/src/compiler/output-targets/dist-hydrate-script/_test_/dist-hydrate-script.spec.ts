@@ -163,7 +163,6 @@ describe('dist-hydrate-script', () => {
       const outputTarget: d.OutputTargetHydrate = {
         type: 'dist-hydrate-script',
         dir: path.join(config.rootDir, 'dist', 'hydrate'),
-        generatePackageJson: false,
       };
 
       const rolldownOutput = {

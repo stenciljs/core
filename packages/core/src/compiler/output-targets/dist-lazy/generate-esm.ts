@@ -14,11 +14,8 @@ export const generateEsm = async (
   rolldownBuild: RolldownBuild,
   outputTargets: d.OutputTargetDistLazy[],
 ): Promise<d.UpdatedLazyBuildCtx> => {
-  const esmEs5Outputs = config.buildEs5
-    ? outputTargets.filter((o) => !!o.esmEs5Dir && !o.isBrowserBuild)
-    : [];
   const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !o.isBrowserBuild);
-  if (esmOutputs.length + esmEs5Outputs.length > 0) {
+  if (esmOutputs.length > 0) {
     const esmOpts: OutputOptions = {
       banner: generatePreamble(config),
       format: 'es',
@@ -50,23 +47,6 @@ export const generateEsm = async (
         false,
       );
 
-      const es5destinations = esmEs5Outputs
-        .map((o) => o.esmEs5Dir)
-        .filter((esmEs5Dir): esmEs5Dir is string => typeof esmEs5Dir === 'string');
-      buildCtx.es5ComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        outputTargetType,
-        es5destinations,
-        output,
-        'es5',
-        false,
-      );
-
-      if (config.buildEs5) {
-        await copyPolyfills(config, compilerCtx, esmOutputs);
-      }
       await generateShortcuts(config, compilerCtx, outputTargets, output);
     }
   }
@@ -74,51 +54,8 @@ export const generateEsm = async (
   return { name: 'esm', buildCtx };
 };
 
-/**
- * Copy polyfills from `$INSTALL_DIR/internal/client/polyfills` to the lazy
- * loader output directory where $INSTALL_DIR is the directory in which the
- * `@stencil/core` package is installed.
- *
- * @param config a validated Stencil configuration
- * @param compilerCtx the current compiler context
- * @param outputTargets dist-lazy output targets
- */
-const copyPolyfills = async (
-  config: d.ValidatedConfig,
-  compilerCtx: d.CompilerCtx,
-  outputTargets: d.OutputTargetDistLazy[],
-): Promise<void> => {
-  const destinations = outputTargets
-    .filter((o) => o.polyfills)
-    .map((o) => o.esmDir)
-    .filter((esmDir): esmDir is string => typeof esmDir === 'string');
-  if (destinations.length === 0) {
-    return;
-  }
-
-  const src = join(
-    config.sys.getCompilerExecutingPath(),
-    '..',
-    '..',
-    'internal',
-    'client',
-    'polyfills',
-  );
-  const files = await compilerCtx.fs.readdir(src);
-
-  await Promise.all(
-    destinations.map((dest) => {
-      return Promise.all(
-        files.map((f) => {
-          return compilerCtx.fs.copyFile(f.absPath, join(dest, 'polyfills', f.relPath));
-        }),
-      );
-    }),
-  );
-};
-
 const generateShortcuts = (
-  config: d.ValidatedConfig,
+  _config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   outputTargets: d.OutputTargetDistLazy[],
   rolldownResult: RolldownResult[],
@@ -128,11 +65,7 @@ const generateShortcuts = (
   return Promise.all(
     outputTargets.map(async (o) => {
       if (o.esmDir && o.esmIndexFile) {
-        const entryPointPath =
-          config.buildEs5 && o.esmEs5Dir
-            ? join(o.esmEs5Dir, indexFilename)
-            : join(o.esmDir, indexFilename);
-
+        const entryPointPath = join(o.esmDir, indexFilename);
         const relativePath = relativeImport(o.esmIndexFile, entryPointPath);
         const shortcutContent = `export * from '${relativePath}';`;
         await compilerCtx.fs.writeFile(o.esmIndexFile, shortcutContent, {

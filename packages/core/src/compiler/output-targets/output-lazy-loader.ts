@@ -7,7 +7,6 @@ import {
   relative,
   relativeImport,
 } from '../../utils';
-import { getClientPolyfill } from '../app-core/app-polyfills';
 
 export const outputLazyLoader = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
   const outputTargets = config.outputTargets.filter(isOutputTargetDistLazyLoader);
@@ -24,54 +23,43 @@ const generateLoader = async (
   outputTarget: d.OutputTargetDistLazyLoader,
 ) => {
   const loaderPath = outputTarget.dir;
-  const es2017Dir = outputTarget.esmDir;
-  const es5Dir = outputTarget.esmEs5Dir || es2017Dir;
+  const esmDir = outputTarget.esmDir;
   const cjsDir = outputTarget.cjsDir;
 
-  if (!loaderPath || !es2017Dir || !cjsDir) {
+  if (!loaderPath || !esmDir) {
     return;
   }
 
-  const es5HtmlElement = await getClientPolyfill(config, compilerCtx, 'es5-html-element.js');
-  const polyfillsEntryPoint = join(es2017Dir, 'polyfills/index.js');
-  const polyfillsExport = `export * from '${relative(loaderPath, polyfillsEntryPoint)}';`;
-
-  const es5EntryPoint = join(es5Dir, 'loader.js');
+  const esmEntryPoint = join(esmDir, 'loader.js');
   const indexContent = filterAndJoin([
     generatePreamble(config),
-    es5HtmlElement,
-    config.buildEs5 ? polyfillsExport : null,
-    `export * from '${relative(loaderPath, es5EntryPoint)}';`,
-  ]);
-
-  const es2017EntryPoint = join(es2017Dir, 'loader.js');
-  const indexES2017Content = filterAndJoin([
-    generatePreamble(config),
-    config.buildEs5 ? polyfillsExport : null,
-    `export * from '${relative(loaderPath, es2017EntryPoint)}';`,
-  ]);
-
-  const cjsEntryPoint = join(cjsDir, 'loader.cjs.js');
-  const indexCjsContent = filterAndJoin([
-    generatePreamble(config),
-    `module.exports = require('${relative(loaderPath, cjsEntryPoint)}');`,
-    config.buildEs5
-      ? `module.exports.applyPolyfills = function() { return Promise.resolve() };`
-      : null,
+    `export * from '${relative(loaderPath, esmEntryPoint)}';`,
   ]);
 
   const indexDtsPath = join(loaderPath, 'index.d.ts');
 
-  await Promise.all([
+  const writes: Promise<unknown>[] = [
     compilerCtx.fs.writeFile(
       join(loaderPath, 'index.d.ts'),
       generateIndexDts(indexDtsPath, outputTarget.componentDts),
     ),
     compilerCtx.fs.writeFile(join(loaderPath, 'index.js'), indexContent),
-    compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs.js'), indexCjsContent),
-    compilerCtx.fs.writeFile(join(loaderPath, 'cdn.js'), indexCjsContent),
-    compilerCtx.fs.writeFile(join(loaderPath, 'index.es2017.js'), indexES2017Content),
-  ]);
+  ];
+
+  // Only generate CJS files when cjsDir is configured
+  if (cjsDir) {
+    const cjsEntryPoint = join(cjsDir, 'loader.cjs.js');
+    const indexCjsContent = filterAndJoin([
+      generatePreamble(config),
+      `module.exports = require('${relative(loaderPath, cjsEntryPoint)}');`,
+    ]);
+    writes.push(
+      compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs.js'), indexCjsContent),
+      compilerCtx.fs.writeFile(join(loaderPath, 'cdn.js'), indexCjsContent),
+    );
+  }
+
+  await Promise.all(writes);
 };
 
 const generateIndexDts = (indexDtsPath: string, componentsDtsPath: string) => {
@@ -85,10 +73,6 @@ export interface CustomElementsDefineOptions {
   rel?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
 }
 export declare function defineCustomElements(win?: Window, opts?: CustomElementsDefineOptions): void;
-/**
- * @deprecated
- */
-export declare function applyPolyfills(): Promise<void>;
 
 /**
  * Used to specify a nonce value that corresponds with an application's CSP.

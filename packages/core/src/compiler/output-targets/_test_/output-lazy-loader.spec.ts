@@ -46,34 +46,8 @@ describe('Lazy Loader Output Target', () => {
     writeFileSpy.mockRestore();
   });
 
-  it('should write code for initializing polyfills when buildEs5=true', async () => {
-    ({ config, compilerCtx, writeFileSpy } = setup({ buildEs5: true }));
-    await outputLazyLoader(config, compilerCtx);
-
-    const expectedIndexOutput = `export * from '../esm/polyfills/index.js';
-export * from '../esm-es5/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.js'),
-      expectedIndexOutput,
-    );
-
-    const expectedCjsIndexOutput = `module.exports = require('../cjs/loader.cjs.js');
-module.exports.applyPolyfills = function() { return Promise.resolve() };`;
-    expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.cjs.js'),
-      expectedCjsIndexOutput,
-    );
-
-    const expectedES2017Output = `export * from '../esm/polyfills/index.js';
-export * from '../esm/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.es2017.js'),
-      expectedES2017Output,
-    );
-  });
-
-  it('should exclude polyfill code when buildEs5=false', async () => {
-    ({ config, compilerCtx, writeFileSpy } = setup({ buildEs5: false }));
+  it('should write loader entry files', async () => {
+    ({ config, compilerCtx, writeFileSpy } = setup());
     await outputLazyLoader(config, compilerCtx);
 
     const expectedIndexOutput = `export * from '../esm/loader.js';`;
@@ -86,12 +60,6 @@ export * from '../esm/loader.js';`;
     expect(writeFileSpy).toHaveBeenCalledWith(
       resolve('/my-test-dir/loader/index.cjs.js'),
       expectedCjsIndexOutput,
-    );
-
-    const expectedES2017Output = `export * from '../esm/loader.js';`;
-    expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.es2017.js'),
-      expectedES2017Output,
     );
   });
 });

@@ -1,5 +1,3 @@
-import sourceMapMerge from 'merge-source-map';
-import ts from 'typescript';
 import type {
   CompilerCtx,
   OptimizeJsResult,
@@ -12,7 +10,6 @@ import type {
   MangleOptions,
   ManglePropertiesOptions,
   MinifyOptions,
-  SourceMapOptions,
 } from 'terser';
 
 import { getToolVersion } from '../../version';
@@ -40,7 +37,7 @@ export const optimizeModule = async (
   compilerCtx: CompilerCtx,
   opts: OptimizeModuleOptions,
 ): Promise<OptimizeJsResult> => {
-  if ((!opts.minify && opts.sourceTarget !== 'es5') || opts.input === '') {
+  if (!opts.minify || opts.input === '') {
     return {
       output: opts.input,
       diagnostics: [],
@@ -65,62 +62,48 @@ export const optimizeModule = async (
     };
   }
 
-  let minifyOpts: MinifyOptions;
-  let code = opts.input;
+  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);;
+  const code = opts.input;
+
+  if (config.sourceMap) {
+    minifyOpts.sourceMap = {
+      content:
+        // We need to loosely check for a source map definition
+        // so we don't spread a `null`/`undefined` value into the object
+        // which results in invalid source maps during minification
+        opts.sourceMap != null
+          ? {
+              ...opts.sourceMap,
+              version: 3,
+            }
+          : undefined,
+    };
+  }
+
+  const compressOpts = minifyOpts.compress as CompressOptions;
+  const mangleOptions = minifyOpts.mangle as MangleOptions;
+
   if (opts.isCore) {
-    // IS_ESM_BUILD is replaced at build time so SystemJS and esm builds have diff values
-    // not using the BUILD conditional since rolldown would input the same value
-    code = code.replace(/\/\* IS_ESM_BUILD \*\//g, '&& false /* IS_SYSTEM_JS_BUILD */');
-  }
-
-  if (opts.sourceTarget === 'es5' || opts.minify) {
-    minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
-    if (config.sourceMap) {
-      minifyOpts.sourceMap = {
-        content:
-          // We need to loosely check for a source map definition
-          // so we don't spread a `null`/`undefined` value into the object
-          // which results in invalid source maps during minification
-          opts.sourceMap != null
-            ? {
-                ...opts.sourceMap,
-                version: 3,
-              }
-            : undefined,
+    if (!isDebug) {
+      compressOpts.passes = 2;
+      compressOpts.global_defs = {
+        supportsListenerOptions: true,
       };
+      compressOpts.pure_funcs = compressOpts.pure_funcs || [];
+      compressOpts.pure_funcs = ['getHostRef', ...compressOpts.pure_funcs];
     }
 
-    const compressOpts = minifyOpts.compress as CompressOptions;
-    const mangleOptions = minifyOpts.mangle as MangleOptions;
+    mangleOptions.properties = {
+      debug: isDebug,
+      ...getTerserManglePropertiesConfig(),
+    };
 
-    if (opts.sourceTarget !== 'es5' && opts.isCore) {
-      if (!isDebug) {
-        compressOpts.passes = 2;
-        compressOpts.global_defs = {
-          supportsListenerOptions: true,
-        };
-        compressOpts.pure_funcs = compressOpts.pure_funcs || [];
-        compressOpts.pure_funcs = ['getHostRef', ...compressOpts.pure_funcs];
-      }
-
-      mangleOptions.properties = {
-        debug: isDebug,
-        ...getTerserManglePropertiesConfig(),
-      };
-
-      compressOpts.inline = 1;
-      compressOpts.unsafe = true;
-      compressOpts.unsafe_undefined = true;
-    }
+    compressOpts.inline = 1;
+    compressOpts.unsafe = true;
+    compressOpts.unsafe_undefined = true;
   }
 
-  const shouldTranspile = opts.sourceTarget === 'es5';
-  const results = await compilerCtx.worker.prepareModule(
-    code,
-    minifyOpts,
-    shouldTranspile,
-    !!opts.inlineHelpers,
-  );
+  const results = await compilerCtx.worker.prepareModule(code, minifyOpts);
   if (
     results != null &&
     typeof results.output === 'string' &&
@@ -148,7 +131,7 @@ export const optimizeModule = async (
  */
 export const getTerserOptions = (
   config: ValidatedConfig,
-  sourceTarget: SourceTarget,
+  sourceTarget: SourceTarget | undefined,
   prettyOutput: boolean,
 ): MinifyOptions => {
   const opts: MinifyOptions = {
@@ -158,30 +141,22 @@ export const getTerserOptions = (
     sourceMap: config.sourceMap,
   };
 
-  if (sourceTarget === 'es5') {
-    opts.ecma = opts.format.ecma = 5;
-    opts.compress = false;
-    opts.mangle = {
-      properties: getTerserManglePropertiesConfig(),
-    };
-  } else {
-    opts.mangle = {
-      properties: getTerserManglePropertiesConfig(),
-    };
-    opts.compress = {
-      pure_getters: true,
-      keep_fargs: false,
-      passes: 2,
-    };
+  opts.mangle = {
+    properties: getTerserManglePropertiesConfig(),
+  };
+  opts.compress = {
+    pure_getters: true,
+    keep_fargs: false,
+    passes: 2,
+  };
 
-    opts.ecma = opts.format.ecma = opts.compress.ecma = 2018;
-    opts.toplevel = true;
-    opts.module = true;
-    opts.mangle.toplevel = true;
-    opts.compress.arrows = true;
-    opts.compress.module = true;
-    opts.compress.toplevel = true;
-  }
+  opts.ecma = opts.format.ecma = opts.compress.ecma = 2018;
+  opts.toplevel = true;
+  opts.module = true;
+  opts.mangle.toplevel = true;
+  opts.compress.arrows = true;
+  opts.compress.module = true;
+  opts.compress.toplevel = true;
 
   if (prettyOutput) {
     opts.mangle = {
@@ -221,63 +196,19 @@ function getTerserManglePropertiesConfig(): ManglePropertiesOptions {
  * This method is likely to be called by a worker on the compiler context, rather than directly.
  * @param input the source code to minify
  * @param minifyOpts options to be used by the minifier
- * @param transpileToEs5 if true, use the TypeScript compiler to transpile the input to ES5 prior to minification
- * @param inlineHelpers when true, emits less terse JavaScript by allowing global helpers created by the TypeScript
- * compiler to be added directly to the transpiled source. Used only if `transpileToEs5` is true.
  * @returns minified input, as JavaScript
  */
 export const prepareModule = async (
   input: string,
   minifyOpts: MinifyOptions,
-  transpileToEs5: boolean,
-  inlineHelpers: boolean,
 ): Promise<OptimizeJsResult> => {
-  const results: OptimizeJsResult = {
+  if (minifyOpts) {
+    return minifyJs(input, minifyOpts);
+  }
+
+  return {
     output: input,
     diagnostics: [],
     sourceMap: null,
   };
-
-  if (transpileToEs5) {
-    const tsResults = ts.transpileModule(input, {
-      fileName: 'module.ts',
-      compilerOptions: {
-        sourceMap: !!minifyOpts.sourceMap,
-        allowJs: true,
-        target: ts.ScriptTarget.ES5,
-        module: ts.ModuleKind.ESNext,
-        removeComments: false,
-        isolatedModules: true,
-        skipLibCheck: true,
-        noEmitHelpers: !inlineHelpers,
-        importHelpers: !inlineHelpers,
-      },
-      reportDiagnostics: false,
-    });
-    results.output = tsResults.outputText;
-
-    if (tsResults.sourceMapText) {
-      // need to merge sourcemaps at this point
-      const mergeMap = sourceMapMerge(
-        (minifyOpts.sourceMap as SourceMapOptions)?.content as SourceMap,
-        JSON.parse(tsResults.sourceMapText),
-      );
-
-      if (mergeMap != null) {
-        minifyOpts.sourceMap = {
-          content: {
-            ...mergeMap,
-            sources: mergeMap.sources ?? [],
-            version: 3,
-          },
-        };
-      }
-    }
-  }
-
-  if (minifyOpts) {
-    return minifyJs(results.output, minifyOpts);
-  }
-
-  return results;
 };

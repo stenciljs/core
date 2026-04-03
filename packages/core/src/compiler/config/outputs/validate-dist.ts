@@ -46,9 +46,6 @@ export const validateDist = (
     outputs.push({
       type: DIST_LAZY,
       esmDir: lazyDir,
-      systemDir: config.buildEs5 ? lazyDir : undefined,
-      systemLoaderFile: config.buildEs5 ? join(lazyDir, namespace + '.js') : undefined,
-      legacyLoaderFile: join(distOutputTarget.buildDir, namespace + '.js'),
       polyfills: outputTarget.polyfills !== undefined ? !!distOutputTarget.polyfills : true,
       isBrowserBuild: true,
       empty: distOutputTarget.empty,
@@ -88,17 +85,15 @@ export const validateDist = (
       }
 
       const esmDir = join(distOutputTarget.dir, 'esm');
-      const esmEs5Dir = config.buildEs5 ? join(distOutputTarget.dir, 'esm-es5') : undefined;
-      const cjsDir = join(distOutputTarget.dir, 'cjs');
+      const cjsDir = distOutputTarget.cjs ? join(distOutputTarget.dir, 'cjs') : undefined;
 
       // Create lazy output-target
       outputs.push({
         type: DIST_LAZY,
         esmDir,
-        esmEs5Dir,
         cjsDir,
 
-        cjsIndexFile: join(distOutputTarget.dir, 'index.cjs.js'),
+        cjsIndexFile: distOutputTarget.cjs ? join(distOutputTarget.dir, 'index.cjs.js') : undefined,
         esmIndexFile: join(distOutputTarget.dir, 'index.js'),
         polyfills: true,
         empty: distOutputTarget.empty,
@@ -110,7 +105,6 @@ export const validateDist = (
         dir: distOutputTarget.esmLoaderPath,
 
         esmDir,
-        esmEs5Dir,
         cjsDir,
         componentDts: getComponentsDtsTypesFilePath(distOutputTarget),
         empty: distOutputTarget.empty,
@@ -152,6 +146,7 @@ const validateOutputTargetDist = (
       ? o.transformAliasedImportPathsInCollection
       : true,
     isPrimaryPackageOutputTarget: o.isPrimaryPackageOutputTarget ?? false,
+    cjs: isBoolean(o.cjs) ? o.cjs : false,
   } satisfies Required<d.OutputTargetDist>;
 
   if (!isAbsolute(outputTarget.buildDir)) {

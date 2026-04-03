@@ -59,7 +59,6 @@ export const config: Config = {
     HOST: 'example.com',
   },
   hashFileNames: false,
-  buildEs5: 'prod',
   sourceMap: true,
   extras: {
     experimentalSlotFixes: true,

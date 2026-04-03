@@ -17,8 +17,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - Still migrating integration / e2e test suites (in `packages/core/tests/`) 
 
 ### 2. 🗑️ Update / Remove Legacy Features
-**Status:** Decided
-- ES5 builds → REMOVE
+**Status:** In Progress
+- ES5 builds → ✅ REMOVED
 - Internal CommonJS → Pure ESM (Node 18+)
 - Ancient polyfills → REMOVE
 - In-browser compilation → REMOVE
@@ -71,6 +71,9 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - `@stencil/core/cli` → `@stencil/cli`
 - `@stencil/core/dev-server` → `@stencil/dev-server`
 - `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config.
+- `dist` and `dist-hydrate-script` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
+- `dist-hydrate-script` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the hydrate script.
+- **ES5 build output removed.** The `buildEs5` config option, `--es5` CLI flag, and all ES5-related output (esm-es5 directory, SystemJS bundles, ES5 polyfills) have been removed. Stencil now targets ES2017+ only. IE11 and Edge 18 and below are no longer supported.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned
@@ -289,10 +292,10 @@ Simplified the version/build identification system for v5:
 <details>
 <summary><b>Legacy Features to Remove</b></summary>
 
-- **ES5 builds** - Remove polyfills, dual builds
-- **Ancient polyfills** - SystemJS, Promise, fetch
-- **In-browser compilation** - Remove bundled TypeScript
-- **Node floor:** 20 LTS, **Browser floor:** ES2020
+- **ES5 builds** - ✅ Removed (polyfills, dual builds, SystemJS)
+- **Ancient polyfills** - Promise, fetch (pending)
+- **In-browser compilation** - Remove bundled TypeScript (pending)
+- **Node floor:** 22 LTS, **Browser floor:** ES2017+
 
 </details>
 

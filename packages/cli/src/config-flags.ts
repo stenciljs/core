@@ -17,7 +17,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'docs',
   // @deprecated - integrated testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
   'e2e',
-  'es5',
   'esm',
   'help',
   'log',

@@ -183,15 +183,6 @@ export interface StencilConfig {
   rolldownConfig?: RolldownConfig;
 
   /**
-   * Sets if the ES5 build should be generated or not. Stencil generates a modern build without ES5,
-   * whereas this setting to `true` will also create es5 builds for both dev and prod modes. Setting
-   * `buildEs5` to `prod` will only build ES5 in prod mode. Basically if the app does not need to run
-   * on legacy browsers (IE11 and Edge 18 and below), it's safe to not build ES5, which will also speed
-   * up build times. Defaults to `false`.
-   */
-  buildEs5?: boolean | 'prod';
-
-  /**
    * Sets if the JS browser files are minified or not. Stencil uses `terser` under the hood.
    * Defaults to `false` in dev mode and `true` in production mode.
    */
@@ -603,7 +594,6 @@ type RequireFields<T, K extends keyof T> = T & { [P in K]-?: T[P] };
  */
 type StrictConfigFields = keyof Pick<
   Config,
-  | 'buildEs5'
   | 'cacheDir'
   | 'devMode'
   | 'devServer'
@@ -681,8 +671,7 @@ export interface StencilDevServerConfig {
    * EXPERIMENTAL!
    * During development, node modules can be independently requested and bundled, making for
    * faster build times. This is only available using the Stencil Dev Server throughout
-   * development. Production builds and builds with the `es5` flag will override
-   * this setting to `false`. Default is `false`.
+   * development. Production builds will override this setting to `false`. Default is `false`.
    */
   experimentalDevModules?: boolean;
   /**
@@ -2442,6 +2431,16 @@ export interface OutputTargetDist extends OutputTargetValidationConfig {
   polyfills?: boolean;
 
   empty?: boolean;
+
+  /**
+   * Whether to generate CommonJS (CJS) bundles.
+   *
+   * When `true`, generates CJS output in `dist/cjs/` and `dist/index.cjs.js`.
+   * When `false` (default in v5+), only ESM bundles are generated.
+   *
+   * @default false
+   */
+  cjs?: boolean;
 }
 
 export interface OutputTargetDistCollection extends OutputTargetValidationConfig {
@@ -2482,16 +2481,12 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
 
   dir?: string;
   esmDir?: string;
-  esmEs5Dir?: string;
-  systemDir?: string;
   cjsDir?: string;
   polyfills?: boolean;
   isBrowserBuild?: boolean;
 
   esmIndexFile?: string;
   cjsIndexFile?: string;
-  systemLoaderFile?: string;
-  legacyLoaderFile?: string;
   empty?: boolean;
 }
 
@@ -2505,8 +2500,7 @@ export interface OutputTargetDistLazyLoader extends OutputTargetBase {
   dir: string;
 
   esmDir: string;
-  esmEs5Dir?: string;
-  cjsDir: string;
+  cjsDir?: string;
   componentDts: string;
 
   empty: boolean;
@@ -2516,13 +2510,6 @@ export interface OutputTargetHydrate extends OutputTargetBase {
   type: 'dist-hydrate-script';
   dir?: string;
   /**
-   * Whether to generate a package.json file in the hydrate output directory.
-   * Defaults to `true`
-   * @deprecated
-   * In the next major release, the `package.json` file will be completely removed from the `dist-hydrate-script` output (use `exports` from your library's main `package.json`)
-   */
-  generatePackageJson?: boolean;
-  /**
    * Module IDs that should not be bundled into the script.
    * By default, all node builtin's, such as `fs` or `path`
    * will be considered "external" and not bundled.
@@ -2530,6 +2517,16 @@ export interface OutputTargetHydrate extends OutputTargetBase {
   external?: string[];
   empty?: boolean;
   minify?: boolean;
+
+  /**
+   * Whether to generate CommonJS (CJS) bundles.
+   *
+   * When `true`, generates CJS output as `index.cjs` alongside ESM `index.js`.
+   * When `false` (default in v5+), only ESM bundles are generated.
+   *
+   * @default false
+   */
+  cjs?: boolean;
 }
 
 export interface OutputTargetCustom extends OutputTargetBase {
@@ -2833,8 +2830,8 @@ export interface OutputTargetWww extends OutputTargetBase {
   baseUrl?: string;
 
   /**
-   * By default, stencil will include all the polyfills required by legacy browsers in the ES5 build.
-   * If it's `false`, stencil will not emit this polyfills anymore and it's your responsibility to provide them before
+   * By default, stencil will include polyfills for older browsers.
+   * If set to `false`, stencil will not emit polyfills and it's your responsibility to provide them before
    * stencil initializes.
    */
   polyfills?: boolean;
@@ -3050,7 +3047,7 @@ export interface OptimizeCssOutput {
 export interface OptimizeJsInput {
   input: string;
   filePath?: string;
-  target?: 'es5' | 'latest';
+  target?: 'latest';
   pretty?: boolean;
   sourceMap?: boolean;
 }
@@ -3206,8 +3203,8 @@ export interface TranspileOptions {
    */
   styleImportData?: 'queryparams' | string | undefined;
   /**
-   * The JavaScript source target TypeScript should to transpile to. Values can be
-   * `latest`, `esnext`, `es2017`, `es2015`, or `es5`. Defaults to `latest`.
+   * The JavaScript source target TypeScript should transpile to. Values can be
+   * `latest`, `esnext`, `es2020`, `es2017`, or `es2015`. Defaults to `latest`.
    */
   target?: CompileTarget;
   /**
@@ -3264,7 +3261,6 @@ export type CompileTarget =
   | 'es2018'
   | 'es2017'
   | 'es2015'
-  | 'es5'
   | string
   | undefined;
 

@@ -47,9 +47,8 @@ describe('generateBuildStats', () => {
       componentGraph: {},
       components: [],
       entries: [],
-      formats: { commonjs: [], es5: [], esm: [], esmBrowser: [], system: [] },
+      formats: { commonjs: [], esm: [], esmBrowser: [] },
       options: {
-        buildEs5: false,
         hashFileNames: false,
         hashedFileNameLength: 8,
         minifyCss: false,

@@ -30,7 +30,6 @@ const setup = () => {
   const sys = mockCompilerSystem();
   const config: d.ValidatedConfig = mockValidatedConfig({
     buildAppCore: true,
-    buildEs5: true,
     configPath: '/testing-path',
     namespace: 'TestApp',
     outputTargets: [{ type: DIST_CUSTOM_ELEMENTS }],

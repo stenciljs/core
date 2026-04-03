@@ -123,12 +123,6 @@ export const startupCompilerLog = (coreCompiler: CoreCompiler, config: Validated
   }
 
   if (config.devMode && !isDebug) {
-    if (config.buildEs5) {
-      logger.warn(
-        `Generating ES5 during development is a very task expensive, initial and incremental builds will be much slower. Drop the '--es5' flag and use a modern browser for development.`,
-      );
-    }
-
     if (!config.enableCache) {
       logger.warn(`Disabling cache during development will slow down incremental builds.`);
     }
