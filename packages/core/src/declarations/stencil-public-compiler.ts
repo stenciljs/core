@@ -2428,7 +2428,6 @@ export interface OutputTargetDist extends OutputTargetValidationConfig {
    */
   esmLoaderPath?: string;
   copy?: CopyTask[];
-  polyfills?: boolean;
 
   empty?: boolean;
 
@@ -2482,7 +2481,6 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
   dir?: string;
   esmDir?: string;
   cjsDir?: string;
-  polyfills?: boolean;
   isBrowserBuild?: boolean;
 
   esmIndexFile?: string;
@@ -2828,13 +2826,6 @@ export interface OutputTargetWww extends OutputTargetBase {
    * Default: `/`
    */
   baseUrl?: string;
-
-  /**
-   * By default, stencil will include polyfills for older browsers.
-   * If set to `false`, stencil will not emit polyfills and it's your responsibility to provide them before
-   * stencil initializes.
-   */
-  polyfills?: boolean;
 
   /**
    * Path to an external node module which has exports of the prerender config object.

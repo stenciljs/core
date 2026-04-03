@@ -48,7 +48,6 @@ describe.skip('outputTarget, www / dist / docs', () => {
         "types": "custom-dist/custom-types/components.d.ts"
       }`,
       [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(config.sys.getClientPath('polyfills/index.js'))]: `/* polyfills */`,
       [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.tsx')]:
         `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
@@ -57,11 +56,7 @@ describe.skip('outputTarget, www / dist / docs', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    expectFilesExist(compiler.fs, [
-      path.join(root, 'User', 'testing', 'custom-dist', 'cjs'),
-      path.join(root, 'User', 'testing', 'custom-dist', 'esm', 'polyfills', 'index.js'),
-      path.join(root, 'User', 'testing', 'custom-dist', 'esm', 'polyfills', 'index.js.map'),
-    ]);
+    expectFilesExist(compiler.fs, [path.join(root, 'User', 'testing', 'custom-dist', 'cjs')]);
 
     expectFilesDoNotExist(compiler.fs, [
       path.join(root, 'User', 'testing', 'www', '/'),

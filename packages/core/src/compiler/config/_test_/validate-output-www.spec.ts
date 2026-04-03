@@ -36,7 +36,6 @@ describe('validateOutputTargetWww', () => {
         dir: join(rootDir, 'www', 'docs'),
         empty: true,
         indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
-        polyfills: true,
         serviceWorker: {
           dontCacheBustURLsMatching: /p-\w{8}/,
           globDirectory: join(rootDir, 'www', 'docs'),
@@ -57,7 +56,6 @@ describe('validateOutputTargetWww', () => {
         dir: join(rootDir, 'www', 'docs', 'build'),
         esmDir: join(rootDir, 'www', 'docs', 'build'),
         isBrowserBuild: true,
-        polyfills: true,
         type: 'dist-lazy',
       },
       {

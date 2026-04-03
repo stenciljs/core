@@ -9,7 +9,6 @@ export const validateLazy = (config: d.ValidatedConfig, userOutputs: d.OutputTar
     const lazyOutput: d.OutputTargetDistLazy = {
       type: DIST_LAZY,
       esmDir: dir,
-      polyfills: !!o.polyfills,
       isBrowserBuild: true,
       empty: isBoolean(o.empty) ? o.empty : true,
     };

@@ -46,7 +46,6 @@ export const validateDist = (
     outputs.push({
       type: DIST_LAZY,
       esmDir: lazyDir,
-      polyfills: outputTarget.polyfills !== undefined ? !!distOutputTarget.polyfills : true,
       isBrowserBuild: true,
       empty: distOutputTarget.empty,
     });
@@ -95,7 +94,6 @@ export const validateDist = (
 
         cjsIndexFile: distOutputTarget.cjs ? join(distOutputTarget.dir, 'index.cjs.js') : undefined,
         esmIndexFile: join(distOutputTarget.dir, 'index.js'),
-        polyfills: true,
         empty: distOutputTarget.empty,
       });
 
@@ -140,7 +138,6 @@ const validateOutputTargetDist = (
     typesDir: o.typesDir || DEFAULT_TYPES_DIR,
     esmLoaderPath: o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR,
     copy: validateCopy(o.copy ?? [], []),
-    polyfills: isBoolean(o.polyfills) ? o.polyfills : false,
     empty: isBoolean(o.empty) ? o.empty : true,
     transformAliasedImportPathsInCollection: isBoolean(o.transformAliasedImportPathsInCollection)
       ? o.transformAliasedImportPathsInCollection
