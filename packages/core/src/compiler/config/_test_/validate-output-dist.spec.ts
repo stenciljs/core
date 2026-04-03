@@ -22,6 +22,7 @@ describe('validateDistOutputTarget', () => {
       dir: 'my-dist',
       buildDir: 'my-build',
       empty: false,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -29,6 +30,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -118,6 +120,7 @@ describe('validateDistOutputTarget', () => {
       buildDir: 'my-build',
       empty: false,
       transformAliasedImportPathsInCollection: true,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -127,6 +130,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -200,6 +204,7 @@ describe('validateDistOutputTarget', () => {
       buildDir: 'my-build',
       empty: false,
       isPrimaryPackageOutputTarget: true,
+      cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
     userConfig.buildDist = true;
@@ -209,6 +214,7 @@ describe('validateDistOutputTarget', () => {
     expect(config.outputTargets).toEqual([
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
+        cjs: true,
         collectionDir: join(rootDir, 'my-dist', 'collection'),
         copy: [],
         dir: join(rootDir, 'my-dist'),
