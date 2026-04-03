@@ -19,8 +19,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 ### 2. 🗑️ Update / Remove Legacy Features
 **Status:** In Progress
 - ES5 builds → ✅ REMOVED
-- Internal CommonJS → Pure ESM (Node 18+)
-- Ancient polyfills → REMOVE
+- Internal CommonJS → Pure ESM (Node 18+) ✅ REMOVED
+- Ancient polyfills → ✅ REMOVED
 - In-browser compilation → REMOVE
 - *-sys in-memory file-system (patching node / typescript to do in-memory builds) → use newer 'incremental' build APIs in TypeScript instead. See ./new-ts-non-sys-pattern for some relevant code.
 - Hand-crafted dev server / HMR → modernize as `@stencil/dev-server` (Vite doesn't fit lazy-loading architecture)
@@ -293,7 +293,7 @@ Simplified the version/build identification system for v5:
 <summary><b>Legacy Features to Remove</b></summary>
 
 - **ES5 builds** - ✅ Removed (polyfills, dual builds, SystemJS)
-- **Ancient polyfills** - Promise, fetch (pending)
+- **Ancient polyfills** - ✅ Removed (`polyfills` config option + emission removed from `dist`, `www`, `dist-lazy` output targets)
 - **In-browser compilation** - Remove bundled TypeScript (pending)
 - **Node floor:** 22 LTS, **Browser floor:** ES2017+
 
@@ -318,4 +318,4 @@ In individual packages or from root. pnpm workspaces handle dependency ordering 
 
 ---
 
-*Last updated: 2026-02-18*
+*Last updated: 2026-04-04*
