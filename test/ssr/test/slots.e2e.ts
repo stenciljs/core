@@ -2,7 +2,7 @@ import { expect, Page } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../hydrate/index.mjs');
+type HydrateModule = typeof import('../hydrate/index.js');
 let renderToString: HydrateModule['renderToString'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
@@ -21,7 +21,7 @@ async function getNonShadowElementOrder(page: Page, parent: string) {
 test.describe('slot handling', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.mjs');
+    const mod = await import('../hydrate/index.js');
     renderToString = mod.renderToString;
     resetHydrateDocData = mod.resetHydrateDocData;
     resetHydrateDocData();

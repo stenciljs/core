@@ -30,6 +30,7 @@ export const config: Config = {
     },
     {
       type: 'dist',
+      cjs: true,
     },
     {
       type: 'dist-hydrate-script',

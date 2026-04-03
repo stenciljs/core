@@ -14,7 +14,7 @@ let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 test.describe('client hydration', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.mjs');
+    const mod = await import('../hydrate/index.js');
     renderToString = mod.renderToString;
     resetHydrateDocData = mod.resetHydrateDocData;
     resetHydrateDocData();

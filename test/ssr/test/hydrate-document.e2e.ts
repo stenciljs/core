@@ -10,7 +10,7 @@ let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 test.describe('hydrateDocument', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.mjs');
+    const mod = await import('../hydrate/index.js');
     hydrateDocument = mod.hydrateDocument;
     createWindowFromHtml = mod.createWindowFromHtml;
     resetHydrateDocData = mod.resetHydrateDocData;
