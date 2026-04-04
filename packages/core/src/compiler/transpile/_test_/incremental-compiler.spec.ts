@@ -10,6 +10,7 @@ const mockReadFile = vi.fn();
 const mockFileExists = vi.fn();
 const mockCreateIncrementalCompilerHost = vi.fn();
 const mockCreateEmitAndSemanticDiagnosticsBuilderProgram = vi.fn();
+const mockReadBuilderProgram = vi.fn();
 const mockReadConfigFile = vi.fn();
 const mockParseJsonConfigFileContent = vi.fn();
 
@@ -33,12 +34,19 @@ vi.mock('typescript', async (importOriginal) => {
           getProgram: () => ({}),
         };
       },
+      readBuilderProgram: (...args: any[]) => {
+        return mockReadBuilderProgram(...args);
+      },
       readConfigFile: (...args: any[]) => {
         mockReadConfigFile(...args);
         return { config: {} };
       },
       parseJsonConfigFileContent: (...args: any[]) => {
-        mockParseJsonConfigFileContent(...args);
+        // Allow tests to configure return value via mockReturnValue/mockReturnValueOnce
+        const configured = mockParseJsonConfigFileContent(...args);
+        if (configured !== undefined) {
+          return configured;
+        }
         return {
           fileNames: ['src/index.ts'],
           options: {},
@@ -182,5 +190,70 @@ describe('IncrementalCompiler', () => {
     // The 4th argument should be the previous builder program
     const secondCallArgs = mockCreateEmitAndSemanticDiagnosticsBuilderProgram.mock.calls[1];
     expect(secondCallArgs[3]).toBeDefined(); // Previous builder program
+  });
+
+  it('reads existing .tsbuildinfo on first cold build when incremental is enabled', () => {
+    // Mock parseJsonConfigFileContent to return options with incremental: true
+    mockParseJsonConfigFileContent.mockReturnValueOnce({
+      fileNames: ['src/index.ts'],
+      options: { incremental: true },
+    });
+
+    // Mock readBuilderProgram to return an existing program (simulating existing .tsbuildinfo)
+    const mockOldProgram = { getProgram: () => ({}) };
+    mockReadBuilderProgram.mockReturnValueOnce(mockOldProgram);
+
+    const compiler = new IncrementalCompiler(config);
+    compiler.rebuild();
+
+    // Should have called readBuilderProgram to check for existing .tsbuildinfo
+    expect(mockReadBuilderProgram).toHaveBeenCalled();
+
+    // Should have passed the old program to createEmitAndSemanticDiagnosticsBuilderProgram
+    expect(mockCreateEmitAndSemanticDiagnosticsBuilderProgram).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      mockOldProgram,
+    );
+  });
+
+  it('does not read .tsbuildinfo on subsequent rebuilds', () => {
+    mockParseJsonConfigFileContent.mockReturnValue({
+      fileNames: ['src/index.ts'],
+      options: { incremental: true },
+    });
+    mockReadBuilderProgram.mockReturnValue(null);
+
+    const compiler = new IncrementalCompiler(config);
+
+    // First rebuild - should attempt to read
+    compiler.rebuild();
+    expect(mockReadBuilderProgram).toHaveBeenCalledTimes(1);
+
+    // Second rebuild - should NOT attempt to read again
+    compiler.rebuild();
+    expect(mockReadBuilderProgram).toHaveBeenCalledTimes(1); // Still 1, not 2
+  });
+
+  it('invalidateAll resets the disk restore flag', () => {
+    mockParseJsonConfigFileContent.mockReturnValue({
+      fileNames: ['src/index.ts'],
+      options: { incremental: true },
+    });
+    mockReadBuilderProgram.mockReturnValue(null);
+
+    const compiler = new IncrementalCompiler(config);
+
+    // First rebuild
+    compiler.rebuild();
+    expect(mockReadBuilderProgram).toHaveBeenCalledTimes(1);
+
+    // Invalidate all
+    compiler.invalidateAll();
+
+    // Next rebuild should attempt to read from disk again
+    compiler.rebuild();
+    expect(mockReadBuilderProgram).toHaveBeenCalledTimes(2);
   });
 });
