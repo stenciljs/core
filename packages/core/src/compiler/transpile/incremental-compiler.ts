@@ -6,6 +6,7 @@
  * - No conflict with @parcel/watcher (no dual file watching)
  * - Explicit cache invalidation when files change
  * - Simpler control flow without setTimeout debouncing
+ * - Persistent .tsbuildinfo file for faster cold builds
  *
  * The builder program is passed to runTsProgram which handles emit with
  * custom transformers.
@@ -112,7 +113,7 @@ export function createCachingCompilerHost(options: ts.CompilerOptions): CachingC
 }
 
 /**
- * Incremental TypeScript compiler for watch mode.
+ * Incremental TypeScript compiler for watch mode and cold builds.
  *
  * Usage:
  * 1. Create once at start: const compiler = new IncrementalCompiler(config)
@@ -120,12 +121,15 @@ export function createCachingCompilerHost(options: ts.CompilerOptions): CachingC
  * 3. On file change:
  *    - compiler.invalidateFiles([changedPaths])
  *    - compiler.rebuild() // returns builder program with only changed files marked for emit
+ *
+ * On cold builds, reads existing .tsbuildinfo from disk to restore incremental state.
  */
 export class IncrementalCompiler {
   private builderProgram?: ts.EmitAndSemanticDiagnosticsBuilderProgram;
   private host: CachingCompilerHost;
   private rootNames: string[];
   private options: ts.CompilerOptions;
+  private hasRestoredFromDisk = false;
 
   constructor(config: d.ValidatedConfig) {
     // Get compiler options from tsconfig
@@ -160,17 +164,38 @@ export class IncrementalCompiler {
    * Rebuild the TypeScript program incrementally.
    * Returns the builder program which can be passed to runTsProgram for emit.
    *
-   * TypeScript detects which source files have changed (via sf.version property)
-   * and only re-emits those when emit() is called.
+   * On first call (cold build), attempts to read existing .tsbuildinfo from disk
+   * to restore incremental state. TypeScript will then only re-check and re-emit
+   * files that have actually changed since the last build.
+   *
    * @returns the builder program
    */
   rebuild(): ts.EmitAndSemanticDiagnosticsBuilderProgram {
-    // Pass the previous builder program for incremental compilation
+    // On first build, try to restore incremental state from .tsbuildinfo on disk
+    // This enables faster cold builds by skipping unchanged files
+    if (!this.hasRestoredFromDisk && !this.builderProgram && this.options.incremental) {
+      this.hasRestoredFromDisk = true;
+
+      // readBuilderProgram returns the previous builder state from .tsbuildinfo
+      // This allows TypeScript to skip re-checking files that haven't changed
+      const oldProgram = ts.readBuilderProgram(this.options, this.host);
+      if (oldProgram) {
+        this.builderProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram(
+          this.rootNames,
+          this.options,
+          this.host,
+          oldProgram,
+        );
+        return this.builderProgram;
+      }
+    }
+
+    // Normal incremental rebuild (or first build without existing .tsbuildinfo)
     this.builderProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram(
       this.rootNames,
       this.options,
       this.host,
-      this.builderProgram, // Previous program for incremental state
+      this.builderProgram,
     );
 
     return this.builderProgram;
@@ -193,10 +218,11 @@ export class IncrementalCompiler {
   }
 
   /**
-   * Force a full rebuild by invalidating all caches
+   * Force a full rebuild by invalidating all caches (including disk cache)
    */
   invalidateAll(): void {
     this.host.invalidateAll();
     this.builderProgram = undefined;
+    this.hasRestoredFromDisk = false;
   }
 }

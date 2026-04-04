@@ -243,6 +243,45 @@ packages/
 - [ ] The `src/utils/index.ts` barrel causes bundling issues (e.g., `minimatch` leaking into server/runner bundle)
 - [ ] All imports should use direct paths (e.g., `from '../../utils/message-utils'` not `from '../../utils'`)
 
+## 🚀 Build Caching Improvements
+**Status:** In Progress
+
+The v5 migration to Rolldown made builds 2x faster, but cache effectiveness dropped (35% → 17% savings). The old caching architecture was designed for slow Rollup + Terser. Now we need to modernize it.
+
+**Benchmark Context:**
+- v4.42.1: 38s cold → 24.5s warm (35% faster with cache)
+- v5 latest: 19s cold → 15.7s warm (17% faster with cache)
+
+### Tasks
+
+- [ ] **Enable TypeScript `.tsbuildinfo` persistence**
+  - Add `incremental: true` and `tsBuildInfoFile` to TS compiler options
+  - Store in `.stencil/.tsbuildinfo`
+  - Expected: 2-4s savings on cold builds
+
+- [ ] **Use Rolldown's built-in minification instead of Terser**
+  - Rolldown uses SWC internally for minification (much faster than Terser)
+  - Remove the separate Terser minification step for production builds
+
+- [ ] **Add Rolldown persistent cache**
+  - Rolldown 1.0 supports module-level persistent caching
+  - Store in `.stencil/rolldown/`
+  - Persist cache between compiler instances (cold builds)
+
+- [ ] **Remove Terser caching code (cleanup)**
+  - Once Rolldown minification is working, remove:
+    - `optimizeModule` caching in `optimize-module.ts`
+    - Terser-related cache key generation
+  - Simplify the caching layer
+
+**Cache Directory Structure (`.stencil/`):**
+```
+.stencil/
+├── .build/           # Existing: CSS optimization cache
+├── .tsbuildinfo      # NEW: TypeScript incremental state
+└── rolldown/         # NEW: Rolldown module cache
+```
+
 ## ✅ Version.ts Modernization
 **Status:** Complete
 

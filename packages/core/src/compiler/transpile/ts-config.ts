@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { isOutputTargetDistTypes } from '../../utils';
+import { isOutputTargetDistTypes, join } from '../../utils';
 
 /**
  * Derive a {@link ts.CompilerOptions} object from the options currently set
@@ -21,6 +21,8 @@ import { isOutputTargetDistTypes } from '../../utils';
  * @returns an object containing TypeScript compiler options
  */
 export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOptions => {
+  const cacheDir = config.cacheDir || config.sys.tmpDirSync();
+
   const tsOptions: ts.CompilerOptions = {
     experimentalDecorators: true,
     // if the `DIST_TYPES` output target is present then we'd like to emit
@@ -32,9 +34,13 @@ export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOpti
         ? ts.ModuleResolutionKind.Bundler
         : ts.ModuleResolutionKind.NodeJs,
     noEmitOnError: config.tsCompilerOptions?.noEmitOnError || false,
-    outDir: config.cacheDir || config.sys.tmpDirSync(),
+    outDir: cacheDir,
     sourceMap: config.sourceMap,
     inlineSources: config.sourceMap,
+    // Enable incremental compilation with persistent .tsbuildinfo file
+    // This allows TypeScript to skip re-checking unchanged files on cold builds
+    incremental: config.enableCache !== false,
+    tsBuildInfoFile: config.enableCache !== false ? join(cacheDir, '.tsbuildinfo') : undefined,
   };
   return tsOptions;
 };
