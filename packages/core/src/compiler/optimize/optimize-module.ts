@@ -5,7 +5,12 @@ import type {
   SourceTarget,
   ValidatedConfig,
 } from '@stencil/core';
-import type { JsMinifyOptions, TerserCompressOptions } from '@swc/core';
+import type {
+  CompressOptions,
+  MangleOptions,
+  ManglePropertiesOptions,
+  MinifyOptions,
+} from 'terser';
 
 import { getToolVersion } from '../../version';
 import { minifyJs } from './minify-js';
@@ -18,23 +23,6 @@ interface OptimizeModuleOptions {
   minify?: boolean;
   inlineHelpers?: boolean;
   modeName?: string;
-}
-
-// SWC types use `props` but the actual API uses `properties`
-// See: https://swc.rs/docs/configuration/minification#jscminifymangleproperties
-interface SwcMangleOptions {
-  toplevel?: boolean;
-  keepClassNames?: boolean;
-  keepFnNames?: boolean;
-  properties?: {
-    regex?: string;
-    reserved?: string[];
-    undeclared?: boolean;
-  };
-}
-
-interface SwcMinifyOptions extends Omit<JsMinifyOptions, 'mangle'> {
-  mangle?: SwcMangleOptions | boolean;
 }
 
 /**
@@ -60,7 +48,7 @@ export const optimizeModule = async (
   const isDebug = config.logLevel === 'debug';
   const cacheKey = await compilerCtx.cache.createKey(
     'optimizeModule',
-    getToolVersion('@swc/core'),
+    getToolVersion('terser'),
     opts,
     isDebug,
   );
@@ -74,29 +62,48 @@ export const optimizeModule = async (
     };
   }
 
-  const minifyOpts = getSwcMinifyOptions(config, opts.sourceTarget, isDebug);
+  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
+  const code = opts.input;
 
-  if (config.sourceMap && opts.sourceMap != null) {
-    minifyOpts.sourceMap = true;
-    minifyOpts.inlineSourcesContent = true;
+  if (config.sourceMap) {
+    minifyOpts.sourceMap = {
+      content:
+        // We need to loosely check for a source map definition
+        // so we don't spread a `null`/`undefined` value into the object
+        // which results in invalid source maps during minification
+        opts.sourceMap != null
+          ? {
+              ...opts.sourceMap,
+              version: 3,
+            }
+          : undefined,
+    };
   }
+
+  const compressOpts = minifyOpts.compress as CompressOptions;
+  const mangleOptions = minifyOpts.mangle as MangleOptions;
 
   if (opts.isCore) {
-    // Enable more aggressive compression for core
-    const compress = minifyOpts.compress as TerserCompressOptions;
-    if (compress && !isDebug) {
-      compress.passes = 2;
-      compress.global_defs = {
+    if (!isDebug) {
+      compressOpts.passes = 2;
+      compressOpts.global_defs = {
         supportsListenerOptions: true,
       };
-      compress.pure_funcs = ['getHostRef'];
-      compress.inline = 1;
-      compress.unsafe = true;
-      compress.unsafe_undefined = true;
+      compressOpts.pure_funcs = compressOpts.pure_funcs || [];
+      compressOpts.pure_funcs = ['getHostRef', ...compressOpts.pure_funcs];
     }
+
+    mangleOptions.properties = {
+      debug: isDebug,
+      ...getTerserManglePropertiesConfig(),
+    };
+
+    compressOpts.inline = 1;
+    compressOpts.unsafe = true;
+    compressOpts.unsafe_undefined = true;
   }
 
-  const results = await compilerCtx.worker.prepareModule(opts.input, minifyOpts);
+  const results = await compilerCtx.worker.prepareModule(code, minifyOpts);
   if (
     results != null &&
     typeof results.output === 'string' &&
@@ -116,66 +123,74 @@ export const optimizeModule = async (
 };
 
 /**
- * Get baseline configuration for property mangling.
- * Properties matching the $...$ pattern will be mangled.
- *
- * @returns an object with our baseline property mangling configuration
- */
-function getManglePropertiesConfig() {
-  return {
-    regex: '^\\$.+\\$$',
-    // Reserve $hostElement$ since it's accessed dynamically at runtime
-    reserved: ['$hostElement$'],
-  };
-}
-
-/**
- * Builds a configuration object to be used by SWC for the purposes of minifying a user's JavaScript
+ * Builds a configuration object to be used by Terser for the purposes of minifying a user's JavaScript
  * @param config the Stencil configuration file that was provided as a part of the build step
  * @param sourceTarget the version of JavaScript being targeted (e.g. ES2017)
- * @param prettyOutput if true, set the necessary flags to beautify the output
+ * @param prettyOutput if true, set the necessary flags to beautify the output of terser
  * @returns the minification options
  */
-export const getSwcMinifyOptions = (
+export const getTerserOptions = (
   config: ValidatedConfig,
   sourceTarget: SourceTarget | undefined,
   prettyOutput: boolean,
-): SwcMinifyOptions => {
-  const opts: SwcMinifyOptions = {
-    ecma: 2018,
-    module: true,
-    toplevel: true,
+): MinifyOptions => {
+  const opts: MinifyOptions = {
+    ie8: false,
+    safari10: false,
+    format: {},
     sourceMap: config.sourceMap,
-    // Property mangling is applied to ALL builds (not just core)
-    // This mangles $foo$ style internal properties
-    mangle: {
-      toplevel: true,
-      properties: getManglePropertiesConfig(),
-    },
-    compress: {
-      toplevel: true,
-      module: true,
-      arrows: true,
-      passes: 2,
-      pure_getters: true,
-      keep_fargs: false,
-    },
   };
+
+  opts.mangle = {
+    properties: getTerserManglePropertiesConfig(),
+  };
+  opts.compress = {
+    pure_getters: true,
+    keep_fargs: false,
+    passes: 2,
+  };
+
+  opts.ecma = opts.format.ecma = opts.compress.ecma = 2018;
+  opts.toplevel = true;
+  opts.module = true;
+  opts.mangle.toplevel = true;
+  opts.compress.arrows = true;
+  opts.compress.module = true;
+  opts.compress.toplevel = true;
 
   if (prettyOutput) {
     opts.mangle = {
-      keepClassNames: true,
-      keepFnNames: true,
-      properties: getManglePropertiesConfig(),
+      keep_fnames: true,
+      properties: getTerserManglePropertiesConfig(),
     };
-    opts.compress = false;
-    opts.format = {
-      comments: 'all',
-    };
+    opts.compress = {};
+    opts.compress.drop_console = false;
+    opts.compress.drop_debugger = false;
+    opts.compress.pure_funcs = [];
+    opts.format.beautify = true;
+    opts.format.indent_level = 2;
+    opts.format.comments = 'all';
   }
 
   return opts;
 };
+
+/**
+ * Get baseline configuration for the 'properties' option for terser's mangle
+ * configuration.
+ *
+ * @returns an object with our baseline property mangling configuration
+ */
+function getTerserManglePropertiesConfig(): ManglePropertiesOptions {
+  const options = {
+    regex: '^\\$.+\\$$',
+    // we need to reserve this name so that it can be accessed on `hostRef`
+    // at runtime
+    reserved: ['$hostElement$'],
+  } satisfies ManglePropertiesOptions;
+
+  return options;
+}
 
 /**
  * This method is likely to be called by a worker on the compiler context, rather than directly.
@@ -185,10 +200,10 @@ export const getSwcMinifyOptions = (
  */
 export const prepareModule = async (
   input: string,
-  minifyOpts: SwcMinifyOptions,
+  minifyOpts: MinifyOptions,
 ): Promise<OptimizeJsResult> => {
   if (minifyOpts) {
-    return minifyJs(input, minifyOpts as JsMinifyOptions);
+    return minifyJs(input, minifyOpts);
   }
 
   return {

@@ -2,7 +2,7 @@ import { ValidatedConfig, OptimizeJsInput, OptimizeJsOutput } from '@stencil/cor
 
 import { catchError } from '../../utils';
 import { minifyJs } from './minify-js';
-import { getSwcMinifyOptions } from './optimize-module';
+import { getTerserOptions } from './optimize-module';
 
 /**
  * Utility function used by the compiler to optimize JavaScript. Knowing the
@@ -22,7 +22,7 @@ export const optimizeJs = async (inputOpts: OptimizeJsInput) => {
 
   try {
     const prettyOutput = !!inputOpts.pretty;
-    const minifyOpts = getSwcMinifyOptions({} as ValidatedConfig, 'latest', prettyOutput);
+    const minifyOpts = getTerserOptions({} as ValidatedConfig, 'latest', prettyOutput);
 
     const minifyResults = await minifyJs(inputOpts.input, minifyOpts);
     if (minifyResults.diagnostics.length > 0) {

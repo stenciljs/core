@@ -29,6 +29,6 @@ export const taskInfo = (coreCompiler: CoreCompiler, sys: CompilerSystem, logger
   );
   console.log(`${logger.cyan('  TypeScript:')} ${versions.typescript}`);
   console.log(`${logger.cyan('      Rolldown:')} ${versions.rolldown}`);
-  console.log(`${logger.cyan('         SWC:')} ${versions.swc}`);
+  console.log(`${logger.cyan('      Terser:')} ${versions.terser}`);
   console.log(``);
 };

@@ -204,6 +204,7 @@ packages/
 7. **No Turborepo** - Simple `pnpm -r build` is sufficient
 8. **CLI as peer dep of Core** - Nuxt pattern, avoids circular deps
 9. **Modernize dev-server, don't replace** - Vite/esbuild assume static module graphs; Stencil's lazy-loading needs DOM-based HMR
+10. **Keep Terser over SWC for minification** - SWC cannot fully constant-fold `BUILD.*` object properties; produces ~18 KB vs Terser's ~11.8 KB for the runtime bundle. Revisit when SWC matures. (Investigated April 2026)
 
 ---
 
@@ -259,9 +260,15 @@ The v5 migration to Rolldown made builds 2x faster, but cache effectiveness drop
   - Store in `.stencil/.tsbuildinfo`
   - Expected: 2-4s savings on cold builds
 
-- [ ] **Use Rolldown's built-in minification instead of Terser**
-  - Rolldown uses SWC internally for minification (much faster than Terser)
-  - Remove the separate Terser minification step for production builds
+- [ ] **Use Rolldown's built-in minification instead of Terser** ⛔ BLOCKED — SWC not ready
+  - **Investigated April 2026.** SWC's `minify()` produces significantly larger output than Terser on the Stencil runtime bundle.
+  - **Root cause:** SWC cannot fully constant-fold `BUILD.xxx` object property accesses from a `const BUILD = { isDev: false, ... }` declaration. Terser's multi-pass `reduce_vars + evaluate` inline the whole object, eliminating all dead `if (BUILD.isDev){}` branches. SWC's equivalent (`reduce_vars`, `evaluate`, `global_defs`) only partially folds them.
+  - **Numbers (test/build/bundle-size `client-*.js`):**
+    - Terser (v4 / baseline): ~11.8 KB
+    - SWC (`@swc/core@1.15.24`, all compress options enabled, passes:3): ~18 KB
+    - SWC best-case (unlimited passes, global_defs for all BUILD props): ~17 KB — plateaus here
+  - **Additional issue:** `@swc/core` is a native binary dependency (`@swc/core-darwin-arm64` etc.) which complicates cross-platform distribution and adds ~30 MB to the install footprint vs Terser's pure-JS ~700 KB.
+  - **Decision:** Revert SWC, keep Terser. Revisit when SWC matures or Rolldown's built-in minify pipeline is stable enough to handle the `BUILD.*` constant folding pattern.
 
 - [ ] **Add Rolldown persistent cache**
   - Rolldown 1.0 supports module-level persistent caching
