@@ -60,7 +60,7 @@ export const versions = {
   get rolldown() {
     return getToolVersion('rolldown');
   },
-  get terser() {
-    return getToolVersion('terser');
+  get swc() {
+    return getToolVersion('@swc/core');
   },
 };
