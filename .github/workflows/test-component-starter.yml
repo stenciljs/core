@@ -53,9 +53,7 @@ jobs:
         shell: bash
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-        working-directory: ./tmp-component-starter
-        shell: bash
+        uses: ./.github/workflows/actions/install-playwright
 
       - name: Build Starter Project
         run: npm run build
