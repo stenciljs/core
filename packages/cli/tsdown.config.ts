@@ -9,6 +9,6 @@ export default defineConfig({
   dts: true,
   clean: true,
   deps: {
-    neverBundle: [/^node:/],
+    neverBundle: [/^node:/, 'typescript'],
   },
 });

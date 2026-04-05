@@ -10,6 +10,16 @@ import {
 import { getDecoratorParameters } from './decorator-utils';
 import { styleToStatic } from './style-to-static';
 
+// Track if we've already shown the deprecated API error this build
+let hasShownDeprecatedApiError = false;
+
+/**
+ * Reset the deprecated API error flag. Call this at the start of each build.
+ */
+export const resetDeprecatedApiWarning = () => {
+  hasShownDeprecatedApiError = false;
+};
+
 /**
  * Internal interface that includes both new and deprecated properties
  * for detection and migration purposes.
@@ -126,6 +136,7 @@ export const componentDecoratorToStatic = (
 /**
  * Check for usage of deprecated API properties and emit helpful error messages.
  * Returns false if deprecated API is detected (halts compilation).
+ * Only shows detailed error once per build to avoid flooding the console.
  *
  * @param diagnostics an array of diagnostics for surfacing errors
  * @param componentOptions the options passed to the `@Component` decorator
@@ -138,42 +149,35 @@ const checkForDeprecatedApi = (
   componentDecorator: ts.Decorator,
 ): boolean => {
   const deprecatedProps: string[] = [];
-  const migrations: string[] = [];
 
   if (componentOptions.shadow !== undefined) {
     deprecatedProps.push('shadow');
-    if (typeof componentOptions.shadow === 'boolean') {
-      migrations.push('  shadow: true → encapsulation: { type: "shadow" }');
-    } else {
-      const opts: string[] = [];
-      if (componentOptions.shadow.delegatesFocus) opts.push('delegatesFocus: true');
-      if (componentOptions.shadow.slotAssignment) opts.push(`slotAssignment: "${componentOptions.shadow.slotAssignment}"`);
-      migrations.push(`  shadow: { ... } → encapsulation: { type: "shadow"${opts.length ? ', ' + opts.join(', ') : ''} }`);
-    }
   }
 
   if (componentOptions.scoped !== undefined) {
     deprecatedProps.push('scoped');
-    migrations.push('  scoped: true → encapsulation: { type: "scoped" }');
   }
 
   if (componentOptions.formAssociated !== undefined) {
     deprecatedProps.push('formAssociated');
-    migrations.push('  formAssociated: true → Add @AttachInternals() decorator to a property');
   }
 
   if (deprecatedProps.length > 0) {
-    const err = buildError(diagnostics);
-    err.messageText = `@Component() uses deprecated API removed in Stencil v5.
+    // Only show the full error message once per build
+    if (!hasShownDeprecatedApiError) {
+      hasShownDeprecatedApiError = true;
+      const err = buildError(diagnostics);
+      err.messageText = `@Component() uses deprecated API removed in Stencil v5.
 
-Found deprecated options:
-${deprecatedProps.map((p) => `  - ${p}`).join('\n')}
+The "shadow", "scoped", and "formAssociated" properties have been replaced:
+  • shadow: true → encapsulation: { type: "shadow" }
+  • scoped: true → encapsulation: { type: "scoped" }
+  • formAssociated: true → Use @AttachInternals() decorator
 
-Migration:
-${migrations.join('\n')}
-
+Run 'stencil migrate --dry-run' to see all affected files.
 Run 'stencil migrate' to automatically update your components.`;
-    augmentDiagnosticWithNode(err, findTagNode(deprecatedProps[0], componentDecorator));
+      augmentDiagnosticWithNode(err, findTagNode(deprecatedProps[0], componentDecorator));
+    }
     return false;
   }
 
