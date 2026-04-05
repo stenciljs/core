@@ -1,4 +1,4 @@
-import { join, relative } from 'path';
+import { isAbsolute, join, relative } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core/compiler';
 
@@ -36,18 +36,17 @@ export const taskMigrate = async (
     logger.info(logger.cyan('Dry run mode - no files will be modified'));
   }
 
-  const srcDir = config.srcDir || join(config.rootDir, 'src');
-  const results: MigrationResult[] = [];
-
-  // Find all TypeScript files in the source directory
-  const tsFiles = await findTypeScriptFiles(sys, srcDir);
+  // Get TypeScript files from tsconfig (same approach as the compiler)
+  const tsFiles = await getTypeScriptFiles(config, sys, logger);
 
   if (tsFiles.length === 0) {
-    logger.info(`No TypeScript files found in ${srcDir}`);
+    logger.info(`No TypeScript files found. Check your tsconfig.json configuration.`);
     return;
   }
 
   logger.info(`Found ${tsFiles.length} TypeScript files to scan`);
+
+  const results: MigrationResult[] = [];
 
   // Process each file
   for (const filePath of tsFiles) {
@@ -98,9 +97,7 @@ export const taskMigrate = async (
     logger.info(`Found ${totalMatches} item(s) to migrate in ${filesAffected} file(s)`);
 
     if (dryRun) {
-      logger.info(
-        logger.yellow('\nRun without --dry-run to apply the migrations'),
-      );
+      logger.info(logger.yellow('\nRun without --dry-run to apply the migrations'));
     } else {
       logger.info(logger.green(`\n✓ Successfully migrated ${totalMatches} item(s)`));
     }
@@ -125,39 +122,67 @@ export const taskMigrate = async (
 };
 
 /**
- * Recursively find all TypeScript files in a directory.
+ * Get TypeScript files using the project's tsconfig.json.
+ * Uses the same approach as the Stencil compiler.
  *
+ * @param config the validated Stencil config
  * @param sys the compiler system for file operations
- * @param dir the directory to search
+ * @param logger the logger for output
  * @returns array of absolute paths to TypeScript files
  */
-async function findTypeScriptFiles(
+async function getTypeScriptFiles(
+  config: d.ValidatedConfig,
   sys: d.CompilerSystem,
-  dir: string,
+  logger: d.Logger,
 ): Promise<string[]> {
-  const files: string[] = [];
+  // Determine tsconfig path - check stencil config first, fall back to default
+  let tsconfigPath: string;
+  if (config.tsconfig) {
+    tsconfigPath = isAbsolute(config.tsconfig)
+      ? config.tsconfig
+      : join(config.rootDir, config.tsconfig);
+  } else {
+    tsconfigPath = join(config.rootDir, 'tsconfig.json');
+  }
 
-  const items = await sys.readDir(dir);
-  for (const item of items) {
-    const fullPath = join(dir, item);
-    const stat = await sys.stat(fullPath);
+  // Check if tsconfig exists
+  const tsconfigContent = await sys.readFile(tsconfigPath);
+  if (!tsconfigContent) {
+    logger.error(`tsconfig not found: ${tsconfigPath}`);
+    return [];
+  }
 
-    if (!stat) continue;
-
-    if (stat.isDirectory) {
-      // Skip node_modules and hidden directories
-      if (item === 'node_modules' || item.startsWith('.')) {
-        continue;
+  // Parse the tsconfig using TypeScript's native parser
+  const host: ts.ParseConfigFileHost = {
+    ...ts.sys,
+    readFile: (p) => {
+      if (p === tsconfigPath) {
+        return tsconfigContent;
       }
-      const subFiles = await findTypeScriptFiles(sys, fullPath);
-      files.push(...subFiles);
-    } else if (stat.isFile && (item.endsWith('.ts') || item.endsWith('.tsx'))) {
-      // Skip declaration files
-      if (!item.endsWith('.d.ts')) {
-        files.push(fullPath);
-      }
+      return sys.readFileSync(p);
+    },
+    readDirectory: (p) => sys.readDirSync(p),
+    fileExists: (p) => sys.accessSync(p),
+    onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
+      logger.error(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
+    },
+  };
+
+  const results = ts.getParsedCommandLineOfConfigFile(tsconfigPath, {}, host);
+
+  if (!results) {
+    logger.error(`Failed to parse tsconfig: ${tsconfigPath}`);
+    return [];
+  }
+
+  if (results.errors && results.errors.length > 0) {
+    for (const err of results.errors) {
+      logger.warn(ts.flattenDiagnosticMessageText(err.messageText, '\n'));
     }
   }
 
-  return files;
+  // Filter to only .ts and .tsx files (excluding .d.ts)
+  return results.fileNames.filter(
+    (f) => (f.endsWith('.ts') || f.endsWith('.tsx')) && !f.endsWith('.d.ts'),
+  );
 }

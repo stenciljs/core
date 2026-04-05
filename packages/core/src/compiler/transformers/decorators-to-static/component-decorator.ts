@@ -174,8 +174,8 @@ The "shadow", "scoped", and "formAssociated" properties have been replaced:
   • scoped: true → encapsulation: { type: "scoped" }
   • formAssociated: true → Use @AttachInternals() decorator
 
-Run 'stencil migrate --dry-run' to see all affected files.
-Run 'stencil migrate' to automatically update your components.`;
+Run 'npx stencil migrate --dry-run' to see all affected files.
+Run 'npx stencil migrate' to automatically update your components.`;
       augmentDiagnosticWithNode(err, findTagNode(deprecatedProps[0], componentDecorator));
     }
     return false;
