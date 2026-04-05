@@ -8,28 +8,12 @@ export const addHostEventListeners = (
   elm: d.HostElement,
   hostRef: d.HostRef,
   listeners?: d.ComponentRuntimeHostListener[],
-  attachParentListeners?: boolean,
 ) => {
   if (BUILD.hostListener && listeners && win.document) {
     // this is called immediately within the element's constructor
     // initialize our event listeners on the host element
     // we do this now so that we can listen to events that may
     // have fired even before the instance is ready
-
-    if (BUILD.hostListenerTargetParent) {
-      // this component may have event listeners that should be attached to the parent
-      if (attachParentListeners) {
-        // this is being ran from within the connectedCallback
-        // which is important so that we know the host element actually has a parent element
-        // filter out the listeners to only have the ones that ARE being attached to the parent
-        listeners = listeners.filter(([flags]) => flags & LISTENER_FLAGS.TargetParent);
-      } else {
-        // this is being ran from within the component constructor
-        // everything BUT the parent element listeners should be attached at this time
-        // filter out the listeners that are NOT being attached to the parent
-        listeners = listeners.filter(([flags]) => !(flags & LISTENER_FLAGS.TargetParent));
-      }
-    }
 
     listeners.map(([flags, name, method]) => {
       const target = BUILD.hostListenerTarget
@@ -71,9 +55,6 @@ const getHostListenerTarget = (doc: Document, elm: Element, flags: number): Even
   }
   if (BUILD.hostListenerTargetBody && flags & LISTENER_FLAGS.TargetBody) {
     return doc.body;
-  }
-  if (BUILD.hostListenerTargetParent && flags & LISTENER_FLAGS.TargetParent && elm.parentElement) {
-    return elm.parentElement;
   }
 
   return elm;

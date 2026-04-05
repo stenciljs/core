@@ -17,7 +17,6 @@ export const BUILD: BuildConditionals = {
   hostListenerTargetWindow: true,
   hostListenerTargetDocument: true,
   hostListenerTargetBody: true,
-  hostListenerTargetParent: false,
   hostListenerTarget: true,
   member: true,
   method: true,
@@ -76,7 +75,6 @@ export const BUILD: BuildConditionals = {
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
-  transformTagName: false,
   attachStyles: true,
   experimentalSlotFixes: false,
 };

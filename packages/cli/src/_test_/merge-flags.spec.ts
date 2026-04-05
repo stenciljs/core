@@ -262,17 +262,6 @@ describe('mergeFlags', () => {
     });
   });
 
-  describe('e2eTests (--e2e)', () => {
-    it('sets e2eTests from --e2e flag', () => {
-      const config: Config = {};
-      const flags = createFlags({ e2e: true });
-
-      const result = mergeFlags(config, flags);
-
-      expect(result.e2eTests).toBe(true);
-    });
-  });
-
   describe('maxConcurrentWorkers (--maxWorkers)', () => {
     it('sets maxConcurrentWorkers from --maxWorkers flag', () => {
       const config: Config = {};

@@ -127,19 +127,6 @@ describe('build-conditionals', () => {
       expect(config.taskQueue).toBe('async');
     });
 
-    it('tagNameTransform default', () => {
-      const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getLazyBuildConditionals(config, cmps);
-      expect(bc.transformTagName).toBe(false);
-    });
-
-    it('tagNameTransform true', () => {
-      userConfig.extras = { tagNameTransform: true };
-      const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getLazyBuildConditionals(config, cmps);
-      expect(bc.transformTagName).toBe(true);
-    });
-
     it('hydrateClientSide default', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       const bc = getLazyBuildConditionals(config, cmps);

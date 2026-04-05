@@ -260,13 +260,11 @@ const CONFIG_PROPS_TO_ANONYMIZE: ReadonlyArray<ConfigStringKeys> = [
 //
 // TODO(STENCIL-469): Investigate improving anonymization for tsCompilerOptions and devServer
 const CONFIG_PROPS_TO_DELETE: ReadonlyArray<keyof d.Config> = [
-  'commonjs',
   'devServer',
   'env',
   'logger',
   'rolldownConfig',
   'sys',
-  'testing',
   'tsCompilerOptions',
 ];
 

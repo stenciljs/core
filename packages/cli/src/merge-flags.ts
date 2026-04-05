@@ -90,11 +90,6 @@ export const mergeFlags = (config: Config, flags: ConfigFlags): Config => {
     merged.generateServiceWorker = flags.serviceWorker;
   }
 
-  // --e2e → e2eTests
-  if (typeof flags.e2e === 'boolean') {
-    merged.e2eTests = flags.e2e;
-  }
-
   // --maxWorkers → maxConcurrentWorkers
   if (typeof flags.maxWorkers === 'number') {
     merged.maxConcurrentWorkers = flags.maxWorkers;

@@ -93,11 +93,7 @@ export const bootstrapLazy = (
         // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
         cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
       }
-      // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove `BUILD.transformTagName` & `transformTagName` in 5.0
-      const tagName =
-        BUILD.transformTagName && options.transformTagName
-          ? options.transformTagName(cmpMeta.$tagName$)
-          : transformTag(cmpMeta.$tagName$);
+      const tagName = transformTag(cmpMeta.$tagName$);
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];
@@ -150,7 +146,7 @@ export const bootstrapLazy = (
            */
           if (!this.hasRegisteredEventListeners) {
             this.hasRegisteredEventListeners = true;
-            addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
+            addHostEventListeners(this, hostRef, cmpMeta.$listeners$);
           }
 
           if (appLoadFallback) {

@@ -2091,8 +2091,6 @@ export interface JSXAttributes<T = Element> {
 export interface CustomElementsDefineOptions {
   exclude?: string[];
   syncQueue?: boolean;
-  /** @deprecated in-favour of `setTagTransformer` and `transformTag` */
-  transformTagName?: (tagName: string) => string;
   jmp?: (c: Function) => any;
   raf?: (c: FrameRequestCallback) => number;
   ael?: (

@@ -1,8 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 
-import { MEMBER_FLAGS, SERIALIZED_PREFIX } from '../utils/constants';
+import { MEMBER_FLAGS } from '../utils/constants';
 import { isComplexType } from '../utils/helpers';
-import { deserializeProperty } from '../utils/serialize';
 
 /**
  * Parse a new property value for a given property type.
@@ -33,19 +32,6 @@ export const parsePropertyValue = (
   propType: number,
   isFormAssociated?: boolean,
 ): any => {
-  /**
-   * Allow hydrate parameters that contain a complex non-serialized values.
-   * This is SSR-specific and should only run during hydration.
-   */
-  if (
-    (BUILD.hydrateClientSide || BUILD.hydrateServerSide) &&
-    typeof propValue === 'string' &&
-    propValue.startsWith(SERIALIZED_PREFIX)
-  ) {
-    propValue = deserializeProperty(propValue);
-    return propValue;
-  }
-
   if (propValue != null && !isComplexType(propValue)) {
     /**
      * ensure this value is of the correct prop type

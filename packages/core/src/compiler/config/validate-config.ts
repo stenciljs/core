@@ -9,7 +9,7 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { buildError, buildWarn, isBoolean, isNumber, isString, sortBy } from '../../utils';
+import { buildError, isBoolean, isNumber, isString, sortBy } from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import {
   DEFAULT_DEV_MODE,
@@ -129,7 +129,6 @@ export const validateConfig = (
       config.sourceMap === true ||
       (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
-    testing: config.testing ?? {},
     docs: validateDocs(config, logger),
     transformAliasedImportPaths: isBoolean(userConfig.transformAliasedImportPaths)
       ? userConfig.transformAliasedImportPaths
@@ -146,7 +145,6 @@ export const validateConfig = (
 
   validatedConfig.extras.lifecycleDOMEvents = !!validatedConfig.extras.lifecycleDOMEvents;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
-  validatedConfig.extras.tagNameTransform = !!validatedConfig.extras.tagNameTransform;
   validatedConfig.extras.additionalTagTransformers =
     validatedConfig.extras.additionalTagTransformers === true ||
     (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
@@ -282,15 +280,6 @@ export const validateConfig = (
     }
     return arr;
   }, [] as RegExp[]);
-
-  // TODO(STENCIL-1107): Remove this check. It'll be unneeded (and raise a compilation error when we build Stencil) once
-  // this property is removed.
-  if (validatedConfig.nodeResolve?.customResolveOptions) {
-    const warn = buildWarn(diagnostics);
-    // this message is particularly long - let the underlying logger implementation take responsibility for breaking it
-    // up to fit in a terminal window
-    warn.messageText = `nodeResolve.customResolveOptions is a deprecated option in a Stencil Configuration file. If you need this option, please open a new issue in the Stencil repository (https://github.com/stenciljs/core/issues/new/choose)`;
-  }
 
   CACHED_VALIDATED_CONFIG = validatedConfig;
 

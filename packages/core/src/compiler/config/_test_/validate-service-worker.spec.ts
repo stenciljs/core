@@ -20,7 +20,6 @@ describe('validateServiceWorker', () => {
       packageJsonFilePath: '/package.json',
       rootDir: '/',
       sys: mockCompilerSystem(),
-      testing: {},
       transformAliasedImportPaths: true,
     });
   });

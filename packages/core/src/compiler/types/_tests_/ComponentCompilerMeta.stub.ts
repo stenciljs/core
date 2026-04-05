@@ -45,7 +45,6 @@ export const stubComponentCompilerMeta = (
   hasListenerTarget: false,
   hasListenerTargetBody: false,
   hasListenerTargetDocument: false,
-  hasListenerTargetParent: false,
   hasListenerTargetWindow: false,
   hasMember: false,
   hasMethod: false,

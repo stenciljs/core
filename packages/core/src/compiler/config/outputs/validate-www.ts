@@ -7,7 +7,6 @@ import {
   DIST_GLOBAL_STYLES,
   DIST_LAZY,
   isBoolean,
-  isOutputTargetDist,
   isOutputTargetWww,
   isString,
   join,
@@ -24,13 +23,9 @@ export const validateWww = (
   userOutputs: d.OutputTarget[],
 ) => {
   const hasOutputTargets = userOutputs.length > 0;
-  const hasE2eTests = !!config.e2eTests;
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
-  if (
-    !hasOutputTargets ||
-    (hasE2eTests && !userOutputs.some(isOutputTargetWww) && !userOutputs.some(isOutputTargetDist))
-  ) {
+  if (!hasOutputTargets) {
     userWwwOutputs.push({ type: WWW });
   }
 

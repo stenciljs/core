@@ -166,12 +166,6 @@ export interface StencilConfig {
   validatePrimaryPackageOutputTarget?: boolean;
 
   /**
-   * Passes custom configuration down to the "@rolldown/plugin-commonjs" that Stencil uses under the hood.
-   * For further information: https://stenciljs.com/docs/module-bundling
-   */
-  commonjs?: BundlingConfig;
-
-  /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
    * For further information: https://stenciljs.com/docs/module-bundling
    */
@@ -275,16 +269,6 @@ export interface StencilConfig {
 
   globalScript?: string;
   srcIndexHtml?: string;
-  /**
-   * Configuration for Stencil's integrated testing (Jest + Puppeteer).
-   *
-   * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
-   * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
-   * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
-   * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
-   * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
-   */
-  testing?: TestingConfig;
   maxConcurrentWorkers?: number;
   preamble?: string;
   rolldownPlugins?: { before?: any[]; after?: any[] };
@@ -357,16 +341,6 @@ export interface StencilConfig {
 
 interface ConfigExtrasBase {
   /**
-   * Experimental flag. Projects that use a Stencil library built using the `dist` output target may have trouble lazily
-   * loading components when using a bundler such as Vite or Parcel. Setting this flag to `true` will change how Stencil
-   * lazily loads components in a way that works with additional bundlers. Setting this flag to `true` will increase
-   * the size of the compiled output. Defaults to `false`.
-   * @deprecated This flag has been deprecated in favor of `enableImportInjection`, which provides the same
-   * functionality. `experimentalImportInjection` will be removed in a future major version of Stencil.
-   */
-  experimentalImportInjection?: boolean;
-
-  /**
    * Projects that use a Stencil library built using the `dist` output target may have trouble lazily
    * loading components when using a bundler such as Vite or Parcel. Setting this flag to `true` will change how Stencil
    * lazily loads components in a way that works with additional bundlers. Setting this flag to `true` will increase
@@ -386,13 +360,6 @@ interface ConfigExtrasBase {
    * Defaults to `false`.
    */
   initializeNextTick?: boolean;
-
-  /**
-   * Enables the tagNameTransform option of `defineCustomElements()`, so the component tagName
-   * can be customized at runtime. Defaults to `false`.
-   * @deprecated This option has been deprecated in favour of `setTagTransformer` and `transformTag`. It will be removed in a future major version of Stencil.
-   */
-  tagNameTransform?: boolean;
 
   /**
    * Adds `transformTag` calls to css strings and querySelector(All) calls
@@ -524,11 +491,6 @@ export interface Config extends StencilConfig {
   generateServiceWorker?: boolean;
 
   /**
-   * Whether e2e tests are being run
-   */
-  e2eTests?: boolean;
-
-  /**
    * Dev server address override
    */
   devServerAddress?: string;
@@ -614,7 +576,6 @@ type StrictConfigFields = keyof Pick<
   | 'srcDir'
   | 'srcIndexHtml'
   | 'sys'
-  | 'testing'
   | 'transformAliasedImportPaths'
   | 'validatePrimaryPackageOutputTarget'
 >;
@@ -1225,25 +1186,6 @@ export interface CompilerSystem {
    */
   createWorkerController?(maxConcurrentWorkers: number): WorkerMainController;
   encodeToBase64(str: string): string;
-
-  // TODO(STENCIL-727): Remove this from the sys interface
-  /**
-   * @deprecated
-   */
-  ensureDependencies?(opts: {
-    rootDir: string;
-    logger: Logger;
-    dependencies: CompilerDependency[];
-  }): Promise<{ stencilPath: string; diagnostics: Diagnostic[] }>;
-  // TODO(STENCIL-727): Remove this from the sys interface
-  /**
-   * @deprecated
-   */
-  ensureResources?(opts: {
-    rootDir: string;
-    logger: Logger;
-    dependencies: CompilerDependency[];
-  }): Promise<void>;
   /**
    * process.exit()
    */
@@ -1888,17 +1830,6 @@ export interface StencilDocsConfig {
   };
 }
 
-// TODO(STENCIL-882): Remove this interface [BREAKING_CHANGE]
-export interface BundlingConfig {
-  /**
-   * @deprecated the `namedExports` field is no longer honored by `@rolldown/plugin-commonjs` and is not used by Stencil.
-   * This field can be safely removed from your Stencil configuration file.
-   */
-  namedExports?: {
-    [key: string]: string[];
-  };
-}
-
 export interface NodeResolveConfig {
   exportConditions?: string[];
   browser?: boolean;
@@ -1913,27 +1844,6 @@ export interface NodeResolveConfig {
   resolveOnly?: ReadonlyArray<string | RegExp> | null | ((module: string) => boolean);
   rootDir?: string;
   allowExportsFolderMapping?: boolean;
-
-  // TODO(STENCIL-1107): Remove this field [BREAKING_CHANGE]
-  /**
-   * @see https://github.com/browserify/resolve#resolveid-opts-cb
-   * @deprecated the `customResolveOptions` field is no longer honored in future versions of
-   * `@rolldown/plugin-node-resolve`. If you are currently using it, please open a new issue in the Stencil repo to
-   * describe your use case & provide input (https://github.com/stenciljs/core/issues/new/choose)
-   */
-  customResolveOptions?: {
-    basedir?: string;
-    package?: string;
-    extensions?: string[];
-    readFile?: Function;
-    isFile?: Function;
-    isDirectory?: Function;
-    packageFilter?: Function;
-    pathFilter?: Function;
-    paths?: Function | string[];
-    moduleDirectory?: string | string[];
-    preserveSymlinks?: boolean;
-  };
 }
 
 export interface RolldownConfig {
@@ -1959,365 +1869,6 @@ export interface RolldownInputOptions {
 
 export interface RolldownOutputOptions {
   globals?: { [name: string]: string } | ((name: string) => string);
-}
-
-/**
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface Testing {
-  run(opts: TestingRunOptions): Promise<boolean>;
-  destroy(): Promise<void>;
-}
-
-export declare type Path = string;
-export declare type TransformerConfig = [string, Record<string, unknown>];
-
-/**
- * Options for initiating a run of Stencil tests (spec and/or end-to-end)
- *
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface TestingRunOptions {
-  /**
-   * If true, run end-to-end tests
-   */
-  e2e?: boolean;
-  /**
-   * If true, run screenshot tests
-   */
-  screenshot?: boolean;
-  /**
-   * If true, run spec tests
-   */
-  spec?: boolean;
-  /**
-   * If true, update 'golden' screenshots. Otherwise, compare against priori.
-   */
-  updateScreenshot?: boolean;
-}
-
-/**
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface JestConfig {
-  /**
-   * This option tells Jest that all imported modules in your tests should be mocked automatically.
-   * All modules used in your tests will have a replacement implementation, keeping the API surface. Default: false
-   */
-  automock?: boolean;
-
-  /**
-   * By default, Jest runs all tests and produces all errors into the console upon completion.
-   * The bail config option can be used here to have Jest stop running tests after the first failure. Default: false
-   */
-  bail?: boolean | number;
-
-  /**
-   * The directory where Jest should store its cached dependency information. Jest attempts to scan your dependency tree once (up-front)
-   * and cache it in order to ease some of the filesystem raking that needs to happen while running tests. This config option lets you
-   * customize where Jest stores that cache data on disk. Default: "/tmp/<path>"
-   */
-  cacheDirectory?: string;
-
-  /**
-   * Automatically clear mock calls and instances between every test. Equivalent to calling jest.clearAllMocks()
-   * between each test. This does not remove any mock implementation that may have been provided. Default: false
-   */
-  clearMocks?: boolean;
-
-  /**
-   * Indicates whether the coverage information should be collected while executing the test. Because this retrofits all
-   * executed files with coverage collection statements, it may significantly slow down your tests. Default: false
-   */
-  collectCoverage?: boolean;
-
-  /**
-   * An array of glob patterns indicating a set of files for which coverage information should be collected.
-   * If a file matches the specified glob pattern, coverage information will be collected for it even if no tests exist
-   * for this file and it's never required in the test suite. Default: undefined
-   */
-  collectCoverageFrom?: any[];
-
-  /**
-   * The directory where Jest should output its coverage files. Default: undefined
-   */
-  coverageDirectory?: string;
-
-  /**
-   * An array of regexp pattern strings that are matched against all file paths before executing the test. If the file path matches
-   * any of the patterns, coverage information will be skipped. These pattern strings match against the full path.
-   * Use the <rootDir> string token to include the path to your project's root directory to prevent it from accidentally
-   * ignoring all of your files in different environments that may have different root directories.
-   * Example: ["<rootDir>/build/", "<rootDir>/node_modules/"]. Default: ["/node_modules/"]
-   */
-  coveragePathIgnorePatterns?: any[];
-
-  /**
-   * A list of reporter names that Jest uses when writing coverage reports. Any istanbul reporter can be used.
-   * Default: `["json", "lcov", "text"]`
-   */
-  coverageReporters?: any[];
-
-  /**
-   * This will be used to configure minimum threshold enforcement for coverage results. Thresholds can be specified as global,
-   * as a glob, and as a directory or file path. If thresholds aren't met, jest will fail. Thresholds specified as a positive
-   * number are taken to be the minimum percentage required. Thresholds specified as a negative number represent the maximum
-   * number of uncovered entities allowed. Default: undefined
-   */
-  coverageThreshold?: any;
-
-  errorOnDeprecated?: boolean;
-  forceCoverageMatch?: any[];
-  globals?: any;
-  globalSetup?: string;
-  globalTeardown?: string;
-
-  /**
-   * An array of directory names to be searched recursively up from the requiring module's location. Setting this option will
-   * override the default, if you wish to still search node_modules for packages include it along with any other
-   * options: ["node_modules", "bower_components"]. Default: ["node_modules"]
-   */
-  moduleDirectories?: string[];
-
-  /**
-   * An array of file extensions your modules use. If you require modules without specifying a file extension,
-   * these are the extensions Jest will look for. Default: ['ts', 'tsx', 'js', 'json']
-   */
-  moduleFileExtensions?: string[];
-
-  moduleNameMapper?: any;
-  modulePaths?: any[];
-  modulePathIgnorePatterns?: any[];
-  notify?: boolean;
-  notifyMode?: string;
-  preset?: string;
-  prettierPath?: string;
-  projects?: any;
-  reporters?: any;
-  resetMocks?: boolean;
-  resetModules?: boolean;
-  resolver?: Path | null;
-  restoreMocks?: boolean;
-  rootDir?: string;
-  roots?: any[];
-  runner?: string;
-
-  /**
-   * The paths to modules that run some code to configure or set up the testing environment before each test.
-   * Since every test runs in its own environment, these scripts will be executed in the testing environment
-   * immediately before executing the test code itself. Default: []
-   */
-  setupFiles?: string[];
-
-  setupFilesAfterEnv?: string[];
-
-  snapshotSerializers?: any[];
-  testEnvironment?: string;
-  testEnvironmentOptions?: any;
-  testMatch?: string[];
-  testPathIgnorePatterns?: string[];
-  testPreset?: string;
-  testRegex?: string[];
-  testResultsProcessor?: string;
-  testRunner?: string;
-  testURL?: string;
-  timers?: string;
-  transform?: {
-    [regex: string]: Path | TransformerConfig;
-  };
-  transformIgnorePatterns?: any[];
-  unmockedModulePathPatterns?: any[];
-  verbose?: boolean;
-  watchPathIgnorePatterns?: any[];
-}
-
-/**
- * Configuration for Stencil's integrated testing (Jest + Puppeteer).
- *
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface TestingConfig extends JestConfig {
-  /**
-   * The `allowableMismatchedPixels` value is used to determine an acceptable
-   * number of pixels that can be mismatched before the image is considered
-   * to have changes. Realistically, two screenshots representing the same
-   * content may have a small number of pixels that are not identical due to
-   * anti-aliasing, which is perfectly normal. If the `allowableMismatchedRatio`
-   * is provided it will take precedence, otherwise `allowableMismatchedPixels`
-   * will be used.
-   */
-  allowableMismatchedPixels?: number;
-
-  /**
-   * The `allowableMismatchedRatio` ranges from `0` to `1` and is used to
-   * determine an acceptable ratio of pixels that can be mismatched before
-   * the image is considered to have changes. Realistically, two screenshots
-   * representing the same content may have a small number of pixels that
-   * are not identical due to anti-aliasing, which is perfectly normal. The
-   * `allowableMismatchedRatio` is the number of pixels that were mismatched,
-   * divided by the total number of pixels in the screenshot. For example,
-   * a ratio value of `0.06` means 6% of the pixels can be mismatched before
-   * the image is considered to have changes. If the `allowableMismatchedRatio`
-   * is provided it will take precedence, otherwise `allowableMismatchedPixels`
-   * will be used.
-   */
-  allowableMismatchedRatio?: number;
-
-  /**
-   * Matching threshold while comparing two screenshots. Value ranges from `0` to `1`.
-   * Smaller values make the comparison more sensitive. The `pixelmatchThreshold`
-   * value helps to ignore anti-aliasing. Default: `0.1`
-   */
-  pixelmatchThreshold?: number;
-
-  /**
-   * Additional arguments to pass to the browser instance.
-   */
-  browserArgs?: string[];
-
-  /**
-   * Path to a Chromium or Chrome executable to run instead of the bundled Chromium.
-   * @default env.PUPPETEER_EXECUTABLE_PATH || env.CHROME_PATH || puppeteer.computeExecutablePath()
-   */
-  browserExecutablePath?: string;
-
-  /**
-   * Url of remote Chrome instance to use instead of local Chrome.
-   */
-  browserWSEndpoint?: string;
-
-  /**
-   * The browser channel to use for e2e tests (stable, beta, dev or canary).
-   * @default 'chrome'
-   */
-  browserChannel?: 'chrome' | 'chrome-beta' | 'chrome-dev' | 'chrome-canary';
-
-  /**
-   * Whether to run browser e2e tests in headless mode using Chrome Headless Shell
-   * @see https://developer.chrome.com/blog/chrome-headless-shell
-   * @default shell
-   */
-  browserHeadless?: boolean | 'shell';
-
-  /**
-   * Slows down e2e browser operations by the specified amount of milliseconds.
-   * Useful so that you can see what is going on.
-   */
-  browserSlowMo?: number;
-
-  /**
-   * By default, all E2E pages wait until the "load" event, this global setting can be used
-   * to change the default `waitUntil` behavior.
-   */
-  browserWaitUntil?: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2';
-
-  /**
-   * Whether to auto-open a DevTools panel for each tab.
-   * If this option is true, the headless option will be set false
-   */
-  browserDevtools?: boolean;
-
-  /**
-   * Array of browser emulations to be used during _screenshot_ tests. A full screenshot
-   * test is ran for each emulation.
-   *
-   * To emulate a device display for your e2e tests, use the `setViewport` method on a test's E2E page.
-   * An example can be found in [the Stencil docs](https://stenciljs.com/docs/end-to-end-testing#emulate-a-display).
-   */
-  emulate?: EmulateConfig[];
-
-  /**
-   * Path to the Screenshot Connector module.
-   */
-  screenshotConnector?: string;
-
-  /**
-   * Timeout for the pixelmatch worker to resolve (in ms).
-   * @default 2500
-   */
-  screenshotTimeout?: number | null;
-
-  /**
-   * Amount of time in milliseconds to wait before a screenshot is taken.
-   */
-  waitBeforeScreenshot?: number;
-}
-
-/**
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface EmulateConfig {
-  /**
-   * Predefined device descriptor name, such as "iPhone X" or "Nexus 10".
-   * For a complete list please see: https://github.com/puppeteer/puppeteer/blob/main/src/common/DeviceDescriptors.ts
-   */
-  device?: string;
-
-  /**
-   * User-Agent to be used. Defaults to the user-agent of the installed Puppeteer version.
-   */
-  userAgent?: string;
-
-  viewport?: EmulateViewport;
-}
-
-/**
- * @deprecated Integrated testing support will be removed in Stencil v5. Migrate spec tests to
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) and e2e / browser tests to either
- * [`@stencil/vitest`](https://github.com/stenciljs/vitest) or
- * [`@stencil/playwright`](https://github.com/stenciljs/playwright).
- * See https://github.com/stenciljs/core/issues/6584 for full discussion and migration guidance.
- */
-export interface EmulateViewport {
-  /**
-   * Page width in pixels.
-   */
-  width: number;
-
-  /**
-   * page height in pixels.
-   */
-  height: number;
-
-  /**
-   * Specify device scale factor (can be thought of as dpr). Defaults to 1.
-   */
-  deviceScaleFactor?: number;
-
-  /**
-   * Whether the meta viewport tag is taken into account. Defaults to false.
-   */
-  isMobile?: boolean;
-
-  /**
-   * Specifies if viewport supports touch events. Defaults to false
-   */
-  hasTouch?: boolean;
-
-  /**
-   * Specifies if viewport is in landscape mode. Defaults to false.
-   */
-  isLandscape?: boolean;
 }
 
 /**
@@ -3065,59 +2616,6 @@ export interface LazyRequire {
   ensure(fromDir: string, moduleIds: string[]): Promise<Diagnostic[]>;
   require(fromDir: string, moduleId: string): any;
   getModulePath(fromDir: string, moduleId: string): string;
-}
-
-/**
- * @deprecated This interface is no longer used by Stencil
- * TODO(STENCIL-743): Remove this interface
- */
-export interface FsWatcherItem {
-  close(): void;
-}
-
-/**
- * @deprecated This interface is no longer used by Stencil
- * TODO(STENCIL-743): Remove this interface
- */
-export interface MakeDirectoryOptions {
-  /**
-   * Indicates whether parent folders should be created.
-   * @default false
-   */
-  recursive?: boolean;
-  /**
-   * A file mode. If a string is passed, it is parsed as an octal integer. If not specified
-   * @default 0o777.
-   */
-  mode?: number;
-}
-
-/**
- * @deprecated This interface is no longer used by Stencil
- * TODO(STENCIL-743): Remove this interface
- */
-export interface FsStats {
-  isFile(): boolean;
-  isDirectory(): boolean;
-  isBlockDevice(): boolean;
-  isCharacterDevice(): boolean;
-  isSymbolicLink(): boolean;
-  isFIFO(): boolean;
-  isSocket(): boolean;
-  dev: number;
-  ino: number;
-  mode: number;
-  nlink: number;
-  uid: number;
-  gid: number;
-  rdev: number;
-  size: number;
-  blksize: number;
-  blocks: number;
-  atime: Date;
-  mtime: Date;
-  ctime: Date;
-  birthtime: Date;
 }
 
 export interface Compiler {
