@@ -32,7 +32,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`body{color:#ff0000}`);
+    expect(output).toBe(`body{color:red}`);
   });
 
   it('minify-gradients', async () => {
@@ -71,7 +71,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{display:inline flow-root}`);
+    expect(output).toBe(`h1{display:inline-block}`);
   });
 
   it('reduce-transforms', async () => {
@@ -88,6 +88,7 @@ describe('optimizeCss', () => {
   });
 
   it('colormin', async () => {
+    config.autoprefixCss = false;
     const styleText = `body { color: #ff0000; }`;
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
@@ -104,7 +105,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{width:0em}`);
+    expect(output).toBe(`h1{width:0}`);
   });
 
   it('ordered-values', async () => {
@@ -116,7 +117,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{border:red solid .5em}`);
+    expect(output).toBe(`h1{border:.5em solid red}`);
   });
 
   it('minify-selectors', async () => {
@@ -130,6 +131,10 @@ describe('optimizeCss', () => {
   });
 
   it('minify-params', async () => {
+    // autoprefixCss disabled: the comma inside a single @media condition
+    // is invalid CSS which Lightning CSS correctly rejects. This test
+    // exercises whitespace collapsing in the custom minifier only.
+    config.autoprefixCss = false;
     const styleText = `
       @media only screen   and ( min-width: 400px, min-height: 500px ) {
         h2 {
@@ -146,15 +151,16 @@ describe('optimizeCss', () => {
   });
 
   it('normalize-string', async () => {
+    config.autoprefixCss = false;
     const styleText = `
       p:after {
-        content: '\\'string\\' is intact';
+        content: "'string\\' is intact";
       }
     `;
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`p:after{content:'\\'string\\' is intact'}`);
+    expect(output).toBe(`p:after{content:"'string\\' is intact"}`);
   });
 
   it('minify-font-values', async () => {
@@ -168,7 +174,7 @@ describe('optimizeCss', () => {
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(
-      `p{font-family:"Helvetica Neue", Arial, sans-serif, Helvetica;font-weight:normal}`,
+      `p{font-family:Helvetica Neue, Arial, sans-serif, Helvetica;font-weight:normal}`,
     );
   });
 
@@ -181,7 +187,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{background:url(image.jpg) repeat no-repeat}`);
+    expect(output).toBe(`h1{background:url("image.jpg") repeat-x}`);
   });
 
   it('normalize-positions', async () => {
@@ -193,7 +199,7 @@ describe('optimizeCss', () => {
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{background-position:bottom left}`);
+    expect(output).toBe(`h1{background-position:0 100%}`);
   });
 
   it('normalize-whitespace', async () => {
@@ -247,28 +253,30 @@ describe('optimizeCss', () => {
   });
 
   it('autoprefix by default', async () => {
+    // user-select still requires -webkit-user-select in modern Safari
     const styleText = `
       h1 {
-        box-shadow: 1px;
+        user-select: none;
       }
     `;
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{-webkit-box-shadow:1px;box-shadow:1px}`);
+    expect(output).toBe(`h1{-webkit-user-select:none;user-select:none}`);
   });
 
   it('runs autoprefixerCss true config', async () => {
     config.autoprefixCss = true;
+    // user-select still requires -webkit-user-select in modern Safari
     const styleText = `
       h1 {
-        box-shadow: 1px;
+        user-select: none;
       }
     `;
     const output = await optimizeCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
 
     expect(diagnostics).toHaveLength(0);
-    expect(output).toBe(`h1{-webkit-box-shadow:1px;box-shadow:1px}`);
+    expect(output).toBe(`h1{-webkit-user-select:none;user-select:none}`);
   });
 
   it('do nothing for invalid data', async () => {

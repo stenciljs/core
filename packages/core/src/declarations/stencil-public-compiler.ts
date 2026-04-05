@@ -3017,14 +3017,26 @@ export interface OptimizeCssInput {
 }
 
 /**
- * This is not a real interface describing the options which can
- * be passed to autoprefixer, for that see the docs, here:
- * https://github.com/postcss/autoprefixer#options
+ * Options for autoprefixing CSS via Lightning CSS.
  *
- * Instead, this basically just serves as a label type to track
- * that arguments are being passed consistently.
+ * The `targets` field accepts a browserslist query array. When omitted,
+ * Stencil uses a modern default browser list suitable for Stencil v5+.
+ *
+ * @example
+ * ```ts
+ * autoprefixer: {
+ *   targets: ['last 2 Chrome versions', 'last 2 Safari versions', 'iOS >= 14'],
+ * }
+ * ```
  */
-export type AutoprefixerOptions = object;
+export interface AutoprefixerOptions {
+  /**
+   * A browserslist query array describing which browsers to generate vendor
+   * prefixes for. Defaults to a modern set of browsers appropriate for
+   * Stencil v5+.
+   */
+  targets?: string[];
+}
 
 /**
  * Output from CSS optimization functions, wrapping up optimized

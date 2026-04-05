@@ -1,51 +1,47 @@
-import { Postcss } from 'postcss';
+import browserslist from 'browserslist';
+import { browserslistToTargets, transform } from 'lightningcss';
 import type * as d from '@stencil/core';
 
-type CssProcessor = ReturnType<Postcss>;
-let cssProcessor: CssProcessor;
-
 /**
- * Autoprefix a CSS string, adding vendor prefixes to make sure that what
- * is written in the CSS will render correctly in our range of supported browsers.
- * This function uses PostCSS in combination with the Autoprefix plugin to
- * automatically add vendor prefixes based on a list of browsers which we want
- * to support.
+ * Autoprefix a CSS string, adding vendor prefixes to ensure that what is
+ * written in the CSS will render correctly across our range of supported
+ * browsers. Uses Lightning CSS to add vendor prefixes based on a browserslist
+ * query.
  *
- * @param cssText the text to be prefixed
- * @param opts an optional param with options for Autoprefixer
- * @returns a Promise wrapping some prefixed CSS as well as diagnostics
+ * @param cssText the CSS text to be prefixed
+ * @param opts options controlling which browsers to target, or `null` to use
+ * the default browser targets
+ * @returns a Promise wrapping the prefixed CSS and any diagnostics
  */
 export const autoprefixCss = async (
   cssText: string,
   opts: boolean | null | d.AutoprefixerOptions,
-) => {
+): Promise<d.OptimizeCssOutput> => {
   const output: d.OptimizeCssOutput = {
     output: cssText,
     diagnostics: [],
   };
 
   try {
-    const autoprefixerOpts =
-      opts != null && typeof opts === 'object' ? opts : DEFAULT_AUTOPREFIX_OPTIONS;
+    const browserTargets =
+      opts != null && typeof opts === 'object' && Array.isArray((opts as d.AutoprefixerOptions).targets)
+        ? (opts as d.AutoprefixerOptions).targets!
+        : DEFAULT_BROWSER_TARGETS;
 
-    const processor = await getProcessor(autoprefixerOpts);
-    const result = await processor.process(cssText, { map: null });
+    const targets = browserslistToTargets(browserslist(browserTargets));
 
-    result.warnings().forEach((warning: any) => {
-      output.diagnostics.push({
-        header: `Autoprefix CSS: ${warning.plugin}`,
-        messageText: warning.text,
-        level: 'warn',
-        type: 'css',
-        lines: [],
-      });
+    const result = transform({
+      filename: 'style.css',
+      code: Buffer.from(cssText),
+      targets,
+      minify: false,
     });
 
-    output.output = result.css;
+    output.output = result.code.toString();
   } catch (e: any) {
     const diagnostic: d.Diagnostic = {
       header: `Autoprefix CSS`,
-      messageText: `CSS Error` + e,
+      messageText: `CSS Error: ${e}`,
       level: `error`,
       type: `css`,
       lines: [],
@@ -55,37 +51,8 @@ export const autoprefixCss = async (
       diagnostic.header = e.name;
     }
 
-    if (typeof e.reason === 'string') {
-      diagnostic.messageText = e.reason;
-    }
-
-    if (typeof e.source === 'string' && typeof e.line === 'number') {
-      const lines = (e.source as string).replace(/\r/g, '\n').split('\n');
-
-      if (lines.length > 0) {
-        const addLine = (lineNumber: number) => {
-          const line = lines[lineNumber];
-          if (typeof line === 'string') {
-            const printLine: d.PrintLine = {
-              lineIndex: -1,
-              lineNumber: -1,
-              text: line,
-              errorCharStart: -1,
-              errorLength: -1,
-            };
-            diagnostic.lines = diagnostic.lines || [];
-            diagnostic.lines.push(printLine);
-          }
-        };
-
-        addLine(e.line - 3);
-        addLine(e.line - 2);
-        addLine(e.line - 1);
-        addLine(e.line);
-        addLine(e.line + 1);
-        addLine(e.line + 2);
-        addLine(e.line + 3);
-      }
+    if (typeof e.message === 'string') {
+      diagnostic.messageText = e.message;
     }
 
     output.diagnostics.push(diagnostic);
@@ -95,43 +62,17 @@ export const autoprefixCss = async (
 };
 
 /**
- * Get the processor for PostCSS and the Autoprefixer plugin
- *
- * @param autoprefixerOpts Options for Autoprefixer
- * @returns postCSS with the Autoprefixer plugin applied
+ * Default browserslist targets used when autoprefixing CSS in v5.
+ * Targets modern browsers — IE11, old Edge, and very old mobile browsers
+ * are no longer included since Stencil v5 targets ES2017+ only.
  */
-const getProcessor = async (autoprefixerOpts: d.AutoprefixerOptions): Promise<CssProcessor> => {
-  if (!cssProcessor) {
-    const [{ default: postcss }, { default: autoprefixer }] = await Promise.all([
-      import('postcss'),
-      import('autoprefixer'),
-    ]);
-    cssProcessor = postcss([autoprefixer(autoprefixerOpts)]);
-  }
-  return cssProcessor;
-};
-
-/**
- * Default options for the Autoprefixer PostCSS plugin. See the documentation:
- * https://github.com/postcss/autoprefixer#options for a complete list.
- *
- * This default option set will:
- *
- * - override the default browser list (`overrideBrowserslist`)
- * - turn off the visual cascade (`cascade`)
- * - disable auto-removing outdated prefixes (`remove`)
- * - set `flexbox` to `"no-2009"`, which limits prefixing for flexbox to the
- *   final and IE 10 versions of the specification
- */
-const DEFAULT_AUTOPREFIX_OPTIONS: d.AutoprefixerOptions = {
-  overrideBrowserslist: [
-    'last 2 versions',
-    'iOS >= 9',
-    'Android >= 4.4',
-    'Explorer >= 11',
-    'ExplorerMobile >= 11',
-  ],
-  cascade: false,
-  remove: false,
-  flexbox: 'no-2009',
-};
+const DEFAULT_BROWSER_TARGETS: string[] = [
+  'last 2 Chrome versions',
+  'last 2 Firefox versions',
+  'last 2 Safari versions',
+  'last 2 Edge versions',
+  'iOS >= 14',
+  'Android >= 6',
+  '> 0.5%',
+  'not dead',
+];
