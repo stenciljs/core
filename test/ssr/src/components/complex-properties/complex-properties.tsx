@@ -41,7 +41,7 @@ function deserializeValue(val: any): any {
 
 @Component({
   tag: 'complex-properties',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ComplexProperties {
   /**

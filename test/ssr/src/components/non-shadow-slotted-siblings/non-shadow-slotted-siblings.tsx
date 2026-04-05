@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'hydrated-sibling-accessors',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class HydratedSiblingAccessors {
   render() {

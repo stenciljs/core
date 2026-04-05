@@ -10,7 +10,7 @@ import { CarData } from '../car-list/car-data';
 @Component({
   tag: 'scoped-car-list',
   styleUrl: 'another-car-list.css',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class CarList {
   @Prop() cars: CarData[];
