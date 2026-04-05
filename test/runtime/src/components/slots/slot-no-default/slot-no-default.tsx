@@ -2,7 +2,6 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'slot-no-default',
-  
 })
 export class SlotNoDefault {
   render() {

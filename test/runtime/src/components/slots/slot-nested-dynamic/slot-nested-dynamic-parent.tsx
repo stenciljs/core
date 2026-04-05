@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'slot-nested-dynamic-parent',
-  
+
   encapsulation: { type: 'scoped' },
 })
 export class SlotNestedDynamicParent {

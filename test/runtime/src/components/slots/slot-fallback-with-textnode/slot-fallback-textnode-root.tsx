@@ -2,7 +2,7 @@ import { Component, Fragment, h, State } from '@stencil/core';
 
 @Component({
   tag: 'slot-fallback-textnode-root',
-  
+
   encapsulation: { type: 'scoped' },
 })
 export class SlotFallbackTextnodeRoot {

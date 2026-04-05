@@ -2,9 +2,9 @@ import { isAbsolute, join, relative } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core/compiler';
 
+import { migrationRules, type MigrationMatch, type MigrationRule } from './migrations';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
-import { migrationRules, type MigrationMatch, type MigrationRule } from './migrations';
 
 interface MigrationResult {
   filePath: string;

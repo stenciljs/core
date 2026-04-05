@@ -5,16 +5,18 @@ import type { MigrationMatch, MigrationRule } from '../index';
 /**
  * Migration rule for formAssociated → @AttachInternals.
  *
- * Migrates:
- * - `formAssociated: true` in @Component → Adds `@AttachInternals() internals: ElementInternals;`
+ * This migration is detection-only because it requires adding a class member,
+ * which is complex to do correctly with text manipulation.
  *
- * Note: This is a more complex migration as it needs to add a class member.
- * For now, it detects the issue and provides guidance.
+ * Users should manually:
+ * 1. Remove `formAssociated: true` from @Component
+ * 2. Add `@AttachInternals() internals: ElementInternals;` as a class property
+ * 3. Import `AttachInternals` from '@stencil/core'
  */
 export const formAssociatedRule: MigrationRule = {
   id: 'form-associated',
-  name: 'Form Associated',
-  description: 'Migrate formAssociated to @AttachInternals decorator',
+  name: 'Form Associated (manual)',
+  description: 'Detect formAssociated usage - requires manual migration to @AttachInternals',
   fromVersion: '4.x',
   toVersion: '5.x',
 
@@ -41,7 +43,7 @@ export const formAssociatedRule: MigrationRule = {
                 matches.push({
                   node: prop,
                   message:
-                    "Deprecated 'formAssociated' property found - migrate to @AttachInternals decorator",
+                    'Remove formAssociated and add @AttachInternals() decorator to a class property',
                   line: line + 1,
                   column: character + 1,
                 });
@@ -57,79 +59,8 @@ export const formAssociatedRule: MigrationRule = {
     return matches;
   },
 
-  transform(sourceFile: ts.SourceFile, matches: MigrationMatch[]): string {
-    if (matches.length === 0) {
-      return sourceFile.getFullText();
-    }
-
-    let text = sourceFile.getFullText();
-
-    // Find the class declaration that contains the @Component decorator
-    let classNode: ts.ClassDeclaration | undefined;
-    const visit = (node: ts.Node) => {
-      if (ts.isClassDeclaration(node)) {
-        const decorators = ts.getDecorators(node);
-        if (decorators) {
-          for (const decorator of decorators) {
-            if (
-              ts.isCallExpression(decorator.expression) &&
-              ts.isIdentifier(decorator.expression.expression) &&
-              decorator.expression.expression.text === 'Component'
-            ) {
-              classNode = node;
-              return;
-            }
-          }
-        }
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(sourceFile);
-
-    // Process matches in reverse order to preserve positions
-    const sortedMatches = [...matches].sort((a, b) => {
-      const posA = (a.node as ts.Node).getStart();
-      const posB = (b.node as ts.Node).getStart();
-      return posB - posA;
-    });
-
-    for (const match of sortedMatches) {
-      const prop = match.node as ts.PropertyAssignment;
-      const start = prop.getStart();
-      const end = prop.getEnd();
-
-      // Remove the formAssociated property
-      let endPos = end;
-      const afterProp = text.slice(end).match(/^\s*,/);
-      if (afterProp) {
-        endPos = end + afterProp[0].length;
-      }
-
-      text = text.slice(0, start) + text.slice(endPos);
-    }
-
-    // Add @AttachInternals() decorator to the class if we found one
-    if (classNode) {
-      // Find the opening brace of the class
-      const classText = classNode.getText();
-      const braceIndex = classText.indexOf('{');
-      if (braceIndex !== -1) {
-        const insertPos = classNode.getStart() + braceIndex + 1;
-
-        // Check if the class already has an @AttachInternals decorator
-        const hasAttachInternals = classText.includes('@AttachInternals');
-        if (!hasAttachInternals) {
-          // Find the indentation of the class body
-          const afterBrace = text.slice(insertPos);
-          const indentMatch = afterBrace.match(/^\n(\s*)/);
-          const indent = indentMatch ? indentMatch[1] : '  ';
-
-          const newMember = `\n${indent}@AttachInternals() internals: ElementInternals;\n`;
-          text = text.slice(0, insertPos) + newMember + text.slice(insertPos);
-        }
-      }
-    }
-
-    return text;
+  // Detection only - no automatic transform for this complex case
+  transform(sourceFile: ts.SourceFile, _matches: MigrationMatch[]): string {
+    return sourceFile.getFullText();
   },
 };

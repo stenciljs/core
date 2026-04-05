@@ -2,7 +2,7 @@ import { Component, h, Host, State } from '@stencil/core';
 
 @Component({
   tag: 'slot-conditional-rendering',
-  
+
   encapsulation: { type: 'scoped' },
 })
 export class SlotConditionalRendering {

@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'cmp-level-1',
   styleUrl: 'cmp-level-1.css',
-  
+
   encapsulation: { type: 'scoped' },
 })
 export class CmpLevel1 {
