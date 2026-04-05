@@ -1,13 +1,12 @@
-import { Component, h, Prop } from '@stencil/core';
+import { Component, h, Prop, AttachInternals } from '@stencil/core';
 
 @Component({
-  @AttachInternals() internals: ElementInternals;
-
   tag: 'form-associated-prop-check',
-  shadow: true,
-  
+  encapsulation: { type: 'shadow' },
 })
 export class FormAssociatedPropCheck {
+  @AttachInternals() internals: ElementInternals;
+
   @Prop() disabled: boolean;
 
   render() {

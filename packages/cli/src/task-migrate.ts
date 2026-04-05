@@ -2,7 +2,7 @@ import { isAbsolute, join, relative } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core/compiler';
 
-import { migrationRules, type MigrationMatch, type MigrationRule } from './migrations';
+import { getRulesForVersionUpgrade, type MigrationMatch, type MigrationRule } from './migrations';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 
@@ -29,7 +29,19 @@ export const taskMigrate = async (
   const sys = config.sys;
   const dryRun = flags.dryRun ?? false;
 
-  logger.info(`${logger.emoji('🔄 ')}Stencil Migration Tool`);
+  // Get migration rules for the specified version upgrade
+  // Default: from previous major version to current installed version
+  const currentMajor = coreCompiler.version.split('.')[0];
+  const fromVersion = String(Number(currentMajor) - 1);
+  const toVersion = currentMajor;
+  const rules = getRulesForVersionUpgrade(fromVersion, toVersion);
+
+  if (rules.length === 0) {
+    logger.info(`No migration rules found for ${fromVersion}.x → ${toVersion}.x upgrade.`);
+    return;
+  }
+
+  logger.info(`${logger.emoji('🔄 ')}Stencil Migration Tool (v${fromVersion} → v${toVersion})`);
   logger.info(`Scanning for components that need migration...`);
 
   if (dryRun) {
@@ -50,16 +62,14 @@ export const taskMigrate = async (
 
   // Process each file
   for (const filePath of tsFiles) {
-    const content = await sys.readFile(filePath);
+    let content = await sys.readFile(filePath);
     if (!content) {
       continue;
     }
 
-    // Parse the file with TypeScript
-    const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
-
-    // Run each migration rule
-    for (const rule of migrationRules) {
+    // Run each migration rule - re-parse after each transformation to get fresh positions
+    for (const rule of rules) {
+      const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
       const matches = rule.detect(sourceFile);
 
       if (matches.length > 0) {
@@ -75,6 +85,8 @@ export const taskMigrate = async (
           // Apply the transformation
           const transformed = rule.transform(sourceFile, matches);
           await sys.writeFile(filePath, transformed);
+          // Update content for next rule to use fresh positions
+          content = transformed;
           results.push({ filePath, rule, matches, transformed: true });
           logger.info(`  ${logger.green('✓')} Migrated`);
         } else {
@@ -114,7 +126,7 @@ export const taskMigrate = async (
   if (byRule.size > 0) {
     logger.info('\nBy migration rule:');
     for (const [ruleId, ruleResults] of byRule) {
-      const rule = migrationRules.find((r) => r.id === ruleId);
+      const rule = rules.find((r) => r.id === ruleId);
       const count = ruleResults.reduce((sum, r) => sum + r.matches.length, 0);
       logger.info(`  ${rule?.name || ruleId}: ${count} item(s)`);
     }
@@ -186,12 +198,6 @@ async function getTypeScriptFiles(
   const files = results.fileNames.filter(
     (f) => (f.endsWith('.ts') || f.endsWith('.tsx')) && !f.endsWith('.d.ts'),
   );
-
-  logger.debug(`tsconfig returned ${results.fileNames.length} files, filtered to ${files.length}`);
-  logger.debug(`All files from tsconfig:`);
-  for (const f of results.fileNames) {
-    logger.debug(`  ${f}`);
-  }
 
   return files;
 }

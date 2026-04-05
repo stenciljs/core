@@ -53,7 +53,7 @@ export interface MigrationRule {
  * Registry of all available migration rules.
  * Rules are applied in order, so add new rules at the end.
  */
-export const migrationRules: MigrationRule[] = [encapsulationApiRule, formAssociatedRule];
+const migrationRules: MigrationRule[] = [encapsulationApiRule, formAssociatedRule];
 
 /**
  * Get all migration rules for a specific version upgrade.

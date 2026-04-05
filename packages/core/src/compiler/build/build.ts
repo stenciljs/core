@@ -6,6 +6,7 @@ import { catchError, isString, readPackageJson } from '../../utils';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
 import { generateGlobalStyles } from '../style/global-styles';
+import { resetDeprecatedApiWarning } from '../transformers/decorators-to-static/component-decorator';
 import { runTsProgram, validateTypesAfterGeneration } from '../transpile/run-program';
 import { buildAbort, buildFinish } from './build-finish';
 import { writeBuild } from './write-build';
@@ -19,6 +20,9 @@ export const build = async (
   try {
     // reset process.cwd() for 3rd-party plugins
     process.chdir(config.rootDir);
+
+    // reset the deprecated API warning flag for this build
+    resetDeprecatedApiWarning();
 
     // empty the directories on the first build
     await emptyOutputTargets(config, compilerCtx, buildCtx);
