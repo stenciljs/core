@@ -145,6 +145,8 @@ async function getTypeScriptFiles(
     tsconfigPath = join(config.rootDir, 'tsconfig.json');
   }
 
+  logger.debug(`Using tsconfig: ${tsconfigPath}`);
+
   // Check if tsconfig exists
   const tsconfigContent = await sys.readFile(tsconfigPath);
   if (!tsconfigContent) {
@@ -153,16 +155,15 @@ async function getTypeScriptFiles(
   }
 
   // Parse the tsconfig using TypeScript's native parser
+  // Use ts.sys directly for readDirectory since it handles glob patterns correctly
   const host: ts.ParseConfigFileHost = {
     ...ts.sys,
     readFile: (p) => {
       if (p === tsconfigPath) {
         return tsconfigContent;
       }
-      return sys.readFileSync(p);
+      return ts.sys.readFile(p);
     },
-    readDirectory: (p) => sys.readDirSync(p),
-    fileExists: (p) => sys.accessSync(p),
     onUnRecoverableConfigFileDiagnostic: (diagnostic) => {
       logger.error(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
     },
@@ -182,7 +183,15 @@ async function getTypeScriptFiles(
   }
 
   // Filter to only .ts and .tsx files (excluding .d.ts)
-  return results.fileNames.filter(
+  const files = results.fileNames.filter(
     (f) => (f.endsWith('.ts') || f.endsWith('.tsx')) && !f.endsWith('.d.ts'),
   );
+
+  logger.debug(`tsconfig returned ${results.fileNames.length} files, filtered to ${files.length}`);
+  logger.debug(`All files from tsconfig:`);
+  for (const f of results.fileNames) {
+    logger.debug(`  ${f}`);
+  }
+
+  return files;
 }

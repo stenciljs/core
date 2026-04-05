@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
       color: white;
     }
   `,
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ShadowDomBasic {
   render() {

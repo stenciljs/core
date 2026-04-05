@@ -3,7 +3,7 @@ import { Component, h, Host, Listen, State } from '@stencil/core';
 @Component({
   tag: 'listen-reattach',
   styles: ':host { display: block; background: gray;}',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ListenReattach {
   @State() clicked = 0;

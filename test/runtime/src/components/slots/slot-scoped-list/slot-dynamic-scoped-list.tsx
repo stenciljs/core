@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-dynamic-scoped-list',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class DynamicListScopedComponent {
   @Prop() items: Array<string> = [];

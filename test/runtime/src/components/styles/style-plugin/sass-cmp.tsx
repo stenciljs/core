@@ -3,7 +3,7 @@ import { Component, h, Host } from '@stencil/core';
 @Component({
   tag: 'sass-cmp',
   styleUrl: 'sass-entry.scss',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class SassCmp {
   render() {

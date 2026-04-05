@@ -13,7 +13,7 @@ import {
 @Component({
   tag: 'component-on-ready',
   styleUrl: 'component-on-ready.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ComponentOnReady {
   @Element() el!: HTMLElement;

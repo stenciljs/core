@@ -4,7 +4,7 @@ import output from './output';
 
 @Component({
   tag: 'lifecycle-nested-a',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class Cmpa {
   async componentWillLoad() {

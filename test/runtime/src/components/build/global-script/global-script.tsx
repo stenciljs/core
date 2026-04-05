@@ -2,7 +2,7 @@ import { Component, h, State } from '@stencil/core';
 
 @Component({
   tag: 'global-script-test',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class GlobalScriptTest {
   @State() renderTime?: number;

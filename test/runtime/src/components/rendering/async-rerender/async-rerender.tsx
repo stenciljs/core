@@ -2,7 +2,7 @@ import { Component, h, Host, State } from '@stencil/core';
 
 @Component({
   tag: 'async-rerender',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class MyComponent {
   @State() data: any[];

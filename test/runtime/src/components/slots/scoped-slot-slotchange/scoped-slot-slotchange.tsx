@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-slotchange',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotChange {
   @Prop({ mutable: true }) slotEventCatch: { event: Event; assignedNodes: Node[] }[] = [];

@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-dynamic-name-change-scoped',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class SlotDynamicNameChangeScoped {
   @Prop() slotName = 'greeting';

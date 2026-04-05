@@ -2,7 +2,7 @@ import { Component, h, State } from '@stencil/core';
 
 @Component({
   tag: 'template-render',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class TemplateRender {
   @State() items: string[] = ['Item 1', 'Item 2', 'Item 3'];

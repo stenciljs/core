@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'scoped-conditional',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedConditional {
   @Prop() renderHello: boolean = false;

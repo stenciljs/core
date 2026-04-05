@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-append-and-prepend',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotAppendAndPrepend {
   render() {

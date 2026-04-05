@@ -2,7 +2,7 @@ import { Component, h, Host, Prop } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-content-hide',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotContentHide {
   @Prop({ mutable: true }) useSlot = false;

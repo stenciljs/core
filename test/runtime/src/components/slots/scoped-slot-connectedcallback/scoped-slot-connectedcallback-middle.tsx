@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-connectedcallback-middle',
-  shadow: false,
+  
 })
 export class ScopedSlotConnectedCallbackMiddle {
   render() {

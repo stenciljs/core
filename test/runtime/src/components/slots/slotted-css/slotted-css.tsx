@@ -3,7 +3,7 @@ import { Component, h, Host } from '@stencil/core';
 @Component({
   tag: 'slotted-css',
   styleUrl: 'slotted-css.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class SlottedCss {
   render() {

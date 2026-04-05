@@ -2,7 +2,7 @@ import { AttachInternals, Component, h } from '@stencil/core';
 
 @Component({
   tag: 'form-associated',
-  formAssociated: true,
+  
 })
 export class FormAssociatedCmp {
   @AttachInternals() internals: ElementInternals;

@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'slot-array-top',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class SlotArrayTop {
   render() {

@@ -9,7 +9,7 @@ import { Component, getMode, h } from '@stencil/core';
     blue: 'mode-blue.css',
     red: 'mode-red.css',
   },
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ShadowDomMode {
   private mode = getMode(this);

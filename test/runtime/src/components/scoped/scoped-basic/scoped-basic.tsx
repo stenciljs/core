@@ -17,7 +17,7 @@ import { Component, h } from '@stencil/core';
       color: yellow;
     }
   `,
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedBasic {
   render() {

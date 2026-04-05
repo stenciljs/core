@@ -7,7 +7,7 @@ import { Component, h } from '@stencil/core';
    * `bar.scss` since it is set last in the `styleUrls` array.
    */
   styleUrls: ['foo.scss', 'bar.scss', 'foo.scss'],
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class MultipleStylesCmp {
   render() {

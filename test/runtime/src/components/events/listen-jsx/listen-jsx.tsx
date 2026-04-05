@@ -2,7 +2,7 @@ import { Component, h, Listen, State } from '@stencil/core';
 
 @Component({
   tag: 'listen-jsx',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     :host {
       background: black;

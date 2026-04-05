@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'reparent-style-no-vars',
   styleUrl: 'reparent-style-no-vars.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ReparentStyleNoVars {
   render() {

@@ -4,7 +4,7 @@ import output from './output';
 
 @Component({
   tag: 'lifecycle-nested-b',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class Cmpb {
   async componentWillLoad() {

@@ -6,9 +6,7 @@ import { Component, Element, h, Method } from '@stencil/core';
  */
 @Component({
   tag: 'manual-slot-tabs',
-  shadow: {
-    slotAssignment: 'manual',
-  },
+  encapsulation: { type: 'shadow', slotAssignment: 'manual' },
   styles: `
     :host {
       display: block;

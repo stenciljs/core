@@ -2,7 +2,7 @@ import { Component, h, Host, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-forward-child-fallback',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     :host {
       display: block;

@@ -2,7 +2,7 @@ import { Component, h, State } from '@stencil/core';
 
 @Component({
   tag: 'ref-attr-order',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class RefAttrOrder {
   @State() index: number = -1;

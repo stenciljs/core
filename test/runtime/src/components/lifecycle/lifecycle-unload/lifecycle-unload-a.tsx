@@ -2,7 +2,7 @@ import { Component, Element, h } from '@stencil/core';
 
 @Component({
   tag: 'lifecycle-unload-a',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class LifecycleUnloadA {
   @Element() el!: HTMLElement;

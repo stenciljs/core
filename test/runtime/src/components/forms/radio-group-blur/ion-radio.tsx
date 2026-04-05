@@ -16,7 +16,7 @@ import { addEventListener, isOptionSelected, removeEventListener } from './utils
 @Component({
   tag: 'ion-radio',
   styleUrl: 'radio.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class Radio {
   private inputId = `ion-rb-${radioButtonIds++}`;

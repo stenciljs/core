@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'text-content-patch-scoped-with-slot',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class TextContentPatchScopedWithSlot {
   render() {
