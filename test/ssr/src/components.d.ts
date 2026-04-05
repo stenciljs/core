@@ -738,7 +738,11 @@ declare namespace LocalJSX {
         "initialCounter": number;
     }
     interface ComplexPropertiesAttributes {
+        "foo": string;
+        "baz": string;
+        "quux": string;
         "grault": typeof Infinity;
+        "waldo": string;
         "kidsNames": string;
     }
     interface MyCmpAttributes {

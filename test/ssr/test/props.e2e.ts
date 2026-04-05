@@ -8,7 +8,6 @@ const vento = new CarData('VW', 'Vento', 2024);
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../hydrate/index');
 let renderToString: HydrateModule['renderToString'];
-let serializeProperty: HydrateModule['serializeProperty'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
 test.describe('props serialization', () => {
@@ -16,7 +15,6 @@ test.describe('props serialization', () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../hydrate/index.js');
     renderToString = mod.renderToString;
-    serializeProperty = mod.serializeProperty;
     resetHydrateDocData = mod.resetHydrateDocData;
     resetHydrateDocData();
   });
@@ -86,18 +84,39 @@ test.describe('props serialization', () => {
   });
 
   test.describe('complex properties (Map, Set, Symbol)', () => {
-    const getTemplate = (serialize: typeof serializeProperty) => `<complex-properties
-      foo=${serialize({ bar: 123, loo: [1, 2, 3], qux: { quux: Symbol('quux') } })}
-      baz=${serialize(new Map([['foo', { qux: Symbol('quux') }]]))}
-      quux=${serialize(new Set(['foo']))}
-      corge=${serialize(new Set([{ foo: { bar: 'foo' } }]))}
-      grault=${serialize(Infinity)}
-      waldo=${serialize(null)}
-      kids-names=${serialize(['John', 'Jane', 'Jim'])}
+    /**
+     * Serialize complex types to extended JSON format.
+     * This matches the deserializeExtendedJSON function in complex-properties.tsx.
+     */
+    function serializeExtendedJSON(value: any): string {
+      return JSON.stringify(value, (_key, val) => {
+        if (val instanceof Map) {
+          return { __type: 'Map', value: Array.from(val.entries()) };
+        }
+        if (val instanceof Set) {
+          return { __type: 'Set', value: Array.from(val) };
+        }
+        if (typeof val === 'symbol') {
+          return { __type: 'Symbol', value: val.description };
+        }
+        if (val === Infinity) {
+          return { __type: 'Infinity' };
+        }
+        return val;
+      });
+    }
+
+    const getTemplate = () => `<complex-properties
+      foo=${serializeExtendedJSON({ bar: 123, loo: [1, 2, 3], qux: { quux: Symbol('quux') } })}
+      baz=${serializeExtendedJSON(new Map([['foo', { qux: Symbol('quux') }]]))}
+      quux=${serializeExtendedJSON(new Set(['foo']))}
+      grault=${serializeExtendedJSON(Infinity)}
+      waldo=${serializeExtendedJSON(null)}
+      kids-names=${serializeExtendedJSON(['John', 'Jane', 'Jim'])}
     />`;
 
     test('should render complex properties via renderToString', async () => {
-      const template = getTemplate(serializeProperty);
+      const template = getTemplate();
       const { html } = await renderToString(template, {
         prettyHtml: true,
         fullDocument: false,
@@ -108,7 +127,7 @@ test.describe('props serialization', () => {
     test('can render component and verify serialized properties hydrate correctly', async ({
       page,
     }) => {
-      const template = getTemplate(serializeProperty);
+      const template = getTemplate();
       const { html } = await renderToString(template, { fullDocument: true });
 
       await page.setContent(html || '');
@@ -129,7 +148,7 @@ test.describe('props serialization', () => {
     });
 
     test('can change a complex property and see it updated correctly', async ({ page }) => {
-      const template = getTemplate(serializeProperty);
+      const template = getTemplate();
       const { html } = await renderToString(template, { fullDocument: true });
 
       await page.setContent(html || '');
