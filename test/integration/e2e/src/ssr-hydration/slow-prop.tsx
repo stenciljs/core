@@ -2,7 +2,7 @@ import { Component, h, Host, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slow-ssr-prop',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   styles: `
     :host {
       display: block;

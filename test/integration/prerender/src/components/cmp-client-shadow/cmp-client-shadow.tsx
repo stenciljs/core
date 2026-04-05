@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'cmp-client-shadow',
   styleUrl: 'cmp-client-shadow.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class CmpClientShadow {
   render() {

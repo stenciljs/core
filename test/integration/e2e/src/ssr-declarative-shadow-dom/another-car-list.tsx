@@ -10,7 +10,7 @@ import { CarData } from '../car-list/car-data';
 @Component({
   tag: 'another-car-list',
   styleUrl: 'another-car-list.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class CarList {
   @Prop() cars: CarData[];

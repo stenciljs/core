@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'cmp-b',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ComponentB {
   render() {

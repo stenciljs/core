@@ -2,7 +2,7 @@ import { Component, Host, h } from '@stencil/core';
 
 @Component({
   tag: 'non-shadow-child',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     :host {
       display: block;

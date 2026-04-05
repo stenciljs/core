@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'test-svg',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class TestSvg {
   render() {

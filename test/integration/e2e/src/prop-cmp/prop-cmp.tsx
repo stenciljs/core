@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
     ios: 'prop-cmp.ios.css',
     md: 'prop-cmp.md.css',
   },
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class PropCmp {
   private _clothes = 'life preservers';

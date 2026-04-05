@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'nested-scope-cmp',
   styleUrl: 'nested-scope-cmp.css',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class NestedScopeCmp {
   render() {
