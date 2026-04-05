@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'test-component',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class TestComponent {
   /** The text to display */
