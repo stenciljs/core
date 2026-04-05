@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'styleurls-component',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   // CSS properties documented in both of these files should
   // show up in this component's README
   styleUrls: {

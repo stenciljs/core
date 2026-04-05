@@ -8,7 +8,7 @@ import { ImportedInterface, importedInterface } from './imported-interface';
     ios: './my-component.ios.css',
     md: './my-component.md.css',
   },
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class MyComponent {
   /**
