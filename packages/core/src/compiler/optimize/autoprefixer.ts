@@ -24,7 +24,9 @@ export const autoprefixCss = async (
 
   try {
     const browserTargets =
-      opts != null && typeof opts === 'object' && Array.isArray((opts as d.AutoprefixerOptions).targets)
+      opts != null &&
+      typeof opts === 'object' &&
+      Array.isArray((opts as d.AutoprefixerOptions).targets)
         ? (opts as d.AutoprefixerOptions).targets!
         : DEFAULT_BROWSER_TARGETS;
 
