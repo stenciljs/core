@@ -38,7 +38,6 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     hostListenerTargetWindow: cmps.some((c) => c.hasListenerTargetWindow),
     hostListenerTargetDocument: cmps.some((c) => c.hasListenerTargetDocument),
     hostListenerTargetBody: cmps.some((c) => c.hasListenerTargetBody),
-    hostListenerTargetParent: cmps.some((c) => c.hasListenerTargetParent),
     hostListenerTarget: cmps.some((c) => c.hasListenerTarget),
     member: cmps.some((c) => c.hasMember),
     method: cmps.some((c) => c.hasMethod),

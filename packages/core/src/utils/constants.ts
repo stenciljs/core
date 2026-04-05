@@ -46,11 +46,6 @@ export const LISTENER_FLAGS = {
   TargetDocument: 1 << 2,
   TargetWindow: 1 << 3,
   TargetBody: 1 << 4,
-
-  /**
-   * @deprecated Prevented from new apps, but left in for older collections
-   */
-  TargetParent: 1 << 5,
 } as const;
 
 export const HOST_FLAGS = {
@@ -296,44 +291,3 @@ export const NODE_TYPES = {
   DOCUMENT_FRAGMENT_NODE: 11,
   NOTATION_NODE: 12,
 } as const;
-
-/**
- * Represents a primitive type.
- * Described in https://w3c.github.io/webdriver-bidi/#type-script-PrimitiveProtocolValue.
- */
-export const PrimitiveType = {
-  Undefined: 'undefined',
-  Null: 'null',
-  String: 'string',
-  Number: 'number',
-  SpecialNumber: 'number',
-  Boolean: 'boolean',
-  BigInt: 'bigint',
-} as const;
-
-export type PrimitiveTypeValue = (typeof PrimitiveType)[keyof typeof PrimitiveType];
-
-/**
- * Represents a non-primitive type.
- * Described in https://w3c.github.io/webdriver-bidi/#type-script-RemoteValue.
- * @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead.
- */
-export const NonPrimitiveType = {
-  Array: 'array',
-  Date: 'date',
-  Map: 'map',
-  Object: 'object',
-  RegularExpression: 'regexp',
-  Set: 'set',
-  Channel: 'channel',
-  Symbol: 'symbol',
-} as const;
-
-export type NonPrimitiveTypeValue = (typeof NonPrimitiveType)[keyof typeof NonPrimitiveType];
-
-/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
-export const TYPE_CONSTANT = 'type';
-/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
-export const VALUE_CONSTANT = 'value';
-/**  @deprecated will be removed in v5. Use `@AttrDeserialize()` / `@PropDeserialize()` decorators instead. */
-export const SERIALIZED_PREFIX = 'serialized:';

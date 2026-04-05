@@ -221,7 +221,7 @@ async function hydrateComponent(
       if (!hostRef) {
         return;
       }
-      addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
+      addHostEventListeners(this, hostRef, cmpMeta.$listeners$);
 
       try {
         connectedCallback(elm);

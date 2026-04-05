@@ -166,22 +166,6 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     encodeToBase64(str) {
       return Buffer.from(str).toString('base64');
     },
-    async ensureDependencies() {
-      // TODO(STENCIL-727): Remove this from the sys interface
-      console.warn(`ensureDependencies will be removed in a future version of Stencil.`);
-      console.warn(`To get the stencilPath, please use getCompilerExecutingPath().`);
-
-      return {
-        stencilPath: sys.getCompilerExecutingPath(),
-        diagnostics: [],
-      };
-    },
-    async ensureResources() {
-      // TODO(STENCIL-727): Remove this from the sys interface
-      console.warn(
-        `ensureResources is a no-op, and will be removed in a future version of Stencil`,
-      );
-    },
     exit: async (exitCode) => {
       await runInterruptsCallbacks();
       process.exitCode = exitCode;

@@ -255,13 +255,19 @@ const setCLIArg = (
 
   // We're setting a string, but it's one where the user can pass multiple values,
   // like `--reporters="default" --reporters="jest-junit"`
-  else if (readOnlyArrayHasStringMember(STRING_ARRAY_CLI_FLAGS, normalizedArg)) {
+  // Note: STRING_ARRAY_CLI_FLAGS is currently empty, but we keep the infrastructure
+  // for future CLI flags that accept multiple string values.
+  else if (
+    STRING_ARRAY_CLI_FLAGS.length > 0 &&
+    readOnlyArrayHasStringMember(STRING_ARRAY_CLI_FLAGS, normalizedArg)
+  ) {
     if (typeof value === 'string') {
-      if (!Array.isArray(flags[normalizedArg])) {
-        flags[normalizedArg] = [];
+      const flagsRecord = flags as unknown as Record<string, unknown>;
+      if (!Array.isArray(flagsRecord[normalizedArg])) {
+        flagsRecord[normalizedArg] = [];
       }
 
-      const targetArray = flags[normalizedArg];
+      const targetArray = flagsRecord[normalizedArg];
       // this is irritating, but TS doesn't know that the `!Array.isArray`
       // check above guarantees we have an array to work with here, and it
       // doesn't want to narrow the type of `flags[normalizedArg]`, so we need

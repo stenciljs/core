@@ -31,7 +31,6 @@ export const BUILD: BuildConditionals = {
   hostListenerTargetWindow: true,
   hostListenerTargetDocument: true,
   hostListenerTargetBody: true,
-  hostListenerTargetParent: false,
   hostListenerTarget: true,
   member: true,
   method: true,
@@ -95,8 +94,6 @@ export const BUILD: BuildConditionals = {
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
-  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
-  transformTagName: false,
   attachStyles: true,
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   experimentalSlotFixes: false,

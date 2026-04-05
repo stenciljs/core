@@ -38,4 +38,4 @@ export {
   Mixin,
   getRenderingRef,
 } from '../runtime';
-export type { SpecPage, Testing } from '@stencil/core';
+export type { SpecPage } from '@stencil/core';

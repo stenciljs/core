@@ -123,10 +123,6 @@ export interface BuildFeatures {
   hostListenerTargetWindow: boolean;
   hostListenerTargetDocument: boolean;
   hostListenerTargetBody: boolean;
-  /**
-   * @deprecated Prevented from new apps, but left in for older collections
-   */
-  hostListenerTargetParent: boolean;
   hostListenerTarget: boolean;
   method: boolean;
   prop: boolean;
@@ -181,8 +177,6 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   shadowDomShim?: boolean;
   asyncQueue?: boolean;
-  // TODO: deprecated in favour of `setTagTransformer` and `transformTag`. Remove in 5.0
-  transformTagName?: boolean;
   additionalTagTransformers?: boolean | 'prod';
   attachStyles?: boolean;
 
@@ -551,10 +545,6 @@ export interface ComponentCompilerFeatures {
   hasListenerTargetWindow: boolean;
   hasListenerTargetDocument: boolean;
   hasListenerTargetBody: boolean;
-  /**
-   * @deprecated Prevented from new apps, but left in for older collections
-   */
-  hasListenerTargetParent: boolean;
   hasMember: boolean;
   hasMethod: boolean;
   hasMode: boolean;

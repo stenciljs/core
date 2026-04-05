@@ -42,7 +42,6 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     cmpMeta.hasListenerTargetWindow = cmpMeta.listeners.some((l) => l.target === 'window');
     cmpMeta.hasListenerTargetDocument = cmpMeta.listeners.some((l) => l.target === 'document');
     cmpMeta.hasListenerTargetBody = cmpMeta.listeners.some((l) => l.target === 'body');
-    cmpMeta.hasListenerTargetParent = cmpMeta.listeners.some((l) => l.target === ('parent' as any));
     cmpMeta.hasListenerTarget = cmpMeta.listeners.some((l) => !!l.target);
   }
 

@@ -15,8 +15,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'dev',
   'devtools',
   'docs',
-  // @deprecated - integrated testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
-  'e2e',
   'esm',
   'help',
   'log',
@@ -26,81 +24,18 @@ export const BOOLEAN_CLI_FLAGS = [
   'prod',
   'profile',
   'serviceWorker',
-  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
-  'screenshot',
   'serve',
   'skipNodeCheck',
-  // @deprecated - integrated testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
-  'spec',
   'ssr',
-  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
-  'updateScreenshot',
   'verbose',
   'version',
   'watch',
-
-  // @deprecated - all JEST CLI options below are only used by integrated testing, which will be removed in Stencil v5.
-  // See https://github.com/stenciljs/core/issues/6584.
-  // JEST CLI OPTIONS
-  'all',
-  'automock',
-  'bail',
-  // 'cache', Stencil already supports this argument
-  'changedFilesWithAncestor',
-  // 'ci', Stencil already supports this argument
-  'clearCache',
-  'clearMocks',
-  'collectCoverage',
-  'color',
-  'colors',
-  'coverage',
-  // 'debug', Stencil already supports this argument
-  'detectLeaks',
-  'detectOpenHandles',
-  'errorOnDeprecated',
-  'expand',
-  'findRelatedTests',
-  'forceExit',
-  'init',
-  'injectGlobals',
-  'json',
-  'lastCommit',
-  'listTests',
-  'logHeapUsage',
-  'noStackTrace',
-  'notify',
-  'onlyChanged',
-  'onlyFailures',
-  'passWithNoTests',
-  'resetMocks',
-  'resetModules',
-  'restoreMocks',
-  'runInBand',
-  'runTestsByPath',
-  'showConfig',
-  'silent',
-  'skipFilter',
-  'testLocationInResults',
-  'updateSnapshot',
-  'useStderr',
-  // 'verbose', Stencil already supports this argument
-  // 'version', Stencil already supports this argument
-  // 'watch', Stencil already supports this argument
-  'watchAll',
-  'watchman',
 ] as const;
 
 /**
  * All the Number options supported by the Stencil CLI
  */
-export const NUMBER_CLI_FLAGS = [
-  'port',
-  // @deprecated - all JEST CLI args below are only used by integrated testing, which will be removed in Stencil v5.
-  // See https://github.com/stenciljs/core/issues/6584.
-  // JEST CLI ARGS
-  'maxConcurrency',
-  'testTimeout',
-] as const;
+export const NUMBER_CLI_FLAGS = ['port'] as const;
 
 /**
  * All the String options supported by the Stencil CLI
@@ -112,75 +47,15 @@ export const STRING_CLI_FLAGS = [
   'docsJson',
   'emulate',
   'root',
-  // @deprecated - screenshot testing will be removed in Stencil v5. See https://github.com/stenciljs/core/issues/6584.
-  'screenshotConnector',
-
-  // @deprecated - all JEST CLI args below are only used by integrated testing, which will be removed in Stencil v5.
-  // See https://github.com/stenciljs/core/issues/6584.
-  // JEST CLI ARGS
-  'cacheDirectory',
-  'changedSince',
-  'collectCoverageFrom',
-  // 'config', Stencil already supports this argument
-  'coverageDirectory',
-  'coverageThreshold',
-  'env',
-  'filter',
-  'globalSetup',
-  'globalTeardown',
-  'globals',
-  'haste',
-  'moduleNameMapper',
-  'notifyMode',
-  'outputFile',
-  'preset',
-  'prettierPath',
-  'resolver',
-  'rootDir',
-  'runner',
-  'testEnvironment',
-  'testEnvironmentOptions',
-  'testFailureExitCode',
-  'testNamePattern',
-  'testResultsProcessor',
-  'testRunner',
-  'testSequencer',
-  'testURL',
-  'timers',
-  'transform',
 ] as const;
 
-// @deprecated - all entries below are JEST CLI args only used by integrated testing, which will be removed in Stencil v5.
-// See https://github.com/stenciljs/core/issues/6584.
-export const STRING_ARRAY_CLI_FLAGS = [
-  'collectCoverageOnlyFrom',
-  'coveragePathIgnorePatterns',
-  'coverageReporters',
-  'moduleDirectories',
-  'moduleFileExtensions',
-  'modulePathIgnorePatterns',
-  'modulePaths',
-  'projects',
-  'reporters',
-  'roots',
-  'selectProjects',
-  'setupFiles',
-  'setupFilesAfterEnv',
-  'snapshotSerializers',
-  'testMatch',
-  'testPathIgnorePatterns',
-  'testPathPattern',
-  'testRegex',
-  'transformIgnorePatterns',
-  'unmockedModulePathPatterns',
-  'watchPathIgnorePatterns',
-] as const;
+export const STRING_ARRAY_CLI_FLAGS = [] as const;
 
 /**
  * All the CLI arguments which may have string or number values
  *
- * `maxWorkers` is an argument which is used both by Stencil _and_ by Jest,
- * which means that we need to support parsing both string and number values.
+ * `maxWorkers` controls the number of concurrent workers for Stencil builds.
+ * Supports both string (e.g., "50%") and number values.
  */
 export const STRING_NUMBER_CLI_FLAGS = ['maxWorkers'] as const;
 
@@ -188,12 +63,6 @@ export const STRING_NUMBER_CLI_FLAGS = ['maxWorkers'] as const;
  * All the CLI arguments which may have boolean or string values.
  */
 export const BOOLEAN_STRING_CLI_FLAGS = [
-  /**
-   * `headless` is an argument passed through to Puppeteer (which is passed to Chrome) for end-to-end testing.
-   *
-   * {@see https://developer.chrome.com/blog/chrome-headless-shell/}
-   */
-  'headless',
   /**
    * `stats` is an argument that can optionally accept a file path where stats should be written.
    * When used as a boolean (--stats), it defaults to 'stencil-stats.json'.
@@ -245,25 +114,13 @@ export const CLI_FLAG_ALIASES: AliasMap = {
   h: 'help',
   p: 'port',
   v: 'version',
-
-  // JEST SPECIFIC CLI FLAGS
-  // these are defined in
-  // https://github.com/facebook/jest/blob/4156f86/packages/jest-cli/src/args.ts
-  b: 'bail',
-  e: 'expand',
-  f: 'onlyFailures',
-  i: 'runInBand',
-  o: 'onlyChanged',
-  t: 'testNamePattern',
-  u: 'updateSnapshot',
-  w: 'maxWorkers',
 };
 
 /**
  * A regular expression which can be used to match a CLI flag for one of our
  * short aliases.
  */
-export const CLI_FLAG_REGEX = new RegExp(`^-[chpvbewofitu]{1}$`);
+export const CLI_FLAG_REGEX = new RegExp(`^-[chpv]{1}$`);
 
 /**
  * Given two types `K` and `T` where `K` extends `ReadonlyArray<string>`,

@@ -56,7 +56,6 @@ export const mockComponentMeta = (
   hasListenerTarget: false,
   hasListenerTargetBody: false,
   hasListenerTargetDocument: false,
-  hasListenerTargetParent: false,
   hasListenerTargetWindow: false,
   hasMember: false,
   hasMethod: false,
@@ -145,7 +144,6 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     srcIndexHtml: 'src/index.html',
     suppressReservedPublicNameWarnings: false,
     sys: createTestingSystem(),
-    testing: {},
     transformAliasedImportPaths: true,
     rolldownConfig: {
       inputOptions: {},
@@ -187,9 +185,7 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     minifyCss: false,
     minifyJs: false,
     namespace: 'Testing',
-    nodeResolve: {
-      customResolveOptions: {},
-    },
+    nodeResolve: {},
     outputTargets: null,
     rolldownPlugins: {
       before: [],
@@ -199,7 +195,6 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
     sourceMap: true,
     suppressReservedPublicNameWarnings: false,
     sys,
-    testing: null,
     validateTypes: false,
     ...overrides,
   };

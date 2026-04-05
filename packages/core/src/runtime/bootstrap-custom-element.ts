@@ -112,7 +112,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
           if (!hostRef) {
             return;
           }
-          addHostEventListeners(this, hostRef, cmpMeta.$listeners$, false);
+          addHostEventListeners(this, hostRef, cmpMeta.$listeners$);
           this.__hasHostListenerAttached = true;
         }
 

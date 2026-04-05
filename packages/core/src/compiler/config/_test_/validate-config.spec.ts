@@ -338,7 +338,6 @@ describe('validation', () => {
     expect(config.extras.lifecycleDOMEvents).toBe(false);
     expect(config.extras.slotChildNodesFix).toBe(false);
     expect(config.extras.initializeNextTick).toBe(false);
-    expect(config.extras.tagNameTransform).toBe(false);
     expect(config.extras.additionalTagTransformers).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
     expect(config.extras.addGlobalStyleToComponents).toBe('client');

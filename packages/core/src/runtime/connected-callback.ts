@@ -28,11 +28,6 @@ export const connectedCallback = (elm: d.HostElement) => {
     const cmpMeta = hostRef.$cmpMeta$;
     const endConnected = createTime('connectedCallback', cmpMeta.$tagName$);
 
-    if (BUILD.hostListenerTargetParent) {
-      // only run if we have listeners being attached to a parent
-      addHostEventListeners(elm, hostRef, cmpMeta.$listeners$, true);
-    }
-
     if (!(hostRef.$flags$ & HOST_FLAGS.hasConnected)) {
       // first time this component has connected
       hostRef.$flags$ |= HOST_FLAGS.hasConnected;
@@ -157,7 +152,7 @@ export const connectedCallback = (elm: d.HostElement) => {
 
       // reattach any event listeners to the host
       // since they would have been removed when disconnected
-      addHostEventListeners(elm, hostRef, cmpMeta.$listeners$, false);
+      addHostEventListeners(elm, hostRef, cmpMeta.$listeners$);
 
       // fire off connectedCallback() on component instance
       if (hostRef?.$lazyInstance$) {

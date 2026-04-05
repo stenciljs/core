@@ -6,7 +6,6 @@ import {
   BOOLEAN_CLI_FLAGS,
   BOOLEAN_STRING_CLI_FLAGS,
   BooleanStringCLIFlag,
-  ConfigFlags,
   NUMBER_CLI_FLAGS,
   STRING_ARRAY_CLI_FLAGS,
   STRING_CLI_FLAGS,
@@ -298,43 +297,6 @@ describe('parseFlags', () => {
         expect(flags.knownArgs).toEqual(['--config', '/my-config.js']);
       });
     });
-
-    describe('Jest aliases', () => {
-      it.each([
-        ['w', 'maxWorkers', '4'],
-        ['t', 'testNamePattern', 'testname'],
-      ])('should support the string Jest alias %p for %p', (alias, fullArgument, value) => {
-        const flags = parseFlags([`-${alias}`, value]);
-        expect(flags.knownArgs).toEqual([`--${fullArgument}`, value]);
-        expect(flags.unknownArgs).toHaveLength(0);
-      });
-
-      it.each([
-        ['w', 'maxWorkers', '4'],
-        ['t', 'testNamePattern', 'testname'],
-      ])(
-        'should support the string Jest alias %p for %p in an AliasEqualsArg',
-        (alias, fullArgument, value) => {
-          const flags = parseFlags([`-${alias}=${value}`]);
-          expect(flags.knownArgs).toEqual([`--${fullArgument}`, value]);
-          expect(flags.unknownArgs).toHaveLength(0);
-        },
-      );
-
-      it.each<[string, keyof ConfigFlags]>([
-        ['b', 'bail'],
-        ['e', 'expand'],
-        ['o', 'onlyChanged'],
-        ['f', 'onlyFailures'],
-        ['i', 'runInBand'],
-        ['u', 'updateSnapshot'],
-      ])('should support the boolean Jest alias %p for %p', (alias, fullArgument) => {
-        const flags = parseFlags([`-${alias}`]);
-        expect(flags.knownArgs).toEqual([`--${fullArgument}`]);
-        expect(flags[fullArgument]).toBe(true);
-        expect(flags.unknownArgs).toHaveLength(0);
-      });
-    });
   });
 
   it('should parse many', () => {
@@ -361,7 +323,7 @@ describe('parseFlags', () => {
   });
 
   describe.each(STRING_ARRAY_CLI_FLAGS)(
-    'should parse string flag %s',
+    'should parse string array flag %s',
     (cliArg: StringArrayCLIFlag) => {
       it(`should parse single value: "--${cliArg} test-value"`, () => {
         const flags = parseFlags([`--${cliArg}`, 'test-value']);
@@ -452,17 +414,9 @@ describe('parseFlags', () => {
   describe('error reporting', () => {
     it('should throw if you pass no argument to a string flag', () => {
       expect(() => {
-        parseFlags(['--cacheDirectory', '--someOtherFlag']);
+        parseFlags(['--config', '--someOtherFlag']);
       }).toThrow(
-        'when parsing CLI flag "--cacheDirectory": expected a string argument but received nothing',
-      );
-    });
-
-    it('should throw if you pass no argument to a string array flag', () => {
-      expect(() => {
-        parseFlags(['--reporters', '--someOtherFlag']);
-      }).toThrow(
-        'when parsing CLI flag "--reporters": expected a string argument but received nothing',
+        'when parsing CLI flag "--config": expected a string argument but received nothing',
       );
     });
 
