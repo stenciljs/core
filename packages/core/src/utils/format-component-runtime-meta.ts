@@ -30,6 +30,9 @@ export const formatComponentRuntimeMeta = (
     if (compilerMeta.slotAssignment === 'manual') {
       flags |= CMP_FLAGS.shadowSlotAssignmentManual;
     }
+    if (compilerMeta.shadowMode === 'closed') {
+      flags |= CMP_FLAGS.shadowModeClosed;
+    }
   } else if (compilerMeta.encapsulation === 'scoped') {
     flags |= CMP_FLAGS.scopedCssEncapsulation;
   }
@@ -47,6 +50,22 @@ export const formatComponentRuntimeMeta = (
   }
   if (compilerMeta.hasModernPropertyDecls) {
     flags |= CMP_FLAGS.hasModernPropertyDecls;
+  }
+
+  // Per-component patches for slot handling (non-shadow DOM only)
+  if (compilerMeta.patches) {
+    if (compilerMeta.patches.all) {
+      flags |= CMP_FLAGS.patchAll;
+    }
+    if (compilerMeta.patches.children) {
+      flags |= CMP_FLAGS.patchChildren;
+    }
+    if (compilerMeta.patches.clone) {
+      flags |= CMP_FLAGS.patchClone;
+    }
+    if (compilerMeta.patches.insert) {
+      flags |= CMP_FLAGS.patchInsert;
+    }
   }
 
   const members = formatComponentRuntimeMembers(compilerMeta, includeMethods);

@@ -4,7 +4,7 @@ import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate, shadow child', () => {
   it('no slot', async () => {
-    @Component({ tag: 'cmp-a', shadow: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
         return (
@@ -60,7 +60,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -120,7 +120,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -179,7 +179,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -239,7 +239,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -302,7 +302,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -367,7 +367,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -433,7 +433,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-b', shadow: true })
+    @Component({ tag: 'cmp-b', encapsulation: { type: 'shadow' } })
     class CmpB {
       render() {
         return (
@@ -445,7 +445,7 @@ describe('hydrate, shadow child', () => {
         );
       }
     }
-    @Component({ tag: 'cmp-c', shadow: true })
+    @Component({ tag: 'cmp-c', encapsulation: { type: 'shadow' } })
     class CmpC {
       render() {
         return (
@@ -527,7 +527,7 @@ describe('hydrate, shadow child', () => {
   it('preserves all nodes', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {

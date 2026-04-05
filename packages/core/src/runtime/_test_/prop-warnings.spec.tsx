@@ -4,7 +4,7 @@ import { expect, describe, it, vi, afterEach, afterAll } from '@stencil/vitest';
 
 @Component({
   tag: 'shared-cmp',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 class SharedCmp {
   @Prop() a = 'Boom!';

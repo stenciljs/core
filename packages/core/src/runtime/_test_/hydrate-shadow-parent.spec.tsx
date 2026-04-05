@@ -6,7 +6,7 @@ describe('hydrate, shadow parent', () => {
   it('slot depth 1, text w/out vdom', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -63,7 +63,7 @@ describe('hydrate, shadow parent', () => {
   it('slot, text w/out vdom', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -122,7 +122,7 @@ describe('hydrate, shadow parent', () => {
   it('no slot, child shadow text', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -166,7 +166,7 @@ describe('hydrate, shadow parent', () => {
   it('named slot and slot depth 1', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -220,7 +220,7 @@ describe('hydrate, shadow parent', () => {
   });
 
   it('nested cmp-b, parent text light-dom slot', async () => {
-    @Component({ tag: 'cmp-a', shadow: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
         return (
@@ -283,7 +283,7 @@ describe('hydrate, shadow parent', () => {
   });
 
   it('nested text, complicated slots', async () => {
-    @Component({ tag: 'cmp-a', shadow: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
         return (
@@ -360,7 +360,7 @@ describe('hydrate, shadow parent', () => {
   });
 
   it('root level component, nested shadow slot', async () => {
-    @Component({ tag: 'ion-tab-button', shadow: true })
+    @Component({ tag: 'ion-tab-button', encapsulation: { type: 'shadow' } })
     class TabButton {
       render() {
         return (
@@ -373,7 +373,7 @@ describe('hydrate, shadow parent', () => {
         );
       }
     }
-    @Component({ tag: 'ion-badge', shadow: true })
+    @Component({ tag: 'ion-badge', encapsulation: { type: 'shadow' } })
     class Badge {
       render() {
         return (
@@ -383,7 +383,7 @@ describe('hydrate, shadow parent', () => {
         );
       }
     }
-    @Component({ tag: 'ion-ripple-effect', shadow: true })
+    @Component({ tag: 'ion-ripple-effect', encapsulation: { type: 'shadow' } })
     class RippleEffect {
       render() {
         return <Host></Host>;
@@ -448,7 +448,7 @@ describe('hydrate, shadow parent', () => {
   });
 
   it('nested cmp-b, parent slot', async () => {
-    @Component({ tag: 'cmp-a', shadow: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
         return <slot></slot>;

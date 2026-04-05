@@ -15,7 +15,7 @@ describe('hydrate, shadow', () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpB {
       render() {
@@ -71,7 +71,7 @@ describe('hydrate, shadow', () => {
   it('light dom content, shadow slot', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {

@@ -27,7 +27,9 @@ import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
 import {
   parseStaticEncapsulation,
+  parseStaticPatches,
   parseStaticShadowDelegatesFocus,
+  parseStaticShadowMode,
   parseStaticSlotAssignment,
 } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
@@ -116,7 +118,9 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
+    shadowMode: parseStaticShadowMode(encapsulation, staticMembers),
     slotAssignment: parseStaticSlotAssignment(encapsulation, staticMembers),
+    patches: parseStaticPatches(encapsulation, staticMembers),
     properties,
     virtualProperties: parseVirtualProps(docs),
     states,

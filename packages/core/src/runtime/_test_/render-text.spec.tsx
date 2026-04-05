@@ -25,7 +25,7 @@ describe('render-text', () => {
     `);
   });
 
-  @Component({ tag: 'cmp-a', shadow: true })
+  @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
   class CmpAShadow {
     render() {
       return 'Hello World';

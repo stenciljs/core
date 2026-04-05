@@ -649,10 +649,21 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   serializers: ComponentCompilerChangeHandler[];
   shadowDelegatesFocus: boolean;
   /**
+   * Shadow DOM mode. 'open' (default) or 'closed'.
+   * Only applicable when encapsulation is 'shadow'.
+   */
+  shadowMode: 'open' | 'closed' | null;
+  /**
    * Slot assignment mode for shadow DOM. 'manual', enables imperative slotting
    * using HTMLSlotElement.assign(). Only applicable when encapsulation is 'shadow'.
    */
   slotAssignment: 'manual' | null;
+  /**
+   * Per-component slot patches for non-shadow DOM components.
+   * These patches enable proper slot behavior without native Shadow DOM.
+   * Only applicable when encapsulation is 'none' or 'scoped'.
+   */
+  patches: ComponentPatches | null;
   sourceFilePath: string;
   sourceMapPath: string;
   states: ComponentCompilerState[];
@@ -670,6 +681,21 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
  * 3. 'none' - a basic HTML element
  */
 export type Encapsulation = 'shadow' | 'scoped' | 'none';
+
+/**
+ * Per-component slot patches for non-shadow DOM components.
+ * These enable proper slot behavior when not using native Shadow DOM.
+ */
+export interface ComponentPatches {
+  /** Apply all slot patches (equivalent to experimentalSlotFixes) */
+  all?: boolean;
+  /** Patch child node accessors (children, firstChild, lastChild, etc.) */
+  children?: boolean;
+  /** Patch cloneNode() to handle slotted content */
+  clone?: boolean;
+  /** Patch appendChild(), insertBefore(), etc. for slot relocation */
+  insert?: boolean;
+}
 
 /**
  * Intermediate Representation (IR) of a static property on a Stencil component

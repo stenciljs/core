@@ -64,3 +64,65 @@ export const parseStaticSlotAssignment = (
   }
   return null;
 };
+
+/**
+ * Find and return the shadow DOM mode for a component.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns 'open' (default), 'closed' if explicitly set, or null if not shadow encapsulation
+ */
+export const parseStaticShadowMode = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): 'open' | 'closed' | null => {
+  if (encapsulation === 'shadow') {
+    const shadowMode: string = getStaticValue(staticMembers, 'shadowMode');
+    return shadowMode === 'closed' ? 'closed' : 'open';
+  }
+  return null;
+};
+
+/**
+ * Find and return the per-component patches for slot handling.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns ComponentPatches object or null if no patches defined
+ */
+export const parseStaticPatches = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): d.ComponentPatches | null => {
+  // Patches only apply to non-shadow encapsulation
+  if (encapsulation === 'shadow') {
+    return null;
+  }
+
+  const patches: string[] = getStaticValue(staticMembers, 'patches');
+  if (!Array.isArray(patches) || patches.length === 0) {
+    return null;
+  }
+
+  const result: d.ComponentPatches = {};
+
+  for (const patch of patches) {
+    switch (patch) {
+      case 'all':
+        result.all = true;
+        break;
+      case 'children':
+        result.children = true;
+        break;
+      case 'clone':
+        result.clone = true;
+        break;
+      case 'insert':
+        result.insert = true;
+        break;
+    }
+  }
+
+  // Return null if no valid patches were found
+  return Object.keys(result).length > 0 ? result : null;
+};

@@ -16,7 +16,9 @@ let globalStyleSheet: CSSStyleSheet | null | undefined;
 const GLOBAL_STYLE_ID = 'sc-global';
 
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
-  const opts: ShadowRootInit = { mode: 'open' };
+  // Determine shadow root mode - 'closed' if flag is set, otherwise 'open' (default)
+  const isClosed = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
+  const opts: ShadowRootInit = { mode: isClosed ? 'closed' : 'open' };
 
   if (BUILD.shadowDelegatesFocus) {
     opts.delegatesFocus = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus);
@@ -30,6 +32,12 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
   }
 
   const shadowRoot = this.attachShadow(opts);
+
+  // For closed shadow roots, store the reference so Stencil can still access it internally.
+  // Note: element.shadowRoot will return null for closed shadow roots.
+  if (isClosed) {
+    (this as any).__shadowRoot = shadowRoot;
+  }
 
   // Initialize if undefined, set to CSSStyleSheet or null
   if (globalStyleSheet === undefined)

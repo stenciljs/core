@@ -8,6 +8,7 @@ export type TaskCommand =
   | 'g'
   | 'help'
   | 'info'
+  | 'migrate'
   | 'prerender'
   | 'serve'
   | 'telemetry'

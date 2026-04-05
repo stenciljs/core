@@ -64,9 +64,10 @@ export const attachInternalsDecoratorsToStatic = (
 
   const { staticName: name } = tsPropDeclName(decoratedProp, typeChecker);
 
-  // Parse decorator options for custom states, extracting JSDoc comments from AST
+  // Parse decorator options for custom states and formAssociated setting
   const decorator = retrieveTsDecorators(decoratedProp)?.find(isDecoratorNamed(decoratorName));
   const customStates = parseCustomStatesFromDecorator(decorator, typeChecker);
+  const formAssociated = parseFormAssociatedFromDecorator(decorator);
 
   newMembers.push(createStaticGetter('attachInternalsMemberName', convertValueToLiteral(name)));
 
@@ -76,7 +77,54 @@ export const attachInternalsDecoratorsToStatic = (
       createStaticGetter('attachInternalsCustomStates', convertValueToLiteral(customStates)),
     );
   }
+
+  // Add formAssociated static getter - defaults to true unless explicitly set to false
+  // This makes the component form-associated when using @AttachInternals
+  if (formAssociated) {
+    newMembers.push(createStaticGetter('formAssociated', convertValueToLiteral(true)));
+  }
 };
+
+/**
+ * Parse the formAssociated option from the decorator.
+ * Returns true (form-associated) unless explicitly set to false.
+ *
+ * @param decorator the decorator node to parse
+ * @returns whether the component should be form-associated
+ */
+function parseFormAssociatedFromDecorator(decorator: ts.Decorator | undefined): boolean {
+  if (!decorator || !ts.isCallExpression(decorator.expression)) {
+    // No options provided, default to true
+    return true;
+  }
+
+  const [firstArg] = decorator.expression.arguments;
+  if (!firstArg || !ts.isObjectLiteralExpression(firstArg)) {
+    // Empty call or non-object argument, default to true
+    return true;
+  }
+
+  // Find the 'formAssociated' property in the options object
+  const formAssociatedProp = firstArg.properties.find(
+    (prop): prop is ts.PropertyAssignment =>
+      ts.isPropertyAssignment(prop) &&
+      ts.isIdentifier(prop.name) &&
+      prop.name.text === 'formAssociated',
+  );
+
+  if (!formAssociatedProp) {
+    // Not specified, default to true
+    return true;
+  }
+
+  // Check if explicitly set to false
+  if (formAssociatedProp.initializer.kind === ts.SyntaxKind.FalseKeyword) {
+    return false;
+  }
+
+  // Any other value (true, or truthy expression) means form-associated
+  return true;
+}
 
 /**
  * Parse custom states from the decorator AST, including JSDoc comments.

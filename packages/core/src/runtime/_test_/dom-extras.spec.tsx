@@ -14,7 +14,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   beforeEach(async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {

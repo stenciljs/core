@@ -8,7 +8,7 @@ describe('vdom-annotations', () => {
   let root: HTMLElement;
 
   beforeEach(async () => {
-    @Component({ tag: 'component-a-test', scoped: true })
+    @Component({ tag: 'component-a-test', encapsulation: { type: 'scoped' } })
     class ComponentA {
       render() {
         return (
@@ -19,7 +19,7 @@ describe('vdom-annotations', () => {
       }
     }
 
-    @Component({ tag: 'component-b-test', scoped: true })
+    @Component({ tag: 'component-b-test', encapsulation: { type: 'scoped' } })
     class ComponentB {
       render() {
         return (

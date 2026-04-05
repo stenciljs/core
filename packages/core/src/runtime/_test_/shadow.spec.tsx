@@ -5,7 +5,7 @@ import { expect, describe, it } from '@stencil/vitest';
 @Component({
   tag: 'cmp-a',
   styles: ':host { color: black }',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 class CmpA {
   render() {
@@ -138,7 +138,7 @@ describe('shadow', () => {
   it('test shadow root innerHTML', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {

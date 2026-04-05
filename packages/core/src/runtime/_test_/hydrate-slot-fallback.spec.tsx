@@ -6,7 +6,7 @@ describe('hydrate, slot fallback', () => {
   it('shows slot fallback content in a `scoped: true` parent', async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -66,7 +66,7 @@ describe('hydrate, slot fallback', () => {
   it('shows slot fallback content in a `shadow: true` component`', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -127,7 +127,7 @@ describe('hydrate, slot fallback', () => {
   it('shows slot fallback text in a nested `scoped: true` component (hides the fallback in the `scoped: true` parent component)', async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -142,7 +142,7 @@ describe('hydrate, slot fallback', () => {
 
     @Component({
       tag: 'cmp-b',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpB {
       render() {
@@ -225,7 +225,7 @@ describe('hydrate, slot fallback', () => {
   it('renders slot fallback text in a nested `shadow: true` component (`shadow: true` parent component)', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -240,7 +240,7 @@ describe('hydrate, slot fallback', () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpB {
       render() {
@@ -325,7 +325,7 @@ describe('hydrate, slot fallback', () => {
   it('does not show slot fallback text when a `scoped: true` component forwards the slot to nested `shadow: true`', async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -341,7 +341,7 @@ describe('hydrate, slot fallback', () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpB {
       render() {
@@ -437,7 +437,7 @@ describe('hydrate, slot fallback', () => {
   it('does not hide slot fallback text when a `scoped: true` component forwards the slot to nested `shadow: true`', async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -453,7 +453,7 @@ describe('hydrate, slot fallback', () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpB {
       render() {
