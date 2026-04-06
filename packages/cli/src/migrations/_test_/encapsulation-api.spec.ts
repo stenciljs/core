@@ -146,6 +146,53 @@ export class MyComponent {}`;
       expect(matches).toHaveLength(1);
       expect(matches[0].line).toBe(4); // shadow: true is on line 4
     });
+
+    it('should detect shadow: true with aliased Component import', () => {
+      const code = `
+        import { Component as Cmp } from '@stencil/core';
+        @Cmp({
+          tag: 'my-component',
+          shadow: true
+        })
+        export class MyComponent {}
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = encapsulationApiRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(1);
+      expect(matches[0].message).toContain("'shadow'");
+    });
+
+    it('should detect scoped: true with aliased Component import', () => {
+      const code = `
+        import { Component as StencilComponent, h } from '@stencil/core';
+        @StencilComponent({
+          tag: 'my-component',
+          scoped: true
+        })
+        export class MyComponent {}
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = encapsulationApiRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(1);
+      expect(matches[0].message).toContain("'scoped'");
+    });
+
+    it('should not detect non-Stencil decorators with same name as alias', () => {
+      const code = `
+        import { Component as Cmp } from '@stencil/core';
+        import { SomeDecorator } from 'other-library';
+        @SomeDecorator({
+          shadow: true
+        })
+        export class MyComponent {}
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = encapsulationApiRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(0);
+    });
   });
 
   describe('transform', () => {

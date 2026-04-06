@@ -532,6 +532,19 @@ export declare function setNonce(nonce: string): void;
 export declare function getElement(ref: any): HTMLStencilElement;
 
 /**
+ * Get the shadow root for a Stencil component's host element.
+ * This works for both open and closed shadow DOM modes.
+ *
+ * For closed shadow DOM, `element.shadowRoot` returns `null` by design,
+ * but Stencil stores the reference internally so components can still
+ * access their own shadow root.
+ *
+ * @param element The host element (from @Element() decorator)
+ * @returns The shadow root, or null if no shadow root exists
+ */
+export declare function getShadowRoot(element: HTMLElement): ShadowRoot | null;
+
+/**
  * Schedules a new render of the given instance or element even if no state changed.
  *
  * Notice `forceUpdate()` is not synchronous and might perform the DOM render in the next frame.

@@ -191,4 +191,62 @@ test.describe('renderToString API', () => {
     const scopedRenderTime = performance.now() - startScoped;
     expect(scopedRenderTime).toBeLessThan(500);
   });
+
+  test.describe('closed shadow DOM', () => {
+    test('can render a component with closed shadow DOM', async () => {
+      const { html } = await renderToString('<shadow-closed></shadow-closed>', {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        prettyHtml: true,
+        clientHydrateAnnotations: false,
+      });
+      expect(html).toMatchSnapshot();
+      expect(html).toContain('Closed Shadow DOM Content');
+    });
+
+    test('closed shadow DOM includes styles in serialized output', async () => {
+      const { html } = await renderToString('<shadow-closed></shadow-closed>', {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        clientHydrateAnnotations: false,
+      });
+      expect(html).toContain('border: 3px solid purple');
+      expect(html).toContain('background: rgb(128, 0, 128)');
+    });
+
+    test('closed shadow DOM renders slot content correctly', async () => {
+      const { html } = await renderToString(
+        '<shadow-closed><span>Custom slotted content</span></shadow-closed>',
+        {
+          serializeShadowRoot: true,
+          fullDocument: false,
+          prettyHtml: true,
+          clientHydrateAnnotations: false,
+        },
+      );
+      expect(html).toMatchSnapshot();
+      expect(html).toContain('Custom slotted content');
+    });
+
+    test('closed shadow DOM renders fallback slot content when no slot provided', async () => {
+      const { html } = await renderToString('<shadow-closed></shadow-closed>', {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        clientHydrateAnnotations: false,
+      });
+      expect(html).toContain('Fallback slot content');
+    });
+
+    test('closed shadow DOM works with stream rendering', async () => {
+      const result = await readableToString(
+        streamToString('<shadow-closed></shadow-closed>', {
+          serializeShadowRoot: true,
+          fullDocument: false,
+          clientHydrateAnnotations: false,
+        }),
+      );
+      expect(result).toContain('Closed Shadow DOM Content');
+      expect(result).toContain('border: 3px solid purple');
+    });
+  });
 });

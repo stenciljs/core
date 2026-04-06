@@ -85,6 +85,7 @@ export interface BuildFeatures {
   // dom
   shadowDom: boolean;
   shadowDelegatesFocus: boolean;
+  shadowModeClosed: boolean;
   shadowSlotAssignmentManual: boolean;
   scoped: boolean;
 

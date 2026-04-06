@@ -14,7 +14,6 @@ import {
 
 @Cmp({
   tag: 'import-aliasing',
-  formAssociated: true,
 })
 export class FormAssociatedCmp {
   @Input() user!: string;

@@ -1,6 +1,11 @@
 import ts from 'typescript';
 
-import type { MigrationMatch, MigrationRule } from '../index';
+import {
+  getStencilCoreImportMap,
+  isStencilDecorator,
+  type MigrationMatch,
+  type MigrationRule,
+} from '../index';
 
 interface FormAssociatedMatch extends MigrationMatch {
   classBodyStart: number;
@@ -25,8 +30,9 @@ export const formAssociatedRule: MigrationRule = {
 
   detect(sourceFile: ts.SourceFile): MigrationMatch[] {
     const matches: FormAssociatedMatch[] = [];
+    const importMap = getStencilCoreImportMap(sourceFile);
 
-    // First, find the @stencil/core import to check if AttachInternals is imported
+    // Check if AttachInternals is already imported (handles aliases)
     let hasAttachInternalsImport = false;
     let stencilImportEnd = 0;
 
@@ -37,13 +43,11 @@ export const formAssociatedRule: MigrationRule = {
         statement.moduleSpecifier.text === '@stencil/core'
       ) {
         stencilImportEnd = statement.getEnd();
-        const namedBindings = statement.importClause?.namedBindings;
-        if (namedBindings && ts.isNamedImports(namedBindings)) {
-          for (const element of namedBindings.elements) {
-            if (element.name.text === 'AttachInternals') {
-              hasAttachInternalsImport = true;
-              break;
-            }
+        // Check if any import resolves to AttachInternals
+        for (const [, originalName] of importMap) {
+          if (originalName === 'AttachInternals') {
+            hasAttachInternalsImport = true;
+            break;
           }
         }
         break;
@@ -51,7 +55,7 @@ export const formAssociatedRule: MigrationRule = {
     }
 
     const visit = (node: ts.Node) => {
-      // Look for class declarations with @Component decorator
+      // Look for class declarations with @Component decorator (handles aliased imports)
       if (ts.isClassDeclaration(node)) {
         const decorators = ts.getDecorators(node);
         if (!decorators) {
@@ -59,7 +63,7 @@ export const formAssociatedRule: MigrationRule = {
           return;
         }
 
-        // Find @Component decorator
+        // Find @Component decorator (handles aliased imports like `Component as Cmp`)
         let componentDecorator: ts.Decorator | undefined;
         let formAssociatedProp: ts.PropertyAssignment | undefined;
 
@@ -67,7 +71,7 @@ export const formAssociatedRule: MigrationRule = {
           if (
             ts.isCallExpression(decorator.expression) &&
             ts.isIdentifier(decorator.expression.expression) &&
-            decorator.expression.expression.text === 'Component'
+            isStencilDecorator(decorator.expression.expression.text, 'Component', importMap)
           ) {
             componentDecorator = decorator;
             const [arg] = decorator.expression.arguments;
@@ -88,7 +92,7 @@ export const formAssociatedRule: MigrationRule = {
         }
 
         if (componentDecorator && formAssociatedProp) {
-          // Check if class already has @AttachInternals
+          // Check if class already has @AttachInternals (handles aliased imports)
           let hasAttachInternals = false;
           for (const member of node.members) {
             if (ts.isPropertyDeclaration(member) || ts.isMethodDeclaration(member)) {
@@ -98,7 +102,7 @@ export const formAssociatedRule: MigrationRule = {
                   if (
                     ts.isCallExpression(d.expression) &&
                     ts.isIdentifier(d.expression.expression) &&
-                    d.expression.expression.text === 'AttachInternals'
+                    isStencilDecorator(d.expression.expression.text, 'AttachInternals', importMap)
                   ) {
                     hasAttachInternals = true;
                     break;

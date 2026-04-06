@@ -1,6 +1,11 @@
 import ts from 'typescript';
 
-import type { MigrationMatch, MigrationRule } from '../index';
+import {
+  getStencilCoreImportMap,
+  isStencilDecorator,
+  type MigrationMatch,
+  type MigrationRule,
+} from '../index';
 
 /**
  * Migration rule for the @Component encapsulation API change.
@@ -19,12 +24,16 @@ export const encapsulationApiRule: MigrationRule = {
 
   detect(sourceFile: ts.SourceFile): MigrationMatch[] {
     const matches: MigrationMatch[] = [];
+    const importMap = getStencilCoreImportMap(sourceFile);
 
     const visit = (node: ts.Node) => {
-      // Look for @Component decorator
+      // Look for @Component decorator (handles aliased imports like `Component as Cmp`)
       if (ts.isDecorator(node) && ts.isCallExpression(node.expression)) {
         const decoratorName = node.expression.expression;
-        if (ts.isIdentifier(decoratorName) && decoratorName.text === 'Component') {
+        if (
+          ts.isIdentifier(decoratorName) &&
+          isStencilDecorator(decoratorName.text, 'Component', importMap)
+        ) {
           const [arg] = node.expression.arguments;
           if (arg && ts.isObjectLiteralExpression(arg)) {
             // Check for deprecated properties

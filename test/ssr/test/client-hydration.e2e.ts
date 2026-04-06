@@ -260,4 +260,60 @@ test.describe('client hydration', () => {
 </nested-cmp-parent>`);
     });
   });
+
+  test.describe('closed shadow DOM hydration', () => {
+    test('can hydrate a component with closed shadow DOM', async ({ page }) => {
+      const { html } = await renderToString('<shadow-closed></shadow-closed>', {
+        serializeShadowRoot: true,
+        fullDocument: false,
+      });
+
+      expect(html || '').toContain('Closed Shadow DOM Content');
+      await page.setContent(html || '');
+
+      // After hydration, shadowRoot should still be null (closed mode)
+      const shadowRootIsNull = await page.evaluate(() => {
+        const el = document.querySelector('shadow-closed');
+        return el?.shadowRoot === null;
+      });
+      expect(shadowRootIsNull).toBe(true);
+    });
+
+    test('closed shadow DOM component renders content after hydration', async ({ page }) => {
+      const { html } = await renderToString('<shadow-closed></shadow-closed>', {
+        serializeShadowRoot: true,
+        fullDocument: false,
+      });
+
+      await page.setContent(html || '');
+
+      // The component should still be visible and styled even though shadowRoot is closed
+      const isVisible = await page.evaluate(() => {
+        const el = document.querySelector('shadow-closed');
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
+      expect(isVisible).toBe(true);
+    });
+
+    test('closed shadow DOM preserves slotted content after hydration', async ({ page }) => {
+      const { html } = await renderToString(
+        '<shadow-closed><span id="slotted">Slotted Text</span></shadow-closed>',
+        {
+          serializeShadowRoot: true,
+          fullDocument: false,
+        },
+      );
+
+      await page.setContent(html || '');
+
+      // Slotted content should be accessible in light DOM
+      const slottedText = await page.evaluate(() => {
+        const el = document.querySelector('shadow-closed #slotted');
+        return el?.textContent;
+      });
+      expect(slottedText).toBe('Slotted Text');
+    });
+  });
 });

@@ -4,6 +4,56 @@ import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
 
 /**
+ * Build a map of local import names to their original names from @stencil/core.
+ * Handles aliased imports like `import { Component as Cmp } from '@stencil/core'`.
+ *
+ * @param sourceFile The TypeScript source file to analyze
+ * @returns Map where keys are local names and values are original imported names
+ */
+export const getStencilCoreImportMap = (sourceFile: ts.SourceFile): Map<string, string> => {
+  const importMap = new Map<string, string>();
+
+  for (const statement of sourceFile.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === '@stencil/core'
+    ) {
+      const namedBindings = statement.importClause?.namedBindings;
+      if (namedBindings && ts.isNamedImports(namedBindings)) {
+        for (const element of namedBindings.elements) {
+          // element.name is the local name (what's used in code)
+          // element.propertyName is the original name (if aliased), otherwise undefined
+          const localName = element.name.text;
+          const originalName = element.propertyName?.text ?? element.name.text;
+          importMap.set(localName, originalName);
+        }
+      }
+      break; // Only process first @stencil/core import
+    }
+  }
+
+  return importMap;
+};
+
+/**
+ * Check if a decorator identifier refers to a specific @stencil/core export.
+ * Handles aliased imports like `import { Component as Cmp } from '@stencil/core'`.
+ *
+ * @param decoratorName The identifier used in the decorator
+ * @param expectedOriginalName The original export name (e.g., 'Component')
+ * @param importMap The import map from getStencilCoreImportMap
+ * @returns True if the decorator refers to the expected export
+ */
+export const isStencilDecorator = (
+  decoratorName: string,
+  expectedOriginalName: string,
+  importMap: Map<string, string>,
+): boolean => {
+  return importMap.get(decoratorName) === expectedOriginalName;
+};
+
+/**
  * Represents a match found by a migration rule during detection.
  */
 export interface MigrationMatch {

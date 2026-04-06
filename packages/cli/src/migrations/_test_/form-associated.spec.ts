@@ -120,6 +120,55 @@ export class MyComponent {}`;
 
       expect(matches).toHaveLength(2);
     });
+
+    it('should detect formAssociated with aliased Component import', () => {
+      const code = `
+        import { Component as Cmp, h } from '@stencil/core';
+        @Cmp({
+          tag: 'my-component',
+          formAssociated: true
+        })
+        export class MyComponent {}
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = formAssociatedRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(1);
+      expect(matches[0].message).toContain('formAssociated');
+    });
+
+    it('should detect existing @AttachInternals with aliased import', () => {
+      const code = `
+        import { Component as Cmp, AttachInternals as ElInternals } from '@stencil/core';
+        @Cmp({
+          tag: 'my-component',
+          formAssociated: true
+        })
+        export class MyComponent {
+          @ElInternals() internals: ElementInternals;
+        }
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = formAssociatedRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(1);
+      expect(matches[0].message).toContain('already has @AttachInternals');
+    });
+
+    it('should not detect non-Stencil decorators with same name as alias', () => {
+      const code = `
+        import { Component as Cmp } from '@stencil/core';
+        import { SomeDecorator } from 'other-library';
+        @SomeDecorator({
+          formAssociated: true
+        })
+        export class MyComponent {}
+      `;
+      const sourceFile = createSourceFile(code);
+      const matches = formAssociatedRule.detect(sourceFile);
+
+      expect(matches).toHaveLength(0);
+    });
   });
 
   describe('transform', () => {

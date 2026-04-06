@@ -18,8 +18,10 @@ import { disconnectedCallback } from './disconnected-callback';
 import {
   patchChildSlotNodes,
   patchCloneNode,
+  patchInsertBefore,
   patchPseudoShadowDom,
   patchSlotAppendChild,
+  patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
 import { computeMode } from './mode';
@@ -85,6 +87,8 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         }
         if (BUILD.appendChildSlotFix || cmpMeta.$flags$ & CMP_FLAGS.patchInsert) {
           patchSlotAppendChild(Cstr.prototype);
+          patchInsertBefore(Cstr.prototype);
+          patchSlotRemoveChild(Cstr.prototype);
         }
         if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
           patchTextContent(Cstr.prototype);

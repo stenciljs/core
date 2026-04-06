@@ -44,6 +44,7 @@ export {
   getElement,
   getMode,
   getRenderingRef,
+  getShadowRoot,
   h,
   Host,
   Listen,

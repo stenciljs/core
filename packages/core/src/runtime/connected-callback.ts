@@ -11,6 +11,7 @@ import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
 import { initializeClientHydrate } from './client-hydrate';
+import { getShadowRoot } from './element';
 import { fireConnectedCallback, initializeComponent } from './initialize-component';
 import { createTime } from './profile';
 import { HYDRATE_ID, NODE_TYPE, PLATFORM_FLAGS } from './runtime-constants';
@@ -41,9 +42,11 @@ export const connectedCallback = (elm: d.HostElement) => {
             supportsShadow &&
             cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation
           ) {
+            // Use getShadowRoot to handle both open and closed shadow roots
+            const shadowRoot = getShadowRoot(elm);
             const scopeId = BUILD.mode
-              ? addStyle(elm.shadowRoot, cmpMeta, elm.getAttribute('s-mode'))
-              : addStyle(elm.shadowRoot, cmpMeta);
+              ? addStyle(shadowRoot, cmpMeta, elm.getAttribute('s-mode'))
+              : addStyle(shadowRoot, cmpMeta);
             elm.classList.remove(scopeId + '-h', scopeId + '-s');
           } else if (BUILD.scoped && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
             // set the scope id on the element now. Useful when hydrating,

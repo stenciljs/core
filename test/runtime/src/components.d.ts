@@ -982,6 +982,20 @@ export namespace Components {
     }
     interface ShadowDomBasicRoot {
     }
+    /**
+     * Component using closed shadow DOM mode.
+     * With mode: 'closed', the shadowRoot is not accessible from outside the component.
+     */
+    interface ShadowDomClosed {
+        /**
+          * Method to check if styles are applied correctly. Returns the computed background color of the internal div.
+         */
+        "getInternalBackgroundColor": () => Promise<string>;
+        /**
+          * Method to verify internal shadow DOM access works. Returns the text content of the internal div.
+         */
+        "getInternalText": () => Promise<string>;
+    }
     interface ShadowDomMode {
         /**
           * The mode determines which platform styles to use.
@@ -2609,6 +2623,16 @@ declare global {
         prototype: HTMLShadowDomBasicRootElement;
         new (): HTMLShadowDomBasicRootElement;
     };
+    /**
+     * Component using closed shadow DOM mode.
+     * With mode: 'closed', the shadowRoot is not accessible from outside the component.
+     */
+    interface HTMLShadowDomClosedElement extends Components.ShadowDomClosed, HTMLStencilElement {
+    }
+    var HTMLShadowDomClosedElement: {
+        prototype: HTMLShadowDomClosedElement;
+        new (): HTMLShadowDomClosedElement;
+    };
     interface HTMLShadowDomModeElement extends Components.ShadowDomMode, HTMLStencilElement {
     }
     var HTMLShadowDomModeElement: {
@@ -3196,6 +3220,7 @@ declare global {
         "shadow-dom-array-root": HTMLShadowDomArrayRootElement;
         "shadow-dom-basic": HTMLShadowDomBasicElement;
         "shadow-dom-basic-root": HTMLShadowDomBasicRootElement;
+        "shadow-dom-closed": HTMLShadowDomClosedElement;
         "shadow-dom-mode": HTMLShadowDomModeElement;
         "shadow-dom-slot-nested": HTMLShadowDomSlotNestedElement;
         "shadow-dom-slot-nested-root": HTMLShadowDomSlotNestedRootElement;
@@ -3467,6 +3492,18 @@ declare namespace LocalJSX {
     interface CustomEventRoot {
     }
     interface CustomStatesCmp {
+        /**
+          * If `true`, the user cannot interact with the element.
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
     }
     interface DelegatesFocus {
     }
@@ -4147,6 +4184,12 @@ declare namespace LocalJSX {
     }
     interface ShadowDomBasicRoot {
     }
+    /**
+     * Component using closed shadow DOM mode.
+     * With mode: 'closed', the shadowRoot is not accessible from outside the component.
+     */
+    interface ShadowDomClosed {
+    }
     interface ShadowDomMode {
         /**
           * The mode determines which platform styles to use.
@@ -4807,6 +4850,7 @@ declare namespace LocalJSX {
         "shadow-dom-array-root": ShadowDomArrayRoot;
         "shadow-dom-basic": ShadowDomBasic;
         "shadow-dom-basic-root": ShadowDomBasicRoot;
+        "shadow-dom-closed": ShadowDomClosed;
         "shadow-dom-mode": ShadowDomMode;
         "shadow-dom-slot-nested": Omit<ShadowDomSlotNested, keyof ShadowDomSlotNestedAttributes> & { [K in keyof ShadowDomSlotNested & keyof ShadowDomSlotNestedAttributes]?: ShadowDomSlotNested[K] } & { [K in keyof ShadowDomSlotNested & keyof ShadowDomSlotNestedAttributes as `attr:${K}`]?: ShadowDomSlotNestedAttributes[K] } & { [K in keyof ShadowDomSlotNested & keyof ShadowDomSlotNestedAttributes as `prop:${K}`]?: ShadowDomSlotNested[K] };
         "shadow-dom-slot-nested-root": ShadowDomSlotNestedRoot;
@@ -5156,6 +5200,11 @@ declare module "@stencil/core" {
             "shadow-dom-array-root": LocalJSX.IntrinsicElements["shadow-dom-array-root"] & JSXBase.HTMLAttributes<HTMLShadowDomArrayRootElement>;
             "shadow-dom-basic": LocalJSX.IntrinsicElements["shadow-dom-basic"] & JSXBase.HTMLAttributes<HTMLShadowDomBasicElement>;
             "shadow-dom-basic-root": LocalJSX.IntrinsicElements["shadow-dom-basic-root"] & JSXBase.HTMLAttributes<HTMLShadowDomBasicRootElement>;
+            /**
+             * Component using closed shadow DOM mode.
+             * With mode: 'closed', the shadowRoot is not accessible from outside the component.
+             */
+            "shadow-dom-closed": LocalJSX.IntrinsicElements["shadow-dom-closed"] & JSXBase.HTMLAttributes<HTMLShadowDomClosedElement>;
             "shadow-dom-mode": LocalJSX.IntrinsicElements["shadow-dom-mode"] & JSXBase.HTMLAttributes<HTMLShadowDomModeElement>;
             "shadow-dom-slot-nested": LocalJSX.IntrinsicElements["shadow-dom-slot-nested"] & JSXBase.HTMLAttributes<HTMLShadowDomSlotNestedElement>;
             "shadow-dom-slot-nested-root": LocalJSX.IntrinsicElements["shadow-dom-slot-nested-root"] & JSXBase.HTMLAttributes<HTMLShadowDomSlotNestedRootElement>;

@@ -128,7 +128,7 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
  *
  * @param ElementPrototype The Stencil component to be patched
  */
-const patchSlotRemoveChild = (ElementPrototype: any) => {
+export const patchSlotRemoveChild = (ElementPrototype: any) => {
   if (ElementPrototype.__removeChild) return;
   ElementPrototype.__removeChild = ElementPrototype.removeChild;
 
@@ -276,7 +276,7 @@ const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the custom element prototype to patch
  */
-const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
+export const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__insertBefore) return;
   const eleProto: d.RenderNode = HostElementPrototype;
   if (eleProto.__insertBefore) return;

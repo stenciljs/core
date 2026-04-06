@@ -7,12 +7,13 @@
  * Modified for Stencil's renderer and slot projection
  */
 import { BUILD } from 'virtual:app-data';
-import { consoleDevError, plt, supportsShadow, win } from 'virtual:platform';
+import { consoleDevError, getHostRef, plt, supportsShadow, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 import { patchParentNode } from '../dom-extras';
+import { getShadowRoot } from '../element';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
@@ -319,8 +320,12 @@ const addVnodes = (
   let containerElm = ((BUILD.slotRelocation && parentElm['s-cr'] && parentElm['s-cr'].parentNode) ||
     parentElm) as any;
   let childNode: Node;
-  if (BUILD.shadowDom && (containerElm as any).shadowRoot && containerElm.tagName === hostTagName) {
-    containerElm = (containerElm as any).shadowRoot;
+  if (BUILD.shadowDom && containerElm.tagName === hostTagName) {
+    // Use getShadowRoot to handle both open and closed shadow DOM
+    const shadow = getShadowRoot(containerElm);
+    if (shadow) {
+      containerElm = shadow;
+    }
   }
 
   // For template elements, children should be added to the content DocumentFragment
@@ -968,7 +973,6 @@ export const insertBefore = (
   reference?: d.RenderNode | d.PatchedSlotNode,
   isInitialLoad?: boolean,
 ): Node => {
-  //
   if (BUILD.slotRelocation) {
     if (
       BUILD.scoped &&
@@ -985,11 +989,16 @@ export const insertBefore = (
       );
     } else if (typeof newNode['s-sn'] === 'string') {
       // this is a slotted node.
+      const hostElm = newNode['s-hn'] && (parent as Element).closest?.(newNode['s-hn']);
+      const shouldPatchSlottedNodes =
+        BUILD.experimentalSlotFixes ||
+        !!(hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll);
+
       if (
-        BUILD.experimentalSlotFixes &&
+        shouldPatchSlottedNodes &&
+        // we don't need to patch this node if it's nested in a shadow root
         parent.getRootNode().nodeType !== NODE_TYPES.DOCUMENT_FRAGMENT_NODE
       ) {
-        // we don't need to patch this node if it's nested in a shadow root
         patchParentNode(newNode);
       }
       // potentially use the patched insertBefore method. This will correctly slot the new node
@@ -1157,7 +1166,7 @@ render() {
   rootVnode.$flags$ |= VNODE_FLAGS.isHost;
   hostRef.$vnode$ = rootVnode;
   rootVnode.$elm$ = oldVNode.$elm$ = (
-    BUILD.shadowDom ? hostElm.shadowRoot || hostElm : hostElm
+    BUILD.shadowDom ? getShadowRoot(hostElm) || hostElm : hostElm
   ) as any;
 
   if (BUILD.scoped || BUILD.shadowDom) {

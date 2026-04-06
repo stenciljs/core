@@ -8,7 +8,7 @@ export {
 export { bootstrapLazy } from './bootstrap-lazy';
 export { connectedCallback } from './connected-callback';
 export { disconnectedCallback } from './disconnected-callback';
-export { getElement } from './element';
+export { getElement, getShadowRoot } from './element';
 export { createEvent } from './event-emitter';
 export { Fragment } from './fragment';
 export { addHostEventListeners } from './host-listener';

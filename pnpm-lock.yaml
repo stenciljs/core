@@ -405,8 +405,6 @@ importers:
         specifier: ^14.2.4
         version: 14.2.5
 
-  test/integration/prerender/dist/hydrate: {}
-
   test/perf: {}
 
   test/perf/build-benchmark: {}
@@ -491,6 +489,25 @@ importers:
         specifier: 'catalog:'
         version: 0.3.1(@playwright/test@1.58.2)(@stencil/core@packages+core)
 
+  test/special-config/slot-patching:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+    devDependencies:
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.10.0(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
+      '@vitest/browser':
+        specifier: 'catalog:'
+        version: 4.1.2(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.1.2(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@types/node@24.10.13)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))
+
   test/ssr:
     devDependencies:
       '@playwright/test':
@@ -505,8 +522,6 @@ importers:
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
-
-  test/ssr/hydrate: {}
 
 packages:
 

@@ -99,7 +99,12 @@ export function hydrateApp(
             if (
               opts.serializeShadowRoot !== false &&
               !!(Cstr.cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
-              tagRequiresScoped(elm.tagName, opts.serializeShadowRoot)
+              (tagRequiresScoped(elm.tagName, opts.serializeShadowRoot) ||
+                // Closed shadow DOM must use scoped CSS during SSR because:
+                // 1. DSD with shadowrootmode="closed" creates a shadow root that JS can't access
+                // 2. Stencil's hydration needs to access the shadow root to verify/update content
+                // The client will then attach a proper closed shadow root during hydration
+                !!(Cstr.cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed))
             ) {
               // this component requires scoped css encapsulation during SSR
               const cmpMeta = Cstr.cmpMeta;

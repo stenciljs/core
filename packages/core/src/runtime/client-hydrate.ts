@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 
 import { CMP_FLAGS } from '../utils/constants';
 import { internalCall, patchSlottedNode } from './dom-extras';
+import { getShadowRoot } from './element';
 import { createTime } from './profile';
 import {
   COMMENT_NODE_ID,
@@ -40,7 +41,8 @@ export const initializeClientHydrate = (
   hostRef: d.HostRef,
 ) => {
   const endHydrate = createTime('hydrateClient', tagName);
-  const shadowRoot = hostElm.shadowRoot;
+  // Use getShadowRoot to handle both open and closed shadow roots
+  const shadowRoot = getShadowRoot(hostElm);
   // children placed by SSR within this component but don't necessarily belong to it.
   // We need to keep tabs on them so we can move them to the right place later
   const childRenderNodes: RenderNodeData[] = [];
@@ -243,7 +245,7 @@ export const initializeClientHydrate = (
           slottedItem.node.removeAttribute('slot');
         }
 
-        if (BUILD.experimentalSlotFixes) {
+        if (BUILD.experimentalSlotFixes || hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll) {
           // patch this node for accessors like `nextSibling` (et al)
           patchSlottedNode(slottedItem.node);
         }

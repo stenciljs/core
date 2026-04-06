@@ -18,6 +18,7 @@ export {
   forceUpdate,
   getAssetPath,
   getElement,
+  getShadowRoot,
   getMode,
   getRenderingRef,
   h,

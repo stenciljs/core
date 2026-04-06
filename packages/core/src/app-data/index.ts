@@ -41,6 +41,7 @@ export const BUILD: BuildConditionals = {
   reflect: true,
   scoped: true,
   shadowDom: true,
+  shadowModeClosed: false,
   slot: true,
   cssAnnotations: true,
   state: true,
