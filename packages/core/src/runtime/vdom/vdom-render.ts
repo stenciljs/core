@@ -992,7 +992,10 @@ export const insertBefore = (
       const hostElm = newNode['s-hn'] && (parent as Element).closest?.(newNode['s-hn']);
       const shouldPatchSlottedNodes =
         BUILD.experimentalSlotFixes ||
-        !!(hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll);
+        (BUILD.patchAll &&
+          !!(
+            hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll
+          ));
 
       if (
         shouldPatchSlottedNodes &&

@@ -200,17 +200,26 @@ export const bootstrapLazy = (
         cmpMeta.$flags$ & CMP_FLAGS.hasSlot
       ) {
         // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
-        if (BUILD.experimentalSlotFixes || cmpMeta.$flags$ & CMP_FLAGS.patchAll) {
+        if (
+          BUILD.experimentalSlotFixes ||
+          (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)
+        ) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
           // Apply individual patches based on global BUILD flags OR per-component flags
-          if (BUILD.slotChildNodesFix || cmpMeta.$flags$ & CMP_FLAGS.patchChildren) {
+          if (
+            BUILD.slotChildNodesFix ||
+            (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
+          ) {
             patchChildSlotNodes(HostElement.prototype);
           }
-          if (BUILD.cloneNodeFix || cmpMeta.$flags$ & CMP_FLAGS.patchClone) {
+          if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
             patchCloneNode(HostElement.prototype);
           }
-          if (BUILD.appendChildSlotFix || cmpMeta.$flags$ & CMP_FLAGS.patchInsert) {
+          if (
+            BUILD.appendChildSlotFix ||
+            (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
+          ) {
             patchSlotAppendChild(HostElement.prototype);
             patchInsertBefore(HostElement.prototype);
             patchSlotRemoveChild(HostElement.prototype);
@@ -222,7 +231,10 @@ export const bootstrapLazy = (
             patchTextContent(HostElement.prototype);
           }
         }
-      } else if (BUILD.cloneNodeFix || cmpMeta.$flags$ & CMP_FLAGS.patchClone) {
+      } else if (
+        BUILD.cloneNodeFix ||
+        (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)
+      ) {
         patchCloneNode(HostElement.prototype);
       }
 

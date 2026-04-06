@@ -19,5 +19,8 @@ export const getElement = (ref: any) =>
 export const getShadowRoot = (element: HTMLElement): ShadowRoot | null => {
   // For closed shadow DOM, Stencil stores the shadow root as __shadowRoot
   // since element.shadowRoot returns null by spec for closed mode
-  return (element as any).__shadowRoot ?? element.shadowRoot;
+  if (BUILD.shadowModeClosed && (element as any).__shadowRoot) {
+    return (element as any).__shadowRoot;
+  }
+  return element.shadowRoot;
 };

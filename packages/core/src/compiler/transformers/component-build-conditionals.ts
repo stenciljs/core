@@ -71,4 +71,12 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     !cmpMeta.hasLifecycle &&
     !cmpMeta.hasListener &&
     !cmpMeta.hasVdomRender;
+
+  // Per-component slot patches
+  if (cmpMeta.patches) {
+    cmpMeta.hasPatchAll = !!cmpMeta.patches.all;
+    cmpMeta.hasPatchChildren = !!cmpMeta.patches.children;
+    cmpMeta.hasPatchClone = !!cmpMeta.patches.clone;
+    cmpMeta.hasPatchInsert = !!cmpMeta.patches.insert;
+  }
 };

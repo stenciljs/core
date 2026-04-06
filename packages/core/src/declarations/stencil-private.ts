@@ -113,6 +113,12 @@ export interface BuildFeatures {
   vdomXlink: boolean;
   slotRelocation: boolean;
 
+  // per-component slot patches
+  patchAll: boolean;
+  patchChildren: boolean;
+  patchClone: boolean;
+  patchInsert: boolean;
+
   // elements
   slot: boolean;
   svg: boolean;
@@ -550,6 +556,10 @@ export interface ComponentCompilerFeatures {
   hasMethod: boolean;
   hasMode: boolean;
   hasModernPropertyDecls: boolean;
+  hasPatchAll: boolean;
+  hasPatchChildren: boolean;
+  hasPatchClone: boolean;
+  hasPatchInsert: boolean;
   hasProp: boolean;
   hasPropBoolean: boolean;
   hasPropNumber: boolean;

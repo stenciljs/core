@@ -245,7 +245,10 @@ export const initializeClientHydrate = (
           slottedItem.node.removeAttribute('slot');
         }
 
-        if (BUILD.experimentalSlotFixes || hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll) {
+        if (
+          BUILD.experimentalSlotFixes ||
+          (BUILD.patchAll && hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll)
+        ) {
           // patch this node for accessors like `nextSibling` (et al)
           patchSlottedNode(slottedItem.node);
         }

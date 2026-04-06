@@ -75,17 +75,23 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       cmpMeta.$flags$ & CMP_FLAGS.hasSlot
     ) {
       // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
-      if (BUILD.experimentalSlotFixes || cmpMeta.$flags$ & CMP_FLAGS.patchAll) {
+      if (BUILD.experimentalSlotFixes || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
         patchPseudoShadowDom(Cstr.prototype);
       } else {
         // Apply individual patches based on global BUILD flags OR per-component flags
-        if (BUILD.slotChildNodesFix || cmpMeta.$flags$ & CMP_FLAGS.patchChildren) {
+        if (
+          BUILD.slotChildNodesFix ||
+          (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
+        ) {
           patchChildSlotNodes(Cstr.prototype);
         }
-        if (BUILD.cloneNodeFix || cmpMeta.$flags$ & CMP_FLAGS.patchClone) {
+        if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
           patchCloneNode(Cstr.prototype);
         }
-        if (BUILD.appendChildSlotFix || cmpMeta.$flags$ & CMP_FLAGS.patchInsert) {
+        if (
+          BUILD.appendChildSlotFix ||
+          (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
+        ) {
           patchSlotAppendChild(Cstr.prototype);
           patchInsertBefore(Cstr.prototype);
           patchSlotRemoveChild(Cstr.prototype);
@@ -94,7 +100,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
           patchTextContent(Cstr.prototype);
         }
       }
-    } else if (BUILD.cloneNodeFix || cmpMeta.$flags$ & CMP_FLAGS.patchClone) {
+    } else if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
       patchCloneNode(Cstr.prototype);
     }
 
@@ -135,20 +141,23 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       },
       __attachShadow(this: d.HostElement) {
         if (supportsShadow) {
-          const isClosed = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
-          const expectedMode = isClosed ? 'closed' : 'open';
+          const isClosed =
+            BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
 
           // For closed shadow roots, this.shadowRoot will be null.
           // Check our stored reference instead.
-          const existingRoot = isClosed ? (this as any).__shadowRoot : this.shadowRoot;
+          let existingRoot: ShadowRoot | null = this.shadowRoot;
+          if (BUILD.shadowModeClosed && isClosed) {
+            existingRoot = (this as any).__shadowRoot ?? null;
+          }
 
           if (!existingRoot) {
             createShadowRoot.call(this, cmpMeta);
-          } else {
+          } else if (BUILD.shadowModeClosed && isClosed) {
             // Validate that the existing shadow root mode matches what we expect
-            if (existingRoot.mode !== expectedMode) {
+            if (existingRoot.mode !== 'closed') {
               throw new Error(
-                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${existingRoot.mode} but expected ${expectedMode}.`,
+                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${existingRoot.mode} but expected closed.`,
               );
             }
           }
