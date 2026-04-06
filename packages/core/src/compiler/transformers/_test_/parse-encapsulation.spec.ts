@@ -7,7 +7,7 @@ describe('parse encapsulation', () => {
     const t = transpileModule(`
       @Component({
         tag: 'cmp-a',
-        shadow: true
+        encapsulation: { type: 'shadow' }
       })
       export class CmpA {}
     `);
@@ -24,7 +24,8 @@ describe('parse encapsulation', () => {
     const t = transpileModule(`
       @Component({
         tag: 'cmp-a',
-        shadow: {
+        encapsulation: {
+          type: 'shadow',
           delegatesFocus: true
         }
       })
@@ -43,7 +44,8 @@ describe('parse encapsulation', () => {
     const t = transpileModule(`
       @Component({
         tag: 'cmp-a',
-        shadow: {
+        encapsulation: {
+          type: 'shadow',
           delegatesFocus: false
         }
       })
@@ -62,7 +64,7 @@ describe('parse encapsulation', () => {
     const t = transpileModule(`
       @Component({
         tag: 'cmp-a',
-        scoped: true
+        encapsulation: { type: 'scoped' }
       })
       export class CmpA {}
     `);
