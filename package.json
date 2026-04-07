@@ -1,6 +1,6 @@
 {
   "name": "@stencil/monorepo",
-  "version": "5.0.0-alpha.2",
+  "version": "5.0.0-alpha.3",
   "private": true,
   "description": "A Compiler for Web Components and Progressive Web Apps",
   "keywords": [
