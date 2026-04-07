@@ -2,7 +2,19 @@ import type * as d from '../declarations';
 import { renderVdom } from './vdom/vdom-render';
 
 /**
+ * A WeakMap to persist HostRef objects across multiple render() calls to the
+ * same container. This enables VNode diffing on re-renders — without it, each
+ * call creates a fresh HostRef with no previous VNode, causing renderVdom to
+ * replace the entire DOM subtree instead of patching only what changed.
+ */
+const hostRefCache = new WeakMap<Element, d.HostRef>();
+
+/**
  * Method to render a virtual DOM tree to a container element.
+ *
+ * Supports efficient re-renders: calling `render()` again on the same container
+ * will diff the new VNode tree against the previous one and only update what changed,
+ * preserving existing DOM elements and their state.
  *
  * @example
  * ```tsx
@@ -20,16 +32,22 @@ import { renderVdom } from './vdom/vdom-render';
  * @param container - The container element to render the virtual DOM tree to
  */
 export function render(vnode: d.VNode, container: Element) {
-  const cmpMeta: d.ComponentRuntimeMeta = {
-    $flags$: 0,
-    $tagName$: container.tagName,
-  };
+  let ref = hostRefCache.get(container);
 
-  const ref: d.HostRef = {
-    $flags$: 0,
-    $cmpMeta$: cmpMeta,
-    $hostElement$: container as d.HostElement,
-  };
+  if (!ref) {
+    const cmpMeta: d.ComponentRuntimeMeta = {
+      $flags$: 0,
+      $tagName$: container.tagName,
+    };
+
+    ref = {
+      $flags$: 0,
+      $cmpMeta$: cmpMeta,
+      $hostElement$: container as d.HostElement,
+    };
+
+    hostRefCache.set(container, ref);
+  }
 
   renderVdom(ref, vnode);
 }
