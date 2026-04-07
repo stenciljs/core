@@ -42,7 +42,7 @@ export const taskBuild = async (
 
       if (migrationResult.hasMigrations) {
         // Show what migrations are available and prompt user
-        const action = await promptForMigrationOnBuildError(coreCompiler, config, migrationResult);
+        const action = await promptForMigrationOnBuildError(config, migrationResult);
 
         if (action === 'run') {
           // Run migrations and re-run build
