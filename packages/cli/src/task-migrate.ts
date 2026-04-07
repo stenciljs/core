@@ -6,13 +6,37 @@ import { getRulesForVersionUpgrade, type MigrationMatch, type MigrationRule } fr
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 
-interface DetectedMigration {
+interface MigrationResult {
+  filePath: string;
+  rule: MigrationRule;
+  matches: MigrationMatch[];
+  transformed: boolean;
+}
+
+/**
+ * Represents a detected migration that can be applied.
+ */
+export interface DetectedMigration {
   filePath: string;
   rule: MigrationRule;
   matches: MigrationMatch[];
 }
 
-type MigrationAction = 'run' | 'dry-run' | 'exit';
+/**
+ * Result of migration detection.
+ */
+export interface MigrationDetectionResult {
+  /** Whether any migrations were detected */
+  hasMigrations: boolean;
+  /** Total number of items that need migration */
+  totalMatches: number;
+  /** Number of files affected */
+  filesAffected: number;
+  /** The detected migrations */
+  migrations: DetectedMigration[];
+  /** The migration rules that were checked */
+  rules: MigrationRule[];
+}
 
 /**
  * Run the migration task to update Stencil components from v4 to v5 API.
@@ -28,8 +52,7 @@ export const taskMigrate = async (
 ): Promise<void> => {
   const logger = config.logger;
   const sys = config.sys;
-  const explicitDryRun = flags.dryRun ?? false;
-  const autoApply = flags.yes ?? false;
+  const dryRun = flags.dryRun ?? false;
 
   // Get migration rules for the specified version upgrade
   // Default: from previous major version to current installed version
@@ -46,7 +69,7 @@ export const taskMigrate = async (
   logger.info(`${logger.emoji('🔄 ')}Stencil Migration Tool (v${fromVersion} → v${toVersion})`);
   logger.info(`Scanning for components that need migration...`);
 
-  if (explicitDryRun) {
+  if (dryRun) {
     logger.info(logger.cyan('Dry run mode - no files will be modified'));
   }
 
@@ -60,9 +83,128 @@ export const taskMigrate = async (
 
   logger.info(`Found ${tsFiles.length} TypeScript files to scan`);
 
-  // Phase 1: Detect all migrations without applying them
-  const detected: DetectedMigration[] = [];
+  const results: MigrationResult[] = [];
 
+  // Process each file
+  for (const filePath of tsFiles) {
+    let content = await sys.readFile(filePath);
+    if (!content) {
+      continue;
+    }
+
+    // Run each migration rule - re-parse after each transformation to get fresh positions
+    for (const rule of rules) {
+      const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+      const matches = rule.detect(sourceFile);
+
+      if (matches.length > 0) {
+        const relPath = relative(config.rootDir, filePath);
+        logger.info(`\n${logger.cyan(relPath)}`);
+        logger.info(`  ${logger.yellow(`[${rule.id}]`)} ${rule.name}`);
+
+        for (const match of matches) {
+          logger.info(`    Line ${match.line}: ${match.message}`);
+        }
+
+        if (!dryRun) {
+          // Apply the transformation
+          const transformed = rule.transform(sourceFile, matches);
+          await sys.writeFile(filePath, transformed);
+          // Update content for next rule to use fresh positions
+          content = transformed;
+          results.push({ filePath, rule, matches, transformed: true });
+          logger.info(`  ${logger.green('✓')} Migrated`);
+        } else {
+          results.push({ filePath, rule, matches, transformed: false });
+        }
+      }
+    }
+  }
+
+  // Print summary
+  logger.info('\n' + logger.bold('Migration Summary'));
+  logger.info('─'.repeat(40));
+
+  const totalMatches = results.reduce((sum, r) => sum + r.matches.length, 0);
+  const filesAffected = new Set(results.map((r) => r.filePath)).size;
+
+  if (totalMatches === 0) {
+    logger.info(logger.green('No migrations needed - your code is up to date!'));
+  } else {
+    logger.info(`Found ${totalMatches} item(s) to migrate in ${filesAffected} file(s)`);
+
+    if (dryRun) {
+      logger.info(logger.yellow('\nRun without --dry-run to apply the migrations'));
+    } else {
+      logger.info(logger.green(`\n✓ Successfully migrated ${totalMatches} item(s)`));
+    }
+  }
+
+  // Group results by rule for detailed summary
+  const byRule = new Map<string, MigrationResult[]>();
+  for (const result of results) {
+    const existing = byRule.get(result.rule.id) || [];
+    existing.push(result);
+    byRule.set(result.rule.id, existing);
+  }
+
+  if (byRule.size > 0) {
+    logger.info('\nBy migration rule:');
+    for (const [ruleId, ruleResults] of byRule) {
+      const rule = rules.find((r) => r.id === ruleId);
+      const count = ruleResults.reduce((sum, r) => sum + r.matches.length, 0);
+      logger.info(`  ${rule?.name || ruleId}: ${count} item(s)`);
+    }
+  }
+};
+
+/**
+ * Detect available migrations without applying them.
+ * Used by the build task to check if migrations might help fix build errors.
+ *
+ * @param coreCompiler the Stencil compiler instance
+ * @param config the validated Stencil config
+ * @returns detection result with migration information
+ */
+export const detectMigrations = async (
+  coreCompiler: CoreCompiler,
+  config: d.ValidatedConfig,
+): Promise<MigrationDetectionResult> => {
+  const sys = config.sys;
+  const logger = config.logger;
+
+  // Get migration rules for the specified version upgrade
+  const currentMajor = coreCompiler.version.split('.')[0];
+  const fromVersion = String(Number(currentMajor) - 1);
+  const toVersion = currentMajor;
+  const rules = getRulesForVersionUpgrade(fromVersion, toVersion);
+
+  if (rules.length === 0) {
+    return {
+      hasMigrations: false,
+      totalMatches: 0,
+      filesAffected: 0,
+      migrations: [],
+      rules: [],
+    };
+  }
+
+  // Get TypeScript files from tsconfig
+  const tsFiles = await getTypeScriptFiles(config, sys, logger);
+
+  if (tsFiles.length === 0) {
+    return {
+      hasMigrations: false,
+      totalMatches: 0,
+      filesAffected: 0,
+      migrations: [],
+      rules,
+    };
+  }
+
+  const migrations: DetectedMigration[] = [];
+
+  // Detect migrations in each file
   for (const filePath of tsFiles) {
     const content = await sys.readFile(filePath);
     if (!content) {
@@ -74,210 +216,22 @@ export const taskMigrate = async (
       const matches = rule.detect(sourceFile);
 
       if (matches.length > 0) {
-        detected.push({ filePath, rule, matches });
+        migrations.push({ filePath, rule, matches });
       }
     }
   }
 
-  // If no migrations needed, we're done
-  if (detected.length === 0) {
-    logger.info('\n' + logger.bold('Migration Summary'));
-    logger.info('─'.repeat(40));
-    logger.info(logger.green('No migrations needed - your code is up to date!'));
-    return;
-  }
+  const totalMatches = migrations.reduce((sum, m) => sum + m.matches.length, 0);
+  const filesAffected = new Set(migrations.map((m) => m.filePath)).size;
 
-  // Show what was detected
-  printDetectedMigrations(detected, config.rootDir, logger);
-
-  // Determine the action to take
-  let action: MigrationAction;
-
-  if (explicitDryRun) {
-    // If --dry-run flag was explicitly passed, don't prompt - just show dry-run results
-    action = 'dry-run';
-  } else if (autoApply) {
-    // If --yes/-y flag was passed, auto-apply without prompting (useful for CI)
-    action = 'run';
-  } else {
-    // Prompt user for what to do
-    action = await promptForMigrationAction(logger);
-  }
-
-  if (action === 'exit') {
-    logger.info('\nExiting without making changes.');
-    return;
-  }
-
-  if (action === 'dry-run') {
-    // Just show the summary without applying
-    printMigrationSummary(detected, rules, logger);
-    if (explicitDryRun) {
-      logger.info(logger.yellow('\nRun without --dry-run to apply the migrations.'));
-    } else {
-      logger.info(logger.yellow('\nRun the migrate command again to apply changes.'));
-    }
-    return;
-  }
-
-  // action === 'run' - Apply the migrations
-  logger.info('\nApplying migrations...');
-
-  let appliedCount = 0;
-  const appliedFiles = new Set<string>();
-
-  // Group detections by file to process each file once with all its rules
-  const byFile = new Map<string, DetectedMigration[]>();
-  for (const d of detected) {
-    const existing = byFile.get(d.filePath) || [];
-    existing.push(d);
-    byFile.set(d.filePath, existing);
-  }
-
-  for (const [filePath, fileMigrations] of byFile) {
-    let content = await sys.readFile(filePath);
-    if (!content) {
-      continue;
-    }
-
-    const relPath = relative(config.rootDir, filePath);
-    logger.info(`\n${logger.cyan(relPath)}`);
-
-    // Apply each rule's transformations sequentially (re-parse after each)
-    for (const migration of fileMigrations) {
-      const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
-      // Re-detect on updated content to get fresh positions
-      const freshMatches = migration.rule.detect(sourceFile);
-
-      if (freshMatches.length > 0) {
-        const transformed = migration.rule.transform(sourceFile, freshMatches);
-        content = transformed;
-        appliedCount += freshMatches.length;
-        logger.info(`  ${logger.green('✓')} ${migration.rule.name}`);
-      }
-    }
-
-    await sys.writeFile(filePath, content);
-    appliedFiles.add(filePath);
-  }
-
-  // Print final summary
-  logger.info('\n' + logger.bold('Migration Complete'));
-  logger.info('─'.repeat(40));
-  logger.info(
-    logger.green(`✓ Successfully migrated ${appliedCount} item(s) in ${appliedFiles.size} file(s)`),
-  );
-
-  // Group by rule for detailed summary
-  printRuleSummary(detected, rules, logger);
+  return {
+    hasMigrations: migrations.length > 0,
+    totalMatches,
+    filesAffected,
+    migrations,
+    rules,
+  };
 };
-
-/**
- * Print the detected migrations to the console.
- * @param detected the detected migrations
- * @param rootDir the root directory to relativize file paths
- * @param logger the logger for output
- */
-function printDetectedMigrations(
-  detected: DetectedMigration[],
-  rootDir: string,
-  logger: d.Logger,
-): void {
-  logger.info('\n' + logger.bold('Migrations Found'));
-  logger.info('─'.repeat(40));
-
-  for (const { filePath, rule, matches } of detected) {
-    const relPath = relative(rootDir, filePath);
-    logger.info(`\n${logger.cyan(relPath)}`);
-    logger.info(`  ${logger.yellow(`[${rule.id}]`)} ${rule.name}`);
-
-    for (const match of matches) {
-      logger.info(`    Line ${match.line}: ${match.message}`);
-    }
-  }
-}
-
-/**
- * Prompt the user for which migration action to take.
- * @param logger the logger for output
- * @returns the selected MigrationAction
- */
-async function promptForMigrationAction(logger: d.Logger): Promise<MigrationAction> {
-  const { prompt } = await import('prompts');
-
-  logger.info(''); // blank line before prompt
-
-  const response = await prompt({
-    name: 'action',
-    type: 'select',
-    message: 'What would you like to do?',
-    choices: [
-      { title: 'Run migration', value: 'run', description: 'Apply all migrations to your files' },
-      {
-        title: 'Dry run',
-        value: 'dry-run',
-        description: 'Preview changes without modifying files',
-      },
-      { title: 'Exit', value: 'exit', description: 'Exit without making changes' },
-    ],
-  });
-
-  // Handle Ctrl+C or escape
-  if (response.action === undefined) {
-    return 'exit';
-  }
-
-  return response.action as MigrationAction;
-}
-
-/**
- * Print migration summary.
- * @param detected the detected migrations
- * @param rules the migration rules
- * @param logger the logger for output
- */
-function printMigrationSummary(
-  detected: DetectedMigration[],
-  rules: MigrationRule[],
-  logger: d.Logger,
-): void {
-  const totalMatches = detected.reduce((sum, d) => sum + d.matches.length, 0);
-  const filesAffected = new Set(detected.map((d) => d.filePath)).size;
-
-  logger.info('\n' + logger.bold('Migration Summary'));
-  logger.info('─'.repeat(40));
-  logger.info(`Found ${totalMatches} item(s) to migrate in ${filesAffected} file(s)`);
-
-  printRuleSummary(detected, rules, logger);
-}
-
-/**
- * Print summary grouped by rule.
- * @param detected the detected migrations
- * @param rules the migration rules
- * @param logger the logger for output
- */
-function printRuleSummary(
-  detected: DetectedMigration[],
-  rules: MigrationRule[],
-  logger: d.Logger,
-): void {
-  const byRule = new Map<string, DetectedMigration[]>();
-  for (const d of detected) {
-    const existing = byRule.get(d.rule.id) || [];
-    existing.push(d);
-    byRule.set(d.rule.id, existing);
-  }
-
-  if (byRule.size > 0) {
-    logger.info('\nBy migration rule:');
-    for (const [ruleId, ruleDetections] of byRule) {
-      const rule = rules.find((r) => r.id === ruleId);
-      const count = ruleDetections.reduce((sum, d) => sum + d.matches.length, 0);
-      logger.info(`  ${rule?.name || ruleId}: ${count} item(s)`);
-    }
-  }
-}
 
 /**
  * Get TypeScript files using the project's tsconfig.json.

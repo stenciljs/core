@@ -56,7 +56,7 @@ jobs:
         uses: ./.github/workflows/actions/install-playwright
 
       - name: Run Stencil Migrations
-        run: npx stencil migrate --yes
+        run: npx stencil migrate
         working-directory: ./tmp-component-starter
         shell: bash
 

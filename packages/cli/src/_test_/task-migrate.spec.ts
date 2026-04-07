@@ -1,16 +1,9 @@
 import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type * as d from '@stencil/core/compiler';
 
 import { createConfigFlags } from '../config-flags';
-import { taskMigrate } from '../task-migrate';
-
-// Mock prompts module
-const promptMock = vi.hoisted(() => vi.fn());
-
-vi.mock('prompts', () => ({
-  prompt: promptMock,
-}));
+import { detectMigrations, taskMigrate } from '../task-migrate';
 
 // Mock migration rules module
 const mockRules = vi.hoisted(() => [
@@ -55,16 +48,15 @@ const mockCoreCompiler = {
 
 interface SetupOptions {
   dryRun?: boolean;
-  yes?: boolean;
   fileContent?: string | null;
   detectMatches?: Array<{ node: any; message: string; line: number; column: number }>;
 }
 
 const setup = async (options: SetupOptions = {}) => {
-  const { dryRun = false, yes = false, fileContent = null, detectMatches = [] } = options;
+  const { dryRun = false, fileContent = null, detectMatches = [] } = options;
 
   const sys = mockCompilerSystem();
-  const flags = createConfigFlags({ task: 'migrate', dryRun, yes });
+  const flags = createConfigFlags({ task: 'migrate', dryRun });
   const config: d.ValidatedConfig = mockValidatedConfig({
     configPath: '/test/stencil.config.ts',
     rootDir: '/test',
@@ -79,14 +71,14 @@ const setup = async (options: SetupOptions = {}) => {
     }
     return fileContent;
   });
-  vi.spyOn(config.sys, 'writeFile').mockResolvedValue();
+  vi.spyOn(config.sys, 'writeFile').mockResolvedValue({} as any);
 
   // Mock logger methods
   const infoSpy = vi.spyOn(config.logger, 'info');
 
   // Configure mock rule behavior
   mockRules[0].detect.mockReturnValue(detectMatches);
-  mockRules[0].transform.mockImplementation((sourceFile: any) => {
+  mockRules[0].transform.mockImplementation((_sourceFile: any, _matches: any) => {
     return 'transformed content';
   });
 
@@ -96,10 +88,6 @@ const setup = async (options: SetupOptions = {}) => {
 describe('task-migrate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   describe('when no migrations are needed', () => {
@@ -114,15 +102,19 @@ describe('task-migrate', () => {
       expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('No migrations needed'));
     });
 
-    it('should not prompt the user', async () => {
-      const { config, flags } = await setup({
+    it('should not write any files', async () => {
+      const { config, flags, sys } = await setup({
         fileContent: 'const x = 1;',
         detectMatches: [],
       });
 
       await taskMigrate(mockCoreCompiler, config, flags);
 
-      expect(promptMock).not.toHaveBeenCalled();
+      // writeFile should not be called for component files
+      const writeFileCalls = (sys.writeFile as any).mock.calls.filter((call: any[]) =>
+        call[0].endsWith('.tsx'),
+      );
+      expect(writeFileCalls).toHaveLength(0);
     });
   });
 
@@ -135,8 +127,6 @@ describe('task-migrate', () => {
     };
 
     it('should show detected migrations', async () => {
-      promptMock.mockResolvedValue({ action: 'exit' });
-
       const { config, flags, infoSpy } = await setup({
         fileContent: '@Component({ shadow: true }) class MyComponent {}',
         detectMatches: [migrationMatch],
@@ -144,240 +134,115 @@ describe('task-migrate', () => {
 
       await taskMigrate(mockCoreCompiler, config, flags);
 
-      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Migrations Found'));
       expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Line 10'));
     });
 
-    describe('with --dry-run flag', () => {
-      it('should skip the prompt', async () => {
-        const { config, flags } = await setup({
-          dryRun: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
-
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(promptMock).not.toHaveBeenCalled();
+    it('should apply migrations and write files', async () => {
+      const { config, flags, sys } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      it('should not modify files', async () => {
-        const { config, flags, sys } = await setup({
-          dryRun: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        // writeFile should not be called for component files (only tsconfig read)
-        const writeFileCalls = (sys.writeFile as any).mock.calls.filter(
-          (call: any[]) => !call[0].endsWith('tsconfig.json'),
-        );
-        expect(writeFileCalls).toHaveLength(0);
-      });
-
-      it('should show hint to run without --dry-run', async () => {
-        const { config, flags, infoSpy } = await setup({
-          dryRun: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
-
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(infoSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Run without --dry-run to apply the migrations'),
-        );
-      });
+      expect(sys.writeFile).toHaveBeenCalledWith(
+        '/test/src/components/my-component.tsx',
+        'transformed content',
+      );
     });
 
-    describe('with --yes flag (CI mode)', () => {
-      it('should skip the prompt', async () => {
-        const { config, flags } = await setup({
-          yes: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
-
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(promptMock).not.toHaveBeenCalled();
+    it('should show success message', async () => {
+      const { config, flags, infoSpy } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      it('should automatically apply migrations', async () => {
-        const { config, flags, sys } = await setup({
-          yes: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(sys.writeFile).toHaveBeenCalledWith(
-          '/test/src/components/my-component.tsx',
-          'transformed content',
-        );
-      });
-
-      it('should show success message', async () => {
-        const { config, flags, infoSpy } = await setup({
-          yes: true,
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
-
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Migration Complete'));
-        expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Successfully migrated'));
-      });
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Successfully migrated'));
     });
 
-    describe('interactive mode', () => {
-      it('should prompt user with three choices', async () => {
-        promptMock.mockResolvedValue({ action: 'exit' });
-
-        const { config, flags } = await setup({
-          fileContent: '@Component({ shadow: true }) class MyComponent {}',
-          detectMatches: [migrationMatch],
-        });
-
-        await taskMigrate(mockCoreCompiler, config, flags);
-
-        expect(promptMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            type: 'select',
-            choices: expect.arrayContaining([
-              expect.objectContaining({ value: 'run' }),
-              expect.objectContaining({ value: 'dry-run' }),
-              expect.objectContaining({ value: 'exit' }),
-            ]),
-          }),
-        );
+    it('should show migration summary', async () => {
+      const { config, flags, infoSpy } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      describe('when user chooses "run"', () => {
-        it('should apply migrations', async () => {
-          promptMock.mockResolvedValue({ action: 'run' });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-          const { config, flags, sys } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Migration Summary'));
+    });
+  });
 
-          await taskMigrate(mockCoreCompiler, config, flags);
+  describe('with --dry-run flag', () => {
+    const migrationMatch = {
+      node: {},
+      message: 'Found deprecated API',
+      line: 10,
+      column: 5,
+    };
 
-          expect(sys.writeFile).toHaveBeenCalledWith(
-            '/test/src/components/my-component.tsx',
-            'transformed content',
-          );
-        });
-
-        it('should show success message', async () => {
-          promptMock.mockResolvedValue({ action: 'run' });
-
-          const { config, flags, infoSpy } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
-
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Migration Complete'));
-          expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Successfully migrated'));
-        });
+    it('should not modify files', async () => {
+      const { config, flags, sys } = await setup({
+        dryRun: true,
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      describe('when user chooses "dry-run"', () => {
-        it('should not modify files', async () => {
-          promptMock.mockResolvedValue({ action: 'dry-run' });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-          const { config, flags, sys } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
+      // writeFile should not be called for component files
+      const writeFileCalls = (sys.writeFile as any).mock.calls.filter((call: any[]) =>
+        call[0].endsWith('.tsx'),
+      );
+      expect(writeFileCalls).toHaveLength(0);
+    });
 
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          const writeFileCalls = (sys.writeFile as any).mock.calls.filter(
-            (call: any[]) => !call[0].endsWith('tsconfig.json'),
-          );
-          expect(writeFileCalls).toHaveLength(0);
-        });
-
-        it('should show hint to run again', async () => {
-          promptMock.mockResolvedValue({ action: 'dry-run' });
-
-          const { config, flags, infoSpy } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
-
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          expect(infoSpy).toHaveBeenCalledWith(
-            expect.stringContaining('Run the migrate command again to apply changes'),
-          );
-        });
+    it('should show dry run message', async () => {
+      const { config, flags, infoSpy } = await setup({
+        dryRun: true,
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      describe('when user chooses "exit"', () => {
-        it('should not modify files', async () => {
-          promptMock.mockResolvedValue({ action: 'exit' });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-          const { config, flags, sys } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Dry run mode'));
+    });
 
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          const writeFileCalls = (sys.writeFile as any).mock.calls.filter(
-            (call: any[]) => !call[0].endsWith('tsconfig.json'),
-          );
-          expect(writeFileCalls).toHaveLength(0);
-        });
-
-        it('should show exit message', async () => {
-          promptMock.mockResolvedValue({ action: 'exit' });
-
-          const { config, flags, infoSpy } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
-
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          expect(infoSpy).toHaveBeenCalledWith(
-            expect.stringContaining('Exiting without making changes'),
-          );
-        });
+    it('should show hint to run without --dry-run', async () => {
+      const { config, flags, infoSpy } = await setup({
+        dryRun: true,
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
 
-      describe('when user presses Ctrl+C', () => {
-        it('should treat as exit', async () => {
-          promptMock.mockResolvedValue({ action: undefined });
+      await taskMigrate(mockCoreCompiler, config, flags);
 
-          const { config, flags, infoSpy } = await setup({
-            fileContent: '@Component({ shadow: true }) class MyComponent {}',
-            detectMatches: [migrationMatch],
-          });
+      expect(infoSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Run without --dry-run to apply the migrations'),
+      );
+    });
 
-          await taskMigrate(mockCoreCompiler, config, flags);
-
-          expect(infoSpy).toHaveBeenCalledWith(
-            expect.stringContaining('Exiting without making changes'),
-          );
-        });
+    it('should still show what would be migrated', async () => {
+      const { config, flags, infoSpy } = await setup({
+        dryRun: true,
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
       });
+
+      await taskMigrate(mockCoreCompiler, config, flags);
+
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Line 10'));
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('Found deprecated API'));
     });
   });
 
   describe('edge cases', () => {
     it('should handle no TypeScript files found', async () => {
       const ts = await import('typescript');
-      vi.mocked(ts.default.getParsedCommandLineOfConfigFile).mockReturnValue({
+      // Use mockReturnValueOnce to avoid affecting other tests
+      vi.mocked(ts.default.getParsedCommandLineOfConfigFile).mockReturnValueOnce({
         fileNames: [],
         errors: [],
         options: {},
@@ -392,18 +257,107 @@ describe('task-migrate', () => {
       expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('No TypeScript files found'));
     });
 
-    it('should handle missing tsconfig', async () => {
-      const { config, flags, infoSpy } = await setup();
-
-      // Override readFile to return null for tsconfig
-      vi.spyOn(config.sys, 'readFile').mockResolvedValue(null);
+    it('should handle empty file content', async () => {
+      const { config, flags, sys } = await setup({
+        fileContent: null,
+        detectMatches: [],
+      });
 
       await taskMigrate(mockCoreCompiler, config, flags);
 
-      // Should log an error about tsconfig
-      const errorSpy = vi.spyOn(config.logger, 'error');
-      // The function returns early, so we just verify it doesn't crash
-      expect(config.sys.exit).not.toHaveBeenCalled();
+      // Should not crash and should not write any files
+      const writeFileCalls = (sys.writeFile as any).mock.calls.filter((call: any[]) =>
+        call[0].endsWith('.tsx'),
+      );
+      expect(writeFileCalls).toHaveLength(0);
+    });
+  });
+
+  describe('detectMigrations', () => {
+    it('should return hasMigrations: false when no migrations found', async () => {
+      const { config } = await setup({
+        fileContent: 'const x = 1;',
+        detectMatches: [],
+      });
+
+      const result = await detectMigrations(mockCoreCompiler, config);
+
+      expect(result.hasMigrations).toBe(false);
+      expect(result.totalMatches).toBe(0);
+      expect(result.filesAffected).toBe(0);
+      expect(result.migrations).toHaveLength(0);
+    });
+
+    it('should return hasMigrations: true when migrations are found', async () => {
+      const migrationMatch = {
+        node: {},
+        message: 'Found deprecated API',
+        line: 10,
+        column: 5,
+      };
+
+      const { config } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
+      });
+
+      const result = await detectMigrations(mockCoreCompiler, config);
+
+      expect(result.hasMigrations).toBe(true);
+      expect(result.totalMatches).toBe(1);
+      expect(result.filesAffected).toBe(1);
+      expect(result.migrations).toHaveLength(1);
+    });
+
+    it('should include migration details', async () => {
+      const migrationMatch = {
+        node: {},
+        message: 'Found deprecated API',
+        line: 10,
+        column: 5,
+      };
+
+      const { config } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
+      });
+
+      const result = await detectMigrations(mockCoreCompiler, config);
+
+      expect(result.migrations[0].filePath).toBe('/test/src/components/my-component.tsx');
+      expect(result.migrations[0].rule.id).toBe('test-rule');
+      expect(result.migrations[0].matches).toHaveLength(1);
+    });
+
+    it('should not modify any files', async () => {
+      const migrationMatch = {
+        node: {},
+        message: 'Found deprecated API',
+        line: 10,
+        column: 5,
+      };
+
+      const { config, sys } = await setup({
+        fileContent: '@Component({ shadow: true }) class MyComponent {}',
+        detectMatches: [migrationMatch],
+      });
+
+      await detectMigrations(mockCoreCompiler, config);
+
+      // writeFile should never be called during detection
+      expect(sys.writeFile).not.toHaveBeenCalled();
+    });
+
+    it('should include rules in result', async () => {
+      const { config } = await setup({
+        fileContent: 'const x = 1;',
+        detectMatches: [],
+      });
+
+      const result = await detectMigrations(mockCoreCompiler, config);
+
+      expect(result.rules).toHaveLength(1);
+      expect(result.rules[0].id).toBe('test-rule');
     });
   });
 });

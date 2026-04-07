@@ -31,7 +31,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'verbose',
   'version',
   'watch',
-  'yes',
 ] as const;
 
 /**
@@ -116,14 +115,13 @@ export const CLI_FLAG_ALIASES: AliasMap = {
   h: 'help',
   p: 'port',
   v: 'version',
-  y: 'yes',
 };
 
 /**
  * A regular expression which can be used to match a CLI flag for one of our
  * short aliases.
  */
-export const CLI_FLAG_REGEX = new RegExp(`^-[chpvy]{1}$`);
+export const CLI_FLAG_REGEX = new RegExp(`^-[chpv]{1}$`);
 
 /**
  * Given two types `K` and `T` where `K` extends `ReadonlyArray<string>`,
