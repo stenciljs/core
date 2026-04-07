@@ -134,7 +134,7 @@ export const parseStaticComponentMeta = (
       tagName,
       moduleFile.sourceFilePath,
       isCollectionDependency,
-      staticMembers
+      staticMembers,
     ),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
@@ -207,7 +207,7 @@ export const parseStaticComponentMeta = (
     hasPatchAll: false,
     hasPatchChildren: false,
     hasPatchClone: false,
-    hasPatchInsert: false
+    hasPatchInsert: false,
   };
 
   const visitComponentChildNode = (node: ts.Node, ctx: d.BuildCtx) => {
