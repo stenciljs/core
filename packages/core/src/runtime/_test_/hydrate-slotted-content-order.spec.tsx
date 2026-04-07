@@ -13,7 +13,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within a `shadow: true` component', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -102,7 +102,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within multiple slots of a `shadow: true` component', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -190,7 +190,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within nested `shadow: true` components', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpA {
       render() {
@@ -204,7 +204,7 @@ describe("hydrated components' slotted node order", () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: true,
+      encapsulation: { type: 'shadow' },
     })
     class CmpB {
       render() {
@@ -285,7 +285,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within a `scoped: true` component', async () => {
     @Component({
       tag: 'cmp-a',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -376,7 +376,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within multiple slots of a `scoped: true` component', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: false,
+      encapsulation: { type: 'none' },
     })
     class CmpA {
       render() {
@@ -446,7 +446,7 @@ describe("hydrated components' slotted node order", () => {
   it('should retain original order of slotted nodes within nested `scoped: true` components', async () => {
     @Component({
       tag: 'cmp-a',
-      shadow: false,
+      encapsulation: { type: 'none' },
     })
     class CmpA {
       render() {
@@ -460,7 +460,7 @@ describe("hydrated components' slotted node order", () => {
 
     @Component({
       tag: 'cmp-b',
-      shadow: false,
+      encapsulation: { type: 'none' },
     })
     class CmpB {
       render() {

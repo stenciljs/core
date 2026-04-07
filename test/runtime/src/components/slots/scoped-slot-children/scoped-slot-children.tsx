@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-children',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotChildren {
   render() {

@@ -2,8 +2,6 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'empty-cmp',
-  shadow: false,
-  scoped: false,
 })
 export class EmptyComponent {
   render() {

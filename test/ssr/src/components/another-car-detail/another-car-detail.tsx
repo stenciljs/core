@@ -5,7 +5,7 @@ import { CarData } from '../car-list/car-data';
 @Component({
   tag: 'another-car-detail',
   styleUrl: 'another-car-detail.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class CarDetail {
   @Prop() car: CarData;

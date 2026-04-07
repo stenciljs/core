@@ -3,7 +3,7 @@ import { Component, Element, h, Host, Listen } from '@stencil/core';
 @Component({
   tag: 'dsd-listen-cmp',
   styleUrl: 'dsd-listen-cmp.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class MyWhateverComponent {
   @Element() hostElement: HTMLSlotElement;

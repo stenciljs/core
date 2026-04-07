@@ -146,6 +146,37 @@ export const CMP_FLAGS = {
    * e.g. `shadow: { slotAssignment: 'manual' }` is set on the `@Component()` decorator
    */
   shadowSlotAssignmentManual: 1 << 10,
+
+  /**
+   * Determines if the shadow DOM mode is 'closed'.
+   * e.g. `encapsulation: { type: 'shadow', mode: 'closed' }` is set on the `@Component()` decorator
+   */
+  shadowModeClosed: 1 << 11,
+
+  /**
+   * Determines if the component should patch child node accessors for slot handling.
+   * e.g. `encapsulation: { type: 'none', patches: ['children'] }`
+   */
+  patchChildren: 1 << 12,
+
+  /**
+   * Determines if the component should patch cloneNode() for slot handling.
+   * e.g. `encapsulation: { type: 'none', patches: ['clone'] }`
+   */
+  patchClone: 1 << 13,
+
+  /**
+   * Determines if the component should patch appendChild/insertBefore for slot handling.
+   * e.g. `encapsulation: { type: 'none', patches: ['insert'] }`
+   */
+  patchInsert: 1 << 14,
+
+  /**
+   * Determines if the component should apply all slot patches.
+   * e.g. `encapsulation: { type: 'none', patches: ['all'] }`
+   * Equivalent to the global `experimentalSlotFixes` config option.
+   */
+  patchAll: 1 << 15,
 } as const;
 
 /**

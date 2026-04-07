@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'dom-reattach-clone',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class DomReattachClone {
   render() {

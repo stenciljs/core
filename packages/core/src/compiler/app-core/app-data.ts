@@ -56,6 +56,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     serializer: cmps.some((c) => c.hasSerializer),
     shadowDom,
     shadowDelegatesFocus: shadowDom && cmps.some((c) => c.shadowDelegatesFocus),
+    shadowModeClosed: shadowDom && cmps.some((c) => c.shadowMode === 'closed'),
     shadowSlotAssignmentManual: shadowDom && cmps.some((c) => c.slotAssignment === 'manual'),
     slot,
     slotRelocation,
@@ -75,6 +76,11 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
     vdomText: cmps.some((c) => c.hasVdomText),
     taskQueue: true,
+    // Per-component slot patches
+    patchAll: cmps.some((c) => c.hasPatchAll),
+    patchChildren: cmps.some((c) => c.hasPatchChildren),
+    patchClone: cmps.some((c) => c.hasPatchClone),
+    patchInsert: cmps.some((c) => c.hasPatchInsert),
   };
   f.vdomAttribute = f.vdomAttribute || f.reflect;
   f.vdomPropOrAttr = f.vdomPropOrAttr || f.reflect;

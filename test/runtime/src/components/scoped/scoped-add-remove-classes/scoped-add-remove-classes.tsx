@@ -8,7 +8,7 @@ export type Item = {
 
 @Component({
   tag: 'scoped-add-remove-classes',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     .menu-item {
       padding: 8px 16px;

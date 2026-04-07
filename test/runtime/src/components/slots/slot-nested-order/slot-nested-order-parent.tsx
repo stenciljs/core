@@ -2,7 +2,6 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'slot-nested-order-parent',
-  shadow: false,
 })
 export class SlotNestedOrderParent {
   render() {

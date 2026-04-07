@@ -5,7 +5,7 @@ import styles from './prerender-cmp.css';
 @Component({
   tag: 'prerender-cmp',
   styles,
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class PrerenderCmp {
   render() {

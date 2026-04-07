@@ -85,7 +85,6 @@ describe('lazy-component', () => {
     const code = `
       @Component({
         tag: 'cmp-a',
-        formAssociated: true
       })
       export class CmpA {
         @AttachInternals() internals: ElementInternals;

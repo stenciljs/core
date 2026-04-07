@@ -9,7 +9,7 @@ import { Component, h } from '@stencil/core';
  */
 @Component({
   tag: 'style-mode-shadow',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   styleUrls: {
     buford: 'style-mode-shadow.buford.css',
     griff: 'style-mode-shadow.griff.css',

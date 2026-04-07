@@ -15,16 +15,6 @@ export interface ComponentDecorator {
 }
 export interface ComponentOptions {
   /**
-   * When set to `true` this component will be form-associated. See
-   * https://stenciljs.com/docs/next/form-associated documentation on how to
-   * build form-associated Stencil components that integrate into forms like
-   * native browser elements such as `<input>` and `<textarea>`.
-   *
-   * The {@link AttachInternals} decorator allows for access to the
-   * `ElementInternals` object to modify the associated form.
-   */
-  formAssociated?: boolean;
-  /**
    * Tag name of the web component. Ideally, the tag name must be globally unique,
    * so it's recommended to choose an unique prefix for all your components within the same collection.
    *
@@ -33,17 +23,25 @@ export interface ComponentOptions {
   tag: string;
 
   /**
-   * If `true`, the component will use scoped stylesheets. Similar to shadow-dom,
-   * but without native isolation. Defaults to `false`.
+   * Encapsulation strategy for the component. Determines how styles and DOM are isolated.
+   *
+   * @example
+   * ```tsx
+   * // Shadow DOM (recommended for isolation)
+   * encapsulation: { type: 'shadow' }
+   * encapsulation: { type: 'shadow', mode: 'closed', delegatesFocus: true }
+   *
+   * // Scoped styles (class-based isolation without Shadow DOM)
+   * encapsulation: { type: 'scoped' }
+   *
+   * // No encapsulation (light DOM)
+   * encapsulation: { type: 'none' }
+   * encapsulation: { type: 'none', patches: ['all'] }  // with slot patches
+   * ```
+   *
+   * If not specified, defaults to `{ type: 'none' }` (no encapsulation).
    */
-  scoped?: boolean;
-
-  /**
-   * If `true`, the component will use native shadow-dom encapsulation, it will fallback to
-   * `scoped` if the browser does not support shadow-dom natively. Defaults to `false`.
-   * Additionally, `shadow` can also be given options when attaching the shadow root.
-   */
-  shadow?: boolean | ShadowRootOptions;
+  encapsulation?: EncapsulationOptions;
 
   /**
    * Relative URL to some external stylesheet file. It should be a `.css` file unless some
@@ -70,6 +68,75 @@ export interface ComponentOptions {
   assetsDirs?: string[];
 }
 
+/**
+ * Shadow DOM encapsulation options for the `encapsulation` property.
+ * Uses native Shadow DOM for style and DOM isolation.
+ */
+export interface ShadowEncapsulation {
+  type: 'shadow';
+  /**
+   * The mode of the shadow root. Defaults to `'open'`.
+   * - `'open'`: The shadow root is accessible via `element.shadowRoot`
+   * - `'closed'`: The shadow root is not accessible via `element.shadowRoot`
+   */
+  mode?: 'open' | 'closed';
+  /**
+   * When set to `true`, specifies behavior that mitigates custom element issues
+   * around focusability. When a non-focusable part of the shadow DOM is clicked, the first
+   * focusable part is given focus, and the shadow host is given any available `:focus` styling.
+   */
+  delegatesFocus?: boolean;
+  /**
+   * Sets the slot assignment mode for the shadow root. When set to `'manual'`, enables imperative
+   * slotting using the `HTMLSlotElement.assign()` method. Defaults to `'named'` for standard
+   * declarative slotting behavior.
+   */
+  slotAssignment?: 'manual' | 'named';
+}
+
+/**
+ * Patch types for non-shadow DOM components that use slots.
+ * - `'all'`: Apply all slot-related patches (equivalent to `experimentalSlotFixes`)
+ * - `'children'`: Patch child node accessors (children, firstChild, lastChild, etc.)
+ * - `'clone'`: Patch `cloneNode()` to handle slotted content
+ * - `'insert'`: Patch `appendChild()`, `insertBefore()`, etc. for slot relocation
+ */
+export type SlotPatch = 'all' | 'children' | 'clone' | 'insert';
+
+/**
+ * No encapsulation - component renders to light DOM with optional slot patches.
+ */
+export interface NoneEncapsulation {
+  type: 'none';
+  /**
+   * Patches to apply for slot handling in light DOM.
+   * Only relevant if the component uses `<slot>` elements.
+   */
+  patches?: SlotPatch[];
+}
+
+/**
+ * Scoped CSS encapsulation - styles are scoped via class names without Shadow DOM.
+ */
+export interface ScopedEncapsulation {
+  type: 'scoped';
+  /**
+   * Patches to apply for slot handling with scoped styles.
+   * Only relevant if the component uses `<slot>` elements.
+   */
+  patches?: SlotPatch[];
+}
+
+/**
+ * Encapsulation options for the `@Component()` decorator.
+ * Determines how styles and DOM are isolated for the component.
+ */
+export type EncapsulationOptions = ShadowEncapsulation | NoneEncapsulation | ScopedEncapsulation;
+
+/**
+ * @deprecated Use `ShadowEncapsulation` with the `encapsulation` property instead.
+ * This interface is retained for internal use during the v4→v5 migration period.
+ */
 export interface ShadowRootOptions {
   /**
    * When set to `true`, specifies behavior that mitigates custom element issues
@@ -149,6 +216,18 @@ export interface EventOptions {
 }
 
 export interface AttachInternalsOptions {
+  /**
+   * Whether this component should be form-associated. When `true` (the default),
+   * the component can participate in forms like native elements such as `<input>`.
+   *
+   * Set to `false` if you only need ElementInternals for custom states or ARIA
+   * without form participation.
+   *
+   * @default true
+   * @see https://stenciljs.com/docs/form-associated
+   */
+  formAssociated?: boolean;
+
   /**
    * Initial custom states to set on the ElementInternals.states CustomStateSet.
    * Each key is the state name and the value is the initial boolean state.
@@ -272,9 +351,23 @@ export declare const Element: ElementDecorator;
 export declare const Event: EventDecorator;
 
 /**
- * If the `formAssociated` option is set in options passed to the
- * `@Component()` decorator then this decorator may be used to get access to the
- * `ElementInternals` instance associated with the component.
+ * Decorator to attach an `ElementInternals` instance to a component.
+ * By default, this makes the component form-associated, allowing it to
+ * participate in forms like native elements (`<input>`, `<textarea>`).
+ *
+ * @example
+ * ```tsx
+ * // Form-associated component (default)
+ * @AttachInternals()
+ * internals: ElementInternals;
+ *
+ * // Opt-out of form association (for custom states/ARIA only)
+ * @AttachInternals({ formAssociated: false })
+ * internals: ElementInternals;
+ * ```
+ *
+ * @see https://stenciljs.com/docs/form-associated
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals
  */
 export declare const AttachInternals: AttachInternalsDecorator;
 
@@ -437,6 +530,19 @@ export declare function setNonce(nonce: string): void;
  * @returns a reference to the element
  */
 export declare function getElement(ref: any): HTMLStencilElement;
+
+/**
+ * Get the shadow root for a Stencil component's host element.
+ * This works for both open and closed shadow DOM modes.
+ *
+ * For closed shadow DOM, `element.shadowRoot` returns `null` by design,
+ * but Stencil stores the reference internally so components can still
+ * access their own shadow root.
+ *
+ * @param element The host element (from @Element() decorator)
+ * @returns The shadow root, or null if no shadow root exists
+ */
+export declare function getShadowRoot(element: HTMLElement): ShadowRoot | null;
 
 /**
  * Schedules a new render of the given instance or element even if no state changed.

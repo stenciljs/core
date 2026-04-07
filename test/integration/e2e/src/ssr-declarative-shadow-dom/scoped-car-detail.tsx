@@ -5,7 +5,7 @@ import { CarData } from '../car-list/car-data';
 @Component({
   tag: 'scoped-car-detail',
   styleUrl: 'another-car-detail.css',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class CarDetail {
   @Prop() car: CarData;

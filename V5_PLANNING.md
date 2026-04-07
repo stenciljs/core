@@ -74,6 +74,16 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - `dist` and `dist-hydrate-script` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
 - `dist-hydrate-script` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the hydrate script.
 - **ES5 build output removed.** The `buildEs5` config option, `--es5` CLI flag, and all ES5-related output (esm-es5 directory, SystemJS bundles, ES5 polyfills) have been removed. Stencil now targets ES2017+ only. IE11 and Edge 18 and below are no longer supported.
+- **@Component decorator `shadow`, `scoped`, and `formAssociated` properties removed.** Use the new unified `encapsulation` property instead:
+  - `shadow: true` → `encapsulation: { type: 'shadow' }`
+  - `shadow: { delegatesFocus: true }` → `encapsulation: { type: 'shadow', delegatesFocus: true }`
+  - `scoped: true` → `encapsulation: { type: 'scoped' }`
+  - Default (no encapsulation) → `encapsulation: { type: 'none' }` (optional, 'none' is default)
+  - **New feature:** `encapsulation: { type: 'shadow', mode: 'closed' }` enables closed shadow DOM
+  - **New feature:** Per-component slot patches via `encapsulation: { type: 'scoped', patches: ['children', 'clone', 'insert'] }`
+  - `formAssociated: true` → Use `@AttachInternals()` decorator instead (auto-sets `formAssociated: true`)
+  - To use `@AttachInternals` without form association: `@AttachInternals({ formAssociated: false })`
+  - Run `stencil migrate --dry-run` to preview automatic migration, or `stencil migrate` to apply changes
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned

@@ -3,7 +3,7 @@ import { Component, Element, Host, h, forceUpdate } from '@stencil/core';
 @Component({
   tag: 'slot-cmp-container',
   styles: ':host { display: block; margin: 5em; }',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class PropCmp {
   @Element() host: HTMLPropCmpElement;

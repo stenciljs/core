@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'remove-child-patch',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class RemoveChildPatch {
   render() {

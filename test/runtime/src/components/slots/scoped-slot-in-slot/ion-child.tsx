@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'ion-child',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class IonChild {
   render() {

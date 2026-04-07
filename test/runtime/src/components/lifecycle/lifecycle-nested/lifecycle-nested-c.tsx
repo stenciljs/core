@@ -4,7 +4,7 @@ import output from './output';
 
 @Component({
   tag: 'lifecycle-nested-c',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class Cmpc {
   async componentWillLoad() {

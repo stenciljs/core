@@ -13,6 +13,7 @@ import { taskDocs } from './task-docs';
 import { taskGenerate } from './task-generate';
 import { taskHelp } from './task-help';
 import { taskInfo } from './task-info';
+import { taskMigrate } from './task-migrate';
 import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
 import { taskTelemetry } from './task-telemetry';
@@ -162,6 +163,10 @@ export const runTask = async (
 
     case 'help':
       await taskHelp(resolvedFlags, strictConfig.logger, sys);
+      break;
+
+    case 'migrate':
+      await taskMigrate(coreCompiler, strictConfig, resolvedFlags);
       break;
 
     case 'prerender':

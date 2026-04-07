@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'nested-cmp-parent',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   styleUrl: 'parent-cmp.css',
 })
 export class NestedCmpParent {

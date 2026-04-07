@@ -375,27 +375,27 @@ describe('convert-decorators', () => {
     );
   });
 
-  it('should create formAssociated static getter', async () => {
+  it('should create formAssociated static getter when @AttachInternals is used', async () => {
     const t = transpileModule(`
      @Component({
        tag: 'cmp-a',
-       formAssociated: true
      })
       export class CmpA {
+        @AttachInternals() internals;
     }
     `);
 
     expect(getStaticGetter(t.outputText, 'formAssociated')).toBe(true);
   });
 
-  it('should support formAssociated with shadow', async () => {
+  it('should support @AttachInternals with shadow', async () => {
     const t = transpileModule(`
      @Component({
        tag: 'cmp-a',
-       formAssociated: true,
-       shadow: true
+       encapsulation: { type: 'shadow' }
      })
       export class CmpA {
+        @AttachInternals() internals;
     }
     `);
 
@@ -403,14 +403,14 @@ describe('convert-decorators', () => {
     expect(getStaticGetter(t.outputText, 'formAssociated')).toBe(true);
   });
 
-  it('should support formAssociated with scoped', async () => {
+  it('should support @AttachInternals with scoped', async () => {
     const t = transpileModule(`
      @Component({
        tag: 'cmp-a',
-       formAssociated: true,
-       scoped: true
+       encapsulation: { type: 'scoped' }
      })
       export class CmpA {
+        @AttachInternals() internals;
     }
     `);
 

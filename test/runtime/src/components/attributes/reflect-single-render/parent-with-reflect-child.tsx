@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'parent-with-reflect-child',
   // 'shadow' is not needed here, but does make testing easier by using the shadow root to help encapsulate textContent
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ParentWithReflectChild {
   // counter to proxy the number of times a render has occurred

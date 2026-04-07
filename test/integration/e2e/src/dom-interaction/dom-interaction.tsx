@@ -2,7 +2,7 @@ import { Component, State, h } from '@stencil/core';
 
 @Component({
   tag: 'dom-interaction',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class DomInteractionCmp {
   @State() clickMsg = 'Click';

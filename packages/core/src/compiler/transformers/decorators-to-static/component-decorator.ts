@@ -10,6 +10,29 @@ import {
 import { getDecoratorParameters } from './decorator-utils';
 import { styleToStatic } from './style-to-static';
 
+// Track if we've already shown the deprecated API error this build
+let hasShownDeprecatedApiError = false;
+
+/**
+ * Reset the deprecated API error flag. Call this at the start of each build.
+ */
+export const resetDeprecatedApiWarning = () => {
+  hasShownDeprecatedApiError = false;
+};
+
+/**
+ * Internal interface that includes both new and deprecated properties
+ * for detection and migration purposes.
+ */
+interface ComponentOptionsWithDeprecated extends d.ComponentOptions {
+  /** @deprecated Use `encapsulation: { type: 'shadow' }` instead */
+  shadow?: boolean | { delegatesFocus?: boolean; slotAssignment?: 'manual' | 'named' };
+  /** @deprecated Use `encapsulation: { type: 'scoped' }` instead */
+  scoped?: boolean;
+  /** @deprecated Use `@AttachInternals()` decorator instead */
+  formAssociated?: boolean;
+}
+
 /**
  * Perform code generation to create new class members for a Stencil component
  * which will drive the runtime functionality specified by various options
@@ -39,12 +62,17 @@ export const componentDecoratorToStatic = (
   newMembers: ts.ClassElement[],
   componentDecorator: ts.Decorator,
 ) => {
-  const [componentOptions] = getDecoratorParameters<d.ComponentOptions>(
+  const [componentOptions] = getDecoratorParameters<ComponentOptionsWithDeprecated>(
     componentDecorator,
     typeChecker,
     diagnostics,
   );
   if (!componentOptions) {
+    return;
+  }
+
+  // Check for deprecated API usage before validation
+  if (!checkForDeprecatedApi(diagnostics, componentOptions, componentDecorator)) {
     return;
   }
 
@@ -63,23 +91,37 @@ export const componentDecoratorToStatic = (
 
   newMembers.push(createStaticGetter('is', convertValueToLiteral(componentOptions.tag.trim())));
 
-  if (componentOptions.shadow) {
-    newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('shadow')));
+  // Process the new encapsulation property
+  if (componentOptions.encapsulation) {
+    const enc = componentOptions.encapsulation;
 
-    if (typeof componentOptions.shadow !== 'boolean') {
-      if (componentOptions.shadow.delegatesFocus === true) {
+    if (enc.type === 'shadow') {
+      newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('shadow')));
+
+      if (enc.mode === 'closed') {
+        newMembers.push(createStaticGetter('shadowMode', convertValueToLiteral('closed')));
+      }
+
+      if (enc.delegatesFocus === true) {
         newMembers.push(createStaticGetter('delegatesFocus', convertValueToLiteral(true)));
       }
-      if (componentOptions.shadow.slotAssignment === 'manual') {
+
+      if (enc.slotAssignment === 'manual') {
         newMembers.push(createStaticGetter('slotAssignment', convertValueToLiteral('manual')));
       }
-    }
-  } else if (componentOptions.scoped) {
-    newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
-  }
+    } else if (enc.type === 'scoped') {
+      newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
 
-  if (componentOptions.formAssociated === true) {
-    newMembers.push(createStaticGetter('formAssociated', convertValueToLiteral(true)));
+      if (enc.patches && enc.patches.length > 0) {
+        newMembers.push(createStaticGetter('patches', convertValueToLiteral(enc.patches)));
+      }
+    } else if (enc.type === 'none') {
+      // 'none' is the default, no need to set encapsulation getter
+      // but we still need to handle patches
+      if (enc.patches && enc.patches.length > 0) {
+        newMembers.push(createStaticGetter('patches', convertValueToLiteral(enc.patches)));
+      }
+    }
   }
 
   styleToStatic(newMembers, componentOptions);
@@ -89,6 +131,57 @@ export const componentDecoratorToStatic = (
   if (assetsDirs.length > 0) {
     newMembers.push(createStaticGetter('assetsDirs', convertValueToLiteral(assetsDirs)));
   }
+};
+
+/**
+ * Check for usage of deprecated API properties and emit helpful error messages.
+ * Returns false if deprecated API is detected (halts compilation).
+ * Only shows detailed error once per build to avoid flooding the console.
+ *
+ * @param diagnostics an array of diagnostics for surfacing errors
+ * @param componentOptions the options passed to the `@Component` decorator
+ * @param componentDecorator the TypeScript decorator node
+ * @returns whether the component uses only the new API (true = valid)
+ */
+const checkForDeprecatedApi = (
+  diagnostics: d.Diagnostic[],
+  componentOptions: ComponentOptionsWithDeprecated,
+  componentDecorator: ts.Decorator,
+): boolean => {
+  const deprecatedProps: string[] = [];
+
+  if (componentOptions.shadow !== undefined) {
+    deprecatedProps.push('shadow');
+  }
+
+  if (componentOptions.scoped !== undefined) {
+    deprecatedProps.push('scoped');
+  }
+
+  if (componentOptions.formAssociated !== undefined) {
+    deprecatedProps.push('formAssociated');
+  }
+
+  if (deprecatedProps.length > 0) {
+    // Only show the full error message once per build
+    if (!hasShownDeprecatedApiError) {
+      hasShownDeprecatedApiError = true;
+      const err = buildError(diagnostics);
+      err.messageText = `@Component() uses deprecated API removed in Stencil v5.
+
+The "shadow", "scoped", and "formAssociated" properties have been replaced:
+  • shadow: true → encapsulation: { type: "shadow" }
+  • scoped: true → encapsulation: { type: "scoped" }
+  • formAssociated: true → Use @AttachInternals() decorator
+
+Run 'npx stencil migrate --dry-run' to see all affected files.
+Run 'npx stencil migrate' to automatically update your components.`;
+      augmentDiagnosticWithNode(err, findTagNode(deprecatedProps[0], componentDecorator));
+    }
+    return false;
+  }
+
+  return true;
 };
 
 /**
@@ -115,23 +208,39 @@ const validateComponent = (
   cmpNode: ts.ClassDeclaration,
   componentDecorator: ts.Decorator,
 ) => {
-  if (componentOptions.shadow && componentOptions.scoped) {
-    const err = buildError(diagnostics);
-    err.messageText = `Components cannot be "scoped" and "shadow" at the same time, they are mutually exclusive configurations.`;
-    augmentDiagnosticWithNode(err, findTagNode('scoped', componentDecorator));
-    return false;
-  }
+  // Validate encapsulation options
+  if (componentOptions.encapsulation) {
+    const enc = componentOptions.encapsulation;
 
-  // Validate slotAssignment is only used with shadow: true
-  if (typeof componentOptions.shadow === 'object' && componentOptions.shadow.slotAssignment) {
-    if (
-      componentOptions.shadow.slotAssignment !== 'manual' &&
-      componentOptions.shadow.slotAssignment !== 'named'
-    ) {
-      const err = buildError(diagnostics);
-      err.messageText = `The "slotAssignment" option must be either "manual" or "named".`;
-      augmentDiagnosticWithNode(err, findTagNode('slotAssignment', componentDecorator));
-      return false;
+    if (enc.type === 'shadow') {
+      // Validate slotAssignment
+      if (enc.slotAssignment && enc.slotAssignment !== 'manual' && enc.slotAssignment !== 'named') {
+        const err = buildError(diagnostics);
+        err.messageText = `The "slotAssignment" option must be either "manual" or "named".`;
+        augmentDiagnosticWithNode(err, findTagNode('slotAssignment', componentDecorator));
+        return false;
+      }
+
+      // Validate mode
+      if (enc.mode && enc.mode !== 'open' && enc.mode !== 'closed') {
+        const err = buildError(diagnostics);
+        err.messageText = `The "mode" option must be either "open" or "closed".`;
+        augmentDiagnosticWithNode(err, findTagNode('mode', componentDecorator));
+        return false;
+      }
+    }
+
+    // Validate patches for non-shadow encapsulation
+    if ((enc.type === 'none' || enc.type === 'scoped') && enc.patches) {
+      const validPatches = ['all', 'children', 'clone', 'insert'];
+      for (const patch of enc.patches) {
+        if (!validPatches.includes(patch)) {
+          const err = buildError(diagnostics);
+          err.messageText = `Invalid patch "${patch}". Valid patches are: ${validPatches.join(', ')}.`;
+          augmentDiagnosticWithNode(err, findTagNode('patches', componentDecorator));
+          return false;
+        }
+      }
     }
   }
 

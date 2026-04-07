@@ -387,7 +387,7 @@ describe('attribute', () => {
     });
 
     it('should reflect properties as attributes with strict build', async () => {
-      @Component({ tag: 'cmp-a', shadow: true })
+      @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
       class CmpA {
         @Prop({ reflect: true }) foo = 'bar';
 
@@ -414,7 +414,7 @@ describe('attribute', () => {
     });
 
     it('should reflect draggable', async () => {
-      @Component({ tag: 'cmp-draggable', shadow: true })
+      @Component({ tag: 'cmp-draggable', encapsulation: { type: 'shadow' } })
       class CmpABC {
         @Prop() foo = false;
 

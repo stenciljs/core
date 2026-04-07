@@ -5,7 +5,6 @@ export const config: Config = {
   devServer: {
     port: 3337,
   },
-  tsconfig: 'tsconfig.stencil.json',
   invisiblePrehydration: false,
   outputTargets: [
     {

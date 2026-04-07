@@ -1,0 +1,22 @@
+{
+  "name": "@stencil-core-tests/special-config-slot-patching",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil-test"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@stencil/vitest": "catalog:",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

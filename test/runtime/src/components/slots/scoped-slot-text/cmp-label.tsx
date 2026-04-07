@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'cmp-label',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class CmpLabel {
   render() {

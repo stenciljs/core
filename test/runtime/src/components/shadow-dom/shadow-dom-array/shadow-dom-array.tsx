@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'shadow-dom-array',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ShadowDomArray {
   @Prop() values: number[] = [];

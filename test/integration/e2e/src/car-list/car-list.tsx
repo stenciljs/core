@@ -10,7 +10,7 @@ import { CarData } from './car-data';
 @Component({
   tag: 'car-list',
   styleUrl: 'car-list.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   assetsDirs: ['assets-a'],
 })
 export class CarList {

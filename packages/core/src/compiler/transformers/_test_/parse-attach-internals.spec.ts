@@ -3,11 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { transpileModule } from './transpile';
 
 describe('parse attachInternals', function () {
-  it('should set attachInternalsMemberName when set', async () => {
+  it('should set attachInternalsMemberName and formAssociated when @AttachInternals is used', async () => {
     const t = transpileModule(`
     @Component({
       tag: 'cmp-a',
-      formAssociated: true
     })
     export class CmpA {
       @AttachInternals()
@@ -29,28 +28,13 @@ describe('parse attachInternals', function () {
     expect(t.cmp!.attachInternalsMemberName).toBe(null);
   });
 
-  it('should set attachInternalsMemberName even if formAssociated is not defined', async () => {
+  it('should opt-out of formAssociated with @AttachInternals({ formAssociated: false })', async () => {
     const t = transpileModule(`
     @Component({
       tag: 'cmp-a',
     })
     export class CmpA {
-      @AttachInternals()
-      myProp;
-    }
-    `);
-    expect(t.cmp!.formAssociated).toBe(false);
-    expect(t.cmp!.attachInternalsMemberName).toBe('myProp');
-  });
-
-  it('should set attachInternalsMemberName even if formAssociated is false', async () => {
-    const t = transpileModule(`
-    @Component({
-      tag: 'cmp-a',
-      formAssociated: false
-    })
-    export class CmpA {
-      @AttachInternals()
+      @AttachInternals({ formAssociated: false })
       myProp;
     }
     `);
@@ -104,11 +88,10 @@ describe('parse attachInternals', function () {
     expect(t.cmp!.attachInternalsCustomStates).toEqual([]);
   });
 
-  it('should handle @AttachInternals with states and formAssociated', async () => {
+  it('should handle @AttachInternals with states (formAssociated is implicitly true)', async () => {
     const t = transpileModule(`
     @Component({
       tag: 'cmp-a',
-      formAssociated: true
     })
     export class CmpA {
       @AttachInternals({ states: { checked: true } })

@@ -3,7 +3,7 @@ import { Component, h, Host, State } from '@stencil/core';
 @Component({
   tag: 'css-variables-shadow-dom',
   styleUrl: 'css-variables-shadow-dom.css',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class CssVariablesShadowDom {
   @State() isGreen = false;

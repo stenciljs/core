@@ -2,8 +2,8 @@ import { Component, h, Host, State } from '@stencil/core';
 
 @Component({
   tag: 'slot-conditional-rendering',
-  shadow: false,
-  scoped: true,
+
+  encapsulation: { type: 'scoped' },
 })
 export class SlotConditionalRendering {
   @State() headerVisible = true;

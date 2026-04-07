@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'ion-host',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class IonHost {
   render() {

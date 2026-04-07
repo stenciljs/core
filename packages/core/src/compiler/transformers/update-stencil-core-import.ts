@@ -117,6 +117,7 @@ const KEEP_IMPORTS = new Set([
   'writeTask',
   'readTask',
   'getElement',
+  'getShadowRoot',
   'forceUpdate',
   'getRenderingRef',
   'forceModeUpdate',

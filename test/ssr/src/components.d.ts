@@ -176,6 +176,13 @@ export namespace Components {
     }
     interface ShadowChild {
     }
+    /**
+     * Component using closed shadow DOM mode for SSR testing.
+     * With mode: 'closed', the shadowRoot is not accessible from outside,
+     * but SSR should still serialize the shadow content correctly.
+     */
+    interface ShadowClosed {
+    }
     interface ShadowSsrChildCmp {
     }
     interface ShadowSsrParentCmp {
@@ -440,6 +447,17 @@ declare global {
         prototype: HTMLShadowChildElement;
         new (): HTMLShadowChildElement;
     };
+    /**
+     * Component using closed shadow DOM mode for SSR testing.
+     * With mode: 'closed', the shadowRoot is not accessible from outside,
+     * but SSR should still serialize the shadow content correctly.
+     */
+    interface HTMLShadowClosedElement extends Components.ShadowClosed, HTMLStencilElement {
+    }
+    var HTMLShadowClosedElement: {
+        prototype: HTMLShadowClosedElement;
+        new (): HTMLShadowClosedElement;
+    };
     interface HTMLShadowSsrChildCmpElement extends Components.ShadowSsrChildCmp, HTMLStencilElement {
     }
     var HTMLShadowSsrChildCmpElement: {
@@ -520,6 +538,7 @@ declare global {
         "scoped-ssr-parent-cmp": HTMLScopedSsrParentCmpElement;
         "serialize-deserializer": HTMLSerializeDeserializerElement;
         "shadow-child": HTMLShadowChildElement;
+        "shadow-closed": HTMLShadowClosedElement;
         "shadow-ssr-child-cmp": HTMLShadowSsrChildCmpElement;
         "shadow-ssr-parent-cmp": HTMLShadowSsrParentCmpElement;
         "shadow-wrapper": HTMLShadowWrapperElement;
@@ -699,6 +718,13 @@ declare namespace LocalJSX {
     }
     interface ShadowChild {
     }
+    /**
+     * Component using closed shadow DOM mode for SSR testing.
+     * With mode: 'closed', the shadowRoot is not accessible from outside,
+     * but SSR should still serialize the shadow content correctly.
+     */
+    interface ShadowClosed {
+    }
     interface ShadowSsrChildCmp {
     }
     interface ShadowSsrParentCmp {
@@ -819,6 +845,7 @@ declare namespace LocalJSX {
         "scoped-ssr-parent-cmp": ScopedSsrParentCmp;
         "serialize-deserializer": Omit<SerializeDeserializer, keyof SerializeDeserializerAttributes> & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes]?: SerializeDeserializer[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `attr:${K}`]?: SerializeDeserializerAttributes[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `prop:${K}`]?: SerializeDeserializer[K] };
         "shadow-child": ShadowChild;
+        "shadow-closed": ShadowClosed;
         "shadow-ssr-child-cmp": ShadowSsrChildCmp;
         "shadow-ssr-parent-cmp": ShadowSsrParentCmp;
         "shadow-wrapper": ShadowWrapper;
@@ -873,6 +900,12 @@ declare module "@stencil/core" {
             "scoped-ssr-parent-cmp": LocalJSX.IntrinsicElements["scoped-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSsrParentCmpElement>;
             "serialize-deserializer": LocalJSX.IntrinsicElements["serialize-deserializer"] & JSXBase.HTMLAttributes<HTMLSerializeDeserializerElement>;
             "shadow-child": LocalJSX.IntrinsicElements["shadow-child"] & JSXBase.HTMLAttributes<HTMLShadowChildElement>;
+            /**
+             * Component using closed shadow DOM mode for SSR testing.
+             * With mode: 'closed', the shadowRoot is not accessible from outside,
+             * but SSR should still serialize the shadow content correctly.
+             */
+            "shadow-closed": LocalJSX.IntrinsicElements["shadow-closed"] & JSXBase.HTMLAttributes<HTMLShadowClosedElement>;
             "shadow-ssr-child-cmp": LocalJSX.IntrinsicElements["shadow-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrChildCmpElement>;
             "shadow-ssr-parent-cmp": LocalJSX.IntrinsicElements["shadow-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrParentCmpElement>;
             "shadow-wrapper": LocalJSX.IntrinsicElements["shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;

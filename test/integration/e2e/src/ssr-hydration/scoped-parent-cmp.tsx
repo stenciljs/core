@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'scoped-ssr-parent-cmp',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     :host {
       display: block;

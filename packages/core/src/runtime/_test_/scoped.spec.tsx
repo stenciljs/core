@@ -7,7 +7,7 @@ describe('scoped', () => {
     @Component({
       tag: 'cmp-a',
       styles: ':host { color: inherit }',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpA {
       render() {
@@ -22,7 +22,7 @@ describe('scoped', () => {
     @Component({
       tag: 'cmp-b',
       styles: ':host { color: inherit }',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpB {
       render() {
@@ -56,7 +56,7 @@ describe('scoped', () => {
     @Component({
       tag: 'cmp-b',
       styles: ':host { color: inherit }',
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class CmpB {
       @Prop() slot = true;
@@ -108,8 +108,7 @@ describe('scoped', () => {
   describe('should keep scope for onSlotChange', () => {
     @Component({
       tag: 'my-node-with-slot-changes',
-      shadow: false,
-      scoped: true,
+      encapsulation: { type: 'scoped' },
     })
     class MyNodeWithSlotChanges {
       @State() slotChangeCount: number = 0;

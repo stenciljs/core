@@ -9,8 +9,10 @@ import { disconnectedCallback } from './disconnected-callback';
 import {
   patchChildSlotNodes,
   patchCloneNode,
+  patchInsertBefore,
   patchPseudoShadowDom,
   patchSlotAppendChild,
+  patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
 import { hmrStart } from './hmr-component';
@@ -197,17 +199,30 @@ export const bootstrapLazy = (
         !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
         cmpMeta.$flags$ & CMP_FLAGS.hasSlot
       ) {
-        if (BUILD.experimentalSlotFixes) {
+        // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
+        if (
+          BUILD.experimentalSlotFixes ||
+          (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)
+        ) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
-          if (BUILD.slotChildNodesFix) {
+          // Apply individual patches based on global BUILD flags OR per-component flags
+          if (
+            BUILD.slotChildNodesFix ||
+            (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
+          ) {
             patchChildSlotNodes(HostElement.prototype);
           }
-          if (BUILD.cloneNodeFix) {
+          if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
             patchCloneNode(HostElement.prototype);
           }
-          if (BUILD.appendChildSlotFix) {
+          if (
+            BUILD.appendChildSlotFix ||
+            (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
+          ) {
             patchSlotAppendChild(HostElement.prototype);
+            patchInsertBefore(HostElement.prototype);
+            patchSlotRemoveChild(HostElement.prototype);
           }
           if (
             BUILD.scopedSlotTextContentFix &&
@@ -216,7 +231,10 @@ export const bootstrapLazy = (
             patchTextContent(HostElement.prototype);
           }
         }
-      } else if (BUILD.cloneNodeFix) {
+      } else if (
+        BUILD.cloneNodeFix ||
+        (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)
+      ) {
         patchCloneNode(HostElement.prototype);
       }
 

@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'scoped-basic-root',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styleUrls: {
     md: 'scoped-basic-root.css',
   },

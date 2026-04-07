@@ -3,7 +3,7 @@ import { Component, h, Prop } from '@stencil/core';
 @Component({
   tag: 'child-reflect-nan-attribute',
   // 'shadow' is not needed here, but does make testing easier by using the shadow root to help encapsulate textContent
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ChildReflectNanAttribute {
   // for this test, it's necessary that 'reflect' is true, the class member is not camel-cased, and is of type 'number'

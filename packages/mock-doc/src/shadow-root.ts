@@ -1,6 +1,9 @@
 import { MockDocumentFragment } from './document-fragment';
 
 export class MockShadowRoot extends MockDocumentFragment {
+  private _mode: 'open' | 'closed' = 'open';
+  private _delegatesFocus: boolean = false;
+
   get activeElement(): HTMLElement | null {
     return null;
   }
@@ -10,7 +13,11 @@ export class MockShadowRoot extends MockDocumentFragment {
   }
 
   get delegatesFocus(): boolean {
-    return false;
+    return this._delegatesFocus;
+  }
+
+  set delegatesFocus(value: boolean) {
+    this._delegatesFocus = value;
   }
 
   get fullscreenElement(): HTMLElement | null {
@@ -29,7 +36,11 @@ export class MockShadowRoot extends MockDocumentFragment {
   }
 
   get mode(): 'open' | 'closed' {
-    return 'open';
+    return this._mode;
+  }
+
+  set mode(value: 'open' | 'closed') {
+    this._mode = value;
   }
 
   get pictureInPictureElement(): HTMLElement | null {

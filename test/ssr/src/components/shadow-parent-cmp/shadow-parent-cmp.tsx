@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'shadow-ssr-parent-cmp',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   styles: `
     :host {
       display: block;

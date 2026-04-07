@@ -12,6 +12,7 @@ import type * as d from '@stencil/core';
 
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
+import { getShadowRoot } from './element';
 import { createTime } from './profile';
 import { HYDRATED_STYLE_ID, NODE_TYPE, SLOT_FB_CSS } from './runtime-constants';
 
@@ -150,10 +151,19 @@ export const addStyle = (
     style = getStyleWithSlotCss(style);
   }
 
-  // if an element is NOT connected then getRootNode() will return the wrong root node
-  // so the fallback is to always use the document for the root node in those cases
-  styleContainerNode =
-    styleContainerNode.nodeType === NODE_TYPE.DocumentFragment ? styleContainerNode : win.document;
+  // Determine the style container:
+  // - Keep shadow roots (DocumentFragment) as-is
+  // - For closed shadow DOM during SSR, the host element is passed directly - keep it
+  // - Otherwise, fallback to the document (for when element is not connected)
+  const isClosedShadowSSR =
+    BUILD.hydrateServerSide &&
+    BUILD.shadowModeClosed &&
+    cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss &&
+    cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed;
+
+  if (styleContainerNode.nodeType !== NODE_TYPE.DocumentFragment && !isClosedShadowSSR) {
+    styleContainerNode = win.document;
+  }
 
   if (style) {
     if (typeof style === 'string') {
@@ -244,7 +254,13 @@ export const addStyle = (
          * attach styles at the beginning of a shadow root node if we render shadow components
          */
         if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
-          styleContainerNode.insertBefore(styleElm, null);
+          // For closed shadow DOM SSR (styles inlined into host element), prepend to be first child
+          // For regular shadow DOM, append to the shadow root
+          if (isClosedShadowSSR) {
+            (styleContainerNode as HTMLElement).prepend(styleElm);
+          } else {
+            styleContainerNode.insertBefore(styleElm, null);
+          }
         }
 
         if (appliedStyles) {
@@ -298,13 +314,30 @@ export const attachStyles = (hostRef: d.HostRef) => {
   const elm = hostRef.$hostElement$;
   const flags = cmpMeta.$flags$;
   const endAttachStyles = createTime('attachStyles', cmpMeta.$tagName$);
-  const scopeId = addStyle(
-    BUILD.shadowDom && supportsShadow && elm.shadowRoot
-      ? elm.shadowRoot
-      : (elm.getRootNode() as ShadowRoot),
-    cmpMeta,
-    hostRef.$modeName$,
-  );
+
+  // Determine the style container:
+  // - For shadow DOM components with a shadow root, use the shadow root
+  // - For closed shadow DOM during SSR (shadowNeedsScopedCss + shadowModeClosed), use the host element
+  //   so styles are inlined with the component for proper serialization
+  // - For regular scoped components, use the document root
+  let styleContainerNode: ShadowRoot | HTMLElement;
+  const shadowRoot = BUILD.shadowDom && supportsShadow ? getShadowRoot(elm) : null;
+
+  if (shadowRoot) {
+    styleContainerNode = shadowRoot;
+  } else if (
+    BUILD.hydrateServerSide &&
+    BUILD.shadowModeClosed &&
+    flags & CMP_FLAGS.shadowNeedsScopedCss &&
+    flags & CMP_FLAGS.shadowModeClosed
+  ) {
+    // Closed shadow DOM with scoped CSS during SSR: inline styles into the host element
+    styleContainerNode = elm;
+  } else {
+    styleContainerNode = elm.getRootNode() as ShadowRoot;
+  }
+
+  const scopeId = addStyle(styleContainerNode, cmpMeta, hostRef.$modeName$);
 
   if (
     (BUILD.shadowDom || BUILD.scoped) &&

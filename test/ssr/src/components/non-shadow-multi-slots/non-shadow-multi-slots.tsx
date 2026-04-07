@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'non-shadow-multi-slots',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class NonShadowMultiSlots {
   render() {

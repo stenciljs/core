@@ -8,7 +8,7 @@ import { Component, h } from '@stencil/core';
       font-weight: bold;
     }
   `,
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ShadowDomSlotNestedRoot {
   render() {

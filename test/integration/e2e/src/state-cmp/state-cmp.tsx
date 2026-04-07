@@ -11,7 +11,7 @@ import { Component, State, h } from '@stencil/core';
       color: blue;
     }
   `,
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class StateCmp {
   @State() selected: string;

@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'host-attr-override',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class HostAttrOverride {
   render() {

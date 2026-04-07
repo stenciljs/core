@@ -2,7 +2,7 @@ import { Component, h, Method } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-assigned-methods',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotAssignedMethods {
   private fbSlot: HTMLSlotElement;

@@ -18,8 +18,10 @@ import { disconnectedCallback } from './disconnected-callback';
 import {
   patchChildSlotNodes,
   patchCloneNode,
+  patchInsertBefore,
   patchPseudoShadowDom,
   patchSlotAppendChild,
+  patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
 import { computeMode } from './mode';
@@ -72,23 +74,33 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
       cmpMeta.$flags$ & CMP_FLAGS.hasSlot
     ) {
-      if (BUILD.experimentalSlotFixes) {
+      // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
+      if (BUILD.experimentalSlotFixes || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
         patchPseudoShadowDom(Cstr.prototype);
       } else {
-        if (BUILD.slotChildNodesFix) {
+        // Apply individual patches based on global BUILD flags OR per-component flags
+        if (
+          BUILD.slotChildNodesFix ||
+          (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
+        ) {
           patchChildSlotNodes(Cstr.prototype);
         }
-        if (BUILD.cloneNodeFix) {
+        if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
           patchCloneNode(Cstr.prototype);
         }
-        if (BUILD.appendChildSlotFix) {
+        if (
+          BUILD.appendChildSlotFix ||
+          (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
+        ) {
           patchSlotAppendChild(Cstr.prototype);
+          patchInsertBefore(Cstr.prototype);
+          patchSlotRemoveChild(Cstr.prototype);
         }
         if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
           patchTextContent(Cstr.prototype);
         }
       }
-    } else if (BUILD.cloneNodeFix) {
+    } else if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
       patchCloneNode(Cstr.prototype);
     }
 
@@ -129,15 +141,23 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       },
       __attachShadow(this: d.HostElement) {
         if (supportsShadow) {
-          if (!this.shadowRoot) {
+          const isClosed =
+            BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
+
+          // For closed shadow roots, this.shadowRoot will be null.
+          // Check our stored reference instead.
+          let existingRoot: ShadowRoot | null = this.shadowRoot;
+          if (BUILD.shadowModeClosed && isClosed) {
+            existingRoot = (this as any).__shadowRoot ?? null;
+          }
+
+          if (!existingRoot) {
             createShadowRoot.call(this, cmpMeta);
-          } else {
-            // we want to check to make sure that the mode for the shadow
-            // root already attached to the element (i.e. created via DSD)
-            // is set to 'open' since that's the only mode we support
-            if (this.shadowRoot.mode !== 'open') {
+          } else if (BUILD.shadowModeClosed && isClosed) {
+            // Validate that the existing shadow root mode matches what we expect
+            if (existingRoot.mode !== 'closed') {
               throw new Error(
-                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${this.shadowRoot.mode} but Stencil only supports open shadow roots.`,
+                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${existingRoot.mode} but expected closed.`,
               );
             }
           }

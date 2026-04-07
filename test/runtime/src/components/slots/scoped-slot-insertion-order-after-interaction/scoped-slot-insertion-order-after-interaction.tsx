@@ -2,7 +2,7 @@ import { Component, h, Host, State } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-insertion-order-after-interaction',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotInsertionOrderAfterInteraction {
   @State() totalCounter = 0;

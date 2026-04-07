@@ -2,8 +2,8 @@ import { AttachInternals, Component, h } from '@stencil/core';
 
 @Component({
   tag: 'form-associated-external',
-  formAssociated: true,
-  shadow: true,
+
+  encapsulation: { type: 'shadow' },
 })
 export class FormAssociatedExternal {
   @AttachInternals() internals: ElementInternals;

@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 
 @Component({
   tag: 'csp-nonce-cmp',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styles: `
     :host {
       color: rgb(255, 0, 0);

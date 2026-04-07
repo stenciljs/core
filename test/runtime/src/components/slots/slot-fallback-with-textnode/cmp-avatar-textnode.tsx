@@ -2,8 +2,8 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'cmp-avatar-textnode',
-  shadow: false,
-  scoped: true,
+
+  encapsulation: { type: 'scoped' },
 })
 export class CmpAvatarTextnode {
   render() {

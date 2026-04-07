@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-dynamic-shadow-list',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class DynamicListShadowComponent {
   @Prop() items: Array<string> = [];

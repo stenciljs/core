@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'wrap-ssr-shadow-cmp',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
   styles: `
     :host {
       display: block;

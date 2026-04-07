@@ -5,7 +5,7 @@ import { Component, h, Prop } from '@stencil/core';
  */
 @Component({
   tag: 'my-jsx-cmp',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class MyJsxCmp {
   /**

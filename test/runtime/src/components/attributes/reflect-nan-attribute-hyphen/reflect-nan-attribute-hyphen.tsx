@@ -3,7 +3,7 @@ import { Component, h, Prop } from '@stencil/core';
 @Component({
   tag: 'reflect-nan-attribute-hyphen',
   // 'shadow' is not needed here, but does make testing easier by using the shadow root to help encapsulate textContent
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ReflectNanAttributeHyphen {
   // for this test, it's necessary that 'reflect' is true, the class member is camel-cased, and is of type 'number'

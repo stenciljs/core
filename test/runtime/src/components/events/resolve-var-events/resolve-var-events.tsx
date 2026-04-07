@@ -19,7 +19,7 @@ const EVENTS = {
 
 @Component({
   tag: 'resolve-var-events',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ResolveVarEvents {
   @State() myEventCount = 0;

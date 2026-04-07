@@ -19,7 +19,7 @@ import { Component, h } from '@stencil/core';
       color: white;
     }
   `,
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class SiblingRoot {
   componentWillLoad() {

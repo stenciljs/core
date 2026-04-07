@@ -4,7 +4,7 @@ import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate scoped', () => {
   it('does not support shadow, slot, light dom', async () => {
-    @Component({ tag: 'cmp-a', shadow: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
         return (
@@ -54,7 +54,7 @@ describe('hydrate scoped', () => {
   });
 
   it('scoped, slot, light dom', async () => {
-    @Component({ tag: 'cmp-a', scoped: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'scoped' } })
     class CmpA {
       render() {
         return (
@@ -106,7 +106,7 @@ describe('hydrate scoped', () => {
   });
 
   it('root element, no slot', async () => {
-    @Component({ tag: 'cmp-a', scoped: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'scoped' } })
     class CmpA {
       render() {
         return (
@@ -152,7 +152,7 @@ describe('hydrate scoped', () => {
   });
 
   it('adds a scoped-slot class to the slot parent element', async () => {
-    @Component({ tag: 'cmp-a', scoped: true })
+    @Component({ tag: 'cmp-a', encapsulation: { type: 'scoped' } })
     class CmpA {
       render() {
         return (

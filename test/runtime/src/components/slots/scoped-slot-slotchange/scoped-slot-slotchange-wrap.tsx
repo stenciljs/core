@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-slotchange-wrap',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotChangeWrap {
   @Prop() swapSlotContent: boolean = false;

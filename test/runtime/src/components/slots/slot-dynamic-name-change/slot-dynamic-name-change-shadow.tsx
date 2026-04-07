@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-dynamic-name-change-shadow',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class SlotDynamicNameChangeShadow {
   @Prop() slotName = 'greeting';

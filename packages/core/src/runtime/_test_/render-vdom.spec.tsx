@@ -908,7 +908,7 @@ describe('render-vdom', () => {
       @Component({
         tag: 'cmp-a',
         styles: ':host{}',
-        scoped: true,
+        encapsulation: { type: 'scoped' },
       })
       class CmpA {
         @Prop() addClass = false;

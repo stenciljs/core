@@ -3,7 +3,7 @@ import { Component, h } from '@stencil/core';
 @Component({
   tag: 'parent-reflect-nan-attribute',
   // 'shadow' is not needed here, but does make testing easier by using the shadow root to help encapsulate textContent
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ParentReflectNanAttribute {
   // counter to proxy the number of times a render has occurred

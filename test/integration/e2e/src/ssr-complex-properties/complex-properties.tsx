@@ -2,7 +2,7 @@ import { Component, h, Prop } from '@stencil/core';
 
 @Component({
   tag: 'complex-properties',
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class ComplexProperties {
   /**

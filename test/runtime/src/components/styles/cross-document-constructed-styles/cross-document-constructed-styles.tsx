@@ -7,7 +7,7 @@ import { Component, h } from '@stencil/core';
       color: rgb(255, 0, 0);
     }
   `,
-  shadow: true,
+  encapsulation: { type: 'shadow' },
 })
 export class CrossDocumentStyleTestCmp {
   render() {

@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 
 @Component({
   tag: 'scoped-slot-insertbefore',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
 })
 export class ScopedSlotInsertBefore {
   render() {

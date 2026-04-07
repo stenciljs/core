@@ -2,8 +2,6 @@ import { Component, h, Host, Prop } from '@stencil/core';
 
 @Component({
   tag: 'slot-hide-content-open',
-  scoped: false,
-  shadow: false,
 })
 export class SlotHideContentOpen {
   @Prop() enabled = false;

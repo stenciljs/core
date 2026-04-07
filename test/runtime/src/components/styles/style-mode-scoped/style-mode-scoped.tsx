@@ -9,7 +9,7 @@ import { Component, h } from '@stencil/core';
  */
 @Component({
   tag: 'style-mode-scoped',
-  scoped: true,
+  encapsulation: { type: 'scoped' },
   styleUrls: {
     buford: 'style-mode-scoped.buford.css',
     griff: 'style-mode-scoped.griff.css',
