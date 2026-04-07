@@ -174,6 +174,9 @@ export const taskMigrate = async (
 
 /**
  * Print the detected migrations to the console.
+ * @param detected the detected migrations
+ * @param rootDir the root directory to relativize file paths
+ * @param logger the logger for output
  */
 function printDetectedMigrations(
   detected: DetectedMigration[],
@@ -196,6 +199,8 @@ function printDetectedMigrations(
 
 /**
  * Prompt the user for which migration action to take.
+ * @param logger the logger for output
+ * @returns the selected MigrationAction
  */
 async function promptForMigrationAction(logger: d.Logger): Promise<MigrationAction> {
   const { prompt } = await import('prompts');
@@ -227,6 +232,9 @@ async function promptForMigrationAction(logger: d.Logger): Promise<MigrationActi
 
 /**
  * Print migration summary.
+ * @param detected the detected migrations
+ * @param rules the migration rules
+ * @param logger the logger for output
  */
 function printMigrationSummary(
   detected: DetectedMigration[],
@@ -245,6 +253,9 @@ function printMigrationSummary(
 
 /**
  * Print summary grouped by rule.
+ * @param detected the detected migrations
+ * @param rules the migration rules
+ * @param logger the logger for output
  */
 function printRuleSummary(
   detected: DetectedMigration[],
