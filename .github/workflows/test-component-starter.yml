@@ -38,6 +38,11 @@ jobs:
         working-directory: ./packages/core
         shell: bash
 
+      - name: Pack @stencil/cli
+        run: pnpm pack --pack-destination ../../
+        working-directory: ./packages/cli
+        shell: bash
+
       - name: Initialize Component Starter
         run: npm init stencil component tmp-component-starter
         shell: bash
@@ -48,7 +53,7 @@ jobs:
         shell: bash
 
       - name: Install Stencil from Pack
-        run: npm install ../stencil-core-*.tgz --legacy-peer-deps
+        run: npm install ../stencil-cli-*.tgz ../stencil-core-*.tgz --legacy-peer-deps
         working-directory: ./tmp-component-starter
         shell: bash
 
