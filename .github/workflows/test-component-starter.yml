@@ -59,6 +59,8 @@ jobs:
 
       - name: Install Playwright Browsers
         uses: ./.github/workflows/actions/install-playwright
+        with:
+          working-directory: ./tmp-component-starter
 
       - name: Run Stencil Migrations
         run: npx stencil migrate
