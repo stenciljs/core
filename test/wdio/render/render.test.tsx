@@ -4,15 +4,22 @@ import { $, expect } from '@wdio/globals';
 import { defineCustomElement } from '../test-components/complex-properties.js';
 
 describe('Render VDOM', () => {
+  let container: HTMLDivElement;
+
   beforeEach(async () => {
-    document.querySelector('div')?.remove();
+    container = document.createElement('div');
+    document.body.appendChild(container);
+  });
+
+  afterEach(async () => {
+    container.remove();
   });
 
   it('can render an arbitrary VDOM tree', async () => {
     const vdom = h('div', { className: 'test' }, 'Hello, world!');
-    render(vdom, document.body);
+    render(vdom, container);
 
-    await expect($(document.body).$('div')).toMatchInlineSnapshot(`"<div class="test">Hello, world!</div>"`);
+    await expect($(container).$('div')).toMatchInlineSnapshot(`"<div class="test">Hello, world!</div>"`);
   });
 
   it('can render a VDOM with a Stencil component', async () => {
@@ -31,7 +38,7 @@ describe('Render VDOM', () => {
         ></complex-properties>
       </div>
     );
-    render(vdom, document.body);
+    render(vdom, container);
 
     // Use separate assertions instead of inline snapshot to avoid framework issues
     const component = await $('complex-properties');
@@ -51,9 +58,6 @@ describe('Render VDOM', () => {
   });
 
   it('preserves DOM elements when re-rendering to the same container', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
     // Initial render with three items
     render(
       <ul>
@@ -93,9 +97,6 @@ describe('Render VDOM', () => {
   });
 
   it('preserves custom element state across re-renders', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
     // Initial render with an input element
     render(
       <div>
