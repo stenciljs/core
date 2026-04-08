@@ -377,23 +377,24 @@ export const proxyComponent = (
             return;
           }
 
+          const propFlags = members.find(([m]) => m === propName);
+          const isBooleanTarget = propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean;
+
+          // Guard: skip when the attribute was removed but the current prop is
+          // already undefined. Both mean "not set" for a boolean prop, so the assignment would be
+          // spurious. Without this guard the setter fires reentrant mid-render when
+          // taskQueue:'immediate' is used, corrupting the vdom patch and crashing with
+          // "Cannot read properties of null (reading 'nodeType')".
+          const isSpuriousBooleanRemoval = isBooleanTarget && newValue === null && this[propName] === undefined;
+
           // special handling of boolean attributes. Null (removal) means false.
           // everything else means true (including an empty string
-          const attrWasRemoved = newValue === null;
-          const propFlags = members.find(([m]) => m === propName);
-          if (propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean) {
+          if (isBooleanTarget) {
             (newValue as any) = newValue === null || newValue === 'false' ? false : true;
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
-          //
-          // Guard: skip when the attribute was removed (attrWasRemoved) but the current prop is
-          // already undefined. Both mean "not set" for a boolean prop, so the assignment would be
-          // spurious. Without this guard the setter fires reentrant mid-render when
-          // taskQueue:'immediate' is used, corrupting the vdom patch and crashing with
-          // "Cannot read properties of null (reading 'nodeType')".
-          const isSpuriousBooleanRemoval = attrWasRemoved && this[propName] === undefined;
           const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
           if (!isSpuriousBooleanRemoval && newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
             this[propName] = newValue;
