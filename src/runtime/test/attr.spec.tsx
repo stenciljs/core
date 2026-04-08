@@ -431,5 +431,47 @@ describe('attribute', () => {
       </cmp-draggable>
     `);
     });
+    it('should correctly reflect boolean | undefined prop when toggled between true and undefined', async () => {
+      @Component({ tag: 'cmp-reflect-bool-toggle', shadow: true })
+      class CmpReflectBoolToggle {
+        @Prop({ reflect: true, mutable: true }) active: boolean | undefined = undefined;
+
+        render() {
+          return <div>{String(this.active)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectBoolToggle],
+        html: `<cmp-reflect-bool-toggle></cmp-reflect-bool-toggle>`,
+      });
+
+      // undefined: no attribute
+      expect(root.hasAttribute('active')).toBe(false);
+      expect(root.active).toBeUndefined();
+
+      // undefined → true: attribute appears
+      root.active = true;
+      await waitForChanges();
+      expect(root.hasAttribute('active')).toBe(true);
+      expect(root.active).toBe(true);
+
+      // true → undefined: attribute removed, prop must stay undefined (not coerced to false)
+      root.active = undefined;
+      await waitForChanges();
+      expect(root.hasAttribute('active')).toBe(false);
+      expect(root.active).toBeUndefined();
+
+      // undefined → true again: recovers correctly
+      root.active = true;
+      await waitForChanges();
+      expect(root.hasAttribute('active')).toBe(true);
+      expect(root.active).toBe(true);
+
+      // external removeAttribute while prop is true: must update prop to false
+      root.removeAttribute('active');
+      await waitForChanges();
+      expect(root.active).toBe(false);
+    });
   });
 });
