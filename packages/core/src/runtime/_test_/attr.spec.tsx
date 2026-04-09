@@ -455,7 +455,7 @@ describe('attribute', () => {
     `);
     });
     it('should correctly reflect boolean | undefined prop when toggled between true and undefined', async () => {
-      @Component({ tag: 'cmp-reflect-bool-toggle', shadow: true })
+      @Component({ tag: 'cmp-reflect-bool-toggle', encapsulation: { type: 'shadow' } })
       class CmpReflectBoolToggle {
         @Prop({ reflect: true, mutable: true }) active: boolean | undefined = undefined;
 
