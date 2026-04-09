@@ -168,3 +168,4 @@ jsxmode
 jsxdev
 jsxs
 labelable
+lightningcss
