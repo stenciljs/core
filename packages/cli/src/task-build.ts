@@ -142,8 +142,9 @@ async function promptForMigrationOnBuildError(
   logger.info('');
   logger.info('These migrations may help resolve the build errors above.');
 
-  // Import prompts dynamically
-  const { prompt } = await import('prompts');
+  // Import prompts dynamically (default export is the prompt function)
+  const prompts = await import('prompts');
+  const prompt = prompts.default;
 
   const response = await prompt({
     name: 'action',

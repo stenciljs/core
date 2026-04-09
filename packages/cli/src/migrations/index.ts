@@ -6,6 +6,7 @@ import { formAssociatedRule } from './rules/form-associated';
 /**
  * Build a map of local import names to their original names from @stencil/core.
  * Handles aliased imports like `import { Component as Cmp } from '@stencil/core'`.
+ * Also handles multiple imports from @stencil/core (e.g., separate type and value imports).
  *
  * @param sourceFile The TypeScript source file to analyze
  * @returns Map where keys are local names and values are original imported names
@@ -29,7 +30,8 @@ export const getStencilCoreImportMap = (sourceFile: ts.SourceFile): Map<string, 
           importMap.set(localName, originalName);
         }
       }
-      break; // Only process first @stencil/core import
+      // Don't break - there may be multiple imports from @stencil/core
+      // (e.g., a type-only import and a value import)
     }
   }
 

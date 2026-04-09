@@ -200,6 +200,31 @@ export const styles: d.StyleMap = new Map();
 export const modeResolutionChain: d.ResolutionHandler[] = [];
 
 /**
+ * Server-side implementation of getAssetPath.
+ *
+ * Unlike the client-side version, this doesn't use import.meta.url as a fallback
+ * because it doesn't make sense in the bundled hydrate factory context.
+ * The base URL must come from plt.$resourcesUrl$ (set via hydration options).
+ * @param path - The relative path to the asset
+ * @returns The resolved asset path, which may be an absolute URL if resourcesUrl is set to an external URL, or a relative path if resourcesUrl is a relative path or not set at all
+ */
+export const getAssetPath = (path: string) => {
+  // In the server/hydrate context, resourcesUrl should be set via hydrateDocument options
+  // If not set, default to './' which is a reasonable default for server-side rendering
+  const base = plt.$resourcesUrl$ || './';
+  const assetUrl = new URL(path, base);
+  return assetUrl.origin !== win.location.origin ? assetUrl.href : assetUrl.pathname;
+};
+
+/**
+ * Sets the base URL for resolving asset paths in the server/hydrate context.
+ * @param path - The base URL to use for resolving asset paths. This should typically be set to the same value as the `resourcesUrl` option passed to `hydrateDocument` to ensure that asset paths are resolved correctly in the server/hydrate context.
+ * If not set, it defaults to './', which is a reasonable default for server-side rendering.
+ * @returns void
+ */
+export const setAssetPath = (path: string) => (plt.$resourcesUrl$ = path);
+
+/**
  * Checks to see any components are rendered with `scoped`
  * @param opts - SSR options
  */
@@ -226,7 +251,6 @@ export {
   forceModeUpdate,
   forceUpdate,
   Fragment,
-  getAssetPath,
   getElement,
   getMode,
   getRenderingRef,
@@ -241,7 +265,6 @@ export {
   proxyComponent,
   proxyCustomElement,
   renderVdom,
-  setAssetPath,
   setMode,
   setNonce,
   setTagTransformer,
