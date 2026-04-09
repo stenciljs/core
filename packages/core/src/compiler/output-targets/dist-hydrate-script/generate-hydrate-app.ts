@@ -108,7 +108,7 @@ export const generateHydrateApp = async (
       treeshake: false,
       onwarn: createOnWarnFn(buildCtx.diagnostics),
       checks: {
-        pluginTimings: config.devMode,
+        pluginTimings: config.logLevel === 'debug',
       },
     };
 

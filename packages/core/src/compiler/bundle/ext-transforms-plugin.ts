@@ -46,8 +46,24 @@ export const extTransformsPlugin = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Plugin => {
+  let transformCount = 0;
+  let cacheHits = 0;
+  let firstTransformStart: number | null = null;
+  let lastTransformEnd: number = 0;
+
   return {
     name: 'extTransformsPlugin',
+
+    buildEnd() {
+      if (config.logLevel === 'debug' && firstTransformStart !== null) {
+        const totalElapsed = lastTransformEnd - firstTransformStart;
+        const computed = transformCount - cacheHits;
+        buildCtx.debug(
+          `extTransformsPlugin: ${transformCount} stylesheets in ${totalElapsed.toFixed(1)}ms wall-clock` +
+            (cacheHits > 0 ? ` (${computed} computed, ${cacheHits} from cache)` : ''),
+        );
+      }
+    },
 
     /**
      * A custom function targeting the `transform` build hook in Rolldown. See here for details:
@@ -81,13 +97,69 @@ export const extTransformsPlugin = (
       const { data } = parseImportPath(id);
 
       if (data != null) {
-        let cmpStyles: ComponentStyleMap | undefined = undefined;
-        let cmp: d.ComponentCompilerMeta | undefined = undefined;
         const filePath = normalizeFsPath(id);
-        const code = await compilerCtx.fs.readFile(filePath);
-        if (typeof code !== 'string') {
+
+        // ---------------------------------------------------------------------------
+        // Memoize the expensive SASS + Lightning CSS computation across output targets.
+        // customElements, lazy, and hydrate all process the same ~N stylesheets;
+        // caching here means only the first output target pays the full per-sheet
+        // cost — subsequent targets hit the cache and complete in microseconds.
+        //
+        // NOTE: this cache is keyed by the raw annotated `id` which encodes the
+        // file path plus component metadata (tag, mode, encapsulation). Entries are
+        // invalidated in `invalidateRolldownCaches` whenever the source file or a
+        // SASS dependency changes.
+        // ---------------------------------------------------------------------------
+        // Check before the populate block so we can distinguish cache hits from misses.
+        const wasCached = compilerCtx.cssTransformCache.has(id);
+
+        if (!wasCached) {
+          const code = await compilerCtx.fs.readFile(filePath);
+          if (typeof code !== 'string') {
+            compilerCtx.cssTransformCache.set(id, null);
+          } else {
+            const pluginTransforms = await runPluginTransformsEsmImports(
+              config,
+              compilerCtx,
+              buildCtx,
+              code,
+              filePath,
+            );
+            const cssTransformResults = await compilerCtx.worker.transformCssToEsm({
+              file: pluginTransforms.id,
+              input: pluginTransforms.code,
+              tag: data.tag,
+              tags: buildCtx.components.map((c) => c.tagName),
+              addTagTransformers: !!buildCtx.config.extras.additionalTagTransformers,
+              encapsulation: data.encapsulation,
+              mode: data.mode,
+              sourceMap: config.sourceMap,
+              minify: config.minifyCss,
+              autoprefixer: config.autoprefixCss,
+              docs: config.buildDocs,
+            });
+            compilerCtx.cssTransformCache.set(id, {
+              pluginTransformId: pluginTransforms.id,
+              pluginTransformCode: pluginTransforms.code,
+              pluginTransformDependencies: pluginTransforms.dependencies,
+              pluginTransformDiagnostics: pluginTransforms.diagnostics,
+              cssTransformOutput: cssTransformResults,
+            });
+          }
+        }
+
+        const cacheEntry = compilerCtx.cssTransformCache.get(id);
+        if (wasCached) {
+          cacheHits++;
+        }
+        if (cacheEntry == null) {
           return null;
         }
+
+        // ---------------------------------------------------------------------------
+        // Replay the cheap per-output-target side effects using the cached data.
+        // None of these are CPU-bound; they're all O(1) Map or array operations.
+        // ---------------------------------------------------------------------------
 
         /**
          * add file to watch list if it is outside of the `srcDir` config path
@@ -100,13 +172,12 @@ export const extTransformsPlugin = (
           compilerCtx.addWatchFile(id.split('?')[0]);
         }
 
-        const pluginTransforms = await runPluginTransformsEsmImports(
-          config,
-          compilerCtx,
-          buildCtx,
-          code,
-          filePath,
-        );
+        if (firstTransformStart === null) {
+          firstTransformStart = performance.now();
+        }
+
+        let cmpStyles: ComponentStyleMap | undefined = undefined;
+        let cmp: d.ComponentCompilerMeta | undefined = undefined;
 
         if (data.tag) {
           cmp = buildCtx.components.find((c) => c.tagName === data.tag);
@@ -115,15 +186,14 @@ export const extTransformsPlugin = (
 
           if (moduleFile) {
             const collectionDirs = config.outputTargets.filter(isOutputTargetDistCollection);
-            const relPath = relative(config.srcDir, pluginTransforms.id);
+            const relPath = relative(config.srcDir, cacheEntry.pluginTransformId);
 
-            // If we found a `moduleFile` in the module map above then we
-            // should write the transformed CSS file (found in the return value
-            // of `runPluginTransformsEsmImports`, above) to disk.
+            // Write the transformed CSS file to any collection output target dirs.
+            // This uses cached data so it only does I/O, no re-computation.
             await Promise.all(
               collectionDirs.map(async (outputTarget) => {
                 const collectionPath = join(outputTarget.collectionDir, relPath);
-                await compilerCtx.fs.writeFile(collectionPath, pluginTransforms.code);
+                await compilerCtx.fs.writeFile(collectionPath, cacheEntry.pluginTransformCode);
               }),
             );
           }
@@ -138,25 +208,14 @@ export const extTransformsPlugin = (
           cmpStyles = allCmpStyles.get(scopeId);
         }
 
-        const cssTransformResults = await compilerCtx.worker.transformCssToEsm({
-          file: pluginTransforms.id,
-          input: pluginTransforms.code,
-          tag: data.tag,
-          tags: buildCtx.components.map((c) => c.tagName),
-          addTagTransformers: !!buildCtx.config.extras.additionalTagTransformers,
-          encapsulation: data.encapsulation,
-          mode: data.mode,
-          sourceMap: config.sourceMap,
-          minify: config.minifyCss,
-          autoprefixer: config.autoprefixCss,
-          docs: config.buildDocs,
-        });
+        transformCount++;
+        lastTransformEnd = performance.now();
 
         /**
          * persist component styles for transformed stylesheet
          */
         if (cmpStyles) {
-          cmpStyles.set(filePath, cssTransformResults.styleText);
+          cmpStyles.set(filePath, cacheEntry.cssTransformOutput.styleText);
         }
 
         // Set style docs
@@ -164,21 +223,22 @@ export const extTransformsPlugin = (
           cmp.styleDocs ||= [];
           mergeIntoWith(
             cmp.styleDocs,
-            cssTransformResults.styleDocs,
+            cacheEntry.cssTransformOutput.styleDocs,
             (docs) => `${docs.name},${docs.mode}`,
           );
         }
 
         // Track dependencies
-        for (const dep of pluginTransforms.dependencies) {
+        for (const dep of cacheEntry.pluginTransformDependencies) {
           this.addWatchFile(dep);
           compilerCtx.addWatchFile(dep);
         }
 
-        buildCtx.diagnostics.push(...pluginTransforms.diagnostics);
-        buildCtx.diagnostics.push(...cssTransformResults.diagnostics);
+        buildCtx.diagnostics.push(...cacheEntry.pluginTransformDiagnostics);
+        buildCtx.diagnostics.push(...cacheEntry.cssTransformOutput.diagnostics);
         const didError =
-          hasError(cssTransformResults.diagnostics) || hasError(pluginTransforms.diagnostics);
+          hasError(cacheEntry.cssTransformOutput.diagnostics) ||
+          hasError(cacheEntry.pluginTransformDiagnostics);
         if (didError) {
           this.error('Plugin CSS transform error');
         }
@@ -187,7 +247,7 @@ export const extTransformsPlugin = (
           return (
             s.styleTag === data.tag &&
             s.styleMode === data.mode &&
-            s.styleText === cssTransformResults.styleText
+            s.styleText === cacheEntry.cssTransformOutput.styleText
           );
         });
 
@@ -223,7 +283,7 @@ export const extTransformsPlugin = (
                * if `cmpStyles` is not defined, then use the style text from the transform
                * as it is not connected to a component.
                */
-              cssTransformResults.styleText;
+              cacheEntry.cssTransformOutput.styleText;
 
           buildCtx.stylesUpdated.push({
             styleTag: data.tag,
@@ -233,8 +293,8 @@ export const extTransformsPlugin = (
         }
 
         return {
-          code: cssTransformResults.output,
-          map: cssTransformResults.map,
+          code: cacheEntry.cssTransformOutput.output,
+          map: cacheEntry.cssTransformOutput.map,
           moduleSideEffects: false,
         };
       }

@@ -1,8 +1,33 @@
 import browserslist from 'browserslist';
 import { browserslistToTargets, transform } from 'lightningcss';
 import type * as d from '@stencil/core';
+import type { Targets } from 'lightningcss';
 
 import type { PrintLine } from '../../declarations';
+
+/**
+ * Cache for resolved browserslist targets to avoid re-parsing for every stylesheet.
+ * The key is a JSON-stringified version of the browser targets array.
+ */
+let cachedTargets: Targets | null = null;
+let cachedTargetKey: string | null = null;
+
+/**
+ * Get Lightning CSS targets from browser targets, using a cache to avoid
+ * repeatedly parsing the same browserslist query for every stylesheet.
+ *
+ * @param browserTargets array of browserslist query strings
+ * @returns Lightning CSS targets object
+ */
+const getTargets = (browserTargets: string[]): Targets => {
+  const key = JSON.stringify(browserTargets);
+  if (cachedTargetKey === key && cachedTargets !== null) {
+    return cachedTargets;
+  }
+  cachedTargets = browserslistToTargets(browserslist(browserTargets));
+  cachedTargetKey = key;
+  return cachedTargets;
+};
 
 /**
  * Autoprefix a CSS string, adding vendor prefixes to ensure that what is
@@ -14,12 +39,14 @@ import type { PrintLine } from '../../declarations';
  * @param opts options controlling which browsers to target, or `null` to use
  * the default browser targets
  * @param filePath optional file path for error reporting
+ * @param minify whether to also minify the CSS (default: false)
  * @returns a Promise wrapping the prefixed CSS and any diagnostics
  */
 export const autoprefixCss = async (
   cssText: string,
   opts: boolean | null | d.AutoprefixerOptions,
   filePath?: string,
+  minify: boolean = false,
 ): Promise<d.OptimizeCssOutput> => {
   const output: d.OptimizeCssOutput = {
     output: cssText,
@@ -34,13 +61,13 @@ export const autoprefixCss = async (
         ? (opts as d.AutoprefixerOptions).targets!
         : DEFAULT_BROWSER_TARGETS;
 
-    const targets = browserslistToTargets(browserslist(browserTargets));
+    const targets = getTargets(browserTargets);
 
     const result = transform({
       filename: filePath ?? 'style.css',
       code: Buffer.from(cssText),
       targets,
-      minify: false,
+      minify,
     });
 
     output.output = result.code.toString();
