@@ -15,10 +15,10 @@ describe('normalizeWatchers', () => {
     expect(normalizeWatchers(legacy)).toEqual({ min: [{ minChanged: 0 }] });
   });
 
-  it('passes through the current object-array format without modification', () => {
+  it('returns the same reference for modern-format input (no allocation)', () => {
     // Post-4.39.x compiler output: { "min": [{ "minChanged": 0 }] }
     const modern = { min: [{ minChanged: 0 }] };
-    expect(normalizeWatchers(modern)).toEqual({ min: [{ minChanged: 0 }] });
+    expect(normalizeWatchers(modern)).toBe(modern);
   });
 
   it('preserves WATCH_FLAGS.Immediate (flag = 1) on modern-format entries', () => {

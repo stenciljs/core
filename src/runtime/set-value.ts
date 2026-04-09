@@ -34,6 +34,21 @@ export const normalizeWatchers = (
   if (!raw) return undefined;
   const keys = Object.keys(raw);
   if (keys.length === 0) return undefined;
+
+  // Fast path: if no entry contains a legacy string handler, return the
+  // original reference to avoid allocating new objects during bootstrap.
+  let hasLegacy = false;
+  for (const propName of keys) {
+    if (hasLegacy) break;
+    for (const h of raw[propName] as any[]) {
+      if (typeof h === 'string') {
+        hasLegacy = true;
+        break;
+      }
+    }
+  }
+  if (!hasLegacy) return raw;
+
   const out: d.ComponentConstructorChangeHandlers = {};
   for (const propName of keys) {
     out[propName] = (raw[propName] as any[]).map((h: string | { [key: string]: number }) =>
