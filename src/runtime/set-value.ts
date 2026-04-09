@@ -26,7 +26,7 @@ export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref)
  * that all downstream runtime code can safely assume the new object format.
  *
  * @param raw The raw watcher map from compiled metadata (new or legacy format).
- * @returns A normalized watcher map always in the `{ [methodName]: flags }[]` format.
+ * @returns A normalized watcher map in the `{ [methodName]: flags }[]` format, or `undefined` if `raw` is `undefined` or empty.
  */
 export const normalizeWatchers = (
   raw: d.ComponentConstructorChangeHandlers | undefined,
