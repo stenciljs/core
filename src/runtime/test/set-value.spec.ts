@@ -1,12 +1,12 @@
 import { normalizeWatchers } from '../set-value';
 
 describe('normalizeWatchers', () => {
-  it('returns an empty object when input is undefined', () => {
-    expect(normalizeWatchers(undefined)).toEqual({});
+  it('returns undefined when input is undefined', () => {
+    expect(normalizeWatchers(undefined)).toBeUndefined();
   });
 
-  it('returns an empty object when input is empty', () => {
-    expect(normalizeWatchers({})).toEqual({});
+  it('returns undefined when input is an empty object', () => {
+    expect(normalizeWatchers({})).toBeUndefined();
   });
 
   it('converts the legacy string-array format emitted by pre-4.39.x Stencil compilers', () => {

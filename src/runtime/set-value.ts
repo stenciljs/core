@@ -32,8 +32,10 @@ export const normalizeWatchers = (
   raw: d.ComponentConstructorChangeHandlers | undefined,
 ): d.ComponentConstructorChangeHandlers | undefined => {
   if (!raw) return undefined;
+  const keys = Object.keys(raw);
+  if (keys.length === 0) return undefined;
   const out: d.ComponentConstructorChangeHandlers = {};
-  for (const propName of Object.keys(raw)) {
+  for (const propName of keys) {
     out[propName] = (raw[propName] as any[]).map((h: string | { [key: string]: number }) =>
       typeof h === 'string' ? { [h]: 0 } : h,
     );
