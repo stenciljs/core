@@ -484,6 +484,26 @@ export interface CollectionDependencyData {
   tags: string[];
 }
 
+/**
+ * A memoized result of the SASS + Lightning CSS transformation for a single stylesheet, keyed by
+ * the annotated Rolldown import id (e.g. `/path/to/comp.scss?tag=ion-button&encapsulation=shadow`).
+ *
+ * Storing this allows all output targets (customElements, lazy, hydrate) that process the same
+ * stylesheets to share a single computation instead of repeating it N times.
+ */
+export interface CssTransformCacheEntry {
+  /** Resolved file ID after plugin (SASS) transforms */
+  pluginTransformId: string;
+  /** CSS source produced by the SASS / plugin pipeline */
+  pluginTransformCode: string;
+  /** File dependencies discovered during the SASS transform (e.g. `@import`-ed partials) */
+  pluginTransformDependencies: string[];
+  /** Diagnostics emitted during the plugin transform pass */
+  pluginTransformDiagnostics: Diagnostic[];
+  /** Full output of the subsequent `transformCssToEsm` call */
+  cssTransformOutput: TransformCssToEsmOutput;
+}
+
 export interface CompilerCtx {
   version: number;
   activeBuildId: number;
@@ -519,6 +539,16 @@ export interface CompilerCtx {
   worker?: CompilerWorkerContext;
 
   rolldownCache: Map<string, any>;
+  /**
+   * Cross-output-target cache for the SASS + Lightning CSS computation.
+   * Keyed by the annotated Rolldown import id. Null entries indicate that the
+   * source file could not be read (propagated as a `null` return from the
+   * transform hook).
+   *
+   * Entries are invalidated in `invalidateRolldownCaches` whenever a
+   * source file or one of its SASS dependencies is modified.
+   */
+  cssTransformCache: Map<string, CssTransformCacheEntry | null>;
 
   reset(): void;
 }

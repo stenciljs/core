@@ -262,6 +262,7 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     rolldownCacheNative: null,
     styleModeNames: new Set(),
     worker: createWorkerContext(innerConfig.sys),
+    cssTransformCache: new Map(),
   };
 
   Object.defineProperty(compilerCtx, 'fs', {

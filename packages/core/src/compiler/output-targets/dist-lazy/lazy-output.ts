@@ -57,18 +57,36 @@ export const outputLazy = async (
 
     // we've got the compiler context filled with app modules and collection dependency modules
     // figure out how all these components should be connected
+    const entryGenStart = performance.now();
     generateEntryModules(config, buildCtx);
     buildCtx.entryModules.forEach((entryModule) => {
       bundleOpts.inputs[entryModule.entryKey] = entryModule.entryKey;
     });
+    buildCtx.debug(
+      `lazy: generateEntryModules: ${(performance.now() - entryGenStart).toFixed(1)}ms`,
+    );
 
     const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
     if (rolldownBuild != null) {
-      const results: d.UpdatedLazyBuildCtx[] = await Promise.all([
-        generateEsmBrowser(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateEsm(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateCjs(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-      ]);
+      const generateStart = performance.now();
+      // Run sequentially to test CPU contention hypothesis
+      // TODO: Revert to Promise.all if sequential is slower
+      const results: d.UpdatedLazyBuildCtx[] = [];
+      results.push(
+        await generateEsmBrowser(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
+      );
+      buildCtx.debug(
+        `lazy: generateEsmBrowser: ${(performance.now() - generateStart).toFixed(1)}ms`,
+      );
+      const esmStart = performance.now();
+      results.push(await generateEsm(config, compilerCtx, buildCtx, rolldownBuild, outputTargets));
+      buildCtx.debug(`lazy: generateEsm: ${(performance.now() - esmStart).toFixed(1)}ms`);
+      const cjsStart = performance.now();
+      results.push(await generateCjs(config, compilerCtx, buildCtx, rolldownBuild, outputTargets));
+      buildCtx.debug(`lazy: generateCjs: ${(performance.now() - cjsStart).toFixed(1)}ms`);
+      buildCtx.debug(
+        `lazy: all generate phases (sequential): ${(performance.now() - generateStart).toFixed(1)}ms`,
+      );
 
       results.forEach((result) => {
         if (result.name === 'cjs') {
