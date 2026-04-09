@@ -92,6 +92,8 @@ jobs:
       - name: 🔨 Build Packages
         run: pnpm build
         shell: bash
+        env:
+          NODE_ENV: production
 
       - name: 🚀 Publish Packages (latest tag, except core)
         # npm provenance uses OIDC tokens via id-token: write permission
