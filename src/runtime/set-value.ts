@@ -30,8 +30,8 @@ export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref)
  */
 export const normalizeWatchers = (
   raw: d.ComponentConstructorChangeHandlers | undefined,
-): d.ComponentConstructorChangeHandlers => {
-  if (!raw) return {};
+): d.ComponentConstructorChangeHandlers | undefined => {
+  if (!raw) return undefined;
   const out: d.ComponentConstructorChangeHandlers = {};
   for (const propName of Object.keys(raw)) {
     out[propName] = (raw[propName] as any[]).map((h: string | { [key: string]: number }) =>
