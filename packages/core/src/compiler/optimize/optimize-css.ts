@@ -17,7 +17,7 @@ export const optimizeCss = async (inputOpts: OptimizeCssInput): Promise<Optimize
     diagnostics: [],
   };
   if (inputOpts.autoprefixer !== false && inputOpts.autoprefixer !== null) {
-    result = await autoprefixCss(inputOpts.input, inputOpts.autoprefixer ?? null);
+    result = await autoprefixCss(inputOpts.input, inputOpts.autoprefixer ?? null, inputOpts.filePath);
     if (hasError(result.diagnostics)) {
       return result;
     }

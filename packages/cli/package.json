@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
+    "@types/prompts": "^2.4.9",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

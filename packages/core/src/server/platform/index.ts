@@ -200,6 +200,23 @@ export const styles: d.StyleMap = new Map();
 export const modeResolutionChain: d.ResolutionHandler[] = [];
 
 /**
+ * Server-side implementation of getAssetPath.
+ *
+ * Unlike the client-side version, this doesn't use import.meta.url as a fallback
+ * because it doesn't make sense in the bundled hydrate factory context.
+ * The base URL must come from plt.$resourcesUrl$ (set via hydration options).
+ */
+export const getAssetPath = (path: string) => {
+  // In the server/hydrate context, resourcesUrl should be set via hydrateDocument options
+  // If not set, default to './' which is a reasonable default for server-side rendering
+  const base = plt.$resourcesUrl$ || './';
+  const assetUrl = new URL(path, base);
+  return assetUrl.origin !== win.location.origin ? assetUrl.href : assetUrl.pathname;
+};
+
+export const setAssetPath = (path: string) => (plt.$resourcesUrl$ = path);
+
+/**
  * Checks to see any components are rendered with `scoped`
  * @param opts - SSR options
  */
@@ -226,7 +243,6 @@ export {
   forceModeUpdate,
   forceUpdate,
   Fragment,
-  getAssetPath,
   getElement,
   getMode,
   getRenderingRef,
@@ -241,7 +257,6 @@ export {
   proxyComponent,
   proxyCustomElement,
   renderVdom,
-  setAssetPath,
   setMode,
   setNonce,
   setTagTransformer,
