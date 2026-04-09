@@ -408,7 +408,7 @@ export const proxyComponent = (
           // special handling of boolean attributes. Null (removal) means false.
           // everything else means true (including an empty string
           if (isBooleanTarget) {
-            (newValue as any) = newValue === null || newValue === 'false' ? false : true;
+            (newValue as any) = !(newValue === null || newValue === 'false');
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
