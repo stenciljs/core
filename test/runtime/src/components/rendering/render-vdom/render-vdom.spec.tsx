@@ -17,9 +17,9 @@ describe('render-vdom', () => {
     // Initial render with three items
     render(
       <ul>
-        <li key="a">Alpha</li>
-        <li key="b">Beta</li>
-        <li key="c">Gamma</li>
+        <li key='a'>Alpha</li>
+        <li key='b'>Beta</li>
+        <li key='c'>Gamma</li>
       </ul>,
       container,
     );
@@ -31,9 +31,9 @@ describe('render-vdom', () => {
     // Re-render with a modified list: remove "Beta", add "Delta"
     render(
       <ul>
-        <li key="a">Alpha</li>
-        <li key="c">Gamma</li>
-        <li key="d">Delta</li>
+        <li key='a'>Alpha</li>
+        <li key='c'>Gamma</li>
+        <li key='d'>Delta</li>
       </ul>,
       container,
     );
@@ -56,7 +56,7 @@ describe('render-vdom', () => {
     // Initial render with an input element
     render(
       <div>
-        <input type="text" id="test-input" />
+        <input type='text' id='test-input' />
         <span>count: 1</span>
       </div>,
       container,
@@ -69,7 +69,7 @@ describe('render-vdom', () => {
     // Re-render with updated content but same input
     render(
       <div>
-        <input type="text" id="test-input" />
+        <input type='text' id='test-input' />
         <span>count: 2</span>
       </div>,
       container,

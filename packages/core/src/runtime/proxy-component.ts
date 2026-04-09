@@ -402,7 +402,8 @@ export const proxyComponent = (
           // spurious. Without this guard the setter fires reentrant mid-render when
           // taskQueue:'immediate' is used, corrupting the vdom patch and crashing with
           // "Cannot read properties of null (reading 'nodeType')".
-          const isSpuriousBooleanRemoval = isBooleanTarget && newValue === null && this[propName] === undefined;
+          const isSpuriousBooleanRemoval =
+            isBooleanTarget && newValue === null && this[propName] === undefined;
 
           // special handling of boolean attributes. Null (removal) means false.
           // everything else means true (including an empty string
@@ -413,7 +414,11 @@ export const proxyComponent = (
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
           const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
-          if (!isSpuriousBooleanRemoval && newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
+          if (
+            !isSpuriousBooleanRemoval &&
+            newValue != this[propName] &&
+            (!propDesc.get || !!propDesc.set)
+          ) {
             this[propName] = newValue;
           }
         });
