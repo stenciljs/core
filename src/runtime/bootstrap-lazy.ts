@@ -19,6 +19,7 @@ import { hmrStart } from './hmr-component';
 import { createTime, installDevTools } from './profile';
 import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS, SLOT_FB_CSS } from './runtime-constants';
+import { normalizeWatchers } from './set-value';
 import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
 export { setNonce } from '@platform';
@@ -88,7 +89,7 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         cmpMeta.$attrsToReflect$ = [];
       }
       if (BUILD.propChangeCallback) {
-        cmpMeta.$watchers$ = compactMeta[4] ?? {};
+        cmpMeta.$watchers$ = normalizeWatchers(compactMeta[4]);
         cmpMeta.$serializers$ = compactMeta[5] ?? {};
         cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }

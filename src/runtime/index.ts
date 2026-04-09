@@ -15,7 +15,7 @@ export { setPlatformOptions } from './platform-options';
 export { proxyComponent } from './proxy-component';
 export { render } from './render';
 export { HYDRATED_STYLE_ID } from './runtime-constants';
-export { getValue, setValue } from './set-value';
+export { getValue, normalizeWatchers, setValue } from './set-value';
 export { setTagTransformer, transformTag } from './tag-transform';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';

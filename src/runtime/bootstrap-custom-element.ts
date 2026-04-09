@@ -25,6 +25,7 @@ import {
 import { computeMode } from './mode';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
+import { normalizeWatchers } from './set-value';
 import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
@@ -47,7 +48,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       cmpMeta.$listeners$ = compactMeta[3];
     }
     if (BUILD.propChangeCallback) {
-      cmpMeta.$watchers$ = Cstr.$watchers$;
+      cmpMeta.$watchers$ = normalizeWatchers(Cstr.$watchers$);
       cmpMeta.$deserializers$ = Cstr.$deserializers$;
       cmpMeta.$serializers$ = Cstr.$serializers$;
     }

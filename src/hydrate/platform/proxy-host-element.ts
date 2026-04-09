@@ -1,12 +1,12 @@
 import { consoleError, getHostRef } from '@platform';
-import { getValue, parsePropertyValue, setValue } from '@runtime';
+import { getValue, normalizeWatchers, parsePropertyValue, setValue } from '@runtime';
 import { CMP_FLAGS, createShadowRoot, MEMBER_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
 
 export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructor): void {
   const cmpMeta = cstr.cmpMeta;
-  cmpMeta.$watchers$ = cmpMeta.$watchers$ || cstr.watchers;
+  cmpMeta.$watchers$ = cmpMeta.$watchers$ || normalizeWatchers(cstr.watchers);
   cmpMeta.$deserializers$ = cmpMeta.$deserializers$ || cstr.deserializers;
   cmpMeta.$serializers$ = cmpMeta.$serializers$ || cstr.serializers;
 

@@ -8,6 +8,7 @@ import { computeMode } from './mode';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
+import { normalizeWatchers } from './set-value';
 import { getScopeId, registerStyle } from './styles';
 import { safeCall, scheduleUpdate } from './update-component';
 
@@ -59,7 +60,7 @@ export const initializeComponent = async (
           // let's add the getters/setters to its prototype before
           // the first time we create an instance of the implementation
           if (BUILD.propChangeCallback) {
-            cmpMeta.$watchers$ = Cstr.watchers;
+            cmpMeta.$watchers$ = normalizeWatchers(Cstr.watchers);
             cmpMeta.$serializers$ = Cstr.serializers;
             cmpMeta.$deserializers$ = Cstr.deserializers;
           }

@@ -5,7 +5,7 @@ import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
-import { getValue, setValue } from './set-value';
+import { getValue, normalizeWatchers, setValue } from './set-value';
 
 /**
  * Attach a series of runtime constructs to a compiled Stencil component
@@ -66,7 +66,7 @@ export const proxyComponent = (
   if ((BUILD.member && cmpMeta.$members$) || BUILD.propChangeCallback) {
     if (BUILD.propChangeCallback) {
       if (Cstr.watchers && !cmpMeta.$watchers$) {
-        cmpMeta.$watchers$ = Cstr.watchers;
+        cmpMeta.$watchers$ = normalizeWatchers(Cstr.watchers);
       }
       if (Cstr.deserializers && !cmpMeta.$deserializers$) {
         cmpMeta.$deserializers$ = Cstr.deserializers;
