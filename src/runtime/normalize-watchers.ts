@@ -14,8 +14,9 @@ import type * as d from '../declarations';
  * indices as method names, causing:
  *   `TypeError: instance[watchMethodName] is not a function`
  *
- * This helper is called once at each `$watchers$` assignment site so that all
- * downstream runtime code can safely assume the new object format.
+ * This helper should be used at `$watchers$` assignment sites that need to
+ * accept both legacy and current compiler metadata so downstream code on those
+ * paths can safely assume the new object format.
  *
  * @param raw The raw watcher map from compiled metadata (new or legacy format).
  * @returns A normalized watcher map in the `{ [methodName]: flags }[]` format, or `undefined` if `raw` is `undefined` or empty.
