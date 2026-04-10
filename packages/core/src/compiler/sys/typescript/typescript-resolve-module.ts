@@ -34,6 +34,9 @@ export const tsResolveModuleName = (
 
     const compilerOptions: ts.CompilerOptions = { ...config.tsCompilerOptions };
     compilerOptions.resolveJsonModule = true;
+    // Always resolve when explicitly asked: noResolve only prevents automatic
+    // file-discovery via imports; it should never block a deliberate resolution call.
+    compilerOptions.noResolve = false;
     return resolveModuleName(moduleName, containingFile, compilerOptions, host);
   }
 

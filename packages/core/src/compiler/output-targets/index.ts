@@ -26,13 +26,13 @@ export const generateOutputTargets = async (
 
   invalidateRolldownCaches(compilerCtx);
 
-  // Run sequentially to reduce CPU contention and benefit from Rolldown's internal caching
-  // TODO: Evaluate if this is faster than Promise.all for large projects
-  await outputCollection(config, compilerCtx, buildCtx, changedModuleFiles);
-  await outputCustomElements(config, compilerCtx, buildCtx);
-  await outputLazy(config, compilerCtx, buildCtx);
-  await outputHydrateScript(config, compilerCtx, buildCtx);
-  await outputLazyLoader(config, compilerCtx);
+  await Promise.all([
+    outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
+    outputCustomElements(config, compilerCtx, buildCtx),
+    outputHydrateScript(config, compilerCtx, buildCtx),
+    outputLazyLoader(config, compilerCtx),
+    outputLazy(config, compilerCtx, buildCtx),
+  ]);
 
   await Promise.all([
     // the user may want to copy compiled assets which requires above tasks to
