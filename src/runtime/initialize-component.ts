@@ -5,10 +5,10 @@ import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
+import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
-import { normalizeWatchers } from './normalize-watchers';
 import { getScopeId, registerStyle } from './styles';
 import { safeCall, scheduleUpdate } from './update-component';
 

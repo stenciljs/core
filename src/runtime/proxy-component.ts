@@ -4,8 +4,8 @@ import { consoleDevWarn, getHostRef, parsePropertyValue, plt } from '@platform';
 import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
-import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { normalizeWatchers } from './normalize-watchers';
+import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
 
 /**
