@@ -21,7 +21,7 @@ export const typescriptPlugin = (
 ): Plugin => {
   /**
    * Cache the result of `ts.transpileModule` for a given file, keyed by the
-   * normalised file path. Rolldown re-runs the `transform` hook for every
+   * normalized file path. Rolldown re-runs the `transform` hook for every
    * `.generate()` call on the same build object (once per output format:
    * esm-browser, esm, cjs), so without this cache a 220-component project
    * would call `ts.transpileModule` 660 times; with it, only 220.
