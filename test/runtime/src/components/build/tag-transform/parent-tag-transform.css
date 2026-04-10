@@ -1,0 +1,12 @@
+:host {
+  display: block;
+  padding: 15px;
+  border: 2px solid green;
+}
+
+child-tag-transform {
+  display: block;
+  padding: 10px;
+  margin: 5px;
+  border: 2px solid blue;
+}

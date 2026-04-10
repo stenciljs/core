@@ -1,0 +1,17 @@
+{
+  "name": "@stencil-core-tests/build-type-tests",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && tsc --noEmit"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "typescript": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

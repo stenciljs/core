@@ -1,0 +1,25 @@
+{
+  "name": "@stencil-core-tests/build-docs-readme",
+  "version": "1.0.0",
+  "description": "A test app for the docs-readme output target",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "scripts": {
+    "prepare.readmes": "node ./copy-readme.js",
+    "build": "stencil build",
+    "build.dev": "npm run prepare.readmes &&  stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "npm run prepare.readmes && pnpm build",
+    "test.watch": "npm run prepare.readmes && stencil test --spec --e2e --watch",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

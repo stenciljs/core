@@ -1,0 +1,86 @@
+// @ts-nocheck
+
+import path from 'path';
+import { Compiler, Config } from '@stencil/core';
+import { mockConfig } from '@stencil/core/testing';
+import { describe, it, expect } from 'vitest';
+
+import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+import { createCompiler } from '../../compiler';
+
+describe.skip('outputTarget, dist', () => {
+  let compiler: Compiler;
+  let config: Config;
+  const root = path.resolve('/');
+
+  it('default dist files', async () => {
+    config = mockConfig({
+      buildAppCore: true,
+      globalScript: path.join(root, 'User', 'testing', 'src', 'global.ts'),
+      namespace: 'TestApp',
+      outputTargets: [{ type: 'dist' }],
+      rootDir: path.join(root, 'User', 'testing', '/'),
+    });
+
+    compiler = await createCompiler(config);
+
+    await compiler.sys.writeFiles({
+      [path.join(root, 'User', 'testing', 'package.json')]: `{
+        "module": "dist/index.mjs",
+        "main": "dist/index.js",
+        "collection": "dist/collection/collection-manifest.json",
+        "types": "dist/types/components.d.ts"
+      }`,
+      [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.tsx')]: `
+        @Component({
+          tag: 'cmp-a',
+          styleUrls: {
+            ios: 'cmp-a.ios.css',
+            md: 'cmp-a.md.css'
+          }
+        }) export class CmpA {}`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.ios.css')]:
+        `cmp-a { color: blue; }`,
+      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.md.css')]:
+        `cmp-a { color: green; }`,
+      [path.join(root, 'User', 'testing', 'src', 'global.ts')]:
+        `export default function() { console.log('my global'); }`,
+    });
+    await compiler.fs.commit();
+
+    const r = await compiler.build();
+    expect(r.diagnostics).toHaveLength(0);
+
+    expectFilesExist(compiler.fs, [
+      path.join(root, 'User', 'testing', 'dist', 'index.js'),
+      path.join(root, 'User', 'testing', 'dist', 'index.mjs'),
+      path.join(root, 'User', 'testing', 'dist', 'index.js.map'),
+
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'collection-manifest.json'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'components', 'cmp-a.js'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'components', 'cmp-a.js.map'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'components', 'cmp-a.ios.css'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'components', 'cmp-a.md.css'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'global.js'),
+      path.join(root, 'User', 'testing', 'dist', 'collection', 'global.js.map'),
+
+      path.join(root, 'User', 'testing', 'dist', 'esm', 'index.mjs'),
+      path.join(root, 'User', 'testing', 'dist', 'esm', 'index.js.map'),
+      path.join(root, 'User', 'testing', 'dist', 'esm', 'loader.mjs'),
+
+      path.join(root, 'User', 'testing', 'dist', 'loader'),
+
+      path.join(root, 'User', 'testing', 'dist', 'types'),
+
+      path.join(root, 'User', 'testing', 'src', 'components.d.ts'),
+    ]);
+
+    expectFilesDoNotExist(compiler.fs, [
+      path.join(root, 'User', 'testing', 'build'),
+      path.join(root, 'User', 'testing', 'esm'),
+      path.join(root, 'User', 'testing', 'www'),
+      path.join(root, 'User', 'testing', 'index.html'),
+    ]);
+  });
+});

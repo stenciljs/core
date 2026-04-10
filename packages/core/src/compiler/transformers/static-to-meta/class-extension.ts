@@ -1,0 +1,722 @@
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
+import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../utils';
+import {
+  tsResolveModuleName,
+  tsGetSourceFile,
+} from '../../sys/typescript/typescript-resolve-module';
+import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decorators';
+import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
+import { isStaticGetter } from '../transform-utils';
+import { parseStaticEvents } from './events';
+import { parseStaticListeners } from './listeners';
+import { parseStaticMethods } from './methods';
+import { parseStaticProps } from './props';
+import { parseStaticSerializers } from './serializers';
+import { parseStaticStates } from './states';
+import { parseStaticWatchers } from './watchers';
+
+type DeDupeMember =
+  | d.ComponentCompilerProperty
+  | d.ComponentCompilerState
+  | d.ComponentCompilerMethod
+  | d.ComponentCompilerListener
+  | d.ComponentCompilerEvent
+  | d.ComponentCompilerChangeHandler;
+
+type DependentClass = {
+  classNode: ts.ClassDeclaration;
+  sourceFile: ts.SourceFile;
+  fileName: string;
+};
+
+/**
+ * Given two arrays of static members, return a new array containing only the
+ * members from the first array that are not present in the second array.
+ * This is used to de-dupe static members that are inherited from a parent class.
+ *
+ * @param dedupeMembers the array of static members to de-dupe
+ * @param staticMembers the array of static members to compare against
+ * @returns an array of static members that are not present in the second array
+ */
+const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers: T[]) => {
+  return dedupeMembers.filter(
+    (s) =>
+      !staticMembers.some((d) => {
+        if ((d as d.ComponentCompilerChangeHandler).methodName) {
+          return (d as any).methodName === (s as any).methodName;
+        }
+        return (d as any).name === (s as any).name;
+      }),
+  );
+};
+
+/**
+ * When a parent-class source file is fetched directly from disk (via
+ * {@link tsGetSourceFile}) rather than from the compiler's moduleMap cache, it
+ * arrives with its original decorator syntax intact.  The static-meta parsers
+ * (`parseStaticProps`, `parseStaticStates`, etc.) only understand the static-
+ * getter form produced by {@link convertDecoratorsToStatic}.
+ *
+ * This helper creates a self-contained mini TypeScript program for the single
+ * file and runs the decorator→static transformer on it, returning the
+ * transformed source file.  Prop types may be under-resolved (external imports
+ * are not available in the mini program) and will fall back to `any`, which is
+ * acceptable for the purpose of walking the inheritance chain.
+ *
+ * @param sourceFile the raw (decorator-syntax) source file from disk
+ * @param config the current Stencil validated config
+ * @param target the script target to use when converting decorators to static (if needed)
+ * @returns the source file with decorators converted to static getters
+ */
+function convertDiskSourceFileDecorators(
+  sourceFile: ts.SourceFile,
+  config: d.ValidatedConfig,
+  target: ts.ScriptTarget = ts.ScriptTarget.ESNext,
+): ts.SourceFile {
+  const compilerOptions: ts.CompilerOptions = {
+    ...config.tsCompilerOptions,
+    experimentalDecorators: true,
+    noLib: true,
+    noResolve: true,
+    isolatedModules: false,
+    // Ensure class fields are kept as declarations (not lowered to constructor
+    // assignments), which detectModernPropDeclarations and the static-meta
+    // parsers expect.
+    target,
+  };
+  const host = ts.createCompilerHost(compilerOptions);
+  const program = ts.createProgram([sourceFile.fileName], compilerOptions, host);
+  const typeChecker = program.getTypeChecker();
+  // IMPORTANT: use the source file from *this* program, not the one passed in.
+  // Node text references (used by getText()) are scoped to the program that
+  // created them; mixing nodes from different programs causes getText() to throw.
+  const ownSourceFile = program.getSourceFile(sourceFile.fileName) ?? sourceFile;
+  const result = ts.transform(ownSourceFile, [
+    convertDecoratorsToStatic(config, [], typeChecker, program),
+  ]);
+  // Print and re-parse the transformed AST.  Nodes produced by ts.factory.create*
+  // inside the transformer have no parent pointers, which causes getText() and
+  // getSourceFile() to fail when buildExtendsTree recurses into this file.
+  // A fresh parse gives us a fully-bound, self-consistent AST at the cost of
+  // one extra parse (acceptable for the inheritance-chain walk).
+  // `true` = setParentNodes so that getSourceFile() traversals work correctly.
+  const printer = ts.createPrinter({ removeComments: false });
+  const printed = printer.printFile(result.transformed[0]);
+  return ts.createSourceFile(sourceFile.fileName, printed, target, true);
+}
+
+/**
+ * Helper function to resolve and process an extended class from a module.
+ * This handles:
+ * 1. Resolving the module path
+ * 2. Getting the source file
+ * 3. Finding the class declaration
+ * 4. Adding to dependent classes tree
+ *
+ * @param compilerCtx - the current compiler context
+ * @param buildCtx - the current build context
+ * @param classDeclaration - the current class being analyzed
+ * @param currentSource - the source file of the current class
+ * @param moduleSpecifier - the module path to resolve
+ * @param className - the name of the class to find in the resolved module
+ * @param dependentClasses - the array to add found classes to
+ * @param typeChecker - the TypeScript type checker
+ * @param ogModule - the original module file of the class declaration
+ * @param targetScriptTarget - the script target to use when converting decorators to static (if needed)
+ * @returns the found class declaration or undefined
+ */
+function resolveAndProcessExtendedClass(
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  classDeclaration: ts.ClassDeclaration,
+  currentSource: ts.SourceFile,
+  moduleSpecifier: string,
+  className: string,
+  dependentClasses: DependentClass[],
+  typeChecker: ts.TypeChecker,
+  ogModule: d.Module,
+  targetScriptTarget: ts.ScriptTarget = ts.ScriptTarget.ESNext,
+): ts.ClassDeclaration | undefined {
+  // Start optimistic: set to false inside if the candidate turns out to be a
+  // mixin factory (class wrapped in a function), in which case we cannot
+  // meaningfully recurse further into its base classes.
+  let keepLooking = true;
+  const foundFile = tsResolveModuleName(
+    buildCtx.config,
+    compilerCtx,
+    moduleSpecifier,
+    currentSource.fileName,
+  );
+
+  if (!foundFile?.resolvedModule || !className) {
+    return undefined;
+  }
+
+  // 1) resolve the module name to a file
+  let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
+    foundFile.resolvedModule.resolvedFileName,
+  )?.staticSourceFile;
+
+  if (!foundSource) {
+    // Stencil only loads full-fledged component modules from node_modules collections,
+    // so if we didn't find the source file in the module map,
+    // let's create a temporary program and get the source file from there
+    foundSource = tsGetSourceFile(buildCtx.config, foundFile);
+
+    if (!foundSource) {
+      // ts could not resolve the module. Likely because `allowJs` is not set to `true`
+      const err = buildWarn(buildCtx.diagnostics);
+      err.messageText = `Unable to resolve import "${moduleSpecifier}" from "${currentSource.fileName}". 
+                    This can happen when trying to resolve .js files and "allowJs" is not set to "true" in your tsconfig.json.`;
+      if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+      return undefined;
+    }
+
+    // The source came from disk (not from the pre-transformed moduleMap cache).
+    // It may still use decorator syntax.  Run a self-contained decorator→static
+    // pass so that parseStatic* can read the member names from static getters.
+    foundSource = convertDiskSourceFileDecorators(foundSource, buildCtx.config, targetScriptTarget);
+  }
+
+  // 2) get the exported declaration from the module
+  const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+  if (!matchedStatement) {
+    // we couldn't find the imported declaration as an exported statement in the module
+    const err = buildWarn(buildCtx.diagnostics);
+    err.messageText = `Unable to find "${className}" in the imported module "${moduleSpecifier}". 
+                  Please import class / mixin-factory declarations directly and not via barrel files.`;
+    if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+    return undefined;
+  }
+
+  let foundClassDeclaration = matchedStatement
+    ? ts.isClassDeclaration(matchedStatement)
+      ? matchedStatement
+      : undefined
+    : undefined;
+
+  if (!foundClassDeclaration && matchedStatement) {
+    // the found `extends` type does not resolve to a class declaration;
+    // if it's wrapped in a function - let's try and find it inside
+    foundClassDeclaration = findClassWalk(matchedStatement);
+    keepLooking = false;
+  }
+
+  if (
+    foundClassDeclaration &&
+    !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+  ) {
+    // 3) if we found the class declaration, push it and check if it itself extends from another class
+    dependentClasses.push({
+      classNode: foundClassDeclaration,
+      sourceFile: foundSource,
+      fileName: foundFile.resolvedModule.resolvedFileName,
+    });
+
+    if (keepLooking) {
+      buildExtendsTree(
+        compilerCtx,
+        foundClassDeclaration,
+        dependentClasses,
+        typeChecker,
+        buildCtx,
+        ogModule,
+      );
+    }
+  }
+
+  return foundClassDeclaration;
+}
+
+/**
+ * A recursive function that walks the AST to find a class declaration.
+ * @param node the current AST node
+ * @param depth the current depth in the AST
+ * @param name optional name of the class to find
+ * @returns the found class declaration or undefined
+ */
+function findClassWalk(node?: ts.Node, name?: string, depth = 0): ts.ClassDeclaration | undefined {
+  if (!node) return undefined;
+
+  if (node && ts.isClassDeclaration(node)) {
+    if (!name || node.name?.text === name) {
+      return node;
+    }
+  } else if (
+    node &&
+    ts.isVariableDeclaration(node) &&
+    // @ts-ignore
+    (!name || name === (node.name?.text || node.name?.escapedText)) &&
+    node.initializer &&
+    ts.isArrowFunction(node.initializer)
+  ) {
+    // handle case where class is wrapped in a mixin factory function
+    let found: ts.ClassDeclaration | undefined;
+    ts.forEachChild(node.initializer.body, (child) => {
+      if (found) return;
+      if (ts.isClassDeclaration(child)) found = child;
+    });
+    return found;
+  }
+  let found: ts.ClassDeclaration | undefined;
+
+  ts.forEachChild(node, (child) => {
+    if (found) return;
+    const result = findClassWalk(child, name, depth + 1);
+    if (result) found = result;
+  });
+
+  return found;
+}
+
+/**
+ * A function that checks if a statement matches a named declaration.
+ * @param name the name to match
+ * @returns a function that checks if a statement is a named declaration
+ */
+function matchesNamedDeclaration(name: string) {
+  return function (
+    stmt: ts.Statement,
+  ): stmt is ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement {
+    // ClassDeclaration: class Foo {}
+    if (ts.isClassDeclaration(stmt) && stmt.name?.text === name) {
+      return true;
+    }
+
+    // FunctionDeclaration: function Foo() {}
+    if (ts.isFunctionDeclaration(stmt) && stmt.name?.text === name) {
+      return true;
+    }
+
+    // VariableStatement: const Foo = ...
+    if (ts.isVariableStatement(stmt)) {
+      for (const decl of stmt.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name) && decl.name.text === name) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+}
+
+/**
+ * Helper function to convert a .d.ts declaration file path to its corresponding
+ * .js source file path and get the source file from the compiler context.
+ * This is needed because in external projects the extended class may only be found as a .d.ts declaration.
+ *  *
+ * @param declarationSourceFile the path to the .d.ts declaration file
+ * @param compilerCtx the current compiler context
+ * @returns the corresponding .js source file
+ */
+function convertDtsToJs(declarationSourceFile: string, compilerCtx: d.CompilerCtx): ts.SourceFile {
+  const jsPath = normalizePath(
+    declarationSourceFile.replace(/\.d\.ts$/, '.js').replace('/types/', '/collection/'),
+  );
+  const jsModule = compilerCtx.moduleMap.get(jsPath);
+  return jsModule?.staticSourceFile as ts.SourceFile;
+}
+
+/**
+ * A recursive function that builds a tree of classes that extend from each other.
+ *
+ * @param compilerCtx the current compiler context
+ * @param classDeclaration a class declaration to analyze
+ * @param dependentClasses a flat array tree of classes that extend from each other
+ * @param typeChecker the TypeScript type checker
+ * @param buildCtx the current build context
+ * @param ogModule the original module file of the class declaration
+ * @returns a flat array of classes that extend from each other, including the current class
+ */
+function buildExtendsTree(
+  compilerCtx: d.CompilerCtx,
+  classDeclaration: ts.ClassDeclaration,
+  dependentClasses: DependentClass[],
+  typeChecker: ts.TypeChecker,
+  buildCtx: d.BuildCtx,
+  ogModule: d.Module,
+) {
+  const hasHeritageClauses = classDeclaration.heritageClauses;
+  if (!hasHeritageClauses?.length) return dependentClasses;
+
+  const extendsClause = hasHeritageClauses.find(
+    (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  if (!extendsClause) return dependentClasses;
+
+  // Derive the script target from the original module's source file.  Disk-
+  // fetched parent files are run through convertDecoratorsToStatic with this
+  // target so that class fields are preserved at the correct language level.
+  const targetScriptTarget: ts.ScriptTarget =
+    (ogModule?.staticSourceFile as ts.SourceFile)?.languageVersion ?? ts.ScriptTarget.ESNext;
+
+  let classIdentifiers: ts.Identifier[] = [];
+  let foundClassDeclaration: ts.ClassDeclaration | undefined;
+  // used when the class we found is wrapped in a mixin factory function -
+  // the extender ctor will be from a dynamic function argument - so we stop recursing
+  let keepLooking = true;
+
+  extendsClause.types.forEach((type) => {
+    if (
+      ts.isExpressionWithTypeArguments(type) &&
+      ts.isCallExpression(type.expression) &&
+      type.expression.expression.getText() === 'Mixin'
+    ) {
+      // handle mixin case: extends Mixin(SomeClassFactoryFunction1, SomeClassFactoryFunction2)
+      classIdentifiers = type.expression.arguments.filter(ts.isIdentifier);
+    } else if (ts.isIdentifier(type.expression)) {
+      // handle simple case: extends SomeClass
+      classIdentifiers = [type.expression];
+    }
+  });
+
+  classIdentifiers.forEach((extendee) => {
+    try {
+      // happy path (normally 1 file level removed): the extends type resolves to a class declaration in another file
+
+      const symbol = typeChecker?.getSymbolAtLocation(extendee);
+      const aliasedSymbol = symbol ? typeChecker.getAliasedSymbol(symbol) : undefined;
+
+      let source = aliasedSymbol?.declarations?.[0].getSourceFile();
+      let declarations: ts.Declaration[] | ts.Statement[] = aliasedSymbol?.declarations;
+
+      if (source.fileName.endsWith('.d.ts')) {
+        source = convertDtsToJs(source.fileName, compilerCtx);
+        declarations = [...source.statements];
+      }
+
+      foundClassDeclaration = declarations?.find(ts.isClassDeclaration);
+
+      if (!foundClassDeclaration) {
+        // the found `extends` type does not resolve to a class declaration;
+        // if it's wrapped in a function - let's try and find it inside
+        const node = declarations?.[0];
+        foundClassDeclaration = findClassWalk(node);
+        if (!node) {
+          throw 'revert to sad path';
+        }
+        keepLooking = false;
+      }
+
+      if (
+        foundClassDeclaration &&
+        !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+      ) {
+        const foundModule = compilerCtx.moduleMap.get(
+          foundClassDeclaration.getSourceFile().fileName,
+        );
+
+        if (foundModule) {
+          const moduleSourceFile = foundModule.staticSourceFile as ts.SourceFile;
+          const sourceClass = findClassWalk(
+            moduleSourceFile,
+            foundClassDeclaration.name?.getText(),
+          );
+
+          if (sourceClass) {
+            dependentClasses.push({
+              classNode: sourceClass,
+              sourceFile: moduleSourceFile,
+              fileName: moduleSourceFile.fileName,
+            });
+            if (keepLooking) {
+              buildExtendsTree(
+                compilerCtx,
+                foundClassDeclaration,
+                dependentClasses,
+                typeChecker,
+                buildCtx,
+                ogModule,
+              );
+            }
+          }
+        }
+      }
+    } catch {
+      // sad path (>1 levels removed or node_modules): the extends type does not resolve so let's find it manually:
+
+      const currentSource: ts.SourceFile =
+        classDeclaration.getSourceFile() ?? extendee.getSourceFile() ?? ogModule?.staticSourceFile;
+      let matchedStatement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
+
+      if (currentSource) {
+        matchedStatement = currentSource.statements.find(
+          matchesNamedDeclaration(extendee.getText()),
+        );
+      }
+
+      if (!currentSource) {
+        // no source file :(
+        const err = buildWarn(buildCtx.diagnostics);
+        err.messageText = `Unable to find source file for class "${classDeclaration.name?.getText()}"`;
+        if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
+        return;
+      }
+
+      // try to see if we can find the class in the current source file first
+      if (matchedStatement && ts.isClassDeclaration(matchedStatement)) {
+        foundClassDeclaration = matchedStatement;
+      } else if (matchedStatement) {
+        // the found `extends` type does not resolve to a class declaration;
+        // if it's wrapped in a function - let's try and find it inside
+        foundClassDeclaration = findClassWalk(matchedStatement);
+        keepLooking = false;
+      } else {
+        // class might be nested inside a function (e.g., in a test callback)
+        // search the entire source file recursively for the class
+        foundClassDeclaration = findClassWalk(currentSource, extendee.getText());
+        keepLooking = false;
+      }
+
+      if (
+        foundClassDeclaration &&
+        !dependentClasses.some((dc) => dc.classNode === foundClassDeclaration)
+      ) {
+        // we found the class declaration in the current module
+        // Try to get the transformed version from the module map
+        const foundModule = compilerCtx.moduleMap.get(currentSource.fileName);
+        if (foundModule?.staticSourceFile) {
+          const transformedSource = foundModule.staticSourceFile as ts.SourceFile;
+          const transformedClass = findClassWalk(
+            transformedSource,
+            foundClassDeclaration.name?.getText(),
+          );
+
+          if (transformedClass) {
+            dependentClasses.push({
+              classNode: transformedClass,
+              sourceFile: transformedSource,
+              fileName: transformedSource.fileName,
+            });
+            if (keepLooking) {
+              buildExtendsTree(
+                compilerCtx,
+                transformedClass,
+                dependentClasses,
+                typeChecker,
+                buildCtx,
+                ogModule,
+              );
+            }
+            return;
+          }
+        }
+
+        // Fallback to original (for cases where module isn't in map yet)
+        dependentClasses.push({
+          classNode: foundClassDeclaration,
+          sourceFile: currentSource,
+          fileName: currentSource.fileName,
+        });
+        if (keepLooking) {
+          buildExtendsTree(
+            compilerCtx,
+            foundClassDeclaration,
+            dependentClasses,
+            typeChecker,
+            buildCtx,
+            ogModule,
+          );
+        }
+        return;
+      }
+
+      // if not found, let's check the import statements
+      const importStatements = currentSource.statements.filter(ts.isImportDeclaration);
+      importStatements.forEach((statement) => {
+        // 1) loop through import declarations in the current source file
+        if (
+          statement.importClause?.namedBindings &&
+          ts.isNamedImports(statement.importClause?.namedBindings)
+        ) {
+          statement.importClause?.namedBindings.elements.forEach((element) => {
+            // 2) loop through the named bindings of the import declaration
+
+            if (element.name.getText() === extendee.getText()) {
+              // 3) check the name matches the `extends` type expression
+              const className = element.propertyName?.getText() || element.name.getText();
+              const moduleSpecifier = statement.moduleSpecifier.getText().replaceAll(/['"]/g, '');
+
+              resolveAndProcessExtendedClass(
+                compilerCtx,
+                buildCtx,
+                classDeclaration,
+                currentSource,
+                moduleSpecifier,
+                className,
+                dependentClasses,
+                typeChecker,
+                ogModule,
+                targetScriptTarget,
+              );
+            }
+          });
+        }
+      });
+
+      if (!importStatements.length) {
+        // we're in a cjs module (probably in a Jest test) - loop through require modules statements
+        const requireStatements = currentSource.statements.filter(ts.isVariableStatement);
+        requireStatements.forEach((statement) => {
+          statement.declarationList.declarations.forEach((declaration) => {
+            if (
+              declaration.initializer &&
+              ts.isCallExpression(declaration.initializer) &&
+              ts.isIdentifier(declaration.initializer.expression) &&
+              declaration.initializer.expression.escapedText === 'require' &&
+              declaration.initializer.arguments.length === 1 &&
+              ts.isStringLiteral(declaration.initializer.arguments[0])
+            ) {
+              const moduleSpecifier = declaration.initializer.arguments[0].text.replaceAll(
+                /['"]/g,
+                '',
+              );
+              const className = extendee.getText();
+
+              resolveAndProcessExtendedClass(
+                compilerCtx,
+                buildCtx,
+                classDeclaration,
+                currentSource,
+                moduleSpecifier,
+                className,
+                dependentClasses,
+                typeChecker,
+                ogModule,
+                targetScriptTarget,
+              );
+            }
+          });
+        });
+      }
+    }
+  });
+
+  return dependentClasses;
+}
+
+/**
+ * Given a class declaration, this function will analyze its heritage clauses
+ * to find any extended classes, and then parse the static members of those
+ * extended classes to merge them into the current class's metadata.
+ *
+ * @param compilerCtx - the current compiler context
+ * @param typeChecker - the TypeScript type checker
+ * @param buildCtx - the current build context
+ * @param cmpNode - the extending class declaration
+ * @param staticMembers - the static members of the extending class to merge with the extended class members
+ * @param moduleFile - the module file of the extending class
+ * @returns an object containing merged metadata from extended classes
+ */
+export function mergeExtendedClassMeta(
+  compilerCtx: d.CompilerCtx,
+  typeChecker: ts.TypeChecker,
+  buildCtx: d.BuildCtx,
+  cmpNode: ts.ClassDeclaration,
+  staticMembers: ts.ClassElement[],
+  moduleFile: d.Module,
+) {
+  const tree = buildExtendsTree(compilerCtx, cmpNode, [], typeChecker, buildCtx, moduleFile);
+  let hasMixin = false;
+  let doesExtend = false;
+  let properties = parseStaticProps(staticMembers);
+  let states = parseStaticStates(staticMembers);
+  let methods = parseStaticMethods(staticMembers);
+  let listeners = parseStaticListeners(staticMembers);
+  let events = parseStaticEvents(staticMembers);
+  let watchers = parseStaticWatchers(staticMembers);
+  let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
+  let serializers = parseStaticSerializers(staticMembers, 'serializers');
+  let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
+
+  tree.forEach((extendedClass) => {
+    const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
+    const mixinProps = parseStaticProps(extendedStaticMembers) ?? [];
+    const mixinStates = parseStaticStates(extendedStaticMembers) ?? [];
+    const mixinMethods = parseStaticMethods(extendedStaticMembers) ?? [];
+    const mixinEvents = parseStaticEvents(extendedStaticMembers) ?? [];
+    const isMixin =
+      mixinProps.length > 0 ||
+      mixinStates.length > 0 ||
+      mixinMethods.length > 0 ||
+      mixinEvents.length > 0;
+    const module = compilerCtx.moduleMap.get(extendedClass.fileName);
+    // `module` may be undefined in the stateless transpile() context where
+    // moduleMap is always empty.  Skip the metadata writes but still process
+    // the inherited members so the component metadata is complete.
+    if (module) {
+      module.isMixin = isMixin;
+      module.isExtended = true;
+    }
+    doesExtend = true;
+
+    if (
+      (mixinProps.length > 0 || mixinStates.length > 0) &&
+      !detectModernPropDeclarations(extendedClass.classNode, extendedClass.sourceFile)
+    ) {
+      const err = buildWarn(buildCtx.diagnostics);
+      const target = buildCtx.config.tsCompilerOptions?.target;
+      err.messageText = `Component classes can only extend from other Stencil decorated base classes when targetting more modern JavaScript (ES2022 and above).
+      ${target ? `Your current TypeScript configuration is set to target \`${ts.ScriptTarget[target]}\`.` : ''} Please amend your tsconfig.json.`;
+      if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, extendedClass.classNode);
+    }
+
+    // Cross-type deduplication: if the component overrides a base @Prop with @State (or vice versa),
+    // exclude the base member from the opposite type to prevent it appearing in both.
+    const mixinPropsExcludingComponentStates = mixinProps.filter(
+      (mp) => !states.some((s) => s.name === mp.name),
+    );
+    const mixinStatesExcludingComponentProps = mixinStates.filter(
+      (ms) => !properties.some((p) => p.name === ms.name),
+    );
+    properties = [...deDupeMembers(mixinPropsExcludingComponentStates, properties), ...properties];
+    states = [...deDupeMembers(mixinStatesExcludingComponentProps, states), ...states];
+    methods = [...deDupeMembers(mixinMethods, methods), ...methods];
+    events = [...deDupeMembers(mixinEvents, events), ...events];
+    listeners = [
+      ...deDupeMembers(parseStaticListeners(extendedStaticMembers) ?? [], listeners),
+      ...listeners,
+    ];
+    watchers = [
+      ...deDupeMembers(parseStaticWatchers(extendedStaticMembers) ?? [], watchers),
+      ...watchers,
+    ];
+    serializers = [
+      ...deDupeMembers(
+        parseStaticSerializers(extendedStaticMembers, 'serializers') ?? [],
+        serializers,
+      ),
+      ...serializers,
+    ];
+    deserializers = [
+      ...deDupeMembers(
+        parseStaticSerializers(extendedStaticMembers, 'deserializers') ?? [],
+        deserializers,
+      ),
+      ...deserializers,
+    ];
+    classMethods = [
+      ...classMethods,
+      ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? []),
+    ];
+
+    if (isMixin) hasMixin = true;
+  });
+
+  return {
+    hasMixin,
+    doesExtend,
+    properties,
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    classMethods,
+    serializers,
+    deserializers,
+  };
+}

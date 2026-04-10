@@ -1,0 +1,13 @@
+export const STENCIL_CORE_ID = '@stencil/core';
+export const STENCIL_INTERNAL_ID = '@stencil/core/runtime';
+export const STENCIL_APP_DATA_ID = '@stencil/core/runtime/app-data';
+export const STENCIL_APP_GLOBALS_ID = '@stencil/core/runtime/app-globals';
+export const STENCIL_HYDRATE_FACTORY_ID = '@stencil/core/runtime/server/hydrate-factory';
+export const STENCIL_INTERNAL_CLIENT_PLATFORM_ID = '@stencil/core/runtime/client';
+export const STENCIL_INTERNAL_HYDRATE_PLATFORM_ID = '@stencil/core/runtime/server';
+export const STENCIL_JSX_RUNTIME_ID = '@stencil/core/jsx-runtime';
+export const STENCIL_JSX_DEV_RUNTIME_ID = '@stencil/core/jsx-dev-runtime';
+export const APP_DATA_CONDITIONAL = '?app-data=conditional';
+export const LAZY_BROWSER_ENTRY_ID = '@lazy-browser-entrypoint' + APP_DATA_CONDITIONAL;
+export const LAZY_EXTERNAL_ENTRY_ID = '@lazy-external-entrypoint' + APP_DATA_CONDITIONAL;
+export const USER_INDEX_ENTRY_ID = '@user-index-entrypoint';

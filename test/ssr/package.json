@@ -1,0 +1,19 @@
+{
+  "name": "@stencil-core-tests/ssr",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "stencil build",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@stencil/core": "workspace:*",
+    "@stencil/playwright": "catalog:",
+    "file-saver": "^2.0.5"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

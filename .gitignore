@@ -13,6 +13,7 @@ log.txt
 .idea/
 .vscode/
 .claude
+.agents
 .history/
 .sass-cache/
 .versions/
@@ -56,3 +57,13 @@ unused-exports*.txt
 
 # readme file from docs-readme that is expected to be missing so it will be emitted in full
 test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/styleurls-component/readme.md
+
+
+.turbo
+# temporary ignore whilst we complete v5
+/src
+dist
+www
+hydrate
+loader
+test-results

@@ -1,0 +1,17 @@
+{
+  "name": "@stencil-core-tests/build-outputs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Validates Stencil build outputs (dist, hydrate, www, docs)",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm --filter @stencil-core-tests/integration-e2e run build && node test-dist.js && node test-hydrate.js"
+  },
+  "devDependencies": {
+    "@stencil/mock-doc": "workspace:*",
+    "why-is-node-running": "^2.2.0"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}
