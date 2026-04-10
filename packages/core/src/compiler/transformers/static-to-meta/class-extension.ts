@@ -6,6 +6,7 @@ import {
   tsResolveModuleName,
   tsGetSourceFile,
 } from '../../sys/typescript/typescript-resolve-module';
+import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decorators';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
@@ -52,6 +53,61 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
 };
 
 /**
+ * When a parent-class source file is fetched directly from disk (via
+ * {@link tsGetSourceFile}) rather than from the compiler's moduleMap cache, it
+ * arrives with its original decorator syntax intact.  The static-meta parsers
+ * (`parseStaticProps`, `parseStaticStates`, etc.) only understand the static-
+ * getter form produced by {@link convertDecoratorsToStatic}.
+ *
+ * This helper creates a self-contained mini TypeScript program for the single
+ * file and runs the decorator→static transformer on it, returning the
+ * transformed source file.  Prop types may be under-resolved (external imports
+ * are not available in the mini program) and will fall back to `any`, which is
+ * acceptable for the purpose of walking the inheritance chain.
+ *
+ * @param sourceFile the raw (decorator-syntax) source file from disk
+ * @param config the current Stencil validated config
+ * @param target the script target to use when converting decorators to static (if needed)
+ * @returns the source file with decorators converted to static getters
+ */
+function convertDiskSourceFileDecorators(
+  sourceFile: ts.SourceFile,
+  config: d.ValidatedConfig,
+  target: ts.ScriptTarget = ts.ScriptTarget.ESNext,
+): ts.SourceFile {
+  const compilerOptions: ts.CompilerOptions = {
+    ...config.tsCompilerOptions,
+    experimentalDecorators: true,
+    noLib: true,
+    noResolve: true,
+    isolatedModules: false,
+    // Ensure class fields are kept as declarations (not lowered to constructor
+    // assignments), which detectModernPropDeclarations and the static-meta
+    // parsers expect.
+    target,
+  };
+  const host = ts.createCompilerHost(compilerOptions);
+  const program = ts.createProgram([sourceFile.fileName], compilerOptions, host);
+  const typeChecker = program.getTypeChecker();
+  // IMPORTANT: use the source file from *this* program, not the one passed in.
+  // Node text references (used by getText()) are scoped to the program that
+  // created them; mixing nodes from different programs causes getText() to throw.
+  const ownSourceFile = program.getSourceFile(sourceFile.fileName) ?? sourceFile;
+  const result = ts.transform(ownSourceFile, [
+    convertDecoratorsToStatic(config, [], typeChecker, program),
+  ]);
+  // Print and re-parse the transformed AST.  Nodes produced by ts.factory.create*
+  // inside the transformer have no parent pointers, which causes getText() and
+  // getSourceFile() to fail when buildExtendsTree recurses into this file.
+  // A fresh parse gives us a fully-bound, self-consistent AST at the cost of
+  // one extra parse (acceptable for the inheritance-chain walk).
+  // `true` = setParentNodes so that getSourceFile() traversals work correctly.
+  const printer = ts.createPrinter({ removeComments: false });
+  const printed = printer.printFile(result.transformed[0]);
+  return ts.createSourceFile(sourceFile.fileName, printed, target, true);
+}
+
+/**
  * Helper function to resolve and process an extended class from a module.
  * This handles:
  * 1. Resolving the module path
@@ -66,9 +122,9 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
  * @param moduleSpecifier - the module path to resolve
  * @param className - the name of the class to find in the resolved module
  * @param dependentClasses - the array to add found classes to
- * @param keepLooking - whether to continue recursively looking for more extended classes
  * @param typeChecker - the TypeScript type checker
  * @param ogModule - the original module file of the class declaration
+ * @param targetScriptTarget - the script target to use when converting decorators to static (if needed)
  * @returns the found class declaration or undefined
  */
 function resolveAndProcessExtendedClass(
@@ -79,10 +135,14 @@ function resolveAndProcessExtendedClass(
   moduleSpecifier: string,
   className: string,
   dependentClasses: DependentClass[],
-  keepLooking: boolean,
   typeChecker: ts.TypeChecker,
   ogModule: d.Module,
+  targetScriptTarget: ts.ScriptTarget = ts.ScriptTarget.ESNext,
 ): ts.ClassDeclaration | undefined {
+  // Start optimistic: set to false inside if the candidate turns out to be a
+  // mixin factory (class wrapped in a function), in which case we cannot
+  // meaningfully recurse further into its base classes.
+  let keepLooking = true;
   const foundFile = tsResolveModuleName(
     buildCtx.config,
     compilerCtx,
@@ -113,6 +173,11 @@ function resolveAndProcessExtendedClass(
       if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, classDeclaration);
       return undefined;
     }
+
+    // The source came from disk (not from the pre-transformed moduleMap cache).
+    // It may still use decorator syntax.  Run a self-contained decorator→static
+    // pass so that parseStatic* can read the member names from static getters.
+    foundSource = convertDiskSourceFileDecorators(foundSource, buildCtx.config, targetScriptTarget);
   }
 
   // 2) get the exported declaration from the module
@@ -281,6 +346,12 @@ function buildExtendsTree(
     (clause) => clause.token === ts.SyntaxKind.ExtendsKeyword,
   );
   if (!extendsClause) return dependentClasses;
+
+  // Derive the script target from the original module's source file.  Disk-
+  // fetched parent files are run through convertDecoratorsToStatic with this
+  // target so that class fields are preserved at the correct language level.
+  const targetScriptTarget: ts.ScriptTarget =
+    (ogModule?.staticSourceFile as ts.SourceFile)?.languageVersion ?? ts.ScriptTarget.ESNext;
 
   let classIdentifiers: ts.Identifier[] = [];
   let foundClassDeclaration: ts.ClassDeclaration | undefined;
@@ -477,9 +548,9 @@ function buildExtendsTree(
                 moduleSpecifier,
                 className,
                 dependentClasses,
-                keepLooking,
                 typeChecker,
                 ogModule,
+                targetScriptTarget,
               );
             }
           });
@@ -513,9 +584,9 @@ function buildExtendsTree(
                 moduleSpecifier,
                 className,
                 dependentClasses,
-                keepLooking,
                 typeChecker,
                 ogModule,
+                targetScriptTarget,
               );
             }
           });
@@ -573,10 +644,13 @@ export function mergeExtendedClassMeta(
       mixinMethods.length > 0 ||
       mixinEvents.length > 0;
     const module = compilerCtx.moduleMap.get(extendedClass.fileName);
-    if (!module) return;
-
-    module.isMixin = isMixin;
-    module.isExtended = true;
+    // `module` may be undefined in the stateless transpile() context where
+    // moduleMap is always empty.  Skip the metadata writes but still process
+    // the inherited members so the component metadata is complete.
+    if (module) {
+      module.isMixin = isMixin;
+      module.isExtended = true;
+    }
     doesExtend = true;
 
     if (

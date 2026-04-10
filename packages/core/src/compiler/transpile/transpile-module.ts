@@ -2,9 +2,9 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { createNodeLogger } from '../../sys/node';
-import { isNumber, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
+import { isNumber, isString, join, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
 import { BuildContext } from '../build/build-ctx';
-import { CompilerContext } from '../build/compiler-ctx';
+import { CompilerContext, getModuleLegacy } from '../build/compiler-ctx';
 import { performAutomaticKeyInsertion } from '../transformers/automatic-key-insertion';
 import { lazyComponentTransform } from '../transformers/component-lazy/transform-lazy-component';
 import { nativeComponentTransform } from '../transformers/component-native/tranform-to-native-component';
@@ -100,10 +100,36 @@ export const transpileModule = (
 
   const sourceFile = ts.createSourceFile(sourceFilePath, input, tsCompilerOptions.target);
 
+  // Build the extra-source-files map for inheritance-chain resolution.
+  // When a component extends a class from another module, the stateless
+  // transpile() context has no module map and no file system to fall back on.
+  // Callers can supply the source text of ancestor modules via
+  // `TranspileOptions.extraFiles` so that buildExtendsTree() can resolve them.
+  const extraSourceFiles = new Map<string, ts.SourceFile>();
+  if (transformOpts.extraFiles) {
+    const currentDir = normalizePath(transformOpts.currentDirectory || process.cwd());
+    for (const [filePath, text] of Object.entries(transformOpts.extraFiles)) {
+      const resolvedPath = normalizePath(
+        filePath.startsWith('/') ? filePath : join(currentDir, filePath),
+      );
+      extraSourceFiles.set(
+        resolvedPath,
+        ts.createSourceFile(resolvedPath, text, tsCompilerOptions.target),
+      );
+    }
+    // noResolve only prevents TypeScript from *discovering* new files through
+    // imports; files we supply explicitly to createProgram are always in scope.
+    // Lifting the flag here lets the type-checker cross-reference symbols
+    // across all provided files so the happy path in buildExtendsTree works.
+    tsCompilerOptions.noResolve = false;
+  }
+
   // Create a compilerHost object to allow the compiler to read and write files
   const compilerHost: ts.CompilerHost = {
     getSourceFile: (fileName) => {
-      return normalizePath(fileName) === normalizePath(sourceFilePath) ? sourceFile : undefined;
+      const normalized = normalizePath(fileName);
+      if (normalized === normalizePath(sourceFilePath)) return sourceFile;
+      return extraSourceFiles.get(normalized);
     },
     writeFile: (name, text) => {
       if (name.endsWith('.js.map') || name.endsWith('.mjs.map')) {
@@ -119,14 +145,74 @@ export const transpileModule = (
     getCanonicalFileName: (fileName) => fileName,
     getCurrentDirectory: () => transformOpts.currentDirectory || process.cwd(),
     getNewLine: () => ts.sys.newLine || '\n',
-    fileExists: (fileName) => normalizePath(fileName) === normalizePath(sourceFilePath),
+    fileExists: (fileName) => {
+      const normalized = normalizePath(fileName);
+      return normalized === normalizePath(sourceFilePath) || extraSourceFiles.has(normalized);
+    },
     readFile: () => '',
     directoryExists: () => true,
     getDirectories: () => [],
   };
 
-  const program = ts.createProgram([sourceFilePath], tsCompilerOptions, compilerHost);
+  const program = ts.createProgram(
+    [sourceFilePath, ...extraSourceFiles.keys()],
+    tsCompilerOptions,
+    compilerHost,
+  );
   const typeChecker = program.getTypeChecker();
+
+  // Pre-populate the module map with stubs for every extra source file.
+  // buildExtendsTree() looks up compilerCtx.moduleMap to retrieve parent
+  // class declarations; without these stubs it silently skips all parents
+  // because the map is always empty in a stateless transpile() context.
+  //
+  // Crucially, we must also run convertDecoratorsToStatic on the extra files
+  // before storing them as `staticSourceFile`.  buildExtendsTree reads
+  // `staticSourceFile.members.filter(isStaticGetter)` to discover inherited
+  // members; if we store the raw decorator-syntax source it will find nothing.
+  // We use ts.transform() with a dedicated mini-program here so we can obtain
+  // the transformed AST directly, without needing to go through program.emit().
+  if (extraSourceFiles.size > 0) {
+    // Build a self-contained mini program for the extra files only.
+    // convertDecoratorsToStatic() requires a TypeChecker and Program to run;
+    // we use noResolve:true so the mini program stays isolated and does not
+    // attempt to load @stencil/core or any other dependency from disk.
+    const miniCompilerHost: ts.CompilerHost = {
+      getSourceFile: (fileName) => extraSourceFiles.get(normalizePath(fileName)),
+      writeFile: () => {},
+      getDefaultLibFileName: () => 'lib.d.ts',
+      useCaseSensitiveFileNames: () => false,
+      getCanonicalFileName: (f) => f,
+      getCurrentDirectory: () => transformOpts.currentDirectory || process.cwd(),
+      getNewLine: () => ts.sys.newLine || '\n',
+      fileExists: (f) => extraSourceFiles.has(normalizePath(f)),
+      readFile: () => '',
+      directoryExists: () => true,
+      getDirectories: () => [],
+    };
+    const miniProgram = ts.createProgram(
+      [...extraSourceFiles.keys()],
+      { ...tsCompilerOptions, noResolve: true },
+      miniCompilerHost,
+    );
+    const miniTypeChecker = miniProgram.getTypeChecker();
+    const decoratorConverter = convertDecoratorsToStatic(
+      config,
+      buildCtx.diagnostics,
+      miniTypeChecker,
+      miniProgram,
+    );
+
+    for (const [resolvedPath, rawSource] of extraSourceFiles) {
+      const transformResult = ts.transform(rawSource, [decoratorConverter], tsCompilerOptions);
+      const processedSource = transformResult.transformed[0];
+      transformResult.dispose();
+
+      const moduleFile = getModuleLegacy(compilerCtx, resolvedPath);
+      moduleFile.staticSourceFile = processedSource;
+      moduleFile.staticSourceFileText = processedSource.getFullText?.() ?? rawSource.text;
+    }
+  }
 
   const transformers = {
     before: [
@@ -167,7 +253,12 @@ export const transpileModule = (
     transformers.after.push(lazyComponentTransform(compilerCtx, transformOpts, buildCtx));
   }
 
-  program.emit(undefined, undefined, undefined, false, transformers);
+  // When extra files are in play, emit only the main source file: the rest of
+  // the program is still used by the type-checker for cross-file symbol
+  // resolution, but we don't want the extra files' emitted JS to overwrite
+  // results.code.
+  const emitTarget = extraSourceFiles.size > 0 ? program.getSourceFile(sourceFilePath) : undefined;
+  program.emit(emitTarget, undefined, undefined, false, transformers);
 
   const tsDiagnostics = [...program.getSyntacticDiagnostics()] as ts.Diagnostic[];
 

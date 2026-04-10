@@ -880,6 +880,10 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
    * modify the in-memory filesystem cache. Otherwise it will create directories
    * in the real FS.
    *
+   * All directories are created concurrently using `{ recursive: true }`, which
+   * lets the OS handle parent-before-child ordering without requiring the sorted
+   * sequential loop that was previously needed.
+   *
    * @param dirsToEnsure directories we want to ensure exist
    * @param inMemoryOnly whether directory creation should be confined to the
    * in-memory cache
@@ -889,31 +893,35 @@ export const createInMemoryFs = (sys: d.CompilerSystem) => {
     dirsToEnsure: string[],
     inMemoryOnly: boolean,
   ): Promise<string[]> => {
-    const dirsAdded: string[] = [];
+    const results = await Promise.all(
+      dirsToEnsure.map(async (dirPath) => {
+        const item = getItem(dirPath);
 
-    for (const dirPath of dirsToEnsure) {
-      const item = getItem(dirPath);
-
-      if (item.exists === true && item.isDirectory === true) {
-        // already cached that this path is indeed an existing directory
-        continue;
-      }
-
-      try {
-        // cache that we know this is a directory on disk
-        item.exists = true;
-        item.isDirectory = true;
-        item.isFile = false;
-
-        if (!inMemoryOnly) {
-          await sys.createDir(dirPath);
+        if (item.exists === true && item.isDirectory === true) {
+          // already cached that this path is indeed an existing directory
+          return null;
         }
 
-        dirsAdded.push(dirPath);
-      } catch {}
-    }
+        try {
+          // cache that we know this is a directory on disk
+          item.exists = true;
+          item.isDirectory = true;
+          item.isFile = false;
 
-    return dirsAdded;
+          if (!inMemoryOnly) {
+            // { recursive: true } creates all missing ancestors atomically
+            // so we can fire all directories in parallel without ordering concerns
+            await sys.createDir(dirPath, { recursive: true });
+          }
+
+          return dirPath;
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return results.filter((d): d is string => d !== null);
   };
 
   /**

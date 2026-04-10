@@ -2752,6 +2752,27 @@ export interface TranspileOptions {
    * Adds `transformTag` calls to css strings and querySelector(All) calls
    */
   additionalTagTransformers?: boolean;
+  /**
+   * A map of virtual file paths to source text for modules that the component
+   * under transpilation extends from.  When provided, `transpile()` builds a
+   * minimal multi-file TypeScript program from these sources so that
+   * {@link https://stenciljs.com/docs/component-lifecycle inheritance chains}
+   * can be resolved without requiring the parent files to exist on disk.
+   *
+   * Keys are the same import paths used in the component's `import` statements
+   * (relative paths are resolved against `currentDirectory`).  Values are the
+   * TypeScript/JavaScript source text of that module.
+   *
+   * @example
+   * ```ts
+   * transpile(myComponentCode, {
+   *   extraFiles: {
+   *     './base-component.ts': baseComponentSourceText,
+   *   },
+   * });
+   * ```
+   */
+  extraFiles?: Record<string, string>;
 }
 
 export type CompileTarget =
@@ -2788,6 +2809,10 @@ export interface TransformOptions {
   style: 'static' | null;
   styleImportData: 'queryparams' | null;
   target?: string;
+  /**
+   * @see {@link TranspileOptions.extraFiles}
+   */
+  extraFiles?: Record<string, string>;
 }
 
 export interface CompileScriptMinifyOptions {
