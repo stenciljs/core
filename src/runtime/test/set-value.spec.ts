@@ -1,4 +1,4 @@
-import { normalizeWatchers } from '../set-value';
+import { normalizeWatchers } from '../normalize-watchers';
 
 describe('normalizeWatchers', () => {
   it('returns undefined when input is undefined', () => {

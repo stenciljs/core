@@ -19,7 +19,7 @@ import { hmrStart } from './hmr-component';
 import { createTime, installDevTools } from './profile';
 import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS, SLOT_FB_CSS } from './runtime-constants';
-import { normalizeWatchers } from './set-value';
+import { normalizeWatchers } from './normalize-watchers';
 import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
 export { setNonce } from '@platform';
@@ -89,6 +89,11 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
         cmpMeta.$attrsToReflect$ = [];
       }
       if (BUILD.propChangeCallback) {
+        // Watchers need normalization because the compiler format changed in
+        // 4.39.x (string[] → { [method]: flags }[]). Libraries compiled with
+        // an older Stencil may still emit the legacy format. Serializers and
+        // deserializers were introduced after that change, so their format is
+        // always current and only needs a nullish fallback.
         cmpMeta.$watchers$ = normalizeWatchers(compactMeta[4]);
         cmpMeta.$serializers$ = compactMeta[5] ?? {};
         cmpMeta.$deserializers$ = compactMeta[6] ?? {};

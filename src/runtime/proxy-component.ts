@@ -5,7 +5,8 @@ import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
-import { getValue, normalizeWatchers, setValue } from './set-value';
+import { normalizeWatchers } from './normalize-watchers';
+import { getValue, setValue } from './set-value';
 
 /**
  * Attach a series of runtime constructs to a compiled Stencil component
