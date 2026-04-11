@@ -1,8 +1,9 @@
 /// <reference types="@wdio/browser-runner" />
 
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = Boolean(process.env.CI);
 
 /**
