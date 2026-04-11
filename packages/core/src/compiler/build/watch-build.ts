@@ -47,37 +47,45 @@ export const createWatchBuild = async (
   const filesUpdated = new Set<string>();
   const filesDeleted = new Set<string>();
 
-  // Track TypeScript files that need cache invalidation
+  // TS files that need cache invalidation before the next rebuild
   const tsFilesToInvalidate = new Set<string>();
 
-  // Debounce rebuild calls to handle duplicate events from multiple watchers
+  // Debounce timer — multiple watchers can fire for the same change
   let rebuildTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  /**
-   * Trigger a rebuild of the project.
-   * Invalidates changed TypeScript files in the compiler cache, then rebuilds.
-   */
+  // Suppress FSEvents double-events (the same save can fire twice ~200-500ms apart),
+  // outside the 10ms debounce window. Drop events for files built within the cooldown period.
+  const recentlyBuiltFiles = new Set<string>();
+  let lastBuildFinishedAt = 0;
+  const DUPLICATE_EVENT_COOLDOWN_MS = 1500;
+
+  // Files the active build was triggered by; mid-build duplicates for these are dropped.
+  const currentlyBuildingFiles = new Set<string>();
+
+  /** Trigger a rebuild, invalidating changed TS files first. */
   const triggerRebuild = async () => {
     if (isBuilding) {
-      // If already building, schedule another rebuild after current one finishes
       rebuildTimeout = setTimeout(triggerRebuild, 50);
       return;
     }
 
     isBuilding = true;
     try {
-      // Invalidate TypeScript cache for changed files
       if (tsFilesToInvalidate.size > 0) {
         incrementalCompiler.invalidateFiles(Array.from(tsFilesToInvalidate));
         tsFilesToInvalidate.clear();
       }
 
-      // Rebuild TypeScript program (incremental - only changed files re-emit)
-      const tsBuilder = incrementalCompiler.rebuild();
+      // Snapshot pending files so mid-build duplicates can be suppressed in onFsChange.
+      currentlyBuildingFiles.clear();
+      filesAdded.forEach((f) => currentlyBuildingFiles.add(f));
+      filesUpdated.forEach((f) => currentlyBuildingFiles.add(f));
+      filesDeleted.forEach((f) => currentlyBuildingFiles.add(f));
 
-      // Run the Stencil build
+      const tsBuilder = incrementalCompiler.rebuild();
       await onBuild(tsBuilder);
     } finally {
+      currentlyBuildingFiles.clear();
       isBuilding = false;
     }
   };
@@ -121,9 +129,7 @@ export const createWatchBuild = async (
       );
     }
 
-    // Make sure all files in the module map are still in the fs
-    // Otherwise, we can run into build errors because the compiler can think
-    // there are two component files with the same tag name
+    // Remove stale module map entries to prevent duplicate-tag build errors
     Array.from(compilerCtx.moduleMap.keys()).forEach((key) => {
       if (filesUpdated.has(key) || filesDeleted.has(key)) {
         // Check if the file exists in the fs
@@ -134,7 +140,7 @@ export const createWatchBuild = async (
       }
     });
 
-    // Make sure all added/updated files are watched
+    // Ensure newly added/updated files are watched
     new Set([...filesUpdated, ...filesAdded]).forEach((filePath) => {
       compilerCtx.addWatchFile(filePath);
     });
@@ -148,63 +154,40 @@ export const createWatchBuild = async (
     emitFsChange(compilerCtx, buildCtx);
 
     buildCtx.start();
-
-    // Rebuild the project
     const result = await build(config, compilerCtx, buildCtx, tsBuilder);
 
     if (result && !result.hasError) {
       isRebuild = true;
     }
+
+    // Record consumed files so late-arriving OS duplicates are suppressed.
+    recentlyBuiltFiles.clear();
+    buildCtx.filesChanged.forEach((f) => recentlyBuiltFiles.add(f));
+    lastBuildFinishedAt = Date.now();
   };
 
   /**
-   * Utility method for formatting a debug message that must either list a number of files, or the word 'none' if the
-   * provided list is empty
-   *
-   * @param files a list of files, the list may be empty
-   * @returns the provided list if it is not empty. otherwise, return the word 'none'
+   * Returns files as a prefixed list, or 'none' if empty.
+   * No space before the filename — the logger wraps on whitespace.
+   * @param files the list of files to format for debug output
+   * @returns the formatted string for debug output
    */
   const formatFilesForDebug = (files: ReadonlyArray<string>): string => {
-    /**
-     * In the created message, it's important that there's no whitespace prior to the file name.
-     * Stencil's logger will split messages by whitespace according to the width of the terminal window.
-     * Since file names can be fully qualified paths (and therefore quite long), putting whitespace between a '-' and
-     * the path can lead to formatted messages where the '-' is on its own line
-     */
     return files.length > 0 ? files.map((filename: string) => `-${filename}`).join('\n') : 'none';
   };
 
   /**
-   * Utility method to start/construct the watch program. This will mark
-   * all relevant files to be watched and then do the initial build.
-   *
-   * @returns A promise that resolves when the watcher is closed.
+   * Start watchers for all relevant directories and run the initial build.
+   * @returns a promise that resolves when the watch program is closed.
    */
   const start = async () => {
-    /**
-     * Stencil watches the following directories for changes:
-     */
     await Promise.all([
-      /**
-       * the `srcDir` directory, e.g. component files
-       */
       watchFiles(compilerCtx, config.srcDir),
-      /**
-       * the root directory, e.g. `stencil.config.ts`
-       */
-      watchFiles(compilerCtx, config.rootDir, {
-        recursive: false,
-      }),
-      /**
-       * the external directories, defined in `watchExternalDirs`, e.g. `node_modules`
-       */
+      watchFiles(compilerCtx, config.rootDir, { recursive: false }),
       ...(config.watchExternalDirs || []).map((dir) => watchFiles(compilerCtx, dir)),
     ]);
 
-    // Create the incremental TypeScript compiler
     incrementalCompiler = new IncrementalCompiler(config);
-
-    // Initial build
     const tsBuilder = incrementalCompiler.rebuild();
     await onBuild(tsBuilder);
 
@@ -232,6 +215,18 @@ export const createWatchBuild = async (
    */
   const onFsChange: d.CompilerFileWatcherCallback = (filePath, eventKind) => {
     if (incrementalCompiler && !isWatchIgnorePath(config, filePath)) {
+      // Drop duplicate OS events: same file within cooldown window, or mid-build duplicate.
+      const isDuplicateOfRecentBuild =
+        recentlyBuiltFiles.has(filePath) &&
+        Date.now() - lastBuildFinishedAt < DUPLICATE_EVENT_COOLDOWN_MS;
+      const isDuplicateMidBuild = isBuilding && currentlyBuildingFiles.has(filePath);
+      if (isDuplicateOfRecentBuild || isDuplicateMidBuild) {
+        config.logger.debug(
+          `WATCH_BUILD::fs_event_change suppressed duplicate - type=${eventKind}, path=${filePath}`,
+        );
+        return;
+      }
+
       updateCompilerCtxCache(config, compilerCtx, filePath, eventKind);
 
       switch (eventKind) {
@@ -252,7 +247,6 @@ export const createWatchBuild = async (
           break;
       }
 
-      // Track TypeScript files for cache invalidation
       if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
         tsFilesToInvalidate.add(filePath);
       }
@@ -261,7 +255,6 @@ export const createWatchBuild = async (
         `WATCH_BUILD::fs_event_change - type=${eventKind}, path=${filePath}, time=${new Date().getTime()}`,
       );
 
-      // Debounce rebuild calls - multiple watchers may fire for the same change
       if (rebuildTimeout) {
         clearTimeout(rebuildTimeout);
       }

@@ -2,6 +2,7 @@ import { basename } from 'path';
 import type * as d from '@stencil/core';
 
 import {
+  getComponentsDtsSrcFilePath,
   isOutputTargetDocsJson,
   isOutputTargetDocsVscode,
   isOutputTargetStats,
@@ -109,27 +110,17 @@ export const hasStyleChanges = (buildCtx: d.BuildCtx): boolean =>
   buildCtx.filesChanged.some(hasStyleExt);
 
 /**
- * Check whether a build has html changes
- *
- * @param config the current config
- * @param buildCtx the build context
- * @returns whether or not HTML files were changed
+ * Returns true if any HTML file under `srcDir` changed.
+ * HTML outside srcDir (e.g. test fixtures) has no effect on compiled output.
+ * @param config the Stencil configuration
+ * @param buildCtx the current build context
+ * @returns whether or not there are HTML changes under srcDir
  */
 export const hasHtmlChanges = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): boolean => {
-  const anyHtmlChanged = buildCtx.filesChanged.some((f) => f.toLowerCase().endsWith('.html'));
-
-  if (anyHtmlChanged) {
-    // any *.html in any directory that changes counts and rebuilds
-    return true;
-  }
-
-  const srcIndexHtmlChanged = buildCtx.filesChanged.some((fileChanged) => {
-    // the src index index.html file has changed
-    // this file name could be something other than index.html
-    return fileChanged === config.srcIndexHtml;
-  });
-
-  return srcIndexHtmlChanged;
+  const srcDirPrefix = config.srcDir + '/';
+  return buildCtx.filesChanged.some(
+    (f) => f.toLowerCase().endsWith('.html') && f.startsWith(srcDirPrefix),
+  );
 };
 
 /**
@@ -150,6 +141,8 @@ export const isWatchIgnorePath = (config: d.ValidatedConfig, path: string) => {
   }
   const outputTargets = config.outputTargets;
   const ignoreFiles = [
+    // Ignore components.d.ts — its disk write would cascade-rebuild all components.
+    getComponentsDtsSrcFilePath(config),
     ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.file),
     ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.typesFile),
     ...outputTargets.filter(isOutputTargetStats).map((o) => o.file),

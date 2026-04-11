@@ -22,16 +22,58 @@ export const generateOutputTargets = async (
     .map((filename) => compilerCtx.moduleMap.get(filename))
     .filter((mod) => mod && !mod.isCollectionDependency);
 
+  // Evict transpile cache entries for re-emitted modules (keys are "bundleId:filePath").
+  // Must run before changedModules.clear().
+  if (compilerCtx.changedModules.size > 0) {
+    for (const [key] of compilerCtx.transpileCache) {
+      const colon = key.indexOf(':');
+      if (colon !== -1 && compilerCtx.changedModules.has(key.slice(colon + 1))) {
+        compilerCtx.transpileCache.delete(key);
+      }
+    }
+  }
+
+  // Evict CSS transform cache entries for changed style files.
+  // Keys are the annotated import path e.g. "/path/foo.scss?tag=ion-foo&mode=md&…".
+  // Two cases:
+  //  1. The entry file itself changed (key base path matches).
+  //  2. A SASS @import/@use dependency changed (in pluginTransformDependencies).
+  if (buildCtx.hasStyleChanges && buildCtx.filesChanged.length > 0) {
+    const changedStyleFiles = new Set(buildCtx.filesChanged);
+    for (const [key, entry] of compilerCtx.cssTransformCache) {
+      const basePath = key.includes('?') ? key.slice(0, key.indexOf('?')) : key;
+      const entryFileChanged = changedStyleFiles.has(basePath);
+      const depChanged =
+        !entryFileChanged &&
+        entry != null &&
+        entry.pluginTransformDependencies.some((dep) => changedStyleFiles.has(dep));
+      if (entryFileChanged || depChanged) {
+        compilerCtx.cssTransformCache.delete(key);
+      }
+    }
+  }
+
   compilerCtx.changedModules.clear();
 
   invalidateRolldownCaches(compilerCtx);
 
+  // Skip bundler outputs on rebuilds where only HTML/assets changed — output would be identical.
+  const needsBundlerRebuild =
+    !buildCtx.isRebuild || buildCtx.hasScriptChanges || buildCtx.hasStyleChanges;
+
+  const bundlerTasks: Promise<void>[] = needsBundlerRebuild
+    ? [
+        outputCustomElements(config, compilerCtx, buildCtx),
+        outputHydrateScript(config, compilerCtx, buildCtx),
+        outputLazyLoader(config, compilerCtx),
+        outputLazy(config, compilerCtx, buildCtx),
+      ]
+    : [];
+
   await Promise.all([
+    // outputCollection is already a no-op when changedModuleFiles is empty.
     outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
-    outputCustomElements(config, compilerCtx, buildCtx),
-    outputHydrateScript(config, compilerCtx, buildCtx),
-    outputLazyLoader(config, compilerCtx),
-    outputLazy(config, compilerCtx, buildCtx),
+    ...bundlerTasks,
   ]);
 
   await Promise.all([
@@ -45,11 +87,14 @@ export const generateOutputTargets = async (
     // all of its files before the www OT runs.
     outputWww(config, compilerCtx, buildCtx),
 
-    // must run after all the other outputs
-    // since it validates files were created
-    outputDocs(config, compilerCtx, buildCtx),
-    outputTypes(config, compilerCtx, buildCtx),
-    outputCustom(config, compilerCtx, buildCtx),
+    // Types, docs and custom outputs are metadata-derived; skip when nothing script/style changed.
+    ...(needsBundlerRebuild
+      ? [
+          outputDocs(config, compilerCtx, buildCtx),
+          outputTypes(config, compilerCtx, buildCtx),
+          outputCustom(config, compilerCtx, buildCtx),
+        ]
+      : []),
   ]);
 
   timeSpan.finish('generate outputs finished');

@@ -260,6 +260,8 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     rolldownCacheHydrate: null,
     rolldownCacheLazy: null,
     rolldownCacheNative: null,
+    transpileCache: new Map(),
+    prevStylesMap: new Map(),
     styleModeNames: new Set(),
     worker: createWorkerContext(innerConfig.sys),
     cssTransformCache: new Map(),

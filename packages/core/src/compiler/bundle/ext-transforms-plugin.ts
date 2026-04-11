@@ -243,19 +243,13 @@ export const extTransformsPlugin = (
           this.error('Plugin CSS transform error');
         }
 
-        const hasUpdatedStyle = buildCtx.stylesUpdated.some((s) => {
-          return (
-            s.styleTag === data.tag &&
-            s.styleMode === data.mode &&
-            s.styleText === cacheEntry.cssTransformOutput.styleText
-          );
-        });
-
         /**
          * if the style has updated, compose all styles for the component
          */
-        if (!hasUpdatedStyle && data.tag && data.mode) {
-          const externalStyles = cmp?.styles?.[0]?.externalStyles;
+        if (data.tag && data.mode) {
+          // Find the style entry for the current mode (not always styles[0] which is the default mode).
+          const currentModeStyle = cmp?.styles?.find((s) => s.modeName === data.mode);
+          const externalStyles = currentModeStyle?.externalStyles;
 
           /**
            * if component has external styles, use a list to keep the order to which
@@ -285,11 +279,23 @@ export const extTransformsPlugin = (
                */
               cacheEntry.cssTransformOutput.styleText;
 
-          buildCtx.stylesUpdated.push({
-            styleTag: data.tag,
-            styleMode: data.mode,
-            styleText,
-          });
+          // Only push to stylesUpdated if the CSS actually changed since the
+          // last build. Without this check, every rebuild re-pushes all 90+
+          // component stylesheets even when only a .tsx file changed, causing
+          // the HMR client to re-inject every style on every save.
+          const scopeId = getScopeId(data.tag, data.mode);
+          const prevText = compilerCtx.prevStylesMap.get(scopeId);
+          const alreadyQueued = buildCtx.stylesUpdated.some(
+            (s) => s.styleTag === data.tag && s.styleMode === data.mode,
+          );
+          if (!alreadyQueued && styleText !== prevText) {
+            compilerCtx.prevStylesMap.set(scopeId, styleText);
+            buildCtx.stylesUpdated.push({
+              styleTag: data.tag,
+              styleMode: data.mode,
+              styleText,
+            });
+          }
         }
 
         return {

@@ -540,6 +540,19 @@ export interface CompilerCtx {
 
   rolldownCache: Map<string, any>;
   /**
+   * Cross-build cache for {@link ts.transpileModule} results.
+   * Keyed by `"${bundleId}:${normalizedFilePath}"`. Invalidated for any
+   * file that appears in {@link changedModules} after TypeScript re-emits.
+   * @see transpileCache in compiler-ctx.ts
+   */
+  transpileCache: Map<string, { outputText: string; sourceMapText: string | null }>;
+  /**
+   * Cross-build cache of the last style text pushed to the HMR client.
+   * Keyed by getScopeId result (e.g. "ion-accordion$ios"). Used by
+   * extTransformsPlugin to avoid re-pushing unchanged styles on every rebuild.
+   */
+  prevStylesMap: Map<string, string>;
+  /**
    * Cross-output-target cache for the SASS + Lightning CSS computation.
    * Keyed by the annotated Rolldown import id. Null entries indicate that the
    * source file could not be read (propagated as a `null` return from the

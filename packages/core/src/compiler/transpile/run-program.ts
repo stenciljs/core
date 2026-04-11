@@ -212,43 +212,58 @@ export const validateTypesAfterGeneration = async (
   const tsProgram = tsBuilder.getProgram();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
 
-  // Check if components.d.ts already exists
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
   const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // If components.d.ts doesn't exist yet, generate it and signal that a rebuild is needed.
-  // The current TS program was created without components.d.ts, so it can't provide
-  // accurate type checking. We need a fresh TS program that includes components.d.ts.
+  // First run: components.d.ts doesn't exist yet — generate it and request a fresh TS program.
   if (!componentsDtsExistedBefore) {
     await generateAppTypes(config, compilerCtx, buildCtx, 'src');
-    // Signal that we need to rebuild with a fresh TS program
     return { hasTypesChanged: true, needsRebuild: true };
   }
 
-  // components.d.ts existed, so the TS program has full type information.
-  // Run semantic validation on user source files.
   if (config.validateTypes) {
-    const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
-      const fileName = normalizePath(sf.fileName);
-      return (
-        !fileName.includes('node_modules') &&
-        !fileName.endsWith('.d.ts') &&
-        fileName.startsWith(normalizePath(config.srcDir))
-      );
-    });
-
-    for (const sourceFile of sourceFiles) {
-      const sourceSemanticDiagnostics = tsProgram.getSemanticDiagnostics(sourceFile);
-      const tsSemantic = loadTypeScriptDiagnostics(sourceSemanticDiagnostics);
-
+    const applyDevModeRelaxation = (diags: d.Diagnostic[]) => {
       if (config.devMode) {
-        tsSemantic.forEach((semanticDiagnostic) => {
-          if (semanticDiagnostic.code === '6133' || semanticDiagnostic.code === '6192') {
-            semanticDiagnostic.level = 'warn';
-          }
+        diags.forEach((d) => {
+          if (d.code === '6133' || d.code === '6192') d.level = 'warn';
         });
       }
-      buildCtx.diagnostics.push(...tsSemantic);
+    };
+
+    if (buildCtx.isRebuild) {
+      // Incremental: only walks changed files + transitive dependents — O(changed) not O(all).
+      const emitBuilder = tsBuilder as ts.EmitAndSemanticDiagnosticsBuilderProgram;
+      let affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
+      while (affected) {
+        if ('fileName' in affected.affected) {
+          const fileName = normalizePath(affected.affected.fileName);
+          if (
+            !fileName.includes('node_modules') &&
+            !fileName.endsWith('.d.ts') &&
+            fileName.startsWith(normalizePath(config.srcDir))
+          ) {
+            const tsSemantic = loadTypeScriptDiagnostics(affected.result);
+            applyDevModeRelaxation(tsSemantic);
+            buildCtx.diagnostics.push(...tsSemantic);
+          }
+        }
+        affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
+      }
+    } else {
+      // Initial build: walk all source files.
+      const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
+        const fileName = normalizePath(sf.fileName);
+        return (
+          !fileName.includes('node_modules') &&
+          !fileName.endsWith('.d.ts') &&
+          fileName.startsWith(normalizePath(config.srcDir))
+        );
+      });
+      for (const sourceFile of sourceFiles) {
+        const tsSemantic = loadTypeScriptDiagnostics(tsProgram.getSemanticDiagnostics(sourceFile));
+        applyDevModeRelaxation(tsSemantic);
+        buildCtx.diagnostics.push(...tsSemantic);
+      }
     }
   }
 
