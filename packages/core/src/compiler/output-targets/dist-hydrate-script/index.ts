@@ -9,9 +9,9 @@ export const outputHydrateScript = async (
   buildCtx: d.BuildCtx,
 ) => {
   // The hydrate app is a server-side rendering artifact. In dev mode it is
-  // only needed when `devServer.ssr` is explicitly enabled. Skip it otherwise
-  // to avoid a full extra rolldown build on every dev-mode startup.
-  if (config.devMode && !config.devServer?.ssr) {
+  // only needed when `devServer.ssr` is enabled or `buildDist` is explicitly
+  // set to true. Skip it otherwise to avoid an extra rolldown build on startup.
+  if (config.devMode && !config.devServer?.ssr && !config.buildDist) {
     return;
   }
 
