@@ -19,18 +19,8 @@ export const typescriptPlugin = (
   bundleOpts: BundleOptions,
   config: d.ValidatedConfig,
 ): Plugin => {
-  /**
-   * Cache the result of `ts.transpileModule` for a given file, keyed by the
-   * normalized file path. Rolldown re-runs the `transform` hook for every
-   * `.generate()` call on the same build object (once per output format:
-   * esm-browser, esm, cjs), so without this cache a 220-component project
-   * would call `ts.transpileModule` 660 times; with it, only 220.
-   *
-   * The cache is intentionally scoped to this plugin instance (one per
-   * `bundleOutput` call) so it is automatically discarded when the Rolldown
-   * build object is garbage-collected — no manual invalidation required.
-   */
-  const transformCache = new Map<string, { outputText: string; sourceMapText: string | null }>();
+  // Cache key prefix per bundle type so different transformer pipelines don't share entries.
+  const cachePrefix = bundleOpts.id + ':';
   let cacheHits = 0;
   let cacheMisses = 0;
 
@@ -81,10 +71,9 @@ export const typescriptPlugin = (
         const fsFilePath = normalizeFsPath(id);
         const mod = getModule(compilerCtx, fsFilePath);
         if (mod?.cmps) {
-          // Return cached transpile result if available. Rolldown calls this
-          // hook once per file per .generate() invocation, so subsequent
-          // format variants (esm, cjs, …) get the result for free.
-          const cached = transformCache.get(fsFilePath);
+          // Cross-build cache: survives rolldown teardown; evicted per changedModules in output-targets/index.ts.
+          const cacheKey = cachePrefix + fsFilePath;
+          const cached = compilerCtx.transpileCache.get(cacheKey);
           if (cached) {
             cacheHits++;
             const sourceMap: d.SourceMap = cached.sourceMapText
@@ -101,7 +90,7 @@ export const typescriptPlugin = (
               before: bundleOpts.customBeforeTransformers ?? [],
             },
           });
-          transformCache.set(fsFilePath, {
+          compilerCtx.transpileCache.set(cacheKey, {
             outputText: tsResult.outputText,
             sourceMapText: tsResult.sourceMapText ?? null,
           });

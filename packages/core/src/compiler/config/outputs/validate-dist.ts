@@ -60,13 +60,14 @@ export const validateDist = (
       file: join(lazyDir, `${config.fsNamespace}.css`),
     });
 
-    outputs.push({
-      type: DIST_TYPES,
-      dir: distOutputTarget.dir,
-      typesDir: distOutputTarget.typesDir,
-    });
-
     if (config.buildDist) {
+      // dist-types is only useful when building a distributable; in dev mode
+      // (buildDist=false) it would trigger redundant generateAppTypes calls.
+      outputs.push({
+        type: DIST_TYPES,
+        dir: distOutputTarget.dir,
+        typesDir: distOutputTarget.typesDir,
+      });
       if (distOutputTarget.collectionDir) {
         outputs.push({
           type: DIST_COLLECTION,

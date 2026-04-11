@@ -40,6 +40,22 @@ export class CompilerContext implements d.CompilerCtx {
   rolldownCacheLazy: any = null;
   rolldownCacheNative: any = null;
   cssTransformCache = new Map<string, d.CssTransformCacheEntry | null>();
+  /**
+   * Cross-build cache for {@link ts.transpileModule} results.
+   * Keyed by `"${bundleId}:${normalizedFilePath}"`. Unlike the per-instance
+   * cache inside typescriptPlugin (which only survives one rolldown build),
+   * this persists across watch rebuilds so only files that actually changed
+   * (i.e. appear in {@link changedModules}) need to be re-transpiled.
+   */
+  transpileCache = new Map<string, { outputText: string; sourceMapText: string | null }>();
+  /**
+   * Cross-build cache of the last style text pushed to the HMR client for
+   * each component scope (keyed by getScopeId result: "tag$mode"). Used by
+   * extTransformsPlugin to skip pushing unchanged styles to buildCtx.stylesUpdated,
+   * preventing the browser from re-injecting all 90+ component styles on every
+   * rebuild even when only one component's TS file changed.
+   */
+  prevStylesMap = new Map<string, string>();
   cachedGlobalStyle: string;
   styleModeNames = new Set<string>();
   worker: d.CompilerWorkerContext = null;

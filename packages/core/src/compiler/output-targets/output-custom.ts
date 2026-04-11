@@ -12,6 +12,14 @@ export const outputCustom = async (
     return;
   }
 
+  // Custom outputs such as framework proxy generators (vue, react, angular)
+  // are dist-only artifacts. Building them during a dev-mode session wastes
+  // several hundred ms on every build without providing any value — the
+  // developer is not consuming the generated proxies at that point.
+  if (config.devMode) {
+    return;
+  }
+
   const task = config.watch ? 'always' : 'onBuildOnly';
   const customOutputTargets = config.outputTargets
     .filter(isOutputTargetCustom)

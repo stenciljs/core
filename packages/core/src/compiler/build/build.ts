@@ -44,21 +44,32 @@ export const build = async (
     tsTimeSpan.finish('transpile finished');
     if (buildCtx.hasError) return buildAbort(buildCtx);
 
-    // generate types and validate AFTER components.d.ts is written
-    const { hasTypesChanged, needsRebuild } = await validateTypesAfterGeneration(
-      config,
-      compilerCtx,
-      buildCtx,
-      tsBuilder,
-      emittedDts,
-    );
-    if (buildCtx.hasError) return buildAbort(buildCtx);
+    // If TS emitted nothing, the "script change" was a phantom duplicate event — clear the flag
+    // so type validation and bundling are skipped.
+    if (buildCtx.isRebuild && buildCtx.hasScriptChanges && compilerCtx.changedModules.size === 0) {
+      buildCtx.hasScriptChanges = false;
+    }
 
-    if (needsRebuild || (config.watch && hasTypesChanged)) {
-      // Abort and signal that a rebuild is needed:
-      // - needsRebuild: components.d.ts was just generated, need fresh TS program
-      // - watch mode with types changed: let watch trigger rebuild
-      return null;
+    // Skip type validation on rebuilds with no script changes — the type graph is unchanged.
+    const skipTypeValidation = buildCtx.isRebuild && !buildCtx.hasScriptChanges;
+
+    if (!skipTypeValidation) {
+      const { needsRebuild } = await validateTypesAfterGeneration(
+        config,
+        compilerCtx,
+        buildCtx,
+        tsBuilder,
+        emittedDts,
+      );
+      if (buildCtx.hasError) return buildAbort(buildCtx);
+
+      if (needsRebuild) {
+        // components.d.ts was just created; the current TS program lacks it.
+        // Return null so watch-build restarts with a fresh program.
+        return null;
+      }
+      // types changed but no restart needed — components.d.ts is watch-ignored
+      // to prevent cascade rebuilds, so just continue with the current build.
     }
 
     // preprocess and generate styles before any outputTarget starts
