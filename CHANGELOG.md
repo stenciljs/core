@@ -1,3 +1,16 @@
+## 🏝 [4.43.4](https://github.com/stenciljs/core/compare/v4.43.3...v4.43.4) (2026-04-13)
+
+
+### Bug Fixes
+
+* cache host refs in public render() method ([#6674](https://github.com/stenciljs/core/issues/6674)) ([7dd8ea7](https://github.com/stenciljs/core/commit/7dd8ea7a7d93aef6386705438b0b8160d601bbd8))
+* **compiler:** set log file path when writeLog is enabled ([#6655](https://github.com/stenciljs/core/issues/6655)) ([3d95083](https://github.com/stenciljs/core/commit/3d95083d919b4ba64eb11687a9f665c460fd7a72)), closes [#6632](https://github.com/stenciljs/core/issues/6632)
+* **runtime:** normalize legacy watcher metadata for backward compatibility ([#6676](https://github.com/stenciljs/core/issues/6676)) ([db26aba](https://github.com/stenciljs/core/commit/db26aba5153a7c2276872212edf0b1666f92a0e9))
+* **runtime:** skip setter when removing reflected bool attr ([#6673](https://github.com/stenciljs/core/issues/6673)) ([6c8a3b6](https://github.com/stenciljs/core/commit/6c8a3b639145cccf1490433b9629b303502b2a6f)), closes [#6672](https://github.com/stenciljs/core/issues/6672)
+* **utils:** handle Unicode characters in serializeProperty ([#6654](https://github.com/stenciljs/core/issues/6654)) ([000ddb9](https://github.com/stenciljs/core/commit/000ddb98da06d37acf32d61509d6935f403dce24)), closes [#6643](https://github.com/stenciljs/core/issues/6643)
+
+
+
 ## 🐕 [4.43.3](https://github.com/stenciljs/core/compare/v4.43.2...v4.43.3) (2026-03-19)
 
 
