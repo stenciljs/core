@@ -39,8 +39,9 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
-        skipInDev: false,
+        skipInDev: true,
       },
+
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
@@ -56,40 +57,6 @@ describe('validateDistOutputTarget', () => {
       {
         file: join(rootDir, 'my-dist', 'my-build', 'testing', 'testing.css'),
         type: 'dist-global-styles',
-      },
-      {
-        dir: join(rootDir, 'my-dist'),
-        type: 'dist-types',
-        typesDir: join(rootDir, 'my-dist', 'types'),
-      },
-      {
-        collectionDir: join(rootDir, 'my-dist', 'collection'),
-        dir: join(rootDir, '/my-dist'),
-        empty: false,
-        transformAliasedImportPaths: true,
-        type: 'dist-collection',
-      },
-      {
-        copy: [{ src: '**/*.svg' }, { src: '**/*.js' }],
-        copyAssets: 'collection',
-        dir: join(rootDir, 'my-dist', 'collection'),
-        type: 'copy',
-      },
-      {
-        type: 'dist-lazy',
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-      },
-      {
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        componentDts: join(rootDir, 'my-dist', 'types', 'components.d.ts'),
-        dir: join(rootDir, 'my-dist', 'loader'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        type: 'dist-lazy-loader',
       },
     ]);
   });
@@ -135,7 +102,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
-        skipInDev: false,
+        skipInDev: true,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -152,40 +119,6 @@ describe('validateDistOutputTarget', () => {
       {
         file: join(rootDir, 'my-dist', 'my-build', 'testing', 'testing.css'),
         type: 'dist-global-styles',
-      },
-      {
-        dir: join(rootDir, 'my-dist'),
-        type: 'dist-types',
-        typesDir: join(rootDir, 'my-dist', 'types'),
-      },
-      {
-        collectionDir: join(rootDir, 'my-dist', 'collection'),
-        dir: join(rootDir, '/my-dist'),
-        empty: false,
-        transformAliasedImportPaths: true,
-        type: 'dist-collection',
-      },
-      {
-        copy: [{ src: '**/*.svg' }, { src: '**/*.js' }],
-        copyAssets: 'collection',
-        dir: join(rootDir, 'my-dist', 'collection'),
-        type: 'copy',
-      },
-      {
-        type: 'dist-lazy',
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-      },
-      {
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        componentDts: join(rootDir, 'my-dist', 'types', 'components.d.ts'),
-        dir: join(rootDir, 'my-dist', 'loader'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        type: 'dist-lazy-loader',
       },
     ]);
   });
@@ -215,7 +148,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: true,
-        skipInDev: false,
+        skipInDev: true,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -232,40 +165,6 @@ describe('validateDistOutputTarget', () => {
       {
         file: join(rootDir, 'my-dist', 'my-build', 'testing', 'testing.css'),
         type: 'dist-global-styles',
-      },
-      {
-        dir: join(rootDir, 'my-dist'),
-        type: 'dist-types',
-        typesDir: join(rootDir, 'my-dist', 'types'),
-      },
-      {
-        collectionDir: join(rootDir, 'my-dist', 'collection'),
-        dir: join(rootDir, '/my-dist'),
-        empty: false,
-        transformAliasedImportPaths: true,
-        type: 'dist-collection',
-      },
-      {
-        copy: [{ src: '**/*.svg' }, { src: '**/*.js' }],
-        copyAssets: 'collection',
-        dir: join(rootDir, 'my-dist', 'collection'),
-        type: 'copy',
-      },
-      {
-        type: 'dist-lazy',
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-      },
-      {
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        componentDts: join(rootDir, 'my-dist', 'types', 'components.d.ts'),
-        dir: join(rootDir, 'my-dist', 'loader'),
-        empty: false,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        type: 'dist-lazy-loader',
       },
     ]);
   });

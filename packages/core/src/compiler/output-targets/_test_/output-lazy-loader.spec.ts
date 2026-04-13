@@ -23,6 +23,7 @@ function setup(configOverrides: Partial<d.ValidatedConfig> = {}) {
         type: DIST,
         dir: 'my-test-dir',
         cjs: true,
+        skipInDev: false,
       },
     ],
     srcDir: '/src',

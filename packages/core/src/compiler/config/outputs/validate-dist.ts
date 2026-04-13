@@ -145,8 +145,8 @@ const validateOutputTargetDist = (
       : true,
     isPrimaryPackageOutputTarget: o.isPrimaryPackageOutputTarget ?? false,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
-    // dist always builds by default (skipInDev: false)
-    skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
+    // dist skips distribution artifacts in dev mode by default, but always builds browser/CDN output
+    skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
   } satisfies Required<d.OutputTargetDist>;
 
   if (!isAbsolute(outputTarget.buildDir)) {
