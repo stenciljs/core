@@ -60,7 +60,7 @@ export const buildDistDocsRule: MigrationRule = {
 
       if (isTrue) {
         if (propName === 'buildDist') {
-          targetTypesNeedingSkipInDev.push('dist-custom-elements', 'dist-hydrate-script');
+          targetTypesNeedingSkipInDev.push('dist', 'dist-custom-elements', 'dist-hydrate-script');
         } else if (propName === 'buildDocs') {
           targetTypesNeedingSkipInDev.push(
             'docs-readme',
