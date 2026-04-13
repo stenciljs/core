@@ -170,3 +170,4 @@ jsxs
 labelable
 lightningcss
 cooldown
+regen
