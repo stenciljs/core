@@ -254,6 +254,7 @@ export {
   getElement,
   getMode,
   getRenderingRef,
+  getShadowRoot,
   getValue,
   Host,
   insertVdomAnnotations,

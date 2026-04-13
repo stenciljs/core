@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { catchError, isOutputTargetCustom } from '../../utils';
+import { catchError, filterActiveTargets, isOutputTargetCustom } from '../../utils';
 import { generateDocData } from '../docs/generate-doc-data';
 
 export const outputCustom = async (
@@ -12,18 +12,14 @@ export const outputCustom = async (
     return;
   }
 
-  // Custom outputs such as framework proxy generators (vue, react, angular)
-  // are dist-only artifacts. Building them during a dev-mode session wastes
-  // several hundred ms on every build without providing any value — the
-  // developer is not consuming the generated proxies at that point.
-  if (config.devMode) {
-    return;
-  }
-
   const task = config.watch ? 'always' : 'onBuildOnly';
-  const customOutputTargets = config.outputTargets
-    .filter(isOutputTargetCustom)
-    .filter((o) => (o.taskShouldRun === undefined ? true : o.taskShouldRun === task));
+  // Filter custom targets based on skipInDev setting and taskShouldRun
+  const customOutputTargets = filterActiveTargets(
+    config.outputTargets
+      .filter(isOutputTargetCustom)
+      .filter((o) => (o.taskShouldRun === undefined ? true : o.taskShouldRun === task)),
+    config.devMode,
+  );
 
   if (customOutputTargets.length === 0) {
     return;

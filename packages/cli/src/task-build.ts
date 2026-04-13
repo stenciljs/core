@@ -27,6 +27,25 @@ export const taskBuild = async (
   try {
     startupCompilerLog(coreCompiler, config);
 
+    // Check for migrations BEFORE building - deprecated config options should be migrated first
+    const preBuildMigrationResult = await detectMigrations(coreCompiler, config);
+    if (preBuildMigrationResult.hasMigrations) {
+      const action = await promptForMigration(config, preBuildMigrationResult, 'pre-build');
+
+      if (action === 'run') {
+        // Run migrations first
+        await taskMigrate(coreCompiler, config, { ...flags, dryRun: false });
+        config.logger.info('\nMigrations applied. Starting build...\n');
+      } else if (action === 'dry-run') {
+        // Show what would be migrated and exit
+        await taskMigrate(coreCompiler, config, { ...flags, dryRun: true });
+        return config.sys.exit(1);
+      } else {
+        // User chose to exit
+        return config.sys.exit(1);
+      }
+    }
+
     const versionChecker = startCheckVersion(config, coreCompiler.version, flags);
 
     const compiler = await coreCompiler.createCompiler(config);
@@ -42,7 +61,7 @@ export const taskBuild = async (
 
       if (migrationResult.hasMigrations) {
         // Show what migrations are available and prompt user
-        const action = await promptForMigrationOnBuildError(config, migrationResult);
+        const action = await promptForMigration(config, migrationResult, 'post-error');
 
         if (action === 'run') {
           // Run migrations and re-run build
@@ -113,24 +132,26 @@ export const taskBuild = async (
 type MigrationAction = 'run' | 'dry-run' | 'exit';
 
 /**
- * Prompt the user about available migrations when a build fails.
+ * Prompt the user about available migrations.
  * Shows what migrations are available and lets them choose to run them.
  * @param config the Stencil config
  * @param migrationResult the result of migration detection with available migrations
+ * @param context whether this is a pre-build check or post-error check
  * @returns the user's chosen action for handling migrations
  */
-async function promptForMigrationOnBuildError(
+async function promptForMigration(
   config: d.ValidatedConfig,
   migrationResult: MigrationDetectionResult,
+  context: 'pre-build' | 'post-error',
 ): Promise<MigrationAction> {
   const logger = config.logger;
 
   // Show migration availability message
   logger.info('');
-  logger.info(logger.bold(logger.yellow('Migrations Available')));
+  logger.info(logger.bold(logger.yellow('Migrations Required')));
   logger.info('─'.repeat(40));
   logger.info(
-    `Found ${migrationResult.totalMatches} item(s) in ${migrationResult.filesAffected} file(s) that can be automatically migrated.`,
+    `Found ${migrationResult.totalMatches} item(s) in ${migrationResult.filesAffected} file(s) that need to be migrated for Stencil v5.`,
   );
 
   // Show summary of what can be migrated
@@ -140,7 +161,11 @@ async function promptForMigrationOnBuildError(
   }
 
   logger.info('');
-  logger.info('These migrations may help resolve the build errors above.');
+  if (context === 'pre-build') {
+    logger.info('Your config contains deprecated options that must be migrated before building.');
+  } else {
+    logger.info('These migrations may help resolve the build errors above.');
+  }
 
   // Import prompts dynamically (default export is the prompt function)
   const prompts = await import('prompts');

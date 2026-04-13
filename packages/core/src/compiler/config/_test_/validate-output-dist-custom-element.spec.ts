@@ -40,6 +40,7 @@ describe('validate-output-dist-custom-element', () => {
           externalRuntime: true,
           generateTypeDeclarations: true,
           customElementsExportBehavior: 'default',
+          skipInDev: true,
         },
       ]);
     });
@@ -66,6 +67,7 @@ describe('validate-output-dist-custom-element', () => {
           externalRuntime: true,
           generateTypeDeclarations: true,
           customElementsExportBehavior: 'single-export-module',
+          skipInDev: true,
         },
       ]);
     });
@@ -92,6 +94,7 @@ describe('validate-output-dist-custom-element', () => {
           externalRuntime: true,
           generateTypeDeclarations: true,
           customElementsExportBehavior: 'default',
+          skipInDev: true,
         },
       ]);
     });
@@ -114,6 +117,7 @@ describe('validate-output-dist-custom-element', () => {
           externalRuntime: true,
           generateTypeDeclarations: false,
           customElementsExportBehavior: 'default',
+          skipInDev: true,
         },
       ]);
     });
@@ -137,6 +141,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -160,6 +165,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -184,6 +190,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: true,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -207,6 +214,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: true,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -235,6 +243,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: true,
             generateTypeDeclarations: true,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -262,6 +271,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: true,
             generateTypeDeclarations: true,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -290,6 +300,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: true,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -319,6 +330,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: true,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -342,6 +354,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });
@@ -383,6 +396,7 @@ describe('validate-output-dist-custom-element', () => {
             externalRuntime: false,
             generateTypeDeclarations: false,
             customElementsExportBehavior: 'default',
+            skipInDev: true,
           },
         ]);
       });

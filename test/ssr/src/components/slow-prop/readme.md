@@ -7,9 +7,9 @@
 
 ## Properties
 
-| Property  | Attribute | Description | Type    | Default |
-| --------- | --------- | ----------- | ------- | ------- |
-| `anArray` | --        |             | `any[]` | `[]`    |
+| Property  | Attribute | Description | Type      | Default |
+| --------- | --------- | ----------- | --------- | ------- |
+| `anArray` | --        |             | `never[]` | `[]`    |
 
 
 ----------------------------------------------

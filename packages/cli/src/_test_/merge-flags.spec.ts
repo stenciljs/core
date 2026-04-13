@@ -123,25 +123,14 @@ describe('mergeFlags', () => {
     });
   });
 
-  describe('buildDocs (--docs)', () => {
-    it('sets buildDocs from --docs flag', () => {
+  describe('_docsFlag (--docs)', () => {
+    it('sets _docsFlag from --docs flag', () => {
       const config: Config = {};
       const flags = createFlags({ docs: true });
 
       const result = mergeFlags(config, flags);
 
-      expect(result.buildDocs).toBe(true);
-    });
-  });
-
-  describe('buildDist (--esm)', () => {
-    it('sets buildDist from --esm flag', () => {
-      const config: Config = {};
-      const flags = createFlags({ esm: true });
-
-      const result = mergeFlags(config, flags);
-
-      expect(result.buildDist).toBe(true);
+      expect(result._docsFlag).toBe(true);
     });
   });
 

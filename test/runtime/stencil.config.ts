@@ -16,6 +16,7 @@ export const config: Config = {
       customElementsExportBehavior: 'auto-define-custom-elements',
       externalRuntime: false,
       autoLoader: true,
+      skipInDev: false,
     },
   ],
   plugins: [
@@ -26,7 +27,6 @@ export const config: Config = {
   ],
   globalScript: 'src/global.ts',
   globalStyle: 'src/global.css',
-  buildDist: true,
   extras: {
     lifecycleDOMEvents: true,
     experimentalSlotFixes: true,

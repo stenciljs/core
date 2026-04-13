@@ -179,7 +179,6 @@ export function mockConfig(overrides: Partial<d.UnvalidatedConfig> = {}): d.Unva
   return {
     _isTesting: true,
     buildAppCore: false,
-    buildDist: true,
     bundles: null,
     devMode: true,
     enableCache: false,

@@ -60,9 +60,9 @@ export const validateDist = (
       file: join(lazyDir, `${config.fsNamespace}.css`),
     });
 
-    if (config.buildDist) {
-      // dist-types is only useful when building a distributable; in dev mode
-      // (buildDist=false) it would trigger redundant generateAppTypes calls.
+    // These outputs are only useful when building a distributable; in dev mode
+    // with skipInDev=true they would trigger redundant work.
+    if (!config.devMode || !distOutputTarget.skipInDev) {
       outputs.push({
         type: DIST_TYPES,
         dir: distOutputTarget.dir,
@@ -145,6 +145,8 @@ const validateOutputTargetDist = (
       : true,
     isPrimaryPackageOutputTarget: o.isPrimaryPackageOutputTarget ?? false,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
+    // dist always builds by default (skipInDev: false)
+    skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
   } satisfies Required<d.OutputTargetDist>;
 
   if (!isAbsolute(outputTarget.buildDir)) {

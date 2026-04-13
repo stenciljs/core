@@ -16,7 +16,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'devtools',
   'docs',
   'dryRun',
-  'esm',
   'help',
   'log',
   'open',

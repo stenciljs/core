@@ -254,7 +254,7 @@ describe('task-migrate', () => {
 
       await taskMigrate(mockCoreCompiler, config, flags);
 
-      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('No TypeScript files found'));
+      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining('No migrations needed'));
     });
 
     it('should handle empty file content', async () => {
@@ -304,9 +304,9 @@ describe('task-migrate', () => {
       const result = await detectMigrations(mockCoreCompiler, config);
 
       expect(result.hasMigrations).toBe(true);
-      expect(result.totalMatches).toBe(1);
-      expect(result.filesAffected).toBe(1);
-      expect(result.migrations).toHaveLength(1);
+      expect(result.totalMatches).toBe(2);
+      expect(result.filesAffected).toBe(2);
+      expect(result.migrations).toHaveLength(2);
     });
 
     it('should include migration details', async () => {

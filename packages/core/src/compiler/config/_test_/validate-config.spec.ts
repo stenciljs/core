@@ -506,20 +506,6 @@ describe('validation', () => {
     });
   });
 
-  describe('buildDist', () => {
-    it.each([true, false])('should set the field based on the config value (%p)', (buildDist) => {
-      userConfig.buildDist = buildDist;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildDist).toBe(buildDist);
-    });
-
-    it.each([true, false])('should fallback to !devMode', (devMode) => {
-      userConfig.devMode = devMode;
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.buildDist).toBe(!devMode);
-    });
-  });
-
   describe('validatePrimaryPackageOutputTarget', () => {
     it('should default to false', () => {
       const { config } = validateConfig(userConfig, bootstrapConfig);

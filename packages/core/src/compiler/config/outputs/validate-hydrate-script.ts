@@ -71,6 +71,11 @@ export const validateHydrateScript = (config: d.ValidatedConfig, userOutputs: d.
     outputTarget.external.push('path');
     outputTarget.external.push('crypto');
 
+    // dist-hydrate-script skips in dev by default, unless devServer.ssr is enabled
+    if (!isBoolean(outputTarget.skipInDev)) {
+      outputTarget.skipInDev = !config.devServer?.ssr;
+    }
+
     output.push(outputTarget);
   });
 

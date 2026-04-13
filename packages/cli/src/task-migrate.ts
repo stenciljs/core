@@ -299,5 +299,14 @@ async function getTypeScriptFiles(
     (f) => (f.endsWith('.ts') || f.endsWith('.tsx')) && !f.endsWith('.d.ts'),
   );
 
+  // Also include the stencil config file - it's typically not in tsconfig includes
+  // but it can contain deprecated config options that need migration
+  const configFile = config.configPath;
+  if (configFile && (configFile.endsWith('.ts') || configFile.endsWith('.mts'))) {
+    if (!files.includes(configFile)) {
+      files.push(configFile);
+    }
+  }
+
   return files;
 }

@@ -1,6 +1,7 @@
 import type * as d from '@stencil/core';
 
 import {
+  filterActiveTargets,
   isOutputTargetDocsCustom,
   isOutputTargetDocsCustomElementsManifest,
   isOutputTargetDocsJson,
@@ -28,16 +29,17 @@ export const outputDocs = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  if (!config.buildDocs) {
-    return;
-  }
-  const docsOutputTargets = config.outputTargets.filter(
-    (o) =>
-      isOutputTargetDocsReadme(o) ||
-      isOutputTargetDocsJson(o) ||
-      isOutputTargetDocsCustom(o) ||
-      isOutputTargetDocsVscode(o) ||
-      isOutputTargetDocsCustomElementsManifest(o),
+  // Filter docs targets based on skipInDev setting
+  const docsOutputTargets = filterActiveTargets(
+    config.outputTargets.filter(
+      (o) =>
+        isOutputTargetDocsReadme(o) ||
+        isOutputTargetDocsJson(o) ||
+        isOutputTargetDocsCustom(o) ||
+        isOutputTargetDocsVscode(o) ||
+        isOutputTargetDocsCustomElementsManifest(o),
+    ),
+    config.devMode,
   );
 
   if (docsOutputTargets.length === 0) {

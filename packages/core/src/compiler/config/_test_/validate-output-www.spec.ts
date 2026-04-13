@@ -86,6 +86,7 @@ describe('validateOutputTargetWww', () => {
         footer: '*Built with [StencilJS](https://stenciljs.com/)*',
         strict: false,
         type: 'docs-readme',
+        skipInDev: true,
       },
     ]);
   });

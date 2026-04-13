@@ -4,6 +4,7 @@ import type { Plugin } from 'rolldown';
 import {
   hasError,
   isOutputTargetDistCollection,
+  isOutputTargetDocs,
   join,
   mergeIntoWith,
   normalizeFsPath,
@@ -136,7 +137,8 @@ export const extTransformsPlugin = (
               sourceMap: config.sourceMap,
               minify: config.minifyCss,
               autoprefixer: config.autoprefixCss,
-              docs: config.buildDocs,
+              // Extract docs if any docs output targets are configured
+              docs: config.outputTargets.some(isOutputTargetDocs),
             });
             compilerCtx.cssTransformCache.set(id, {
               pluginTransformId: pluginTransforms.id,
