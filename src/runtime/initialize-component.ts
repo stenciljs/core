@@ -5,6 +5,7 @@ import type * as d from '../declarations';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
+import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
@@ -59,7 +60,7 @@ export const initializeComponent = async (
           // let's add the getters/setters to its prototype before
           // the first time we create an instance of the implementation
           if (BUILD.propChangeCallback) {
-            cmpMeta.$watchers$ = Cstr.watchers;
+            cmpMeta.$watchers$ = normalizeWatchers(Cstr.watchers);
             cmpMeta.$serializers$ = Cstr.serializers;
             cmpMeta.$deserializers$ = Cstr.deserializers;
           }
