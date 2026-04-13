@@ -39,7 +39,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
-        skipInDev: false,
+        skipInDev: true,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -135,7 +135,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
-        skipInDev: false,
+        skipInDev: true,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -215,7 +215,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: true,
-        skipInDev: false,
+        skipInDev: true,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
