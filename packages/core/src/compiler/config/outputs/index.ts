@@ -1,12 +1,12 @@
 import type * as d from '@stencil/core';
 
 import { buildError, isValidConfigOutputTarget, VALID_CONFIG_OUTPUT_TARGETS } from '../../../utils';
-import { validateCollection } from './validate-collection';
-import { validateCustomElement } from './validate-custom-element';
+import { validateStencilMeta } from './validate-stencil-meta';
+import { validateStandalone } from './validate-standalone';
 import { validateCustomOutput } from './validate-custom-output';
-import { validateDist } from './validate-dist';
+import { validateLoaderBundle } from './validate-loader-bundle';
 import { validateDocs } from './validate-docs';
-import { validateHydrateScript } from './validate-hydrate-script';
+import { validateSsr } from './validate-ssr';
 import { validateLazy } from './validate-lazy';
 import { validateStats } from './validate-stats';
 import { validateWww } from './validate-www';
@@ -24,19 +24,19 @@ export const validateOutputTargets = (config: d.ValidatedConfig, diagnostics: d.
   });
 
   config.outputTargets = [
-    ...validateCollection(config, userOutputs),
-    ...validateCustomElement(config, userOutputs),
+    ...validateStencilMeta(config, userOutputs),
+    ...validateStandalone(config, userOutputs),
     ...validateCustomOutput(config, diagnostics, userOutputs),
     ...validateLazy(config, userOutputs),
     ...validateWww(config, diagnostics, userOutputs),
-    ...validateDist(config, userOutputs),
+    ...validateLoaderBundle(config, userOutputs),
     ...validateDocs(config, diagnostics, userOutputs),
     ...validateStats(config, userOutputs),
   ];
 
-  // hydrate also gets info from the www output
+  // SSR also gets info from the www output
   config.outputTargets = [
     ...config.outputTargets,
-    ...validateHydrateScript(config, [...userOutputs, ...config.outputTargets]),
+    ...validateSsr(config, [...userOutputs, ...config.outputTargets]),
   ];
 };

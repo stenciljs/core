@@ -1936,52 +1936,47 @@ export interface LoggerTimeSpan {
   finish(finishedMsg: string, color?: string, bold?: boolean, newLineSuffix?: boolean): number;
 }
 
-export interface OutputTargetDist extends OutputTargetValidationConfig {
-  type: 'dist';
+/**
+ * Output target for generating lazy-loaded component bundles with a loader infrastructure.
+ * This creates an optimized distribution for CDN usage and applications that benefit from
+ * lazy-loading components on demand.
+ *
+ * Formerly known as 'dist' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'loader-bundle',
+ *   dir: 'dist/loader-bundle',
+ *   esmLoaderPath: 'loader'
+ * }
+ * ```
+ */
+export interface OutputTargetLoaderBundle extends OutputTargetValidationConfig {
+  type: 'loader-bundle';
 
-  buildDir?: string;
-
-  collectionDir?: string | null;
   /**
-   * When `true` this flag will transform aliased import paths defined in
-   * a project's `tsconfig.json` to relative import paths in the compiled output's
-   * `dist-collection` bundle if it is generated (i.e. `collectionDir` is set).
-   *
-   * Paths will be left in aliased format if `false`.
-   *
-   * @example
-   * // tsconfig.json
-   * {
-   *   paths: {
-   *     "@utils/*": ['/src/utils/*']
-   *   }
-   * }
-   *
-   * // Source file
-   * import * as dateUtils from '@utils/date-utils';
-   * // Output file
-   * import * as dateUtils from '../utils/date-utils';
+   * Directory where lazy-loaded bundles will be written.
+   * @default '' (root of output directory)
    */
-  transformAliasedImportPathsInCollection?: boolean | null;
-
-  typesDir?: string;
+  buildDir?: string;
 
   /**
    * Provide a custom path for the ESM loader directory, containing files you can import
    * in an initiation script within your application to register all your components for
    * lazy loading.
    *
-   * @default /dist/loader
+   * @default 'loader'
    */
   esmLoaderPath?: string;
-  copy?: CopyTask[];
 
+  copy?: CopyTask[];
   empty?: boolean;
 
   /**
    * Whether to generate CommonJS (CJS) bundles.
    *
-   * When `true`, generates CJS output in `dist/cjs/` and `dist/index.cjs.js`.
+   * When `true`, generates CJS output in `cjs/` subdirectory.
    * When `false` (default in v5+), only ESM bundles are generated.
    *
    * @default false
@@ -1989,11 +1984,35 @@ export interface OutputTargetDist extends OutputTargetValidationConfig {
   cjs?: boolean;
 }
 
-export interface OutputTargetDistCollection extends OutputTargetValidationConfig {
-  type: 'dist-collection';
+/**
+ * @deprecated Use OutputTargetLoaderBundle instead. This alias will be removed in v6.
+ */
+export interface OutputTargetDist extends OutputTargetLoaderBundle {
+  type: 'dist';
+}
+
+/**
+ * Output target for generating Stencil component metadata for downstream consumption.
+ * This output contains transpiled source code, component metadata, and configuration
+ * that downstream Stencil projects can use to optimize their builds.
+ *
+ * Formerly a sub-output of 'dist' in v4, now a first-class output target in v5.
+ *
+ * In production builds, this output is auto-generated unless explicitly configured.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'stencil-meta',
+ *   dir: 'dist/stencil-meta',
+ *   transformAliasedImportPaths: true
+ * }
+ * ```
+ */
+export interface OutputTargetStencilMeta extends OutputTargetValidationConfig {
+  type: 'stencil-meta';
   empty?: boolean;
-  dir: string;
-  collectionDir: string;
+
   /**
    * When `true` this flag will transform aliased import paths defined in
    * a project's `tsconfig.json` to relative import paths in the compiled output.
@@ -2016,6 +2035,39 @@ export interface OutputTargetDistCollection extends OutputTargetValidationConfig
   transformAliasedImportPaths?: boolean | null;
 }
 
+/**
+ * @deprecated Use OutputTargetStencilMeta instead. This alias will be removed in v6.
+ */
+export interface OutputTargetDistCollection extends OutputTargetValidationConfig {
+  type: 'dist-collection';
+  dir: string;
+  collectionDir: string;
+  transformAliasedImportPaths?: boolean | null;
+}
+
+/**
+ * Output target for generating TypeScript type definitions (.d.ts files).
+ *
+ * Formerly a sub-output of 'dist' and 'dist-custom-elements' in v4,
+ * now a first-class output target in v5 that can be shared across multiple outputs.
+ *
+ * In production builds, this output is auto-generated unless explicitly configured.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'types',
+ *   dir: 'dist/types'
+ * }
+ * ```
+ */
+export interface OutputTargetTypes extends OutputTargetValidationConfig {
+  type: 'types';
+}
+
+/**
+ * @deprecated Use OutputTargetTypes instead. This alias will be removed in v6.
+ */
 export interface OutputTargetDistTypes extends OutputTargetValidationConfig {
   type: 'dist-types';
   dir: string;
@@ -2051,9 +2103,25 @@ export interface OutputTargetDistLazyLoader extends OutputTargetBase {
   empty: boolean;
 }
 
-export interface OutputTargetHydrate extends OutputTargetBase {
-  type: 'dist-hydrate-script';
+/**
+ * Output target for server-side rendering (SSR) and hydration.
+ * Generates a script that can be used for SSR and static site generation (prerendering).
+ *
+ * Formerly known as 'dist-hydrate-script' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'ssr',
+ *   dir: 'dist/ssr',
+ *   minify: true
+ * }
+ * ```
+ */
+export interface OutputTargetSsr extends OutputTargetBase {
+  type: 'ssr';
   dir?: string;
+
   /**
    * Module IDs that should not be bundled into the script.
    * By default, all node builtin's, such as `fs` or `path`
@@ -2072,6 +2140,13 @@ export interface OutputTargetHydrate extends OutputTargetBase {
    * @default false
    */
   cjs?: boolean;
+}
+
+/**
+ * @deprecated Use OutputTargetSsr instead. This alias will be removed in v6.
+ */
+export interface OutputTargetHydrate extends OutputTargetSsr {
+  type: 'dist-hydrate-script';
 }
 
 export interface OutputTargetCustom extends OutputTargetBase {
@@ -2224,29 +2299,59 @@ export const CustomElementsExportBehaviorOptions = [
  */
 export type CustomElementsExportBehavior = (typeof CustomElementsExportBehaviorOptions)[number];
 
-export interface OutputTargetDistCustomElements extends OutputTargetValidationConfig {
-  type: 'dist-custom-elements';
+/**
+ * Output target for generating standalone component modules.
+ * Each component is output as an individual ES module that can be directly imported.
+ *
+ * This output target is ideal for npm consumption and tree-shaking, as consumers
+ * can import only the components they need.
+ *
+ * Formerly known as 'dist-custom-elements' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'standalone',
+ *   dir: 'dist/standalone',
+ *   externalRuntime: true,
+ *   autoLoader: true
+ * }
+ * ```
+ */
+export interface OutputTargetStandalone extends OutputTargetValidationConfig {
+  type: 'standalone';
   empty?: boolean;
+
   /**
    * Triggers the following behaviors when enabled:
    * 1. All `@stencil/core/*` module references are treated as external during bundling.
    * 2. File names are not hashed.
    * 3. File minification will follow the behavior defined at the root of the Stencil config.
+   *
+   * @default true
    */
   externalRuntime?: boolean;
+
   copy?: CopyTask[];
   includeGlobalScripts?: boolean;
   minify?: boolean;
+
   /**
    * Enables the generation of type definition files for the output target.
+   *
+   * In v5, types are auto-generated in production builds. Set to `false` to disable.
+   *
+   * @default true (auto-generated in production)
    */
   generateTypeDeclarations?: boolean;
+
   /**
    * Define the export/definition behavior for the output target's generated output.
    * This controls if/how custom elements will be defined or where components will be exported from.
    * If omitted, no auto-definition behavior or re-exporting will happen.
    */
   customElementsExportBehavior?: CustomElementsExportBehavior;
+
   /**
    * Generate an auto-loader script that uses MutationObserver to lazily load
    * and define custom elements as they appear in the DOM.
@@ -2283,6 +2388,13 @@ export interface OutputTargetDistCustomElements extends OutputTargetValidationCo
          */
         autoStart?: boolean;
       };
+}
+
+/**
+ * @deprecated Use OutputTargetStandalone instead. This alias will be removed in v6.
+ */
+export interface OutputTargetDistCustomElements extends OutputTargetStandalone {
+  type: 'dist-custom-elements';
 }
 
 /**
@@ -2412,21 +2524,31 @@ export interface OutputTargetWww extends OutputTargetBase {
 export type OutputTarget =
   | OutputTargetCopy
   | OutputTargetCustom
+  // v5 output targets
+  | OutputTargetLoaderBundle
+  | OutputTargetStandalone
+  | OutputTargetSsr
+  | OutputTargetStencilMeta
+  | OutputTargetTypes
+  // Deprecated v4 aliases (for backward compatibility during migration)
   | OutputTargetDist
-  | OutputTargetDistCollection
   | OutputTargetDistCustomElements
+  | OutputTargetHydrate
+  | OutputTargetDistCollection
+  | OutputTargetDistTypes
+  // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
   | OutputTargetDistGlobalStyles
   | OutputTargetDistLazyLoader
+  // Docs output targets
   | OutputTargetDocsJson
   | OutputTargetDocsCustom
   | OutputTargetDocsReadme
   | OutputTargetDocsVscode
   | OutputTargetDocsCustomElementsManifest
+  // Other output targets
   | OutputTargetWww
-  | OutputTargetHydrate
-  | OutputTargetStats
-  | OutputTargetDistTypes;
+  | OutputTargetStats;
 
 /**
  * Our custom configuration interface for generated caching Service Workers

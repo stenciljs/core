@@ -5,19 +5,29 @@ import type * as d from '@stencil/core';
 import {
   COPY,
   CUSTOM,
+  // v5 constants
+  LOADER_BUNDLE,
+  STANDALONE,
+  SSR,
+  STENCIL_META,
+  TYPES,
+  // v4 deprecated aliases
   DIST,
   DIST_COLLECTION,
   DIST_CUSTOM_ELEMENTS,
-  DIST_GLOBAL_STYLES,
   DIST_HYDRATE_SCRIPT,
+  DIST_TYPES,
+  // Internal output targets
+  DIST_GLOBAL_STYLES,
   DIST_LAZY,
   DIST_LAZY_LOADER,
-  DIST_TYPES,
+  // Docs
   DOCS_CUSTOM,
   DOCS_CUSTOM_ELEMENTS_MANIFEST,
   DOCS_JSON,
   DOCS_README,
   DOCS_VSCODE,
+  // Other
   GENERATED_DTS,
   STATS,
   VALID_CONFIG_OUTPUT_TARGETS,
@@ -136,15 +146,60 @@ export const getComponentsDtsTypesFilePath = (
   outputTarget: Required<d.OutputTargetDist> | d.OutputTargetDistTypes,
 ) => join(outputTarget.typesDir, GENERATED_DTS);
 
-export const isOutputTargetDist = (o: d.OutputTarget): o is d.OutputTargetDist => o.type === DIST;
+// ==================== v5 Output Target Type Guards ====================
 
+export const isOutputTargetLoaderBundle = (
+  o: d.OutputTarget,
+): o is d.OutputTargetLoaderBundle => o.type === LOADER_BUNDLE;
+
+export const isOutputTargetStandalone = (
+  o: d.OutputTarget,
+): o is d.OutputTargetStandalone => o.type === STANDALONE;
+
+export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
+
+export const isOutputTargetStencilMeta = (
+  o: d.OutputTarget,
+): o is d.OutputTargetStencilMeta => o.type === STENCIL_META;
+
+export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
+  o.type === TYPES;
+
+// ==================== v4 Deprecated Type Guards (for backward compatibility) ====================
+
+/**
+ * @deprecated Use isOutputTargetLoaderBundle instead. This alias will be removed in v6.
+ */
+export const isOutputTargetDist = (o: d.OutputTarget): o is d.OutputTargetDist =>
+  o.type === DIST || o.type === LOADER_BUNDLE;
+
+/**
+ * @deprecated Use isOutputTargetStencilMeta instead. This alias will be removed in v6.
+ */
 export const isOutputTargetDistCollection = (
   o: d.OutputTarget,
-): o is d.OutputTargetDistCollection => o.type === DIST_COLLECTION;
+): o is d.OutputTargetDistCollection => o.type === DIST_COLLECTION || o.type === STENCIL_META;
 
+/**
+ * @deprecated Use isOutputTargetStandalone instead. This alias will be removed in v6.
+ */
 export const isOutputTargetDistCustomElements = (
   o: d.OutputTarget,
-): o is d.OutputTargetDistCustomElements => o.type === DIST_CUSTOM_ELEMENTS;
+): o is d.OutputTargetDistCustomElements => o.type === DIST_CUSTOM_ELEMENTS || o.type === STANDALONE;
+
+/**
+ * @deprecated Use isOutputTargetSsr instead. This alias will be removed in v6.
+ */
+export const isOutputTargetHydrate = (o: d.OutputTarget): o is d.OutputTargetHydrate =>
+  o.type === DIST_HYDRATE_SCRIPT || o.type === SSR;
+
+/**
+ * @deprecated Use isOutputTargetTypes instead. This alias will be removed in v6.
+ */
+export const isOutputTargetDistTypes = (o: d.OutputTarget): o is d.OutputTargetDistTypes =>
+  o.type === DIST_TYPES || o.type === TYPES;
+
+// ==================== Other Output Target Type Guards ====================
 
 export const isOutputTargetCopy = (o: d.OutputTarget): o is d.OutputTargetCopy => o.type === COPY;
 
@@ -158,9 +213,6 @@ export const isOutputTargetDistLazyLoader = (
 export const isOutputTargetDistGlobalStyles = (
   o: d.OutputTarget,
 ): o is d.OutputTargetDistGlobalStyles => o.type === DIST_GLOBAL_STYLES;
-
-export const isOutputTargetHydrate = (o: d.OutputTarget): o is d.OutputTargetHydrate =>
-  o.type === DIST_HYDRATE_SCRIPT;
 
 export const isOutputTargetCustom = (o: d.OutputTarget): o is d.OutputTargetCustom =>
   o.type === CUSTOM;
@@ -199,9 +251,6 @@ export const isOutputTargetWww = (o: d.OutputTarget): o is d.OutputTargetWww => 
 
 export const isOutputTargetStats = (o: d.OutputTarget): o is d.OutputTargetStats =>
   o.type === STATS;
-
-export const isOutputTargetDistTypes = (o: d.OutputTarget): o is d.OutputTargetDistTypes =>
-  o.type === DIST_TYPES;
 
 /**
  * Checks whether or not the supplied output target's type matches one of the eligible primary

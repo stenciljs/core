@@ -63,7 +63,20 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - Migrate from rollup to rolldown
 - Potentially move from typescript to tsgo
 
-### 7. Document ALL BREAKING CHANGES
+### 7. 📤 Output Target Modernization
+**Status:** 🚧 In Progress
+
+Rename output targets for clarity and elevate sub-outputs to first-class citizens.
+
+**Goals:**
+- Intuitive names for newcomers (no more `dist-custom-elements`)
+- Parity between distribution strategies (no "primary" vs "afterthought")
+- Modular architecture (collection and types as standalone outputs)
+- Unified directory structure under `dist/`
+
+See [Output Target Modernization](#output-target-modernization) section for details.
+
+### 8. Document ALL BREAKING CHANGES
 
 - `@stencil/core/internal` → `@stencil/core/runtime`
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
@@ -71,8 +84,16 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
 - `@stencil/core/cli` → `@stencil/cli`
 - `@stencil/core/dev-server` → `@stencil/dev-server`
 - `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config.
-- `dist` and `dist-hydrate-script` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
-- `dist-hydrate-script` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the hydrate script.
+- **Output target renames:**
+  - `dist` → `loader-bundle` (default dir: `dist/loader-bundle/`)
+  - `dist-custom-elements` → `standalone` (default dir: `dist/standalone/`)
+  - `dist-hydrate-script` → `ssr` (default dir: `dist/ssr/`)
+  - `dist-collection` (sub-output) → `stencil-meta` (first-class output, default dir: `dist/stencil-meta/`, auto-generated in prod)
+  - `dist-types` (sub-output) → `types` (first-class output, default dir: `dist/types/`, auto-generated in prod)
+  - `collectionDir` and `typesDir` config options removed from `loader-bundle` config
+  - Run `stencil migrate` to automatically update your config
+- `loader-bundle` and `ssr` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
+- `ssr` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the SSR script.
 - **ES5 build output removed.** The `buildEs5` config option, `--es5` CLI flag, and all ES5-related output (esm-es5 directory, SystemJS bundles, ES5 polyfills) have been removed. Stencil now targets ES2017+ only. IE11 and Edge 18 and below are no longer supported.
 - **@Component decorator `shadow`, `scoped`, and `formAssociated` properties removed.** Use the new unified `encapsulation` property instead:
   - `shadow: true` → `encapsulation: { type: 'shadow' }`
@@ -558,6 +579,179 @@ if (!isComponent) {
 
 ---
 
+## Output Target Modernization
+
+### Overview
+
+v5 renames output targets for clarity and elevates hidden sub-outputs to first-class citizens. This creates parity between distribution strategies and makes the architecture more modular.
+
+### Name Changes
+
+| v4 Name | v5 Name | Rationale |
+|---------|---------|-----------|
+| `dist` | **`loader-bundle`** | Describes what you get: loader infrastructure + bundled components |
+| `dist-custom-elements` | **`standalone`** | Shorter, clearer: standalone component modules |
+| `dist-hydrate-script` | **`ssr`** | Industry-standard term for server-side rendering |
+| `dist-collection` (sub) | **`stencil-meta`** | First-class output: metadata for Stencil-to-Stencil consumption |
+| `dist-types` (sub) | **`types`** | First-class output: shared TypeScript definitions |
+
+### Architecture Changes
+
+#### Before v5 (Hidden Sub-Outputs)
+```typescript
+{
+  outputTargets: [
+    {
+      type: 'dist',
+      collectionDir: 'collection',  // Hidden sub-output
+      typesDir: 'types'             // Hidden sub-output
+    }
+  ]
+}
+```
+
+**Problems:**
+- `dist-custom-elements` treated as afterthought
+- Collection and types hidden as sub-outputs
+- No parity between distribution strategies
+- Confusing names for newcomers
+
+#### After v5 (First-Class Outputs)
+```typescript
+{
+  outputTargets: [
+    { type: 'loader-bundle' },  // Auto-generates types + stencil-meta in prod
+    { type: 'standalone' }       // Auto-generates types in prod
+  ]
+}
+```
+
+**Benefits:**
+- All outputs are peers (no "primary" vs "afterthought")
+- Types and stencil-meta auto-generated in production builds
+- Clear, intuitive names
+- Unified directory structure
+
+### Directory Structure
+
+All outputs now live under `dist/` by default:
+
+```
+dist/
+├── loader-bundle/     # Lazy-loaded bundles + loader infrastructure
+│   ├── esm/          # Lazy-loadable ES modules
+│   ├── loader/       # Loader entry point
+│   └── cjs/          # Optional CommonJS output
+├── standalone/        # Individual ES module per component
+│   ├── index.js
+│   ├── my-component.js
+│   └── my-component.d.ts
+├── stencil-meta/      # Metadata for downstream Stencil projects
+│   ├── collection-manifest.json
+│   ├── stencil.config.json  # NEW: Upstream config for merging
+│   └── components/
+├── types/            # Shared TypeScript definitions
+│   └── components.d.ts
+└── ssr/              # Server-side rendering / hydration
+    └── index.js
+```
+
+### Auto-Generated Outputs
+
+In **production builds** (`!config.devMode`), the compiler automatically adds:
+
+1. **`types`** output (unless explicitly configured)
+   - Default dir: `dist/types/`
+   - `skipInDev: true`
+   - Shared by `loader-bundle` and `standalone`
+
+2. **`stencil-meta`** output (unless explicitly configured)
+   - Default dir: `dist/stencil-meta/`
+   - `skipInDev: true`
+   - Contains component metadata + upstream config for downstream merging
+
+Power users can override:
+```typescript
+{
+  outputTargets: [
+    { type: 'loader-bundle' },
+    { type: 'types', dir: 'custom-types', skipInDev: false }  // Explicit wins
+  ]
+}
+```
+
+### Stencil Metadata Enhancements
+
+The new `stencil-meta` output extends the old collection with:
+
+1. **`stencil.config.json`** - Upstream config for downstream merging
+   ```json
+   {
+     "namespace": "my-lib",
+     "externalRuntime": true,
+     "buildOptions": { /* ... */ }
+   }
+   ```
+
+2. **Downstream consumption**:
+   ```typescript
+   import upstreamConfig from 'my-lib/stencil-meta/stencil.config.json';
+
+   export const config = mergeStencilConfigs(upstreamConfig, {
+     // My overrides
+   });
+   ```
+
+**Solves:** Config loss when using `externalRuntime: true` in `standalone` output
+
+### Migration
+
+The `stencil migrate` command handles automatic migration:
+
+**Detects:**
+- `type: 'dist'` → `type: 'loader-bundle'`
+- `type: 'dist-custom-elements'` → `type: 'standalone'`
+- `type: 'dist-hydrate-script'` → `type: 'ssr'`
+- `collectionDir` in config → extracts to standalone `stencil-meta` output
+- `typesDir` in config → extracts to standalone `types` output
+
+**Example migration:**
+```typescript
+// Before
+{
+  outputTargets: [
+    {
+      type: 'dist',
+      collectionDir: 'custom/collection',
+      typesDir: 'custom/types'
+    }
+  ]
+}
+
+// After (auto-migrated)
+{
+  outputTargets: [
+    { type: 'loader-bundle' },
+    { type: 'stencil-meta', dir: 'custom/collection' },
+    { type: 'types', dir: 'custom/types' }
+  ]
+}
+```
+
+### Implementation Status
+
+- [ ] Update output target constants
+- [ ] Update public type definitions
+- [ ] Rename validator files
+- [ ] Update output target implementations
+- [ ] Create first-class `stencil-meta` and `types` outputs
+- [ ] Add auto-generation logic for prod builds
+- [ ] Update all tests
+- [ ] Add migration CLI logic
+- [ ] Update documentation
+
+---
+
 ## ⚠️ Notes for Future Agents
 
 **To build v5:**
@@ -574,4 +768,4 @@ In individual packages or from root. pnpm workspaces handle dependency ordering 
 
 ---
 
-*Last updated: 2026-04-13*
+*Last updated: 2026-04-14*

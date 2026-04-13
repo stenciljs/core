@@ -9,7 +9,7 @@ import {
   getSourceMappingUrlForEndOfFile,
   hasError,
   isBoolean,
-  isOutputTargetDistCustomElements,
+  isOutputTargetStandalone,
   isString,
   join,
   rolldownToStencilSourceMap,
@@ -33,7 +33,7 @@ import { generateLoaderModule } from './generate-loader-module';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**
- * Main output target function for `dist-custom-elements`. This function just
+ * Main output target function for `standalone` (standalone component modules). This function just
  * does some organizational work to call the other functions in this module,
  * which do actual work of generating the rolldown configuration, creating an
  * entry chunk, running, the build, etc.
@@ -43,13 +43,13 @@ import type { BundleOptions } from '../../bundle/bundle-interface';
  * @param buildCtx the current build context
  * @returns an empty Promise which won't resolve until the work is done!
  */
-export const outputCustomElements = async (
+export const outputStandalone = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
   const outputTargets = filterActiveTargets(
-    config.outputTargets.filter(isOutputTargetDistCustomElements),
+    config.outputTargets.filter(isOutputTargetStandalone),
     config.devMode,
   );
   if (outputTargets.length === 0) {
@@ -392,3 +392,8 @@ const getCustomBeforeTransformers = (
   );
   return customBeforeTransformers;
 };
+
+/**
+ * @deprecated Use outputStandalone instead. This alias will be removed in v6.
+ */
+export const outputCustomElements = outputStandalone;

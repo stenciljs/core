@@ -1,9 +1,9 @@
 import type * as d from '@stencil/core';
 
 import { outputCopy } from './copy/output-copy';
-import { outputCollection } from './dist-collection';
-import { outputCustomElements } from './dist-custom-elements';
-import { outputHydrateScript } from './dist-hydrate-script';
+import { outputStencilMeta } from './stencil-meta';
+import { outputStandalone } from './standalone';
+import { outputSsr } from './ssr';
 import { outputLazy } from './dist-lazy/lazy-output';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
@@ -63,16 +63,16 @@ export const generateOutputTargets = async (
 
   const bundlerTasks: Promise<void>[] = needsBundlerRebuild
     ? [
-        outputCustomElements(config, compilerCtx, buildCtx),
-        outputHydrateScript(config, compilerCtx, buildCtx),
+        outputStandalone(config, compilerCtx, buildCtx),
+        outputSsr(config, compilerCtx, buildCtx),
         outputLazyLoader(config, compilerCtx),
         outputLazy(config, compilerCtx, buildCtx),
       ]
     : [];
 
   await Promise.all([
-    // outputCollection is already a no-op when changedModuleFiles is empty.
-    outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
+    // outputStencilMeta is already a no-op when changedModuleFiles is empty.
+    outputStencilMeta(config, compilerCtx, buildCtx, changedModuleFiles),
     ...bundlerTasks,
   ]);
 

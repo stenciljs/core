@@ -1,9 +1,9 @@
 import type * as d from '@stencil/core';
 
-import { filterActiveTargets, isOutputTargetHydrate } from '../../../utils';
+import { filterActiveTargets, isOutputTargetSsr } from '../../../utils';
 import { generateHydrateApp } from './generate-hydrate-app';
 
-export const outputHydrateScript = async (
+export const outputSsr = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -11,7 +11,7 @@ export const outputHydrateScript = async (
   // Filter hydrate targets based on skipInDev setting
   // (skipInDev is auto-set to false when devServer.ssr is enabled during validation)
   const hydrateOutputTargets = filterActiveTargets(
-    config.outputTargets.filter(isOutputTargetHydrate),
+    config.outputTargets.filter(isOutputTargetSsr),
     config.devMode,
   );
 
@@ -23,3 +23,8 @@ export const outputHydrateScript = async (
     timespan.finish(`generate hydrate app finished`);
   }
 };
+
+/**
+ * @deprecated Use outputSsr instead. This alias will be removed in v6.
+ */
+export const outputHydrateScript = outputSsr;

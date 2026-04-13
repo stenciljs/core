@@ -1,44 +1,39 @@
-import type {
-  OutputTarget,
-  OutputTargetCopy,
-  OutputTargetDistCustomElements,
-  OutputTargetDistTypes,
-  ValidatedConfig,
-} from '@stencil/core';
+import type { OutputTarget, OutputTargetCopy, OutputTargetStandalone, ValidatedConfig } from '@stencil/core';
 
 import { CustomElementsExportBehaviorOptions } from '../../../declarations/stencil-public-compiler';
-import {
-  COPY,
-  DIST_TYPES,
-  isBoolean,
-  isOutputTargetDistCustomElements,
-  join,
-} from '../../../utils';
+import { COPY, isBoolean, isOutputTargetStandalone, join } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 
 /**
- * Validate one or more `dist-custom-elements` output targets. Validation of an output target may involve back-filling
- * fields that are omitted with sensible defaults and/or creating additional supporting output targets that were not
- * explicitly defined by the user
+ * Validate one or more `standalone` output targets.
+ *
+ * Validation may involve back-filling fields that are omitted with sensible defaults
+ * and/or creating additional supporting output targets that were not explicitly
+ * defined by the user (e.g., copy tasks).
+ *
+ * Note: In v5, type declarations are auto-generated as a separate `types` output target
+ * in production builds, rather than being created here.
+ *
  * @param config the Stencil configuration associated with the project being compiled
  * @param userOutputs the output target(s) specified by the user
  * @returns the validated output target(s)
  */
-export const validateCustomElement = (
+export const validateStandalone = (
   config: ValidatedConfig,
   userOutputs: ReadonlyArray<OutputTarget>,
-): ReadonlyArray<OutputTargetDistCustomElements | OutputTargetDistTypes | OutputTargetCopy> => {
-  const defaultDir = 'dist';
+): ReadonlyArray<OutputTargetStandalone | OutputTargetCopy> => {
+  const defaultDir = 'dist/standalone';
 
-  return userOutputs.filter(isOutputTargetDistCustomElements).reduce(
+  return userOutputs.filter(isOutputTargetStandalone).reduce(
     (outputs, o) => {
       const outputTarget = {
         ...o,
-        dir: getAbsolutePath(config, o.dir || join(defaultDir, 'components')),
-        // dist-custom-elements skips in dev by default
+        dir: getAbsolutePath(config, o.dir || defaultDir),
+        // standalone skips in dev by default
         skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
       };
+
       if (!isBoolean(outputTarget.empty)) {
         outputTarget.empty = true;
       }
@@ -48,6 +43,7 @@ export const validateCustomElement = (
       if (!isBoolean(outputTarget.generateTypeDeclarations)) {
         outputTarget.generateTypeDeclarations = true;
       }
+
       // Export behavior must be defined on the validated target config and must
       // be one of the export behavior valid values
       if (
@@ -70,15 +66,7 @@ export const validateCustomElement = (
         };
       }
 
-      // unlike other output targets, Stencil does not allow users to define the output location of types at this time
-      if (outputTarget.generateTypeDeclarations) {
-        const typesDirectory = getAbsolutePath(config, join(defaultDir, 'types'));
-        outputs.push({
-          type: DIST_TYPES,
-          dir: outputTarget.dir,
-          typesDir: typesDirectory,
-        });
-      }
+      // Note: Type generation is now handled separately by auto-generated types output target in v5
 
       outputTarget.copy = validateCopy(outputTarget.copy, []);
 
@@ -93,6 +81,11 @@ export const validateCustomElement = (
 
       return outputs;
     },
-    [] as (OutputTargetDistCustomElements | OutputTargetCopy | OutputTargetDistTypes)[],
+    [] as (OutputTargetStandalone | OutputTargetCopy)[],
   );
 };
+
+/**
+ * @deprecated Use validateStandalone instead. This alias will be removed in v6.
+ */
+export const validateCustomElement = validateStandalone;
