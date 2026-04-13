@@ -2,7 +2,6 @@ import type { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'SSRTests',
-  buildDist: true,
   devServer: {
     port: 3336,
   },
@@ -17,6 +16,7 @@ export const config: Config = {
     },
     {
       type: 'dist-hydrate-script',
+      skipInDev: false,
     },
   ],
   hydratedFlag: {

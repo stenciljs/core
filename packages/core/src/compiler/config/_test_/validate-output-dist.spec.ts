@@ -25,7 +25,6 @@ describe('validateDistOutputTarget', () => {
       cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
-    userConfig.buildDist = true;
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     expect(config.outputTargets).toEqual([
       {
@@ -40,6 +39,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
+        skipInDev: false,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -120,8 +120,6 @@ describe('validateDistOutputTarget', () => {
       cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
-    userConfig.buildDist = true;
-
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
     expect(config.outputTargets).toEqual([
@@ -137,6 +135,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: false,
+        skipInDev: false,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -201,8 +200,6 @@ describe('validateDistOutputTarget', () => {
       cjs: true,
     };
     userConfig.outputTargets = [outputTarget];
-    userConfig.buildDist = true;
-
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
     expect(config.outputTargets).toEqual([
@@ -218,6 +215,7 @@ describe('validateDistOutputTarget', () => {
         typesDir: join(rootDir, 'my-dist', 'types'),
         transformAliasedImportPathsInCollection: true,
         isPrimaryPackageOutputTarget: true,
+        skipInDev: false,
       },
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),

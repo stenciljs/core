@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { catchError, COPY, isOutputTargetCustom } from '../../../utils';
+import { catchError, COPY, isBoolean, isOutputTargetCustom } from '../../../utils';
 
 export const validateCustomOutput = (
   config: d.ValidatedConfig,
@@ -8,6 +8,11 @@ export const validateCustomOutput = (
   userOutputs: d.OutputTarget[],
 ) => {
   return userOutputs.filter(isOutputTargetCustom).map((o) => {
+    // Custom outputs skip in dev by default (framework wrappers etc.)
+    if (!isBoolean(o.skipInDev)) {
+      o.skipInDev = true;
+    }
+
     if (o.validate) {
       const localDiagnostics: d.Diagnostic[] = [];
       try {

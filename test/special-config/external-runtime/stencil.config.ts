@@ -8,7 +8,7 @@ export const config: Config = {
       type: 'dist-custom-elements',
       dir: 'dist/custom-elements',
       externalRuntime: true,
+      skipInDev: false,
     },
   ],
-  buildDist: true,
 };

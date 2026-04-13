@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import {
   catchError,
   dashToPascalCase,
+  filterActiveTargets,
   generatePreamble,
   getSourceMappingUrlForEndOfFile,
   hasError,
@@ -47,11 +48,10 @@ export const outputCustomElements = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  if (!config.buildDist) {
-    return;
-  }
-
-  const outputTargets = config.outputTargets.filter(isOutputTargetDistCustomElements);
+  const outputTargets = filterActiveTargets(
+    config.outputTargets.filter(isOutputTargetDistCustomElements),
+    config.devMode,
+  );
   if (outputTargets.length === 0) {
     return;
   }

@@ -274,14 +274,6 @@ export interface StencilConfig {
   rolldownPlugins?: { before?: any[]; after?: any[] };
 
   entryComponentsHint?: string[];
-  /**
-   * Sets whether Stencil will write files to `dist/` during the build or not.
-   *
-   * By default this value is set to the opposite value of {@link devMode},
-   * i.e. it will be `true` when building for production and `false` when
-   * building for development.
-   */
-  buildDist?: boolean;
   buildLogFilePath?: string;
   devInspector?: boolean;
   devServer?: StencilDevServerConfig;
@@ -445,7 +437,6 @@ export type ConfigExtras = ConfigExtrasBase &
 
 export interface Config extends StencilConfig {
   buildAppCore?: boolean;
-  buildDocs?: boolean;
   configPath?: string;
   writeLog?: boolean;
   devServer?: DevServerConfig;
@@ -459,6 +450,11 @@ export interface Config extends StencilConfig {
   tsWatchOptions?: any;
   _isValidated?: boolean;
   _isTesting?: boolean;
+  /**
+   * Internal flag set when --docs CLI flag is used.
+   * Forces docs output targets to build even in dev mode.
+   */
+  _docsFlag?: boolean;
 
   /**
    * Whether running in a CI environment (disables interactive features, adjusts worker count)
@@ -2195,8 +2191,7 @@ export interface OutputTargetStats extends OutputTargetBase {
   file?: string;
 }
 
-export interface OutputTargetBaseNext {
-  type: string;
+export interface OutputTargetBaseNext extends OutputTargetBase {
   dir?: string;
 }
 
@@ -2298,6 +2293,20 @@ export interface OutputTargetBase {
    * A unique string to differentiate one output target from another
    */
   type: string;
+
+  /**
+   * When `true`, this output target will be skipped during development builds (`--dev`).
+   * This improves dev build times by not generating production-only artifacts.
+   *
+   * Defaults vary by output target type:
+   * - `dist`: `false` (always builds)
+   * - `dist-custom-elements`: `true` (skips in dev)
+   * - `dist-hydrate-script`: `true` (skips in dev, unless `devServer.ssr` is enabled)
+   * - `docs-*`: `true` (skips in dev)
+   * - `custom`: `true` (skips in dev)
+   * - `www`, `copy`, `stats`: `false` (always runs)
+   */
+  skipInDev?: boolean;
 }
 
 /**

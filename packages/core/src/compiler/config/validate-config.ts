@@ -197,8 +197,6 @@ export const validateConfig = (
   // Set boolean config values with defaults
   // CLI is responsible for merging flags into config before validation
   setBooleanConfig(validatedConfig, 'watch', false);
-  setBooleanConfig(validatedConfig, 'buildDocs', !validatedConfig.devMode);
-  setBooleanConfig(validatedConfig, 'buildDist', !validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'profile', validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'writeLog', false);
   setBooleanConfig(validatedConfig, 'buildAppCore', true);

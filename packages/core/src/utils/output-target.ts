@@ -247,3 +247,22 @@ export function isValidConfigOutputTarget(
   // see microsoft/TypeScript#31018 for some discussion of this
   return VALID_CONFIG_OUTPUT_TARGETS.includes(targetType as any);
 }
+
+/**
+ * Filter output targets based on devMode and their skipInDev setting.
+ * In dev mode, targets with `skipInDev: true` are filtered out.
+ * In prod mode, all targets are included.
+ *
+ * @param targets Array of output targets to filter
+ * @param devMode Whether we're in dev mode
+ * @returns Filtered array of active targets
+ */
+export const filterActiveTargets = <T extends d.OutputTarget>(
+  targets: T[],
+  devMode: boolean,
+): T[] => {
+  if (!devMode) {
+    return targets;
+  }
+  return targets.filter((t) => !t.skipInDev);
+};

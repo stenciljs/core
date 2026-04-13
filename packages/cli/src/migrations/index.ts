@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { buildDistDocsRule } from './rules/build-dist-docs';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
 
@@ -105,7 +106,11 @@ export interface MigrationRule {
  * Registry of all available migration rules.
  * Rules are applied in order, so add new rules at the end.
  */
-const migrationRules: MigrationRule[] = [encapsulationApiRule, formAssociatedRule];
+const migrationRules: MigrationRule[] = [
+  encapsulationApiRule,
+  formAssociatedRule,
+  buildDistDocsRule,
+];
 
 /**
  * Get all migration rules for a specific version upgrade.

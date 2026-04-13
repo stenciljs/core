@@ -1,4 +1,5 @@
 import { Component, h, Host, Prop } from '@stencil/core';
+// @ts-ignore
 import { saveAs } from 'file-saver';
 
 /**

@@ -5,6 +5,7 @@ import {
   buildError,
   DOCS_JSON,
   DOCS_README,
+  isBoolean,
   isFunction,
   isOutputTargetDocsCustom,
   isOutputTargetDocsCustomElementsManifest,
@@ -39,8 +40,9 @@ export const validateDocs = (
     docsOutputs.push(validateJsonDocsOutputTarget(config, diagnostics, jsonDocsOutput));
   });
 
-  // readme docs flag (buildDocs is set when --docs flag or 'docs' task is used)
-  if (config.buildDocs) {
+  // Auto-add docs-readme in production mode, or when --docs flag is used
+  // (In dev mode without --docs flag, user must explicitly configure docs-readme)
+  if (!config.devMode || config._docsFlag) {
     if (!userOutputs.some(isOutputTargetDocsReadme)) {
       // didn't provide a docs config, so let's add one
       docsOutputs.push(validateReadmeOutputTarget(config, { type: DOCS_README }));
@@ -56,13 +58,13 @@ export const validateDocs = (
   // custom docs
   const customDocsOutputs = userOutputs.filter(isOutputTargetDocsCustom);
   customDocsOutputs.forEach((jsonDocsOutput) => {
-    docsOutputs.push(validateCustomDocsOutputTarget(diagnostics, jsonDocsOutput));
+    docsOutputs.push(validateCustomDocsOutputTarget(config, diagnostics, jsonDocsOutput));
   });
 
   // vscode docs
   const vscodeDocsOutputs = userOutputs.filter(isOutputTargetDocsVscode);
   vscodeDocsOutputs.forEach((vscodeDocsOutput) => {
-    docsOutputs.push(validateVScodeDocsOutputTarget(diagnostics, vscodeDocsOutput));
+    docsOutputs.push(validateVScodeDocsOutputTarget(config, diagnostics, vscodeDocsOutput));
   });
 
   // custom elements manifest docs
@@ -92,6 +94,10 @@ const validateReadmeOutputTarget = (
     outputTarget.footer = NOTE;
   }
   outputTarget.strict = !!outputTarget.strict;
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
+  }
   return outputTarget;
 };
 
@@ -114,10 +120,15 @@ const validateJsonDocsOutputTarget = (
     outputTarget.typesFile = outputTarget.file.replace(/\.json$/, '.d.ts');
   }
   outputTarget.strict = !!outputTarget.strict;
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
+  }
   return outputTarget;
 };
 
 const validateCustomDocsOutputTarget = (
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   outputTarget: d.OutputTargetDocsCustom,
 ) => {
@@ -127,16 +138,25 @@ const validateCustomDocsOutputTarget = (
   }
 
   outputTarget.strict = !!outputTarget.strict;
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
+  }
   return outputTarget;
 };
 
 const validateVScodeDocsOutputTarget = (
+  config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
   outputTarget: d.OutputTargetDocsVscode,
 ) => {
   if (!isString(outputTarget.file)) {
     const err = buildError(diagnostics);
     err.messageText = `docs-vscode outputTarget missing the "file" path`;
+  }
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
   }
   return outputTarget;
 };
@@ -152,5 +172,9 @@ const validateCustomElementsManifestOutputTarget = (
     outputTarget.file = join(config.rootDir, outputTarget.file);
   }
   outputTarget.strict = !!outputTarget.strict;
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
+  }
   return outputTarget;
 };

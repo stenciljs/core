@@ -84,6 +84,15 @@ See [CLI/Core Architecture](#clicore-architecture) section for details.
   - `formAssociated: true` → Use `@AttachInternals()` decorator instead (auto-sets `formAssociated: true`)
   - To use `@AttachInternals` without form association: `@AttachInternals({ formAssociated: false })`
   - Run `stencil migrate --dry-run` to preview automatic migration, or `stencil migrate` to apply changes
+- **`buildDist` and `buildDocs` config options removed.** Use `skipInDev` on individual output targets for granular control:
+  - `dist`: `skipInDev: false` (default) - always builds in both dev and prod
+  - `dist-custom-elements`: `skipInDev: true` (default) - skips in dev mode, builds in prod
+  - `dist-hydrate-script`: `skipInDev: true` (default, unless `devServer.ssr` is enabled)
+  - `docs-*` targets: `skipInDev: true` (default) - skips in dev mode, builds in prod
+  - `custom` output targets: `skipInDev: true` (default) - skips in dev mode, builds in prod
+  - All outputs ALWAYS run in production mode regardless of `skipInDev` setting
+  - Run `stencil migrate` to update your config (removes deprecated options)
+- **`--esm` CLI flag removed.** Configure `skipInDev` on output targets instead.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned
@@ -358,6 +367,197 @@ Simplified the version/build identification system for v5:
 
 ---
 
+## 🚀 Compilation Performance: Watch Mode Fast Path
+
+**Status:** 📋 Planned
+
+### Current Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  File Change → IncrementalCompiler.rebuild() → Full build()            │
+│     └─ runTsProgram (all changed files)                                 │
+│     └─ generateOutputTargets (rolldown compiles)                        │
+│     └─ writeBuild                                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Problem:** Even a single-file change triggers the full pipeline.
+
+### Solution: Leverage `transpileModule` for Watch Mode
+
+The existing `transpileModule()` function (`src/compiler/transpile/transpile-module.ts`) already does single-file compilation with all necessary transforms. We can use it for a "fast path" in watch mode.
+
+#### How `transpileModule` Works Today
+
+1. Creates a fresh `ts.Program` for each call
+2. Runs `convertDecoratorsToStatic` (extracts component metadata)
+3. Runs output-target transforms (`lazyComponentTransform` or `nativeComponentTransform`)
+4. Handles inheritance via `extraFiles` parameter
+5. Returns: JS code, sourcemap, `moduleFile` with component metadata
+
+#### Proposed Enhancement: Add Shared Context
+
+```typescript
+// Enhanced transpileModule signature
+export const transpileModule = (
+  config: d.ValidatedConfig,
+  input: string,
+  transformOpts: d.TransformOptions,
+  context?: {
+    // Reuse existing Program/TypeChecker from IncrementalCompiler
+    program?: ts.Program;
+    typeChecker?: ts.TypeChecker;
+    // Update existing moduleMap instead of creating fresh
+    compilerCtx?: d.CompilerCtx;
+    // Access to component list for cross-component transforms
+    buildCtx?: d.BuildCtx;
+  },
+): d.TranspileModuleResults => {
+  // If context provided, reuse it; otherwise create fresh (current behavior)
+  const compilerCtx = context?.compilerCtx ?? new CompilerContext();
+  const buildCtx = context?.buildCtx ?? new BuildContext(config, compilerCtx);
+  const typeChecker = context?.typeChecker ?? program.getTypeChecker();
+  // ...
+}
+```
+
+#### Watch Mode Fast Path
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│  File Change Detected                                              │
+├────────────────────────────────────────────────────────────────────┤
+│  1. Quick check: is it a component file?                           │
+│     ├─ NO (plain .ts) → Skip to step 5                             │
+│     └─ YES → Continue...                                           │
+│                                                                    │
+│  2. transpileModule(source, opts, {                                │
+│       program: incrementalCompiler.getProgram(),                   │
+│       typeChecker: incrementalCompiler.getProgram().getTypeChecker(),
+│       compilerCtx,                                                 │
+│       buildCtx,                                                    │
+│     })                                                             │
+│     └─ Reuses existing TypeChecker (no fresh Program creation)     │
+│     └─ Updates existing moduleMap entry                            │
+│                                                                    │
+│  3. Compare old vs new component metadata:                         │
+│     - API changed (props/events/methods)? → Full rebuild           │
+│     - JSDoc changed && docsOutputTargets.length > 0? → Regen docs  │
+│     - Neither? → HOT SWAP only                                     │
+│                                                                    │
+│  4. If docs need regen: outputDocs() only (skip bundling)          │
+│                                                                    │
+│  5. Hot-swap module in dev server (skip rolldown entirely)         │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+### Implementation Plan
+
+#### Phase 1: Add `context` Parameter to `transpileModule`
+
+Allow reusing existing `Program`/`TypeChecker`/`CompilerCtx` from the watch build:
+
+```typescript
+// In watch-build.ts
+const results = transpileModule(config, source, transformOpts, {
+  program: incrementalCompiler.getProgram(),
+  typeChecker: incrementalCompiler.getProgram()?.getTypeChecker(),
+  compilerCtx,
+  buildCtx,
+});
+```
+
+**Benefits:**
+- No fresh `ts.Program` creation per file (expensive)
+- Shared type information for decorator resolution
+- Updates existing `moduleMap` in-place
+
+#### Phase 2: Implement Change Detection
+
+```typescript
+// In watch-build.ts, after transpileModule completes:
+const oldMeta = compilerCtx.moduleMap.get(filePath)?.cmps[0];
+const newMeta = results.moduleFile?.cmps[0];
+
+// Check if public API changed
+const apiChanged =
+  JSON.stringify(oldMeta?.properties) !== JSON.stringify(newMeta?.properties) ||
+  JSON.stringify(oldMeta?.events) !== JSON.stringify(newMeta?.events) ||
+  JSON.stringify(oldMeta?.methods) !== JSON.stringify(newMeta?.methods);
+
+// Check if JSDoc changed (only matters if docs output targets exist)
+const hasDocsTargets = config.outputTargets.some(isOutputTargetDocs);
+const jsDocChanged = hasDocsTargets && (
+  JSON.stringify(oldMeta?.docs) !== JSON.stringify(newMeta?.docs) ||
+  JSON.stringify(oldMeta?.docsTags) !== JSON.stringify(newMeta?.docsTags)
+);
+
+if (apiChanged) {
+  // API changed - need full incremental rebuild (types, bundling, etc.)
+  await triggerRebuild();
+} else if (jsDocChanged) {
+  // Only docs changed - regenerate docs, hot-swap module
+  compilerCtx.moduleMap.set(filePath, results.moduleFile);
+  await outputDocs(config, compilerCtx, buildCtx);
+  devServer.hotSwapModule(filePath, results.code);
+} else {
+  // Internal change only - just hot-swap the module
+  compilerCtx.moduleMap.set(filePath, results.moduleFile);
+  devServer.hotSwapModule(filePath, results.code);
+}
+```
+
+#### Phase 3: Non-Component Files Fast Path
+
+For plain `.ts` files (utilities, services, etc.), we don't need any Stencil transforms:
+
+```typescript
+const isComponent = filePath.match(/\.tsx?$/) &&
+  compilerCtx.moduleMap.get(filePath)?.cmps?.length > 0;
+
+if (!isComponent) {
+  // Plain TS file - just re-emit via TypeScript
+  // No decorator extraction, no component transforms needed
+  const result = ts.transpileModule(source, { compilerOptions });
+  devServer.hotSwapModule(filePath, result.outputText);
+  return;
+}
+```
+
+### Change Detection Matrix
+
+| Change Type | API Changed? | JSDoc Changed? | Action |
+|-------------|--------------|----------------|--------|
+| Internal logic only | ❌ | ❌ | Hot-swap module |
+| JSDoc comment updated | ❌ | ✅ | Regen docs + hot-swap |
+| New `@Prop()` added | ✅ | - | Full rebuild |
+| Prop type changed | ✅ | - | Full rebuild |
+| Component renamed | ✅ | - | Full rebuild |
+| Style change | ❌ | ❌ | Existing CSS path |
+
+### What Triggers Full Rebuild
+
+- Component API changes (props, events, methods, states)
+- New component added
+- Component deleted
+- Component tag name changed
+- Inheritance chain changes
+
+### Expected Impact
+
+| Change Type | Current | With Fast Path |
+|-------------|---------|----------------|
+| Internal logic change | ~500ms-1s | **< 50ms** |
+| JSDoc change (with docs targets) | ~500ms-1s | **< 100ms** |
+| Style change | ~200ms | ~200ms (unchanged) |
+| API change (new prop) | ~500ms-1s | ~500ms-1s (unchanged) |
+| New component | ~500ms-1s | ~500ms-1s (unchanged) |
+
+**~80% of dev changes are internal logic** → massive improvement for typical workflow.
+
+---
+
 ## ⚠️ Notes for Future Agents
 
 **To build v5:**
@@ -374,4 +574,4 @@ In individual packages or from root. pnpm workspaces handle dependency ordering 
 
 ---
 
-*Last updated: 2026-04-04*
+*Last updated: 2026-04-13*

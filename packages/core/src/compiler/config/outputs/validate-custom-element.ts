@@ -36,6 +36,8 @@ export const validateCustomElement = (
       const outputTarget = {
         ...o,
         dir: getAbsolutePath(config, o.dir || join(defaultDir, 'components')),
+        // dist-custom-elements skips in dev by default
+        skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
       };
       if (!isBoolean(outputTarget.empty)) {
         outputTarget.empty = true;

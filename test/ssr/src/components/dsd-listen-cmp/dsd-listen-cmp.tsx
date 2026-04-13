@@ -7,7 +7,7 @@ import { Component, Element, h, Host, Listen } from '@stencil/core';
 })
 export class MyWhateverComponent {
   @Element() hostElement: HTMLSlotElement;
-  private slotRef: HTMLSlotElement;
+  private slotRef!: HTMLSlotElement;
 
   @Listen('keydown', { capture: true }) // Crashes, incorrect binding in hydrate index.js
   handleKeyPress(e: CustomEvent): void {
@@ -18,7 +18,7 @@ export class MyWhateverComponent {
   render() {
     return (
       <Host>
-        <slot ref={(el: HTMLSlotElement) => (this.slotRef = el)}></slot>
+        <slot ref={(el) => (this.slotRef = el as HTMLSlotElement)}></slot>
       </Host>
     );
   }

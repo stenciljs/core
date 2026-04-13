@@ -35,14 +35,10 @@ export const mergeFlags = (config: Config, flags: ConfigFlags): Config => {
     merged.watch = flags.watch;
   }
 
-  // --docs → buildDocs
-  if (typeof flags.docs === 'boolean') {
-    merged.buildDocs = flags.docs;
-  }
-
-  // --esm → buildDist
-  if (typeof flags.esm === 'boolean') {
-    merged.buildDist = flags.esm;
+  // --docs → _docsFlag (internal flag to force docs in dev mode)
+  // This is processed during output target validation to set skipInDev: false on docs targets
+  if (flags.docs === true) {
+    merged._docsFlag = true;
   }
 
   // --profile → profile
