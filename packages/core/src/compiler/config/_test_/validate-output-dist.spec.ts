@@ -41,7 +41,7 @@ describe('validateDistOutputTarget', () => {
         isPrimaryPackageOutputTarget: false,
         skipInDev: true,
       },
-      
+
       {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
