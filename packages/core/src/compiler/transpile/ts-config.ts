@@ -10,9 +10,7 @@ import { isOutputTargetTypes, join } from '../../utils';
  * Some of these options (like the `module` setting) are hardcoded here, but
  * the following are derived from the configuration object:
  *
- * - if one of the output targets requires type declaration output (i.e. the
- *   {@link d.OutputTargetStandalone.generateTypeDeclarations} option
- *   is set to `true`) then we'll set `declaration: true`
+ * - if one of the output targets requires type declaration output then we'll set `declaration: true`
  * - the `outDir` is set to the configured cache directory
  * - the `sourceMap` and `inlineSources` options are set based on the user's
  *   {@link d.Config.sourceMap} configuration

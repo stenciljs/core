@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { join, resolve, STENCIL_META } from '../../../utils';
 import { validateConfig } from '../validate-config';
+import { skip } from 'node:test';
 
 describe('validateStencilMetaOutputTarget', () => {
   let config: d.Config;
@@ -31,6 +32,7 @@ describe('validateStencilMetaOutputTarget', () => {
         empty: false,
         dir: defaultDir,
         transformAliasedImportPaths: true,
+        skipInDev: true,
       },
     ]);
   });
@@ -49,6 +51,7 @@ describe('validateStencilMetaOutputTarget', () => {
       {
         type: STENCIL_META,
         empty: false,
+        skipInDev: true,
         dir: '/my-dist',
         transformAliasedImportPaths: true,
       },
@@ -75,6 +78,7 @@ describe('validateStencilMetaOutputTarget', () => {
             empty: false,
             dir: defaultDir,
             transformAliasedImportPaths,
+            skipInDev: true,
           },
         ]);
       },

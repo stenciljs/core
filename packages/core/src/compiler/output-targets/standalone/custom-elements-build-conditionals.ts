@@ -3,12 +3,12 @@ import type * as d from '@stencil/core';
 import { isOutputTargetSsr } from '../../../utils';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
 /**
- * Get build conditions appropriate for the `dist-custom-elements` Output
+ * Get build conditions appropriate for the `standalone` Output
  * Target, including disabling lazy loading and hydration.
  *
  * @param config a validated user-supplied config
  * @param cmps metadata about the components currently being compiled
- * @returns build conditionals appropriate for the `dist-custom-elements` OT
+ * @returns build conditionals appropriate for the `standalone` OT
  */
 export const getCustomElementsBuildConditionals = (
   config: d.ValidatedConfig,

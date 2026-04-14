@@ -31,7 +31,7 @@ const setup = () => {
   config.rootDir = normalizePath(path.join(root, 'User', 'testing', '/'));
   config.globalScript = normalizePath(path.join(root, 'User', 'testing', 'src', 'global.ts'));
 
-  const bundleCustomElementsSpy = vi.spyOn(outputCustomElementsMod, 'bundleCustomElements');
+  const bundleCustomElementsSpy = vi.spyOn(outputCustomElementsMod, 'bundleStandalone');
 
   compilerCtx.moduleMap.set('test', mockModule());
 

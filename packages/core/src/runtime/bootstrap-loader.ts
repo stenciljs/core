@@ -21,7 +21,7 @@ import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS } from './runtime-constants';
 import { hydrateScopedToShadow } from './styles';
 import { appDidLoad } from './update-component';
-import { addHostEventListeners } from './';
+import { addHostEventListeners } from '.';
 import type * as d from '../declarations';
 export { setNonce } from 'virtual:platform';
 

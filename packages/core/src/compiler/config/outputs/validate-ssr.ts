@@ -1,4 +1,4 @@
-import { isAbsolute } from 'path';
+import { isAbsolute } from 'node:path';
 import type * as d from '@stencil/core';
 
 import {
@@ -95,8 +95,3 @@ export const validateSsr = (config: d.ValidatedConfig, userOutputs: d.OutputTarg
 
   return output;
 };
-
-/**
- * @deprecated Use validateSsr instead. This alias will be removed in v6.
- */
-export const validateHydrateScript = validateSsr;

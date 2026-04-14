@@ -63,11 +63,11 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
               // use the default app-data, but build a custom one based on component meta
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            // for a non-lazy / standalone build, use the default, complete core.
             // This ensures all features are available for any importer library
             return internalClient;
           }
@@ -105,11 +105,11 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
               // use the default app-data, but build a custom one based on component meta
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            // for a non-lazy / standalone build, use the default, complete core.
             return internalClient;
           }
           if (platform === 'hydrate') {

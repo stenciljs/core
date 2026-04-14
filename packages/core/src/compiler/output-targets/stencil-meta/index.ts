@@ -179,8 +179,3 @@ const serializeCollectionDependencies = (
 
   return sortBy(collectionDeps, (item) => item.name);
 };
-
-/**
- * @deprecated Use outputStencilMeta instead. This alias will be removed in v6.
- */
-export const outputCollection = outputStencilMeta;

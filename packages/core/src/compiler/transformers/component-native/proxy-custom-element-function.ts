@@ -7,7 +7,7 @@ import { RUNTIME_APIS } from '../core-runtime-apis';
 import { getModuleFromSourceFile } from '../transform-utils';
 
 /**
- * Proxy custom elements for the `dist-custom-elements` output target. This function searches for a Stencil component's
+ * Proxy custom elements for the `standalone` output target. This function searches for a Stencil component's
  * class initializer (found on the right-hand side of the '=' operator):
  *
  * ```ts

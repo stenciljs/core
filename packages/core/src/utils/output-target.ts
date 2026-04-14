@@ -207,21 +207,6 @@ export const isOutputTargetStats = (o: d.OutputTarget): o is d.OutputTargetStats
   o.type === STATS;
 
 /**
- * Checks whether or not the supplied output target's type matches one of the eligible primary
- * package output target types (i.e. it can have `isPrimaryPackageOutputTarget: true` in its config).
- *
- * @param o The output target to check.
- * @returns Whether the output target type is one of the "primary" output targets.
- */
-export const isEligiblePrimaryPackageOutputTarget = (
-  o: d.OutputTarget,
-): o is d.EligiblePrimaryPackageOutputTarget =>
-  isOutputTargetLoaderBundle(o) ||
-  isOutputTargetStencilMeta(o) ||
-  isOutputTargetStandalone(o) ||
-  isOutputTargetTypes(o);
-
-/**
  * Retrieve the Stencil component compiler metadata from a collection of Stencil {@link d.Module}s
  * @param moduleFiles the collection of `Module`s to retrieve the metadata from
  * @returns the metadata, lexicographically sorted by the tag names of the components

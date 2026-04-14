@@ -1,4 +1,4 @@
-import { isAbsolute } from 'path';
+import { isAbsolute } from 'node:path';
 import type * as d from '@stencil/core';
 
 import {
@@ -121,7 +121,6 @@ const validateOutputTargetLoaderBundle = (
     esmLoaderPath: o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR,
     copy: validateCopy(o.copy ?? [], []),
     empty: isBoolean(o.empty) ? o.empty : true,
-    isPrimaryPackageOutputTarget: o.isPrimaryPackageOutputTarget ?? false,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
     // loader-bundle skips distribution artifacts in dev mode by default, but always builds browser/CDN output
     skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
@@ -141,8 +140,3 @@ const validateOutputTargetLoaderBundle = (
 const DEFAULT_DIR = 'dist/loader-bundle';
 const DEFAULT_BUILD_DIR = '';
 const DEFAULT_ESM_LOADER_DIR = 'loader';
-
-/**
- * @deprecated Use validateLoaderBundle instead. This alias will be removed in v6.
- */
-export const validateDist = validateLoaderBundle;

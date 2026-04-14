@@ -11,7 +11,7 @@ import {
   relative,
 } from '../../utils';
 import { packageJsonError, packageJsonWarn } from './package-json-log-utils';
-import { validatePrimaryPackageOutputTarget } from './validate-primary-package-output-target';
+import { validatePackageJson } from './validate-package-json';
 
 /**
  * Validate the package.json file for a project, checking that various fields
@@ -31,9 +31,8 @@ export const validateBuildPackageJson = async (
     return;
   }
 
-  // Validate any output target that the user has designated as the "primary"
-  // target that is bundled with their distribution
-  validatePrimaryPackageOutputTarget(config, compilerCtx, buildCtx);
+  // Validate package.json fields based on configured output targets
+  validatePackageJson(config, compilerCtx, buildCtx);
 
   const stencilMetaOutputTargets = config.outputTargets.filter(isOutputTargetStencilMeta);
   await Promise.all(

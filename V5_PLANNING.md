@@ -114,6 +114,9 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - All outputs ALWAYS run in production mode regardless of `skipInDev` setting
   - Run `stencil migrate` to update your config (removes deprecated options)
 - **`--esm` CLI flag removed.** Configure `skipInDev` on output targets instead.
+- **`isPrimaryPackageOutputTarget` removed from output targets.** Package.json validation now auto-detects based on configured outputs. Remove this property from your output target configs.
+- **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.** The validation logic now automatically determines recommended values based on which output targets are configured, rather than requiring manual designation of a "primary" output.
+- **Export maps generation uses smart defaults.** When generating export maps, Stencil now checks if existing exports are valid before overwriting. Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned

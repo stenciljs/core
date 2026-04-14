@@ -60,7 +60,7 @@ export const outputStandalone = async (
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`);
 
   await Promise.all(
-    outputTargets.map((target) => bundleCustomElements(config, compilerCtx, buildCtx, target)),
+    outputTargets.map((target) => bundleStandalone(config, compilerCtx, buildCtx, target)),
   );
 
   timespan.finish(`${bundlingEventMessage} finished`);
@@ -117,7 +117,7 @@ export const getBundleOptions = (
  * @param outputTarget the outputTarget we're currently dealing with
  * @returns an empty promise
  */
-export const bundleCustomElements = async (
+export const bundleStandalone = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -126,7 +126,7 @@ export const bundleCustomElements = async (
   try {
     const bundleOpts = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
 
-    addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
 
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
 
@@ -151,7 +151,7 @@ export const bundleCustomElements = async (
           level: 'error',
           type: 'build',
           messageText:
-            'dist-custom-elements output target provided with no output target directory!',
+            'standalone output target provided with no output target directory!',
           lines: [],
         });
         return;
@@ -200,12 +200,12 @@ export const bundleCustomElements = async (
 };
 
 /**
- * Create the virtual modules/input modules for the `dist-custom-elements` output target.
+ * Create the virtual modules/input modules for the `standalone` output target.
  * @param buildCtx the context for the current build
  * @param bundleOpts the bundle options to store the virtual modules under. acts as an output parameter
- * @param outputTarget the configuration for the custom element output target
+ * @param outputTarget the configuration for the standalone output target
  */
-export const addCustomElementInputs = (
+export const addStandaloneInputs = (
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
   outputTarget: d.OutputTargetStandalone,
@@ -276,7 +276,7 @@ export const addCustomElementInputs = (
 };
 
 /**
- * Generate the entrypoint (`index.ts` file) contents for the `dist-custom-elements` output target
+ * Generate the entrypoint (`index.ts` file) contents for the `standalone` output target
  * @param outputTarget the output target's configuration
  * @param cmpImports The import declarations for local component modules.
  * @param cmpExports The export declarations for local component modules.
@@ -346,7 +346,7 @@ export const generateEntryPoint = (
 
 /**
  * Get the series of custom transformers, specific to the needs of the
- * `dist-custom-elements` output target, that will be applied to a Stencil
+ * `standalone` output target, that will be applied to a Stencil
  * project's source code during the TypeScript transpilation process
  *
  * @param config the configuration for the Stencil project

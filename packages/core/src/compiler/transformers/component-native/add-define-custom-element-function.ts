@@ -6,7 +6,7 @@ import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
- * Import and define components along with any component dependents within the `dist-custom-elements` output.
+ * Import and define components along with any component dependents within the `standalone` output.
  * Adds `defineCustomElement()` function for all components.
  * @param compilerCtx - current compiler context
  * @param components - all current components within the stencil buildCtx

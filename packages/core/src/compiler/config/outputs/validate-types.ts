@@ -25,7 +25,6 @@ export const validateTypes = (
       dir: getAbsolutePath(config, outputTarget.dir ?? 'dist/types'),
       empty: isBoolean(outputTarget.empty) ? outputTarget.empty : true,
       skipInDev: isBoolean(outputTarget.skipInDev) ? outputTarget.skipInDev : true,
-      isPrimaryPackageOutputTarget: outputTarget.isPrimaryPackageOutputTarget ?? false,
     };
   });
 };

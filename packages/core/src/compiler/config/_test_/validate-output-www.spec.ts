@@ -30,6 +30,19 @@ describe('validateOutputTargetWww', () => {
 
     expect(config.outputTargets).toEqual([
       {
+        "dir": "/dist/types",
+        "empty": true,
+        "skipInDev": true,
+        "type": "types",
+      },
+      {
+        "dir": "/dist/stencil-meta",
+        "empty": true,
+        "skipInDev": true,
+        "transformAliasedImportPaths": true,
+        "type": "stencil-meta",
+      },
+      {
         appDir: join(rootDir, 'www', 'docs'),
         baseUrl: '/',
         buildDir: join(rootDir, 'www', 'docs', 'build'),

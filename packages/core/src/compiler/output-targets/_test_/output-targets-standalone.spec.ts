@@ -19,8 +19,8 @@ import {
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputStandaloneMod from '../standalone';
 import {
-  addCustomElementInputs,
-  bundleCustomElements,
+  addStandaloneInputs,
+  bundleStandalone,
   generateEntryPoint,
   getBundleOptions,
   outputStandalone,
@@ -43,7 +43,7 @@ const setup = () => {
   config.rootDir = path.join(root, 'User', 'testing', '/');
   config.globalScript = path.join(root, 'User', 'testing', 'src', 'global.ts');
 
-  const bundleCustomElementsSpy = vi.spyOn(outputStandaloneMod, 'bundleCustomElements');
+  const bundleCustomElementsSpy = vi.spyOn(outputStandaloneMod, 'bundleStandalone');
 
   compilerCtx.moduleMap.set('test', mockModule());
 
@@ -145,14 +145,14 @@ export * from '${USER_INDEX_ENTRY_ID}';
     );
   });
 
-  describe('bundleCustomElements', () => {
+  describe('bundleStandalone', () => {
     it('should set a diagnostic if no `dir` prop on the output target', async () => {
       const { config, compilerCtx, buildCtx } = setup();
       const outputTarget: OutputTargetStandalone = {
         type: STANDALONE,
         externalRuntime: true,
       };
-      await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
+      await bundleStandalone(config, compilerCtx, buildCtx, outputTarget);
       expect(buildCtx.diagnostics).toEqual([
         {
           level: 'error',
@@ -164,7 +164,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
     });
   });
 
-  describe('addCustomElementInputs', () => {
+  describe('addStandaloneInputs', () => {
     let config: d.ValidatedConfig;
     let compilerCtx: d.CompilerCtx;
     let buildCtx: d.BuildCtx;
@@ -189,7 +189,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
           compilerCtx,
           config.outputTargets[0] as OutputTargetStandalone,
         );
-        addCustomElementInputs(
+        addStandaloneInputs(
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -226,7 +226,7 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetStandalone,
         );
-        addCustomElementInputs(
+        addStandaloneInputs(
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -257,7 +257,7 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetStandalone,
         );
-        addCustomElementInputs(
+        addStandaloneInputs(
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -294,7 +294,7 @@ globalScripts();
           compilerCtx,
           config.outputTargets[0] as OutputTargetStandalone,
         );
-        addCustomElementInputs(
+        addStandaloneInputs(
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -339,7 +339,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
 
         // Check loader input is added
         expect(bundleOptions.inputs['loader']).toBe('\0loader');
@@ -364,7 +364,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'loader', autoStart: false };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
 
         const loaderContent = bundleOptions.loader['\0loader'];
         // Should export start/stop but NOT auto-call start()
@@ -381,7 +381,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'my-custom-loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
 
         expect(bundleOptions.inputs['my-custom-loader']).toBe('\0loader');
       });
@@ -394,7 +394,7 @@ export const defineCustomElements = (opts) => {
         // autoLoader is not set
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addCustomElementInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
 
         expect(bundleOptions.inputs['loader']).toBeUndefined();
         expect(bundleOptions.loader['\0loader']).toBeUndefined();

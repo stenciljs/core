@@ -160,10 +160,10 @@ export interface StencilConfig {
    */
   suppressReservedPublicNameWarnings?: boolean;
   /**
-   * When `true`, we will validate a project's `package.json` based on the output target the user has designated
-   * as `isPrimaryPackageOutputTarget: true` in their Stencil config.
+   * When `true`, Stencil will validate that your project's `package.json` fields (module, types, exports)
+   * match the recommended values based on your configured output targets.
    */
-  validatePrimaryPackageOutputTarget?: boolean;
+  validatePackageJson?: boolean;
 
   /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
@@ -573,7 +573,7 @@ type StrictConfigFields = keyof Pick<
   | 'srcIndexHtml'
   | 'sys'
   | 'transformAliasedImportPaths'
-  | 'validatePrimaryPackageOutputTarget'
+  | 'validatePackageJson'
 >;
 
 /**
@@ -1721,8 +1721,8 @@ export interface ConfigBundle {
 
 /**
  * A file and/or directory copy operation that may be specified as part of
- * certain output targets for Stencil (in particular `dist`,
- * `dist-custom-elements`, and `www`).
+ * certain output targets for Stencil (in particular `loader-bundle`,
+ * `standalone`, and `www`).
  */
 export interface CopyTask {
   /**
@@ -1952,7 +1952,7 @@ export interface LoggerTimeSpan {
  * }
  * ```
  */
-export interface OutputTargetLoaderBundle extends OutputTargetValidationConfig {
+export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
   type: 'loader-bundle';
 
   /**
@@ -2002,7 +2002,7 @@ export interface OutputTargetLoaderBundle extends OutputTargetValidationConfig {
  * }
  * ```
  */
-export interface OutputTargetStencilMeta extends OutputTargetValidationConfig {
+export interface OutputTargetStencilMeta extends OutputTargetBaseNext {
   type: 'stencil-meta';
   empty?: boolean;
 
@@ -2044,7 +2044,7 @@ export interface OutputTargetStencilMeta extends OutputTargetValidationConfig {
  * }
  * ```
  */
-export interface OutputTargetTypes extends OutputTargetValidationConfig {
+export interface OutputTargetTypes extends OutputTargetBaseNext {
   type: 'types';
   empty?: boolean;
 }
@@ -2241,7 +2241,7 @@ export interface OutputTargetBaseNext extends OutputTargetBase {
 /**
  * The collection of valid export behaviors.
  * Used to generate a type for typed configs as well as output target validation
- * for the `dist-custom-elements` output target.
+ * for the `standalone` output target.
  *
  * Adding a value to this const array will automatically add it as a valid option on the
  * output target configuration for `customElementsExportBehavior`.
@@ -2250,8 +2250,7 @@ export interface OutputTargetBaseNext extends OutputTargetBase {
  * - `auto-define-custom-elements`: Enables the auto-definition of a component and its children (recursively) in the custom elements registry. This
  * functionality allows consumers to bypass the explicit call to define a component, its children, its children's
  * children, etc. Users of this flag should be aware that enabling this functionality may increase bundle size.
- * - `bundle`: A `defineCustomElements` function will be exported from the distribution directory. This behavior was added to allow easy migration
- * from `dist-custom-elements-bundle` to `dist-custom-elements`.
+ * - `bundle`: A `defineCustomElements` function will be exported from the distribution directory. 
  * - `single-export-module`: All components will be re-exported from the specified directory's root `index.js` file.
  */
 export const CustomElementsExportBehaviorOptions = [
@@ -2286,7 +2285,7 @@ export type CustomElementsExportBehavior = (typeof CustomElementsExportBehaviorO
  * }
  * ```
  */
-export interface OutputTargetStandalone extends OutputTargetValidationConfig {
+export interface OutputTargetStandalone extends OutputTargetBaseNext {
   type: 'standalone';
   empty?: boolean;
 
@@ -2372,20 +2371,6 @@ export interface OutputTargetBase {
    */
   skipInDev?: boolean;
 }
-
-/**
- * Output targets that can have validation for common `package.json` field values
- * (module, types, etc.). This allows them to be marked for validation in a project's Stencil config.
- */
-interface OutputTargetValidationConfig extends OutputTargetBaseNext {
-  isPrimaryPackageOutputTarget?: boolean;
-}
-
-export type EligiblePrimaryPackageOutputTarget =
-  | OutputTargetLoaderBundle
-  | OutputTargetStandalone
-  | OutputTargetStencilMeta
-  | OutputTargetTypes;
 
 export type OutputTargetBuild = OutputTargetStencilMeta | OutputTargetDistLazy;
 

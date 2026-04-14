@@ -4,8 +4,8 @@ export {
   defineCustomElement,
   forceModeUpdate,
   proxyCustomElement,
-} from './bootstrap-custom-element';
-export { bootstrapLazy } from './bootstrap-lazy';
+} from './bootstrap-standalone';
+export { bootstrapLazy } from './bootstrap-loader';
 export { connectedCallback } from './connected-callback';
 export { disconnectedCallback } from './disconnected-callback';
 export { getElement, getShadowRoot } from './element';

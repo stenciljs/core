@@ -506,22 +506,19 @@ describe('validation', () => {
     });
   });
 
-  describe('validatePrimaryPackageOutputTarget', () => {
+  describe('validatePackageJson', () => {
     it('should default to false', () => {
       const { config } = validateConfig(userConfig, bootstrapConfig);
 
-      expect(config.validatePrimaryPackageOutputTarget).toBe(false);
+      expect(config.validatePackageJson).toBe(false);
     });
 
-    it.each([true, false])(
-      'should set validatePrimaryPackageOutputTarget to %p',
-      (validatePrimaryPackageOutputTarget) => {
-        userConfig.validatePrimaryPackageOutputTarget = validatePrimaryPackageOutputTarget;
+    it.each([true, false])('should set validatePackageJson to %p', (validatePackageJson) => {
+      userConfig.validatePackageJson = validatePackageJson;
 
-        const { config } = validateConfig(userConfig, bootstrapConfig);
+      const { config } = validateConfig(userConfig, bootstrapConfig);
 
-        expect(config.validatePrimaryPackageOutputTarget).toBe(validatePrimaryPackageOutputTarget);
-      },
-    );
+      expect(config.validatePackageJson).toBe(validatePackageJson);
+    });
   });
 });

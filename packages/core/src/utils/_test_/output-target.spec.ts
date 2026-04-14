@@ -1,11 +1,9 @@
 import { expect, describe, it, vi } from '@stencil/vitest';
 import type * as d from '@stencil/core';
-import type { EligiblePrimaryPackageOutputTarget } from '@stencil/core';
 
 import { VALID_CONFIG_OUTPUT_TARGETS } from '../constants';
 import {
   filterExcludedComponents,
-  isEligiblePrimaryPackageOutputTarget,
   isValidConfigOutputTarget,
   shouldExcludeComponent,
 } from '../output-target';
@@ -25,35 +23,6 @@ describe('output-utils tests', () => {
         expect(isValidConfigOutputTarget(outputTargetType)).toBe(false);
       },
     );
-  });
-
-  describe('isEligiblePrimaryPackageOutputTarget', () => {
-    it.each<(typeof VALID_CONFIG_OUTPUT_TARGETS)[number]>([
-      'copy',
-      'custom',
-      'ssr',
-      'www',
-      'stats',
-      'docs-json',
-      'docs-readme',
-      'docs-vscode',
-      'docs-custom',
-    ])('should return false for $type', (outputTarget) => {
-      const res = isEligiblePrimaryPackageOutputTarget({ type: outputTarget } as any);
-
-      expect(res).toBe(false);
-    });
-
-    it.each<EligiblePrimaryPackageOutputTarget['type']>([
-      'loader-bundle',
-      'stencil-meta',
-      'standalone',
-      'types',
-    ])('should return true for `$type`', (outputTarget) => {
-      const res = isEligiblePrimaryPackageOutputTarget({ type: outputTarget } as any);
-
-      expect(res).toBe(true);
-    });
   });
 
   describe('shouldExcludeComponent', () => {

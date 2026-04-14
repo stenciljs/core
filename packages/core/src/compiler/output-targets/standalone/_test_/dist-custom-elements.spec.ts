@@ -8,7 +8,7 @@ import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
 import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
-import { addCustomElementInputs, bundleCustomElements } from '../index';
+import { addStandaloneInputs, bundleStandalone } from '../index';
 
 describe('standalone', () => {
   it('should export plain component', () => {
@@ -29,7 +29,7 @@ describe('standalone', () => {
       type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
-    addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
     expect(bundleOpts.loader['\x00MyTag']).toContain(
       "export { StubCmp as MyTag } from './foo/bar.tsx';",
     );
@@ -53,7 +53,7 @@ describe('standalone', () => {
       type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
-    addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
     expect(bundleOpts.loader['\x00MyTag']).toContain(
       'export const defineCustomElement = cmpDefCustomEle;',
     );
@@ -117,7 +117,7 @@ describe('standalone', () => {
         minify: true,
       };
 
-      await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
+      await bundleStandalone(config, compilerCtx, buildCtx, outputTarget);
 
       expect(optimizeModuleSpy).toHaveBeenCalledWith(
         config,
@@ -141,7 +141,7 @@ describe('standalone', () => {
         minify: false,
       };
 
-      await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
+      await bundleStandalone(config, compilerCtx, buildCtx, outputTarget);
 
       expect(optimizeModuleSpy).toHaveBeenCalledWith(
         config,
@@ -165,7 +165,7 @@ describe('standalone', () => {
         // minify is undefined, should use config.minifyJs
       };
 
-      await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
+      await bundleStandalone(config, compilerCtx, buildCtx, outputTarget);
 
       expect(optimizeModuleSpy).toHaveBeenCalledWith(
         config,

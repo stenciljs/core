@@ -128,9 +128,9 @@ export const connectedCallback = (elm: d.HostElement) => {
 
       // Pending props - apply props that were set on the element before it was upgraded.
       // This handles the case where parent components render child custom elements before
-      // the child's module is loaded (e.g., lazy-loading with dist-custom-elements).
+      // the child's module is loaded (e.g., lazy-loading with 'standalone').
       // Props were queued in setAccessor and are now applied through the proper setters.
-      // This only applies to dist-custom-elements (!lazyLoad), not dist which handles this differently.
+      // This only applies to 'standalone' (!lazyLoad), not 'loader-bundle' which handles this differently.
       if (!BUILD.lazyLoad && BUILD.prop && !BUILD.hydrateServerSide) {
         const pendingProps: Map<string, any> | undefined = (elm as any)['s-pp'];
         if (pendingProps) {

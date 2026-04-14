@@ -28,12 +28,7 @@ export const validateStencilMeta = (
       dir: getAbsolutePath(config, outputTarget.dir ?? 'dist/stencil-meta'),
       empty: isBoolean(outputTarget.empty) ? outputTarget.empty : true,
       skipInDev: isBoolean(outputTarget.skipInDev) ? outputTarget.skipInDev : true,
-      isPrimaryPackageOutputTarget: outputTarget.isPrimaryPackageOutputTarget ?? false,
     };
   });
 };
 
-/**
- * @deprecated Use validateStencilMeta instead. This alias will be removed in v6.
- */
-export const validateCollection = validateStencilMeta;

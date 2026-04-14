@@ -4,7 +4,7 @@ import { LazyBundlesRuntimeData } from '@stencil/core';
 import { expect, describe, it, vi } from '@stencil/vitest';
 import { win } from 'virtual:platform';
 
-import { bootstrapLazy } from '../bootstrap-lazy';
+import { bootstrapLazy } from '../bootstrap-loader';
 
 describe('bootstrap lazy', () => {
   it('should not inject invalid CSS when no lazy bundles are provided', () => {

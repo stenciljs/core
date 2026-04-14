@@ -102,7 +102,6 @@ export const validateConfig = (
   config._isTesting = !!(
     process.env.VITEST ||
     process.env.PLAYWRIGHT_TEST ||
-    process.env.JEST_WORKER_ID ||
     process.env.TEST_WORKER_INDEX ||
     process.env.TEST_PARALLEL_INDEX ||
     process.env.NODE_ENV === 'test'
@@ -133,7 +132,7 @@ export const validateConfig = (
     transformAliasedImportPaths: isBoolean(userConfig.transformAliasedImportPaths)
       ? userConfig.transformAliasedImportPaths
       : true,
-    validatePrimaryPackageOutputTarget: userConfig.validatePrimaryPackageOutputTarget ?? false,
+    validatePackageJson: userConfig.validatePackageJson ?? false,
     ...validateNamespace(config.namespace, config.fsNamespace, diagnostics),
     ...validatePaths(config),
   };

@@ -11,7 +11,7 @@ describe('validate-output-standalone', () => {
     // use Node's resolve() here to simulate a user using either Win/Posix separators (depending on the platform these
     // tests are run on)
     const rootDir = path.resolve('/');
-    const defaultDistDir = join(rootDir, 'dist', 'components');
+    const defaultDistDir = join(rootDir, 'dist', 'standalone');
     const distCustomElementsDir = 'my-standalone';
     let userConfig: d.Config;
 
@@ -65,7 +65,6 @@ describe('validate-output-standalone', () => {
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-
           customElementsExportBehavior: 'single-export-module',
           skipInDev: true,
         },
@@ -207,142 +206,6 @@ describe('validate-output-standalone', () => {
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-
-            customElementsExportBehavior: 'default',
-            skipInDev: true,
-          },
-        ]);
-      });
-    });
-
-    describe('"generateTypeDeclarations" field', () => {
-      it('defaults the "generateTypeDeclarations" field to true if not provided', () => {
-        const outputTarget: d.OutputTargetStandalone = {
-          type: STANDALONE,
-          empty: false,
-        };
-        userConfig.outputTargets = [outputTarget];
-
-        const { config } = validateConfig(userConfig, mockLoadConfigInit());
-        expect(config.outputTargets).toEqual([
-          {
-            type: TYPES,
-            dir: defaultDistDir,
-            typesDir: join(rootDir, 'dist', 'types'),
-          },
-          {
-            type: STANDALONE,
-            copy: [],
-            dir: defaultDistDir,
-            empty: false,
-            externalRuntime: true,
-
-            customElementsExportBehavior: 'default',
-            skipInDev: true,
-          },
-        ]);
-      });
-
-      it('defaults the "generateTypeDeclarations" field to true it\'s not a boolean', () => {
-        const outputTarget: d.OutputTargetStandalone = {
-          type: STANDALONE,
-          empty: false,
-        };
-        userConfig.outputTargets = [outputTarget];
-
-        const { config } = validateConfig(userConfig, mockLoadConfigInit());
-        expect(config.outputTargets).toEqual([
-          {
-            type: TYPES,
-            dir: defaultDistDir,
-            typesDir: join(rootDir, 'dist', 'types'),
-          },
-          {
-            type: STANDALONE,
-            copy: [],
-            dir: defaultDistDir,
-            empty: false,
-            externalRuntime: true,
-
-            customElementsExportBehavior: 'default',
-            skipInDev: true,
-          },
-        ]);
-      });
-
-      it('creates a types directory when "generateTypeDeclarations" is true', () => {
-        const outputTarget: d.OutputTargetStandalone = {
-          type: STANDALONE,
-          empty: false,
-          externalRuntime: false,
-        };
-        userConfig.outputTargets = [outputTarget];
-
-        const { config } = validateConfig(userConfig, mockLoadConfigInit());
-        expect(config.outputTargets).toEqual([
-          {
-            type: TYPES,
-            dir: defaultDistDir,
-            typesDir: join(rootDir, 'dist', 'types'),
-          },
-          {
-            type: STANDALONE,
-            copy: [],
-            dir: defaultDistDir,
-            empty: false,
-            externalRuntime: false,
-
-            customElementsExportBehavior: 'default',
-            skipInDev: true,
-          },
-        ]);
-      });
-
-      it('creates a types directory for a custom directory', () => {
-        const outputTarget: d.OutputTargetStandalone = {
-          type: STANDALONE,
-          dir: distCustomElementsDir,
-          empty: false,
-          externalRuntime: false,
-        };
-        userConfig.outputTargets = [outputTarget];
-
-        const { config } = validateConfig(userConfig, mockLoadConfigInit());
-        expect(config.outputTargets).toEqual([
-          {
-            type: TYPES,
-            dir: join(rootDir, distCustomElementsDir),
-            typesDir: join(rootDir, 'dist', 'types'),
-          },
-          {
-            type: STANDALONE,
-            copy: [],
-            dir: join(rootDir, distCustomElementsDir),
-            empty: false,
-            externalRuntime: false,
-
-            customElementsExportBehavior: 'default',
-            skipInDev: true,
-          },
-        ]);
-      });
-
-      it('doesn\'t create a types directory when "generateTypeDeclarations" is false', () => {
-        const outputTarget: d.OutputTargetStandalone = {
-          type: STANDALONE,
-          empty: false,
-          externalRuntime: false,
-        };
-        userConfig.outputTargets = [outputTarget];
-
-        const { config } = validateConfig(userConfig, mockLoadConfigInit());
-        expect(config.outputTargets).toEqual([
-          {
-            type: STANDALONE,
-            copy: [],
-            dir: defaultDistDir,
-            empty: false,
-            externalRuntime: false,
 
             customElementsExportBehavior: 'default',
             skipInDev: true,

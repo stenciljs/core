@@ -35,7 +35,6 @@ describe('validateLoaderBundleOutputTarget', () => {
         empty: false,
         esmLoaderPath: join(rootDir, 'my-dist', 'loader'),
         type: LOADER_BUNDLE,
-        isPrimaryPackageOutputTarget: false,
         skipInDev: false,
       },
 
@@ -74,49 +73,6 @@ describe('validateLoaderBundleOutputTarget', () => {
     userConfig.outputTargets = [];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     expect(config.outputTargets.some((o) => o.type === LOADER_BUNDLE)).toBe(false);
-  });
-
-  it('sets option to validate primary package output target when enabled', () => {
-    const outputTarget: d.OutputTargetLoaderBundle = {
-      type: LOADER_BUNDLE,
-      dir: 'my-dist',
-      buildDir: 'my-build',
-      empty: false,
-      isPrimaryPackageOutputTarget: true,
-      cjs: true,
-    };
-    userConfig.outputTargets = [outputTarget];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-
-    expect(config.outputTargets).toEqual([
-      {
-        buildDir: join(rootDir, 'my-dist', 'my-build'),
-        cjs: true,
-        copy: [],
-        dir: join(rootDir, 'my-dist'),
-        empty: false,
-        esmLoaderPath: join(rootDir, 'my-dist', 'loader'),
-        type: LOADER_BUNDLE,
-        isPrimaryPackageOutputTarget: true,
-        skipInDev: false,
-      },
-      {
-        esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
-        empty: false,
-        isBrowserBuild: true,
-        type: 'dist-lazy',
-      },
-      {
-        copyAssets: 'dist',
-        copy: [],
-        dir: join(rootDir, 'my-dist', 'my-build', 'testing'),
-        type: 'copy',
-      },
-      {
-        file: join(rootDir, 'my-dist', 'my-build', 'testing', 'testing.css'),
-        type: 'dist-global-styles',
-      },
-    ]);
   });
 
   it('defaults cjs to false when not specified', () => {

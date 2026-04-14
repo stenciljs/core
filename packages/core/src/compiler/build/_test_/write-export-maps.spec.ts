@@ -38,11 +38,16 @@ describe('writeExportMaps', () => {
       esmLoaderPath: '/dist/loader',
       copy: [],
       empty: true,
-      isPrimaryPackageOutputTarget: false,
       cjs: true,
       skipInDev: false,
     };
-    config.outputTargets = [loaderBundleTarget];
+    const typesTarget: d.OutputTargetTypes = {
+      type: 'types',
+      dir: '/dist/types',
+      empty: true,
+      skipInDev: true,
+    };
+    config.outputTargets = [loaderBundleTarget, typesTarget];
 
     writeExportMaps(config, buildCtx);
 
@@ -57,11 +62,18 @@ describe('writeExportMaps', () => {
   });
 
   it('should generate the default exports for the custom elements build if present', () => {
+    const typesTarget: d.OutputTargetTypes = {
+      type: 'types',
+      dir: '/dist/types',
+      empty: true,
+      skipInDev: true,
+    };
     config.outputTargets = [
       {
         type: 'standalone',
         dir: '/dist/components',
       },
+      typesTarget,
     ];
 
     writeExportMaps(config, buildCtx);
@@ -71,7 +83,7 @@ describe('writeExportMaps', () => {
       `npm pkg set "exports[.][import]"="./dist/components/index.js"`,
     );
     expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][types]"="./dist/components/index.d.ts"`,
+      `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
     );
   });
 
@@ -102,10 +114,18 @@ describe('writeExportMaps', () => {
 
   it('should generate the custom elements exports if the output target is present', () => {
     config.rootDir = '/';
-    config.outputTargets.push({
-      type: 'standalone',
-      dir: '/dist/components',
-    });
+    config.outputTargets.push(
+      {
+        type: 'standalone',
+        dir: '/dist/components',
+      },
+      {
+        type: 'types',
+        dir: '/dist/types',
+        empty: true,
+        skipInDev: true,
+      },
+    );
 
     buildCtx.components = [
       stubComponentCompilerMeta({
@@ -116,6 +136,7 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
+    // 2 for root export (import + types) + 2 for component export
     expect(execSyncMock).toHaveBeenCalledTimes(4);
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
@@ -127,10 +148,18 @@ describe('writeExportMaps', () => {
 
   it('should generate the custom elements exports for multiple components', () => {
     config.rootDir = '/';
-    config.outputTargets.push({
-      type: 'standalone',
-      dir: '/dist/components',
-    });
+    config.outputTargets.push(
+      {
+        type: 'standalone',
+        dir: '/dist/components',
+      },
+      {
+        type: 'types',
+        dir: '/dist/types',
+        empty: true,
+        skipInDev: true,
+      },
+    );
 
     buildCtx.components = [
       stubComponentCompilerMeta({
@@ -145,6 +174,7 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
+    // 2 for root export (import + types) + 4 for component exports (2 each)
     expect(execSyncMock).toHaveBeenCalledTimes(6);
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
