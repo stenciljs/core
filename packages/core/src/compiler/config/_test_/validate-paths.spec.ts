@@ -102,41 +102,18 @@ describe('validatePaths', () => {
     expect((config.outputTargets as d.OutputTargetWww[])[0].empty).toBe(false);
   });
 
-  it('should set default collection dir and convert to absolute path', () => {
-    userConfig.outputTargets = [
-      {
-        type: 'dist',
-      },
-    ];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
-      'collection',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
-      true,
-    );
-  });
-
-  it('should set default types dir and convert to absolute path', () => {
-    userConfig.outputTargets = [
-      {
-        type: 'dist',
-      },
-    ];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(
-      'types',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(true);
-  });
+  // v5: collectionDir and typesDir are now separate output targets (stencil-meta and types)
+  // These properties no longer exist on loader-bundle output target
 
   it('should set default build dir and convert to absolute path', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     // the path will be normalized by Stencil us use '/', split on that regardless of platform
-    const parts = (config.outputTargets as d.OutputTargetDist[])[0].buildDir!.split('/');
+    const parts = (config.outputTargets as d.OutputTargetLoaderBundle[])[0].buildDir!.split('/');
     expect(parts[parts.length - 1]).toBe('build');
     expect(parts[parts.length - 2]).toBe('www');
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].buildDir!)).toBe(true);
+    expect(
+      path.isAbsolute((config.outputTargets as d.OutputTargetLoaderBundle[])[0].buildDir!),
+    ).toBe(true);
   });
 
   it('should set build dir w/ custom www', () => {
@@ -148,10 +125,12 @@ describe('validatePaths', () => {
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     // the path will be normalized by Stencil us use '/', split on that regardless of platform
-    const parts = (config.outputTargets as d.OutputTargetDist[])[0].buildDir!.split('/');
+    const parts = (config.outputTargets as d.OutputTargetLoaderBundle[])[0].buildDir!.split('/');
     expect(parts[parts.length - 1]).toBe('build');
     expect(parts[parts.length - 2]).toBe('custom-www');
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].buildDir!)).toBe(true);
+    expect(
+      path.isAbsolute((config.outputTargets as d.OutputTargetLoaderBundle[])[0].buildDir!),
+    ).toBe(true);
   });
 
   it('should set default src dir and convert to absolute path', () => {

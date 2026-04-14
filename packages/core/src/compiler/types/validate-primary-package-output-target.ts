@@ -56,21 +56,20 @@ export type PrimaryPackageOutputTargetRecommendedConfig = {
  * it will generate recommended values for certain `package.json` fields.
  */
 export const PRIMARY_PACKAGE_TARGET_CONFIGS = {
-  dist: {
+  'loader-bundle': {
     getModulePath: (rootDir: string, outputTargetDir: string) =>
       normalizePath(relative(rootDir, join(outputTargetDir, 'index.js'))),
-    getTypesPath: (rootDir: string, outputTargetConfig: any) =>
-      normalizePath(relative(rootDir, join(outputTargetConfig.typesDir!, 'index.d.ts'))),
+    getTypesPath: () => null, // Types are now a separate output target
     getMainPath: (rootDir: string, outputTargetDir: string) =>
       normalizePath(relative(rootDir, join(outputTargetDir, 'index.cjs.js'))),
   },
-  'dist-collection': {
+  'stencil-meta': {
     getModulePath: (rootDir: string, outputTargetDir: string) =>
       normalizePath(relative(rootDir, join(outputTargetDir, 'index.js'))),
     getTypesPath: () => null,
     getMainPath: () => null,
   },
-  'dist-custom-elements': {
+  standalone: {
     getModulePath: (rootDir: string, outputTargetDir: string) =>
       normalizePath(relative(rootDir, join(outputTargetDir, 'index.js'))),
     getTypesPath: (rootDir: string, outputTargetConfig: any) => {
@@ -80,10 +79,10 @@ export const PRIMARY_PACKAGE_TARGET_CONFIGS = {
     },
     getMainPath: () => null,
   },
-  'dist-types': {
+  types: {
     getModulePath: () => null,
     getTypesPath: (rootDir: string, outputTargetConfig: any) =>
-      normalizePath(relative(rootDir, join(outputTargetConfig.typesDir, 'index.d.ts'))),
+      normalizePath(relative(rootDir, join(outputTargetConfig.dir, 'index.d.ts'))),
     getMainPath: () => null,
   },
 } satisfies Record<

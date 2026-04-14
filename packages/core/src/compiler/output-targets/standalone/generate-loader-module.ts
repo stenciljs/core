@@ -13,7 +13,7 @@ import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-id
  */
 export const generateLoaderModule = (
   components: d.ComponentCompilerMeta[],
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ): string => {
   const autoLoaderConfig = outputTarget.autoLoader;
   const autoStart =

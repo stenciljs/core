@@ -11,12 +11,6 @@ import {
   SSR,
   STENCIL_META,
   TYPES,
-  // v4 deprecated aliases
-  DIST,
-  DIST_COLLECTION,
-  DIST_CUSTOM_ELEMENTS,
-  DIST_HYDRATE_SCRIPT,
-  DIST_TYPES,
   // Internal output targets
   DIST_GLOBAL_STYLES,
   DIST_LAZY,
@@ -136,68 +130,28 @@ export const getComponentsDtsSrcFilePath = (config: d.ValidatedConfig) =>
   join(config.srcDir, GENERATED_DTS);
 
 /**
- * Helper to get an appropriate file path for `components.d.ts` for a `"dist"`
- * or `"dist-types"` output target.
+ * Helper to get an appropriate file path for `components.d.ts` for an output target.
  *
- * @param outputTarget the output target of interest
+ * @param typesDir the directory where types are generated
  * @returns a properly-formatted path
  */
-export const getComponentsDtsTypesFilePath = (
-  outputTarget: Required<d.OutputTargetDist> | d.OutputTargetDistTypes,
-) => join(outputTarget.typesDir, GENERATED_DTS);
+export const getComponentsDtsTypesFilePath = (typesDir: string) => join(typesDir, GENERATED_DTS);
 
 // ==================== v5 Output Target Type Guards ====================
 
-export const isOutputTargetLoaderBundle = (
-  o: d.OutputTarget,
-): o is d.OutputTargetLoaderBundle => o.type === LOADER_BUNDLE;
+export const isOutputTargetLoaderBundle = (o: d.OutputTarget): o is d.OutputTargetLoaderBundle =>
+  o.type === LOADER_BUNDLE;
 
-export const isOutputTargetStandalone = (
-  o: d.OutputTarget,
-): o is d.OutputTargetStandalone => o.type === STANDALONE;
+export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTargetStandalone =>
+  o.type === STANDALONE;
 
 export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
 
-export const isOutputTargetStencilMeta = (
-  o: d.OutputTarget,
-): o is d.OutputTargetStencilMeta => o.type === STENCIL_META;
+export const isOutputTargetStencilMeta = (o: d.OutputTarget): o is d.OutputTargetStencilMeta =>
+  o.type === STENCIL_META;
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;
-
-// ==================== v4 Deprecated Type Guards (for backward compatibility) ====================
-
-/**
- * @deprecated Use isOutputTargetLoaderBundle instead. This alias will be removed in v6.
- */
-export const isOutputTargetDist = (o: d.OutputTarget): o is d.OutputTargetDist =>
-  o.type === DIST || o.type === LOADER_BUNDLE;
-
-/**
- * @deprecated Use isOutputTargetStencilMeta instead. This alias will be removed in v6.
- */
-export const isOutputTargetDistCollection = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistCollection => o.type === DIST_COLLECTION || o.type === STENCIL_META;
-
-/**
- * @deprecated Use isOutputTargetStandalone instead. This alias will be removed in v6.
- */
-export const isOutputTargetDistCustomElements = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistCustomElements => o.type === DIST_CUSTOM_ELEMENTS || o.type === STANDALONE;
-
-/**
- * @deprecated Use isOutputTargetSsr instead. This alias will be removed in v6.
- */
-export const isOutputTargetHydrate = (o: d.OutputTarget): o is d.OutputTargetHydrate =>
-  o.type === DIST_HYDRATE_SCRIPT || o.type === SSR;
-
-/**
- * @deprecated Use isOutputTargetTypes instead. This alias will be removed in v6.
- */
-export const isOutputTargetDistTypes = (o: d.OutputTarget): o is d.OutputTargetDistTypes =>
-  o.type === DIST_TYPES || o.type === TYPES;
 
 // ==================== Other Output Target Type Guards ====================
 
@@ -262,10 +216,10 @@ export const isOutputTargetStats = (o: d.OutputTarget): o is d.OutputTargetStats
 export const isEligiblePrimaryPackageOutputTarget = (
   o: d.OutputTarget,
 ): o is d.EligiblePrimaryPackageOutputTarget =>
-  isOutputTargetDist(o) ||
-  isOutputTargetDistCollection(o) ||
-  isOutputTargetDistCustomElements(o) ||
-  isOutputTargetDistTypes(o);
+  isOutputTargetLoaderBundle(o) ||
+  isOutputTargetStencilMeta(o) ||
+  isOutputTargetStandalone(o) ||
+  isOutputTargetTypes(o);
 
 /**
  * Retrieve the Stencil component compiler metadata from a collection of Stencil {@link d.Module}s

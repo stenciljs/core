@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
+import { isOutputTargetCopy, isOutputTargetSsr, isOutputTargetWww, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateOutputTargetWww', () => {
@@ -307,10 +307,10 @@ describe('validateOutputTargetWww', () => {
     });
   });
 
-  describe('dist-hydrate-script', () => {
+  describe('ssr', () => {
     it('should not add hydrate by default', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
@@ -320,7 +320,7 @@ describe('validateOutputTargetWww', () => {
       };
       userConfig.outputTargets = [wwwOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
@@ -328,37 +328,37 @@ describe('validateOutputTargetWww', () => {
       const wwwOutputTarget: d.OutputTargetWww = {
         type: 'www',
       };
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
       };
       userConfig.outputTargets = [wwwOutputTarget, hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with prerender config', () => {
       userConfig.prerender = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with ssr config', () => {
       userConfig.ssr = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add externals and defaults', () => {
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
         external: ['lodash', 'left-pad'],
       };
       userConfig.outputTargets = [hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
+      const o = config.outputTargets.find(isOutputTargetSsr) as d.OutputTargetSsr;
       expect(o.external).toContain('lodash');
       expect(o.external).toContain('left-pad');
       expect(o.external).toContain('fs');
@@ -370,7 +370,7 @@ describe('validateOutputTargetWww', () => {
       userConfig.prerender = true;
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
+      const o = config.outputTargets.find(isOutputTargetSsr) as d.OutputTargetSsr;
       expect(o.external).toContain('fs');
       expect(o.external).toContain('path');
       expect(o.external).toContain('crypto');

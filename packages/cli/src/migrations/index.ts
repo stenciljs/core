@@ -3,6 +3,7 @@ import ts from 'typescript';
 import { buildDistDocsRule } from './rules/build-dist-docs';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
+import { outputTargetRenamesRule } from './rules/output-target-renames';
 
 /**
  * Build a map of local import names to their original names from @stencil/core.
@@ -110,6 +111,7 @@ const migrationRules: MigrationRule[] = [
   encapsulationApiRule,
   formAssociatedRule,
   buildDistDocsRule,
+  outputTargetRenamesRule,
 ];
 
 /**

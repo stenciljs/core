@@ -310,9 +310,9 @@ describe('validation', () => {
     expect(config.devInspector).toBe(true);
   });
 
-  it('should default dist false and www true', () => {
+  it('should default loader-bundle false and www true', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.outputTargets.some((o) => o.type === 'dist')).toBe(false);
+    expect(config.outputTargets.some((o) => o.type === 'loader-bundle')).toBe(false);
     expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
   });
 

@@ -3,13 +3,14 @@ import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/cor
 import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { STANDALONE } from '../../../../utils';
 import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
 import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
 import { addCustomElementInputs, bundleCustomElements } from '../index';
 
-describe('dist-custom-elements', () => {
+describe('standalone', () => {
   it('should export plain component', () => {
     const cmpMeta = stubComponentCompilerMeta({
       isPlain: true,
@@ -24,8 +25,8 @@ describe('dist-custom-elements', () => {
       inputs: {},
       loader: {},
     };
-    const outputTarget: d.OutputTargetDistCustomElements = {
-      type: 'dist-custom-elements',
+    const outputTarget: d.OutputTargetStandalone = {
+      type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
     addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
@@ -48,8 +49,8 @@ describe('dist-custom-elements', () => {
       inputs: {},
       loader: {},
     };
-    const outputTarget: d.OutputTargetDistCustomElements = {
-      type: 'dist-custom-elements',
+    const outputTarget: d.OutputTargetStandalone = {
+      type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
     addCustomElementInputs(buildCtx, bundleOpts, outputTarget);
@@ -109,8 +110,8 @@ describe('dist-custom-elements', () => {
       const buildCtx = mockBuildCtx(config, compilerCtx);
       buildCtx.components = [stubComponentCompilerMeta()];
 
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: 'dist-custom-elements',
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         dir: path.join(config.rootDir, 'dist'),
         customElementsExportBehavior: 'single-export-module',
         minify: true,
@@ -133,8 +134,8 @@ describe('dist-custom-elements', () => {
       const buildCtx = mockBuildCtx(config, compilerCtx);
       buildCtx.components = [stubComponentCompilerMeta()];
 
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: 'dist-custom-elements',
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         dir: path.join(config.rootDir, 'dist'),
         customElementsExportBehavior: 'single-export-module',
         minify: false,
@@ -157,8 +158,8 @@ describe('dist-custom-elements', () => {
       const buildCtx = mockBuildCtx(config, compilerCtx);
       buildCtx.components = [stubComponentCompilerMeta()];
 
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: 'dist-custom-elements',
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         dir: path.join(config.rootDir, 'dist'),
         customElementsExportBehavior: 'single-export-module',
         // minify is undefined, should use config.minifyJs

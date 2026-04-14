@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import {
   COLLECTION_MANIFEST_FILE_NAME,
   isGlob,
-  isOutputTargetDistCollection,
+  isOutputTargetStencilMeta,
   isString,
   join,
   normalizePath,
@@ -35,29 +35,29 @@ export const validateBuildPackageJson = async (
   // target that is bundled with their distribution
   validatePrimaryPackageOutputTarget(config, compilerCtx, buildCtx);
 
-  const distCollectionOutputTargets = config.outputTargets.filter(isOutputTargetDistCollection);
+  const stencilMetaOutputTargets = config.outputTargets.filter(isOutputTargetStencilMeta);
   await Promise.all(
-    distCollectionOutputTargets.map((distCollectionOT) =>
-      validateDistCollectionPkgJson(config, compilerCtx, buildCtx, distCollectionOT),
+    stencilMetaOutputTargets.map((stencilMetaOT) =>
+      validateStencilMetaPkgJson(config, compilerCtx, buildCtx, stencilMetaOT),
     ),
   );
 };
 
 /**
- * Validate package.json contents for the `DIST_COLLECTION` output target,
+ * Validate package.json contents for the `STENCIL_META` output target,
  * checking that various fields like `files`, `main`, and so on are set
  * correctly.
  *
  * @param config the stencil config
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
- * @param outputTarget a DIST_COLLECTION output target
+ * @param outputTarget a STENCIL_META output target
  */
-const validateDistCollectionPkgJson = async (
+const validateStencilMetaPkgJson = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection,
+  outputTarget: d.OutputTargetStencilMeta,
 ) => {
   await Promise.all([
     validatePackageFiles(config, compilerCtx, buildCtx, outputTarget),
@@ -69,18 +69,18 @@ const validateDistCollectionPkgJson = async (
 
 /**
  * Validate that the `files` field in `package.json` contains directories and
- * files that are necessary for the `DIST_COLLECTION` output target.
+ * files that are necessary for the `STENCIL_META` output target.
  *
  * @param config the stencil config
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
- * @param outputTarget a DIST_COLLECTION output target
+ * @param outputTarget a STENCIL_META output target
  */
 export const validatePackageFiles = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection,
+  outputTarget: d.OutputTargetStencilMeta,
 ) => {
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
@@ -121,18 +121,18 @@ export const validatePackageFiles = async (
 
 /**
  * Check that the `main` field is set correctly in `package.json` for the
- * `DIST_COLLECTION` output target.
+ * `STENCIL_META` output target.
  *
  * @param config the stencil config
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
- * @param outputTarget a DIST_COLLECTION output target
+ * @param outputTarget a STENCIL_META output target
  */
 export const validateMain = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection,
+  outputTarget: d.OutputTargetStencilMeta,
 ) => {
   const mainAbs = join(outputTarget.dir, 'index.cjs.js');
   const mainRel = relative(config.rootDir, mainAbs);
@@ -148,22 +148,22 @@ export const validateMain = (
 
 /**
  * Check that the `collection` field is set correctly in `package.json` for the
- * `DIST_COLLECTION` output target.
+ * `STENCIL_META` output target.
  *
  * @param config the stencil config
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
- * @param outputTarget a DIST_COLLECTION output target
+ * @param outputTarget a STENCIL_META output target
  */
 export const validateCollection = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCollection,
+  outputTarget: d.OutputTargetStencilMeta,
 ) => {
-  if (outputTarget.collectionDir) {
+  if (outputTarget.dir) {
     const collectionRel = normalizePath(
-      join(relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME),
+      join(relative(config.rootDir, outputTarget.dir), COLLECTION_MANIFEST_FILE_NAME),
       false,
     );
     if (
@@ -178,7 +178,7 @@ export const validateCollection = (
 
 /**
  * Check that the `browser` field is set correctly in `package.json` for the
- * `DIST_COLLECTION` output target.
+ * `STENCIL_META` output target.
  *
  * @param config the stencil config
  * @param compilerCtx the current compiler context

@@ -1,7 +1,12 @@
-import type { OutputTarget, OutputTargetCopy, OutputTargetStandalone, ValidatedConfig } from '@stencil/core';
+import type {
+  OutputTarget,
+  OutputTargetCopy,
+  OutputTargetStandalone,
+  ValidatedConfig,
+} from '@stencil/core';
 
 import { CustomElementsExportBehaviorOptions } from '../../../declarations/stencil-public-compiler';
-import { COPY, isBoolean, isOutputTargetStandalone, join } from '../../../utils';
+import { COPY, isBoolean, isOutputTargetStandalone } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 
@@ -39,9 +44,6 @@ export const validateStandalone = (
       }
       if (!isBoolean(outputTarget.externalRuntime)) {
         outputTarget.externalRuntime = true;
-      }
-      if (!isBoolean(outputTarget.generateTypeDeclarations)) {
-        outputTarget.generateTypeDeclarations = true;
       }
 
       // Export behavior must be defined on the validated target config and must
@@ -84,8 +86,3 @@ export const validateStandalone = (
     [] as (OutputTargetStandalone | OutputTargetCopy)[],
   );
 };
-
-/**
- * @deprecated Use validateStandalone instead. This alias will be removed in v6.
- */
-export const validateCustomElement = validateStandalone;

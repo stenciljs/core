@@ -10,14 +10,13 @@ describe('validate-package-json', () => {
   let config: d.ValidatedConfig;
   let compilerCtx: d.CompilerCtx;
   let buildCtx: d.BuildCtx;
-  let collectionOutputTarget: d.OutputTargetDistCollection;
+  let collectionOutputTarget: d.OutputTargetStencilMeta;
   const root = path.resolve('/');
 
   beforeEach(async () => {
     collectionOutputTarget = {
-      type: 'dist-collection',
-      dir: '/dist',
-      collectionDir: '/dist/collection',
+      type: 'stencil-meta',
+      dir: '/dist/collection',
     };
 
     const namespace = 'SomeNamespace';

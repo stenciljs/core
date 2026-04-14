@@ -3,9 +3,9 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { validateConfig } from '../../config/validate-config';
-import { getCustomElementsBuildConditionals } from '../dist-custom-elements/custom-elements-build-conditionals';
-import { getHydrateBuildConditionals } from '../dist-hydrate-script/hydrate-build-conditionals';
 import { getLazyBuildConditionals } from '../dist-lazy/lazy-build-conditionals';
+import { getHydrateBuildConditionals } from '../ssr/hydrate-build-conditionals';
+import { getCustomElementsBuildConditionals } from '../standalone/custom-elements-build-conditionals';
 
 describe('build-conditionals', () => {
   let userConfig: d.Config;
@@ -63,8 +63,8 @@ describe('build-conditionals', () => {
     });
 
     it('hydrateClientSide true', () => {
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
       };
       userConfig.outputTargets = [hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
@@ -134,8 +134,8 @@ describe('build-conditionals', () => {
     });
 
     it('hydrateClientSide true', () => {
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
       };
       userConfig.outputTargets = [hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());

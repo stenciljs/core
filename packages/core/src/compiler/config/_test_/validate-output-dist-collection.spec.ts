@@ -2,25 +2,24 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { join, resolve } from '../../../utils';
+import { join, resolve, STENCIL_META } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
-describe('validateDistCollectionOutputTarget', () => {
+describe('validateStencilMetaOutputTarget', () => {
   let config: d.Config;
 
   const rootDir = resolve('/');
-  const defaultDir = join(rootDir, 'dist', 'collection');
+  const defaultDir = join(rootDir, 'dist', 'stencil-meta');
 
   beforeEach(() => {
     config = mockConfig();
   });
 
   it('sets correct default values', () => {
-    const target: d.OutputTargetDistCollection = {
-      type: 'dist-collection',
+    const target: d.OutputTargetStencilMeta = {
+      type: STENCIL_META,
       empty: false,
       dir: null,
-      collectionDir: null,
     };
     config.outputTargets = [target];
 
@@ -28,21 +27,19 @@ describe('validateDistCollectionOutputTarget', () => {
 
     expect(validatedConfig.outputTargets).toEqual([
       {
-        type: 'dist-collection',
+        type: STENCIL_META,
         empty: false,
         dir: defaultDir,
-        collectionDir: null,
         transformAliasedImportPaths: true,
       },
     ]);
   });
 
   it('sets specified directory', () => {
-    const target: d.OutputTargetDistCollection = {
-      type: 'dist-collection',
+    const target: d.OutputTargetStencilMeta = {
+      type: STENCIL_META,
       empty: false,
       dir: '/my-dist',
-      collectionDir: null,
     };
     config.outputTargets = [target];
 
@@ -50,10 +47,9 @@ describe('validateDistCollectionOutputTarget', () => {
 
     expect(validatedConfig.outputTargets).toEqual([
       {
-        type: 'dist-collection',
+        type: STENCIL_META,
         empty: false,
         dir: '/my-dist',
-        collectionDir: null,
         transformAliasedImportPaths: true,
       },
     ]);
@@ -63,11 +59,10 @@ describe('validateDistCollectionOutputTarget', () => {
     it.each([false, true])(
       "sets option '%s' when explicitly '%s' in config",
       (transformAliasedImportPaths: boolean) => {
-        const target: d.OutputTargetDistCollection = {
-          type: 'dist-collection',
+        const target: d.OutputTargetStencilMeta = {
+          type: STENCIL_META,
           empty: false,
           dir: null,
-          collectionDir: null,
           transformAliasedImportPaths,
         };
         config.outputTargets = [target];
@@ -76,10 +71,9 @@ describe('validateDistCollectionOutputTarget', () => {
 
         expect(validatedConfig.outputTargets).toEqual([
           {
-            type: 'dist-collection',
+            type: STENCIL_META,
             empty: false,
             dir: defaultDir,
-            collectionDir: null,
             transformAliasedImportPaths,
           },
         ]);

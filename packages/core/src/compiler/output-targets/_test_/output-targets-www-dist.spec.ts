@@ -23,12 +23,12 @@ describe.skip('outputTarget, www / dist / docs', () => {
           dir: 'custom-www',
           buildDir: 'www-build',
           indexHtml: 'custom-index.htm',
-        } as any as d.OutputTargetDist,
+        } as any as d.OutputTargetLoaderBundle,
         {
           type: 'dist',
           dir: 'custom-dist',
           buildDir: 'dist-build',
-          collectionDir: 'dist-collection',
+          collectionDir: 'stencil-meta',
           typesDir: 'custom-types',
         },
         {
@@ -44,7 +44,7 @@ describe.skip('outputTarget, www / dist / docs', () => {
       [path.join(root, 'User', 'testing', 'package.json')]: `{
         "module": "custom-dist/index.mjs",
         "main": "custom-dist/index.js",
-        "collection": "custom-dist/dist-collection/collection-manifest.json",
+        "collection": "custom-dist/stencil-meta/collection-manifest.json",
         "types": "custom-dist/custom-types/components.d.ts"
       }`,
       [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,

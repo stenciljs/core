@@ -2,7 +2,7 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 import type { Plugin } from 'rolldown';
 
-import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
+import { isOutputTargetSsr, isString, normalizeFsPath } from '../../utils';
 import type { BundlePlatform } from './bundle-interface';
 
 // Escape special regex characters
@@ -21,7 +21,7 @@ export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform
   };
 
   const externals = isHydrateBundle
-    ? config.outputTargets.filter(isOutputTargetHydrate).flatMap((o) => o.external)
+    ? config.outputTargets.filter(isOutputTargetSsr).flatMap((o) => o.external)
     : [];
 
   // Build filter based on what this plugin handles:

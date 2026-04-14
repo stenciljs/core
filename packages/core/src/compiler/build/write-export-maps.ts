@@ -3,7 +3,7 @@ import * as d from '@stencil/core';
 
 import {
   isEligiblePrimaryPackageOutputTarget,
-  isOutputTargetDistCustomElements,
+  isOutputTargetStandalone,
   isOutputTargetDistLazyLoader,
 } from '../../utils';
 import { relative } from '../../utils';
@@ -63,7 +63,7 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
     execSync(`npm pkg set "exports[./loader][types]"="${outDir}/index.d.ts"`);
   }
 
-  const distCustomElements = config.outputTargets.find(isOutputTargetDistCustomElements);
+  const distCustomElements = config.outputTargets.find(isOutputTargetStandalone);
   if (distCustomElements != null) {
     // Calculate relative path from project root to custom elements output directory
     let outDir = relative(config.rootDir, distCustomElements.dir!);
@@ -73,10 +73,7 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
 
     buildCtx.components.forEach((cmp) => {
       execSync(`npm pkg set "exports[./${cmp.tagName}][import]"="${outDir}/${cmp.tagName}.js"`);
-
-      if (distCustomElements.generateTypeDeclarations) {
-        execSync(`npm pkg set "exports[./${cmp.tagName}][types]"="${outDir}/${cmp.tagName}.d.ts"`);
-      }
+      execSync(`npm pkg set "exports[./${cmp.tagName}][types]"="${outDir}/${cmp.tagName}.d.ts"`);
     });
   }
 };

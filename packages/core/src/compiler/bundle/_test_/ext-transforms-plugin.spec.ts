@@ -18,9 +18,8 @@ describe('extTransformsPlugin', () => {
       plugins: [],
       outputTargets: [
         {
-          type: 'dist-collection',
-          dir: 'dist/',
-          collectionDir: 'dist/collectionDir',
+          type: 'stencil-meta',
+          dir: 'dist/collectionDir',
         },
       ],
       srcDir: '/some/stubbed/path',

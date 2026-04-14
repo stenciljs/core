@@ -20,10 +20,9 @@ describe('validatePrimaryPackageOutputTarget', () => {
       validatePrimaryPackageOutputTarget: true,
       outputTargets: [
         {
-          type: 'dist',
+          type: 'loader-bundle',
           isPrimaryPackageOutputTarget: true,
           dir: '/dist',
-          typesDir: '/dist/types',
         },
       ],
     });
@@ -69,7 +68,7 @@ describe('validatePrimaryPackageOutputTarget', () => {
     it('should log a warning if no eligible targets were marked as `isPrimaryPackageOutputTarget`', () => {
       config.outputTargets = [
         {
-          type: 'dist',
+          type: 'loader-bundle',
         },
       ];
 
@@ -86,7 +85,7 @@ describe('validatePrimaryPackageOutputTarget', () => {
       config.outputTargets = [
         ...config.outputTargets,
         {
-          type: 'dist-custom-elements',
+          type: 'standalone',
           isPrimaryPackageOutputTarget: true,
         },
       ];
@@ -96,7 +95,7 @@ describe('validatePrimaryPackageOutputTarget', () => {
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toEqual('warn');
       expect(buildCtx.diagnostics[0].messageText).toEqual(
-        `Your Stencil config has multiple output targets with 'isPrimaryPackageOutputTarget: true'. Stencil does not support validating 'package.json' fields for multiple output targets. Please remove the 'isPrimaryPackageOutputTarget' flag from all but one of the following output targets: dist, dist-custom-elements. For now, Stencil will use the first primary target it finds. You can read more about primary package output targets in the Stencil docs: https://stenciljs.com/docs/output-targets#primary-package-output-target-validation`,
+        `Your Stencil config has multiple output targets with 'isPrimaryPackageOutputTarget: true'. Stencil does not support validating 'package.json' fields for multiple output targets. Please remove the 'isPrimaryPackageOutputTarget' flag from all but one of the following output targets: dist, standalone. For now, Stencil will use the first primary target it finds. You can read more about primary package output targets in the Stencil docs: https://stenciljs.com/docs/output-targets#primary-package-output-target-validation`,
       );
     });
   });
@@ -106,7 +105,7 @@ describe('validatePrimaryPackageOutputTarget', () => {
       delete buildCtx.packageJson.module;
 
       const targetToValidate: d.EligiblePrimaryPackageOutputTarget = {
-        type: 'dist',
+        type: 'loader-bundle',
         dir: '/dist',
       };
       const recommendedOutputTargetConfig = PRIMARY_PACKAGE_TARGET_CONFIGS[targetToValidate.type];
@@ -129,26 +128,25 @@ describe('validatePrimaryPackageOutputTarget', () => {
     describe.each<[d.EligiblePrimaryPackageOutputTarget & { toString(): string }, string]>([
       [
         {
-          type: 'dist',
+          type: 'loader-bundle',
           dir: '/dist',
-          toString: () => 'dist',
+          toString: () => 'loader-bundle',
         },
         './dist/index.js',
       ],
       [
         {
-          type: 'dist-collection',
-          dir: '/dist',
-          collectionDir: '/dist/collection',
-          toString: () => 'dist-collection',
+          type: 'stencil-meta',
+          dir: '/dist/collection',
+          toString: () => 'stencil-meta',
         },
         './dist/index.js',
       ],
       [
         {
-          type: 'dist-custom-elements',
+          type: 'standalone',
           dir: '/dist/components',
-          toString: () => 'dist-custom-elements',
+          toString: () => 'standalone',
         },
         './dist/components/index.js',
       ],
@@ -193,9 +191,8 @@ describe('validatePrimaryPackageOutputTarget', () => {
 
     beforeEach(() => {
       targetToValidate = {
-        type: 'dist-types',
+        type: 'types',
         dir: '/dist/types',
-        typesDir: '/dist/types',
       };
       recommendedOutputTargetConfig = PRIMARY_PACKAGE_TARGET_CONFIGS[targetToValidate.type];
     });
@@ -257,28 +254,26 @@ describe('validatePrimaryPackageOutputTarget', () => {
     describe.each<[d.EligiblePrimaryPackageOutputTarget & { toString(): string }, string]>([
       [
         {
-          type: 'dist',
+          type: 'loader-bundle',
           dir: '/dist',
-          typesDir: '/dist/types',
-          toString: () => 'dist',
+          toString: () => 'loader-bundle',
         },
         './dist/types/index.d.ts',
       ],
       [
         {
-          type: 'dist-types',
+          type: 'types',
           dir: '/dist',
-          typesDir: '/dist/types',
           toString: () => 'dist-types',
         },
         './dist/types/index.d.ts',
       ],
       [
         {
-          type: 'dist-custom-elements',
+          type: 'standalone',
           dir: '/dist/components',
-          generateTypeDeclarations: true,
-          toString: () => 'dist-custom-elements',
+
+          toString: () => 'standalone',
         },
         './dist/components/index.d.ts',
       ],

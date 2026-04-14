@@ -1,4 +1,4 @@
-import { isOutputTargetHydrate, isOutputTargetWww } from '@stencil/core/compiler/utils';
+import { isOutputTargetSsr, isOutputTargetWww } from '@stencil/core/compiler/utils';
 import type * as d from '@stencil/core/compiler';
 
 import { readConfig, updateConfig, writeConfig } from '../ionic-config';
@@ -308,7 +308,7 @@ export const anonymizeConfigForTelemetry = (config: d.ValidatedConfig): d.Config
     // members, giving us `["omitted", "omitted", ...]`.
     //
     // Instead, we check for its presence and manually copy over.
-    if (isOutputTargetHydrate(target) && target.external) {
+    if (isOutputTargetSsr(target) && target.external) {
       anonymizedOT['external'] = target.external.concat();
     }
     return anonymizedOT;

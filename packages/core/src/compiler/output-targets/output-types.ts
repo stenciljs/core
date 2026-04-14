@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { isOutputTargetDistTypes } from '../../utils';
+import { isOutputTargetTypes } from '../../utils';
 import { generateTypes } from '../types/generate-types';
 
 /**
@@ -14,7 +14,7 @@ export const outputTypes = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetDistTypes);
+  const outputTargets = config.outputTargets.filter(isOutputTargetTypes);
   if (outputTargets.length === 0) {
     return;
   }

@@ -2,7 +2,12 @@ import MagicString from 'magic-string';
 import * as ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '../../../utils';
+import {
+  catchError,
+  isOutputTargetLoaderBundle,
+  isOutputTargetDistLazy,
+  sortBy,
+} from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   LAZY_BROWSER_ENTRY_ID,
@@ -43,7 +48,7 @@ export const outputLazy = async (
       platform: 'client',
       conditionals: getLazyBuildConditionals(config, buildCtx.components),
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
-      inlineWorkers: config.outputTargets.some(isOutputTargetDist),
+      inlineWorkers: config.outputTargets.some(isOutputTargetLoaderBundle),
       inputs: {
         [config.fsNamespace]: LAZY_BROWSER_ENTRY_ID,
         loader: LAZY_EXTERNAL_ENTRY_ID,

@@ -31,13 +31,18 @@ describe('writeExportMaps', () => {
   });
 
   it('should generate the default exports for the lazy build if present', () => {
-    config.outputTargets = [
-      {
-        type: 'dist',
-        dir: '/dist',
-        typesDir: '/dist/types',
-      },
-    ];
+    const loaderBundleTarget: d.OutputTargetLoaderBundle = {
+      type: 'loader-bundle',
+      dir: '/dist',
+      buildDir: '/dist',
+      esmLoaderPath: '/dist/loader',
+      copy: [],
+      empty: true,
+      isPrimaryPackageOutputTarget: false,
+      cjs: true,
+      skipInDev: false,
+    };
+    config.outputTargets = [loaderBundleTarget];
 
     writeExportMaps(config, buildCtx);
 
@@ -54,9 +59,8 @@ describe('writeExportMaps', () => {
   it('should generate the default exports for the custom elements build if present', () => {
     config.outputTargets = [
       {
-        type: 'dist-custom-elements',
+        type: 'standalone',
         dir: '/dist/components',
-        generateTypeDeclarations: true,
       },
     ];
 
@@ -99,9 +103,8 @@ describe('writeExportMaps', () => {
   it('should generate the custom elements exports if the output target is present', () => {
     config.rootDir = '/';
     config.outputTargets.push({
-      type: 'dist-custom-elements',
+      type: 'standalone',
       dir: '/dist/components',
-      generateTypeDeclarations: true,
     });
 
     buildCtx.components = [
@@ -125,9 +128,8 @@ describe('writeExportMaps', () => {
   it('should generate the custom elements exports for multiple components', () => {
     config.rootDir = '/';
     config.outputTargets.push({
-      type: 'dist-custom-elements',
+      type: 'standalone',
       dir: '/dist/components',
-      generateTypeDeclarations: true,
     });
 
     buildCtx.components = [

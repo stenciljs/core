@@ -30,7 +30,7 @@ const buildHydrateAppFor = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTargets: d.OutputTargetHydrate[],
+  outputTargets: d.OutputTargetSsr[],
 ) => {
   const file = format === 'esm' ? 'index.js' : 'index.cjs';
   const rolldownOutput = await rolldownBuild.generate({
@@ -54,7 +54,7 @@ export const generateHydrateApp = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTargets: d.OutputTargetHydrate[],
+  outputTargets: d.OutputTargetSsr[],
 ) => {
   try {
     const packageDir = join(config.sys.getCompilerExecutingPath(), '..', '..');

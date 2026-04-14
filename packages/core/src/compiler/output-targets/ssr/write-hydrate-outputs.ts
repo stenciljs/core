@@ -10,7 +10,7 @@ export const writeHydrateOutputs = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTargets: d.OutputTargetHydrate[],
+  outputTargets: d.OutputTargetSsr[],
   rolldownOutput: RolldownOutput,
 ) => {
   return Promise.all(
@@ -24,7 +24,7 @@ const writeHydrateOutput = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetHydrate,
+  outputTarget: d.OutputTargetSsr,
   rolldownOutput: RolldownOutput,
 ) => {
   const hydrateAppDirPath = outputTarget.dir;

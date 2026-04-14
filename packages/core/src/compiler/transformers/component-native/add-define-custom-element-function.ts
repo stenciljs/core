@@ -16,7 +16,7 @@ import { createImportStatement, getModuleFromSourceFile } from '../transform-uti
 export const addDefineCustomElementFunctions = (
   compilerCtx: d.CompilerCtx,
   components: d.ComponentCompilerMeta[],
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return () => {
     return (tsSourceFile: ts.SourceFile): ts.SourceFile => {

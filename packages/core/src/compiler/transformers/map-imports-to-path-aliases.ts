@@ -21,7 +21,7 @@ import { retrieveTsModifiers } from './transform-utils';
 export const mapImportsToPathAliases = (
   config: d.ValidatedConfig,
   destinationFilePath: string,
-  outputTarget: d.OutputTargetDistCollection,
+  outputTarget: d.OutputTargetStencilMeta,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     const compilerHost = ts.createCompilerHost(config.tsCompilerOptions);
@@ -73,7 +73,7 @@ export const mapImportsToPathAliases = (
               // file structure depth, we need to determine where the resolved file exists relative to the destination directory
               const resolvePathInDestination = module.resolvedModule.resolvedFileName.replace(
                 config.srcDir,
-                outputTarget.collectionDir,
+                outputTarget.dir!,
               );
 
               importPath = normalizePath(

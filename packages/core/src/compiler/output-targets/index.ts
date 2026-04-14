@@ -1,15 +1,15 @@
 import type * as d from '@stencil/core';
 
 import { outputCopy } from './copy/output-copy';
-import { outputStencilMeta } from './stencil-meta';
-import { outputStandalone } from './standalone';
-import { outputSsr } from './ssr';
 import { outputLazy } from './dist-lazy/lazy-output';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
 import { outputLazyLoader } from './output-lazy-loader';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
+import { outputSsr } from './ssr';
+import { outputStandalone } from './standalone';
+import { outputStencilMeta } from './stencil-meta';
 
 export const generateOutputTargets = async (
   config: d.ValidatedConfig,

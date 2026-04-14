@@ -9,10 +9,10 @@ import {
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { DIST_CUSTOM_ELEMENTS, normalizePath } from '../../../utils';
+import { STANDALONE, normalizePath } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
-import * as outputCustomElementsMod from '../dist-custom-elements';
-import { generateCustomElementsTypes } from '../dist-custom-elements/custom-elements-types';
+import * as outputCustomElementsMod from '../standalone';
+import { generateCustomElementsTypes } from '../standalone/custom-elements-types';
 
 const setup = () => {
   const sys = mockCompilerSystem();
@@ -20,7 +20,7 @@ const setup = () => {
     configPath: '/testing-path',
     buildAppCore: true,
     namespace: 'TestApp',
-    outputTargets: [{ type: DIST_CUSTOM_ELEMENTS, dir: 'my-best-dir' }],
+    outputTargets: [{ type: STANDALONE, dir: 'my-best-dir' }],
     srcDir: '/src',
     sys,
   });
@@ -60,7 +60,7 @@ describe('Custom Elements Typedef generation', () => {
         tagName: 'my-best-component',
       });
       ({ config, compilerCtx, buildCtx } = setup());
-      (config.outputTargets[0] as d.OutputTargetDistCustomElements).customElementsExportBehavior =
+      (config.outputTargets[0] as d.OutputTargetStandalone).customElementsExportBehavior =
         'single-export-module';
       buildCtx.components = [componentOne, componentTwo];
 
@@ -122,13 +122,13 @@ describe('Custom Elements Typedef generation', () => {
         'my-best-dir/index.d.ts',
         expectedTypedefOutput,
         {
-          outputTargetType: DIST_CUSTOM_ELEMENTS,
+          outputTargetType: STANDALONE,
         },
       );
     });
 
     it('should generate an index.d.ts file corresponding to the index.js file when outputting to top-level of dist', async () => {
-      (config.outputTargets[0] as d.OutputTargetDistCustomElements).dir = 'dist';
+      (config.outputTargets[0] as d.OutputTargetStandalone).dir = 'dist';
 
       await generateCustomElementsTypes(config, compilerCtx, buildCtx, 'dist/types_dir');
 
@@ -180,7 +180,7 @@ describe('Custom Elements Typedef generation', () => {
         'dist/index.d.ts',
         expectedTypedefOutput,
         {
-          outputTargetType: DIST_CUSTOM_ELEMENTS,
+          outputTargetType: STANDALONE,
         },
       );
     });
@@ -248,7 +248,7 @@ describe('Custom Elements Typedef generation', () => {
       'my-best-dir/index.d.ts',
       expectedTypedefOutput,
       {
-        outputTargetType: DIST_CUSTOM_ELEMENTS,
+        outputTargetType: STANDALONE,
       },
     );
 
@@ -266,8 +266,7 @@ describe('Custom Elements Typedef generation', () => {
       tagName: 'my-best-component',
     });
     const { config, compilerCtx, buildCtx } = setup();
-    (config.outputTargets[0] as d.OutputTargetDistCustomElements).customElementsExportBehavior =
-      'bundle';
+    (config.outputTargets[0] as d.OutputTargetStandalone).customElementsExportBehavior = 'bundle';
     buildCtx.components = [componentOne, componentTwo];
 
     const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
@@ -327,7 +326,7 @@ describe('Custom Elements Typedef generation', () => {
       'my-best-dir/index.d.ts',
       expectedTypedefOutput,
       {
-        outputTargetType: DIST_CUSTOM_ELEMENTS,
+        outputTargetType: STANDALONE,
       },
     );
 

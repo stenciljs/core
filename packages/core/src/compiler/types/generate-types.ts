@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { isDtsFile, join, relative } from '../../utils';
-import { generateCustomElementsTypes } from '../output-targets/dist-custom-elements/custom-elements-types';
+import { generateCustomElementsTypes } from '../output-targets/standalone/custom-elements-types';
 import { generateAppTypes } from './generate-app-types';
 import { copyStencilCoreDts, updateStencilTypesImports } from './stencil-types';
 
@@ -16,7 +16,7 @@ export const generateTypes = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistTypes,
+  outputTarget: d.OutputTargetTypes,
 ): Promise<void> => {
   if (!buildCtx.hasError) {
     await generateTypesOutput(config, compilerCtx, buildCtx, outputTarget);
@@ -35,7 +35,7 @@ const generateTypesOutput = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistTypes,
+  outputTarget: d.OutputTargetTypes,
 ): Promise<void> => {
   // get all type declaration files in a project's src/ directory
   const srcDirItems = await compilerCtx.fs.readdir(config.srcDir, { recursive: false });
@@ -46,11 +46,11 @@ const generateTypesOutput = async (
   const copiedDTSFilePaths = await Promise.all(
     srcDtsFiles.map(async (srcDtsFile) => {
       const relPath = relative(config.srcDir, srcDtsFile.absPath);
-      const distPath = join(outputTarget.typesDir, relPath);
+      const distPath = join(outputTarget.dir!, relPath);
 
       const originalDtsContent = await compilerCtx.fs.readFile(srcDtsFile.absPath);
       const distDtsContent = updateStencilTypesImports(
-        outputTarget.typesDir,
+        outputTarget.dir!,
         distPath,
         originalDtsContent,
       );
@@ -61,9 +61,9 @@ const generateTypesOutput = async (
   );
   const distDtsFilePath = copiedDTSFilePaths.slice(-1)[0];
 
-  const distPath = outputTarget.typesDir;
+  const distPath = outputTarget.dir!;
   await generateAppTypes(config, compilerCtx, buildCtx, distPath);
-  const { typesDir } = outputTarget;
+  const typesDir = outputTarget.dir!;
 
   if (distDtsFilePath) {
     await generateCustomElementsTypes(config, compilerCtx, buildCtx, typesDir);

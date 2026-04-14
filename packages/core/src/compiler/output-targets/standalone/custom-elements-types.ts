@@ -3,14 +3,14 @@ import type * as d from '@stencil/core';
 
 import {
   dashToPascalCase,
-  isOutputTargetDistCustomElements,
+  isOutputTargetStandalone,
   join,
   normalizePath,
   relative,
 } from '../../../utils';
 
 /**
- * Entrypoint for generating types for one or more `dist-custom-elements` output targets defined in a Stencil project's
+ * Entrypoint for generating types for one or more `standalone` output targets defined in a Stencil project's
  * configuration
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
@@ -23,7 +23,7 @@ export const generateCustomElementsTypes = async (
   buildCtx: d.BuildCtx,
   typesDir: string,
 ): Promise<void> => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetDistCustomElements);
+  const outputTargets = config.outputTargets.filter(isOutputTargetStandalone);
 
   await Promise.all(
     outputTargets.map((outputTarget) =>
@@ -33,7 +33,7 @@ export const generateCustomElementsTypes = async (
 };
 
 /**
- * Generates types for a single `dist-custom-elements` output target definition in a Stencil project's configuration
+ * Generates types for a single `standalone` output target definition in a Stencil project's configuration
  *
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
@@ -46,12 +46,12 @@ const generateCustomElementsTypesOutput = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   typesDir: string,
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ) => {
   const isBarrelExport = outputTarget.customElementsExportBehavior === 'single-export-module';
   const isBundleExport = outputTarget.customElementsExportBehavior === 'bundle';
 
-  // the path where we're going to write the typedef for the whole dist-custom-elements output
+  // the path where we're going to write the typedef for the whole standalone output
   const customElementsDtsPath = join(outputTarget.dir!, 'index.d.ts');
   // the directory where types for the individual components are written
   const componentsTypeDirectoryRelPath = relative(outputTarget.dir!, typesDir);

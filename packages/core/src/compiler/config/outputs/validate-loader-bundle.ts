@@ -75,7 +75,9 @@ export const validateLoaderBundle = (
         type: DIST_LAZY,
         esmDir,
         cjsDir,
-        cjsIndexFile: loaderBundleOutput.cjs ? join(loaderBundleOutput.dir, 'index.cjs.js') : undefined,
+        cjsIndexFile: loaderBundleOutput.cjs
+          ? join(loaderBundleOutput.dir, 'index.cjs.js')
+          : undefined,
         esmIndexFile: join(loaderBundleOutput.dir, 'index.js'),
         empty: loaderBundleOutput.empty,
       });
@@ -86,7 +88,8 @@ export const validateLoaderBundle = (
         dir: loaderBundleOutput.esmLoaderPath,
         esmDir,
         cjsDir,
-        componentDts: getComponentsDtsTypesFilePath(loaderBundleOutput),
+        // Types are auto-generated in dist/types in v5
+        componentDts: getComponentsDtsTypesFilePath(getAbsolutePath(config, 'dist/types')),
         empty: loaderBundleOutput.empty,
       });
     }

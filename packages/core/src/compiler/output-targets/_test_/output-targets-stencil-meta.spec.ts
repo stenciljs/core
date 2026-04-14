@@ -8,7 +8,7 @@ import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'v
 import type * as d from '@stencil/core';
 
 import * as test from '../../transformers/map-imports-to-path-aliases';
-import { outputCollection } from '../dist-collection';
+import { outputCollection } from '../stencil-meta';
 
 describe('Dist Collection output target', () => {
   let mockConfig: d.ValidatedConfig;
@@ -20,10 +20,9 @@ describe('Dist Collection output target', () => {
 
   const mockTraverse = vi.fn().mockImplementation((source: any) => source);
   const mockMap = vi.fn().mockImplementation(() => mockTraverse);
-  const target: d.OutputTargetDistCollection = {
-    type: 'dist-collection',
-    dir: '',
-    collectionDir: '/dist/collection',
+  const target: d.OutputTargetStencilMeta = {
+    type: 'stencil-meta',
+    dir: '/dist/collection',
   };
 
   beforeEach(() => {
@@ -70,7 +69,7 @@ describe('Dist Collection output target', () => {
           collectionDir: '/dist/collection',
           dir: '',
           transformAliasedImportPaths,
-          type: 'dist-collection',
+          type: 'stencil-meta',
         });
         expect(mapImportPathSpy).toHaveBeenCalledTimes(1);
       },

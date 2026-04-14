@@ -740,14 +740,14 @@ The `stencil migrate` command handles automatic migration:
 
 ### Implementation Status
 
-- [ ] Update output target constants
-- [ ] Update public type definitions
-- [ ] Rename validator files
-- [ ] Update output target implementations
-- [ ] Create first-class `stencil-meta` and `types` outputs
-- [ ] Add auto-generation logic for prod builds
-- [ ] Update all tests
-- [ ] Add migration CLI logic
+- [x] Update output target constants
+- [x] Update public type definitions
+- [x] Rename validator files
+- [x] Update output target implementations
+- [x] Create first-class `stencil-meta` and `types` outputs
+- [x] Add auto-generation logic for prod builds
+- [x] Update all tests
+- [x] Add migration CLI logic (`stencil migrate` automatically updates configs)
 - [ ] Update documentation
 
 ---

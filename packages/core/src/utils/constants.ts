@@ -257,32 +257,6 @@ export const DIST_LAZY_LOADER = 'dist-lazy-loader';
  */
 export const DIST_GLOBAL_STYLES = 'dist-global-styles';
 
-// ==================== Deprecated Aliases (v4 compatibility) ====================
-
-/**
- * @deprecated Use LOADER_BUNDLE instead. This alias will be removed in v6.
- */
-export const DIST = LOADER_BUNDLE;
-
-/**
- * @deprecated Use STANDALONE instead. This alias will be removed in v6.
- */
-export const DIST_CUSTOM_ELEMENTS = STANDALONE;
-
-/**
- * @deprecated Use SSR instead. This alias will be removed in v6.
- */
-export const DIST_HYDRATE_SCRIPT = SSR;
-
-/**
- * @deprecated Use STENCIL_META instead. This alias will be removed in v6.
- */
-export const DIST_COLLECTION = STENCIL_META;
-
-/**
- * @deprecated Use TYPES instead. This alias will be removed in v6.
- */
-export const DIST_TYPES = TYPES;
 /**
  * Constant for the 'docs-custom' output target
  */

@@ -80,7 +80,7 @@ export const getBundleOptions = (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   compilerCtx: d.CompilerCtx,
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ): BundleOptions => ({
   id: 'customElements',
   platform: 'client',
@@ -121,7 +121,7 @@ export const bundleCustomElements = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ) => {
   try {
     const bundleOpts = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
@@ -208,7 +208,7 @@ export const bundleCustomElements = async (
 export const addCustomElementInputs = (
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
 ): void => {
   const components = buildCtx.components;
   // An array to store the imports of these modules that we're going to add to our entry chunk
@@ -284,7 +284,7 @@ export const addCustomElementInputs = (
  * @returns the stringified contents to be placed in the entrypoint
  */
 export const generateEntryPoint = (
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
   cmpImports: string[] = [],
   cmpExports: string[] = [],
   cmpNames: string[] = [],
@@ -360,7 +360,7 @@ const getCustomBeforeTransformers = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   components: d.ComponentCompilerMeta[],
-  outputTarget: d.OutputTargetDistCustomElements,
+  outputTarget: d.OutputTargetStandalone,
   buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
@@ -392,8 +392,3 @@ const getCustomBeforeTransformers = (
   );
   return customBeforeTransformers;
 };
-
-/**
- * @deprecated Use outputStandalone instead. This alias will be removed in v6.
- */
-export const outputCustomElements = outputStandalone;

@@ -3,42 +3,42 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { COPY, DIST_CUSTOM_ELEMENTS, DIST_TYPES, join } from '../../../utils';
+import { COPY, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
-describe('validate-output-dist-custom-element', () => {
-  describe('validateCustomElement', () => {
+describe('validate-output-standalone', () => {
+  describe('validateStandalone', () => {
     // use Node's resolve() here to simulate a user using either Win/Posix separators (depending on the platform these
     // tests are run on)
     const rootDir = path.resolve('/');
     const defaultDistDir = join(rootDir, 'dist', 'components');
-    const distCustomElementsDir = 'my-dist-custom-elements';
+    const distCustomElementsDir = 'my-standalone';
     let userConfig: d.Config;
 
     beforeEach(() => {
       userConfig = mockConfig();
     });
 
-    it('generates a default dist-custom-elements output target', () => {
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: DIST_CUSTOM_ELEMENTS,
+    it('generates a default standalone output target', () => {
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
       };
       userConfig.outputTargets = [outputTarget];
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: DIST_TYPES,
+          type: TYPES,
           dir: defaultDistDir,
           typesDir: join(rootDir, 'dist', 'types'),
         },
         {
-          type: DIST_CUSTOM_ELEMENTS,
+          type: STANDALONE,
           copy: [],
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-          generateTypeDeclarations: true,
+
           customElementsExportBehavior: 'default',
           skipInDev: true,
         },
@@ -46,8 +46,8 @@ describe('validate-output-dist-custom-element', () => {
     });
 
     it('uses a provided export behavior over the default value', () => {
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: DIST_CUSTOM_ELEMENTS,
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         customElementsExportBehavior: 'single-export-module',
       };
       userConfig.outputTargets = [outputTarget];
@@ -55,17 +55,17 @@ describe('validate-output-dist-custom-element', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: DIST_TYPES,
+          type: TYPES,
           dir: defaultDistDir,
           typesDir: join(rootDir, 'dist', 'types'),
         },
         {
-          type: DIST_CUSTOM_ELEMENTS,
+          type: STANDALONE,
           copy: [],
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-          generateTypeDeclarations: true,
+
           customElementsExportBehavior: 'single-export-module',
           skipInDev: true,
         },
@@ -73,8 +73,8 @@ describe('validate-output-dist-custom-element', () => {
     });
 
     it('uses the default export behavior if the specified value is invalid', () => {
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: DIST_CUSTOM_ELEMENTS,
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         customElementsExportBehavior: 'not-a-valid-option' as d.CustomElementsExportBehavior,
       };
       userConfig.outputTargets = [outputTarget];
@@ -82,17 +82,17 @@ describe('validate-output-dist-custom-element', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: DIST_TYPES,
+          type: TYPES,
           dir: defaultDistDir,
           typesDir: join(rootDir, 'dist', 'types'),
         },
         {
-          type: DIST_CUSTOM_ELEMENTS,
+          type: STANDALONE,
           copy: [],
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-          generateTypeDeclarations: true,
+
           customElementsExportBehavior: 'default',
           skipInDev: true,
         },
@@ -100,22 +100,21 @@ describe('validate-output-dist-custom-element', () => {
     });
 
     it('uses a provided dir field over a default directory', () => {
-      const outputTarget: d.OutputTargetDistCustomElements = {
-        type: DIST_CUSTOM_ELEMENTS,
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
         dir: distCustomElementsDir,
-        generateTypeDeclarations: false,
       };
       userConfig.outputTargets = [outputTarget];
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: DIST_CUSTOM_ELEMENTS,
+          type: STANDALONE,
           copy: [],
           dir: join(rootDir, distCustomElementsDir),
           empty: true,
           externalRuntime: true,
-          generateTypeDeclarations: false,
+
           customElementsExportBehavior: 'default',
           skipInDev: true,
         },
@@ -124,22 +123,21 @@ describe('validate-output-dist-custom-element', () => {
 
     describe('"empty" field', () => {
       it('defaults the "empty" field to true if not provided', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           externalRuntime: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: true,
             externalRuntime: false,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -147,23 +145,22 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('defaults the "empty" field to true it\'s not a boolean', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: undefined,
           externalRuntime: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: true,
             externalRuntime: false,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -173,22 +170,21 @@ describe('validate-output-dist-custom-element', () => {
 
     describe('"externalRuntime" field', () => {
       it('defaults the "externalRuntime" field to true if not provided', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -196,23 +192,22 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('defaults the "externalRuntime" field to true it\'s not a boolean', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
           externalRuntime: undefined,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -222,8 +217,8 @@ describe('validate-output-dist-custom-element', () => {
 
     describe('"generateTypeDeclarations" field', () => {
       it('defaults the "generateTypeDeclarations" field to true if not provided', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
         };
         userConfig.outputTargets = [outputTarget];
@@ -231,17 +226,17 @@ describe('validate-output-dist-custom-element', () => {
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_TYPES,
+            type: TYPES,
             dir: defaultDistDir,
             typesDir: join(rootDir, 'dist', 'types'),
           },
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-            generateTypeDeclarations: true,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -249,27 +244,26 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('defaults the "generateTypeDeclarations" field to true it\'s not a boolean', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
-          generateTypeDeclarations: undefined,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_TYPES,
+            type: TYPES,
             dir: defaultDistDir,
             typesDir: join(rootDir, 'dist', 'types'),
           },
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-            generateTypeDeclarations: true,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -277,28 +271,27 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('creates a types directory when "generateTypeDeclarations" is true', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
           externalRuntime: false,
-          generateTypeDeclarations: true,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_TYPES,
+            type: TYPES,
             dir: defaultDistDir,
             typesDir: join(rootDir, 'dist', 'types'),
           },
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: false,
-            generateTypeDeclarations: true,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -306,29 +299,28 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('creates a types directory for a custom directory', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           dir: distCustomElementsDir,
           empty: false,
           externalRuntime: false,
-          generateTypeDeclarations: true,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_TYPES,
+            type: TYPES,
             dir: join(rootDir, distCustomElementsDir),
             typesDir: join(rootDir, 'dist', 'types'),
           },
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: join(rootDir, distCustomElementsDir),
             empty: false,
             externalRuntime: false,
-            generateTypeDeclarations: true,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -336,23 +328,22 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('doesn\'t create a types directory when "generateTypeDeclarations" is false', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           empty: false,
           externalRuntime: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [],
             dir: defaultDistDir,
             empty: false,
             externalRuntime: false,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -371,13 +362,12 @@ describe('validate-output-dist-custom-element', () => {
           dest: 'mock/dest2',
         };
 
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           copy: [copyOutputTarget, copyOutputTarget2],
           dir: distCustomElementsDir,
           empty: false,
           externalRuntime: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
@@ -389,12 +379,12 @@ describe('validate-output-dist-custom-element', () => {
             copy: [copyOutputTarget, copyOutputTarget2],
           },
           {
-            type: DIST_CUSTOM_ELEMENTS,
+            type: STANDALONE,
             copy: [copyOutputTarget, copyOutputTarget2],
             dir: join(rootDir, distCustomElementsDir),
             empty: false,
             externalRuntime: false,
-            generateTypeDeclarations: false,
+
             customElementsExportBehavior: 'default',
             skipInDev: true,
           },
@@ -404,17 +394,16 @@ describe('validate-output-dist-custom-element', () => {
 
     describe('"autoLoader" field', () => {
       it('normalizes autoLoader: true to an object with defaults', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           autoLoader: true,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const distCustomElementsTarget = config.outputTargets.find(
-          (o) => o.type === DIST_CUSTOM_ELEMENTS,
-        ) as d.OutputTargetDistCustomElements;
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toEqual({
           fileName: 'loader',
@@ -423,17 +412,16 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('normalizes autoLoader object with partial options', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           autoLoader: { fileName: 'my-loader' },
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const distCustomElementsTarget = config.outputTargets.find(
-          (o) => o.type === DIST_CUSTOM_ELEMENTS,
-        ) as d.OutputTargetDistCustomElements;
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toEqual({
           fileName: 'my-loader',
@@ -442,17 +430,16 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('normalizes autoLoader object with autoStart: false', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           autoLoader: { autoStart: false },
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const distCustomElementsTarget = config.outputTargets.find(
-          (o) => o.type === DIST_CUSTOM_ELEMENTS,
-        ) as d.OutputTargetDistCustomElements;
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toEqual({
           fileName: 'loader',
@@ -461,32 +448,30 @@ describe('validate-output-dist-custom-element', () => {
       });
 
       it('does not set autoLoader when not provided', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
-          generateTypeDeclarations: false,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const distCustomElementsTarget = config.outputTargets.find(
-          (o) => o.type === DIST_CUSTOM_ELEMENTS,
-        ) as d.OutputTargetDistCustomElements;
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toBeUndefined();
       });
 
       it('does not set autoLoader when explicitly false', () => {
-        const outputTarget: d.OutputTargetDistCustomElements = {
-          type: DIST_CUSTOM_ELEMENTS,
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
           autoLoader: false,
-          generateTypeDeclarations: false,
         };
         userConfig.outputTargets = [outputTarget];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const distCustomElementsTarget = config.outputTargets.find(
-          (o) => o.type === DIST_CUSTOM_ELEMENTS,
-        ) as d.OutputTargetDistCustomElements;
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toBe(false);
       });

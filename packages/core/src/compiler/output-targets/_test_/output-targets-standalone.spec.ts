@@ -1,5 +1,5 @@
 import path from 'path';
-import { OutputTargetDistCustomElements } from '@stencil/core';
+import { OutputTargetStandalone } from '@stencil/core';
 import {
   mockBuildCtx,
   mockCompilerCtx,
@@ -10,21 +10,21 @@ import {
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
+import { STANDALONE } from '../../../utils';
 import {
   STENCIL_APP_GLOBALS_ID,
   STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
-import * as outputCustomElementsMod from '../dist-custom-elements';
+import * as outputStandaloneMod from '../standalone';
 import {
   addCustomElementInputs,
   bundleCustomElements,
   generateEntryPoint,
   getBundleOptions,
-  outputCustomElements,
-} from '../dist-custom-elements';
+  outputStandalone,
+} from '../standalone';
 
 const setup = () => {
   const sys = mockCompilerSystem();
@@ -32,7 +32,7 @@ const setup = () => {
     buildAppCore: true,
     configPath: '/testing-path',
     namespace: 'TestApp',
-    outputTargets: [{ type: DIST_CUSTOM_ELEMENTS }],
+    outputTargets: [{ type: STANDALONE }],
     srcDir: '/src',
     sys,
   });
@@ -43,7 +43,7 @@ const setup = () => {
   config.rootDir = path.join(root, 'User', 'testing', '/');
   config.globalScript = path.join(root, 'User', 'testing', 'src', 'global.ts');
 
-  const bundleCustomElementsSpy = vi.spyOn(outputCustomElementsMod, 'bundleCustomElements');
+  const bundleCustomElementsSpy = vi.spyOn(outputStandaloneMod, 'bundleCustomElements');
 
   compilerCtx.moduleMap.set('test', mockModule());
 
@@ -54,32 +54,32 @@ describe('Custom Elements output target', () => {
   it('should return early if target has skipInDev: true in devMode', async () => {
     const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup();
     config.devMode = true;
-    (config.outputTargets[0] as d.OutputTargetDistCustomElements).skipInDev = true;
-    await outputCustomElements(config, compilerCtx, buildCtx);
+    (config.outputTargets[0] as d.OutputTargetStandalone).skipInDev = true;
+    await outputStandalone(config, compilerCtx, buildCtx);
     expect(bundleCustomElementsSpy).not.toHaveBeenCalled();
   });
 
   it('should build if target has skipInDev: false in devMode', async () => {
     const { config, compilerCtx, buildCtx } = setup();
     config.devMode = true;
-    (config.outputTargets[0] as d.OutputTargetDistCustomElements).skipInDev = false;
+    (config.outputTargets[0] as d.OutputTargetStandalone).skipInDev = false;
     // This test validates that the function proceeds past the early return
     // when skipInDev is false. The spy can't catch internal calls, so we
     // verify by checking that buildCtx.diagnostics would have entries
     // if there were build errors (the function would throw/error otherwise)
-    await outputCustomElements(config, compilerCtx, buildCtx);
+    await outputStandalone(config, compilerCtx, buildCtx);
     // If we got here without errors, the function attempted to build
     // Note: The actual build may produce diagnostics about missing files,
     // but it shouldn't throw. The important thing is it didn't return early.
     expect(true).toBe(true);
   });
 
-  it.each<d.OutputTarget[][]>([[[]], [[{ type: 'dist' }]]])(
+  it.each<d.OutputTarget[][]>([[[]], [[{ type: 'loader-bundle' }]]])(
     'should return early if no appropriate output target (%j)',
     async (outputTargets) => {
       const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup();
       config.outputTargets = outputTargets;
-      await outputCustomElements(config, compilerCtx, buildCtx);
+      await outputStandalone(config, compilerCtx, buildCtx);
       expect(bundleCustomElementsSpy).not.toHaveBeenCalled();
     },
   );
@@ -87,7 +87,7 @@ describe('Custom Elements output target', () => {
   describe('generateEntryPoint', () => {
     it('should include global scripts when flag is `true`', () => {
       const entryPoint = generateEntryPoint({
-        type: DIST_CUSTOM_ELEMENTS,
+        type: STANDALONE,
         includeGlobalScripts: true,
       });
 
@@ -101,7 +101,7 @@ globalScripts();
 
     it('should not include global scripts when flag is `false`', () => {
       const entryPoint = generateEntryPoint({
-        type: DIST_CUSTOM_ELEMENTS,
+        type: STANDALONE,
         includeGlobalScripts: false,
       });
 
@@ -116,7 +116,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
     it('should set basic properties on BundleOptions', () => {
       const { config, buildCtx, compilerCtx } = setup();
       const options = getBundleOptions(config, buildCtx, compilerCtx, {
-        type: DIST_CUSTOM_ELEMENTS,
+        type: STANDALONE,
       });
       expect(options.id).toBe('customElements');
       expect(options.platform).toBe('client');
@@ -133,7 +133,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
       (externalRuntime) => {
         const { config, buildCtx, compilerCtx } = setup();
         const options = getBundleOptions(config, buildCtx, compilerCtx, {
-          type: DIST_CUSTOM_ELEMENTS,
+          type: STANDALONE,
           externalRuntime,
         });
         if (externalRuntime) {
@@ -148,8 +148,8 @@ export * from '${USER_INDEX_ENTRY_ID}';
   describe('bundleCustomElements', () => {
     it('should set a diagnostic if no `dir` prop on the output target', async () => {
       const { config, compilerCtx, buildCtx } = setup();
-      const outputTarget: OutputTargetDistCustomElements = {
-        type: DIST_CUSTOM_ELEMENTS,
+      const outputTarget: OutputTargetStandalone = {
+        type: STANDALONE,
         externalRuntime: true,
       };
       await bundleCustomElements(config, compilerCtx, buildCtx, outputTarget);
@@ -158,8 +158,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
           level: 'error',
           lines: [],
           type: 'build',
-          messageText:
-            'dist-custom-elements output target provided with no output target directory!',
+          messageText: 'standalone output target provided with no output target directory!',
         },
       ]);
     });
@@ -188,12 +187,12 @@ export * from '${USER_INDEX_ENTRY_ID}';
           config,
           buildCtx,
           compilerCtx,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         addCustomElementInputs(
           buildCtx,
           bundleOptions,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
@@ -208,7 +207,7 @@ globalScripts();
 
     describe('CustomElementsExportBehavior.SINGLE_EXPORT_MODULE', () => {
       beforeEach(() => {
-        (config.outputTargets[0] as OutputTargetDistCustomElements).customElementsExportBehavior =
+        (config.outputTargets[0] as OutputTargetStandalone).customElementsExportBehavior =
           'single-export-module';
       });
 
@@ -225,12 +224,12 @@ globalScripts();
           config,
           buildCtx,
           compilerCtx,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         addCustomElementInputs(
           buildCtx,
           bundleOptions,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
@@ -256,12 +255,12 @@ globalScripts();
           config,
           buildCtx,
           compilerCtx,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         addCustomElementInputs(
           buildCtx,
           bundleOptions,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
@@ -277,8 +276,7 @@ globalScripts();
 
     describe('CustomElementsExportBehavior.BUNDLE', () => {
       beforeEach(() => {
-        (config.outputTargets[0] as OutputTargetDistCustomElements).customElementsExportBehavior =
-          'bundle';
+        (config.outputTargets[0] as OutputTargetStandalone).customElementsExportBehavior = 'bundle';
       });
 
       it('should add a `defineCustomElements` function to the index.js file', () => {
@@ -294,12 +292,12 @@ globalScripts();
           config,
           buildCtx,
           compilerCtx,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         addCustomElementInputs(
           buildCtx,
           bundleOptions,
-          config.outputTargets[0] as OutputTargetDistCustomElements,
+          config.outputTargets[0] as OutputTargetStandalone,
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
@@ -337,7 +335,7 @@ export const defineCustomElements = (opts) => {
 
         buildCtx.components = [componentOne, componentTwo];
 
-        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
         outputTarget.autoLoader = { fileName: 'loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
@@ -362,7 +360,7 @@ export const defineCustomElements = (opts) => {
         const component = stubComponentCompilerMeta();
         buildCtx.components = [component];
 
-        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
         outputTarget.autoLoader = { fileName: 'loader', autoStart: false };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
@@ -379,7 +377,7 @@ export const defineCustomElements = (opts) => {
         const component = stubComponentCompilerMeta();
         buildCtx.components = [component];
 
-        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
         outputTarget.autoLoader = { fileName: 'my-custom-loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
@@ -392,7 +390,7 @@ export const defineCustomElements = (opts) => {
         const component = stubComponentCompilerMeta();
         buildCtx.components = [component];
 
-        const outputTarget = config.outputTargets[0] as OutputTargetDistCustomElements;
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
         // autoLoader is not set
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);

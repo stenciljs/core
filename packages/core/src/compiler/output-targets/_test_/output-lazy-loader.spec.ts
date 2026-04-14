@@ -7,8 +7,8 @@ import {
 import { afterEach, describe, expect, it, MockInstance, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { DIST, resolve } from '../../../utils';
-import { validateDist } from '../../config/outputs/validate-dist';
+import { LOADER_BUNDLE, resolve } from '../../../utils';
+import { validateLoaderBundle } from '../../config/outputs/validate-loader-bundle';
 import { outputLazyLoader } from '../output-lazy-loader';
 
 function setup(configOverrides: Partial<d.ValidatedConfig> = {}) {
@@ -20,7 +20,7 @@ function setup(configOverrides: Partial<d.ValidatedConfig> = {}) {
     namespace: 'TestApp',
     outputTargets: [
       {
-        type: DIST,
+        type: LOADER_BUNDLE,
         dir: 'my-test-dir',
         cjs: true,
         skipInDev: false,
@@ -30,7 +30,7 @@ function setup(configOverrides: Partial<d.ValidatedConfig> = {}) {
     sys,
   });
 
-  config.outputTargets = validateDist(config, config.outputTargets);
+  config.outputTargets = validateLoaderBundle(config, config.outputTargets);
 
   const compilerCtx = mockCompilerCtx(config);
   const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');

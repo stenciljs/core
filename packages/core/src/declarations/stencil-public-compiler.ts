@@ -1985,13 +1985,6 @@ export interface OutputTargetLoaderBundle extends OutputTargetValidationConfig {
 }
 
 /**
- * @deprecated Use OutputTargetLoaderBundle instead. This alias will be removed in v6.
- */
-export interface OutputTargetDist extends OutputTargetLoaderBundle {
-  type: 'dist';
-}
-
-/**
  * Output target for generating Stencil component metadata for downstream consumption.
  * This output contains transpiled source code, component metadata, and configuration
  * that downstream Stencil projects can use to optimize their builds.
@@ -2036,16 +2029,6 @@ export interface OutputTargetStencilMeta extends OutputTargetValidationConfig {
 }
 
 /**
- * @deprecated Use OutputTargetStencilMeta instead. This alias will be removed in v6.
- */
-export interface OutputTargetDistCollection extends OutputTargetValidationConfig {
-  type: 'dist-collection';
-  dir: string;
-  collectionDir: string;
-  transformAliasedImportPaths?: boolean | null;
-}
-
-/**
  * Output target for generating TypeScript type definitions (.d.ts files).
  *
  * Formerly a sub-output of 'dist' and 'dist-custom-elements' in v4,
@@ -2063,15 +2046,7 @@ export interface OutputTargetDistCollection extends OutputTargetValidationConfig
  */
 export interface OutputTargetTypes extends OutputTargetValidationConfig {
   type: 'types';
-}
-
-/**
- * @deprecated Use OutputTargetTypes instead. This alias will be removed in v6.
- */
-export interface OutputTargetDistTypes extends OutputTargetValidationConfig {
-  type: 'dist-types';
-  dir: string;
-  typesDir: string;
+  empty?: boolean;
 }
 
 export interface OutputTargetDistLazy extends OutputTargetBase {
@@ -2140,13 +2115,6 @@ export interface OutputTargetSsr extends OutputTargetBase {
    * @default false
    */
   cjs?: boolean;
-}
-
-/**
- * @deprecated Use OutputTargetSsr instead. This alias will be removed in v6.
- */
-export interface OutputTargetHydrate extends OutputTargetSsr {
-  type: 'dist-hydrate-script';
 }
 
 export interface OutputTargetCustom extends OutputTargetBase {
@@ -2337,15 +2305,6 @@ export interface OutputTargetStandalone extends OutputTargetValidationConfig {
   minify?: boolean;
 
   /**
-   * Enables the generation of type definition files for the output target.
-   *
-   * In v5, types are auto-generated in production builds. Set to `false` to disable.
-   *
-   * @default true (auto-generated in production)
-   */
-  generateTypeDeclarations?: boolean;
-
-  /**
    * Define the export/definition behavior for the output target's generated output.
    * This controls if/how custom elements will be defined or where components will be exported from.
    * If omitted, no auto-definition behavior or re-exporting will happen.
@@ -2391,13 +2350,6 @@ export interface OutputTargetStandalone extends OutputTargetValidationConfig {
 }
 
 /**
- * @deprecated Use OutputTargetStandalone instead. This alias will be removed in v6.
- */
-export interface OutputTargetDistCustomElements extends OutputTargetStandalone {
-  type: 'dist-custom-elements';
-}
-
-/**
  * The base type for output targets. All output targets should extend this base type.
  */
 export interface OutputTargetBase {
@@ -2411,9 +2363,9 @@ export interface OutputTargetBase {
    * This improves dev build times by not generating production-only artifacts.
    *
    * Defaults vary by output target type:
-   * - `dist`: `false` (always builds)
-   * - `dist-custom-elements`: `true` (skips in dev)
-   * - `dist-hydrate-script`: `true` (skips in dev, unless `devServer.ssr` is enabled)
+   * - `loader-bundle`: `false` (always builds)
+   * - `standalone`: `true` (skips in dev)
+   * - `ssr`: `true` (skips in dev, unless `devServer.ssr` is enabled)
    * - `docs-*`: `true` (skips in dev)
    * - `custom`: `true` (skips in dev)
    * - `www`, `copy`, `stats`: `false` (always runs)
@@ -2430,12 +2382,12 @@ interface OutputTargetValidationConfig extends OutputTargetBaseNext {
 }
 
 export type EligiblePrimaryPackageOutputTarget =
-  | OutputTargetDist
-  | OutputTargetDistCustomElements
-  | OutputTargetDistCollection
-  | OutputTargetDistTypes;
+  | OutputTargetLoaderBundle
+  | OutputTargetStandalone
+  | OutputTargetStencilMeta
+  | OutputTargetTypes;
 
-export type OutputTargetBuild = OutputTargetDistCollection | OutputTargetDistLazy;
+export type OutputTargetBuild = OutputTargetStencilMeta | OutputTargetDistLazy;
 
 export interface OutputTargetCopy extends OutputTargetBase {
   type: 'copy';
@@ -2530,12 +2482,6 @@ export type OutputTarget =
   | OutputTargetSsr
   | OutputTargetStencilMeta
   | OutputTargetTypes
-  // Deprecated v4 aliases (for backward compatibility during migration)
-  | OutputTargetDist
-  | OutputTargetDistCustomElements
-  | OutputTargetHydrate
-  | OutputTargetDistCollection
-  | OutputTargetDistTypes
   // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
   | OutputTargetDistGlobalStyles

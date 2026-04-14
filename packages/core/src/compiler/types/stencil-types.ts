@@ -1,7 +1,7 @@
 import { dirname } from 'path';
 import type * as d from '@stencil/core';
 
-import { isOutputTargetDistTypes, join, normalizePath, relative, resolve } from '../../utils';
+import { isOutputTargetTypes, join, normalizePath, relative, resolve } from '../../utils';
 import { FsWriteResults } from '../sys/in-memory-fs';
 
 /**
@@ -130,9 +130,7 @@ export const copyStencilCoreDts = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
 ): Promise<ReadonlyArray<FsWriteResults>> => {
-  const typesOutputTargets = config.outputTargets
-    .filter(isOutputTargetDistTypes)
-    .filter((o) => o.typesDir);
+  const typesOutputTargets = config.outputTargets.filter(isOutputTargetTypes).filter((o) => o.dir);
 
   const srcStencilDtsPath = join(
     config.sys.getCompilerExecutingPath(),
@@ -145,7 +143,7 @@ export const copyStencilCoreDts = async (
 
   return Promise.all(
     typesOutputTargets.map((o) => {
-      const coreDtsFilePath = join(o.typesDir, CORE_DTS);
+      const coreDtsFilePath = join(o.dir!, CORE_DTS);
       return compilerCtx.fs.writeFile(coreDtsFilePath, srcStencilCoreDts, {
         outputTargetType: o.type,
       });

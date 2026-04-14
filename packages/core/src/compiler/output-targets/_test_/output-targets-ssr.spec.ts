@@ -3,11 +3,12 @@ import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/cor
 import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { validateHydrateScript } from '../../../config/outputs/validate-hydrate-script';
-import * as optimizeModuleMod from '../../../optimize/optimize-module';
-import { writeHydrateOutputs } from '../write-hydrate-outputs';
+import { SSR } from '../../../utils';
+import { validateSsr } from '../../config/outputs/validate-ssr';
+import * as optimizeModuleMod from '../../optimize/optimize-module';
+import { writeHydrateOutputs } from '../ssr/write-hydrate-outputs';
 
-describe('dist-hydrate-script', () => {
+describe('ssr', () => {
   describe('minification', () => {
     let optimizeModuleSpy: MockInstance;
     let mockFs: any;
@@ -37,8 +38,8 @@ describe('dist-hydrate-script', () => {
       mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
       mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
 
-      const outputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
         dir: path.join(config.rootDir, 'dist', 'hydrate'),
         minify: true,
       };
@@ -82,8 +83,8 @@ describe('dist-hydrate-script', () => {
       mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
       mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
 
-      const outputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
         dir: path.join(config.rootDir, 'dist', 'hydrate'),
         minify: false,
       };
@@ -120,8 +121,8 @@ describe('dist-hydrate-script', () => {
       mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
       mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
       mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
-      const outputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
         dir: path.join(config.rootDir, 'dist', 'hydrate'),
         // minify is undefined
       };
@@ -160,8 +161,8 @@ describe('dist-hydrate-script', () => {
       mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
       mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
 
-      const outputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
         dir: path.join(config.rootDir, 'dist', 'hydrate'),
       };
 
@@ -176,7 +177,7 @@ describe('dist-hydrate-script', () => {
         ],
       };
 
-      const [validatedOutputTarget] = validateHydrateScript(config, [outputTarget]);
+      const [validatedOutputTarget] = validateSsr(config, [outputTarget]);
 
       await writeHydrateOutputs(
         config,

@@ -2,7 +2,7 @@ import { expect, describe, it, vi } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 import type { EligiblePrimaryPackageOutputTarget } from '@stencil/core';
 
-import { DIST_TYPES, VALID_CONFIG_OUTPUT_TARGETS } from '../constants';
+import { VALID_CONFIG_OUTPUT_TARGETS } from '../constants';
 import {
   filterExcludedComponents,
   isEligiblePrimaryPackageOutputTarget,
@@ -19,7 +19,7 @@ describe('output-utils tests', () => {
       },
     );
 
-    it.each(['', 'my-target-that-i-made-up', DIST_TYPES])(
+    it.each(['', 'my-target-that-i-made-up', 'invalid-output-type'])(
       'should return false for invalid config output type "%s"',
       (outputTargetType) => {
         expect(isValidConfigOutputTarget(outputTargetType)).toBe(false);
@@ -31,7 +31,7 @@ describe('output-utils tests', () => {
     it.each<(typeof VALID_CONFIG_OUTPUT_TARGETS)[number]>([
       'copy',
       'custom',
-      'dist-hydrate-script',
+      'ssr',
       'www',
       'stats',
       'docs-json',
@@ -45,10 +45,10 @@ describe('output-utils tests', () => {
     });
 
     it.each<EligiblePrimaryPackageOutputTarget['type']>([
-      'dist',
-      'dist-collection',
-      'dist-custom-elements',
-      'dist-types',
+      'loader-bundle',
+      'stencil-meta',
+      'standalone',
+      'types',
     ])('should return true for `$type`', (outputTarget) => {
       const res = isEligiblePrimaryPackageOutputTarget({ type: outputTarget } as any);
 
