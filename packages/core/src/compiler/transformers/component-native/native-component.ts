@@ -169,7 +169,7 @@ const updateNativeHostComponentMembers = (
     addNativeComponentMeta(classMembers, cmp);
   }
 
-  if (transformOpts.style === 'static') {
+  if (transformOpts.style === 'static' || transformOpts.style === 'inline') {
     addNativeStaticStyle(classMembers, cmp, buildCtx);
   }
 

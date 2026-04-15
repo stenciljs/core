@@ -2764,10 +2764,15 @@ export interface TranspileOptions {
    */
   proxy?: 'defineproperty' | string | undefined;
   /**
-   * How component styles should be associated to the component. The `static`
-   * setting will assign the styles as a static getter on the component class.
+   * How component styles should be associated to the component.
+   * - `'static'` - assigns styles as a static getter, generates imports for external styleUrls
+   * - `'inline'` - resolves and inlines external styleUrls directly into the output (no imports needed)
+   *
+   * When using `'inline'`, the CSS files referenced by `styleUrls` are read and embedded
+   * directly into the transpiled output, making it self-contained without requiring
+   * bundler support for CSS imports.
    */
-  style?: 'static' | string | undefined;
+  style?: 'static' | 'inline' | string | undefined;
   /**
    * How style data should be added for imports. For example, the `queryparams` value
    * adds the component's tagname and encapsulation info as querystring parameter
@@ -2879,13 +2884,22 @@ export interface TransformOptions {
   isolatedModules?: boolean;
   module?: 'cjs' | 'esm';
   proxy: 'defineproperty' | null;
-  style: 'static' | null;
+  style: 'static' | 'inline' | null;
   styleImportData: 'queryparams' | null;
   target?: string;
   /**
    * @see {@link TranspileOptions.extraFiles}
    */
   extraFiles?: Record<string, string>;
+  /**
+   * Function to resolve and read a style file's content.
+   * Used when `style: 'inline'` to read CSS files referenced by styleUrls.
+   *
+   * @param stylePath - The style path from styleUrls (relative or absolute)
+   * @param containingFile - The source file containing the styleUrls reference
+   * @returns The CSS content as a string, or null if the file cannot be resolved
+   */
+  resolveStyle?: (stylePath: string, containingFile: string) => string | null;
 }
 
 export interface CompileScriptMinifyOptions {

@@ -216,7 +216,7 @@ export const transpileModule = (
 
   const transformers = {
     before: [
-      convertDecoratorsToStatic(config, buildCtx.diagnostics, typeChecker, program),
+      convertDecoratorsToStatic(config, buildCtx.diagnostics, typeChecker, program, transformOpts),
       performAutomaticKeyInsertion,
       updateStencilCoreImports(transformOpts.coreImportPath),
     ],
