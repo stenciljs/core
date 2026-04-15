@@ -1,6 +1,6 @@
 import type {
   CompilerSystem,
-  Config,
+  UnvalidatedConfig,
   ImportData,
   TransformCssToEsmInput,
   TransformOptions,
@@ -44,7 +44,7 @@ const transpileCtx = { sys: null as CompilerSystem };
  */
 interface TranspileConfig {
   compileOpts: TranspileOptions;
-  config: Config;
+  config: UnvalidatedConfig;
   transformOpts: TransformOptions;
 }
 
@@ -149,7 +149,7 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     extraFiles: input.extraFiles,
   };
 
-  const config: Config = {
+  const config: UnvalidatedConfig = {
     _isTesting: true,
     devMode: true,
     enableCache: false,

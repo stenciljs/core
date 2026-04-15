@@ -189,14 +189,6 @@ export interface StencilConfig {
   minifyCss?: boolean;
 
   /**
-   * Forces Stencil to run in `dev` mode if the value is `true` and `production` mode
-   * if it's `false`.
-   *
-   * Defaults to `false` (ie. production) unless the `--dev` flag is used in the CLI.
-   */
-  devMode?: boolean;
-
-  /**
    * Object to provide a custom logger. By default a `logger` is already provided for the
    * platform the compiler is running on, such as NodeJS or a browser.
    */
@@ -303,7 +295,7 @@ export interface StencilConfig {
    * An array of component tag names to exclude from production builds.
    * Useful to remove test, demo or experimental components from final output.
    *
-   * **Note:** Exclusion only applies to production builds (default, or when `--prod` is used).
+   * **Note:** Exclusion only applies to production builds (the default).
    * Development builds (with `--dev` flag) will include all components to support local testing.
    *
    * Supports glob patterns for matching multiple components:
@@ -553,7 +545,6 @@ type RequireFields<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type StrictConfigFields = keyof Pick<
   Config,
   | 'cacheDir'
-  | 'devMode'
   | 'devServer'
   | 'extras'
   | 'fsNamespace'
@@ -583,6 +574,11 @@ type StrictConfigFields = keyof Pick<
  * validations have occurred at runtime.
  */
 export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
+  /**
+   * Whether the build is running in development mode.
+   * Set by the `--dev` CLI flag. Not user-configurable in `stencil.config.ts`.
+   */
+  devMode: boolean;
   sourceMap: boolean;
 };
 
@@ -2387,6 +2383,21 @@ export interface OutputTargetWww extends OutputTargetBase {
    * Webapp output target.
    */
   type: 'www';
+
+  /**
+   * Choose how components are bundled for the www output.
+   *
+   * - `'lazy'` (default): Uses the lazy-loading bundle architecture with chunk
+   *   splitting and a loader infrastructure. Best for production apps with many
+   *   components where you want optimal loading performance.
+   *
+   * - `'standalone'`: Uses standalone component modules with an auto-loader that
+   *   uses MutationObserver to dynamically import components as they appear in
+   *   the DOM. Simpler architecture, easier debugging, one module per component.
+   *
+   * Default: `'lazy'`
+   */
+  bundleMode?: 'lazy' | 'standalone';
 
   /**
    * The directory to write the app's JavaScript and CSS build

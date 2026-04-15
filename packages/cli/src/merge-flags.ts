@@ -1,4 +1,4 @@
-import type { Config } from '@stencil/core/compiler';
+import type { UnvalidatedConfig } from '@stencil/core/compiler';
 
 import type { ConfigFlags } from './config-flags';
 
@@ -7,19 +7,17 @@ import type { ConfigFlags } from './config-flags';
  *
  * This function applies command-line flags to the config, with CLI flags
  * taking precedence over config file values. This is the canonical place
- * where flag values are translated into config properties.?
+ * where flag values are translated into config properties.
  *
  * @param config The config object (from stencil.config.ts or empty)
  * @param flags The parsed CLI flags
  * @returns The config with flags merged in
  */
-export const mergeFlags = (config: Config, flags: ConfigFlags): Config => {
-  const merged = { ...config };
+export const mergeFlags = (config: UnvalidatedConfig, flags: ConfigFlags): UnvalidatedConfig => {
+  const merged: UnvalidatedConfig = { ...config };
 
-  // --dev / --prod → devMode
-  if (flags.prod === true) {
-    merged.devMode = false;
-  } else if (flags.dev === true) {
+  // --dev → devMode (production is the default; --dev is the explicit opt-in)
+  if (flags.dev === true) {
     merged.devMode = true;
   }
 

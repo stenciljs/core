@@ -95,8 +95,8 @@ export const validateConfig = (
   const logLevel: LogLevel = config.logLevel ?? 'info';
   logger.setLevel(logLevel);
 
-  // devMode: use config value or default
-  // CLI is responsible for setting this based on --dev/--prod flags
+  // devMode: set by the --dev CLI flag via mergeFlags before validateConfig is called.
+  // Not user-settable in stencil.config.ts. Default is false (production).
   const devMode = isBoolean(config.devMode) ? config.devMode : DEFAULT_DEV_MODE;
 
   config._isTesting = !!(

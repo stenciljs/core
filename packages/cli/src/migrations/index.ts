@@ -1,6 +1,7 @@
 import ts from 'typescript';
 
 import { buildDistDocsRule } from './rules/build-dist-docs';
+import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
@@ -112,6 +113,7 @@ const migrationRules: MigrationRule[] = [
   formAssociatedRule,
   buildDistDocsRule,
   outputTargetRenamesRule,
+  devModeRule,
 ];
 
 /**

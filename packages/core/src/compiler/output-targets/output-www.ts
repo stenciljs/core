@@ -166,7 +166,9 @@ const generateIndexHtml = async (
       const scriptFound = await optimizeEsmImport(config, compilerCtx, doc, outputTarget);
       await inlineStyleSheets(compilerCtx, doc, MAX_CSS_INLINE_SIZE, outputTarget);
       updateGlobalStylesLink(config, doc, globalStylesFilename, outputTarget);
-      if (scriptFound) {
+      // Critical path optimization only applies to lazy mode - standalone mode
+      // uses MutationObserver-based on-demand loading, not preloaded chunks
+      if (scriptFound && outputTarget.bundleMode !== 'standalone') {
         optimizeCriticalPath(doc, criticalPath, outputTarget);
       }
     }

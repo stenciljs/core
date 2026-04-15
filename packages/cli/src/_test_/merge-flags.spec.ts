@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Config } from '@stencil/core/compiler';
+import type { UnvalidatedConfig } from '@stencil/core/compiler';
 
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
 import { mergeFlags } from '../merge-flags';
@@ -9,18 +9,9 @@ describe('mergeFlags', () => {
     return createConfigFlags(overrides);
   };
 
-  describe('devMode (--dev / --prod)', () => {
-    it('sets devMode to false when --prod is true', () => {
-      const config: Config = {};
-      const flags = createFlags({ prod: true });
-
-      const result = mergeFlags(config, flags);
-
-      expect(result.devMode).toBe(false);
-    });
-
+  describe('devMode (--dev)', () => {
     it('sets devMode to true when --dev is true', () => {
-      const config: Config = {};
+      const config: UnvalidatedConfig = {};
       const flags = createFlags({ dev: true });
 
       const result = mergeFlags(config, flags);
@@ -28,22 +19,13 @@ describe('mergeFlags', () => {
       expect(result.devMode).toBe(true);
     });
 
-    it('--prod takes precedence over --dev when both are set', () => {
-      const config: Config = {};
-      const flags = createFlags({ prod: true, dev: true });
-
-      const result = mergeFlags(config, flags);
-
-      expect(result.devMode).toBe(false);
-    });
-
-    it('preserves config devMode when neither flag is set', () => {
-      const config: Config = { devMode: true };
+    it('does not set devMode when --dev is absent (production is the default)', () => {
+      const config: UnvalidatedConfig = {};
       const flags = createFlags({});
 
       const result = mergeFlags(config, flags);
 
-      expect(result.devMode).toBe(true);
+      expect(result.devMode).toBeUndefined();
     });
   });
 

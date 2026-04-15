@@ -10,6 +10,7 @@ import {
   isOutputTargetWww,
   isString,
   join,
+  STANDALONE,
   STENCIL_META,
   TYPES,
   WWW,
@@ -45,6 +46,7 @@ export const validateWww = (
       outputs: (
         | d.OutputTargetWww
         | d.OutputTargetDistLazy
+        | d.OutputTargetStandalone
         | d.OutputTargetCopy
         | d.OutputTargetDistGlobalStyles
       )[],
@@ -53,14 +55,30 @@ export const validateWww = (
       const outputTarget = validateWwwOutputTarget(config, o, diagnostics);
       outputs.push(outputTarget);
 
-      // Add dist-lazy output target
       const buildDir = outputTarget.buildDir;
-      outputs.push({
-        type: DIST_LAZY,
-        dir: buildDir,
-        esmDir: buildDir,
-        isBrowserBuild: true,
-      });
+
+      if (outputTarget.bundleMode === 'standalone') {
+        // Add standalone output target with auto-loader
+        outputs.push({
+          type: STANDALONE,
+          dir: buildDir,
+          empty: false, // www handles emptying its own directory
+          externalRuntime: false, // inline runtime for simpler single-file deployment
+          autoLoader: {
+            fileName: config.fsNamespace,
+            autoStart: true,
+          },
+          skipInDev: false, // always build for www
+        });
+      } else {
+        // Default: Add dist-lazy output target
+        outputs.push({
+          type: DIST_LAZY,
+          dir: buildDir,
+          esmDir: buildDir,
+          isBrowserBuild: true,
+        });
+      }
 
       // Copy for dist
       outputs.push({
@@ -96,6 +114,11 @@ const validateWwwOutputTarget = (
   outputTarget: d.OutputTargetWww,
   diagnostics: d.Diagnostic[],
 ) => {
+  // Normalize bundleMode (default to 'lazy')
+  if (outputTarget.bundleMode !== 'standalone') {
+    outputTarget.bundleMode = 'lazy';
+  }
+
   if (!isString(outputTarget.baseUrl)) {
     outputTarget.baseUrl = '/';
   }

@@ -3,7 +3,14 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetCopy, isOutputTargetSsr, isOutputTargetWww, join } from '../../../utils';
+import {
+  isOutputTargetCopy,
+  isOutputTargetDistLazy,
+  isOutputTargetSsr,
+  isOutputTargetStandalone,
+  isOutputTargetWww,
+  join,
+} from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateOutputTargetWww', () => {
@@ -46,6 +53,7 @@ describe('validateOutputTargetWww', () => {
         appDir: join(rootDir, 'www', 'docs'),
         baseUrl: '/',
         buildDir: join(rootDir, 'www', 'docs', 'build'),
+        bundleMode: 'lazy',
         dir: join(rootDir, 'www', 'docs'),
         empty: true,
         indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
@@ -317,6 +325,89 @@ describe('validateOutputTargetWww', () => {
           type: 'copy',
         },
       ]);
+    });
+  });
+
+  describe('bundleMode', () => {
+    it('should default to lazy bundleMode', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('lazy');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(true);
+      expect(config.outputTargets.some(isOutputTargetStandalone)).toBe(false);
+    });
+
+    it('should support standalone bundleMode', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('standalone');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(false);
+      expect(config.outputTargets.some(isOutputTargetStandalone)).toBe(true);
+    });
+
+    it('should configure standalone output with autoLoader', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const standalone = config.outputTargets.find(
+        isOutputTargetStandalone,
+      ) as d.OutputTargetStandalone;
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(standalone).toBeDefined();
+      expect(standalone.dir).toBe(www.buildDir);
+      expect(standalone.autoLoader).toEqual({
+        fileName: 'app', // config.fsNamespace defaults to 'app'
+        autoStart: true,
+      });
+      expect(standalone.externalRuntime).toBe(false);
+      expect(standalone.skipInDev).toBe(false);
+    });
+
+    it('should use custom namespace for standalone autoLoader fileName', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      userConfig.namespace = 'MyComponents';
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const standalone = config.outputTargets.find(
+        isOutputTargetStandalone,
+      ) as d.OutputTargetStandalone;
+
+      expect(standalone.autoLoader).toEqual({
+        fileName: 'mycomponents', // fsNamespace is lowercase
+        autoStart: true,
+      });
+    });
+
+    it('should normalize invalid bundleMode to lazy', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        // @ts-expect-error - testing invalid value
+        bundleMode: 'invalid',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('lazy');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(true);
     });
   });
 

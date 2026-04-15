@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "stencil build --prod",
+    "build": "stencil build",
     "clean": "rimraf dist .stencil",
     "test": "npm run build && node test-bundle-size.js"
   },

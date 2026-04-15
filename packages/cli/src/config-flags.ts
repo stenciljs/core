@@ -21,7 +21,6 @@ export const BOOLEAN_CLI_FLAGS = [
   'open',
   'prerender',
   'prerenderExternal',
-  'prod',
   'profile',
   'serviceWorker',
   'serve',

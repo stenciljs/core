@@ -43,11 +43,23 @@ describe('validation', () => {
   });
 
   describe('devMode validation', () => {
-    it('sets "devMode" to false if the user provided value isn\'t a boolean', () => {
-      // the branch under test explicitly requires a value whose type is not allowed by the type system
+    it('defaults devMode to false (production) when not set by CLI', () => {
+      // devMode is not user-settable in stencil.config.ts; it is injected by
+      // the CLI via --dev flag. When absent the validator defaults to false.
+      const { config } = validateConfig({}, bootstrapConfig);
+      expect(config.devMode).toBe(false);
+    });
+
+    it('accepts devMode: true when injected by CLI (--dev flag path)', () => {
+      // Simulates the CLI having set devMode: true before calling validateConfig
+      const { config } = validateConfig({ devMode: true }, bootstrapConfig);
+      expect(config.devMode).toBe(true);
+    });
+
+    it('falls back to false when a non-boolean devMode value arrives (defensive)', () => {
+      // Should never happen in practice, but the validator guards against it
       const devMode = 'not-a-bool' as unknown as boolean;
-      userConfig = { devMode };
-      const { config } = validateConfig(userConfig, bootstrapConfig);
+      const { config } = validateConfig({ devMode }, bootstrapConfig);
       expect(config.devMode).toBe(false);
     });
   });
@@ -249,19 +261,19 @@ describe('validation', () => {
     expect(config.watch).toBe(false);
   });
 
-  it('should set devMode to false', () => {
+  it('should pass through devMode: false (CLI did not pass --dev)', () => {
     userConfig.devMode = false;
     const { config } = validateConfig(userConfig, bootstrapConfig);
     expect(config.devMode).toBe(false);
   });
 
-  it('should set devMode to true', () => {
+  it('should pass through devMode: true (CLI passed --dev)', () => {
     userConfig.devMode = true;
     const { config } = validateConfig(userConfig, bootstrapConfig);
     expect(config.devMode).toBe(true);
   });
 
-  it('should default devMode to false', () => {
+  it('should default devMode to false when not set', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
     expect(config.devMode).toBe(false);
   });

@@ -98,7 +98,7 @@ describe('validateTypesOutputTarget', () => {
       // When no output targets are specified, www is auto-added as the default output target.
       // In production mode, types and stencil-meta are auto-generated alongside www.
       config.outputTargets = [];
-      (config as d.Config).devMode = false;
+      (config as d.UnvalidatedConfig).devMode = false;
 
       const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
