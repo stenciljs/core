@@ -2,9 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { join, resolve, STENCIL_META } from '../../../utils';
+import { isOutputTargetStencilMeta, join, resolve, STENCIL_META } from '../../../utils';
 import { validateConfig } from '../validate-config';
-import { skip } from 'node:test';
 
 describe('validateStencilMetaOutputTarget', () => {
   let config: d.Config;
@@ -26,15 +25,14 @@ describe('validateStencilMetaOutputTarget', () => {
 
     const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-    expect(validatedConfig.outputTargets).toEqual([
-      {
-        type: STENCIL_META,
-        empty: false,
-        dir: defaultDir,
-        transformAliasedImportPaths: true,
-        skipInDev: true,
-      },
-    ]);
+    const stencilMeta = validatedConfig.outputTargets.find(isOutputTargetStencilMeta);
+    expect(stencilMeta).toEqual({
+      type: STENCIL_META,
+      empty: false,
+      dir: defaultDir,
+      transformAliasedImportPaths: true,
+      skipInDev: true,
+    });
   });
 
   it('sets specified directory', () => {
@@ -47,15 +45,14 @@ describe('validateStencilMetaOutputTarget', () => {
 
     const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-    expect(validatedConfig.outputTargets).toEqual([
-      {
-        type: STENCIL_META,
-        empty: false,
-        skipInDev: true,
-        dir: '/my-dist',
-        transformAliasedImportPaths: true,
-      },
-    ]);
+    const stencilMeta = validatedConfig.outputTargets.find(isOutputTargetStencilMeta);
+    expect(stencilMeta).toEqual({
+      type: STENCIL_META,
+      empty: false,
+      skipInDev: true,
+      dir: '/my-dist',
+      transformAliasedImportPaths: true,
+    });
   });
 
   describe('transformAliasedImportPaths', () => {
@@ -72,15 +69,14 @@ describe('validateStencilMetaOutputTarget', () => {
 
         const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-        expect(validatedConfig.outputTargets).toEqual([
-          {
-            type: STENCIL_META,
-            empty: false,
-            dir: defaultDir,
-            transformAliasedImportPaths,
-            skipInDev: true,
-          },
-        ]);
+        const stencilMeta = validatedConfig.outputTargets.find(isOutputTargetStencilMeta);
+        expect(stencilMeta).toEqual({
+          type: STENCIL_META,
+          empty: false,
+          dir: defaultDir,
+          transformAliasedImportPaths,
+          skipInDev: true,
+        });
       },
     );
   });

@@ -150,8 +150,7 @@ export const bundleStandalone = async (
         buildCtx.diagnostics.push({
           level: 'error',
           type: 'build',
-          messageText:
-            'standalone output target provided with no output target directory!',
+          messageText: 'standalone output target provided with no output target directory!',
           lines: [],
         });
         return;

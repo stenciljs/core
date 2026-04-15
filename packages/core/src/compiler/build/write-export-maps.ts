@@ -51,6 +51,11 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
  * - Check if current root export points to a valid loader-bundle or standalone output
  * - If valid, leave it alone
  * - If missing or invalid, set default (loader-bundle > standalone priority)
+ * @param config The validated Stencil config
+ * @param buildCtx The build context containing the components to generate export maps for
+ * @param loaderBundle The loader-bundle output target, if it exists
+ * @param standalone The standalone output target, if it exists
+ * @param types The types output target, if it exists
  */
 const generateRootExport = (
   config: d.ValidatedConfig,
@@ -70,7 +75,8 @@ const generateRootExport = (
   const currentImport = currentRootExport?.import;
 
   // Determine if current import path is valid (points to loader-bundle or standalone)
-  const isValidRoot = currentImport && isValidRootExport(config, currentImport, loaderBundle, standalone);
+  const isValidRoot =
+    currentImport && isValidRootExport(config, currentImport, loaderBundle, standalone);
 
   // Only set root export if missing or invalid
   if (!isValidRoot) {
@@ -82,7 +88,9 @@ const generateRootExport = (
 
       // Set CJS require path if loader-bundle has CJS enabled
       if (loaderBundle?.cjs) {
-        const requirePath = normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.cjs.js')));
+        const requirePath = normalizePath(
+          relative(config.rootDir, join(loaderBundle.dir, 'index.cjs.js')),
+        );
         execSync(`npm pkg set "exports[.][require]"="${requirePath}"`);
       }
     }
@@ -98,6 +106,11 @@ const generateRootExport = (
 /**
  * Check if the current root export import path is valid
  * (points to either loader-bundle or standalone output).
+ * @param config The validated Stencil config
+ * @param currentImport The current import path from exports["."]
+ * @param loaderBundle The loader-bundle output target, if it exists
+ * @param standalone The standalone output target, if it exists
+ * @returns True if the current import path points to a valid output, false otherwise
  */
 const isValidRootExport = (
   config: d.ValidatedConfig,
@@ -128,6 +141,9 @@ const isValidRootExport = (
 
 /**
  * Generate the loader export `exports["./loader"]`.
+ * @param config The validated Stencil config
+ * @param lazyLoader The dist-lazy-loader output target
+ * @returns void
  */
 const generateLoaderExport = (
   config: d.ValidatedConfig,
@@ -146,6 +162,9 @@ const generateLoaderExport = (
 /**
  * Generate per-component exports for standalone output.
  * Each component gets its own subpath export: `exports["./my-component"]`
+ * @param config The validated Stencil config
+ * @param buildCtx The build context containing the components to generate export maps for
+ * @param standalone The standalone output target
  */
 const generateComponentExports = (
   config: d.ValidatedConfig,

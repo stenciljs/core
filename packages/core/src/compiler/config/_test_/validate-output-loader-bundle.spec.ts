@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { join, LOADER_BUNDLE } from '../../../utils';
+import { join, LOADER_BUNDLE, STENCIL_META, TYPES } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateLoaderBundleOutputTarget', () => {
@@ -54,6 +54,22 @@ describe('validateLoaderBundleOutputTarget', () => {
         file: join(rootDir, 'my-dist', 'my-build', 'testing', 'testing.css'),
         type: 'dist-global-styles',
       },
+      {
+        type: 'dist-lazy',
+        esmDir: join(rootDir, 'my-dist', 'esm'),
+        cjsDir: join(rootDir, 'my-dist', 'cjs'),
+        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
+        esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
+        empty: false,
+      },
+      {
+        type: 'dist-lazy-loader',
+        dir: join(rootDir, 'my-dist', 'loader'),
+        esmDir: join(rootDir, 'my-dist', 'esm'),
+        cjsDir: join(rootDir, 'my-dist', 'cjs'),
+        componentDts: join(rootDir, 'dist', 'types', 'components.d.ts'),
+        empty: false,
+      },
     ]);
   });
 
@@ -98,5 +114,40 @@ describe('validateLoaderBundleOutputTarget', () => {
       (o) => o.type === LOADER_BUNDLE,
     ) as d.OutputTargetLoaderBundle;
     expect(validated.skipInDev).toBe(false);
+  });
+
+  describe('production mode auto-generation', () => {
+    let prodConfig: d.Config;
+
+    beforeEach(() => {
+      prodConfig = mockConfig({ devMode: false, fsNamespace: 'testing' });
+    });
+
+    it('auto-generates types alongside loader-bundle in production mode', () => {
+      prodConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === LOADER_BUNDLE)).toBe(true);
+    });
+
+    it('auto-generates stencil-meta alongside loader-bundle in production mode', () => {
+      prodConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(true);
+    });
+
+    it('does not duplicate types if already explicitly configured', () => {
+      prodConfig.outputTargets = [{ type: LOADER_BUNDLE }, { type: TYPES, dir: 'my-types' }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.filter((o) => o.type === TYPES)).toHaveLength(1);
+    });
+
+    it('does not auto-generate types or stencil-meta in dev mode', () => {
+      const devConfig = mockConfig({ devMode: true, fsNamespace: 'testing' });
+      devConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(devConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(false);
+    });
   });
 });

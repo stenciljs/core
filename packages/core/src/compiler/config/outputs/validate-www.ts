@@ -10,6 +10,8 @@ import {
   isOutputTargetWww,
   isString,
   join,
+  STENCIL_META,
+  TYPES,
   WWW,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
@@ -22,7 +24,11 @@ export const validateWww = (
   diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ) => {
-  const hasOutputTargets = userOutputs.length > 0;
+  // Only count 'real' user-configured output targets — exclude the auto-generated
+  // types and stencil-meta outputs that autoGenerateOutputs() may have injected into
+  // userOutputs before this function was called, so a bare config (no explicit output
+  // targets) still gets the default www output added.
+  const hasOutputTargets = userOutputs.some((o) => o.type !== TYPES && o.type !== STENCIL_META);
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
   if (!hasOutputTargets) {

@@ -2,6 +2,7 @@ import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
 import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { isOutputTargetWww } from '../../../utils';
 import { validateConfig } from '../../config/validate-config';
 import { generateServiceWorkerUrl } from '../service-worker-util';
 
@@ -20,7 +21,7 @@ describe('generateServiceWorkerUrl', () => {
       ],
     });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    outputTarget = config.outputTargets[0] as d.OutputTargetWww;
+    outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     const swUrl = generateServiceWorkerUrl(
       outputTarget,
       outputTarget.serviceWorker as d.ServiceWorkerConfig,
@@ -31,7 +32,7 @@ describe('generateServiceWorkerUrl', () => {
   it('default sw url', () => {
     userConfig = mockConfig({ devMode: false });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    outputTarget = config.outputTargets[0] as d.OutputTargetWww;
+    outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     const swUrl = generateServiceWorkerUrl(
       outputTarget,
       outputTarget.serviceWorker as d.ServiceWorkerConfig,

@@ -116,6 +116,10 @@ export const validatePackageJson = (
 
 /**
  * Validates the "module" field in package.json.
+ * @param config The Stencil config
+ * @param compilerCtx The compiler context
+ * @param buildCtx The build context
+ * @param recommendedPath The recommended path for the "module" field based on the output targets
  */
 const validateModuleField = (
   config: d.ValidatedConfig,
@@ -146,6 +150,10 @@ const validateModuleField = (
 
 /**
  * Validates the "types" field in package.json.
+ * @param config The Stencil config
+ * @param compilerCtx The compiler context
+ * @param buildCtx The build context
+ * @param recommendedPath The recommended path for the "types" field based on the types output target
  */
 const validateTypesField = (
   config: d.ValidatedConfig,

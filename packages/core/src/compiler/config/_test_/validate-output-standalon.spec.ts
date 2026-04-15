@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { COPY, STANDALONE, TYPES, join } from '../../../utils';
+import { COPY, STENCIL_META, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -28,11 +28,6 @@ describe('validate-output-standalone', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: TYPES,
-          dir: defaultDistDir,
-          typesDir: join(rootDir, 'dist', 'types'),
-        },
-        {
           type: STANDALONE,
           copy: [],
           dir: defaultDistDir,
@@ -55,11 +50,6 @@ describe('validate-output-standalone', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
         {
-          type: TYPES,
-          dir: defaultDistDir,
-          typesDir: join(rootDir, 'dist', 'types'),
-        },
-        {
           type: STANDALONE,
           copy: [],
           dir: defaultDistDir,
@@ -80,11 +70,6 @@ describe('validate-output-standalone', () => {
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
-        {
-          type: TYPES,
-          dir: defaultDistDir,
-          typesDir: join(rootDir, 'dist', 'types'),
-        },
         {
           type: STANDALONE,
           copy: [],
@@ -338,6 +323,41 @@ describe('validate-output-standalone', () => {
 
         expect(distCustomElementsTarget.autoLoader).toBe(false);
       });
+    });
+  });
+
+  describe('production mode auto-generation', () => {
+    let prodConfig: d.Config;
+
+    beforeEach(() => {
+      prodConfig = mockConfig({ devMode: false });
+    });
+
+    it('auto-generates types alongside standalone in production mode', () => {
+      prodConfig.outputTargets = [{ type: STANDALONE }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === STANDALONE)).toBe(true);
+    });
+
+    it('auto-generates stencil-meta alongside standalone in production mode', () => {
+      prodConfig.outputTargets = [{ type: STANDALONE }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(true);
+    });
+
+    it('does not duplicate types if already explicitly configured', () => {
+      prodConfig.outputTargets = [{ type: STANDALONE }, { type: TYPES, dir: 'my-types' }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      expect(config.outputTargets.filter((o) => o.type === TYPES)).toHaveLength(1);
+    });
+
+    it('does not auto-generate types or stencil-meta in dev mode', () => {
+      const devConfig = mockConfig({ devMode: true });
+      devConfig.outputTargets = [{ type: STANDALONE }];
+      const { config } = validateConfig(devConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(false);
     });
   });
 });

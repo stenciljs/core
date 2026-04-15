@@ -30,17 +30,17 @@ describe('validateOutputTargetWww', () => {
 
     expect(config.outputTargets).toEqual([
       {
-        "dir": "/dist/types",
-        "empty": true,
-        "skipInDev": true,
-        "type": "types",
+        dir: '/dist/types',
+        empty: true,
+        skipInDev: true,
+        type: 'types',
       },
       {
-        "dir": "/dist/stencil-meta",
-        "empty": true,
-        "skipInDev": true,
-        "transformAliasedImportPaths": true,
-        "type": "stencil-meta",
+        dir: '/dist/stencil-meta',
+        empty: true,
+        skipInDev: true,
+        transformAliasedImportPaths: true,
+        type: 'stencil-meta',
       },
       {
         appDir: join(rootDir, 'www', 'docs'),
@@ -142,7 +142,7 @@ describe('validateOutputTargetWww', () => {
 
   it('should default to add www when outputTargets is undefined', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets).toHaveLength(6); // includes docs-readme in production mode
+    expect(config.outputTargets).toHaveLength(8); // types + stencil-meta (auto-gen in prod) + www + dist-lazy + copy×2 + dist-global-styles + docs-readme
 
     const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(outputTarget.dir).toBe(join(rootDir, 'www'));
