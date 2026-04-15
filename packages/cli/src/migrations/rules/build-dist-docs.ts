@@ -60,7 +60,17 @@ export const buildDistDocsRule: MigrationRule = {
 
       if (isTrue) {
         if (propName === 'buildDist') {
-          targetTypesNeedingSkipInDev.push('dist', 'dist-custom-elements', 'dist-hydrate-script');
+          // Include both old and new names to handle partially migrated configs
+          targetTypesNeedingSkipInDev.push(
+            // Old names (v4)
+            'dist',
+            'dist-custom-elements',
+            'dist-hydrate-script',
+            // New names (v5) - in case user already migrated type names but still has buildDist
+            'loader-bundle',
+            'standalone',
+            'ssr',
+          );
         } else if (propName === 'buildDocs') {
           targetTypesNeedingSkipInDev.push(
             'docs-readme',

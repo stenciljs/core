@@ -84,7 +84,8 @@ export const outputTargetRenamesRule: MigrationRule = {
       if (
         ts.isPropertyAssignment(node) &&
         ts.isIdentifier(node.name) &&
-        (node.name.text === 'isPrimaryPackageOutputTarget' || node.name.text === 'generateTypeDeclarations')
+        (node.name.text === 'isPrimaryPackageOutputTarget' ||
+          node.name.text === 'generateTypeDeclarations')
       ) {
         // Check if this is inside an output target object (has a 'type' property sibling)
         const parent = node.parent;
