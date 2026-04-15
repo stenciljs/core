@@ -75,7 +75,7 @@ const validateStencilMetaPkgJson = async (
  * @param buildCtx the current build context
  * @param outputTarget a STENCIL_META output target
  */
-export const validatePackageFiles = async (
+const validatePackageFiles = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -127,7 +127,7 @@ export const validatePackageFiles = async (
  * @param buildCtx the current build context
  * @param outputTarget a STENCIL_META output target
  */
-export const validateMain = (
+const validateMain = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -154,7 +154,7 @@ export const validateMain = (
  * @param buildCtx the current build context
  * @param outputTarget a STENCIL_META output target
  */
-export const validateCollection = (
+const validateCollection = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,

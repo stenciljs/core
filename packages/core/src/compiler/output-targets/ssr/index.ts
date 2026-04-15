@@ -23,8 +23,3 @@ export const outputSsr = async (
     timespan.finish(`generate hydrate app finished`);
   }
 };
-
-/**
- * @deprecated Use outputSsr instead. This alias will be removed in v6.
- */
-export const outputHydrateScript = outputSsr;
