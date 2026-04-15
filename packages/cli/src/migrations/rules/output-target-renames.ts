@@ -13,6 +13,8 @@ import type { MigrationMatch, MigrationRule } from '../index';
  * - Renames `dist-types` → `types`
  * - Extracts `collectionDir` from loader-bundle into separate `stencil-meta` output
  * - Extracts `typesDir` from loader-bundle into separate `types` output
+ * - Removes `isPrimaryPackageOutputTarget` (no longer needed, package.json validation auto-detects)
+ * - Removes `generateTypeDeclarations` (types are now auto-generated via the `types` output target)
  */
 export const outputTargetRenamesRule: MigrationRule = {
   id: 'output-target-renames',
@@ -71,6 +73,35 @@ export const outputTargetRenamesRule: MigrationRule = {
             matches.push({
               node,
               message: `Property '${propName}' will be extracted to separate '${newType}' output target`,
+              line: line + 1,
+              column: character + 1,
+            });
+          }
+        }
+      }
+
+      // Look for removed properties: isPrimaryPackageOutputTarget and generateTypeDeclarations
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isIdentifier(node.name) &&
+        (node.name.text === 'isPrimaryPackageOutputTarget' || node.name.text === 'generateTypeDeclarations')
+      ) {
+        // Check if this is inside an output target object (has a 'type' property sibling)
+        const parent = node.parent;
+        if (ts.isObjectLiteralExpression(parent)) {
+          const hasTypeProperty = parent.properties.some(
+            (p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'type',
+          );
+          if (hasTypeProperty) {
+            const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+            const propName = node.name.text;
+            const reason =
+              propName === 'isPrimaryPackageOutputTarget'
+                ? 'Package.json validation now auto-detects based on configured outputs'
+                : "Types are now auto-generated via the 'types' output target";
+            matches.push({
+              node,
+              message: `Property '${propName}' is removed in v5. ${reason}`,
               line: line + 1,
               column: character + 1,
             });
@@ -168,7 +199,12 @@ export const outputTargetRenamesRule: MigrationRule = {
             replacement: newType,
           });
         }
-      } else if (propName === 'collectionDir' || propName === 'typesDir') {
+      } else if (
+        propName === 'collectionDir' ||
+        propName === 'typesDir' ||
+        propName === 'isPrimaryPackageOutputTarget' ||
+        propName === 'generateTypeDeclarations'
+      ) {
         // Remove the property entirely (including comma)
         const start = prop.getStart();
         let end = prop.getEnd();

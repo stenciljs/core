@@ -82,6 +82,46 @@ export const config: Config = {
 
       expect(matches).toHaveLength(0);
     });
+
+    it('should detect isPrimaryPackageOutputTarget property', () => {
+      const source = `
+export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      isPrimaryPackageOutputTarget: true,
+    },
+  ],
+};
+`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+
+      const primaryMatch = matches.find((m) => m.message.includes('isPrimaryPackageOutputTarget'));
+      expect(primaryMatch).toBeDefined();
+      expect(primaryMatch?.message).toContain('removed in v5');
+      expect(primaryMatch?.message).toContain('auto-detects');
+    });
+
+    it('should detect generateTypeDeclarations property', () => {
+      const source = `
+export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      generateTypeDeclarations: true,
+    },
+  ],
+};
+`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+
+      const typeDecsMatch = matches.find((m) => m.message.includes('generateTypeDeclarations'));
+      expect(typeDecsMatch).toBeDefined();
+      expect(typeDecsMatch?.message).toContain('removed in v5');
+      expect(typeDecsMatch?.message).toContain('types');
+    });
   });
 
   describe('transform', () => {
@@ -264,6 +304,97 @@ export const config: Config = {
       expect(result).not.toContain("type: 'dist'");
       expect(result).not.toContain("type: 'dist-custom-elements'");
       expect(result).not.toContain("type: 'dist-hydrate-script'");
+    });
+
+    it('should remove isPrimaryPackageOutputTarget property', () => {
+      const source = `export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      isPrimaryPackageOutputTarget: true,
+      dir: 'dist/components',
+    },
+  ],
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+      const result = outputTargetRenamesRule.transform(sourceFile, matches);
+
+      expect(result).toContain("type: 'standalone'");
+      expect(result).toContain("dir: 'dist/components'");
+      expect(result).not.toContain('isPrimaryPackageOutputTarget');
+    });
+
+    it('should remove generateTypeDeclarations property', () => {
+      const source = `export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      generateTypeDeclarations: true,
+      dir: 'dist/components',
+    },
+  ],
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+      const result = outputTargetRenamesRule.transform(sourceFile, matches);
+
+      expect(result).toContain("type: 'standalone'");
+      expect(result).toContain("dir: 'dist/components'");
+      expect(result).not.toContain('generateTypeDeclarations');
+    });
+
+    it('should remove both isPrimaryPackageOutputTarget and generateTypeDeclarations', () => {
+      const source = `export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist-custom-elements',
+      isPrimaryPackageOutputTarget: true,
+      generateTypeDeclarations: false,
+      dir: 'dist/components',
+    },
+  ],
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+      const result = outputTargetRenamesRule.transform(sourceFile, matches);
+
+      expect(result).toContain("type: 'standalone'");
+      expect(result).toContain("dir: 'dist/components'");
+      expect(result).not.toContain('isPrimaryPackageOutputTarget');
+      expect(result).not.toContain('generateTypeDeclarations');
+    });
+
+    it('should handle complex config with all removed properties', () => {
+      const source = `export const config: Config = {
+  namespace: 'my-lib',
+  outputTargets: [
+    {
+      type: 'dist',
+      dir: 'dist',
+      collectionDir: 'collection',
+      typesDir: 'types',
+    },
+    {
+      type: 'dist-custom-elements',
+      dir: 'dist/components',
+      isPrimaryPackageOutputTarget: true,
+      generateTypeDeclarations: true,
+    },
+  ],
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+      const result = outputTargetRenamesRule.transform(sourceFile, matches);
+
+      expect(result).toContain("type: 'loader-bundle'");
+      expect(result).toContain("type: 'standalone'");
+      expect(result).toContain("type: 'stencil-meta'");
+      expect(result).toContain("type: 'types'");
+      expect(result).not.toContain('collectionDir');
+      expect(result).not.toContain('typesDir');
+      expect(result).not.toContain('isPrimaryPackageOutputTarget');
+      expect(result).not.toContain('generateTypeDeclarations');
     });
   });
 });
