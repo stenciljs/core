@@ -8,14 +8,14 @@ export const config: Config = {
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
     {
-      type: 'dist',
+      type: 'loader-bundle',
     },
     {
       type: 'www',
       serviceWorker: null,
     },
     {
-      type: 'dist-hydrate-script',
+      type: 'ssr',
       skipInDev: false,
     },
   ],

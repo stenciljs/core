@@ -4,9 +4,9 @@ export const config: Config = {
   namespace: 'bundlesize',
   hashFileNames: false,
   outputTargets: [
-    { type: 'dist' },
+    { type: 'loader-bundle' },
     {
-      type: 'dist-custom-elements',
+      type: 'standalone',
       autoLoader: true,
       externalRuntime: false,
     },

@@ -5,7 +5,7 @@ export const config: Config = {
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
     {
-      type: 'dist-custom-elements',
+      type: 'standalone',
       dir: 'dist/custom-elements',
       externalRuntime: true,
       skipInDev: false,

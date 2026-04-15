@@ -8,7 +8,8 @@
     "url": "https://github.com/stenciljs/component-starter.git"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "dist/stencil-meta/"
   ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -43,6 +44,6 @@
   "volta": {
     "extends": "../../../package.json"
   },
-  "collection": "dist/collection/collection-manifest.json",
+  "collection": "dist/stencil-meta/collection-manifest.json",
   "collection:main": "dist/collection/index.js"
 }

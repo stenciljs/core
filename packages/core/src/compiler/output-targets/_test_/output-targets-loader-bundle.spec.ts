@@ -28,7 +28,7 @@ describe.skip('outputTarget, dist', () => {
       [path.join(root, 'User', 'testing', 'package.json')]: `{
         "module": "dist/index.mjs",
         "main": "dist/index.js",
-        "collection": "dist/collection/collection-manifest.json",
+        "collection": "dist/stencil-meta/collection-manifest.json",
         "types": "dist/types/components.d.ts"
       }`,
       [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,

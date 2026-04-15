@@ -5,7 +5,7 @@ export const config: Config = {
   srcDir: 'src',
   outputTargets: [
     {
-      type: 'dist',
+      type: 'loader-bundle',
       dir: 'dist',
     },
   ],

@@ -302,6 +302,12 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   SSR,
   STENCIL_META,
   TYPES,
+  // DEPRECATED DISTRIBUTION TARGETS (v4)
+  'dist',
+  'dist-custom-elements',
+  'dist-hydrate-script',
+  'dist-collection',
+  'dist-types',
 
   // DOCS
   DOCS_JSON,

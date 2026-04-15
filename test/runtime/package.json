@@ -28,5 +28,5 @@
   "volta": {
     "extends": "../../package.json"
   },
-  "collection": "dist/lazy/collection/collection-manifest.json"
+  "collection": "dist/stencil-meta/collection-manifest.json"
 }
