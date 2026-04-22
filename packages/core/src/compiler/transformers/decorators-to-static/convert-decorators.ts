@@ -31,7 +31,6 @@ import { watchDecoratorsToStatic } from './watch-decorator';
  * @param diagnostics for surfacing errors and warnings
  * @param typeChecker a TypeScript typechecker instance
  * @param program a {@link ts.Program} object
- * @param transformOpts optional transform options (used for style inlining)
  * @returns a TypeScript transformer factory which can be passed to
  * TypeScript to transform source code during the compilation process
  */
@@ -40,21 +39,12 @@ export const convertDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
   program: ts.Program,
-  transformOpts?: d.TransformOptions,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     let sourceFile: ts.SourceFile;
     const visit = (node: ts.Node): ts.VisitResult<ts.Node> => {
       if (ts.isClassDeclaration(node)) {
-        return visitClassDeclaration(
-          config,
-          diagnostics,
-          typeChecker,
-          program,
-          node,
-          sourceFile,
-          transformOpts,
-        );
+        return visitClassDeclaration(config, diagnostics, typeChecker, program, node, sourceFile);
       }
       return ts.visitEachChild(node, visit, transformCtx);
     };
@@ -89,7 +79,6 @@ export const convertDecoratorsToStatic = (
  * @param program a {@link ts.Program} object
  * @param classNode the node currently being visited
  * @param sourceFile the source file containing the class node
- * @param transformOpts optional transform options (used for style inlining)
  * @returns a class node, possibly updated with new static values
  */
 const visitClassDeclaration = (
@@ -99,7 +88,6 @@ const visitClassDeclaration = (
   program: ts.Program,
   classNode: ts.ClassDeclaration,
   sourceFile: ts.SourceFile,
-  transformOpts?: d.TransformOptions,
 ): ts.ClassDeclaration => {
   const importAliasMap = new ImportAliasMap(sourceFile);
 
@@ -133,8 +121,6 @@ const visitClassDeclaration = (
       classNode,
       filteredMethodsAndFields,
       componentDecorator,
-      sourceFile,
-      transformOpts,
     );
   }
 

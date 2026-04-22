@@ -1,4 +1,3 @@
-import { dirname, isAbsolute, join } from 'path';
 import type {
   CompilerSystem,
   UnvalidatedConfig,
@@ -11,7 +10,7 @@ import type {
 import type { CompilerOptions } from 'typescript';
 
 import { createNodeSys } from '../../sys/node';
-import { isString, normalizePath } from '../../utils';
+import { isString } from '../../utils';
 import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../bundle/entry-alias-ids';
 import { parseImportPath } from '../transformers/stencil-import-path';
 
@@ -135,24 +134,6 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     tsCompilerOptions.jsxImportSource = input.jsxImportSource;
   }
 
-  // Create style resolver when using inline styles
-  let resolveStyle: TransformOptions['resolveStyle'];
-  if (compileOpts.style === 'inline') {
-    resolveStyle = (stylePath: string, containingFile: string): string | null => {
-      // Resolve the style path relative to the containing file
-      const resolvedPath = isAbsolute(stylePath)
-        ? normalizePath(stylePath)
-        : normalizePath(join(dirname(containingFile), stylePath));
-
-      try {
-        const content = transpileCtx.sys.readFileSync(resolvedPath);
-        return content;
-      } catch {
-        return null;
-      }
-    };
-  }
-
   const transformOpts: TransformOptions = {
     coreImportPath: compileOpts.coreImportPath,
     componentExport: compileOpts.componentExport as any,
@@ -166,7 +147,6 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     styleImportData: compileOpts.styleImportData as any,
     target: compileOpts.target as any,
     extraFiles: input.extraFiles,
-    resolveStyle,
   };
 
   const config: UnvalidatedConfig = {
@@ -227,7 +207,7 @@ const VALID_EXPORT = new Set(['customelement', 'module']);
 const VALID_METADATA = new Set(['compilerstatic', null]);
 const VALID_MODULE = new Set(['cjs', 'esm']);
 const VALID_PROXY = new Set(['defineproperty', null]);
-const VALID_STYLE = new Set(['static', 'inline']);
+const VALID_STYLE = new Set(['static']);
 const VALID_STYLE_IMPORT_DATA = new Set(['queryparams']);
 const VALID_TARGET = new Set([
   'latest',

@@ -8,10 +8,8 @@ import { ConvertIdentifier, convertValueToLiteral, createStaticGetter } from '..
 export const styleToStatic = (
   newMembers: ts.ClassElement[],
   componentOptions: d.ComponentOptions,
-  sourceFile?: ts.SourceFile,
-  transformOpts?: d.TransformOptions,
 ) => {
-  const defaultModeStyles: string[] = [];
+  const defaultModeStyles = [];
 
   if (componentOptions.styleUrls) {
     if (Array.isArray(componentOptions.styleUrls)) {
@@ -34,95 +32,6 @@ export const styleToStatic = (
     styleUrls[DEFAULT_STYLE_MODE] = defaultModeStyles;
   }
 
-  // When style: 'inline' is set and we have a resolver, read and inline the CSS
-  const shouldInlineStyles =
-    transformOpts?.style === 'inline' &&
-    transformOpts?.resolveStyle &&
-    sourceFile &&
-    Object.keys(styleUrls).length > 0;
-
-  // DEBUG
-  if (process.env.DEBUG_INLINE_STYLES) {
-    console.log('[styleToStatic] transformOpts?.style:', transformOpts?.style);
-    console.log('[styleToStatic] has resolveStyle:', !!transformOpts?.resolveStyle);
-    console.log('[styleToStatic] has sourceFile:', !!sourceFile);
-    console.log('[styleToStatic] styleUrls keys:', Object.keys(styleUrls));
-    console.log('[styleToStatic] shouldInlineStyles:', shouldInlineStyles);
-  }
-
-  if (shouldInlineStyles) {
-    const containingFile = sourceFile.fileName;
-    const resolveStyle = transformOpts.resolveStyle!;
-
-    // Check if we have multiple modes
-    const modes = Object.keys(styleUrls);
-    const hasMultipleModes =
-      modes.length > 1 || (modes.length === 1 && modes[0] !== DEFAULT_STYLE_MODE);
-
-    if (hasMultipleModes) {
-      // Multiple modes: create an object with mode -> css content
-      const modeStyles: Record<string, string> = {};
-      for (const mode of modes) {
-        const urls = styleUrls[mode];
-        const cssContents: string[] = [];
-        for (const url of urls) {
-          const cssPath = useCss(url);
-          const content = resolveStyle(cssPath, containingFile);
-          if (content != null) {
-            cssContents.push(content);
-          }
-        }
-        if (cssContents.length > 0) {
-          modeStyles[mode] = cssContents.join('\n');
-        }
-      }
-      if (Object.keys(modeStyles).length > 0) {
-        newMembers.push(createStaticGetter('styles', convertValueToLiteral(modeStyles)));
-      }
-    } else {
-      // Single mode (default): inline as a string
-      const urls = styleUrls[DEFAULT_STYLE_MODE] || [];
-      const cssContents: string[] = [];
-
-      // DEBUG
-      if (process.env.DEBUG_INLINE_STYLES) {
-        console.log('[styleToStatic] Single mode - containingFile:', containingFile);
-        console.log('[styleToStatic] Single mode - urls:', urls);
-      }
-      for (const url of urls) {
-        const cssPath = useCss(url);
-        const content = resolveStyle(cssPath, containingFile);
-
-        // DEBUG
-        if (process.env.DEBUG_INLINE_STYLES) {
-          console.log('[styleToStatic] url:', url);
-          console.log('[styleToStatic] cssPath:', cssPath);
-          console.log('[styleToStatic] content:', content ? `(${content.length} chars)` : 'null');
-        }
-
-        if (content != null) {
-          cssContents.push(content);
-        }
-      }
-      if (cssContents.length > 0) {
-        const combinedCss = cssContents.join('\n');
-        // DEBUG
-        if (process.env.DEBUG_INLINE_STYLES) {
-          console.log('[styleToStatic] Adding styles getter with', combinedCss.length, 'chars');
-        }
-        newMembers.push(createStaticGetter('styles', ts.factory.createStringLiteral(combinedCss)));
-      } else if (process.env.DEBUG_INLINE_STYLES) {
-        console.log('[styleToStatic] NO cssContents to add!');
-      }
-    }
-    // Don't add styleUrls when inlining - we've converted them to styles
-    if (process.env.DEBUG_INLINE_STYLES) {
-      console.log('[styleToStatic] Returning early after inline processing');
-    }
-    return;
-  }
-
-  // Normal path: add styleUrls for later resolution by bundler
   if (Object.keys(styleUrls).length > 0) {
     const originalStyleUrls = convertValueToLiteral(styleUrls);
     newMembers.push(createStaticGetter('originalStyleUrls', originalStyleUrls));

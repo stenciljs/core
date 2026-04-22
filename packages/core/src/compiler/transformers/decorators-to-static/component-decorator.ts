@@ -53,8 +53,6 @@ interface ComponentOptionsWithDeprecated extends d.ComponentOptions {
  * @param newMembers an out param to hold newly generated class members
  * @param componentDecorator the TypeScript decorator node for the `@Component`
  * decorator
- * @param sourceFile the source file containing the component
- * @param transformOpts optional transform options (used for style inlining)
  */
 export const componentDecoratorToStatic = (
   config: d.ValidatedConfig,
@@ -63,8 +61,6 @@ export const componentDecoratorToStatic = (
   cmpNode: ts.ClassDeclaration,
   newMembers: ts.ClassElement[],
   componentDecorator: ts.Decorator,
-  sourceFile?: ts.SourceFile,
-  transformOpts?: d.TransformOptions,
 ) => {
   const [componentOptions] = getDecoratorParameters<ComponentOptionsWithDeprecated>(
     componentDecorator,
@@ -128,7 +124,7 @@ export const componentDecoratorToStatic = (
     }
   }
 
-  styleToStatic(newMembers, componentOptions, sourceFile, transformOpts);
+  styleToStatic(newMembers, componentOptions);
 
   const assetsDirs = componentOptions.assetsDirs || [];
 
