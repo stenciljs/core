@@ -517,20 +517,4 @@ describe('validation', () => {
       expect(config.sourceMap).toBe(false);
     });
   });
-
-  describe('validatePackageJson', () => {
-    it('should default to false', () => {
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-
-      expect(config.validatePackageJson).toBe(false);
-    });
-
-    it.each([true, false])('should set validatePackageJson to %p', (validatePackageJson) => {
-      userConfig.validatePackageJson = validatePackageJson;
-
-      const { config } = validateConfig(userConfig, bootstrapConfig);
-
-      expect(config.validatePackageJson).toBe(validatePackageJson);
-    });
-  });
 });

@@ -88,7 +88,7 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - `dist` → `loader-bundle` (default dir: `dist/loader-bundle/`)
   - `dist-custom-elements` → `standalone` (default dir: `dist/standalone/`)
   - `dist-hydrate-script` → `ssr` (default dir: `dist/ssr/`)
-  - `dist-collection` (sub-output) → `stencil-meta` (first-class output, default dir: `dist/stencil-meta/`, auto-generated in prod)
+  - `dist-collection` (sub-output) → `stencil-rebundle` (first-class output, default dir: `dist/stencil-rebundle/`, auto-generated in prod)
   - `dist-types` (sub-output) → `types` (first-class output, default dir: `dist/types/`, auto-generated in prod)
   - `collectionDir` and `typesDir` config options removed from `loader-bundle` config
   - Run `stencil migrate` to automatically update your config
@@ -119,6 +119,7 @@ See [Output Target Modernization](#output-target-modernization) section for deta
 - **`isPrimaryPackageOutputTarget` removed from output targets.** Package.json validation now auto-detects based on configured outputs. Remove this property from your output target configs.
 - **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.** The validation logic now automatically determines recommended values based on which output targets are configured, rather than requiring manual designation of a "primary" output.
 - **Export maps generation uses smart defaults.** When generating export maps, Stencil now checks if existing exports are valid before overwriting. Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target.
+- **`collection` field in package.json renamed to `stencilRebundle`.** Update your package.json to use the new field name pointing to the collection manifest.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned
@@ -471,7 +472,7 @@ v5 renames output targets for clarity and elevates hidden sub-outputs to first-c
 | `dist` | **`loader-bundle`** | Describes what you get: loader infrastructure + bundled components |
 | `dist-custom-elements` | **`standalone`** | Shorter, clearer: standalone component modules |
 | `dist-hydrate-script` | **`ssr`** | Industry-standard term for server-side rendering |
-| `dist-collection` (sub) | **`stencil-meta`** | First-class output: metadata for Stencil-to-Stencil consumption |
+| `dist-collection` (sub) | **`stencil-rebundle`** | First-class output: source + metadata for downstream Stencil projects to re-bundle |
 | `dist-types` (sub) | **`types`** | First-class output: shared TypeScript definitions |
 
 ### Architecture Changes
@@ -499,7 +500,7 @@ v5 renames output targets for clarity and elevates hidden sub-outputs to first-c
 ```typescript
 {
   outputTargets: [
-    { type: 'loader-bundle' },  // Auto-generates types + stencil-meta in prod
+    { type: 'loader-bundle' },  // Auto-generates types + stencil-rebundle in prod
     { type: 'standalone' }       // Auto-generates types in prod
   ]
 }
@@ -507,7 +508,7 @@ v5 renames output targets for clarity and elevates hidden sub-outputs to first-c
 
 **Benefits:**
 - All outputs are peers (no "primary" vs "afterthought")
-- Types and stencil-meta auto-generated in production builds
+- Types and stencil-rebundle auto-generated in production builds
 - Clear, intuitive names
 - Unified directory structure
 
@@ -525,7 +526,7 @@ dist/
 │   ├── index.js
 │   ├── my-component.js
 │   └── my-component.d.ts
-├── stencil-meta/      # Metadata for downstream Stencil projects
+├── stencil-rebundle/      # Metadata for downstream Stencil projects
 │   ├── collection-manifest.json
 │   ├── stencil.config.json  # NEW: Upstream config for merging
 │   └── components/
@@ -544,8 +545,8 @@ In **production builds** (`!config.devMode`), the compiler automatically adds:
    - `skipInDev: true`
    - Shared by `loader-bundle` and `standalone`
 
-2. **`stencil-meta`** output (unless explicitly configured)
-   - Default dir: `dist/stencil-meta/`
+2. **`stencil-rebundle`** output (unless explicitly configured)
+   - Default dir: `dist/stencil-rebundle/`
    - `skipInDev: true`
    - Contains component metadata + upstream config for downstream merging
 
@@ -561,7 +562,7 @@ Power users can override:
 
 ### Stencil Metadata Enhancements
 
-The new `stencil-meta` output extends the old collection with:
+The new `stencil-rebundle` output extends the old collection with:
 
 1. **`stencil.config.json`** - Upstream config for downstream merging
    ```json
@@ -574,7 +575,7 @@ The new `stencil-meta` output extends the old collection with:
 
 2. **Downstream consumption**:
    ```typescript
-   import upstreamConfig from 'my-lib/stencil-meta/stencil.config.json';
+   import upstreamConfig from 'my-lib/stencil-rebundle/stencil.config.json';
 
    export const config = mergeStencilConfigs(upstreamConfig, {
      // My overrides
@@ -591,7 +592,7 @@ The `stencil migrate` command handles automatic migration:
 - `type: 'dist'` → `type: 'loader-bundle'`
 - `type: 'dist-custom-elements'` → `type: 'standalone'`
 - `type: 'dist-hydrate-script'` → `type: 'ssr'`
-- `collectionDir` in config → extracts to standalone `stencil-meta` output
+- `collectionDir` in config → extracts to standalone `stencil-rebundle` output
 - `typesDir` in config → extracts to standalone `types` output
 
 **Example migration:**
@@ -611,7 +612,7 @@ The `stencil migrate` command handles automatic migration:
 {
   outputTargets: [
     { type: 'loader-bundle' },
-    { type: 'stencil-meta', dir: 'custom/collection' },
+    { type: 'stencil-rebundle', dir: 'custom/collection' },
     { type: 'types', dir: 'custom/types' }
   ]
 }
@@ -623,7 +624,7 @@ The `stencil migrate` command handles automatic migration:
 - [x] Update public type definitions
 - [x] Rename validator files
 - [x] Update output target implementations
-- [x] Create first-class `stencil-meta` and `types` outputs
+- [x] Create first-class `stencil-rebundle` and `types` outputs
 - [x] Add auto-generation logic for prod builds
 - [x] Update all tests
 - [x] Add migration CLI logic (`stencil migrate` automatically updates configs)

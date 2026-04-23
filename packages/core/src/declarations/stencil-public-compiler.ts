@@ -159,11 +159,6 @@ export interface StencilConfig {
    * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
    */
   suppressReservedPublicNameWarnings?: boolean;
-  /**
-   * When `true`, Stencil will validate that your project's `package.json` fields (module, types, exports)
-   * match the recommended values based on your configured output targets.
-   */
-  validatePackageJson?: boolean;
 
   /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
@@ -564,7 +559,6 @@ type StrictConfigFields = keyof Pick<
   | 'srcIndexHtml'
   | 'sys'
   | 'transformAliasedImportPaths'
-  | 'validatePackageJson'
 >;
 
 /**
@@ -1981,25 +1975,25 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
 }
 
 /**
- * Output target for generating Stencil component metadata for downstream consumption.
+ * Output target for generating Stencil component source for downstream re-bundling.
  * This output contains transpiled source code, component metadata, and configuration
- * that downstream Stencil projects can use to optimize their builds.
+ * that downstream Stencil projects can re-compile and bundle.
  *
- * Formerly a sub-output of 'dist' in v4, now a first-class output target in v5.
+ * Formerly 'dist-collection' sub-output in v4, now a first-class output target in v5.
  *
  * In production builds, this output is auto-generated unless explicitly configured.
  *
  * @example
  * ```typescript
  * {
- *   type: 'stencil-meta',
- *   dir: 'dist/stencil-meta',
+ *   type: 'stencil-rebundle',
+ *   dir: 'dist/stencil-rebundle',
  *   transformAliasedImportPaths: true
  * }
  * ```
  */
-export interface OutputTargetStencilMeta extends OutputTargetBaseNext {
-  type: 'stencil-meta';
+export interface OutputTargetStencilRebundle extends OutputTargetBaseNext {
+  type: 'stencil-rebundle';
   empty?: boolean;
 
   /**
@@ -2368,7 +2362,7 @@ export interface OutputTargetBase {
   skipInDev?: boolean;
 }
 
-export type OutputTargetBuild = OutputTargetStencilMeta | OutputTargetDistLazy;
+export type OutputTargetBuild = OutputTargetStencilRebundle | OutputTargetDistLazy;
 
 export interface OutputTargetCopy extends OutputTargetBase {
   type: 'copy';
@@ -2476,7 +2470,7 @@ export type OutputTarget =
   | OutputTargetLoaderBundle
   | OutputTargetStandalone
   | OutputTargetSsr
-  | OutputTargetStencilMeta
+  | OutputTargetStencilRebundle
   | OutputTargetTypes
   // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy

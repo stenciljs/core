@@ -407,7 +407,7 @@ export class MyForm {
 
       // Should have renamed and extracted
       expect(result).toContain("type: 'loader-bundle'");
-      expect(result).toContain("type: 'stencil-meta'");
+      expect(result).toContain("type: 'stencil-rebundle'");
       expect(result).toContain("type: 'types'");
       expect(result).not.toContain('collectionDir');
       expect(result).not.toContain('typesDir');
@@ -484,7 +484,7 @@ export class MyForm {
       expect(result).toContain("type: 'loader-bundle'");
       expect(result).toContain("type: 'standalone'");
       expect(result).toContain("type: 'ssr'");
-      expect(result).toContain("type: 'stencil-meta'"); // Extracted from collectionDir
+      expect(result).toContain("type: 'stencil-rebundle'"); // Extracted from collectionDir
       expect(result).toContain("type: 'docs-readme'"); // Not renamed
 
       // Removed properties

@@ -18,7 +18,7 @@ describe('extTransformsPlugin', () => {
       plugins: [],
       outputTargets: [
         {
-          type: 'stencil-meta',
+          type: 'stencil-rebundle',
           dir: 'dist/collectionDir',
         },
       ],

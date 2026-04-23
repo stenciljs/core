@@ -103,7 +103,7 @@ describe('validatePaths', () => {
     expect(www.empty).toBe(false);
   });
 
-  // v5: collectionDir and typesDir are now separate output targets (stencil-meta and types)
+  // v5: collectionDir and typesDir are now separate output targets (stencil-rebundle and types)
   // These properties no longer exist on loader-bundle output target
 
   it('should set default build dir and convert to absolute path', () => {

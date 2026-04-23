@@ -27,8 +27,10 @@ export const parseCollection = (
   // get the root directory of the dependency
   const collectionPackageRootDir = dirname(pkgJsonFilePath);
 
-  // figure out the full path to the collection collection file
-  const collectionFilePath = join(collectionPackageRootDir, pkgData.collection);
+  // figure out the full path to the collection manifest file
+  // Check for stencilRebundle (v5) or collection (v4) field
+  const collectionManifestPath = pkgData.stencilRebundle ?? pkgData.collection;
+  const collectionFilePath = join(collectionPackageRootDir, collectionManifestPath!);
 
   const relPath = relative(config.rootDir, collectionFilePath);
   config.logger.debug(`load collection: ${collectionName}, ${relPath}`);

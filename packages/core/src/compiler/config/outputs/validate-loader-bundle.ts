@@ -25,7 +25,7 @@ import { validateCopy } from '../validate-copy';
  * This function will also add internal output targets (lazy, lazy-loader, global-styles, copy)
  * to support the loader-bundle implementation.
  *
- * Note: In v5, `types` and `stencil-meta` outputs are auto-generated separately in production builds.
+ * Note: In v5, `types` and `stencil-rebundle` outputs are auto-generated separately in production builds.
  *
  * @param config the compiler config
  * @param userOutputs a user-supplied list of output targets

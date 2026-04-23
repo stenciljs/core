@@ -226,10 +226,13 @@ export const STANDALONE = 'standalone';
 export const SSR = 'ssr';
 
 /**
- * Constant for the 'stencil-meta' output target
+ * Constant for the 'stencil-rebundle' output target
  * (formerly 'dist-collection' sub-output in v4)
+ *
+ * Contains transpiled source + metadata for downstream Stencil projects
+ * to re-compile/bundle.
  */
-export const STENCIL_META = 'stencil-meta';
+export const STENCIL_REBUNDLE = 'stencil-rebundle';
 
 /**
  * Constant for the 'types' output target
@@ -292,7 +295,7 @@ export const WWW = 'www';
  * Note that some internal output targets (e.g. `DIST_LAZY`, `DIST_LAZY_LOADER`, `DIST_GLOBAL_STYLES`)
  * are programmatically created by the compiler and are not user-configurable.
  *
- * In v5, `TYPES` and `STENCIL_META` are auto-generated in production builds unless explicitly configured.
+ * In v5, `TYPES` and `STENCIL_REBUNDLE` are auto-generated in production builds unless explicitly configured.
  */
 export const VALID_CONFIG_OUTPUT_TARGETS = [
   // DISTRIBUTION
@@ -300,9 +303,9 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   LOADER_BUNDLE,
   STANDALONE,
   SSR,
-  STENCIL_META,
+  STENCIL_REBUNDLE,
   TYPES,
-  // DEPRECATED DISTRIBUTION TARGETS (v4)
+  // DEPRECATED DISTRIBUTION TARGETS (v4 / early v5)
   'dist',
   'dist-custom-elements',
   'dist-hydrate-script',

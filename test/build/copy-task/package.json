@@ -9,7 +9,7 @@
   },
   "files": [
     "dist/",
-    "dist/stencil-meta/"
+    "dist/stencil-rebundle/"
   ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -44,6 +44,6 @@
   "volta": {
     "extends": "../../../package.json"
   },
-  "collection": "dist/stencil-meta/collection-manifest.json",
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
   "collection:main": "dist/collection/index.js"
 }

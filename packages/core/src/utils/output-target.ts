@@ -9,7 +9,7 @@ import {
   LOADER_BUNDLE,
   STANDALONE,
   SSR,
-  STENCIL_META,
+  STENCIL_REBUNDLE,
   TYPES,
   // Internal output targets
   DIST_GLOBAL_STYLES,
@@ -147,8 +147,8 @@ export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTarget
 
 export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
 
-export const isOutputTargetStencilMeta = (o: d.OutputTarget): o is d.OutputTargetStencilMeta =>
-  o.type === STENCIL_META;
+export const isOutputTargetStencilRebundle = (o: d.OutputTarget): o is d.OutputTargetStencilRebundle =>
+  o.type === STENCIL_REBUNDLE;
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;

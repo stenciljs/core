@@ -6,7 +6,7 @@ import {
   COLLECTION_MANIFEST_FILE_NAME,
   flatOne,
   generatePreamble,
-  isOutputTargetStencilMeta,
+  isOutputTargetStencilRebundle,
   join,
   normalizePath,
   relative,
@@ -16,14 +16,14 @@ import { version, versions } from '../../../version';
 import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-aliases';
 
 /**
- * Main output target function for `stencil-meta`.
+ * Main output target function for `stencil-rebundle`.
  *
  * This function takes the compiled output from a {@link ts.Program}, runs each file through
  * a transformer to transpile import path aliases, and then writes the output code and source
- * maps to disk in the specified stencil-meta directory.
+ * maps to disk in the specified stencil-rebundle directory.
  *
- * The stencil-meta output contains component metadata, transpiled source, and configuration
- * for downstream Stencil projects to consume.
+ * The stencil-rebundle output contains component source code, metadata, and configuration
+ * for downstream Stencil projects to re-compile and bundle.
  *
  * @param config The validated Stencil config.
  * @param compilerCtx The current compiler context.
@@ -31,18 +31,18 @@ import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-
  * @param changedModuleFiles The changed modules returned from the TS compiler.
  * @returns An empty promise. Resolved once all functions finish.
  */
-export const outputStencilMeta = async (
+export const outputStencilRebundle = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   changedModuleFiles: d.Module[],
 ): Promise<void> => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetStencilMeta);
+  const outputTargets = config.outputTargets.filter(isOutputTargetStencilRebundle);
   if (outputTargets.length === 0) {
     return;
   }
 
-  const bundlingEventMessage = `generate stencil-meta${config.sourceMap ? ' + source maps' : ''}`;
+  const bundlingEventMessage = `generate stencil-rebundle${config.sourceMap ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`, true);
   try {
     await Promise.all(
@@ -87,7 +87,7 @@ export const outputStencilMeta = async (
       }),
     );
 
-    await writeStencilMetaManifests(config, compilerCtx, buildCtx, outputTargets);
+    await writeStencilRebundleManifests(config, compilerCtx, buildCtx, outputTargets);
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);
   }
@@ -95,11 +95,11 @@ export const outputStencilMeta = async (
   timespan.finish(`${bundlingEventMessage} finished`);
 };
 
-const writeStencilMetaManifests = async (
+const writeStencilRebundleManifests = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTargets: d.OutputTargetStencilMeta[],
+  outputTargets: d.OutputTargetStencilRebundle[],
 ) => {
   const collectionData = JSON.stringify(
     serializeCollectionManifest(config, compilerCtx, buildCtx),
@@ -107,7 +107,7 @@ const writeStencilMetaManifests = async (
     2,
   );
   return Promise.all(
-    outputTargets.map((o) => writeStencilMetaManifest(compilerCtx, collectionData, o)),
+    outputTargets.map((o) => writeStencilRebundleManifest(compilerCtx, collectionData, o)),
   );
 };
 
@@ -116,12 +116,12 @@ const writeStencilMetaManifests = async (
 // but the external user data will always use the same API.
 // These mapping functions loosely couple core component metadata
 // between specific versions of the compiler.
-const writeStencilMetaManifest = async (
+const writeStencilRebundleManifest = async (
   compilerCtx: d.CompilerCtx,
   collectionData: string,
-  outputTarget: d.OutputTargetStencilMeta,
+  outputTarget: d.OutputTargetStencilRebundle,
 ) => {
-  // Get the absolute path to the directory where the stencil-meta will be saved
+  // Get the absolute path to the directory where the stencil-rebundle output will be saved
   const { dir } = outputTarget;
 
   // Create an absolute file path to the actual collection manifest json file

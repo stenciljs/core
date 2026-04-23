@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { join, LOADER_BUNDLE, STENCIL_META, TYPES } from '../../../utils';
+import { join, LOADER_BUNDLE, STENCIL_REBUNDLE, TYPES } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateLoaderBundleOutputTarget', () => {
@@ -130,10 +130,10 @@ describe('validateLoaderBundleOutputTarget', () => {
       expect(config.outputTargets.some((o) => o.type === LOADER_BUNDLE)).toBe(true);
     });
 
-    it('auto-generates stencil-meta alongside loader-bundle in production mode', () => {
+    it('auto-generates stencil-rebundle alongside loader-bundle in production mode', () => {
       prodConfig.outputTargets = [{ type: LOADER_BUNDLE }];
       const { config } = validateConfig(prodConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(true);
     });
 
     it('does not duplicate types if already explicitly configured', () => {
@@ -142,12 +142,12 @@ describe('validateLoaderBundleOutputTarget', () => {
       expect(config.outputTargets.filter((o) => o.type === TYPES)).toHaveLength(1);
     });
 
-    it('does not auto-generate types or stencil-meta in dev mode', () => {
+    it('does not auto-generate types or stencil-rebundle in dev mode', () => {
       const devConfig = mockConfig({ devMode: true, fsNamespace: 'testing' });
       devConfig.outputTargets = [{ type: LOADER_BUNDLE }];
       const { config } = validateConfig(devConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
-      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(false);
     });
   });
 });

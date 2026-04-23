@@ -9,7 +9,7 @@ import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
 import { outputStandalone } from './standalone';
-import { outputStencilMeta } from './stencil-meta';
+import { outputStencilRebundle } from './stencil-rebundle';
 
 export const generateOutputTargets = async (
   config: d.ValidatedConfig,
@@ -71,8 +71,8 @@ export const generateOutputTargets = async (
     : [];
 
   await Promise.all([
-    // outputStencilMeta is already a no-op when changedModuleFiles is empty.
-    outputStencilMeta(config, compilerCtx, buildCtx, changedModuleFiles),
+    // outputStencilRebundle is already a no-op when changedModuleFiles is empty.
+    outputStencilRebundle(config, compilerCtx, buildCtx, changedModuleFiles),
     ...bundlerTasks,
   ]);
 

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { COPY, STENCIL_META, STANDALONE, TYPES, join } from '../../../utils';
+import { COPY, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -340,10 +340,10 @@ describe('validate-output-standalone', () => {
       expect(config.outputTargets.some((o) => o.type === STANDALONE)).toBe(true);
     });
 
-    it('auto-generates stencil-meta alongside standalone in production mode', () => {
+    it('auto-generates stencil-rebundle alongside standalone in production mode', () => {
       prodConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(prodConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(true);
     });
 
     it('does not duplicate types if already explicitly configured', () => {
@@ -352,12 +352,12 @@ describe('validate-output-standalone', () => {
       expect(config.outputTargets.filter((o) => o.type === TYPES)).toHaveLength(1);
     });
 
-    it('does not auto-generate types or stencil-meta in dev mode', () => {
+    it('does not auto-generate types or stencil-rebundle in dev mode', () => {
       const devConfig = mockConfig({ devMode: true });
       devConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(devConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
-      expect(config.outputTargets.some((o) => o.type === STENCIL_META)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(false);
     });
   });
 });

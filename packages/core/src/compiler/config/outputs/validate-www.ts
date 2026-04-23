@@ -11,7 +11,7 @@ import {
   isString,
   join,
   STANDALONE,
-  STENCIL_META,
+  STENCIL_REBUNDLE,
   TYPES,
   WWW,
 } from '../../../utils';
@@ -26,10 +26,10 @@ export const validateWww = (
   userOutputs: d.OutputTarget[],
 ) => {
   // Only count 'real' user-configured output targets — exclude the auto-generated
-  // types and stencil-meta outputs that autoGenerateOutputs() may have injected into
+  // types and stencil-rebundle outputs that autoGenerateOutputs() may have injected into
   // userOutputs before this function was called, so a bare config (no explicit output
   // targets) still gets the default www output added.
-  const hasOutputTargets = userOutputs.some((o) => o.type !== TYPES && o.type !== STENCIL_META);
+  const hasOutputTargets = userOutputs.some((o) => o.type !== TYPES && o.type !== STENCIL_REBUNDLE);
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
   if (!hasOutputTargets) {

@@ -155,7 +155,6 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
       inputOptions: {},
       outputOptions: {},
     },
-    validatePackageJson: false,
     ...overrides,
   };
 }

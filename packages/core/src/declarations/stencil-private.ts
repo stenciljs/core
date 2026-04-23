@@ -1996,7 +1996,9 @@ export interface PackageJsonData {
   'jsnext:main'?: string;
   'collection:main'?: string;
   unpkg?: string;
+  /** @deprecated Use `stencilRebundle` instead. Kept for reading v4 dependencies. */
   collection?: string;
+  stencilRebundle?: string;
   types?: string;
   files?: string[];
   ['dist-tags']?: {

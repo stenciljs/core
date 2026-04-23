@@ -28,7 +28,7 @@ describe.skip('outputTarget, www / dist / docs', () => {
           type: 'dist',
           dir: 'custom-dist',
           buildDir: 'dist-build',
-          collectionDir: 'stencil-meta',
+          collectionDir: 'stencil-rebundle',
           typesDir: 'custom-types',
         },
         {
@@ -44,7 +44,7 @@ describe.skip('outputTarget, www / dist / docs', () => {
       [path.join(root, 'User', 'testing', 'package.json')]: `{
         "module": "custom-dist/index.mjs",
         "main": "custom-dist/index.js",
-        "collection": "custom-dist/stencil-meta/collection-manifest.json",
+        "collection": "custom-dist/stencil-rebundle/collection-manifest.json",
         "types": "custom-dist/custom-types/components.d.ts"
       }`,
       [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,

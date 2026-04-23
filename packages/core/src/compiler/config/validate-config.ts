@@ -132,7 +132,6 @@ export const validateConfig = (
     transformAliasedImportPaths: isBoolean(userConfig.transformAliasedImportPaths)
       ? userConfig.transformAliasedImportPaths
       : true,
-    validatePackageJson: userConfig.validatePackageJson ?? false,
     ...validateNamespace(config.namespace, config.fsNamespace, diagnostics),
     ...validatePaths(config),
   };
