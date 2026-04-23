@@ -1994,7 +1994,6 @@ export interface PackageJsonData {
   browser?: string;
   module?: string;
   'jsnext:main'?: string;
-  'collection:main'?: string;
   unpkg?: string;
   /** @deprecated Use `stencilRebundle` instead. Kept for reading v4 dependencies. */
   collection?: string;

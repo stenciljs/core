@@ -100,7 +100,7 @@ export const getRolldownOptions = (
 
     resolve: {
       // Stencil-specific main fields plus standard ones
-      mainFields: ['collection:main', 'jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
+      mainFields: ['jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
       // Export conditions for package.json exports field
       conditionNames: (bundleOpts.platform === 'hydrate'
         ? ['node', 'import', 'require', 'default']

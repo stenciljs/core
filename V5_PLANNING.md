@@ -518,9 +518,12 @@ All outputs now live under `dist/` by default:
 
 ```
 dist/
+├── loader/            # Loader entry point (at root for easy access)
+│   ├── index.js
+│   └── index.d.ts
 ├── loader-bundle/     # Lazy-loaded bundles + loader infrastructure
 │   ├── esm/          # Lazy-loadable ES modules
-│   ├── loader/       # Loader entry point
+│   ├── <namespace>/  # Browser/CDN build
 │   └── cjs/          # Optional CommonJS output
 ├── standalone/        # Individual ES module per component
 │   ├── index.js

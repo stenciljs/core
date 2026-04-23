@@ -305,7 +305,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   SSR,
   STENCIL_REBUNDLE,
   TYPES,
-  // DEPRECATED DISTRIBUTION TARGETS (v4 / early v5)
+  // DEPRECATED DISTRIBUTION TARGETS (< v5)
   'dist',
   'dist-custom-elements',
   'dist-hydrate-script',
@@ -328,7 +328,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
 export const GENERATED_DTS = 'components.d.ts';
 
 /**
- * DOM Node types
+ * DOM Node types 
  *
  * See https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
  *

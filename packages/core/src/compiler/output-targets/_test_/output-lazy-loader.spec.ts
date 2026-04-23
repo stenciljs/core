@@ -52,15 +52,16 @@ describe('Lazy Loader Output Target', () => {
     ({ config, compilerCtx, writeFileSpy } = setup());
     await outputLazyLoader(config, compilerCtx);
 
-    const expectedIndexOutput = `export * from '../esm/loader.js';`;
+    // Loader defaults to dist/loader, so paths are relative from there to my-test-dir/esm
+    const expectedIndexOutput = `export * from '../../my-test-dir/esm/loader.js';`;
     expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.js'),
+      resolve('/dist/loader/index.js'),
       expectedIndexOutput,
     );
 
-    const expectedCjsIndexOutput = `module.exports = require('../cjs/loader.cjs.js');`;
+    const expectedCjsIndexOutput = `module.exports = require('../../my-test-dir/cjs/loader.cjs.js');`;
     expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/my-test-dir/loader/index.cjs.js'),
+      resolve('/dist/loader/index.cjs.js'),
       expectedCjsIndexOutput,
     );
   });

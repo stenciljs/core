@@ -1,7 +1,6 @@
 import type * as d from '@stencil/core';
 
 import { hasError, hasWarning, result } from '../../utils';
-import { validateConfig } from '../config/validate-config';
 
 /**
  * A new BuildCtx object is created for every build
@@ -61,8 +60,8 @@ export class BuildContext implements d.BuildCtx {
   transpileBuildCount = 0;
   validateTypesPromise: Promise<d.ValidateTypesResults>;
 
-  constructor(config: d.Config, compilerCtx: d.CompilerCtx) {
-    this.config = validateConfig(config, {}).config;
+  constructor(config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) {
+    this.config = config;
     this.compilerCtx = compilerCtx;
     this.buildId = ++this.compilerCtx.activeBuildId;
 

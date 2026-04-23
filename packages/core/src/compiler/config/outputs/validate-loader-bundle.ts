@@ -11,7 +11,6 @@ import {
   isOutputTargetLoaderBundle,
   isString,
   join,
-  resolve,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
@@ -118,7 +117,8 @@ const validateOutputTargetLoaderBundle = (
     ...o,
     dir: getAbsolutePath(config, o.dir || DEFAULT_DIR),
     buildDir: isString(o.buildDir) ? o.buildDir : DEFAULT_BUILD_DIR,
-    esmLoaderPath: o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR,
+    // esmLoaderPath defaults to dist/loader (at dist root for easy access)
+    esmLoaderPath: getAbsolutePath(config, o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR),
     copy: validateCopy(o.copy ?? [], []),
     empty: isBoolean(o.empty) ? o.empty : true,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
@@ -130,13 +130,9 @@ const validateOutputTargetLoaderBundle = (
     outputTarget.buildDir = join(outputTarget.dir, outputTarget.buildDir);
   }
 
-  if (!isAbsolute(outputTarget.esmLoaderPath)) {
-    outputTarget.esmLoaderPath = resolve(outputTarget.dir, outputTarget.esmLoaderPath);
-  }
-
   return outputTarget;
 };
 
 const DEFAULT_DIR = 'dist/loader-bundle';
 const DEFAULT_BUILD_DIR = '';
-const DEFAULT_ESM_LOADER_DIR = 'loader';
+const DEFAULT_ESM_LOADER_DIR = 'dist/loader';

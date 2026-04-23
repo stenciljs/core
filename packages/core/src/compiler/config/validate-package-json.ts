@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import {
   buildJsonFileError,
   COLLECTION_MANIFEST_FILE_NAME,
+  GENERATED_DTS,
   isGlob,
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
@@ -20,10 +21,10 @@ import {
  */
 interface PackageJsonRecommendations {
   /**
-   * Recommended value for the "module" field (ESM entry point).
-   * Priority: loader-bundle > standalone
+   * Recommended values for the "module" field (ESM entry points).
+   * Contains paths for each configured output target that produces an entry point.
    */
-  module: string | null;
+  moduleOptions: string[];
   /**
    * Recommended value for the "types" field.
    * Always points to the types output target directory.
@@ -46,40 +47,52 @@ interface PackageJsonRecommendations {
  *
  * In v5, output targets are peers - there's no "primary" output target.
  * Instead, recommendations are derived from which outputs are configured:
- * - `module` points to loader-bundle (if present) or standalone
- * - `types` always points to the types output target
+ * - `moduleOptions` contains entry points for each configured output (loader, standalone)
+ * - `types` points to index.d.ts if src/index.ts exists, otherwise components.d.ts
  * - `main` points to CJS output from loader-bundle (if cjs: true)
  *
  * @param config The validated Stencil configuration
+ * @param compilerCtx The compiler context (for file system access)
  * @returns Recommended values for package.json fields
  */
-const getPackageJsonRecommendations = (config: d.ValidatedConfig): PackageJsonRecommendations => {
+const getPackageJsonRecommendations = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+): PackageJsonRecommendations => {
   const loaderBundle = config.outputTargets.find(isOutputTargetLoaderBundle);
   const standalone = config.outputTargets.find(isOutputTargetStandalone);
   const types = config.outputTargets.find(isOutputTargetTypes);
 
-  // module: prefer loader-bundle, fall back to standalone
-  let module: string | null = null;
-  if (loaderBundle?.dir) {
-    module = normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.js')));
-  } else if (standalone?.dir) {
-    module = normalizePath(relative(config.rootDir, join(standalone.dir, 'index.js')));
+  // moduleOptions: collect entry points from each configured output target
+  const moduleOptions: string[] = [];
+
+  // loader-bundle provides an entry at esmLoaderPath (defaults to dist/loader)
+  if (loaderBundle?.esmLoaderPath) {
+    moduleOptions.push(normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.js'))));
   }
 
-  // types: always from the types output target
+  // standalone provides an entry at its dir (defaults to dist/standalone)
+  if (standalone?.dir) {
+    moduleOptions.push(normalizePath(relative(config.rootDir, join(standalone.dir, 'index.js'))));
+  }
+
+  // types: use index.d.ts if src/index.ts exists, otherwise components.d.ts
   let typesPath: string | null = null;
   if (types?.dir) {
-    typesPath = normalizePath(relative(config.rootDir, join(types.dir, 'index.d.ts')));
+    const srcIndexPath = join(config.srcDir, 'index.ts');
+    const hasSrcIndex = compilerCtx.fs.accessSync(srcIndexPath);
+    const typesFileName = hasSrcIndex ? 'index.d.ts' : GENERATED_DTS;
+    typesPath = normalizePath(relative(config.rootDir, join(types.dir, typesFileName)));
   }
 
   // main: only if loader-bundle has CJS enabled
   let main: string | null = null;
   const hasCjsOutput = !!(loaderBundle?.cjs);
-  if (loaderBundle?.dir && loaderBundle.cjs) {
-    main = normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.cjs.js')));
+  if (loaderBundle?.esmLoaderPath && loaderBundle.cjs) {
+    main = normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.cjs.js')));
   }
 
-  return { module, types: typesPath, main, hasCjsOutput };
+  return { moduleOptions, types: typesPath, main, hasCjsOutput };
 };
 
 // ============================================================================
@@ -135,16 +148,16 @@ const validatePackageJson = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): void => {
-  const recommendations = getPackageJsonRecommendations(config);
+  const recommendations = getPackageJsonRecommendations(config, compilerCtx);
 
   // No distributable outputs configured - nothing to validate
-  if (!recommendations.module && !recommendations.types) {
+  if (recommendations.moduleOptions.length === 0 && !recommendations.types) {
     return;
   }
 
   // Validate module field
-  if (recommendations.module) {
-    validateModuleField(config, compilerCtx, buildCtx, recommendations.module);
+  if (recommendations.moduleOptions.length > 0) {
+    validateModuleField(config, compilerCtx, buildCtx, recommendations.moduleOptions);
   }
 
   // Validate types field
@@ -152,9 +165,13 @@ const validatePackageJson = (
     validateTypesField(config, compilerCtx, buildCtx, recommendations.types);
   }
 
-  // Validate main field (only if CJS output is enabled)
+  // Validate main field
   if (recommendations.main) {
+    // CJS output is enabled - validate main is set correctly
     validateMainField(config, compilerCtx, buildCtx, recommendations.main);
+  } else {
+    // CJS output not enabled - but if main is set, check it exists
+    validateMainFieldExists(config, compilerCtx, buildCtx);
   }
 
   // Validate type: "module" field
@@ -166,37 +183,61 @@ const validatePackageJson = (
 // ============================================================================
 
 /**
+ * Formats module options for display in warning messages.
+ * Single option: "./dist/loader/index.js"
+ * Multiple options: "./dist/loader/index.js or ./dist/standalone/index.js"
+ */
+const formatModuleOptions = (options: string[]): string => {
+  if (options.length === 1) {
+    return options[0];
+  }
+  return options.join(' or ');
+};
+
+/**
  * Validates the "module" field in package.json.
+ * Checks that the field exists and points to a file that will be generated.
  */
 const validateModuleField = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  recommendedPath: string,
+  moduleOptions: string[],
 ): void => {
   const currentModulePath = buildCtx.packageJson.module;
+  const suggestion = formatModuleOptions(moduleOptions);
 
   if (!isString(currentModulePath) || currentModulePath === '') {
     packageJsonWarn(
       config,
       compilerCtx,
       buildCtx,
-      `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${recommendedPath}`,
+      `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${suggestion}`,
       '"module"',
     );
-  } else if (normalizePath(currentModulePath) !== normalizePath(recommendedPath)) {
+    return;
+  }
+
+  // Check if the current module path exists
+  const moduleFile = join(config.rootDir, currentModulePath);
+  const moduleFileExists = compilerCtx.fs.accessSync(moduleFile);
+
+  if (!moduleFileExists) {
+    // File doesn't exist - provide helpful message with recommendation
     packageJsonWarn(
       config,
       compilerCtx,
       buildCtx,
-      `package.json "module" property is set to "${currentModulePath}". It's recommended to set the "module" property to: ${recommendedPath}`,
+      `package.json "module" property is set to "${currentModulePath}" which doesn't exist. Consider setting it to: ${suggestion}`,
       '"module"',
     );
   }
+  // If the file exists, don't warn even if it differs from recommendation
 };
 
 /**
  * Validates the "types" field in package.json.
+ * Checks that the field exists, has a .d.ts extension, and points to a file that exists.
  */
 const validateTypesField = (
   config: d.ValidatedConfig,
@@ -228,34 +269,26 @@ const validateTypesField = (
     return;
   }
 
-  if (normalizePath(currentTypesPath) !== normalizePath(recommendedPath)) {
-    packageJsonWarn(
-      config,
-      compilerCtx,
-      buildCtx,
-      `package.json "types" property is set to "${currentTypesPath}". It's recommended to set the "types" property to: ${recommendedPath}`,
-      '"types"',
-    );
-    return;
-  }
-
-  // Check if the types file exists
+  // Check if the types file exists - this is the primary validation
   const typesFile = join(config.rootDir, currentTypesPath);
   const typesFileExists = compilerCtx.fs.accessSync(typesFile);
+
   if (!typesFileExists) {
+    // File doesn't exist - provide helpful message with recommendation
     packageJsonError(
       config,
       compilerCtx,
       buildCtx,
-      `package.json "types" property is set to "${currentTypesPath}" but cannot be found.`,
+      `package.json "types" property is set to "${currentTypesPath}" which doesn't exist. Consider setting it to: ${recommendedPath}`,
       '"types"',
     );
   }
+  // If the file exists, don't warn even if it differs from recommendation
 };
 
 /**
  * Validates the "main" field in package.json.
- * Only relevant when CJS output is enabled.
+ * Called when CJS output is being generated - checks that main is set correctly.
  */
 const validateMainField = (
   config: d.ValidatedConfig,
@@ -273,12 +306,49 @@ const validateMainField = (
       `package.json "main" property is recommended when generating CJS output. Set it to: ${recommendedPath}`,
       '"main"',
     );
-  } else if (normalizePath(currentMainPath) !== normalizePath(recommendedPath)) {
+    return;
+  }
+
+  // Check if the current main path exists
+  const mainFile = join(config.rootDir, currentMainPath);
+  const mainFileExists = compilerCtx.fs.accessSync(mainFile);
+
+  if (!mainFileExists) {
     packageJsonWarn(
       config,
       compilerCtx,
       buildCtx,
-      `package.json "main" property is set to "${currentMainPath}". For CJS output, it's recommended to set "main" to: ${recommendedPath}`,
+      `package.json "main" property is set to "${currentMainPath}" which doesn't exist. Consider setting it to: ${recommendedPath}`,
+      '"main"',
+    );
+  }
+};
+
+/**
+ * Validates that if "main" is set in package.json, the file actually exists.
+ * This is called regardless of whether CJS output is configured.
+ */
+const validateMainFieldExists = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): void => {
+  const currentMainPath = buildCtx.packageJson.main;
+
+  if (!isString(currentMainPath) || currentMainPath === '') {
+    return; // No main field set, nothing to validate
+  }
+
+  // Check if the current main path exists
+  const mainFile = join(config.rootDir, currentMainPath);
+  const mainFileExists = compilerCtx.fs.accessSync(mainFile);
+
+  if (!mainFileExists) {
+    packageJsonWarn(
+      config,
+      compilerCtx,
+      buildCtx,
+      `package.json "main" property is set to "${currentMainPath}" which doesn't exist.`,
       '"main"',
     );
   }
@@ -299,7 +369,7 @@ const validateTypeField = (
   const currentType = buildCtx.packageJson.type;
 
   // If no CJS output, recommend "type": "module"
-  if (!recommendations.hasCjsOutput && recommendations.module) {
+  if (!recommendations.hasCjsOutput && recommendations.moduleOptions.length > 0) {
     if (currentType !== 'module') {
       packageJsonWarn(
         config,
@@ -393,7 +463,7 @@ const validateStencilRebundleField = (
       false,
     );
     if (!buildCtx.packageJson.stencilRebundle || normalizePath(buildCtx.packageJson.stencilRebundle, false) !== rebundleRel) {
-      const msg = `package.json "stencilRebundle" property is required when generating a distribution and must be set to: ${rebundleRel}`;
+      const msg = `package.json "stencilRebundle" property should be set to ${rebundleRel} when generating a distribution bundle.`;
       packageJsonWarn(config, compilerCtx, buildCtx, msg, `"stencilRebundle"`);
     }
   }
