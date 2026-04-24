@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "A test app for the docs-readme output target",
   "license": "MIT",
-  "files": [
-    "dist/"
-  ],
   "type": "module",
+  "files": [
+    "dist/",
+    "dist/stencil-rebundle/"
+  ],
+  "module": "dist/loader/index.js",
+  "types": "dist/types/index.d.ts",
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",  
   "scripts": {
     "prepare.readmes": "node ./copy-readme.js",
     "build": "stencil build",

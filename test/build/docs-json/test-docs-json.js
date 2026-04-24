@@ -1,5 +1,5 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'node:path';
+import fs from 'node:fs';
 
 const docsJsonOutputFilePath = path.join('.', 'docs.json');
 const docsDtsOutputFilePath = path.join('.', 'docs.d.ts');
@@ -40,7 +40,7 @@ for (const line of lines) {
   // Check for short mangled names like $n, Bn, etc. being aliased
   const mangledPattern = /\{\s*[A-Z]?[$a-z]\w?\s+as\s+\w+/;
   if (mangledPattern.test(line)) {
-    console.error('ERROR: docs.d.ts contains mangled export names in imports!');
+    console.error('❌ ERROR: docs.d.ts contains mangled export names in imports!');
     console.error(`Line: ${line}`);
     console.error('This indicates a regression in declaration file generation.');
     process.exit(1);
@@ -56,9 +56,9 @@ const requiredTypes = [
 ];
 for (const typeDef of requiredTypes) {
   if (!docsDtsContents.includes(typeDef)) {
-    console.error(`ERROR: docs.d.ts is missing required type definition: ${typeDef}`);
+    console.error(`❌ ERROR: docs.d.ts is missing required type definition: ${typeDef}`);
     process.exit(1);
   }
 }
 
-console.log('docs.d.ts validation passed: file is self-contained with proper type definitions');
+console.log('✅ docs.d.ts validation passed: file is self-contained with proper type definitions');

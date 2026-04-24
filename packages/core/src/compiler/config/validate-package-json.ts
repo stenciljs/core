@@ -379,7 +379,7 @@ const validateTypeField = (
       config,
       compilerCtx,
       buildCtx,
-      `package.json "type" property should be set to "module". This enables native ES module resolution. CJS output uses the .cjs extension which Node.js always treats as CommonJS.`,
+      `package.json "type" property should be set to "module".`,
       '"type"',
     );
   }

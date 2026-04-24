@@ -2,6 +2,21 @@
   "name": "@stencil-core-tests/build-bundle-size",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
+  "module": "dist/loader/index.js",
+  "types": "dist/types/components.d.ts",
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
+  "exports": {
+    ".": {
+      "import": "./dist/loader-bundle/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./loader": {
+      "import": "./dist/loader/index.js",
+      "require": "./dist/loader/index.cjs",
+      "types": "./dist/loader/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "stencil build",
     "clean": "rimraf dist .stencil",

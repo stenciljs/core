@@ -14,7 +14,19 @@
   ],
   "module": "dist/loader/index.js",
   "types": "dist/types/components.d.ts",
-  "unpkg": "dist/loader-bundle/copytask/copytask.esm.js",
+  "unpkg": "dist/loader-bundle/copytask/copytask.js",
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
+  "exports": {
+    ".": {
+      "import": "./dist/loader-bundle/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./loader": {
+      "import": "./dist/loader/index.js",
+      "require": "./dist/loader/index.cjs",
+      "types": "./dist/loader/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "rimraf ./dist && stencil build",
     "test": "npm run build && node validate.js"
@@ -28,17 +40,5 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  },
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
-  "exports": {
-    ".": {
-      "import": "./dist/loader-bundle/index.js",
-      "types": "./dist/types/index.d.ts"
-    },
-    "./loader": {
-      "import": "./dist/loader/index.js",
-      "require": "./dist/loader/index.cjs",
-      "types": "./dist/loader/index.d.ts"
-    }
   }
 }
