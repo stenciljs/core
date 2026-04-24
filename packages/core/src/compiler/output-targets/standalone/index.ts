@@ -28,7 +28,7 @@ import { nativeComponentTransform } from '../../transformers/component-native/tr
 import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
-import { getCustomElementsBuildConditionals } from './custom-elements-build-conditionals';
+import { getStandaloneBuildConditionals } from './standalone-build-conditionals';
 import { generateLoaderModule } from './generate-loader-module';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
@@ -84,7 +84,7 @@ export const getBundleOptions = (
 ): BundleOptions => ({
   id: 'customElements',
   platform: 'client',
-  conditionals: getCustomElementsBuildConditionals(config, buildCtx.components),
+  conditionals: getStandaloneBuildConditionals(config, buildCtx.components),
   customBeforeTransformers: getCustomBeforeTransformers(
     config,
     compilerCtx,

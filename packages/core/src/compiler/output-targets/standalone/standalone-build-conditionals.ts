@@ -10,7 +10,7 @@ import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-da
  * @param cmps metadata about the components currently being compiled
  * @returns build conditionals appropriate for the `standalone` OT
  */
-export const getCustomElementsBuildConditionals = (
+export const getStandaloneBuildConditionals = (
   config: d.ValidatedConfig,
   cmps: d.ComponentCompilerMeta[],
 ): d.BuildConditionals => {

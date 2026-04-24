@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { isDtsFile, join, relative } from '../../utils';
-import { generateCustomElementsTypes } from '../output-targets/standalone/custom-elements-types';
+import { generateStandaloneTypes } from '../output-targets/standalone/standalone-types';
 import { generateAppTypes } from './generate-app-types';
 import { copyStencilCoreDts, updateStencilTypesImports } from './stencil-types';
 
@@ -66,6 +66,6 @@ const generateTypesOutput = async (
   const typesDir = outputTarget.dir!;
 
   if (distDtsFilePath) {
-    await generateCustomElementsTypes(config, compilerCtx, buildCtx, typesDir);
+    await generateStandaloneTypes(config, compilerCtx, buildCtx, typesDir);
   }
 };

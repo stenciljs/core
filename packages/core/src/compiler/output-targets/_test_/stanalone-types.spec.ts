@@ -12,7 +12,7 @@ import type * as d from '@stencil/core';
 import { STANDALONE, normalizePath } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../standalone';
-import { generateCustomElementsTypes } from '../standalone/custom-elements-types';
+import { generateStandaloneTypes } from '../standalone/standalone-types';
 
 const setup = () => {
   const sys = mockCompilerSystem();
@@ -72,7 +72,7 @@ describe('Custom Elements Typedef generation', () => {
     });
 
     it('should generate an index.d.ts file corresponding to the index.js file when outputting to a sub-dir of dist', async () => {
-      await generateCustomElementsTypes(config, compilerCtx, buildCtx, 'types_dir');
+      await generateStandaloneTypes(config, compilerCtx, buildCtx, 'types_dir');
 
       const expectedTypedefOutput = [
         '/* TestApp custom elements */',
@@ -130,7 +130,7 @@ describe('Custom Elements Typedef generation', () => {
     it('should generate an index.d.ts file corresponding to the index.js file when outputting to top-level of dist', async () => {
       (config.outputTargets[0] as d.OutputTargetStandalone).dir = 'dist';
 
-      await generateCustomElementsTypes(config, compilerCtx, buildCtx, 'dist/types_dir');
+      await generateStandaloneTypes(config, compilerCtx, buildCtx, 'dist/types_dir');
 
       const expectedTypedefOutput = [
         '/* TestApp custom elements */',
@@ -205,7 +205,7 @@ describe('Custom Elements Typedef generation', () => {
 
     const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
 
-    await generateCustomElementsTypes(config, compilerCtx, buildCtx, 'types_dir');
+    await generateStandaloneTypes(config, compilerCtx, buildCtx, 'types_dir');
 
     const expectedTypedefOutput = [
       `/**`,
@@ -271,7 +271,7 @@ describe('Custom Elements Typedef generation', () => {
 
     const writeFileSpy = vi.spyOn(compilerCtx.fs, 'writeFile');
 
-    await generateCustomElementsTypes(config, compilerCtx, buildCtx, 'types_dir');
+    await generateStandaloneTypes(config, compilerCtx, buildCtx, 'types_dir');
 
     const expectedTypedefOutput = [
       `/**`,

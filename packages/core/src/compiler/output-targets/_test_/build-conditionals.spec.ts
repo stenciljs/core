@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import { validateConfig } from '../../config/validate-config';
 import { getLazyBuildConditionals } from '../dist-lazy/lazy-build-conditionals';
 import { getHydrateBuildConditionals } from '../ssr/hydrate-build-conditionals';
-import { getCustomElementsBuildConditionals } from '../standalone/custom-elements-build-conditionals';
+import { getStandaloneBuildConditionals } from '../standalone/standalone-build-conditionals';
 
 describe('build-conditionals', () => {
   let userConfig: d.Config;
@@ -16,10 +16,10 @@ describe('build-conditionals', () => {
     cmps = [];
   });
 
-  describe('getCustomElementsBuildConditionals', () => {
+  describe('getStandaloneBuildConditionals', () => {
     it('default', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc).toMatchObject({
         lazyLoad: false,
         hydrateClientSide: false,
@@ -30,7 +30,7 @@ describe('build-conditionals', () => {
     it('taskQueue async', () => {
       userConfig.taskQueue = 'async';
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.asyncQueue).toBe(false);
       expect(bc.taskQueue).toBe(true);
       expect(config.taskQueue).toBe('async');
@@ -39,7 +39,7 @@ describe('build-conditionals', () => {
     it('taskQueue immediate', () => {
       userConfig.taskQueue = 'immediate';
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.asyncQueue).toBe(false);
       expect(bc.taskQueue).toBe(false);
       expect(config.taskQueue).toBe('immediate');
@@ -48,7 +48,7 @@ describe('build-conditionals', () => {
     it('taskQueue congestionAsync', () => {
       userConfig.taskQueue = 'congestionAsync';
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.asyncQueue).toBe(true);
       expect(bc.taskQueue).toBe(true);
       expect(config.taskQueue).toBe('congestionAsync');
@@ -56,7 +56,7 @@ describe('build-conditionals', () => {
 
     it('taskQueue defaults', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.asyncQueue).toBe(false);
       expect(bc.taskQueue).toBe(true);
       expect(config.taskQueue).toBe('async');
@@ -68,7 +68,7 @@ describe('build-conditionals', () => {
       };
       userConfig.outputTargets = [hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.hydrateClientSide).toBe(true);
     });
 
@@ -77,7 +77,7 @@ describe('build-conditionals', () => {
         name: 'boooop',
       };
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getCustomElementsBuildConditionals(config, cmps);
+      const bc = getStandaloneBuildConditionals(config, cmps);
       expect(bc.hydratedSelectorName).toBe('boooop');
     });
   });

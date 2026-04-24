@@ -17,7 +17,7 @@ import {
  * @param buildCtx the context associated with the current build
  * @param typesDir the path to the directory where type declarations are saved
  */
-export const generateCustomElementsTypes = async (
+export const generateStandaloneTypes = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -27,7 +27,7 @@ export const generateCustomElementsTypes = async (
 
   await Promise.all(
     outputTargets.map((outputTarget) =>
-      generateCustomElementsTypesOutput(config, compilerCtx, buildCtx, typesDir, outputTarget),
+      generateStandaloneTypesOutput(config, compilerCtx, buildCtx, typesDir, outputTarget),
     ),
   );
 };
@@ -41,7 +41,7 @@ export const generateCustomElementsTypes = async (
  * @param typesDir path to the directory where type declarations are saved
  * @param outputTarget the output target for which types are being currently generated
  */
-const generateCustomElementsTypesOutput = async (
+const generateStandaloneTypesOutput = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
