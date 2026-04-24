@@ -3,7 +3,7 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { normalizePath, resolve } from '../../../utils';
-import { addExternalImport } from '../collections/add-external-import';
+import { addExternalImport } from '../rebundle/add-external-import';
 
 export const parseModuleImport = (
   config: d.ValidatedConfig,

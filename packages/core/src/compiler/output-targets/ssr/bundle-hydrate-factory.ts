@@ -6,7 +6,7 @@ import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_HYDRATE_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
-import { removeCollectionImports } from '../../transformers/remove-collection-imports';
+import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
@@ -92,7 +92,7 @@ const getCustomBeforeTransformers = (
 
   customBeforeTransformers.push(
     hydrateComponentTransform(compilerCtx, transformOpts, buildCtx),
-    removeCollectionImports(compilerCtx),
+    removeRebundleImports(compilerCtx),
   );
   return customBeforeTransformers;
 };

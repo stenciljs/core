@@ -2,9 +2,9 @@ import { dirname } from 'path';
 import type * as d from '@stencil/core';
 
 import { join, normalizePath, relative } from '../../../utils';
-import { parseCollectionManifest } from './parse-collection-manifest';
+import { parseRebundleManifest } from './parse-rebundle-manifest';
 
-export const parseCollection = (
+export const parseRebundle = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -46,7 +46,7 @@ export const parseCollection = (
   const collectionDir = normalizePath(dirname(collectionFilePath));
 
   // parse the json string into our collection data
-  collection = parseCollectionManifest(
+  collection = parseRebundleManifest(
     config,
     compilerCtx,
     buildCtx,

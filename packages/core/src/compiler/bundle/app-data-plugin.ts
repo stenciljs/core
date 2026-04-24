@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rolldown';
 
 import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
-import { removeCollectionImports } from '../transformers/remove-collection-imports';
+import { removeRebundleImports } from '../transformers/remove-rebundle-imports';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_APP_DATA_ID,
@@ -133,7 +133,7 @@ export const appDataPlugin = (
           compilerOptions,
           fileName: id,
           transformers: {
-            after: [removeCollectionImports(compilerCtx)],
+            after: [removeRebundleImports(compilerCtx)],
           },
         });
         buildCtx.diagnostics.push(...loadTypeScriptDiagnostics(results.diagnostics));

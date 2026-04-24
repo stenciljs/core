@@ -3,7 +3,7 @@ import type * as d from '@stencil/core';
 
 import { isString, normalizePath, parsePackageJson } from '../../../utils';
 import { tsResolveModuleNamePackageJsonPath } from '../../sys/typescript/typescript-resolve-module';
-import { parseCollection } from './parse-collection-module';
+import { parseRebundle } from './parse-rebundle-module';
 
 export const addExternalImport = (
   config: d.ValidatedConfig,
@@ -77,7 +77,7 @@ export const addExternalImport = (
   // this import is a stencil collection
   // let's parse it and gather all the module data about it
   // internally it'll cached collection data if we've already done this
-  const collection = parseCollection(
+  const collection = parseRebundle(
     config,
     compilerCtx,
     buildCtx,

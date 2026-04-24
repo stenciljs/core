@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { join } from '../../../utils';
 import { updateModule } from '../static-to-meta/parse-static';
 
-export const parseCollectionComponents = (
+export const parseRebundleComponents = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -16,7 +16,7 @@ export const parseCollectionComponents = (
   if (collectionManifest.mixins) {
     collectionManifest.mixins.forEach((mixinPath) => {
       const fullPath = join(collectionDir, mixinPath);
-      transpileCollectionModule(config, compilerCtx, buildCtx, collection, fullPath);
+      transpileRebundleModule(config, compilerCtx, buildCtx, collection, fullPath);
     });
   }
 
@@ -24,12 +24,12 @@ export const parseCollectionComponents = (
   if (collectionManifest.entries) {
     collectionManifest.entries.forEach((entryPath) => {
       const componentPath = join(collectionDir, entryPath);
-      transpileCollectionModule(config, compilerCtx, buildCtx, collection, componentPath);
+      transpileRebundleModule(config, compilerCtx, buildCtx, collection, componentPath);
     });
   }
 };
 
-export const transpileCollectionModule = (
+export const transpileRebundleModule = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
