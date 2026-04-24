@@ -294,7 +294,7 @@ describe('validateBuildPackageJson', () => {
       const mainWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"main"'));
       expect(mainWarning).toBeDefined();
       expect(mainWarning!.level).toBe('warn');
-      expect(mainWarning!.messageText).toContain('./dist/loader/index.cjs.js');
+      expect(mainWarning!.messageText).toContain('./dist/loader/index.cjs');
     });
 
     it('should warn when main does not exist (CJS enabled)', async () => {
@@ -334,7 +334,7 @@ describe('validateBuildPackageJson', () => {
           skipInDev: false,
         },
       ];
-      buildCtx.packageJson.main = 'custom/path.cjs.js';
+      buildCtx.packageJson.main = 'custom/path.cjs';
       compilerCtx.fs.accessSync = () => true;
 
       await validateBuildPackageJson(config, compilerCtx, buildCtx);
@@ -356,7 +356,7 @@ describe('validateBuildPackageJson', () => {
           skipInDev: false,
         },
       ];
-      buildCtx.packageJson.main = 'dist/index.cjs.js';
+      buildCtx.packageJson.main = 'dist/index.cjs';
       compilerCtx.fs.accessSync = () => false;
 
       await validateBuildPackageJson(config, compilerCtx, buildCtx);
@@ -414,7 +414,7 @@ describe('validateBuildPackageJson', () => {
       expect(typeWarning!.messageText).toContain('"module"');
     });
 
-    it('should not warn about type when CJS output is enabled', async () => {
+    it('should warn about type when CJS output is enabled but type is not module', async () => {
       config.outputTargets = [
         {
           type: 'loader-bundle',
@@ -428,8 +428,34 @@ describe('validateBuildPackageJson', () => {
         },
       ];
       buildCtx.packageJson.module = './dist/loader-bundle/index.js';
-      buildCtx.packageJson.main = './dist/loader-bundle/index.cjs.js';
+      buildCtx.packageJson.main = './dist/loader-bundle/index.cjs';
       delete buildCtx.packageJson.type;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      // In v5, we always recommend type: "module" - CJS uses .cjs extension which works regardless
+      const typeWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"type"'));
+      expect(typeWarning).toBeDefined();
+      expect(typeWarning!.level).toBe('warn');
+      expect(typeWarning!.messageText).toContain('.cjs extension');
+    });
+
+    it('should not warn about type when type is "module" with CJS output', async () => {
+      config.outputTargets = [
+        {
+          type: 'loader-bundle',
+          dir: '/dist/loader-bundle',
+          buildDir: '/dist/loader-bundle',
+          esmLoaderPath: '/dist/loader',
+          copy: [],
+          empty: true,
+          cjs: true,
+          skipInDev: false,
+        },
+      ];
+      buildCtx.packageJson.module = './dist/loader-bundle/index.js';
+      buildCtx.packageJson.main = './dist/loader-bundle/index.cjs';
+      buildCtx.packageJson.type = 'module';
 
       await validateBuildPackageJson(config, compilerCtx, buildCtx);
 

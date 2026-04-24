@@ -54,7 +54,7 @@ describe('writeExportMaps', () => {
     expect(execSyncMock).toHaveBeenCalledTimes(3);
     expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
     expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][require]"="./dist/index.cjs.js"`,
+      `npm pkg set "exports[.][require]"="./dist/index.cjs"`,
     );
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,

@@ -89,7 +89,7 @@ const getPackageJsonRecommendations = (
   let main: string | null = null;
   const hasCjsOutput = !!(loaderBundle?.cjs);
   if (loaderBundle?.esmLoaderPath && loaderBundle.cjs) {
-    main = normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.cjs.js')));
+    main = normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.cjs')));
   }
 
   return { moduleOptions, types: typesPath, main, hasCjsOutput };
@@ -357,8 +357,12 @@ const validateMainFieldExists = (
 /**
  * Validates the "type" field in package.json.
  *
- * - If no CJS output: recommend "type": "module"
- * - If CJS output exists: "type": "module" is optional but still valid
+ * In v5, we always recommend "type": "module" when generating distributable outputs.
+ * This is because:
+ * - ESM is the modern standard
+ * - CJS output uses .cjs extension, which Node.js always treats as CommonJS
+ *   regardless of the "type" field
+ * - "type": "module" enables cleaner imports without file extensions
  */
 const validateTypeField = (
   config: d.ValidatedConfig,
@@ -368,21 +372,17 @@ const validateTypeField = (
 ): void => {
   const currentType = buildCtx.packageJson.type;
 
-  // If no CJS output, recommend "type": "module"
-  if (!recommendations.hasCjsOutput && recommendations.moduleOptions.length > 0) {
-    if (currentType !== 'module') {
-      packageJsonWarn(
-        config,
-        compilerCtx,
-        buildCtx,
-        `package.json "type" property should be set to "module" when only generating ESM output. This enables native ES module resolution.`,
-        '"type"',
-      );
-    }
+  // Always recommend "type": "module" when generating distributable outputs
+  // CJS output uses .cjs extension which works regardless of "type" field
+  if (recommendations.moduleOptions.length > 0 && currentType !== 'module') {
+    packageJsonWarn(
+      config,
+      compilerCtx,
+      buildCtx,
+      `package.json "type" property should be set to "module". This enables native ES module resolution. CJS output uses the .cjs extension which Node.js always treats as CommonJS.`,
+      '"type"',
+    );
   }
-
-  // If CJS output exists and type is "module", that's fine - Node handles .cjs extensions
-  // No warning needed in this case
 };
 
 // ============================================================================

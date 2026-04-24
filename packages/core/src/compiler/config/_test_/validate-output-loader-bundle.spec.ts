@@ -59,7 +59,7 @@ describe('validateLoaderBundleOutputTarget', () => {
         type: 'dist-lazy',
         esmDir: join(rootDir, 'my-dist', 'esm'),
         cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs.js'),
+        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs'),
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
         empty: false,
       },

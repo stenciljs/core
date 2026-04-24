@@ -48,13 +48,13 @@ const generateLoader = async (
 
   // Only generate CJS files when cjsDir is configured
   if (cjsDir) {
-    const cjsEntryPoint = join(cjsDir, 'loader.cjs.js');
+    const cjsEntryPoint = join(cjsDir, 'loader.cjs');
     const indexCjsContent = filterAndJoin([
       generatePreamble(config),
       `module.exports = require('${relative(loaderPath, cjsEntryPoint)}');`,
     ]);
     writes.push(
-      compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs.js'), indexCjsContent),
+      compilerCtx.fs.writeFile(join(loaderPath, 'index.cjs'), indexCjsContent),
       compilerCtx.fs.writeFile(join(loaderPath, 'cdn.js'), indexCjsContent),
     );
   }

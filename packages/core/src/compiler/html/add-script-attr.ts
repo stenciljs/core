@@ -9,7 +9,7 @@ export const addScriptDataAttribute = (
   outputTarget: d.OutputTargetWww,
 ) => {
   const resourcesUrl = getAbsoluteBuildDir(outputTarget);
-  const entryEsmFilename = `${config.fsNamespace}.esm.js`;
+  const entryEsmFilename = `${config.fsNamespace}.js`;
   const entryNoModuleFilename = `${config.fsNamespace}.js`;
   const expectedEsmSrc = join(resourcesUrl, entryEsmFilename);
   const expectedNoModuleSrc = join(resourcesUrl, entryNoModuleFilename);

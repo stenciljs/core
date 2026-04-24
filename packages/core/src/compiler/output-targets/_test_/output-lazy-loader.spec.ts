@@ -59,9 +59,9 @@ describe('Lazy Loader Output Target', () => {
       expectedIndexOutput,
     );
 
-    const expectedCjsIndexOutput = `module.exports = require('../../my-test-dir/cjs/loader.cjs.js');`;
+    const expectedCjsIndexOutput = `module.exports = require('../../my-test-dir/cjs/loader.cjs');`;
     expect(writeFileSpy).toHaveBeenCalledWith(
-      resolve('/dist/loader/index.cjs.js'),
+      resolve('/dist/loader/index.cjs'),
       expectedCjsIndexOutput,
     );
   });

@@ -75,7 +75,7 @@ export const validateLoaderBundle = (
         esmDir,
         cjsDir,
         cjsIndexFile: loaderBundleOutput.cjs
-          ? join(loaderBundleOutput.dir, 'index.cjs.js')
+          ? join(loaderBundleOutput.dir, 'index.cjs')
           : undefined,
         esmIndexFile: join(loaderBundleOutput.dir, 'index.js'),
         empty: loaderBundleOutput.empty,

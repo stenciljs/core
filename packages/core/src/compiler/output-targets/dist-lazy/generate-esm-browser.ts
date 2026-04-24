@@ -19,7 +19,7 @@ export const generateEsmBrowser = async (
     const esmOpts: OutputOptions = {
       banner: generatePreamble(config),
       format: 'es',
-      entryFileNames: '[name].esm.js',
+      entryFileNames: '[name].js',
       chunkFileNames: config.hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
       sourcemap: config.sourceMap,

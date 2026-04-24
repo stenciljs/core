@@ -120,6 +120,12 @@ See [Output Target Modernization](#output-target-modernization) section for deta
 - **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.** The validation logic now automatically determines recommended values based on which output targets are configured, rather than requiring manual designation of a "primary" output.
 - **Export maps generation uses smart defaults.** When generating export maps, Stencil now checks if existing exports are valid before overwriting. Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target.
 - **`collection` field in package.json renamed to `stencilRebundle`.** Update your package.json to use the new field name pointing to the collection manifest.
+- **Output file extensions modernized to use standard ES module conventions:**
+  - ESM files now use `.js` extension (was `.esm.js`)
+  - CJS files now use `.cjs` extension (was `.cjs.js`)
+  - Examples: `myapp.js` (was `myapp.esm.js`), `loader.cjs` (was `loader.cjs.js`), `index.cjs` (was `index.cjs.js`)
+  - **`"type": "module"` is now always recommended** in package.json when generating distributable outputs. The `.cjs` extension is an explicit override that Node.js always treats as CommonJS regardless of the `type` field.
+  - This aligns Stencil output with modern Node.js and bundler expectations.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned

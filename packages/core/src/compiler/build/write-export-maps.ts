@@ -89,7 +89,7 @@ const generateRootExport = (
       // Set CJS require path if loader-bundle has CJS enabled
       if (loaderBundle?.cjs) {
         const requirePath = normalizePath(
-          relative(config.rootDir, join(loaderBundle.dir, 'index.cjs.js')),
+          relative(config.rootDir, join(loaderBundle.dir, 'index.cjs')),
         );
         execSync(`npm pkg set "exports[.][require]"="${requirePath}"`);
       }
