@@ -68,7 +68,8 @@ const writeEsmForwardingModule = async (
   destinations: string[],
 ): Promise<void> => {
   const namespace = config.fsNamespace;
-  const forwardingCode = `export * from './${namespace}.js';\n`;
+  // Import ensures IIFE side effects run, export * re-exports setNonce
+  const forwardingCode = `import './${namespace}.js';\nexport * from './${namespace}.js';\n`;
 
   await Promise.all(
     destinations.map((dest) => {

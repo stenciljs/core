@@ -124,6 +124,7 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - ESM files now use `.js` extension (was `.esm.js`)
   - CJS files now use `.cjs` extension (was `.cjs.js`)
   - Examples: `myapp.js` (was `myapp.esm.js`), `loader.cjs` (was `loader.cjs.js`), `index.cjs` (was `index.cjs.js`)
+  - **Backwards compatibility:** For the browser/CDN build (`dist/loader-bundle/<namespace>/`), a forwarding module `<namespace>.esm.js` is generated that re-exports from `<namespace>.js`. This allows existing CDN consumers with hardcoded `.esm.js` references to continue working.
   - **`"type": "module"` is now always recommended** in package.json when generating distributable outputs. The `.cjs` extension is an explicit override that Node.js always treats as CommonJS regardless of the `type` field.
   - This aligns Stencil output with modern Node.js and bundler expectations.
 - **`esmLoaderPath` config option removed from `loader-bundle` output target.** The separate `dist/loader/` directory is no longer generated. Instead, package.json exports map `./loader` directly to `loader-bundle/esm/loader.js` (and `loader-bundle/cjs/loader.cjs` for CJS). Types are generated in `types/loader.d.ts`. Remove `esmLoaderPath` from your config.
