@@ -33,7 +33,7 @@
   "volta": {
     "extends": "../../../../package.json"
   },
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
-  "es2017": "dist/esm/index.js"
+  "es2017": "dist/esm/index.js",
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

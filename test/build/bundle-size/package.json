@@ -3,9 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "module": "dist/loader/index.js",
-  "types": "dist/types/components.d.ts",
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/loader.d.ts",
   "exports": {
     ".": {
       "import": "./dist/loader-bundle/index.js",
@@ -30,5 +29,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

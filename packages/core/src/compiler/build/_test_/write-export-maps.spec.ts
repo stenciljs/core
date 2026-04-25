@@ -35,7 +35,6 @@ describe('writeExportMaps', () => {
       type: 'loader-bundle',
       dir: '/dist',
       buildDir: '/dist',
-      esmLoaderPath: '/dist/loader',
       copy: [],
       empty: true,
       cjs: true,
@@ -51,13 +50,24 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, buildCtx);
 
-    expect(execSyncMock).toHaveBeenCalledTimes(3);
+    // 3 for root export + 3 for loader export
+    expect(execSyncMock).toHaveBeenCalledTimes(6);
     expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[.][require]"="./dist/index.cjs"`,
     );
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
+    );
+    // Loader export points directly to esm/loader.js
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][import]"="./dist/esm/loader.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][require]"="./dist/cjs/loader.cjs"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./loader][types]"="./dist/types/loader.d.ts"`,
     );
   });
 
@@ -84,31 +94,6 @@ describe('writeExportMaps', () => {
     );
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
-    );
-  });
-
-  it('should generate the lazy loader exports if the output target is present', () => {
-    config.rootDir = '/';
-    config.outputTargets.push({
-      type: 'dist-lazy-loader',
-      dir: '/dist/lazy-loader',
-      empty: true,
-      esmDir: '/dist/esm',
-      cjsDir: '/dist/cjs',
-      componentDts: '/dist/components.d.ts',
-    });
-
-    writeExportMaps(config, buildCtx);
-
-    expect(execSyncMock).toHaveBeenCalledTimes(3);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][import]"="./dist/lazy-loader/index.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][require]"="./dist/lazy-loader/index.cjs"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][types]"="./dist/lazy-loader/index.d.ts"`,
     );
   });
 

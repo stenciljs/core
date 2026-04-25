@@ -126,6 +126,7 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - Examples: `myapp.js` (was `myapp.esm.js`), `loader.cjs` (was `loader.cjs.js`), `index.cjs` (was `index.cjs.js`)
   - **`"type": "module"` is now always recommended** in package.json when generating distributable outputs. The `.cjs` extension is an explicit override that Node.js always treats as CommonJS regardless of the `type` field.
   - This aligns Stencil output with modern Node.js and bundler expectations.
+- **`esmLoaderPath` config option removed from `loader-bundle` output target.** The separate `dist/loader/` directory is no longer generated. Instead, package.json exports map `./loader` directly to `loader-bundle/esm/loader.js` (and `loader-bundle/cjs/loader.cjs` for CJS). Types are generated in `types/loader.d.ts`. Remove `esmLoaderPath` from your config.
 
 ### 8. 🏷️ Release Management: Changesets
 **Status:** 📋 Planned
@@ -524,13 +525,12 @@ All outputs now live under `dist/` by default:
 
 ```
 dist/
-├── loader/            # Loader entry point (at root for easy access)
-│   ├── index.js
-│   └── index.d.ts
 ├── loader-bundle/     # Lazy-loaded bundles + loader infrastructure
-│   ├── esm/          # Lazy-loadable ES modules
+│   ├── esm/          # Lazy-loadable ES modules (includes loader.js)
+│   ├── cjs/          # Optional CommonJS output (includes loader.cjs)
 │   ├── <namespace>/  # Browser/CDN build
-│   └── cjs/          # Optional CommonJS output
+│   ├── index.js      # Main ESM entry
+│   └── index.cjs     # Main CJS entry (if cjs: true)
 ├── standalone/        # Individual ES module per component
 │   ├── index.js
 │   ├── my-component.js
@@ -540,10 +540,13 @@ dist/
 │   ├── stencil.config.json  # NEW: Upstream config for merging
 │   └── components/
 ├── types/            # Shared TypeScript definitions
-│   └── components.d.ts
+│   ├── components.d.ts
+│   └── loader.d.ts   # Types for defineCustomElements, setNonce
 └── ssr/              # Server-side rendering / hydration
     └── index.js
 ```
+
+**Note:** The separate `dist/loader/` directory has been removed. The `./loader` export in package.json now points directly to `loader-bundle/esm/loader.js` (and `loader-bundle/cjs/loader.cjs` for CJS). Types are in `types/loader.d.ts`.
 
 ### Auto-Generated Outputs
 

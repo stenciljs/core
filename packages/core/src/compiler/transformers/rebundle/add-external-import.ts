@@ -63,7 +63,8 @@ export const addExternalImport = (
   }
 
   // Check for stencilRebundle (v5) or collection (v4) field
-  const collectionManifestPath = parsedPkgJson.data.stencilRebundle ?? parsedPkgJson.data.collection;
+  const collectionManifestPath =
+    parsedPkgJson.data.stencilRebundle ?? parsedPkgJson.data.collection;
   if (!isString(collectionManifestPath) || !collectionManifestPath.endsWith('.json')) {
     // this import is not a stencil collection
     return;

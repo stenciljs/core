@@ -26,10 +26,10 @@ interface PackageJsonRecommendations {
    */
   moduleOptions: string[];
   /**
-   * Recommended value for the "types" field.
-   * Always points to the types output target directory.
+   * Recommended values for the "types" field.
+   * Contains paths based on configured output targets.
    */
-  types: string | null;
+  typesOptions: string[];
   /**
    * Recommended value for the "main" field (CJS entry point).
    * Only set if loader-bundle has cjs: true.
@@ -48,7 +48,7 @@ interface PackageJsonRecommendations {
  * In v5, output targets are peers - there's no "primary" output target.
  * Instead, recommendations are derived from which outputs are configured:
  * - `moduleOptions` contains entry points for each configured output (loader, standalone)
- * - `types` points to index.d.ts if src/index.ts exists, otherwise components.d.ts
+ * - `typesOptions`: index.d.ts (if src/index.ts exists), otherwise loader.d.ts and/or standalone.d.ts based on outputs
  * - `main` points to CJS output from loader-bundle (if cjs: true)
  *
  * @param config The validated Stencil configuration
@@ -66,9 +66,9 @@ const getPackageJsonRecommendations = (
   // moduleOptions: collect entry points from each configured output target
   const moduleOptions: string[] = [];
 
-  // loader-bundle provides an entry at esmLoaderPath (defaults to dist/loader)
-  if (loaderBundle?.esmLoaderPath) {
-    moduleOptions.push(normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.js'))));
+  // loader-bundle provides an entry at its dir (e.g. dist/loader-bundle/index.js)
+  if (loaderBundle?.dir) {
+    moduleOptions.push(normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.js'))));
   }
 
   // standalone provides an entry at its dir (defaults to dist/standalone)
@@ -76,23 +76,43 @@ const getPackageJsonRecommendations = (
     moduleOptions.push(normalizePath(relative(config.rootDir, join(standalone.dir, 'index.js'))));
   }
 
-  // types: use index.d.ts if src/index.ts exists, otherwise components.d.ts
-  let typesPath: string | null = null;
+  // typesOptions: collect valid type entry points in priority order
+  // 1. index.d.ts if src/index.ts exists (user's defined package entry)
+  // 2. loader.d.ts if loader-bundle output is configured
+  // 3. standalone.d.ts if standalone output is configured
+  // 4. components.d.ts as last resort (only if no other options)
+  const typesOptions: string[] = [];
   if (types?.dir) {
     const srcIndexPath = join(config.srcDir, 'index.ts');
     const hasSrcIndex = compilerCtx.fs.accessSync(srcIndexPath);
-    const typesFileName = hasSrcIndex ? 'index.d.ts' : GENERATED_DTS;
-    typesPath = normalizePath(relative(config.rootDir, join(types.dir, typesFileName)));
+
+    if (hasSrcIndex) {
+      typesOptions.push(normalizePath(relative(config.rootDir, join(types.dir, 'index.d.ts'))));
+    } else {
+      // Add output-specific types files
+      if (loaderBundle) {
+        typesOptions.push(normalizePath(relative(config.rootDir, join(types.dir, 'loader.d.ts'))));
+      }
+      if (standalone) {
+        typesOptions.push(
+          normalizePath(relative(config.rootDir, join(types.dir, 'standalone.d.ts'))),
+        );
+      }
+      // Fallback to components.d.ts only if no output targets configured
+      if (typesOptions.length === 0) {
+        typesOptions.push(normalizePath(relative(config.rootDir, join(types.dir, GENERATED_DTS))));
+      }
+    }
   }
 
   // main: only if loader-bundle has CJS enabled
   let main: string | null = null;
-  const hasCjsOutput = !!(loaderBundle?.cjs);
-  if (loaderBundle?.esmLoaderPath && loaderBundle.cjs) {
-    main = normalizePath(relative(config.rootDir, join(loaderBundle.esmLoaderPath, 'index.cjs')));
+  const hasCjsOutput = !!loaderBundle?.cjs;
+  if (loaderBundle?.dir && loaderBundle.cjs) {
+    main = normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.cjs')));
   }
 
-  return { moduleOptions, types: typesPath, main, hasCjsOutput };
+  return { moduleOptions, typesOptions, main, hasCjsOutput };
 };
 
 // ============================================================================
@@ -151,7 +171,7 @@ const validatePackageJson = (
   const recommendations = getPackageJsonRecommendations(config, compilerCtx);
 
   // No distributable outputs configured - nothing to validate
-  if (recommendations.moduleOptions.length === 0 && !recommendations.types) {
+  if (recommendations.moduleOptions.length === 0 && recommendations.typesOptions.length === 0) {
     return;
   }
 
@@ -161,8 +181,8 @@ const validatePackageJson = (
   }
 
   // Validate types field
-  if (recommendations.types) {
-    validateTypesField(config, compilerCtx, buildCtx, recommendations.types);
+  if (recommendations.typesOptions.length > 0) {
+    validateTypesField(config, compilerCtx, buildCtx, recommendations.typesOptions);
   }
 
   // Validate main field
@@ -186,6 +206,8 @@ const validatePackageJson = (
  * Formats module options for display in warning messages.
  * Single option: "./dist/loader/index.js"
  * Multiple options: "./dist/loader/index.js or ./dist/standalone/index.js"
+ * @param options the module options to format
+ * @returns a formatted string of module options for display in messages
  */
 const formatModuleOptions = (options: string[]): string => {
   if (options.length === 1) {
@@ -197,6 +219,10 @@ const formatModuleOptions = (options: string[]): string => {
 /**
  * Validates the "module" field in package.json.
  * Checks that the field exists and points to a file that will be generated.
+ * @param config the current Stencil configuration
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param moduleOptions the recommended module paths based on configured output targets
  */
 const validateModuleField = (
   config: d.ValidatedConfig,
@@ -238,21 +264,26 @@ const validateModuleField = (
 /**
  * Validates the "types" field in package.json.
  * Checks that the field exists, has a .d.ts extension, and points to a file that exists.
+ * @param config the current Stencil configuration
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param typesOptions the recommended paths for the "types" field based on configured output targets
  */
 const validateTypesField = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  recommendedPath: string,
+  typesOptions: string[],
 ): void => {
   const currentTypesPath = buildCtx.packageJson.types;
+  const suggestion = formatModuleOptions(typesOptions);
 
   if (!isString(currentTypesPath) || currentTypesPath === '') {
     packageJsonWarn(
       config,
       compilerCtx,
       buildCtx,
-      `package.json "types" property is required when generating a distribution. It's recommended to set the "types" property to: ${recommendedPath}`,
+      `package.json "types" property is required when generating a distribution. It's recommended to set the "types" property to: ${suggestion}`,
       '"types"',
     );
     return;
@@ -279,7 +310,7 @@ const validateTypesField = (
       config,
       compilerCtx,
       buildCtx,
-      `package.json "types" property is set to "${currentTypesPath}" which doesn't exist. Consider setting it to: ${recommendedPath}`,
+      `package.json "types" property is set to "${currentTypesPath}" which doesn't exist. Consider setting it to: ${suggestion}`,
       '"types"',
     );
   }
@@ -289,6 +320,10 @@ const validateTypesField = (
 /**
  * Validates the "main" field in package.json.
  * Called when CJS output is being generated - checks that main is set correctly.
+ * @param config the current Stencil configuration
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param recommendedPath the recommended path for the main field based on output targets
  */
 const validateMainField = (
   config: d.ValidatedConfig,
@@ -327,6 +362,9 @@ const validateMainField = (
 /**
  * Validates that if "main" is set in package.json, the file actually exists.
  * This is called regardless of whether CJS output is configured.
+ * @param config the current Stencil configuration
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
  */
 const validateMainFieldExists = (
   config: d.ValidatedConfig,
@@ -358,11 +396,10 @@ const validateMainFieldExists = (
  * Validates the "type" field in package.json.
  *
  * In v5, we always recommend "type": "module" when generating distributable outputs.
- * This is because:
- * - ESM is the modern standard
- * - CJS output uses .cjs extension, which Node.js always treats as CommonJS
- *   regardless of the "type" field
- * - "type": "module" enables cleaner imports without file extensions
+ * @param config the current Stencil configuration
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param recommendations the recommended package.json field values based on configured output targets
  */
 const validateTypeField = (
   config: d.ValidatedConfig,
@@ -392,6 +429,10 @@ const validateTypeField = (
 /**
  * Validate package.json contents specific to the `stencil-rebundle` output target,
  * checking that the `files` array and `stencilRebundle` field are set correctly.
+ * @param config the Stencil configuration associated with the project being compiled
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param outputTarget the stencil-rebundle output target to validate against
  */
 const validateStencilRebundleFields = async (
   config: d.ValidatedConfig,
@@ -408,6 +449,10 @@ const validateStencilRebundleFields = async (
 /**
  * Validate that the `files` field in `package.json` contains directories and
  * files that are necessary for the `stencil-rebundle` output target.
+ * @param config the Stencil configuration associated with the project being compiled
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param outputTarget the stencil-rebundle output target to validate against
  */
 const validatePackageFiles = async (
   config: d.ValidatedConfig,
@@ -418,7 +463,12 @@ const validatePackageFiles = async (
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
-    const validPaths = [`${actualDistDir}`, `${actualDistDir}/`, `./${actualDistDir}`, `./${actualDistDir}/`];
+    const validPaths = [
+      `${actualDistDir}`,
+      `${actualDistDir}/`,
+      `./${actualDistDir}`,
+      `./${actualDistDir}/`,
+    ];
 
     const containsDistDir = buildCtx.packageJson.files.some((userPath) =>
       validPaths.some((validPath) => normalizePath(userPath) === validPath),
@@ -450,6 +500,10 @@ const validatePackageFiles = async (
 /**
  * Check that the `stencilRebundle` field is set correctly in `package.json` for the
  * `stencil-rebundle` output target.
+ * @param config the Stencil configuration associated with the project being compiled
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param outputTarget the output target to validate against
  */
 const validateStencilRebundleField = (
   config: d.ValidatedConfig,
@@ -462,7 +516,10 @@ const validateStencilRebundleField = (
       join(relative(config.rootDir, outputTarget.dir), COLLECTION_MANIFEST_FILE_NAME),
       false,
     );
-    if (!buildCtx.packageJson.stencilRebundle || normalizePath(buildCtx.packageJson.stencilRebundle, false) !== rebundleRel) {
+    if (
+      !buildCtx.packageJson.stencilRebundle ||
+      normalizePath(buildCtx.packageJson.stencilRebundle, false) !== rebundleRel
+    ) {
       const msg = `package.json "stencilRebundle" property should be set to ${rebundleRel} when generating a distribution bundle.`;
       packageJsonWarn(config, compilerCtx, buildCtx, msg, `"stencilRebundle"`);
     }
@@ -476,6 +533,12 @@ const validateStencilRebundleField = (
 /**
  * Build a diagnostic for an error resulting from a particular field in a
  * package.json file
+ * @param config the Stencil configuration associated with the project being compiled
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param msg the error message to display
+ * @param jsonField the specific package.json field related to the error (e.g. "module", "types", etc.)
+ * @returns a Diagnostic object representing the error
  */
 const packageJsonError = (
   config: d.ValidatedConfig,
@@ -484,7 +547,13 @@ const packageJsonError = (
   msg: string,
   jsonField: string,
 ): d.Diagnostic => {
-  const err = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, jsonField);
+  const err = buildJsonFileError(
+    compilerCtx,
+    buildCtx.diagnostics,
+    config.packageJsonFilePath,
+    msg,
+    jsonField,
+  );
   err.header = `Package Json`;
   return err;
 };
@@ -492,6 +561,12 @@ const packageJsonError = (
 /**
  * Build a diagnostic for a warning resulting from a particular field in a
  * package.json file
+ * @param config the Stencil configuration associated with the project being compiled
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the context associated with the current build
+ * @param msg the warning message to display
+ * @param jsonField the specific package.json field related to the warning (e.g. "module", "types", etc.)
+ * @returns a Diagnostic object representing the warning
  */
 const packageJsonWarn = (
   config: d.ValidatedConfig,
@@ -500,7 +575,13 @@ const packageJsonWarn = (
   msg: string,
   jsonField: string,
 ): d.Diagnostic => {
-  const warn = buildJsonFileError(compilerCtx, buildCtx.diagnostics, config.packageJsonFilePath, msg, jsonField);
+  const warn = buildJsonFileError(
+    compilerCtx,
+    buildCtx.diagnostics,
+    config.packageJsonFilePath,
+    msg,
+    jsonField,
+  );
   warn.header = `Package Json`;
   warn.level = 'warn';
   return warn;

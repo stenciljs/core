@@ -1937,8 +1937,7 @@ export interface LoggerTimeSpan {
  * ```typescript
  * {
  *   type: 'loader-bundle',
- *   dir: 'dist/loader-bundle',
- *   esmLoaderPath: 'loader'
+ *   dir: 'dist/loader-bundle'
  * }
  * ```
  */
@@ -1950,15 +1949,6 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default '' (root of output directory)
    */
   buildDir?: string;
-
-  /**
-   * Provide a custom path for the ESM loader directory, containing files you can import
-   * in an initiation script within your application to register all your components for
-   * lazy loading.
-   *
-   * @default 'loader'
-   */
-  esmLoaderPath?: string;
 
   copy?: CopyTask[];
   empty?: boolean;
@@ -2055,17 +2045,6 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
 export interface OutputTargetDistGlobalStyles extends OutputTargetBase {
   type: 'dist-global-styles';
   file: string;
-}
-
-export interface OutputTargetDistLazyLoader extends OutputTargetBase {
-  type: 'dist-lazy-loader';
-  dir: string;
-
-  esmDir: string;
-  cjsDir?: string;
-  componentDts: string;
-
-  empty: boolean;
 }
 
 /**
@@ -2475,7 +2454,6 @@ export type OutputTarget =
   // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
   | OutputTargetDistGlobalStyles
-  | OutputTargetDistLazyLoader
   // Docs output targets
   | OutputTargetDocsJson
   | OutputTargetDocsCustom

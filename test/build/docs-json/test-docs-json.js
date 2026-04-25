@@ -1,5 +1,5 @@
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 
 const docsJsonOutputFilePath = path.join('.', 'docs.json');
 const docsDtsOutputFilePath = path.join('.', 'docs.d.ts');

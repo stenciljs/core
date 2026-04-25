@@ -14,7 +14,6 @@ export const config: Config = {
     },
     {
       type: 'loader-bundle',
-      // esmLoaderPath: 'mouse'
     },
   ],
 };

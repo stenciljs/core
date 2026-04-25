@@ -5,7 +5,7 @@
   "description": "Validates @stencil/core package exports resolve correctly",
   "type": "module",
   "scripts": {
-    "test": "node ./test-exports.mts"
+    "test": "node ./test-exports.js"
   },
   "devDependencies": {
     "@stencil/cli": "workspace:*",

@@ -6,7 +6,8 @@ import whyIsNodeRunning from 'why-is-node-running';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const e2eDir = path.join(__dirname, '..', '..', 'integration', 'e2e');
 
-const hydrate = await import(pathToFileURL(path.join(e2eDir, 'hydrate', 'index.js')).href);
+// ssr output (was hydrate)
+const hydrate = await import(pathToFileURL(path.join(e2eDir, 'dist', 'ssr', 'index.js')).href);
 
 async function main() {
   const html = `
@@ -30,7 +31,7 @@ async function main() {
       console.error(`🧨  ${d.header}`);
       console.error(`🧨  ${d.messageText}`);
     });
-    throw new Error(`validated test/end-to-end/hydrate errors!!`);
+    throw new Error(`validated test/end-to-end/ssr errors!!`);
   }
 
   if (results.hydratedCount !== 2) {
@@ -76,11 +77,11 @@ async function main() {
 
   clearTimeout(tmr);
 
-  console.log('✅ validated build outputs: hydrate\n');
+  console.log('✅ validated build outputs: ssr\n');
 }
 
 const tmr = setTimeout(() => {
-  console.error(`validated test/end-to-end/hydrate timeout!`);
+  console.error(`validated test/end-to-end/ssr timeout!`);
   process.exit(1);
 }, 10000);
 

@@ -38,7 +38,6 @@ describe('validateBuildPackageJson', () => {
         type: 'loader-bundle',
         dir: '/dist/loader-bundle',
         buildDir: '/dist/loader-bundle',
-        esmLoaderPath: '/dist/loader',
         copy: [],
         empty: true,
         cjs: false,
@@ -59,7 +58,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -72,7 +70,9 @@ describe('validateBuildPackageJson', () => {
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toBe('warn');
-      expect(buildCtx.diagnostics[0].messageText).toContain('package.json "module" property is required');
+      expect(buildCtx.diagnostics[0].messageText).toContain(
+        'package.json "module" property is required',
+      );
     });
 
     it('should warn when module path does not exist', async () => {
@@ -81,7 +81,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -96,7 +95,7 @@ describe('validateBuildPackageJson', () => {
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toBe('warn');
       expect(buildCtx.diagnostics[0].messageText).toContain("doesn't exist");
-      expect(buildCtx.diagnostics[0].messageText).toContain('./dist/loader/index.js');
+      expect(buildCtx.diagnostics[0].messageText).toContain('./dist/loader-bundle/index.js');
     });
 
     it('should not warn when module path exists but differs from recommended', async () => {
@@ -105,7 +104,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -126,7 +124,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -162,7 +159,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -179,7 +175,7 @@ describe('validateBuildPackageJson', () => {
 
       const moduleWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"module"'));
       expect(moduleWarning).toBeDefined();
-      expect(moduleWarning!.messageText).toContain('./dist/loader/index.js');
+      expect(moduleWarning!.messageText).toContain('./dist/loader-bundle/index.js');
     });
   });
 
@@ -199,7 +195,9 @@ describe('validateBuildPackageJson', () => {
 
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toBe('warn');
-      expect(buildCtx.diagnostics[0].messageText).toContain('package.json "types" property is required');
+      expect(buildCtx.diagnostics[0].messageText).toContain(
+        'package.json "types" property is required',
+      );
     });
 
     it('should warn when types path does not end with .d.ts', async () => {
@@ -280,7 +278,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: true,
@@ -294,7 +291,7 @@ describe('validateBuildPackageJson', () => {
       const mainWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"main"'));
       expect(mainWarning).toBeDefined();
       expect(mainWarning!.level).toBe('warn');
-      expect(mainWarning!.messageText).toContain('./dist/loader/index.cjs');
+      expect(mainWarning!.messageText).toContain('./dist/loader-bundle/index.cjs');
     });
 
     it('should warn when main does not exist (CJS enabled)', async () => {
@@ -303,7 +300,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: true,
@@ -327,7 +323,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: true,
@@ -349,7 +344,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -373,7 +367,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -396,7 +389,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,
@@ -420,7 +412,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: true,
@@ -437,7 +428,7 @@ describe('validateBuildPackageJson', () => {
       const typeWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"type"'));
       expect(typeWarning).toBeDefined();
       expect(typeWarning!.level).toBe('warn');
-      expect(typeWarning!.messageText).toContain('.cjs extension');
+      expect(typeWarning!.messageText).toContain('"module"');
     });
 
     it('should not warn about type when type is "module" with CJS output', async () => {
@@ -446,7 +437,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: true,
@@ -469,7 +459,6 @@ describe('validateBuildPackageJson', () => {
           type: 'loader-bundle',
           dir: '/dist/loader-bundle',
           buildDir: '/dist/loader-bundle',
-          esmLoaderPath: '/dist/loader',
           copy: [],
           empty: true,
           cjs: false,

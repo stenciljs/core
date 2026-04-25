@@ -5,8 +5,6 @@ import {
   COPY,
   DIST_GLOBAL_STYLES,
   DIST_LAZY,
-  DIST_LAZY_LOADER,
-  getComponentsDtsTypesFilePath,
   isBoolean,
   isOutputTargetLoaderBundle,
   isString,
@@ -21,10 +19,11 @@ import { validateCopy } from '../validate-copy';
  * This generates lazy-loaded component bundles with a loader infrastructure,
  * optimized for CDN usage and applications that benefit from on-demand component loading.
  *
- * This function will also add internal output targets (lazy, lazy-loader, global-styles, copy)
+ * This function will also add internal output targets (lazy, global-styles, copy)
  * to support the loader-bundle implementation.
  *
  * Note: In v5, `types` and `stencil-rebundle` outputs are auto-generated separately in production builds.
+ * The `./loader` export in package.json points directly to the esm/loader.js file.
  *
  * @param config the compiler config
  * @param userOutputs a user-supplied list of output targets
@@ -63,7 +62,7 @@ export const validateLoaderBundle = (
       file: join(lazyDir, `${config.fsNamespace}.css`),
     });
 
-    // Distribution outputs (loader + lazy bundles)
+    // Distribution outputs (lazy bundles)
     // Only generated in production mode or when skipInDev=false
     if (!config.devMode || !loaderBundleOutput.skipInDev) {
       const esmDir = join(loaderBundleOutput.dir, 'esm');
@@ -78,17 +77,6 @@ export const validateLoaderBundle = (
           ? join(loaderBundleOutput.dir, 'index.cjs')
           : undefined,
         esmIndexFile: join(loaderBundleOutput.dir, 'index.js'),
-        empty: loaderBundleOutput.empty,
-      });
-
-      // Create output target that will generate the /loader entry-point
-      outputs.push({
-        type: DIST_LAZY_LOADER,
-        dir: loaderBundleOutput.esmLoaderPath,
-        esmDir,
-        cjsDir,
-        // Types are auto-generated in dist/types in v5
-        componentDts: getComponentsDtsTypesFilePath(getAbsolutePath(config, 'dist/types')),
         empty: loaderBundleOutput.empty,
       });
     }
@@ -117,8 +105,6 @@ const validateOutputTargetLoaderBundle = (
     ...o,
     dir: getAbsolutePath(config, o.dir || DEFAULT_DIR),
     buildDir: isString(o.buildDir) ? o.buildDir : DEFAULT_BUILD_DIR,
-    // esmLoaderPath defaults to dist/loader (at dist root for easy access)
-    esmLoaderPath: getAbsolutePath(config, o.esmLoaderPath || DEFAULT_ESM_LOADER_DIR),
     copy: validateCopy(o.copy ?? [], []),
     empty: isBoolean(o.empty) ? o.empty : true,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
@@ -135,4 +121,3 @@ const validateOutputTargetLoaderBundle = (
 
 const DEFAULT_DIR = 'dist/loader-bundle';
 const DEFAULT_BUILD_DIR = '';
-const DEFAULT_ESM_LOADER_DIR = 'dist/loader';

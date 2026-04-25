@@ -4,24 +4,18 @@ import {
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
   isOutputTargetDistLazy,
-  isOutputTargetDistLazyLoader,
   isOutputTargetSsr,
   isOutputTargetWww,
   isString,
 } from '../../utils';
 
-type OutputTargetEmptiable =
-  | d.OutputTargetLoaderBundle
-  | d.OutputTargetWww
-  | d.OutputTargetDistLazyLoader
-  | d.OutputTargetSsr;
+type OutputTargetEmptiable = d.OutputTargetLoaderBundle | d.OutputTargetWww | d.OutputTargetSsr;
 
 const isEmptable = (o: d.OutputTarget): o is OutputTargetEmptiable =>
   isOutputTargetLoaderBundle(o) ||
   isOutputTargetStandalone(o) ||
   isOutputTargetWww(o) ||
   isOutputTargetDistLazy(o) ||
-  isOutputTargetDistLazyLoader(o) ||
   isOutputTargetSsr(o);
 
 export const emptyOutputTargets = async (

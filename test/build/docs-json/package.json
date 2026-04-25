@@ -3,14 +3,13 @@
   "version": "1.0.0",
   "description": "A test app for the docs-json output target",
   "license": "MIT",
-  "type": "module",
   "files": [
     "dist/",
     "dist/stencil-rebundle/"
   ],
+  "type": "module",
   "module": "dist/standalone/index.js",
   "types": "dist/types/index.d.ts",
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",  
   "scripts": {
     "build": "stencil build",
     "postprocess": "node test-docs-json.js",
@@ -25,5 +24,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

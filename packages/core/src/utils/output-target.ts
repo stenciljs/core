@@ -14,7 +14,6 @@ import {
   // Internal output targets
   DIST_GLOBAL_STYLES,
   DIST_LAZY,
-  DIST_LAZY_LOADER,
   // Docs
   DOCS_CUSTOM,
   DOCS_CUSTOM_ELEMENTS_MANIFEST,
@@ -147,8 +146,9 @@ export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTarget
 
 export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
 
-export const isOutputTargetStencilRebundle = (o: d.OutputTarget): o is d.OutputTargetStencilRebundle =>
-  o.type === STENCIL_REBUNDLE;
+export const isOutputTargetStencilRebundle = (
+  o: d.OutputTarget,
+): o is d.OutputTargetStencilRebundle => o.type === STENCIL_REBUNDLE;
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;
@@ -159,10 +159,6 @@ export const isOutputTargetCopy = (o: d.OutputTarget): o is d.OutputTargetCopy =
 
 export const isOutputTargetDistLazy = (o: d.OutputTarget): o is d.OutputTargetDistLazy =>
   o.type === DIST_LAZY;
-
-export const isOutputTargetDistLazyLoader = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistLazyLoader => o.type === DIST_LAZY_LOADER;
 
 export const isOutputTargetDistGlobalStyles = (
   o: d.OutputTarget,

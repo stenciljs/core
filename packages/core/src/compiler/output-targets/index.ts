@@ -4,7 +4,6 @@ import { outputCopy } from './copy/output-copy';
 import { outputLazy } from './dist-lazy/lazy-output';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
-import { outputLazyLoader } from './output-lazy-loader';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
@@ -65,7 +64,6 @@ export const generateOutputTargets = async (
     ? [
         outputStandalone(config, compilerCtx, buildCtx),
         outputSsr(config, compilerCtx, buildCtx),
-        outputLazyLoader(config, compilerCtx),
         outputLazy(config, compilerCtx, buildCtx),
       ]
     : [];

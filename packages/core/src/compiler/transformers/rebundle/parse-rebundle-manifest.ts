@@ -1,10 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { join, normalizePath } from '../../../utils';
-import {
-  parseRebundleComponents,
-  transpileRebundleModule,
-} from './parse-rebundle-components';
+import { parseRebundleComponents, transpileRebundleModule } from './parse-rebundle-components';
 
 export const parseRebundleManifest = (
   config: d.ValidatedConfig,

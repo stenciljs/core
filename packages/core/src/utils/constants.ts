@@ -249,12 +249,6 @@ export const TYPES = 'types';
 export const DIST_LAZY = 'dist-lazy';
 
 /**
- * Internal constant for the 'dist-lazy-loader' output target
- * (used by loader-bundle)
- */
-export const DIST_LAZY_LOADER = 'dist-lazy-loader';
-
-/**
  * Internal constant for the 'dist-global-styles' output target
  * (used by loader-bundle and www)
  */
@@ -292,7 +286,7 @@ export const WWW = 'www';
 /**
  * Valid output targets to specify in a Stencil config.
  *
- * Note that some internal output targets (e.g. `DIST_LAZY`, `DIST_LAZY_LOADER`, `DIST_GLOBAL_STYLES`)
+ * Note that some internal output targets (e.g. `DIST_LAZY`, `DIST_GLOBAL_STYLES`)
  * are programmatically created by the compiler and are not user-configurable.
  *
  * In v5, `TYPES` and `STENCIL_REBUNDLE` are auto-generated in production builds unless explicitly configured.
@@ -328,7 +322,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
 export const GENERATED_DTS = 'components.d.ts';
 
 /**
- * DOM Node types 
+ * DOM Node types
  *
  * See https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
  *

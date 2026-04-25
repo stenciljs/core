@@ -5,7 +5,6 @@ import {
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
   isOutputTargetTypes,
-  isOutputTargetDistLazyLoader,
   join,
   normalizePath,
   relative,
@@ -28,14 +27,14 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
   const loaderBundle = config.outputTargets.find(isOutputTargetLoaderBundle);
   const standalone = config.outputTargets.find(isOutputTargetStandalone);
   const types = config.outputTargets.find(isOutputTargetTypes);
-  const lazyLoader = config.outputTargets.find(isOutputTargetDistLazyLoader);
 
   // Generate root export - use smart default approach
   generateRootExport(config, buildCtx, loaderBundle, standalone, types);
 
-  // Generate loader export if lazy loader exists
-  if (lazyLoader) {
-    generateLoaderExport(config, lazyLoader);
+  // Generate loader export if loader-bundle exists
+  // Points directly to esm/loader.js (no separate loader directory)
+  if (loaderBundle) {
+    generateLoaderExport(config, loaderBundle, types);
   }
 
   // Generate per-component exports for standalone
@@ -140,23 +139,56 @@ const isValidRootExport = (
 };
 
 /**
+ * Ensure a path has a relative prefix (./ or ../).
+ * Handles cases where normalizePath/relative may or may not add the prefix.
+ * @param path The path to ensure has a relative prefix
+ * @returns The path with a relative prefix
+ */
+const ensureRelativePrefix = (path: string): string => {
+  if (path.startsWith('./') || path.startsWith('../')) {
+    return path;
+  }
+  return './' + path;
+};
+
+/**
  * Generate the loader export `exports["./loader"]`.
+ *
+ * Points directly to the esm/loader.js file in the loader-bundle output.
+ * No separate loader directory is generated - package.json exports handle the mapping.
+ *
  * @param config The validated Stencil config
- * @param lazyLoader The dist-lazy-loader output target
- * @returns void
+ * @param loaderBundle The loader-bundle output target
+ * @param types The types output target, if it exists
  */
 const generateLoaderExport = (
   config: d.ValidatedConfig,
-  lazyLoader: d.OutputTargetDistLazyLoader,
+  loaderBundle: d.OutputTargetLoaderBundle,
+  types: d.OutputTargetTypes | undefined,
 ): void => {
-  let outDir = relative(config.rootDir, lazyLoader.dir);
-  if (!outDir.startsWith('.')) {
-    outDir = './' + outDir;
+  const esmDir = join(loaderBundle.dir, 'esm');
+  const esmLoaderPath = ensureRelativePrefix(
+    normalizePath(relative(config.rootDir, join(esmDir, 'loader.js'))),
+  );
+
+  execSync(`npm pkg set "exports[./loader][import]"="${esmLoaderPath}"`);
+
+  // Set CJS require path if CJS is enabled
+  if (loaderBundle.cjs) {
+    const cjsDir = join(loaderBundle.dir, 'cjs');
+    const cjsLoaderPath = ensureRelativePrefix(
+      normalizePath(relative(config.rootDir, join(cjsDir, 'loader.cjs'))),
+    );
+    execSync(`npm pkg set "exports[./loader][require]"="${cjsLoaderPath}"`);
   }
 
-  execSync(`npm pkg set "exports[./loader][import]"="${outDir}/index.js"`);
-  execSync(`npm pkg set "exports[./loader][require]"="${outDir}/index.cjs"`);
-  execSync(`npm pkg set "exports[./loader][types]"="${outDir}/index.d.ts"`);
+  // Types for the loader entry point
+  if (types?.dir) {
+    const typesPath = ensureRelativePrefix(
+      normalizePath(relative(config.rootDir, join(types.dir, 'loader.d.ts'))),
+    );
+    execSync(`npm pkg set "exports[./loader][types]"="${typesPath}"`);
+  }
 };
 
 /**

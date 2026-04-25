@@ -28,8 +28,8 @@ import { nativeComponentTransform } from '../../transformers/component-native/tr
 import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
-import { getStandaloneBuildConditionals } from './standalone-build-conditionals';
 import { generateLoaderModule } from './generate-loader-module';
+import { getStandaloneBuildConditionals } from './standalone-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**

@@ -65,11 +65,15 @@ describe('Stencil Rebundle output target', () => {
 
         await outputStencilRebundle(mockConfig, mockedCompilerCtx, mockedBuildCtx, changedModules);
 
-        expect(mapImportPathSpy).toHaveBeenCalledWith(mockConfig, '/dist/stencil-rebundle/main.js', {
-          dir: '/dist/stencil-rebundle',
-          transformAliasedImportPaths,
-          type: 'stencil-rebundle',
-        });
+        expect(mapImportPathSpy).toHaveBeenCalledWith(
+          mockConfig,
+          '/dist/stencil-rebundle/main.js',
+          {
+            dir: '/dist/stencil-rebundle',
+            transformAliasedImportPaths,
+            type: 'stencil-rebundle',
+          },
+        );
         expect(mapImportPathSpy).toHaveBeenCalledTimes(1);
       },
     );

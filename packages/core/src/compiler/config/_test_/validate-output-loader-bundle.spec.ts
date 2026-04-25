@@ -33,8 +33,6 @@ describe('validateLoaderBundleOutputTarget', () => {
         copy: [],
         dir: join(rootDir, 'my-dist'),
         empty: false,
-        // esmLoaderPath defaults to dist/loader (at dist root for easy access)
-        esmLoaderPath: join(rootDir, 'dist', 'loader'),
         type: LOADER_BUNDLE,
         skipInDev: false,
       },
@@ -63,14 +61,6 @@ describe('validateLoaderBundleOutputTarget', () => {
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
         empty: false,
       },
-      {
-        type: 'dist-lazy-loader',
-        dir: join(rootDir, 'dist', 'loader'),
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        componentDts: join(rootDir, 'dist', 'types', 'components.d.ts'),
-        empty: false,
-      },
     ]);
   });
 
@@ -83,8 +73,6 @@ describe('validateLoaderBundleOutputTarget', () => {
     expect(outputTarget).toBeDefined();
     expect(outputTarget.dir).toBe(join(rootDir, 'dist', 'loader-bundle'));
     expect(outputTarget.buildDir).toBe(join(rootDir, 'dist', 'loader-bundle'));
-    // esmLoaderPath defaults to dist/loader (at dist root for easy access)
-    expect(outputTarget.esmLoaderPath).toBe(join(rootDir, 'dist', 'loader'));
     expect(outputTarget.empty).toBe(true);
   });
 

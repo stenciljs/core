@@ -7,15 +7,14 @@
     "type": "git",
     "url": "https://github.com/stenciljs/component-starter.git"
   },
-  "type": "module",
   "files": [
     "dist/",
     "dist/stencil-rebundle/"
   ],
-  "module": "dist/loader/index.js",
-  "types": "dist/types/components.d.ts",
+  "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/loader.d.ts",
   "unpkg": "dist/loader-bundle/copytask/copytask.js",
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json",
   "exports": {
     ".": {
       "import": "./dist/loader-bundle/index.js",
@@ -40,5 +39,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

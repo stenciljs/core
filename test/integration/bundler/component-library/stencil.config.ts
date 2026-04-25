@@ -5,7 +5,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'loader-bundle',
-      esmLoaderPath: '../loader',
     },
     {
       type: 'docs-readme',

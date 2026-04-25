@@ -6,7 +6,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'loader-bundle',
-      dir: 'dist',
     },
   ],
 };
