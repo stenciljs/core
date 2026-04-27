@@ -50,6 +50,11 @@ describe('validateOutputTargetWww', () => {
         type: 'stencil-rebundle',
       },
       {
+        dir: '/dist/assets',
+        skipInDev: false,
+        type: 'assets',
+      },
+      {
         appDir: join(rootDir, 'www', 'docs'),
         baseUrl: '/',
         buildDir: join(rootDir, 'www', 'docs', 'build'),
@@ -79,7 +84,6 @@ describe('validateOutputTargetWww', () => {
         type: 'dist-lazy',
       },
       {
-        copyAssets: 'dist',
         dir: join(rootDir, 'www', 'docs', 'build'),
         type: 'copy',
       },
@@ -96,10 +100,6 @@ describe('validateOutputTargetWww', () => {
         ],
         dir: join(rootDir, 'www', 'docs'),
         type: 'copy',
-      },
-      {
-        file: join(rootDir, 'www', 'docs', 'build', 'app.css'),
-        type: 'dist-global-styles',
       },
       {
         dir: join(rootDir, 'src'),
@@ -235,7 +235,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
@@ -279,7 +278,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
@@ -314,7 +312,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },

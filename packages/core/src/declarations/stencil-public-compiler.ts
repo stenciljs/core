@@ -2048,6 +2048,53 @@ export interface OutputTargetDistGlobalStyles extends OutputTargetBase {
 }
 
 /**
+ * Output target for global styles.
+ * Generates a unified CSS file from the `globalStyle` config option.
+ *
+ * auto-generated when `globalStyle` is configured unless explicitly configured.
+ * The output is placed in `dist/assets/` by default and is available to all distribution strategies.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'global-style',
+ *   dir: 'dist/assets',
+ *   copyToLoaderBrowser: true
+ * }
+ * ```
+ */
+export interface OutputTargetGlobalStyle extends OutputTargetBaseNext {
+  type: 'global-style';
+
+  /**
+   * When `true`, also copies the global style CSS to the loader-bundle browser directory
+   * for backwards compatibility with existing CDN consumers who have hardcoded CSS paths.
+   *
+   * @default true
+   */
+  copyToLoaderBrowser?: boolean;
+}
+
+/**
+ * Output target for component assets.
+ * Copies all component `assetsDirs` to a unified location.
+ *
+ * auto-generated when components have `assetsDirs` unless explicitly configured.
+ * The output is placed in `dist/assets/` by default and is available to all distribution strategies.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'assets',
+ *   dir: 'dist/assets'
+ * }
+ * ```
+ */
+export interface OutputTargetAssets extends OutputTargetBaseNext {
+  type: 'assets';
+}
+
+/**
  * Output target for server-side rendering (SSR) and hydration.
  * Generates a script that can be used for SSR and static site generation (prerendering).
  *
@@ -2348,7 +2395,6 @@ export interface OutputTargetCopy extends OutputTargetBase {
 
   dir: string;
   copy?: CopyTask[];
-  copyAssets?: 'collection' | 'dist';
 }
 
 export interface OutputTargetWww extends OutputTargetBase {
@@ -2451,6 +2497,8 @@ export type OutputTarget =
   | OutputTargetSsr
   | OutputTargetStencilRebundle
   | OutputTargetTypes
+  | OutputTargetGlobalStyle
+  | OutputTargetAssets
   // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
   | OutputTargetDistGlobalStyles

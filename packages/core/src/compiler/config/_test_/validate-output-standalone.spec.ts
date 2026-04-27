@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { COPY, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
+import { ASSETS, COPY, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -13,6 +13,14 @@ describe('validate-output-standalone', () => {
     const rootDir = path.resolve('/');
     const defaultDistDir = join(rootDir, 'dist', 'standalone');
     const distCustomElementsDir = 'my-standalone';
+
+    // Assets output target is auto-generated for all builds
+    const assetsOutputTarget: d.OutputTargetAssets = {
+      type: ASSETS,
+      dir: join(rootDir, 'dist', 'assets'),
+      skipInDev: false,
+    };
+
     let userConfig: d.Config;
 
     beforeEach(() => {
@@ -27,6 +35,7 @@ describe('validate-output-standalone', () => {
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
+        assetsOutputTarget,
         {
           type: STANDALONE,
           copy: [],
@@ -49,6 +58,7 @@ describe('validate-output-standalone', () => {
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
+        assetsOutputTarget,
         {
           type: STANDALONE,
           copy: [],
@@ -70,6 +80,7 @@ describe('validate-output-standalone', () => {
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
+        assetsOutputTarget,
         {
           type: STANDALONE,
           copy: [],
@@ -92,6 +103,7 @@ describe('validate-output-standalone', () => {
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets).toEqual([
+        assetsOutputTarget,
         {
           type: STANDALONE,
           copy: [],
@@ -115,6 +127,7 @@ describe('validate-output-standalone', () => {
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
+          assetsOutputTarget,
           {
             type: STANDALONE,
             copy: [],
@@ -138,6 +151,7 @@ describe('validate-output-standalone', () => {
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
+          assetsOutputTarget,
           {
             type: STANDALONE,
             copy: [],
@@ -162,6 +176,7 @@ describe('validate-output-standalone', () => {
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
+          assetsOutputTarget,
           {
             type: STANDALONE,
             copy: [],
@@ -185,6 +200,7 @@ describe('validate-output-standalone', () => {
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
+          assetsOutputTarget,
           {
             type: STANDALONE,
             copy: [],
@@ -221,6 +237,7 @@ describe('validate-output-standalone', () => {
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         expect(config.outputTargets).toEqual([
+          assetsOutputTarget,
           {
             type: COPY,
             dir: rootDir,

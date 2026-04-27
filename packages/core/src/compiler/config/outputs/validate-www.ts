@@ -2,10 +2,11 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
 import {
+  ASSETS,
   buildError,
   COPY,
-  DIST_GLOBAL_STYLES,
   DIST_LAZY,
+  GLOBAL_STYLE,
   isBoolean,
   isOutputTargetWww,
   isString,
@@ -25,11 +26,14 @@ export const validateWww = (
   diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ) => {
-  // Only count 'real' user-configured output targets — exclude the auto-generated
-  // types and stencil-rebundle outputs that autoGenerateOutputs() may have injected into
-  // userOutputs before this function was called, so a bare config (no explicit output
-  // targets) still gets the default www output added.
-  const hasOutputTargets = userOutputs.some((o) => o.type !== TYPES && o.type !== STENCIL_REBUNDLE);
+  // Only count 'real' user-configured output targets — exclude auto-generated
+  // outputs (types, stencil-rebundle, global-style, assets) that autoGenerateOutputs()
+  // may have injected into userOutputs before this function was called, so a bare config
+  // (no explicit output targets) still gets the default www output added.
+  const AUTO_GENERATED_TYPES = [TYPES, STENCIL_REBUNDLE, GLOBAL_STYLE, ASSETS] as const;
+  const hasOutputTargets = userOutputs.some(
+    (o) => !AUTO_GENERATED_TYPES.includes(o.type as (typeof AUTO_GENERATED_TYPES)[number]),
+  );
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
   if (!hasOutputTargets) {
@@ -48,7 +52,6 @@ export const validateWww = (
         | d.OutputTargetDistLazy
         | d.OutputTargetStandalone
         | d.OutputTargetCopy
-        | d.OutputTargetDistGlobalStyles
       )[],
       o,
     ) => {
@@ -80,11 +83,10 @@ export const validateWww = (
         });
       }
 
-      // Copy for dist
+      // Copy for user-defined copy tasks
       outputs.push({
         type: COPY,
         dir: buildDir,
-        copyAssets: 'dist',
       });
 
       // Copy for www
@@ -95,12 +97,6 @@ export const validateWww = (
           { src: 'assets', warn: false },
           { src: 'manifest.json', warn: false },
         ]),
-      });
-
-      // Generate global style with original name
-      outputs.push({
-        type: DIST_GLOBAL_STYLES,
-        file: join(buildDir, `${config.fsNamespace}.css`),
       });
 
       return outputs;

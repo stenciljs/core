@@ -2,8 +2,10 @@ import type * as d from '@stencil/core';
 
 import { outputCopy } from './copy/output-copy';
 import { outputLazy } from './dist-lazy/lazy-output';
+import { outputAssets } from './output-assets';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
+import { outputGlobalStyle } from './output-global-style';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
@@ -75,6 +77,10 @@ export const generateOutputTargets = async (
   ]);
 
   await Promise.all([
+    // Global styles and assets output (unified dist/assets/ location)
+    outputGlobalStyle(config, compilerCtx, buildCtx),
+    outputAssets(config, compilerCtx, buildCtx),
+
     // the user may want to copy compiled assets which requires above tasks to
     // have finished first
     outputCopy(config, compilerCtx, buildCtx),

@@ -11,6 +11,8 @@ import {
   SSR,
   STENCIL_REBUNDLE,
   TYPES,
+  GLOBAL_STYLE,
+  ASSETS,
   // Internal output targets
   DIST_GLOBAL_STYLES,
   DIST_LAZY,
@@ -152,6 +154,12 @@ export const isOutputTargetStencilRebundle = (
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;
+
+export const isOutputTargetGlobalStyle = (o: d.OutputTarget): o is d.OutputTargetGlobalStyle =>
+  o.type === GLOBAL_STYLE;
+
+export const isOutputTargetAssets = (o: d.OutputTarget): o is d.OutputTargetAssets =>
+  o.type === ASSETS;
 
 // ==================== Other Output Target Type Guards ====================
 

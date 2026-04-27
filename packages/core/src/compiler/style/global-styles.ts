@@ -1,26 +1,33 @@
 import type * as d from '@stencil/core';
 
-import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '../../utils';
+import { catchError, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';
 
+/**
+ * Build global styles from the `globalStyle` config option.
+ *
+ * This builds and caches the CSS in `compilerCtx.cachedGlobalStyle`.
+ * The actual file writes are handled by the `outputGlobalStyle` output target generator.
+ *
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @returns the built CSS string, or empty string if no globalStyle configured
+ */
 export const generateGlobalStyles = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-) => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetDistGlobalStyles);
-  if (outputTargets.length === 0) {
+): Promise<string> => {
+  // Check if globalStyle is configured
+  if (!config.globalStyle) {
     return '';
   }
 
   const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
-  if (globalStyles) {
-    await Promise.all(outputTargets.map((o) => compilerCtx.fs.writeFile(o.file, globalStyles)));
-  }
-
-  return globalStyles;
+  return globalStyles ?? '';
 };
 
 const buildGlobalStyles = async (

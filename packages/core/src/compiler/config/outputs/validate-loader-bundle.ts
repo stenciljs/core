@@ -3,7 +3,6 @@ import type * as d from '@stencil/core';
 
 import {
   COPY,
-  DIST_GLOBAL_STYLES,
   DIST_LAZY,
   isBoolean,
   isOutputTargetLoaderBundle,
@@ -54,12 +53,7 @@ export const validateLoaderBundle = (
     outputs.push({
       type: COPY,
       dir: lazyDir,
-      copyAssets: 'dist',
       copy: (loaderBundleOutput.copy ?? []).concat(),
-    });
-    outputs.push({
-      type: DIST_GLOBAL_STYLES,
-      file: join(lazyDir, `${config.fsNamespace}.css`),
     });
 
     // Distribution outputs (lazy bundles)

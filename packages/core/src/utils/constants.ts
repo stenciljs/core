@@ -240,6 +240,18 @@ export const STENCIL_REBUNDLE = 'stencil-rebundle';
  */
 export const TYPES = 'types';
 
+/**
+ * Constant for the 'global-style' output target
+ * Outputs global styles to a unified location available to all distributions.
+ */
+export const GLOBAL_STYLE = 'global-style';
+
+/**
+ * Constant for the 'assets' output target
+ * Copies component assetsDirs to a unified location available to all distributions.
+ */
+export const ASSETS = 'assets';
+
 // ==================== Internal Output Targets ====================
 
 /**
@@ -299,6 +311,8 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   SSR,
   STENCIL_REBUNDLE,
   TYPES,
+  GLOBAL_STYLE,
+  ASSETS,
   // DEPRECATED DISTRIBUTION TARGETS (< v5)
   'dist',
   'dist-custom-elements',
