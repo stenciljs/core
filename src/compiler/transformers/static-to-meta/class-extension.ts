@@ -1,17 +1,17 @@
-import ts from 'typescript';
 import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '@utils';
-import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
+import ts from 'typescript';
+
+import type * as d from '../../../declarations';
+import { tsGetSourceFile, tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
+import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
 import { parseStaticMethods } from './methods';
 import { parseStaticProps } from './props';
+import { parseStaticSerializers } from './serializers';
 import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
-import { parseStaticSerializers } from './serializers';
-
-import type * as d from '../../../declarations';
-import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 
 type DeDupeMember =
   | d.ComponentCompilerProperty
@@ -47,6 +47,77 @@ const deDupeMembers = <T extends DeDupeMember>(dedupeMembers: T[], staticMembers
       }),
   );
 };
+
+/**
+ * Attempts to find a named declaration exported from a barrel file.
+ *
+ * A barrel file is a module that only re-exports from other modules using
+ * `export * from '...'` or `export { X } from '...'` syntax. When a component
+ * imports a mixin factory from a barrel index file (e.g. `import { myFactory }
+ * from '../mixins'`) the compiler cannot find the declaration by scanning the
+ * barrel's top-level statements — it needs to follow the re-exports one level
+ * deep to locate the actual source file.
+ *
+ * @param config the current validated config
+ * @param compilerCtx the current compiler context
+ * @param barrelSource the source file suspected to be a barrel
+ * @param className the name of the declaration to find
+ * @returns the matched statement along with its origin source file and file name, or undefined
+ */
+function resolveFromBarrelExports(
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  barrelSource: ts.SourceFile,
+  className: string,
+):
+  | {
+      statement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
+      sourceFile: ts.SourceFile;
+      fileName: string;
+    }
+  | undefined {
+  for (const stmt of barrelSource.statements) {
+    if (!ts.isExportDeclaration(stmt) || !stmt.moduleSpecifier) {
+      continue;
+    }
+
+    const reExportSpecifier = stmt.moduleSpecifier.getText(barrelSource).replace(/['"]/g, '');
+
+    // Check if this named re-export includes the class we're looking for:
+    // `export { className } from '...'` or `export { original as className } from '...'`
+    if (stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
+      const hasName = stmt.exportClause.elements.some((el) => {
+        const exportedName = el.name.text;
+        const localName = el.propertyName?.text ?? el.name.text;
+        return exportedName === className || localName === className;
+      });
+      if (!hasName) continue;
+    }
+    // If there's no export clause it's `export * from '...'` — always follow it.
+
+    const resolvedReExport = tsResolveModuleName(config, compilerCtx, reExportSpecifier, barrelSource.fileName);
+    if (!resolvedReExport?.resolvedModule) continue;
+
+    let reExportSource: ts.SourceFile = compilerCtx.moduleMap.get(
+      resolvedReExport.resolvedModule.resolvedFileName,
+    )?.staticSourceFile;
+
+    if (!reExportSource) {
+      reExportSource = tsGetSourceFile(config, resolvedReExport);
+    }
+    if (!reExportSource) continue;
+
+    const found = reExportSource.statements.find(matchesNamedDeclaration(className));
+    if (found) {
+      return {
+        statement: found,
+        sourceFile: reExportSource,
+        fileName: resolvedReExport.resolvedModule.resolvedFileName,
+      };
+    }
+  }
+  return undefined;
+}
 
 /**
  * Helper function to resolve and process an extended class from a module.
@@ -108,7 +179,24 @@ function resolveAndProcessExtendedClass(
   }
 
   // 2) get the exported declaration from the module
-  const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+  let matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+  // Track which source file actually contains the matched declaration.
+  // If the import pointed at a barrel file the real source may differ from foundSource.
+  let matchedSource = foundSource;
+  let matchedFileName = foundFile.resolvedModule.resolvedFileName;
+
+  if (!matchedStatement) {
+    // The declaration wasn't found directly — the resolved module may be a barrel file that
+    // re-exports the class via `export * from '...'` or `export { X } from '...'` statements.
+    // Follow those re-exports one level deep to find the actual declaration.
+    const barrelResult = resolveFromBarrelExports(buildCtx.config, compilerCtx, foundSource, className);
+    if (barrelResult) {
+      matchedStatement = barrelResult.statement;
+      matchedSource = barrelResult.sourceFile;
+      matchedFileName = barrelResult.fileName;
+    }
+  }
+
   if (!matchedStatement) {
     // we couldn't find the imported declaration as an exported statement in the module
     const err = buildWarn(buildCtx.diagnostics);
@@ -135,8 +223,8 @@ function resolveAndProcessExtendedClass(
     // 3) if we found the class declaration, push it and check if it itself extends from another class
     dependentClasses.push({
       classNode: foundClassDeclaration,
-      sourceFile: foundSource,
-      fileName: foundFile.resolvedModule.resolvedFileName,
+      sourceFile: matchedSource,
+      fileName: matchedFileName,
     });
 
     if (keepLooking) {
@@ -482,6 +570,7 @@ export function mergeExtendedClassMeta(
 
     if (
       (mixinProps.length > 0 || mixinStates.length > 0) &&
+      buildCtx.config.tsCompilerOptions?.useDefineForClassFields !== false &&
       !detectModernPropDeclarations(extendedClass.classNode, extendedClass.sourceFile)
     ) {
       const err = buildWarn(buildCtx.diagnostics);
