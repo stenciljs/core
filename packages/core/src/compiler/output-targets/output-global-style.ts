@@ -49,7 +49,7 @@ export const outputGlobalStyle = async (
 
   await Promise.all(
     globalStyleTargets.map(async (outputTarget) => {
-      const writePromises: Promise<void>[] = [];
+      const writePromises: Promise<unknown>[] = [];
 
       // Write to the primary location (e.g., dist/assets/{namespace}.css)
       const primaryPath = join(outputTarget.dir, cssFileName);

@@ -190,6 +190,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
           config.outputTargets[0] as OutputTargetStandalone,
         );
         addStandaloneInputs(
+          config,
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -227,6 +228,7 @@ globalScripts();
           config.outputTargets[0] as OutputTargetStandalone,
         );
         addStandaloneInputs(
+          config,
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -258,6 +260,7 @@ globalScripts();
           config.outputTargets[0] as OutputTargetStandalone,
         );
         addStandaloneInputs(
+          config,
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -295,6 +298,7 @@ globalScripts();
           config.outputTargets[0] as OutputTargetStandalone,
         );
         addStandaloneInputs(
+          config,
           buildCtx,
           bundleOptions,
           config.outputTargets[0] as OutputTargetStandalone,
@@ -339,7 +343,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
 
         // Check loader input is added
         expect(bundleOptions.inputs['loader']).toBe('\0loader');
@@ -364,7 +368,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'loader', autoStart: false };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
 
         const loaderContent = bundleOptions.loader['\0loader'];
         // Should export start/stop but NOT auto-call start()
@@ -381,7 +385,7 @@ export const defineCustomElements = (opts) => {
         outputTarget.autoLoader = { fileName: 'my-custom-loader', autoStart: true };
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
 
         expect(bundleOptions.inputs['my-custom-loader']).toBe('\0loader');
       });
@@ -394,7 +398,7 @@ export const defineCustomElements = (opts) => {
         // autoLoader is not set
 
         const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
-        addStandaloneInputs(buildCtx, bundleOptions, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
 
         expect(bundleOptions.inputs['loader']).toBeUndefined();
         expect(bundleOptions.loader['\0loader']).toBeUndefined();

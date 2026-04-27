@@ -9,9 +9,11 @@ import {
   getSourceMappingUrlForEndOfFile,
   hasError,
   isBoolean,
+  isOutputTargetAssets,
   isOutputTargetStandalone,
   isString,
   join,
+  relative,
   rolldownToStencilSourceMap,
 } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
@@ -126,7 +128,7 @@ export const bundleStandalone = async (
   try {
     const bundleOpts = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
 
-    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
 
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
 
@@ -200,11 +202,13 @@ export const bundleStandalone = async (
 
 /**
  * Create the virtual modules/input modules for the `standalone` output target.
+ * @param config the validated compiler configuration
  * @param buildCtx the context for the current build
  * @param bundleOpts the bundle options to store the virtual modules under. acts as an output parameter
  * @param outputTarget the configuration for the standalone output target
  */
 export const addStandaloneInputs = (
+  config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   bundleOpts: BundleOptions,
   outputTarget: d.OutputTargetStandalone,
@@ -254,12 +258,27 @@ export const addStandaloneInputs = (
     bundleOpts.loader![coreKey] = exp.join('\n');
   });
 
+  // Compute relative path from standalone dir to assets dir if components have assets
+  let relativeAssetPath: string | undefined;
+  const hasComponentsWithAssets = components.some(
+    (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+  );
+  if (hasComponentsWithAssets) {
+    const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
+    if (assetsTarget?.dir && outputTarget.dir) {
+      // Compute relative path and ensure it ends with '/'
+      const rel = relative(outputTarget.dir, assetsTarget.dir);
+      relativeAssetPath = rel.endsWith('/') ? rel : rel + '/';
+    }
+  }
+
   // Generate the contents of the entry file to be created by the bundler
   bundleOpts.loader!['\0core'] = generateEntryPoint(
     outputTarget,
     indexImports,
     indexExports,
     exportNames,
+    relativeAssetPath,
   );
 
   // Generate auto-loader module if enabled
@@ -280,6 +299,7 @@ export const addStandaloneInputs = (
  * @param cmpImports The import declarations for local component modules.
  * @param cmpExports The export declarations for local component modules.
  * @param cmpNames The exported component names (could be aliased) from local component modules.
+ * @param relativeAssetPath Optional relative path from standalone dir to assets dir (e.g., '../assets/')
  * @returns the stringified contents to be placed in the entrypoint
  */
 export const generateEntryPoint = (
@@ -287,6 +307,7 @@ export const generateEntryPoint = (
   cmpImports: string[] = [],
   cmpExports: string[] = [],
   cmpNames: string[] = [],
+  relativeAssetPath?: string,
 ): string => {
   const body: string[] = [];
   const imports: string[] = [];
@@ -297,6 +318,13 @@ export const generateEntryPoint = (
     `export { getAssetPath, setAssetPath, setNonce, setPlatformOptions, render } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
+
+  // Auto-configure asset path if components use assets
+  if (relativeAssetPath) {
+    imports.push(`import { setAssetPath } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`);
+    // Use import.meta.url for runtime resolution that works regardless of where bundle is hosted
+    body.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
+  }
 
   // Content related to global scripts
   if (outputTarget.includeGlobalScripts !== false) {

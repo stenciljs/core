@@ -928,12 +928,15 @@ The `stencil migrate` command will:
 - [x] Update `generateGlobalStyles` to only build/cache CSS (no file writes)
 - [x] Update tests in `validate-output-standalone.spec.ts`
 
+- [x] Copy assets to www build directories (in `output-assets.ts`)
+- [x] Auto-configure `setAssetPath()` in standalone index.js (relative path to assets dir)
+
 **Remaining:**
-- [ ] Implement www symlink strategy for assets (symlink in dev, copy in prod)
-- [ ] Auto-configure `setAssetPath()` in standalone index.js
-- [ ] Update migration CLI
+- [x] ~~Update migration CLI~~ - Not needed, changes are backwards compatible (auto-generated outputs, `getAssetPath()` handles paths)
 - [ ] Add comprehensive tests for new output targets
 - [ ] Update documentation
+
+**Decision:** Skipped www symlink strategy - the ~200-500ms copy time is negligible compared to TS compilation. Complexity of cross-platform symlinks not worth the marginal gain.
 
 **Files Modified:**
 - `packages/core/src/declarations/stencil-public-compiler.ts` - Added types
@@ -952,6 +955,7 @@ The `stencil migrate` command will:
 - `packages/core/src/compiler/config/_test_/validate-output-loader-bundle.spec.ts` - Updated tests
 - `packages/core/src/compiler/config/_test_/validate-output-www.spec.ts` - Updated tests
 - `packages/core/src/compiler/config/_test_/validate-output-standalone.spec.ts` - Updated tests
+- `packages/core/src/compiler/output-targets/standalone/index.ts` - Auto-configure setAssetPath() for components with assets
 
 **Build Status:** ✅ Compiles successfully
 

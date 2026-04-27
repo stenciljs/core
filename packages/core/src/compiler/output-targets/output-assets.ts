@@ -1,13 +1,14 @@
 import type * as d from '@stencil/core';
 
-import { buildError, isOutputTargetAssets, join } from '../../utils';
+import { buildError, isOutputTargetAssets, isOutputTargetWww, join } from '../../utils';
 import { getComponentAssetsCopyTasks, canSkipAssetsCopy } from './copy/assets-copy-tasks';
 
 /**
  * Output target generator for component assets.
  *
- * Copies all component `assetsDirs` to a unified location (default: `dist/assets/`)
- * that all distribution strategies can access via runtime `getAssetPath()` resolution.
+ * Copies all component `assetsDirs` to:
+ * - Unified location (default: `dist/assets/`) for all distribution strategies
+ * - www build directories for dev server usage
  *
  * @param config the Stencil configuration
  * @param compilerCtx the compiler context
@@ -41,13 +42,22 @@ export const outputAssets = async (
 
   const timespan = buildCtx.createTimeSpan('copy component assets started', true);
 
+  // Get www output targets - we also need to copy assets there for dev server
+  const wwwTargets = config.outputTargets.filter(isOutputTargetWww);
+
   // Collect all copy tasks for all assets targets
   const allCopyTasks: Required<d.CopyTask>[] = [];
 
   for (const outputTarget of assetsTargets) {
-    // Get copy tasks for this assets target's directory
-    // Use collectionsPath=false so assets go to {dir}/{cmpRelativePath}
+    // Get copy tasks for this assets target's directory (e.g., dist/assets/)
     const copyTasks = getComponentAssetsCopyTasks(config, buildCtx, outputTarget.dir, false);
+    allCopyTasks.push(...copyTasks);
+  }
+
+  // Also copy assets to www build directories for dev server usage
+  for (const wwwTarget of wwwTargets) {
+    const wwwAssetsDir = join(wwwTarget.buildDir, 'assets');
+    const copyTasks = getComponentAssetsCopyTasks(config, buildCtx, wwwAssetsDir, false);
     allCopyTasks.push(...copyTasks);
   }
 
@@ -67,7 +77,9 @@ export const outputAssets = async (
         err.messageText = e.message;
       }
     }
-    timespan.finish(`copy component assets finished (${copiedFiles} file${copiedFiles === 1 ? '' : 's'})`);
+    timespan.finish(
+      `copy component assets finished (${copiedFiles} file${copiedFiles === 1 ? '' : 's'})`,
+    );
   } else {
     timespan.finish('copy component assets finished (no assets)');
   }

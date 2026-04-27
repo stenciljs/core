@@ -60,6 +60,11 @@ export const generateEsmBrowser = async (
 /**
  * Write a backwards-compatible forwarding module that re-exports from the new .js file.
  * This allows existing CDN consumers with hardcoded .esm.js references to continue working.
+ *
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context
+ * @param outputTargetType the output target type for file writing
+ * @param destinations the destination directories to write forwarding modules to
  */
 const writeEsmForwardingModule = async (
   config: d.ValidatedConfig,

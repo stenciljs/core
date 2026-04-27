@@ -96,6 +96,7 @@ microtasks
 minifier
 myapp
 mycomponent
+mylib
 myprop
 namespace
 nocheck
@@ -170,4 +171,5 @@ jsxs
 labelable
 lightningcss
 cooldown
+rebundle
 regen

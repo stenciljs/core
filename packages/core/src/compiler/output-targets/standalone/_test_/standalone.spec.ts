@@ -17,7 +17,8 @@ describe('standalone', () => {
       sourceFilePath: './foo/bar.tsx',
       tagName: 'my-tag',
     });
-    const buildCtx = mockBuildCtx();
+    const config = mockValidatedConfig();
+    const buildCtx = mockBuildCtx(config);
     buildCtx.components = [cmpMeta];
     const bundleOpts: BundleOptions = {
       id: 'customElements',
@@ -29,7 +30,7 @@ describe('standalone', () => {
       type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
-    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
     expect(bundleOpts.loader['\x00MyTag']).toContain(
       "export { StubCmp as MyTag } from './foo/bar.tsx';",
     );
@@ -41,7 +42,8 @@ describe('standalone', () => {
       sourceFilePath: './foo/bar.tsx',
       tagName: 'my-tag',
     });
-    const buildCtx = mockBuildCtx();
+    const config = mockValidatedConfig();
+    const buildCtx = mockBuildCtx(config);
     buildCtx.components = [cmpMeta];
     const bundleOpts: BundleOptions = {
       id: 'customElements',
@@ -53,7 +55,7 @@ describe('standalone', () => {
       type: STANDALONE,
       customElementsExportBehavior: 'single-export-module',
     };
-    addStandaloneInputs(buildCtx, bundleOpts, outputTarget);
+    addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
     expect(bundleOpts.loader['\x00MyTag']).toContain(
       'export const defineCustomElement = cmpDefCustomEle;',
     );
