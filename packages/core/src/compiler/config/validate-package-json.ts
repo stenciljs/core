@@ -463,16 +463,26 @@ const validatePackageFiles = async (
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
-    const validPaths = [
-      `${actualDistDir}`,
-      `${actualDistDir}/`,
-      `./${actualDistDir}`,
-      `./${actualDistDir}/`,
-    ];
+    // Check if the files array contains the distribution directory directly,
+    // or a parent directory that would include it (e.g., "dist/" covers "dist/stencil-rebundle/")
+    const containsDistDir = buildCtx.packageJson.files.some((userPath) => {
+      // Normalize both paths: remove trailing slashes and leading ./
+      const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
+      const normalizedDistDir = actualDistDir.replace(/\/$/, '').replace(/^\.\//, '');
 
-    const containsDistDir = buildCtx.packageJson.files.some((userPath) =>
-      validPaths.some((validPath) => normalizePath(userPath) === validPath),
-    );
+      // Exact match
+      if (normalizedUserPath === normalizedDistDir) {
+        return true;
+      }
+
+      // Parent directory match (e.g., "dist" covers "dist/stencil-rebundle")
+      const userPathWithSlash = normalizedUserPath + '/';
+      if (normalizedDistDir.startsWith(userPathWithSlash)) {
+        return true;
+      }
+
+      return false;
+    });
 
     if (!containsDistDir) {
       const msg = `package.json "files" array must contain the distribution directory "${actualDistDir}/" when generating a distribution.`;

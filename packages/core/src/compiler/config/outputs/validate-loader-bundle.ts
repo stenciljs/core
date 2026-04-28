@@ -6,6 +6,7 @@ import {
   DIST_LAZY,
   isBoolean,
   isOutputTargetLoaderBundle,
+  isOutputTargetTypes,
   isString,
   join,
 } from '../../../utils';
@@ -62,6 +63,10 @@ export const validateLoaderBundle = (
       const esmDir = join(loaderBundleOutput.dir, 'esm');
       const cjsDir = loaderBundleOutput.cjs ? join(loaderBundleOutput.dir, 'cjs') : undefined;
 
+      // Find the types output target to get the types directory
+      const typesOutput = userOutputs.find(isOutputTargetTypes);
+      const typesDir = getAbsolutePath(config, typesOutput?.dir ?? 'dist/types');
+
       // Create lazy output target for distributable bundles
       outputs.push({
         type: DIST_LAZY,
@@ -71,6 +76,8 @@ export const validateLoaderBundle = (
           ? join(loaderBundleOutput.dir, 'index.cjs')
           : undefined,
         esmIndexFile: join(loaderBundleOutput.dir, 'index.js'),
+        loaderDir: join(loaderBundleOutput.dir, 'loader'),
+        typesDir,
         empty: loaderBundleOutput.empty,
       });
     }

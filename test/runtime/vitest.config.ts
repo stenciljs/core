@@ -8,7 +8,7 @@ export default defineVitestConfig({
       // Tests against lazy-loaded 'dist' output
       {
         test: {
-          name: 'dist',
+          name: 'lazy',
           include: ['src/**/*.spec.{ts,tsx}'],
           setupFiles: ['./vitest-setup-dist.ts'],
           env: {
@@ -25,7 +25,7 @@ export default defineVitestConfig({
       // Tests against bundled 'dist-custom-elements' output
       {
         test: {
-          name: 'custom-elements',
+          name: 'standalone',
           include: ['src/**/*.spec.{ts,tsx}'],
           setupFiles: ['./vitest-setup-custom-elements.ts'],
           env: {

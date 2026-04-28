@@ -1,0 +1,5 @@
+dist/
+www/
+.stencil/
+node_modules/
+src/components.d.ts

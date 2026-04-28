@@ -47,7 +47,7 @@ export const generateEsm = async (
         false,
       );
 
-      await generateShortcuts(config, compilerCtx, outputTargets, output);
+      await generateShortcuts(compilerCtx, outputTargets, output);
     }
   }
 
@@ -55,7 +55,6 @@ export const generateEsm = async (
 };
 
 const generateShortcuts = (
-  _config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   outputTargets: d.OutputTargetDistLazy[],
   rolldownResult: RolldownResult[],
@@ -67,7 +66,7 @@ const generateShortcuts = (
       if (o.esmDir && o.esmIndexFile) {
         const entryPointPath = join(o.esmDir, indexFilename);
         const relativePath = relativeImport(o.esmIndexFile, entryPointPath);
-        const shortcutContent = `export * from '${relativePath}';`;
+        const shortcutContent = `export * from '${relativePath}';\n`;
         await compilerCtx.fs.writeFile(o.esmIndexFile, shortcutContent, {
           outputTargetType: o.type,
         });

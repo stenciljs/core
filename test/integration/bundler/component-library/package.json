@@ -5,22 +5,20 @@
   "description": "Test component library for bundler integration tests",
   "license": "MIT",
   "files": [
-    "dist/",
-    "loader/"
+    "dist/"
   ],
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
-  "types": "dist/types/index.d.ts",
-  "unpkg": "dist/component-library/component-library.esm.js",
-  "es2015": "dist/esm/index.js",
+  "type": "module",
+  "types": "dist/types/components.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./dist/loader-bundle/index.js",
+      "require": "./dist/loader-bundle/index.cjs",
+      "types": "./dist/types/components.d.ts"
     },
     "./loader": {
-      "import": "./loader/index.js",
-      "require": "./loader/index.cjs"
+      "import": "./dist/loader-bundle/esm/loader.js",
+      "require": "./dist/loader-bundle/cjs/loader.cjs",
+      "types": "./dist/types/loader.d.ts"
     }
   },
   "scripts": {
@@ -33,7 +31,5 @@
   "volta": {
     "extends": "../../../../package.json"
   },
-  "collection:main": "dist/collection/index.js",
-  "es2017": "dist/esm/index.js",
   "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "dist/lazy/index.cjs.js",
+  "module": "dist/lazy/index.js",
+  "types": "dist/types/components.d.ts",
   "scripts": {
     "build": "stencil build",
     "build:external": "pnpm --filter @stencil-core-tests/runtime-external build",

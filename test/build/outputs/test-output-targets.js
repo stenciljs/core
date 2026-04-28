@@ -46,9 +46,10 @@ const wwwDir = path.join(e2eDir, 'www');
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.js'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.js.map'));
 fs.accessSync(path.join(wwwDir, 'build', 'endtoend.css'));
-fs.accessSync(path.join(wwwDir, 'build', 'assets-a/file-1.txt'));
-fs.accessSync(path.join(wwwDir, 'build', 'assets-a/file-2.txt'));
-fs.accessSync(path.join(wwwDir, 'build', 'assets-b/file-3.txt'));
+// Assets in www now go to build/assets/ subdirectory (v5 change)
+fs.accessSync(path.join(wwwDir, 'build', 'assets', 'assets-a', 'file-1.txt'));
+fs.accessSync(path.join(wwwDir, 'build', 'assets', 'assets-a', 'file-2.txt'));
+fs.accessSync(path.join(wwwDir, 'build', 'assets', 'assets-b', 'file-3.txt'));
 fs.accessSync(path.join(wwwDir, 'index.html'));
 
 fs.accessSync(path.join(e2eDir, 'dist-react', 'components.ts'));
@@ -57,5 +58,27 @@ fs.accessSync(path.join(e2eDir, 'docs.json'));
 fs.accessSync(path.join(e2eDir, 'docs.d.ts'));
 
 fs.accessSync(path.join(e2eDir, 'custom-elements-manifest.json'));
+
+// ========================================
+// Unified assets output (v5)
+// ========================================
+const assetsDir = path.join(distDir, 'assets');
+fs.accessSync(assetsDir);
+
+// Global styles in unified location
+fs.accessSync(path.join(assetsDir, 'endtoend.css'));
+
+// Component assets copied to unified location
+// car-detail and car-list both have assetsDirs: ['assets-a']
+// dom-api has assetsDirs: ['assets-b']
+fs.accessSync(path.join(assetsDir, 'assets-a'));
+fs.accessSync(path.join(assetsDir, 'assets-a', 'file-1.txt'));
+fs.accessSync(path.join(assetsDir, 'assets-a', 'file-2.txt'));
+fs.accessSync(path.join(assetsDir, 'assets-b'));
+fs.accessSync(path.join(assetsDir, 'assets-b', 'file-3.txt'));
+
+// Backwards compat: Global styles also copied to loader-bundle browser dir
+// (copyToLoaderBrowser: true is the default)
+fs.accessSync(path.join(loaderBundleDir, 'endtoend', 'endtoend.css'));
 
 console.log('✅ validated build outputs: dist files\n');

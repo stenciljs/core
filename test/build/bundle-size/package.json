@@ -8,12 +8,12 @@
   "exports": {
     ".": {
       "import": "./dist/loader-bundle/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/components.d.ts"
     },
     "./loader": {
-      "import": "./dist/loader/index.js",
-      "require": "./dist/loader/index.cjs",
-      "types": "./dist/loader/index.d.ts"
+      "import": "./dist/loader-bundle/esm/loader.js",
+      "require": "./dist/loader-bundle/cjs/loader.cjs",
+      "types": "./dist/types/loader.d.ts"
     }
   },
   "scripts": {

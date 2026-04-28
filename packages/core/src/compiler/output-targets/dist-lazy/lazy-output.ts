@@ -26,6 +26,7 @@ import { updateStencilCoreImports } from '../../transformers/update-stencil-core
 import { generateCjs } from './generate-cjs';
 import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
+import { generateLoader } from './generate-loader';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
@@ -90,6 +91,9 @@ export const outputLazy = async (
           buildCtx.components = result.buildCtx.components;
         }
       });
+
+      // Generate loader directory with forwarding files
+      await generateLoader(compilerCtx, outputTargets);
 
       if (buildCtx.esmBrowserComponentBundle != null) {
         buildCtx.componentGraph = generateModuleGraph(

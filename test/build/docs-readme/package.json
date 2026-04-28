@@ -8,7 +8,7 @@
     "dist/stencil-rebundle/"
   ],
   "type": "module",
-  "module": "dist/loader/index.js",
+  "module": "dist/loader-bundle/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "prepare.readmes": "node ./copy-readme.js",

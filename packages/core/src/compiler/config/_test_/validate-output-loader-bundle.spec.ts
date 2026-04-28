@@ -41,6 +41,7 @@ describe('validateLoaderBundleOutputTarget', () => {
         copy: [],
         dir: join(rootDir, 'my-dist'),
         empty: false,
+        
         type: LOADER_BUNDLE,
         skipInDev: false,
       },
@@ -48,7 +49,9 @@ describe('validateLoaderBundleOutputTarget', () => {
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         empty: false,
         isBrowserBuild: true,
+        loaderDir: join(rootDir, 'my-dist', 'loader'),
         type: 'dist-lazy',
+        typesDir: join(rootDir, 'dist', 'types')
       },
       {
         copy: [],

@@ -1333,7 +1333,7 @@ export class MockHTMLElement extends MockElement {
   override __namespaceURI = 'http://www.w3.org/1999/xhtml';
 
   constructor(ownerDocument: any, nodeName: string | null) {
-    super(ownerDocument, typeof nodeName === 'string' ? nodeName.toUpperCase() : null);
+    super(ownerDocument, nodeName ? nodeName.toUpperCase() : null);
   }
 
   override get tagName() {

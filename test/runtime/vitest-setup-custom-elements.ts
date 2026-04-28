@@ -1,3 +1,4 @@
+/// <reference types="@stencil/core" />
 import './hydrated.css';
 import * as ce from './dist/custom-elements/index.js';
 

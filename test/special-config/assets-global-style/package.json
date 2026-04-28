@@ -1,22 +1,17 @@
 {
-  "name": "@stencil-core-tests/special-config-external-runtime",
+  "name": "@stencil-core-tests/special-config-assets-global-style",
   "version": "0.0.1",
   "private": true,
+  "description": "Tests explicit assets and global-style output target configurations",
   "type": "module",
-  "module": "dist/custom-elements/index.js",
+  "module": "dist/loader-bundle/index.js",
   "types": "dist/types/components.d.ts",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil-test"
+    "test": "stencil build && node test-outputs.js"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@stencil/vitest": "catalog:",
-    "@vitest/browser": "catalog:",
-    "@vitest/browser-playwright": "catalog:",
-    "vitest": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"
