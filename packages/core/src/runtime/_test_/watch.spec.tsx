@@ -264,6 +264,49 @@ describe('watch', () => {
     expect(called[1]).toBe(100);
   });
 
+  it('fires watch callbacks when the component was compiled with the legacy pre-4.39.x watcher format', async () => {
+    // Prior to Stencil 4.39.x (PR #6484), the compiler emitted watcher handlers
+    // as a plain string array: { "min": ["minChanged"] }.
+    // The new format wraps each entry in an object with flags: { "min": [{ "minChanged": 0 }] }.
+    // This test verifies backward compatibility when a library (e.g. Ionic) was compiled
+    // with an old compiler but runs against a new Stencil runtime.
+    const watchCalls: Array<[unknown, unknown, string]> = [];
+
+    @Component({ tag: 'cmp-legacy-watch' })
+    class CmpLegacyWatch {
+      @Prop() min = 0;
+
+      // No @Watch decorator here — the watch is wired via the legacy static metadata below
+      minChanged(newVal: number, oldVal: number, propName: string) {
+        watchCalls.push([newVal, oldVal, propName]);
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    // Simulate what a pre-4.39.x Stencil compiler emits: string[] instead of { [method]: flags }[]
+    (CmpLegacyWatch as any).watchers = { min: ['minChanged'] };
+
+    const { root } = await newSpecPage({
+      components: [CmpLegacyWatch],
+      html: `<cmp-legacy-watch></cmp-legacy-watch>`,
+    });
+
+    root.min = 42;
+    expect(watchCalls).toHaveLength(1);
+    expect(watchCalls[0]).toEqual([42, 0, 'min']);
+
+    root.min = 100;
+    expect(watchCalls).toHaveLength(2);
+    expect(watchCalls[1]).toEqual([100, 42, 'min']);
+
+    // Same value — watcher must NOT fire
+    root.min = 100;
+    expect(watchCalls).toHaveLength(2);
+  });
+
   it('can immediately call watch method with incoming attribute value', async () => {
     const called: number[] = [];
     @Component({ tag: 'cmp-a' })

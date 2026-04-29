@@ -11,6 +11,7 @@ export { addHostEventListeners } from './host-listener';
 export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';
+export { normalizeWatchers } from './normalize-watchers';
 export { parsePropertyValue } from './parse-property-value';
 export { setPlatformOptions } from './platform-options';
 export { proxyComponent } from './proxy-component';
