@@ -46,7 +46,7 @@ export const validateWww = (
   // If standalone is configured but NOT loader-bundle, default to 'standalone'
   const hasLoaderBundle = userOutputs.some(isOutputTargetLoaderBundle);
   const hasStandalone = userOutputs.some(isOutputTargetStandalone);
-  const defaultBundleMode = !hasLoaderBundle && hasStandalone ? 'standalone' : 'lazy';
+  const defaultBundleMode = !hasLoaderBundle && hasStandalone ? 'standalone' : 'loader';
 
   // Apply default bundleMode to www outputs that don't have it explicitly set
   for (const wwwOutput of userWwwOutputs) {
@@ -125,9 +125,9 @@ const validateWwwOutputTarget = (
   outputTarget: d.OutputTargetWww,
   diagnostics: d.Diagnostic[],
 ) => {
-  // Normalize bundleMode (default to 'lazy')
+  // Normalize bundleMode (default to 'loader')
   if (outputTarget.bundleMode !== 'standalone') {
-    outputTarget.bundleMode = 'lazy';
+    outputTarget.bundleMode = 'loader';
   }
 
   if (!isString(outputTarget.baseUrl)) {

@@ -2066,11 +2066,6 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
   empty?: boolean;
 }
 
-export interface OutputTargetDistGlobalStyles extends OutputTargetBase {
-  type: 'dist-global-styles';
-  file: string;
-}
-
 /**
  * Output target for global styles.
  * Generates a CSS file from an input stylesheet.
@@ -2450,7 +2445,7 @@ export interface OutputTargetWww extends OutputTargetBase {
   /**
    * Choose how components are bundled for the www output.
    *
-   * - `'lazy'` (default): Uses the lazy-loading bundle architecture with chunk
+   * - `'loader'` (default): Uses the loader-bundle architecture with chunk
    *   splitting and a loader infrastructure. Best for production apps with many
    *   components where you want optimal loading performance.
    *
@@ -2458,9 +2453,9 @@ export interface OutputTargetWww extends OutputTargetBase {
    *   uses MutationObserver to dynamically import components as they appear in
    *   the DOM. Simpler architecture, easier debugging, one module per component.
    *
-   * Default: `'lazy'`
+   * Default: `'loader'`
    */
-  bundleMode?: 'lazy' | 'standalone';
+  bundleMode?: 'loader' | 'standalone';
 
   /**
    * The directory to write the app's JavaScript and CSS build
@@ -2545,7 +2540,6 @@ export type OutputTarget =
   | OutputTargetAssets
   // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
-  | OutputTargetDistGlobalStyles
   // Docs output targets
   | OutputTargetDocsJson
   | OutputTargetDocsCustom

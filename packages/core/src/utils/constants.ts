@@ -261,12 +261,6 @@ export const ASSETS = 'assets';
 export const DIST_LAZY = 'dist-lazy';
 
 /**
- * Internal constant for the 'dist-global-styles' output target
- * (used by loader-bundle and www)
- */
-export const DIST_GLOBAL_STYLES = 'dist-global-styles';
-
-/**
  * Constant for the 'docs-custom' output target
  */
 export const DOCS_CUSTOM = 'docs-custom';

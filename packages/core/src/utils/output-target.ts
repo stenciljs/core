@@ -14,7 +14,6 @@ import {
   GLOBAL_STYLE,
   ASSETS,
   // Internal output targets
-  DIST_GLOBAL_STYLES,
   DIST_LAZY,
   // Docs
   DOCS_CUSTOM,
@@ -167,10 +166,6 @@ export const isOutputTargetCopy = (o: d.OutputTarget): o is d.OutputTargetCopy =
 
 export const isOutputTargetDistLazy = (o: d.OutputTarget): o is d.OutputTargetDistLazy =>
   o.type === DIST_LAZY;
-
-export const isOutputTargetDistGlobalStyles = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistGlobalStyles => o.type === DIST_GLOBAL_STYLES;
 
 export const isOutputTargetCustom = (o: d.OutputTarget): o is d.OutputTargetCustom =>
   o.type === CUSTOM;
