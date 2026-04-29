@@ -1,4 +1,5 @@
 import { expect, describe, it } from '@stencil/vitest';
+
 import { normalizeWatchers } from '../normalize-watchers';
 
 describe('normalizeWatchers', () => {
