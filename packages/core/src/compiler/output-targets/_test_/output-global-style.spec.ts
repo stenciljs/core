@@ -8,8 +8,8 @@ import {
   mockValidatedConfig,
 } from '../../../testing';
 import { GLOBAL_STYLE, LOADER_BUNDLE, WWW, join } from '../../../utils';
-import { outputGlobalStyle } from '../output-global-style';
 import * as globalStylesModule from '../../style/global-styles';
+import { outputGlobalStyle } from '../output-global-style';
 
 describe('outputGlobalStyle', () => {
   let config: d.ValidatedConfig;

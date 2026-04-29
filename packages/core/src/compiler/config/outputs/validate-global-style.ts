@@ -1,5 +1,5 @@
-import type * as d from '@stencil/core';
 import { basename } from 'node:path';
+import type * as d from '@stencil/core';
 
 import { isBoolean, isOutputTargetGlobalStyle, isString } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
@@ -26,7 +26,7 @@ export const validateGlobalStyle = (
     // Resolve input path - explicit input takes precedence over globalStyle config
     const input = isString(outputTarget.input)
       ? getAbsolutePath(config, outputTarget.input)
-      : config.globalStyle ?? undefined;
+      : (config.globalStyle ?? undefined);
 
     // Determine output filename
     // Priority: explicit fileName > basename of input > {namespace}.css

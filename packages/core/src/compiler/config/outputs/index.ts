@@ -100,8 +100,8 @@ const autoGenerateOutputs = (
 
   // Check for explicit global-style outputs
   const explicitGlobalStyles = userOutputs.filter(isOutputTargetGlobalStyle);
-  const hasExplicitGlobalStyleWithInput = explicitGlobalStyles.some(
-    (o) => isString((o as d.OutputTargetGlobalStyle).input),
+  const hasExplicitGlobalStyleWithInput = explicitGlobalStyles.some((o) =>
+    isString((o as d.OutputTargetGlobalStyle).input),
   );
 
   // Warn if both globalStyle config AND explicit global-style with input are used

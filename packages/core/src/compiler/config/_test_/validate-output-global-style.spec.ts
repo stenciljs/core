@@ -466,8 +466,8 @@ describe('validateGlobalStyleOutputTarget', () => {
       const warnings = diagnostics.filter((d) => d.level === 'warn');
       expect(warnings.length).toBeGreaterThan(0);
 
-      const globalStyleWarning = warnings.find((w) =>
-        w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
+      const globalStyleWarning = warnings.find(
+        (w) => w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
       );
       expect(globalStyleWarning).toBeDefined();
       expect(globalStyleWarning?.messageText).toContain('Choose one approach');
@@ -480,8 +480,8 @@ describe('validateGlobalStyleOutputTarget', () => {
       const { diagnostics } = validateConfig(config, mockLoadConfigInit());
 
       const warnings = diagnostics.filter((d) => d.level === 'warn');
-      const globalStyleWarning = warnings.find((w) =>
-        w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
+      const globalStyleWarning = warnings.find(
+        (w) => w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
       );
       expect(globalStyleWarning).toBeUndefined();
     });
@@ -498,8 +498,8 @@ describe('validateGlobalStyleOutputTarget', () => {
       const { diagnostics } = validateConfig(config, mockLoadConfigInit());
 
       const warnings = diagnostics.filter((d) => d.level === 'warn');
-      const globalStyleWarning = warnings.find((w) =>
-        w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
+      const globalStyleWarning = warnings.find(
+        (w) => w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
       );
       expect(globalStyleWarning).toBeUndefined();
     });
@@ -516,8 +516,8 @@ describe('validateGlobalStyleOutputTarget', () => {
       const { diagnostics } = validateConfig(config, mockLoadConfigInit());
 
       const warnings = diagnostics.filter((d) => d.level === 'warn');
-      const globalStyleWarning = warnings.find((w) =>
-        w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
+      const globalStyleWarning = warnings.find(
+        (w) => w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
       );
       expect(globalStyleWarning).toBeUndefined();
     });
