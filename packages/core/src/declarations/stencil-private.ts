@@ -516,7 +516,8 @@ export interface CompilerCtx {
   addWatchFile: (path: string) => void;
   cache: Cache;
   cssModuleImports: Map<string, string[]>;
-  cachedGlobalStyle: string;
+  /** Cache of built global styles, keyed by input file path */
+  globalStyleCache: Map<string, string>;
   collections: CollectionCompilerMeta[];
   compilerOptions: any;
   events: BuildEvents;

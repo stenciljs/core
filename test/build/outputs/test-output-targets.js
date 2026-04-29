@@ -13,11 +13,16 @@ fs.accessSync(path.join(loaderBundleDir, 'cjs'));
 fs.accessSync(path.join(loaderBundleDir, 'endtoend'));
 fs.accessSync(path.join(loaderBundleDir, 'esm'));
 
-// loader entry point (in v5, loader is accessed via esm/loader.js, no separate loader directory)
+// loader-bundle entry points
 fs.accessSync(path.join(loaderBundleDir, 'esm', 'loader.js'));
 fs.accessSync(path.join(loaderBundleDir, 'cjs', 'loader.cjs'));
 fs.accessSync(path.join(loaderBundleDir, 'index.cjs'));
 fs.accessSync(path.join(loaderBundleDir, 'index.js'));
+
+// loader forwarding dir
+fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.js'));
+fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.cjs'));
+fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.d.ts'));
 
 // stencil-rebundle output (was collection)
 const rebundleDir = path.join(distDir, 'stencil-rebundle');

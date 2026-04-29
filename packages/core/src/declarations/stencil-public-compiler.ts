@@ -1971,6 +1971,19 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default 'loader' (relative to output directory)
    */
   loaderPath?: string;
+
+  /**
+   * Custom path for the browser/CDN bundle directory, relative to buildDir.
+   *
+   * The browser bundle is written to: `buildDir/browserBundlePath/namespace/`
+   *
+   * Use '../' to restore v4 behavior where the browser bundle was written
+   * directly under the output directory (e.g., `dist/namespace/` instead of
+   * `dist/loader-bundle/namespace/`).
+   *
+   * @default '' (browser bundle goes to buildDir/namespace/)
+   */
+  browserBundlePath?: string;
 }
 
 /**
@@ -2060,22 +2073,42 @@ export interface OutputTargetDistGlobalStyles extends OutputTargetBase {
 
 /**
  * Output target for global styles.
- * Generates a unified CSS file from the `globalStyle` config option.
+ * Generates a CSS file from an input stylesheet.
  *
- * auto-generated when `globalStyle` is configured unless explicitly configured.
- * The output is placed in `dist/assets/` by default and is available to all distribution strategies.
+ * Can be configured in two ways:
+ * 1. **Implicit** (backwards compat): Set `globalStyle` in the config and this output is auto-generated
+ * 2. **Explicit**: Define this output target with an `input` property
+ *
+ * Multiple `global-style` outputs are supported for building separate CSS bundles.
  *
  * @example
  * ```typescript
+ * // Explicit configuration with custom input/output
  * {
  *   type: 'global-style',
+ *   input: './src/theme.css',
+ *   fileName: 'theme.css',
  *   dir: 'dist/assets',
- *   copyToLoaderBrowser: true
+ *   copyToLoaderBrowser: false
  * }
  * ```
  */
 export interface OutputTargetGlobalStyle extends OutputTargetBaseNext {
   type: 'global-style';
+
+  /**
+   * Path to the input CSS file to compile.
+   * When specified, this takes precedence over the `globalStyle` config option.
+   *
+   * If neither `input` nor `globalStyle` config is set, no CSS will be built.
+   */
+  input?: string;
+
+  /**
+   * Output filename for the compiled CSS.
+   * @default '{namespace}.css' when using globalStyle config, or basename of input file
+   */
+  fileName?: string;
 
   /**
    * When `true`, also copies the global style CSS to the loader-bundle browser directory

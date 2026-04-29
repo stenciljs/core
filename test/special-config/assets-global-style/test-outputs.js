@@ -2,10 +2,12 @@
  * Validates build outputs for explicit assets and global-style output targets.
  *
  * Tests:
- * 1. Global styles go to custom directory (dist/custom-assets/)
- * 2. Component assets go to custom directory (dist/custom-assets/)
- * 3. copyToLoaderBrowser: false prevents copy to loader-bundle browser dir
- * 4. loader-bundle output still generates correctly
+ * 1. Multiple global-style outputs with explicit `input` property
+ * 2. Custom `fileName` property on global-style output
+ * 3. Global styles go to custom directory (dist/custom-assets/)
+ * 4. Component assets go to custom directory (dist/custom-assets/)
+ * 5. copyToLoaderBrowser: false prevents copy to loader-bundle browser dir
+ * 6. loader-bundle output still generates correctly
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,17 +21,33 @@ const distDir = path.join(__dirname, 'dist');
 // ========================================
 const customAssetsDir = path.join(distDir, 'custom-assets');
 
-// Global styles in custom location
-const globalStylePath = path.join(customAssetsDir, 'testassetsglobalstyle.css');
+// ========================================
+// First global-style: explicit input, fileName derived from input basename
+// ========================================
+const globalStylePath = path.join(customAssetsDir, 'global.css');
 fs.accessSync(globalStylePath);
-console.log('✅ Global styles written to custom directory');
+console.log('✅ First global-style (global.css) written to custom directory');
 
 // Verify global styles contain expected content
 const globalStyleContent = fs.readFileSync(globalStylePath, 'utf8');
 if (!globalStyleContent.includes('--test-color')) {
   throw new Error('Global styles missing expected CSS variable');
 }
-console.log('✅ Global styles contain expected content');
+console.log('✅ First global-style contains expected content');
+
+// ========================================
+// Second global-style: explicit input with custom fileName
+// ========================================
+const utilsStylePath = path.join(customAssetsDir, 'utils.css');
+fs.accessSync(utilsStylePath);
+console.log('✅ Second global-style (utils.css) written with custom fileName');
+
+// Verify utilities styles contain expected content
+const utilsStyleContent = fs.readFileSync(utilsStylePath, 'utf8');
+if (!utilsStyleContent.includes('u-hidden') || !utilsStyleContent.includes('u-flex')) {
+  throw new Error('Utilities styles missing expected CSS classes');
+}
+console.log('✅ Second global-style contains expected content');
 
 // Component assets in custom location
 const assetFilePath = path.join(customAssetsDir, 'assets', 'test-file.txt');
@@ -56,22 +74,24 @@ console.log('✅ loader-bundle output generated correctly');
 // copyToLoaderBrowser: false verification
 // ========================================
 const loaderBrowserDir = path.join(loaderBundleDir, 'testassetsglobalstyle');
-const loaderBrowserCssPath = path.join(loaderBrowserDir, 'testassetsglobalstyle.css');
 
-// The browser dir may exist (for JS files) but should NOT contain the CSS
-// since copyToLoaderBrowser: false
-let cssExistsInLoaderBrowser = false;
-try {
-  fs.accessSync(loaderBrowserCssPath);
-  cssExistsInLoaderBrowser = true;
-} catch {
-  // Expected - CSS should NOT exist here
-}
+// Check that neither global.css nor utils.css were copied to loader-bundle browser dir
+const cssFilesToCheck = ['global.css', 'utils.css'];
+for (const cssFile of cssFilesToCheck) {
+  const loaderBrowserCssPath = path.join(loaderBrowserDir, cssFile);
+  let cssExistsInLoaderBrowser = false;
+  try {
+    fs.accessSync(loaderBrowserCssPath);
+    cssExistsInLoaderBrowser = true;
+  } catch {
+    // Expected - CSS should NOT exist here
+  }
 
-if (cssExistsInLoaderBrowser) {
-  throw new Error(
-    'Global styles should NOT be copied to loader-bundle browser dir when copyToLoaderBrowser: false',
-  );
+  if (cssExistsInLoaderBrowser) {
+    throw new Error(
+      `${cssFile} should NOT be copied to loader-bundle browser dir when copyToLoaderBrowser: false`,
+    );
+  }
 }
 console.log('✅ copyToLoaderBrowser: false correctly prevents CSS copy to loader-bundle');
 

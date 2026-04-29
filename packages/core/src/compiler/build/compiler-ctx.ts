@@ -56,14 +56,14 @@ export class CompilerContext implements d.CompilerCtx {
    * rebuild even when only one component's TS file changed.
    */
   prevStylesMap = new Map<string, string>();
-  cachedGlobalStyle: string;
+  globalStyleCache = new Map<string, string>();
   styleModeNames = new Set<string>();
   worker: d.CompilerWorkerContext = null;
 
   reset() {
     this.cache.clear();
     this.cssModuleImports.clear();
-    this.cachedGlobalStyle = null;
+    this.globalStyleCache.clear();
     this.collections.length = 0;
     this.compilerOptions = null;
     this.hasSuccessfulBuild = false;

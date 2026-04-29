@@ -76,7 +76,7 @@ Rename output targets for clarity and elevate sub-outputs to first-class citizen
 
 See [Output Target Modernization](#output-target-modernization) section for details.
 
-### 8. Document ALL BREAKING CHANGES
+### 8.a Document ALL BREAKING CHANGES
 
 - `@stencil/core/internal` → `@stencil/core/runtime`
 - `@stencil/core/internal/client` → `@stencil/core/runtime/client`
@@ -135,6 +135,15 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - Global styles: `copyToLoaderBrowser: true` default copies CSS to loader-bundle dir for backwards compat
   - Assets: No backwards compat copy needed - `getAssetPath()` runtime resolution handles path changes
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target. The new name better reflects that it applies to all module formats, not just ESM.
+- **New `browserBundlePath` config option** in `loader-bundle` output target. Controls where the browser/CDN bundle is written relative to `buildDir`. Default is `''` (writes to `buildDir/<namespace>/`). Set to `'../'` to restore v4 behavior where browser bundles were at `dist/<namespace>/` instead of `dist/loader-bundle/<namespace>/`.
+
+### 8.b Document ALL NEW FEATURES
+
+- **`global-style` output target now supports explicit `input`** - specify CSS source file directly on output target instead of using `globalStyle` config
+- **`global-style` output target now supports `fileName`** - customize output filename (defaults to basename of input, or `{namespace}.css` for globalStyle compat)
+- **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files
+- **Warning when both approaches used** - emits build warning if both `globalStyle` config and explicit `input` are configured
+- **New `www` can now use standalone loader
 
 ### 9. 📁 Global Styles & Assets Modernization
 **Status:** 📋 Planned
@@ -166,7 +175,7 @@ Adopt [Changesets](https://github.com/changesets/changesets) for monorepo releas
 - De facto standard for pnpm monorepos (used by Vite, SvelteKit, Turborepo)
 - Supports `fixed` mode for lockstep versioning across all packages
 - Auto-generates changelogs
-- Works great with GitHub Actions
+- Works great with GitHub Actions8
 
 **Setup:**
 ```bash
@@ -277,16 +286,9 @@ packages/
 
 ## Key Decisions Made
 
-1. **Don't bundle TypeScript/terser/parse5** - Use as normal dependencies
-2. **Runtime bundles are build artifacts** - Not separate packages
-3. **Pure ESM everywhere** - No CJS internally
-4. **hydrate → server** - Clearer naming for SSR/hydration
-5. **Remove sys/node abstraction** - Use Node APIs directly (v5 target)
-6. **tsdown over Vite** - Better for libraries, single config, no orchestrator needed
-7. **No Turborepo** - Simple `pnpm -r build` is sufficient
-8. **CLI as peer dep of Core** - Nuxt pattern, avoids circular deps
-9. **Modernize dev-server, don't replace** - Vite/esbuild assume static module graphs; Stencil's lazy-loading needs DOM-based HMR
-10. **Keep Terser over SWC for minification** - SWC cannot fully constant-fold `BUILD.*` object properties; produces ~18 KB vs Terser's ~11.8 KB for the runtime bundle. Revisit when SWC matures. (Investigated April 2026)
+- **Don't bundle TypeScript/terser/parse5** - Use as normal dependencies
+- **Pure ESM everywhere** - No CJS internally
+- **Keep Terser over SWC for minification** - SWC cannot fully constant-fold `BUILD.*` object properties; produces ~18 KB vs Terser's ~11.8 KB for the runtime bundle. Revisit when SWC matures. (Investigated April 2026)
 
 ---
 
@@ -624,51 +626,6 @@ The new `stencil-rebundle` output extends the old collection with:
 
 **Solves:** Config loss when using `externalRuntime: true` in `standalone` output
 
-### Migration
-
-The `stencil migrate` command handles automatic migration:
-
-**Detects:**
-- `type: 'dist'` → `type: 'loader-bundle'`
-- `type: 'dist-custom-elements'` → `type: 'standalone'`
-- `type: 'dist-hydrate-script'` → `type: 'ssr'`
-- `collectionDir` in config → extracts to standalone `stencil-rebundle` output
-- `typesDir` in config → extracts to standalone `types` output
-
-**Example migration:**
-```typescript
-// Before
-{
-  outputTargets: [
-    {
-      type: 'dist',
-      collectionDir: 'custom/collection',
-      typesDir: 'custom/types'
-    }
-  ]
-}
-
-// After (auto-migrated)
-{
-  outputTargets: [
-    { type: 'loader-bundle' },
-    { type: 'stencil-rebundle', dir: 'custom/collection' },
-    { type: 'types', dir: 'custom/types' }
-  ]
-}
-```
-
-### Implementation Status
-
-- [x] Update output target constants
-- [x] Update public type definitions
-- [x] Rename validator files
-- [x] Update output target implementations
-- [x] Create first-class `stencil-rebundle` and `types` outputs
-- [x] Add auto-generation logic for prod builds
-- [x] Update all tests
-- [x] Add migration CLI logic (`stencil migrate` automatically updates configs)
-
 ---
 
 ## Global Styles & Assets Modernization
@@ -698,36 +655,57 @@ This creates friction for users who want:
 
 #### New `global-style` Output Target
 
+Supports two configuration approaches:
+
+**1. Implicit (backwards compat):** Use `globalStyle` config, output is auto-generated
 ```typescript
-// Explicit configuration
+{
+  globalStyle: './src/global.css',  // Auto-generates global-style output
+  outputTargets: [...]
+}
+```
+
+**2. Explicit:** Define output target with `input` property for full control
+```typescript
 {
   type: 'global-style',
+  input: './src/theme.css',     // CSS input file (takes precedence over globalStyle config)
+  fileName: 'theme.css',        // Output filename (default: basename of input, or {namespace}.css)
   dir: 'dist/assets',           // Default location
   skipInDev: false,             // Needed for dev - default false
   copyToLoaderBrowser: true,    // Backwards compat - also copy to loader-bundle dir
 }
 ```
 
+**Multiple global styles supported:**
+```typescript
+outputTargets: [
+  { type: 'global-style', input: './src/theme.css', fileName: 'theme.css' },
+  { type: 'global-style', input: './src/utils.css', fileName: 'utils.css' },
+]
+```
+
 **Auto-generation logic:**
 ```typescript
-if (config.globalStyle && !hasExplicitGlobalStyleOutput) {
+// Only auto-generate if globalStyle is set AND no explicit global-style outputs exist
+if (config.globalStyle && explicitGlobalStyles.length === 0) {
   outputs.push({
     type: 'global-style',
-    dir: 'dist/assets',
-    skipInDev: false,
-    copyToLoaderBrowser: true,  // Default for backwards compat
+    // input is set from config.globalStyle during validation
   });
 }
 
-// When processing outputs:
-if (hasLoaderBundleOutput && globalStyleOutput.copyToLoaderBrowser) {
-  // Also copy: dist/assets/{namespace}.css → dist/loader-bundle/{namespace}/{namespace}.css
+// Warn if both approaches used
+if (config.globalStyle && hasExplicitGlobalStyleWithInput) {
+  warn('Both "globalStyle" config and explicit "global-style" with "input" are configured. Choose one approach.');
 }
 ```
 
+**Caching:** CSS is cached per-input-path in `compilerCtx.globalStyleCache`. Same input file is only built once per build, even if referenced by multiple output targets.
+
 **Result:**
-- Primary: `dist/assets/{namespace}.css` (available to all outputs)
-- Compat copy: `dist/loader-bundle/{namespace}/{namespace}.css` (existing CDN consumers)
+- Primary: `dist/assets/{fileName}` (available to all outputs)
+- Compat copy: `dist/loader-bundle/{namespace}/{fileName}` (existing CDN consumers, if copyToLoaderBrowser)
 
 #### New `assets` Output Target
 
@@ -775,30 +753,6 @@ dist/
 
 **Note:** Assets only exist in `dist/assets/` - no duplication. Runtime `getAssetPath()` resolves paths dynamically. Global styles optionally copied to loader-bundle for backwards compat with hardcoded `<link>` tags.
 
-### www Symlink Strategy
-
-For `www` output (dev server target), use symlinks in dev for performance:
-
-```typescript
-// In www output validation:
-if (config.devMode) {
-  // DEV: Symlink to shared assets dir (fast)
-  outputs.push({
-    type: 'www-assets-link',     // Internal type
-    src: 'dist/assets',
-    dest: 'www/build/assets',
-    symlink: true,
-  });
-} else {
-  // PROD: Full copy for standalone deployable www
-  outputs.push({
-    type: COPY,
-    src: 'dist/assets',
-    dest: 'www/build/assets',
-  });
-}
-```
-
 ### Runtime: `getAssetPath()` Resolution
 
 With unified `dist/assets/` location, auto-configure asset base in standalone:
@@ -830,19 +784,28 @@ Existing config options preserved:
 }
 ```
 
-Power users can override:
+Power users can override with explicit `input`:
 
 ```typescript
 {
-  globalStyle: './src/global.css',
+  // No globalStyle needed when using explicit input
   outputTargets: [
     { type: 'loader-bundle' },
     { type: 'standalone' },
-    // Explicit config wins over auto-generation
+    // Explicit global-style with full control
     {
       type: 'global-style',
+      input: './src/theme.css',     // Explicit input file
+      fileName: 'theme.css',        // Custom output filename
       dir: 'dist/css',              // Custom location
       copyToLoaderBrowser: false,   // Opt out of compat copy
+    },
+    // Multiple CSS bundles supported
+    {
+      type: 'global-style',
+      input: './src/utilities.css',
+      fileName: 'utilities.css',
+      dir: 'dist/css',
     },
     {
       type: 'assets',
@@ -882,14 +845,6 @@ import 'mylib/dist/assets/mylib.css';
 import 'mylib/styles';
 ```
 
-### Breaking Changes
-
-- **`dist-global-styles` internal type removed** - replaced by `global-style` output
-- **`copyAssets` option removed** from `loader-bundle` and `www` output targets
-- **Asset location changed** - from output-specific dirs to unified `dist/assets/`
-- **Global styles backwards compat** via `copyToLoaderBrowser: true` default (for hardcoded `<link>` tags)
-- **Assets: no backwards compat needed** - `getAssetPath()` runtime resolution handles path changes
-
 ### Migration
 
 The `stencil migrate` command will:
@@ -897,64 +852,6 @@ The `stencil migrate` command will:
 2. Add explicit `global-style` output if custom behavior needed
 3. Add explicit `assets` output if custom behavior needed
 4. Update package.json exports for new asset locations
-
-### Implementation Status
-
-**Completed:**
-- [x] Define `OutputTargetGlobalStyle` type (`stencil-public-compiler.ts`)
-- [x] Define `OutputTargetAssets` type (`stencil-public-compiler.ts`)
-- [x] Add `GLOBAL_STYLE` and `ASSETS` constants (`constants.ts`)
-- [x] Add `isOutputTargetGlobalStyle` and `isOutputTargetAssets` type guards (`output-target.ts`)
-- [x] Add to `VALID_CONFIG_OUTPUT_TARGETS` array
-- [x] Update `OutputTarget` union type to include new types
-- [x] Create `validate-global-style.ts` validator
-- [x] Create `validate-assets.ts` validator
-- [x] Wire validators into `outputs/index.ts`
-- [x] Update auto-generation logic in `autoGenerateOutputs()`:
-  - `global-style` auto-generated when `config.globalStyle` exists (dev + prod)
-  - `assets` always auto-generated (dev + prod)
-- [x] Remove `copyAssets` from `validate-loader-bundle.ts`
-- [x] Remove `copyAssets` from `validate-www.ts`
-- [x] Remove `copyAssets` property from `OutputTargetCopy` interface
-- [x] Remove `getComponentAssetsCopyTasks` calls from `output-copy.ts`
-- [x] Update tests in `validate-output-loader-bundle.spec.ts` and `validate-output-www.spec.ts`
-
-- [x] Create `output-global-style.ts` generator (writes CSS to `dist/assets/{namespace}.css`)
-- [x] Create `output-assets.ts` generator (copies component assetsDirs to `dist/assets/`)
-- [x] Wire generators into `output-targets/index.ts`
-- [x] Implement `copyToLoaderBrowser` logic (copy CSS to loader-bundle dir for backwards compat)
-- [x] Remove `DIST_GLOBAL_STYLES` from loader-bundle and www validators
-- [x] Update `generateGlobalStyles` to only build/cache CSS (no file writes)
-- [x] Update tests in `validate-output-standalone.spec.ts`
-
-- [x] Copy assets to www build directories (in `output-assets.ts`)
-- [x] Auto-configure `setAssetPath()` in standalone index.js (relative path to assets dir)
-
-**Remaining:**
-- [x] ~~Update migration CLI~~ - Not needed, changes are backwards compatible (auto-generated outputs, `getAssetPath()` handles paths)
-- [ ] Add comprehensive tests for new output targets
-- [ ] Update documentation
-
-**Decision:** Skipped www symlink strategy - the ~200-500ms copy time is negligible compared to TS compilation. Complexity of cross-platform symlinks not worth the marginal gain.
-
-**Files Modified:**
-- `packages/core/src/declarations/stencil-public-compiler.ts` - Added types
-- `packages/core/src/utils/constants.ts` - Added constants
-- `packages/core/src/utils/output-target.ts` - Added type guards
-- `packages/core/src/compiler/config/outputs/validate-global-style.ts` - NEW
-- `packages/core/src/compiler/config/outputs/validate-assets.ts` - NEW
-- `packages/core/src/compiler/config/outputs/index.ts` - Wired validators + auto-generation
-- `packages/core/src/compiler/config/outputs/validate-loader-bundle.ts` - Removed copyAssets + DIST_GLOBAL_STYLES
-- `packages/core/src/compiler/config/outputs/validate-www.ts` - Removed copyAssets + DIST_GLOBAL_STYLES
-- `packages/core/src/compiler/output-targets/copy/output-copy.ts` - Removed getComponentAssetsCopyTasks
-- `packages/core/src/compiler/output-targets/output-global-style.ts` - NEW generator
-- `packages/core/src/compiler/output-targets/output-assets.ts` - NEW generator
-- `packages/core/src/compiler/output-targets/index.ts` - Wired new generators
-- `packages/core/src/compiler/style/global-styles.ts` - Updated to only build/cache CSS
-- `packages/core/src/compiler/config/_test_/validate-output-loader-bundle.spec.ts` - Updated tests
-- `packages/core/src/compiler/config/_test_/validate-output-www.spec.ts` - Updated tests
-- `packages/core/src/compiler/config/_test_/validate-output-standalone.spec.ts` - Updated tests
-- `packages/core/src/compiler/output-targets/standalone/index.ts` - Auto-configure setAssetPath() for components with assets
 
 **Build Status:** ✅ Compiles successfully
 
@@ -976,4 +873,4 @@ In individual packages or from root. pnpm workspaces handle dependency ordering 
 
 ---
 
-*Last updated: 2026-04-27*
+*Last updated: 2026-04-29*

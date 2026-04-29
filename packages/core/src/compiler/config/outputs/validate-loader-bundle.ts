@@ -42,7 +42,11 @@ export const validateLoaderBundle = (
     outputs.push(loaderBundleOutput);
 
     const namespace = config.fsNamespace || 'app';
-    const lazyDir = join(loaderBundleOutput.buildDir, namespace);
+    const lazyDir = join(
+      loaderBundleOutput.buildDir,
+      loaderBundleOutput.browserBundlePath,
+      namespace,
+    );
 
     // Lazy build for CDN (always generated, even in dev mode)
     outputs.push({
@@ -110,6 +114,9 @@ const validateOutputTargetLoaderBundle = (
     empty: isBoolean(o.empty) ? o.empty : true,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
     loaderPath: isString(o.loaderPath) ? o.loaderPath : DEFAULT_LOADER_PATH,
+    browserBundlePath: isString(o.browserBundlePath)
+      ? o.browserBundlePath
+      : DEFAULT_BROWSER_BUNDLE_PATH,
     // loader-bundle skips distribution artifacts in dev mode by default, but always builds browser/CDN output
     skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
   } satisfies Required<d.OutputTargetLoaderBundle>;
@@ -124,3 +131,4 @@ const validateOutputTargetLoaderBundle = (
 const DEFAULT_DIR = 'dist/loader-bundle';
 const DEFAULT_BUILD_DIR = '';
 const DEFAULT_LOADER_PATH = 'loader';
+const DEFAULT_BROWSER_BUNDLE_PATH = '';

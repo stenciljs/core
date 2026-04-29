@@ -6,10 +6,11 @@ import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';
 
 /**
- * Build global styles from the `globalStyle` config option.
+ * Build global styles from the `globalStyle` config option (legacy entry point).
  *
- * This builds and caches the CSS in `compilerCtx.cachedGlobalStyle`.
- * The actual file writes are handled by the `outputGlobalStyle` output target generator.
+ * This is called during the build phase to pre-build the globalStyle CSS for HMR.
+ * The actual file writes are handled by the `outputGlobalStyle` output target generator,
+ * which may also build additional CSS from explicit `input` on output targets.
  *
  * @param config the Stencil configuration
  * @param compilerCtx the compiler context
@@ -21,39 +22,56 @@ export const generateGlobalStyles = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<string> => {
-  // Check if globalStyle is configured
   if (!config.globalStyle) {
     return '';
   }
 
-  const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
+  const globalStyles = await buildGlobalStyleFromInput(
+    config,
+    compilerCtx,
+    buildCtx,
+    config.globalStyle,
+  );
   return globalStyles ?? '';
 };
 
-const buildGlobalStyles = async (
+/**
+ * Build global styles from a specific input file path.
+ *
+ * Uses a per-path cache to support multiple global style inputs.
+ * Called by output target generators for each global-style output.
+ *
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @param inputPath the input CSS file path to build
+ * @returns the built CSS string, or null if build failed
+ */
+export const buildGlobalStyleFromInput = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-) => {
-  let globalStylePath = config.globalStyle;
-  if (!globalStylePath) {
+  inputPath: string,
+): Promise<string | null> => {
+  if (!inputPath) {
     return null;
   }
 
-  const canSkip = await canSkipGlobalStyles(config, compilerCtx, buildCtx);
+  const normalizedPath = normalizePath(inputPath);
+
+  const canSkip = await canSkipGlobalStyleBuild(config, compilerCtx, buildCtx, normalizedPath);
   if (canSkip) {
-    return compilerCtx.cachedGlobalStyle;
+    return compilerCtx.globalStyleCache.get(normalizedPath) ?? null;
   }
 
   try {
-    globalStylePath = normalizePath(globalStylePath);
-    compilerCtx.addWatchFile(globalStylePath);
+    compilerCtx.addWatchFile(normalizedPath);
 
     const transformResults = await runPluginTransforms(
       config,
       compilerCtx,
       buildCtx,
-      globalStylePath,
+      normalizedPath,
     );
 
     if (transformResults) {
@@ -61,16 +79,13 @@ const buildGlobalStyles = async (
       let dependencies: string[] | undefined;
 
       if (typeof transformResults === 'string') {
-        // Handle case where transformResults is a string (the CSS code directly)
         cssCode = transformResults;
         dependencies = undefined;
       } else if (typeof transformResults === 'object' && transformResults.code) {
-        // Handle case where transformResults is a PluginTransformationDescriptor object
         cssCode = transformResults.code;
         dependencies = transformResults.dependencies;
       } else {
-        // Invalid transformResults
-        compilerCtx.cachedGlobalStyle = null;
+        compilerCtx.globalStyleCache.delete(normalizedPath);
         return null;
       }
 
@@ -79,23 +94,27 @@ const buildGlobalStyles = async (
         compilerCtx,
         buildCtx.diagnostics,
         cssCode,
-        globalStylePath,
+        normalizedPath,
       );
-      compilerCtx.cachedGlobalStyle = optimizedCss;
+      compilerCtx.globalStyleCache.set(normalizedPath, optimizedCss);
 
       if (Array.isArray(dependencies)) {
-        const cssModuleImports = compilerCtx.cssModuleImports.get(globalStylePath) || [];
+        const cssModuleImports = compilerCtx.cssModuleImports.get(normalizedPath) || [];
         dependencies.forEach((dep: string) => {
           compilerCtx.addWatchFile(dep);
           if (!cssModuleImports.includes(dep)) {
             cssModuleImports.push(dep);
           }
         });
-        compilerCtx.cssModuleImports.set(globalStylePath, cssModuleImports);
+        compilerCtx.cssModuleImports.set(normalizedPath, cssModuleImports);
       }
 
-      // Track global style changes for HMR
-      if (buildCtx.isRebuild && config.devServer?.reloadStrategy === 'hmr') {
+      // Track global style changes for HMR (only for the primary globalStyle)
+      if (
+        buildCtx.isRebuild &&
+        config.devServer?.reloadStrategy === 'hmr' &&
+        normalizedPath === normalizePath(config.globalStyle ?? '')
+      ) {
         buildCtx.stylesUpdated.push({
           styleTag: 'global',
           styleMode: undefined,
@@ -107,36 +126,44 @@ const buildGlobalStyles = async (
     }
   } catch (e: any) {
     const d = catchError(buildCtx.diagnostics, e);
-    d.absFilePath = globalStylePath;
+    d.absFilePath = normalizedPath;
   }
 
-  compilerCtx.cachedGlobalStyle = null;
+  compilerCtx.globalStyleCache.delete(normalizedPath);
   return null;
 };
 
-const canSkipGlobalStyles = async (
+const canSkipGlobalStyleBuild = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
+  inputPath: string,
 ) => {
-  if (!compilerCtx.cachedGlobalStyle) {
+  const cached = compilerCtx.globalStyleCache.get(inputPath);
+  if (!cached) {
     return false;
   }
 
+  // First build (not a watch rebuild): if we have cache, it was set earlier in this same build.
+  // Use it without further checks to avoid duplicate builds.
+  if (!buildCtx.isRebuild) {
+    return true;
+  }
+
+  // Watch rebuild: check if cache is still valid
   if (buildCtx.requiresFullBuild) {
     return false;
   }
 
-  if (buildCtx.isRebuild && !buildCtx.hasStyleChanges) {
+  if (!buildCtx.hasStyleChanges) {
     return true;
   }
 
-  if (buildCtx.filesChanged.includes(config.globalStyle)) {
-    // changed file IS the global entry style
+  if (buildCtx.filesChanged.includes(inputPath)) {
     return false;
   }
 
-  const cssModuleImports = compilerCtx.cssModuleImports.get(config.globalStyle);
+  const cssModuleImports = compilerCtx.cssModuleImports.get(inputPath);
   if (cssModuleImports && buildCtx.filesChanged.some((f) => cssModuleImports.includes(f))) {
     return false;
   }
@@ -145,8 +172,8 @@ const canSkipGlobalStyles = async (
     config,
     compilerCtx,
     buildCtx,
-    config.globalStyle,
-    compilerCtx.cachedGlobalStyle,
+    inputPath,
+    cached,
     [],
   );
   if (hasChangedImports) {

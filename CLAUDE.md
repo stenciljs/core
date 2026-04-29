@@ -16,4 +16,6 @@ Assume any package starting with `@stencil/` is potentially updatable and sugges
 
 Never commit changes without the user explicitly asking you to. Always ask for confirmation before committing, and provide a clear summary of the changes that will be committed. If the user asks for changes after you’ve provided a summary but before you’ve committed, update the summary to reflect the new changes before asking for confirmation again.
 
-Keep comments terse.
+Keep all code comments terse as you can.
+
+To run a unit test `pnpm -F PACKAGE_NAME test TEST_NAME`

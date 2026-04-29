@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
 import {
@@ -9,6 +9,7 @@ import {
 } from '../../../testing';
 import { GLOBAL_STYLE, LOADER_BUNDLE, WWW, join } from '../../../utils';
 import { outputGlobalStyle } from '../output-global-style';
+import * as globalStylesModule from '../../style/global-styles';
 
 describe('outputGlobalStyle', () => {
   let config: d.ValidatedConfig;
@@ -17,6 +18,7 @@ describe('outputGlobalStyle', () => {
 
   const namespace = 'test-app';
   const cssContent = '.global-style { color: red; }';
+  const inputPath = '/src/global.css';
 
   beforeEach(() => {
     const sys = mockCompilerSystem();
@@ -28,9 +30,8 @@ describe('outputGlobalStyle', () => {
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
 
-    // Set up cached global style
-    compilerCtx.cachedGlobalStyle = cssContent;
-
+    // Mock buildGlobalStyleFromInput to return CSS
+    vi.spyOn(globalStylesModule, 'buildGlobalStyleFromInput').mockResolvedValue(cssContent);
     vi.spyOn(compilerCtx.fs, 'writeFile');
   });
 
@@ -47,11 +48,36 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).not.toHaveBeenCalled();
     });
 
-    it('should return early if no cached global styles', async () => {
+    it('should return early if no input configured on output target', async () => {
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: '/dist/assets', copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets',
+          fileName: `${namespace}.css`,
+          input: undefined, // No input
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
       ];
-      compilerCtx.cachedGlobalStyle = null;
+
+      await outputGlobalStyle(config, compilerCtx, buildCtx);
+
+      expect(compilerCtx.fs.writeFile).not.toHaveBeenCalled();
+    });
+
+    it('should return early if CSS build returns null', async () => {
+      vi.mocked(globalStylesModule.buildGlobalStyleFromInput).mockResolvedValue(null);
+
+      config.outputTargets = [
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets',
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
+      ];
 
       await outputGlobalStyle(config, compilerCtx, buildCtx);
 
@@ -61,13 +87,42 @@ describe('outputGlobalStyle', () => {
     it('should write global styles to the primary location', async () => {
       const outputDir = '/dist/assets';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: outputDir, copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: outputDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
       ];
 
       await outputGlobalStyle(config, compilerCtx, buildCtx);
 
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(outputDir, `${namespace}.css`),
+        cssContent,
+      );
+    });
+
+    it('should use custom fileName when provided', async () => {
+      const outputDir = '/dist/assets';
+      const customFileName = 'custom-styles.css';
+      config.outputTargets = [
+        {
+          type: GLOBAL_STYLE,
+          dir: outputDir,
+          fileName: customFileName,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
+      ];
+
+      await outputGlobalStyle(config, compilerCtx, buildCtx);
+
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        join(outputDir, customFileName),
         cssContent,
       );
     });
@@ -78,7 +133,14 @@ describe('outputGlobalStyle', () => {
       const assetsDir = '/dist/assets';
       const loaderBuildDir = '/dist/loader-bundle';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: true, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: true,
+          skipInDev: false,
+        },
         {
           type: LOADER_BUNDLE,
           dir: '/dist/loader-bundle',
@@ -109,7 +171,14 @@ describe('outputGlobalStyle', () => {
       const assetsDir = '/dist/assets';
       const loaderBuildDir = '/dist/loader-bundle';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
         {
           type: LOADER_BUNDLE,
           dir: '/dist/loader-bundle',
@@ -139,7 +208,14 @@ describe('outputGlobalStyle', () => {
     it('should not copy to loader-bundle when no loader-bundle target exists', async () => {
       const assetsDir = '/dist/assets';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: true, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: true,
+          skipInDev: false,
+        },
       ];
 
       await outputGlobalStyle(config, compilerCtx, buildCtx);
@@ -158,7 +234,14 @@ describe('outputGlobalStyle', () => {
       const assetsDir = '/dist/assets';
       const wwwBuildDir = '/www/build';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
         {
           type: WWW,
           dir: '/www',
@@ -189,7 +272,14 @@ describe('outputGlobalStyle', () => {
     it('should copy to multiple www targets', async () => {
       const assetsDir = '/dist/assets';
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
         {
           type: WWW,
           dir: '/www1',
@@ -226,14 +316,73 @@ describe('outputGlobalStyle', () => {
   });
 
   describe('multiple global-style targets', () => {
-    it('should handle multiple global-style output targets', async () => {
+    it('should handle multiple global-style output targets with different inputs', async () => {
+      const css1 = '.style1 { color: red; }';
+      const css2 = '.style2 { color: blue; }';
+
+      // Mock different CSS for different inputs
+      vi.mocked(globalStylesModule.buildGlobalStyleFromInput).mockImplementation(
+        async (_config, _ctx, _buildCtx, inputPath) => {
+          if (inputPath === '/src/global1.css') return css1;
+          if (inputPath === '/src/global2.css') return css2;
+          return null;
+        },
+      );
+
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: '/dist/assets1', copyToLoaderBrowser: false, skipInDev: false },
-        { type: GLOBAL_STYLE, dir: '/dist/assets2', copyToLoaderBrowser: false, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets',
+          fileName: 'global1.css',
+          input: '/src/global1.css',
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets',
+          fileName: 'global2.css',
+          input: '/src/global2.css',
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
       ];
 
       await outputGlobalStyle(config, compilerCtx, buildCtx);
 
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        join('/dist/assets', 'global1.css'),
+        css1,
+      );
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        join('/dist/assets', 'global2.css'),
+        css2,
+      );
+    });
+
+    it('should handle multiple global-style targets with same input (uses cache)', async () => {
+      config.outputTargets = [
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets1',
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
+        {
+          type: GLOBAL_STYLE,
+          dir: '/dist/assets2',
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: false,
+          skipInDev: false,
+        },
+      ];
+
+      await outputGlobalStyle(config, compilerCtx, buildCtx);
+
+      // Both should be written
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join('/dist/assets1', `${namespace}.css`),
         cssContent,
@@ -242,6 +391,10 @@ describe('outputGlobalStyle', () => {
         join('/dist/assets2', `${namespace}.css`),
         cssContent,
       );
+
+      // buildGlobalStyleFromInput was called twice, but the actual implementation
+      // would use cache for the second call (same input path)
+      expect(globalStylesModule.buildGlobalStyleFromInput).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -252,7 +405,14 @@ describe('outputGlobalStyle', () => {
       const wwwBuildDir = '/www/build';
 
       config.outputTargets = [
-        { type: GLOBAL_STYLE, dir: assetsDir, copyToLoaderBrowser: true, skipInDev: false },
+        {
+          type: GLOBAL_STYLE,
+          dir: assetsDir,
+          fileName: `${namespace}.css`,
+          input: inputPath,
+          copyToLoaderBrowser: true,
+          skipInDev: false,
+        },
         {
           type: LOADER_BUNDLE,
           dir: '/dist/loader-bundle',

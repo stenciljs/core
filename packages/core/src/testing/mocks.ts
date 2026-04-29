@@ -238,7 +238,7 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     activeFilesUpdated: [],
     addWatchDir: noop,
     addWatchFile: noop,
-    cachedGlobalStyle: null,
+    globalStyleCache: new Map(),
     changedFiles: new Set(),
     changedModules: new Set(),
     collections: [],
