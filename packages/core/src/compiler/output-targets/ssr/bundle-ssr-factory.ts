@@ -3,17 +3,17 @@ import type * as d from '@stencil/core';
 
 import { loadRolldownDiagnostics } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
-import { STENCIL_INTERNAL_HYDRATE_PLATFORM_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_INTERNAL_SSR_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
 import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
-import { getHydrateBuildConditionals } from './hydrate-build-conditionals';
+import { getSsrBuildConditionals } from './ssr-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
 /**
- * Marshall some Rolldown options for the hydrate factory and then pass it to our
+ * Marshall some Rolldown options for the ssr factory and then pass it to our
  * {@link bundleOutput} helper
  *
  * @param config a validated Stencil configuration
@@ -22,7 +22,7 @@ import type { BundleOptions } from '../../bundle/bundle-interface';
  * @param appFactoryEntryCode an entry code for the app factory
  * @returns a promise wrapping a rolldown build object
  */
-export const bundleHydrateFactory = async (
+export const bundleSsrFactory = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -30,17 +30,16 @@ export const bundleHydrateFactory = async (
 ) => {
   try {
     const bundleOpts: BundleOptions = {
-      id: 'hydrate',
-      platform: 'hydrate',
-      conditionals: getHydrateBuildConditionals(config, buildCtx.components),
+      id: 'ssr',
+      platform: 'ssr',
+      conditionals: getSsrBuildConditionals(config, buildCtx.components),
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       codeSplitting: false,
       inputs: {
-        '@stencil/core/runtime/server/hydrate-factory':
-          '@stencil/core/runtime/server/hydrate-factory',
+        '@stencil/core/runtime/server/ssr-factory': '@stencil/core/runtime/server/ssr-factory',
       },
       loader: {
-        '@stencil/core/runtime/server/hydrate-factory': appFactoryEntryCode,
+        '@stencil/core/runtime/server/ssr-factory': appFactoryEntryCode,
       },
     };
 
@@ -72,7 +71,7 @@ const getCustomBeforeTransformers = (
   buildCtx?: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
-    coreImportPath: STENCIL_INTERNAL_HYDRATE_PLATFORM_ID,
+    coreImportPath: STENCIL_INTERNAL_SSR_PLATFORM_ID,
     componentExport: null,
     componentMetadata: null,
     currentDirectory: config.sys.getCurrentDirectory(),

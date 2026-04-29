@@ -12,15 +12,15 @@ import {
 } from '../../../utils';
 import {
   STENCIL_APP_DATA_ID,
-  STENCIL_HYDRATE_FACTORY_ID,
-  STENCIL_INTERNAL_HYDRATE_PLATFORM_ID,
+  STENCIL_SSR_FACTORY_ID,
+  STENCIL_INTERNAL_SSR_PLATFORM_ID,
 } from '../../bundle/entry-alias-ids';
-import { bundleHydrateFactory } from './bundle-hydrate-factory';
+import { bundleSsrFactory } from './bundle-ssr-factory';
 import {
-  HYDRATE_FACTORY_INTRO,
-  HYDRATE_FACTORY_OUTRO,
+  SSR_FACTORY_INTRO,
+  SSR_FACTORY_OUTRO,
   MODE_RESOLUTION_CHAIN_DECLARATION,
-} from './hydrate-factory-closure';
+} from './ssr-factory-closure';
 import { updateToHydrateComponents } from './update-to-hydrate-components';
 import { writeHydrateOutputs } from './write-hydrate-outputs';
 
@@ -67,13 +67,13 @@ export const generateHydrateApp = async (
       input,
       plugins: [
         {
-          name: 'hydrateAppPlugin',
+          name: 'ssrAppPlugin',
           // Use Rolldown's hook filter to only process specific Stencil IDs
           resolveId: {
-            filter: { id: /^@stencil\/core\/runtime\/(server\/hydrate-factory|app-data)$/ },
+            filter: { id: /^@stencil\/core\/runtime\/(server\/ssr-factory|app-data)$/ },
             handler(id) {
-              if (id === STENCIL_HYDRATE_FACTORY_ID) {
-                return STENCIL_HYDRATE_FACTORY_ID;
+              if (id === STENCIL_SSR_FACTORY_ID) {
+                return STENCIL_SSR_FACTORY_ID;
               }
               if (id === STENCIL_APP_DATA_ID) {
                 return appData;
@@ -82,10 +82,10 @@ export const generateHydrateApp = async (
             },
           },
           load: {
-            filter: { id: /^@stencil\/core\/runtime\/server\/hydrate-factory$/ },
+            filter: { id: /^@stencil\/core\/runtime\/server\/ssr-factory$/ },
             handler(id) {
-              if (id === STENCIL_HYDRATE_FACTORY_ID) {
-                return generateHydrateFactory(config, compilerCtx, buildCtx);
+              if (id === STENCIL_SSR_FACTORY_ID) {
+                return generateSsrFactory(config, compilerCtx, buildCtx);
               }
               return null;
             },
@@ -93,8 +93,8 @@ export const generateHydrateApp = async (
           transform(code, _id) {
             /**
              * Remove the modeResolutionChain variable from the generated code.
-             * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
-             * use it within the hydrate and global runtime.
+             * This variable is redefined in `SSR_FACTORY_INTRO` to ensure we can
+             * use it within the ssr and global runtime.
              */
             const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
             // Only process if the code contains the pattern (avoid unnecessary work)
@@ -131,16 +131,16 @@ export const generateHydrateApp = async (
   }
 };
 
-const generateHydrateFactory = async (
+const generateSsrFactory = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ) => {
   if (!buildCtx.hasError) {
     try {
-      const appFactoryEntryCode = await generateHydrateFactoryEntry(buildCtx);
+      const appFactoryEntryCode = await generateSsrFactoryEntry(buildCtx);
 
-      const rolldownFactoryBuild = await bundleHydrateFactory(
+      const rolldownFactoryBuild = await bundleSsrFactory(
         config,
         compilerCtx,
         buildCtx,
@@ -151,8 +151,8 @@ const generateHydrateFactory = async (
           format: 'cjs',
           esModule: false,
           strict: false,
-          intro: HYDRATE_FACTORY_INTRO,
-          outro: HYDRATE_FACTORY_OUTRO,
+          intro: SSR_FACTORY_INTRO,
+          outro: SSR_FACTORY_OUTRO,
           codeSplitting: false,
         });
 
@@ -167,13 +167,13 @@ const generateHydrateFactory = async (
   return '';
 };
 
-const generateHydrateFactoryEntry = async (buildCtx: d.BuildCtx) => {
+const generateSsrFactoryEntry = async (buildCtx: d.BuildCtx) => {
   const cmps = buildCtx.components;
   const hydrateCmps = await updateToHydrateComponents(cmps);
   const s = new MagicString('');
 
   s.append(
-    `import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_HYDRATE_PLATFORM_ID}';\n`,
+    `import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_SSR_PLATFORM_ID}';\n`,
   );
 
   hydrateCmps.forEach((cmpData) => s.append(cmpData.importLine + '\n'));

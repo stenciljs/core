@@ -71,7 +71,7 @@ export const getRolldownOptions = (
 
   const rolldownOptions: InputOptions = {
     input: bundleOpts.inputs,
-    platform: bundleOpts.platform === 'hydrate' ? 'node' : 'browser',
+    platform: bundleOpts.platform === 'ssr' ? 'node' : 'browser',
     tsconfig: config.tsconfig,
 
     plugins: [
@@ -102,7 +102,7 @@ export const getRolldownOptions = (
       // Stencil-specific main fields plus standard ones
       mainFields: ['jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
       // Export conditions for package.json exports field
-      conditionNames: (bundleOpts.platform === 'hydrate'
+      conditionNames: (bundleOpts.platform === 'ssr'
         ? ['node', 'import', 'require', 'default']
         : ['browser', 'default', 'import', 'module', 'require']) as string[],
       // File extensions to resolve (includes .d.ts for type declaration files)
@@ -167,7 +167,7 @@ const getTreeshakeOption = (
   config: d.ValidatedConfig,
   bundleOpts: BundleOptions,
 ): TreeshakingOptions | boolean => {
-  if (bundleOpts.platform === 'hydrate') {
+  if (bundleOpts.platform === 'ssr') {
     return {
       moduleSideEffects: false,
       propertyReadSideEffects: false,

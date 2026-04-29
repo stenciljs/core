@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 
 import { validateConfig } from '../../config/validate-config';
 import { getLazyBuildConditionals } from '../dist-lazy/lazy-build-conditionals';
-import { getHydrateBuildConditionals } from '../ssr/hydrate-build-conditionals';
+import { getSsrBuildConditionals } from '../ssr/ssr-build-conditionals';
 import { getStandaloneBuildConditionals } from '../standalone/standalone-build-conditionals';
 
 describe('build-conditionals', () => {
@@ -153,13 +153,13 @@ describe('build-conditionals', () => {
     });
   });
 
-  describe('getHydrateBuildConditionals', () => {
+  describe('getSsrBuildConditionals', () => {
     it('hydratedSelectorName', () => {
       userConfig.hydratedFlag = {
         name: 'boooop',
       };
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getHydrateBuildConditionals(config, cmps);
+      const bc = getSsrBuildConditionals(config, cmps);
       expect(bc.hydratedSelectorName).toBe('boooop');
     });
 
@@ -168,7 +168,7 @@ describe('build-conditionals', () => {
         selector: 'class',
       };
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getHydrateBuildConditionals(config, cmps);
+      const bc = getSsrBuildConditionals(config, cmps);
       expect(bc.hydratedClass).toBe(true);
       expect(bc.hydratedAttribute).toBe(false);
     });
@@ -178,7 +178,7 @@ describe('build-conditionals', () => {
         selector: 'attribute',
       };
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const bc = getHydrateBuildConditionals(config, cmps);
+      const bc = getSsrBuildConditionals(config, cmps);
       expect(bc.hydratedClass).toBe(false);
       expect(bc.hydratedAttribute).toBe(true);
     });

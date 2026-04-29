@@ -11,7 +11,7 @@
         "build/version-utils.ts",
         "src/index.d.mts",
         "src/runtime/bootstrap-loader.ts",
-        "src/server/runner/hydrate-factory.ts",
+        "src/server/runner/ssr-factory.ts",
         "src/testing/platform/index.ts",
         "src/testing/app-data.ts"
       ],

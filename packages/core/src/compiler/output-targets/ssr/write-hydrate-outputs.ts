@@ -3,7 +3,7 @@ import type { RolldownOutput } from 'rolldown';
 
 import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
-import { MODE_RESOLUTION_CHAIN_DECLARATION } from './hydrate-factory-closure';
+import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
 import { relocateHydrateContextConst } from './relocate-hydrate-context';
 
 export const writeHydrateOutputs = (
@@ -53,7 +53,7 @@ const writeHydrateOutput = async (
 
         /**
          * Inject the $stencilTagTransform variable definition.
-         * This variable is referenced by the factory closure (HYDRATE_FACTORY_INTRO)
+         * This variable is referenced by the factory closure (SSR_FACTORY_INTRO)
          * and must be defined at module scope to be accessible within the factory.
          * We inject it after the tag transform functions are defined/exported.
          */

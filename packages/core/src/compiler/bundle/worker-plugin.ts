@@ -17,7 +17,7 @@ export const workerPlugin = (
   platform: BundlePlatform,
   inlineWorkers: boolean,
 ): Plugin => {
-  if (platform === 'worker' || platform === 'hydrate') {
+  if (platform === 'worker' || platform === 'ssr') {
     return {
       name: 'workerPlugin',
       transform: {
@@ -457,7 +457,7 @@ try {
 };
 
 const getMockedWorkerMain = () => {
-  // for the hydrate build the workers won't actually work
+  // for the ssr build the workers won't actually work
   // however, we still need to make the {worker} export
   // kick-in otherwise bundling chokes
   return `

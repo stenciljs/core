@@ -3,20 +3,20 @@ import type * as d from '@stencil/core';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
 
 /**
- * Get the `BUILD` conditionals for the hydrate build based on the current
+ * Get the `BUILD` conditionals for the ssr build based on the current
  * project
  *
  * @param config a validated Stencil configuration
  * @param cmps component metadata
  * @returns a populated build conditional object
  */
-export const getHydrateBuildConditionals = (
+export const getSsrBuildConditionals = (
   config: d.ValidatedConfig,
   cmps: d.ComponentCompilerMeta[],
 ) => {
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
   // we need to make sure that things like the hydratedClass and flag are
-  // set for the hydrate build
+  // set for the ssr build
   updateBuildConditionals(config, build);
 
   build.slotRelocation = true;

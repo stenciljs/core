@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { getGlobalScriptData } from '../../bundle/app-data-plugin';
-import { HYDRATE_APP_CLOSURE_START } from './hydrate-factory-closure';
+import { HYDRATE_APP_CLOSURE_START } from './ssr-factory-closure';
 
 export const relocateHydrateContextConst = (
   config: d.ValidatedConfig,

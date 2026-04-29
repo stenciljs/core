@@ -164,7 +164,7 @@ export default defineConfig([
     deps: {
       onlyBundle: ['parse5', 'entities'],
       alwaysBundle: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'],
-      neverBundle: ['@stencil/core/runtime/server/hydrate-factory', 'virtual:app-data'],
+      neverBundle: ['@stencil/core/runtime/server/ssr-factory', 'virtual:app-data'],
     },
     outputOptions: {
       paths: {

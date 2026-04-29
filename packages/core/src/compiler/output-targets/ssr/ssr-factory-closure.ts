@@ -3,13 +3,13 @@ export const HYDRATE_APP_CLOSURE_START = `/*hydrateAppClosure start*/`;
 export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
 
 /**
- * This is the entry point for the hydrate factory.
+ * This is the entry point for the ssr factory.
  *
  * __Note:__ the `modeResolutionChain` will be uncommented in the
- * `src/compiler/output-targets/dist-hydrate-script/write-hydrate-outputs.ts` file. This enables us to use
- * one module resolution chain across hydrate and core runtime.
+ * `src/compiler/output-targets/ssr/write-hydrate-outputs.ts` file. This enables us to use
+ * one module resolution chain across ssr and core runtime.
  */
-export const HYDRATE_FACTORY_INTRO = `
+export const SSR_FACTORY_INTRO = `
 //! let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 // Capture native setTimeout/clearTimeout at module scope (before globalThis can be shadowed inside the factory).
@@ -144,7 +144,7 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
     ${HYDRATE_APP_CLOSURE_START}
 `;
 
-export const HYDRATE_FACTORY_OUTRO = `
+export const SSR_FACTORY_OUTRO = `
     /*hydrateAppClosure end*/
     hydrateApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
   }
