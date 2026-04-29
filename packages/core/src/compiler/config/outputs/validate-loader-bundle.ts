@@ -76,7 +76,7 @@ export const validateLoaderBundle = (
           ? join(loaderBundleOutput.dir, 'index.cjs')
           : undefined,
         esmIndexFile: join(loaderBundleOutput.dir, 'index.js'),
-        loaderDir: join(loaderBundleOutput.dir, 'loader'),
+        loaderDir: join(loaderBundleOutput.dir, loaderBundleOutput.loaderPath),
         typesDir,
         empty: loaderBundleOutput.empty,
       });
@@ -109,6 +109,7 @@ const validateOutputTargetLoaderBundle = (
     copy: validateCopy(o.copy ?? [], []),
     empty: isBoolean(o.empty) ? o.empty : true,
     cjs: isBoolean(o.cjs) ? o.cjs : false,
+    loaderPath: isString(o.loaderPath) ? o.loaderPath : DEFAULT_LOADER_PATH,
     // loader-bundle skips distribution artifacts in dev mode by default, but always builds browser/CDN output
     skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
   } satisfies Required<d.OutputTargetLoaderBundle>;
@@ -122,3 +123,4 @@ const validateOutputTargetLoaderBundle = (
 
 const DEFAULT_DIR = 'dist/loader-bundle';
 const DEFAULT_BUILD_DIR = '';
+const DEFAULT_LOADER_PATH = 'loader';

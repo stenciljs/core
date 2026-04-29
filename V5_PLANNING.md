@@ -127,7 +127,6 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - **Backwards compatibility:** For the browser/CDN build (`dist/loader-bundle/<namespace>/`), a forwarding module `<namespace>.esm.js` is generated that re-exports from `<namespace>.js`. This allows existing CDN consumers with hardcoded `.esm.js` references to continue working.
   - **`"type": "module"` is now always recommended** in package.json when generating distributable outputs. The `.cjs` extension is an explicit override that Node.js always treats as CommonJS regardless of the `type` field.
   - This aligns Stencil output with modern Node.js and bundler expectations.
-- **`esmLoaderPath` config option removed from `loader-bundle` output target.** The separate `dist/loader/` directory is no longer generated. Instead, package.json exports map `./loader` directly to `loader-bundle/esm/loader.js` (and `loader-bundle/cjs/loader.cjs` for CJS). Types are generated in `types/loader.d.ts`. Remove `esmLoaderPath` from your config.
 - **Global styles and assets modernized:**
   - New `global-style` output target (first-class, auto-generated when `globalStyle` config exists)
   - New `assets` output target (first-class, auto-generated when components have `assetsDirs`)
@@ -135,6 +134,7 @@ See [Output Target Modernization](#output-target-modernization) section for deta
   - `copyAssets` option removed from `loader-bundle` and `www` output targets
   - Global styles: `copyToLoaderBrowser: true` default copies CSS to loader-bundle dir for backwards compat
   - Assets: No backwards compat copy needed - `getAssetPath()` runtime resolution handles path changes
+- **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target. The new name better reflects that it applies to all module formats, not just ESM.
 
 ### 9. 📁 Global Styles & Assets Modernization
 **Status:** 📋 Planned
@@ -558,6 +558,7 @@ dist/
 │   ├── esm/          # Lazy-loadable ES modules (includes loader.js)
 │   ├── cjs/          # Optional CommonJS output (includes loader.cjs)
 │   ├── <namespace>/  # Browser/CDN build
+│   ├── loader/       # Loader utilities (defineCustomElements, etc.)
 │   ├── index.js      # Main ESM entry
 │   └── index.cjs     # Main CJS entry (if cjs: true)
 ├── standalone/        # Individual ES module per component
@@ -574,8 +575,6 @@ dist/
 └── ssr/              # Server-side rendering / hydration
     └── index.js
 ```
-
-**Note:** The separate `dist/loader/` directory has been removed. The `./loader` export in package.json now points directly to `loader-bundle/esm/loader.js` (and `loader-bundle/cjs/loader.cjs` for CJS). Types are in `types/loader.d.ts`.
 
 ### Auto-Generated Outputs
 

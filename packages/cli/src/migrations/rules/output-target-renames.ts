@@ -13,6 +13,7 @@ import type { MigrationMatch, MigrationRule } from '../index';
  * - Renames `dist-types` → `types`
  * - Extracts `collectionDir` from loader-bundle into separate `stencil-rebundle` output
  * - Extracts `typesDir` from loader-bundle into separate `types` output
+ * - Renames `esmLoaderPath` → `loaderPath` (applies to all module formats, not just ESM)
  * - Removes `isPrimaryPackageOutputTarget` (no longer needed, package.json validation auto-detects)
  * - Removes `generateTypeDeclarations` (types are now auto-generated via the `types` output target)
  */
@@ -73,6 +74,30 @@ export const outputTargetRenamesRule: MigrationRule = {
             matches.push({
               node,
               message: `Property '${propName}' will be extracted to separate '${newType}' output target`,
+              line: line + 1,
+              column: character + 1,
+            });
+          }
+        }
+      }
+
+      // Look for esmLoaderPath to rename to loaderPath
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isIdentifier(node.name) &&
+        node.name.text === 'esmLoaderPath'
+      ) {
+        // Check if this is inside an output target object (has a 'type' property sibling)
+        const parent = node.parent;
+        if (ts.isObjectLiteralExpression(parent)) {
+          const hasTypeProperty = parent.properties.some(
+            (p) => ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'type',
+          );
+          if (hasTypeProperty) {
+            const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+            matches.push({
+              node,
+              message: `Property 'esmLoaderPath' renamed to 'loaderPath' (applies to all module formats)`,
               line: line + 1,
               column: character + 1,
             });
@@ -198,6 +223,28 @@ export const outputTargetRenamesRule: MigrationRule = {
             start,
             end,
             replacement: newType,
+          });
+        }
+      } else if (propName === 'esmLoaderPath') {
+        // Rename property from esmLoaderPath to loaderPath
+        const nameNode = prop.name as ts.Identifier;
+        modifications.push({
+          type: 'replace',
+          start: nameNode.getStart(),
+          end: nameNode.getEnd(),
+          replacement: 'loaderPath',
+        });
+
+        // Adjust the path value: prepend '../' since v5's default dir is one level deeper
+        // v4 default: dist/, v5 default: dist/loader-bundle/
+        if (ts.isStringLiteral(prop.initializer)) {
+          const oldPath = prop.initializer.text;
+          const newPath = '../' + oldPath;
+          modifications.push({
+            type: 'replace',
+            start: prop.initializer.getStart() + 1, // +1 to skip opening quote
+            end: prop.initializer.getEnd() - 1, // -1 to skip closing quote
+            replacement: newPath,
           });
         }
       } else if (

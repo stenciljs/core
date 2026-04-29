@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../hydrate/index');
+type HydrateModule = typeof import('../dist/ssr/index.js');
 let hydrateDocument: HydrateModule['hydrateDocument'];
 let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
@@ -10,7 +10,7 @@ let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 test.describe('hydrateDocument', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.js');
+    const mod = await import('../dist/ssr/index.js');
     hydrateDocument = mod.hydrateDocument;
     createWindowFromHtml = mod.createWindowFromHtml;
     resetHydrateDocData = mod.resetHydrateDocData;

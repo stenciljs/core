@@ -17,7 +17,7 @@ describe('external runtime - form associated', () => {
 
     const el = root.querySelector('form-associated-external');
     expect(el).toBeTruthy();
-    expect(el.shadowRoot).toBeTruthy();
+    expect(el?.shadowRoot).toBeTruthy();
   });
 
   it('should trigger formAssociatedCallback', async () => {
@@ -38,7 +38,7 @@ describe('external runtime - form associated', () => {
       </form>,
     );
 
-    root.querySelector<HTMLInputElement>('input[type="reset"]').click();
+    root.querySelector<HTMLInputElement>('input[type="reset"]')?.click();
     await waitForChanges();
 
     expect(root.ariaLabel).toBe('formResetCallback called');
@@ -53,11 +53,11 @@ describe('external runtime - form associated', () => {
 
     const el = root.querySelector('form-associated-external');
 
-    el.setAttribute('disabled', 'disabled');
+    el?.setAttribute('disabled', 'disabled');
     await waitForChanges();
     expect(root.ariaLabel).toBe('formDisabledCallback called with true');
 
-    el.removeAttribute('disabled');
+    el?.removeAttribute('disabled');
     await waitForChanges();
     expect(root.ariaLabel).toBe('formDisabledCallback called with false');
   });

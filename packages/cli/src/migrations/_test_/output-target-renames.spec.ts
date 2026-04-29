@@ -122,6 +122,25 @@ export const config: Config = {
       expect(typeDecsMatch?.message).toContain('removed in v5');
       expect(typeDecsMatch?.message).toContain('types');
     });
+
+    it('should detect esmLoaderPath property', () => {
+      const source = `
+export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist',
+      esmLoaderPath: './my-loader',
+    },
+  ],
+};
+`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+
+      const loaderPathMatch = matches.find((m) => m.message.includes('esmLoaderPath'));
+      expect(loaderPathMatch).toBeDefined();
+      expect(loaderPathMatch?.message).toContain('loaderPath');
+    });
   });
 
   describe('transform', () => {
@@ -395,6 +414,44 @@ export const config: Config = {
       expect(result).not.toContain('typesDir');
       expect(result).not.toContain('isPrimaryPackageOutputTarget');
       expect(result).not.toContain('generateTypeDeclarations');
+    });
+
+    it('should rename esmLoaderPath to loaderPath and adjust path depth', () => {
+      const source1 = `export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist',
+      esmLoaderPath: '../loader',
+      dir: 'my-dist',
+    },
+  ],
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source1, ts.ScriptTarget.Latest, true);
+      const matches = outputTargetRenamesRule.detect(sourceFile);
+      const result = outputTargetRenamesRule.transform(sourceFile, matches);
+
+      expect(result).toContain("type: 'loader-bundle'");
+      // Path is adjusted: '../loader' -> '../../loader' (prepend ../ for deeper default dir)
+      expect(result).toContain("loaderPath: '../../loader'");
+      expect(result).not.toContain('esmLoaderPath');
+
+      const source2 = `export const config: Config = {
+  outputTargets: [
+    {
+      type: 'dist',
+      esmLoaderPath: 'my-loader',
+      dir: 'my-dist',
+    },
+  ],
+};`;
+      const sourceFile2 = ts.createSourceFile('test.ts', source2, ts.ScriptTarget.Latest, true);
+      const matches2 = outputTargetRenamesRule.detect(sourceFile2);
+      const result2 = outputTargetRenamesRule.transform(sourceFile2, matches2);
+
+      expect(result2).toContain("type: 'loader-bundle'");
+      // Path is adjusted: 'my-loader' -> '../my-loader' (prepend ../ for deeper default dir)
+      expect(result2).toContain("loaderPath: '../my-loader'");
+      expect(result2).not.toContain('esmLoaderPath');
     });
   });
 });

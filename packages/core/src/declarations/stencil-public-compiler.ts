@@ -1962,6 +1962,15 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default false
    */
   cjs?: boolean;
+
+  /**
+   * Custom path for the loader directory; files you can import
+   * in an initiation script within your application to register all your components for
+   * lazy loading.
+   *
+   * @default 'loader' (relative to output directory)
+   */
+  loaderPath?: string;
 }
 
 /**

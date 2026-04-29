@@ -3,20 +3,21 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { ASSETS, join, LOADER_BUNDLE, STENCIL_REBUNDLE, TYPES } from '../../../utils';
+import {
+  ASSETS,
+  COPY,
+  DIST_LAZY,
+  join,
+  LOADER_BUNDLE,
+  STENCIL_REBUNDLE,
+  TYPES,
+} from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateLoaderBundleOutputTarget', () => {
   // use Node's resolve() here to simulate a user using either Win/Posix separators (depending on the platform these
   // tests are run on)
   const rootDir = path.resolve('/');
-
-  // Assets output target is auto-generated for all builds
-  const assetsOutputTarget: d.OutputTargetAssets = {
-    type: ASSETS,
-    dir: join(rootDir, 'dist', 'assets'),
-    skipInDev: false,
-  };
 
   let userConfig: d.Config;
   beforeEach(() => {
@@ -34,37 +35,41 @@ describe('validateLoaderBundleOutputTarget', () => {
     userConfig.outputTargets = [outputTarget];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     expect(config.outputTargets).toEqual([
-      assetsOutputTarget,
+      {
+        type: ASSETS,
+        dir: join(rootDir, 'dist', 'assets'),
+        skipInDev: false,
+      },
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
         cjs: true,
         copy: [],
         dir: join(rootDir, 'my-dist'),
         empty: false,
-        
+        loaderPath: 'loader',
         type: LOADER_BUNDLE,
         skipInDev: false,
       },
+
       {
+        type: DIST_LAZY,
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
-        empty: false,
         isBrowserBuild: true,
-        loaderDir: join(rootDir, 'my-dist', 'loader'),
-        type: 'dist-lazy',
-        typesDir: join(rootDir, 'dist', 'types')
+        empty: false,
       },
       {
-        copy: [],
+        type: COPY,
         dir: join(rootDir, 'my-dist', 'my-build', 'testing'),
-        type: 'copy',
+        copy: [],
       },
-      // Note: Global styles are handled by the global-style output target
       {
-        type: 'dist-lazy',
+        type: DIST_LAZY,
         esmDir: join(rootDir, 'my-dist', 'esm'),
         cjsDir: join(rootDir, 'my-dist', 'cjs'),
         cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs'),
         esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
+        loaderDir: join(rootDir, 'my-dist', 'loader'),
+        typesDir: join(rootDir, 'dist', 'types'),
         empty: false,
       },
     ]);

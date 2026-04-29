@@ -17,7 +17,7 @@ async function readableToString(readable: Readable) {
 }
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../hydrate/index');
+type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
@@ -25,7 +25,7 @@ let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 test.describe('renderToString API', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.js');
+    const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
     resetHydrateDocData = mod.resetHydrateDocData;

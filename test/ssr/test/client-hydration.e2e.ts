@@ -7,14 +7,14 @@ const vento = new CarData('VW', 'Vento', 2024);
 const beetle = new CarData('VW', 'Beetle', 2023);
 
 // @ts-ignore may not be existing when project hasn't been built
-type HydrateModule = typeof import('../hydrate/index');
+type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
 let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
 
 test.describe('client hydration', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
-    const mod = await import('../hydrate/index.js');
+    const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
     resetHydrateDocData = mod.resetHydrateDocData;
     resetHydrateDocData();
