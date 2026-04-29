@@ -3,17 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "module": "dist/loader-bundle/index.js",
-  "types": "dist/types/loader.d.ts",
+  "module": "dist/loader-bundle/loader/index.js",
+  "types": "dist/loader-bundle/loader/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/loader-bundle/index.js",
-      "types": "./dist/types/components.d.ts"
-    },
     "./loader": {
-      "import": "./dist/loader-bundle/esm/loader.js",
-      "require": "./dist/loader-bundle/cjs/loader.cjs",
-      "types": "./dist/types/loader.d.ts"
+      "import": "./dist/loader-bundle/loader/index.js",
+      "types": "./dist/loader-bundle/loader/index.d.ts"
     }
   },
   "scripts": {

@@ -9,6 +9,7 @@ export const config: Config = {
     {
       type: 'loader-bundle',
       dir: 'dist/lazy',
+      skipInDev: false,
     },
     {
       type: 'standalone',
