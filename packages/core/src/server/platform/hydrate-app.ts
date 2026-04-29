@@ -10,7 +10,7 @@ import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index
  * Native setTimeout/clearTimeout captured before globalThis is shadowed in the factory closure.
  * These are used for the hydrate timeout timer to avoid being affected by constrainTimeouts
  * which modifies the MockWindow's setTimeout behavior.
- * Defined in HYDRATE_FACTORY_INTRO (hydrate-factory-closure.ts).
+ * Defined in SSR_FACTORY_INTRO (ssr-factory-closure.ts).
  */
 declare const $nativeSetTimeout: typeof setTimeout;
 declare const $nativeClearTimeout: typeof clearTimeout;

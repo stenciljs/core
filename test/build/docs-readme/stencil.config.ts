@@ -7,7 +7,7 @@ export const config: Config = {
       type: 'docs-readme',
     },
     {
-      type: 'dist',
+      type: 'loader-bundle',
     },
     {
       type: 'docs-readme',

@@ -5,19 +5,23 @@ import type * as d from '@stencil/core';
 import {
   COPY,
   CUSTOM,
-  DIST,
-  DIST_COLLECTION,
-  DIST_CUSTOM_ELEMENTS,
-  DIST_GLOBAL_STYLES,
-  DIST_HYDRATE_SCRIPT,
+  // v5 constants
+  LOADER_BUNDLE,
+  STANDALONE,
+  SSR,
+  STENCIL_REBUNDLE,
+  TYPES,
+  GLOBAL_STYLE,
+  ASSETS,
+  // Internal output targets
   DIST_LAZY,
-  DIST_LAZY_LOADER,
-  DIST_TYPES,
+  // Docs
   DOCS_CUSTOM,
   DOCS_CUSTOM_ELEMENTS_MANIFEST,
   DOCS_JSON,
   DOCS_README,
   DOCS_VSCODE,
+  // Other
   GENERATED_DTS,
   STATS,
   VALID_CONFIG_OUTPUT_TARGETS,
@@ -126,41 +130,42 @@ export const getComponentsDtsSrcFilePath = (config: d.ValidatedConfig) =>
   join(config.srcDir, GENERATED_DTS);
 
 /**
- * Helper to get an appropriate file path for `components.d.ts` for a `"dist"`
- * or `"dist-types"` output target.
+ * Helper to get an appropriate file path for `components.d.ts` for an output target.
  *
- * @param outputTarget the output target of interest
+ * @param typesDir the directory where types are generated
  * @returns a properly-formatted path
  */
-export const getComponentsDtsTypesFilePath = (
-  outputTarget: Required<d.OutputTargetDist> | d.OutputTargetDistTypes,
-) => join(outputTarget.typesDir, GENERATED_DTS);
+export const getComponentsDtsTypesFilePath = (typesDir: string) => join(typesDir, GENERATED_DTS);
 
-export const isOutputTargetDist = (o: d.OutputTarget): o is d.OutputTargetDist => o.type === DIST;
+// ==================== v5 Output Target Type Guards ====================
 
-export const isOutputTargetDistCollection = (
+export const isOutputTargetLoaderBundle = (o: d.OutputTarget): o is d.OutputTargetLoaderBundle =>
+  o.type === LOADER_BUNDLE;
+
+export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTargetStandalone =>
+  o.type === STANDALONE;
+
+export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
+
+export const isOutputTargetStencilRebundle = (
   o: d.OutputTarget,
-): o is d.OutputTargetDistCollection => o.type === DIST_COLLECTION;
+): o is d.OutputTargetStencilRebundle => o.type === STENCIL_REBUNDLE;
 
-export const isOutputTargetDistCustomElements = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistCustomElements => o.type === DIST_CUSTOM_ELEMENTS;
+export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
+  o.type === TYPES;
+
+export const isOutputTargetGlobalStyle = (o: d.OutputTarget): o is d.OutputTargetGlobalStyle =>
+  o.type === GLOBAL_STYLE;
+
+export const isOutputTargetAssets = (o: d.OutputTarget): o is d.OutputTargetAssets =>
+  o.type === ASSETS;
+
+// ==================== Other Output Target Type Guards ====================
 
 export const isOutputTargetCopy = (o: d.OutputTarget): o is d.OutputTargetCopy => o.type === COPY;
 
 export const isOutputTargetDistLazy = (o: d.OutputTarget): o is d.OutputTargetDistLazy =>
   o.type === DIST_LAZY;
-
-export const isOutputTargetDistLazyLoader = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistLazyLoader => o.type === DIST_LAZY_LOADER;
-
-export const isOutputTargetDistGlobalStyles = (
-  o: d.OutputTarget,
-): o is d.OutputTargetDistGlobalStyles => o.type === DIST_GLOBAL_STYLES;
-
-export const isOutputTargetHydrate = (o: d.OutputTarget): o is d.OutputTargetHydrate =>
-  o.type === DIST_HYDRATE_SCRIPT;
 
 export const isOutputTargetCustom = (o: d.OutputTarget): o is d.OutputTargetCustom =>
   o.type === CUSTOM;
@@ -199,24 +204,6 @@ export const isOutputTargetWww = (o: d.OutputTarget): o is d.OutputTargetWww => 
 
 export const isOutputTargetStats = (o: d.OutputTarget): o is d.OutputTargetStats =>
   o.type === STATS;
-
-export const isOutputTargetDistTypes = (o: d.OutputTarget): o is d.OutputTargetDistTypes =>
-  o.type === DIST_TYPES;
-
-/**
- * Checks whether or not the supplied output target's type matches one of the eligible primary
- * package output target types (i.e. it can have `isPrimaryPackageOutputTarget: true` in its config).
- *
- * @param o The output target to check.
- * @returns Whether the output target type is one of the "primary" output targets.
- */
-export const isEligiblePrimaryPackageOutputTarget = (
-  o: d.OutputTarget,
-): o is d.EligiblePrimaryPackageOutputTarget =>
-  isOutputTargetDist(o) ||
-  isOutputTargetDistCollection(o) ||
-  isOutputTargetDistCustomElements(o) ||
-  isOutputTargetDistTypes(o);
 
 /**
  * Retrieve the Stencil component compiler metadata from a collection of Stencil {@link d.Module}s

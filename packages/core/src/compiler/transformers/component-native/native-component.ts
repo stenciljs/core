@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
+import { STANDALONE } from '../../../utils';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
 import { transformHostData } from '../host-data-transform';
 import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
@@ -118,7 +118,7 @@ const updateNativeHostComponentHeritageClauses = (
   }
 
   // we'll need to import `HTMLElement` in order to extend it
-  addOutputTargetCoreRuntimeApi(moduleFile, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.HTMLElement);
+  addOutputTargetCoreRuntimeApi(moduleFile, STANDALONE, RUNTIME_APIS.HTMLElement);
 
   const heritageClause = ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
     ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier(HTML_ELEMENT), []),

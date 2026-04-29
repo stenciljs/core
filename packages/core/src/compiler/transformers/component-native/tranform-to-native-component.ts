@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
+import { STANDALONE } from '../../../utils';
 import { addModuleMetadataProxies } from '../add-component-meta-proxy';
 import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
@@ -75,7 +75,7 @@ export const nativeComponentTransform = (
 
       const imports = [
         ...(moduleFile?.coreRuntimeApis ?? []),
-        ...(moduleFile?.outputTargetCoreRuntimeApis[DIST_CUSTOM_ELEMENTS] ?? []),
+        ...(moduleFile?.outputTargetCoreRuntimeApis[STANDALONE] ?? []),
       ];
 
       tsSourceFile = addImports(transformOpts, tsSourceFile, imports, transformOpts.coreImportPath);

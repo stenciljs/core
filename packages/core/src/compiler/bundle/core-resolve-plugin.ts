@@ -10,7 +10,7 @@ import {
   APP_DATA_CONDITIONAL,
   STENCIL_CORE_ID,
   STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
-  STENCIL_INTERNAL_HYDRATE_PLATFORM_ID,
+  STENCIL_INTERNAL_SSR_PLATFORM_ID,
   STENCIL_INTERNAL_ID,
   STENCIL_JSX_DEV_RUNTIME_ID,
   STENCIL_JSX_RUNTIME_ID,
@@ -26,7 +26,7 @@ export const coreResolvePlugin = (
 ): Plugin => {
   const compilerExe = config.sys.getCompilerExecutingPath();
   const internalClient = getStencilInternalModule(config, compilerExe, 'client/index.js');
-  const internalHydrate = getStencilInternalModule(config, compilerExe, 'server/index.mjs');
+  const internalSsr = getStencilInternalModule(config, compilerExe, 'server/index.mjs');
 
   // Cache transformed file content - the hydrated flag replacements are deterministic
   const transformedCodeCache = new Map<string, string>();
@@ -39,11 +39,11 @@ export const coreResolvePlugin = (
       ? buildHydratedReplacements(hydratedFlag, hydratedFlagHead)
       : null;
 
-  // Build filter for load hook - only process the internal client/hydrate runtime files
+  // Build filter for load hook - only process the internal client/ssr runtime files
   // Must also match paths with query strings (e.g., ?app-data=conditional for lazy builds)
   const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const loadFilter = new RegExp(
-    `^(${escapeRegex(internalClient)}|${escapeRegex(internalHydrate)})(\\?.*)?$`,
+    `^(${escapeRegex(internalClient)}|${escapeRegex(internalSsr)})(\\?.*)?$`,
   );
 
   return {
@@ -63,16 +63,16 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
               // use the default app-data, but build a custom one based on component meta
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            // for a non-lazy / standalone build, use the default, complete core.
             // This ensures all features are available for any importer library
             return internalClient;
           }
-          if (platform === 'hydrate') {
-            return internalHydrate;
+          if (platform === 'ssr') {
+            return internalSsr;
           }
         }
         if (id === STENCIL_INTERNAL_CLIENT_PLATFORM_ID) {
@@ -89,8 +89,8 @@ export const coreResolvePlugin = (
           // the custom app-data conditionals
           return internalClient;
         }
-        if (id === STENCIL_INTERNAL_HYDRATE_PLATFORM_ID) {
-          return internalHydrate;
+        if (id === STENCIL_INTERNAL_SSR_PLATFORM_ID) {
+          return internalSsr;
         }
         // Handle jsx-runtime and jsx-dev-runtime imports
         // These must resolve to the same internal client path as @stencil/core
@@ -105,15 +105,15 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / dist build, add `?app-data=conditional` as an identifier to ensure we don't
+              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
               // use the default app-data, but build a custom one based on component meta
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / dist-custom-elements build, use the default, complete core.
+            // for a non-lazy / standalone build, use the default, complete core.
             return internalClient;
           }
-          if (platform === 'hydrate') {
-            return internalHydrate;
+          if (platform === 'ssr') {
+            return internalSsr;
           }
         }
         return null;
@@ -126,7 +126,7 @@ export const coreResolvePlugin = (
         if (filePath && !filePath.startsWith('\0')) {
           filePath = normalizeFsPath(filePath);
 
-          if (filePath === internalClient || filePath === internalHydrate) {
+          if (filePath === internalClient || filePath === internalSsr) {
             if (platform === 'worker') {
               return `
 export const Build = {

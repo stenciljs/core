@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "types": "dist/types/components.d.ts",
   "scripts": {
     "start": "stencil build --serve --watch --dev",
     "build": "stencil build",
@@ -15,5 +16,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

@@ -5,7 +5,7 @@
   "description": "Validates Stencil build outputs (dist, hydrate, www, docs)",
   "type": "module",
   "scripts": {
-    "test": "pnpm --filter @stencil-core-tests/integration-e2e run build && node test-dist.js && node test-hydrate.js"
+    "test": "pnpm --filter @stencil-core-tests/integration-e2e run build && node test-output-targets.js && node test-ssr.js"
   },
   "devDependencies": {
     "@stencil/mock-doc": "workspace:*",

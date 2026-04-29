@@ -2,7 +2,7 @@ import * as d from '@stencil/core';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach } from 'vitest';
 
-import { DIST_CUSTOM_ELEMENTS } from '../../../utils';
+import { STANDALONE } from '../../../utils';
 import { createModule } from '../../transpile/transpiled-module';
 import {
   addCoreRuntimeApi,
@@ -63,14 +63,14 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(mockModule.outputTargetCoreRuntimeApis).toBeDefined();
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
-    addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.Host],
     });
 
-    addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.createEvent);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.createEvent);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host, RUNTIME_APIS.createEvent],
+      [STANDALONE]: [RUNTIME_APIS.Host, RUNTIME_APIS.createEvent],
     });
   });
 
@@ -78,15 +78,15 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(mockModule.outputTargetCoreRuntimeApis).toBeDefined();
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
-    addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.Host],
     });
 
     // attempt to add the api again, doing so shall not create a duplicate entry
-    addOutputTargetCoreRuntimeApi(mockModule, DIST_CUSTOM_ELEMENTS, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [DIST_CUSTOM_ELEMENTS]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.Host],
     });
   });
 });

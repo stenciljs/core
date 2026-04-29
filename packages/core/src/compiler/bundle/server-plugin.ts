@@ -2,14 +2,14 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 import type { Plugin } from 'rolldown';
 
-import { isOutputTargetHydrate, isString, normalizeFsPath } from '../../utils';
+import { isOutputTargetSsr, isString, normalizeFsPath } from '../../utils';
 import type { BundlePlatform } from './bundle-interface';
 
 // Escape special regex characters
 const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform): Plugin => {
-  const isHydrateBundle = platform === 'hydrate';
+  const isSsrBundle = platform === 'ssr';
   const serverVarid = `@removed-server-code`;
 
   const isServerOnlyModule = (id: string) => {
@@ -20,14 +20,14 @@ export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform
     return false;
   };
 
-  const externals = isHydrateBundle
-    ? config.outputTargets.filter(isOutputTargetHydrate).flatMap((o) => o.external)
+  const externals = isSsrBundle
+    ? config.outputTargets.filter(isOutputTargetSsr).flatMap((o) => o.external)
     : [];
 
   // Build filter based on what this plugin handles:
   // - @removed-server-code (virtual module)
   // - .server paths (for client builds)
-  // - externals (for hydrate builds)
+  // - externals (for ssr builds)
   const filterPatterns = [escapeRegex(serverVarid), '\\.server'];
   if (externals.length > 0) {
     filterPatterns.push(...externals.map(escapeRegex));
@@ -43,9 +43,9 @@ export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform
         if (id === serverVarid) {
           return id;
         }
-        if (isHydrateBundle) {
+        if (isSsrBundle) {
           if (externals.includes(id)) {
-            // don't attempt to bundle node builtins for the hydrate bundle
+            // don't attempt to bundle node builtins for the ssr bundle
             return {
               id,
               external: true,
@@ -62,7 +62,7 @@ export const serverPlugin = (config: d.ValidatedConfig, platform: BundlePlatform
         } else {
           if (isServerOnlyModule(id)) {
             // any path that has .server in it shouldn't actually
-            // be bundled in the web build, only the hydrate build
+            // be bundled in the web build, only the ssr build
             return serverVarid;
           }
         }

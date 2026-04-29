@@ -1,15 +1,16 @@
 import type * as d from '@stencil/core';
 
 import { outputCopy } from './copy/output-copy';
-import { outputCollection } from './dist-collection';
-import { outputCustomElements } from './dist-custom-elements';
-import { outputHydrateScript } from './dist-hydrate-script';
 import { outputLazy } from './dist-lazy/lazy-output';
+import { outputAssets } from './output-assets';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
-import { outputLazyLoader } from './output-lazy-loader';
+import { outputGlobalStyle } from './output-global-style';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
+import { outputSsr } from './ssr';
+import { outputStandalone } from './standalone';
+import { outputStencilRebundle } from './stencil-rebundle';
 
 export const generateOutputTargets = async (
   config: d.ValidatedConfig,
@@ -63,20 +64,23 @@ export const generateOutputTargets = async (
 
   const bundlerTasks: Promise<void>[] = needsBundlerRebuild
     ? [
-        outputCustomElements(config, compilerCtx, buildCtx),
-        outputHydrateScript(config, compilerCtx, buildCtx),
-        outputLazyLoader(config, compilerCtx),
+        outputStandalone(config, compilerCtx, buildCtx),
+        outputSsr(config, compilerCtx, buildCtx),
         outputLazy(config, compilerCtx, buildCtx),
       ]
     : [];
 
   await Promise.all([
-    // outputCollection is already a no-op when changedModuleFiles is empty.
-    outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
+    // outputStencilRebundle is already a no-op when changedModuleFiles is empty.
+    outputStencilRebundle(config, compilerCtx, buildCtx, changedModuleFiles),
     ...bundlerTasks,
   ]);
 
   await Promise.all([
+    // Global styles and assets output (unified dist/assets/ location)
+    outputGlobalStyle(config, compilerCtx, buildCtx),
+    outputAssets(config, compilerCtx, buildCtx),
+
     // the user may want to copy compiled assets which requires above tasks to
     // have finished first
     outputCopy(config, compilerCtx, buildCtx),

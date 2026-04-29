@@ -64,7 +64,8 @@ export const buildWarn = (diagnostics: d.Diagnostic[]): d.Diagnostic => {
  * @param jsonFilePath the path to the JSON file where the error occurred
  * @param msg the error message
  * @param jsonField the key for the field which caused the error, used for finding
- * the error line in the original JSON file
+ * the error line in the original JSON file. Only root-level keys (with minimal
+ * indentation, typically 2 spaces) are highlighted to avoid matching nested keys.
  * @returns a reference to the newly-created diagnostic
  */
 export const buildJsonFileError = (
@@ -83,45 +84,73 @@ export const buildJsonFileError = (
       const jsonStr = compilerCtx.fs.readFileSync(jsonFilePath);
       const lines = jsonStr.replace(/\r/g, '\n').split('\n');
 
+      // Find matches that appear to be root-level JSON keys.
+      // In a standard pretty-printed JSON file, root-level keys have 2 spaces of indentation.
+      // We only highlight if we find a match at root level to avoid highlighting nested keys
+      // (e.g., highlighting "type": "git" inside repository when looking for the root "type" field).
+      let bestMatch: { lineIndex: number; charIndex: number; indentation: number } | null = null;
+      const ROOT_LEVEL_INDENTATION = 2;
+
       for (let i = 0; i < lines.length; i++) {
         const txtLine = lines[i];
         const txtIndex = txtLine.indexOf(jsonField);
 
         if (txtIndex > -1) {
-          const warnLine: d.PrintLine = {
-            lineIndex: i,
-            lineNumber: i + 1,
-            text: txtLine,
-            errorCharStart: txtIndex,
-            errorLength: jsonField.length,
+          // Calculate indentation (number of leading whitespace chars)
+          const indentation = txtLine.search(/\S/);
+
+          // For package.json and similar files, root-level keys are at 2 spaces indentation.
+          // Only consider this a match if it's at root level, or if no root match was found
+          // and this is the least-indented option.
+          if (indentation === ROOT_LEVEL_INDENTATION) {
+            // Found a root-level match - use it
+            bestMatch = { lineIndex: i, charIndex: txtIndex, indentation };
+            break; // Root level found, no need to continue
+          } else if (bestMatch === null || indentation < bestMatch.indentation) {
+            // Track this as a fallback in case no root-level match exists
+            bestMatch = { lineIndex: i, charIndex: txtIndex, indentation };
+          }
+        }
+      }
+
+      // Only show line context if we found a root-level match (indentation === 2)
+      // This avoids highlighting nested keys when the root key doesn't exist
+      if (bestMatch !== null && bestMatch.indentation === ROOT_LEVEL_INDENTATION) {
+        const i = bestMatch.lineIndex;
+        const txtIndex = bestMatch.charIndex;
+        const txtLine = lines[i];
+
+        const warnLine: d.PrintLine = {
+          lineIndex: i,
+          lineNumber: i + 1,
+          text: txtLine,
+          errorCharStart: txtIndex,
+          errorLength: jsonField.length,
+        };
+        err.lineNumber = warnLine.lineNumber;
+        err.columnNumber = txtIndex + 1;
+        err.lines.push(warnLine);
+
+        if (i > 0) {
+          const beforeWarnLine: d.PrintLine = {
+            lineIndex: warnLine.lineIndex - 1,
+            lineNumber: warnLine.lineNumber - 1,
+            text: lines[i - 1],
+            errorCharStart: -1,
+            errorLength: -1,
           };
-          err.lineNumber = warnLine.lineNumber;
-          err.columnNumber = txtIndex + 1;
-          err.lines.push(warnLine);
+          err.lines.unshift(beforeWarnLine);
+        }
 
-          if (i >= 0) {
-            const beforeWarnLine: d.PrintLine = {
-              lineIndex: warnLine.lineIndex - 1,
-              lineNumber: warnLine.lineNumber - 1,
-              text: lines[i - 1],
-              errorCharStart: -1,
-              errorLength: -1,
-            };
-            err.lines.unshift(beforeWarnLine);
-          }
-
-          if (i < lines.length) {
-            const afterWarnLine: d.PrintLine = {
-              lineIndex: warnLine.lineIndex + 1,
-              lineNumber: warnLine.lineNumber + 1,
-              text: lines[i + 1],
-              errorCharStart: -1,
-              errorLength: -1,
-            };
-            err.lines.push(afterWarnLine);
-          }
-
-          break;
+        if (i < lines.length - 1) {
+          const afterWarnLine: d.PrintLine = {
+            lineIndex: warnLine.lineIndex + 1,
+            lineNumber: warnLine.lineNumber + 1,
+            text: lines[i + 1],
+            errorCharStart: -1,
+            errorLength: -1,
+          };
+          err.lines.push(afterWarnLine);
         }
       }
     } catch {}

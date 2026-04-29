@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockCompilerSystem, mockLoadConfigInit, mockLogger } from '../../../testing';
-import { join } from '../../../utils';
+import { isOutputTargetWww, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validatePaths', () => {
@@ -47,10 +47,9 @@ describe('validatePaths', () => {
 
   it('should set default wwwIndexHtml and convert to absolute path', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(
-      'index.html',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(true);
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(path.basename(www.indexHtml!)).toBe('index.html');
+    expect(path.isAbsolute(www.indexHtml!)).toBe(true);
   });
 
   it('should convert a custom wwwIndexHtml to absolute path', () => {
@@ -63,10 +62,9 @@ describe('validatePaths', () => {
       },
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(
-      'custom-index.html',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetWww[])[0].indexHtml!)).toBe(true);
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(path.basename(www.indexHtml!)).toBe('custom-index.html');
+    expect(path.isAbsolute(www.indexHtml!)).toBe(true);
   });
 
   it('should set default indexHtmlSrc and convert to absolute path', () => {
@@ -83,12 +81,14 @@ describe('validatePaths', () => {
       },
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect((config.outputTargets as d.OutputTargetWww[])[0].empty).toBe(false);
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(www.empty).toBe(false);
   });
 
   it('should set default emptyWWW to true', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect((config.outputTargets as d.OutputTargetWww[])[0].empty).toBe(true);
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(www.empty).toBe(true);
   });
 
   it('should set emptyWWW to false', () => {
@@ -99,44 +99,21 @@ describe('validatePaths', () => {
       },
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect((config.outputTargets as d.OutputTargetWww[])[0].empty).toBe(false);
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    expect(www.empty).toBe(false);
   });
 
-  it('should set default collection dir and convert to absolute path', () => {
-    userConfig.outputTargets = [
-      {
-        type: 'dist',
-      },
-    ];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
-      'collection',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].collectionDir!)).toBe(
-      true,
-    );
-  });
-
-  it('should set default types dir and convert to absolute path', () => {
-    userConfig.outputTargets = [
-      {
-        type: 'dist',
-      },
-    ];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(path.basename((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(
-      'types',
-    );
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].typesDir!)).toBe(true);
-  });
+  // v5: collectionDir and typesDir are now separate output targets (stencil-rebundle and types)
+  // These properties no longer exist on loader-bundle output target
 
   it('should set default build dir and convert to absolute path', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     // the path will be normalized by Stencil us use '/', split on that regardless of platform
-    const parts = (config.outputTargets as d.OutputTargetDist[])[0].buildDir!.split('/');
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    const parts = www.buildDir!.split('/');
     expect(parts[parts.length - 1]).toBe('build');
     expect(parts[parts.length - 2]).toBe('www');
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].buildDir!)).toBe(true);
+    expect(path.isAbsolute(www.buildDir!)).toBe(true);
   });
 
   it('should set build dir w/ custom www', () => {
@@ -148,10 +125,11 @@ describe('validatePaths', () => {
     ] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     // the path will be normalized by Stencil us use '/', split on that regardless of platform
-    const parts = (config.outputTargets as d.OutputTargetDist[])[0].buildDir!.split('/');
+    const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    const parts = www.buildDir!.split('/');
     expect(parts[parts.length - 1]).toBe('build');
     expect(parts[parts.length - 2]).toBe('custom-www');
-    expect(path.isAbsolute((config.outputTargets as d.OutputTargetDist[])[0].buildDir!)).toBe(true);
+    expect(path.isAbsolute(www.buildDir!)).toBe(true);
   });
 
   it('should set default src dir and convert to absolute path', () => {

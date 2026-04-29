@@ -204,39 +204,62 @@ export const COPY = 'copy';
  * Constant for the 'custom' output target
  */
 export const CUSTOM = 'custom';
-/**
- * Constant for the 'dist' output target
- */
-export const DIST = 'dist';
-/**
- * Constant for the 'dist-collection' output target
- */
-export const DIST_COLLECTION = 'dist-collection';
-/**
- * Constant for the 'dist-custom-elements' output target
- */
-export const DIST_CUSTOM_ELEMENTS = 'dist-custom-elements';
+
+// ==================== Output Target Constants (v5) ====================
 
 /**
- * Constant for the 'dist-types' output target
+ * Constant for the 'loader-bundle' output target
+ * (formerly 'dist' in v4)
  */
-export const DIST_TYPES = 'dist-types';
+export const LOADER_BUNDLE = 'loader-bundle';
+
 /**
- * Constant for the 'dist-hydrate-script' output target
+ * Constant for the 'standalone' output target
+ * (formerly 'dist-custom-elements' in v4)
  */
-export const DIST_HYDRATE_SCRIPT = 'dist-hydrate-script';
+export const STANDALONE = 'standalone';
+
 /**
- * Constant for the 'dist-lazy' output target
+ * Constant for the 'ssr' output target
+ * (formerly 'dist-hydrate-script' in v4)
+ */
+export const SSR = 'ssr';
+
+/**
+ * Constant for the 'stencil-rebundle' output target
+ * (formerly 'dist-collection' sub-output in v4)
+ *
+ * Contains transpiled source + metadata for downstream Stencil projects
+ * to re-compile/bundle.
+ */
+export const STENCIL_REBUNDLE = 'stencil-rebundle';
+
+/**
+ * Constant for the 'types' output target
+ * (formerly 'dist-types' sub-output in v4)
+ */
+export const TYPES = 'types';
+
+/**
+ * Constant for the 'global-style' output target
+ * Outputs global styles to a unified location available to all distributions.
+ */
+export const GLOBAL_STYLE = 'global-style';
+
+/**
+ * Constant for the 'assets' output target
+ * Copies component assetsDirs to a unified location available to all distributions.
+ */
+export const ASSETS = 'assets';
+
+// ==================== Internal Output Targets ====================
+
+/**
+ * Internal constant for the 'dist-lazy' output target
+ * (used by loader-bundle and www)
  */
 export const DIST_LAZY = 'dist-lazy';
-/**
- * Constant for the 'dist-lazy-loader' output target
- */
-export const DIST_LAZY_LOADER = 'dist-lazy-loader';
-/**
- * Constant for the 'dist-global-styles' output target
- */
-export const DIST_GLOBAL_STYLES = 'dist-global-styles';
+
 /**
  * Constant for the 'docs-custom' output target
  */
@@ -269,19 +292,27 @@ export const WWW = 'www';
 /**
  * Valid output targets to specify in a Stencil config.
  *
- * Note that there are some output targets (e.g. `DIST_TYPES`) which are
- * programmatically set as output targets by the compiler when other output
- * targets (in that case `DIST`) are set, but which are _not_ supported in a
- * Stencil config. This is enforced in the output target validation code.
+ * Note that some internal output targets (e.g. `DIST_LAZY`, `DIST_GLOBAL_STYLES`)
+ * are programmatically created by the compiler and are not user-configurable.
+ *
+ * In v5, `TYPES` and `STENCIL_REBUNDLE` are auto-generated in production builds unless explicitly configured.
  */
 export const VALID_CONFIG_OUTPUT_TARGETS = [
-  // DIST
+  // DISTRIBUTION
   WWW,
-  DIST,
-  DIST_COLLECTION,
-  DIST_CUSTOM_ELEMENTS,
-  DIST_LAZY,
-  DIST_HYDRATE_SCRIPT,
+  LOADER_BUNDLE,
+  STANDALONE,
+  SSR,
+  STENCIL_REBUNDLE,
+  TYPES,
+  GLOBAL_STYLE,
+  ASSETS,
+  // DEPRECATED DISTRIBUTION TARGETS (< v5)
+  'dist',
+  'dist-custom-elements',
+  'dist-hydrate-script',
+  'dist-collection',
+  'dist-types',
 
   // DOCS
   DOCS_JSON,

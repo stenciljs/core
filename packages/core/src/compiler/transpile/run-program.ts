@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import {
   filterExcludedComponents,
   getComponentsFromModules,
-  isOutputTargetDistTypes,
+  isOutputTargetTypes,
   join,
   loadTypeScriptDiagnostics,
   normalizePath,
@@ -50,7 +50,7 @@ export const runTsProgram = async (
   const tsProgram = tsBuilder.getProgram();
 
   const tsTypeChecker = tsProgram.getTypeChecker();
-  const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
+  const typesOutputTarget = config.outputTargets.filter(isOutputTargetTypes);
   const emittedDts: string[] = [];
 
   const emitCallback: ts.WriteFileCallback = (emitFilePath, data, _w, _e, tsSourceFiles) => {
@@ -82,9 +82,9 @@ export const runTsProgram = async (
       emittedDts.push(srcDtsPath);
       typesOutputTarget.forEach((o) => {
         const distPath = normalizePath(
-          join(normalizePath(o.typesDir), normalizePath(relativeEmitFilepath)),
+          join(normalizePath(o.dir!), normalizePath(relativeEmitFilepath)),
         );
-        data = updateStencilTypesImports(o.typesDir, distPath, data);
+        data = updateStencilTypesImports(o.dir!, distPath, data);
         compilerCtx.fs.writeFile(distPath, data);
       });
     }
@@ -164,7 +164,7 @@ export const runTsProgram = async (
       const dtsRelativePath = relativeToSrc.replace(/\.tsx?$/, '.d.ts');
 
       typesOutputTarget.forEach((outputTarget) => {
-        const outputDtsPath = join(outputTarget.typesDir, dtsRelativePath);
+        const outputDtsPath = join(outputTarget.dir!, dtsRelativePath);
 
         // The file may have been queued for writing during emit
         // We need to cancel the write and queue it for deletion instead
@@ -210,7 +210,7 @@ export const validateTypesAfterGeneration = async (
   emittedDts: string[],
 ): Promise<ValidateTypesResult> => {
   const tsProgram = tsBuilder.getProgram();
-  const typesOutputTarget = config.outputTargets.filter(isOutputTargetDistTypes);
+  const typesOutputTarget = config.outputTargets.filter(isOutputTargetTypes);
 
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
   const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
@@ -281,9 +281,9 @@ export const validateTypesAfterGeneration = async (
         const relativeEmitFilepath = relative(config.srcDir, srcRootDtsFilePath);
         return Promise.all(
           typesOutputTarget.map(async (o) => {
-            const distPath = join(o.typesDir, relativeEmitFilepath);
+            const distPath = join(o.dir!, relativeEmitFilepath);
             let dtsContent = await compilerCtx.fs.readFile(srcRootDtsFilePath);
-            dtsContent = updateStencilTypesImports(o.typesDir, distPath, dtsContent);
+            dtsContent = updateStencilTypesImports(o.dir!, distPath, dtsContent);
             await compilerCtx.fs.writeFile(distPath, dtsContent);
           }),
         );

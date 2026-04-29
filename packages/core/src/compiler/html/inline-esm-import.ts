@@ -18,6 +18,9 @@ import { injectModulePreloads } from './inject-module-preloads';
  * the file referenced by the `<script>` can't be resolved then no action
  * will be taken.
  *
+ * For `bundleMode: 'lazy'` (default), looks for `{namespace}.js`.
+ * For `bundleMode: 'standalone'`, looks for `{namespace}.js` (the autoLoader).
+ *
  * @param config the current user-supplied Stencil config
  * @param compilerCtx a compiler context
  * @param doc the document in which to search for scripts to inline
@@ -31,7 +34,8 @@ export const optimizeEsmImport = async (
   outputTarget: d.OutputTargetWww,
 ): Promise<boolean> => {
   const resourcesUrl = getAbsoluteBuildDir(outputTarget);
-  const entryFilename = `${config.fsNamespace}.esm.js`;
+  // Both standalone and lazy mode use {namespace}.js as entry
+  const entryFilename = `${config.fsNamespace}.js`;
   const expectedSrc = join(resourcesUrl, entryFilename);
 
   const script = Array.from(doc.querySelectorAll('script')).find(

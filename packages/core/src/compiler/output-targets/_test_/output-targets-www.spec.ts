@@ -35,7 +35,7 @@ describe.skip('outputTarget, www', () => {
       path.join(root, 'User', 'testing', 'www', 'build'),
       path.join(root, 'User', 'testing', 'www', 'build', 'app.js'),
       path.join(root, 'User', 'testing', 'www', 'build', 'app.js.map'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'app.esm.js'),
+      path.join(root, 'User', 'testing', 'www', 'build', 'app.js'),
       path.join(root, 'User', 'testing', 'www', 'build', 'cmp-a.entry.js'),
       path.join(root, 'User', 'testing', 'www', 'build', 'cmp-a.entry.js.map'),
 

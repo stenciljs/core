@@ -1424,7 +1424,6 @@ describe('compiler', () => {
 {
   "scripts": {
     "build": "node scripts/build.js",
-    "build.prod": "node scripts/build.js --prod",
     "build.dev": "node scripts/build.js --dev",
     "watch": "node scripts/build.js --watch"
   }

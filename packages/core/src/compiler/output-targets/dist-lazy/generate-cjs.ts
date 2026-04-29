@@ -20,7 +20,7 @@ export const generateCjs = async (
     const esmOpts: OutputOptions = {
       banner: generatePreamble(config),
       format: 'cjs',
-      entryFileNames: '[name].cjs.js',
+      entryFileNames: '[name].cjs',
       assetFileNames: '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
       plugins: [lazyBundleIdPlugin(buildCtx, config, false, '.cjs')],

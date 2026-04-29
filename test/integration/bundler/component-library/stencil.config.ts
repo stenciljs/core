@@ -4,8 +4,7 @@ export const config: Config = {
   namespace: 'component-library',
   outputTargets: [
     {
-      type: 'dist',
-      esmLoaderPath: '../loader',
+      type: 'loader-bundle',
     },
     {
       type: 'docs-readme',

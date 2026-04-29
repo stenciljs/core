@@ -4,7 +4,7 @@ export const config: Config = {
   namespace: 'TestSibling',
   outputTargets: [
     {
-      type: 'dist',
+      type: 'loader-bundle',
     },
   ],
 };

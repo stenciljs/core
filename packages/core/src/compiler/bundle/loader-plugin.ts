@@ -5,7 +5,7 @@ const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, 
 
 /**
  * Rolldown plugin that aids in resolving the entry points (1 or more files) for a Stencil project. For example, a project
- * using the `dist-custom-elements` output target may have a single 'entry point' for each file containing a component.
+ * using the `standalone` output target may have a single 'entry point' for each file containing a component.
  * Each of those files will be independently resolved and loaded by this plugin for further processing by Rolldown later
  * in the bundling process.
  *

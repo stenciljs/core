@@ -4,9 +4,12 @@
   "description": "A test app for the docs-readme output target",
   "license": "MIT",
   "files": [
-    "dist/"
+    "dist/",
+    "dist/stencil-rebundle/"
   ],
   "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "prepare.readmes": "node ./copy-readme.js",
     "build": "stencil build",
@@ -21,5 +24,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
+import { validateBuildPackageJson } from '../config/validate-package-json';
 import { validateManifestJson } from '../html/validate-manifest-json';
-import { validateBuildPackageJson } from '../types/validate-build-package-json';
 
 /**
  * Validate the existence and contents of certain files that were generated after writing the results of the build to

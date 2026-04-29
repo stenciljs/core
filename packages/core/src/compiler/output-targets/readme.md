@@ -48,18 +48,18 @@ Stencil is able to generate components into various formats so they can be best 
 ```
 - dist/
 
-  - cjs/ (bundler ready, cjs modules)
-    - index.cjs.js
-    - loader.cjs.js
+  - cjs/ (bundler ready, cjs modules - only when cjs: true)
+    - index.cjs
+    - loader.cjs
 
-  - collection/ (metadata when this is lazy-loaded dependency)
+  - stencil-rebundle/ (metadata when this is lazy-loaded dependency)
     - my-cmp/
       - my-cmp.js (esm)
       - my-cmp.css
     - collection-manifest.json
     - global.js
 
-  - custom-elements (bundler ready custom elements, esm only)
+  - standalone/ (bundler ready custom elements, esm only)
     - index.js (esm)
     - index.d.ts
 
@@ -70,33 +70,30 @@ Stencil is able to generate components into various formats so they can be best 
   - loader (bundler entry for lazy builds)
     - cdn.js
     - index.js
-    - index.cjs.js
+    - index.cjs (only when cjs: true)
     - index.d.ts
-    - index.es2017.js
-    - package.json (to import loader package, such as myapp/loader)
 
   - myapp (browser ready script, named from stencil config namespace)
     - myapp.css
-    - myapp.esm.js
+    - myapp.js
 
   - types (dts files for each component)
     - my-cmp/
       -my-cmp.d.ts
 
-  - index.cjs.js (dist cjs entry)
+  - index.cjs (dist cjs entry - only when cjs: true)
   - index.js (dist esm entry)
 
-- hydrate
-  - index.js (NodeJS ready hydrate script, cjs module)
+- ssr/
+  - index.js (NodeJS ready hydrate script, esm module)
   - index.d.ts (types for hydrate API)
-  - package.json (to import hydrate package, such as myapp/hydrate)
 
 - www/ (www output target)
   - build/
-    - myapp.esm.js (browser ready esm modern script)
+    - myapp.js (browser ready esm script)
 
   - index.html (optimized html from src/index.html)
 
-- package.json (top-level package.json is not auto-updated)
+- package.json (top-level package.json is not auto-updated, should have "type": "module")
 - stencil.config.ts
 ```

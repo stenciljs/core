@@ -51,8 +51,6 @@ describe('load config', () => {
     // this field is defined on the `init` argument, and should override the value found in the config on disk
     expect(actualConfig).toBeDefined();
     expect(actualConfig.hashedFileNameLength).toEqual(9);
-    // these fields are defined in the config file on disk, and should be present
-    expect(actualConfig.devMode).toBe(true);
     expect(actualConfig.extras).toBeDefined();
     expect(actualConfig.extras!.enableImportInjection).toBe(true);
     // respects custom root dir

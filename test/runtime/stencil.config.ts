@@ -7,11 +7,12 @@ export const config: Config = {
   excludeComponents: ['excluded-component', 'exclude-*'],
   outputTargets: [
     {
-      type: 'dist',
+      type: 'loader-bundle',
       dir: 'dist/lazy',
+      skipInDev: false,
     },
     {
-      type: 'dist-custom-elements',
+      type: 'standalone',
       dir: 'dist/custom-elements',
       customElementsExportBehavior: 'auto-define-custom-elements',
       externalRuntime: false,

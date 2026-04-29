@@ -12,7 +12,7 @@ import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 
 /**
  * Access transformTag via the closure-scoped $stencilTagTransform object.
- * This object is defined in the factory closure (HYDRATE_FACTORY_INTRO).
+ * This object is defined in the factory closure (SSR_FACTORY_INTRO).
  * We declare it here to satisfy TypeScript, but at runtime it will be
  * provided by the factory closure scope.
  */

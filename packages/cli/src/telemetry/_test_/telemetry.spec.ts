@@ -1,6 +1,6 @@
 import * as coreCompiler from '@stencil/core/compiler';
 import { createSystem } from '@stencil/core/compiler';
-import { DIST, DIST_CUSTOM_ELEMENTS, DIST_HYDRATE_SCRIPT, WWW } from '@stencil/core/compiler/utils';
+import { LOADER_BUNDLE, STANDALONE, SSR, WWW } from '@stencil/core/compiler/utils';
 import { mockValidatedConfig } from '@stencil/core/testing';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 import type * as d from '@stencil/core/compiler';
@@ -280,19 +280,17 @@ describe('anonymizeConfigForTelemetry', () => {
       ...config,
       outputTargets: [
         { type: WWW, baseUrl: 'https://example.com' },
-        { type: DIST_HYDRATE_SCRIPT, external: ['beep', 'boop'], dir: 'shoud/go/away' },
-        { type: DIST_CUSTOM_ELEMENTS },
-        { type: DIST_CUSTOM_ELEMENTS, generateTypeDeclarations: true },
-        { type: DIST, typesDir: 'my-types' },
+        { type: SSR, external: ['beep', 'boop'], dir: 'shoud/go/away' },
+        { type: STANDALONE },
+        { type: LOADER_BUNDLE },
       ],
     });
 
     expect(anonymizedConfig.outputTargets).toEqual([
       { type: WWW, baseUrl: 'omitted' },
-      { type: DIST_HYDRATE_SCRIPT, external: ['beep', 'boop'], dir: 'omitted' },
-      { type: DIST_CUSTOM_ELEMENTS },
-      { type: DIST_CUSTOM_ELEMENTS, generateTypeDeclarations: true },
-      { type: DIST, typesDir: 'omitted' },
+      { type: SSR, external: ['beep', 'boop'], dir: 'omitted' },
+      { type: STANDALONE },
+      { type: LOADER_BUNDLE },
     ]);
   });
 });

@@ -2,7 +2,12 @@ import MagicString from 'magic-string';
 import * as ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { catchError, isOutputTargetDist, isOutputTargetDistLazy, sortBy } from '../../../utils';
+import {
+  catchError,
+  isOutputTargetLoaderBundle,
+  isOutputTargetDistLazy,
+  sortBy,
+} from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   LAZY_BROWSER_ENTRY_ID,
@@ -15,12 +20,13 @@ import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
-import { removeCollectionImports } from '../../transformers/remove-collection-imports';
+import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { generateCjs } from './generate-cjs';
 import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
+import { generateLoader } from './generate-loader';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
 
@@ -43,7 +49,7 @@ export const outputLazy = async (
       platform: 'client',
       conditionals: getLazyBuildConditionals(config, buildCtx.components),
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
-      inlineWorkers: config.outputTargets.some(isOutputTargetDist),
+      inlineWorkers: config.outputTargets.some(isOutputTargetLoaderBundle),
       inputs: {
         [config.fsNamespace]: LAZY_BROWSER_ENTRY_ID,
         loader: LAZY_EXTERNAL_ENTRY_ID,
@@ -85,6 +91,9 @@ export const outputLazy = async (
           buildCtx.components = result.buildCtx.components;
         }
       });
+
+      // Generate loader directory with forwarding files
+      await generateLoader(compilerCtx, outputTargets);
 
       if (buildCtx.esmBrowserComponentBundle != null) {
         buildCtx.componentGraph = generateModuleGraph(
@@ -136,7 +145,7 @@ const getCustomBeforeTransformers = (
 
   customBeforeTransformers.push(
     lazyComponentTransform(compilerCtx, transformOpts, buildCtx),
-    removeCollectionImports(compilerCtx),
+    removeRebundleImports(compilerCtx),
   );
   return customBeforeTransformers;
 };

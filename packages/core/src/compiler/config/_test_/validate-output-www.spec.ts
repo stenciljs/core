@@ -3,7 +3,16 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetCopy, isOutputTargetHydrate, isOutputTargetWww, join } from '../../../utils';
+import {
+  isOutputTargetCopy,
+  isOutputTargetDistLazy,
+  isOutputTargetSsr,
+  isOutputTargetStandalone,
+  isOutputTargetWww,
+  join,
+  LOADER_BUNDLE,
+  STANDALONE,
+} from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateOutputTargetWww', () => {
@@ -30,9 +39,28 @@ describe('validateOutputTargetWww', () => {
 
     expect(config.outputTargets).toEqual([
       {
+        dir: '/dist/types',
+        empty: true,
+        skipInDev: true,
+        type: 'types',
+      },
+      {
+        dir: '/dist/stencil-rebundle',
+        empty: true,
+        skipInDev: true,
+        transformAliasedImportPaths: true,
+        type: 'stencil-rebundle',
+      },
+      {
+        dir: '/dist/assets',
+        skipInDev: false,
+        type: 'assets',
+      },
+      {
         appDir: join(rootDir, 'www', 'docs'),
         baseUrl: '/',
         buildDir: join(rootDir, 'www', 'docs', 'build'),
+        bundleMode: 'loader',
         dir: join(rootDir, 'www', 'docs'),
         empty: true,
         indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
@@ -44,7 +72,6 @@ describe('validateOutputTargetWww', () => {
             '**/*.system.entry.js',
             '**/*.system.js',
             '**/app.js',
-            '**/app.esm.js',
             '**/app.css',
           ],
           globPatterns: ['*.html', '**/*.{js,css,json}'],
@@ -59,7 +86,6 @@ describe('validateOutputTargetWww', () => {
         type: 'dist-lazy',
       },
       {
-        copyAssets: 'dist',
         dir: join(rootDir, 'www', 'docs', 'build'),
         type: 'copy',
       },
@@ -76,10 +102,6 @@ describe('validateOutputTargetWww', () => {
         ],
         dir: join(rootDir, 'www', 'docs'),
         type: 'copy',
-      },
-      {
-        file: join(rootDir, 'www', 'docs', 'build', 'app.css'),
-        type: 'dist-global-styles',
       },
       {
         dir: join(rootDir, 'src'),
@@ -129,7 +151,7 @@ describe('validateOutputTargetWww', () => {
 
   it('should default to add www when outputTargets is undefined', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets).toHaveLength(6); // includes docs-readme in production mode
+    expect(config.outputTargets).toHaveLength(8); // types + stencil-rebundle (auto-gen in prod) + assets + www + dist-lazy + copy×2 + docs-readme
 
     const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(outputTarget.dir).toBe(join(rootDir, 'www'));
@@ -215,7 +237,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
@@ -259,7 +280,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
@@ -294,7 +314,6 @@ describe('validateOutputTargetWww', () => {
       const copyTargets = config.outputTargets.filter(isOutputTargetCopy);
       expect(copyTargets).toEqual([
         {
-          copyAssets: 'dist',
           dir: join(rootDir, 'www', 'docs', 'build'),
           type: 'copy',
         },
@@ -307,10 +326,125 @@ describe('validateOutputTargetWww', () => {
     });
   });
 
-  describe('dist-hydrate-script', () => {
+  describe('bundleMode', () => {
+    it('should default to lazy bundleMode', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('loader');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(true);
+      expect(config.outputTargets.some(isOutputTargetStandalone)).toBe(false);
+    });
+
+    it('should support standalone bundleMode', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('standalone');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(false);
+      expect(config.outputTargets.some(isOutputTargetStandalone)).toBe(true);
+    });
+
+    it('should configure standalone output with autoLoader', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const standalone = config.outputTargets.find(
+        isOutputTargetStandalone,
+      ) as d.OutputTargetStandalone;
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(standalone).toBeDefined();
+      expect(standalone.dir).toBe(www.buildDir);
+      expect(standalone.autoLoader).toEqual({
+        fileName: 'app', // config.fsNamespace defaults to 'app'
+        autoStart: true,
+      });
+      expect(standalone.externalRuntime).toBe(false);
+      expect(standalone.skipInDev).toBe(false);
+    });
+
+    it('should use custom namespace for standalone autoLoader fileName', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        bundleMode: 'standalone',
+      };
+      userConfig.outputTargets = [outputTarget];
+      userConfig.namespace = 'MyComponents';
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const standalone = config.outputTargets.find(
+        isOutputTargetStandalone,
+      ) as d.OutputTargetStandalone;
+
+      expect(standalone.autoLoader).toEqual({
+        fileName: 'mycomponents', // fsNamespace is lowercase
+        autoStart: true,
+      });
+    });
+
+    it('should normalize invalid bundleMode to lazy', () => {
+      const outputTarget: d.OutputTargetWww = {
+        type: 'www',
+        // @ts-expect-error - testing invalid value
+        bundleMode: 'invalid',
+      };
+      userConfig.outputTargets = [outputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('loader');
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(true);
+    });
+
+    it('should auto-detect standalone bundleMode when standalone is configured without loader-bundle', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('standalone');
+    });
+
+    it('should default to lazy bundleMode when loader-bundle is configured', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: LOADER_BUNDLE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('loader');
+    });
+
+    it('should default to lazy bundleMode when both loader-bundle and standalone are configured', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: LOADER_BUNDLE }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('loader');
+    });
+
+    it('should respect explicit bundleMode even when it contradicts auto-detection', () => {
+      userConfig.outputTargets = [{ type: 'www', bundleMode: 'loader' }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('loader');
+    });
+  });
+
+  describe('ssr', () => {
     it('should not add hydrate by default', () => {
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
@@ -320,7 +454,7 @@ describe('validateOutputTargetWww', () => {
       };
       userConfig.outputTargets = [wwwOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
@@ -328,37 +462,37 @@ describe('validateOutputTargetWww', () => {
       const wwwOutputTarget: d.OutputTargetWww = {
         type: 'www',
       };
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
       };
       userConfig.outputTargets = [wwwOutputTarget, hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with prerender config', () => {
       userConfig.prerender = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add hydrate with ssr config', () => {
       userConfig.ssr = true;
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === 'dist-hydrate-script')).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
     });
 
     it('should add externals and defaults', () => {
-      const hydrateOutputTarget: d.OutputTargetHydrate = {
-        type: 'dist-hydrate-script',
+      const hydrateOutputTarget: d.OutputTargetSsr = {
+        type: 'ssr',
         external: ['lodash', 'left-pad'],
       };
       userConfig.outputTargets = [hydrateOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
+      const o = config.outputTargets.find(isOutputTargetSsr) as d.OutputTargetSsr;
       expect(o.external).toContain('lodash');
       expect(o.external).toContain('left-pad');
       expect(o.external).toContain('fs');
@@ -370,7 +504,7 @@ describe('validateOutputTargetWww', () => {
       userConfig.prerender = true;
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
-      const o = config.outputTargets.find(isOutputTargetHydrate) as d.OutputTargetHydrate;
+      const o = config.outputTargets.find(isOutputTargetSsr) as d.OutputTargetSsr;
       expect(o.external).toContain('fs');
       expect(o.external).toContain('path');
       expect(o.external).toContain('crypto');

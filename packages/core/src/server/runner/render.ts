@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream';
-import { hydrateFactory } from '@stencil/core/runtime/server/hydrate-factory';
+import { hydrateFactory } from '@stencil/core/runtime/server/ssr-factory';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
 import { modeResolutionChain, setMode } from 'virtual:platform';
 import type {

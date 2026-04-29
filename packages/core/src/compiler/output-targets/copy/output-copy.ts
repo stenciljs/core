@@ -2,7 +2,6 @@ import { minimatch } from 'minimatch';
 import type * as d from '@stencil/core';
 
 import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
-import { canSkipAssetsCopy, getComponentAssetsCopyTasks } from './assets-copy-tasks';
 import { getDestAbsPath, getSrcAbsPath } from './local-copy-tasks';
 
 const DEFAULT_IGNORE = [
@@ -28,17 +27,7 @@ export const outputCopy = async (
 
   const changedFiles = [...buildCtx.filesUpdated, ...buildCtx.filesAdded, ...buildCtx.dirsAdded];
   const copyTasks: Required<d.CopyTask>[] = [];
-  const needsCopyAssets = !canSkipAssetsCopy(
-    compilerCtx,
-    buildCtx.entryModules,
-    buildCtx.filesChanged,
-  );
   outputTargets.forEach((o) => {
-    if (needsCopyAssets && o.copyAssets) {
-      copyTasks.push(
-        ...getComponentAssetsCopyTasks(config, buildCtx, o.dir, o.copyAssets === 'collection'),
-      );
-    }
     copyTasks.push(...getCopyTasks(config, buildCtx, o, changedFiles));
   });
 

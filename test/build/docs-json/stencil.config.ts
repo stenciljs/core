@@ -5,7 +5,7 @@ export const config: Config = {
     {
       // needed to generate additional doc-metadata for styles, as the `ext-transform-plugin` does not run solely when
       // 'docs-json' is run
-      type: 'dist-custom-elements',
+      type: 'standalone',
     },
     {
       type: 'docs-json',

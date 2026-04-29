@@ -1,0 +1,197 @@
+import path from 'path';
+import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
+
+import { SSR } from '../../../utils';
+import { validateSsr } from '../../config/outputs/validate-ssr';
+import * as optimizeModuleMod from '../../optimize/optimize-module';
+import { writeHydrateOutputs } from '../ssr/write-hydrate-outputs';
+
+describe('ssr', () => {
+  describe('minification', () => {
+    let optimizeModuleSpy: MockInstance;
+    let mockFs: any;
+
+    beforeEach(() => {
+      // Spy on optimizeModule to verify it's called with correct minify parameter
+      optimizeModuleSpy = vi.spyOn(optimizeModuleMod, 'optimizeModule');
+      optimizeModuleSpy.mockResolvedValue({
+        output: 'const minified="code";',
+        diagnostics: [],
+        sourceMap: undefined,
+      });
+    });
+
+    afterEach(() => {
+      optimizeModuleSpy.mockRestore();
+    });
+
+    it('should call optimizeModule when outputTarget.minify is true', async () => {
+      const config = mockValidatedConfig();
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      // Mock filesystem operations
+      mockFs = compilerCtx.fs;
+      mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
+      mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
+      mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
+
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
+        dir: path.join(config.rootDir, 'dist', 'hydrate'),
+        minify: true,
+      };
+
+      const rolldownOutput = {
+        output: [
+          {
+            type: 'chunk' as const,
+            fileName: 'index.js',
+            code: 'export const test = "unminified code";',
+            isEntry: true,
+          },
+        ],
+      };
+
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
+
+      expect(optimizeModuleSpy).toHaveBeenCalledWith(
+        config,
+        compilerCtx,
+        expect.objectContaining({
+          minify: true,
+        }),
+      );
+    });
+
+    it('should not call optimizeModule when outputTarget.minify is false', async () => {
+      const config = mockValidatedConfig();
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      // Mock filesystem operations
+      mockFs = compilerCtx.fs;
+      mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
+      mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
+      mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
+
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
+        dir: path.join(config.rootDir, 'dist', 'hydrate'),
+        minify: false,
+      };
+
+      const rolldownOutput = {
+        output: [
+          {
+            type: 'chunk' as const,
+            fileName: 'index.js',
+            code: 'export const test = "unminified code";',
+            isEntry: true,
+          },
+        ],
+      };
+
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
+
+      expect(optimizeModuleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not call optimizeModule when outputTarget.minify is undefined', async () => {
+      const config = mockValidatedConfig();
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      // Mock filesystem operations
+      mockFs = compilerCtx.fs;
+      mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
+      mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
+      mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
+        dir: path.join(config.rootDir, 'dist', 'hydrate'),
+        // minify is undefined
+      };
+
+      const rolldownOutput = {
+        output: [
+          {
+            type: 'chunk' as const,
+            fileName: 'index.js',
+            code: 'export const test = "unminified code";',
+            isEntry: true,
+          },
+        ],
+      };
+
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [outputTarget],
+        rolldownOutput as any,
+      );
+
+      expect(optimizeModuleSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('generatePackageJson', () => {
+    it('should skip writing package.json when generatePackageJson is false', async () => {
+      const config = mockValidatedConfig();
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      const mockFs = compilerCtx.fs;
+      mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
+      mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
+      mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
+
+      const outputTarget: d.OutputTargetSsr = {
+        type: SSR,
+        dir: path.join(config.rootDir, 'dist', 'hydrate'),
+      };
+
+      const rolldownOutput = {
+        output: [
+          {
+            type: 'chunk' as const,
+            fileName: 'index.js',
+            code: 'export const test = "unminified code";',
+            isEntry: true,
+          },
+        ],
+      };
+
+      const [validatedOutputTarget] = validateSsr(config, [outputTarget]);
+
+      await writeHydrateOutputs(
+        config,
+        compilerCtx,
+        buildCtx,
+        [validatedOutputTarget],
+        rolldownOutput as any,
+      );
+
+      expect(mockFs.copyFile).toHaveBeenCalled();
+      expect(mockFs.writeFile).not.toHaveBeenCalledWith(
+        expect.stringMatching(/dist[\\/]+hydrate[\\/]+package\.json$/),
+        expect.any(String),
+      );
+    });
+  });
+});

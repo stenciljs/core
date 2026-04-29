@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { buildError, dashToPascalCase, isOutputTargetDist, isString } from '../../utils';
+import { buildError, dashToPascalCase, isOutputTargetLoaderBundle, isString } from '../../utils';
 import { DEFAULT_NAMESPACE } from './constants';
 
 /**
@@ -65,7 +65,7 @@ export const validateNamespace = (
 };
 
 export const validateDistNamespace = (config: d.UnvalidatedConfig, diagnostics: d.Diagnostic[]) => {
-  const hasDist = (config.outputTargets ?? []).some(isOutputTargetDist);
+  const hasDist = (config.outputTargets ?? []).some(isOutputTargetLoaderBundle);
   if (hasDist) {
     if (!isString(config.namespace) || config.namespace.toLowerCase() === 'app') {
       const err = buildError(diagnostics);

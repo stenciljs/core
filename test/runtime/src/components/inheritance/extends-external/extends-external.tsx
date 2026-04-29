@@ -1,4 +1,4 @@
-import { SiblingExtended } from '@stencil-core-tests/runtime-external/dist/collection/sibling-extended/sibling-extended';
+import { SiblingExtended } from '@stencil-core-tests/runtime-external/dist/stencil-rebundle/sibling-extended/sibling-extended';
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
 
 /**

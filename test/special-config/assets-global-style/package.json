@@ -1,0 +1,20 @@
+{
+  "name": "@stencil-core-tests/special-config-assets-global-style",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Tests explicit assets and global-style output target configurations",
+  "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && node test-outputs.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
+}

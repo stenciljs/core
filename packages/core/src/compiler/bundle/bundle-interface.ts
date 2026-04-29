@@ -58,4 +58,4 @@ export interface BundleOptions {
   preserveEntrySignatures?: false | 'strict' | 'allow-extension' | 'exports-only';
 }
 
-export type BundlePlatform = 'client' | 'hydrate' | 'worker';
+export type BundlePlatform = 'client' | 'ssr' | 'worker';

@@ -21,7 +21,6 @@ export const config: Config = {
       }),
     ],
   },
-
   outputTargets: [
     {
       type: 'www',
@@ -29,11 +28,11 @@ export const config: Config = {
       copy: [{ src: '**/*.html' }, { src: '**/*.css' }],
     },
     {
-      type: 'dist',
+      type: 'loader-bundle',
       cjs: true,
     },
     {
-      type: 'dist-hydrate-script',
+      type: 'ssr',
     },
     {
       type: 'docs-json',

@@ -4,7 +4,7 @@ export const config: Config = {
   namespace: 'copytask',
   outputTargets: [
     {
-      type: 'dist-custom-elements',
+      type: 'standalone',
       copy: [
         {
           src: './utils/**',
@@ -13,7 +13,7 @@ export const config: Config = {
       ],
     },
     {
-      type: 'dist',
+      type: 'loader-bundle',
     },
   ],
 };

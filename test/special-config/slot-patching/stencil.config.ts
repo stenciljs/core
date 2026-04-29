@@ -5,7 +5,7 @@ export const config: Config = {
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
     {
-      type: 'dist',
+      type: 'loader-bundle',
     },
   ],
 };

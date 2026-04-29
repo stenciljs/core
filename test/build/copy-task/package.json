@@ -8,25 +8,22 @@
     "url": "https://github.com/stenciljs/component-starter.git"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "dist/stencil-rebundle/"
   ],
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.js",
-  "types": "dist/types/index.d.ts",
-  "unpkg": "dist/copytask/copytask.esm.js",
+  "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/loader.d.ts",
+  "unpkg": "dist/loader-bundle/copytask/copytask.js",
   "exports": {
     ".": {
-      "import": "./dist/copytask/copytask.esm.js",
-      "require": "./dist/copytask/copytask.cjs.js"
-    },
-    "./my-component": {
-      "import": "./dist/components/my-component.js",
-      "types": "./dist/components/my-component.d.ts"
+      "import": "./dist/loader-bundle/index.js",
+      "types": "./dist/types/components.d.ts"
     },
     "./loader": {
-      "import": "./loader/index.js",
-      "require": "./loader/index.cjs",
-      "types": "./loader/index.d.ts"
+      "import": "./dist/loader-bundle/esm/loader.js",
+      "require": "./dist/loader-bundle/cjs/loader.cjs",
+      "types": "./dist/types/loader.d.ts"
     }
   },
   "scripts": {
@@ -43,6 +40,5 @@
   "volta": {
     "extends": "../../../package.json"
   },
-  "collection": "dist/collection/collection-manifest.json",
-  "collection:main": "dist/collection/index.js"
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

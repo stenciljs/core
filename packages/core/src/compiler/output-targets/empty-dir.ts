@@ -1,28 +1,22 @@
 import type * as d from '@stencil/core';
 
 import {
-  isOutputTargetDist,
-  isOutputTargetDistCustomElements,
+  isOutputTargetLoaderBundle,
+  isOutputTargetStandalone,
   isOutputTargetDistLazy,
-  isOutputTargetDistLazyLoader,
-  isOutputTargetHydrate,
+  isOutputTargetSsr,
   isOutputTargetWww,
   isString,
 } from '../../utils';
 
-type OutputTargetEmptiable =
-  | d.OutputTargetDist
-  | d.OutputTargetWww
-  | d.OutputTargetDistLazyLoader
-  | d.OutputTargetHydrate;
+type OutputTargetEmptiable = d.OutputTargetLoaderBundle | d.OutputTargetWww | d.OutputTargetSsr;
 
 const isEmptable = (o: d.OutputTarget): o is OutputTargetEmptiable =>
-  isOutputTargetDist(o) ||
-  isOutputTargetDistCustomElements(o) ||
+  isOutputTargetLoaderBundle(o) ||
+  isOutputTargetStandalone(o) ||
   isOutputTargetWww(o) ||
   isOutputTargetDistLazy(o) ||
-  isOutputTargetDistLazyLoader(o) ||
-  isOutputTargetHydrate(o);
+  isOutputTargetSsr(o);
 
 export const emptyOutputTargets = async (
   config: d.ValidatedConfig,

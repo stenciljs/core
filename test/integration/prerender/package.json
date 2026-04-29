@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "types": "./dist/types/components.d.ts",
   "scripts": {
     "test": "stencil build --prerender && playwright test"
   },
@@ -13,5 +14,6 @@
   },
   "volta": {
     "extends": "../../../package.json"
-  }
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }

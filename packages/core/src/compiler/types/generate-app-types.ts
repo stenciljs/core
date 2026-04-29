@@ -17,7 +17,7 @@ import { updateReferenceTypeImports } from './update-import-refs';
 
 /**
  * Generates and writes a `components.d.ts` file to disk. This file may be written to the `src` directory of a project,
- * or be written to a directory that is meant to be distributed (e.g. the output directory of `dist-custom-elements`).
+ * or be written to a directory that is meant to be distributed.
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build

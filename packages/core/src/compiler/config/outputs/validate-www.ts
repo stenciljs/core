@@ -2,14 +2,20 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
 import {
+  ASSETS,
   buildError,
   COPY,
-  DIST_GLOBAL_STYLES,
   DIST_LAZY,
+  GLOBAL_STYLE,
   isBoolean,
+  isOutputTargetLoaderBundle,
+  isOutputTargetStandalone,
   isOutputTargetWww,
   isString,
   join,
+  STANDALONE,
+  STENCIL_REBUNDLE,
+  TYPES,
   WWW,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
@@ -22,11 +28,31 @@ export const validateWww = (
   diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ) => {
-  const hasOutputTargets = userOutputs.length > 0;
+  // Only count 'real' user-configured output targets — exclude auto-generated
+  // outputs (types, stencil-rebundle, global-style, assets) that autoGenerateOutputs()
+  // may have injected into userOutputs before this function was called, so a bare config
+  // (no explicit output targets) still gets the default www output added.
+  const AUTO_GENERATED_TYPES = [TYPES, STENCIL_REBUNDLE, GLOBAL_STYLE, ASSETS] as const;
+  const hasOutputTargets = userOutputs.some(
+    (o) => !AUTO_GENERATED_TYPES.includes(o.type as (typeof AUTO_GENERATED_TYPES)[number]),
+  );
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
 
   if (!hasOutputTargets) {
     userWwwOutputs.push({ type: WWW });
+  }
+
+  // Auto-detect bundleMode based on configured primary output:
+  // If standalone is configured but NOT loader-bundle, default to 'standalone'
+  const hasLoaderBundle = userOutputs.some(isOutputTargetLoaderBundle);
+  const hasStandalone = userOutputs.some(isOutputTargetStandalone);
+  const defaultBundleMode = !hasLoaderBundle && hasStandalone ? 'standalone' : 'loader';
+
+  // Apply default bundleMode to www outputs that don't have it explicitly set
+  for (const wwwOutput of userWwwOutputs) {
+    if (wwwOutput.bundleMode == null) {
+      wwwOutput.bundleMode = defaultBundleMode;
+    }
   }
 
   if (config.prerender && userWwwOutputs.length === 0) {
@@ -39,28 +65,43 @@ export const validateWww = (
       outputs: (
         | d.OutputTargetWww
         | d.OutputTargetDistLazy
+        | d.OutputTargetStandalone
         | d.OutputTargetCopy
-        | d.OutputTargetDistGlobalStyles
       )[],
       o,
     ) => {
       const outputTarget = validateWwwOutputTarget(config, o, diagnostics);
       outputs.push(outputTarget);
 
-      // Add dist-lazy output target
       const buildDir = outputTarget.buildDir;
-      outputs.push({
-        type: DIST_LAZY,
-        dir: buildDir,
-        esmDir: buildDir,
-        isBrowserBuild: true,
-      });
 
-      // Copy for dist
+      if (outputTarget.bundleMode === 'standalone') {
+        // Add standalone output target with auto-loader
+        outputs.push({
+          type: STANDALONE,
+          dir: buildDir,
+          empty: false, // www handles emptying its own directory
+          externalRuntime: false, // inline runtime for simpler single-file deployment
+          autoLoader: {
+            fileName: config.fsNamespace,
+            autoStart: true,
+          },
+          skipInDev: false, // always build for www
+        });
+      } else {
+        // Default: Add dist-lazy output target
+        outputs.push({
+          type: DIST_LAZY,
+          dir: buildDir,
+          esmDir: buildDir,
+          isBrowserBuild: true,
+        });
+      }
+
+      // Copy for user-defined copy tasks
       outputs.push({
         type: COPY,
         dir: buildDir,
-        copyAssets: 'dist',
       });
 
       // Copy for www
@@ -71,12 +112,6 @@ export const validateWww = (
           { src: 'assets', warn: false },
           { src: 'manifest.json', warn: false },
         ]),
-      });
-
-      // Generate global style with original name
-      outputs.push({
-        type: DIST_GLOBAL_STYLES,
-        file: join(buildDir, `${config.fsNamespace}.css`),
       });
 
       return outputs;
@@ -90,6 +125,11 @@ const validateWwwOutputTarget = (
   outputTarget: d.OutputTargetWww,
   diagnostics: d.Diagnostic[],
 ) => {
+  // Normalize bundleMode (default to 'loader')
+  if (outputTarget.bundleMode !== 'standalone') {
+    outputTarget.bundleMode = 'loader';
+  }
+
   if (!isString(outputTarget.baseUrl)) {
     outputTarget.baseUrl = '/';
   }

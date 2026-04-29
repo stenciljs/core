@@ -159,11 +159,6 @@ export interface StencilConfig {
    * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
    */
   suppressReservedPublicNameWarnings?: boolean;
-  /**
-   * When `true`, we will validate a project's `package.json` based on the output target the user has designated
-   * as `isPrimaryPackageOutputTarget: true` in their Stencil config.
-   */
-  validatePrimaryPackageOutputTarget?: boolean;
 
   /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
@@ -187,14 +182,6 @@ export interface StencilConfig {
    * Defaults to `false` in dev mode and `true` in production mode.
    */
   minifyCss?: boolean;
-
-  /**
-   * Forces Stencil to run in `dev` mode if the value is `true` and `production` mode
-   * if it's `false`.
-   *
-   * Defaults to `false` (ie. production) unless the `--dev` flag is used in the CLI.
-   */
-  devMode?: boolean;
 
   /**
    * Object to provide a custom logger. By default a `logger` is already provided for the
@@ -303,7 +290,7 @@ export interface StencilConfig {
    * An array of component tag names to exclude from production builds.
    * Useful to remove test, demo or experimental components from final output.
    *
-   * **Note:** Exclusion only applies to production builds (default, or when `--prod` is used).
+   * **Note:** Exclusion only applies to production builds (the default).
    * Development builds (with `--dev` flag) will include all components to support local testing.
    *
    * Supports glob patterns for matching multiple components:
@@ -553,7 +540,6 @@ type RequireFields<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 type StrictConfigFields = keyof Pick<
   Config,
   | 'cacheDir'
-  | 'devMode'
   | 'devServer'
   | 'extras'
   | 'fsNamespace'
@@ -573,7 +559,6 @@ type StrictConfigFields = keyof Pick<
   | 'srcIndexHtml'
   | 'sys'
   | 'transformAliasedImportPaths'
-  | 'validatePrimaryPackageOutputTarget'
 >;
 
 /**
@@ -583,6 +568,11 @@ type StrictConfigFields = keyof Pick<
  * validations have occurred at runtime.
  */
 export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
+  /**
+   * Whether the build is running in development mode.
+   * Set by the `--dev` CLI flag. Not user-configurable in `stencil.config.ts`.
+   */
+  devMode: boolean;
   sourceMap: boolean;
 };
 
@@ -1721,8 +1711,8 @@ export interface ConfigBundle {
 
 /**
  * A file and/or directory copy operation that may be specified as part of
- * certain output targets for Stencil (in particular `dist`,
- * `dist-custom-elements`, and `www`).
+ * certain output targets for Stencil (in particular `loader-bundle`,
+ * `standalone`, and `www`).
  */
 export interface CopyTask {
   /**
@@ -1936,64 +1926,88 @@ export interface LoggerTimeSpan {
   finish(finishedMsg: string, color?: string, bold?: boolean, newLineSuffix?: boolean): number;
 }
 
-export interface OutputTargetDist extends OutputTargetValidationConfig {
-  type: 'dist';
+/**
+ * Output target for generating lazy-loaded component bundles with a loader infrastructure.
+ * This creates an optimized distribution for CDN usage and applications that benefit from
+ * lazy-loading components on demand.
+ *
+ * Formerly known as 'dist' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'loader-bundle',
+ *   dir: 'dist/loader-bundle'
+ * }
+ * ```
+ */
+export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
+  type: 'loader-bundle';
 
+  /**
+   * Directory where lazy-loaded bundles will be written.
+   * @default '' (root of output directory)
+   */
   buildDir?: string;
 
-  collectionDir?: string | null;
-  /**
-   * When `true` this flag will transform aliased import paths defined in
-   * a project's `tsconfig.json` to relative import paths in the compiled output's
-   * `dist-collection` bundle if it is generated (i.e. `collectionDir` is set).
-   *
-   * Paths will be left in aliased format if `false`.
-   *
-   * @example
-   * // tsconfig.json
-   * {
-   *   paths: {
-   *     "@utils/*": ['/src/utils/*']
-   *   }
-   * }
-   *
-   * // Source file
-   * import * as dateUtils from '@utils/date-utils';
-   * // Output file
-   * import * as dateUtils from '../utils/date-utils';
-   */
-  transformAliasedImportPathsInCollection?: boolean | null;
-
-  typesDir?: string;
-
-  /**
-   * Provide a custom path for the ESM loader directory, containing files you can import
-   * in an initiation script within your application to register all your components for
-   * lazy loading.
-   *
-   * @default /dist/loader
-   */
-  esmLoaderPath?: string;
   copy?: CopyTask[];
-
   empty?: boolean;
 
   /**
    * Whether to generate CommonJS (CJS) bundles.
    *
-   * When `true`, generates CJS output in `dist/cjs/` and `dist/index.cjs.js`.
+   * When `true`, generates CJS output in `cjs/` subdirectory.
    * When `false` (default in v5+), only ESM bundles are generated.
    *
    * @default false
    */
   cjs?: boolean;
+
+  /**
+   * Custom path for the loader directory; files you can import
+   * in an initiation script within your application to register all your components for
+   * lazy loading.
+   *
+   * @default 'loader' (relative to output directory)
+   */
+  loaderPath?: string;
+
+  /**
+   * Custom path for the browser/CDN bundle directory, relative to buildDir.
+   *
+   * The browser bundle is written to: `buildDir/browserBundlePath/namespace/`
+   *
+   * Use '../' to restore v4 behavior where the browser bundle was written
+   * directly under the output directory (e.g., `dist/namespace/` instead of
+   * `dist/loader-bundle/namespace/`).
+   *
+   * @default '' (browser bundle goes to buildDir/namespace/)
+   */
+  browserBundlePath?: string;
 }
 
-export interface OutputTargetDistCollection extends OutputTargetValidationConfig {
-  type: 'dist-collection';
+/**
+ * Output target for generating Stencil component source for downstream re-bundling.
+ * This output contains transpiled source code, component metadata, and configuration
+ * that downstream Stencil projects can re-compile and bundle.
+ *
+ * Formerly 'dist-collection' sub-output in v4, now a first-class output target in v5.
+ *
+ * In production builds, this output is auto-generated unless explicitly configured.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'stencil-rebundle',
+ *   dir: 'dist/stencil-rebundle',
+ *   transformAliasedImportPaths: true
+ * }
+ * ```
+ */
+export interface OutputTargetStencilRebundle extends OutputTargetBaseNext {
+  type: 'stencil-rebundle';
   empty?: boolean;
-  dir: string;
-  collectionDir: string;
+
   /**
    * When `true` this flag will transform aliased import paths defined in
    * a project's `tsconfig.json` to relative import paths in the compiled output.
@@ -2016,10 +2030,25 @@ export interface OutputTargetDistCollection extends OutputTargetValidationConfig
   transformAliasedImportPaths?: boolean | null;
 }
 
-export interface OutputTargetDistTypes extends OutputTargetValidationConfig {
-  type: 'dist-types';
-  dir: string;
-  typesDir: string;
+/**
+ * Output target for generating TypeScript type definitions (.d.ts files).
+ *
+ * Formerly a sub-output of 'dist' and 'dist-custom-elements' in v4,
+ * now a first-class output target in v5 that can be shared across multiple outputs.
+ *
+ * In production builds, this output is auto-generated unless explicitly configured.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'types',
+ *   dir: 'dist/types'
+ * }
+ * ```
+ */
+export interface OutputTargetTypes extends OutputTargetBaseNext {
+  type: 'types';
+  empty?: boolean;
 }
 
 export interface OutputTargetDistLazy extends OutputTargetBase {
@@ -2032,28 +2061,97 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
 
   esmIndexFile?: string;
   cjsIndexFile?: string;
+  loaderDir?: string;
+  typesDir?: string;
   empty?: boolean;
 }
 
-export interface OutputTargetDistGlobalStyles extends OutputTargetBase {
-  type: 'dist-global-styles';
-  file: string;
+/**
+ * Output target for global styles.
+ * Generates a CSS file from an input stylesheet.
+ *
+ * Can be configured in two ways:
+ * 1. **Implicit** (backwards compat): Set `globalStyle` in the config and this output is auto-generated
+ * 2. **Explicit**: Define this output target with an `input` property
+ *
+ * Multiple `global-style` outputs are supported for building separate CSS bundles.
+ *
+ * @example
+ * ```typescript
+ * // Explicit configuration with custom input/output
+ * {
+ *   type: 'global-style',
+ *   input: './src/theme.css',
+ *   fileName: 'theme.css',
+ *   dir: 'dist/assets',
+ *   copyToLoaderBrowser: false
+ * }
+ * ```
+ */
+export interface OutputTargetGlobalStyle extends OutputTargetBaseNext {
+  type: 'global-style';
+
+  /**
+   * Path to the input CSS file to compile.
+   * When specified, this takes precedence over the `globalStyle` config option.
+   *
+   * If neither `input` nor `globalStyle` config is set, no CSS will be built.
+   */
+  input?: string;
+
+  /**
+   * Output filename for the compiled CSS.
+   * @default '{namespace}.css' when using globalStyle config, or basename of input file
+   */
+  fileName?: string;
+
+  /**
+   * When `true`, also copies the global style CSS to the loader-bundle browser directory
+   * for backwards compatibility with existing CDN consumers who have hardcoded CSS paths.
+   *
+   * @default true
+   */
+  copyToLoaderBrowser?: boolean;
 }
 
-export interface OutputTargetDistLazyLoader extends OutputTargetBase {
-  type: 'dist-lazy-loader';
-  dir: string;
-
-  esmDir: string;
-  cjsDir?: string;
-  componentDts: string;
-
-  empty: boolean;
+/**
+ * Output target for component assets.
+ * Copies all component `assetsDirs` to a unified location.
+ *
+ * auto-generated when components have `assetsDirs` unless explicitly configured.
+ * The output is placed in `dist/assets/` by default and is available to all distribution strategies.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'assets',
+ *   dir: 'dist/assets'
+ * }
+ * ```
+ */
+export interface OutputTargetAssets extends OutputTargetBaseNext {
+  type: 'assets';
 }
 
-export interface OutputTargetHydrate extends OutputTargetBase {
-  type: 'dist-hydrate-script';
+/**
+ * Output target for server-side rendering (SSR) and hydration.
+ * Generates a script that can be used for SSR and static site generation (prerendering).
+ *
+ * Formerly known as 'dist-hydrate-script' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'ssr',
+ *   dir: 'dist/ssr',
+ *   minify: true
+ * }
+ * ```
+ */
+export interface OutputTargetSsr extends OutputTargetBase {
+  type: 'ssr';
   dir?: string;
+
   /**
    * Module IDs that should not be bundled into the script.
    * By default, all node builtin's, such as `fs` or `path`
@@ -2198,7 +2296,7 @@ export interface OutputTargetBaseNext extends OutputTargetBase {
 /**
  * The collection of valid export behaviors.
  * Used to generate a type for typed configs as well as output target validation
- * for the `dist-custom-elements` output target.
+ * for the `standalone` output target.
  *
  * Adding a value to this const array will automatically add it as a valid option on the
  * output target configuration for `customElementsExportBehavior`.
@@ -2207,8 +2305,7 @@ export interface OutputTargetBaseNext extends OutputTargetBase {
  * - `auto-define-custom-elements`: Enables the auto-definition of a component and its children (recursively) in the custom elements registry. This
  * functionality allows consumers to bypass the explicit call to define a component, its children, its children's
  * children, etc. Users of this flag should be aware that enabling this functionality may increase bundle size.
- * - `bundle`: A `defineCustomElements` function will be exported from the distribution directory. This behavior was added to allow easy migration
- * from `dist-custom-elements-bundle` to `dist-custom-elements`.
+ * - `bundle`: A `defineCustomElements` function will be exported from the distribution directory.
  * - `single-export-module`: All components will be re-exported from the specified directory's root `index.js` file.
  */
 export const CustomElementsExportBehaviorOptions = [
@@ -2224,29 +2321,50 @@ export const CustomElementsExportBehaviorOptions = [
  */
 export type CustomElementsExportBehavior = (typeof CustomElementsExportBehaviorOptions)[number];
 
-export interface OutputTargetDistCustomElements extends OutputTargetValidationConfig {
-  type: 'dist-custom-elements';
+/**
+ * Output target for generating standalone component modules.
+ * Each component is output as an individual ES module that can be directly imported.
+ *
+ * This output target is ideal for npm consumption and tree-shaking, as consumers
+ * can import only the components they need.
+ *
+ * Formerly known as 'dist-custom-elements' in v4.
+ *
+ * @example
+ * ```typescript
+ * {
+ *   type: 'standalone',
+ *   dir: 'dist/standalone',
+ *   externalRuntime: true,
+ *   autoLoader: true
+ * }
+ * ```
+ */
+export interface OutputTargetStandalone extends OutputTargetBaseNext {
+  type: 'standalone';
   empty?: boolean;
+
   /**
    * Triggers the following behaviors when enabled:
    * 1. All `@stencil/core/*` module references are treated as external during bundling.
    * 2. File names are not hashed.
    * 3. File minification will follow the behavior defined at the root of the Stencil config.
+   *
+   * @default true
    */
   externalRuntime?: boolean;
+
   copy?: CopyTask[];
   includeGlobalScripts?: boolean;
   minify?: boolean;
-  /**
-   * Enables the generation of type definition files for the output target.
-   */
-  generateTypeDeclarations?: boolean;
+
   /**
    * Define the export/definition behavior for the output target's generated output.
    * This controls if/how custom elements will be defined or where components will be exported from.
    * If omitted, no auto-definition behavior or re-exporting will happen.
    */
   customElementsExportBehavior?: CustomElementsExportBehavior;
+
   /**
    * Generate an auto-loader script that uses MutationObserver to lazily load
    * and define custom elements as they appear in the DOM.
@@ -2299,9 +2417,9 @@ export interface OutputTargetBase {
    * This improves dev build times by not generating production-only artifacts.
    *
    * Defaults vary by output target type:
-   * - `dist`: `false` (always builds)
-   * - `dist-custom-elements`: `true` (skips in dev)
-   * - `dist-hydrate-script`: `true` (skips in dev, unless `devServer.ssr` is enabled)
+   * - `loader-bundle`: `false` (always builds)
+   * - `standalone`: `true` (skips in dev)
+   * - `ssr`: `true` (skips in dev, unless `devServer.ssr` is enabled)
    * - `docs-*`: `true` (skips in dev)
    * - `custom`: `true` (skips in dev)
    * - `www`, `copy`, `stats`: `false` (always runs)
@@ -2309,28 +2427,13 @@ export interface OutputTargetBase {
   skipInDev?: boolean;
 }
 
-/**
- * Output targets that can have validation for common `package.json` field values
- * (module, types, etc.). This allows them to be marked for validation in a project's Stencil config.
- */
-interface OutputTargetValidationConfig extends OutputTargetBaseNext {
-  isPrimaryPackageOutputTarget?: boolean;
-}
-
-export type EligiblePrimaryPackageOutputTarget =
-  | OutputTargetDist
-  | OutputTargetDistCustomElements
-  | OutputTargetDistCollection
-  | OutputTargetDistTypes;
-
-export type OutputTargetBuild = OutputTargetDistCollection | OutputTargetDistLazy;
+export type OutputTargetBuild = OutputTargetStencilRebundle | OutputTargetDistLazy;
 
 export interface OutputTargetCopy extends OutputTargetBase {
   type: 'copy';
 
   dir: string;
   copy?: CopyTask[];
-  copyAssets?: 'collection' | 'dist';
 }
 
 export interface OutputTargetWww extends OutputTargetBase {
@@ -2338,6 +2441,21 @@ export interface OutputTargetWww extends OutputTargetBase {
    * Webapp output target.
    */
   type: 'www';
+
+  /**
+   * Choose how components are bundled for the www output.
+   *
+   * - `'loader'` (default): Uses the loader-bundle architecture with chunk
+   *   splitting and a loader infrastructure. Best for production apps with many
+   *   components where you want optimal loading performance.
+   *
+   * - `'standalone'`: Uses standalone component modules with an auto-loader that
+   *   uses MutationObserver to dynamically import components as they appear in
+   *   the DOM. Simpler architecture, easier debugging, one module per component.
+   *
+   * Default: `'loader'`
+   */
+  bundleMode?: 'loader' | 'standalone';
 
   /**
    * The directory to write the app's JavaScript and CSS build
@@ -2412,21 +2530,25 @@ export interface OutputTargetWww extends OutputTargetBase {
 export type OutputTarget =
   | OutputTargetCopy
   | OutputTargetCustom
-  | OutputTargetDist
-  | OutputTargetDistCollection
-  | OutputTargetDistCustomElements
+  // v5 output targets
+  | OutputTargetLoaderBundle
+  | OutputTargetStandalone
+  | OutputTargetSsr
+  | OutputTargetStencilRebundle
+  | OutputTargetTypes
+  | OutputTargetGlobalStyle
+  | OutputTargetAssets
+  // Internal output targets (auto-generated, not user-configurable)
   | OutputTargetDistLazy
-  | OutputTargetDistGlobalStyles
-  | OutputTargetDistLazyLoader
+  // Docs output targets
   | OutputTargetDocsJson
   | OutputTargetDocsCustom
   | OutputTargetDocsReadme
   | OutputTargetDocsVscode
   | OutputTargetDocsCustomElementsManifest
+  // Other output targets
   | OutputTargetWww
-  | OutputTargetHydrate
-  | OutputTargetStats
-  | OutputTargetDistTypes;
+  | OutputTargetStats;
 
 /**
  * Our custom configuration interface for generated caching Service Workers

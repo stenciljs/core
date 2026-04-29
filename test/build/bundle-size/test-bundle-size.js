@@ -3,10 +3,13 @@
 // Checks a basic component with rendering and
 // reactivity to ensure the bundle size is under 12KB (non-gzipped)
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const distDir = path.join(__dirname, 'dist', 'bundlesize');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize');
 const maxBundleSize = 12 * 1024; // 12KB in bytes
 
 console.log('\nChecking bundle size...');

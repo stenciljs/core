@@ -1,4 +1,4 @@
-import { SiblingWithMixin } from '@stencil-core-tests/runtime-external/dist/collection/sibling-with-mixin/sibling-with-mixin';
+import { SiblingWithMixin } from '@stencil-core-tests/runtime-external/dist/stencil-rebundle/sibling-with-mixin/sibling-with-mixin';
 import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
 
 /**

@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rolldown';
 
 import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
-import { removeCollectionImports } from '../transformers/remove-collection-imports';
+import { removeRebundleImports } from '../transformers/remove-rebundle-imports';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_APP_DATA_ID,
@@ -49,8 +49,8 @@ export const appDataPlugin = (
             this.error('@stencil/core packages cannot be imported from a worker.');
           }
 
-          if (platform === 'hydrate' || STENCIL_APP_GLOBALS_ID) {
-            // hydrate will always bundle app-data and runtime
+          if (platform === 'ssr' || STENCIL_APP_GLOBALS_ID) {
+            // ssr will always bundle app-data and runtime
             // and the load() fn will build a custom globals import
             return id;
           } else if (platform === 'client' && importer && importer.endsWith(APP_DATA_CONDITIONAL)) {
@@ -133,7 +133,7 @@ export const appDataPlugin = (
           compilerOptions,
           fileName: id,
           transformers: {
-            after: [removeCollectionImports(compilerCtx)],
+            after: [removeRebundleImports(compilerCtx)],
           },
         });
         buildCtx.diagnostics.push(...loadTypeScriptDiagnostics(results.diagnostics));

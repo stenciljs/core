@@ -3,7 +3,7 @@ import type { Plugin } from 'rolldown';
 
 import {
   hasError,
-  isOutputTargetDistCollection,
+  isOutputTargetStencilRebundle,
   isOutputTargetDocs,
   join,
   mergeIntoWith,
@@ -35,7 +35,7 @@ const allCmpStyles = new Map<string, ComponentStyleMap>();
 
 /**
  * A Rolldown plugin which bundles up some transformation of CSS imports as well
- * as writing some files to disk for the `DIST_COLLECTION` output target.
+ * as writing some files to disk for the `STENCIL_META` output target.
  *
  * @param config a user-supplied configuration
  * @param compilerCtx the current compiler context
@@ -187,15 +187,15 @@ export const extTransformsPlugin = (
             cmp && !cmp.isCollectionDependency && compilerCtx.moduleMap.get(cmp.sourceFilePath);
 
           if (moduleFile) {
-            const collectionDirs = config.outputTargets.filter(isOutputTargetDistCollection);
+            const rebundleDirs = config.outputTargets.filter(isOutputTargetStencilRebundle);
             const relPath = relative(config.srcDir, cacheEntry.pluginTransformId);
 
-            // Write the transformed CSS file to any collection output target dirs.
+            // Write the transformed CSS file to any stencil-rebundle output target dirs.
             // This uses cached data so it only does I/O, no re-computation.
             await Promise.all(
-              collectionDirs.map(async (outputTarget) => {
-                const collectionPath = join(outputTarget.collectionDir, relPath);
-                await compilerCtx.fs.writeFile(collectionPath, cacheEntry.pluginTransformCode);
+              rebundleDirs.map(async (outputTarget) => {
+                const rebundlePath = join(outputTarget.dir!, relPath);
+                await compilerCtx.fs.writeFile(rebundlePath, cacheEntry.pluginTransformCode);
               }),
             );
           }
