@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { ASSETS, COPY, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
+import { ASSETS, COPY, LOADER_BUNDLE, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -44,7 +44,7 @@ describe('validate-output-standalone', () => {
           externalRuntime: true,
 
           customElementsExportBehavior: 'default',
-          skipInDev: true,
+          skipInDev: false,
         },
       ]);
     });
@@ -66,7 +66,7 @@ describe('validate-output-standalone', () => {
           empty: true,
           externalRuntime: true,
           customElementsExportBehavior: 'single-export-module',
-          skipInDev: true,
+          skipInDev: false,
         },
       ]);
     });
@@ -89,7 +89,7 @@ describe('validate-output-standalone', () => {
           externalRuntime: true,
 
           customElementsExportBehavior: 'default',
-          skipInDev: true,
+          skipInDev: false,
         },
       ]);
     });
@@ -112,7 +112,7 @@ describe('validate-output-standalone', () => {
           externalRuntime: true,
 
           customElementsExportBehavior: 'default',
-          skipInDev: true,
+          skipInDev: false,
         },
       ]);
     });
@@ -136,7 +136,7 @@ describe('validate-output-standalone', () => {
             externalRuntime: false,
 
             customElementsExportBehavior: 'default',
-            skipInDev: true,
+            skipInDev: false,
           },
         ]);
       });
@@ -160,7 +160,7 @@ describe('validate-output-standalone', () => {
             externalRuntime: false,
 
             customElementsExportBehavior: 'default',
-            skipInDev: true,
+            skipInDev: false,
           },
         ]);
       });
@@ -185,7 +185,7 @@ describe('validate-output-standalone', () => {
             externalRuntime: true,
 
             customElementsExportBehavior: 'default',
-            skipInDev: true,
+            skipInDev: false,
           },
         ]);
       });
@@ -209,7 +209,7 @@ describe('validate-output-standalone', () => {
             externalRuntime: true,
 
             customElementsExportBehavior: 'default',
-            skipInDev: true,
+            skipInDev: false,
           },
         ]);
       });
@@ -251,7 +251,7 @@ describe('validate-output-standalone', () => {
             externalRuntime: false,
 
             customElementsExportBehavior: 'default',
-            skipInDev: true,
+            skipInDev: false,
           },
         ]);
       });
@@ -339,6 +339,55 @@ describe('validate-output-standalone', () => {
         ) as d.OutputTargetStandalone;
 
         expect(distCustomElementsTarget.autoLoader).toBe(false);
+      });
+    });
+
+    describe('"skipInDev" field', () => {
+      it('defaults to false when standalone is the primary output (no loader-bundle)', () => {
+        const outputTarget: d.OutputTargetStandalone = {
+          type: STANDALONE,
+        };
+        userConfig.outputTargets = [outputTarget];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const standaloneTarget = config.outputTargets.find(
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
+
+        expect(standaloneTarget.skipInDev).toBe(false);
+      });
+
+      it('defaults to true when loader-bundle is also configured (standalone is secondary)', () => {
+        userConfig.outputTargets = [{ type: STANDALONE }, { type: LOADER_BUNDLE }];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const standaloneTarget = config.outputTargets.find(
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
+
+        expect(standaloneTarget.skipInDev).toBe(true);
+      });
+
+      it('respects explicit skipInDev: false even with loader-bundle', () => {
+        userConfig.outputTargets = [{ type: STANDALONE, skipInDev: false }, { type: LOADER_BUNDLE }];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const standaloneTarget = config.outputTargets.find(
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
+
+        expect(standaloneTarget.skipInDev).toBe(false);
+      });
+
+      it('respects explicit skipInDev: true even without loader-bundle', () => {
+        userConfig.outputTargets = [{ type: STANDALONE, skipInDev: true }];
+
+        const { config } = validateConfig(userConfig, mockLoadConfigInit());
+        const standaloneTarget = config.outputTargets.find(
+          (o) => o.type === STANDALONE,
+        ) as d.OutputTargetStandalone;
+
+        expect(standaloneTarget.skipInDev).toBe(true);
       });
     });
   });

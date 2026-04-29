@@ -10,6 +10,8 @@ import {
   isOutputTargetStandalone,
   isOutputTargetWww,
   join,
+  LOADER_BUNDLE,
+  STANDALONE,
 } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
@@ -404,6 +406,38 @@ describe('validateOutputTargetWww', () => {
 
       expect(www.bundleMode).toBe('lazy');
       expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(true);
+    });
+
+    it('should auto-detect standalone bundleMode when standalone is configured without loader-bundle', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('standalone');
+    });
+
+    it('should default to lazy bundleMode when loader-bundle is configured', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: LOADER_BUNDLE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('lazy');
+    });
+
+    it('should default to lazy bundleMode when both loader-bundle and standalone are configured', () => {
+      userConfig.outputTargets = [{ type: 'www' }, { type: LOADER_BUNDLE }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('lazy');
+    });
+
+    it('should respect explicit bundleMode even when it contradicts auto-detection', () => {
+      userConfig.outputTargets = [{ type: 'www', bundleMode: 'lazy' }, { type: STANDALONE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+
+      expect(www.bundleMode).toBe('lazy');
     });
   });
 

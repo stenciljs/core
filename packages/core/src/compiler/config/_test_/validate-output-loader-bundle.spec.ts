@@ -24,7 +24,7 @@ describe('validateLoaderBundleOutputTarget', () => {
     userConfig = mockConfig({ fsNamespace: 'testing' });
   });
 
-  it('should set loader-bundle values', () => {
+  it('should set loader-bundle values (dev mode - browser bundle only)', () => {
     const outputTarget: d.OutputTargetLoaderBundle = {
       type: LOADER_BUNDLE,
       dir: 'my-dist',
@@ -34,6 +34,7 @@ describe('validateLoaderBundleOutputTarget', () => {
     };
     userConfig.outputTargets = [outputTarget];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
+    // In dev mode, only browser bundle is generated (no distribution bundles)
     expect(config.outputTargets).toEqual([
       {
         type: ASSETS,
@@ -49,9 +50,8 @@ describe('validateLoaderBundleOutputTarget', () => {
         empty: false,
         loaderPath: 'loader',
         type: LOADER_BUNDLE,
-        skipInDev: false,
+        skipInDev: true,
       },
-
       {
         type: DIST_LAZY,
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
@@ -63,17 +63,31 @@ describe('validateLoaderBundleOutputTarget', () => {
         dir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         copy: [],
       },
-      {
-        type: DIST_LAZY,
-        esmDir: join(rootDir, 'my-dist', 'esm'),
-        cjsDir: join(rootDir, 'my-dist', 'cjs'),
-        cjsIndexFile: join(rootDir, 'my-dist', 'index.cjs'),
-        esmIndexFile: join(rootDir, 'my-dist', 'index.js'),
-        loaderDir: join(rootDir, 'my-dist', 'loader'),
-        typesDir: join(rootDir, 'dist', 'types'),
-        empty: false,
-      },
     ]);
+  });
+
+  it('should generate distribution bundles in production mode', () => {
+    const prodConfig = mockConfig({ devMode: false, fsNamespace: 'testing' });
+    const outputTarget: d.OutputTargetLoaderBundle = {
+      type: LOADER_BUNDLE,
+      dir: 'my-dist',
+      buildDir: 'my-build',
+      empty: false,
+      cjs: true,
+    };
+    prodConfig.outputTargets = [outputTarget];
+    const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+
+    // In production mode, distribution bundles ARE generated
+    const distLazyOutputs = config.outputTargets.filter((o) => o.type === DIST_LAZY);
+    expect(distLazyOutputs).toHaveLength(2); // browser bundle + distribution bundle
+
+    const distributionBundle = distLazyOutputs.find(
+      (o) => (o as d.OutputTargetDistLazy).esmIndexFile,
+    ) as d.OutputTargetDistLazy;
+    expect(distributionBundle).toBeDefined();
+    expect(distributionBundle.esmDir).toBe(join(rootDir, 'my-dist', 'esm'));
+    expect(distributionBundle.cjsDir).toBe(join(rootDir, 'my-dist', 'cjs'));
   });
 
   it('should set defaults when outputTargets loader-bundle is empty', () => {
@@ -107,7 +121,7 @@ describe('validateLoaderBundleOutputTarget', () => {
     expect(validated.cjs).toBe(false);
   });
 
-  it('defaults skipInDev to false', () => {
+  it('defaults skipInDev to true (distribution bundles skip in dev, browser bundle always builds)', () => {
     const outputTarget: d.OutputTargetLoaderBundle = {
       type: LOADER_BUNDLE,
     };
@@ -116,7 +130,7 @@ describe('validateLoaderBundleOutputTarget', () => {
     const validated = config.outputTargets.find(
       (o) => o.type === LOADER_BUNDLE,
     ) as d.OutputTargetLoaderBundle;
-    expect(validated.skipInDev).toBe(false);
+    expect(validated.skipInDev).toBe(true);
   });
 
   it('defaults browserBundlePath to empty string', () => {

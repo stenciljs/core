@@ -118,7 +118,7 @@ const validateOutputTargetLoaderBundle = (
       ? o.browserBundlePath
       : DEFAULT_BROWSER_BUNDLE_PATH,
     // loader-bundle skips distribution artifacts in dev mode by default, but always builds browser/CDN output
-    skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : false,
+    skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
   } satisfies Required<d.OutputTargetLoaderBundle>;
 
   if (!isAbsolute(outputTarget.buildDir)) {

@@ -8,6 +8,8 @@ import {
   DIST_LAZY,
   GLOBAL_STYLE,
   isBoolean,
+  isOutputTargetLoaderBundle,
+  isOutputTargetStandalone,
   isOutputTargetWww,
   isString,
   join,
@@ -38,6 +40,19 @@ export const validateWww = (
 
   if (!hasOutputTargets) {
     userWwwOutputs.push({ type: WWW });
+  }
+
+  // Auto-detect bundleMode based on configured primary output:
+  // If standalone is configured but NOT loader-bundle, default to 'standalone'
+  const hasLoaderBundle = userOutputs.some(isOutputTargetLoaderBundle);
+  const hasStandalone = userOutputs.some(isOutputTargetStandalone);
+  const defaultBundleMode = !hasLoaderBundle && hasStandalone ? 'standalone' : 'lazy';
+
+  // Apply default bundleMode to www outputs that don't have it explicitly set
+  for (const wwwOutput of userWwwOutputs) {
+    if (wwwOutput.bundleMode == null) {
+      wwwOutput.bundleMode = defaultBundleMode;
+    }
   }
 
   if (config.prerender && userWwwOutputs.length === 0) {

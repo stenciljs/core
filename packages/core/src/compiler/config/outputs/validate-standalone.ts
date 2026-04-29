@@ -6,7 +6,7 @@ import type {
 } from '@stencil/core';
 
 import { CustomElementsExportBehaviorOptions } from '../../../declarations/stencil-public-compiler';
-import { COPY, isBoolean, isOutputTargetStandalone } from '../../../utils';
+import { COPY, isBoolean, isOutputTargetLoaderBundle, isOutputTargetStandalone } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 
@@ -30,13 +30,16 @@ export const validateStandalone = (
 ): ReadonlyArray<OutputTargetStandalone | OutputTargetCopy> => {
   const defaultDir = 'dist/standalone';
 
+  // If loader-bundle is configured, standalone is secondary and skips in dev by default.
+  // If no loader-bundle, standalone is the primary output and should build in dev.
+  const hasLoaderBundle = userOutputs.some(isOutputTargetLoaderBundle);
+
   return userOutputs.filter(isOutputTargetStandalone).reduce(
     (outputs, o) => {
       const outputTarget = {
         ...o,
         dir: getAbsolutePath(config, o.dir || defaultDir),
-        // standalone skips in dev by default
-        skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
+        skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : hasLoaderBundle,
       };
 
       if (!isBoolean(outputTarget.empty)) {
