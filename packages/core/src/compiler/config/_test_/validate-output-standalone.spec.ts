@@ -3,7 +3,15 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { ASSETS, COPY, LOADER_BUNDLE, STENCIL_REBUNDLE, STANDALONE, TYPES, join } from '../../../utils';
+import {
+  ASSETS,
+  COPY,
+  LOADER_BUNDLE,
+  STENCIL_REBUNDLE,
+  STANDALONE,
+  TYPES,
+  join,
+} from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -369,7 +377,10 @@ describe('validate-output-standalone', () => {
       });
 
       it('respects explicit skipInDev: false even with loader-bundle', () => {
-        userConfig.outputTargets = [{ type: STANDALONE, skipInDev: false }, { type: LOADER_BUNDLE }];
+        userConfig.outputTargets = [
+          { type: STANDALONE, skipInDev: false },
+          { type: LOADER_BUNDLE },
+        ];
 
         const { config } = validateConfig(userConfig, mockLoadConfigInit());
         const standaloneTarget = config.outputTargets.find(

@@ -6,7 +6,12 @@ import type {
 } from '@stencil/core';
 
 import { CustomElementsExportBehaviorOptions } from '../../../declarations/stencil-public-compiler';
-import { COPY, isBoolean, isOutputTargetLoaderBundle, isOutputTargetStandalone } from '../../../utils';
+import {
+  COPY,
+  isBoolean,
+  isOutputTargetLoaderBundle,
+  isOutputTargetStandalone,
+} from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import { validateCopy } from '../validate-copy';
 

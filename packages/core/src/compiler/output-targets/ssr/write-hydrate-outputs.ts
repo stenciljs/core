@@ -3,8 +3,8 @@ import type { RolldownOutput } from 'rolldown';
 
 import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
-import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
 import { relocateHydrateContextConst } from './relocate-hydrate-context';
+import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
 
 export const writeHydrateOutputs = (
   config: d.ValidatedConfig,
