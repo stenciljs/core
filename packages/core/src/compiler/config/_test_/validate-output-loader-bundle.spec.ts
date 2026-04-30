@@ -43,7 +43,6 @@ describe('validateLoaderBundleOutputTarget', () => {
       },
       {
         buildDir: join(rootDir, 'my-dist', 'my-build'),
-        browserBundlePath: '',
         cjs: true,
         copy: [],
         dir: join(rootDir, 'my-dist'),
@@ -131,33 +130,6 @@ describe('validateLoaderBundleOutputTarget', () => {
       (o) => o.type === LOADER_BUNDLE,
     ) as d.OutputTargetLoaderBundle;
     expect(validated.skipInDev).toBe(true);
-  });
-
-  it('defaults browserBundlePath to empty string', () => {
-    const outputTarget: d.OutputTargetLoaderBundle = {
-      type: LOADER_BUNDLE,
-    };
-    userConfig.outputTargets = [outputTarget];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    const validated = config.outputTargets.find(
-      (o) => o.type === LOADER_BUNDLE,
-    ) as Required<d.OutputTargetLoaderBundle>;
-    expect(validated.browserBundlePath).toBe('');
-  });
-
-  it('uses browserBundlePath to customize browser bundle location', () => {
-    const outputTarget: d.OutputTargetLoaderBundle = {
-      type: LOADER_BUNDLE,
-      browserBundlePath: '../',
-    };
-    userConfig.outputTargets = [outputTarget];
-    const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    const lazyBrowserOutput = config.outputTargets.find(
-      (o) => o.type === DIST_LAZY && (o as d.OutputTargetDistLazy).isBrowserBuild,
-    ) as d.OutputTargetDistLazy;
-    expect(lazyBrowserOutput).toBeDefined();
-    // With browserBundlePath: '../', the browser bundle goes to dist/testing instead of dist/loader-bundle/testing
-    expect(lazyBrowserOutput.esmDir).toBe(join(rootDir, 'dist', 'testing'));
   });
 
   describe('production mode auto-generation', () => {

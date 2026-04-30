@@ -5,13 +5,17 @@
   "description": "Tests explicit assets and global-style output target configurations",
   "type": "module",
   "module": "dist/loader-bundle/index.js",
-  "types": "dist/types/components.d.ts",
+  "types": "dist/types/loader.d.ts",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil build && node test-outputs.js"
+    "test": "stencil build && node test-outputs.js && playwright test"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@stencil/playwright": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"

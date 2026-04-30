@@ -4,6 +4,7 @@ import { buildDistDocsRule } from './rules/build-dist-docs';
 import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
+import { globalStyleInjectRule } from './rules/global-style-inject';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
 
 /**
@@ -114,6 +115,7 @@ const migrationRules: MigrationRule[] = [
   buildDistDocsRule,
   outputTargetRenamesRule,
   devModeRule,
+  globalStyleInjectRule,
 ];
 
 /**

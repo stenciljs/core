@@ -451,6 +451,137 @@ describe('validateGlobalStyleOutputTarget', () => {
     });
   });
 
+  describe('inject option', () => {
+    it('defaults inject to none for explicit global-style with input', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        input: './src/theme.css',
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('none');
+    });
+
+    it('defaults inject to client for auto-generated global-style from globalStyle config', () => {
+      config.globalStyle = './src/global.css';
+      config.outputTargets = [];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('client');
+    });
+
+    it('defaults inject to client for explicit global-style using globalStyle config fallback', () => {
+      config.globalStyle = './src/global.css';
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        // No explicit input - will use globalStyle config
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('client');
+    });
+
+    it('defaults inject to none for explicit global-style with no input and no globalStyle config', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('none');
+    });
+
+    it('preserves inject: client when explicitly set', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        inject: 'client',
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('client');
+    });
+
+    it('preserves inject: all when explicitly set', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        inject: 'all',
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('all');
+    });
+
+    it('preserves inject: none when explicitly set', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        inject: 'none',
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('none');
+    });
+
+    it('defaults to none for invalid inject values', () => {
+      const target: d.OutputTargetGlobalStyle = {
+        type: GLOBAL_STYLE,
+        inject: 'invalid' as 'none',
+      };
+      config.outputTargets = [target];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyle = validatedConfig.outputTargets.find(isOutputTargetGlobalStyle);
+      expect(globalStyle?.inject).toBe('none');
+    });
+
+    it('supports different inject values for multiple global-style outputs', () => {
+      config.outputTargets = [
+        {
+          type: GLOBAL_STYLE,
+          input: './src/theme.css',
+          inject: 'client',
+        },
+        {
+          type: GLOBAL_STYLE,
+          input: './src/utilities.css',
+          inject: 'all',
+        },
+        {
+          type: GLOBAL_STYLE,
+          input: './src/reset.css',
+          inject: 'none',
+        },
+      ];
+
+      const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
+
+      const globalStyles = validatedConfig.outputTargets.filter(isOutputTargetGlobalStyle);
+      expect(globalStyles).toHaveLength(3);
+      expect(globalStyles[0].inject).toBe('client');
+      expect(globalStyles[1].inject).toBe('all');
+      expect(globalStyles[2].inject).toBe('none');
+    });
+  });
+
   describe('diagnostics and warnings', () => {
     it('emits warning when both globalStyle config and explicit input are used', () => {
       config.globalStyle = './src/global.css';

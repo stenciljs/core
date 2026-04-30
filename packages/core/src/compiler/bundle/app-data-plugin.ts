@@ -4,7 +4,14 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 import type { LoadResult, Plugin, ResolveIdResult, TransformResult } from 'rolldown';
 
-import { createJsVarName, isString, loadTypeScriptDiagnostics, normalizePath } from '../../utils';
+import {
+  createJsVarName,
+  isOutputTargetGlobalStyle,
+  isString,
+  loadTypeScriptDiagnostics,
+  normalizePath,
+} from '../../utils';
+import { buildGlobalStyleFromInput } from '../style/global-styles';
 import { removeRebundleImports } from '../transformers/remove-rebundle-imports';
 import {
   APP_DATA_CONDITIONAL,
@@ -71,7 +78,7 @@ export const appDataPlugin = (
       if (id === STENCIL_APP_GLOBALS_ID) {
         const s = new MagicString(``);
         appendGlobalScripts(globalScripts, s);
-        await appendGlobalStyles(buildCtx, s, platform);
+        await appendGlobalStyles(config, compilerCtx, buildCtx, s, platform);
         return s.toString();
       }
       if (id === STENCIL_APP_DATA_ID) {
@@ -228,21 +235,40 @@ const appendGlobalScripts = (globalScripts: GlobalScript[], s: MagicString) => {
 /**
  * Appends the global styles to the MagicString.
  *
+ * Collects CSS from all global-style output targets where `inject` matches the platform:
+ * - `inject: 'all'` - included in both client and SSR builds
+ * - `inject: 'client'` - included only in client builds
+ * - `inject: 'none'` - not included (stylesheet must be loaded externally)
+ *
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context
  * @param buildCtx the build context
  * @param s the MagicString to append the global styles onto
  * @param platform the platform that is being built
  */
 const appendGlobalStyles = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   s: MagicString,
   platform: BundlePlatform,
 ) => {
-  const { addGlobalStyleToComponents } = buildCtx.config.extras;
-  const shouldIncludeGlobalStyles =
-    addGlobalStyleToComponents === true ||
-    (addGlobalStyleToComponents === 'client' && platform === 'client');
-  const globalStyles =
-    buildCtx.config.globalStyle && shouldIncludeGlobalStyles ? await buildCtx.stylesPromise : '';
+  const globalStyleTargets = config.outputTargets.filter(isOutputTargetGlobalStyle);
+
+  // Collect CSS from targets that should be injected for this platform
+  const cssPromises = globalStyleTargets
+    .filter((target) => {
+      if (!target.input) return false;
+      if (target.inject === 'none') return false;
+      if (target.inject === 'all') return true;
+      // 'client' only injects for client platform
+      return target.inject === 'client' && platform === 'client';
+    })
+    .map((target) => buildGlobalStyleFromInput(config, compilerCtx, buildCtx, target.input!));
+
+  const cssResults = await Promise.all(cssPromises);
+  const globalStyles = cssResults.filter(Boolean).join('\n');
+
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 

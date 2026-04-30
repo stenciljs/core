@@ -45,6 +45,19 @@ export const validateGlobalStyle = (
       fileName = `${config.fsNamespace}.css`;
     }
 
+    // Validate inject option - must be 'none', 'client', or 'all'
+    // Default depends on how the output target was configured:
+    // - Auto-generated from globalStyle config (no explicit input) → 'client' (preserves v4 behavior)
+    // - Explicitly configured with input → 'none' (new v5 default for explicit configs)
+    const validInjectValues = ['none', 'client', 'all'] as const;
+    const isUsingGlobalStyleConfig = !isString(outputTarget.input) && !!config.globalStyle;
+    const defaultInject = isUsingGlobalStyleConfig ? 'client' : 'none';
+    const inject = validInjectValues.includes(
+      outputTarget.inject as (typeof validInjectValues)[number],
+    )
+      ? (outputTarget.inject as 'none' | 'client' | 'all')
+      : defaultInject;
+
     return {
       ...outputTarget,
       input,
@@ -54,6 +67,7 @@ export const validateGlobalStyle = (
         ? outputTarget.copyToLoaderBrowser
         : true,
       skipInDev: isBoolean(outputTarget.skipInDev) ? outputTarget.skipInDev : false,
+      inject,
     };
   });
 };
