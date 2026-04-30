@@ -353,21 +353,6 @@ interface ConfigExtrasBase {
    * Defaults to `false`.
    */
   experimentalScopedSlotChanges?: boolean;
-
-  /**
-   * By default Stencil turns the stylesheet provided to `globalStyle` into a constructable stylesheet
-   * and adds it to each component when rendered on the client which can be useful for sharing styles
-   * efficiently across components.
-   *
-   * If you want Stencil to also add the `globalStyle` to each component when rendering on the server
-   * then set this to `true`. If your `globalStyle` sheet is large then doing this may bloat the size
-   * of your SSR output when using declarative-shadow-dom.
-   *
-   * Setting this to `false` will prevent Stencil from adding any `globalStyle` to each component.
-   *
-   * Defaults to `'client'`.
-   */
-  addGlobalStyleToComponents?: boolean | 'client';
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
@@ -2112,6 +2097,18 @@ export interface OutputTargetGlobalStyle extends OutputTargetBaseNext {
    * @default true
    */
   copyToLoaderBrowser?: boolean;
+
+  /**
+   * Controls whether this global stylesheet is injected into component shadow DOMs
+   * as a constructable stylesheet at runtime.
+   *
+   * - `'none'` (default): Don't inject - stylesheet must be loaded externally (e.g., via `<link>`)
+   * - `'client'`: Inject only in client builds, not SSR (reduces SSR output size)
+   * - `'all'`: Inject in both client and SSR builds
+   *
+   * @default 'none'
+   */
+  inject?: 'none' | 'client' | 'all';
 }
 
 /**

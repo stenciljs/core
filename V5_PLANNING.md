@@ -107,6 +107,12 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - New `assets` output target (first-class, auto-generated when components have `assetsDirs`)
   - Unified location: `dist/assets/` for both global styles and component assets
   - `copyAssets` option removed from `loader-bundle` and `www` output targets
+  - `extras.addGlobalStyleToComponents` removed - use `inject` option on `global-style` output target instead:
+    - `inject: 'none'` - don't inject, load stylesheet externally
+    - `inject: 'client'` - inject into components on client only
+    - `inject: 'all'` - inject into components on both client and SSR
+  - Auto-generated `global-style` (from `globalStyle` config) defaults to `inject: 'client'` (preserves v4 behavior)
+  - Explicitly configured `global-style` outputs default to `inject: 'none'`
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
 - **New `browserBundlePath` config option** in `loader-bundle` output target.
 
@@ -116,7 +122,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 
 - **`global-style` output target now supports explicit `input`** - specify CSS source file directly on output target instead of using `globalStyle` config
 - **`global-style` output target now supports `fileName`** - customize output filename
-- **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files
+- **`global-style` output target now supports `inject`** - control whether styles are injected into component shadow DOMs (`'none'`, `'client'`, `'all'`)
+- **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files, each with independent `inject` settings
 - **`www` can now use standalone loader**
 
 ---

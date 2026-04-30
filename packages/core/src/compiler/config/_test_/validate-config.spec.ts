@@ -352,8 +352,6 @@ describe('validation', () => {
     expect(config.extras.initializeNextTick).toBe(false);
     expect(config.extras.additionalTagTransformers).toBe(false);
     expect(config.extras.scopedSlotTextContentFix).toBe(false);
-    expect(config.extras.addGlobalStyleToComponents).toBe('client');
-    expect(config.extras.additionalTagTransformers).toBe(false);
   });
 
   describe('extras.additionalTagTransformers', () => {
