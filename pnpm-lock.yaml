@@ -10,8 +10,8 @@ catalogs:
       specifier: ^1.52.0
       version: 1.58.2
     '@stencil/playwright':
-      specifier: ~0.4.2
-      version: 0.4.2
+      specifier: ~0.4.3
+      version: 0.4.3
     '@stencil/vitest':
       specifier: ^1.11.6
       version: 1.11.6
@@ -333,7 +333,7 @@ importers:
         version: link:../../../packages/mock-doc
       '@stencil/playwright':
         specifier: 'catalog:'
-        version: 0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
       '@stencil/react-output-target':
         specifier: ^0.0.9
         version: 0.0.9(@stencil/core@packages+core)
@@ -391,7 +391,7 @@ importers:
         version: 1.58.2
       '@stencil/playwright':
         specifier: 'catalog:'
-        version: 0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
       '@stencil/vitest':
         specifier: 'catalog:'
         version: 1.11.6(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
@@ -475,7 +475,7 @@ importers:
         version: 1.58.2
       '@stencil/playwright':
         specifier: 'catalog:'
-        version: 0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
 
   test/special-config/external-runtime:
     dependencies:
@@ -506,7 +506,7 @@ importers:
         version: link:../../../packages/core
       '@stencil/playwright':
         specifier: 'catalog:'
-        version: 0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
 
   test/special-config/slot-patching:
     dependencies:
@@ -537,7 +537,7 @@ importers:
         version: link:../../packages/core
       '@stencil/playwright':
         specifier: 'catalog:'
-        version: 0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)
+        version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
@@ -2439,8 +2439,8 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.10.0'}
     hasBin: true
 
-  '@stencil/playwright@0.4.2':
-    resolution: {integrity: sha512-a8+fdEPdIOnk+P7CsZEWzPwcd64pihDEhUO04nymetxhpTNNHEzfojYT6vCO27SlKKJkx/Nebai13qrrztEDCA==}
+  '@stencil/playwright@0.4.3':
+    resolution: {integrity: sha512-p5VWjPUTStntdLYjnQdoMhh/FpdTbl9oV8wVAFkY9fjstCS7zB/CADYfillDKNtfsb7VGNbD1SkJaQ7ez2yQhA==}
     engines: {node: '>=12.0.0', npm: '>=6.0.0'}
     peerDependencies:
       '@playwright/test': '>=1.50.0'
@@ -6935,7 +6935,7 @@ snapshots:
       '@rollup/rollup-win32-arm64-msvc': 4.44.0
       '@rollup/rollup-win32-x64-msvc': 4.44.0
 
-  '@stencil/playwright@0.4.2(@playwright/test@1.58.2)(@stencil/core@packages+core)':
+  '@stencil/playwright@0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)':
     dependencies:
       '@playwright/test': 1.58.2
       '@stencil/core': link:packages/core

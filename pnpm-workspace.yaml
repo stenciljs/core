@@ -9,7 +9,7 @@ catalog:
   '@playwright/test': ^1.52.0
   '@stencil/vitest': '^1.11.6'
   'vitest-environment-stencil': '^1.11.6'
-  '@stencil/playwright': '~0.4.2'
+  '@stencil/playwright': '~0.4.3'
   playwright: ^1.58.0
   tsdown: '^0.21.7'
   typescript: '~6.0.2'
