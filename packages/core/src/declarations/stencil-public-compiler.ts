@@ -1956,19 +1956,6 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default 'loader' (relative to output directory)
    */
   loaderPath?: string;
-
-  /**
-   * Custom path for the browser/CDN bundle directory, relative to buildDir.
-   *
-   * The browser bundle is written to: `buildDir/browserBundlePath/namespace/`
-   *
-   * Use '../' to restore v4 behavior where the browser bundle was written
-   * directly under the output directory (e.g., `dist/namespace/` instead of
-   * `dist/loader-bundle/namespace/`).
-   *
-   * @default '' (browser bundle goes to buildDir/namespace/)
-   */
-  browserBundlePath?: string;
 }
 
 /**

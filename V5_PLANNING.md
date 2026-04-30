@@ -114,7 +114,6 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - Auto-generated `global-style` (from `globalStyle` config) defaults to `inject: 'client'` (preserves v4 behavior)
   - Explicitly configured `global-style` outputs default to `inject: 'none'`
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
-- **New `browserBundlePath` config option** in `loader-bundle` output target.
 
 ---
 

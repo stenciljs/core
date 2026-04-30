@@ -383,6 +383,7 @@ export declare const Listen: ListenDecorator;
  * and object properties to their string literal values. This allows variables to be
  * used in `@Listen` and `@Event` decorators instead of hardcoded strings.
  *
+ *
  * @example
  * ```ts
  * const MY_EVENT = 'myEvent';
