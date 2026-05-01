@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { catchError, isFunction, isRootPath, join, normalizePath } from '../../utils';
 import { crawlAnchorsForNextUrls } from './crawl-urls';
 import { getPrerenderConfig } from './prerender-config';
-import { getHydrateOptions } from './prerender-hydrate-options';
+import { getSsrOptions } from './prerender-hydrate-options';
 import {
   addModulePreloads,
   excludeStaticComponents,
@@ -70,20 +70,20 @@ export const prerenderWorker = async (
     }
     const prerenderConfig = prerenderCtx.prerenderConfig;
 
-    const hydrateOpts = getHydrateOptions(prerenderConfig, url, results.diagnostics);
+    const hydrateOpts = getSsrOptions(prerenderConfig, url, results.diagnostics);
 
     if (prerenderRequest.staticSite || hydrateOpts.staticDocument) {
       hydrateOpts.addModulePreloads = false;
-      hydrateOpts.clientHydrateAnnotations = false;
+      hydrateOpts.clientSsrAnnotations = false;
     }
 
     if (typeof hydrateOpts.buildId !== 'string') {
       hydrateOpts.buildId = prerenderRequest.buildId;
     }
 
-    if (typeof prerenderConfig.beforeHydrate === 'function') {
+    if (typeof prerenderConfig.beforeSsr === 'function') {
       try {
-        await prerenderConfig.beforeHydrate(doc, url);
+        await prerenderConfig.beforeSsr(doc, url);
       } catch (e: any) {
         catchError(results.diagnostics, e);
       }
@@ -91,7 +91,7 @@ export const prerenderWorker = async (
 
     // parse the html to dom nodes, hydrate the components, then
     // serialize the hydrated dom nodes back to into html
-    const hydrateResults: d.HydrateResults = await hydrateApp.hydrateDocument(doc, hydrateOpts);
+    const hydrateResults: d.SsrResults = await hydrateApp.ssrDocument(doc, hydrateOpts);
     results.diagnostics.push(...hydrateResults.diagnostics);
 
     if (typeof prerenderConfig.filePath === 'function') {
@@ -164,9 +164,10 @@ export const prerenderWorker = async (
       );
     }
 
-    if (typeof prerenderConfig.afterHydrate === 'function') {
+    if (typeof prerenderConfig.afterSsr === 'function') {
       try {
-        await prerenderConfig.afterHydrate(doc, url, results);
+        const fn = prerenderConfig.afterSsr;
+        await fn(doc, url, results);
       } catch (e: any) {
         catchError(results.diagnostics, e);
       }

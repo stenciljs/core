@@ -36,7 +36,7 @@ export class CompilerContext implements d.CompilerCtx {
   nodeMap = new WeakMap();
   resolvedCollections = new Set<string>();
   rolldownCache = new Map();
-  rolldownCacheHydrate: any = null;
+  rolldownCacheSsr: any = null;
   rolldownCacheLazy: any = null;
   rolldownCacheNative: any = null;
   cssTransformCache = new Map<string, d.CssTransformCacheEntry | null>();
@@ -67,7 +67,7 @@ export class CompilerContext implements d.CompilerCtx {
     this.collections.length = 0;
     this.compilerOptions = null;
     this.hasSuccessfulBuild = false;
-    this.rolldownCacheHydrate = null;
+    this.rolldownCacheSsr = null;
     this.rolldownCacheLazy = null;
     this.rolldownCacheNative = null;
     this.moduleMap.clear();

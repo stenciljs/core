@@ -7,9 +7,24 @@ import { transformHostData } from '../host-data-transform';
 import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { retrieveModifierLike } from '../transform-utils';
-import { addHydrateRuntimeCmpMeta } from './hydrate-runtime-cmp-meta';
+import { addHydrateRuntimeCmpMeta } from './ssr-runtime-cmp-meta';
 
-export const updateHydrateComponentClass = (
+/**
+ * Transform a component class into a version that is suitable for use in the SSR runtime. This includes:
+ * - Removing static properties that are only used for the client-side runtime
+ * - Adding a static `cmpMeta` property with SSR-specific component metadata
+ * - Updating the constructor to be lazy (only initialize when needed in the app factory)
+ * - Adding a static getter for the lazy element (which is used in the app factory to determine which components are needed)
+ * - Adding reactive property handlers for watchers, serializers, and deserializers (which are used in the app factory to set up reactive properties)
+ * - Transforming the `hostData` method to be compatible with SSR
+ *
+ * @param classNode the class declaration to transform
+ * @param moduleFile the module file containing the class declaration
+ * @param cmp the component metadata for the class declaration
+ * @param buildCtx the current build context
+ * @returns the updated class declaration
+ */
+export const updateSsrComponentClass = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,
@@ -21,11 +36,11 @@ export const updateHydrateComponentClass = (
     classNode.name,
     classNode.typeParameters,
     classNode.heritageClauses,
-    updateHydrateHostComponentMembers(classNode, moduleFile, cmp, buildCtx),
+    updateSsrHostComponentMembers(classNode, moduleFile, cmp, buildCtx),
   );
 };
 
-const updateHydrateHostComponentMembers = (
+const updateSsrHostComponentMembers = (
   classNode: ts.ClassDeclaration,
   moduleFile: d.Module,
   cmp: d.ComponentCompilerMeta,

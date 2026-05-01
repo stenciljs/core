@@ -2,7 +2,7 @@ import { MockWindow, patchWindow } from '@stencil/mock-doc';
 
 import type * as d from '../../declarations';
 
-export function patchDomImplementation(doc: any, opts: d.HydrateFactoryOptions) {
+export function patchDomImplementation(doc: any, opts: d.SsrFactoryOptions) {
   let win: MockWindow;
 
   if (doc.defaultView != null) {

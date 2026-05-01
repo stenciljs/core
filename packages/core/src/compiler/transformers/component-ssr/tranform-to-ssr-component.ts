@@ -5,9 +5,19 @@ import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { updateStyleImports } from '../style-imports';
 import { getComponentMeta, getModuleFromSourceFile, updateMixin } from '../transform-utils';
-import { updateHydrateComponentClass } from './hydrate-component';
+import { updateSsrComponentClass } from './ssr-component';
 
-export const hydrateComponentTransform = (
+/**
+ * A TypeScript transformation that converts component classes into a format that is compatible with the SSR runtime.
+ * This includes removing static properties that are only used for the client-side runtime,
+ * adding SSR-specific component metadata, updating the constructor and reactive property handlers.
+ *
+ * @param compilerCtx the compiler context
+ * @param transformOpts the transformation options
+ * @param buildCtx the current build context
+ * @returns a TypeScript transformer factory
+ */
+export const ssrComponentTransform = (
   compilerCtx: d.CompilerCtx,
   transformOpts: d.TransformOptions,
   buildCtx: d.BuildCtx,
@@ -20,7 +30,7 @@ export const hydrateComponentTransform = (
         if (ts.isClassDeclaration(node)) {
           const cmp = getComponentMeta(compilerCtx, tsSourceFile, node);
           if (cmp != null) {
-            return updateHydrateComponentClass(node, moduleFile, cmp, buildCtx);
+            return updateSsrComponentClass(node, moduleFile, cmp, buildCtx);
           } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isMixin) {
             return updateMixin(node, moduleFile, cmp, transformOpts);
           }

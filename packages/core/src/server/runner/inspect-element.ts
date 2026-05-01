@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-export function inspectElement(results: d.HydrateResults, elm: Element, depth: number) {
+export function inspectElement(results: d.SsrResults, elm: Element, depth: number) {
   const children = [
     ...Array.from(elm.children),
     ...Array.from(elm.shadowRoot ? elm.shadowRoot.children : []),
@@ -89,7 +89,7 @@ export function inspectElement(results: d.HydrateResults, elm: Element, depth: n
 }
 
 function collectAttributes(node: Element) {
-  const parsedElm: d.HydrateElement = {};
+  const parsedElm: d.SsrElement = {};
   const attrs = node.attributes;
   for (let i = 0, ii = attrs.length; i < ii; i++) {
     const attr = attrs.item(i);

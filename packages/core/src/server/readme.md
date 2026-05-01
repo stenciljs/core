@@ -50,5 +50,5 @@ console.log(result.html);
 Exposed via `@stencil/core/runtime/server`:
 
 - `renderToString()` - Render to HTML string
-- `hydrateDocument()` - Hydrate an existing document
+- `ssrDocument()` - Hydrate an existing document
 - `serializeDocumentToString()` - Serialize DOM to string

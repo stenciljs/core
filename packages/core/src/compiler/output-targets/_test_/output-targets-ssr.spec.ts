@@ -6,7 +6,7 @@ import type * as d from '@stencil/core';
 import { SSR } from '../../../utils';
 import { validateSsr } from '../../config/outputs/validate-ssr';
 import * as optimizeModuleMod from '../../optimize/optimize-module';
-import { writeHydrateOutputs } from '../ssr/write-hydrate-outputs';
+import { writeSsrOutputs } from '../ssr/write-ssr-outputs';
 
 describe('ssr', () => {
   describe('minification', () => {
@@ -55,13 +55,7 @@ describe('ssr', () => {
         ],
       };
 
-      await writeHydrateOutputs(
-        config,
-        compilerCtx,
-        buildCtx,
-        [outputTarget],
-        rolldownOutput as any,
-      );
+      await writeSsrOutputs(config, compilerCtx, buildCtx, [outputTarget], rolldownOutput as any);
 
       expect(optimizeModuleSpy).toHaveBeenCalledWith(
         config,
@@ -100,13 +94,7 @@ describe('ssr', () => {
         ],
       };
 
-      await writeHydrateOutputs(
-        config,
-        compilerCtx,
-        buildCtx,
-        [outputTarget],
-        rolldownOutput as any,
-      );
+      await writeSsrOutputs(config, compilerCtx, buildCtx, [outputTarget], rolldownOutput as any);
 
       expect(optimizeModuleSpy).not.toHaveBeenCalled();
     });
@@ -138,13 +126,7 @@ describe('ssr', () => {
         ],
       };
 
-      await writeHydrateOutputs(
-        config,
-        compilerCtx,
-        buildCtx,
-        [outputTarget],
-        rolldownOutput as any,
-      );
+      await writeSsrOutputs(config, compilerCtx, buildCtx, [outputTarget], rolldownOutput as any);
 
       expect(optimizeModuleSpy).not.toHaveBeenCalled();
     });
@@ -179,7 +161,7 @@ describe('ssr', () => {
 
       const [validatedOutputTarget] = validateSsr(config, [outputTarget]);
 
-      await writeHydrateOutputs(
+      await writeSsrOutputs(
         config,
         compilerCtx,
         buildCtx,

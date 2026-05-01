@@ -4,15 +4,15 @@ import { test } from '@stencil/playwright';
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('styles and modes', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
   test.describe('component modes', () => {

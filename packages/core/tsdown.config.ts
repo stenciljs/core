@@ -150,7 +150,7 @@ export default defineConfig([
     ],
   },
 
-  // Server/SSR runner (user-facing hydrate API: renderToString, hydrateDocument, etc.)
+  // Server/SSR runner (user-facing hydrate API: renderToString, ssrDocument, etc.)
   {
     entry: {
       'runtime/server/runner': 'src/server/runner/index.ts',

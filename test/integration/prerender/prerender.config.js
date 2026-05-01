@@ -1,9 +1,9 @@
 export default {
-  beforeHydrate(doc) {
+  beforeSsr(doc) {
     doc.documentElement.setAttribute('dir', 'ltr');
   },
 
-  afterHydrate(doc, url) {
+  afterSsr(doc, url) {
     doc.title = `Url: ${url.href}`;
   },
 
@@ -11,10 +11,9 @@ export default {
     return true;
   },
 
-  hydrateOptions() {
-    const hydrate = {
+  prerenderOptions() {
+    return {
       prettyHtml: true,
     };
-    return hydrate;
   },
 };

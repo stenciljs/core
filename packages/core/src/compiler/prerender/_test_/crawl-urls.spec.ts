@@ -8,7 +8,7 @@ describe('crawlAnchorsForNextUrls', () => {
   let diagnostics: d.Diagnostic[];
   let baseUrl: URL;
   let currentUrl: URL;
-  let parsedAnchors: d.HydrateAnchorElement[];
+  let parsedAnchors: d.SsrAnchorElement[];
 
   beforeEach(() => {
     prerenderConfig = {};

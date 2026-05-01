@@ -5,7 +5,7 @@ import { loadRolldownDiagnostics } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_SSR_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { addTagTransform } from '../../transformers/add-tag-transform';
-import { hydrateComponentTransform } from '../../transformers/component-hydrate/tranform-to-hydrate-component';
+import { ssrComponentTransform } from '../../transformers/component-ssr/tranform-to-ssr-component';
 import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
@@ -90,7 +90,7 @@ const getCustomBeforeTransformers = (
   }
 
   customBeforeTransformers.push(
-    hydrateComponentTransform(compilerCtx, transformOpts, buildCtx),
+    ssrComponentTransform(compilerCtx, transformOpts, buildCtx),
     removeRebundleImports(compilerCtx),
   );
   return customBeforeTransformers;

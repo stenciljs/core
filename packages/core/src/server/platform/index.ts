@@ -209,7 +209,7 @@ export const modeResolutionChain: d.ResolutionHandler[] = [];
  * @returns The resolved asset path, which may be an absolute URL if resourcesUrl is set to an external URL, or a relative path if resourcesUrl is a relative path or not set at all
  */
 export const getAssetPath = (path: string) => {
-  // In the server/hydrate context, resourcesUrl should be set via hydrateDocument options
+  // In the server/hydrate context, resourcesUrl should be set via ssrDocument options
   // If not set, default to './' which is a reasonable default for server-side rendering
   const base = plt.$resourcesUrl$ || './';
   const assetUrl = new URL(path, base);
@@ -218,7 +218,7 @@ export const getAssetPath = (path: string) => {
 
 /**
  * Sets the base URL for resolving asset paths in the server/hydrate context.
- * @param path - The base URL to use for resolving asset paths. This should typically be set to the same value as the `resourcesUrl` option passed to `hydrateDocument` to ensure that asset paths are resolved correctly in the server/hydrate context.
+ * @param path - The base URL to use for resolving asset paths. This should typically be set to the same value as the `resourcesUrl` option passed to `ssrDocument` to ensure that asset paths are resolved correctly in the server/hydrate context.
  * If not set, it defaults to './', which is a reasonable default for server-side rendering.
  * @returns void
  */
@@ -228,7 +228,7 @@ export const setAssetPath = (path: string) => (plt.$resourcesUrl$ = path);
  * Checks to see any components are rendered with `scoped`
  * @param opts - SSR options
  */
-export const setScopedSSR = (opts: d.HydrateFactoryOptions) => {
+export const setScopedSsr = (opts: d.SsrFactoryOptions) => {
   scopedSSR =
     BUILD.shadowDom &&
     opts.serializeShadowRoot !== false &&
@@ -239,7 +239,7 @@ export const needsScopedSSR = () => scopedSSR;
 let scopedSSR = false;
 
 export { hAsync as h } from './h-async';
-export { hydrateApp } from './hydrate-app';
+export { ssrApp } from './ssr-app';
 export { BUILD, Env, NAMESPACE } from 'virtual:app-data';
 export {
   addHostEventListeners,

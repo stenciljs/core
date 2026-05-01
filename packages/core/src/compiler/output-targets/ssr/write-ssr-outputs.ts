@@ -3,10 +3,19 @@ import type { RolldownOutput } from 'rolldown';
 
 import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
-import { relocateHydrateContextConst } from './relocate-hydrate-context';
+import { relocateSsrContextConst } from './relocate-ssr-context';
 import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
 
-export const writeHydrateOutputs = (
+/**
+ * Writes the generated SSR app code to disk for each SSR output target.
+ * @param config The validated Stencil configuration.
+ * @param compilerCtx The compiler context.
+ * @param buildCtx The build context.
+ * @param outputTargets The array of SSR output targets.
+ * @param rolldownOutput The Rolldown output containing the generated code.
+ * @returns A promise that resolves when all SSR outputs have been written.
+ */
+export const writeSsrOutputs = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -15,12 +24,12 @@ export const writeHydrateOutputs = (
 ) => {
   return Promise.all(
     outputTargets.map((outputTarget) => {
-      return writeHydrateOutput(config, compilerCtx, buildCtx, outputTarget, rolldownOutput);
+      return writeSsrOutput(config, compilerCtx, buildCtx, outputTarget, rolldownOutput);
     }),
   );
 };
 
-const writeHydrateOutput = async (
+const writeSsrOutput = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -32,7 +41,7 @@ const writeHydrateOutput = async (
     throw new Error(`outputTarget config missing the "dir" property`);
   }
 
-  await copyHydrateRunnerDts(config, compilerCtx, hydrateAppDirPath);
+  await copySsrRunnerDts(config, compilerCtx, hydrateAppDirPath);
 
   // always remember a path to the hydrate app that the prerendering may need later on
   buildCtx.hydrateAppFilePath = join(hydrateAppDirPath, 'index.js');
@@ -41,7 +50,7 @@ const writeHydrateOutput = async (
   await Promise.all(
     rolldownOutput.output.map(async (output) => {
       if (output.type === 'chunk') {
-        let code = relocateHydrateContextConst(config, compilerCtx, output.code);
+        let code = relocateSsrContextConst(config, compilerCtx, output.code);
 
         /**
          * Enable the line where we define `modeResolutionChain` for the hydrate module.
@@ -115,15 +124,15 @@ const writeHydrateOutput = async (
   );
 };
 
-const copyHydrateRunnerDts = async (
+const copySsrRunnerDts = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   hydrateAppDirPath: string,
 ) => {
   const packageDir = join(config.sys.getCompilerExecutingPath(), '..', '..');
-  const srcHydrateDir = join(packageDir, 'runtime', 'server', 'runner.d.mts');
+  const srcSsrDir = join(packageDir, 'runtime', 'server', 'runner.d.mts');
 
   const runnerDtsDestPath = join(hydrateAppDirPath, 'index.d.ts');
 
-  await compilerCtx.fs.copyFile(srcHydrateDir, runnerDtsDestPath);
+  await compilerCtx.fs.copyFile(srcSsrDir, runnerDtsDestPath);
 };

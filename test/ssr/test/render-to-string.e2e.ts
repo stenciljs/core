@@ -20,7 +20,7 @@ async function readableToString(readable: Readable) {
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('renderToString API', () => {
   test.beforeEach(async () => {
@@ -28,11 +28,11 @@ test.describe('renderToString API', () => {
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
-  test('resolves to a Promise<HydrateResults> by default', async () => {
+  test('resolves to a Promise<SsrResults> by default', async () => {
     const renderedString = renderToString('<div>Hello World</div>');
     expect(typeof renderedString.then).toBe('function');
     renderedString.then((result) => result.html);

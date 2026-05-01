@@ -3,11 +3,7 @@ import type * as d from '@stencil/core';
 
 import { renderBuildDiagnostic, renderCatchError } from './render-utils';
 
-export function runtimeLogging(
-  win: MockWindow,
-  opts: d.HydrateDocumentOptions,
-  results: d.HydrateResults,
-) {
+export function runtimeLogging(win: MockWindow, opts: d.SsrDocumentOptions, results: d.SsrResults) {
   try {
     const pathname = win.location.pathname;
 

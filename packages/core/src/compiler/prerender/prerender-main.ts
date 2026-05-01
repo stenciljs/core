@@ -1,13 +1,13 @@
 import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
-import { createHydrateBuildId } from '../../server/runner/render-utils';
+import { createSsrBuildId } from '../../server/runner/render-utils';
 import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '../../utils';
 import { getAbsoluteBuildDir } from '../html/html-utils';
 import { createWorkerMainContext } from '../worker/main-thread';
 import { createWorkerContext } from '../worker/worker-thread';
 import { getPrerenderConfig } from './prerender-config';
-import { getHydrateOptions } from './prerender-hydrate-options';
+import { getSsrOptions } from './prerender-hydrate-options';
 import { drainPrerenderQueue, initializePrerenderEntryUrls } from './prerender-queue';
 import { generateTemplateHtml } from './prerender-template-html';
 import { generateRobotsTxt } from './robots-txt';
@@ -49,7 +49,7 @@ const runPrerender = async (
     .filter((o) => isString(o.indexHtml));
 
   if (!isString(results.buildId)) {
-    results.buildId = createHydrateBuildId();
+    results.buildId = createSsrBuildId();
   }
 
   if (outputTargets.length === 0) {
@@ -154,7 +154,7 @@ const runPrerenderOutputTarget = async (
     const devServerHostUrl = devServerBaseUrl.origin;
     const prerenderConfig = getPrerenderConfig(diagnostics, outputTarget.prerenderConfig);
 
-    const hydrateOpts = getHydrateOptions(prerenderConfig, devServerBaseUrl, diagnostics);
+    const hydrateOpts = getSsrOptions(prerenderConfig, devServerBaseUrl, diagnostics);
 
     config.logger.debug(`prerender hydrate app: ${hydrateAppFilePath}`);
     config.logger.debug(`prerender dev server: ${devServerHostUrl}`);

@@ -13,8 +13,8 @@ import type {
   DevServerContext,
   Diagnostic,
   HttpRequest,
-  PrerenderHydrateOptions,
-  HydrateResults,
+  PrerenderOptions,
+  SsrResults,
 } from './types';
 import type { ServerResponse } from 'node:http';
 
@@ -23,7 +23,7 @@ import type { ServerResponse } from 'node:http';
 // =============================================================================
 
 interface HydrateApp {
-  renderToString: (html: string, options: PrerenderHydrateOptions) => Promise<HydrateResults>;
+  renderToString: (html: string, options: PrerenderOptions) => Promise<SsrResults>;
 }
 
 interface SetupResult {
@@ -241,8 +241,8 @@ function getSsrHydrateOptions(
   devServerConfig: DevServerConfig,
   serverCtx: DevServerContext,
   url: URL,
-): PrerenderHydrateOptions {
-  const opts: PrerenderHydrateOptions = {
+): PrerenderOptions {
+  const opts: PrerenderOptions = {
     url: url.href,
     addModulePreloads: false,
     approximateLineWidth: 120,
@@ -266,9 +266,9 @@ function getSsrHydrateOptions(
   }
 
   if (isFunction(serverCtx.sys.applyPrerenderGlobalPatch)) {
-    const orgBeforeHydrate = opts.beforeHydrate;
+    const orgBeforeHydrate = opts.beforeSsr;
     const applyPatch = serverCtx.sys.applyPrerenderGlobalPatch;
-    opts.beforeHydrate = (document: Document) => {
+    opts.beforeSsr = (document: Document) => {
       const devServerBaseUrl = new URL(devServerConfig.browserUrl!);
       const devServerHostUrl = devServerBaseUrl.origin;
       applyPatch({

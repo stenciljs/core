@@ -530,7 +530,7 @@ export interface CompilerCtx {
   moduleMap: ModuleMap;
   nodeMap: NodeMap;
   resolvedCollections: Set<string>;
-  rolldownCacheHydrate: any;
+  rolldownCacheSsr: any;
   rolldownCacheLazy: any;
   rolldownCacheNative: any;
   styleModeNames: Set<string>;
@@ -1188,7 +1188,7 @@ export interface HostElement extends HTMLElement {
   componentOnReady?: () => Promise<this>;
 }
 
-export interface HydrateResults {
+export interface SsrResults {
   buildId: string;
   diagnostics: Diagnostic[];
   url: string;
@@ -1200,49 +1200,49 @@ export interface HydrateResults {
   search: string | null;
   hash: string | null;
   html: string | null;
-  components: HydrateComponent[];
-  anchors: HydrateAnchorElement[];
-  imgs: HydrateImgElement[];
-  scripts: HydrateScriptElement[];
-  styles: HydrateStyleElement[];
-  staticData: HydrateStaticData[];
+  components: SsrComponent[];
+  anchors: SsrAnchorElement[];
+  imgs: SsrImgElement[];
+  scripts: SsrScriptElement[];
+  styles: SsrStyleElement[];
+  staticData: SsrStaticData[];
   title: string | null;
   hydratedCount: number;
   httpStatus: number | null;
 }
 
-export interface HydrateComponent {
+export interface SsrComponent {
   tag: string;
   mode: string;
   count: number;
   depth: number;
 }
 
-export interface HydrateElement {
+export interface SsrElement {
   [attrName: string]: string | undefined;
 }
 
-export interface HydrateAnchorElement extends HydrateElement {
+export interface SsrAnchorElement extends SsrElement {
   href?: string;
   target?: string;
 }
 
-export interface HydrateImgElement extends HydrateElement {
+export interface SsrImgElement extends SsrElement {
   src?: string;
 }
 
-export interface HydrateScriptElement extends HydrateElement {
+export interface SsrScriptElement extends SsrElement {
   src?: string;
   type?: string;
 }
 
-export interface HydrateStyleElement extends HydrateElement {
+export interface SsrStyleElement extends SsrElement {
   id?: string;
   href?: string;
   content?: string;
 }
 
-export interface HydrateStaticData {
+export interface SsrStaticData {
   id: string;
   type: string;
   content: string;

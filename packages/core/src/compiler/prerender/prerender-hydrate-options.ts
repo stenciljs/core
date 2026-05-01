@@ -2,14 +2,14 @@ import type * as d from '@stencil/core';
 
 import { catchError } from '../../utils';
 
-export const getHydrateOptions = (
+export const getSsrOptions = (
   prerenderConfig: d.PrerenderConfig,
   url: URL,
   diagnostics: d.Diagnostic[],
 ) => {
   const prerenderUrl = url.href;
 
-  const opts: d.PrerenderHydrateOptions = {
+  const opts: d.PrerenderOptions = {
     url: prerenderUrl,
     addModulePreloads: true,
     approximateLineWidth: 100,
