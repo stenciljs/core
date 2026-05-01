@@ -7,7 +7,7 @@ export const crawlAnchorsForNextUrls = (
   diagnostics: d.Diagnostic[],
   baseUrl: URL,
   currentUrl: URL,
-  parsedAnchors: d.HydrateAnchorElement[],
+  parsedAnchors: d.SsrAnchorElement[],
 ) => {
   if (!Array.isArray(parsedAnchors) || parsedAnchors.length === 0) {
     return [];

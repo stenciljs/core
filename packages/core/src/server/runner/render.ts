@@ -1,11 +1,11 @@
 import { Readable } from 'node:stream';
-import { hydrateFactory } from '@stencil/core/runtime/server/ssr-factory';
+import { ssrFactory } from '@stencil/core/runtime/server/ssr-factory';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
 import { modeResolutionChain, setMode } from 'virtual:platform';
 import type {
-  HydrateDocumentOptions,
-  HydrateFactoryOptions,
-  HydrateResults,
+  SsrDocumentOptions,
+  SsrFactoryOptions,
+  SsrResults,
   SerializeDocumentOptions,
 } from '@stencil/core';
 
@@ -36,7 +36,7 @@ const NOOP = () => {};
 export function renderToString(
   html: string | any,
   options?: SerializeDocumentOptions,
-): Promise<HydrateResults> {
+): Promise<SsrResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Makes the rendered DOM not being rendered to a string.
@@ -58,7 +58,7 @@ export function renderToString(
    */
   opts.constrainTimeouts = false;
 
-  return hydrateDocument(html, opts);
+  return ssrDocument(html, opts);
 }
 
 /**
@@ -78,16 +78,13 @@ export function streamToString(html: string | any, options?: SerializeDocumentOp
 }
 
 /**
- * Hydrates a document or HTML string, returning the full hydration results.
+ * Server side renders a document or HTML string, returning the full render results.
  * This is portable (no Node.js dependencies).
- * @param doc - the document or HTML string to hydrate
+ * @param doc - the document or HTML string to render
  * @param options - hydration options
- * @returns the hydration results
+ * @returns the render results
  */
-export function hydrateDocument(
-  doc: any | string,
-  options?: HydrateDocumentOptions,
-): Promise<HydrateResults> {
+export function ssrDocument(doc: any | string, options?: SsrDocumentOptions): Promise<SsrResults> {
   const opts = normalizeHydrateOptions(options);
   /**
    * Defines whether we render the shadow root as a declarative shadow root or as scoped shadow root.
@@ -142,7 +139,14 @@ export function hydrateDocument(
   return Promise.resolve(results);
 }
 
-async function render(win: MockWindow, opts: HydrateFactoryOptions, results: HydrateResults) {
+/**
+ * v4 Compat
+ * @alias
+ * @deprecated Use `ssrDocument()` instead
+ */
+export const hydrateDocument = ssrDocument;
+
+async function render(win: MockWindow, opts: SsrFactoryOptions, results: SsrResults) {
   if (
     'process' in globalThis &&
     typeof process.on === 'function' &&
@@ -155,10 +159,13 @@ async function render(win: MockWindow, opts: HydrateFactoryOptions, results: Hyd
   }
 
   initializeWindow(win, win.document, opts, results);
-  const beforeHydrateFn = typeof opts.beforeHydrate === 'function' ? opts.beforeHydrate : NOOP;
+  const beforeHydrateFn =
+    typeof (opts.beforeSsr || opts.beforeHydrate) === 'function'
+      ? opts.beforeSsr || opts.beforeHydrate
+      : NOOP;
   try {
     await Promise.resolve(beforeHydrateFn(win.document));
-    return new Promise<HydrateResults>((resolve) => {
+    return new Promise<SsrResults>((resolve) => {
       if (Array.isArray(opts.modes)) {
         /**
          * Reset the mode resolution chain as we expect every `renderToString` call to render
@@ -167,36 +174,34 @@ async function render(win: MockWindow, opts: HydrateFactoryOptions, results: Hyd
         modeResolutionChain.length = 0;
         opts.modes.forEach((mode) => setMode(mode));
       }
-      return hydrateFactory(win, opts, results, afterHydrate, resolve);
+      return ssrFactory(win, opts, results, afterSsr, resolve);
     });
   } catch (e) {
     renderCatchError(results, e);
-    return finalizeHydrate(win, win.document, opts, results);
+    return finalizeSsr(win, win.document, opts, results);
   }
 }
 
-async function afterHydrate(
+async function afterSsr(
   win: MockWindow,
-  opts: HydrateFactoryOptions,
-  results: HydrateResults,
-  resolve: (results: HydrateResults) => void,
+  opts: SsrFactoryOptions,
+  results: SsrResults,
+  resolve: (results: SsrResults) => void,
 ) {
-  const afterHydrateFn = typeof opts.afterHydrate === 'function' ? opts.afterHydrate : NOOP;
+  const afterSsrFn =
+    typeof (opts.afterSsr || opts.afterHydrate) === 'function'
+      ? opts.afterSsr || opts.afterHydrate
+      : NOOP;
   try {
-    await Promise.resolve(afterHydrateFn(win.document));
-    return resolve(finalizeHydrate(win, win.document, opts, results));
+    await Promise.resolve(afterSsrFn(win.document));
+    return resolve(finalizeSsr(win, win.document, opts, results));
   } catch (e) {
     renderCatchError(results, e);
-    return resolve(finalizeHydrate(win, win.document, opts, results));
+    return resolve(finalizeSsr(win, win.document, opts, results));
   }
 }
 
-function finalizeHydrate(
-  win: MockWindow,
-  doc: Document,
-  opts: HydrateFactoryOptions,
-  results: HydrateResults,
-) {
+function finalizeSsr(win: MockWindow, doc: Document, opts: SsrFactoryOptions, results: SsrResults) {
   try {
     inspectElement(results, doc.documentElement, 0);
 
@@ -259,7 +264,7 @@ function finalizeHydrate(
       renderCatchError(results, e);
     }
 
-    if (opts.clientHydrateAnnotations) {
+    if (opts.clientSsrAnnotations) {
       doc.documentElement.classList.add('hydrated');
     }
 
@@ -277,8 +282,8 @@ function finalizeHydrate(
 function destroyWindow(
   win: MockWindow,
   doc: Document,
-  opts: HydrateFactoryOptions,
-  results: HydrateResults,
+  opts: SsrFactoryOptions,
+  results: SsrResults,
 ) {
   if (!opts.destroyWindow) {
     return;
@@ -298,7 +303,7 @@ function destroyWindow(
   }
 }
 
-export function serializeDocumentToString(doc: Document, opts: HydrateFactoryOptions) {
+export function serializeDocumentToString(doc: Document, opts: SsrFactoryOptions) {
   return serializeNodeToHtml(doc, {
     approximateLineWidth: opts.approximateLineWidth,
     outerHtml: false,

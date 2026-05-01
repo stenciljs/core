@@ -12,6 +12,13 @@ import { getScopeId } from '../style/scope-css';
  */
 const previousComponentStyles = new Map<string, string[]>();
 
+/**
+ * Generate the Hot Module Replacement (HMR) data for the current build.
+ * @param config a user-supplied config
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @returns the HMR data
+ */
 export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (config.devServer?.reloadStrategy == null) {
     return null;
@@ -135,6 +142,14 @@ const getComponentsUpdated = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) 
   return tags.sort();
 };
 
+/**
+ * Update the tracking of which components had styles in the current build.
+ * @param allModuleFiles all module files in the current build
+ * @param filesToLookForImporters files to look for importers
+ * @param checkedFiles set of checked files
+ * @param changedScriptFiles array of changed script files
+ * @param scriptFile the current script file
+ */
 const addTsFileImporters = (
   allModuleFiles: d.Module[],
   filesToLookForImporters: string[],

@@ -19,8 +19,8 @@ export type {
   Logger,
   PageReloadStrategy,
   PrerenderConfig,
-  PrerenderHydrateOptions,
-  HydrateResults,
+  PrerenderOptions,
+  SsrResults,
   StencilDevServerConfig,
 } from '@stencil/core/compiler';
 

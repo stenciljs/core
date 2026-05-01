@@ -3,24 +3,24 @@ import { test } from '@stencil/playwright';
 
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
-let hydrateDocument: HydrateModule['hydrateDocument'];
+let ssrDocument: HydrateModule['ssrDocument'];
 let createWindowFromHtml: HydrateModule['createWindowFromHtml'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
-test.describe('hydrateDocument', () => {
+test.describe('ssrDocument', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
-    hydrateDocument = mod.hydrateDocument;
+    ssrDocument = mod.ssrDocument;
     createWindowFromHtml = mod.createWindowFromHtml;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
-  test('resolves to a Promise<HydrateResults>', async () => {
-    const renderedDocument = hydrateDocument('<div>Hello World</div>');
+  test('resolves to a Promise<SsrResults>', async () => {
+    const renderedDocument = ssrDocument('<div>Hello World</div>');
     expect(typeof renderedDocument.then).toBe('function');
-    // this is a type assertion to verify that the promise resolves to a HydrateResults object
+    // this is a type assertion to verify that the promise resolves to a SsrResults object
     renderedDocument.then((result) => result.html);
   });
 
@@ -29,7 +29,7 @@ test.describe('hydrateDocument', () => {
     const fullHTML = `<html><head></head><body>${template}</body></html>`;
     const win = createWindowFromHtml(fullHTML, Math.random().toString());
     const document = win.document;
-    await hydrateDocument(document);
+    await ssrDocument(document);
     const html = document.documentElement.outerHTML;
 
     expect(html).toContain('shadowrootmode="open"');
@@ -40,7 +40,7 @@ test.describe('hydrateDocument', () => {
     const fullHTML = `<html><head></head><body>${template}</body></html>`;
     const win = createWindowFromHtml(fullHTML, Math.random().toString());
     const document = win.document;
-    await hydrateDocument(document, {
+    await ssrDocument(document, {
       serializeShadowRoot: 'scoped',
     });
     const html = document.documentElement.outerHTML;

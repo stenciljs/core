@@ -17,7 +17,7 @@ const docData: d.DocData = {
 /**
  * Reset the docData counters. Useful for testing to ensure deterministic IDs.
  */
-export function resetHydrateDocData() {
+export function resetSsrDocData() {
   docData.hostIds = 0;
   docData.rootLevelIds = 0;
   docData.staticComponents.clear();
@@ -26,8 +26,8 @@ export function resetHydrateDocData() {
 export function initializeWindow(
   win: MockWindow,
   doc: Document,
-  opts: d.HydrateDocumentOptions,
-  results: d.HydrateResults,
+  opts: d.SsrDocumentOptions,
+  results: d.SsrResults,
 ) {
   if (typeof opts.url === 'string') {
     try {

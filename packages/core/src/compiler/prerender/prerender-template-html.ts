@@ -17,7 +17,7 @@ export const generateTemplateHtml = async (
   isDebug: boolean,
   srcIndexHtmlPath: string,
   outputTarget: d.OutputTargetWww,
-  hydrateOpts: d.PrerenderHydrateOptions,
+  hydrateOpts: d.PrerenderOptions,
   manager: d.PrerenderManager,
 ) => {
   try {

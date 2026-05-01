@@ -2,12 +2,19 @@ import type * as d from '@stencil/core';
 
 import { dashToPascalCase, sortBy, toTitleCase } from '../../../utils';
 
-export const updateToHydrateComponents = async (cmps: d.ComponentCompilerMeta[]) => {
-  const hydrateCmps = await Promise.all(cmps.map(updateToHydrateComponent));
-  return sortBy(hydrateCmps, (c) => c.cmp.componentClassName);
+/**
+ * Updates the component metadata to be used for generating the SSR factory.
+ * - Updates the component class name to be in PascalCase
+ * - Creates an import line for the component.
+ * @param cmps The array of component metadata to update.
+ * @returns The updated component metadata array.
+ */
+export const updateSsrComponents = async (cmps: d.ComponentCompilerMeta[]) => {
+  const ssrCmps = await Promise.all(cmps.map(updateSsrComponent));
+  return sortBy(ssrCmps, (c) => c.cmp.componentClassName);
 };
 
-const updateToHydrateComponent = async (cmp: d.ComponentCompilerMeta) => {
+const updateSsrComponent = async (cmp: d.ComponentCompilerMeta) => {
   const cmpData: d.ComponentCompilerData = {
     filePath: cmp.sourceFilePath,
     exportLine: ``,

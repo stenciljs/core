@@ -17,7 +17,7 @@ export const SSR_FACTORY_INTRO = `
 var $nativeSetTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).setTimeout;
 var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).clearTimeout;
 
-export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
+export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
   var self = $stencilWindow;
   var top = $stencilWindow;
@@ -146,7 +146,7 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
 
 export const SSR_FACTORY_OUTRO = `
     /*hydrateAppClosure end*/
-    hydrateApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+    ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
   }
 
   hydrateAppClosure($stencilWindow);

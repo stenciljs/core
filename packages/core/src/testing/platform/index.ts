@@ -44,7 +44,7 @@ export const setMode = (handler: (elm: any) => string | undefined | null) => {
   modeResolutionChain.push(handler);
 };
 
-export const setScopedSSR = (scoped?: boolean) => {
+export const setScopedSsr = (scoped?: boolean) => {
   scopedSSR = scoped;
 };
 export const needsScopedSSR = () => scopedSSR;

@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import { removeUnusedStyles } from '../remove-unused-styles';
 
 describe('removeUnusedStyles', () => {
-  let results: d.HydrateResults;
+  let results: d.SsrResults;
 
   beforeEach(() => {
     results = {

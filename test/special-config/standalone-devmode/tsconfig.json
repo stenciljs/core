@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "rootDir": "./"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

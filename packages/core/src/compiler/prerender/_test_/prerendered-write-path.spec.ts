@@ -22,7 +22,7 @@ describe('prerender-utils', () => {
         outputTarget: outputTargets[0] as any,
         devServerHostUrl: 'http://localhost:3333/',
         diagnostics: [],
-        hydrateAppFilePath: null,
+        ssrAppFilePath: null,
         isDebug: true,
         logCount: 0,
         maxConcurrency: 1,

@@ -1,13 +1,13 @@
 import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
-import { createHydrateBuildId } from '../../server/runner/render-utils';
+import { createSsrBuildId } from '../../server/runner/render-utils';
 import { buildError, catchError, hasError, isOutputTargetWww, isString, join } from '../../utils';
 import { getAbsoluteBuildDir } from '../html/html-utils';
 import { createWorkerMainContext } from '../worker/main-thread';
 import { createWorkerContext } from '../worker/worker-thread';
 import { getPrerenderConfig } from './prerender-config';
-import { getHydrateOptions } from './prerender-hydrate-options';
+import { getSsrOptions } from './prerender-hydrate-options';
 import { drainPrerenderQueue, initializePrerenderEntryUrls } from './prerender-queue';
 import { generateTemplateHtml } from './prerender-template-html';
 import { generateRobotsTxt } from './robots-txt';
@@ -17,7 +17,7 @@ export const createPrerenderer = async (config: d.ValidatedConfig) => {
   const start = (opts: d.PrerenderStartOptions) => {
     return runPrerender(
       config,
-      opts.hydrateAppFilePath,
+      opts.ssrAppFilePath,
       opts.componentGraph,
       opts.srcIndexHtmlPath,
       opts.buildId,
@@ -30,7 +30,7 @@ export const createPrerenderer = async (config: d.ValidatedConfig) => {
 
 const runPrerender = async (
   config: d.ValidatedConfig,
-  hydrateAppFilePath: string,
+  ssrAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
   buildId: string,
@@ -49,27 +49,27 @@ const runPrerender = async (
     .filter((o) => isString(o.indexHtml));
 
   if (!isString(results.buildId)) {
-    results.buildId = createHydrateBuildId();
+    results.buildId = createSsrBuildId();
   }
 
   if (outputTargets.length === 0) {
     return results;
   }
 
-  if (!isString(hydrateAppFilePath)) {
+  if (!isString(ssrAppFilePath)) {
     const diagnostic = buildError(diagnostics);
     diagnostic.header = `Prerender Error`;
-    diagnostic.messageText = `Build results missing "hydrateAppFilePath"`;
+    diagnostic.messageText = `Build results missing "ssrAppFilePath"`;
   } else {
-    if (!isAbsolute(hydrateAppFilePath)) {
-      hydrateAppFilePath = join(config.sys.getCurrentDirectory(), hydrateAppFilePath);
+    if (!isAbsolute(ssrAppFilePath)) {
+      ssrAppFilePath = join(config.sys.getCurrentDirectory(), ssrAppFilePath);
     }
 
-    const hydrateAppExists = await config.sys.access(hydrateAppFilePath);
+    const hydrateAppExists = await config.sys.access(ssrAppFilePath);
     if (!hydrateAppExists) {
       const diagnostic = buildError(diagnostics);
       diagnostic.header = `Prerender Error`;
-      diagnostic.messageText = `Unable to open "hydrateAppFilePath": ${hydrateAppFilePath}`;
+      diagnostic.messageText = `Unable to open "ssrAppFilePath": ${ssrAppFilePath}`;
     }
   }
 
@@ -109,7 +109,7 @@ const runPrerender = async (
             diagnostics,
             config,
             devServer,
-            hydrateAppFilePath,
+            ssrAppFilePath,
             componentGraph,
             srcIndexHtmlPath,
             outputTarget,
@@ -142,7 +142,7 @@ const runPrerenderOutputTarget = async (
   diagnostics: d.Diagnostic[],
   config: d.ValidatedConfig,
   devServer: d.DevServer,
-  hydrateAppFilePath: string,
+  ssrAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
   outputTarget: d.OutputTargetWww,
@@ -154,9 +154,9 @@ const runPrerenderOutputTarget = async (
     const devServerHostUrl = devServerBaseUrl.origin;
     const prerenderConfig = getPrerenderConfig(diagnostics, outputTarget.prerenderConfig);
 
-    const hydrateOpts = getHydrateOptions(prerenderConfig, devServerBaseUrl, diagnostics);
+    const hydrateOpts = getSsrOptions(prerenderConfig, devServerBaseUrl, diagnostics);
 
-    config.logger.debug(`prerender hydrate app: ${hydrateAppFilePath}`);
+    config.logger.debug(`prerender hydrate app: ${ssrAppFilePath}`);
     config.logger.debug(`prerender dev server: ${devServerHostUrl}`);
 
     if (hasError(diagnostics)) {
@@ -172,7 +172,7 @@ const runPrerenderOutputTarget = async (
       config: config,
       diagnostics: prerenderDiagnostics,
       devServerHostUrl: devServerHostUrl,
-      hydrateAppFilePath: hydrateAppFilePath,
+      ssrAppFilePath: ssrAppFilePath,
       isDebug: config.logLevel === 'debug',
       logCount: 0,
       maxConcurrency: Math.max(20, config.maxConcurrentWorkers * 10),

@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { connectedCallback, insertVdomAnnotations, addHostEventListeners } from '../../runtime';
 import { CMP_FLAGS } from '../../utils/constants';
 import { proxyHostElement } from './proxy-host-element';
-import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index';
+import { getHostRef, loadModule, plt, registerHost, setScopedSsr } from './index';
 
 /**
  * Native setTimeout/clearTimeout captured before globalThis is shadowed in the factory closure.
@@ -15,17 +15,28 @@ import { getHostRef, loadModule, plt, registerHost, setScopedSSR } from './index
 declare const $nativeSetTimeout: typeof setTimeout;
 declare const $nativeClearTimeout: typeof clearTimeout;
 
-export function hydrateApp(
+/**
+ * SSR a Document by patching the DOM APIs to wait for components to be connected and hydrated
+ * before allowing them to be added to the document.
+ * Once all components are hydrated, the `afterSsr` callback is called so that the caller can serialize
+ * the document to HTML and send it back to the client.
+ * @param win The window to use for SSR. This should be a patched window created by `patchDomImplementation`.
+ * @param opts The options to use for SSR. This is used to configure which components should be hydrated, how long to wait for hydration, etc.
+ * @param results The results object to store the hydration results.
+ * @param afterSsr The callback to be called after SSR is complete.
+ * @param resolve The resolve function to be called when SSR is complete.
+ */
+export function ssrApp(
   win: Window & typeof globalThis,
-  opts: d.HydrateFactoryOptions,
-  results: d.HydrateResults,
-  afterHydrate: (
+  opts: d.SsrFactoryOptions,
+  results: d.SsrResults,
+  afterSsr: (
     win: Window,
-    opts: d.HydrateFactoryOptions,
-    results: d.HydrateResults,
-    resolve: (results: d.HydrateResults) => void,
+    opts: d.SsrFactoryOptions,
+    results: d.SsrResults,
+    resolve: (results: d.SsrResults) => void,
   ) => void,
-  resolve: (results: d.HydrateResults) => void,
+  resolve: (results: d.SsrResults) => void,
 ) {
   const connectedElements = new Set<any>();
   const createdElements = new Set<HTMLElement>();
@@ -33,7 +44,7 @@ export function hydrateApp(
   const orgDocumentCreateElement = win.document.createElement;
   const orgDocumentCreateElementNS = win.document.createElementNS;
   const resolved = Promise.resolve();
-  setScopedSSR(opts);
+  setScopedSsr(opts);
 
   let tmrId: any;
   let ranCompleted = false;
@@ -46,7 +57,7 @@ export function hydrateApp(
     if (!ranCompleted) {
       ranCompleted = true;
       try {
-        if (opts.clientHydrateAnnotations) {
+        if (opts.clientSsrAnnotations) {
           insertVdomAnnotations(win.document, opts.staticComponents);
         }
 
@@ -59,7 +70,7 @@ export function hydrateApp(
       }
     }
 
-    afterHydrate(win, opts, results, resolve);
+    afterSsr(win, opts, results, resolve);
   }
 
   function hydratedError(err: any) {
@@ -203,7 +214,7 @@ export function hydrateApp(
 async function hydrateComponent(
   this: HTMLElement,
   win: Window & typeof globalThis,
-  results: d.HydrateResults,
+  results: d.SsrResults,
   tagName: string,
   elm: d.HostElement,
   waitingElements: Set<HTMLElement>,
@@ -252,7 +263,7 @@ async function hydrateComponent(
   }
 }
 
-function isValidComponent(elm: Element, opts: d.HydrateFactoryOptions) {
+function isValidComponent(elm: Element, opts: d.SsrFactoryOptions) {
   if (elm != null && elm.nodeType === 1) {
     // playing it safe and not using elm.tagName or elm.localName on purpose
     const tagName = elm.nodeName;
@@ -302,7 +313,7 @@ const NO_HYDRATE_TAGS = new Set([
   'TEXTAREA',
 ]);
 
-function renderCatchError(opts: d.HydrateFactoryOptions, results: d.HydrateResults, err: any) {
+function renderCatchError(opts: d.SsrFactoryOptions, results: d.SsrResults, err: any) {
   const diagnostic: d.Diagnostic = {
     level: 'error',
     type: 'build',
@@ -385,7 +396,7 @@ function waitingOnElementsMsg(waitingElements: Set<HTMLElement>) {
  */
 export function tagRequiresScoped(
   tagName: string,
-  opts: d.HydrateFactoryOptions['serializeShadowRoot'],
+  opts: d.SsrFactoryOptions['serializeShadowRoot'],
 ) {
   if (typeof opts === 'string') {
     return opts === 'scoped';

@@ -8,15 +8,15 @@ const vento = new CarData('VW', 'Vento', 2024);
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('props serialization', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
   test.describe('basic props', () => {
@@ -27,7 +27,7 @@ test.describe('props serialization', () => {
           serializeShadowRoot: true,
           fullDocument: false,
           prettyHtml: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toMatchSnapshot();
@@ -41,7 +41,7 @@ test.describe('props serialization', () => {
           serializeShadowRoot: true,
           fullDocument: false,
           prettyHtml: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toMatchSnapshot();
@@ -54,7 +54,7 @@ test.describe('props serialization', () => {
         {
           serializeShadowRoot: true,
           fullDocument: false,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toContain('<section class="sc-another-car-detail"></section>');
@@ -261,10 +261,10 @@ test.describe('props serialization', () => {
       expect(await txt('decoratedGetterSetterProp')).toBe('0');
     });
 
-    test('renders values via properties (beforeHydrate)', async ({ page: p }) => {
+    test('renders values via properties (beforeSsr)', async ({ page: p }) => {
       page = p;
       const doc = await renderToString(`<runtime-decorators></runtime-decorators>`, {
-        beforeHydrate: (doc: Document) => {
+        beforeSsr: (doc: Document) => {
           const el = doc.querySelector('runtime-decorators') as any;
           el.basicProp = 'basicProp via prop';
           el.decoratedProp = 200;

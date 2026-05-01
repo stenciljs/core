@@ -21,10 +21,19 @@ import {
   SSR_FACTORY_OUTRO,
   MODE_RESOLUTION_CHAIN_DECLARATION,
 } from './ssr-factory-closure';
-import { updateToHydrateComponents } from './update-to-hydrate-components';
-import { writeHydrateOutputs } from './write-hydrate-outputs';
+import { updateSsrComponents } from './update-to-ssr-components';
+import { writeSsrOutputs } from './write-ssr-outputs';
 
-const buildHydrateAppFor = async (
+/**
+ * Generates the SSR app factory and writes it to disk for each SSR output target.
+ * @param format The module format to generate (esm or cjs).
+ * @param rolldownBuild The Rolldown build instance.
+ * @param config The validated Stencil configuration.
+ * @param compilerCtx The compiler context.
+ * @param buildCtx The build context.
+ * @param outputTargets The array of SSR output targets.
+ */
+const buildSsrAppFor = async (
   format: 'esm' | 'cjs',
   rolldownBuild: RolldownBuild,
   config: d.ValidatedConfig,
@@ -39,18 +48,18 @@ const buildHydrateAppFor = async (
     file,
   });
 
-  await writeHydrateOutputs(config, compilerCtx, buildCtx, outputTargets, rolldownOutput);
+  await writeSsrOutputs(config, compilerCtx, buildCtx, outputTargets, rolldownOutput);
 };
 
 /**
- * Generate and build the hydrate app and then write it to disk
+ * Generate and build the SSR app and then write it to disk
  *
  * @param config a validated Stencil configuration
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  * @param outputTargets the output targets for the current build
  */
-export const generateHydrateApp = async (
+export const generateSsrApp = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -114,11 +123,11 @@ export const generateHydrateApp = async (
 
     const rolldownAppBuild = await rolldown(rolldownOptions);
     const buildPromises = [
-      buildHydrateAppFor('esm', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+      buildSsrAppFor('esm', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
     ];
     if (outputTargets.some((o) => o.cjs)) {
       buildPromises.push(
-        buildHydrateAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
+        buildSsrAppFor('cjs', rolldownAppBuild, config, compilerCtx, buildCtx, outputTargets),
       );
     }
     await Promise.all(buildPromises);
@@ -169,21 +178,21 @@ const generateSsrFactory = async (
 
 const generateSsrFactoryEntry = async (buildCtx: d.BuildCtx) => {
   const cmps = buildCtx.components;
-  const hydrateCmps = await updateToHydrateComponents(cmps);
+  const ssrCmps = await updateSsrComponents(cmps);
   const s = new MagicString('');
 
   s.append(
-    `import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_SSR_PLATFORM_ID}';\n`,
+    `import { ssrApp, registerComponents, styles } from '${STENCIL_INTERNAL_SSR_PLATFORM_ID}';\n`,
   );
 
-  hydrateCmps.forEach((cmpData) => s.append(cmpData.importLine + '\n'));
+  ssrCmps.forEach((cmpData) => s.append(cmpData.importLine + '\n'));
 
   s.append(`registerComponents([\n`);
-  hydrateCmps.forEach((cmpData) => {
+  ssrCmps.forEach((cmpData) => {
     s.append(`  ${cmpData.uniqueComponentClassName},\n`);
   });
   s.append(`]);\n`);
-  s.append(`export { hydrateApp }\n`);
+  s.append(`export { ssrApp }\n`);
 
   return s.toString();
 };

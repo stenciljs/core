@@ -20,7 +20,7 @@ async function readableToString(readable: Readable) {
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
 let streamToString: HydrateModule['streamToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('renderToString API', () => {
   test.beforeEach(async () => {
@@ -28,11 +28,11 @@ test.describe('renderToString API', () => {
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
     streamToString = mod.streamToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
-  test('resolves to a Promise<HydrateResults> by default', async () => {
+  test('resolves to a Promise<SsrResults> by default', async () => {
     const renderedString = renderToString('<div>Hello World</div>');
     expect(typeof renderedString.then).toBe('function');
     renderedString.then((result) => result.html);
@@ -62,7 +62,7 @@ test.describe('renderToString API', () => {
       serializeShadowRoot: true,
       fullDocument: false,
       prettyHtml: true,
-      clientHydrateAnnotations: false,
+      clientSsrAnnotations: false,
     });
     expect(html).toMatchSnapshot();
   });
@@ -74,7 +74,7 @@ test.describe('renderToString API', () => {
         serializeShadowRoot: true,
         fullDocument: false,
         prettyHtml: true,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       },
     );
     expect(html).toMatchSnapshot();
@@ -88,7 +88,7 @@ test.describe('renderToString API', () => {
       {
         serializeShadowRoot: true,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       },
     );
     expect(html).toMatchSnapshot();
@@ -102,7 +102,7 @@ test.describe('renderToString API', () => {
     const opts = {
       serializeShadowRoot: true,
       fullDocument: false,
-      clientHydrateAnnotations: false,
+      clientSsrAnnotations: false,
     };
 
     const result = await readableToString(streamToString(input, opts));
@@ -115,7 +115,7 @@ test.describe('renderToString API', () => {
     const { html } = await renderToString('<another-car-detail></another-car-detail>', {
       serializeShadowRoot: false,
       fullDocument: false,
-      clientHydrateAnnotations: false,
+      clientSsrAnnotations: false,
     });
     expect(html).toBe(
       '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
@@ -126,7 +126,7 @@ test.describe('renderToString API', () => {
     const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
       serializeShadowRoot: false,
       fullDocument: false,
-      clientHydrateAnnotations: false,
+      clientSsrAnnotations: false,
     });
     expect(html).toBe(
       '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
@@ -198,7 +198,7 @@ test.describe('renderToString API', () => {
         serializeShadowRoot: true,
         fullDocument: false,
         prettyHtml: true,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html).toMatchSnapshot();
       expect(html).toContain('Closed Shadow DOM Content');
@@ -208,7 +208,7 @@ test.describe('renderToString API', () => {
       const { html } = await renderToString('<shadow-closed></shadow-closed>', {
         serializeShadowRoot: true,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html).toContain('border: 3px solid purple');
       expect(html).toContain('background: rgb(128, 0, 128)');
@@ -221,7 +221,7 @@ test.describe('renderToString API', () => {
           serializeShadowRoot: true,
           fullDocument: false,
           prettyHtml: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html).toMatchSnapshot();
@@ -232,7 +232,7 @@ test.describe('renderToString API', () => {
       const { html } = await renderToString('<shadow-closed></shadow-closed>', {
         serializeShadowRoot: true,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html).toContain('Fallback slot content');
     });
@@ -242,7 +242,7 @@ test.describe('renderToString API', () => {
         streamToString('<shadow-closed></shadow-closed>', {
           serializeShadowRoot: true,
           fullDocument: false,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         }),
       );
       expect(result).toContain('Closed Shadow DOM Content');

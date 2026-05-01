@@ -770,11 +770,11 @@ export interface PrerenderConfig {
    * Run after each `document` is hydrated, but before it is serialized
    * into an HTML string. Hook is passed the `document` and its `URL`.
    */
-  afterHydrate?(document: Document, url: URL, results: PrerenderUrlResults): any | Promise<any>;
+  afterSsr?(document: Document, url: URL, results: PrerenderUrlResults): any | Promise<any>;
   /**
    * Run before each `document` is hydrated. Hook is passed the `document` it's `URL`.
    */
-  beforeHydrate?(document: Document, url: URL): any | Promise<any>;
+  beforeSsr?(document: Document, url: URL): any | Promise<any>;
   /**
    * Runs after the template Document object has serialize into an
    * HTML formatted string. Returns an HTML string to be used as the
@@ -816,9 +816,9 @@ export interface PrerenderConfig {
    */
   filePath?(url: URL, filePath: string): string;
   /**
-   * Returns the hydrate options to use for each individual prerendered page.
+   * Returns the prerender options to use for each individual prerendered page.
    */
-  hydrateOptions?(url: URL): PrerenderHydrateOptions;
+  prerenderOptions?(url: URL): PrerenderOptions;
   /**
    * Returns the template file's content. The template is the base
    * HTML used for all prerendered pages.
@@ -843,7 +843,7 @@ export interface PrerenderConfig {
   trailingSlash?: boolean;
 }
 
-export interface HydrateDocumentOptions {
+export interface SsrDocumentOptions {
   /**
    * Build ID that will be added to `<html data-stencil-build="BUILD_ID">`. By default
    * a random ID will be generated
@@ -860,7 +860,7 @@ export interface HydrateDocumentOptions {
    * JavaScript to read the structure of the HTML and rebuild each
    * component. Defaults to `true`.
    */
-  clientHydrateAnnotations?: boolean;
+  clientSsrAnnotations?: boolean;
   /**
    * Constrain `setTimeout()` to 1ms, but still async. Also
    * only allows `setInterval()` to fire once, also constrained to 1ms.
@@ -964,9 +964,19 @@ export interface HydrateDocumentOptions {
     | boolean;
 }
 
-export interface SerializeDocumentOptions extends HydrateDocumentOptions {
+/**
+ * Backwards compat for v4
+ * @deprecated - use SsrDocumentOptions instead
+ */
+export interface HydrateDocumentOptions extends SsrDocumentOptions {}
+
+export interface SerializeDocumentOptions extends SsrDocumentOptions {
   /**
    * Runs after the `document` has been hydrated.
+   */
+  afterSsr?(document: any): any | Promise<any>;
+  /**
+   * @deprecated Use `afterSsr` instead.
    */
   afterHydrate?(document: any): any | Promise<any>;
   /**
@@ -979,6 +989,10 @@ export interface SerializeDocumentOptions extends HydrateDocumentOptions {
   approximateLineWidth?: number;
   /**
    * Runs before the `document` has been hydrated.
+   */
+  beforeSsr?(document: any): any | Promise<any>;
+  /**
+   * @deprecated Use `beforeSsr` instead.
    */
   beforeHydrate?(document: any): any | Promise<any>;
   /**
@@ -1018,13 +1032,19 @@ export interface SerializeDocumentOptions extends HydrateDocumentOptions {
   modes?: ResolutionHandler[];
 }
 
-export interface HydrateFactoryOptions extends SerializeDocumentOptions {
+export interface SsrFactoryOptions extends SerializeDocumentOptions {
   serializeToHtml: boolean;
   destroyWindow: boolean;
   destroyDocument: boolean;
 }
 
-export interface PrerenderHydrateOptions extends SerializeDocumentOptions {
+/**
+ * Backwards compat for v4
+ * @deprecated - use SsrFactoryOptions instead
+ */
+export interface HydrateFactoryOptions extends SsrFactoryOptions {}
+
+export interface PrerenderOptions extends SerializeDocumentOptions {
   /**
    * Adds `<link rel="modulepreload">` for modules that will eventually be requested.
    * Defaults to `true`.
@@ -1059,6 +1079,12 @@ export interface PrerenderHydrateOptions extends SerializeDocumentOptions {
    */
   staticDocument?: boolean;
 }
+
+/**
+ * v4 backwards compat
+ * @deprecated - use PrerenderOptions instead
+ */
+export interface PrerenderHydrateOptions extends PrerenderOptions {}
 
 export interface RobotsTxtOpts {
   urls: string[];
@@ -1490,7 +1516,7 @@ export interface CompilerBuildResults {
   hasError: boolean;
   hasSuccessfulBuild: boolean;
   hmr?: HotModuleReplacement;
-  hydrateAppFilePath?: string;
+  ssrAppFilePath?: string;
   isRebuild: boolean;
   namespace: string;
   outputs: BuildOutput[];
@@ -2493,7 +2519,7 @@ export interface OutputTargetWww extends OutputTargetBase {
    * Path to an external node module which has exports of the prerender config object.
    * ```
    * module.exports = {
-   *   afterHydrate(document, url) {
+   *   afterSsr(document, url) {
    *     document.title = `URL: ${url.href}`;
    *   }
    * }
@@ -2655,7 +2681,7 @@ export interface ResolveModuleOptions {
 
 export interface PrerenderStartOptions {
   buildId?: string;
-  hydrateAppFilePath?: string;
+  ssrAppFilePath?: string;
   componentGraph?: BuildResultsComponentGraph;
   srcIndexHtmlPath?: string;
 }

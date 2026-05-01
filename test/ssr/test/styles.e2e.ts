@@ -4,15 +4,15 @@ import { test } from '@stencil/playwright';
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('styles and modes', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
   test.describe('component modes', () => {
@@ -148,7 +148,7 @@ test.describe('styles and modes', () => {
       const { html } = await renderToString('<another-car-detail></another-car-detail>', {
         serializeShadowRoot: true,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toContain(
         '<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>',
@@ -161,7 +161,7 @@ test.describe('styles and modes', () => {
         {
           serializeShadowRoot: true,
           fullDocument: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
 

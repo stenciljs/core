@@ -23,7 +23,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'loader-bundle',
-      dir: 'dist/loader-bundle',
     },
     // First global-style: inject: 'none' (default) - NOT injected into shadow DOMs
     {

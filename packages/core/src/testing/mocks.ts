@@ -255,7 +255,7 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     reset: noop,
     resolvedCollections: new Set(),
     rolldownCache: new Map(),
-    rolldownCacheHydrate: null,
+    rolldownCacheSsr: null,
     rolldownCacheLazy: null,
     rolldownCacheNative: null,
     transpileCache: new Map(),

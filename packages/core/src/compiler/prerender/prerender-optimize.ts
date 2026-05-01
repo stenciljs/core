@@ -144,8 +144,8 @@ export const minifyStyleElements = async (
 
 export const excludeStaticComponents = (
   doc: Document,
-  hydrateOpts: d.PrerenderHydrateOptions,
-  hydrateResults: d.HydrateResults,
+  hydrateOpts: d.PrerenderOptions,
+  hydrateResults: d.SsrResults,
 ) => {
   const staticComponents = hydrateOpts.staticComponents.filter((tag) => {
     return hydrateResults.components.some((cmp) => cmp.tag === tag);
@@ -178,8 +178,8 @@ s&&((s['data-opts']=s['data-opts']||{}).exclude=__EXCLUDE__);
 
 export const addModulePreloads = (
   doc: Document,
-  hydrateOpts: d.PrerenderHydrateOptions,
-  hydrateResults: d.HydrateResults,
+  hydrateOpts: d.PrerenderOptions,
+  hydrateResults: d.SsrResults,
   componentGraph: Map<string, string[]>,
 ) => {
   if (!componentGraph) {
@@ -227,7 +227,7 @@ export const hashAssets = async (
   sys: d.CompilerSystem,
   prerenderCtx: PrerenderContext,
   diagnostics: d.Diagnostic[],
-  hydrateOpts: d.PrerenderHydrateOptions,
+  hydrateOpts: d.PrerenderOptions,
   appDir: string,
   doc: Document,
   currentUrl: URL,
@@ -312,7 +312,7 @@ export const hashAssets = async (
 
 const hashAsset = async (
   sys: d.CompilerSystem,
-  hydrateOpts: d.PrerenderHydrateOptions,
+  hydrateOpts: d.PrerenderOptions,
   appDir: string,
   doc: Document,
   currentUrl: URL,
@@ -346,7 +346,7 @@ const hashAsset = async (
 
 const hashPageStateAstAssets = async (
   sys: d.CompilerSystem,
-  hydrateOpts: d.PrerenderHydrateOptions,
+  hydrateOpts: d.PrerenderOptions,
   appDir: string,
   currentUrl: URL,
   pageStateScript: HTMLScriptElement,

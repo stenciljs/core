@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
-export function normalizeHydrateOptions(inputOpts?: d.HydrateDocumentOptions) {
-  const outputOpts: d.HydrateFactoryOptions = Object.assign(
+export function normalizeHydrateOptions(inputOpts?: d.SsrDocumentOptions) {
+  const outputOpts: d.SsrFactoryOptions = Object.assign(
     {
       serializeToHtml: false,
       destroyWindow: false,
@@ -10,8 +10,8 @@ export function normalizeHydrateOptions(inputOpts?: d.HydrateDocumentOptions) {
     inputOpts || {},
   );
 
-  if (typeof outputOpts.clientHydrateAnnotations !== 'boolean') {
-    outputOpts.clientHydrateAnnotations = true;
+  if (typeof outputOpts.clientSsrAnnotations !== 'boolean') {
+    outputOpts.clientSsrAnnotations = true;
   }
 
   if (typeof outputOpts.constrainTimeouts !== 'boolean') {
@@ -57,15 +57,15 @@ function mapValidTags(tag: string) {
   return tag.trim().toLowerCase();
 }
 
-export function generateHydrateResults(opts: d.HydrateDocumentOptions) {
+export function generateHydrateResults(opts: d.SsrDocumentOptions) {
   if (typeof opts.url !== 'string') {
     opts.url = `https://hydrate.stenciljs.com/`;
   }
 
   if (typeof opts.buildId !== 'string') {
-    opts.buildId = createHydrateBuildId();
+    opts.buildId = createSsrBuildId();
   }
-  const results: d.HydrateResults = {
+  const results: d.SsrResults = {
     buildId: opts.buildId,
     diagnostics: [],
     url: opts.url,
@@ -105,7 +105,7 @@ export function generateHydrateResults(opts: d.HydrateDocumentOptions) {
   return results;
 }
 
-export const createHydrateBuildId = () => {
+export const createSsrBuildId = () => {
   // should be case insensitive because it could be in a URL
   // and shouldn't start with a number cuz we might use it as a js prop
   let chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -121,7 +121,7 @@ export const createHydrateBuildId = () => {
 };
 
 export function renderBuildDiagnostic(
-  results: d.HydrateResults,
+  results: d.SsrResults,
   level: 'error' | 'warn' | 'info' | 'log' | 'debug',
   header: string,
   msg: string,
@@ -148,11 +148,11 @@ export function renderBuildDiagnostic(
   return diagnostic;
 }
 
-export function renderBuildError(results: d.HydrateResults, msg?: string) {
+export function renderBuildError(results: d.SsrResults, msg?: string) {
   return renderBuildDiagnostic(results, 'error', 'Hydrate Error', msg || '');
 }
 
-export function renderCatchError(results: d.HydrateResults, err: any) {
+export function renderCatchError(results: d.SsrResults, err: any) {
   const diagnostic = renderBuildError(results);
 
   if (err != null) {

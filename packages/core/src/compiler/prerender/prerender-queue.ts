@@ -8,17 +8,17 @@ export const initializePrerenderEntryUrls = (
   results: d.PrerenderResults,
   manager: d.PrerenderManager,
 ) => {
-  const entryAnchors: d.HydrateAnchorElement[] = [];
+  const entryAnchors: d.SsrAnchorElement[] = [];
 
   if (Array.isArray(manager.prerenderConfig.entryUrls)) {
     for (const entryUrl of manager.prerenderConfig.entryUrls) {
-      const entryAnchor: d.HydrateAnchorElement = {
+      const entryAnchor: d.SsrAnchorElement = {
         href: entryUrl,
       };
       entryAnchors.push(entryAnchor);
     }
   } else {
-    const entryAnchor: d.HydrateAnchorElement = {
+    const entryAnchor: d.SsrAnchorElement = {
       href: manager.outputTarget.baseUrl,
     };
     entryAnchors.push(entryAnchor);
@@ -133,7 +133,7 @@ const prerenderUrl = async (
       buildId: results.buildId,
       componentGraphPath: manager.componentGraphPath,
       devServerHostUrl: manager.devServerHostUrl,
-      hydrateAppFilePath: manager.hydrateAppFilePath,
+      ssrAppFilePath: manager.ssrAppFilePath,
       isDebug: manager.isDebug,
       prerenderConfigPath: manager.prerenderConfigPath,
       staticSite: manager.staticSite,

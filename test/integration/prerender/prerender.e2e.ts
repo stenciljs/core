@@ -72,14 +72,14 @@ CmpA server componentDidLoad`);
     expect(styles.scopedB.scopedClassColor).toBe('rgb(255, 255, 0)');
   });
 
-  test('html dir attribute set by beforeHydrate hook', async ({ page }) => {
+  test('html dir attribute set by beforeSsr hook', async ({ page }) => {
     await page.goto('/prerender/index.html');
 
     const dir = await page.locator('html').getAttribute('dir');
     expect(dir).toBe('ltr');
   });
 
-  test('title set by afterHydrate hook', async ({ page }) => {
+  test('title set by afterSsr hook', async ({ page }) => {
     await page.goto('/prerender/index.html');
 
     const title = await page.title();

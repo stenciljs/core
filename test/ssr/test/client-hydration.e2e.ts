@@ -9,15 +9,15 @@ const beetle = new CarData('VW', 'Beetle', 2023);
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 test.describe('client hydration', () => {
   test.beforeEach(async () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
   test.describe('browser takeover', () => {
@@ -72,7 +72,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString(`<slow-ssr-prop></slow-ssr-prop>`, {
         fullDocument: true,
         serializeShadowRoot: 'declarative-shadow-dom',
-        beforeHydrate: (doc) => {
+        beforeSsr: (doc) => {
           const slowCmp = doc.querySelector('slow-ssr-prop') as any;
           slowCmp.anArray = ['one', 'two', 'three'];
         },
@@ -112,7 +112,7 @@ test.describe('client hydration', () => {
         {
           serializeShadowRoot: true,
           fullDocument: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
 
@@ -140,26 +140,26 @@ test.describe('client hydration', () => {
   });
 
   test.describe('lifecycle hooks', () => {
-    test('calls beforeHydrate and afterHydrate function hooks', async () => {
-      let beforeHydrateCalled = 0;
-      let afterHydrateCalled = 0;
+    test('calls beforeSsr and afterSsr function hooks', async () => {
+      let beforeSsrCalled = 0;
+      let afterSsrCalled = 0;
 
-      const beforeHydrate = (doc: Document) => {
-        beforeHydrateCalled++;
+      const beforeSsr = (doc: Document) => {
+        beforeSsrCalled++;
         const div = doc.querySelector('div');
         if (div) div.textContent = 'Hello Universe';
       };
-      const afterHydrate = () => {
-        afterHydrateCalled++;
+      const afterSsr = () => {
+        afterSsrCalled++;
       };
 
       const { html } = await renderToString('<div>Hello World</div>', {
-        beforeHydrate,
-        afterHydrate,
+        beforeSsr,
+        afterSsr,
       });
 
-      expect(beforeHydrateCalled).toBe(1);
-      expect(afterHydrateCalled).toBe(1);
+      expect(beforeSsrCalled).toBe(1);
+      expect(afterSsrCalled).toBe(1);
       expect(html || '').toContain('<body><div>Hello Universe</div></body>');
     });
   });
@@ -189,7 +189,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString('<another-car-detail></another-car-detail>', {
         serializeShadowRoot: false,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
         '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
@@ -200,7 +200,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
         serializeShadowRoot: false,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
         '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',

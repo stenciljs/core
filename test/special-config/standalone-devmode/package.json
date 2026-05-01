@@ -1,0 +1,17 @@
+{
+  "name": "@stencil-core-tests/special-config-standalone-devmode",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Tests standalone dev mode configuration",
+  "type": "module",
+  "scripts": {
+    "build": "stencil build"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
+}

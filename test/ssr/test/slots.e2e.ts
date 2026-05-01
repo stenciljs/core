@@ -4,7 +4,7 @@ import { test } from '@stencil/playwright';
 // @ts-ignore may not be existing when project hasn't been built
 type HydrateModule = typeof import('../dist/ssr/index.js');
 let renderToString: HydrateModule['renderToString'];
-let resetHydrateDocData: HydrateModule['resetHydrateDocData'];
+let resetSsrDocData: HydrateModule['resetSsrDocData'];
 
 async function getNonShadowElementOrder(page: Page, parent: string) {
   return await page.evaluate((parent: string) => {
@@ -23,8 +23,8 @@ test.describe('slot handling', () => {
     // @ts-ignore may not be existing when project hasn't been built
     const mod = await import('../dist/ssr/index.js');
     renderToString = mod.renderToString;
-    resetHydrateDocData = mod.resetHydrateDocData;
-    resetHydrateDocData();
+    resetSsrDocData = mod.resetSsrDocData;
+    resetSsrDocData();
   });
 
   test.describe('scoped component slots', () => {
