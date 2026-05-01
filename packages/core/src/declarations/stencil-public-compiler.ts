@@ -980,6 +980,10 @@ export interface SerializeDocumentOptions extends SsrDocumentOptions {
    */
   afterSsr?(document: any): any | Promise<any>;
   /**
+   * @deprecated Use `afterSsr` instead.
+   */
+  afterHydrate?(document: any): any | Promise<any>;
+  /**
    * Sets an approximate line width the HTML should attempt to stay within.
    * Note that this is "approximate", in that HTML may often not be able
    * to be split at an exact line width. Additionally, new lines created
@@ -991,6 +995,10 @@ export interface SerializeDocumentOptions extends SsrDocumentOptions {
    * Runs before the `document` has been hydrated.
    */
   beforeSsr?(document: any): any | Promise<any>;
+  /**
+   * @deprecated Use `beforeSsr` instead.
+   */
+  beforeHydrate?(document: any): any | Promise<any>;
   /**
    * Format the HTML in a nicely indented format.
    * Defaults to `false`.

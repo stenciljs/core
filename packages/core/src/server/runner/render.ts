@@ -139,6 +139,13 @@ export function ssrDocument(doc: any | string, options?: SsrDocumentOptions): Pr
   return Promise.resolve(results);
 }
 
+/**
+ * v4 Compat
+ * @alias
+ * @deprecated Use `ssrDocument()` instead
+ */
+export const hydrateDocument = ssrDocument;
+
 async function render(win: MockWindow, opts: SsrFactoryOptions, results: SsrResults) {
   if (
     'process' in globalThis &&
@@ -152,7 +159,10 @@ async function render(win: MockWindow, opts: SsrFactoryOptions, results: SsrResu
   }
 
   initializeWindow(win, win.document, opts, results);
-  const beforeHydrateFn = typeof opts.beforeSsr === 'function' ? opts.beforeSsr : NOOP;
+  const beforeHydrateFn =
+    typeof (opts.beforeSsr || opts.beforeHydrate) === 'function'
+      ? opts.beforeSsr || opts.beforeHydrate
+      : NOOP;
   try {
     await Promise.resolve(beforeHydrateFn(win.document));
     return new Promise<SsrResults>((resolve) => {
@@ -178,7 +188,10 @@ async function afterSsr(
   results: SsrResults,
   resolve: (results: SsrResults) => void,
 ) {
-  const afterSsrFn = typeof opts.afterSsr === 'function' ? opts.afterSsr : NOOP;
+  const afterSsrFn =
+    typeof (opts.afterSsr || opts.afterHydrate) === 'function'
+      ? opts.afterSsr || opts.afterHydrate
+      : NOOP;
   try {
     await Promise.resolve(afterSsrFn(win.document));
     return resolve(finalizeSsr(win, win.document, opts, results));
