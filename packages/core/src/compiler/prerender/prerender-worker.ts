@@ -39,7 +39,7 @@ export const prerenderWorker = async (
     );
 
     // webpack work-around/hack
-    const hydrateApp = require(prerenderRequest.hydrateAppFilePath);
+    const ssrApp = require(prerenderRequest.ssrAppFilePath);
 
     if (prerenderCtx.templateHtml == null) {
       // cache template html in this process
@@ -47,10 +47,7 @@ export const prerenderWorker = async (
     }
 
     // create a new window by cloning the cached parsed window
-    const win = hydrateApp.createWindowFromHtml(
-      prerenderCtx.templateHtml,
-      prerenderRequest.templateId,
-    );
+    const win = ssrApp.createWindowFromHtml(prerenderCtx.templateHtml, prerenderRequest.templateId);
     const doc = win.document;
     win.location.href = url.href;
 
@@ -91,7 +88,7 @@ export const prerenderWorker = async (
 
     // parse the html to dom nodes, hydrate the components, then
     // serialize the hydrated dom nodes back to into html
-    const hydrateResults: d.SsrResults = await hydrateApp.ssrDocument(doc, hydrateOpts);
+    const hydrateResults: d.SsrResults = await ssrApp.ssrDocument(doc, hydrateOpts);
     results.diagnostics.push(...hydrateResults.diagnostics);
 
     if (typeof prerenderConfig.filePath === 'function') {
@@ -180,7 +177,7 @@ export const prerenderWorker = async (
       return results;
     }
 
-    const html = await hydrateApp.serializeDocumentToString(doc, hydrateOpts);
+    const html = await ssrApp.serializeDocumentToString(doc, hydrateOpts);
 
     prerenderEnsureDir(sys, prerenderCtx, results.filePath);
 

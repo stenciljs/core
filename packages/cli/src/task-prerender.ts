@@ -16,9 +16,9 @@ export const taskPrerender = async (
 ) => {
   startupCompilerLog(coreCompiler, config);
 
-  const hydrateAppFilePath = flags.unknownArgs[0];
+  const ssrAppFilePath = flags.unknownArgs[0];
 
-  if (typeof hydrateAppFilePath !== 'string') {
+  if (typeof ssrAppFilePath !== 'string') {
     config.logger.error(`Missing hydrate app script path`);
     return config.sys.exit(1);
   }
@@ -28,7 +28,7 @@ export const taskPrerender = async (
   const diagnostics = await runPrerenderTask(
     coreCompiler,
     config,
-    hydrateAppFilePath,
+    ssrAppFilePath,
     undefined,
     srcIndexHtmlPath,
   );
@@ -42,7 +42,7 @@ export const taskPrerender = async (
 export const runPrerenderTask = async (
   coreCompiler: CoreCompiler,
   config: ValidatedConfig,
-  hydrateAppFilePath?: string,
+  ssrAppFilePath?: string,
   componentGraph?: BuildResultsComponentGraph,
   srcIndexHtmlPath?: string,
 ) => {
@@ -51,7 +51,7 @@ export const runPrerenderTask = async (
   try {
     const prerenderer = await coreCompiler.createPrerenderer(config);
     const results = await prerenderer.start({
-      hydrateAppFilePath,
+      ssrAppFilePath,
       componentGraph,
       srcIndexHtmlPath,
     });

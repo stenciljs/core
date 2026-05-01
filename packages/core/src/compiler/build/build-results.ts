@@ -39,8 +39,8 @@ export const generateBuildResults = (
     buildResults.hmr = hmr;
   }
 
-  if (isString(buildCtx.hydrateAppFilePath)) {
-    buildResults.hydrateAppFilePath = buildCtx.hydrateAppFilePath;
+  if (isString(buildCtx.ssrAppFilePath)) {
+    buildResults.ssrAppFilePath = buildCtx.ssrAppFilePath;
   }
 
   compilerCtx.lastBuildResults = Object.assign({}, buildResults as any);

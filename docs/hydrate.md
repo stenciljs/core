@@ -603,7 +603,7 @@ interface SsrDocumentOptions {
   direction?: string;
   language?: string;
   buildId?: string;
-  clientHydrateAnnotations?: boolean;
+  clientSsrAnnotations?: boolean;
   constrainTimeouts?: boolean;
   timeout?: number;
   staticComponents?: string[];

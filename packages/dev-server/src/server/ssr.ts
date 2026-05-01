@@ -27,7 +27,7 @@ interface HydrateApp {
 }
 
 interface SetupResult {
-  hydrateApp: HydrateApp | null;
+  ssrApp: HydrateApp | null;
   srcIndexHtml: string | null;
   diagnostics: Diagnostic[];
 }
@@ -46,16 +46,13 @@ export async function ssrPageRequest(
     let status = 500;
     let content = '';
 
-    const { hydrateApp, srcIndexHtml, diagnostics } = await setupHydrateApp(
-      devServerConfig,
-      serverCtx,
-    );
+    const { ssrApp, srcIndexHtml, diagnostics } = await setupHydrateApp(devServerConfig, serverCtx);
 
     if (!diagnostics.some((diagnostic) => diagnostic.level === 'error')) {
       try {
         const opts = getSsrHydrateOptions(devServerConfig, serverCtx, req.url!);
 
-        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts);
+        const ssrResults = await ssrApp!.renderToString(srcIndexHtml!, opts);
 
         diagnostics.push(...ssrResults.diagnostics);
         status = ssrResults.httpStatus ?? 500;
@@ -104,10 +101,7 @@ export async function ssrStaticDataRequest(
     const data: Record<string, unknown> = {};
     let httpCache = false;
 
-    const { hydrateApp, srcIndexHtml, diagnostics } = await setupHydrateApp(
-      devServerConfig,
-      serverCtx,
-    );
+    const { ssrApp, srcIndexHtml, diagnostics } = await setupHydrateApp(devServerConfig, serverCtx);
 
     if (!diagnostics.some((diagnostic) => diagnostic.level === 'error')) {
       try {
@@ -116,7 +110,7 @@ export async function ssrStaticDataRequest(
 
         const opts = getSsrHydrateOptions(devServerConfig, serverCtx, url);
 
-        const ssrResults = await hydrateApp!.renderToString(srcIndexHtml!, opts);
+        const ssrResults = await ssrApp!.renderToString(srcIndexHtml!, opts);
 
         diagnostics.push(...ssrResults.diagnostics);
 
@@ -168,7 +162,7 @@ async function setupHydrateApp(
   serverCtx: DevServerContext,
 ): Promise<SetupResult> {
   let srcIndexHtml: string | null = null;
-  let hydrateApp: HydrateApp | null = null;
+  let ssrApp: HydrateApp | null = null;
 
   const buildResults = await serverCtx.getBuildResults();
   const diagnostics: Diagnostic[] = [];
@@ -187,9 +181,9 @@ async function setupHydrateApp(
     }
   }
 
-  if (!isString(buildResults.hydrateAppFilePath)) {
+  if (!isString(buildResults.ssrAppFilePath)) {
     diagnostics.push({
-      messageText: 'Missing hydrateAppFilePath',
+      messageText: 'Missing ssrAppFilePath',
       level: 'error',
       type: 'ssr',
       lines: [],
@@ -211,15 +205,15 @@ async function setupHydrateApp(
         type: 'ssr',
       });
     } else {
-      const hydrateAppFilePath = path.resolve(buildResults.hydrateAppFilePath);
+      const ssrAppFilePath = path.resolve(buildResults.ssrAppFilePath);
 
       try {
         // Use cache-busting query string for ESM dynamic import
         // This ensures we get a fresh module on each build
-        const hydrateUrl = pathToFileURL(hydrateAppFilePath);
+        const hydrateUrl = pathToFileURL(ssrAppFilePath);
         hydrateUrl.search = `?t=${Date.now()}`;
         const hydrateModule = await import(hydrateUrl.href);
-        hydrateApp = hydrateModule.default || hydrateModule;
+        ssrApp = hydrateModule.default || hydrateModule;
       } catch (e) {
         catchError(diagnostics, e);
       }
@@ -227,7 +221,7 @@ async function setupHydrateApp(
   }
 
   return {
-    hydrateApp,
+    ssrApp,
     srcIndexHtml,
     diagnostics,
   };
@@ -258,8 +252,8 @@ function getSsrHydrateOptions(
 
   const prerenderConfig = serverCtx?.prerenderConfig;
 
-  if (isFunction(prerenderConfig?.hydrateOptions)) {
-    const userOpts = prerenderConfig.hydrateOptions(url);
+  if (isFunction(prerenderConfig?.prerenderOptions)) {
+    const userOpts = prerenderConfig.prerenderOptions(url);
     if (userOpts) {
       Object.assign(opts, userOpts);
     }

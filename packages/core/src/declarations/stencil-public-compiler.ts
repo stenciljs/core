@@ -820,10 +820,6 @@ export interface PrerenderConfig {
    */
   prerenderOptions?(url: URL): PrerenderOptions;
   /**
-   * @deprecated Use `prerenderOptions` instead.
-   */
-  hydrateOptions?(url: URL): PrerenderOptions;
-  /**
    * Returns the template file's content. The template is the base
    * HTML used for all prerendered pages.
    */
@@ -1520,7 +1516,7 @@ export interface CompilerBuildResults {
   hasError: boolean;
   hasSuccessfulBuild: boolean;
   hmr?: HotModuleReplacement;
-  hydrateAppFilePath?: string;
+  ssrAppFilePath?: string;
   isRebuild: boolean;
   namespace: string;
   outputs: BuildOutput[];
@@ -2685,7 +2681,7 @@ export interface ResolveModuleOptions {
 
 export interface PrerenderStartOptions {
   buildId?: string;
-  hydrateAppFilePath?: string;
+  ssrAppFilePath?: string;
   componentGraph?: BuildResultsComponentGraph;
   srcIndexHtmlPath?: string;
 }

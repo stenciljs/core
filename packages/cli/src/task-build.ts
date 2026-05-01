@@ -80,7 +80,7 @@ export const taskBuild = async (
               const prerenderDiagnostics = await runPrerenderTask(
                 coreCompiler,
                 config,
-                newResults.hydrateAppFilePath,
+                newResults.ssrAppFilePath,
                 newResults.componentGraph,
                 undefined,
               );
@@ -107,7 +107,7 @@ export const taskBuild = async (
       const prerenderDiagnostics = await runPrerenderTask(
         coreCompiler,
         config,
-        results.hydrateAppFilePath,
+        results.ssrAppFilePath,
         results.componentGraph,
         undefined,
       );

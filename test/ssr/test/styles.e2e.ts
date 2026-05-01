@@ -148,7 +148,7 @@ test.describe('styles and modes', () => {
       const { html } = await renderToString('<another-car-detail></another-car-detail>', {
         serializeShadowRoot: true,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toContain(
         '<template shadowrootmode="open"><style sty-id="sc-another-car-detail">section{color:green}</style>',
@@ -161,7 +161,7 @@ test.describe('styles and modes', () => {
         {
           serializeShadowRoot: true,
           fullDocument: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
 

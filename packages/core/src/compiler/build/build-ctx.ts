@@ -39,7 +39,7 @@ export class BuildContext implements d.BuildCtx {
   hasServiceWorkerChanges = false;
   hasScriptChanges = true;
   hasStyleChanges = true;
-  hydrateAppFilePath: string = null;
+  ssrAppFilePath: string = null;
   indexBuildCount = 0;
   indexDoc: Document = undefined;
   isRebuild = false;

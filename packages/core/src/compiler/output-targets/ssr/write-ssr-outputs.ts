@@ -44,7 +44,7 @@ const writeSsrOutput = async (
   await copySsrRunnerDts(config, compilerCtx, hydrateAppDirPath);
 
   // always remember a path to the hydrate app that the prerendering may need later on
-  buildCtx.hydrateAppFilePath = join(hydrateAppDirPath, 'index.js');
+  buildCtx.ssrAppFilePath = join(hydrateAppDirPath, 'index.js');
   const minify = outputTarget.minify === true;
 
   await Promise.all(

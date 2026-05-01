@@ -182,7 +182,7 @@ const generateSsrFactoryEntry = async (buildCtx: d.BuildCtx) => {
   const s = new MagicString('');
 
   s.append(
-    `import { hydrateApp, registerComponents, styles } from '${STENCIL_INTERNAL_SSR_PLATFORM_ID}';\n`,
+    `import { ssrApp, registerComponents, styles } from '${STENCIL_INTERNAL_SSR_PLATFORM_ID}';\n`,
   );
 
   ssrCmps.forEach((cmpData) => s.append(cmpData.importLine + '\n'));
@@ -192,7 +192,7 @@ const generateSsrFactoryEntry = async (buildCtx: d.BuildCtx) => {
     s.append(`  ${cmpData.uniqueComponentClassName},\n`);
   });
   s.append(`]);\n`);
-  s.append(`export { hydrateApp }\n`);
+  s.append(`export { ssrApp }\n`);
 
   return s.toString();
 };

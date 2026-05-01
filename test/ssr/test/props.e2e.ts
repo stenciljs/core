@@ -27,7 +27,7 @@ test.describe('props serialization', () => {
           serializeShadowRoot: true,
           fullDocument: false,
           prettyHtml: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toMatchSnapshot();
@@ -41,7 +41,7 @@ test.describe('props serialization', () => {
           serializeShadowRoot: true,
           fullDocument: false,
           prettyHtml: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toMatchSnapshot();
@@ -54,7 +54,7 @@ test.describe('props serialization', () => {
         {
           serializeShadowRoot: true,
           fullDocument: false,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
       expect(html || '').toContain('<section class="sc-another-car-detail"></section>');

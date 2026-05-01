@@ -17,7 +17,7 @@ export const createPrerenderer = async (config: d.ValidatedConfig) => {
   const start = (opts: d.PrerenderStartOptions) => {
     return runPrerender(
       config,
-      opts.hydrateAppFilePath,
+      opts.ssrAppFilePath,
       opts.componentGraph,
       opts.srcIndexHtmlPath,
       opts.buildId,
@@ -30,7 +30,7 @@ export const createPrerenderer = async (config: d.ValidatedConfig) => {
 
 const runPrerender = async (
   config: d.ValidatedConfig,
-  hydrateAppFilePath: string,
+  ssrAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
   buildId: string,
@@ -56,20 +56,20 @@ const runPrerender = async (
     return results;
   }
 
-  if (!isString(hydrateAppFilePath)) {
+  if (!isString(ssrAppFilePath)) {
     const diagnostic = buildError(diagnostics);
     diagnostic.header = `Prerender Error`;
-    diagnostic.messageText = `Build results missing "hydrateAppFilePath"`;
+    diagnostic.messageText = `Build results missing "ssrAppFilePath"`;
   } else {
-    if (!isAbsolute(hydrateAppFilePath)) {
-      hydrateAppFilePath = join(config.sys.getCurrentDirectory(), hydrateAppFilePath);
+    if (!isAbsolute(ssrAppFilePath)) {
+      ssrAppFilePath = join(config.sys.getCurrentDirectory(), ssrAppFilePath);
     }
 
-    const hydrateAppExists = await config.sys.access(hydrateAppFilePath);
+    const hydrateAppExists = await config.sys.access(ssrAppFilePath);
     if (!hydrateAppExists) {
       const diagnostic = buildError(diagnostics);
       diagnostic.header = `Prerender Error`;
-      diagnostic.messageText = `Unable to open "hydrateAppFilePath": ${hydrateAppFilePath}`;
+      diagnostic.messageText = `Unable to open "ssrAppFilePath": ${ssrAppFilePath}`;
     }
   }
 
@@ -109,7 +109,7 @@ const runPrerender = async (
             diagnostics,
             config,
             devServer,
-            hydrateAppFilePath,
+            ssrAppFilePath,
             componentGraph,
             srcIndexHtmlPath,
             outputTarget,
@@ -142,7 +142,7 @@ const runPrerenderOutputTarget = async (
   diagnostics: d.Diagnostic[],
   config: d.ValidatedConfig,
   devServer: d.DevServer,
-  hydrateAppFilePath: string,
+  ssrAppFilePath: string,
   componentGraph: d.BuildResultsComponentGraph,
   srcIndexHtmlPath: string,
   outputTarget: d.OutputTargetWww,
@@ -156,7 +156,7 @@ const runPrerenderOutputTarget = async (
 
     const hydrateOpts = getSsrOptions(prerenderConfig, devServerBaseUrl, diagnostics);
 
-    config.logger.debug(`prerender hydrate app: ${hydrateAppFilePath}`);
+    config.logger.debug(`prerender hydrate app: ${ssrAppFilePath}`);
     config.logger.debug(`prerender dev server: ${devServerHostUrl}`);
 
     if (hasError(diagnostics)) {
@@ -172,7 +172,7 @@ const runPrerenderOutputTarget = async (
       config: config,
       diagnostics: prerenderDiagnostics,
       devServerHostUrl: devServerHostUrl,
-      hydrateAppFilePath: hydrateAppFilePath,
+      ssrAppFilePath: ssrAppFilePath,
       isDebug: config.logLevel === 'debug',
       logCount: 0,
       maxConcurrency: Math.max(20, config.maxConcurrentWorkers * 10),

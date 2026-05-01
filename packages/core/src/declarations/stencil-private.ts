@@ -253,7 +253,7 @@ export interface BuildCtx {
   hasScriptChanges: boolean;
   hasStyleChanges: boolean;
   hasWarning: boolean;
-  hydrateAppFilePath: string;
+  ssrAppFilePath: string;
   indexBuildCount: number;
   indexDoc: Document;
   isRebuild: boolean;
@@ -1383,7 +1383,7 @@ export interface PrerenderUrlRequest {
   baseUrl: string;
   componentGraphPath: string;
   devServerHostUrl: string;
-  hydrateAppFilePath: string;
+  ssrAppFilePath: string;
   isDebug: boolean;
   prerenderConfigPath: string;
   staticSite: boolean;
@@ -1397,7 +1397,7 @@ export interface PrerenderManager {
   prerenderUrlWorker: (prerenderRequest: PrerenderUrlRequest) => Promise<PrerenderUrlResults>;
   devServerHostUrl: string;
   diagnostics: Diagnostic[];
-  hydrateAppFilePath: string;
+  ssrAppFilePath: string;
   isDebug: boolean;
   logCount: number;
   outputTarget: OutputTargetWww;

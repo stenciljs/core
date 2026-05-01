@@ -112,7 +112,7 @@ test.describe('client hydration', () => {
         {
           serializeShadowRoot: true,
           fullDocument: true,
-          clientHydrateAnnotations: false,
+          clientSsrAnnotations: false,
         },
       );
 
@@ -189,7 +189,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString('<another-car-detail></another-car-detail>', {
         serializeShadowRoot: false,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
         '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
@@ -200,7 +200,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString('<cmp-with-slot>Hello World</cmp-with-slot>', {
         serializeShadowRoot: false,
         fullDocument: false,
-        clientHydrateAnnotations: false,
+        clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
         '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',

@@ -35,9 +35,9 @@ export const getSsrOptions = (
     opts.canonicalUrl = prerenderUrl;
   }
 
-  if (typeof prerenderConfig.hydrateOptions === 'function') {
+  if (typeof prerenderConfig.prerenderOptions === 'function') {
     try {
-      const userOpts = prerenderConfig.hydrateOptions(url);
+      const userOpts = prerenderConfig.prerenderOptions(url);
       if (userOpts != null) {
         if (userOpts.prettyHtml && typeof userOpts.removeAttributeQuotes !== 'boolean') {
           opts.removeAttributeQuotes = false;

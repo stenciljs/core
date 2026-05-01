@@ -133,7 +133,7 @@ const prerenderUrl = async (
       buildId: results.buildId,
       componentGraphPath: manager.componentGraphPath,
       devServerHostUrl: manager.devServerHostUrl,
-      hydrateAppFilePath: manager.hydrateAppFilePath,
+      ssrAppFilePath: manager.ssrAppFilePath,
       isDebug: manager.isDebug,
       prerenderConfigPath: manager.prerenderConfigPath,
       staticSite: manager.staticSite,
