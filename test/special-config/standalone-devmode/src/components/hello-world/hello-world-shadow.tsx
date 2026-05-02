@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component, h, Prop, State } from '@stencil/core';
 
 @Component({
   tag: 'hello-world-shadow',
@@ -8,10 +8,21 @@ import { Component, h } from '@stencil/core';
   },
 })
 export class HelloWorldShadow {
+  @Prop() name: string = 'World';
+  @State() count: number = 0;
+
+  connectedCallback() {
+    this.count++;
+    console.log('connectedCallback for shadow dom component', this.count);
+  }
   render() {
+    this.count++;
+    console.log('rendering shadow dom component', this.count);
     return (
       <div class='hello'>
-        Hello, World! <slot />
+        Hello, {this.name}! ---
+        <slot />
+        {this.count}
       </div>
     );
   }

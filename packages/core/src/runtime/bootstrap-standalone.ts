@@ -24,6 +24,7 @@ import {
   patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
+import { hmrStart } from './hmr-component';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { proxyComponent } from './proxy-component';
@@ -69,6 +70,15 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     if (BUILD.shadowDom && !supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
       // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
       cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
+    }
+
+    if (BUILD.hotModuleReplacement) {
+      // if we're in an HMR dev build then we need to set up the callback
+      // which will carry out the work of actually replacing the module for
+      // this particular component
+      (Cstr.prototype as d.HostElement)['s-hmr'] = function (hmrVersionId: string) {
+        hmrStart(this, cmpMeta, hmrVersionId);
+      };
     }
 
     if (

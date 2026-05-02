@@ -192,12 +192,19 @@ export const addStyle = (
         }
 
         if (
-          (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-          (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
+          (BUILD.hydrateServerSide &&
+            (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
+              cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
+              cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)) ||
+          BUILD.hotModuleReplacement
         ) {
           styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
+        }
+
+        // Mark elements where slot-fb CSS was appended so the HMR updater
+        // knows to re-append it when the style text is replaced
+        if (BUILD.hotModuleReplacement && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation) {
+          styleElm.setAttribute('data-slot-fb', '');
         }
 
         /**

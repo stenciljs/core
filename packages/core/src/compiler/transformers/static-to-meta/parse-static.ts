@@ -99,7 +99,6 @@ export const updateModule = (
   emitFilePath = normalizePath(join(srcDirPath, emitFileName));
 
   const moduleFile = createModule(tsSourceFile, sourceFileText, emitFilePath);
-  if (prevModuleFile?.cmps) moduleFile.cmps = prevModuleFile.cmps;
 
   if (emitFilePath.endsWith('.js.map')) {
     moduleFile.sourceMapPath = emitFilePath;

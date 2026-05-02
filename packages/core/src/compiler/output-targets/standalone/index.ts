@@ -400,7 +400,7 @@ const getCustomBeforeTransformers = (
     styleImportData: 'queryparams',
   };
   const customBeforeTransformers = [
-    addDefineCustomElementFunctions(compilerCtx, components, outputTarget),
+    addDefineCustomElementFunctions(compilerCtx, components, outputTarget, config.devMode),
     updateStencilCoreImports(transformOpts.coreImportPath),
   ];
 

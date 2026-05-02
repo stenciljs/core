@@ -8,7 +8,7 @@ export class HelloWorldLight {
   render() {
     return (
       <div class='hello'>
-        Hello, World! <slot />
+        Hello, World!???? <slot />
       </div>
     );
   }
