@@ -29,7 +29,7 @@ export const hmrStart = (
   hmrVersionId: string,
 ) => {
   if (BUILD.lazyLoad) {
-    // Lazy-loaded build: reset flags and re-initialize (existing behaviour)
+    // Lazy-loaded build: reset flags and re-initialize (existing behavior)
     const hostRef = getHostRef(hostElement);
     if (!hostRef) {
       return;
