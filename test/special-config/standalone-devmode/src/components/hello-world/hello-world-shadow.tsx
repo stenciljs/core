@@ -20,7 +20,8 @@ export class HelloWorldShadow {
     console.log('rendering shadow dom component', this.count);
     return (
       <div class='hello'>
-        Hello, {this.name}! ---<slot />
+        Hello, {this.name}! ---
+        <slot />
         {this.count}
       </div>
     );

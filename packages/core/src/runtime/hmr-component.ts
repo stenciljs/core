@@ -1,6 +1,6 @@
+import * as d from '@stencil/core';
 import { BUILD } from 'virtual:app-data';
 import { forceUpdate, getHostRef } from 'virtual:platform';
-import * as d from '@stencil/core';
 
 import { HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
@@ -60,7 +60,9 @@ const hmrStandalone = async (
   const modulePath: string | undefined = (hostElement.constructor as any).__stencil_module__;
   console.log(`[Stencil HMR] hmrStandalone <${cmpMeta.$tagName$}> modulePath:`, modulePath);
   if (!modulePath) {
-    console.warn(`[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor — was this built with devMode?`);
+    console.warn(
+      `[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor — was this built with devMode?`,
+    );
     return;
   }
 
@@ -87,7 +89,7 @@ const hmrStandalone = async (
     // Object.assign is intentionally NOT used here — class methods are
     // non-enumerable and would be silently skipped.
     const ctor = customElements.get(cmpMeta.$tagName$) as any;
-    
+
     if (ctor) {
       for (const key of Object.getOwnPropertyNames(NewClass.prototype)) {
         if (key === 'constructor') continue;

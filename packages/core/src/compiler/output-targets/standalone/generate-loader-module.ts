@@ -24,7 +24,7 @@ export const generateLoaderModule = (
     .map((cmp) => `  '${cmp.tagName}': './${cmp.tagName}.js'`)
     .join(',\n');
 
-  return /* js */`
+  return /* js */ `
 import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
 
 /**
