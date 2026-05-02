@@ -144,6 +144,10 @@ const hmrInlineStylesTraverse = (
   }
 };
 
+// Slot-fallback CSS appended at runtime by the Stencil renderer for slot-patched components.
+// Must be re-appended after HMR overwrites the style text.
+const SLOT_FB_CSS = 'slot-fb{display:contents}slot-fb[hidden]{display:none}';
+
 /**
  * Update or remove a style element based on the HMR update.
  * @param elm - the style element to update
@@ -159,8 +163,10 @@ const hmrStyleElement = (
   const styleId = elm.getAttribute(STYLE_ID_ATTR);
   if (styleId === stylesUpdated.styleId) {
     if (stylesUpdated.styleText) {
+      // Re-append slot-fb CSS if it was originally added at runtime
+      const slotFbSuffix = elm.hasAttribute('data-slot-fb') ? SLOT_FB_CSS : '';
       // Update existing style element
-      elm.innerHTML = stylesUpdated.styleText.replace(/\\n/g, '\n');
+      elm.innerHTML = stylesUpdated.styleText.replace(/\\n/g, '\n') + slotFbSuffix;
       elm.setAttribute('data-hmr', versionId);
     } else {
       // CSS was removed entirely - remove the style element

@@ -9,6 +9,10 @@ export namespace Components {
     interface HelloWorldLight {
     }
     interface HelloWorldShadow {
+        /**
+          * @default 'World'
+         */
+        "name": string;
     }
 }
 declare global {
@@ -33,10 +37,19 @@ declare namespace LocalJSX {
     interface HelloWorldLight {
     }
     interface HelloWorldShadow {
+        /**
+          * @default 'World'
+         */
+        "name"?: string;
     }
+
+    interface HelloWorldShadowAttributes {
+        "name": string;
+    }
+
     interface IntrinsicElements {
         "hello-world-light": HelloWorldLight;
-        "hello-world-shadow": HelloWorldShadow;
+        "hello-world-shadow": Omit<HelloWorldShadow, keyof HelloWorldShadowAttributes> & { [K in keyof HelloWorldShadow & keyof HelloWorldShadowAttributes]?: HelloWorldShadow[K] } & { [K in keyof HelloWorldShadow & keyof HelloWorldShadowAttributes as `attr:${K}`]?: HelloWorldShadowAttributes[K] } & { [K in keyof HelloWorldShadow & keyof HelloWorldShadowAttributes as `prop:${K}`]?: HelloWorldShadow[K] };
     }
 }
 export { LocalJSX as JSX };

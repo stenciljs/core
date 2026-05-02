@@ -5,7 +5,8 @@
   "description": "Tests standalone dev mode configuration",
   "type": "module",
   "scripts": {
-    "build": "stencil build"
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"

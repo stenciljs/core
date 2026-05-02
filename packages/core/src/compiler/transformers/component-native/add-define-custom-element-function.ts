@@ -11,12 +11,14 @@ import { createImportStatement, getModuleFromSourceFile } from '../transform-uti
  * @param compilerCtx - current compiler context
  * @param components - all current components within the stencil buildCtx
  * @param outputTarget - the output target being compiled
+ * @param devMode - whether this is a dev build (injects __stencil_module__ for HMR)
  * @returns a TS AST transformer factory function
  */
 export const addDefineCustomElementFunctions = (
   compilerCtx: d.CompilerCtx,
   components: d.ComponentCompilerMeta[],
   outputTarget: d.OutputTargetStandalone,
+  devMode: boolean,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return () => {
     return (tsSourceFile: ts.SourceFile): ts.SourceFile => {
@@ -63,6 +65,29 @@ export const addDefineCustomElementFunctions = (
             principalComponent.componentClassName,
           );
           newStatements.push(conditionalDefineCustomElementCall);
+        }
+
+        // In dev builds, stamp each component class with its own module URL so the
+        // HMR runtime can re-import the exact file that needs to be replaced.
+        // Emits: MyComponent.__stencil_module__ = import.meta.url;
+        if (devMode) {
+          newStatements.push(
+            ts.factory.createExpressionStatement(
+              ts.factory.createAssignment(
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createIdentifier(principalComponent.componentClassName),
+                  '__stencil_module__',
+                ),
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createMetaProperty(
+                    ts.SyntaxKind.ImportKeyword,
+                    ts.factory.createIdentifier('meta'),
+                  ),
+                  ts.factory.createIdentifier('url'),
+                ),
+              ),
+            ),
+          );
         }
       }
 

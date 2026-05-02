@@ -1,5 +1,6 @@
-import { getHostRef } from 'virtual:platform';
-import type * as d from '@stencil/core';
+import { BUILD } from 'virtual:app-data';
+import { forceUpdate, getHostRef } from 'virtual:platform';
+import * as d from '@stencil/core';
 
 import { HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
@@ -13,6 +14,10 @@ import { initializeComponent } from './initialize-component';
  * 3. re-run the initialization logic for the element (via
  *    {@link initializeComponent})
  *
+ * For standalone (non-lazy) builds, we instead re-import the component module
+ * and patch the prototype of the registered constructor in-place, then
+ * force a re-render of all existing instances in the DOM.
+ *
  * @param hostElement the host element for the component which we want to start
  * doing HMR
  * @param cmpMeta runtime metadata for the component
@@ -23,20 +28,81 @@ export const hmrStart = (
   cmpMeta: d.ComponentRuntimeMeta,
   hmrVersionId: string,
 ) => {
-  // ¯\_(ツ)_/¯
-  const hostRef = getHostRef(hostElement);
-  if (!hostRef) {
+  if (BUILD.lazyLoad) {
+    // Lazy-loaded build: reset flags and re-initialize (existing behaviour)
+    const hostRef = getHostRef(hostElement);
+    if (!hostRef) {
+      return;
+    }
+
+    // reset state flags to only have been connected
+    hostRef.$flags$ = HOST_FLAGS.hasConnected;
+
+    // TODO
+    // detach any event listeners that may have been added
+    // because we're not passing an exact event name it'll
+    // remove all of this element's event, which is good
+
+    // re-initialize the component
+    initializeComponent(hostElement, hostRef, cmpMeta, hmrVersionId);
+  } else {
+    // Standalone build: re-import the module and patch the constructor prototype,
+    // then re-connect all existing instances in the DOM.
+    hmrStandalone(hostElement, cmpMeta, hmrVersionId);
+  }
+};
+
+const hmrStandalone = async (
+  hostElement: d.HostElement,
+  cmpMeta: d.ComponentRuntimeMeta,
+  hmrVersionId: string,
+) => {
+  const modulePath: string | undefined = (hostElement.constructor as any).__stencil_module__;
+  console.log(`[Stencil HMR] hmrStandalone <${cmpMeta.$tagName$}> modulePath:`, modulePath);
+  if (!modulePath) {
+    console.warn(`[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor — was this built with devMode?`);
     return;
   }
 
-  // reset state flags to only have been connected
-  hostRef.$flags$ = HOST_FLAGS.hasConnected;
+  try {
+    // Re-import with cache-bust query string so the browser fetches the updated file
+    const newModule = await import(
+      /* @vite-ignore */
+      `${modulePath}?s-hmr=${hmrVersionId}`
+    );
 
-  // TODO
-  // detach any event listeners that may have been added
-  // because we're not passing an exact event name it'll
-  // remove all of this element's event, which is good
+    // Find the updated class — prefer a named export whose `.is` tag matches,
+    // fall back to the default export
+    const NewClass: any =
+      Object.values(newModule).find(
+        (v: any) => typeof v === 'function' && v.is === cmpMeta.$tagName$,
+      ) ?? newModule.default;
 
-  // re-initialize the component
-  initializeComponent(hostElement, hostRef, cmpMeta, hmrVersionId);
+    if (!NewClass) {
+      return;
+    }
+
+    // Patch the registered constructor prototype in-place so all existing
+    // instances pick up the new render/lifecycle methods.
+    // Object.assign is intentionally NOT used here — class methods are
+    // non-enumerable and would be silently skipped.
+    const ctor = customElements.get(cmpMeta.$tagName$) as any;
+    
+    if (ctor) {
+      for (const key of Object.getOwnPropertyNames(NewClass.prototype)) {
+        if (key === 'constructor') continue;
+        Object.defineProperty(
+          ctor.prototype,
+          key,
+          Object.getOwnPropertyDescriptor(NewClass.prototype, key)!,
+        );
+      }
+    }
+
+    // Force a re-render on all live instances
+    const instances = document.querySelectorAll(cmpMeta.$tagName$);
+    instances.forEach((el) => forceUpdate(el));
+  } catch (e) {
+    console.error(`[Stencil HMR] Failed to reload <${cmpMeta.$tagName$}>`, e);
+  }
 };
