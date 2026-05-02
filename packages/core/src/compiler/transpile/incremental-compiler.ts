@@ -130,6 +130,8 @@ export class IncrementalCompiler {
   private rootNames: string[];
   private options: ts.CompilerOptions;
   private hasRestoredFromDisk = false;
+  private tsconfigPath: string;
+  private rootDir: string;
 
   constructor(config: d.ValidatedConfig) {
     // Get compiler options from tsconfig
@@ -144,9 +146,26 @@ export class IncrementalCompiler {
       optionsToExtend,
     );
 
+    this.tsconfigPath = config.tsconfig;
+    this.rootDir = config.rootDir;
     this.rootNames = parsedConfig.fileNames;
     this.options = parsedConfig.options;
     this.host = createCachingCompilerHost(this.options);
+  }
+
+  /**
+   * Re-parse the tsconfig to refresh the root file list.
+   * Call this when files are added or deleted so the program stays in sync.
+   */
+  refreshRootNames(): void {
+    const configFile = ts.readConfigFile(this.tsconfigPath, ts.sys.readFile);
+    const parsedConfig = ts.parseJsonConfigFileContent(
+      configFile.config,
+      ts.sys,
+      this.rootDir,
+      this.options,
+    );
+    this.rootNames = parsedConfig.fileNames;
   }
 
   /**

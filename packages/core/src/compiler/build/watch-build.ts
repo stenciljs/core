@@ -71,6 +71,13 @@ export const createWatchBuild = async (
 
     isBuilding = true;
     try {
+      // Re-parse tsconfig when files are added or deleted so TypeScript's root
+      // file list stays in sync. Skipping this causes "file not found" errors
+      // for deleted files and silently omits new components from the build.
+      if (filesAdded.size > 0 || filesDeleted.size > 0) {
+        incrementalCompiler.refreshRootNames();
+      }
+
       if (tsFilesToInvalidate.size > 0) {
         incrementalCompiler.invalidateFiles(Array.from(tsFilesToInvalidate));
         tsFilesToInvalidate.clear();
