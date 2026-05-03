@@ -353,8 +353,14 @@ export const defineCustomElements = (opts) => {
         expect(loaderContent).toContain(
           `import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}'`,
         );
-        expect(loaderContent).toContain("'stub-cmp': './stub-cmp.js'");
-        expect(loaderContent).toContain("'my-best-component': './my-best-component.js'");
+        expect(loaderContent).toContain("'stub-cmp'");
+        expect(loaderContent).toContain(
+          "case 'stub-cmp': module = await import('./stub-cmp.js'); break;",
+        );
+        expect(loaderContent).toContain("'my-best-component'");
+        expect(loaderContent).toContain(
+          "case 'my-best-component': module = await import('./my-best-component.js'); break;",
+        );
         expect(loaderContent).toContain('export function start(');
         expect(loaderContent).toContain('export function stop(');
         expect(loaderContent).toContain('start();'); // autoStart is true

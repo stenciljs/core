@@ -50,7 +50,7 @@ describe('validate-output-standalone', () => {
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-
+          autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
         },
@@ -73,6 +73,7 @@ describe('validate-output-standalone', () => {
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
+          autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'single-export-module',
           skipInDev: false,
         },
@@ -95,7 +96,7 @@ describe('validate-output-standalone', () => {
           dir: defaultDistDir,
           empty: true,
           externalRuntime: true,
-
+          autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
         },
@@ -118,7 +119,7 @@ describe('validate-output-standalone', () => {
           dir: join(rootDir, distCustomElementsDir),
           empty: true,
           externalRuntime: true,
-
+          autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
         },
@@ -142,7 +143,7 @@ describe('validate-output-standalone', () => {
             dir: defaultDistDir,
             empty: true,
             externalRuntime: false,
-
+            autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
           },
@@ -166,7 +167,7 @@ describe('validate-output-standalone', () => {
             dir: defaultDistDir,
             empty: true,
             externalRuntime: false,
-
+            autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
           },
@@ -191,7 +192,7 @@ describe('validate-output-standalone', () => {
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-
+            autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
           },
@@ -215,7 +216,7 @@ describe('validate-output-standalone', () => {
             dir: defaultDistDir,
             empty: false,
             externalRuntime: true,
-
+            autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
           },
@@ -257,7 +258,7 @@ describe('validate-output-standalone', () => {
             dir: join(rootDir, distCustomElementsDir),
             empty: false,
             externalRuntime: false,
-
+            autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
           },
@@ -320,7 +321,7 @@ describe('validate-output-standalone', () => {
         });
       });
 
-      it('does not set autoLoader when not provided', () => {
+      it('defaults autoLoader to enabled object when not provided', () => {
         const outputTarget: d.OutputTargetStandalone = {
           type: STANDALONE,
         };
@@ -331,7 +332,10 @@ describe('validate-output-standalone', () => {
           (o) => o.type === STANDALONE,
         ) as d.OutputTargetStandalone;
 
-        expect(distCustomElementsTarget.autoLoader).toBeUndefined();
+        expect(distCustomElementsTarget.autoLoader).toEqual({
+          fileName: 'loader',
+          autoStart: true,
+        });
       });
 
       it('does not set autoLoader when explicitly false', () => {

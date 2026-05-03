@@ -2379,6 +2379,8 @@ export interface OutputTargetStandalone extends OutputTargetBaseNext {
    * Generate an auto-loader script that uses MutationObserver to lazily load
    * and define custom elements as they appear in the DOM.
    *
+   * @default true
+   *
    * When set to `true`, generates a `loader.js` file that auto-starts on import.
    * Can also be configured with an object for more control:
    * - `fileName`: Custom filename for the loader (default: 'loader.js')
