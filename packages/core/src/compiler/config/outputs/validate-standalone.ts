@@ -63,13 +63,15 @@ export const validateStandalone = (
         outputTarget.customElementsExportBehavior = 'default';
       }
 
-      // Normalize autoLoader option
-      if (outputTarget.autoLoader === true) {
+      // Normalize autoLoader option (defaults to true)
+      if (outputTarget.autoLoader == null || outputTarget.autoLoader === true) {
         outputTarget.autoLoader = {
           fileName: 'loader',
           autoStart: true,
         };
-      } else if (outputTarget.autoLoader && typeof outputTarget.autoLoader === 'object') {
+      } else if (outputTarget.autoLoader === false) {
+        // keep as false (disabled)
+      } else if (typeof outputTarget.autoLoader === 'object') {
         outputTarget.autoLoader = {
           fileName: outputTarget.autoLoader.fileName || 'loader',
           autoStart: outputTarget.autoLoader.autoStart !== false,
