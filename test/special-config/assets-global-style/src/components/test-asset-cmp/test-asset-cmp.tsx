@@ -6,10 +6,11 @@ import { Component, h, getAssetPath } from '@stencil/core';
 })
 export class TestAssetCmp {
   render() {
+    const path = getAssetPath('./assets/test-file.txt');
     return (
       <div>
         <p>Test Asset Component</p>
-        <p>Asset path: {getAssetPath('./test-file.txt')}</p>
+        <p class='assets-path'>Asset path: {path}</p>
       </div>
     );
   }

@@ -8,14 +8,19 @@
   "types": "dist/types/loader.d.ts",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil build && node test-outputs.js && playwright test"
+    "test": "stencil build && node test-outputs.js && playwright test",
+    "vitest": "stencil-test"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@stencil/playwright": "catalog:"
+    "@stencil/playwright": "catalog:",
+    "@stencil/vitest": "catalog:",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "vitest": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"

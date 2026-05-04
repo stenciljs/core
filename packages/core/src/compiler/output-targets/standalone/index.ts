@@ -289,7 +289,11 @@ export const addStandaloneInputs = (
         : 'loader';
 
     bundleOpts.inputs[loaderFileName] = '\0loader';
-    bundleOpts.loader!['\0loader'] = generateLoaderModule(components, outputTarget);
+    bundleOpts.loader!['\0loader'] = generateLoaderModule(
+      components,
+      outputTarget,
+      relativeAssetPath,
+    );
   }
 };
 

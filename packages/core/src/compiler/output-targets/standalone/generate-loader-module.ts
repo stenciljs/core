@@ -9,11 +9,13 @@ import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-id
  *
  * @param components - The list of components to include in the loader
  * @param outputTarget - The output target configuration
+ * @param relativeAssetPath - Optional relative path to the assets directory, used to set the loader's asset path at runtime
  * @returns The generated loader module source code
  */
 export const generateLoaderModule = (
   components: d.ComponentCompilerMeta[],
   outputTarget: d.OutputTargetStandalone,
+  relativeAssetPath?: string,
 ): string => {
   const autoLoaderConfig = outputTarget.autoLoader;
   const autoStart =
@@ -29,8 +31,16 @@ export const generateLoaderModule = (
     )
     .join('\n');
 
+  const assetPathImport = relativeAssetPath
+    ? `import { setAssetPath } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';\n`
+    : '';
+  const assetPathInit = relativeAssetPath
+    ? `const __assetBase = new URL('${relativeAssetPath}', String(import.meta.url)).href;\nsetAssetPath(__assetBase);\n`
+    : '';
+
   return /* js */ `
 import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
+${assetPathImport}${assetPathInit}
 
 /**
  * Tag names built at compile time.
