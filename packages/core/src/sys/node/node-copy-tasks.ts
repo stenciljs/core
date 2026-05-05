@@ -1,5 +1,5 @@
 import path from 'path';
-import { glob } from 'glob';
+import { glob } from 'tinyglobby';
 import type * as d from '@stencil/core';
 
 import { buildError, catchError, flatOne, isGlob, normalizePath } from '../../utils';
@@ -225,6 +225,10 @@ function shouldIgnore({ src, ignore = [] }: d.CopyTask) {
   return ignore.some((ignoreFile) => filePath.endsWith(ignoreFile));
 }
 
-export function asyncGlob(pattern: string, opts: any) {
-  return glob(pattern, opts);
+export function asyncGlob(
+  pattern: string,
+  opts: { cwd?: string; nodir?: boolean; ignore?: string[]; [key: string]: any } = {},
+): Promise<string[]> {
+  const { nodir, ...rest } = opts;
+  return glob(pattern, { ...rest, onlyFiles: nodir ?? true });
 }

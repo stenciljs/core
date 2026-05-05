@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import path from 'path';
-import fs from 'graceful-fs';
 import type * as d from '@stencil/core';
 
 import { normalizePath } from '../../utils';

@@ -1,5 +1,5 @@
 import { basename, dirname, relative } from 'node:path';
-import { minimatch } from 'minimatch';
+import picomatch from 'picomatch';
 import type * as d from '@stencil/core';
 
 import {
@@ -49,7 +49,7 @@ export const shouldExcludeComponent = (
 
   return excludePatterns.some((pattern) => {
     if (isGlob(pattern)) {
-      return minimatch(tagName, pattern);
+      return picomatch.isMatch(tagName, pattern);
     }
     return pattern === tagName;
   });
