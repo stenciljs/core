@@ -19,7 +19,7 @@ catalogs:
       specifier: ^4.1.1
       version: 4.1.2
     '@vitest/browser-playwright':
-      specifier: ^4.1.1
+      specifier: ^4.1.2
       version: 4.1.2
     playwright:
       specifier: ^1.58.0
@@ -473,6 +473,18 @@ importers:
       '@stencil/playwright':
         specifier: 'catalog:'
         version: 0.4.3(@playwright/test@1.58.2)(@stencil/core@packages+core)
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.11.6(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
+      '@vitest/browser':
+        specifier: 'catalog:'
+        version: 4.1.2(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.1.2(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@types/node@24.10.13)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))
 
   test/special-config/external-runtime:
     dependencies:
