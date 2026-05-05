@@ -416,7 +416,7 @@ describe('h()', () => {
     });
 
     it('replaceAttributes should return the attributes for the node', () => {
-      const FunctionalCmp: d.FunctionalComponent = (_nodeData, children, util) => {
+      const FunctionalCmp = (_nodeData: any, children: d.VNode[], util: d.FunctionalUtilities) => {
         return util.map(children, (child) => {
           return {
             ...child,
@@ -461,7 +461,7 @@ describe('h()', () => {
       const ReplacementCmp: d.FunctionalComponent = (nodeData, children) => {
         return h('article', nodeData, h('p', null, ...children));
       };
-      const FunctionalCmp: d.FunctionalComponent = (_nodeData, children, util) => {
+      const FunctionalCmp = (_nodeData, children, util) => {
         return util.map(children, (child) => {
           return {
             ...child,

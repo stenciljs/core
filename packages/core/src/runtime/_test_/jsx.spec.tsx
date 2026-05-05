@@ -1,5 +1,4 @@
 import { Component, Fragment, h, Host, Prop, State } from '@stencil/core';
-import { FunctionalComponent } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
@@ -65,10 +64,7 @@ describe('jsx', () => {
       first?: string;
       last?: string;
     }
-    const FunctionalCmp: FunctionalComponent<FunctionalCmpProps> = ({
-      first = 'Kim',
-      last = 'Doe',
-    }) => (
+    const FunctionalCmp = ({ first = 'Kim', last = 'Doe' }: FunctionalCmpProps) => (
       <div>
         Hi, my name is {first} {last}.
       </div>
@@ -77,7 +73,11 @@ describe('jsx', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       render() {
-        return <FunctionalCmp />;
+        return (
+          <>
+            <FunctionalCmp />
+          </>
+        );
       }
     }
 
