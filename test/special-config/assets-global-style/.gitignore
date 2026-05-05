@@ -3,3 +3,5 @@ www/
 .stencil/
 node_modules/
 src/components.d.ts
+__screenshots__
+.vitest-attachments

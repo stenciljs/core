@@ -4,8 +4,10 @@ import type * as d from '@stencil/core';
 
 import {
   catchError,
+  isOutputTargetAssets,
   isOutputTargetLoaderBundle,
   isOutputTargetDistLazy,
+  relative,
   sortBy,
 } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
@@ -44,6 +46,20 @@ export const outputLazy = async (
   const timespan = buildCtx.createTimeSpan(`${bundleEventMessage} started`);
 
   try {
+    const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
+    const hasAssets = buildCtx.components.some(
+      (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+    );
+
+    const computeAssetPath = (fromDir: string | undefined): string | undefined => {
+      if (!hasAssets || !fromDir || !assetsTarget?.dir) return undefined;
+      const rel = relative(fromDir, assetsTarget.dir);
+      return rel.endsWith('/') ? rel : rel + '/';
+    };
+
+    const browserTarget = outputTargets.find((o) => o.isBrowserBuild && o.esmDir);
+    const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
+
     const bundleOpts: BundleOptions = {
       id: 'lazy',
       platform: 'client',
@@ -56,8 +72,8 @@ export const outputLazy = async (
         index: USER_INDEX_ENTRY_ID,
       },
       loader: {
-        [LAZY_EXTERNAL_ENTRY_ID]: getLazyEntry(false),
-        [LAZY_BROWSER_ENTRY_ID]: getLazyEntry(true),
+        [LAZY_EXTERNAL_ENTRY_ID]: getLazyEntry(false, computeAssetPath(externalTarget?.esmDir)),
+        [LAZY_BROWSER_ENTRY_ID]: getLazyEntry(true, computeAssetPath(browserTarget?.esmDir)),
       },
     };
 
@@ -189,19 +205,31 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
   };
 }
 
-const getLazyEntry = (isBrowser: boolean): string => {
+const getLazyEntry = (isBrowser: boolean, assetPath?: string): string => {
   const s = new MagicString(``);
   s.append(`export { setNonce } from '${STENCIL_CORE_ID}';\n`);
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
 
   if (isBrowser) {
+    if (assetPath) {
+      s.append(`import { setAssetPath } from '${STENCIL_CORE_ID}';\n`);
+    }
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     s.append(`(async () => {\n`);
+    if (assetPath) {
+      s.append(`  setAssetPath(new URL('${assetPath}', String(import.meta.url)).href);\n`);
+    }
     s.append(`  await globalScripts();\n`);
     s.append(`  bootstrapLazy(["__STENCIL_LAZY_DATA__"]);\n`);
     s.append(`})();\n`);
   } else {
+    if (assetPath) {
+      s.append(`import { setAssetPath } from '${STENCIL_CORE_ID}';\n`);
+    }
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
+    if (assetPath) {
+      s.append(`setAssetPath(new URL('${assetPath}', String(import.meta.url)).href);\n`);
+    }
     s.append(`export const defineCustomElements = async (win, options) => {\n`);
     s.append(`  if (typeof window === 'undefined') return undefined;\n`);
     s.append(`  await globalScripts();\n`);
