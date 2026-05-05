@@ -1323,6 +1323,7 @@ export namespace JSXBase {
     importance?: 'low' | 'auto' | 'high';
     height?: number | string;
     loading?: 'lazy' | 'auto' | 'eager';
+    referrerPolicy?: ReferrerPolicy;
     sizes?: string;
     src?: string;
     srcSet?: string;
