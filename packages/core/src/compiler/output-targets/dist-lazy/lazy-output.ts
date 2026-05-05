@@ -217,8 +217,7 @@ const getLazyEntry = (isBrowser: boolean, assetPath?: string): string => {
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     s.append(`(async () => {\n`);
     if (assetPath) {
-      s.append(`  const __assetBase = new URL('${assetPath}', String(import.meta.url)).href;\n`);
-      s.append(`  setAssetPath(__assetBase);\n`);
+      s.append(`  setAssetPath(new URL('${assetPath}', String(import.meta.url)).href);\n`);
     }
     s.append(`  await globalScripts();\n`);
     s.append(`  bootstrapLazy(["__STENCIL_LAZY_DATA__"]);\n`);
@@ -229,8 +228,7 @@ const getLazyEntry = (isBrowser: boolean, assetPath?: string): string => {
     }
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     if (assetPath) {
-      s.append(`const __assetBase = new URL('${assetPath}', String(import.meta.url)).href;\n`);
-      s.append(`setAssetPath(__assetBase);\n`);
+      s.append(`setAssetPath(new URL('${assetPath}', String(import.meta.url)).href);\n`);
     }
     s.append(`export const defineCustomElements = async (win, options) => {\n`);
     s.append(`  if (typeof window === 'undefined') return undefined;\n`);

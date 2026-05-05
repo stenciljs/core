@@ -35,7 +35,7 @@ export const generateLoaderModule = (
     ? `import { setAssetPath } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';\n`
     : '';
   const assetPathInit = relativeAssetPath
-    ? `const __assetBase = new URL('${relativeAssetPath}', String(import.meta.url)).href;\nsetAssetPath(__assetBase);\n`
+    ? `setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);\n`
     : '';
 
   return /* js */ `
