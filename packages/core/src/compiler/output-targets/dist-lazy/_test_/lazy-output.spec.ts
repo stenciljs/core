@@ -115,7 +115,7 @@ describe('outputLazy', () => {
         const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_BROWSER_ENTRY_ID);
         expect(entry).toContain(`import { setAssetPath } from '${STENCIL_CORE_ID}';`);
         expect(entry).toContain(`setAssetPath(new URL(`);
-        expect(entry).toContain(`import.meta.url).href);`);
+        expect(entry).toContain(`import.meta.url)).href);`);
       });
 
       it('calls setAssetPath before globalScripts and bootstrapLazy', async () => {
