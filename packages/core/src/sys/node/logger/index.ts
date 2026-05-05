@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import path from 'path';
-import fs from 'graceful-fs';
 import type { Logger } from '@stencil/core';
 
 import { createTerminalLogger, TerminalLoggerSys } from './terminal-logger';

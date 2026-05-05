@@ -1,6 +1,6 @@
+import fs from 'node:fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import fs from 'graceful-fs';
 import semverLt from 'semver/functions/lt.js';
 import type { Logger, PackageJsonData } from '@stencil/core';
 

@@ -1,5 +1,5 @@
 import { basename } from 'path';
-import { minimatch } from 'minimatch';
+import picomatch from 'picomatch';
 import type * as d from '@stencil/core';
 
 import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
@@ -268,7 +268,7 @@ const excludeHmrFiles = (
         let shouldExclude = false;
 
         if (isGlob(pattern)) {
-          shouldExclude = minimatch(fileChanged, pattern);
+          shouldExclude = picomatch.isMatch(fileChanged, pattern);
         } else {
           shouldExclude = normalizePath(pattern) === normalizePath(fileChanged);
         }

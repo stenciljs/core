@@ -1,4 +1,4 @@
-import { minimatch } from 'minimatch';
+import picomatch from 'picomatch';
 import type * as d from '@stencil/core';
 
 import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
@@ -80,7 +80,7 @@ const filterCopyTasks = (
       if (isGlob(copySrc)) {
         // test the glob
         copySrc = join(config.srcDir, copySrc);
-        if (changedFiles.some(minimatch.filter(copySrc))) {
+        if (changedFiles.some(picomatch(copySrc))) {
           return true;
         }
       } else {

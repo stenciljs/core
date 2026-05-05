@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
+import fs from 'node:fs';
 import { cpus, freemem, platform, release, tmpdir, totalmem } from 'node:os';
 import * as os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as parcelWatcher from '@parcel/watcher';
-import fs from 'graceful-fs';
 import type {
   CompilerFileWatcher,
   CompilerFileWatcherCallback,
