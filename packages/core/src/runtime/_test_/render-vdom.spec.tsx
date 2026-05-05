@@ -262,7 +262,7 @@ describe('render-vdom', () => {
       class CmpA {
         render() {
           const H = () => {
-            return;
+            return null;
           };
           return <H />;
         }
@@ -288,7 +288,7 @@ describe('render-vdom', () => {
         render() {
           const Tunnel = {
             Provider: () => {
-              return;
+              return null;
             },
           };
           return <Tunnel.Provider />;
