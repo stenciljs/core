@@ -54,6 +54,7 @@ export default defineConfig([
   {
     entry: {
       index: 'src/index.ts',
+      'jsx-runtime': 'src/jsx-runtime.ts',
       'compiler/index': 'src/compiler/index.ts',
       'compiler/utils/index': 'src/utils/compiler-exports.ts',
       'testing/index': 'src/testing/index.ts',
@@ -76,6 +77,7 @@ export default defineConfig([
     copy: [
       // Copy curated public types (paths resolve via declarations entry below)
       { from: 'src/index.d.mts', to: 'dist' },
+      { from: 'src/jsx-runtime.d.mts', to: 'dist' },
     ],
   },
 
@@ -190,7 +192,6 @@ export default defineConfig([
       'runtime/index': 'src/runtime/index.ts',
       'runtime/app-data/index': 'src/app-data/index.ts',
       'runtime/app-globals/index': 'src/app-globals/index.ts',
-      'jsx-runtime': 'src/runtime/vdom/jsx-runtime.ts',
     },
     outDir: 'dist',
     format: ['esm'],

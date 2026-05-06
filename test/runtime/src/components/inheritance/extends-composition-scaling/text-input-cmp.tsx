@@ -1,4 +1,4 @@
-import { Component, h, State, Element } from '@stencil/core';
+import { Component, State, Element } from '@stencil/core';
 
 import { FocusController } from './focus-controller.js';
 import { ReactiveControllerHost } from './reactive-controller-host.js';

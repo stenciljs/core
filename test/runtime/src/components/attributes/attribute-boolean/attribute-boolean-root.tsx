@@ -1,4 +1,4 @@
-import { Component, Element, h, Method, State } from '@stencil/core';
+import { Component, Element, Method, State } from '@stencil/core';
 
 @Component({
   tag: 'attribute-boolean-root',

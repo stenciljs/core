@@ -61,9 +61,8 @@ Empty objects can also be the cause, look for JSX comments that became objects.`
     if (BUILD.slotRelocation && vnodeData.name) {
       slotName = vnodeData.name;
     }
-    // normalize class / className attributes
     if (BUILD.vdomClass) {
-      const classData = vnodeData.className || vnodeData.class;
+      const classData = vnodeData.class;
       if (classData) {
         vnodeData.class =
           typeof classData !== 'object'

@@ -1,4 +1,4 @@
-import { Component, Fragment, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 @Component({
   tag: 'ion-parent',
@@ -7,7 +7,7 @@ import { Component, Fragment, h } from '@stencil/core';
 export class IonParent {
   render() {
     return (
-      <Fragment>
+      <>
         <label>
           <slot name='label' />
         </label>
@@ -15,7 +15,7 @@ export class IonParent {
           <slot name='suffix' slot='suffix' />
         </ion-child>
         <slot name='message' />
-      </Fragment>
+      </>
     );
   }
 }

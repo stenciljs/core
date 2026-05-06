@@ -1,4 +1,4 @@
-import { Component, h, Prop, State, Method, Watch, Event, EventEmitter } from '@stencil/core';
+import { Component, Prop, State, Method, Watch, Event, EventEmitter } from '@stencil/core';
 
 class MixinParent {
   @Event() myEvent: EventEmitter<string>;

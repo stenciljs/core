@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, h, Listen, State } from '@stencil/core';
+import { Component, Event, EventEmitter, Listen, State } from '@stencil/core';
 
 @Component({
   tag: 'event-basic',

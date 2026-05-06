@@ -1,4 +1,4 @@
-import { Component, Element, h, Host, Listen } from '@stencil/core';
+import { Component, Element, Host, Listen } from '@stencil/core';
 
 @Component({
   tag: 'dsd-listen-cmp',

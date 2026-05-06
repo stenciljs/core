@@ -1,4 +1,4 @@
-import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
+import { AttrDeserialize, Component, Prop } from '@stencil/core';
 
 /**
  * Deserialize extended JSON format that supports Map, Set, Symbol, Infinity, etc.

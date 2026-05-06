@@ -1,4 +1,4 @@
-import { Component, h, Element, Method, getShadowRoot } from '@stencil/core';
+import { Component, Element, Method, getShadowRoot } from '@stencil/core';
 
 /**
  * Component using closed shadow DOM mode.

@@ -1,4 +1,4 @@
-import { h, setTagTransformer, transformTag } from '@stencil/core';
+import { setTagTransformer, transformTag } from '@stencil/core';
 import { render, describe, it, expect } from '@stencil/vitest';
 
 import tagTransformer from '../../../tag-transformer.js';

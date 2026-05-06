@@ -16,8 +16,6 @@
 
 /// <reference path="src/components.d.ts" />
 
-import { h, Fragment } from '@stencil/core';
-
 export function TypeTestComponent() {
   return (
     <>

@@ -1,5 +1,3 @@
-import { h } from '@stencil/core';
-
 export class RenderBase {
   protected baseTitle: string = 'Base Component';
   protected baseClass: string = 'base-container';

@@ -1,4 +1,3 @@
-import { Fragment } from '@stencil/core';
 import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
 
 let childIdx = 1;

@@ -1,4 +1,4 @@
-import { Component, h, Prop, State, Method, Element } from '@stencil/core';
+import { Component, Prop, State, Method, Element } from '@stencil/core';
 
 import { ConflictsBase } from './conflicts-base.js';
 

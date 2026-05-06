@@ -1,4 +1,4 @@
-import { Component, State, h, Host, Listen } from '@stencil/core';
+import { Component, State, Host, Listen } from '@stencil/core';
 import { css } from 'linaria';
 import _ from 'lodash';
 import * as _es from 'lodash-es';

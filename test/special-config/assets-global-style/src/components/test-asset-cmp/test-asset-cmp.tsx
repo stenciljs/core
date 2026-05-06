@@ -1,4 +1,4 @@
-import { Component, h, getAssetPath } from '@stencil/core';
+import { Component, getAssetPath } from '@stencil/core';
 
 @Component({
   tag: 'test-asset-cmp',

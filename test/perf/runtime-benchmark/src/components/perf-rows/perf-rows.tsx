@@ -1,4 +1,4 @@
-import { Component, State, h, Method } from '@stencil/core';
+import { Component, State, Method } from '@stencil/core';
 
 interface Row {
   id: number;

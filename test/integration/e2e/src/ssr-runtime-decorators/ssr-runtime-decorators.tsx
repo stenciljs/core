@@ -1,4 +1,4 @@
-import { Component, Element, h, Prop, State } from '@stencil/core';
+import { Component, Element, Prop, State } from '@stencil/core';
 
 function Clamp(lowerBound: number, upperBound: number, descriptor?: PropertyDescriptor): any {
   const clamp = (value: number) => Math.max(lowerBound, Math.min(value, upperBound));

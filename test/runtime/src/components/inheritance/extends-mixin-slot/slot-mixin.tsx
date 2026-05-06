@@ -1,5 +1,3 @@
-import { h } from '@stencil/core';
-
 /**
  * A mixin that provides a renderContent method containing a slot.
  * This tests that Stencil properly walks into mixin factory functions

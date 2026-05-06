@@ -1,4 +1,4 @@
-import { Component, State, h } from '@stencil/core';
+import { Component, State } from '@stencil/core';
 
 @Component({
   tag: 'dom-interaction',

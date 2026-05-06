@@ -1,4 +1,4 @@
-import { AttachInternals, Component, h, Method } from '@stencil/core';
+import { AttachInternals, Component, Method } from '@stencil/core';
 
 @Component({
   tag: 'custom-states-cmp',

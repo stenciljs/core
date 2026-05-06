@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, h, Prop, State } from '@stencil/core';
+import { Component, Event, EventEmitter, Prop, State } from '@stencil/core';
 
 @Component({
   tag: 'lifecycle-basic-c',

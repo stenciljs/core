@@ -1,4 +1,4 @@
-import { Component, h, Prop, AttrDeserialize } from '@stencil/core';
+import { Component, Prop, AttrDeserialize } from '@stencil/core';
 
 import { CarData } from './car-data';
 

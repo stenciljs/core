@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 import { location as module } from './module.js';
 import { location as moduleIndex } from './module/index.js';

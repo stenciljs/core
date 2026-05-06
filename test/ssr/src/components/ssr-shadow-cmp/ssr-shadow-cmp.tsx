@@ -1,4 +1,4 @@
-import { Build, Component, h, Prop } from '@stencil/core';
+import { Build, Component, Prop } from '@stencil/core';
 
 @Component({
   tag: 'ssr-shadow-cmp',

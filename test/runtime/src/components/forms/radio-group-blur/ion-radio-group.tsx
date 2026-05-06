@@ -1,4 +1,4 @@
-import { Component, Element, Event, EventEmitter, h, Host, Prop, Watch } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Host, Prop, Watch } from '@stencil/core';
 
 export type RadioGroupCompareFn = (currentValue: any, compareValue: any) => boolean;
 

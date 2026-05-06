@@ -1,4 +1,4 @@
-import { Component, Element, h, State, Watch } from '@stencil/core';
+import { Component, Element, State, Watch } from '@stencil/core';
 
 @Component({
   tag: 'watch-native-attributes',

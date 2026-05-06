@@ -1,4 +1,4 @@
-import { Component, h, Prop, AttachInternals } from '@stencil/core';
+import { Component, Prop, AttachInternals } from '@stencil/core';
 
 @Component({
   tag: 'form-associated-prop-check',

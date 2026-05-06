@@ -1,4 +1,3 @@
-import { Fragment } from '@stencil/core';
 import { render, h, describe, it, expect, waitForExist } from '@stencil/vitest';
 
 describe('shared-jsx', () => {

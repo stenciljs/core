@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 import { SiblingExtendedBase } from '../sibling-extended-base/sibling-extended-base.js';
 

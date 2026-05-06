@@ -1,4 +1,4 @@
-import { Component, h, Host, Prop } from '@stencil/core';
+import { Component, Host, Prop } from '@stencil/core';
 import { saveAs } from 'file-saver';
 
 /**

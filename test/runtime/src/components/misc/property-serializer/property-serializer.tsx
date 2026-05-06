@@ -1,4 +1,4 @@
-import { Component, h, Method, Prop, PropSerialize, Watch } from '@stencil/core';
+import { Component, Method, Prop, PropSerialize, Watch } from '@stencil/core';
 
 @Component({
   tag: 'prop-serializer',

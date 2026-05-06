@@ -1,4 +1,4 @@
-import { Component, Event, EventEmitter, h, Prop, AttrDeserialize } from '@stencil/core';
+import { Component, Event, EventEmitter, Prop, AttrDeserialize } from '@stencil/core';
 
 import { CarData } from '../car-list/car-data';
 

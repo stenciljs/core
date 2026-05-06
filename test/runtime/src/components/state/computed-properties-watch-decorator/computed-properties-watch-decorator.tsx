@@ -1,4 +1,4 @@
-import { Component, h, Prop, Watch } from '@stencil/core';
+import { Component, Prop, Watch } from '@stencil/core';
 
 enum Foo {
   // names are explicitly different to ensure we aren't

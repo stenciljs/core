@@ -1,4 +1,4 @@
-import { Component, h, Method, State } from '@stencil/core';
+import { Component, Method, State } from '@stencil/core';
 
 @Component({
   tag: 'dynamic-import',

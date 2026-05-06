@@ -13,8 +13,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
-    "jsx": "react",
-    "jsxFactory": "h"
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core"
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/__mocks__"]

@@ -1,4 +1,4 @@
-import { Component, Element, h } from '@stencil/core';
+import { Component, Element } from '@stencil/core';
 
 @Component({
   tag: 'clone-node-root',

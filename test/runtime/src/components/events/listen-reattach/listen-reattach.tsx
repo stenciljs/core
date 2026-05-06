@@ -1,4 +1,4 @@
-import { Component, h, Host, Listen, State } from '@stencil/core';
+import { Component, Host, Listen, State } from '@stencil/core';
 
 @Component({
   tag: 'listen-reattach',
