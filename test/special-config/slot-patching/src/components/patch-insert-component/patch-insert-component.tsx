@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 /**
  * A non-shadow component that uses `patches: ['insert']` to enable

@@ -1,13 +1,4 @@
-import {
-  Component,
-  Event,
-  EventEmitter,
-  Listen,
-  Method,
-  State,
-  h,
-  resolveVar,
-} from '@stencil/core';
+import { Component, Event, EventEmitter, Listen, Method, State, resolveVar } from '@stencil/core';
 
 const MY_EVENT = 'myEvent';
 const OTHER_EVENT = 'otherEvent';

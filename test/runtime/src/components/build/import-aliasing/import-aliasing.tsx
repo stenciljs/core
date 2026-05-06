@@ -4,7 +4,6 @@ import {
   Element as El,
   Event as StencilEvent,
   EventEmitter,
-  h,
   Listen as StencilListen,
   Method as StencilMethod,
   Prop as Input,

@@ -1,4 +1,4 @@
-import { Component, Element, h, Method, Prop, State, Watch } from '@stencil/core';
+import { Component, Element, Method, Prop, State, Watch } from '@stencil/core';
 
 import { WatchBase } from './watch-base.js';
 

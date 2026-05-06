@@ -1,4 +1,4 @@
-import { Component, h, Env, Host } from '@stencil/core';
+import { Component, Env, Host } from '@stencil/core';
 
 @Component({
   tag: 'env-data',

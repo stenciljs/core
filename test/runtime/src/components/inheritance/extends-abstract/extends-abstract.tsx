@@ -1,4 +1,4 @@
-import { Component, h, Prop, State, Method, Watch } from '@stencil/core';
+import { Component, Prop, State, Method, Watch } from '@stencil/core';
 
 import { AbstractBase } from './abstract-base.js';
 

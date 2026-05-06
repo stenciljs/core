@@ -1,4 +1,4 @@
-import { Component, Element, h, Method } from '@stencil/core';
+import { Component, Element, Method } from '@stencil/core';
 
 /**
  * A tabbed container that uses manual slot assignment to dynamically

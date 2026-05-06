@@ -1,4 +1,4 @@
-import { Build, Component, h, Host } from '@stencil/core';
+import { Build, Component, Host } from '@stencil/core';
 
 @Component({
   tag: 'build-data',

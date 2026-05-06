@@ -1,4 +1,4 @@
-import { Component, h, State, Method } from '@stencil/core';
+import { Component, State, Method } from '@stencil/core';
 
 import { ClockControllerBase } from './clock-controller-base.js';
 

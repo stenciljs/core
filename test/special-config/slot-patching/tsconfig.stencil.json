@@ -6,9 +6,8 @@
     "moduleResolution": "bundler",
     "module": "esnext",
     "target": "esnext",
-    "jsx": "react",
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core",
     "rootDir": "./"
   },
   "include": ["src"],

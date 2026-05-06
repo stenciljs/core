@@ -12,8 +12,8 @@
     "target": "es2017",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "jsx": "react",
-    "jsxFactory": "h"
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

@@ -2195,6 +2195,8 @@ export interface JSXAttributes<T = Element> {
   // vdom specific
   key?: string | number;
   ref?: (elm?: T) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children?: any;
 }
 
 export interface CustomElementsDefineOptions {

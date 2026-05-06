@@ -1,4 +1,4 @@
-import { Component, Element, Host, h, forceUpdate } from '@stencil/core';
+import { Component, Element, Host, forceUpdate } from '@stencil/core';
 
 @Component({
   tag: 'slot-cmp-container',

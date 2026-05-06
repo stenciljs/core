@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, Host } from '@stencil/core';
 
 @Component({
   tag: 'app-home',

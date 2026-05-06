@@ -1,4 +1,4 @@
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Prop } from '@stencil/core';
 
 /**
  * A component with various typed props for testing JSX type inference.

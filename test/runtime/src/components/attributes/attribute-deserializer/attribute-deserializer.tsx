@@ -1,4 +1,4 @@
-import { AttrDeserialize, Component, h, Method, Prop, Watch } from '@stencil/core';
+import { AttrDeserialize, Component, Method, Prop, Watch } from '@stencil/core';
 
 @Component({
   tag: 'attribute-deserializer',

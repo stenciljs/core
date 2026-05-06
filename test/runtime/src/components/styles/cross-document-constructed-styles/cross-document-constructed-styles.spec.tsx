@@ -1,4 +1,4 @@
-import { render, h } from '@stencil/core';
+import { render } from '@stencil/core';
 import { describe, it, expect, afterEach } from 'vitest';
 
 const isCustomElementsProject =

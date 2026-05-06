@@ -1,4 +1,4 @@
-import { Component, Host, h } from '@stencil/core';
+import { Component, Host } from '@stencil/core';
 
 import ionicSvgUrl from './assets/ionic.svg';
 import ionicSvgText from './assets/ionic.svg?format=text';

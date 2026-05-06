@@ -1,4 +1,4 @@
-import { AttachInternals, Component, h } from '@stencil/core';
+import { AttachInternals, Component } from '@stencil/core';
 
 @Component({
   tag: 'form-associated',

@@ -2,7 +2,6 @@ import {
   AttrDeserialize,
   Build,
   Component,
-  h,
   Method,
   Prop,
   PropSerialize,

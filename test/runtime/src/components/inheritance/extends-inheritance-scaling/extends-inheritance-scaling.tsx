@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 /**
  * Main component that demonstrates inheritance-based scaling

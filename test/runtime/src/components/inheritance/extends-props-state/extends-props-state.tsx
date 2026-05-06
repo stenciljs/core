@@ -1,4 +1,4 @@
-import { Component, h, Prop, State, Method } from '@stencil/core';
+import { Component, Prop, State, Method } from '@stencil/core';
 
 import { PropsStateBase } from './props-state-base.js';
 

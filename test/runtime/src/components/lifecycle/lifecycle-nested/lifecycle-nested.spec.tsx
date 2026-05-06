@@ -1,4 +1,3 @@
-import { Fragment } from '@stencil/core';
 import { render, h, describe, it, expect, waitForStable } from '@stencil/vitest';
 
 describe('lifecycle-nested', () => {

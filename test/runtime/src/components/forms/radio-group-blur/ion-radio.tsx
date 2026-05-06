@@ -3,7 +3,6 @@ import {
   Element,
   Event,
   EventEmitter,
-  h,
   Host,
   Method,
   Prop,

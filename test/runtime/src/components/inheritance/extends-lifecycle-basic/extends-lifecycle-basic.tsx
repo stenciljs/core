@@ -1,4 +1,4 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, State } from '@stencil/core';
 
 import { LifecycleBase } from './lifecycle-base.js';
 
