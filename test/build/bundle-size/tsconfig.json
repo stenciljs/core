@@ -8,8 +8,9 @@
     "module": "esnext",
     "rootDir": "./",
     "target": "es2017",
-    "jsx": "react-jsx",
-    "jsxImportSource": "@stencil/core"
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   "include": ["src"],
   "exclude": ["node_modules"]
