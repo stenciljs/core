@@ -11,8 +11,8 @@ import { reWireGetterSetter } from '../utils/es2022-rewire-class-members';
  * @returns the Host reference (if found) or undefined
  */
 export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => {
-  if (ref.__stencil__getHostRef) {
-    return ref.__stencil__getHostRef();
+  if (ref.__s_ghr) {
+    return ref.__s_ghr();
   }
 
   return undefined;
@@ -27,7 +27,7 @@ export const getHostRef = (ref: d.RuntimeRef): d.HostRef | undefined => {
  */
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
   if (!hostRef) return;
-  lazyInstance.__stencil__getHostRef = () => hostRef;
+  lazyInstance.__s_ghr = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
   if (hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
@@ -75,7 +75,7 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
   }
 
   const ref = hostRef;
-  hostElement.__stencil__getHostRef = () => ref;
+  hostElement.__s_ghr = () => ref;
 
   if (
     !BUILD.lazyLoad &&

@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize');
-const maxBundleSize = 12 * 1024; // 12KB in bytes
+const maxBundleSize = 11 * 1024; // 11KB in bytes
 
 console.log('\nChecking bundle size...');
 

@@ -1118,7 +1118,7 @@ export interface HostElement extends HTMLElement {
   host?: Element;
   forceUpdate?: () => void;
 
-  __stencil__getHostRef?: () => HostRef;
+  __s_ghr?: () => HostRef;
 
   // "s-" prefixed properties should not be property renamed
   // and should be common between all versions of stencil
@@ -1787,7 +1787,7 @@ export type ComponentRuntimeReflectingAttr = [string, string | undefined];
  * keys in a `WeakMap` which maps {@link HostElement} instances to their
  * associated {@link HostRef} instance.
  */
-export type RuntimeRef = HostElement | { __stencil__getHostRef?: () => HostRef };
+export type RuntimeRef = HostElement | { __s_ghr?: () => HostRef };
 
 /**
  * Interface used to track an Element, it's virtual Node (`VNode`), and other data
@@ -2141,10 +2141,6 @@ export interface NewSpecPageOptions {
    */
   referrer?: string;
   /**
-   * Manually set if the mocked document supports Shadow DOM or not. Default is `true`.
-   */
-  supportsShadowDom?: boolean;
-  /**
    * When a component is pre-rendered it includes HTML annotations, such as `s-id` attributes and `<!-t.0->` comments. This information is used by client-side hydrating. Default is `false`.
    */
   includeAnnotations?: boolean;
@@ -2176,6 +2172,14 @@ export interface NewSpecPageOptions {
    * the spec page.
    */
   platform?: Partial<PlatformRuntime>;
+  /**
+   * Controls how shadow DOM components are serialized during `hydrateServerSide`.
+   * When set to `'scoped'`, shadow DOM components are rendered as scoped light DOM
+   * (matching the behavior of `serializeShadowRoot: 'scoped'` in production SSR).
+   * When set to `false`, shadow DOM components render with a real shadow root.
+   * Default is `false`.
+   */
+  serializeShadowRoot?: 'scoped' | false;
 }
 
 /**

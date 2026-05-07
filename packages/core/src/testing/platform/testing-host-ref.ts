@@ -11,8 +11,8 @@ import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
  * @returns the corresponding Stencil reference data structure, or undefined if one cannot be found
  */
 export const getHostRef = (elm: d.RuntimeRef | undefined): d.HostRef | undefined => {
-  if (elm.__stencil__getHostRef) {
-    return elm.__stencil__getHostRef();
+  if (elm.__s_ghr) {
+    return elm.__s_ghr();
   }
 
   return undefined;
@@ -39,7 +39,7 @@ export const registerInstance = (lazyInstance: any, hostRef: d.HostRef | null | 
     hostRef = getHostRef(elm);
   }
 
-  lazyInstance.__stencil__getHostRef = () => hostRef;
+  lazyInstance.__s_ghr = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
   // Re-wire getters/setters for ES2022+ class fields
@@ -118,5 +118,5 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
   hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
   elm['s-p'] = [];
   elm['s-rc'] = [];
-  elm.__stencil__getHostRef = () => hostRef;
+  elm.__s_ghr = () => hostRef;
 };

@@ -1,5 +1,4 @@
 import { BUILD } from 'virtual:app-data';
-import { supportsShadow } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import {
@@ -40,7 +39,7 @@ export const patchCloneNode = (HostElementPrototype: any) => {
 
   HostElementPrototype.cloneNode = function (deep?: boolean) {
     const srcNode = this;
-    const isShadowDom = BUILD.shadowDom ? srcNode.shadowRoot && supportsShadow : false;
+    const isShadowDom = BUILD.shadowDom ? !!srcNode.shadowRoot : false;
     const clonedNode = orgCloneNode.call(srcNode, isShadowDom ? deep : false) as Node;
     if (BUILD.slot && !isShadowDom && deep) {
       let i = 0;

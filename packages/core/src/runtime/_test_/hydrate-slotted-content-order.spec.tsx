@@ -31,6 +31,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><p>slotted item 1</p><!-- a comment --!><p>slotted item 2</p>A text node<p>slotted item 3</p><!-- another comment --!></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">
@@ -125,6 +126,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><!-- comment node --> Default slot <p slot="second">second slot</p><!-- another comment node --></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">
@@ -222,6 +224,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><p>slotted item 1a</p><!-- a comment --!>A text node<!-- another comment a--!><cmp-b><p>slotted item 1b</p><!-- b comment --!>B text node<!-- another comment b--!></cmp-b></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">
@@ -303,6 +306,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><p>slotted item 1</p><!-- a comment --><p>slotted item 2</p>A text node<p>slotted item 3</p><!-- another comment --></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">
@@ -399,6 +403,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><!-- comment node --> Default slot <p slot="second">second slot</p><!-- another comment node --></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">
@@ -478,6 +483,7 @@ describe("hydrated components' slotted node order", () => {
       <cmp-a><p>slotted item 1a</p><!-- a comment --!>A text node<!-- another comment a--!><cmp-b><p>slotted item 1b</p><!-- b comment --!>B text node<!-- another comment b--!></cmp-b></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
     <cmp-a class="hydrated" s-id="1">

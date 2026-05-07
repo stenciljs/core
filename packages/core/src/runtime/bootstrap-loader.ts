@@ -1,5 +1,5 @@
 import { BUILD } from 'virtual:app-data';
-import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from 'virtual:platform';
+import { getHostRef, plt, registerHost, transformTag, win } from 'virtual:platform';
 
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
@@ -93,19 +93,12 @@ export const bootstrapLazy = (
         cmpMeta.$serializers$ = compactMeta[5] ?? {};
         cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }
-      if (
-        BUILD.shadowDom &&
-        !supportsShadow &&
-        cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation
-      ) {
-        // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-        cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
-      }
       const tagName = transformTag(cmpMeta.$tagName$);
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];
-        hasRegisteredEventListeners = false;
+        // has registered event listeners for this instance
+        hreListeners = false;
 
         // StencilLazyHost
         constructor(self: HTMLElement) {
@@ -114,28 +107,23 @@ export const bootstrapLazy = (
           self = this;
 
           registerHost(self, cmpMeta);
-          if (BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
+          if (
+            BUILD.shadowDom &&
+            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation &&
+            !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
+          ) {
             // this component is using shadow dom
-            // and this browser supports shadow dom
             // add the read-only property "shadowRoot" to the host element
             // adding the shadow root build conditionals to minimize runtime
-            if (supportsShadow) {
-              if (!self.shadowRoot) {
-                // we don't want to call `attachShadow` if there's already a shadow root
-                // attached to the component
-                createShadowRoot.call(self, cmpMeta);
-              } else {
-                // we want to check to make sure that the mode for the shadow
-                // root already attached to the element (i.e. created via DSD)
-                // is set to 'open' since that's the only mode we support
-                if (self.shadowRoot.mode !== 'open') {
-                  throw new Error(
-                    `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${self.shadowRoot.mode} but Stencil only supports open shadow roots.`,
-                  );
-                }
-              }
-            } else if (!BUILD.hydrateServerSide && !('shadowRoot' in self)) {
-              (self as any).shadowRoot = self;
+
+            if (!self.shadowRoot) {
+              // we don't want to call `attachShadow` if there's already a shadow root
+              // attached to the component
+              createShadowRoot.call(self, cmpMeta);
+            } else if (BUILD.isDev && self.shadowRoot.mode !== 'open') {
+              throw new Error(
+                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${self.shadowRoot.mode} but DSD shadow roots must use open mode.`,
+              );
             }
           }
         }
@@ -152,8 +140,8 @@ export const bootstrapLazy = (
            * but it can happen in some scenarios. To prevent registering the same event listeners
            * multiple times, we will only register them once.
            */
-          if (!this.hasRegisteredEventListeners) {
-            this.hasRegisteredEventListeners = true;
+          if (!this.hreListeners) {
+            this.hreListeners = true;
             addHostEventListeners(this, hostRef, cmpMeta.$listeners$);
           }
 

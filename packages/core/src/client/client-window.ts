@@ -31,8 +31,6 @@ export const setPlatformHelpers = (helpers: {
   Object.assign(plt, helpers);
 };
 
-export const supportsShadow = BUILD.shadowDom;
-
 export const supportsListenerOptions = /*@__PURE__*/ (() => {
   let supported = false;
   try {

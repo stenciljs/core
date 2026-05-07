@@ -19,6 +19,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -75,6 +76,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -136,6 +138,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -195,6 +198,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -255,6 +259,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -318,6 +323,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -384,6 +390,7 @@ describe('hydrate, shadow child', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -467,6 +474,7 @@ describe('hydrate, shadow child', () => {
         </cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
 
     expect(serverHydrated.root).toEqualHtml(`
@@ -547,6 +555,7 @@ describe('hydrate, shadow child', () => {
         </cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
 
     expect(serverHydrated.root).toEqualHtml(`

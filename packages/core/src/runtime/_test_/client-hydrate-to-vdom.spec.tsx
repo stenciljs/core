@@ -28,6 +28,7 @@ describe('initializeClientHydrate', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
 
     const hostElm = document.createElement('cmp-a');
@@ -74,6 +75,7 @@ describe('initializeClientHydrate', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
 
     const hostElm = document.createElement('cmp-a');
