@@ -88,7 +88,6 @@ export const build = async (
     catchError(buildCtx.diagnostics, e);
   }
 
-  // TODO
   // clear changed files
   compilerCtx.changedFiles.clear();
 

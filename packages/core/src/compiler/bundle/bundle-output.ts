@@ -1,7 +1,7 @@
 import { rolldown, InputOptions, TreeshakingOptions, Plugin } from 'rolldown';
 import type * as d from '@stencil/core';
 
-import { createOnWarnFn, loadRolldownDiagnostics } from '../../utils';
+import { createOnWarnFn, isRolldownError, loadRolldownDiagnostics } from '../../utils';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
 import { coreResolvePlugin } from './core-resolve-plugin';
@@ -27,10 +27,8 @@ export const bundleOutput = async (
     const rolldownOptions = getRolldownOptions(config, compilerCtx, buildCtx, bundleOpts);
     const rolldownBuild = await rolldown(rolldownOptions);
     return rolldownBuild;
-  } catch (e: any) {
-    if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
-      // breakable) and type safety (so that the error variable may be something other than `any`)
+  } catch (e) {
+    if (!buildCtx.hasError && isRolldownError(e)) {
       loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }

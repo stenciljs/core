@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { loadRolldownDiagnostics } from '../../../utils';
+import { isRolldownError, loadRolldownDiagnostics } from '../../../utils';
 import { bundleOutput } from '../../bundle/bundle-output';
 import { STENCIL_INTERNAL_SSR_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 import { addTagTransform } from '../../transformers/add-tag-transform';
@@ -45,10 +45,8 @@ export const bundleSsrFactory = async (
 
     const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
     return rolldownBuild;
-  } catch (e: any) {
-    if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
-      // breakable) and type safety (so that the error variable may be something other than `any`)
+  } catch (e) {
+    if (!buildCtx.hasError && isRolldownError(e)) {
       loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }

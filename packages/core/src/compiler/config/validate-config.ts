@@ -156,7 +156,6 @@ export const validateConfig = (
       'slotChildNodesFix',
       'cloneNodeFix',
       'scopedSlotTextContentFix',
-      'experimentalScopedSlotChanges',
     ];
     const conflictingFlags = possibleFlags.filter((flag) => validatedConfig.extras[flag] === false);
     if (conflictingFlags.length > 0) {
