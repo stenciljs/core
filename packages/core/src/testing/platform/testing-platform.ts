@@ -4,8 +4,6 @@ import { cstrs, moduleLoaded, styles } from './testing-constants';
 import { flushAll, resetTaskQueue } from './testing-task-queue';
 import { win } from './testing-window';
 
-export let supportsShadow = true;
-
 export const plt: d.PlatformRuntime = {
   $flags$: 0,
   $resourcesUrl$: '',
@@ -29,17 +27,6 @@ export const setPlatformHelpers = (helpers: {
 export const supportsListenerOptions = true;
 export const supportsConstructableStylesheets = false;
 export const supportsMutableAdoptedStyleSheets = false;
-
-/**
- * Helper function to programmatically set shadow DOM support in testing scenarios.
- *
- * This function modifies the global {@link supportsShadow} variable.
- *
- * @param supports `true` if shadow DOM is supported, `false` otherwise
- */
-export const setSupportsShadowDom = (supports: boolean): void => {
-  supportsShadow = supports;
-};
 
 /**
  * Resets global testing variables and collections, so that a new set of tests can be started with a "clean slate".

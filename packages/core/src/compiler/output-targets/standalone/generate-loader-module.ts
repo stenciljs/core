@@ -123,7 +123,7 @@ async function load(root) {
         // Push a placeholder promise that resolves after the child is ready.
         // customElements.whenDefined resolves after the element has been
         // upgraded (constructor + connectedCallback have run synchronously),
-        // at which point __stencil__getHostRef and $onReadyPromise$ are set.
+        // at which point __s_ghr and $onReadyPromise$ are set.
         ancestor['s-p'].push(
           customElements.whenDefined(tag).then(() => el['s-rp'])
         );

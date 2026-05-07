@@ -31,6 +31,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a>light-dom</cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -99,6 +100,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -161,6 +163,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -220,6 +223,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -280,6 +284,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -343,6 +348,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -409,6 +415,7 @@ describe('hydrate, shadow in shadow', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">

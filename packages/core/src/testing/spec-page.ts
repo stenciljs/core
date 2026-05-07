@@ -11,6 +11,7 @@ import type {
 
 import { getBuildFeatures } from '../compiler/app-core/app-data';
 import { formatLazyBundleRuntimeMeta } from '../utils';
+import { CMP_FLAGS } from '../utils/constants';
 import {
   bootstrapLazy,
   flushAll,
@@ -22,7 +23,6 @@ import {
   registerModule,
   renderVdom,
   resetPlatform,
-  setSupportsShadowDom,
   startAutoApplyChanges,
   styles,
   win,
@@ -59,14 +59,8 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   }
   if (opts.hydrateServerSide) {
     opts.includeAnnotations = true;
-    setSupportsShadowDom(false);
   } else {
     opts.includeAnnotations = !!opts.includeAnnotations;
-    if (opts.supportsShadowDom === false) {
-      setSupportsShadowDom(false);
-    } else {
-      setSupportsShadowDom(true);
-    }
   }
   BUILD.cssAnnotations = opts.includeAnnotations;
 
@@ -182,6 +176,16 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     try {
       (page.win.navigator as any).userAgent = opts.userAgent;
     } catch {}
+  }
+
+  if (opts.hydrateServerSide && opts.serializeShadowRoot === 'scoped') {
+    for (const [, cmps] of lazyBundles) {
+      for (const cmp of cmps) {
+        if (cmp[0] & CMP_FLAGS.shadowDomEncapsulation) {
+          cmp[0] |= CMP_FLAGS.shadowNeedsScopedCss;
+        }
+      }
+    }
   }
 
   bootstrapLazy(lazyBundles);

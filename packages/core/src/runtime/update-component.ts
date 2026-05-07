@@ -83,11 +83,12 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
    * Stencil project.
    */
   if (!instance) {
-    throw new Error(
-      `Can't render component <${elm.tagName.toLowerCase()} /> with invalid Stencil runtime! ` +
-        'Make sure this imported component is compiled with a `externalRuntime: true` flag. ' +
-        'For more information, please refer to https://stenciljs.com/docs/custom-elements#externalruntime',
-    );
+    if (BUILD.isDev) {
+      throw new Error(
+        `Can't render <${elm.tagName.toLowerCase()} /> — compiled without externalRuntime: true. See https://stenciljs.com/docs/custom-elements#externalruntime`,
+      );
+    }
+    return;
   }
 
   // We're going to use this variable together with `enqueue` to implement a
@@ -179,14 +180,17 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
  */
 const enqueue = (
   maybePromise: Promise<void> | undefined,
-  fn: () => Promise<void>,
-): Promise<void> | undefined =>
-  isPromisey(maybePromise)
-    ? maybePromise.then(fn).catch((err) => {
-        console.error(err);
-        fn();
-      })
-    : fn();
+  fn: () => Promise<void> | void,
+): Promise<void> | undefined => {
+  if (isPromisey(maybePromise)) {
+    return maybePromise.then(fn).catch((err) => {
+      console.error(err);
+      fn();
+    });
+  }
+  const result = fn();
+  return isPromisey(result) ? result : undefined;
+};
 
 /**
  * Check that a value is a `Promise`. To check, we first see if the value is an
@@ -213,12 +217,13 @@ const isPromisey = (maybePromise: Promise<void> | unknown): maybePromise is Prom
  * rendered
  * @param isInitialLoad whether or not this function is being called as part of
  * the first render cycle
+ * @returns a `Promise` if the update is asynchronous, otherwise `void`
  */
-const updateComponent = async (
+const updateComponent = (
   hostRef: d.HostRef,
   instance: d.HostElement | d.ComponentInterface,
   isInitialLoad: boolean,
-) => {
+): Promise<void> | void => {
   const elm = hostRef.$hostElement$ as d.RenderNode;
   const endUpdate = createTime('update', hostRef.$cmpMeta$.$tagName$);
   const rc = elm['s-rc'];
@@ -233,11 +238,23 @@ const updateComponent = async (
   }
 
   if (BUILD.hydrateServerSide) {
-    await callRender(hostRef, instance, elm, isInitialLoad);
-  } else {
-    callRender(hostRef, instance, elm, isInitialLoad);
+    return (callRender(hostRef, instance, elm, isInitialLoad) as Promise<void>).then(() => {
+      afterRender(hostRef, elm, rc, isInitialLoad, endRender, endUpdate);
+    });
   }
 
+  callRender(hostRef, instance, elm, isInitialLoad);
+  afterRender(hostRef, elm, rc, isInitialLoad, endRender, endUpdate);
+};
+
+const afterRender = (
+  hostRef: d.HostRef,
+  elm: d.RenderNode,
+  rc: (() => void)[] | undefined,
+  isInitialLoad: boolean,
+  endRender: () => void,
+  endUpdate: () => void,
+) => {
   if (BUILD.isDev) {
     hostRef.$renderCount$ = hostRef.$renderCount$ === undefined ? 1 : hostRef.$renderCount$ + 1;
     hostRef.$flags$ &= ~HOST_FLAGS.devOnRender;

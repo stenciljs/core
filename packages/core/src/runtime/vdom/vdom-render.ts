@@ -7,7 +7,7 @@
  * Modified for Stencil's renderer and slot projection
  */
 import { BUILD } from 'virtual:app-data';
-import { consoleDevError, getHostRef, plt, supportsShadow, win } from 'virtual:platform';
+import { consoleDevError, getHostRef, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
@@ -103,9 +103,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     }
 
     if (!win.document) {
-      throw new Error(
-        "You are trying to render a Stencil component in an environment that doesn't support the DOM.",
-      );
+      throw new Error('No DOM environment available for rendering.');
     }
 
     // create element
@@ -1071,7 +1069,7 @@ function addRemoveSlotScopedClass(
 
       // there are no other slots in the old parent
       // let's remove the scoped-slot class
-      if (!found) oldParent.classList.remove(scopeId + '-s');
+      if (!found) oldParent.classList.remove(slotScopeId + '-s');
     }
   }
 }
@@ -1177,9 +1175,9 @@ render() {
   }
 
   useNativeShadowDom =
-    supportsShadow &&
     !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
     !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss);
+
   if (BUILD.slotRelocation) {
     contentRef = hostElm['s-cr'];
 

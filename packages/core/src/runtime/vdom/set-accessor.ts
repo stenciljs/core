@@ -134,7 +134,7 @@ export const setAccessor = (
       // the "Capture" suffix and make sure the event listener is setup to handle the capture event.
       const capture = memberName.endsWith(CAPTURE_EVENT_SUFFIX);
       // Make sure we only replace the last instance of "Capture"
-      memberName = memberName.replace(CAPTURE_EVENT_REGEX, '');
+      memberName = memberName.replace(/*@__PURE__*/ new RegExp(CAPTURE_EVENT_SUFFIX + '$'), '');
 
       if (oldValue) {
         plt.rel(elm, memberName, oldValue, capture);
@@ -298,4 +298,3 @@ export const parseClassList = /*@__PURE__*/ (
   return value.split(parseClassListRegex);
 };
 const CAPTURE_EVENT_SUFFIX = 'Capture';
-const CAPTURE_EVENT_REGEX = new RegExp(CAPTURE_EVENT_SUFFIX + '$');

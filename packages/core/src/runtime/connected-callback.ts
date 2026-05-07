@@ -1,12 +1,5 @@
 import { BUILD } from 'virtual:app-data';
-import {
-  addHostEventListeners,
-  getHostRef,
-  nextTick,
-  plt,
-  supportsShadow,
-  win,
-} from 'virtual:platform';
+import { addHostEventListeners, getHostRef, nextTick, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS } from '../utils/constants';
@@ -37,11 +30,7 @@ export const connectedCallback = (elm: d.HostElement) => {
       if (BUILD.hydrateClientSide) {
         hostId = elm.getAttribute(HYDRATE_ID);
         if (hostId) {
-          if (
-            BUILD.shadowDom &&
-            supportsShadow &&
-            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation
-          ) {
+          if (BUILD.shadowDom && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
             // Use getShadowRoot to handle both open and closed shadow roots
             const shadowRoot = getShadowRoot(elm);
             const scopeId = BUILD.mode
