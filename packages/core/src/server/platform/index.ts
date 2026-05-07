@@ -144,16 +144,14 @@ export const setPlatformHelpers = (helpers: {
   Object.assign(plt, helpers);
 };
 
-export const supportsShadow = BUILD.shadowDom;
-
 export const supportsListenerOptions = false;
 
 export const supportsConstructableStylesheets = false;
 export const supportsMutableAdoptedStyleSheets = false;
 
 export const getHostRef = (ref: d.RuntimeRef) => {
-  if (ref.__stencil__getHostRef) {
-    return ref.__stencil__getHostRef();
+  if (ref.__s_ghr) {
+    return ref.__s_ghr();
   }
 
   return undefined;
@@ -161,7 +159,7 @@ export const getHostRef = (ref: d.RuntimeRef) => {
 
 export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
   if (!hostRef) return undefined;
-  lazyInstance.__stencil__getHostRef = () => hostRef;
+  lazyInstance.__s_ghr = () => hostRef;
   hostRef.$lazyInstance$ = lazyInstance;
 
   if (hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
@@ -184,7 +182,7 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
   hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
   elm['s-p'] = [];
   elm['s-rc'] = [];
-  elm.__stencil__getHostRef = () => hostRef;
+  elm.__s_ghr = () => hostRef;
 
   return hostRef;
 };

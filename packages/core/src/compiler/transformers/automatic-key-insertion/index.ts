@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
 import { getComponentTagName, isStaticGetter } from '../transform-utils';
-import { deriveJSXKey } from './utils';
+import { deriveJSXKey, resetKeyCounter } from './utils';
 
 /**
  * A transformer factory to create a transformer which will add `key`
@@ -105,6 +105,7 @@ export const performAutomaticKeyInsertion = (
       node.name.getText() === 'render' &&
       numReturnStatements(node) === 1
     ) {
+      resetKeyCounter();
       return ts.visitEachChild(node, jsxElementVisitor, transformCtx);
     } else {
       return ts.visitEachChild(node, findRenderMethodVisitor, transformCtx);

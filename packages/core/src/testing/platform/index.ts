@@ -16,13 +16,11 @@ export {
   registerModule,
   resetPlatform,
   setPlatformHelpers,
-  setSupportsShadowDom,
   startAutoApplyChanges,
   stopAutoApplyChanges,
   supportsConstructableStylesheets,
   supportsListenerOptions,
   supportsMutableAdoptedStyleSheets,
-  supportsShadow,
 } from './testing-platform';
 export {
   flushAll,

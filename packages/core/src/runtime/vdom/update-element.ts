@@ -22,6 +22,19 @@ export const updateElement = (
   isSvgMode: boolean,
   isInitialRender?: boolean,
 ): void => {
+  const oldVnodeAttrs = (oldVnode && oldVnode.$attrs$) || {};
+  const newVnodeAttrs = newVnode.$attrs$ || {};
+
+  const oldKeys = Object.keys(oldVnodeAttrs);
+  const newKeys = Object.keys(newVnodeAttrs);
+
+  if (!BUILD.updatable && newKeys.length === 0) {
+    return;
+  }
+  if (BUILD.updatable && oldKeys.length === 0 && newKeys.length === 0) {
+    return;
+  }
+
   // if the element passed in is a shadow root, which is a document fragment
   // then we want to be adding attrs/props to the shadow root's "host" element
   // if it's not a shadow root, then we add attrs/props to the same element
@@ -29,12 +42,10 @@ export const updateElement = (
     newVnode.$elm$.nodeType === NODE_TYPE.DocumentFragment && newVnode.$elm$.host
       ? newVnode.$elm$.host
       : (newVnode.$elm$ as any);
-  const oldVnodeAttrs = (oldVnode && oldVnode.$attrs$) || {};
-  const newVnodeAttrs = newVnode.$attrs$ || {};
 
   if (BUILD.updatable) {
     // remove attributes no longer present on the vnode by setting them to undefined
-    for (const memberName of sortedAttrNames(Object.keys(oldVnodeAttrs))) {
+    for (const memberName of sortedAttrNames(oldKeys)) {
       if (!(memberName in newVnodeAttrs)) {
         setAccessor(
           elm,
@@ -50,7 +61,7 @@ export const updateElement = (
   }
 
   // add new & update changed attributes
-  for (const memberName of sortedAttrNames(Object.keys(newVnodeAttrs))) {
+  for (const memberName of sortedAttrNames(newKeys)) {
     setAccessor(
       elm,
       memberName,
@@ -75,9 +86,10 @@ export const updateElement = (
  * @returns a list of attribute names, sorted if they include `"ref"`
  */
 function sortedAttrNames(attrNames: string[]): string[] {
+  if (!BUILD.vdomRef) {
+    return attrNames;
+  }
   return attrNames.includes('ref')
-    ? // we need to sort these to ensure that `'ref'` is the last attr
-      [...attrNames.filter((attr) => attr !== 'ref'), 'ref']
-    : // no need to sort, return the original array
-      attrNames;
+    ? [...attrNames.filter((attr) => attr !== 'ref'), 'ref']
+    : attrNames;
 }

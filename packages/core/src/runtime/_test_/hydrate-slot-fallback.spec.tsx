@@ -25,6 +25,7 @@ describe('hydrate, slot fallback', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -85,6 +86,7 @@ describe('hydrate, slot fallback', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -159,6 +161,7 @@ describe('hydrate, slot fallback', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a><cmp-b></cmp-b></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -257,6 +260,7 @@ describe('hydrate, slot fallback', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a><cmp-b></cmp-b></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -363,6 +367,7 @@ describe('hydrate, slot fallback', () => {
       </cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -471,6 +476,7 @@ describe('hydrate, slot fallback', () => {
       <cmp-a></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">

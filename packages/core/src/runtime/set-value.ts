@@ -18,27 +18,15 @@ export const setValue = (
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
   if (!hostRef) {
+    // Todo(STENCIL-1308): remove once a solution for this was identified and implemented
+    if (BUILD.lazyLoad) {
+      throw new Error(
+        BUILD.isDev
+          ? `Couldn't find host element for "${cmpMeta.$tagName$}". This usually happens when integrating a 3rd party Stencil component with another Stencil runtime. See https://github.com/stenciljs/core/issues/5457`
+          : `Host element not found for "${cmpMeta.$tagName$}"`,
+      );
+    }
     return;
-  }
-
-  /**
-   * If the host element is not found, let's fail with a better error message and provide
-   * details on why this may happen. In certain cases, e.g. see https://github.com/stenciljs/core/issues/5457,
-   * users might import a component through e.g. a loader script, which causes confusions in runtime
-   * as there are multiple runtimes being loaded and/or different components used with different
-   * loading strategies, e.g. lazy vs implicitly loaded.
-   *
-   * Todo(STENCIL-1308): remove, once a solution for this was identified and implemented
-   */
-  if (BUILD.lazyLoad && !hostRef) {
-    throw new Error(
-      `Couldn't find host element for "${cmpMeta.$tagName$}" as it is ` +
-        'unknown to this Stencil runtime. This usually happens when integrating ' +
-        'a 3rd party Stencil component with another Stencil component or application. ' +
-        'Please reach out to the maintainers of the 3rd party Stencil component or report ' +
-        'this on the Stencil Discord server (https://chat.stenciljs.com) or comment ' +
-        'on this similar [GitHub issue](https://github.com/stenciljs/core/issues/5457).',
-    );
   }
 
   if (

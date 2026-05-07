@@ -27,6 +27,7 @@ describe('hydrate, shadow parent', () => {
         <cmp-a>middle</cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -84,6 +85,7 @@ describe('hydrate, shadow parent', () => {
         <cmp-a>middle</cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -137,6 +139,7 @@ describe('hydrate, shadow parent', () => {
         <cmp-a></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -188,6 +191,7 @@ describe('hydrate, shadow parent', () => {
         <cmp-a></cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -245,6 +249,7 @@ describe('hydrate, shadow parent', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -310,6 +315,7 @@ describe('hydrate, shadow parent', () => {
         </cmp-a>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -398,6 +404,7 @@ describe('hydrate, shadow parent', () => {
         </ion-tab-button>
       `,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <ion-tab-button class="hydrated" s-id="1">
@@ -469,6 +476,7 @@ describe('hydrate, shadow parent', () => {
       components: [CmpA, CmpB],
       html: `<cmp-a><cmp-b>cmp-a-light-dom</cmp-b></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
 
     expect(serverHydrated.root).toEqualHtml(`

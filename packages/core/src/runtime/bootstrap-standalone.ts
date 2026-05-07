@@ -6,7 +6,6 @@ import {
   getHostRef,
   registerHost,
   styles,
-  supportsShadow,
   transformTag,
 } from 'virtual:platform';
 import type * as d from '@stencil/core';
@@ -66,10 +65,6 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     }
     if (BUILD.reflect) {
       cmpMeta.$attrsToReflect$ = [];
-    }
-    if (BUILD.shadowDom && !supportsShadow && cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
-      // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-      cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
     }
 
     if (BUILD.hotModuleReplacement) {
@@ -151,29 +146,26 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         }
       },
       __attachShadow(this: d.HostElement) {
-        if (supportsShadow) {
-          const isClosed =
-            BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
+        const isClosed = BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
 
-          // For closed shadow roots, this.shadowRoot will be null.
-          // Check our stored reference instead.
-          let existingRoot: ShadowRoot | null = this.shadowRoot;
-          if (BUILD.shadowModeClosed && isClosed) {
-            existingRoot = (this as any).__shadowRoot ?? null;
-          }
+        // For closed shadow roots, this.shadowRoot will be null.
+        // Check our stored reference instead.
+        let existingRoot: ShadowRoot | null = this.shadowRoot;
+        if (BUILD.shadowModeClosed && isClosed) {
+          existingRoot = (this as any).__shadowRoot ?? null;
+        }
 
-          if (!existingRoot) {
-            createShadowRoot.call(this, cmpMeta);
-          } else if (BUILD.shadowModeClosed && isClosed) {
-            // Validate that the existing shadow root mode matches what we expect
-            if (existingRoot.mode !== 'closed') {
-              throw new Error(
-                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${existingRoot.mode} but expected closed.`,
-              );
-            }
-          }
-        } else {
-          (this as any).shadowRoot = this;
+        if (!existingRoot) {
+          createShadowRoot.call(this, cmpMeta);
+        } else if (
+          BUILD.isDev &&
+          BUILD.shadowModeClosed &&
+          isClosed &&
+          existingRoot.mode !== 'closed'
+        ) {
+          throw new Error(
+            `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${existingRoot.mode} but expected closed.`,
+          );
         }
       },
     });

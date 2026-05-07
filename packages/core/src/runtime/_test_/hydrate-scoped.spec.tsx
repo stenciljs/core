@@ -3,7 +3,7 @@ import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
 describe('hydrate scoped', () => {
-  it('does not support shadow, slot, light dom', async () => {
+  it('converts shadow and slots to light dom via serializeShadowRoot', async () => {
     @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
     class CmpA {
       render() {
@@ -21,6 +21,7 @@ describe('hydrate scoped', () => {
       components: [CmpA],
       html: `<cmp-a>88mph</cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
@@ -43,11 +44,12 @@ describe('hydrate scoped', () => {
 
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated">
-        <!--r.1-->
-        <article>
-          <!--s.1.1.1.0.-->
-          88mph
-        </article>
+        <mock:shadow-root>
+          <article>
+            <slot></slot>
+          </article>
+        </mock:shadow-root>
+        88mph
       </cmp-a>
     `);
   });
@@ -120,6 +122,7 @@ describe('hydrate scoped', () => {
       components: [CmpA],
       html: `<cmp-a></cmp-a>`,
       hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
     });
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">

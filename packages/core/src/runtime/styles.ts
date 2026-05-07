@@ -4,7 +4,6 @@ import {
   styles,
   supportsConstructableStylesheets,
   supportsMutableAdoptedStyleSheets,
-  supportsShadow,
   win,
   writeTask,
 } from 'virtual:platform';
@@ -326,7 +325,7 @@ export const attachStyles = (hostRef: d.HostRef) => {
   //   so styles are inlined with the component for proper serialization
   // - For regular scoped components, use the document root
   let styleContainerNode: ShadowRoot | HTMLElement;
-  const shadowRoot = BUILD.shadowDom && supportsShadow ? getShadowRoot(elm) : null;
+  const shadowRoot = BUILD.shadowDom ? getShadowRoot(elm) : null;
 
   if (shadowRoot) {
     styleContainerNode = shadowRoot;
