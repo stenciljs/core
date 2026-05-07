@@ -429,14 +429,6 @@ describe('validation', () => {
     expect(config.extras.scopedSlotTextContentFix).toBe(true);
   });
 
-  it('should set extras experimentalScopedSlotChanges `true` if set in user config', () => {
-    userConfig.extras = {
-      experimentalScopedSlotChanges: true,
-    };
-    const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.extras.experimentalScopedSlotChanges).toBe(true);
-  });
-
   it('should set taskQueue "async" by default', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
     expect(config.taskQueue).toBe('async');

@@ -39,7 +39,6 @@ describe('hydrate scoped', () => {
       components: [CmpA],
       html: serverHydrated.root.outerHTML,
       hydrateClientSide: true,
-      supportsShadowDom: false,
     });
 
     expect(clientHydrated.root).toEqualHtml(`

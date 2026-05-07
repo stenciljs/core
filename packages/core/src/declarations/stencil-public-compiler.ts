@@ -345,14 +345,6 @@ interface ConfigExtrasBase {
    */
   additionalTagTransformers?: boolean | 'prod';
 
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  /**
-   * Experimental flag.
-   * Updates the behavior of scoped components to align more closely with the behavior of the native
-   * Shadow DOM when using `slot`s.
-   * Defaults to `false`.
-   */
-  experimentalScopedSlotChanges?: boolean;
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior

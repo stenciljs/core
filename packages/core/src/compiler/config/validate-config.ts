@@ -175,16 +175,12 @@ export const validateConfig = (
     validatedConfig.extras.cloneNodeFix = true;
     validatedConfig.extras.slotChildNodesFix = true;
     validatedConfig.extras.scopedSlotTextContentFix = true;
-    validatedConfig.extras.experimentalScopedSlotChanges = true;
   } else {
     validatedConfig.extras.appendChildSlotFix = !!validatedConfig.extras.appendChildSlotFix;
     validatedConfig.extras.cloneNodeFix = !!validatedConfig.extras.cloneNodeFix;
     validatedConfig.extras.slotChildNodesFix = !!validatedConfig.extras.slotChildNodesFix;
     validatedConfig.extras.scopedSlotTextContentFix =
       !!validatedConfig.extras.scopedSlotTextContentFix;
-    // TODO(STENCIL-1086): remove this option when it's the default behavior
-    validatedConfig.extras.experimentalScopedSlotChanges =
-      !!validatedConfig.extras.experimentalScopedSlotChanges;
   }
 
   // Set boolean config values with defaults

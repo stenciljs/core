@@ -40,14 +40,9 @@ export const getSsrBuildConditionals = (
   build.slotChildNodesFix = false;
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   build.experimentalSlotFixes = false;
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  build.experimentalScopedSlotChanges = false;
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   build.cloneNodeFix = false;
   build.cssAnnotations = true;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  build.shadowDomShim = true;
-  build.attachStyles = true;
 
   return build;
 };

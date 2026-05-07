@@ -181,21 +181,13 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.slotChildNodesFix = config.extras.slotChildNodesFix;
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.experimentalSlotFixes = config.extras.experimentalSlotFixes;
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  b.experimentalScopedSlotChanges = config.extras.experimentalScopedSlotChanges;
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.cloneNodeFix = config.extras.cloneNodeFix;
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   b.scopedSlotTextContentFix = !!config.extras.scopedSlotTextContentFix;
-  // TODO(STENCIL-1305): remove this option
-  b.attachStyles = true;
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  if (b.shadowDomShim) {
-    b.slotRelocation = b.slot;
-  }
   if (config.hydratedFlag) {
     b.hydratedAttribute = config.hydratedFlag.selector === 'attribute';
     b.hydratedClass = config.hydratedFlag.selector === 'class';

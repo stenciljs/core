@@ -181,16 +181,11 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   hydratedClass?: boolean;
   hydratedSelectorName?: string;
   initializeNextTick?: boolean;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  shadowDomShim?: boolean;
   asyncQueue?: boolean;
   additionalTagTransformers?: boolean | 'prod';
-  attachStyles?: boolean;
 
   // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
   experimentalSlotFixes?: boolean;
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  experimentalScopedSlotChanges?: boolean;
 }
 
 export type ModuleFormat =
@@ -2160,11 +2155,6 @@ export interface NewSpecPageOptions {
    * By default, any changes to component properties and attributes must `page.waitForChanges()` in order to test the updates. As an option, `autoApplyChanges` continuously flushes the queue on the background. Default is `false`.
    */
   autoApplyChanges?: boolean;
-  /**
-   * By default, styles are not attached to the DOM and they are not reflected in the serialized HTML.
-   * Setting this option to `true` will include the component's styles in the serializable output.
-   */
-  attachStyles?: boolean;
   /**
    * Set {@link BuildConditionals} for testing based off the metadata of the component under test.
    * When `true` all `BuildConditionals` will be assigned to the global testing `BUILD` object, regardless of their

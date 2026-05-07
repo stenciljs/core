@@ -62,7 +62,6 @@ export const BUILD: BuildConditionals = {
   hydratedAttribute: false,
   hydratedClass: true,
   scopedSlotTextContentFix: false,
-  shadowDomShim: false,
   slotChildNodesFix: false,
   invisiblePrehydration: true,
   propBoolean: true,
@@ -75,7 +74,6 @@ export const BUILD: BuildConditionals = {
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
-  attachStyles: true,
   experimentalSlotFixes: false,
 };
 

@@ -141,9 +141,7 @@ export const addStyle = (
 ) => {
   const scopeId = getScopeId(cmpMeta, mode);
 
-  if (!BUILD.attachStyles || !win.document) {
-    return scopeId;
-  }
+  if (!win.document) return scopeId;
 
   let style = styles.get(scopeId);
 
