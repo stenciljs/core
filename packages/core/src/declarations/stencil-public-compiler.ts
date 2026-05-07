@@ -1132,7 +1132,7 @@ export interface CompilerSystem {
   applyGlobalPatch?(fromDir: string): Promise<void>;
   applyPrerenderGlobalPatch?(opts: { devServerHostUrl: string; window: any }): void;
   cacheStorage?: CacheStorage;
-  // TODO(STENCIL-898): Make this property non-optional, check for unnecessary null checks on it
+  // Optional: only provided by node-sys; not available in test/browser environments.
   checkVersion?: (logger: Logger, currentVersion: string) => Promise<() => void>;
   copy?(copyTasks: Required<CopyTask>[], srcDir: string): Promise<CopyResults>;
   /**
@@ -1394,7 +1394,6 @@ export interface ResolveModuleIdResults {
   pkgDirPath: string;
 }
 
-// TODO(STENCIL-1005): improve the typing for this interface
 /**
  * A controller which provides for communication and coordination between
  * threaded workers.

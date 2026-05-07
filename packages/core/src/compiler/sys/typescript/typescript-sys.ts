@@ -6,11 +6,10 @@ import { isRemoteUrl, isString, noop, normalizePath, resolve } from '../../../ut
 import { IS_CASE_SENSITIVE_FILE_NAMES } from '../environment';
 import { InMemoryFileSystem } from '../in-memory-fs';
 
-// TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
 export const patchTsSystemFileSystem = (
   config: d.ValidatedConfig,
   compilerSys: d.CompilerSystem,
-  inMemoryFs: InMemoryFileSystem,
+  inMemoryFs: InMemoryFileSystem | null,
   tsSys: ts.System,
 ): ts.System => {
   const realpath = (path: string) => {
@@ -53,8 +52,6 @@ export const patchTsSystemFileSystem = (
   };
 
   tsSys.directoryExists = (p) => {
-    // At present the typing for `inMemoryFs` in this function is not accurate
-    // TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
     if (inMemoryFs) {
       const s = inMemoryFs.statSync(p);
       return s.isDirectory;
@@ -73,8 +70,6 @@ export const patchTsSystemFileSystem = (
       filePath = getTypescriptPathFromUrl(config, tsSys.getExecutingFilePath(), p);
     }
 
-    // At present the typing for `inMemoryFs` in this function is not accurate
-    // TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
     if (inMemoryFs) {
       const s = inMemoryFs.statSync(filePath);
       return !!(s && s.isFile);
@@ -101,8 +96,6 @@ export const patchTsSystemFileSystem = (
   tsSys.getDirectories = (p) => {
     const items = compilerSys.readDirSync(p);
     return items.filter((itemPath) => {
-      // At present the typing for `inMemoryFs` in this function is not accurate
-      // TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
       if (inMemoryFs) {
         const s = inMemoryFs.statSync(itemPath);
         return !!(s && s.exists && s.isDirectory);
@@ -115,7 +108,8 @@ export const patchTsSystemFileSystem = (
 
   tsSys.readDirectory = (path, extensions, exclude, include, depth) => {
     const cwd = compilerSys.getCurrentDirectory();
-    // TODO(STENCIL-344): Replace `matchFiles` with a function that is publicly exposed
+    // `matchFiles` is an internal TypeScript API with no public equivalent — it handles
+    // extension filtering, exclusion patterns, and depth traversal in one call.
     return (ts as any).matchFiles(
       path,
       extensions,
@@ -135,8 +129,6 @@ export const patchTsSystemFileSystem = (
       : compilerSys.readFileSync(filePath);
   };
 
-  // At present the typing for `inMemoryFs` in this function is not accurate
-  // TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
   tsSys.writeFile = (p, data) =>
     inMemoryFs ? inMemoryFs.writeFile(p, data) : compilerSys.writeFile(p, data);
 
@@ -177,8 +169,7 @@ const patchTsSystemWatch = (compilerSystem: d.CompilerSystem, tsSys: ts.System) 
   };
 };
 
-// TODO(STENCIL-728): fix typing of `inMemoryFs` parameter in `patchTypescript`, related functions
-export const patchTypescript = (config: d.ValidatedConfig, inMemoryFs: InMemoryFileSystem) => {
+export const patchTypescript = (config: d.ValidatedConfig, inMemoryFs: InMemoryFileSystem | null) => {
   if (!(ts as any).__patched) {
     patchTsSystemFileSystem(config, config.sys, inMemoryFs, ts.sys);
     patchTsSystemWatch(config.sys, ts.sys);

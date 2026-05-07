@@ -12,7 +12,6 @@ export function generateBuildStats(
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
 ): result.Result<d.CompilerBuildStats, { diagnostics: d.Diagnostic[] }> {
-  // TODO(STENCIL-461): Investigate making this return only a single type
   const buildResults = buildCtx.buildResults;
 
   try {
