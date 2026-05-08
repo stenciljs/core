@@ -1,6 +1,6 @@
 import * as d from '@stencil/core';
 import { BUILD } from 'virtual:app-data';
-import { forceUpdate, getHostRef } from 'virtual:platform';
+import { addHostEventListeners, forceUpdate, getHostRef } from 'virtual:platform';
 
 import { HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
@@ -38,10 +38,11 @@ export const hmrStart = (
     // reset state flags to only have been connected
     hostRef.$flags$ = HOST_FLAGS.hasConnected;
 
-    // TODO
     // detach any event listeners that may have been added
-    // because we're not passing an exact event name it'll
-    // remove all of this element's event, which is good
+    if (BUILD.hostListener && hostRef.$rmListeners$) {
+      hostRef.$rmListeners$.map((rmListener) => rmListener());
+      hostRef.$rmListeners$ = undefined;
+    }
 
     // re-initialize the component
     initializeComponent(hostElement, hostRef, cmpMeta, hmrVersionId);
@@ -103,7 +104,18 @@ const hmrStandalone = async (
 
     // Force a re-render on all live instances
     const instances = document.querySelectorAll(cmpMeta.$tagName$);
-    instances.forEach((el) => forceUpdate(el));
+    instances.forEach((el) => {
+      if (BUILD.hostListener) {
+        const hostRef = getHostRef(el as any);
+        if (hostRef?.$rmListeners$) {
+          hostRef.$rmListeners$.map((rmListener) => rmListener());
+          hostRef.$rmListeners$ = undefined;
+          // Re-attach listeners with new handler references
+          addHostEventListeners(el as any, hostRef, cmpMeta.$listeners$);
+        }
+      }
+      forceUpdate(el);
+    });
   } catch (e) {
     console.error(`[Stencil HMR] Failed to reload <${cmpMeta.$tagName$}>`, e);
   }
