@@ -1398,18 +1398,20 @@ export interface ResolveModuleIdResults {
  * A controller which provides for communication and coordination between
  * threaded workers.
  */
-export interface WorkerMainController {
+export interface WorkerMainController<
+  T extends Record<string, (...args: any[]) => Promise<any>> = Record<string, (...args: any[]) => Promise<any>>
+> {
   /**
    * Send a given set of arguments to a worker
    */
-  send(...args: any[]): Promise<any>;
+  send<K extends keyof T>(methodName: K, ...args: Parameters<T[K]>): ReturnType<T[K]>;
   /**
    * Handle a particular method
    *
    * @param name of the method to be passed to a worker
    * @returns a Promise wrapping the results
    */
-  handler(name: string): (...args: any[]) => Promise<any>;
+  handler<K extends keyof T>(name: K): T[K];
   /**
    * Destroy the worker represented by this instance, rejecting all outstanding
    * tasks and killing the child process.
