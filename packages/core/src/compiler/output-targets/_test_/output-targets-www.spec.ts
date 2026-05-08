@@ -1,29 +1,27 @@
-// @ts-nocheck
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { expect, describe, it } from '@stencil/vitest';
+import { createTestCompiler } from '@stencil/core/testing';
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+import type * as d from '@stencil/core';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
 
-describe.skip('outputTarget, www', () => {
-  let compiler: Compiler;
-  let config: Config;
+describe('outputTarget, www', () => {
+  let compiler: d.Compiler;
   const root = path.resolve('/');
 
+  beforeEach(async () => {
+    const result = await createTestCompiler();
+    compiler = result.compiler;
+  });
+
+  afterEach(async () => {
+    await compiler.destroy();
+  });
+
   it('default www files', async () => {
-    config = mockConfig({
-      buildAppCore: true,
-      namespace: 'App',
-      rootDir: path.join(root, 'User', 'testing', '/'),
-    });
-
-    compiler = new Compiler(config);
-
     await compiler.fs.writeFiles({
-      [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.tsx')]:
-        `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
+      [path.join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
+      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
     await compiler.fs.commit();
 
@@ -31,38 +29,16 @@ describe.skip('outputTarget, www', () => {
     expect(r.diagnostics).toHaveLength(0);
 
     expectFilesExist(compiler.fs, [
-      path.join(root, 'User', 'testing', 'www'),
-      path.join(root, 'User', 'testing', 'www', 'build'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'app.js'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'app.js.map'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'app.js'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'cmp-a.entry.js'),
-      path.join(root, 'User', 'testing', 'www', 'build', 'cmp-a.entry.js.map'),
-
-      path.join(root, 'User', 'testing', 'www', 'index.html'),
-
-      path.join(root, 'User', 'testing', 'src', 'components.d.ts'),
+      path.join(root, 'www'),
+      path.join(root, 'www', 'build'),
+      path.join(root, 'www', 'build', 'cmp-a.entry.js'),
+      path.join(root, 'www', 'index.html'),
+      path.join(root, 'src', 'components.d.ts'),
     ]);
 
     expectFilesDoNotExist(compiler.fs, [
-      path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.js'),
-
-      path.join(root, 'User', 'testing', 'dist', '/'),
-      path.join(root, 'User', 'testing', 'dist', 'collection'),
-      path.join(root, 'User', 'testing', 'dist', 'collection', 'collection-manifest.json'),
-      path.join(root, 'User', 'testing', 'dist', 'collection', 'components'),
-      path.join(root, 'User', 'testing', 'dist', 'collection', 'components', 'cmp-a.js'),
-
-      path.join(root, 'User', 'testing', 'dist', 'testapp', '/'),
-      path.join(root, 'User', 'testing', 'dist', 'testapp.js'),
-      path.join(root, 'User', 'testing', 'dist', 'testapp', 'cmp-a.entry.js'),
-      path.join(root, 'User', 'testing', 'dist', 'testapp', 'testapp.core.js'),
-
-      path.join(root, 'User', 'testing', 'dist', 'types'),
-      path.join(root, 'User', 'testing', 'dist', 'types', 'components'),
-      path.join(root, 'User', 'testing', 'dist', 'types', 'components.d.ts'),
-      path.join(root, 'User', 'testing', 'dist', 'types', 'components', 'cmp-a.d.ts'),
-      path.join(root, 'User', 'testing', 'dist', 'types', 'stencil.core.d.ts'),
+      path.join(root, 'src', 'cmp-a.js'),
+      path.join(root, 'dist'),
     ]);
   });
 });

@@ -1,29 +1,36 @@
-// @ts-nocheck
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { describe, it, beforeEach } from 'vitest';
+import { createTestCompiler } from '@stencil/core/testing';
+import { describe, it, beforeEach, expect } from 'vitest';
 
-// TODO(STENCIL-464): investigate getting these tests to run again
-describe.skip('component-styles', () => {
-  let compiler: Compiler;
-  let config: Config;
+describe('component-styles', () => {
+  let compiler: Awaited<ReturnType<typeof createTestCompiler>>['compiler'];
   const root = path.resolve('/');
 
   beforeEach(async () => {
-    config = mockConfig({
-      minifyCss: true,
-      minifyJs: true,
-      hashFileNames: true,
+    const result = await createTestCompiler({
+      config: {
+        minifyCss: true,
+        minifyJs: true,
+        hashFileNames: true,
+      },
     });
-    compiler = new Compiler(config);
+    compiler = result.compiler;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();
   });
 
   it('should add mode styles to hashed filename/minified builds', async () => {
-    compiler.config.hashedFileNameLength = 2;
-    await compiler.fs.writeFiles({
+    const result = await createTestCompiler({
+      config: {
+        minifyCss: true,
+        minifyJs: true,
+        hashFileNames: true,
+      },
+    });
+    const compiler2 = result.compiler;
+    compiler2.config.hashedFileNameLength = 2;
+    await compiler2.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler2.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({
         tag: 'cmp-a',
         styleUrls: {
@@ -36,43 +43,55 @@ describe.skip('component-styles', () => {
       [path.join(root, 'src', 'cmp-a.ios.css')]: `body{font-family:Helvetica}`,
       [path.join(root, 'src', 'cmp-a.md.css')]: `body{font-family:Roboto}`,
     });
-    await compiler.fs.commit();
+    await compiler2.fs.commit();
 
-    const r = await compiler.build();
+    const r = await compiler2.build();
     expect(r.diagnostics).toHaveLength(0);
 
     let hasIos = false;
     let hasMd = false;
 
-    r.filesWritten.forEach((f) => {
-      const content = compiler.fs.readFileSync(f);
-      if (content.includes(`body{font-family:Helvetica}`)) {
-        hasIos = true;
-      } else if (content.includes(`body{font-family:Roboto}`)) {
-        hasMd = true;
-      }
-    });
+    r.outputs
+      .flatMap((o) => o.files)
+      .forEach((f) => {
+        const content = compiler2.fs.readFileSync(f);
+        if (content.includes(`body{font-family:Helvetica}`)) {
+          hasIos = true;
+        }
+        if (content.includes(`body{font-family:Roboto}`)) {
+          hasMd = true;
+        }
+      });
 
     expect(hasIos).toBe(true);
     expect(hasMd).toBe(true);
   });
 
   it('should add default styles to hashed filename/minified builds', async () => {
-    compiler.config.sys.generateContentHash = function () {
+    const result = await createTestCompiler({
+      config: {
+        minifyCss: true,
+        minifyJs: true,
+        hashFileNames: true,
+      },
+    });
+    const compiler2 = result.compiler;
+    compiler2.config.sys.generateContentHash = function () {
       return 'hashed';
     };
 
-    await compiler.fs.writeFiles({
+    await compiler2.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler2.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]:
         `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,
       [path.join(root, 'src', 'cmp-a.css')]: `body{color:red}`,
     });
-    await compiler.fs.commit();
+    await compiler2.fs.commit();
 
-    const r = await compiler.build();
+    const r = await compiler2.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const content = await compiler.fs.readFile(
+    const content = await compiler2.fs.readFile(
       path.join(root, 'www', 'build', 'p-hashed.entry.js'),
     );
     expect(content).toContain(`body{color:red}`);

@@ -28,6 +28,7 @@ export const generateBuildResults = (
     isRebuild: buildCtx.isRebuild,
     namespace: config.namespace,
     outputs: compilerCtx.fs.getBuildOutputs(),
+    components: buildCtx.components.slice(),
     rootDir: config.rootDir,
     srcDir: config.srcDir,
     timestamp: getBuildTimestamp(),

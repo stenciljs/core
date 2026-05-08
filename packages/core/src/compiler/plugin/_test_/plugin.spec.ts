@@ -1,22 +1,19 @@
-// @ts-nocheck
 import path from 'path';
-import { createCompiler } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { expect, describe, it, beforeEach, afterEach } from '@stencil/vitest';
+import { createTestCompiler } from '@stencil/core/testing';
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { normalizePath } from '../../../utils';
 
-describe.skip('plugin', () => {
+describe('plugin', () => {
   let compiler: d.Compiler;
-  let config: d.Config;
   const root = path.resolve('/');
 
   beforeEach(async () => {
-    config = mockConfig();
-    compiler = await createCompiler(config);
-    console.log(compiler.sys);
-    await compiler.sys.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    const result = await createTestCompiler();
+    compiler = result.compiler;
+    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler.fs.commit();
   });
 
   afterEach(async () => {
@@ -24,39 +21,24 @@ describe.skip('plugin', () => {
   });
 
   it('transform, async', async () => {
-    compiler.config.bundles = [{ components: ['cmp-a'] }];
-
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'stencil.config.js')]: `
-
-        exports.config = {
-          plugins: [myPlugin()]
-        };
-      `,
-        [path.join(root, 'src', 'cmp-a.tsx')]: `
-        @Component({ tag: 'cmp-a' }) export class CmpA {
-          constructor() { }
-        }
-      `,
-      },
-      { clearFileCache: true },
+    await compiler.fs.writeFile(
+      path.join(root, 'src', 'cmp-a.tsx'),
+      `@Component({ tag: 'cmp-a' }) export class CmpA { constructor() { } }`,
     );
     await compiler.fs.commit();
 
     function myPlugin() {
       return {
-        transform: function (sourceText: string) {
-          return new Promise((resolve) => {
-            sourceText += `\nconsole.log('transformed!')`;
-            resolve(sourceText);
+        transform(sourceText: string) {
+          return new Promise<string>((resolve) => {
+            resolve(sourceText + `\nconsole.log('transformed!')`);
           });
         },
         name: 'myPlugin',
       };
     }
 
-    config.rolldownPlugins = [myPlugin()];
+    compiler.config.rolldownPlugins = { before: [myPlugin()] };
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -66,29 +48,22 @@ describe.skip('plugin', () => {
   });
 
   it('transform, sync', async () => {
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'src', 'cmp-a.tsx')]: `
-        @Component({ tag: 'cmp-a' }) export class CmpA {
-          constructor() { }
-        }
-      `,
-      },
-      { clearFileCache: true },
+    await compiler.fs.writeFile(
+      path.join(root, 'src', 'cmp-a.tsx'),
+      `@Component({ tag: 'cmp-a' }) export class CmpA { constructor() { } }`,
     );
     await compiler.fs.commit();
 
     function myPlugin() {
       return {
         transform(sourceText: string) {
-          sourceText += `\nconsole.log('transformed!')`;
-          return sourceText;
+          return sourceText + `\nconsole.log('transformed!')`;
         },
         name: 'myPlugin',
       };
     }
 
-    config.rolldownPlugins = [myPlugin()];
+    compiler.config.rolldownPlugins = { before: [myPlugin()] };
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -100,39 +75,28 @@ describe.skip('plugin', () => {
   it('resolveId, async', async () => {
     const filePath = normalizePath(path.join(root, 'dist', 'my-dep-fn.js'));
 
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'src', 'cmp-a.tsx')]: `
-        import { depFn } '#crazy-path!'
+    await compiler.fs.writeFiles({
+      [path.join(root, 'src', 'cmp-a.tsx')]: `
+        import { depFn } from '#crazy-path!'
         @Component({ tag: 'cmp-a' }) export class CmpA {
-          constructor() {
-            depFn();
-          }
+          constructor() { depFn(); }
         }
       `,
-        [filePath]: `
-        export function depFn(){
-          console.log('imported depFun()');
-        }
-      `,
-      },
-      { clearFileCache: true },
-    );
+      [filePath]: `export function depFn(){ console.log('imported depFun()'); }`,
+    });
     await compiler.fs.commit();
 
     function myPlugin() {
       return {
         resolveId(importee: string) {
-          if (importee === '#crazy-path!') {
-            return Promise.resolve(filePath);
-          }
+          if (importee === '#crazy-path!') return Promise.resolve(filePath);
           return Promise.resolve(null);
         },
         name: 'myPlugin',
       };
     }
 
-    config.rolldownPlugins = [myPlugin()];
+    compiler.config.rolldownPlugins = { before: [myPlugin()] };
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
@@ -144,38 +108,28 @@ describe.skip('plugin', () => {
   it('resolveId, sync', async () => {
     const filePath = normalizePath(path.join(root, 'dist', 'my-dep-fn.js'));
 
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'src', 'cmp-a.tsx')]: `
-        import { depFn } '#crazy-path!'
+    await compiler.fs.writeFiles({
+      [path.join(root, 'src', 'cmp-a.tsx')]: `
+        import { depFn } from '#crazy-path!'
         @Component({ tag: 'cmp-a' }) export class CmpA {
-          constructor() {
-            depFn();
-          }
+          constructor() { depFn(); }
         }
       `,
-        [filePath]: `
-        export function depFn(){
-          console.log('imported depFun()');
-        }
-      `,
-      },
-      { clearFileCache: true },
-    );
+      [filePath]: `export function depFn(){ console.log('imported depFun()'); }`,
+    });
     await compiler.fs.commit();
 
     function myPlugin() {
       return {
         resolveId(importee: string) {
-          if (importee === '#crazy-path!') {
-            return filePath;
-          }
+          if (importee === '#crazy-path!') return filePath;
           return null;
         },
         name: 'myPlugin',
       };
     }
-    config.rolldownPlugins = [myPlugin()];
+
+    compiler.config.rolldownPlugins = { before: [myPlugin()] };
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);

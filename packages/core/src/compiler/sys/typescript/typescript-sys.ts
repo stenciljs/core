@@ -169,12 +169,15 @@ const patchTsSystemWatch = (compilerSystem: d.CompilerSystem, tsSys: ts.System) 
   };
 };
 
-export const patchTypescript = (config: d.ValidatedConfig, inMemoryFs: InMemoryFileSystem | null) => {
-  if (!(ts as any).__patched) {
-    patchTsSystemFileSystem(config, config.sys, inMemoryFs, ts.sys);
-    patchTsSystemWatch(config.sys, ts.sys);
-    (ts as any).__patched = true;
-  }
+export const patchTypescript = (
+  config: d.ValidatedConfig,
+  inMemoryFs: InMemoryFileSystem | null,
+) => {
+  // Always re-patch so ts.sys stays bound to the current compiler's inMemoryFs.
+  // Multiple compilers may exist in the same process (e.g. test suites), and the
+  // fs closures must point at the active instance.
+  patchTsSystemFileSystem(config, config.sys, inMemoryFs, ts.sys);
+  patchTsSystemWatch(config.sys, ts.sys);
 };
 
 const patchTypeScriptSysMinimum = () => {

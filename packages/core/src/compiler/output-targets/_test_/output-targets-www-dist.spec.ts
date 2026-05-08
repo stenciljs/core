@@ -1,68 +1,67 @@
-// @ts-nocheck
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { expect, describe, it } from '@stencil/vitest';
+import { createTestCompiler } from '@stencil/core/testing';
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
 
-describe.skip('outputTarget, www / dist / docs', () => {
-  let compiler: Compiler;
-  let config: Config;
+describe('outputTarget, www / loader-bundle', () => {
+  let compiler: d.Compiler;
   const root = path.resolve('/');
 
-  it('dist, www and readme files w/ custom paths', async () => {
-    config = mockConfig({
-      buildAppCore: true,
-      flags: { docs: true },
-      namespace: 'TestApp',
-      outputTargets: [
-        {
-          type: 'www',
-          dir: 'custom-www',
-          buildDir: 'www-build',
-          indexHtml: 'custom-index.htm',
-        } as any as d.OutputTargetLoaderBundle,
-        {
-          type: 'dist',
-          dir: 'custom-dist',
-          buildDir: 'dist-build',
-          collectionDir: 'stencil-rebundle',
-          typesDir: 'custom-types',
-        },
-        {
-          type: 'docs',
-        } as d.OutputTargetDocsReadme,
-      ],
-      rootDir: path.join(root, 'User', 'testing', '/'),
+  beforeEach(async () => {
+    const result = await createTestCompiler({
+      config: {
+        outputTargets: [
+          {
+            type: 'www',
+            dir: path.join(root, 'custom-www'),
+            indexHtml: 'custom-index.htm',
+          } as d.OutputTargetWww,
+          {
+            type: 'loader-bundle',
+            dir: path.join(root, 'custom-dist'),
+            cjs: true,
+            skipInDev: false,
+          } as d.OutputTargetLoaderBundle,
+          { type: 'docs-readme' } as d.OutputTargetDocsReadme,
+        ],
+      },
     });
+    compiler = result.compiler;
+  });
 
-    compiler = new Compiler(config);
+  afterEach(async () => {
+    await compiler.destroy();
+  });
 
+  it('www and loader-bundle with custom paths', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'User', 'testing', 'package.json')]: `{
-        "module": "custom-dist/index.mjs",
-        "main": "custom-dist/index.js",
-        "collection": "custom-dist/stencil-rebundle/collection-manifest.json",
-        "types": "custom-dist/custom-types/components.d.ts"
-      }`,
-      [path.join(root, 'User', 'testing', 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(root, 'User', 'testing', 'src', 'components', 'cmp-a.tsx')]:
-        `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
+      [path.join(root, 'package.json')]: JSON.stringify({
+        type: 'module',
+        module: 'custom-dist/index.js',
+        main: 'custom-dist/index.cjs',
+      }),
+      [path.join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
+      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    expectFilesExist(compiler.fs, [path.join(root, 'User', 'testing', 'custom-dist', 'cjs')]);
+    // custom-dist should have loader-bundle distribution outputs
+    expectFilesExist(compiler.fs, [
+      path.join(root, 'custom-dist'),
+      path.join(root, 'custom-dist', 'esm'),
+      path.join(root, 'custom-dist', 'cjs'),
+    ]);
 
+    // default www/ must not exist — only custom-www/ should
     expectFilesDoNotExist(compiler.fs, [
-      path.join(root, 'User', 'testing', 'www', '/'),
-      path.join(root, 'User', 'testing', 'www', 'index.html'),
-      path.join(root, 'User', 'testing', 'www', 'custom-index.htm'),
-      path.join(root, 'User', 'testing', 'custom-www', 'index.html'),
+      path.join(root, 'www'),
+      // custom-www with default index.html must not exist (custom indexHtml is custom-index.htm)
+      path.join(root, 'custom-www', 'index.html'),
     ]);
   });
 });

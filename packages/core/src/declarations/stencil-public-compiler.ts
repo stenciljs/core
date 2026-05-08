@@ -1,5 +1,10 @@
 import type { PrerenderUrlResults, PrintLine } from './stencil-private';
-import type { BuildCtx, CompilerCtx } from './stencil-private';
+import type {
+  BuildCtx,
+  CompilerCtx,
+  ComponentCompilerMeta,
+  InMemoryFileSystem,
+} from './stencil-private';
 import type { JsonDocs } from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';
 
@@ -344,7 +349,6 @@ interface ConfigExtrasBase {
    * Adds `transformTag` calls to css strings and querySelector(All) calls
    */
   additionalTagTransformers?: boolean | 'prod';
-
 }
 
 // TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
@@ -1399,7 +1403,10 @@ export interface ResolveModuleIdResults {
  * threaded workers.
  */
 export interface WorkerMainController<
-  T extends Record<string, (...args: any[]) => Promise<any>> = Record<string, (...args: any[]) => Promise<any>>
+  T extends Record<string, (...args: any[]) => Promise<any>> = Record<
+    string,
+    (...args: any[]) => Promise<any>
+  >,
 > {
   /**
    * Send a given set of arguments to a worker
@@ -1498,6 +1505,7 @@ export interface BuildNoChangeResults {
 export interface CompilerBuildResults {
   buildId: number;
   componentGraph?: BuildResultsComponentGraph;
+  components: ComponentCompilerMeta[];
   diagnostics: Diagnostic[];
   dirsAdded: string[];
   dirsDeleted: string[];
@@ -2759,6 +2767,18 @@ export interface Compiler {
   createWatcher(): Promise<CompilerWatcher>;
   destroy(): Promise<void>;
   sys: CompilerSystem;
+  /**
+   * @internal - Testing only. Access to the in-memory filesystem
+   */
+  fs?: InMemoryFileSystem;
+  /**
+   * @internal - Testing only. Access to the validated configuration
+   */
+  config?: ValidatedConfig;
+  /**
+   * @internal - Testing only. Access to the compiler context
+   */
+  compilerCtx?: CompilerCtx;
 }
 
 export interface CompilerWatcher extends BuildOnEvents {
