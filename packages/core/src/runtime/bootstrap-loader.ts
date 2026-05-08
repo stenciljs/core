@@ -194,10 +194,7 @@ export const bootstrapLazy = (
         cmpMeta.$flags$ & CMP_FLAGS.hasSlot
       ) {
         // 'all' path: global lightDomPatches:true or per-component patchAll flag
-        if (
-          BUILD.lightDomPatches ||
-          (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)
-        ) {
+        if (BUILD.lightDomPatches || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
           // Individual patches via global BUILD flags OR per-component flags
@@ -218,10 +215,7 @@ export const bootstrapLazy = (
             patchInsertBefore(HostElement.prototype);
             patchSlotRemoveChild(HostElement.prototype);
           }
-          if (
-            BUILD.slotTextContent &&
-            cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation
-          ) {
+          if (BUILD.slotTextContent && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
             patchTextContent(HostElement.prototype);
           }
         }

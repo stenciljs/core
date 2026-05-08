@@ -617,8 +617,8 @@ export declare function transformTag(tag: string): string;
 type MixinFactory = (base: MixedInCtor) => MixedInCtor;
 
 /**
- * A constructor type that can be used as the base for mixin factories. 
- * 
+ * A constructor type that can be used as the base for mixin factories.
+ *
  * ```ts
  * import { MixedInCtor } from '@stencil/core';
  *
