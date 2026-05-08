@@ -261,6 +261,7 @@ const getComplexType = (
       typeChecker,
       program,
     ),
+    _astNode: nodeType,
   };
 };
 

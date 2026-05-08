@@ -277,8 +277,7 @@ describe('stencil-types', () => {
       expectTypeIsTransformed(initialType, expectedType, typeMemberNames);
     });
 
-    // TODO(STENCIL-419): Re-enable this test
-    it.skip("doesn't replace resolved types", () => {
+    it("doesn't replace resolved types", () => {
       /**
        * Edge case, consider the following scenario:
        * ```ts

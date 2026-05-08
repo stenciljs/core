@@ -801,6 +801,11 @@ export interface ComponentCompilerPropertyComplexType {
    * annotation in the original source file.
    */
   references: ComponentCompilerTypeReferences;
+  /**
+   * @internal TypeScript AST node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 
 /**
@@ -903,6 +908,11 @@ export interface ComponentCompilerMethodComplexType {
   parameters: JsonDocMethodParameter[];
   references: ComponentCompilerTypeReferences;
   return: string;
+  /**
+   * @internal TypeScript AST method node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 
 export interface ComponentCompilerChangeHandler {

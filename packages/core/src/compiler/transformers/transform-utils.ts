@@ -129,14 +129,8 @@ const arrayToArrayLiteral = (list: any[], refs: WeakSet<any>): ts.ArrayLiteralEx
 
 /**
  * Convert a JavaScript object (i.e. an object existing at runtime) to the
- * corresponding TypeScript Intermediate Representation (IR)
- * ({@see ts.ObjectLiteralExpression}) for an object literal. This function
- * takes an argument holding a `WeakSet` of references to objects which is
- * used to avoid circular references. Objects that are converted in this
- * function are added to the set, and if an object is already present then an
- * `undefined` literal (in TypeScript IR) is returned instead of another
- * object literal, as continuing to convert a circular reference would, well,
- * never end!
+ * corresponding TypeScript Intermediate Representation (IR) for an object literal.
+ * Internal fields (prefixed with _) are excluded from serialization.
  *
  * @param obj the JavaScript object to convert to TypeScript IR
  * @param refs a set of references to objects, used to avoid circular references
@@ -152,13 +146,15 @@ const objectToObjectLiteral = (
 
   refs.add(obj);
 
-  const newProperties: ts.ObjectLiteralElementLike[] = Object.keys(obj).map((key) => {
-    const prop = ts.factory.createPropertyAssignment(
-      ts.factory.createStringLiteral(key),
-      convertValueToLiteral(obj[key], refs) as ts.Expression,
-    );
-    return prop;
-  });
+  const newProperties: ts.ObjectLiteralElementLike[] = Object.keys(obj)
+    .filter((key) => !key.startsWith('_')) // Skip internal fields
+    .map((key) => {
+      const prop = ts.factory.createPropertyAssignment(
+        ts.factory.createStringLiteral(key),
+        convertValueToLiteral(obj[key], refs) as ts.Expression,
+      );
+      return prop;
+    });
 
   return ts.factory.createObjectLiteralExpression(newProperties, true);
 };
