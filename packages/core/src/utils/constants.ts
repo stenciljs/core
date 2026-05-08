@@ -67,7 +67,6 @@ export const HOST_FLAGS = {
 
 // CMP_FLAGS base values
 const CF_scopedCssEncapsulation = 1 << 1;
-const CF_needsShadowDomShim = 1 << 3;
 
 /**
  * A set of flags used for bitwise calculations against {@link ComponentRuntimeMeta#$flags$}.
@@ -90,18 +89,7 @@ export const CMP_FLAGS = {
    * Used to determine if a component does not use the shadow DOM _and_ has `<slot/>` tags in its markup.
    */
   hasSlotRelocation: 1 << 2,
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  // Note that when we remove this field we should consider whether we need to
-  // retain a placeholder here, since if we want to have compatibility between
-  // different versions of the runtime then we'll need to not shift the values
-  // of the other higher flags down
-  /**
-   * Determines if a shim for the shadow DOM is necessary.
-   *
-   * The shim should only be needed if a component requires {@link shadowDomEncapsulation} and if any output
-   * target-specific criteria are met. Refer to this flag's usage to determine each output target's criteria.
-   */
-  needsShadowDomShim: CF_needsShadowDomShim,
+  // bit 3 (1 << 3) is reserved — was needsShadowDomShim, removed in v5
   /**
    * Determines if `delegatesFocus` is enabled for a component that uses the shadow DOM.
    * e.g. `shadow: { delegatesFocus: true }` is set on the `@Component()` decorator
@@ -111,14 +99,10 @@ export const CMP_FLAGS = {
    * Determines if `mode` is set on the `@Component()` decorator
    */
   hasMode: 1 << 5,
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
   /**
-   * Determines if styles must be scoped due to either:
-   * 1. A component is using scoped stylesheets ({@link scopedCssEncapsulation})
-   * 2. A component is using the shadow DOM _and_ the output target's rules for requiring a shadow DOM shim have been
-   * met ({@link needsShadowDomShim})
+   * Determines if styles must be scoped — i.e. the component uses scoped stylesheets.
    */
-  needsScopedEncapsulation: CF_scopedCssEncapsulation | CF_needsShadowDomShim,
+  needsScopedEncapsulation: CF_scopedCssEncapsulation,
   /**
    * Determines if a component is form-associated or not. This is set based on
    * options passed to the `@Component` decorator.

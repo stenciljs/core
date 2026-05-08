@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { CMP_FLAGS, formatComponentRuntimeMeta } from '../../../utils';
+import { formatComponentRuntimeMeta } from '../../../utils';
 import { addStaticStyleGetterWithinClass } from '../add-static-style';
 import { convertValueToLiteral, createStaticGetter } from '../transform-utils';
 
@@ -19,11 +19,6 @@ export const addHydrateRuntimeCmpMeta = (
     $lazyBundleId$: fakeBundleIds(cmp),
     $attrsToReflect$: getHydrateAttrsToReflect(cmp),
   };
-  // We always need shadow-dom shim in hydrate runtime
-  if (cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) {
-    // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-    cmpMeta.$flags$ |= CMP_FLAGS.needsShadowDomShim;
-  }
   const staticMember = createStaticGetter('cmpMeta', convertValueToLiteral(cmpMeta));
   addStaticStyleGetterWithinClass(classMembers, cmp, buildCtx);
 
