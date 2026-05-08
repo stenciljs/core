@@ -8,6 +8,10 @@ export class TestComponent {
   /** The text to display */
   @Prop() t: string;
   render() {
-    return <div>Test</div>;
+    return (
+      <div>
+        <slot>test</slot>
+      </div>
+    );
   }
 }

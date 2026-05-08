@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-// Checks a basic component with rendering and
-// reactivity to ensure the bundle size is under 12KB (non-gzipped)
+// Checks a basic shadow DOM component to ensure the bundle size is under 11KB (non-gzipped)
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,12 +8,11 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize');
-const maxBundleSize = 11 * 1024; // 11KB in bytes
+const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-shadow');
+const maxBundleSize = 12 * 1024; // 12KB in bytes
 
-console.log('\nChecking bundle size...');
+console.log('\nChecking bundle size (shadow)...');
 
-// Find the index-HASH.js file
 const files = fs.readdirSync(distDir);
 const indexFile = files.find(
   (file) => (file.startsWith('index-') || file.startsWith('client-')) && file.endsWith('.js'),

@@ -175,12 +175,22 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.constructableCSS = !b.hotModuleReplacement || !!config._isTesting;
   b.asyncLoading = !!(b.asyncLoading || b.lazyLoad || b.taskQueue || b.initializeNextTick);
   b.cssAnnotations = true;
+  // lightDomPatches only matter when there are non-shadow slotted components.
+  // Gating here keeps shadow-only bundles lean — patch functions get tree-shaken out.
   const ldp = config.extras.lightDomPatches ?? true;
-  b.lightDomPatches = ldp === true;
-  b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
-  b.slotCloneNode = ldp === true || (typeof ldp === 'object' && !!ldp.cloneNode);
-  b.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
-  b.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
+  if (b.slotRelocation && ldp !== false) {
+    b.lightDomPatches = ldp === true;
+    b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
+    b.slotCloneNode = ldp === true || (typeof ldp === 'object' && !!ldp.cloneNode);
+    b.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
+    b.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
+  } else {
+    b.lightDomPatches = false;
+    b.slotChildNodes = false;
+    b.slotCloneNode = false;
+    b.slotDomMutations = false;
+    b.slotTextContent = false;
+  }
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;

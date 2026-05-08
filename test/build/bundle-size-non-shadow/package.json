@@ -1,0 +1,29 @@
+{
+  "name": "@stencil-core-tests/build-bundle-size-non-shadow",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "module": "dist/loader-bundle/loader/index.js",
+  "types": "dist/loader-bundle/loader/index.d.ts",
+  "exports": {
+    "./loader": {
+      "import": "./dist/loader-bundle/loader/index.js",
+      "types": "./dist/loader-bundle/loader/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "stencil build",
+    "clean": "rimraf dist .stencil",
+    "test": "npm run build && node test-bundle-size.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.3"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
+}
