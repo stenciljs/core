@@ -69,7 +69,7 @@ export const patchCloneNode = (HostElementPrototype: any) => {
           (privateField) => !(childNodes[i] as any)[privateField],
         );
         if (slotted) {
-          if (BUILD.appendChildSlotFix && (clonedNode as any).__appendChild) {
+          if (BUILD.slotDomMutations && (clonedNode as any).__appendChild) {
             (clonedNode as any).__appendChild(slotted.cloneNode(true));
           } else {
             clonedNode.appendChild(slotted.cloneNode(true));

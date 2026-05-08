@@ -80,34 +80,32 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
       cmpMeta.$flags$ & CMP_FLAGS.hasSlot
     ) {
-      // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
-      if (BUILD.experimentalSlotFixes || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
+      // 'all' path: global lightDomPatches:true or per-component patchAll flag
+      if (BUILD.lightDomPatches || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
         patchPseudoShadowDom(Cstr.prototype);
       } else {
-        // Apply individual patches based on global BUILD flags OR per-component flags
+        // Individual patches via global BUILD flags OR per-component flags
         if (
-          BUILD.slotChildNodesFix ||
+          BUILD.slotChildNodes ||
           (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
         ) {
           patchChildSlotNodes(Cstr.prototype);
         }
-        if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
+        if (BUILD.slotCloneNode || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
           patchCloneNode(Cstr.prototype);
         }
         if (
-          BUILD.appendChildSlotFix ||
+          BUILD.slotDomMutations ||
           (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
         ) {
           patchSlotAppendChild(Cstr.prototype);
           patchInsertBefore(Cstr.prototype);
           patchSlotRemoveChild(Cstr.prototype);
         }
-        if (BUILD.scopedSlotTextContentFix && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+        if (BUILD.slotTextContent && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
           patchTextContent(Cstr.prototype);
         }
       }
-    } else if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
-      patchCloneNode(Cstr.prototype);
     }
 
     if (BUILD.hydrateClientSide && BUILD.shadowDom) {

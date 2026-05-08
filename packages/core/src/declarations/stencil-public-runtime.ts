@@ -96,7 +96,7 @@ export interface ShadowEncapsulation {
 
 /**
  * Patch types for non-shadow DOM components that use slots.
- * - `'all'`: Apply all slot-related patches (equivalent to `experimentalSlotFixes`)
+ * - `'all'`: Apply all slot-related patches (equivalent to `lightDomPatches: true`)
  * - `'children'`: Patch child node accessors (children, firstChild, lastChild, etc.)
  * - `'clone'`: Patch `cloneNode()` to handle slotted content
  * - `'insert'`: Patch `appendChild()`, `insertBefore()`, etc. for slot relocation
@@ -614,18 +614,17 @@ export declare function setTagTransformer(transformer: TagTransformer): void;
  */
 export declare function transformTag(tag: string): string;
 
+type MixinFactory = (base: MixedInCtor) => MixedInCtor;
+
 /**
- * @deprecated - Use `MixedInCtor` instead:
+ * A constructor type that can be used as the base for mixin factories. 
+ * 
  * ```ts
  * import { MixedInCtor } from '@stencil/core';
  *
  * const AFactoryFn = <B extends MixedInCtor>(Base: B) => {class A extends Base { propA = A }; return A;}
  * ```
  */
-export type MixinFactory = (base: MixedInCtor) => MixedInCtor;
-
-// TODO ^ do not remove. Just do not export when deprecated.
-
 export type MixedInCtor<T = {}> = new (...args: any[]) => T;
 
 /**

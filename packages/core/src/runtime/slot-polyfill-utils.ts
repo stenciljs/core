@@ -56,7 +56,7 @@ export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
  * corresponding slot location node which points to the slotted node (via `['s-nr']`).
  *
  * This is only required until all patches are unified / switched on all the time (then we can rely on `childNodes`)
- * either under 'experimentalSlotFixes' or on by default
+ * either under 'lightDomPatches' or on by default
  * @param childNodes all 'internal' child nodes of the component
  * @returns An array of slotted reference nodes.
  */

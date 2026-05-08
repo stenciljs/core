@@ -57,12 +57,13 @@ export const BUILD: BuildConditionals = {
   lazyLoad: true, // Critical for getElement() to work
   profile: false,
   slotRelocation: true,
-  appendChildSlotFix: false,
-  cloneNodeFix: false,
+  lightDomPatches: false,
+  slotChildNodes: false,
+  slotCloneNode: false,
+  slotDomMutations: false,
+  slotTextContent: false,
   hydratedAttribute: false,
   hydratedClass: true,
-  scopedSlotTextContentFix: false,
-  slotChildNodesFix: false,
   invisiblePrehydration: true,
   propBoolean: true,
   propNumber: true,
@@ -74,7 +75,6 @@ export const BUILD: BuildConditionals = {
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
-  experimentalSlotFixes: false,
 };
 
 export const Env = {};

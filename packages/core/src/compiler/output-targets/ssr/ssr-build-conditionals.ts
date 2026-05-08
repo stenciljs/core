@@ -34,14 +34,11 @@ export const getSsrBuildConditionals = (
   build.member = true;
   build.constructableCSS = false;
   build.asyncLoading = true;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  build.appendChildSlotFix = false;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  build.slotChildNodesFix = false;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  build.experimentalSlotFixes = false;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  build.cloneNodeFix = false;
+  build.lightDomPatches = false;
+  build.slotChildNodes = false;
+  build.slotCloneNode = false;
+  build.slotDomMutations = false;
+  build.slotTextContent = false;
   build.cssAnnotations = true;
 
   return build;

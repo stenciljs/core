@@ -175,17 +175,13 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.constructableCSS = !b.hotModuleReplacement || !!config._isTesting;
   b.asyncLoading = !!(b.asyncLoading || b.lazyLoad || b.taskQueue || b.initializeNextTick);
   b.cssAnnotations = true;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.appendChildSlotFix = config.extras.appendChildSlotFix;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.slotChildNodesFix = config.extras.slotChildNodesFix;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.experimentalSlotFixes = config.extras.experimentalSlotFixes;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.cloneNodeFix = config.extras.cloneNodeFix;
+  const ldp = config.extras.lightDomPatches ?? true;
+  b.lightDomPatches = ldp === true;
+  b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
+  b.slotCloneNode = ldp === true || (typeof ldp === 'object' && !!ldp.cloneNode);
+  b.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
+  b.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.scopedSlotTextContentFix = !!config.extras.scopedSlotTextContentFix;
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
   if (config.hydratedFlag) {

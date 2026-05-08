@@ -351,57 +351,39 @@ interface ConfigExtrasBase {
   additionalTagTransformers?: boolean | 'prod';
 }
 
-// TODO(STENCIL-914): delete this interface when `experimentalSlotFixes` is the default behavior
-type ConfigExtrasSlotFixes<
-  ExperimentalFixesEnabled extends boolean,
-  IndividualFlags extends boolean,
-> = {
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  /**
-   * By default, the slot polyfill does not update `appendChild()` so that it appends
-   * new child nodes into the correct child slot like how shadow dom works. This is an opt-in
-   * polyfill for those who need it when using `element.appendChild(node)` and expecting the
-   * child to be appended in the same location shadow dom would. This is not required for
-   * IE11 or Edge 18, but can be enabled if the app is using `appendChild()`. Defaults to `false`.
-   */
-  appendChildSlotFix?: IndividualFlags;
-
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  /**
-   * By default, the runtime does not polyfill `cloneNode()` when cloning a component
-   * that uses the slot polyfill. This is an opt-in polyfill for those who need it.
-   * This is not required for IE11 or Edge 18, but can be enabled if the app is using
-   * `cloneNode()` and unexpected node are being cloned due to the slot polyfill
-   * simulating shadow dom. Defaults to `false`.
-   */
-  cloneNodeFix?: IndividualFlags;
-
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  /**
-   * Experimental flag to align the behavior of invoking `textContent` on a scoped component to act more like a
-   * component that uses the shadow DOM. Defaults to `false`
-   */
-  scopedSlotTextContentFix?: IndividualFlags;
-
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  /**
-   * For browsers that do not support shadow dom (IE11 and Edge 18 and below), slot is polyfilled
-   * to simulate the same behavior. However, the host element's `childNodes` and `children`
-   * getters are not patched to only show the child nodes and elements of the default slot.
-   * Defaults to `false`.
-   */
-  slotChildNodesFix?: IndividualFlags;
-
-  // TODO(STENCIL-914): remove `experimentalSlotFixes` when it's the default behavior
-  /**
-   * Enables all slot-related fixes such as {@link slotChildNodesFix}, and
-   * {@link scopedSlotTextContentFix}.
-   */
-  experimentalSlotFixes?: ExperimentalFixesEnabled;
+/**
+ * DOM patches for light-dom / scoped components that use `<slot>`.
+ *
+ * These patches shield the component's slot machinery from framework DOM mutations
+ * (e.g. when Angular or React insert / remove nodes they route directly to the host
+ * element, bypassing the slot polyfill) and prevent hydration errors when a framework
+ * encounters Stencil's internal slot reference nodes during SSR reconciliation.
+ *
+ * Patches are only applied at runtime when a component is both non-shadow **and**
+ * declares at least one `<slot>`, so enabling them has no effect on pure shadow-DOM
+ * components.
+ *
+ * Set to `true` (default) to enable all patches, `false` to disable all, or an object
+ * for granular control.
+ */
+type LightDomPatches = {
+  /** Patches `childNodes`/`children` getters to return only slotted content. */
+  childNodes?: boolean;
+  /** Patches `cloneNode()` to correctly deep-clone slotted content. */
+  cloneNode?: boolean;
+  /** Patches `appendChild()`, `insertBefore()`, and `removeChild()` to route to the correct slot. */
+  domMutations?: boolean;
+  /** Patches `textContent` to act like shadow DOM (reads/writes slotted text only). */
+  textContent?: boolean;
 };
 
-export type ConfigExtras = ConfigExtrasBase &
-  (ConfigExtrasSlotFixes<true, true> | ConfigExtrasSlotFixes<false, boolean>);
+export type ConfigExtras = ConfigExtrasBase & {
+  /**
+   * DOM patches for light-dom / scoped components that use `<slot>`.
+   * See {@link LightDomPatches} for granular control. Defaults to `true`.
+   */
+  lightDomPatches?: boolean | LightDomPatches;
+};
 
 export interface Config extends StencilConfig {
   buildAppCore?: boolean;

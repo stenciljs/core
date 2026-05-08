@@ -76,6 +76,7 @@ describe('component-styles', () => {
       },
     });
     const compiler2 = result.compiler;
+    // @ts-expect-error - need to test custom hash function behavior
     compiler2.config.sys.generateContentHash = function () {
       return 'hashed';
     };

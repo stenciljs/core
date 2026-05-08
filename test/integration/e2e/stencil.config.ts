@@ -60,7 +60,4 @@ export const config: Config = {
   },
   hashFileNames: false,
   sourceMap: true,
-  extras: {
-    experimentalSlotFixes: true,
-  },
 };

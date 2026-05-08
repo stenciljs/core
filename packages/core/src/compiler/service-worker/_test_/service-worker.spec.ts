@@ -9,6 +9,7 @@ describe('service worker', () => {
   it('dev service worker', async () => {
     const { compiler } = await createTestCompiler({
       config: {
+        // @ts-expect-error - need to test dev mode service worker behavior
         devMode: true,
         outputTargets: [
           {

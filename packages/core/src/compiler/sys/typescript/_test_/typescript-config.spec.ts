@@ -65,9 +65,7 @@ describe('typescript-config', () => {
       config = mockValidatedConfig();
     });
 
-    // TODO: THIS TEST IS CURRENTLY NOT WORKING
-    // BUT NOT SURE IF IT'S WORTH THE EFFORT TO FIX
-    // SINCE WE DON'T WANT TO PATCH TS ANY MORE
+    // TODO: THIS TEST IS CURRENTLY NOT WORKING — NEEDS INVESTIGATION
     it.skip('includes watchOptions when provided', async () => {
       getParsedCommandLineOfConfigFileMock.mockReturnValueOnce({
         watchOptions: {

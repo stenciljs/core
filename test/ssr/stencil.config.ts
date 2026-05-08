@@ -22,8 +22,5 @@ export const config: Config = {
   hydratedFlag: {
     name: 'custom-hydrate-flag',
     selector: 'attribute',
-  },
-  extras: {
-    experimentalSlotFixes: true,
-  },
+  }
 };

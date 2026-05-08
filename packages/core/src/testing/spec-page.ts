@@ -143,7 +143,7 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     BUILD.hydrateServerSide = true;
     BUILD.hydrateClientSide = false;
   }
-  BUILD.cloneNodeFix = false;
+  BUILD.slotCloneNode = false;
 
   if (typeof opts.url === 'string') {
     page.win.location.href = opts.url;
