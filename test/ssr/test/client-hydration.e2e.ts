@@ -227,8 +227,7 @@ test.describe('client hydration', () => {
           prettyHtml: true,
         },
       );
-      expect(html || '')
-        .toBe(`<nested-cmp-parent custom-hydrate-flag="" s-id="1">
+      expect(html || '').toBe(`<nested-cmp-parent custom-hydrate-flag="" s-id="1">
   <template shadowrootmode="open">
     <style sty-id="sc-nested-cmp-parent">
       .sc-nested-scope-cmp-h{color:green}slot-fb{display:contents}slot-fb[hidden]{display:none}:host{display:inline-block}

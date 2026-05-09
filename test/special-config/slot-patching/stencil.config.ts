@@ -10,5 +10,5 @@ export const config: Config = {
   ],
   extras: {
     lightDomPatches: false,
-  }
+  },
 };

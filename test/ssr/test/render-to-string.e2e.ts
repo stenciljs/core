@@ -117,9 +117,7 @@ test.describe('renderToString API', () => {
       fullDocument: false,
       clientSsrAnnotations: false,
     });
-    expect(html).toBe(
-      '<another-car-detail custom-hydrate-flag=""><!----></another-car-detail>',
-    );
+    expect(html).toBe('<another-car-detail custom-hydrate-flag=""><!----></another-car-detail>');
   });
 
   test('does not render a shadow component but its light dom', async () => {
@@ -128,9 +126,7 @@ test.describe('renderToString API', () => {
       fullDocument: false,
       clientSsrAnnotations: false,
     });
-    expect(html).toBe(
-      '<cmp-with-slot custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
-    );
+    expect(html).toBe('<cmp-with-slot custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>');
   });
 
   test('does not render the shadow root twice', async () => {

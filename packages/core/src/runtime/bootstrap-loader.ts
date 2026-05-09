@@ -189,6 +189,14 @@ export const bootstrapLazy = (
         }
       };
 
+      // patchCloneNode applies to all non-shadow components, not just those with slots
+      if (
+        !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+        (BUILD.slotCloneNode || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone))
+      ) {
+        patchCloneNode(HostElement.prototype);
+      }
+
       if (
         !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
         cmpMeta.$flags$ & CMP_FLAGS.hasSlot
@@ -203,9 +211,6 @@ export const bootstrapLazy = (
             (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
           ) {
             patchChildSlotNodes(HostElement.prototype);
-          }
-          if (BUILD.slotCloneNode || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
-            patchCloneNode(HostElement.prototype);
           }
           if (
             BUILD.slotDomMutations ||
