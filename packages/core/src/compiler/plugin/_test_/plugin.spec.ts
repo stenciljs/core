@@ -1,16 +1,25 @@
 import path from 'path';
-import { createTestCompiler } from '@stencil/core/testing';
-import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+import {
+  createTestCompiler,
+  prepareTestCompiler,
+  type PreparedTestCompiler,
+} from '@stencil/core/testing';
+import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { normalizePath } from '../../../utils';
 
 describe('plugin', () => {
+  let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
   const root = path.resolve('/');
 
+  beforeAll(async () => {
+    setup = await prepareTestCompiler();
+  });
+
   beforeEach(async () => {
-    const result = await createTestCompiler();
+    const result = await createTestCompiler({ setup });
     compiler = result.compiler;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();

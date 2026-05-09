@@ -1,17 +1,26 @@
 import path from 'path';
-import { createTestCompiler } from '@stencil/core/testing';
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import {
+  createTestCompiler,
+  prepareTestCompiler,
+  type PreparedTestCompiler,
+} from '@stencil/core/testing';
+import { describe, expect, it, beforeAll, beforeEach, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { getLazyBuildConditionals } from '../../output-targets/dist-lazy/lazy-build-conditionals';
 
 describe('build-conditionals', () => {
+  let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
   let config: d.ValidatedConfig;
   const root = path.resolve('/');
 
+  beforeAll(async () => {
+    setup = await prepareTestCompiler();
+  });
+
   beforeEach(async () => {
-    const result = await createTestCompiler();
+    const result = await createTestCompiler({ setup });
     compiler = result.compiler;
     config = result.config;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);

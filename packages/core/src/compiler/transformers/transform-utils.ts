@@ -863,9 +863,14 @@ const getTypeReferenceLocation = (
  *
  * @param checker a typescript typechecker
  * @param type the type to resolve
+ * @param typeNode an optional TypeScript type node
  * @returns a resolved, user-readable string
  */
-export const resolveType = (checker: ts.TypeChecker, type: ts.Type, typeNode?: ts.TypeNode): string => {
+export const resolveType = (
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  typeNode?: ts.TypeNode,
+): string => {
   if (typeNode && ts.isArrayTypeNode(typeNode)) {
     const elementType = checker.getTypeFromTypeNode(typeNode.elementType);
     const elementResolved = resolveType(checker, elementType, typeNode.elementType);

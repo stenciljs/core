@@ -13,7 +13,9 @@ export {
 } from './mocks';
 export {
   createTestCompiler,
+  prepareTestCompiler,
   type CreateTestCompilerOptions,
+  type PreparedTestCompiler,
   type TestCompilerResult,
 } from './create-test-compiler';
 export { newSpecPage } from './spec-page';
