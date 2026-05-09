@@ -104,7 +104,7 @@ export namespace Components {
          */
         "mode"?: any;
     }
-    interface NestedCmpChild {
+    interface NestedChildCmp {
     }
     interface NestedCmpParent {
     }
@@ -325,11 +325,11 @@ declare global {
         prototype: HTMLMyJsxCmpElement;
         new (): HTMLMyJsxCmpElement;
     };
-    interface HTMLNestedCmpChildElement extends Components.NestedCmpChild, HTMLStencilElement {
+    interface HTMLNestedChildCmpElement extends Components.NestedChildCmp, HTMLStencilElement {
     }
-    var HTMLNestedCmpChildElement: {
-        prototype: HTMLNestedCmpChildElement;
-        new (): HTMLNestedCmpChildElement;
+    var HTMLNestedChildCmpElement: {
+        prototype: HTMLNestedChildCmpElement;
+        new (): HTMLNestedChildCmpElement;
     };
     interface HTMLNestedCmpParentElement extends Components.NestedCmpParent, HTMLStencilElement {
     }
@@ -520,7 +520,7 @@ declare global {
         "hydrated-sibling-accessors": HTMLHydratedSiblingAccessorsElement;
         "my-cmp": HTMLMyCmpElement;
         "my-jsx-cmp": HTMLMyJsxCmpElement;
-        "nested-cmp-child": HTMLNestedCmpChildElement;
+        "nested-child-cmp": HTMLNestedChildCmpElement;
         "nested-cmp-parent": HTMLNestedCmpParentElement;
         "nested-scope-cmp": HTMLNestedScopeCmpElement;
         "non-shadow-child": HTMLNonShadowChildElement;
@@ -648,7 +648,7 @@ declare namespace LocalJSX {
          */
         "mode"?: any;
     }
-    interface NestedCmpChild {
+    interface NestedChildCmp {
     }
     interface NestedCmpParent {
     }
@@ -827,7 +827,7 @@ declare namespace LocalJSX {
         "hydrated-sibling-accessors": HydratedSiblingAccessors;
         "my-cmp": Omit<MyCmp, keyof MyCmpAttributes> & { [K in keyof MyCmp & keyof MyCmpAttributes]?: MyCmp[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `attr:${K}`]?: MyCmpAttributes[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `prop:${K}`]?: MyCmp[K] };
         "my-jsx-cmp": Omit<MyJsxCmp, keyof MyJsxCmpAttributes> & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes]?: MyJsxCmp[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `attr:${K}`]?: MyJsxCmpAttributes[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `prop:${K}`]?: MyJsxCmp[K] };
-        "nested-cmp-child": NestedCmpChild;
+        "nested-child-cmp": NestedChildCmp;
         "nested-cmp-parent": NestedCmpParent;
         "nested-scope-cmp": NestedScopeCmp;
         "non-shadow-child": NonShadowChild;
@@ -879,7 +879,7 @@ declare module "@stencil/core" {
             "hydrated-sibling-accessors": LocalJSX.IntrinsicElements["hydrated-sibling-accessors"] & JSXBase.HTMLAttributes<HTMLHydratedSiblingAccessorsElement>;
             "my-cmp": LocalJSX.IntrinsicElements["my-cmp"] & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
             "my-jsx-cmp": LocalJSX.IntrinsicElements["my-jsx-cmp"] & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
-            "nested-cmp-child": LocalJSX.IntrinsicElements["nested-cmp-child"] & JSXBase.HTMLAttributes<HTMLNestedCmpChildElement>;
+            "nested-child-cmp": LocalJSX.IntrinsicElements["nested-child-cmp"] & JSXBase.HTMLAttributes<HTMLNestedChildCmpElement>;
             "nested-cmp-parent": LocalJSX.IntrinsicElements["nested-cmp-parent"] & JSXBase.HTMLAttributes<HTMLNestedCmpParentElement>;
             "nested-scope-cmp": LocalJSX.IntrinsicElements["nested-scope-cmp"] & JSXBase.HTMLAttributes<HTMLNestedScopeCmpElement>;
             "non-shadow-child": LocalJSX.IntrinsicElements["non-shadow-child"] & JSXBase.HTMLAttributes<HTMLNonShadowChildElement>;

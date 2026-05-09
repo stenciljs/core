@@ -1,29 +1,29 @@
-<another-car-list cars="[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]" class="sc-another-car-list-h" custom-hydrate-flag="">
+<another-car-list cars="[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]" custom-hydrate-flag="">
   <template shadowrootmode="open">
     <style sty-id="sc-another-car-list">
       :host{display:block;margin:10px;padding:10px;border:1px solid blue}ul{display:block;margin:0;padding:0}li{list-style:none;margin:0;padding:20px}.selected{font-weight:bold;background:rgb(255, 255, 210)}
     </style>
-    <ul class="sc-another-car-list">
-      <li class="sc-another-car-list">
-        <another-car-detail class="sc-another-car-detail-h sc-another-car-list" custom-hydrate-flag="">
+    <ul>
+      <li>
+        <another-car-detail custom-hydrate-flag="">
           <template shadowrootmode="open">
             <style sty-id="sc-another-car-detail">
               section{color:green}
             </style>
-            <section class="sc-another-car-detail">
+            <section>
               2024 VW Vento
             </section>
           </template>
           <!---->
         </another-car-detail>
       </li>
-      <li class="sc-another-car-list">
-        <another-car-detail class="sc-another-car-detail-h sc-another-car-list" custom-hydrate-flag="">
+      <li>
+        <another-car-detail custom-hydrate-flag="">
           <template shadowrootmode="open">
             <style sty-id="sc-another-car-detail">
               section{color:green}
             </style>
-            <section class="sc-another-car-detail">
+            <section>
               2023 VW Beetle
             </section>
           </template>

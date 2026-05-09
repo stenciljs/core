@@ -93,7 +93,7 @@ test.describe('renderToString API', () => {
     );
     expect(html).toMatchSnapshot();
     expect(html).toContain(
-      `<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>`,
+      `<car-detail custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>`,
     );
   });
 
@@ -107,7 +107,7 @@ test.describe('renderToString API', () => {
 
     const result = await readableToString(streamToString(input, opts));
     expect(result).toContain(
-      '<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
+      '<car-detail custom-hydrate-flag=""><!----><section>2024 VW Vento</section></car-detail>',
     );
   });
 
@@ -118,7 +118,7 @@ test.describe('renderToString API', () => {
       clientSsrAnnotations: false,
     });
     expect(html).toBe(
-      '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
+      '<another-car-detail custom-hydrate-flag=""><!----></another-car-detail>',
     );
   });
 
@@ -129,7 +129,7 @@ test.describe('renderToString API', () => {
       clientSsrAnnotations: false,
     });
     expect(html).toBe(
-      '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
+      '<cmp-with-slot custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
     );
   });
 
@@ -137,7 +137,7 @@ test.describe('renderToString API', () => {
     const { html } = await renderToString(
       `
       <nested-cmp-parent>
-        <nested-cmp-child custom-hydrate-flag="" s-id="3">
+        <nested-child-cmp custom-hydrate-flag="" s-id="3">
           <template shadowrootmode="open">
             <div c-id="3.0.0.0" class="some-other-class">
               <slot c-id="3.1.1.0"></slot>
@@ -145,7 +145,7 @@ test.describe('renderToString API', () => {
           </template>
           <!--r.3-->
           Hello World
-        </nested-cmp-child>
+        </nested-child-cmp>
       </nested-cmp-parent>
     `,
       {

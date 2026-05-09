@@ -1,9 +1,9 @@
-<another-car-detail car="{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024}" class="sc-another-car-detail-h" custom-hydrate-flag="">
+<another-car-detail car="{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024}" custom-hydrate-flag="">
   <template shadowrootmode="open">
     <style sty-id="sc-another-car-detail">
       section{color:green}
     </style>
-    <section class="sc-another-car-detail">
+    <section>
       2024 VW Vento
     </section>
   </template>

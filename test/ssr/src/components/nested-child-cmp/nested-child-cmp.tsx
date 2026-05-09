@@ -1,7 +1,7 @@
 import { Component } from '@stencil/core';
 
 @Component({
-  tag: 'nested-cmp-child',
+  tag: 'nested-child-cmp',
   styleUrl: `nested-child-cmp.css`,
   encapsulation: { type: 'shadow' },
 })

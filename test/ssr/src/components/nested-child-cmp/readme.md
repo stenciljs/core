@@ -1,4 +1,4 @@
-# nested-cmp-child
+# nested-child-cmp
 
 
 
