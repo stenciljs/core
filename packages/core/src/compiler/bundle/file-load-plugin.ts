@@ -4,7 +4,7 @@ import type { Plugin } from 'rolldown';
 import { isDtsFile, normalizeFsPath } from '../../utils';
 import { InMemoryFileSystem } from '../sys/in-memory-fs';
 
-// Extensions tried in order when resolving extensionless imports
+// Extensions tried in order when resolving extension-less imports
 const RESOLVE_EXTENSIONS = ['.tsx', '.ts', '.mts', '.cts', '.js', '.mjs', '.cjs'];
 
 export const fileLoadPlugin = (fs: InMemoryFileSystem): Plugin => {
