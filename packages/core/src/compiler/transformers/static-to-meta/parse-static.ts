@@ -170,7 +170,7 @@ export const updateModule = (
 
   // Create a JS-mode source file for class-extension processing (mixin metadata from external collections).
   // ScriptKind.JS is intentional: const enum values are already inlined in the source text, so
-  // reparsing as TypeScript would encounter unresolvable const enum declarations.
+  // re-parsing as TypeScript would encounter unresolvable const enum declarations.
   if (moduleFile.cmps.length > 0 || moduleFile.hasExportableMixins) {
     moduleFile.staticSourceFile = ts.createSourceFile(
       sourceFilePath,
