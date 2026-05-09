@@ -865,7 +865,13 @@ const getTypeReferenceLocation = (
  * @param type the type to resolve
  * @returns a resolved, user-readable string
  */
-export const resolveType = (checker: ts.TypeChecker, type: ts.Type): string => {
+export const resolveType = (checker: ts.TypeChecker, type: ts.Type, typeNode?: ts.TypeNode): string => {
+  if (typeNode && ts.isArrayTypeNode(typeNode)) {
+    const elementType = checker.getTypeFromTypeNode(typeNode.elementType);
+    const elementResolved = resolveType(checker, elementType, typeNode.elementType);
+    return elementResolved.includes(' | ') ? `(${elementResolved})[]` : `${elementResolved}[]`;
+  }
+
   const set = new Set<string>();
   parseDocsType(checker, type, set);
 
@@ -919,6 +925,20 @@ export const parseDocsType = (checker: ts.TypeChecker, type: ts.Type, parts: Set
     (type as ts.UnionType).types.forEach((t) => {
       parseDocsType(checker, t, parts);
     });
+  } else if (checker.isArrayType(type)) {
+    const typeArgs = checker.getTypeArguments(type as ts.TypeReference);
+    if (typeArgs.length > 0) {
+      const elementParts = new Set<string>();
+      parseDocsType(checker, typeArgs[0], elementParts);
+      const hasTrue = elementParts.delete('true');
+      const hasFalse = elementParts.delete('false');
+      if (hasTrue || hasFalse) elementParts.add('boolean');
+      const sortedParts = Array.from(elementParts).sort();
+      const elemStr = sortedParts.join(' | ');
+      parts.add(sortedParts.length > 1 ? `(${elemStr})[]` : `${elemStr}[]`);
+    } else {
+      parts.add(typeToString(checker, type));
+    }
   } else {
     // Check if this is a type alias (generic or non-generic) that should be expanded
     // For documentation purposes, we want to show the actual literal values

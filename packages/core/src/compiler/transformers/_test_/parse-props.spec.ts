@@ -220,7 +220,7 @@ describe('parse props', () => {
       val: {
         complexType: {
           references: {},
-          resolved: '{}', // TODO, needs to be string[]
+          resolved: 'string[]',
           original: 'string[]',
         },
         docs: {

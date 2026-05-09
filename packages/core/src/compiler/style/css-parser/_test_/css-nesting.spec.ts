@@ -68,7 +68,6 @@ describe('CSS Nesting', () => {
     expect(serialized).toContain('.level3');
   });
 
-  // TODO: Nested @media requires additional parsing logic
   it('should parse nested at-rules', () => {
     const css = `
       .component {

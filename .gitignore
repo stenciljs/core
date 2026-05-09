@@ -13,55 +13,16 @@ log.txt
 .idea/
 .vscode/
 .claude
-.agents
 .history/
 .sass-cache/
 .versions/
 node_modules/
-coverage/
-
-/build/
-/scripts/build/
-dist/
-
-# submodule packages
-/build-conditionals
-/cli
-/compiler
-/hydrate
-/dev-server
-/internal
-/mock-doc
-/polyfills
-/runtime
-/server
-/sys
-/testing
-
-/screenshot/index.js
-/screenshot/index.js.map
-/screenshot/package.json
-/screenshot/pixel-match.js
-/screenshot/pixel-match.js.map
-/screenshot/*.d.ts
 
 test/**/www/*
 test/**/hydrate/*
 .stencil
 coverage/**
 
-# TODO(STENCIL-446): Remove these once `strictNullChecks` is enabled
-null_errors*.json
-# TODO(STENCIL-454): Remove or change this up once we've eliminated unused exports
-unused-exports*.txt
-
-# readme file from docs-readme that is expected to be missing so it will be emitted in full
-test/docs-readme/custom-readme-output-overwrite-if-missing-missing/components/styleurls-component/readme.md
-
-
-.turbo
-# temporary ignore whilst we complete v5
-/src
 dist
 www
 hydrate

@@ -168,10 +168,9 @@ export const updateModule = (
   }
   visitNode(tsSourceFile);
 
-  // TODO: workaround around const enums
-  // find better way
-  // Create staticSourceFile for modules with components OR exportable mixins
-  // (needed for class-extension to process mixin metadata from external collections)
+  // Create a JS-mode source file for class-extension processing (mixin metadata from external collections).
+  // ScriptKind.JS is intentional: const enum values are already inlined in the source text, so
+  // reparsing as TypeScript would encounter unresolvable const enum declarations.
   if (moduleFile.cmps.length > 0 || moduleFile.hasExportableMixins) {
     moduleFile.staticSourceFile = ts.createSourceFile(
       sourceFilePath,

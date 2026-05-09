@@ -252,7 +252,6 @@ export const bootstrapLazy = (
   });
 
   // Only bother generating CSS if we have components
-  // TODO(STENCIL-1118): Add test cases for CSS content based on conditionals
   if (cmpTags.length > 0) {
     // Add hydration styles
     if (BUILD.invisiblePrehydration && (BUILD.hydratedClass || BUILD.hydratedAttribute)) {

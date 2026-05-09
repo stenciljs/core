@@ -21,7 +21,6 @@ on:
         default: main
         options:
           - main
-          - v3-maintenance
 
 jobs:
   create-stencil-release-pull-request:
@@ -49,7 +48,6 @@ jobs:
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      # TODO(STENCIL-927): Backport changes to the v3 branch
       - name: Run Publish Preparation Script
         run: npm run release.ci.prepare -- --version ${{ inputs.version }}
         shell: bash

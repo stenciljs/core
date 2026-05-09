@@ -139,7 +139,8 @@ describe('mapImportsToPathAliases', () => {
     expect(module.outputText).toContain('import { utils } from "@utils";');
   });
 
-  // TODO(STENCIL-223): remove spy to test actual resolution behavior
+  // The spy isolates our path-computation logic from TypeScript's module resolver.
+  // Real resolution would require actual files on disk and is TypeScript's concern, not Stencil's.
   it('replaces the path alias with the generated relative path', () => {
     resolveModuleNameSpy.mockReturnValue({
       resolvedModule: {

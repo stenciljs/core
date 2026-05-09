@@ -1,3 +1,4 @@
+import path from 'path';
 import { ValidatedConfig } from '@stencil/core';
 import ts from 'typescript';
 import { describe, expect, it, beforeEach, afterEach, vi, Mock } from 'vitest';
@@ -60,13 +61,15 @@ describe('typescript-config', () => {
     let mockSys: TestingSystem;
     let config: ValidatedConfig;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       mockSys = createTestingSystem();
       config = mockValidatedConfig();
+      // validateTsConfig bails early if no tsconfig file exists, preventing getParsedCommandLineOfConfigFile
+      // from being called. Write a minimal tsconfig so the mock gets invoked.
+      await mockSys.writeFile(path.join(config.rootDir, 'tsconfig.json'), '{}');
     });
 
-    // TODO: THIS TEST IS CURRENTLY NOT WORKING — NEEDS INVESTIGATION
-    it.skip('includes watchOptions when provided', async () => {
+    it('includes watchOptions when provided', async () => {
       getParsedCommandLineOfConfigFileMock.mockReturnValueOnce({
         watchOptions: {
           excludeFiles: ['exclude.ts'],

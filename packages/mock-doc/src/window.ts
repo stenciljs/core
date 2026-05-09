@@ -844,7 +844,6 @@ export function cloneDocument(srcDoc: Document) {
   return dstWin?.document || null;
 }
 
-// TODO(STENCIL-345) - Evaluate reconciling MockWindow, Window differences
 /**
  * Constrain setTimeout() to 1ms, but still async. Also
  * only allow setInterval() to fire once, also constrained to 1ms.

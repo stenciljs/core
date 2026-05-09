@@ -256,9 +256,9 @@ const CONFIG_PROPS_TO_ANONYMIZE: ReadonlyArray<ConfigStringKeys> = [
   'tsconfig',
 ];
 
-// Props we delete entirely from the config for telemetry
-//
-// TODO(STENCIL-469): Investigate improving anonymization for tsCompilerOptions and devServer
+// Props we delete entirely from the config for telemetry.
+// tsCompilerOptions and devServer are complex objects that could contain paths or credentials,
+// so we delete them outright rather than attempting partial anonymization.
 const CONFIG_PROPS_TO_DELETE: ReadonlyArray<keyof d.Config> = [
   'devServer',
   'env',
@@ -314,7 +314,6 @@ export const anonymizeConfigForTelemetry = (config: d.ValidatedConfig): d.Config
     return anonymizedOT;
   });
 
-  // TODO(STENCIL-469): Investigate improving anonymization for tsCompilerOptions and devServer
   for (const prop of CONFIG_PROPS_TO_DELETE) {
     delete anonymizedConfig[prop];
   }
