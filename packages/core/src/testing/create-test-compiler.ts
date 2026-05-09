@@ -1,6 +1,9 @@
 import fs from 'node:fs';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type * as d from '@stencil/core';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { createCompiler } from '../compiler/compiler';
 import { loadConfig } from '../compiler/config/load-config';

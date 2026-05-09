@@ -13,7 +13,7 @@ A component with various typed props for testing JSX type inference.
 
 | Property                   | Attribute           | Description               | Type                                            | Default     |
 | -------------------------- | ------------------- | ------------------------- | ----------------------------------------------- | ----------- |
-| `arrProp`                  | --                  | Array prop                | `string[] \| undefined`                         | `undefined` |
+| `arrProp`                  | --                  | Array prop                | `string[]`                                      | `undefined` |
 | `boolOptional`             | `bool-optional`     | Optional boolean prop     | `boolean \| undefined`                          | `undefined` |
 | `boolWithDefault`          | `bool-with-default` | Boolean prop with default | `boolean`                                       | `false`     |
 | `numOptional`              | `num-optional`      | Optional number prop      | `number \| undefined`                           | `undefined` |

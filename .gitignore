@@ -28,3 +28,5 @@ www
 hydrate
 loader
 test-results
+__screenshots__
+.vitest-attachments

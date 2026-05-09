@@ -438,6 +438,11 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
   Object.defineProperty(elm, 'childNodes', {
     get() {
       const result = new FakeNodeList();
+      // If not yet initialized by Stencil (e.g. a cloneNode result), return raw children
+      if (!(this as any)['s-cr']) {
+        result.push(...Array.from(this.__childNodes));
+        return result;
+      }
       result.push(...getSlottedChildNodes(this.__childNodes));
       return result;
     },
