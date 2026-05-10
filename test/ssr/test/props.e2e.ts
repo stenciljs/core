@@ -57,7 +57,7 @@ test.describe('props serialization', () => {
           clientSsrAnnotations: false,
         },
       );
-      expect(html || '').toContain('<section class="sc-another-car-detail"></section>');
+      expect(html || '').toContain('<section></section>');
     });
   });
 

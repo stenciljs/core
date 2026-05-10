@@ -7,6 +7,7 @@ import {
   catchError,
   createOnWarnFn,
   generatePreamble,
+  isRolldownError,
   join,
   loadRolldownDiagnostics,
 } from '../../../utils';
@@ -131,10 +132,8 @@ export const generateSsrApp = async (
       );
     }
     await Promise.all(buildPromises);
-  } catch (e: any) {
-    if (!buildCtx.hasError) {
-      // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rolldown types (which are
-      // breakable) and type safety (so that the error variable may be something other than `any`)
+  } catch (e) {
+    if (!buildCtx.hasError && isRolldownError(e)) {
       loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
     }
   }

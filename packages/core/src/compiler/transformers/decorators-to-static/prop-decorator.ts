@@ -245,7 +245,7 @@ const getComplexType = (
   const nodeType = node.type;
   return {
     original: nodeType ? nodeType.getText() : typeToString(typeChecker, type),
-    resolved: resolveType(typeChecker, type),
+    resolved: resolveType(typeChecker, type, nodeType),
     references: getAttributeTypeInfo(
       // If the node did not explicity have a type set (i.e. `name: string`), then
       // we can generate a type node via the type checker to resolve references for inferred types.
@@ -261,6 +261,7 @@ const getComplexType = (
       typeChecker,
       program,
     ),
+    _astNode: nodeType,
   };
 };
 

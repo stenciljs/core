@@ -320,10 +320,6 @@ export const proxyComponent = (
           //  by connectedCallback as this attributeChangedCallback will not fire.
           //
           //  https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
-          //
-          //  TODO(STENCIL-16) we should think about whether or not we actually want to be reflecting the attributes to
-          //  properties here given that this goes against best practices outlined here
-          //  https://developers.google.com/web/fundamentals/web-components/best-practices#avoid-reentrancy
           if (this.hasOwnProperty(propName) && BUILD.lazyLoad) {
             newValue = this[propName];
             delete this[propName];

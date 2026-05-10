@@ -1,6 +1,5 @@
 import {
   ConfigBundle,
-  ConfigExtras,
   Diagnostic,
   LoadConfigInit,
   LogLevel,
@@ -147,44 +146,13 @@ export const validateConfig = (
     validatedConfig.extras.additionalTagTransformers === true ||
     (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
 
-  // TODO(STENCIL-914): remove when `experimentalSlotFixes` is the default behavior
-  // If the user set `experimentalSlotFixes` and any individual slot fix flags to `false`, we need to log a warning
-  // to the user that we will "override" the individual flags
-  if (validatedConfig.extras.experimentalSlotFixes === true) {
-    const possibleFlags: (keyof ConfigExtras)[] = [
-      'appendChildSlotFix',
-      'slotChildNodesFix',
-      'cloneNodeFix',
-      'scopedSlotTextContentFix',
-      'experimentalScopedSlotChanges',
-    ];
-    const conflictingFlags = possibleFlags.filter((flag) => validatedConfig.extras[flag] === false);
-    if (conflictingFlags.length > 0) {
-      const warning = buildError(diagnostics);
-      warning.level = 'warn';
-      warning.messageText = `If the 'experimentalSlotFixes' flag is enabled it will override any slot fix flags which are disabled. In particular, the following currently-disabled flags will be ignored: ${conflictingFlags.join(
-        ', ',
-      )}. Please update your Stencil config accordingly.`;
-    }
-  }
-
-  // TODO(STENCIL-914): remove `experimentalSlotFixes` when it's the default behavior
-  validatedConfig.extras.experimentalSlotFixes = !!validatedConfig.extras.experimentalSlotFixes;
-  if (validatedConfig.extras.experimentalSlotFixes === true) {
-    validatedConfig.extras.appendChildSlotFix = true;
-    validatedConfig.extras.cloneNodeFix = true;
-    validatedConfig.extras.slotChildNodesFix = true;
-    validatedConfig.extras.scopedSlotTextContentFix = true;
-    validatedConfig.extras.experimentalScopedSlotChanges = true;
-  } else {
-    validatedConfig.extras.appendChildSlotFix = !!validatedConfig.extras.appendChildSlotFix;
-    validatedConfig.extras.cloneNodeFix = !!validatedConfig.extras.cloneNodeFix;
-    validatedConfig.extras.slotChildNodesFix = !!validatedConfig.extras.slotChildNodesFix;
-    validatedConfig.extras.scopedSlotTextContentFix =
-      !!validatedConfig.extras.scopedSlotTextContentFix;
-    // TODO(STENCIL-1086): remove this option when it's the default behavior
-    validatedConfig.extras.experimentalScopedSlotChanges =
-      !!validatedConfig.extras.experimentalScopedSlotChanges;
+  // Normalize lightDomPatches: default true, accept boolean or granular object.
+  // Individual BUILD flags are derived in app-data.ts.
+  const ldp = validatedConfig.extras.lightDomPatches;
+  if (ldp === undefined) {
+    validatedConfig.extras.lightDomPatches = true;
+  } else if (typeof ldp !== 'boolean' && typeof ldp !== 'object') {
+    validatedConfig.extras.lightDomPatches = true;
   }
 
   // Set boolean config values with defaults

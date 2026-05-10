@@ -104,20 +104,89 @@ const updateTypeName = (currentTypeName: string, typeAlias: d.TypesMemberNameDat
     return currentTypeName;
   }
 
-  // TODO(STENCIL-419): Update this functionality to no longer use a regex
-  // negative lookahead specifying that quotes that designate a string in JavaScript cannot follow some expression
-  const endingStrChar = '(?!("|\'|`))';
-  /**
-   * A regular expression that looks at type names along a [word boundary](https://www.regular-expressions.info/wordboundaries.html).
-   * This is used as the best approximation for replacing type collisions, as this stage of compilation has only
-   * 'flattened' type information in the form of a String.
-   *
-   * This regex should be expected to capture types that are found in generics, unions, intersections, etc., but not
-   * those in string literals. We do not check for a starting quote (" | ' | `) here as some browsers do not support
-   * negative lookbehind. This works "well enough" until STENCIL-419 is completed.
-   */
-  const typeNameRegex = new RegExp(`\\b${typeAlias.localName}\\b${endingStrChar}`, 'g');
-  return currentTypeName.replace(typeNameRegex, typeAlias.importName);
+  // Use context-aware replacement that respects string/template literal boundaries
+  return replaceTypeNameWithContext(currentTypeName, typeAlias.localName, typeAlias.importName);
+};
+
+/**
+ * Replace a type name in a type string while respecting string literal and template literal boundaries.
+ * This prevents replacing type names that have been resolved into string values (e.g., from template literals).
+ * @param typeString the type string to replace in
+ * @param localName the type name to find
+ * @param importName the replacement name
+ * @returns the updated type string
+ * @example
+ * // Input with string literal and type reference
+ * replaceTypeNameWithContext(
+ *   '(myVal: ReadonlyArray<"SomeType">) => Promise<SomeType>',
+ *   'SomeType',
+ *   'SomeType1'
+ * )
+ * // Output: '(myVal: ReadonlyArray<"SomeType">) => Promise<SomeType1>'
+ * // Note: SomeType inside quotes was not replaced
+ *
+ * @example
+ * // Input with multiple references
+ * replaceTypeNameWithContext(
+ *   '(arg: SomeType | AnotherType) => SomeType',
+ *   'SomeType',
+ *   'SomeType1'
+ * )
+ * // Output: '(arg: SomeType1 | AnotherType) => SomeType1'
+ */
+const replaceTypeNameWithContext = (
+  typeString: string,
+  localName: string,
+  importName: string,
+): string => {
+  // Create a regex for word boundary matching
+  const typeNamePattern = new RegExp(`\\b${localName}\\b`);
+  let result = '';
+  let i = 0;
+
+  while (i < typeString.length) {
+    const char = typeString[i];
+
+    // Handle string literals and template literals
+    if (char === '"' || char === "'" || char === '`') {
+      const quote = char;
+      result += char;
+      i++;
+
+      // Scan until we find the closing quote, handling escapes
+      while (i < typeString.length && typeString[i] !== quote) {
+        if (typeString[i] === '\\' && i + 1 < typeString.length) {
+          result += typeString[i];
+          result += typeString[i + 1];
+          i += 2;
+        } else {
+          result += typeString[i];
+          i++;
+        }
+      }
+
+      // Add closing quote
+      if (i < typeString.length) {
+        result += typeString[i];
+        i++;
+      }
+    } else {
+      // Not in a string - check if we have a type name match
+      const remaining = typeString.slice(i);
+      const match = remaining.match(typeNamePattern);
+
+      if (match && match.index === 0) {
+        // Found the type name at current position
+        result += importName;
+        i += localName.length;
+      } else {
+        result += char;
+        i++;
+      }
+    }
+  }
+
+  return result;
 };
 
 /**

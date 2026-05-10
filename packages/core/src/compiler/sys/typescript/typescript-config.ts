@@ -95,35 +95,37 @@ export const validateTsConfig = async (
             tsconfig.extends = results.raw.extends;
           }
         }
+      }
 
-        if (results.watchOptions) {
-          tsconfig.watchOptions = results.watchOptions;
+      // Always extract compilerOptions and watchOptions — even when TS reports
+      // non-fatal errors (e.g. TS18003 “No inputs found” on an empty src dir).
+      if (results.watchOptions) {
+        tsconfig.watchOptions = results.watchOptions;
+      }
+
+      if (results.options) {
+        tsconfig.compilerOptions = results.options;
+
+        const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
+        if (
+          [
+            ts.ScriptTarget.ES3,
+            ts.ScriptTarget.ES5,
+            ts.ScriptTarget.ES2015,
+            ts.ScriptTarget.ES2016,
+          ].includes(target)
+        ) {
+          const warn = buildWarn(tsconfig.diagnostics);
+          warn.messageText = `Stencil requires the tsconfig.json “target” setting to be “es2017” or higher. ES5 build output is no longer supported.`;
         }
 
-        if (results.options) {
-          tsconfig.compilerOptions = results.options;
-
-          const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
-          if (
-            [
-              ts.ScriptTarget.ES3,
-              ts.ScriptTarget.ES5,
-              ts.ScriptTarget.ES2015,
-              ts.ScriptTarget.ES2016,
-            ].includes(target)
-          ) {
-            const warn = buildWarn(tsconfig.diagnostics);
-            warn.messageText = `Stencil requires the tsconfig.json "target" setting to be "es2017" or higher. ES5 build output is no longer supported.`;
-          }
-
-          if (tsconfig.compilerOptions.module !== ts.ModuleKind.ESNext && !config._isTesting) {
-            const warn = buildWarn(tsconfig.diagnostics);
-            warn.messageText = `To improve bundling, it is always recommended to set the tsconfig.json “module” setting to “esnext”. Note that the compiler will automatically handle bundling both modern and legacy builds.`;
-          }
-
-          tsconfig.compilerOptions.sourceMap = config.sourceMap;
-          tsconfig.compilerOptions.inlineSources = config.sourceMap;
+        if (tsconfig.compilerOptions.module !== ts.ModuleKind.ESNext && !config._isTesting) {
+          const warn = buildWarn(tsconfig.diagnostics);
+          warn.messageText = `To improve bundling, it is always recommended to set the tsconfig.json “module” setting to “esnext”. Note that the compiler will automatically handle bundling both modern and legacy builds.`;
         }
+
+        tsconfig.compilerOptions.sourceMap = config.sourceMap;
+        tsconfig.compilerOptions.inlineSources = config.sourceMap;
       }
     }
   } catch (e: any) {

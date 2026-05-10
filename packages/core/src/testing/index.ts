@@ -11,6 +11,13 @@ export {
   mockValidatedConfig,
   mockWindow,
 } from './mocks';
+export {
+  createTestCompiler,
+  prepareTestCompiler,
+  type CreateTestCompilerOptions,
+  type PreparedTestCompiler,
+  type TestCompilerResult,
+} from './create-test-compiler';
 export { newSpecPage } from './spec-page';
 export { setupConsoleMocker, shuffleArray } from './testing-utils';
 export { createTestingSystem } from './testing-sys';

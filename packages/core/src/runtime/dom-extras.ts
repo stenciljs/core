@@ -41,6 +41,7 @@ export const patchCloneNode = (HostElementPrototype: any) => {
     const srcNode = this;
     const isShadowDom = BUILD.shadowDom ? !!srcNode.shadowRoot : false;
     const clonedNode = orgCloneNode.call(srcNode, isShadowDom ? deep : false) as Node;
+
     if (BUILD.slot && !isShadowDom && deep) {
       let i = 0;
       let slotted, nonStencilNode;
@@ -69,7 +70,7 @@ export const patchCloneNode = (HostElementPrototype: any) => {
           (privateField) => !(childNodes[i] as any)[privateField],
         );
         if (slotted) {
-          if (BUILD.appendChildSlotFix && (clonedNode as any).__appendChild) {
+          if ((clonedNode as any).__appendChild) {
             (clonedNode as any).__appendChild(slotted.cloneNode(true));
           } else {
             clonedNode.appendChild(slotted.cloneNode(true));
@@ -438,6 +439,11 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
   Object.defineProperty(elm, 'childNodes', {
     get() {
       const result = new FakeNodeList();
+      // If not yet initialized by Stencil (e.g. a cloneNode result), return raw children
+      if (!(this as any)['s-cr']) {
+        result.push(...Array.from(this.__childNodes));
+        return result;
+      }
       result.push(...getSlottedChildNodes(this.__childNodes));
       return result;
     },

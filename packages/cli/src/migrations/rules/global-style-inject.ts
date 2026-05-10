@@ -182,7 +182,6 @@ function addGlobalStyleOutputTarget(
   // Check if global-style output target already exists
   const hasGlobalStyleTarget = text.includes("type: 'global-style'");
   if (hasGlobalStyleTarget) {
-    // TODO: Could add inject to existing target, but for now just skip
     return text;
   }
 

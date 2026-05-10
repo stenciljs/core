@@ -51,7 +51,6 @@ export {
   Method,
   MixedInCtor,
   Mixin,
-  MixinFactory,
   Prop,
   readTask,
   render,

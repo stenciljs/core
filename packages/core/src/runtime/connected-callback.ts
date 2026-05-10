@@ -57,9 +57,7 @@ export const connectedCallback = (elm: d.HostElement) => {
         // host element has been connected to the DOM
         if (
           BUILD.hydrateServerSide ||
-          ((BUILD.slot || BUILD.shadowDom) &&
-            // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-            cmpMeta.$flags$ & (CMP_FLAGS.hasSlotRelocation | CMP_FLAGS.needsShadowDomShim))
+          ((BUILD.slot || BUILD.shadowDom) && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation)
         ) {
           setContentReference(elm);
         }

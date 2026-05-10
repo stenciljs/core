@@ -246,7 +246,7 @@ export const initializeClientHydrate = (
         }
 
         if (
-          BUILD.experimentalSlotFixes ||
+          BUILD.lightDomPatches ||
           (BUILD.patchAll && hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll)
         ) {
           // patch this node for accessors like `nextSibling` (et al)

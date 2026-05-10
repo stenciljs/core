@@ -22,6 +22,8 @@ import type {
 import type { JsonDocMethodParameter } from './stencil-public-docs';
 import type { ComponentInterface, ListenTargetOptions, VNode } from './stencil-public-runtime';
 
+export type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
+
 export interface DocData {
   hostIds: number;
   rootLevelIds: number;
@@ -169,28 +171,22 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   lazyLoad?: boolean;
   profile?: boolean;
   constructableCSS?: boolean;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  appendChildSlotFix?: boolean;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  slotChildNodesFix?: boolean;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  scopedSlotTextContentFix?: boolean;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  cloneNodeFix?: boolean;
+  /** True when `extras.lightDomPatches === true` — enables `patchPseudoShadowDom` shortcut. */
+  lightDomPatches?: boolean;
+  /** Patch `childNodes`/`children` getters on light-dom slotted components. */
+  slotChildNodes?: boolean;
+  /** Patch `cloneNode()` on light-dom slotted components. */
+  slotCloneNode?: boolean;
+  /** Patch `appendChild`/`insertBefore`/`removeChild` on light-dom slotted components. */
+  slotDomMutations?: boolean;
+  /** Patch `textContent` on light-dom slotted components. */
+  slotTextContent?: boolean;
   hydratedAttribute?: boolean;
   hydratedClass?: boolean;
   hydratedSelectorName?: string;
   initializeNextTick?: boolean;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  shadowDomShim?: boolean;
   asyncQueue?: boolean;
   additionalTagTransformers?: boolean | 'prod';
-  attachStyles?: boolean;
-
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  experimentalSlotFixes?: boolean;
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  experimentalScopedSlotChanges?: boolean;
 }
 
 export type ModuleFormat =
@@ -741,7 +737,7 @@ export type Encapsulation = 'shadow' | 'scoped' | 'none';
  * These enable proper slot behavior when not using native Shadow DOM.
  */
 export interface ComponentPatches {
-  /** Apply all slot patches (equivalent to experimentalSlotFixes) */
+  /** Apply all slot patches (equivalent to lightDomPatches) */
   all?: boolean;
   /** Patch child node accessors (children, firstChild, lastChild, etc.) */
   children?: boolean;
@@ -806,6 +802,11 @@ export interface ComponentCompilerPropertyComplexType {
    * annotation in the original source file.
    */
   references: ComponentCompilerTypeReferences;
+  /**
+   * @internal TypeScript AST node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 
 /**
@@ -908,6 +909,11 @@ export interface ComponentCompilerMethodComplexType {
   parameters: JsonDocMethodParameter[];
   references: ComponentCompilerTypeReferences;
   return: string;
+  /**
+   * @internal TypeScript AST method node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 
 export interface ComponentCompilerChangeHandler {
@@ -1521,70 +1527,70 @@ export interface RenderNode extends HostElement {
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the internal `childNodes` of the component
    */
   readonly __childNodes?: NodeListOf<ChildNode>;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the internal `children` of the component
    */
   readonly __children?: HTMLCollectionOf<Element>;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the internal `firstChild` of the component
    */
   readonly __firstChild?: ChildNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the internal `lastChild` of the component
    */
   readonly __lastChild?: ChildNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the internal `textContent` of the component
    */
   __textContent?: string;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * gives access to the original `append` method
    */
   __append?: (...nodes: (Node | string)[]) => void;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * gives access to the original `prepend` method
    */
   __prepend?: (...nodes: (Node | string)[]) => void;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * gives access to the original `appendChild` method
    */
   __appendChild?: <T extends Node>(newChild: T) => T;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * gives access to the original `insertBefore` method
    */
   __insertBefore?: <T extends Node>(node: T, child: Node | null) => T;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * gives access to the original `removeChild` method
    */
   __removeChild?: <T extends Node>(child: T) => T;
@@ -1627,35 +1633,35 @@ export interface PatchedSlotNode extends Node {
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the actual `parentNode` of the component
    */
   __parentNode?: RenderNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the actual `nextSibling` of the component
    */
   __nextSibling?: RenderNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the actual `previousSibling` of the component
    */
   __previousSibling?: RenderNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the actual `nextElementSibling` of the component
    */
   __nextElementSibling?: RenderNode;
 
   /**
    * On a `scoped: true` component
-   * with `experimentalSlotFixes` flag enabled,
+   * with `lightDomPatches` flag enabled,
    * returns the actual `nextElementSibling` of the component
    */
   __previousElementSibling?: RenderNode;
@@ -2156,11 +2162,6 @@ export interface NewSpecPageOptions {
    * By default, any changes to component properties and attributes must `page.waitForChanges()` in order to test the updates. As an option, `autoApplyChanges` continuously flushes the queue on the background. Default is `false`.
    */
   autoApplyChanges?: boolean;
-  /**
-   * By default, styles are not attached to the DOM and they are not reflected in the serialized HTML.
-   * Setting this option to `true` will include the component's styles in the serializable output.
-   */
-  attachStyles?: boolean;
   /**
    * Set {@link BuildConditionals} for testing based off the metadata of the component under test.
    * When `true` all `BuildConditionals` will be assigned to the global testing `BUILD` object, regardless of their

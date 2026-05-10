@@ -14,9 +14,8 @@ export const addNativeConnectedCallback = (
   classMembers: ts.ClassElement[],
   cmp: d.ComponentCompilerMeta,
 ) => {
-  // function call to stencil's exported connectedCallback(elm, plt)
-
-  // TODO: fast path
+  // Plain components with a render fn get a direct fast path: textContent = this.render().
+  // Non-plain components receive connectedCallback from proxyComponent (bootstrap-standalone.ts).
   if (cmp.isPlain && cmp.hasRenderFn) {
     const fnCall = ts.factory.createExpressionStatement(
       ts.factory.createAssignment(

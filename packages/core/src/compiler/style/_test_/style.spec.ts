@@ -1,28 +1,35 @@
-// @ts-nocheck
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { describe, it, beforeEach } from 'vitest';
+import {
+  createTestCompiler,
+  prepareTestCompiler,
+  type PreparedTestCompiler,
+} from '@stencil/core/testing';
+import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
+import type * as d from '@stencil/core';
 
-// TODO(STENCIL-464): investigate getting these tests to run again
-describe.skip('component-styles', () => {
-  let compiler: Compiler;
-  let config: Config;
+describe('component-styles', () => {
+  let setup: PreparedTestCompiler;
+  let compiler: d.Compiler;
   const root = path.resolve('/');
 
-  beforeEach(async () => {
-    config = mockConfig({
-      minifyCss: true,
-      minifyJs: true,
-      hashFileNames: true,
+  beforeAll(async () => {
+    setup = await prepareTestCompiler({
+      config: { minifyCss: true, hashFileNames: true },
     });
-    compiler = new Compiler(config);
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
-    await compiler.fs.commit();
+  });
+
+  beforeEach(async () => {
+    const result = await createTestCompiler({ setup });
+    compiler = result.compiler;
+  });
+
+  afterEach(async () => {
+    await compiler.destroy();
   });
 
   it('should add mode styles to hashed filename/minified builds', async () => {
     compiler.config.hashedFileNameLength = 2;
+    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({
         tag: 'cmp-a',
@@ -32,7 +39,6 @@ describe.skip('component-styles', () => {
         }
       })
       export class CmpA {}`,
-
       [path.join(root, 'src', 'cmp-a.ios.css')]: `body{font-family:Helvetica}`,
       [path.join(root, 'src', 'cmp-a.md.css')]: `body{font-family:Roboto}`,
     });
@@ -44,24 +50,25 @@ describe.skip('component-styles', () => {
     let hasIos = false;
     let hasMd = false;
 
-    r.filesWritten.forEach((f) => {
-      const content = compiler.fs.readFileSync(f);
-      if (content.includes(`body{font-family:Helvetica}`)) {
-        hasIos = true;
-      } else if (content.includes(`body{font-family:Roboto}`)) {
-        hasMd = true;
-      }
-    });
+    r.outputs
+      .flatMap((o) => o.files)
+      .forEach((f) => {
+        const content = compiler.fs.readFileSync(f);
+        if (content.includes(`body{font-family:Helvetica}`)) hasIos = true;
+        if (content.includes(`body{font-family:Roboto}`)) hasMd = true;
+      });
 
     expect(hasIos).toBe(true);
     expect(hasMd).toBe(true);
   });
 
   it('should add default styles to hashed filename/minified builds', async () => {
+    // @ts-expect-error - need to test custom hash function behavior
     compiler.config.sys.generateContentHash = function () {
       return 'hashed';
     };
 
+    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]:
         `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,

@@ -1,36 +1,43 @@
-// @ts-nocheck
-// TODO(STENCIL-463): as part of getting these tests to pass, remove // @ts-nocheck
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
-import { describe, expect, it, beforeEach } from 'vitest';
+import {
+  createTestCompiler,
+  prepareTestCompiler,
+  type PreparedTestCompiler,
+} from '@stencil/core/testing';
+import { describe, expect, it, beforeAll, beforeEach, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
 
-// TODO(STENCIL-463): investigate getting these tests to pass again
-describe.skip('build-conditionals', () => {
-  let compiler: Compiler;
-  let config: Config;
+import { getLazyBuildConditionals } from '../../output-targets/dist-lazy/lazy-build-conditionals';
+
+describe('build-conditionals', () => {
+  let setup: PreparedTestCompiler;
+  let compiler: d.Compiler;
+  let config: d.ValidatedConfig;
   const root = path.resolve('/');
 
+  beforeAll(async () => {
+    setup = await prepareTestCompiler();
+  });
+
   beforeEach(async () => {
-    config = mockConfig();
-    compiler = new Compiler(config);
+    const result = await createTestCompiler({ setup });
+    compiler = result.compiler;
+    config = result.config;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();
   });
+  afterEach(async () => {
+    await compiler.destroy();
+  });
 
-  it('should import function svg/slot build conditionals, remove on rebuild, and add back on rebuild', async () => {
-    compiler.config.watch = true;
+  it('should set svg/slot/shadow build conditionals', async () => {
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `
-        import {icon, slot} from './icon';
-        @Component({ tag: 'cmp-a', shadow: true }) export class CmpA {
-          render() {
-            return <div>{icon()}{slot()}</div>
-          }
+        import { icon, slot } from './icon';
+        @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } }) export class CmpA {
+          render() { return <div>{icon()}{slot()}</div>; }
         }`,
-      [path.join(root, 'src', 'slot.tsx')]: `
-        export default () => <slot/>;
-      `,
+      [path.join(root, 'src', 'slot.tsx')]: `export default () => <slot/>;`,
       [path.join(root, 'src', 'icon.tsx')]: `
         import slot from './slot';
         export const icon = () => <svg/>;
@@ -39,148 +46,73 @@ describe.skip('build-conditionals', () => {
     });
     await compiler.fs.commit();
 
-    let r = await compiler.build();
-    let rebuildListener = compiler.once('buildFinish');
-
+    const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: true,
-      slot: true,
-      svg: true,
-      vdom: true,
-    });
-
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
-      },
-      { clearFileCache: true },
+    expect(getLazyBuildConditionals(config, r.components)).toEqual(
+      expect.objectContaining({ shadowDom: true, slot: true, svg: true, vdomRender: true }),
     );
-    await compiler.fs.commit();
-
-    compiler.trigger('fileUpdate', path.join(root, 'src', 'cmp-a.tsx'));
-
-    r = await rebuildListener;
-
-    expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: false,
-      slot: false,
-      svg: false,
-      vdom: false,
-    });
-
-    await compiler.fs.writeFiles(
-      {
-        [path.join(root, 'src', 'cmp-a.tsx')]: `
-      import {icon, slot} from './icon';
-      @Component({ tag: 'cmp-a', shadow: true }) export class CmpA {
-        render() {
-          return <div>{icon()}{slot()}</div>
-        }
-      }`,
-      },
-      { clearFileCache: true },
-    );
-    await compiler.fs.commit();
-
-    rebuildListener = compiler.once('buildFinish');
-
-    compiler.trigger('fileUpdate', path.join(root, 'src', 'cmp-a.tsx'));
-
-    r = await rebuildListener;
-
-    expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: true,
-      slot: true,
-      svg: true,
-      vdom: true,
-    });
   });
 
   it('should set slot build conditionals, not import unused svg import', async () => {
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `
         import icon from './icon';
-        @Component({ tag: 'cmp-a', shadow: true }) export class CmpA {
-          render() {
-            return <div><slot/></div>
-          }
+        @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } }) export class CmpA {
+          render() { return <div><slot/></div>; }
         }`,
-      [path.join(root, 'src', 'icon.tsx')]: `
-        export default () => <svg/>;
-      `,
+      [path.join(root, 'src', 'icon.tsx')]: `export default () => <svg/>;`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: true,
-      slot: true,
-      svg: false,
-      vdom: true,
-    });
+    expect(getLazyBuildConditionals(config, r.components)).toEqual(
+      expect.objectContaining({ shadowDom: true, slot: true, svg: false, vdomRender: true }),
+    );
   });
 
   it('should set slot build conditionals', async () => {
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
-        render() {
-          return <div><slot/></div>
-        }
+        render() { return <div><slot/></div>; }
       }`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: false,
-      slot: true,
-      svg: false,
-      vdom: true,
-    });
+    expect(getLazyBuildConditionals(config, r.components)).toEqual(
+      expect.objectContaining({ shadowDom: false, slot: true, svg: false, vdomRender: true }),
+    );
   });
 
   it('should set vdom build conditionals', async () => {
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
-        render() {
-          return <div>Hello World</div>
-        }
+        render() { return <div>Hello World</div>; }
       }`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: false,
-      slot: false,
-      svg: false,
-      vdom: true,
-    });
+    expect(getLazyBuildConditionals(config, r.components)).toEqual(
+      expect.objectContaining({ shadowDom: false, slot: false, svg: false, vdomRender: true }),
+    );
   });
 
   it('should not set vdom build conditionals', async () => {
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
-        render() {
-          return 'Hello World';
-        }
+        render() { return 'Hello World'; }
       }`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
-    expect(r.buildConditionals).toEqual({
-      shadow: false,
-      slot: false,
-      svg: false,
-      vdom: false,
-    });
+    expect(getLazyBuildConditionals(config, r.components)).toEqual(
+      expect.objectContaining({ shadowDom: false, slot: false, svg: false, vdomRender: false }),
+    );
   });
 });

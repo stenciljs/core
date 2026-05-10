@@ -1,5 +1,5 @@
 {
-  "name": "@stencil-core-tests/build-bundle-size",
+  "name": "@stencil-core-tests/build-bundle-size-shadow",
   "version": "0.0.1",
   "private": true,
   "type": "module",

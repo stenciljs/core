@@ -5,6 +5,9 @@ import { isString, toTitleCase } from '../helpers';
 import { buildWarn } from '../message-utils';
 import { splitLineBreaks } from './logger-utils';
 
+export const isRolldownError = (e: unknown): e is RolldownError =>
+  typeof e === 'object' && e !== null && 'message' in e;
+
 export const loadRolldownDiagnostics = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,

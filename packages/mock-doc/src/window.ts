@@ -58,7 +58,7 @@ export class MockWindow {
   URL: typeof URL;
 
   console: Console;
-  customElements: CustomElementRegistry;
+  customElements: CustomElementRegistry | null;
   document: Document;
   performance: Performance;
 
@@ -813,7 +813,7 @@ export function createWindow(html: string | boolean = null): Window {
 }
 
 export function cloneWindow(
-  srcWin: Window,
+  srcWin: Window | MockWindow,
   opts: { customElementProxy?: boolean } = {},
 ): MockWindow | null {
   if (srcWin == null) {
@@ -822,9 +822,7 @@ export function cloneWindow(
 
   const clonedWin = new MockWindow(false);
   if (!opts.customElementProxy) {
-    // TODO(STENCIL-345) - Evaluate reconciling MockWindow, Window differences
-    // @ts-ignore
-    srcWin.customElements = null;
+    (srcWin as MockWindow).customElements = null;
   }
 
   if (srcWin.document != null) {
@@ -846,15 +844,14 @@ export function cloneDocument(srcDoc: Document) {
   return dstWin?.document || null;
 }
 
-// TODO(STENCIL-345) - Evaluate reconciling MockWindow, Window differences
 /**
  * Constrain setTimeout() to 1ms, but still async. Also
  * only allow setInterval() to fire once, also constrained to 1ms.
  * @param win the mock window instance to update
  */
-export function constrainTimeouts(win: any) {
-  (win as MockWindow).__allowInterval = false;
-  (win as MockWindow).__maxTimeout = 0;
+export function constrainTimeouts(win: MockWindow) {
+  win.__allowInterval = false;
+  win.__maxTimeout = 0;
 }
 
 function resetWindow(win: MockWindow) {

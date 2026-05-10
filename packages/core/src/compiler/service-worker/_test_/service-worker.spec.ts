@@ -1,32 +1,27 @@
-// @ts-nocheck
-// TODO(STENCIL-462): investigate getting this file to pass (remove ts-nocheck)
 import path from 'path';
-import { Compiler, Config } from '@stencil/core';
-import { mockConfig } from '@stencil/core/testing';
+import { createTestCompiler } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 
-// TODO(STENCIL-462): investigate getting this file to pass
-describe.skip('service worker', () => {
-  let compiler: Compiler;
-  let config: Config;
+describe('service worker', () => {
   const root = path.resolve('/');
 
   it('dev service worker', async () => {
-    config = mockConfig({
-      devMode: true,
-      outputTargets: [
-        {
-          type: 'www',
-          serviceWorker: {
-            swSrc: path.join('src', 'sw.js'),
-            globPatterns: ['**/*.{html,js,css,json,ico,png}'],
-          },
-        } as d.OutputTargetWww,
-      ],
+    const { compiler } = await createTestCompiler({
+      config: {
+        // @ts-expect-error - need to test dev mode service worker behavior
+        devMode: true,
+        outputTargets: [
+          {
+            type: 'www',
+            serviceWorker: {
+              swSrc: path.join('src', 'sw.js'),
+              globPatterns: ['**/*.{html,js,css,json,ico,png}'],
+            },
+          } as d.OutputTargetWww,
+        ],
+      },
     });
-
-    compiler = new Compiler(config);
     await compiler.fs.writeFile(path.join(root, 'www', 'script.js'), `/**/`);
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFile(

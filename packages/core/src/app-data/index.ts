@@ -72,18 +72,13 @@ export const BUILD: BuildConditionals = {
   lazyLoad: false,
   profile: false,
   slotRelocation: true,
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  appendChildSlotFix: false,
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  cloneNodeFix: false,
+  lightDomPatches: true,
+  slotChildNodes: true,
+  slotCloneNode: true,
+  slotDomMutations: true,
+  slotTextContent: true,
   hydratedAttribute: false,
   hydratedClass: true,
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  scopedSlotTextContentFix: false,
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  shadowDomShim: false,
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  slotChildNodesFix: false,
   invisiblePrehydration: true,
   propBoolean: true,
   propNumber: true,
@@ -95,9 +90,6 @@ export const BUILD: BuildConditionals = {
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,
-  attachStyles: true,
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  experimentalSlotFixes: false,
 };
 
 export const Env = {};

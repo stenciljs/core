@@ -25,6 +25,11 @@ interface ComponentCompilerPropertyComplexType {
    * annotation in the original source file.
    */
   references: ComponentCompilerTypeReferences;
+  /**
+   * @internal TypeScript AST node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 /**
  * A record of `ComponentCompilerTypeReference` entities.
@@ -95,6 +100,11 @@ interface ComponentCompilerMethodComplexType {
   parameters: JsonDocMethodParameter[];
   references: ComponentCompilerTypeReferences;
   return: string;
+  /**
+   * @internal TypeScript AST method node used for semantic type analysis during compilation.
+   * Not serialized, only used internally for improved type renaming logic.
+   */
+  _astNode?: any;
 }
 //#endregion
 //#region src/declarations/stencil-public-docs.d.ts

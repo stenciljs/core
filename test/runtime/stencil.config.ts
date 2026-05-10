@@ -30,7 +30,6 @@ export const config: Config = {
   globalStyle: 'src/global.css',
   extras: {
     lifecycleDOMEvents: true,
-    experimentalSlotFixes: true,
     additionalTagTransformers: true,
   },
 };

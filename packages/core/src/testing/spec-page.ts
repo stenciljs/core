@@ -143,10 +143,7 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
     BUILD.hydrateServerSide = true;
     BUILD.hydrateClientSide = false;
   }
-  BUILD.cloneNodeFix = false;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  BUILD.shadowDomShim = false;
-  BUILD.attachStyles = !!opts.attachStyles;
+  BUILD.slotCloneNode = false;
 
   if (typeof opts.url === 'string') {
     page.win.location.href = opts.url;

@@ -175,27 +175,25 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.constructableCSS = !b.hotModuleReplacement || !!config._isTesting;
   b.asyncLoading = !!(b.asyncLoading || b.lazyLoad || b.taskQueue || b.initializeNextTick);
   b.cssAnnotations = true;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.appendChildSlotFix = config.extras.appendChildSlotFix;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.slotChildNodesFix = config.extras.slotChildNodesFix;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.experimentalSlotFixes = config.extras.experimentalSlotFixes;
-  // TODO(STENCIL-1086): remove this option when it's the default behavior
-  b.experimentalScopedSlotChanges = config.extras.experimentalScopedSlotChanges;
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.cloneNodeFix = config.extras.cloneNodeFix;
+  // lightDomPatches only matter when there are non-shadow slotted components.
+  // Gating here keeps shadow-only bundles lean — patch functions get tree-shaken out.
+  const ldp = config.extras.lightDomPatches ?? true;
+  if (b.slotRelocation && ldp !== false) {
+    b.lightDomPatches = ldp === true;
+    b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
+    b.slotCloneNode = ldp === true || (typeof ldp === 'object' && !!ldp.cloneNode);
+    b.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
+    b.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
+  } else {
+    b.lightDomPatches = false;
+    b.slotChildNodes = false;
+    b.slotCloneNode = false;
+    b.slotDomMutations = false;
+    b.slotTextContent = false;
+  }
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
-  // TODO(STENCIL-914): remove this option when `experimentalSlotFixes` is the default behavior
-  b.scopedSlotTextContentFix = !!config.extras.scopedSlotTextContentFix;
-  // TODO(STENCIL-1305): remove this option
-  b.attachStyles = true;
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
-  // TODO(STENCIL-854): Remove code related to legacy shadowDomShim field
-  if (b.shadowDomShim) {
-    b.slotRelocation = b.slot;
-  }
   if (config.hydratedFlag) {
     b.hydratedAttribute = config.hydratedFlag.selector === 'attribute';
     b.hydratedClass = config.hydratedFlag.selector === 'class';

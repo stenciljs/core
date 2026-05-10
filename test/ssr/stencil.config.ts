@@ -23,7 +23,4 @@ export const config: Config = {
     name: 'custom-hydrate-flag',
     selector: 'attribute',
   },
-  extras: {
-    experimentalSlotFixes: true,
-  },
 };

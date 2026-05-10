@@ -189,47 +189,41 @@ export const bootstrapLazy = (
         }
       };
 
+      // patchCloneNode applies to all non-shadow components, not just those with slots
+      if (
+        !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
+        (BUILD.slotCloneNode || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone))
+      ) {
+        patchCloneNode(HostElement.prototype);
+      }
+
       if (
         !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
         cmpMeta.$flags$ & CMP_FLAGS.hasSlot
       ) {
-        // Check for 'all' patches: either global experimentalSlotFixes or per-component patchAll flag
-        if (
-          BUILD.experimentalSlotFixes ||
-          (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)
-        ) {
+        // 'all' path: global lightDomPatches:true or per-component patchAll flag
+        if (BUILD.lightDomPatches || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
           patchPseudoShadowDom(HostElement.prototype);
         } else {
-          // Apply individual patches based on global BUILD flags OR per-component flags
+          // Individual patches via global BUILD flags OR per-component flags
           if (
-            BUILD.slotChildNodesFix ||
+            BUILD.slotChildNodes ||
             (BUILD.patchChildren && cmpMeta.$flags$ & CMP_FLAGS.patchChildren)
           ) {
             patchChildSlotNodes(HostElement.prototype);
           }
-          if (BUILD.cloneNodeFix || (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)) {
-            patchCloneNode(HostElement.prototype);
-          }
           if (
-            BUILD.appendChildSlotFix ||
+            BUILD.slotDomMutations ||
             (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
           ) {
             patchSlotAppendChild(HostElement.prototype);
             patchInsertBefore(HostElement.prototype);
             patchSlotRemoveChild(HostElement.prototype);
           }
-          if (
-            BUILD.scopedSlotTextContentFix &&
-            cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation
-          ) {
+          if (BUILD.slotTextContent && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
             patchTextContent(HostElement.prototype);
           }
         }
-      } else if (
-        BUILD.cloneNodeFix ||
-        (BUILD.patchClone && cmpMeta.$flags$ & CMP_FLAGS.patchClone)
-      ) {
-        patchCloneNode(HostElement.prototype);
       }
 
       // if the component is formAssociated we need to set that on the host
@@ -263,7 +257,6 @@ export const bootstrapLazy = (
   });
 
   // Only bother generating CSS if we have components
-  // TODO(STENCIL-1118): Add test cases for CSS content based on conditionals
   if (cmpTags.length > 0) {
     // Add hydration styles
     if (BUILD.invisiblePrehydration && (BUILD.hydratedClass || BUILD.hydratedAttribute)) {

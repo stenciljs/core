@@ -129,14 +129,8 @@ const arrayToArrayLiteral = (list: any[], refs: WeakSet<any>): ts.ArrayLiteralEx
 
 /**
  * Convert a JavaScript object (i.e. an object existing at runtime) to the
- * corresponding TypeScript Intermediate Representation (IR)
- * ({@see ts.ObjectLiteralExpression}) for an object literal. This function
- * takes an argument holding a `WeakSet` of references to objects which is
- * used to avoid circular references. Objects that are converted in this
- * function are added to the set, and if an object is already present then an
- * `undefined` literal (in TypeScript IR) is returned instead of another
- * object literal, as continuing to convert a circular reference would, well,
- * never end!
+ * corresponding TypeScript Intermediate Representation (IR) for an object literal.
+ * Internal fields (prefixed with _) are excluded from serialization.
  *
  * @param obj the JavaScript object to convert to TypeScript IR
  * @param refs a set of references to objects, used to avoid circular references
@@ -152,13 +146,15 @@ const objectToObjectLiteral = (
 
   refs.add(obj);
 
-  const newProperties: ts.ObjectLiteralElementLike[] = Object.keys(obj).map((key) => {
-    const prop = ts.factory.createPropertyAssignment(
-      ts.factory.createStringLiteral(key),
-      convertValueToLiteral(obj[key], refs) as ts.Expression,
-    );
-    return prop;
-  });
+  const newProperties: ts.ObjectLiteralElementLike[] = Object.keys(obj)
+    .filter((key) => !key.startsWith('_')) // Skip internal fields
+    .map((key) => {
+      const prop = ts.factory.createPropertyAssignment(
+        ts.factory.createStringLiteral(key),
+        convertValueToLiteral(obj[key], refs) as ts.Expression,
+      );
+      return prop;
+    });
 
   return ts.factory.createObjectLiteralExpression(newProperties, true);
 };
@@ -867,9 +863,20 @@ const getTypeReferenceLocation = (
  *
  * @param checker a typescript typechecker
  * @param type the type to resolve
+ * @param typeNode an optional TypeScript type node
  * @returns a resolved, user-readable string
  */
-export const resolveType = (checker: ts.TypeChecker, type: ts.Type): string => {
+export const resolveType = (
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  typeNode?: ts.TypeNode,
+): string => {
+  if (typeNode && ts.isArrayTypeNode(typeNode)) {
+    const elementType = checker.getTypeFromTypeNode(typeNode.elementType);
+    const elementResolved = resolveType(checker, elementType, typeNode.elementType);
+    return elementResolved.includes(' | ') ? `(${elementResolved})[]` : `${elementResolved}[]`;
+  }
+
   const set = new Set<string>();
   parseDocsType(checker, type, set);
 
@@ -923,6 +930,20 @@ export const parseDocsType = (checker: ts.TypeChecker, type: ts.Type, parts: Set
     (type as ts.UnionType).types.forEach((t) => {
       parseDocsType(checker, t, parts);
     });
+  } else if (checker.isArrayType(type)) {
+    const typeArgs = checker.getTypeArguments(type as ts.TypeReference);
+    if (typeArgs.length > 0) {
+      const elementParts = new Set<string>();
+      parseDocsType(checker, typeArgs[0], elementParts);
+      const hasTrue = elementParts.delete('true');
+      const hasFalse = elementParts.delete('false');
+      if (hasTrue || hasFalse) elementParts.add('boolean');
+      const sortedParts = Array.from(elementParts).sort();
+      const elemStr = sortedParts.join(' | ');
+      parts.add(sortedParts.length > 1 ? `(${elemStr})[]` : `${elemStr}[]`);
+    } else {
+      parts.add(typeToString(checker, type));
+    }
   } else {
     // Check if this is a type alias (generic or non-generic) that should be expanded
     // For documentation purposes, we want to show the actual literal values

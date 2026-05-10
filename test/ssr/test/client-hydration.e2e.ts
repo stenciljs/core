@@ -120,14 +120,14 @@ test.describe('client hydration', () => {
        * renders the component with listener with proper vdom annotation
        */
       expect(html || '').toContain(
-        `<dsd-listen-cmp class="sc-dsd-listen-cmp-h" custom-hydrate-flag=""><template shadowrootmode="open"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot class="sc-dsd-listen-cmp"></slot></template><!---->Hello World</dsd-listen-cmp>`,
+        `<dsd-listen-cmp custom-hydrate-flag=""><template shadowrootmode="open"><style sty-id="sc-dsd-listen-cmp">:host{display:block}</style><slot></slot></template><!---->Hello World</dsd-listen-cmp>`,
       );
 
       /**
        * renders second component with proper vdom annotation
        */
       expect(html || '').toContain(
-        `<car-detail class="sc-car-list" custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>`,
+        `<car-detail custom-hydrate-flag=""><!----><section>2023 VW Beetle</section></car-detail>`,
       );
 
       await page.setContent(html || '');
@@ -192,7 +192,7 @@ test.describe('client hydration', () => {
         clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
-        '<another-car-detail class="sc-another-car-detail-h" custom-hydrate-flag=""><!----></another-car-detail>',
+        '<another-car-detail custom-hydrate-flag=""><!----></another-car-detail>',
       );
     });
 
@@ -203,7 +203,7 @@ test.describe('client hydration', () => {
         clientSsrAnnotations: false,
       });
       expect(html || '').toBe(
-        '<cmp-with-slot class="sc-cmp-with-slot-h" custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
+        '<cmp-with-slot custom-hydrate-flag=""><!---->Hello World</cmp-with-slot>',
       );
     });
 
@@ -211,7 +211,7 @@ test.describe('client hydration', () => {
       const { html } = await renderToString(
         `
         <nested-cmp-parent>
-          <nested-cmp-child custom-hydrate-flag="" s-id="3">
+          <nested-child-cmp custom-hydrate-flag="" s-id="3">
             <template shadowrootmode="open">
               <div c-id="3.0.0.0" class="some-other-class">
                 <slot c-id="3.1.1.0"></slot>
@@ -219,7 +219,7 @@ test.describe('client hydration', () => {
             </template>
             <!--r.3-->
             Hello World
-          </nested-cmp-child>
+          </nested-child-cmp>
         </nested-cmp-parent>
       `,
         {
@@ -227,36 +227,35 @@ test.describe('client hydration', () => {
           prettyHtml: true,
         },
       );
-      expect(html || '')
-        .toBe(`<nested-cmp-parent class="sc-nested-cmp-parent-h" custom-hydrate-flag="" s-id="1">
+      expect(html || '').toBe(`<nested-cmp-parent custom-hydrate-flag="" s-id="1">
   <template shadowrootmode="open">
     <style sty-id="sc-nested-cmp-parent">
       .sc-nested-scope-cmp-h{color:green}slot-fb{display:contents}slot-fb[hidden]{display:none}:host{display:inline-block}
     </style>
-    <div c-id="1.0.0.0" class="sc-nested-cmp-parent some-class">
-      <nested-scope-cmp c-id="1.1.1.0" class="sc-nested-cmp-parent sc-nested-scope-cmp-h" custom-hydrate-flag="" s-id="3">
+    <div c-id="1.0.0.0" class="some-class">
+      <nested-scope-cmp c-id="1.1.1.0" class="sc-nested-scope-cmp-h" custom-hydrate-flag="" s-id="3">
         <!--r.3-->
         <!--o.1.2.c-->
         <div c-id="3.0.0.0" class="sc-nested-scope-cmp sc-nested-scope-cmp-s some-scope-class">
           <!--s.3.1.1.0.-->
-          <slot c-id="1.2.2.0" class="sc-nested-cmp-parent" s-sn=""></slot>
+          <slot c-id="1.2.2.0" s-sn=""></slot>
         </div>
       </nested-scope-cmp>
     </div>
   </template>
   <!--r.1-->
-  <nested-cmp-child class="sc-nested-cmp-child-h" custom-hydrate-flag="" s-id="2">
+  <nested-child-cmp custom-hydrate-flag="" s-id="2">
     <template shadowrootmode="open">
-      <style sty-id="sc-nested-cmp-child">
+      <style sty-id="sc-nested-child-cmp">
         :host{display:block}
       </style>
-      <div c-id="2.0.0.0" class="sc-nested-cmp-child some-other-class">
-        <slot c-id="2.1.1.0" class="sc-nested-cmp-child"></slot>
+      <div c-id="2.0.0.0" class="some-other-class">
+        <slot c-id="2.1.1.0"></slot>
       </div>
     </template>
     <!--r.2-->
     Hello World
-  </nested-cmp-child>
+  </nested-child-cmp>
 </nested-cmp-parent>`);
     });
   });

@@ -467,7 +467,7 @@ function* streamToHtml(
                 // this element is not a whitespace sensitive one, like <pre> or <code> so
                 // any whitespace at the start and end can be cleaned up to just be one space
                 if (/\s/.test(textContent.charAt(0))) {
-                  textContent = ' ' + textContent.trimLeft();
+                  textContent = ' ' + textContent.trimStart();
                 }
 
                 textContentLength = textContent.length;
@@ -478,10 +478,10 @@ function* streamToHtml(
                       opts.approximateLineWidth > 0 &&
                       output.currentLineWidth + textContentLength > opts.approximateLineWidth
                     ) {
-                      textContent = textContent.trimRight() + '\n';
+                      textContent = textContent.trimEnd() + '\n';
                       output.currentLineWidth = 0;
                     } else {
-                      textContent = textContent.trimRight() + ' ';
+                      textContent = textContent.trimEnd() + ' ';
                     }
                   }
                 }
@@ -589,103 +589,72 @@ function getChildNodes(node: Node | MockNode) {
   return ((node as any).__childNodes || node.childNodes) as NodeList;
 }
 
-// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
 /*@__PURE__*/ export const NON_ESCAPABLE_CONTENT = new Set([
   'STYLE',
   'SCRIPT',
   'IFRAME',
   'NOSCRIPT',
-  'XMP',
-  'NOEMBED',
-  'NOFRAMES',
-  'PLAINTEXT',
 ]);
 
-// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
 /**
  * A list of whitespace sensitive tag names, such as `code`, `pre`, etc.
  */
 /*@__PURE__*/ const WHITESPACE_SENSITIVE = new Set([
   'CODE',
   'OUTPUT',
-  'PLAINTEXT',
   'PRE',
   'SCRIPT',
   'TEMPLATE',
   'TEXTAREA',
 ]);
 
-// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated elements
 /*@__PURE__*/ export const EMPTY_ELEMENTS = new Set([
   'area',
   'base',
-  'basefont',
-  'bgsound',
   'br',
   'col',
   'embed',
-  'frame',
   'hr',
   'img',
   'input',
-  'keygen',
   'link',
   'meta',
   'param',
   'source',
-  'trace',
   'track',
   'wbr',
 ]);
 
-// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated attr
 /*@__PURE__*/ const REMOVE_EMPTY_ATTR = new Set(['class', 'dir', 'id', 'lang', 'name', 'title']);
 
-// TODO(STENCIL-1299): Audit this list, remove unsupported/deprecated attr
 /*@__PURE__*/ const BOOLEAN_ATTR = new Set([
   'allowfullscreen',
   'async',
   'autofocus',
   'autoplay',
   'checked',
-  'compact',
   'controls',
-  'declare',
   'default',
-  'defaultchecked',
-  'defaultmuted',
-  'defaultselected',
   'defer',
   'disabled',
-  'enabled',
   'formnovalidate',
   'hidden',
-  'indeterminate',
   'inert',
   'ismap',
   'itemscope',
   'loop',
   'multiple',
   'muted',
-  'nohref',
   'nomodule',
-  'noresize',
-  'noshade',
   'novalidate',
-  'nowrap',
   'open',
-  'pauseonexit',
   'readonly',
   'required',
   'reversed',
-  'scoped',
-  'seamless',
   'selected',
+  'shadowrootclonable',
   'shadowrootdelegatesfocus',
-  'sortable',
-  'truespeed',
-  'typemustmatch',
-  'visible',
+  'shadowrootserializable',
 ]);
 
 /*@__PURE__*/ const STRUCTURE_ELEMENTS = new Set([

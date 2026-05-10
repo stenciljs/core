@@ -119,6 +119,7 @@ const parseMethodDecorator = (
         ...getAttributeTypeInfo(method, tsSourceFile, typeChecker, program),
       },
       return: returnString,
+      _astNode: method,
     },
     docs: {
       text: ts.displayPartsToString(signature.getDocumentationComment(typeChecker)),

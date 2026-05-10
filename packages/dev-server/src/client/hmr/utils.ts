@@ -87,7 +87,6 @@ export const isTemplate = (elm: Element) =>
  * @param versionId a new HMR version id
  */
 export const setHmrAttr = (elm: Element, versionId: string) => {
-  // TODO(STENCIL-958): determine if we need to set this attribute
   elm.setAttribute('data-hmr', versionId);
 };
 

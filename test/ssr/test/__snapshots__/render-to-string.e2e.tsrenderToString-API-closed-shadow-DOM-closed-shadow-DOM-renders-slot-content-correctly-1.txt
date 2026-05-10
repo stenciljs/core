@@ -1,14 +1,14 @@
-<shadow-closed class="sc-shadow-closed-h sc-shadow-closed-s" custom-hydrate-flag="">
+<shadow-closed custom-hydrate-flag="">
   <!--org-location for <style> (host=undefined)-->
   <!---->
   <!--org-location for <span> (host=undefined)-->
-  <div class="closed-content sc-shadow-closed">
-    <strong class="sc-shadow-closed">
+  <div class="closed-content">
+    <strong>
       Closed Shadow DOM Content
     </strong>
   </div>
-  <slot-fb class="sc-shadow-closed" hidden="">
-    <span class="sc-shadow-closed">
+  <slot-fb hidden="">
+    <span>
       Fallback slot content
     </span>
   </slot-fb>

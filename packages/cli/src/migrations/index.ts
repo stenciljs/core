@@ -5,6 +5,7 @@ import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { formAssociatedRule } from './rules/form-associated';
 import { globalStyleInjectRule } from './rules/global-style-inject';
+import { lightDomPatchesRule } from './rules/light-dom-patches';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
 
 /**
@@ -116,6 +117,7 @@ const migrationRules: MigrationRule[] = [
   outputTargetRenamesRule,
   devModeRule,
   globalStyleInjectRule,
+  lightDomPatchesRule,
 ];
 
 /**
