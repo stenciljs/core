@@ -160,7 +160,7 @@ const evaluateConfigFile = async (
   let configFileData: { config?: UnvalidatedConfig } | null = null;
 
   try {
-    const results = nodeRequire(configFilePath);
+    const results = await nodeRequire(configFilePath);
     diagnostics.push(...results.diagnostics);
     configFileData = results.module;
   } catch (e: any) {

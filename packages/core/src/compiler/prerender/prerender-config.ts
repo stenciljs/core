@@ -3,11 +3,14 @@ import type * as d from '@stencil/core';
 import { isString } from '../../utils';
 import { nodeRequire } from '../sys/node-require';
 
-export const getPrerenderConfig = (diagnostics: d.Diagnostic[], prerenderConfigPath: string) => {
+export const getPrerenderConfig = async (
+  diagnostics: d.Diagnostic[],
+  prerenderConfigPath: string,
+) => {
   const prerenderConfig: d.PrerenderConfig = {};
 
   if (isString(prerenderConfigPath)) {
-    const results = nodeRequire(prerenderConfigPath);
+    const results = await nodeRequire(prerenderConfigPath);
     diagnostics.push(...results.diagnostics);
 
     if (results.module != null && typeof results.module === 'object') {

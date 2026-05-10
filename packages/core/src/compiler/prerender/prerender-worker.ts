@@ -60,7 +60,7 @@ export const prerenderWorker = async (
     }
 
     if (prerenderCtx.prerenderConfig == null) {
-      prerenderCtx.prerenderConfig = getPrerenderConfig(
+      prerenderCtx.prerenderConfig = await getPrerenderConfig(
         results.diagnostics,
         prerenderRequest.prerenderConfigPath,
       );
