@@ -1,3 +1,5 @@
+import type { SourceMap as RolldownSourceMap } from 'rolldown';
+
 import { result } from '../utils';
 import type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 import type { CPSerializable } from './child_process';
@@ -23,6 +25,7 @@ import type { JsonDocMethodParameter } from './stencil-public-docs';
 import type { ComponentInterface, ListenTargetOptions, VNode } from './stencil-public-runtime';
 
 export type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
+export type { RolldownSourceMap };
 
 export interface DocData {
   hostIds: number;
@@ -347,13 +350,6 @@ export interface BuildComponent {
 
 export type SourceTarget = 'es2017' | 'latest';
 
-/**
- * A note regarding Rolldown types:
- * As of this writing, there is no great way to import external types for packages that are directly embedded in the
- * Stencil source. As a result, some types are duplicated here for Rolldown that will be used within the codebase.
- * Updates to rolldown may require these typings to be updated.
- */
-
 export type RolldownResult = RolldownChunkResult | RolldownAssetResult;
 
 export interface RolldownAssetResult {
@@ -375,17 +371,6 @@ export interface RolldownChunkResult {
   imports: string[];
   moduleFormat: ModuleFormat;
   map?: RolldownSourceMap;
-}
-
-export interface RolldownSourceMap {
-  file: string;
-  mappings: string;
-  names: string[];
-  sources: string[];
-  sourcesContent: string[];
-  version: number;
-  toString(): string;
-  toUrl(): string;
 }
 
 /**
