@@ -228,21 +228,31 @@ importers:
 
   test/build: {}
 
-  test/build/bundle-size-non-shadow:
+  test/build/build-size/kitchen-sink:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../../packages/core
+        version: link:../../../../packages/core
     devDependencies:
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
 
-  test/build/bundle-size-shadow:
+  test/build/build-size/light:
     dependencies:
       '@stencil/core':
         specifier: workspace:*
-        version: link:../../../packages/core
+        version: link:../../../../packages/core
+    devDependencies:
+      rimraf:
+        specifier: ^6.1.3
+        version: 6.1.3
+
+  test/build/build-size/shadow:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../../packages/core
     devDependencies:
       rimraf:
         specifier: ^6.1.3
@@ -4044,10 +4054,6 @@ packages:
 
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
-
-  lru-cache@11.2.6:
-    resolution: {integrity: sha512-ESL2CrkS/2wTPfuend7Zhkzo2u0daGJ/A2VucJOgQ/C48S/zB8MMeMHSGKYpXhIjbPxfuezITkaBH1wqv00DDQ==}
-    engines: {node: 20 || >=22}
 
   lru-cache@11.2.7:
     resolution: {integrity: sha512-aY/R+aEsRelme17KGQa/1ZSIpLpNYYrhcrepKTZgE+W3WM16YMCaPwOHLHsmopZHELU0Ojin1lPVxKR0MihncA==}
@@ -8706,10 +8712,7 @@ snapshots:
 
   lodash@4.17.23: {}
 
-  lru-cache@11.2.6: {}
-
-  lru-cache@11.2.7:
-    optional: true
+  lru-cache@11.2.7: {}
 
   lru-cache@5.1.1:
     dependencies:
@@ -9102,7 +9105,7 @@ snapshots:
 
   path-scurry@2.0.2:
     dependencies:
-      lru-cache: 11.2.6
+      lru-cache: 11.2.7
       minipass: 7.1.3
 
   path-to-regexp@3.3.0: {}

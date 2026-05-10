@@ -1,5 +1,5 @@
 {
-  "name": "@stencil-core-tests/build-bundle-size-non-shadow",
+  "name": "@stencil-core-tests/build-bundle-size-kitchen-sink",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -23,7 +23,7 @@
     "rimraf": "^6.1.3"
   },
   "volta": {
-    "extends": "../../../package.json"
+    "extends": "../../../../package.json"
   },
   "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
 }
