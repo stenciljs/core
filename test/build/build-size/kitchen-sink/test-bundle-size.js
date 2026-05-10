@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-kitchen-sink');
 const maxBundleSize = 29 * 1024; // 29KB in bytes
 
-console.log('\nChecking bundle size (non-shadow)...');
+console.log('\nChecking bundle size (kitchen-sink)...');
 
 const files = fs.readdirSync(distDir);
 const indexFile = files.find(
@@ -19,7 +19,7 @@ const indexFile = files.find(
 );
 
 if (!indexFile) {
-  console.error('❌ ERROR: Could not find index-HASH.js file in dist/bundlesize/');
+  console.error('❌ ERROR: Could not find index-HASH.js file in dist/loader-bundle/bundlesize-kitchen-sink/');
   process.exit(1);
 }
 
@@ -39,5 +39,9 @@ if (bundleSize >= maxBundleSize) {
   process.exit(1);
 }
 
-console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB`);
+if (maxBundleSize - bundleSize > 1) {
+  console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`);
+} else {
+  console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB`);
+}
 process.exit(0);
