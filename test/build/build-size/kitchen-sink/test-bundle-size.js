@@ -19,7 +19,9 @@ const indexFile = files.find(
 );
 
 if (!indexFile) {
-  console.error('❌ ERROR: Could not find index-HASH.js file in dist/loader-bundle/bundlesize-kitchen-sink/');
+  console.error(
+    '❌ ERROR: Could not find index-HASH.js file in dist/loader-bundle/bundlesize-kitchen-sink/',
+  );
   process.exit(1);
 }
 
@@ -40,7 +42,9 @@ if (bundleSize >= maxBundleSize) {
 }
 
 if (maxBundleSize - bundleSize > 1) {
-  console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`);
+  console.log(
+    `\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`,
+  );
 } else {
   console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB`);
 }
