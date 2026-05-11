@@ -152,7 +152,7 @@ const runPrerenderOutputTarget = async (
 
     const devServerBaseUrl = new URL(devServer.browserUrl);
     const devServerHostUrl = devServerBaseUrl.origin;
-    const prerenderConfig = getPrerenderConfig(diagnostics, outputTarget.prerenderConfig);
+    const prerenderConfig = await getPrerenderConfig(diagnostics, outputTarget.prerenderConfig);
 
     const hydrateOpts = getSsrOptions(prerenderConfig, devServerBaseUrl, diagnostics);
 

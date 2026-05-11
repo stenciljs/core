@@ -171,7 +171,7 @@ async function setupHydrateApp(
     try {
       // Dynamic import the compiler
       const compiler = await import('@stencil/core/compiler');
-      const prerenderConfigResults = compiler.nodeRequire(devServerConfig.prerenderConfig);
+      const prerenderConfigResults = await compiler.nodeRequire(devServerConfig.prerenderConfig);
       diagnostics.push(...prerenderConfigResults.diagnostics);
       if (prerenderConfigResults.module?.config) {
         serverCtx.prerenderConfig = prerenderConfigResults.module.config;
