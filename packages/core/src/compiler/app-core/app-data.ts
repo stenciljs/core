@@ -181,7 +181,7 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   if (b.slotRelocation && ldp !== false) {
     b.lightDomPatches = ldp === true;
     b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
-    b.slotCloneNode = ldp === true || (typeof ldp === 'object' && !!ldp.cloneNode);
+    b.slotCloneNode = typeof ldp === 'object' && !!ldp.cloneNode;
     b.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
     b.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
   } else {

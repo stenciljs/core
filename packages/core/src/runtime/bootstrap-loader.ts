@@ -7,11 +7,14 @@ import { createShadowRoot } from '../utils/shadow-root';
 import { connectedCallback } from './connected-callback';
 import { disconnectedCallback } from './disconnected-callback';
 import {
+  applyLightDomPatches,
   patchChildSlotNodes,
   patchCloneNode,
   patchInsertBefore,
-  patchPseudoShadowDom,
+  patchSlotAppend,
   patchSlotAppendChild,
+  patchSlotInsertAdjacentHTML,
+  patchSlotPrepend,
   patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
@@ -36,7 +39,7 @@ export const bootstrapLazy = (
   installDevTools();
 
   if (!win.document) {
-    console.warn('Stencil: No document found. Skipping bootstrapping lazy components.');
+    console.warn('Stencil: No document found. Skipping');
     return;
   }
 
@@ -203,7 +206,7 @@ export const bootstrapLazy = (
       ) {
         // 'all' path: global lightDomPatches:true or per-component patchAll flag
         if (BUILD.lightDomPatches || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
-          patchPseudoShadowDom(HostElement.prototype);
+          applyLightDomPatches(HostElement.prototype);
         } else {
           // Individual patches via global BUILD flags OR per-component flags
           if (
@@ -217,10 +220,13 @@ export const bootstrapLazy = (
             (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
           ) {
             patchSlotAppendChild(HostElement.prototype);
+            patchSlotAppend(HostElement.prototype);
+            patchSlotPrepend(HostElement.prototype);
+            patchSlotInsertAdjacentHTML(HostElement.prototype);
             patchInsertBefore(HostElement.prototype);
             patchSlotRemoveChild(HostElement.prototype);
           }
-          if (BUILD.slotTextContent && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+          if (BUILD.slotTextContent) {
             patchTextContent(HostElement.prototype);
           }
         }

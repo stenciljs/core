@@ -174,7 +174,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   lazyLoad?: boolean;
   profile?: boolean;
   constructableCSS?: boolean;
-  /** True when `extras.lightDomPatches === true` — enables `patchPseudoShadowDom` shortcut. */
+  /** True when `extras.lightDomPatches === true` — enables `applyLightDomPatches` shortcut. */
   lightDomPatches?: boolean;
   /** Patch `childNodes`/`children` getters on light-dom slotted components. */
   slotChildNodes?: boolean;
