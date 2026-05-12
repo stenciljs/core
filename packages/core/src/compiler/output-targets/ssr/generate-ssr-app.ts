@@ -72,7 +72,7 @@ export const generateSsrApp = async (
     const appData = join(packageDir, 'runtime', 'app-data', 'index.js');
 
     const rolldownOptions: InputOptions = {
-      ...config.rolldownConfig.inputOptions,
+      ...config.rolldownConfig,
       external: ['node:stream'],
       input,
       plugins: [

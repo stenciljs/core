@@ -154,7 +154,7 @@ export const getRolldownOptions = (
 
     treeshake: getTreeshakeOption(config, bundleOpts),
     preserveEntrySignatures: bundleOpts.preserveEntrySignatures ?? 'strict',
-    external: config.rolldownConfig.inputOptions.external,
+    external: config.rolldownConfig.external,
     onwarn: createOnWarnFn(buildCtx.diagnostics),
   };
 
@@ -171,7 +171,7 @@ const getTreeshakeOption = (
       propertyReadSideEffects: false,
     };
   }
-  if (config.devMode || config.rolldownConfig.inputOptions.treeshake === false) {
+  if (config.devMode || config.rolldownConfig.treeshake === false) {
     return false;
   }
   return {

@@ -149,10 +149,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     suppressReservedPublicNameWarnings: false,
     sys: createTestingSystem(),
     transformAliasedImportPaths: true,
-    rolldownConfig: {
-      inputOptions: {},
-      outputOptions: {},
-    },
+    rolldownConfig: {},
     ...overrides,
   };
 }

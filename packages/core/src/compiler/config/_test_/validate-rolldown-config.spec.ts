@@ -3,81 +3,38 @@ import type * as d from '@stencil/core';
 
 import { validateRolldownConfig } from '../validate-rolldown-config';
 
-describe('validateStats', () => {
+describe('validateRolldownConfig', () => {
   let config: d.Config;
 
   beforeEach(() => {
     config = {};
   });
 
-  it('should use default if no config provided', () => {
+  it('should return empty object if no config provided', () => {
     const rolldownConfig = validateRolldownConfig(config);
-    expect(rolldownConfig).toEqual({
-      inputOptions: {},
-      outputOptions: {},
-    });
+    expect(rolldownConfig).toEqual({});
   });
 
-  it('should set based on inputOptions if provided', () => {
+  it('should pass through external option', () => {
+    config.rolldownConfig = { external: 'external_symbol' };
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({ external: 'external_symbol' });
+  });
+
+  it('should pass through treeshake option', () => {
+    config.rolldownConfig = { treeshake: false };
+    const rolldownConfig = validateRolldownConfig(config);
+    expect(rolldownConfig).toEqual({ treeshake: false });
+  });
+
+  it('should pass both valid options and strip unknown keys', () => {
     config.rolldownConfig = {
-      inputOptions: {
-        context: 'window',
-      },
+      external: ['foo', 'bar'],
+      treeshake: false,
+      // @ts-expect-error — intentionally testing unknown key rejection
+      notAnOption: {},
     };
     const rolldownConfig = validateRolldownConfig(config);
-    expect(rolldownConfig).toEqual({
-      inputOptions: {
-        context: 'window',
-      },
-      outputOptions: {},
-    });
-  });
-
-  it('should use default if inputOptions is not provided but outputOptions is', () => {
-    config.rolldownConfig = {
-      outputOptions: {
-        globals: {
-          jquery: '$',
-        },
-      },
-    };
-
-    const rolldownConfig = validateRolldownConfig(config);
-    expect(rolldownConfig).toEqual({
-      inputOptions: {},
-      outputOptions: {
-        globals: {
-          jquery: '$',
-        },
-      },
-    });
-  });
-
-  it('should pass all valid config data through and not those that are extraneous', () => {
-    config.rolldownConfig = {
-      inputOptions: {
-        context: 'window',
-        external: 'external_symbol',
-        notAnOption: {},
-      },
-      outputOptions: {
-        globals: {
-          jquery: '$',
-        },
-      },
-    } as d.RolldownConfig;
-
-    const rolldownConfig = validateRolldownConfig(config);
-    expect(rolldownConfig).toEqual({
-      inputOptions: {
-        context: 'window',
-        external: 'external_symbol',
-      },
-      outputOptions: {
-        globals: {
-          jquery: '$',
-        },
-      },
-    });
+    expect(rolldownConfig).toEqual({ external: ['foo', 'bar'], treeshake: false });
   });
 });
