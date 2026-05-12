@@ -150,14 +150,15 @@ export const initializeClientHydrate = (
     }
 
     if (orgLocationNode && orgLocationNode.isConnected) {
+      const orgParentNode = orgLocationNode.parentNode;
       if (orgLocationNode.parentElement.shadowRoot && orgLocationNode['s-en'] === '') {
         // if this node is within a shadowDOM, with an original location home
         // we're safe to move it now
-        orgLocationNode.parentNode.insertBefore(node, orgLocationNode.nextSibling);
+        orgParentNode.insertBefore(node, orgLocationNode.nextSibling);
       }
       // Remove original location / slot reference comment now.
       // we'll handle it via `addSlotRelocateNode` later
-      orgLocationNode.parentNode.removeChild(orgLocationNode);
+      orgParentNode.removeChild(orgLocationNode);
 
       if (!shadowRoot) {
         // Add the Original Order of this node.
@@ -193,69 +194,68 @@ export const initializeClientHydrate = (
     for (snGroupIdx; snGroupIdx < snGroupLen; snGroupIdx++) {
       slottedItem = slotGroup[snGroupIdx];
 
-      if (!hosts[slottedItem.hostId as any]) {
+      const hid = slottedItem.hostId as any;
+      if (!hosts[hid]) {
         // Cache this host for other grouped slotted nodes
-        hosts[slottedItem.hostId as any] = plt.$orgLocNodes$.get(slottedItem.hostId);
+        hosts[hid] = plt.$orgLocNodes$.get(slottedItem.hostId);
       }
       // This *shouldn't* happen as we collect all the custom elements first in `initializeDocumentHydrate`
-      if (!hosts[slottedItem.hostId as any]) continue;
+      if (!hosts[hid]) continue;
 
-      const hostEle = hosts[slottedItem.hostId as any];
+      const hostEle = hosts[hid];
+      const siNode = slottedItem.node;
+      const siSlot = slottedItem.slot;
 
-      if (hostEle.shadowRoot && slottedItem.node.parentElement !== hostEle) {
+      if (hostEle.shadowRoot && siNode.parentElement !== hostEle) {
         // shadowDOM. This slotted node got left behind.
         // Move the item to the element root for native slotting
         // insert node after the previous node in the slotGroup
-        hostEle.insertBefore(slottedItem.node, slotGroup[snGroupIdx - 1]?.node?.nextSibling);
+        hostEle.insertBefore(siNode, slotGroup[snGroupIdx - 1]?.node?.nextSibling);
       }
 
       // This node is either slotted in a non-shadow host, OR *that* host is nested in a non-shadow host
       if (!hostEle.shadowRoot || !shadowRoot) {
         // Try to set an appropriate Content-position Reference (CR) node for this host element
 
-        if (!slottedItem.slot['s-cr']) {
+        if (!siSlot['s-cr']) {
           // Is a CR already set on the host?
-          slottedItem.slot['s-cr'] = hostEle['s-cr'];
+          siSlot['s-cr'] = hostEle['s-cr'];
 
-          if (!slottedItem.slot['s-cr'] && hostEle.shadowRoot) {
+          if (!siSlot['s-cr'] && hostEle.shadowRoot) {
             // Host has shadowDOM - just use the host itself as the CR for native slotting
-            slottedItem.slot['s-cr'] = hostEle;
+            siSlot['s-cr'] = hostEle;
           } else {
             // If all else fails - just set the CR as the first child
             // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
-            slottedItem.slot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
+            siSlot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
           }
         }
         // Create our 'Original Location' node
-        addSlotRelocateNode(
-          slottedItem.node,
-          slottedItem.slot,
-          false,
-          slottedItem.node['s-oo'] || currentPos,
-        );
+        addSlotRelocateNode(siNode, siSlot, false, siNode['s-oo'] || currentPos);
 
         if (
-          slottedItem.node.parentElement?.shadowRoot &&
-          slottedItem.node['getAttribute'] &&
-          slottedItem.node.getAttribute('slot')
+          siNode.parentElement?.shadowRoot &&
+          siNode['getAttribute'] &&
+          siNode.getAttribute('slot')
         ) {
           // Remove the `slot` attribute from the slotted node:
           // if it's projected from a scoped component into a shadowRoot it's slot attribute will cause it to be hidden.
           // scoped components use the `s-sn` attribute to identify slotted nodes
-          slottedItem.node.removeAttribute('slot');
+          siNode.removeAttribute('slot');
         }
 
         if (
           BUILD.lightDomPatches ||
+          BUILD.slotChildNodes ||
           (BUILD.patchAll && hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll)
         ) {
           // patch this node for accessors like `nextSibling` (et al)
-          patchSlottedNode(slottedItem.node);
+          patchSlottedNode(siNode);
         }
       }
       // Empty text nodes are never accounted on the server (they don't get a comment node, or a positional id)
       // So let's manually increment their position counter for them, keeping them in the correct order in the slot
-      currentPos = (slottedItem.node['s-oo'] || currentPos) + 1;
+      currentPos = (siNode['s-oo'] || currentPos) + 1;
     }
   }
 
@@ -358,7 +358,6 @@ const clientHydrate = (
 
       if (childIdSplt[0] === hostId || childIdSplt[0] === '0') {
         childVNode = createSimpleVNode({
-          $flags$: 0,
           $hostId$: childIdSplt[0],
           $nodeId$: childIdSplt[1],
           $depth$: childIdSplt[2],
@@ -469,12 +468,6 @@ const clientHydrate = (
         $depth$: childIdSplt[3],
         $index$: childIdSplt[4] || '0',
         $elm$: node,
-        $attrs$: null,
-        $children$: null,
-        $key$: null,
-        $name$: null,
-        $tag$: null,
-        $text$: null,
       });
 
       if (childNodeType === TEXT_NODE_ID) {
@@ -602,23 +595,8 @@ const initializeDocumentHydrate = (
  * @param vnode - a vnode partial which will be augmented
  * @returns an complete vnode
  */
-const createSimpleVNode = (vnode: Partial<RenderNodeData>): RenderNodeData => {
-  const defaultVNode: RenderNodeData = {
-    $flags$: 0,
-    $hostId$: null,
-    $nodeId$: null,
-    $depth$: null,
-    $index$: '0',
-    $elm$: null,
-    $attrs$: null,
-    $children$: null,
-    $key$: null,
-    $name$: null,
-    $tag$: null,
-    $text$: null,
-  };
-  return { ...defaultVNode, ...vnode };
-};
+const createSimpleVNode = (vnode: Partial<RenderNodeData>): RenderNodeData =>
+  ({ $flags$: 0, $index$: '0', ...vnode }) as RenderNodeData;
 
 function addSlot(
   slotName: string,
@@ -725,30 +703,30 @@ const addSlottedNodes = (
   hostId: string,
 ) => {
   let slottedNode = slotNode.nextSibling as d.RenderNode;
-  slottedNodes[slotNodeId as any] = slottedNodes[slotNodeId as any] || [];
+  const group: SlottedNodes = (slottedNodes[slotNodeId as any] ||= []);
 
   // stop if we find another slot node (as subsequent nodes will belong to that slot)
   if (!slottedNode || slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.')) return;
 
   // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
+  // slottedNode is guaranteed truthy here (checked above) and at each while re-entry (checked by while condition)
   do {
+    const sa = slottedNode['getAttribute'] && slottedNode.getAttribute('slot');
     if (
-      slottedNode &&
-      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) ||
-        slottedNode['s-sn']) === slotName ||
-        (slotName === '' &&
-          !slottedNode['s-sn'] &&
-          (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&
-          (slottedNode.nodeType === NODE_TYPE.CommentNode ||
-            slottedNode.nodeType === NODE_TYPE.TextNode)))
+      (sa || slottedNode['s-sn']) === slotName ||
+      (slotName === '' &&
+        !slottedNode['s-sn'] &&
+        !sa &&
+        (slottedNode.nodeType === NODE_TYPE.CommentNode ||
+          slottedNode.nodeType === NODE_TYPE.TextNode))
     ) {
       // Looking for nodes that match this slot's name,
       // OR are text / comment nodes and the slot is a default slot (no name) - text / comments cannot be direct descendants of *named* slots.
       // Also ignore slot fallback nodes - they're not part of the lightDOM
       slottedNode['s-sn'] = slotName;
-      slottedNodes[slotNodeId as any].push({ slot: slotNode, node: slottedNode, hostId });
+      group.push({ slot: slotNode, node: slottedNode, hostId });
     }
-    slottedNode = slottedNode?.nextSibling as d.RenderNode;
+    slottedNode = slottedNode.nextSibling as d.RenderNode;
     // continue *unless* we find another slot node (as subsequent nodes will belong to that slot)
   } while (slottedNode && !slottedNode.nodeValue?.startsWith(SLOT_NODE_ID + '.'));
 };

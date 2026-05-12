@@ -15,11 +15,14 @@ import { createShadowRoot } from '../utils/shadow-root';
 import { connectedCallback } from './connected-callback';
 import { disconnectedCallback } from './disconnected-callback';
 import {
+  applyLightDomPatches,
   patchChildSlotNodes,
   patchCloneNode,
   patchInsertBefore,
-  patchPseudoShadowDom,
+  patchSlotAppend,
   patchSlotAppendChild,
+  patchSlotInsertAdjacentHTML,
+  patchSlotPrepend,
   patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
@@ -90,7 +93,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     ) {
       // 'all' path: global lightDomPatches:true or per-component patchAll flag
       if (BUILD.lightDomPatches || (BUILD.patchAll && cmpMeta.$flags$ & CMP_FLAGS.patchAll)) {
-        patchPseudoShadowDom(Cstr.prototype);
+        applyLightDomPatches(Cstr.prototype);
       } else {
         // Individual patches via global BUILD flags OR per-component flags
         if (
@@ -104,10 +107,13 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
           (BUILD.patchInsert && cmpMeta.$flags$ & CMP_FLAGS.patchInsert)
         ) {
           patchSlotAppendChild(Cstr.prototype);
+          patchSlotAppend(Cstr.prototype);
+          patchSlotPrepend(Cstr.prototype);
+          patchSlotInsertAdjacentHTML(Cstr.prototype);
           patchInsertBefore(Cstr.prototype);
           patchSlotRemoveChild(Cstr.prototype);
         }
-        if (BUILD.slotTextContent && cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation) {
+        if (BUILD.slotTextContent) {
           patchTextContent(Cstr.prototype);
         }
       }

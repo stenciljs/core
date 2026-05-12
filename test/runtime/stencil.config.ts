@@ -31,5 +31,11 @@ export const config: Config = {
   extras: {
     lifecycleDOMEvents: true,
     additionalTagTransformers: true,
+    lightDomPatches: {
+      childNodes: true,
+      cloneNode: true,
+      domMutations: true,
+      textContent: true,
+    },
   },
 };

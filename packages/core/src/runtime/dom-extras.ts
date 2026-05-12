@@ -14,14 +14,11 @@ import {
 
 /// HOST ELEMENTS ///
 
-export const patchPseudoShadowDom = (hostElementPrototype: HTMLElement) => {
-  patchCloneNode(hostElementPrototype);
+export const applyLightDomPatches = (hostElementPrototype: HTMLElement) => {
   patchSlotAppendChild(hostElementPrototype);
   patchSlotAppend(hostElementPrototype);
   patchSlotPrepend(hostElementPrototype);
-  patchSlotInsertAdjacentElement(hostElementPrototype);
   patchSlotInsertAdjacentHTML(hostElementPrototype);
-  patchSlotInsertAdjacentText(hostElementPrototype);
   patchInsertBefore(hostElementPrototype);
   patchTextContent(hostElementPrototype);
   patchChildSlotNodes(hostElementPrototype);
@@ -153,7 +150,7 @@ export const patchSlotRemoveChild = (ElementPrototype: any) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
+export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__prepend) return;
   (HostElementPrototype as any).__prepend = HostElementPrototype.prepend;
 
@@ -197,7 +194,7 @@ const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
+export const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__append) return;
   (HostElementPrototype as any).__append = HostElementPrototype.append;
   HostElementPrototype.append = function (
@@ -220,7 +217,7 @@ const patchSlotAppend = (HostElementPrototype: HTMLElement) => {
  *
  * @param HostElementPrototype the `Element` to be patched
  */
-const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
+export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
   if ((HostElementPrototype as any).__insertAdjacentHTML) return;
   const originalInsertAdjacentHtml = HostElementPrototype.insertAdjacentHTML;
 
@@ -245,23 +242,6 @@ const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) => {
         this.append(node);
       }
     }
-  };
-};
-
-/**
- * Patches the `insertAdjacentText` method for a slotted node inside a scoped component. Specifically,
- * we only need to patch the behavior for the specific `beforeend` and `afterbegin` positions so the text node
- * gets inserted into the DOM in the correct location.
- *
- * @param HostElementPrototype the `Element` to be patched
- */
-const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
-  HostElementPrototype.insertAdjacentText = function (
-    this: d.HostElement,
-    position: InsertPosition,
-    text: string,
-  ) {
-    this.insertAdjacentHTML(position, text);
   };
 };
 
@@ -338,36 +318,6 @@ export const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
       return this.appendChild(newChild);
     }
     return (this as d.RenderNode).__insertBefore(newChild, currentChild);
-  };
-};
-
-/**
- * Patches the `insertAdjacentElement` method for a slotted node inside a scoped component. Specifically,
- * we only need to patch the behavior for the specific `beforeend` and `afterbegin` positions so the element
- * gets inserted into the DOM in the correct location.
- *
- * @param HostElementPrototype the `Element` to be patched
- */
-const patchSlotInsertAdjacentElement = (HostElementPrototype: HTMLElement) => {
-  if ((HostElementPrototype as any).__insertAdjacentElement) return;
-  const originalInsertAdjacentElement = HostElementPrototype.insertAdjacentElement;
-
-  HostElementPrototype.insertAdjacentElement = function (
-    this: d.HostElement,
-    position: InsertPosition,
-    element: d.RenderNode,
-  ): Element {
-    if (position !== 'afterbegin' && position !== 'beforeend') {
-      return originalInsertAdjacentElement.call(this, position, element);
-    }
-    if (position === 'afterbegin') {
-      this.prepend(element);
-      return element;
-    } else if (position === 'beforeend') {
-      this.append(element);
-      return element;
-    }
-    return element;
   };
 };
 

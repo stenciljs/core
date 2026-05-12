@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// Checks a basic non-shadow component to ensure the bundle size is under 11KB (non-gzipped)
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-kitchen-sink');
-const maxBundleSize = 29 * 1024; // 29KB in bytes
+const maxBundleSize = 28 * 1024; // 28KB in bytes (~27KB non-gzipped, ~10KB gzipped)
 
 console.log('\nChecking bundle size (kitchen-sink)...');
 
@@ -41,7 +39,7 @@ if (bundleSize >= maxBundleSize) {
   process.exit(1);
 }
 
-if (maxBundleSize - bundleSize > 1) {
+if (maxSizeKB - bundleSizeKB > 1) {
   console.log(
     `\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`,
   );

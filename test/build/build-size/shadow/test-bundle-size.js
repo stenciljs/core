@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-// Checks a basic shadow DOM component to ensure the bundle size is under 11KB (non-gzipped)
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-shadow');
-const maxBundleSize = 12 * 1024; // 12KB in bytes
+const maxBundleSize = 12 * 1024; // 12KB in bytes (~11KB non-gzipped, ~5KB gzipped)
 
 console.log('\nChecking bundle size (shadow)...');
 
@@ -35,13 +33,13 @@ console.log(`Bundle: ${indexFile}`);
 console.log(`Size: ${bundleSize} bytes (${bundleSizeKB} KB)`);
 console.log(`Max allowed: ${maxSizeKB} KB`);
 
-if (bundleSize >= maxBundleSize) {
+if (bundleSizeKB >= maxSizeKB) {
   console.error(`\n❌ FAIL: Bundle size ${bundleSizeKB} KB exceeds maximum ${maxSizeKB} KB`);
   console.error('This indicates a regression - the runtime bundle has gotten larger.');
   process.exit(1);
 }
 
-if (maxBundleSize - bundleSize > 1) {
+if (maxSizeKB - bundleSizeKB > 1) {
   console.log(
     `\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`,
   );

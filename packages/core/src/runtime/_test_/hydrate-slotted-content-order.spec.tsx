@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
-import { patchPseudoShadowDom } from '../dom-extras';
+import { applyLightDomPatches } from '../dom-extras';
 
 describe("hydrated components' slotted node order", () => {
   const nodeOrEle = (node: Node | Element) => {
@@ -344,7 +344,7 @@ describe("hydrated components' slotted node order", () => {
     });
 
     // patches this element's prototype in the same way we patch all elements in the browser
-    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
+    applyLightDomPatches(Object.getPrototypeOf(clientHydrated.root));
 
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
@@ -438,7 +438,7 @@ describe("hydrated components' slotted node order", () => {
     });
 
     // patches this element's prototype in the same way we patch all elements in the browser
-    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
+    applyLightDomPatches(Object.getPrototypeOf(clientHydrated.root));
 
     const childNodes = clientHydrated.root.childNodes;
 
@@ -533,11 +533,11 @@ describe("hydrated components' slotted node order", () => {
     });
 
     // patches this element's prototype in the same way we patch all elements in the browser
-    patchPseudoShadowDom(Object.getPrototypeOf(clientHydrated.root));
+    applyLightDomPatches(Object.getPrototypeOf(clientHydrated.root));
 
     const childNodes = clientHydrated.root.childNodes;
 
-    patchPseudoShadowDom(Object.getPrototypeOf(childNodes[4]));
+    applyLightDomPatches(Object.getPrototypeOf(childNodes[4]));
 
     expect(nodeOrEle(childNodes[0])).toBe(`<p>slotted item 1a</p>`);
     expect(nodeOrEle(childNodes[1])).toBe(` a comment `);

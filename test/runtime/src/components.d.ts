@@ -942,8 +942,6 @@ export namespace Components {
         "getSlotAssignedElements": (opts?: { flatten: boolean; }, getPlainSlot?: boolean) => Promise<Element[]>;
         "getSlotAssignedNodes": (opts?: { flatten: boolean; }, getPlainSlot?: boolean) => Promise<Node[]>;
     }
-    interface ScopedSlotChildInsertAdjacent {
-    }
     interface ScopedSlotChildren {
     }
     interface ScopedSlotConnectedcallbackChild {
@@ -2555,12 +2553,6 @@ declare global {
         prototype: HTMLScopedSlotAssignedMethodsElement;
         new (): HTMLScopedSlotAssignedMethodsElement;
     };
-    interface HTMLScopedSlotChildInsertAdjacentElement extends Components.ScopedSlotChildInsertAdjacent, HTMLStencilElement {
-    }
-    var HTMLScopedSlotChildInsertAdjacentElement: {
-        prototype: HTMLScopedSlotChildInsertAdjacentElement;
-        new (): HTMLScopedSlotChildInsertAdjacentElement;
-    };
     interface HTMLScopedSlotChildrenElement extends Components.ScopedSlotChildren, HTMLStencilElement {
     }
     var HTMLScopedSlotChildrenElement: {
@@ -3224,7 +3216,6 @@ declare global {
         "scoped-conditional": HTMLScopedConditionalElement;
         "scoped-slot-append-and-prepend": HTMLScopedSlotAppendAndPrependElement;
         "scoped-slot-assigned-methods": HTMLScopedSlotAssignedMethodsElement;
-        "scoped-slot-child-insert-adjacent": HTMLScopedSlotChildInsertAdjacentElement;
         "scoped-slot-children": HTMLScopedSlotChildrenElement;
         "scoped-slot-connectedcallback-child": HTMLScopedSlotConnectedcallbackChildElement;
         "scoped-slot-connectedcallback-middle": HTMLScopedSlotConnectedcallbackMiddleElement;
@@ -4162,8 +4153,6 @@ declare namespace LocalJSX {
     }
     interface ScopedSlotAssignedMethods {
     }
-    interface ScopedSlotChildInsertAdjacent {
-    }
     interface ScopedSlotChildren {
     }
     interface ScopedSlotConnectedcallbackChild {
@@ -4860,7 +4849,6 @@ declare namespace LocalJSX {
         "scoped-conditional": Omit<ScopedConditional, keyof ScopedConditionalAttributes> & { [K in keyof ScopedConditional & keyof ScopedConditionalAttributes]?: ScopedConditional[K] } & { [K in keyof ScopedConditional & keyof ScopedConditionalAttributes as `attr:${K}`]?: ScopedConditionalAttributes[K] } & { [K in keyof ScopedConditional & keyof ScopedConditionalAttributes as `prop:${K}`]?: ScopedConditional[K] };
         "scoped-slot-append-and-prepend": ScopedSlotAppendAndPrepend;
         "scoped-slot-assigned-methods": ScopedSlotAssignedMethods;
-        "scoped-slot-child-insert-adjacent": ScopedSlotChildInsertAdjacent;
         "scoped-slot-children": ScopedSlotChildren;
         "scoped-slot-connectedcallback-child": ScopedSlotConnectedcallbackChild;
         "scoped-slot-connectedcallback-middle": ScopedSlotConnectedcallbackMiddle;
@@ -5212,7 +5200,6 @@ declare module "@stencil/core" {
             "scoped-conditional": LocalJSX.IntrinsicElements["scoped-conditional"] & JSXBase.HTMLAttributes<HTMLScopedConditionalElement>;
             "scoped-slot-append-and-prepend": LocalJSX.IntrinsicElements["scoped-slot-append-and-prepend"] & JSXBase.HTMLAttributes<HTMLScopedSlotAppendAndPrependElement>;
             "scoped-slot-assigned-methods": LocalJSX.IntrinsicElements["scoped-slot-assigned-methods"] & JSXBase.HTMLAttributes<HTMLScopedSlotAssignedMethodsElement>;
-            "scoped-slot-child-insert-adjacent": LocalJSX.IntrinsicElements["scoped-slot-child-insert-adjacent"] & JSXBase.HTMLAttributes<HTMLScopedSlotChildInsertAdjacentElement>;
             "scoped-slot-children": LocalJSX.IntrinsicElements["scoped-slot-children"] & JSXBase.HTMLAttributes<HTMLScopedSlotChildrenElement>;
             "scoped-slot-connectedcallback-child": LocalJSX.IntrinsicElements["scoped-slot-connectedcallback-child"] & JSXBase.HTMLAttributes<HTMLScopedSlotConnectedcallbackChildElement>;
             "scoped-slot-connectedcallback-middle": LocalJSX.IntrinsicElements["scoped-slot-connectedcallback-middle"] & JSXBase.HTMLAttributes<HTMLScopedSlotConnectedcallbackMiddleElement>;

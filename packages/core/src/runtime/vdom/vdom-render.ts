@@ -990,6 +990,7 @@ export const insertBefore = (
       const hostElm = newNode['s-hn'] && (parent as Element).closest?.(newNode['s-hn']);
       const shouldPatchSlottedNodes =
         BUILD.lightDomPatches ||
+        BUILD.slotChildNodes ||
         (BUILD.patchAll &&
           !!(
             hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll
