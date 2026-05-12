@@ -140,6 +140,7 @@ export const validateConfig = (
     logger.setLogFilePath(validatedConfig.buildLogFilePath);
   }
 
+  validatedConfig.extras.enableImportInjection = validatedConfig.extras.enableImportInjection !== false;
   validatedConfig.extras.lifecycleDOMEvents = !!validatedConfig.extras.lifecycleDOMEvents;
   validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
   validatedConfig.extras.additionalTagTransformers =
