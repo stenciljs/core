@@ -14,7 +14,10 @@ describe('component-styles', () => {
 
   beforeAll(async () => {
     setup = await prepareTestCompiler({
-      config: { minifyCss: true, hashFileNames: true },
+      config: {
+        minifyCss: true,
+        outputTargets: [{ type: 'www', hashFileNames: true }],
+      },
     });
   });
 
@@ -28,7 +31,6 @@ describe('component-styles', () => {
   });
 
   it('should add mode styles to hashed filename/minified builds', async () => {
-    compiler.config.hashedFileNameLength = 2;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFiles({
       [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({

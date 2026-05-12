@@ -99,22 +99,6 @@ export interface StencilConfig {
   generateExportMaps?: boolean;
 
   /**
-   * When the hashFileNames config is set to true, and it is a production build,
-   * the hashedFileNameLength config is used to determine how many characters the file name's hash should be.
-   */
-  hashedFileNameLength?: number;
-
-  /**
-   * During production builds, the content of each generated file is hashed to represent the content,
-   * and the hashed value is used as the filename. If the content isn't updated between builds,
-   * then it receives the same filename. When the content is updated, then the filename is different.
-   *
-   * By doing this, deployed apps can "forever-cache" the build directory and take full advantage of
-   * content delivery networks (CDNs) and heavily caching files for faster apps.
-   */
-  hashFileNames?: boolean;
-
-  /**
    * The namespace config is a string representing a namespace for the app.
    * For apps that are not meant to be a library of reusable components,
    * the default of App is just fine. However, if the app is meant to be consumed
@@ -506,8 +490,6 @@ type StrictConfigFields = keyof Pick<
   | 'devServer'
   | 'extras'
   | 'fsNamespace'
-  | 'hashFileNames'
-  | 'hashedFileNameLength'
   | 'hydratedFlag'
   | 'logLevel'
   | 'logger'
@@ -1965,6 +1947,21 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default 'loader' (relative to output directory)
    */
   loaderPath?: string;
+
+  /**
+   * Hash the filenames of generated chunks based on their content.
+   * Enables forever-caching of CDN-served bundles.
+   *
+   * @default true in production, false in dev mode
+   */
+  hashFileNames?: boolean;
+
+  /**
+   * Number of characters to use for the content hash in filenames.
+   *
+   * @default 8
+   */
+  hashedFileNameLength?: number;
 }
 
 /**
@@ -2045,6 +2042,11 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
   loaderDir?: string;
   typesDir?: string;
   empty?: boolean;
+
+  /** Inherited from parent output target (loader-bundle or www). Only meaningful for browser builds. */
+  hashFileNames?: boolean;
+  /** Inherited from parent output target (loader-bundle or www). */
+  hashedFileNameLength?: number;
 }
 
 /**
@@ -2520,6 +2522,21 @@ export interface OutputTargetWww extends OutputTargetBase {
    */
   serviceWorker?: ServiceWorkerConfig | null | false;
   appDir?: string;
+
+  /**
+   * Hash the filenames of generated chunks based on their content.
+   * Enables forever-caching of CDN-served bundles.
+   *
+   * @default true in production, false in dev mode
+   */
+  hashFileNames?: boolean;
+
+  /**
+   * Number of characters to use for the content hash in filenames.
+   *
+   * @default 8
+   */
+  hashedFileNameLength?: number;
 }
 
 export type OutputTarget =

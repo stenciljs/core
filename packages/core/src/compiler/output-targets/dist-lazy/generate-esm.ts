@@ -22,7 +22,7 @@ export const generateEsm = async (
       entryFileNames: '[name].js',
       assetFileNames: '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, false, '')],
+      plugins: [lazyBundleIdPlugin(buildCtx, config, false, 8, '')],
     };
     const outputTargetType = esmOutputs[0].type;
     const output = await generateRolldownOutput(

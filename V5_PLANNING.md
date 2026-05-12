@@ -114,6 +114,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - Auto-generated `global-style` (from `globalStyle` config) defaults to `inject: 'client'` (preserves v4 behavior)
   - Explicitly configured `global-style` outputs default to `inject: 'none'`
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
+- **`hashFileNames` and `hashedFileNameLength` moved from top-level config to `loader-bundle` and `www` output targets.** Only these two targets serve bundles directly in the browser. Run `stencil migrate` to remove them from the top-level config, then add to your output targets if non-default values are needed.
 
 ---
 

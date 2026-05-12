@@ -7,6 +7,7 @@ import type { OutputChunk, Plugin } from 'rolldown';
  * @param buildCtx The build context
  * @param config The validated configuration
  * @param shouldHash Whether to hash the bundle ID
+ * @param hashedFileNameLength The length of the hash to use in the bundle ID
  * @param suffix The suffix to append to the bundle ID
  * @param isBrowserBuild Whether this is a browser build
  * @returns A Rolldown plugin
@@ -15,6 +16,7 @@ export const lazyBundleIdPlugin = (
   buildCtx: d.BuildCtx,
   config: d.ValidatedConfig,
   shouldHash: boolean,
+  hashedFileNameLength: number,
   suffix: string,
   isBrowserBuild?: boolean,
 ): Plugin => {
@@ -24,7 +26,7 @@ export const lazyBundleIdPlugin = (
     fileSuffix: string,
   ): Promise<string> => {
     if (shouldHash && config.sys?.generateContentHash) {
-      const hash = await config.sys.generateContentHash(code, config.hashedFileNameLength);
+      const hash = await config.sys.generateContentHash(code, hashedFileNameLength);
       return `p-${hash}${fileSuffix}`;
     }
 

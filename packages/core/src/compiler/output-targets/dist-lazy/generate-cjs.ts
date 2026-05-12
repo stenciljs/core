@@ -23,7 +23,7 @@ export const generateCjs = async (
       entryFileNames: '[name].cjs',
       assetFileNames: '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, false, '.cjs')],
+      plugins: [lazyBundleIdPlugin(buildCtx, config, false, 8, '.cjs')],
     };
 
     // Note: interop and dynamicImportInCjs options are not supported in Rolldown

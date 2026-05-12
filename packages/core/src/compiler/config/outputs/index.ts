@@ -65,7 +65,7 @@ export const validateOutputTargets = (config: d.ValidatedConfig, diagnostics: d.
     ...validateCustomOutput(config, diagnostics, userOutputs),
     ...validateLazy(config, userOutputs),
     ...validateWww(config, diagnostics, userOutputs),
-    ...validateLoaderBundle(config, userOutputs),
+    ...validateLoaderBundle(config, diagnostics, userOutputs),
     ...validateDocs(config, diagnostics, userOutputs),
     ...validateStats(config, userOutputs),
   ];

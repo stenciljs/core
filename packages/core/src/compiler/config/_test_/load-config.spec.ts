@@ -39,7 +39,6 @@ describe('load config', () => {
       configPath: configPath2,
       sys,
       config: {
-        hashedFileNameLength: 9,
         rootDir: '/foo/bar',
       },
       initTsConfig: true,
@@ -48,9 +47,7 @@ describe('load config', () => {
     expect(loadedConfig.diagnostics).toHaveLength(0);
 
     const actualConfig = loadedConfig.config;
-    // this field is defined on the `init` argument, and should override the value found in the config on disk
     expect(actualConfig).toBeDefined();
-    expect(actualConfig.hashedFileNameLength).toEqual(9);
     expect(actualConfig.extras).toBeDefined();
     expect(actualConfig.extras!.enableImportInjection).toBe(true);
     // respects custom root dir
@@ -70,8 +67,6 @@ describe('load config', () => {
     expect(actualConfig).toBeDefined();
     // set the config path based on the one provided in the init object
     expect(actualConfig.configPath).toBe(normalizePath(configPath));
-    // this field is defined in the config file on disk, and should be present
-    expect(actualConfig.hashedFileNameLength).toBe(13);
   });
 
   describe('empty initialization argument', () => {

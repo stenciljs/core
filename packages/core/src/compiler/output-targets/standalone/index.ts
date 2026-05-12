@@ -137,8 +137,7 @@ export const bundleStandalone = async (
         banner: generatePreamble(config),
         format: 'esm',
         sourcemap: config.sourceMap,
-        chunkFileNames:
-          outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
+        chunkFileNames: '[name].js',
         entryFileNames: '[name].js',
         hoistTransitiveImports: false,
       });
