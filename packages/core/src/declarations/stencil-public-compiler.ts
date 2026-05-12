@@ -1,3 +1,5 @@
+import type { InputOptions as RolldownInputOptions } from 'rolldown';
+
 import type { PrerenderUrlResults, PrintLine } from './stencil-private';
 import type {
   BuildCtx,
@@ -1792,32 +1794,11 @@ export interface StencilDocsConfig {
   };
 }
 
-export interface NodeResolveConfig {
-  exportConditions?: string[];
-  browser?: boolean;
-  moduleDirectories?: string[];
-  modulePaths?: string[];
-  dedupe?: string[] | ((importee: string) => boolean);
-  extensions?: readonly string[];
-  jail?: string;
-  mainFields?: readonly string[];
-  modulesOnly?: boolean;
-  preferBuiltins?: boolean | ((module: string) => boolean);
-  resolveOnly?: ReadonlyArray<string | RegExp> | null | ((module: string) => boolean);
-  rootDir?: string;
-  allowExportsFolderMapping?: boolean;
-}
+/** Options for rolldown's built-in module resolver, passed directly to rolldown's `resolve` input option. */
+export type NodeResolveConfig = NonNullable<RolldownInputOptions['resolve']>;
 
 export interface RolldownConfig {
-  inputOptions?: RolldownInputOptions;
-  outputOptions?: RolldownOutputOptions;
-}
-
-export interface RolldownInputOptions {
-  context?: string;
-  moduleContext?: ((id: string) => string) | { [id: string]: string };
   treeshake?: boolean;
-  maxParallelFileOps?: number;
   external?:
     | (string | RegExp)[]
     | string
@@ -1827,10 +1808,6 @@ export interface RolldownInputOptions {
         importer: string | undefined,
         isResolved: boolean,
       ) => boolean | null | undefined);
-}
-
-export interface RolldownOutputOptions {
-  globals?: { [name: string]: string } | ((name: string) => string);
 }
 
 /**
@@ -2662,18 +2639,6 @@ export interface WorkerOptions {
   maxConcurrentWorkers?: number;
   maxConcurrentTasksPerWorker?: number;
   logger?: Logger;
-}
-
-export interface RolldownInterface {
-  rolldown: {
-    (config: any): Promise<any>;
-  };
-  plugins: {
-    nodeResolve(opts: any): any;
-    replace(opts: any): any;
-    commonjs(opts: any): any;
-    json(): any;
-  };
 }
 
 export interface ResolveModuleOptions {

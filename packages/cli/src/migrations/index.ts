@@ -8,6 +8,7 @@ import { globalStyleInjectRule } from './rules/global-style-inject';
 import { hashFileNamesRule } from './rules/hash-file-names';
 import { lightDomPatchesRule } from './rules/light-dom-patches';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
+import { rolldownConfigRule } from './rules/rolldown-config';
 
 /**
  * Build a map of local import names to their original names from @stencil/core.
@@ -120,6 +121,7 @@ const migrationRules: MigrationRule[] = [
   globalStyleInjectRule,
   lightDomPatchesRule,
   hashFileNamesRule,
+  rolldownConfigRule,
 ];
 
 /**
