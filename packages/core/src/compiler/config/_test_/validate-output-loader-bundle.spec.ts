@@ -50,12 +50,16 @@ describe('validateLoaderBundleOutputTarget', () => {
         loaderPath: 'loader',
         type: LOADER_BUNDLE,
         skipInDev: true,
+        hashFileNames: false,
+        hashedFileNameLength: 8,
       },
       {
         type: DIST_LAZY,
         esmDir: join(rootDir, 'my-dist', 'my-build', 'testing'),
         isBrowserBuild: true,
         empty: false,
+        hashFileNames: false,
+        hashedFileNameLength: 8,
       },
       {
         type: COPY,
@@ -130,6 +134,67 @@ describe('validateLoaderBundleOutputTarget', () => {
       (o) => o.type === LOADER_BUNDLE,
     ) as d.OutputTargetLoaderBundle;
     expect(validated.skipInDev).toBe(true);
+  });
+
+  describe('hashFileNames / hashedFileNameLength', () => {
+    it('defaults hashFileNames to false in dev mode', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.hashFileNames).toBe(false);
+    });
+
+    it('defaults hashFileNames to true in prod mode', () => {
+      const prodConfig = mockConfig({ devMode: false });
+      prodConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.hashFileNames).toBe(true);
+    });
+
+    it('respects explicit hashFileNames override', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE, hashFileNames: true }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.hashFileNames).toBe(true);
+    });
+
+    it('defaults hashedFileNameLength to 8', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.hashedFileNameLength).toBe(8);
+    });
+
+    it('errors when hashedFileNameLength too small', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE, hashedFileNameLength: 3 }];
+      const { diagnostics } = validateConfig(userConfig, mockLoadConfigInit());
+      expect(diagnostics).toHaveLength(1);
+    });
+
+    it('errors when hashedFileNameLength too large', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE, hashedFileNameLength: 33 }];
+      const { diagnostics } = validateConfig(userConfig, mockLoadConfigInit());
+      expect(diagnostics).toHaveLength(1);
+    });
+
+    it('threads hashFileNames through to the browser dist-lazy target', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE, hashFileNames: true }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const distLazy = config.outputTargets.find(
+        (o) => o.type === DIST_LAZY && (o as d.OutputTargetDistLazy).isBrowserBuild,
+      ) as d.OutputTargetDistLazy;
+      expect(distLazy.hashFileNames).toBe(true);
+      expect(distLazy.hashedFileNameLength).toBe(8);
+    });
   });
 
   describe('production mode auto-generation', () => {

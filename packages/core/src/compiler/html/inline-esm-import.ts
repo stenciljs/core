@@ -71,7 +71,12 @@ export const optimizeEsmImport = async (
         script.innerHTML = results.code + '\n';
       }
     } else {
-      const hashedFile = await generateHashedCopy(config, compilerCtx, entryPath);
+      const hashedFile = await generateHashedCopy(
+        config,
+        compilerCtx,
+        entryPath,
+        outputTarget.hashedFileNameLength ?? 8,
+      );
       if (hashedFile) {
         const hashedPath = join(resourcesUrl, hashedFile);
         script.setAttribute('src', hashedPath);

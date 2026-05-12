@@ -37,8 +37,6 @@ export function generateBuildStats(
         options: {
           minifyJs: !!config.minifyJs,
           minifyCss: !!config.minifyCss,
-          hashFileNames: !!config.hashFileNames,
-          hashedFileNameLength: config.hashedFileNameLength,
         },
         formats: {
           esmBrowser: sanitizeBundlesForStats(buildCtx.esmBrowserComponentBundle),

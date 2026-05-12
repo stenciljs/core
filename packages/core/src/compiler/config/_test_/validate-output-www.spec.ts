@@ -63,6 +63,8 @@ describe('validateOutputTargetWww', () => {
         bundleMode: 'loader',
         dir: join(rootDir, 'www', 'docs'),
         empty: true,
+        hashFileNames: true,
+        hashedFileNameLength: 8,
         indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
         serviceWorker: {
           dontCacheBustURLsMatching: /p-\w{8}/,
@@ -82,6 +84,8 @@ describe('validateOutputTargetWww', () => {
       {
         dir: join(rootDir, 'www', 'docs', 'build'),
         esmDir: join(rootDir, 'www', 'docs', 'build'),
+        hashFileNames: true,
+        hashedFileNameLength: 8,
         isBrowserBuild: true,
         type: 'dist-lazy',
       },
@@ -438,6 +442,75 @@ describe('validateOutputTargetWww', () => {
       const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
 
       expect(www.bundleMode).toBe('loader');
+    });
+  });
+
+  describe('hashFileNames / hashedFileNameLength', () => {
+    it('defaults hashFileNames to false in dev mode', () => {
+      const devConfig: d.UnvalidatedConfig = {
+        rootDir,
+        devMode: true,
+        outputTargets: [{ type: 'www' }],
+      };
+      const { config } = validateConfig(devConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+      expect(www.hashFileNames).toBe(false);
+      expect(www.hashedFileNameLength).toBe(8);
+    });
+
+    it('defaults hashFileNames to true in prod mode', () => {
+      const prodConfig: d.UnvalidatedConfig = {
+        rootDir,
+        devMode: false,
+        outputTargets: [{ type: 'www' }],
+      };
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+      expect(www.hashFileNames).toBe(true);
+    });
+
+    it('respects explicit hashFileNames: false', () => {
+      const prodConfig: d.UnvalidatedConfig = {
+        rootDir,
+        devMode: false,
+        outputTargets: [{ type: 'www', hashFileNames: false }],
+      };
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+      expect(www.hashFileNames).toBe(false);
+    });
+
+    it('respects explicit hashFileNames: true in dev mode', () => {
+      userConfig.outputTargets = [{ type: 'www', hashFileNames: true }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+      expect(www.hashFileNames).toBe(true);
+    });
+
+    it('threads hashFileNames and hashedFileNameLength to dist-lazy', () => {
+      userConfig.outputTargets = [{ type: 'www', hashFileNames: true, hashedFileNameLength: 12 }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const lazy = config.outputTargets.find(isOutputTargetDistLazy) as d.OutputTargetDistLazy;
+      expect(lazy.hashFileNames).toBe(true);
+      expect(lazy.hashedFileNameLength).toBe(12);
+    });
+
+    it('does not thread hash fields for standalone bundleMode', () => {
+      userConfig.outputTargets = [{ type: 'www', bundleMode: 'standalone' }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      expect(config.outputTargets.some(isOutputTargetDistLazy)).toBe(false);
+    });
+
+    it('reports error for hashedFileNameLength below minimum', () => {
+      userConfig.outputTargets = [{ type: 'www', hashedFileNameLength: 1 }];
+      const { diagnostics } = validateConfig(userConfig, mockLoadConfigInit());
+      expect(diagnostics.some((d) => d.messageText.includes('hashedFileNameLength'))).toBe(true);
+    });
+
+    it('reports error for hashedFileNameLength above maximum', () => {
+      userConfig.outputTargets = [{ type: 'www', hashedFileNameLength: 99 }];
+      const { diagnostics } = validateConfig(userConfig, mockLoadConfigInit());
+      expect(diagnostics.some((d) => d.messageText.includes('hashedFileNameLength'))).toBe(true);
     });
   });
 

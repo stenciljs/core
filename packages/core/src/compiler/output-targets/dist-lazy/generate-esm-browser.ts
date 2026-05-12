@@ -20,10 +20,19 @@ export const generateEsmBrowser = async (
       banner: generatePreamble(config),
       format: 'es',
       entryFileNames: '[name].js',
-      chunkFileNames: config.hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
-      assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
+      chunkFileNames: esmOutputs[0].hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
+      assetFileNames: esmOutputs[0].hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
       sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '', true)],
+      plugins: [
+        lazyBundleIdPlugin(
+          buildCtx,
+          config,
+          esmOutputs[0].hashFileNames ?? true,
+          esmOutputs[0].hashedFileNameLength ?? 8,
+          '',
+          true,
+        ),
+      ],
     };
 
     const output = await generateRolldownOutput(

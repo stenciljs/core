@@ -307,8 +307,6 @@ export interface CompilerBuildStats {
   options: {
     minifyJs: boolean;
     minifyCss: boolean;
-    hashFileNames: boolean;
-    hashedFileNameLength: number;
   };
   formats: {
     esmBrowser: ReadonlyArray<CompilerBuildStatBundle>;

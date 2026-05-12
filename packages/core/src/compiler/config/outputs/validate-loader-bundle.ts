@@ -2,15 +2,22 @@ import { isAbsolute } from 'node:path';
 import type * as d from '@stencil/core';
 
 import {
+  buildError,
   COPY,
   DIST_LAZY,
   isBoolean,
+  isNumber,
   isOutputTargetLoaderBundle,
   isOutputTargetTypes,
   isString,
   join,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
+import {
+  DEFAULT_HASHED_FILENAME_LENGTH,
+  MAX_HASHED_FILENAME_LENGTH,
+  MIN_HASHED_FILENAME_LENGTH,
+} from '../constants';
 import { validateCopy } from '../validate-copy';
 
 /**
@@ -26,11 +33,13 @@ import { validateCopy } from '../validate-copy';
  * The `./loader` export in package.json points directly to the esm/loader.js file.
  *
  * @param config the compiler config
+ * @param diagnostics diagnostics array to collect errors
  * @param userOutputs a user-supplied list of output targets
  * @returns a list of OutputTargets which have been validated
  */
 export const validateLoaderBundle = (
   config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ): d.OutputTarget[] => {
   const loaderBundleOutputTargets = userOutputs.filter(isOutputTargetLoaderBundle);
@@ -38,7 +47,7 @@ export const validateLoaderBundle = (
   const outputs: d.OutputTarget[] = [];
 
   for (const outputTarget of loaderBundleOutputTargets) {
-    const loaderBundleOutput = validateOutputTargetLoaderBundle(config, outputTarget);
+    const loaderBundleOutput = validateOutputTargetLoaderBundle(config, diagnostics, outputTarget);
     outputs.push(loaderBundleOutput);
 
     const namespace = config.fsNamespace || 'app';
@@ -50,6 +59,8 @@ export const validateLoaderBundle = (
       esmDir: lazyDir,
       isBrowserBuild: true,
       empty: loaderBundleOutput.empty,
+      hashFileNames: loaderBundleOutput.hashFileNames,
+      hashedFileNameLength: loaderBundleOutput.hashedFileNameLength,
     });
     outputs.push({
       type: COPY,
@@ -93,15 +104,22 @@ export const validateLoaderBundle = (
  * user-supplied or default values).
  *
  * @param config the current config
+ * @param diagnostics the current diagnostics array to which any validation errors should be added
  * @param o the OutputTargetLoaderBundle object we want to validate
  * @returns `Required<d.OutputTargetLoaderBundle>`, i.e. `d.OutputTargetLoaderBundle`
  * with all optional properties rendered un-optional.
  */
 const validateOutputTargetLoaderBundle = (
   config: d.ValidatedConfig,
+  diagnostics: d.Diagnostic[],
   o: d.OutputTargetLoaderBundle,
 ): Required<d.OutputTargetLoaderBundle> => {
   // Create an object with default values for type inference
+  const hashFileNames = isBoolean(o.hashFileNames) ? o.hashFileNames : !config.devMode;
+  const hashedFileNameLength = isNumber(o.hashedFileNameLength)
+    ? o.hashedFileNameLength
+    : DEFAULT_HASHED_FILENAME_LENGTH;
+
   const outputTarget = {
     ...o,
     dir: getAbsolutePath(config, o.dir || DEFAULT_DIR),
@@ -112,10 +130,21 @@ const validateOutputTargetLoaderBundle = (
     loaderPath: isString(o.loaderPath) ? o.loaderPath : DEFAULT_LOADER_PATH,
     // loader-bundle skips distribution artifacts in dev mode by default, but always builds browser/CDN output
     skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
+    hashFileNames,
+    hashedFileNameLength,
   } satisfies Required<d.OutputTargetLoaderBundle>;
 
   if (!isAbsolute(outputTarget.buildDir)) {
     outputTarget.buildDir = join(outputTarget.dir, outputTarget.buildDir);
+  }
+
+  if (outputTarget.hashedFileNameLength < MIN_HASHED_FILENAME_LENGTH) {
+    const err = buildError(diagnostics);
+    err.messageText = `loader-bundle hashedFileNameLength must be at least ${MIN_HASHED_FILENAME_LENGTH} characters`;
+  }
+  if (outputTarget.hashedFileNameLength > MAX_HASHED_FILENAME_LENGTH) {
+    const err = buildError(diagnostics);
+    err.messageText = `loader-bundle hashedFileNameLength cannot be more than ${MAX_HASHED_FILENAME_LENGTH} characters`;
   }
 
   return outputTarget;

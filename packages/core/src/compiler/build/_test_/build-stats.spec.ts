@@ -49,8 +49,6 @@ describe('generateBuildStats', () => {
       entries: [],
       formats: { commonjs: [], esm: [], esmBrowser: [] },
       options: {
-        hashFileNames: false,
-        hashedFileNameLength: 8,
         minifyCss: false,
         minifyJs: false,
       },

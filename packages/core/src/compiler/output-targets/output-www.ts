@@ -162,6 +162,7 @@ const generateIndexHtml = async (
         config,
         compilerCtx,
         join(outputTarget.buildDir, `${config.fsNamespace}.css`),
+        outputTarget.hashedFileNameLength ?? 8,
       );
       const scriptFound = await optimizeEsmImport(config, compilerCtx, doc, outputTarget);
       await inlineStyleSheets(compilerCtx, doc, MAX_CSS_INLINE_SIZE, outputTarget);

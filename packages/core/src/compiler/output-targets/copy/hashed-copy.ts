@@ -32,16 +32,18 @@ import { join } from '../../../utils';
  * @param config the current user-supplied config
  * @param compilerCtx a compiler context
  * @param path the path to read and hash from
+ * @param hashedFileNameLength the length of the hash to use in the filename
  * @returns the newly-written path or undefined if not written
  */
 export const generateHashedCopy = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   path: string,
+  hashedFileNameLength: number,
 ): Promise<string | undefined> => {
   try {
     const content = await compilerCtx.fs.readFile(path);
-    const hash = await config.sys.generateContentHash(content, config.hashedFileNameLength);
+    const hash = await config.sys.generateContentHash(content, hashedFileNameLength);
     const hashedFileName = `p-${hash}${extname(path)}`;
     await compilerCtx.fs.writeFile(join(dirname(path), hashedFileName), content);
     return hashedFileName;

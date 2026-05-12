@@ -1,4 +1,5 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 // @ts-ignore
@@ -7,6 +8,8 @@ import linaria from 'linaria/rollup';
 import css from 'rollup-plugin-css-only';
 // @ts-ignore
 import builtins from 'rollup-plugin-node-builtins';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const config: Config = {
   namespace: 'EndToEnd',
@@ -26,10 +29,12 @@ export const config: Config = {
       type: 'www',
       serviceWorker: null,
       copy: [{ src: '**/*.html' }, { src: '**/*.css' }],
+      hashFileNames: false,
     },
     {
       type: 'loader-bundle',
       cjs: true,
+      hashFileNames: false,
     },
     {
       type: 'ssr',
@@ -58,6 +63,5 @@ export const config: Config = {
     foo: 'bar',
     HOST: 'example.com',
   },
-  hashFileNames: false,
   sourceMap: true,
 };

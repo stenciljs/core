@@ -1,4 +1,4 @@
-import { isAbsolute, join, relative } from 'path';
+import { dirname, isAbsolute, join, relative } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core/compiler';
 
@@ -305,6 +305,46 @@ async function getTypeScriptFiles(
   if (configFile && (configFile.endsWith('.ts') || configFile.endsWith('.mts'))) {
     if (!files.includes(configFile)) {
       files.push(configFile);
+    }
+
+    // Follow relative imports from the config file one level deep.
+    // Handles the pattern where a build config re-exports from a base config
+    // (e.g. stencil.build.config.ts imports from stencil.config.ts).
+    const configContent = await sys.readFile(configFile);
+    if (configContent) {
+      const configSourceFile = ts.createSourceFile(
+        configFile,
+        configContent,
+        ts.ScriptTarget.Latest,
+        true,
+      );
+      const configDir = dirname(configFile);
+      for (const statement of configSourceFile.statements) {
+        if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+          const specifier = statement.moduleSpecifier.text;
+          if (!specifier.startsWith('./') && !specifier.startsWith('../')) continue;
+
+          const basePath = join(configDir, specifier);
+          const candidates =
+            basePath.endsWith('.ts') || basePath.endsWith('.tsx')
+              ? [basePath]
+              : [`${basePath}.ts`, `${basePath}.tsx`];
+
+          for (const candidate of candidates) {
+            if (
+              !candidate.endsWith('.d.ts') &&
+              !files.includes(candidate) &&
+              candidate.startsWith(config.rootDir)
+            ) {
+              const content = await sys.readFile(candidate);
+              if (content) {
+                files.push(candidate);
+                break;
+              }
+            }
+          }
+        }
+      }
     }
   }
 

@@ -8,6 +8,7 @@ import {
   DIST_LAZY,
   GLOBAL_STYLE,
   isBoolean,
+  isNumber,
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
   isOutputTargetWww,
@@ -19,6 +20,11 @@ import {
   WWW,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
+import {
+  DEFAULT_HASHED_FILENAME_LENGTH,
+  MAX_HASHED_FILENAME_LENGTH,
+  MIN_HASHED_FILENAME_LENGTH,
+} from '../constants';
 import { validateCopy } from '../validate-copy';
 import { validatePrerender } from '../validate-prerender';
 import { validateServiceWorker } from '../validate-service-worker';
@@ -95,6 +101,8 @@ export const validateWww = (
           dir: buildDir,
           esmDir: buildDir,
           isBrowserBuild: true,
+          hashFileNames: outputTarget.hashFileNames,
+          hashedFileNameLength: outputTarget.hashedFileNameLength,
         });
       }
 
@@ -166,6 +174,21 @@ const validateWwwOutputTarget = (
 
   if (!isBoolean(outputTarget.empty)) {
     outputTarget.empty = true;
+  }
+
+  if (!isBoolean(outputTarget.hashFileNames)) {
+    outputTarget.hashFileNames = !config.devMode;
+  }
+  if (!isNumber(outputTarget.hashedFileNameLength)) {
+    outputTarget.hashedFileNameLength = DEFAULT_HASHED_FILENAME_LENGTH;
+  }
+  if (outputTarget.hashedFileNameLength < MIN_HASHED_FILENAME_LENGTH) {
+    const err = buildError(diagnostics);
+    err.messageText = `www hashedFileNameLength must be at least ${MIN_HASHED_FILENAME_LENGTH} characters`;
+  }
+  if (outputTarget.hashedFileNameLength > MAX_HASHED_FILENAME_LENGTH) {
+    const err = buildError(diagnostics);
+    err.messageText = `www hashedFileNameLength cannot be more than ${MAX_HASHED_FILENAME_LENGTH} characters`;
   }
 
   validatePrerender(config, diagnostics, outputTarget);

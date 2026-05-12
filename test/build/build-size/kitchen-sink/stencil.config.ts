@@ -2,9 +2,11 @@ import { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'bundlesize-kitchen-sink',
-  hashFileNames: false,
   outputTargets: [
-    { type: 'loader-bundle' },
+    {
+      type: 'loader-bundle',
+      hashFileNames: false,
+    },
     {
       type: 'standalone',
       externalRuntime: false,

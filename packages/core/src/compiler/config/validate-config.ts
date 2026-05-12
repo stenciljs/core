@@ -8,14 +8,9 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { buildError, isBoolean, isNumber, isString, sortBy } from '../../utils';
+import { isBoolean, isString, sortBy } from '../../utils';
 import { setBooleanConfig } from './config-utils';
-import {
-  DEFAULT_DEV_MODE,
-  DEFAULT_HASHED_FILENAME_LENGTH,
-  MAX_HASHED_FILENAME_LENGTH,
-  MIN_HASHED_FILENAME_LENGTH,
-} from './constants';
+import { DEFAULT_DEV_MODE } from './constants';
 import { validateOutputTargets } from './outputs';
 import { validateDevServer } from './validate-dev-server';
 import { validateDocs } from './validate-docs';
@@ -106,16 +101,12 @@ export const validateConfig = (
     process.env.NODE_ENV === 'test'
   );
 
-  const hashFileNames = config.hashFileNames ?? !devMode;
-
   const validatedConfig: ValidatedConfig = {
     devServer: {}, // assign `devServer` before spreading `config`, in the event 'devServer' is not a key on `config`
     ...config,
     devMode,
     extras: config.extras || {},
     generateExportMaps: isBoolean(config.generateExportMaps) ? config.generateExportMaps : false,
-    hashFileNames,
-    hashedFileNameLength: config.hashedFileNameLength ?? DEFAULT_HASHED_FILENAME_LENGTH,
     hydratedFlag: validateHydrated(config),
     logLevel,
     logger,
@@ -172,21 +163,6 @@ export const validateConfig = (
     validatedConfig.taskQueue = 'async';
   }
 
-  // hash file names
-  if (!isBoolean(validatedConfig.hashFileNames)) {
-    validatedConfig.hashFileNames = !validatedConfig.devMode;
-  }
-  if (!isNumber(validatedConfig.hashedFileNameLength)) {
-    validatedConfig.hashedFileNameLength = DEFAULT_HASHED_FILENAME_LENGTH;
-  }
-  if (validatedConfig.hashedFileNameLength < MIN_HASHED_FILENAME_LENGTH) {
-    const err = buildError(diagnostics);
-    err.messageText = `validatedConfig.hashedFileNameLength must be at least ${MIN_HASHED_FILENAME_LENGTH} characters`;
-  }
-  if (validatedConfig.hashedFileNameLength > MAX_HASHED_FILENAME_LENGTH) {
-    const err = buildError(diagnostics);
-    err.messageText = `validatedConfig.hashedFileNameLength cannot be more than ${MAX_HASHED_FILENAME_LENGTH} characters`;
-  }
   if (!validatedConfig.env) {
     validatedConfig.env = {};
   }
