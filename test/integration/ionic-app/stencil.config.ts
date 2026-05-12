@@ -5,8 +5,7 @@ export const config: Config = {
     port: 3335,
   },
   tsconfig: 'tsconfig.stencil.json',
-  outputTargets: [{ type: 'www', serviceWorker: null }],
+  outputTargets: [{ type: 'www', serviceWorker: null, hashFileNames: false }],
   globalScript: 'src/global/app.ts',
   globalStyle: 'src/global/app.css',
-  hashFileNames: false,
 };
