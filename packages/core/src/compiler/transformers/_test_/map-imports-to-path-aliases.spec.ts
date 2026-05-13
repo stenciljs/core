@@ -1,6 +1,6 @@
 import { mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
-import type { OutputTargetStencilRebundle } from '@stencil/core';
+import type { OutputTargetCollection } from '@stencil/core';
 
 import { ValidatedConfig } from '../../../compiler';
 import { mapImportsToPathAliases } from '../map-imports-to-path-aliases';
@@ -26,13 +26,13 @@ vi.mock('typescript', async (importOriginal) => {
 describe('mapImportsToPathAliases', () => {
   let module: ReturnType<typeof transpileModule>;
   let config: ValidatedConfig;
-  let outputTarget: OutputTargetStencilRebundle;
+  let outputTarget: OutputTargetCollection;
 
   beforeEach(() => {
     config = mockValidatedConfig({ tsCompilerOptions: {} });
 
     outputTarget = {
-      type: 'stencil-rebundle',
+      type: 'collection',
       dir: 'dist/collection',
       transformAliasedImportPaths: true,
     };

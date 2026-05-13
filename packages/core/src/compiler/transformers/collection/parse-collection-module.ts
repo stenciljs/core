@@ -2,9 +2,9 @@ import { dirname } from 'path';
 import type * as d from '@stencil/core';
 
 import { join, normalizePath, relative } from '../../../utils';
-import { parseRebundleManifest } from './parse-rebundle-manifest';
+import { parseCollectionManifest } from './parse-collection-manifest';
 
-export const parseRebundle = (
+export const parseCollection = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -28,8 +28,8 @@ export const parseRebundle = (
   const collectionPackageRootDir = dirname(pkgJsonFilePath);
 
   // figure out the full path to the collection manifest file
-  // Check for stencilRebundle (v5) or collection (v4) field
-  const collectionManifestPath = pkgData.stencilRebundle ?? pkgData.collection;
+  // Check for collection (v5) or collection (v4) field
+  const collectionManifestPath = pkgData.collection ?? pkgData.collection;
   const collectionFilePath = join(collectionPackageRootDir, collectionManifestPath!);
 
   const relPath = relative(config.rootDir, collectionFilePath);
@@ -46,7 +46,7 @@ export const parseRebundle = (
   const collectionDir = normalizePath(dirname(collectionFilePath));
 
   // parse the json string into our collection data
-  collection = parseRebundleManifest(
+  collection = parseCollectionManifest(
     config,
     compilerCtx,
     buildCtx,

@@ -8,9 +8,9 @@ import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'v
 import type * as d from '@stencil/core';
 
 import * as test from '../../transformers/map-imports-to-path-aliases';
-import { outputStencilRebundle } from '../stencil-rebundle';
+import { outputCollection } from '../collection';
 
-describe('Stencil Rebundle output target', () => {
+describe('Stencil Collection output target', () => {
   let mockConfig: d.ValidatedConfig;
   let mockedBuildCtx: d.BuildCtx;
   let mockedCompilerCtx: d.CompilerCtx;
@@ -20,9 +20,9 @@ describe('Stencil Rebundle output target', () => {
 
   const mockTraverse = vi.fn().mockImplementation((source: any) => source);
   const mockMap = vi.fn().mockImplementation(() => mockTraverse);
-  const target: d.OutputTargetStencilRebundle = {
-    type: 'stencil-rebundle',
-    dir: '/dist/stencil-rebundle',
+  const target: d.OutputTargetCollection = {
+    type: 'collection',
+    dir: '/dist/collection',
   };
 
   beforeEach(() => {
@@ -63,17 +63,13 @@ describe('Stencil Rebundle output target', () => {
           },
         ];
 
-        await outputStencilRebundle(mockConfig, mockedCompilerCtx, mockedBuildCtx, changedModules);
+        await outputCollection(mockConfig, mockedCompilerCtx, mockedBuildCtx, changedModules);
 
-        expect(mapImportPathSpy).toHaveBeenCalledWith(
-          mockConfig,
-          '/dist/stencil-rebundle/main.js',
-          {
-            dir: '/dist/stencil-rebundle',
-            transformAliasedImportPaths,
-            type: 'stencil-rebundle',
-          },
-        );
+        expect(mapImportPathSpy).toHaveBeenCalledWith(mockConfig, '/dist/collection/main.js', {
+          dir: '/dist/collection',
+          transformAliasedImportPaths,
+          type: 'collection',
+        });
         expect(mapImportPathSpy).toHaveBeenCalledTimes(1);
       },
     );

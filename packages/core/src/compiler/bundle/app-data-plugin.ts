@@ -12,7 +12,7 @@ import {
   normalizePath,
 } from '../../utils';
 import { buildGlobalStyleFromInput } from '../style/global-styles';
-import { removeRebundleImports } from '../transformers/remove-rebundle-imports';
+import { removeCollectionImports } from '../transformers/remove-collection-imports';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_APP_DATA_ID,
@@ -140,7 +140,7 @@ export const appDataPlugin = (
           compilerOptions,
           fileName: id,
           transformers: {
-            after: [removeRebundleImports(compilerCtx)],
+            after: [removeCollectionImports(compilerCtx)],
           },
         });
         buildCtx.diagnostics.push(...loadTypeScriptDiagnostics(results.diagnostics));

@@ -5,7 +5,7 @@
   "license": "MIT",
   "files": [
     "dist/",
-    "dist/stencil-rebundle/"
+    "dist/collection/"
   ],
   "type": "module",
   "module": "dist/standalone/index.js",
@@ -25,5 +25,5 @@
   "volta": {
     "extends": "../../../package.json"
   },
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
+  "collection": "dist/collection/collection-manifest.json"
 }

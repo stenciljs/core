@@ -171,6 +171,5 @@ jsxs
 labelable
 lightningcss
 cooldown
-rebundle
 regen
 reparsing

@@ -22,7 +22,7 @@ import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
-import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
+import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { generateCjs } from './generate-cjs';
@@ -161,7 +161,7 @@ const getCustomBeforeTransformers = (
 
   customBeforeTransformers.push(
     lazyComponentTransform(compilerCtx, transformOpts, buildCtx),
-    removeRebundleImports(compilerCtx),
+    removeCollectionImports(compilerCtx),
   );
   return customBeforeTransformers;
 };

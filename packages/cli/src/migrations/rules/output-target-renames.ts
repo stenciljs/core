@@ -9,9 +9,9 @@ import type { MigrationMatch, MigrationRule } from '../index';
  * - Renames `dist` → `loader-bundle`
  * - Renames `dist-custom-elements` → `standalone`
  * - Renames `dist-hydrate-script` → `ssr`
- * - Renames `dist-collection` → `stencil-rebundle`
+ * - Renames `dist-collection` → `collection`
  * - Renames `dist-types` → `types`
- * - Extracts `collectionDir` from loader-bundle into separate `stencil-rebundle` output
+ * - Extracts `collectionDir` from loader-bundle into separate `collection` output
  * - Extracts `typesDir` from loader-bundle into separate `types` output
  * - Renames `esmLoaderPath` → `loaderPath` (applies to all module formats, not just ESM)
  * - Removes `isPrimaryPackageOutputTarget` (no longer needed, package.json validation auto-detects)
@@ -31,7 +31,7 @@ export const outputTargetRenamesRule: MigrationRule = {
       dist: 'loader-bundle',
       'dist-custom-elements': 'standalone',
       'dist-hydrate-script': 'ssr',
-      'dist-collection': 'stencil-rebundle',
+      'dist-collection': 'collection',
       'dist-types': 'types',
     };
 
@@ -70,7 +70,7 @@ export const outputTargetRenamesRule: MigrationRule = {
           if (hasTypeProperty) {
             const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
             const propName = node.name.text;
-            const newType = propName === 'collectionDir' ? 'stencil-rebundle' : 'types';
+            const newType = propName === 'collectionDir' ? 'collection' : 'types';
             matches.push({
               node,
               message: `Property '${propName}' will be extracted to separate '${newType}' output target`,
@@ -153,7 +153,7 @@ export const outputTargetRenamesRule: MigrationRule = {
       dist: 'loader-bundle',
       'dist-custom-elements': 'standalone',
       'dist-hydrate-script': 'ssr',
-      'dist-collection': 'stencil-rebundle',
+      'dist-collection': 'collection',
       'dist-types': 'types',
     };
 
@@ -371,7 +371,7 @@ function addExtractedOutputTargets(
   for (const extracted of toExtract) {
     if (extracted.collectionDir) {
       newTargets.push(
-        `{\n${indent}  type: 'stencil-rebundle',\n${indent}  dir: '${extracted.collectionDir}',\n${indent}}`,
+        `{\n${indent}  type: 'collection',\n${indent}  dir: '${extracted.collectionDir}',\n${indent}}`,
       );
     }
     if (extracted.typesDir) {

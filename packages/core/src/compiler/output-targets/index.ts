@@ -1,5 +1,6 @@
 import type * as d from '@stencil/core';
 
+import { outputCollection } from './collection';
 import { outputCopy } from './copy/output-copy';
 import { outputLazy } from './dist-lazy/lazy-output';
 import { outputAssets } from './output-assets';
@@ -10,7 +11,6 @@ import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
 import { outputStandalone } from './standalone';
-import { outputStencilRebundle } from './stencil-rebundle';
 
 export const generateOutputTargets = async (
   config: d.ValidatedConfig,
@@ -71,8 +71,8 @@ export const generateOutputTargets = async (
     : [];
 
   await Promise.all([
-    // outputStencilRebundle is already a no-op when changedModuleFiles is empty.
-    outputStencilRebundle(config, compilerCtx, buildCtx, changedModuleFiles),
+    // outputCollection is already a no-op when changedModuleFiles is empty.
+    outputCollection(config, compilerCtx, buildCtx, changedModuleFiles),
     ...bundlerTasks,
   ]);
 

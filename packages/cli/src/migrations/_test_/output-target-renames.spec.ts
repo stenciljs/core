@@ -23,7 +23,7 @@ export const config: Config = {
       expect(matches[0].message).toContain("'dist' → 'loader-bundle'");
       expect(matches[1].message).toContain("'dist-custom-elements' → 'standalone'");
       expect(matches[2].message).toContain("'dist-hydrate-script' → 'ssr'");
-      expect(matches[3].message).toContain("'dist-collection' → 'stencil-rebundle'");
+      expect(matches[3].message).toContain("'dist-collection' → 'collection'");
     });
 
     it('should detect collectionDir property', () => {
@@ -43,7 +43,7 @@ export const config: Config = {
       expect(matches.length).toBeGreaterThan(0);
       const collectionMatch = matches.find((m) => m.message.includes('collectionDir'));
       expect(collectionMatch).toBeDefined();
-      expect(collectionMatch?.message).toContain("'stencil-rebundle'");
+      expect(collectionMatch?.message).toContain("'collection'");
     });
 
     it('should detect typesDir property', () => {
@@ -73,7 +73,7 @@ export const config: Config = {
     { type: 'loader-bundle' },
     { type: 'standalone' },
     { type: 'ssr' },
-    { type: 'stencil-rebundle' },
+    { type: 'collection' },
   ],
 };
 `;
@@ -222,7 +222,7 @@ export const config: Config = {
 
       expect(result).toContain("type: 'loader-bundle'");
       expect(result).not.toContain('collectionDir');
-      expect(result).toContain("type: 'stencil-rebundle'");
+      expect(result).toContain("type: 'collection'");
       expect(result).toContain("dir: 'my-collection'");
     });
 
@@ -264,7 +264,7 @@ export const config: Config = {
       expect(result).toContain("type: 'loader-bundle'");
       expect(result).not.toContain('collectionDir');
       expect(result).not.toContain('typesDir');
-      expect(result).toContain("type: 'stencil-rebundle'");
+      expect(result).toContain("type: 'collection'");
       expect(result).toContain("type: 'types'");
     });
 
@@ -316,7 +316,7 @@ export const config: Config = {
       expect(result).toContain("type: 'loader-bundle'");
       expect(result).toContain("type: 'standalone'");
       expect(result).toContain("type: 'ssr'");
-      expect(result).toContain("type: 'stencil-rebundle'");
+      expect(result).toContain("type: 'collection'");
       expect(result).toContain("type: 'types'");
       expect(result).not.toContain('collectionDir');
       expect(result).not.toContain('typesDir');
@@ -408,7 +408,7 @@ export const config: Config = {
 
       expect(result).toContain("type: 'loader-bundle'");
       expect(result).toContain("type: 'standalone'");
-      expect(result).toContain("type: 'stencil-rebundle'");
+      expect(result).toContain("type: 'collection'");
       expect(result).toContain("type: 'types'");
       expect(result).not.toContain('collectionDir');
       expect(result).not.toContain('typesDir');

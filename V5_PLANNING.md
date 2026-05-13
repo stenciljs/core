@@ -46,7 +46,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 ### 7. 📤 Output Target Modernization
 **Status:** ✅ Complete
 - Renamed output targets for clarity (`dist` → `loader-bundle`, `dist-custom-elements` → `standalone`, etc.)
-- Elevated sub-outputs to first-class citizens (`types`, `stencil-rebundle`)
+- Elevated sub-outputs to first-class citizens (`types`, `collection`)
 - See Breaking Changes for full details
 
 ### 8. 📁 Global Styles & Assets Modernization
@@ -73,7 +73,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - `dist` → `loader-bundle` (default dir: `dist/loader-bundle/`)
   - `dist-custom-elements` → `standalone` (default dir: `dist/standalone/`)
   - `dist-hydrate-script` → `ssr` (default dir: `dist/ssr/`)
-  - `dist-collection` (sub-output) → `stencil-rebundle` (first-class output, default dir: `dist/stencil-rebundle/`, auto-generated in prod)
+  - `dist-collection` (sub-output) → `collection` (first-class output, default dir: `dist/collection/`, auto-generated in prod)
   - `dist-types` (sub-output) → `types` (first-class output, default dir: `dist/types/`, auto-generated in prod)
   - `collectionDir` and `typesDir` config options removed from `loader-bundle` config
   - Run `stencil migrate` to automatically update your config
@@ -97,7 +97,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`isPrimaryPackageOutputTarget` removed from output targets.** Package.json validation now auto-detects based on configured outputs.
 - **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.**
 - **Export maps generation uses smart defaults.** Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target.
-- **`collection` field in package.json renamed to `stencilRebundle`.**
+- **`collection` field in package.json renamed to `collection`.**
 - **Output file extensions modernized:**
   - ESM files now use `.js` extension (was `.esm.js`)
   - CJS files now use `.cjs` extension (was `.cjs.js`)

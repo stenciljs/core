@@ -24,17 +24,17 @@ fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.js'));
 fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.cjs'));
 fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.d.ts'));
 
-// stencil-rebundle output (was collection)
-const rebundleDir = path.join(distDir, 'stencil-rebundle');
-fs.accessSync(path.join(rebundleDir, 'car-list', 'car-data.js'));
-fs.accessSync(path.join(rebundleDir, 'car-list', 'car-data.js.map'));
-fs.accessSync(path.join(rebundleDir, 'car-list', 'car-list.css'));
-fs.accessSync(path.join(rebundleDir, 'car-list', 'car-list.js'));
-fs.accessSync(path.join(rebundleDir, 'car-list', 'car-list.js.map'));
-fs.accessSync(path.join(rebundleDir, 'prop-cmp', 'prop-cmp.ios.css'));
-fs.accessSync(path.join(rebundleDir, 'prop-cmp', 'prop-cmp.md.css'));
-fs.accessSync(path.join(rebundleDir, 'global.js'));
-JSON.parse(fs.readFileSync(path.join(rebundleDir, 'collection-manifest.json'), 'utf8'));
+// collection output (was collection)
+const collectionDir = path.join(distDir, 'collection');
+fs.accessSync(path.join(collectionDir, 'car-list', 'car-data.js'));
+fs.accessSync(path.join(collectionDir, 'car-list', 'car-data.js.map'));
+fs.accessSync(path.join(collectionDir, 'car-list', 'car-list.css'));
+fs.accessSync(path.join(collectionDir, 'car-list', 'car-list.js'));
+fs.accessSync(path.join(collectionDir, 'car-list', 'car-list.js.map'));
+fs.accessSync(path.join(collectionDir, 'prop-cmp', 'prop-cmp.ios.css'));
+fs.accessSync(path.join(collectionDir, 'prop-cmp', 'prop-cmp.md.css'));
+fs.accessSync(path.join(collectionDir, 'global.js'));
+JSON.parse(fs.readFileSync(path.join(collectionDir, 'collection-manifest.json'), 'utf8'));
 
 // types output
 const typesDir = path.join(distDir, 'types');
