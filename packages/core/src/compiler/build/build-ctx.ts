@@ -42,6 +42,7 @@ export class BuildContext implements d.BuildCtx {
   ssrAppFilePath: string = null;
   indexBuildCount = 0;
   indexDoc: Document = undefined;
+  htmlDocs: Map<string, Document> = new Map();
   isRebuild = false;
   moduleFiles: d.Module[] = [];
   outputs: d.BuildOutput[] = [];

@@ -255,6 +255,8 @@ export interface BuildCtx {
   ssrAppFilePath: string;
   indexBuildCount: number;
   indexDoc: Document;
+  /** All non-entry HTML files found in srcDir, keyed by path relative to srcDir */
+  htmlDocs: Map<string, Document>;
   isRebuild: boolean;
   /**
    * A collection of Stencil's intermediate representation of components, tied to the current build

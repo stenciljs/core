@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
 import { getDestAbsPath, getSrcAbsPath } from './local-copy-tasks';
 
-const DEFAULT_IGNORE = [
+const DEFAULT_COPY_IGNORE = [
   '**/__mocks__/**',
   '**/__fixtures__/**',
   '**/dist/**',
@@ -99,7 +99,7 @@ const transformToAbs = (copyTask: d.CopyTask, dest: string): Required<d.CopyTask
   return {
     src: copyTask.src,
     dest: getDestAbsPath(copyTask.src, dest, copyTask.dest),
-    ignore: copyTask.ignore || DEFAULT_IGNORE,
+    ignore: [...DEFAULT_COPY_IGNORE, ...(copyTask.ignore ?? [])],
     keepDirStructure:
       typeof copyTask.keepDirStructure === 'boolean'
         ? copyTask.keepDirStructure
