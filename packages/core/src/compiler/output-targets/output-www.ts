@@ -68,7 +68,8 @@ const getCriticalPath = (buildCtx: d.BuildCtx) => {
 
 /**
  * Process a single www output target, generating an `index.html` file and a
- * host config (and writing both to disk)
+ * host configuration record (and writing both to disk). Additional HTML files
+ * found in srcDir are processed through the same optimisation pipeline.
  *
  * @param config the current user-supplied config
  * @param compilerCtx a compiler context
@@ -83,11 +84,46 @@ const generateWww = async (
   criticalPath: string[],
   outputTarget: d.OutputTargetWww,
 ): Promise<void> => {
-  // Copy global styles into the build directory
-  // Process
-  if (buildCtx.indexDoc && outputTarget.indexHtml) {
-    await generateIndexHtml(config, compilerCtx, buildCtx, criticalPath, outputTarget);
+  const skipHtml = compilerCtx.hasSuccessfulBuild && !buildCtx.hasHtmlChanges;
+
+  // Compute hashed global styles filename once (prod only) so it can be
+  // shared across all HTML files without re-hashing on each.
+  let globalStylesFilename: string | undefined;
+  if (!config.watch && !config.devMode) {
+    globalStylesFilename = await generateHashedCopy(
+      config,
+      compilerCtx,
+      join(outputTarget.buildDir, `${config.fsNamespace}.css`),
+      outputTarget.hashedFileNameLength ?? 8,
+    );
   }
+
+  if (!skipHtml) {
+    if (buildCtx.indexDoc && outputTarget.indexHtml) {
+      await generateIndexHtml(
+        config,
+        compilerCtx,
+        buildCtx,
+        criticalPath,
+        outputTarget,
+        globalStylesFilename,
+      );
+    }
+
+    for (const [relPath, doc] of buildCtx.htmlDocs) {
+      const destPath = join(outputTarget.appDir, relPath);
+      await generateHtmlFile(
+        config,
+        compilerCtx,
+        buildCtx,
+        doc,
+        destPath,
+        outputTarget,
+        globalStylesFilename,
+      );
+    }
+  }
+
   await generateHostConfig(compilerCtx, outputTarget);
 };
 
@@ -127,16 +163,54 @@ const generateHostConfig = (compilerCtx: d.CompilerCtx, outputTarget: d.OutputTa
 };
 
 /**
- * Attempt to generate `index.html` content for a www output target and, if all
- * goes well, write it to disk. As part of creating the content several
- * optimizations (mainly inlining content and adding module preloads) are
- * attempted.
- *
- * @param config the current user-supplied Stencil configuration
- * @param compilerCtx the current compiler context
- * @param buildCtx the current build context
- * @param criticalPath a list of bundles for which we should add module preloads
+ * Process a single HTML document through the www optimisation pipeline and
+ * write the result to `destPath`. Used for both `index.html` (via
+ * {@link generateIndexHtml}) and any additional HTML files found in srcDir.
+ * @param config the current user-supplied config
+ * @param compilerCtx a compiler context
+ * @param buildCtx a build context
+ * @param doc the HTML document to process
+ * @param destPath the path to write the processed document to (relative to rootDir)
  * @param outputTarget the www output target of interest
+ * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
+ * @param criticalPath a list of critical bundles to pull in (only applicable for index.html, but passed through for simplicity)
+ */
+const processHtmlDoc = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  doc: Document,
+  destPath: string,
+  outputTarget: d.OutputTargetWww,
+  globalStylesFilename: string | undefined,
+  criticalPath?: string[],
+) => {
+  addScriptDataAttribute(config, doc, outputTarget);
+  await updateIndexHtmlServiceWorker(config, buildCtx, doc, outputTarget);
+
+  if (!config.watch && !config.devMode) {
+    const scriptFound = await optimizeEsmImport(config, compilerCtx, doc, outputTarget);
+    await inlineStyleSheets(compilerCtx, doc, MAX_CSS_INLINE_SIZE, outputTarget);
+    updateGlobalStylesLink(config, doc, globalStylesFilename, outputTarget);
+    if (criticalPath && scriptFound && outputTarget.bundleMode !== 'standalone') {
+      optimizeCriticalPath(doc, criticalPath, outputTarget);
+    }
+  }
+
+  const content = serializeNodeToHtml(doc);
+  await compilerCtx.fs.writeFile(destPath, content, { outputTargetType: outputTarget.type });
+  buildCtx.debug(`generateHtmlFile, write: ${relative(config.rootDir, destPath)}`);
+};
+
+/**
+ * Attempt to generate `index.html` content for a www output target and, if all
+ * goes well, write it to disk.
+ * @param config the current user-supplied config
+ * @param compilerCtx a compiler context
+ * @param buildCtx a build context
+ * @param criticalPath a list of critical bundles to pull in
+ * @param outputTarget the www output target of interest
+ * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
  */
 const generateIndexHtml = async (
   config: d.ValidatedConfig,
@@ -144,48 +218,64 @@ const generateIndexHtml = async (
   buildCtx: d.BuildCtx,
   criticalPath: string[],
   outputTarget: d.OutputTargetWww,
+  globalStylesFilename: string | undefined,
 ) => {
-  if (compilerCtx.hasSuccessfulBuild && !buildCtx.hasHtmlChanges) {
-    // no need to rebuild index.html if there were no app file changes
-    return;
-  }
-
-  // get the source index html content
   try {
     const doc = cloneDocument(buildCtx.indexDoc);
-    addScriptDataAttribute(config, doc, outputTarget);
-
-    // validateHtml(config, buildCtx, doc);
-    await updateIndexHtmlServiceWorker(config, buildCtx, doc, outputTarget);
-    if (!config.watch && !config.devMode) {
-      const globalStylesFilename = await generateHashedCopy(
-        config,
-        compilerCtx,
-        join(outputTarget.buildDir, `${config.fsNamespace}.css`),
-        outputTarget.hashedFileNameLength ?? 8,
-      );
-      const scriptFound = await optimizeEsmImport(config, compilerCtx, doc, outputTarget);
-      await inlineStyleSheets(compilerCtx, doc, MAX_CSS_INLINE_SIZE, outputTarget);
-      updateGlobalStylesLink(config, doc, globalStylesFilename, outputTarget);
-      // Critical path optimization only applies to lazy mode - standalone mode
-      // uses MutationObserver-based on-demand loading, not preloaded chunks
-      if (scriptFound && outputTarget.bundleMode !== 'standalone') {
-        optimizeCriticalPath(doc, criticalPath, outputTarget);
-      }
-    }
-
-    const indexContent = serializeNodeToHtml(doc);
-    await compilerCtx.fs.writeFile(outputTarget.indexHtml, indexContent, {
-      outputTargetType: outputTarget.type,
-    });
+    await processHtmlDoc(
+      config,
+      compilerCtx,
+      buildCtx,
+      doc,
+      outputTarget.indexHtml,
+      outputTarget,
+      globalStylesFilename,
+      criticalPath,
+    );
 
     if (outputTarget.serviceWorker && config.prerender) {
+      const indexContent = serializeNodeToHtml(doc);
       await compilerCtx.fs.writeFile(join(outputTarget.appDir, INDEX_ORG), indexContent, {
         outputTargetType: outputTarget.type,
       });
     }
+  } catch (e: any) {
+    catchError(buildCtx.diagnostics, e);
+  }
+};
 
-    buildCtx.debug(`generateIndexHtml, write: ${relative(config.rootDir, outputTarget.indexHtml)}`);
+/**
+ * Process a non-entry HTML file through the www optimisation pipeline (same as
+ * index.html but without critical-path preload injection, which is
+ * index-specific).
+ * @param config the current user-supplied config
+ * @param compilerCtx a compiler context
+ * @param buildCtx a build context
+ * @param doc the HTML document to process
+ * @param destPath the path to write the processed document to (relative to rootDir)
+ * @param outputTarget the www output target of interest
+ * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
+ */
+const generateHtmlFile = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  doc: Document,
+  destPath: string,
+  outputTarget: d.OutputTargetWww,
+  globalStylesFilename: string | undefined,
+) => {
+  try {
+    const cloned = cloneDocument(doc);
+    await processHtmlDoc(
+      config,
+      compilerCtx,
+      buildCtx,
+      cloned,
+      destPath,
+      outputTarget,
+      globalStylesFilename,
+    );
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);
   }

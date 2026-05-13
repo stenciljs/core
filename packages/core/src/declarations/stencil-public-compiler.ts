@@ -1711,8 +1711,9 @@ export interface CopyTask {
    */
   dest?: string;
   /**
-   * An optional array of glob patterns to exclude from the copy operation.
-   * @default ['**\/__mocks__/**', '**\/__fixtures__/**', '**\/dist/**', '**\/.{idea,git,cache,output,temp}/**', '**\/.ds_store', '**\/.gitignore', '**\/desktop.ini', '**\/thumbs.db']
+   * Additional glob patterns to exclude from the copy operation, merged with
+   * the built-in defaults: `__mocks__`, `__fixtures__`, `dist`, hidden dirs,
+   * `.ds_store`, `.gitignore`, `desktop.ini`, `thumbs.db`.
    */
   ignore?: string[];
   /**
