@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 import { buildError, isGlob, isOutputTargetCopy, join, normalizePath } from '../../../utils';
 import { getDestAbsPath, getSrcAbsPath } from './local-copy-tasks';
 
-export const DEFAULT_COPY_IGNORE = [
+const DEFAULT_COPY_IGNORE = [
   '**/__mocks__/**',
   '**/__fixtures__/**',
   '**/dist/**',
