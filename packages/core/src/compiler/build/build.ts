@@ -6,6 +6,7 @@ import { catchError, isString, join, readPackageJson } from '../../utils';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
 import { generateGlobalStyles } from '../style/global-styles';
+import { ingestConfigCollections } from '../transformers/collection/add-external-import';
 import { resetDeprecatedApiWarning } from '../transformers/decorators-to-static/component-decorator';
 import { runTsProgram, validateTypesAfterGeneration } from '../transpile/run-program';
 import { buildAbort, buildFinish } from './build-finish';
@@ -50,6 +51,9 @@ export const build = async (
 
     await readPackageJson(config, compilerCtx, buildCtx);
     if (buildCtx.hasError) return buildAbort(buildCtx);
+
+    // proactively ingest any collections declared in config.collections
+    ingestConfigCollections(config, compilerCtx, buildCtx);
 
     // run typescript program
     const tsTimeSpan = buildCtx.createTimeSpan('transpile started');
