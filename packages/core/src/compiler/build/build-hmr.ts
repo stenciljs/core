@@ -1,0 +1,348 @@
+import { basename } from 'path';
+import picomatch from 'picomatch';
+import type * as d from '@stencil/core';
+
+import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
+import { getScopeId } from '../style/scope-css';
+
+/**
+ * Track which components had styles in the previous build.
+ * Used to detect when styles are removed from a component.
+ * Maps component tag name to an array of style modes (or ['$'] for no mode).
+ */
+const previousComponentStyles = new Map<string, string[]>();
+
+/**
+ * Generate the Hot Module Replacement (HMR) data for the current build.
+ * @param config a user-supplied config
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @returns the HMR data
+ */
+export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+  if (config.devServer?.reloadStrategy == null) {
+    return null;
+  }
+
+  const hmr: d.HotModuleReplacement = {
+    reloadStrategy: config.devServer.reloadStrategy,
+    versionId: Date.now().toString().substring(6) + '' + Math.round(Math.random() * 89999 + 10000),
+  };
+
+  if (buildCtx.scriptsAdded.length > 0) {
+    hmr.scriptsAdded = buildCtx.scriptsAdded.slice();
+  }
+
+  if (buildCtx.scriptsDeleted.length > 0) {
+    hmr.scriptsDeleted = buildCtx.scriptsDeleted.slice();
+  }
+
+  const excludeHmr = excludeHmrFiles(config, config.devServer.excludeHmr, buildCtx.filesChanged);
+  if (excludeHmr.length > 0) {
+    hmr.excludeHmr = excludeHmr.slice();
+  }
+
+  if (buildCtx.hasHtmlChanges) {
+    hmr.indexHtmlUpdated = true;
+  }
+
+  if (buildCtx.hasServiceWorkerChanges) {
+    hmr.serviceWorkerUpdated = true;
+  }
+
+  const outputTargetsWww = config.outputTargets.filter(isOutputTargetWww);
+
+  const componentsUpdated = getComponentsUpdated(compilerCtx, buildCtx);
+  if (componentsUpdated) {
+    hmr.componentsUpdated = componentsUpdated;
+  }
+
+  // Detect components that had their styles removed
+  const stylesRemoved = getStylesRemoved(buildCtx, componentsUpdated);
+
+  // Combine updated styles with removed styles
+  const allStyleUpdates = [
+    ...buildCtx.stylesUpdated.map((s) => ({
+      styleId: getScopeId(s.styleTag, s.styleMode),
+      styleTag: s.styleTag,
+      styleText: s.styleText,
+    })),
+    ...stylesRemoved,
+  ];
+
+  if (allStyleUpdates.length > 0) {
+    hmr.inlineStylesUpdated = sortBy(allStyleUpdates, (s) => s.styleId);
+  }
+
+  // Update tracking for next build
+  updateComponentStyleTracking(buildCtx);
+
+  const externalStylesUpdated = getExternalStylesUpdated(buildCtx, outputTargetsWww);
+  if (externalStylesUpdated) {
+    hmr.externalStylesUpdated = externalStylesUpdated;
+  }
+
+  const externalImagesUpdated = getImagesUpdated(buildCtx, outputTargetsWww);
+  if (externalImagesUpdated) {
+    hmr.imagesUpdated = externalImagesUpdated;
+  }
+
+  return hmr;
+};
+
+const getComponentsUpdated = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+  // find all of the components that would be affected from the file changes
+  if (!buildCtx.filesChanged) {
+    return null;
+  }
+
+  const filesToLookForImporters = buildCtx.filesChanged.filter((f) => {
+    return f.endsWith('.ts') || f.endsWith('.tsx') || f.endsWith('.js') || f.endsWith('.jsx');
+  });
+
+  if (filesToLookForImporters.length === 0) {
+    return null;
+  }
+
+  const changedScriptFiles: string[] = [];
+  const checkedFiles = new Set<string>();
+  const allModuleFiles = buildCtx.moduleFiles.filter(
+    (m) => m.localImports && m.localImports.length > 0,
+  );
+
+  while (filesToLookForImporters.length > 0) {
+    const scriptFile = filesToLookForImporters.shift();
+    addTsFileImporters(
+      allModuleFiles,
+      filesToLookForImporters,
+      checkedFiles,
+      changedScriptFiles,
+      scriptFile,
+    );
+  }
+
+  const tags = changedScriptFiles.reduce((acc, changedTsFile) => {
+    const moduleFile = compilerCtx.moduleMap.get(changedTsFile);
+    if (moduleFile != null) {
+      moduleFile.cmps.forEach((cmp) => {
+        if (typeof cmp.tagName === 'string') {
+          if (!acc.includes(cmp.tagName)) {
+            acc.push(cmp.tagName);
+          }
+        }
+      });
+    }
+    return acc;
+  }, [] as string[]);
+
+  if (tags.length === 0) {
+    return null;
+  }
+
+  return tags.sort();
+};
+
+/**
+ * Update the tracking of which components had styles in the current build.
+ * @param allModuleFiles all module files in the current build
+ * @param filesToLookForImporters files to look for importers
+ * @param checkedFiles set of checked files
+ * @param changedScriptFiles array of changed script files
+ * @param scriptFile the current script file
+ */
+const addTsFileImporters = (
+  allModuleFiles: d.Module[],
+  filesToLookForImporters: string[],
+  checkedFiles: Set<string>,
+  changedScriptFiles: string[],
+  scriptFile: string,
+) => {
+  if (!changedScriptFiles.includes(scriptFile)) {
+    // add it to our list of files to transpile
+    changedScriptFiles.push(scriptFile);
+  }
+
+  if (checkedFiles.has(scriptFile)) {
+    // already checked this file
+    return;
+  }
+  checkedFiles.add(scriptFile);
+
+  // get all the ts files that import this ts file
+  const tsFilesThatImportsThisTsFile = allModuleFiles.reduce((arr, moduleFile) => {
+    moduleFile.localImports.forEach((localImport) => {
+      let checkFile = localImport;
+
+      if (checkFile === scriptFile) {
+        arr.push(moduleFile.sourceFilePath);
+        return;
+      }
+
+      checkFile = localImport + '.tsx';
+      if (checkFile === scriptFile) {
+        arr.push(moduleFile.sourceFilePath);
+        return;
+      }
+
+      checkFile = localImport + '.ts';
+      if (checkFile === scriptFile) {
+        arr.push(moduleFile.sourceFilePath);
+        return;
+      }
+
+      checkFile = localImport + '.js';
+      if (checkFile === scriptFile) {
+        arr.push(moduleFile.sourceFilePath);
+        return;
+      }
+    });
+    return arr;
+  }, [] as string[]);
+
+  // add all the files that import this ts file to the list of ts files we need to look through
+  tsFilesThatImportsThisTsFile.forEach((tsFileThatImportsThisTsFile) => {
+    // if we add to this array, then the while look will keep working until it's empty
+    filesToLookForImporters.push(tsFileThatImportsThisTsFile);
+  });
+};
+
+const getExternalStylesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTargetWww[]) => {
+  if (!buildCtx.isRebuild || outputTargetsWww.length === 0) {
+    return null;
+  }
+
+  const cssFiles = buildCtx.filesWritten.filter((f) => f.endsWith('.css'));
+  if (cssFiles.length === 0) {
+    return null;
+  }
+
+  return cssFiles.map((cssFile) => basename(cssFile)).sort();
+};
+
+const getImagesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTargetWww[]) => {
+  if (outputTargetsWww.length === 0) {
+    return null;
+  }
+
+  const imageFiles = buildCtx.filesChanged.reduce((arr, filePath) => {
+    if (IMAGE_EXT.some((ext) => filePath.toLowerCase().endsWith(ext))) {
+      const fileName = basename(filePath);
+      if (!arr.includes(fileName)) {
+        arr.push(fileName);
+      }
+    }
+    return arr;
+  }, []);
+
+  if (imageFiles.length === 0) {
+    return null;
+  }
+
+  return imageFiles.sort();
+};
+
+/**
+ * Determine a list of files (if any) which should be excluded from HMR updates.
+ *
+ * @param config a user-supplied config
+ * @param excludeHmr a list of glob patterns that should be used to determine
+ * whether to exclude a file or not (a file will be excluded if it matches one
+ * @param filesChanged an array of files which are changed in the HMR update
+ * currently under consideration
+ * @returns a sorted list of files to exclude
+ */
+const excludeHmrFiles = (
+  config: d.Config,
+  excludeHmr: string[],
+  filesChanged: string[],
+): string[] => {
+  const excludeFiles: string[] = [];
+
+  if (!excludeHmr || excludeHmr.length === 0) {
+    return excludeFiles;
+  }
+
+  excludeHmr.forEach((pattern) => {
+    return filesChanged
+      .map((fileChanged) => {
+        let shouldExclude = false;
+
+        if (isGlob(pattern)) {
+          shouldExclude = picomatch.isMatch(fileChanged, pattern);
+        } else {
+          shouldExclude = normalizePath(pattern) === normalizePath(fileChanged);
+        }
+
+        if (shouldExclude) {
+          config.logger.debug(`excludeHmr: ${fileChanged}`);
+          excludeFiles.push(basename(fileChanged));
+        }
+
+        return shouldExclude;
+      })
+      .some((r) => r);
+  });
+
+  return excludeFiles.sort();
+};
+
+const IMAGE_EXT = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.svg'];
+
+/**
+ * Detect components that had styles removed (had styles before, but not anymore).
+ *
+ * @param buildCtx - the current build context
+ * @param componentsUpdated - list of updated component tag names
+ * @returns array of style updates for removed styles
+ */
+const getStylesRemoved = (
+  buildCtx: d.BuildCtx,
+  componentsUpdated: string[] | null,
+): d.HmrStyleUpdate[] => {
+  if (!componentsUpdated || componentsUpdated.length === 0) {
+    return [];
+  }
+
+  const removedStyles: d.HmrStyleUpdate[] = [];
+
+  for (const tagName of componentsUpdated) {
+    const previousModes = previousComponentStyles.get(tagName);
+    if (!previousModes) {
+      continue;
+    }
+
+    // Check current component styles
+    const cmp = buildCtx.components.find((c) => c.tagName === tagName);
+    const currentModes = cmp?.styles?.map((s) => s.modeName || '$') ?? [];
+
+    // Find modes that were removed
+    for (const mode of previousModes) {
+      if (!currentModes.includes(mode)) {
+        removedStyles.push({
+          styleId: getScopeId(tagName, mode === '$' ? undefined : mode),
+          styleTag: tagName,
+          styleText: '',
+        });
+      }
+    }
+  }
+
+  return removedStyles;
+};
+
+/**
+ * Update the tracking map with current component styles for next build.
+ *
+ * @param buildCtx - the current build context
+ */
+const updateComponentStyleTracking = (buildCtx: d.BuildCtx): void => {
+  // Clear and rebuild to remove stale entries
+  previousComponentStyles.clear();
+
+  for (const cmp of buildCtx.components) {
+    if (cmp.styles && cmp.styles.length > 0) {
+      const modes = cmp.styles.map((s) => s.modeName || '$');
+      previousComponentStyles.set(cmp.tagName, modes);
+    }
+  }
+};

@@ -3,6 +3,18 @@
 !TurboRepo
 !Typescript
 !nodejs
+addclass
+connectedcallback
+griff
+insertbefore
+linaria
+MINIFYJS
+OPTIMIZECSS
+prehydrated
+reparent
+slotchange
+textnode
+utilises
 BUILDID
 Brotli
 Brunelle
@@ -84,6 +96,7 @@ microtasks
 minifier
 myapp
 mycomponent
+mylib
 myprop
 namespace
 nocheck
@@ -139,6 +152,7 @@ vchildren
 vdom
 vermoji
 viewports
+virtuals
 vkey
 vname
 vnode
@@ -155,3 +169,7 @@ jsxmode
 jsxdev
 jsxs
 labelable
+lightningcss
+cooldown
+regen
+reparsing

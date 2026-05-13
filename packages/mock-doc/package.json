@@ -1,0 +1,52 @@
+{
+  "name": "@stencil/mock-doc",
+  "version": "5.0.0-alpha.5",
+  "description": "A minimal mock DOM implementation for SSR and testing",
+  "keywords": [
+    "dom",
+    "happy-dom",
+    "jsdom",
+    "mock",
+    "node",
+    "ssr",
+    "testing",
+    "virtual"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "nwsapi": "^2.2.23",
+    "parse5": "7.2.1"
+  },
+  "devDependencies": {
+    "@stencil/vitest": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

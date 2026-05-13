@@ -1,0 +1,21 @@
+{
+  "name": "@stencil-core-tests/special-config-invisible-prehydration",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "start": "stencil build --serve --watch --dev",
+    "build": "stencil build",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@stencil/core": "workspace:*",
+    "@stencil/playwright": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

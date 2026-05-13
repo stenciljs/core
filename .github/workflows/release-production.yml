@@ -10,7 +10,7 @@ on:
       base:
         required: true
         type: string
-        description: Which base branch should be targeted? (main or v3-maintenance)
+        description: Which base branch should be targeted? (main or v5)
         default: main
 
 permissions:

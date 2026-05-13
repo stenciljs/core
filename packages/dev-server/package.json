@@ -1,0 +1,62 @@
+{
+  "name": "@stencil/dev-server",
+  "version": "5.0.0-alpha.5",
+  "description": "Development server for Stencil with DOM-based HMR",
+  "keywords": [
+    "dev server",
+    "hmr",
+    "hot module replacement",
+    "stencil",
+    "web components"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "files": [
+    "dist/",
+    "templates/",
+    "static/"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.mts",
+      "import": "./dist/client/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "launch-editor": "^2.9.1",
+    "open": "^11.0.0",
+    "ws": "^8.0.0"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "@tsdown/css": "^0.21.6",
+    "@types/ws": "^8.0.0",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-environment-stencil": "catalog:"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0-0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

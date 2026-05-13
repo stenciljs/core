@@ -1,0 +1,29 @@
+{
+  "name": "@stencil-core-tests/build-docs-json",
+  "version": "1.0.0",
+  "description": "A test app for the docs-json output target",
+  "license": "MIT",
+  "files": [
+    "dist/",
+    "dist/collection/"
+  ],
+  "type": "module",
+  "module": "dist/standalone/index.js",
+  "types": "dist/types/index.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "postprocess": "node test-docs-json.js",
+    "build.dev": "stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "pnpm build && npm run postprocess",
+    "test.watch": "stencil test --spec --e2e --watch",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

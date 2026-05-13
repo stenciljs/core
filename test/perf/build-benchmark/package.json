@@ -1,0 +1,13 @@
+{
+  "name": "@stencil-core-tests/perf-build-benchmark",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node benchmark.mjs",
+    "benchmark:verbose": "node benchmark.mjs --verbose"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

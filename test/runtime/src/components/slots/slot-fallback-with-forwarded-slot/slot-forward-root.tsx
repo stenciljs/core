@@ -1,0 +1,24 @@
+import { Component, Host, Prop } from '@stencil/core';
+
+@Component({
+  tag: 'slot-forward-root',
+  encapsulation: { type: 'scoped' },
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
+})
+export class SlotForwardRoot {
+  @Prop() label: string;
+
+  render() {
+    return (
+      <Host>
+        <slot-forward-child-fallback label={this.label}>
+          <slot name='label' />
+        </slot-forward-child-fallback>
+      </Host>
+    );
+  }
+}

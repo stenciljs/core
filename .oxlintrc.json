@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import", "jsdoc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "style": "off",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-cond-assign": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-rest-params": "error",
+    "prefer-spread": "error",
+    "no-async-promise-executor": "off",
+    "no-control-regex": "off",
+    "no-await-in-loop": "off",
+    "no-new": "off",
+    "no-unmodified-loop-condition": "off",
+    "@typescript-eslint/no-extraneous-class": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
+    "import/no-unassigned-import": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^(_.*|h|Fragment|IntrinsicElements)$"
+      }
+    ],
+    "jsdoc/require-param": [
+      "error",
+      {
+        "checkDestructured": false,
+        "checkSetters": true
+      }
+    ],
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-returns-type": "off"
+  },
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "**/dist/**",
+    "**/*.d.ts",
+    "**/*.spec.ts",
+    "**/_test_/**",
+    "packages/core/src/client/polyfills/**",
+    "packages/core/src/declarations/stencil-public-runtime.ts"
+  ]
+}

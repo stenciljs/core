@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreWorkspaces": ["test/**"],
+  "ignoreBinaries": ["playwright", "stencil"],
+  "rules": {
+    "catalog": "off"
+  },
+  "workspaces": {
+    "packages/core": {
+      "entry": [
+        "build/version-utils.ts",
+        "src/runtime/bootstrap-loader.ts",
+        "src/server/runner/ssr-factory.ts",
+        "src/testing/platform/index.ts",
+        "src/testing/app-data.ts",
+        "src/index.d.mts",
+        "src/jsx-runtime.d.mts"
+      ],
+      "ignore": ["src/**/_test_/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"]
+    },
+    "packages/cli": {},
+    "packages/mock-doc": {},
+    "packages/dev-server": {
+      "ignore": ["src/server/worker-thread.js", "src/**/_test_/**"],
+      "ignoreDependencies": ["vitest-environment-stencil"]
+    }
+  }
+}

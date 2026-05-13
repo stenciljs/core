@@ -1,0 +1,272 @@
+/**
+ * This file:
+ * 1) Overrides client specific functions with server specific implementations
+ * 2) Re-export the rest of the runtime API from the client index, so that the server platform can use it as well
+ **/
+
+import { BUILD } from 'virtual:app-data';
+import type * as d from '@stencil/core';
+
+import { CMP_FLAGS } from '../../utils/constants';
+import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
+
+/**
+ * Access transformTag via the closure-scoped $stencilTagTransform object.
+ * This object is defined in the factory closure (SSR_FACTORY_INTRO).
+ * We declare it here to satisfy TypeScript, but at runtime it will be
+ * provided by the factory closure scope.
+ */
+declare const $stencilTagTransform: { transformTag: (tag: string) => string };
+
+let customError: d.ErrorHandler;
+
+export const cmpModules = new Map<string, { [exportName: string]: d.ComponentConstructor }>();
+
+const getModule = (tagName: string): d.ComponentConstructor | null => {
+  if (typeof tagName === 'string') {
+    tagName = tagName.toLowerCase();
+    const cmpModule = cmpModules.get(tagName);
+    if (cmpModule != null) {
+      return cmpModule[tagName];
+    }
+  }
+  return null;
+};
+
+export const loadModule = (
+  cmpMeta: d.ComponentRuntimeMeta,
+  _hostRef: d.HostRef,
+  _hmrVersionId?: string,
+): d.ComponentConstructor | null => {
+  return getModule(cmpMeta.$tagName$);
+};
+
+export const isMemberInElement = (elm: any, memberName: string) => {
+  if (elm != null) {
+    if (memberName in elm) {
+      return true;
+    }
+    const cstr = getModule(elm.nodeName);
+    if (cstr != null) {
+      const hostRef: d.ComponentNativeConstructor = cstr as any;
+      if (hostRef != null && hostRef.cmpMeta != null && hostRef.cmpMeta.$members$ != null) {
+        return memberName in hostRef.cmpMeta.$members$;
+      }
+    }
+  }
+  return false;
+};
+
+export const registerComponents = (Cstrs: d.ComponentNativeConstructor[]) => {
+  for (const Cstr of Cstrs) {
+    // using this format so it follows exactly how client-side modules work
+    const exportName = Cstr.cmpMeta.$tagName$;
+    // Access transformTag from the closure-scoped $stencilTagTransform object
+    // This ensures we use the same instance as the runner (prevents duplication)
+    const transformedTagName = $stencilTagTransform.transformTag(exportName);
+
+    cmpModules.set(exportName, {
+      [exportName]: Cstr,
+    });
+    if (transformedTagName !== exportName) {
+      cmpModules.set(transformedTagName, {
+        [transformedTagName]: Cstr,
+      });
+    }
+  }
+};
+
+export const win = window;
+
+export const readTask = (cb: Function) => {
+  nextTick(() => {
+    try {
+      cb();
+    } catch (e) {
+      consoleError(e);
+    }
+  });
+};
+
+export const writeTask = (cb: Function) => {
+  nextTick(() => {
+    try {
+      cb();
+    } catch (e) {
+      consoleError(e);
+    }
+  });
+};
+
+const resolved = /*@__PURE__*/ Promise.resolve();
+export const nextTick = (cb: () => void) => resolved.then(cb);
+
+const defaultConsoleError = (e: any) => {
+  if (e != null) {
+    console.error(e.stack || e.message || e);
+  }
+};
+
+export const consoleError: d.ErrorHandler = (e: any, el?: any) =>
+  (customError || defaultConsoleError)(e, el);
+
+export const consoleDevError = (..._: any[]) => {
+  /* noop for hydrate */
+};
+
+export const consoleDevWarn = (..._: any[]) => {
+  /* noop for hydrate */
+};
+
+export const consoleDevInfo = (..._: any[]) => {
+  /* noop for hydrate */
+};
+
+export const setErrorHandler = (handler: d.ErrorHandler) => (customError = handler);
+
+export const plt: d.PlatformRuntime = {
+  $flags$: 0,
+  $resourcesUrl$: '',
+  jmp: (h) => h(),
+  raf: (h) => requestAnimationFrame(h),
+  ael: (el, eventName, listener, opts) => el.addEventListener(eventName, listener, opts),
+  rel: (el, eventName, listener, opts) => el.removeEventListener(eventName, listener, opts),
+  ce: (eventName, opts) => new win.CustomEvent(eventName, opts),
+};
+
+export const setPlatformHelpers = (helpers: {
+  jmp?: (c: any) => any;
+  raf?: (c: any) => number;
+  ael?: (el: any, eventName: string, listener: any, options: any) => void;
+  rel?: (el: any, eventName: string, listener: any, options: any) => void;
+  ce?: (eventName: string, opts?: any) => any;
+}) => {
+  Object.assign(plt, helpers);
+};
+
+export const supportsListenerOptions = false;
+
+export const supportsConstructableStylesheets = false;
+export const supportsMutableAdoptedStyleSheets = false;
+
+export const getHostRef = (ref: d.RuntimeRef) => {
+  if (ref.__s_ghr) {
+    return ref.__s_ghr();
+  }
+
+  return undefined;
+};
+
+export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
+  if (!hostRef) return undefined;
+  lazyInstance.__s_ghr = () => hostRef;
+  hostRef.$lazyInstance$ = lazyInstance;
+
+  if (hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.hasModernPropertyDecls && (BUILD.state || BUILD.prop)) {
+    reWireGetterSetter(lazyInstance, hostRef);
+  }
+  return hostRef;
+};
+
+export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta) => {
+  const hostRef: d.HostRef = {
+    $flags$: 0,
+    $cmpMeta$: cmpMeta,
+    $hostElement$: elm,
+    $instanceValues$: new Map(),
+    $serializerValues$: new Map(),
+    $renderCount$: 0,
+  };
+  hostRef.$fetchedCbList$ = [];
+  hostRef.$onInstancePromise$ = new Promise((r) => (hostRef.$onInstanceResolve$ = r));
+  hostRef.$onReadyPromise$ = new Promise((r) => (hostRef.$onReadyResolve$ = r));
+  elm['s-p'] = [];
+  elm['s-rc'] = [];
+  elm.__s_ghr = () => hostRef;
+
+  return hostRef;
+};
+
+export const Build: d.UserBuildConditionals = {
+  isDev: false,
+  isBrowser: false,
+  isServer: true,
+  isTesting: false,
+};
+
+export const styles: d.StyleMap = new Map();
+export const modeResolutionChain: d.ResolutionHandler[] = [];
+
+/**
+ * Server-side implementation of getAssetPath.
+ *
+ * Unlike the client-side version, this doesn't use import.meta.url as a fallback
+ * because it doesn't make sense in the bundled hydrate factory context.
+ * The base URL must come from plt.$resourcesUrl$ (set via hydration options).
+ * @param path - The relative path to the asset
+ * @returns The resolved asset path, which may be an absolute URL if resourcesUrl is set to an external URL, or a relative path if resourcesUrl is a relative path or not set at all
+ */
+export const getAssetPath = (path: string) => {
+  // In the server/hydrate context, resourcesUrl should be set via ssrDocument options
+  // If not set, default to './' which is a reasonable default for server-side rendering
+  const base = plt.$resourcesUrl$ || './';
+  const assetUrl = new URL(path, base);
+  return assetUrl.origin !== win.location.origin ? assetUrl.href : assetUrl.pathname;
+};
+
+/**
+ * Sets the base URL for resolving asset paths in the server/hydrate context.
+ * @param path - The base URL to use for resolving asset paths. This should typically be set to the same value as the `resourcesUrl` option passed to `ssrDocument` to ensure that asset paths are resolved correctly in the server/hydrate context.
+ * If not set, it defaults to './', which is a reasonable default for server-side rendering.
+ * @returns void
+ */
+export const setAssetPath = (path: string) => (plt.$resourcesUrl$ = path);
+
+/**
+ * Checks to see any components are rendered with `scoped`
+ * @param opts - SSR options
+ */
+export const setScopedSsr = (opts: d.SsrFactoryOptions) => {
+  scopedSSR =
+    BUILD.shadowDom &&
+    opts.serializeShadowRoot !== false &&
+    opts.serializeShadowRoot !== 'declarative-shadow-dom';
+};
+export const needsScopedSSR = () => scopedSSR;
+
+let scopedSSR = false;
+
+export { hAsync as h } from './h-async';
+export { ssrApp } from './ssr-app';
+export { BUILD, Env, NAMESPACE } from 'virtual:app-data';
+export {
+  addHostEventListeners,
+  bootstrapLazy,
+  connectedCallback,
+  createEvent,
+  defineCustomElement,
+  disconnectedCallback,
+  forceModeUpdate,
+  forceUpdate,
+  Fragment,
+  getElement,
+  getMode,
+  getRenderingRef,
+  getShadowRoot,
+  getValue,
+  Host,
+  insertVdomAnnotations,
+  jsx,
+  jsxs,
+  Mixin,
+  parsePropertyValue,
+  postUpdateComponent,
+  proxyComponent,
+  proxyCustomElement,
+  renderVdom,
+  setMode,
+  setNonce,
+  setTagTransformer,
+  setValue,
+  transformTag,
+} from '../../runtime';

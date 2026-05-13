@@ -2,76 +2,45 @@ name: Component Starter Smoke Test
 
 on:
   workflow_call:
-    # Make this a reusable workflow, no value needed
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
 permissions:
   contents: read
 
 jobs:
-  analysis_test:
-    name: (${{ matrix.os }}.node-${{ matrix.node }})
+  component_starter:
+    name: Component Starter (${{ matrix.os }}, node ${{ matrix.node }})
     strategy:
       fail-fast: false
       matrix:
-        node: ['20', '22']
+        node: ['22', '24']
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
       - name: Use Node ${{ matrix.node }}
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ matrix.node }}
-          cache: 'npm'
 
-      - name: Create Pack Directory
-        # `mkdir` will fail if this directory already exists.
-        # in the next steps, we'll immediately put the packed build archive in this directory.
-        # between that and excluding `*.tgz` files in `.gitignore`, that _should_ make it safe enough for us to later
-        # use `mv` to rename the `npm pack`ed tarball
-        run: mkdir stencil-pack-destination
-        shell: bash
-
-      - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: stencil-core
-          path: ./stencil-pack-destination
-          filename: stencil-core-build.zip
+          name: stencil-build
+          path: packages/
 
-      - name: Copy package.json
-        # need `package.json` in order to run `npm pack`
-        run: cp package.json ./stencil-pack-destination
+      - name: Pack @stencil/core
+        run: pnpm pack --pack-destination ../../
+        working-directory: ./packages/core
         shell: bash
 
-      - name: Copy bin
-        # `bin/` isn't a part of the compiled output (therefore not in the build archive).
-        # we need this entrypoint for stencil to run.
-        run: cp -R bin ./stencil-pack-destination
-        shell: bash
-
-      - name: Remove node_modules
-        # clear out our local `node_modules/` so that they're not linked to in any way when `npm pack` is run
-        run: rm -rf node_modules/
-        shell: bash
-
-      - name: Pack the Build Archive
-        run: npm pack
-        working-directory: ./stencil-pack-destination
-        shell: bash
-
-      - name: Move the Stencil Build Artifact
-        # there isn't a great way to get the output of `npm pack`, just grab the most recent from our destination
-        # directory and hope for the best.
-        #
-        # we don't set the working-directory here to avoid having to deal with relative paths in the destination arg
-        run: mv $(ls -t stencil-pack-destination/*.tgz | head -1) stencil-eval.tgz
+      - name: Pack @stencil/cli
+        run: pnpm pack --pack-destination ../../
+        working-directory: ./packages/cli
         shell: bash
 
       - name: Initialize Component Starter
@@ -79,17 +48,24 @@ jobs:
         shell: bash
 
       - name: Install Component Starter Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
         working-directory: ./tmp-component-starter
         shell: bash
 
-      - name: Install Stencil Eval
-        run: npm i ../stencil-eval.tgz
+      - name: Install Stencil from Pack
+        run: npm install ../stencil-cli-*.tgz ../stencil-core-*.tgz --legacy-peer-deps
         working-directory: ./tmp-component-starter
         shell: bash
 
       - name: Install Playwright Browsers
-        run: npx playwright install
+        uses: ./.github/workflows/actions/install-playwright
+        with:
+          working-directory: ./tmp-component-starter
+
+      - name: Run Stencil Migrations
+        run: npx stencil migrate
+        working-directory: ./tmp-component-starter
+        shell: bash
 
       - name: Build Starter Project
         run: npm run build
@@ -97,40 +73,6 @@ jobs:
         shell: bash
 
       - name: Test Starter Project
-        run: npm run test -- --no-build # the project was just built, don't build it again
+        run: npm run test -- --no-build
         working-directory: ./tmp-component-starter
         shell: bash
-
-      # TEMPORARILY DISABLE
-      # Disable until we update the generate task in v5 to work with new testing setup.
-
-      # - name: Test npx stencil generate
-      #   # `stencil generate` doesn't have a way to skip file generation, so we provide it with a component name and run
-      #   # `echo` with a newline to select "all files" to generate (and use -e to interpret that backslash for a newline)
-      #   run: echo -e '\n' | npm run generate -- hello-world
-      #   working-directory: ./tmp-component-starter
-      #   shell: bash
-
-      # - name: Verify Files Exist
-      #   run: |
-      #     file_list=(
-      #       src/components/hello-world/hello-world.tsx
-      #       src/components/hello-world/hello-world.css
-      #       src/components/hello-world/test/hello-world.spec.tsx
-      #       src/components/hello-world/test/hello-world.e2e.ts
-      #     )
-      #     for file in "${file_list[@]}"; do
-      #         if [ -f "$file" ]; then
-      #             echo "File '$file' exists."
-      #         else
-      #             echo "File '$file' does not exist."
-      #             exit 1
-      #         fi
-      #     done
-      #   working-directory: ./tmp-component-starter
-      #   shell: bash
-
-      # - name: Test Generated Files
-      #   run: npm run test
-      #   working-directory: ./tmp-component-starter
-      #   shell: bash

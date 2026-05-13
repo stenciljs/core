@@ -1,0 +1,18 @@
+{
+  "name": "@stencil-core-tests/perf-runtime-benchmark",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node benchmark-runtime.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "playwright": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

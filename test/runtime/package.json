@@ -1,0 +1,33 @@
+{
+  "name": "@stencil-core-tests/runtime",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "module": "dist/lazy/index.js",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "build:external": "pnpm --filter @stencil-core-tests/runtime-external build",
+    "test": "pnpm build:external && stencil-test",
+    "test:watch": "stencil-test --watch",
+    "test:dist": "pnpm build:external && stencil-test --project dist",
+    "test:custom-elements": "pnpm build:external && stencil-test --project custom-elements"
+  },
+  "dependencies": {
+    "@stencil-core-tests/runtime-external": "workspace:*",
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@stencil/sass": "^3.0.12",
+    "@stencil/vitest": "catalog:",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "bootstrap": "^5.3.3",
+    "normalize.css": "^8.0.1",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

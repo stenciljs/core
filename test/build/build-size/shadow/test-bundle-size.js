@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-shadow');
+const maxBundleSize = 12 * 1024; // 12KB in bytes (~11KB non-gzipped, ~5KB gzipped)
+
+console.log('\nChecking bundle size (shadow)...');
+
+const files = fs.readdirSync(distDir);
+const indexFile = files.find(
+  (file) => (file.startsWith('index-') || file.startsWith('client-')) && file.endsWith('.js'),
+);
+
+if (!indexFile) {
+  console.error(
+    '❌ ERROR: Could not find index-HASH.js file in dist/loader-bundle/bundlesize-shadow/',
+  );
+  process.exit(1);
+}
+
+const bundlePath = path.join(distDir, indexFile);
+const stats = fs.statSync(bundlePath);
+const bundleSize = stats.size;
+const bundleSizeKB = (bundleSize / 1024).toFixed(2);
+const maxSizeKB = (maxBundleSize / 1024).toFixed(2);
+
+console.log(`Bundle: ${indexFile}`);
+console.log(`Size: ${bundleSize} bytes (${bundleSizeKB} KB)`);
+console.log(`Max allowed: ${maxSizeKB} KB`);
+
+if (bundleSizeKB >= maxSizeKB) {
+  console.error(`\n❌ FAIL: Bundle size ${bundleSizeKB} KB exceeds maximum ${maxSizeKB} KB`);
+  console.error('This indicates a regression - the runtime bundle has gotten larger.');
+  process.exit(1);
+}
+
+if (maxSizeKB - bundleSizeKB > 1) {
+  console.log(
+    `\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`,
+  );
+} else {
+  console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB`);
+}
+process.exit(0);
