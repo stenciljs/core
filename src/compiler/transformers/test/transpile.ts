@@ -1,5 +1,5 @@
 import type * as d from '@stencil/core/declarations';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
 import ts from 'typescript';
 
 import { performAutomaticKeyInsertion } from '../automatic-key-insertion';
@@ -203,6 +203,162 @@ export function transpileModule(
  * @returns that string with any stretches of whitespace shrunk down to one space
  */
 const prettifyTSOutput = (tsOutput: string): string => tsOutput.replace(/\s+/gm, ' ');
+
+/**
+ * Multi-file variant of {@link transpileModule}. Accepts a map of `{ fileName → source }` pairs
+ * so tests can exercise cross-file scenarios (e.g. importing a mixin factory through a barrel
+ * index file).
+ *
+ * The first entry in `files` is treated as the main component file. Auxiliary files are
+ * registered in `compilerCtx.moduleMap` before the main file is transpiled so that
+ * `buildExtendsTree` can resolve them when walking import statements.
+ *
+ * @param files ordered record of { fileName: fileContent } — first entry is the main input
+ * @param config optional Stencil config overrides
+ * @param tsConfig optional TypeScript compiler option overrides
+ * @returns the same shape as {@link transpileModule}
+ */
+export function transpileModules(
+  files: Record<string, string>,
+  config?: Partial<d.ValidatedConfig> | null,
+  tsConfig: ts.CompilerOptions = {},
+) {
+  const options: ts.CompilerOptions = {
+    ...ts.getDefaultCompilerOptions(),
+    allowNonTsExtensions: true,
+    composite: undefined,
+    declaration: undefined,
+    declarationDir: undefined,
+    experimentalDecorators: true,
+    jsx: ts.JsxEmit.React,
+    jsxFactory: 'h',
+    jsxFragmentFactory: 'Fragment',
+    lib: undefined,
+    module: ts.ModuleKind.ESNext,
+    noEmit: undefined,
+    noEmitHelpers: true,
+    noEmitOnError: undefined,
+    noLib: true,
+    out: undefined,
+    outFile: undefined,
+    paths: undefined,
+    removeComments: false,
+    rootDirs: undefined,
+    suppressOutputPathCheck: true,
+    target: getScriptTarget(),
+    types: undefined,
+    ...tsConfig,
+  };
+
+  const initConfig = mockValidatedConfig();
+  const mergedConfig: d.ValidatedConfig = { ...initConfig, ...config };
+  const compilerCtx: d.CompilerCtx = mockCompilerCtx(mergedConfig);
+
+  // Build TS source files for every entry
+  const sourceFiles = new Map<string, ts.SourceFile>(
+    Object.entries(files).map(([fileName, src]) => [fileName, ts.createSourceFile(fileName, src, options.target)]),
+  );
+
+  // Pre-populate moduleMap with auxiliary files so buildExtendsTree can resolve them
+  const [mainFileName] = Object.keys(files);
+  for (const [fileName, sourceFile] of sourceFiles) {
+    if (fileName === mainFileName) continue;
+    const mod = mockModule({ sourceFilePath: fileName, staticSourceFile: sourceFile });
+    compilerCtx.moduleMap.set(fileName, mod);
+  }
+
+  const mainSourceFile = sourceFiles.get(mainFileName)!;
+
+  let outputText: string;
+  let declarationOutputText: string;
+
+  const buildCtx = mockBuildCtx(mergedConfig, compilerCtx);
+
+  const emitCallback: ts.WriteFileCallback = (emitFilePath, data, _w, _e, tsSourceFiles) => {
+    if (emitFilePath.endsWith('.js')) {
+      outputText = prettifyTSOutput(data);
+      updateModule(mergedConfig, compilerCtx, buildCtx, tsSourceFiles[0], data, emitFilePath, tsTypeChecker, null);
+    }
+    if (emitFilePath.endsWith('.d.ts')) {
+      declarationOutputText = prettifyTSOutput(data);
+    }
+  };
+
+  const compilerHost: ts.CompilerHost = {
+    getSourceFile: (fileName) => sourceFiles.get(fileName),
+    writeFile: emitCallback,
+    getDefaultLibFileName: () => 'lib.d.ts',
+    useCaseSensitiveFileNames: () => false,
+    getCanonicalFileName: (fileName) => fileName,
+    getCurrentDirectory: () => '',
+    getNewLine: () => '',
+    fileExists: (fileName) => sourceFiles.has(fileName),
+    readFile: () => '',
+    directoryExists: () => true,
+    getDirectories: () => [],
+  };
+
+  const tsProgram = ts.createProgram([mainFileName], options, compilerHost);
+  const tsTypeChecker = tsProgram.getTypeChecker();
+
+  const transformOpts: d.TransformOptions = {
+    coreImportPath: '@stencil/core',
+    componentExport: 'lazy',
+    componentMetadata: null,
+    currentDirectory: '/',
+    proxy: null,
+    style: 'static',
+    styleImportData: 'queryparams',
+  };
+
+  tsProgram.emit(mainSourceFile, undefined, undefined, undefined, {
+    before: [
+      convertDecoratorsToStatic(mergedConfig, buildCtx.diagnostics, tsTypeChecker, tsProgram),
+      performAutomaticKeyInsertion,
+    ],
+    after: [
+      (context) => {
+        let newSource: ts.SourceFile;
+        const visitNode = (node: ts.Node): ts.Node => {
+          node.getSourceFile = () => newSource;
+          return ts.visitEachChild(node, visitNode, context);
+        };
+        return (sf: ts.SourceFile): ts.SourceFile => {
+          newSource = sf;
+          return visitNode(sf) as ts.SourceFile;
+        };
+      },
+      convertStaticToMeta(mergedConfig, compilerCtx, buildCtx, tsTypeChecker, null, transformOpts),
+    ],
+  });
+
+  const moduleFile: d.Module = compilerCtx.moduleMap.get(mainFileName);
+  const cmps = moduleFile ? moduleFile.cmps : null;
+  const cmp = Array.isArray(cmps) && cmps.length > 0 ? cmps[0] : null;
+  const properties = cmp ? cmp.properties : null;
+  const states = cmp ? cmp.states : null;
+  const methods = cmp ? cmp.methods : null;
+  const isExtended = moduleFile ? moduleFile.isExtended : false;
+
+  if (buildCtx.hasError || buildCtx.hasWarning) {
+    throw new Error(buildCtx.diagnostics[0].messageText as string);
+  }
+
+  return {
+    buildCtx,
+    cmp,
+    cmps,
+    compilerCtx,
+    declarationOutputText,
+    diagnostics: buildCtx.diagnostics,
+    isExtended,
+    methods,
+    moduleFile,
+    outputText,
+    properties,
+    states,
+  };
+}
 
 /**
  * Helper function for tests that converts stringified JavaScript to a runtime value.
