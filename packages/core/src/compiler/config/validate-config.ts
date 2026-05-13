@@ -191,6 +191,10 @@ export const validateConfig = (
     validatedConfig.excludeComponents = [];
   }
 
+  if (!Array.isArray(validatedConfig.collections)) {
+    validatedConfig.collections = [];
+  }
+
   // validate how many workers we can use
   validateWorkers(validatedConfig);
 

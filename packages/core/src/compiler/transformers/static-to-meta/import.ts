@@ -39,6 +39,7 @@ export const parseModuleImport = (
         moduleFile.sourceFilePath,
         importPath,
         resolveCollections,
+        !importNode.importClause,
       );
     }
   }

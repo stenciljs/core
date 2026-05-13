@@ -5,6 +5,9 @@ export const config: Config = {
   namespace: 'TestApp',
   tsconfig: 'tsconfig.stencil.json',
   excludeComponents: ['excluded-component', 'exclude-*'],
+  collections: ['@stencil-core-tests/runtime-external'],
+  globalScript: 'src/global.ts',
+  globalStyle: 'src/global.css',
   outputTargets: [
     {
       type: 'loader-bundle',
@@ -25,8 +28,6 @@ export const config: Config = {
       silenceDeprecations: ['import'],
     }),
   ],
-  globalScript: 'src/global.ts',
-  globalStyle: 'src/global.css',
   extras: {
     lifecycleDOMEvents: true,
     additionalTagTransformers: true,

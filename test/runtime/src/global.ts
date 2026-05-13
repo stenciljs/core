@@ -1,10 +1,6 @@
 import { setMode } from '@stencil/core';
 
 import { setupApp } from './index';
-// this imports the build from the `../fixtures/external-base-classes` project.
-// The ability to use a Stencil component defined in a 'external' project is tested in the
-// `stencil-sibling` test suite
-import '@stencil-core-tests/runtime-external';
 
 declare global {
   interface Window {

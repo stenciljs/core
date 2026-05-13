@@ -306,6 +306,25 @@ export interface StencilConfig {
    * Set whether unused dependencies should be excluded from the built output.
    */
   excludeUnusedDependencies?: boolean;
+
+  /**
+   * Explicitly declare which npm packages are Stencil collections to be re-bundled into this project.
+   *
+   * Without this option, collection ingestion is triggered only by a side-effect import:
+   * ```ts
+   * import '@ionic/core';
+   * ```
+   * @example
+   * ```ts
+   * export const config: Config = {
+   *   collections: ['@ionic/core', '@my-org/design-system'],
+   * };
+   * ```
+   *
+   * @default []
+   */
+  collections?: string[];
+
   stencilCoreResolvedId?: string;
 }
 
