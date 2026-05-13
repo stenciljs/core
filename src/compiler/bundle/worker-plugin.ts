@@ -19,7 +19,10 @@ export const workerPlugin = (
       name: 'workerPlugin',
       transform(_, id) {
         if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
-          return getMockedWorkerMain();
+          return {
+            code: getMockedWorkerMain(),
+            map: { mappings: '' },
+          };
         }
         return null;
       },
@@ -77,6 +80,7 @@ export const workerPlugin = (
         dependencies.forEach((id) => this.addWatchFile(id));
         return {
           code: getWorkerMain(referenceId, workerName, workerMsgId),
+          map: { mappings: '' },
           moduleSideEffects: false,
         };
       } else if (id.endsWith('?worker-inline')) {
@@ -98,6 +102,7 @@ export const workerPlugin = (
         dependencies.forEach((id) => this.addWatchFile(id));
         return {
           code: getInlineWorker(referenceId, workerName, workerMsgId),
+          map: { mappings: '' },
           moduleSideEffects: false,
         };
       }
@@ -110,11 +115,13 @@ export const workerPlugin = (
           if (inlineWorkers) {
             return {
               code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
+              map: { mappings: '' },
               moduleSideEffects: false,
             };
           } else {
             return {
               code: getWorkerProxy(workerEntryPath, worker.exports),
+              map: { mappings: '' },
               moduleSideEffects: false,
             };
           }
