@@ -8,7 +8,7 @@ import {
   isGlob,
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
-  isOutputTargetStencilRebundle,
+  isOutputTargetCollection,
   isOutputTargetTypes,
   isString,
   join,
@@ -142,11 +142,11 @@ export const validateBuildPackageJson = async (
   // Validate core package.json fields based on configured output targets
   validatePackageJson(config, compilerCtx, buildCtx);
 
-  // Validate stencil-rebundle specific fields
-  const stencilRebundleOutputTargets = config.outputTargets.filter(isOutputTargetStencilRebundle);
+  // Validate collection specific fields
+  const stencilCollectionOutputTargets = config.outputTargets.filter(isOutputTargetCollection);
   await Promise.all(
-    stencilRebundleOutputTargets.map((stencilRebundleOT) =>
-      validateStencilRebundleFields(config, compilerCtx, buildCtx, stencilRebundleOT),
+    stencilCollectionOutputTargets.map((stencilCollectionOT) =>
+      validateCollectionFields(config, compilerCtx, buildCtx, stencilCollectionOT),
     ),
   );
 };
@@ -423,48 +423,48 @@ const validateTypeField = (
 };
 
 // ============================================================================
-// Stencil-rebundle specific validation
+// Stencil collection specific validation
 // ============================================================================
 
 /**
- * Validate package.json contents specific to the `stencil-rebundle` output target,
- * checking that the `files` array and `stencilRebundle` field are set correctly.
+ * Validate package.json contents specific to the `collection` output target,
+ * checking that the `files` array and `collection` field are set correctly.
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build
- * @param outputTarget the stencil-rebundle output target to validate against
+ * @param outputTarget the collection output target to validate against
  */
-const validateStencilRebundleFields = async (
+const validateCollectionFields = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetStencilRebundle,
+  outputTarget: d.OutputTargetCollection,
 ) => {
   await Promise.all([
     validatePackageFiles(config, compilerCtx, buildCtx, outputTarget),
-    validateStencilRebundleField(config, compilerCtx, buildCtx, outputTarget),
+    validateCollectionField(config, compilerCtx, buildCtx, outputTarget),
   ]);
 };
 
 /**
  * Validate that the `files` field in `package.json` contains directories and
- * files that are necessary for the `stencil-rebundle` output target.
+ * files that are necessary for the `collection` output target.
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build
- * @param outputTarget the stencil-rebundle output target to validate against
+ * @param outputTarget the collection output target to validate against
  */
 const validatePackageFiles = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetStencilRebundle,
+  outputTarget: d.OutputTargetCollection,
 ) => {
   if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
     const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
     // Check if the files array contains the distribution directory directly,
-    // or a parent directory that would include it (e.g., "dist/" covers "dist/stencil-rebundle/")
+    // or a parent directory that would include it (e.g., "dist/" covers "dist/collection/")
     const containsDistDir = buildCtx.packageJson.files.some((userPath) => {
       // Normalize both paths: remove trailing slashes and leading ./
       const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
@@ -475,7 +475,7 @@ const validatePackageFiles = async (
         return true;
       }
 
-      // Parent directory match (e.g., "dist" covers "dist/stencil-rebundle")
+      // Parent directory match (e.g., "dist" covers "dist/collection")
       const userPathWithSlash = normalizedUserPath + '/';
       if (normalizedDistDir.startsWith(userPathWithSlash)) {
         return true;
@@ -508,30 +508,30 @@ const validatePackageFiles = async (
 };
 
 /**
- * Check that the `stencilRebundle` field is set correctly in `package.json` for the
- * `stencil-rebundle` output target.
+ * Check that the `collection` field is set correctly in `package.json` for the
+ * `collection` output target.
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build
  * @param outputTarget the output target to validate against
  */
-const validateStencilRebundleField = (
+const validateCollectionField = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetStencilRebundle,
+  outputTarget: d.OutputTargetCollection,
 ) => {
   if (outputTarget.dir) {
-    const rebundleRel = normalizePath(
+    const collectionRel = normalizePath(
       join(relative(config.rootDir, outputTarget.dir), COLLECTION_MANIFEST_FILE_NAME),
       false,
     );
     if (
-      !buildCtx.packageJson.stencilRebundle ||
-      normalizePath(buildCtx.packageJson.stencilRebundle, false) !== rebundleRel
+      !buildCtx.packageJson.collection ||
+      normalizePath(buildCtx.packageJson.collection, false) !== collectionRel
     ) {
-      const msg = `package.json "stencilRebundle" property should be set to ${rebundleRel} when generating a distribution bundle.`;
-      packageJsonWarn(config, compilerCtx, buildCtx, msg, `"stencilRebundle"`);
+      const msg = `package.json "collection" property should be set to ${collectionRel} when generating a distribution bundle.`;
+      packageJsonWarn(config, compilerCtx, buildCtx, msg, `"collection"`);
     }
   }
 };

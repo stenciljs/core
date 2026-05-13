@@ -1,9 +1,12 @@
 import type * as d from '@stencil/core';
 
 import { join, normalizePath } from '../../../utils';
-import { parseRebundleComponents, transpileRebundleModule } from './parse-rebundle-components';
+import {
+  parseCollectionComponents,
+  transpileCollectionModule,
+} from './parse-collection-components';
 
-export const parseRebundleManifest = (
+export const parseCollectionManifest = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -20,7 +23,7 @@ export const parseRebundleManifest = (
     moduleId: collectionName,
     moduleDir: collectionDir,
     moduleFiles: [],
-    dependencies: parseRebundleDependencies(collectionManifest),
+    dependencies: parseCollectionDependencies(collectionManifest),
     compiler: {
       name: compilerVersion.name || '',
       version: compilerVersion.version || '',
@@ -30,7 +33,7 @@ export const parseRebundleManifest = (
   };
 
   parseGlobal(config, compilerCtx, buildCtx, collectionDir, collectionManifest, collection);
-  parseRebundleComponents(
+  parseCollectionComponents(
     config,
     compilerCtx,
     buildCtx,
@@ -42,7 +45,7 @@ export const parseRebundleManifest = (
   return collection;
 };
 
-const parseRebundleDependencies = (collectionManifest: d.CollectionManifest) => {
+const parseCollectionDependencies = (collectionManifest: d.CollectionManifest) => {
   return (collectionManifest.collections || []).map((c) => c.name);
 };
 
@@ -59,7 +62,7 @@ const parseGlobal = (
   }
 
   const sourceFilePath = normalizePath(join(collectionDir, collectionManifest.global));
-  const globalModule = transpileRebundleModule(
+  const globalModule = transpileCollectionModule(
     config,
     compilerCtx,
     buildCtx,

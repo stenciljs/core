@@ -35,7 +35,7 @@ export const validateWww = (
   userOutputs: d.OutputTarget[],
 ) => {
   // Only count 'real' user-configured output targets — exclude auto-generated
-  // outputs (types, stencil-rebundle, global-style, assets) that autoGenerateOutputs()
+  // outputs (types, collection, global-style, assets) that autoGenerateOutputs()
   // may have injected into userOutputs before this function was called, so a bare config
   // (no explicit output targets) still gets the default www output added.
   const AUTO_GENERATED_TYPES = [TYPES, STENCIL_REBUNDLE, GLOBAL_STYLE, ASSETS] as const;

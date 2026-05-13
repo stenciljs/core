@@ -96,7 +96,7 @@ describe('validateTypesOutputTarget', () => {
   describe('explicit configuration', () => {
     it('auto-generates types in production mode when www is auto-added as default', () => {
       // When no output targets are specified, www is auto-added as the default output target.
-      // In production mode, types and stencil-rebundle are auto-generated alongside www.
+      // In production mode, types and collection are auto-generated alongside www.
       config.outputTargets = [];
       (config as d.UnvalidatedConfig).devMode = false;
 

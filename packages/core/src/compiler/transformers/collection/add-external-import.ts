@@ -3,7 +3,7 @@ import type * as d from '@stencil/core';
 
 import { isString, normalizePath, parsePackageJson } from '../../../utils';
 import { tsResolveModuleNamePackageJsonPath } from '../../sys/typescript/typescript-resolve-module';
-import { parseRebundle } from './parse-rebundle-module';
+import { parseCollection } from './parse-collection-module';
 
 export const addExternalImport = (
   config: d.ValidatedConfig,
@@ -62,9 +62,8 @@ export const addExternalImport = (
     return;
   }
 
-  // Check for stencilRebundle (v5) or collection (v4) field
-  const collectionManifestPath =
-    parsedPkgJson.data.stencilRebundle ?? parsedPkgJson.data.collection;
+  // Check for collection (v5) or collection (v4) field
+  const collectionManifestPath = parsedPkgJson.data.collection ?? parsedPkgJson.data.collection;
   if (!isString(collectionManifestPath) || !collectionManifestPath.endsWith('.json')) {
     // this import is not a stencil collection
     return;
@@ -78,7 +77,7 @@ export const addExternalImport = (
   // this import is a stencil collection
   // let's parse it and gather all the module data about it
   // internally it'll cached collection data if we've already done this
-  const collection = parseRebundle(
+  const collection = parseCollection(
     config,
     compilerCtx,
     buildCtx,

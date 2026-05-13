@@ -421,7 +421,7 @@ describe('validate-output-standalone', () => {
       expect(config.outputTargets.some((o) => o.type === STANDALONE)).toBe(true);
     });
 
-    it('auto-generates stencil-rebundle alongside standalone in production mode', () => {
+    it('auto-generates collection alongside standalone in production mode', () => {
       prodConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(prodConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(true);
@@ -433,7 +433,7 @@ describe('validate-output-standalone', () => {
       expect(config.outputTargets.filter((o) => o.type === TYPES)).toHaveLength(1);
     });
 
-    it('does not auto-generate types or stencil-rebundle in dev mode', () => {
+    it('does not auto-generate types or collection in dev mode', () => {
       const devConfig = mockConfig({ devMode: true });
       devConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(devConfig, mockLoadConfigInit());

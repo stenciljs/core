@@ -29,7 +29,7 @@ import { validateCopy } from '../validate-copy';
  * This function will also add internal output targets (lazy, global-styles, copy)
  * to support the loader-bundle implementation.
  *
- * Note: In v5, `types` and `stencil-rebundle` outputs are auto-generated separately in production builds.
+ * Note: In v5, `types` and `collection` outputs are auto-generated separately in production builds.
  * The `./loader` export in package.json points directly to the esm/loader.js file.
  *
  * @param config the compiler config

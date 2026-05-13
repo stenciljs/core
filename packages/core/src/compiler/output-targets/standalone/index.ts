@@ -27,7 +27,7 @@ import { addTagTransform } from '../../transformers/add-tag-transform';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
 import { nativeComponentTransform } from '../../transformers/component-native/tranform-to-native-component';
-import { removeRebundleImports } from '../../transformers/remove-rebundle-imports';
+import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import { generateLoaderModule } from './generate-loader-module';
@@ -418,7 +418,7 @@ const getCustomBeforeTransformers = (
   customBeforeTransformers.push(
     nativeComponentTransform(compilerCtx, transformOpts, buildCtx),
     proxyCustomElement(compilerCtx, transformOpts),
-    removeRebundleImports(compilerCtx),
+    removeCollectionImports(compilerCtx),
   );
   return customBeforeTransformers;
 };

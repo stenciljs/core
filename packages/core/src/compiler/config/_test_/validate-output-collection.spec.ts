@@ -2,21 +2,21 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetStencilRebundle, join, resolve, STENCIL_REBUNDLE } from '../../../utils';
+import { isOutputTargetCollection, join, resolve, STENCIL_REBUNDLE } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
-describe('validateStencilRebundleOutputTarget', () => {
+describe('validateCollectionOutputTarget', () => {
   let config: d.Config;
 
   const rootDir = resolve('/');
-  const defaultDir = join(rootDir, 'dist', 'stencil-rebundle');
+  const defaultDir = join(rootDir, 'dist', 'collection');
 
   beforeEach(() => {
     config = mockConfig();
   });
 
   it('sets correct default values', () => {
-    const target: d.OutputTargetStencilRebundle = {
+    const target: d.OutputTargetCollection = {
       type: STENCIL_REBUNDLE,
       empty: false,
       dir: null,
@@ -25,8 +25,8 @@ describe('validateStencilRebundleOutputTarget', () => {
 
     const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-    const stencilRebundle = validatedConfig.outputTargets.find(isOutputTargetStencilRebundle);
-    expect(stencilRebundle).toEqual({
+    const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
+    expect(collection).toEqual({
       type: STENCIL_REBUNDLE,
       empty: false,
       dir: defaultDir,
@@ -36,7 +36,7 @@ describe('validateStencilRebundleOutputTarget', () => {
   });
 
   it('sets specified directory', () => {
-    const target: d.OutputTargetStencilRebundle = {
+    const target: d.OutputTargetCollection = {
       type: STENCIL_REBUNDLE,
       empty: false,
       dir: '/my-dist',
@@ -45,8 +45,8 @@ describe('validateStencilRebundleOutputTarget', () => {
 
     const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-    const stencilRebundle = validatedConfig.outputTargets.find(isOutputTargetStencilRebundle);
-    expect(stencilRebundle).toEqual({
+    const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
+    expect(collection).toEqual({
       type: STENCIL_REBUNDLE,
       empty: false,
       skipInDev: true,
@@ -59,7 +59,7 @@ describe('validateStencilRebundleOutputTarget', () => {
     it.each([false, true])(
       "sets option '%s' when explicitly '%s' in config",
       (transformAliasedImportPaths: boolean) => {
-        const target: d.OutputTargetStencilRebundle = {
+        const target: d.OutputTargetCollection = {
           type: STENCIL_REBUNDLE,
           empty: false,
           dir: null,
@@ -69,8 +69,8 @@ describe('validateStencilRebundleOutputTarget', () => {
 
         const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
-        const stencilRebundle = validatedConfig.outputTargets.find(isOutputTargetStencilRebundle);
-        expect(stencilRebundle).toEqual({
+        const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
+        expect(collection).toEqual({
           type: STENCIL_REBUNDLE,
           empty: false,
           dir: defaultDir,

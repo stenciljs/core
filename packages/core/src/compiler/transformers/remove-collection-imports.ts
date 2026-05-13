@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-export const removeRebundleImports = (
+export const removeCollectionImports = (
   compilerCtx: d.CompilerCtx,
 ): ts.TransformerFactory<ts.SourceFile> => {
   /*

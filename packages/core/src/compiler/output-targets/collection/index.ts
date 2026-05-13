@@ -6,7 +6,7 @@ import {
   COLLECTION_MANIFEST_FILE_NAME,
   flatOne,
   generatePreamble,
-  isOutputTargetStencilRebundle,
+  isOutputTargetCollection,
   join,
   normalizePath,
   relative,
@@ -16,13 +16,13 @@ import { version, versions } from '../../../version';
 import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-aliases';
 
 /**
- * Main output target function for `stencil-rebundle`.
+ * Main output target function for `collection`.
  *
  * This function takes the compiled output from a {@link ts.Program}, runs each file through
  * a transformer to transpile import path aliases, and then writes the output code and source
- * maps to disk in the specified stencil-rebundle directory.
+ * maps to disk in the specified collection directory.
  *
- * The stencil-rebundle output contains component source code, metadata, and configuration
+ * The collection output contains component source code, metadata, and configuration
  * for downstream Stencil projects to re-compile and bundle.
  *
  * @param config The validated Stencil config.
@@ -31,18 +31,18 @@ import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-
  * @param changedModuleFiles The changed modules returned from the TS compiler.
  * @returns An empty promise. Resolved once all functions finish.
  */
-export const outputStencilRebundle = async (
+export const outputCollection = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   changedModuleFiles: d.Module[],
 ): Promise<void> => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetStencilRebundle);
+  const outputTargets = config.outputTargets.filter(isOutputTargetCollection);
   if (outputTargets.length === 0) {
     return;
   }
 
-  const bundlingEventMessage = `generate stencil-rebundle${config.sourceMap ? ' + source maps' : ''}`;
+  const bundlingEventMessage = `generate collection${config.sourceMap ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`, true);
   try {
     await Promise.all(
@@ -87,7 +87,7 @@ export const outputStencilRebundle = async (
       }),
     );
 
-    await writeStencilRebundleManifests(config, compilerCtx, buildCtx, outputTargets);
+    await writeCollectionManifests(config, compilerCtx, buildCtx, outputTargets);
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);
   }
@@ -95,11 +95,11 @@ export const outputStencilRebundle = async (
   timespan.finish(`${bundlingEventMessage} finished`);
 };
 
-const writeStencilRebundleManifests = async (
+const writeCollectionManifests = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTargets: d.OutputTargetStencilRebundle[],
+  outputTargets: d.OutputTargetCollection[],
 ) => {
   const collectionData = JSON.stringify(
     serializeCollectionManifest(config, compilerCtx, buildCtx),
@@ -107,7 +107,7 @@ const writeStencilRebundleManifests = async (
     2,
   );
   return Promise.all(
-    outputTargets.map((o) => writeStencilRebundleManifest(compilerCtx, collectionData, o)),
+    outputTargets.map((o) => writeCollectionManifest(compilerCtx, collectionData, o)),
   );
 };
 
@@ -116,12 +116,12 @@ const writeStencilRebundleManifests = async (
 // but the external user data will always use the same API.
 // These mapping functions loosely couple core component metadata
 // between specific versions of the compiler.
-const writeStencilRebundleManifest = async (
+const writeCollectionManifest = async (
   compilerCtx: d.CompilerCtx,
   collectionData: string,
-  outputTarget: d.OutputTargetStencilRebundle,
+  outputTarget: d.OutputTargetCollection,
 ) => {
-  // Get the absolute path to the directory where the stencil-rebundle output will be saved
+  // Get the absolute path to the directory where the collection output will be saved
   const { dir } = outputTarget;
 
   // Create an absolute file path to the actual collection manifest json file

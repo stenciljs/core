@@ -1954,14 +1954,14 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
  * @example
  * ```typescript
  * {
- *   type: 'stencil-rebundle',
- *   dir: 'dist/stencil-rebundle',
+ *   type: 'collection',
+ *   dir: 'dist/collection',
  *   transformAliasedImportPaths: true
  * }
  * ```
  */
-export interface OutputTargetStencilRebundle extends OutputTargetBaseNext {
-  type: 'stencil-rebundle';
+export interface OutputTargetCollection extends OutputTargetBaseNext {
+  type: 'collection';
   empty?: boolean;
 
   /**
@@ -2402,7 +2402,7 @@ export interface OutputTargetBase {
   skipInDev?: boolean;
 }
 
-export type OutputTargetBuild = OutputTargetStencilRebundle | OutputTargetDistLazy;
+export type OutputTargetBuild = OutputTargetCollection | OutputTargetDistLazy;
 
 export interface OutputTargetCopy extends OutputTargetBase {
   type: 'copy';
@@ -2524,7 +2524,7 @@ export type OutputTarget =
   | OutputTargetLoaderBundle
   | OutputTargetStandalone
   | OutputTargetSsr
-  | OutputTargetStencilRebundle
+  | OutputTargetCollection
   | OutputTargetTypes
   | OutputTargetGlobalStyle
   | OutputTargetAssets

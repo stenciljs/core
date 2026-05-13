@@ -52,7 +52,7 @@ Stencil is able to generate components into various formats so they can be best 
     - index.cjs
     - loader.cjs
 
-  - stencil-rebundle/ (metadata when this is lazy-loaded dependency)
+  - collection/ (metadata when this is lazy-loaded dependency)
     - my-cmp/
       - my-cmp.js (esm)
       - my-cmp.css

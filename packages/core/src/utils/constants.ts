@@ -210,13 +210,13 @@ export const STANDALONE = 'standalone';
 export const SSR = 'ssr';
 
 /**
- * Constant for the 'stencil-rebundle' output target
+ * Constant for the 'collection' output target
  * (formerly 'dist-collection' sub-output in v4)
  *
  * Contains transpiled source + metadata for downstream Stencil projects
  * to re-compile/bundle.
  */
-export const STENCIL_REBUNDLE = 'stencil-rebundle';
+export const STENCIL_REBUNDLE = 'collection';
 
 /**
  * Constant for the 'types' output target

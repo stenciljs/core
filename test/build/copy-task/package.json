@@ -9,7 +9,7 @@
   },
   "files": [
     "dist/",
-    "dist/stencil-rebundle/"
+    "dist/collection/"
   ],
   "type": "module",
   "module": "dist/loader-bundle/index.js",
@@ -40,5 +40,5 @@
   "volta": {
     "extends": "../../../package.json"
   },
-  "stencilRebundle": "dist/stencil-rebundle/collection-manifest.json"
+  "collection": "dist/collection/collection-manifest.json"
 }

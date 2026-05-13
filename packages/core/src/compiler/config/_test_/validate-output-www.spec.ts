@@ -45,11 +45,11 @@ describe('validateOutputTargetWww', () => {
         type: 'types',
       },
       {
-        dir: '/dist/stencil-rebundle',
+        dir: '/dist/collection',
         empty: true,
         skipInDev: true,
         transformAliasedImportPaths: true,
-        type: 'stencil-rebundle',
+        type: 'collection',
       },
       {
         dir: '/dist/assets',
@@ -155,7 +155,7 @@ describe('validateOutputTargetWww', () => {
 
   it('should default to add www when outputTargets is undefined', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets).toHaveLength(8); // types + stencil-rebundle (auto-gen in prod) + assets + www + dist-lazy + copy×2 + docs-readme
+    expect(config.outputTargets).toHaveLength(8); // types + collection (auto-gen in prod) + assets + www + dist-lazy + copy×2 + docs-readme
 
     const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(outputTarget.dir).toBe(join(rootDir, 'www'));

@@ -147,9 +147,8 @@ export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTarget
 
 export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
 
-export const isOutputTargetStencilRebundle = (
-  o: d.OutputTarget,
-): o is d.OutputTargetStencilRebundle => o.type === STENCIL_REBUNDLE;
+export const isOutputTargetCollection = (o: d.OutputTarget): o is d.OutputTargetCollection =>
+  o.type === STENCIL_REBUNDLE;
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;
