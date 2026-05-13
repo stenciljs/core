@@ -69,7 +69,7 @@ const getCriticalPath = (buildCtx: d.BuildCtx) => {
 /**
  * Process a single www output target, generating an `index.html` file and a
  * host configuration record (and writing both to disk). Additional HTML files
- * found in srcDir are processed through the same optimisation pipeline.
+ * found in srcDir are processed through the same optimization pipeline.
  *
  * @param config the current user-supplied config
  * @param compilerCtx a compiler context
@@ -163,7 +163,7 @@ const generateHostConfig = (compilerCtx: d.CompilerCtx, outputTarget: d.OutputTa
 };
 
 /**
- * Process a single HTML document through the www optimisation pipeline and
+ * Process a single HTML document through the www optimization pipeline and
  * write the result to `destPath`. Used for both `index.html` (via
  * {@link generateIndexHtml}) and any additional HTML files found in srcDir.
  * @param config the current user-supplied config
@@ -245,7 +245,7 @@ const generateIndexHtml = async (
 };
 
 /**
- * Process a non-entry HTML file through the www optimisation pipeline (same as
+ * Process a non-entry HTML file through the www optimization pipeline (same as
  * index.html but without critical-path preload injection, which is
  * index-specific).
  * @param config the current user-supplied config
