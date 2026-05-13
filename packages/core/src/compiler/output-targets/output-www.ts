@@ -1,14 +1,22 @@
 import { cloneDocument, serializeNodeToHtml } from '@stencil/mock-doc';
 import type * as d from '@stencil/core';
 
-import { catchError, flatOne, isOutputTargetWww, join, relative, unique } from '../../utils';
+import {
+  catchError,
+  flatOne,
+  isOutputTargetGlobalStyle,
+  isOutputTargetWww,
+  join,
+  relative,
+  unique,
+} from '../../utils';
 import { addScriptDataAttribute } from '../html/add-script-attr';
 import { getAbsoluteBuildDir } from '../html/html-utils';
 import { optimizeCriticalPath } from '../html/inject-module-preloads';
 import { updateIndexHtmlServiceWorker } from '../html/inject-sw-script';
 import { optimizeEsmImport } from '../html/inline-esm-import';
 import { inlineStyleSheets } from '../html/inline-style-sheets';
-import { updateGlobalStylesLink } from '../html/update-global-styles-link';
+import { updateGlobalStylesLinks } from '../html/update-global-styles-link';
 import { getUsedComponents } from '../html/used-components';
 import { generateHashedCopy } from '../output-targets/copy/hashed-copy';
 import { INDEX_ORG } from '../service-worker/generate-sw';
@@ -86,15 +94,23 @@ const generateWww = async (
 ): Promise<void> => {
   const skipHtml = compilerCtx.hasSuccessfulBuild && !buildCtx.hasHtmlChanges;
 
-  // Compute hashed global styles filename once (prod only) so it can be
-  // shared across all HTML files without re-hashing on each.
-  let globalStylesFilename: string | undefined;
+  // Hash each global-style CSS file once (prod only) and build a map of
+  // originalFileName → hashedFileName so all HTML files can share it.
+  const globalStylesMap = new Map<string, string>();
   if (!config.watch && !config.devMode) {
-    globalStylesFilename = await generateHashedCopy(
-      config,
-      compilerCtx,
-      join(outputTarget.buildDir, `${config.fsNamespace}.css`),
-      outputTarget.hashedFileNameLength ?? 8,
+    const globalStyleTargets = config.outputTargets
+      .filter(isOutputTargetGlobalStyle)
+      .filter((t) => t.input && t.fileName);
+    await Promise.all(
+      globalStyleTargets.map(async (t) => {
+        const hashed = await generateHashedCopy(
+          config,
+          compilerCtx,
+          join(outputTarget.buildDir, t.fileName),
+          outputTarget.hashedFileNameLength ?? 8,
+        );
+        if (hashed) globalStylesMap.set(t.fileName, hashed);
+      }),
     );
   }
 
@@ -106,7 +122,7 @@ const generateWww = async (
         buildCtx,
         criticalPath,
         outputTarget,
-        globalStylesFilename,
+        globalStylesMap,
       );
     }
 
@@ -119,7 +135,7 @@ const generateWww = async (
         doc,
         destPath,
         outputTarget,
-        globalStylesFilename,
+        globalStylesMap,
       );
     }
   }
@@ -172,7 +188,7 @@ const generateHostConfig = (compilerCtx: d.CompilerCtx, outputTarget: d.OutputTa
  * @param doc the HTML document to process
  * @param destPath the path to write the processed document to (relative to rootDir)
  * @param outputTarget the www output target of interest
- * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
+ * @param globalStylesMap map of original → hashed filename for each global style CSS file
  * @param criticalPath a list of critical bundles to pull in (only applicable for index.html, but passed through for simplicity)
  */
 const processHtmlDoc = async (
@@ -182,7 +198,7 @@ const processHtmlDoc = async (
   doc: Document,
   destPath: string,
   outputTarget: d.OutputTargetWww,
-  globalStylesFilename: string | undefined,
+  globalStylesMap: Map<string, string>,
   criticalPath?: string[],
 ) => {
   addScriptDataAttribute(config, doc, outputTarget);
@@ -191,7 +207,7 @@ const processHtmlDoc = async (
   if (!config.watch && !config.devMode) {
     const scriptFound = await optimizeEsmImport(config, compilerCtx, doc, outputTarget);
     await inlineStyleSheets(compilerCtx, doc, MAX_CSS_INLINE_SIZE, outputTarget);
-    updateGlobalStylesLink(config, doc, globalStylesFilename, outputTarget);
+    updateGlobalStylesLinks(doc, getAbsoluteBuildDir(outputTarget), globalStylesMap);
     if (criticalPath && scriptFound && outputTarget.bundleMode !== 'standalone') {
       optimizeCriticalPath(doc, criticalPath, outputTarget);
     }
@@ -210,7 +226,7 @@ const processHtmlDoc = async (
  * @param buildCtx a build context
  * @param criticalPath a list of critical bundles to pull in
  * @param outputTarget the www output target of interest
- * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
+ * @param globalStylesMap map of original → hashed filename for each global style CSS file
  */
 const generateIndexHtml = async (
   config: d.ValidatedConfig,
@@ -218,7 +234,7 @@ const generateIndexHtml = async (
   buildCtx: d.BuildCtx,
   criticalPath: string[],
   outputTarget: d.OutputTargetWww,
-  globalStylesFilename: string | undefined,
+  globalStylesMap: Map<string, string>,
 ) => {
   try {
     const doc = cloneDocument(buildCtx.indexDoc);
@@ -229,7 +245,7 @@ const generateIndexHtml = async (
       doc,
       outputTarget.indexHtml,
       outputTarget,
-      globalStylesFilename,
+      globalStylesMap,
       criticalPath,
     );
 
@@ -254,7 +270,7 @@ const generateIndexHtml = async (
  * @param doc the HTML document to process
  * @param destPath the path to write the processed document to (relative to rootDir)
  * @param outputTarget the www output target of interest
- * @param globalStylesFilename the filename of the global styles (if applicable) so it can be inlined or linked appropriately
+ * @param globalStylesMap map of original → hashed filename for each global style CSS file
  */
 const generateHtmlFile = async (
   config: d.ValidatedConfig,
@@ -263,7 +279,7 @@ const generateHtmlFile = async (
   doc: Document,
   destPath: string,
   outputTarget: d.OutputTargetWww,
-  globalStylesFilename: string | undefined,
+  globalStylesMap: Map<string, string>,
 ) => {
   try {
     const cloned = cloneDocument(doc);
@@ -274,7 +290,7 @@ const generateHtmlFile = async (
       cloned,
       destPath,
       outputTarget,
-      globalStylesFilename,
+      globalStylesMap,
     );
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);
