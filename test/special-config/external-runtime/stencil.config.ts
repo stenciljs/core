@@ -10,6 +10,10 @@ export const config: Config = {
       externalRuntime: true,
       skipInDev: false,
     },
+    {
+      type: 'collection',
+      skipInDev: false,
+    },
   ],
   env: {
     someEnvVar: 'Envvar label:',
