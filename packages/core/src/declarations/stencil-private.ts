@@ -420,6 +420,7 @@ export interface CollectionCompilerMeta {
   bundles?: {
     components: string[];
   }[];
+  buildFlags?: Partial<BuildConditionals>;
 }
 
 export interface CollectionCompilerVersion {
@@ -440,6 +441,8 @@ export interface CollectionManifest {
   global?: string;
   compiler?: CollectionCompilerVersion;
   bundles?: CollectionBundleManifest[];
+  /** Build flags the lib was compiled with. Consuming Stencil projects OR-merge these in. */
+  buildFlags?: Partial<BuildConditionals>;
 }
 
 export type CollectionComponentEntryPath = string;

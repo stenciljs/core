@@ -1,6 +1,7 @@
 import type {
   BuildConditionals,
   BuildFeatures,
+  CollectionCompilerMeta,
   ComponentCompilerMeta,
   Module,
   ModuleMap,
@@ -151,6 +152,30 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
 };
 
 /**
+ * OR-merge buildFlags from consumed collections into the active build conditionals.
+ * Any flag that was `true` in a collection's manifest stays `true` in the consumer's build,
+ * ensuring the runtime includes code paths the lib author depended on.
+ *
+ * **This function mutates the build conditionals argument**
+ * @param b the build conditionals to update
+ * @param collections the collection metadata to merge build flags from
+ */
+export const mergeCollectionBuildFlags = (
+  b: BuildConditionals,
+  collections: CollectionCompilerMeta[],
+): void => {
+  for (const collection of collections) {
+    const flags = collection.buildFlags;
+    if (!flags) continue;
+    for (const key of Object.keys(flags) as Array<keyof BuildConditionals>) {
+      if (flags[key] === true) {
+        Object.assign(b, { [key]: true });
+      }
+    }
+  }
+};
+
+/**
  * Update the provided build conditionals object in-line with a provided Stencil project configuration
  *
  * **This function mutates the build conditionals argument**
@@ -174,7 +199,6 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.member = b.member || b.updatable || b.mode || b.lifecycle;
   b.constructableCSS = !b.hotModuleReplacement || !!config._isTesting;
   b.asyncLoading = !!(b.asyncLoading || b.lazyLoad || b.taskQueue || b.initializeNextTick);
-  b.cssAnnotations = true;
   // lightDomPatches only matter when there are non-shadow slotted components.
   // Gating here keeps shadow-only bundles lean — patch functions get tree-shaken out.
   const ldp = config.extras.lightDomPatches ?? true;

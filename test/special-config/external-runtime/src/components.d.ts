@@ -8,6 +8,8 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
 export namespace Components {
     interface FormAssociatedExternal {
     }
+    interface NonShadow {
+    }
 }
 declare global {
     interface HTMLFormAssociatedExternalElement extends Components.FormAssociatedExternal, HTMLStencilElement {
@@ -16,8 +18,15 @@ declare global {
         prototype: HTMLFormAssociatedExternalElement;
         new (): HTMLFormAssociatedExternalElement;
     };
+    interface HTMLNonShadowElement extends Components.NonShadow, HTMLStencilElement {
+    }
+    var HTMLNonShadowElement: {
+        prototype: HTMLNonShadowElement;
+        new (): HTMLNonShadowElement;
+    };
     interface HTMLElementTagNameMap {
         "form-associated-external": HTMLFormAssociatedExternalElement;
+        "non-shadow": HTMLNonShadowElement;
     }
 }
 declare namespace LocalJSX {
@@ -35,8 +44,11 @@ declare namespace LocalJSX {
          */
         "name"?: string;
     }
+    interface NonShadow {
+    }
     interface IntrinsicElements {
         "form-associated-external": FormAssociatedExternal;
+        "non-shadow": NonShadow;
     }
 }
 export { LocalJSX as JSX };
@@ -44,6 +56,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "form-associated-external": LocalJSX.IntrinsicElements["form-associated-external"] & JSXBase.HTMLAttributes<HTMLFormAssociatedExternalElement>;
+            "non-shadow": LocalJSX.IntrinsicElements["non-shadow"] & JSXBase.HTMLAttributes<HTMLNonShadowElement>;
         }
     }
 }

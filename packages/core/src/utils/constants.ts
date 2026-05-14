@@ -179,6 +179,7 @@ export const XLINK_NS = 'http://www.w3.org/1999/xlink';
  * File names and value
  */
 export const COLLECTION_MANIFEST_FILE_NAME = 'collection-manifest.json';
+export const COLLECTION_APP_DATA_FILE_NAME = 'app-data.js';
 
 /**
  * Constant for the 'copy' output target

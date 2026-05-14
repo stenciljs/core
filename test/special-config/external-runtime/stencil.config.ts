@@ -11,4 +11,10 @@ export const config: Config = {
       skipInDev: false,
     },
   ],
+  env: {
+    someEnvVar: 'Envvar label:',
+  },
+  extras: {
+    lightDomPatches: false,
+  },
 };

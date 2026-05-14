@@ -46,7 +46,9 @@ export const BUILD: BuildConditionals = {
   cssAnnotations: true,
   state: true,
   style: true,
-  formAssociated: false,
+  // Must be true: runtime proxy wiring (formAssociatedCallback et al.) is gated on this flag.
+  // External consumers can't tree-shake it safely without knowing what the lib requires.
+  formAssociated: true,
   svg: true,
   updatable: true,
   vdomAttribute: true,
@@ -62,6 +64,14 @@ export const BUILD: BuildConditionals = {
   vdomText: true,
   propChangeCallback: true,
   taskQueue: true,
+  lifecycle: true,
+  serializer: true,
+  deserializer: true,
+  // Per-component patch flags: dual-gated (BUILD flag AND cmpMeta.$flags$), safe to enable globally.
+  patchAll: true,
+  patchChildren: true,
+  patchClone: true,
+  patchInsert: true,
   hotModuleReplacement: false,
   isDebug: false,
   isDev: false,

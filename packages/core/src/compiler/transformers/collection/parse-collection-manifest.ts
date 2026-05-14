@@ -30,6 +30,7 @@ export const parseCollectionManifest = (
       typescriptVersion: compilerVersion.typescriptVersion || '',
     },
     bundles: parseBundles(collectionManifest),
+    buildFlags: collectionManifest.buildFlags,
   };
 
   parseGlobal(config, compilerCtx, buildCtx, collectionDir, collectionManifest, collection);
