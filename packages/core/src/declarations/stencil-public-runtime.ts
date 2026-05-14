@@ -72,8 +72,10 @@ export interface ComponentOptions {
    * Unlike `styleUrl`, these styles are not scoped to shadow/scoped DOM — they are collected
    * at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet.
    *
-   * Useful for pre-render/SSR visibility, host element styles, and slotted content styles that
-   * must exist before the component's JS has run.
+   * Useful for
+   * - pre-first-js-render styles (combatting cumulative layout shift)
+   * - host element and slotted content style
+   * - 'css-only' CEs - those that don't use a JS runtime at all
    *
    * @example
    * ```tsx

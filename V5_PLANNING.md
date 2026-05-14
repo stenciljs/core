@@ -125,6 +125,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`global-style` output target now supports `inject`** - control whether styles are injected into component shadow DOMs (`'none'`, `'client'`, `'all'`)
 - **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files, each with independent `inject` settings
 - **`www` can now use standalone loader**
+- **`@Component` now supports `globalStyleUrl` and `globalStyle`** — co-locate document-level styles with the component. Styles are collected at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet. Works for all encapsulation types (shadow, scoped, none). No mode variants — CSS handles runtime variants via selectors or custom properties. Changes to `globalStyleUrl` files invalidate the global style build cache and trigger HMR correctly.
 
 ---
 
