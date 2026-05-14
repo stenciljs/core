@@ -7,7 +7,19 @@
  */
 import { describe, it, expect, h, render } from '@stencil/vitest';
 
-describe('external runtime - form associated', () => {
+describe('external runtime - form associated (with app-data)', () => {
+  it('should render Env.someEnvVar from collection app-data', async () => {
+    const { root } = await render(
+      <form>
+        <form-associated-external name='test-input'></form-associated-external>
+      </form>,
+    );
+
+    const el = root.querySelector('form-associated-external');
+    const label = el?.shadowRoot?.querySelector('.label');
+    expect(label?.textContent).toBe('Envvar label:');
+  });
+
   it('should render without errors', async () => {
     const { root } = await render(
       <form>

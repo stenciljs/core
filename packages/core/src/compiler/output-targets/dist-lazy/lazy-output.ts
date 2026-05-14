@@ -10,6 +10,7 @@ import {
   relative,
   sortBy,
 } from '../../../utils';
+import { mergeCollectionBuildFlags } from '../../app-core/app-data';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   LAZY_BROWSER_ENTRY_ID,
@@ -60,10 +61,13 @@ export const outputLazy = async (
     const browserTarget = outputTargets.find((o) => o.isBrowserBuild && o.esmDir);
     const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
 
+    const conditionals = getLazyBuildConditionals(config, buildCtx.components);
+    mergeCollectionBuildFlags(conditionals, compilerCtx.collections);
+
     const bundleOpts: BundleOptions = {
       id: 'lazy',
       platform: 'client',
-      conditionals: getLazyBuildConditionals(config, buildCtx.components),
+      conditionals,
       customBeforeTransformers: getCustomBeforeTransformers(config, compilerCtx, buildCtx),
       inlineWorkers: config.outputTargets.some(isOutputTargetLoaderBundle),
       inputs: {

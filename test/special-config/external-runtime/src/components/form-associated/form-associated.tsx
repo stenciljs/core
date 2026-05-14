@@ -1,8 +1,7 @@
-import { AttachInternals, Component } from '@stencil/core';
+import { AttachInternals, Component, Env } from '@stencil/core';
 
 @Component({
   tag: 'form-associated-external',
-
   encapsulation: { type: 'shadow' },
 })
 export class FormAssociatedExternal {
@@ -33,6 +32,11 @@ export class FormAssociatedExternal {
   }
 
   render() {
-    return <input type='text' />;
+    return (
+      <label>
+        <span class='label'>{Env.someEnvVar || 'Fallback:'}</span>
+        <input type='text' />
+      </label>
+    );
   }
 }

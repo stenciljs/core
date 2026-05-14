@@ -3,6 +3,7 @@ import type * as d from '@stencil/core';
 
 import {
   catchError,
+  COLLECTION_APP_DATA_FILE_NAME,
   COLLECTION_MANIFEST_FILE_NAME,
   flatOne,
   generatePreamble,
@@ -13,6 +14,7 @@ import {
   sortBy,
 } from '../../../utils';
 import { version, versions } from '../../../version';
+import { getBuildFeatures } from '../../app-core/app-data';
 import { mapImportsToPathAliases } from '../../transformers/map-imports-to-path-aliases';
 
 /**
@@ -101,13 +103,11 @@ const writeCollectionManifests = async (
   buildCtx: d.BuildCtx,
   outputTargets: d.OutputTargetCollection[],
 ) => {
-  const collectionData = JSON.stringify(
-    serializeCollectionManifest(config, compilerCtx, buildCtx),
-    null,
-    2,
-  );
+  const manifest = serializeCollectionManifest(config, compilerCtx, buildCtx);
+  const collectionData = JSON.stringify(manifest, null, 2);
+  const appDataModule = generateAppDataModule(manifest.buildFlags ?? {}, config);
   return Promise.all(
-    outputTargets.map((o) => writeCollectionManifest(compilerCtx, collectionData, o)),
+    outputTargets.map((o) => writeCollectionOutput(compilerCtx, collectionData, appDataModule, o)),
   );
 };
 
@@ -116,19 +116,25 @@ const writeCollectionManifests = async (
 // but the external user data will always use the same API.
 // These mapping functions loosely couple core component metadata
 // between specific versions of the compiler.
-const writeCollectionManifest = async (
+const writeCollectionOutput = async (
   compilerCtx: d.CompilerCtx,
   collectionData: string,
+  appDataModule: string,
   outputTarget: d.OutputTargetCollection,
 ) => {
-  // Get the absolute path to the directory where the collection output will be saved
   const { dir } = outputTarget;
+  await Promise.all([
+    compilerCtx.fs.writeFile(join(dir, COLLECTION_MANIFEST_FILE_NAME), collectionData),
+    compilerCtx.fs.writeFile(join(dir, COLLECTION_APP_DATA_FILE_NAME), appDataModule),
+  ]);
+};
 
-  // Create an absolute file path to the actual collection manifest json file
-  const collectionFilePath = join(dir, COLLECTION_MANIFEST_FILE_NAME);
-
-  // don't bother serializing/writing the collection if we're not creating a distribution
-  await compilerCtx.fs.writeFile(collectionFilePath, collectionData);
+const generateAppDataModule = (build: d.BuildConditionals, config: d.ValidatedConfig): string => {
+  // JSON.stringify omits undefined fields — missing flags are treated as false by the runtime.
+  const buildStr = JSON.stringify(build, null, 2);
+  const envStr = JSON.stringify(config.env ?? {});
+  const ns = JSON.stringify(config.fsNamespace);
+  return `export const BUILD = ${buildStr};\nexport const Env = ${envStr};\nexport const NAMESPACE = ${ns};\n`;
 };
 
 const serializeCollectionManifest = (
@@ -136,6 +142,47 @@ const serializeCollectionManifest = (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ) => {
+  const localCmps = buildCtx.moduleFiles
+    .filter((mod) => !mod.isCollectionDependency)
+    .flatMap((mod) => mod.cmps);
+
+  const buildFlags = getBuildFeatures(localCmps) as d.BuildConditionals;
+
+  // Apply config-driven runtime extras (not build-mode flags like isDev/isTesting)
+  const ldp = config.extras?.lightDomPatches ?? true;
+  if (buildFlags.slotRelocation && ldp !== false) {
+    buildFlags.lightDomPatches = ldp === true;
+    buildFlags.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
+    buildFlags.slotCloneNode = typeof ldp === 'object' && !!ldp.cloneNode;
+    buildFlags.slotDomMutations = ldp === true || (typeof ldp === 'object' && !!ldp.domMutations);
+    buildFlags.slotTextContent = ldp === true || (typeof ldp === 'object' && !!ldp.textContent);
+  } else {
+    buildFlags.lightDomPatches = false;
+    buildFlags.slotChildNodes = false;
+    buildFlags.slotCloneNode = false;
+    buildFlags.slotDomMutations = false;
+    buildFlags.slotTextContent = false;
+  }
+  buildFlags.lifecycleDOMEvents = !!config.extras?.lifecycleDOMEvents;
+  buildFlags.initializeNextTick = !!config.extras?.initializeNextTick;
+  buildFlags.asyncQueue = config.taskQueue === 'congestionAsync';
+
+  // Hydration marker — consumers must know which selector the lib used so @stencil/vitest
+  // and other tooling can detect when components are ready. Defaults to class-based.
+  if (config.hydratedFlag) {
+    buildFlags.hydratedAttribute = config.hydratedFlag.selector === 'attribute';
+    buildFlags.hydratedClass = config.hydratedFlag.selector === 'class';
+    if (config.hydratedFlag.name) buildFlags.hydratedSelectorName = config.hydratedFlag.name;
+  } else {
+    buildFlags.hydratedClass = true;
+  }
+  buildFlags.invisiblePrehydration =
+    typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
+  // constructableCSS is only false during HMR dev mode — always true in distributed output
+  buildFlags.constructableCSS = true;
+  // cssAnnotations gates addHydratedFlag (asyncLoading && cssAnnotations) — always true
+  buildFlags.cssAnnotations = true;
+
   // create the single collection we're going to fill up with data
   const collectionManifest: d.CollectionManifest = {
     entries: buildCtx.moduleFiles
@@ -157,6 +204,7 @@ const serializeCollectionManifest = (
     bundles: config.bundles.map((b) => ({
       components: b.components.slice().sort(),
     })),
+    buildFlags,
   };
   if (config.globalScript) {
     const mod = compilerCtx.moduleMap.get(normalizePath(config.globalScript));

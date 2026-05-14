@@ -1,6 +1,7 @@
 import type {
   BuildConditionals,
   BuildFeatures,
+  CollectionCompilerMeta,
   ComponentCompilerMeta,
   Module,
   ModuleMap,
@@ -148,6 +149,47 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
     });
   }
   return importedModules;
+};
+
+/**
+ * Config-driven extras flags that a collection lib author may have set explicitly.
+ * These are the only flags propagated from a collection's buildFlags into the consumer's
+ * build — everything else is a component-derived flag that the consumer recomputes itself
+ * by scanning all components (including those from the collection).
+ */
+const COLLECTION_CONFIG_FLAGS: ReadonlySet<keyof BuildConditionals> = new Set([
+  'lightDomPatches',
+  'slotChildNodes',
+  'slotCloneNode',
+  'slotDomMutations',
+  'slotTextContent',
+  'lifecycleDOMEvents',
+  'initializeNextTick',
+  'asyncQueue',
+] as Array<keyof BuildConditionals>);
+
+/**
+ * Merge config-driven build flags from consumed collections into the active build conditionals.
+ * Only flags explicitly set via the lib author's stencil.config extras are merged — component-
+ * derived flags are excluded because the consumer recomputes them from source.
+ *
+ * **This function mutates the build conditionals argument**
+ * @param b the build conditionals to update
+ * @param collections the collection metadata to merge build flags from
+ */
+export const mergeCollectionBuildFlags = (
+  b: BuildConditionals,
+  collections: CollectionCompilerMeta[],
+): void => {
+  for (const collection of collections) {
+    const flags = collection.buildFlags;
+    if (!flags) continue;
+    for (const key of COLLECTION_CONFIG_FLAGS) {
+      if (flags[key] === true) {
+        Object.assign(b, { [key]: true });
+      }
+    }
+  }
 };
 
 /**

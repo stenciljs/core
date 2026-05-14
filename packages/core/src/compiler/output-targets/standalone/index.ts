@@ -16,6 +16,7 @@ import {
   relative,
   rolldownToStencilSourceMap,
 } from '../../../utils';
+import { mergeCollectionBuildFlags } from '../../app-core/app-data';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   STENCIL_APP_GLOBALS_ID,
@@ -83,31 +84,35 @@ export const getBundleOptions = (
   buildCtx: d.BuildCtx,
   compilerCtx: d.CompilerCtx,
   outputTarget: d.OutputTargetStandalone,
-): BundleOptions => ({
-  id: 'customElements',
-  platform: 'client',
-  conditionals: getStandaloneBuildConditionals(config, buildCtx.components),
-  customBeforeTransformers: getCustomBeforeTransformers(
-    config,
-    compilerCtx,
-    buildCtx.components,
-    outputTarget,
-    buildCtx,
-  ),
-  externalRuntime: !!outputTarget.externalRuntime,
-  inlineWorkers: true,
-  inputs: {
-    // Here we prefix our index chunk with '\0' to tell Rolldown that we're
-    // going to be using virtual modules with this module. A leading '\0'
-    // prevents other plugins from messing with the module. We generate a
-    // string for the index chunk below in the `loader` property.
-    //
-    // @see {@link https://rolldownjs.org/guide/en/#conventions} for more info.
-    index: '\0core',
-  },
-  loader: {},
-  preserveEntrySignatures: 'allow-extension',
-});
+): BundleOptions => {
+  const conditionals = getStandaloneBuildConditionals(config, buildCtx.components);
+  mergeCollectionBuildFlags(conditionals, compilerCtx.collections);
+  return {
+    id: 'customElements',
+    platform: 'client',
+    conditionals,
+    customBeforeTransformers: getCustomBeforeTransformers(
+      config,
+      compilerCtx,
+      buildCtx.components,
+      outputTarget,
+      buildCtx,
+    ),
+    externalRuntime: !!outputTarget.externalRuntime,
+    inlineWorkers: true,
+    inputs: {
+      // Here we prefix our index chunk with '\0' to tell Rolldown that we're
+      // going to be using virtual modules with this module. A leading '\0'
+      // prevents other plugins from messing with the module. We generate a
+      // string for the index chunk below in the `loader` property.
+      //
+      // @see {@link https://rolldownjs.org/guide/en/#conventions} for more info.
+      index: '\0core',
+    },
+    loader: {},
+    preserveEntrySignatures: 'allow-extension',
+  };
+};
 
 /**
  * Get bundle options for rolldown, run the rolldown build, optionally minify the
