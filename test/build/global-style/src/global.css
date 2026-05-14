@@ -1,0 +1,11 @@
+/* Base page styles */
+:root {
+  --color-primary: #0070f3;
+}
+
+/* Component global styles are injected here */
+@import 'stencil-globals';
+
+body {
+  margin: 0;
+}

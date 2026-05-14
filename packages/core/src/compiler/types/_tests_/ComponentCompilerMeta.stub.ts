@@ -99,6 +99,7 @@ export const stubComponentCompilerMeta = (
   states: [],
   styleDocs: [],
   styles: [],
+  globalStyles: [],
   tagName: 'stub-cmp',
   virtualProperties: [],
   watchers: [],

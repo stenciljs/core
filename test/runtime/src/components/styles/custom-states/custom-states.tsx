@@ -20,7 +20,7 @@ export class CustomStatesCmp {
    */
   @Method()
   async toggleState(stateName: string, force?: boolean): Promise<void> {
-    const states = this.internals.states as Set<string>;
+    const states = this.internals.states;
     if (force === undefined) {
       // Toggle: if has, delete; if not, add
       if (states.has(stateName)) {
@@ -42,7 +42,7 @@ export class CustomStatesCmp {
    */
   @Method()
   async hasState(stateName: string): Promise<boolean> {
-    return (this.internals.states as Set<string>).has(stateName);
+    return this.internals.states.has(stateName);
   }
 
   render() {

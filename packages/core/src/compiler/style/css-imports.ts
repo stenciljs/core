@@ -198,6 +198,11 @@ export const getCssImports = async (
       continue;
     }
 
+    if (cssImportData.url === 'stencil-globals') {
+      // virtual import resolved by Stencil at build time — leave it in the CSS unchanged
+      continue;
+    }
+
     if (isCssNodeModule(cssImportData.url)) {
       // node resolve this path cuz it starts with ~
       await resolveCssNodeModule(

@@ -2,6 +2,7 @@ import type * as d from '@stencil/core';
 
 import { catchError, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
+import { hasStencilGlobalsImport, resolveStencilGlobalsImport } from './component-global-styles';
 import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';
 
@@ -87,6 +88,16 @@ export const buildGlobalStyleFromInput = async (
       } else {
         compilerCtx.globalStyleCache.delete(normalizedPath);
         return null;
+      }
+
+      if (hasStencilGlobalsImport(cssCode)) {
+        cssCode = await resolveStencilGlobalsImport(
+          cssCode,
+          config,
+          compilerCtx,
+          buildCtx,
+          normalizedPath,
+        );
       }
 
       const optimizedCss = await optimizeCss(

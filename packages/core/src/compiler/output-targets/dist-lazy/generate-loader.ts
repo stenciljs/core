@@ -44,7 +44,7 @@ export const generateLoader = async (
       const loaderIndexDts = join(o.loaderDir, 'index.d.ts');
       const loaderDtsPath = join(o.typesDir, 'loader.d.ts');
       const relativeDtsPath = relativeImport(loaderIndexDts, loaderDtsPath);
-      await compilerCtx.fs.writeFile(loaderIndexDts, `export * from '${relativeDtsPath}';\n`, {
+      await compilerCtx.fs.writeFile(loaderIndexDts, `export type * from '${relativeDtsPath}';\n`, {
         outputTargetType: o.type,
       });
     }),

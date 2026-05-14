@@ -34,7 +34,7 @@ import {
 } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
-import { parseStaticStyles } from './styles';
+import { parseGlobalStyles, parseStaticStyles } from './styles';
 
 const BLACKLISTED_COMPONENT_METHODS = [
   /**
@@ -136,6 +136,7 @@ export const parseStaticComponentMeta = (
       isCollectionDependency,
       staticMembers,
     ),
+    globalStyles: parseGlobalStyles(moduleFile.sourceFilePath, staticMembers),
     internal: isInternal(docs),
     assetsDirs: parseAssetsDirs(staticMembers, moduleFile.jsFilePath),
     styleDocs: [],
