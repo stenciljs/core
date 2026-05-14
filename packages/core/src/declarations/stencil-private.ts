@@ -707,6 +707,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   states: ComponentCompilerState[];
   styleDocs: CompilerStyleDoc[];
   styles: StyleCompiler[];
+  globalStyles: ComponentGlobalStyle[];
   tagName: string;
   virtualProperties: ComponentCompilerVirtualProperty[];
   watchers: ComponentCompilerChangeHandler[];
@@ -1904,6 +1905,13 @@ export interface ExternalStyleCompiler {
   absolutePath: string;
   relativePath: string;
   originalComponentPath: string;
+}
+
+export interface ComponentGlobalStyle {
+  /** Absolute path to the CSS file, or null for inline styles */
+  absolutePath: string | null;
+  /** Raw inline CSS string, or null for file-based styles */
+  styleStr: string | null;
 }
 
 export interface CompilerModeStyles {

@@ -3,6 +3,98 @@ import { describe, expect, it } from 'vitest';
 import { getStaticGetter, transpileModule } from './transpile';
 import { formatCode } from './utils';
 
+describe('parse globalStyles', () => {
+  describe('static getter emission', () => {
+    it('emits originalGlobalStyleUrl from globalStyleUrl', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyleUrl: 'cmp-a.global.css' })
+        export class CmpA {}
+      `);
+      expect(getStaticGetter(t.outputText, 'originalGlobalStyleUrl')).toBe('cmp-a.global.css');
+    });
+
+    it('emits globalStyle static getter from inline globalStyle', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyle: 'cmp-a { display: block; }' })
+        export class CmpA {}
+      `);
+      expect(getStaticGetter(t.outputText, 'globalStyle')).toBe('cmp-a { display: block; }');
+    });
+
+    it('trims and ignores empty globalStyle strings', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyle: '   ' })
+        export class CmpA {}
+      `);
+      expect(getStaticGetter(t.outputText, 'globalStyle')).toBeUndefined();
+    });
+
+    it('does not emit originalStyleUrls for globalStyleUrl', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyleUrl: 'cmp-a.global.css' })
+        export class CmpA {}
+      `);
+      expect(getStaticGetter(t.outputText, 'originalStyleUrls')).toBeUndefined();
+    });
+
+    it('can have both styleUrl and globalStyleUrl', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css', globalStyleUrl: 'cmp-a.global.css' })
+        export class CmpA {}
+      `);
+      expect(getStaticGetter(t.outputText, 'originalStyleUrls')).toEqual({ $: ['cmp-a.css'] });
+      expect(getStaticGetter(t.outputText, 'originalGlobalStyleUrl')).toBe('cmp-a.global.css');
+    });
+  });
+
+  describe('metadata (cmp.globalStyles)', () => {
+    it('populates globalStyles from globalStyleUrl', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyleUrl: 'cmp-a.global.css' })
+        export class CmpA {}
+      `);
+      expect(t.cmp.globalStyles).toHaveLength(1);
+      expect(t.cmp.globalStyles[0].styleStr).toBeNull();
+      expect(t.cmp.globalStyles[0].absolutePath).toMatch(/cmp-a\.global\.css$/);
+    });
+
+    it('resolves absolutePath relative to component file', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyleUrl: '../shared/base.css' })
+        export class CmpA {}
+      `);
+      expect(t.cmp.globalStyles[0].absolutePath).toMatch(/shared\/base\.css$/);
+    });
+
+    it('populates globalStyles from inline globalStyle', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', globalStyle: 'cmp-a { color: red; }' })
+        export class CmpA {}
+      `);
+      expect(t.cmp.globalStyles).toHaveLength(1);
+      expect(t.cmp.globalStyles[0].styleStr).toBe('cmp-a { color: red; }');
+      expect(t.cmp.globalStyles[0].absolutePath).toBeNull();
+    });
+
+    it('returns empty globalStyles when neither is set', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a' })
+        export class CmpA {}
+      `);
+      expect(t.cmp.globalStyles).toHaveLength(0);
+    });
+
+    it('does not affect shadow styles', () => {
+      const t = transpileModule(`
+        @Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css', globalStyleUrl: 'cmp-a.global.css' })
+        export class CmpA {}
+      `);
+      expect(t.cmp.styles).toHaveLength(1);
+      expect(t.cmp.globalStyles).toHaveLength(1);
+    });
+  });
+});
+
 describe('parse styles', () => {
   it('add static "styleUrl"', () => {
     const t = transpileModule(`

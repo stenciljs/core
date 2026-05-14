@@ -110,6 +110,7 @@ export const mockComponentMeta = (
   states: [],
   styleDocs: [],
   styles: [],
+  globalStyles: [],
   tagName: 'stub-cmp',
   virtualProperties: [],
   watchers: [],

@@ -41,6 +41,24 @@ export const styleToStatic = (
     newMembers.push(createStaticGetter('styleUrls', normalizedStyleExp));
   }
 
+  if (componentOptions.globalStyleUrl) {
+    newMembers.push(
+      createStaticGetter(
+        'originalGlobalStyleUrl',
+        convertValueToLiteral(componentOptions.globalStyleUrl),
+      ),
+    );
+  }
+
+  if (typeof componentOptions.globalStyle === 'string') {
+    const globalStyle = componentOptions.globalStyle.trim();
+    if (globalStyle.length > 0) {
+      newMembers.push(
+        createStaticGetter('globalStyle', ts.factory.createStringLiteral(globalStyle)),
+      );
+    }
+  }
+
   if (typeof componentOptions.styles === 'string') {
     const styles = componentOptions.styles.trim();
     if (styles.length > 0) {

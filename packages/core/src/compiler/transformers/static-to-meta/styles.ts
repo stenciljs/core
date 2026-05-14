@@ -1,7 +1,8 @@
+import { dirname, isAbsolute } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { DEFAULT_STYLE_MODE, sortBy } from '../../../utils';
+import { DEFAULT_STYLE_MODE, join, normalizePath, sortBy } from '../../../utils';
 import { normalizeStyles } from '../../style/normalize-styles';
 import { ConvertIdentifier, getStaticValue } from '../transform-utils';
 
@@ -86,6 +87,30 @@ export const parseStaticStyles = (
   normalizeStyles(tagName, componentFilePath, styles);
 
   return sortBy(styles, (s) => s.modeName);
+};
+
+export const parseGlobalStyles = (
+  componentFilePath: string,
+  staticMembers: ts.ClassElement[],
+): d.ComponentGlobalStyle[] => {
+  const globalStyles: d.ComponentGlobalStyle[] = [];
+
+  const inlineStyle = getStaticValue(staticMembers, 'globalStyle');
+  if (typeof inlineStyle === 'string' && inlineStyle.trim().length > 0) {
+    globalStyles.push({ absolutePath: null, styleStr: inlineStyle.trim() });
+  }
+
+  const styleUrl = getStaticValue(staticMembers, 'originalGlobalStyleUrl') as string | undefined;
+  if (typeof styleUrl === 'string' && styleUrl.trim().length > 0) {
+    const url = styleUrl.trim();
+    const componentDir = dirname(componentFilePath);
+    const absolutePath = isAbsolute(url)
+      ? normalizePath(url)
+      : normalizePath(join(componentDir, url));
+    globalStyles.push({ absolutePath, styleStr: null });
+  }
+
+  return globalStyles;
 };
 
 const parseStyleIdentifier = (parsedStyle: ConvertIdentifier, modeName: string) => {

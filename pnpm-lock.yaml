@@ -205,7 +205,7 @@ importers:
         version: 4.1.2(@types/node@24.10.13)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))
       vitest-environment-stencil:
         specifier: 'catalog:'
-        version: 1.11.6(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
+        version: 1.11.6(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
 
   packages/mock-doc:
     dependencies:
@@ -296,6 +296,16 @@ importers:
       '@stencil/core':
         specifier: workspace:*
         version: link:../../../packages/core
+
+  test/build/global-style:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+    devDependencies:
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.1.3
 
   test/build/outputs:
     devDependencies:
@@ -6924,6 +6934,18 @@ snapshots:
       jsdom: 28.0.0
       playwright: 1.58.2
 
+  '@stencil/vitest@1.11.6(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)':
+    dependencies:
+      '@stencil/core': link:packages/core
+      jiti: 2.6.1
+      local-pkg: 1.1.2
+      vitest: 4.1.2(@types/node@24.10.13)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))
+      vitest-environment-stencil: 1.11.6(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
+    optionalDependencies:
+      '@vitest/browser-playwright': 4.1.2(playwright@1.58.2)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      jsdom: 28.0.0
+      playwright: 1.58.2
+
   '@stencil/vitest@1.11.6(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)':
     dependencies:
       jiti: 2.6.1
@@ -10020,6 +10042,22 @@ snapshots:
     dependencies:
       '@stencil/core': link:packages/core
       '@stencil/vitest': 1.11.6(@playwright/test@1.58.2)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
+    transitivePeerDependencies:
+      - '@playwright/test'
+      - '@stencil/mock-doc'
+      - '@vitest/browser-playwright'
+      - '@vitest/browser-preview'
+      - '@vitest/browser-webdriverio'
+      - '@wdio/globals'
+      - happy-dom
+      - jsdom
+      - playwright
+      - vitest
+
+  vitest-environment-stencil@1.11.6(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2):
+    dependencies:
+      '@stencil/core': link:packages/core
+      '@stencil/vitest': 1.11.6(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(playwright@1.58.2)(vitest@4.1.2)
     transitivePeerDependencies:
       - '@playwright/test'
       - '@stencil/mock-doc'
