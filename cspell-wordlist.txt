@@ -174,3 +174,4 @@ cooldown
 regen
 reparsing
 extism
+javy

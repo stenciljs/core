@@ -48,7 +48,7 @@ const SSR_WASM_INTERFACE = `declare module "main" {
 // Extism host entry points appended as rolldown `outro` inside the IIFE.
 // `Host` is a global provided by the Extism/QuickJS-ng runtime — no import needed.
 // Functions reference bundled symbols by name via closure — resolved lazily at call
-// time, so QuickJS-ng sees the fully-initialised IIFE scope rather than an eager
+// time, so QuickJS-ng sees the fully-initialized IIFE scope rather than an eager
 // snapshot taken during IIFE setup (which QuickJS-ng resolves incorrectly).
 // setTagTransformer accepts [{from: string, to: string}] and builds a tag transformer.
 const SSR_WASM_OUTRO = `
