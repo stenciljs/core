@@ -59,6 +59,11 @@ jobs:
     needs: [build]
     uses: ./.github/workflows/test-ssr.yml
 
+  ssr_wasm_tests:
+    name: SSR WASM Tests
+    needs: [build]
+    uses: ./.github/workflows/test-ssr-wasm.yml
+
   component_starter_tests:
     name: Component Starter Smoke Test
     needs: [build]

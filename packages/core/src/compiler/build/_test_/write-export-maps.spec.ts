@@ -8,6 +8,7 @@ import { writeExportMaps } from '../write-export-maps';
 
 vi.mock('child_process', () => ({
   execSync: vi.fn(),
+  execFile: vi.fn(),
 }));
 
 describe('writeExportMaps', () => {

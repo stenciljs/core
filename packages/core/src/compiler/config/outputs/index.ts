@@ -30,6 +30,7 @@ import { validateGlobalStyle } from './validate-global-style';
 import { validateLazy } from './validate-lazy';
 import { validateLoaderBundle } from './validate-loader-bundle';
 import { validateSsr } from './validate-ssr';
+import { validateSsrWasm } from './validate-ssr-wasm';
 import { validateStandalone } from './validate-standalone';
 import { validateStats } from './validate-stats';
 import { validateTypes } from './validate-types';
@@ -68,6 +69,7 @@ export const validateOutputTargets = (config: d.ValidatedConfig, diagnostics: d.
     ...validateLoaderBundle(config, diagnostics, userOutputs),
     ...validateDocs(config, diagnostics, userOutputs),
     ...validateStats(config, userOutputs),
+    ...validateSsrWasm(config, userOutputs),
   ];
 
   // SSR also gets info from the www output

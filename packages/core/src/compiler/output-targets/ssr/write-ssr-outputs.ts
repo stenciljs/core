@@ -7,6 +7,57 @@ import { relocateSsrContextConst } from './relocate-ssr-context';
 import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
 
 /**
+ * Applies post-processing transforms shared by both the `ssr` and `ssr-wasm` output targets.
+ * Must be called on each chunk's code before writing to disk or passing to extism / javy.
+ *
+ * @param config The validated Stencil configuration.
+ * @param compilerCtx The compiler context.
+ * @param code The generated code for a single chunk output by Rolldown.
+ * @returns The post-processed code.
+ */
+export const postProcessSsrCode = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  code: string,
+): string => {
+  code = relocateSsrContextConst(config, compilerCtx, code);
+
+  code = code.replace(
+    `//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
+    `let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
+  );
+
+  const tagTransformFunctionPattern = /function (setTagTransformer|transformTag)\(/;
+  if (tagTransformFunctionPattern.test(code)) {
+    const injectCode = `\nvar $stencilTagTransform = { setTagTransformer: setTagTransformer, transformTag: transformTag };\n`;
+    const lastTransformTagIndex = code.lastIndexOf('function transformTag(');
+    const lastSetTagTransformerIndex = code.lastIndexOf('function setTagTransformer(');
+    const injectionPoint = Math.max(lastTransformTagIndex, lastSetTagTransformerIndex);
+
+    if (injectionPoint !== -1) {
+      let braceCount = 0;
+      let foundStart = false;
+      let injectionIndex = injectionPoint;
+      for (let i = injectionPoint; i < code.length; i++) {
+        if (code[i] === '{') {
+          foundStart = true;
+          braceCount++;
+        } else if (code[i] === '}') {
+          braceCount--;
+          if (foundStart && braceCount === 0) {
+            injectionIndex = i + 1;
+            break;
+          }
+        }
+      }
+      code = code.slice(0, injectionIndex) + injectCode + code.slice(injectionIndex);
+    }
+  }
+
+  return code;
+};
+
+/**
  * Writes the generated SSR app code to disk for each SSR output target.
  * @param config The validated Stencil configuration.
  * @param compilerCtx The compiler context.
@@ -50,56 +101,7 @@ const writeSsrOutput = async (
   await Promise.all(
     rolldownOutput.output.map(async (output) => {
       if (output.type === 'chunk') {
-        let code = relocateSsrContextConst(config, compilerCtx, output.code);
-
-        /**
-         * Enable the line where we define `modeResolutionChain` for the hydrate module.
-         */
-        code = code.replace(
-          `//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
-          `let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
-        );
-
-        /**
-         * Inject the $stencilTagTransform variable definition.
-         * This variable is referenced by the factory closure (SSR_FACTORY_INTRO)
-         * and must be defined at module scope to be accessible within the factory.
-         * We inject it after the tag transform functions are defined/exported.
-         */
-        const tagTransformFunctionPattern = /function (setTagTransformer|transformTag)\(/;
-        const match = code.match(tagTransformFunctionPattern);
-        if (match) {
-          // Find where setTagTransformer and transformTag functions are defined
-          // and inject the $stencilTagTransform variable after them
-          const injectCode = `\n// Tag transform state object for factory closure\nvar $stencilTagTransform = { setTagTransformer: setTagTransformer, transformTag: transformTag };\n`;
-
-          // Find the last occurrence of tag transform function definitions
-          const lastTransformTagIndex = code.lastIndexOf('function transformTag(');
-          const lastSetTagTransformerIndex = code.lastIndexOf('function setTagTransformer(');
-          const injectionPoint = Math.max(lastTransformTagIndex, lastSetTagTransformerIndex);
-
-          if (injectionPoint !== -1) {
-            // Find the end of that function (closing brace)
-            let braceCount = 0;
-            let foundStart = false;
-            let injectionIndex = injectionPoint;
-
-            for (let i = injectionPoint; i < code.length; i++) {
-              if (code[i] === '{') {
-                foundStart = true;
-                braceCount++;
-              } else if (code[i] === '}') {
-                braceCount--;
-                if (foundStart && braceCount === 0) {
-                  injectionIndex = i + 1;
-                  break;
-                }
-              }
-            }
-
-            code = code.slice(0, injectionIndex) + injectCode + code.slice(injectionIndex);
-          }
-        }
+        let code = postProcessSsrCode(config, compilerCtx, output.code);
 
         if (minify) {
           const optimizeResults = await optimizeModule(config, compilerCtx, {

@@ -211,6 +211,13 @@ export const STANDALONE = 'standalone';
 export const SSR = 'ssr';
 
 /**
+ * Constant for the 'ssr-wasm' output target.
+ * Compiles the SSR script to a WASM binary via javy for use in any WASM-capable host
+ * (PHP, Java, Ruby, Go, etc.) without requiring a JavaScript runtime.
+ */
+export const SSR_WASM = 'ssr-wasm';
+
+/**
  * Constant for the 'collection' output target
  * (formerly 'dist-collection' sub-output in v4)
  *
@@ -288,6 +295,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   LOADER_BUNDLE,
   STANDALONE,
   SSR,
+  SSR_WASM,
   STENCIL_REBUNDLE,
   TYPES,
   GLOBAL_STYLE,

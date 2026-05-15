@@ -132,12 +132,6 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 
 ## Tasks
 
-### ⚡ `ssr` is now WinterCG-compatible ✅
-
-`streamToString()` now returns a web-standard `ReadableStream<string>` instead of a Node.js `Readable`. The `node:stream` import has been removed entirely. The `ssr` output now works as-is on Cloudflare Workers, Deno Deploy, Bun, AWS Lambda@Edge, and any WinterCG runtime — no separate `ssr-edge` output target needed.
-
-**Breaking change:** `streamToString()` return type changed from `Readable` (Node.js) to `ReadableStream` (web standard). Node 22+ supports `ReadableStream` natively.
-
 ### 🌍 `ssr-wasm` Output Target (Planned)
 
 New output target that compiles the SSR script to a standalone `.wasm` binary, callable from any language with a WASM runtime (PHP via `ext-wasm`, Java via `wasmtime-java`, Ruby via `wasmtime-rb`, Go, Rust, etc.).

@@ -9,6 +9,7 @@ import {
   LOADER_BUNDLE,
   STANDALONE,
   SSR,
+  SSR_WASM,
   STENCIL_REBUNDLE,
   TYPES,
   GLOBAL_STYLE,
@@ -146,6 +147,9 @@ export const isOutputTargetStandalone = (o: d.OutputTarget): o is d.OutputTarget
   o.type === STANDALONE;
 
 export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => o.type === SSR;
+
+export const isOutputTargetSsrWasm = (o: d.OutputTarget): o is d.OutputTargetSsrWasm =>
+  o.type === SSR_WASM;
 
 export const isOutputTargetCollection = (o: d.OutputTarget): o is d.OutputTargetCollection =>
   o.type === STENCIL_REBUNDLE;
