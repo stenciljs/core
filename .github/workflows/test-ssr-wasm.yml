@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['22', '24']
+        node: ['24']
         os: ['ubuntu-latest', 'macos-latest']
     runs-on: ${{ matrix.os }}
     steps:
