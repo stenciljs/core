@@ -9,7 +9,7 @@
 
 ### Used by
 
- - [nested-cmp-parent](../parent-cmp)
+ - [nested-cmp-parent](../nested-parent-cmp)
 
 ### Graph
 ```mermaid
