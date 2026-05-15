@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream';
 import { expect } from '@playwright/test';
 import { test } from '@stencil/playwright';
 
@@ -7,13 +6,19 @@ import { CarData } from '../src/components/car-list/car-data';
 const vento = new CarData('VW', 'Vento', 2024);
 const beetle = new CarData('VW', 'Beetle', 2023);
 
-async function readableToString(readable: Readable) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    readable.on('data', (chunk) => (data += chunk));
-    readable.on('end', () => resolve(data));
-    readable.on('error', (err) => reject(err));
-  });
+async function readableToString(stream: ReadableStream<string>): Promise<string> {
+  const reader = stream.getReader();
+  let result = '';
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      result += value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return result;
 }
 
 // @ts-ignore may not be existing when project hasn't been built

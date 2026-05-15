@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream';
 import { ssrFactory } from '@stencil/core/runtime/server/ssr-factory';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
 import { modeResolutionChain, setMode } from 'virtual:platform';
@@ -62,19 +61,22 @@ export function renderToString(
 }
 
 /**
- * Renders HTML and returns a Node.js Readable stream.
- * This is a Node.js-specific convenience wrapper around renderToString.
- * Note: This function requires Node.js and cannot be used in QuickJS/WASM environments.
+ * Renders HTML and returns a web-standard ReadableStream.
+ * Works in Node 22+, Cloudflare Workers, Deno, Bun, and any WinterCG-compatible runtime.
  * @param html - the HTML string or document to render
  * @param options - serialization options
- * @returns a Node.js Readable stream
+ * @returns a ReadableStream
  */
-export function streamToString(html: string | any, options?: SerializeDocumentOptions): Readable {
-  async function* generateStream() {
-    const result = await renderToString(html, options);
-    yield result.html;
-  }
-  return Readable.from(generateStream());
+export function streamToString(
+  html: string | any,
+  options?: SerializeDocumentOptions,
+): ReadableStream<string> {
+  return new ReadableStream<string>({
+    async start(controller) {
+      controller.enqueue((await renderToString(html, options)).html);
+      controller.close();
+    },
+  });
 }
 
 /**

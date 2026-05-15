@@ -78,6 +78,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - `collectionDir` and `typesDir` config options removed from `loader-bundle` config
   - Run `stencil migrate` to automatically update your config
 - `loader-bundle` and `ssr` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
+- **`streamToString()` return type changed** from Node.js `Readable` to web-standard `ReadableStream<string>`. Works in Node 22+, Cloudflare Workers, Deno, Bun, and all WinterCG runtimes.
 - `ssr` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the SSR script.
 - **ES5 build output removed.** The `buildEs5` config option, `--es5` CLI flag, and all ES5-related output have been removed. Stencil now targets ES2017+ only. IE11 and Edge 18 and below are no longer supported.
 - **@Component decorator `shadow`, `scoped`, and `formAssociated` properties removed.** Use the new unified `encapsulation` property instead:
@@ -130,6 +131,30 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 ---
 
 ## Tasks
+
+### ⚡ `ssr` is now WinterCG-compatible ✅
+
+`streamToString()` now returns a web-standard `ReadableStream<string>` instead of a Node.js `Readable`. The `node:stream` import has been removed entirely. The `ssr` output now works as-is on Cloudflare Workers, Deno Deploy, Bun, AWS Lambda@Edge, and any WinterCG runtime — no separate `ssr-edge` output target needed.
+
+**Breaking change:** `streamToString()` return type changed from `Readable` (Node.js) to `ReadableStream` (web standard). Node 22+ supports `ReadableStream` natively.
+
+### 🌍 `ssr-wasm` Output Target (Planned)
+
+New output target that compiles the SSR script to a standalone `.wasm` binary, callable from any language with a WASM runtime (PHP via `ext-wasm`, Java via `wasmtime-java`, Ruby via `wasmtime-rb`, Go, Rust, etc.).
+
+**Key design decisions:**
+- Strip `streamToString()` and all `node:stream` usage entirely — not needed
+- Expose a single `renderToString(html: string, options?: string): string` interface
+- Toolchain: [javy](https://github.com/bytecodealliance/javy) (Shopify, bytecodealliance) compiles the bundled SSR JS → WASM via QuickJS; [Extism PDK](https://extism.org/) as an optional layer for cleaner host function call interface
+- Interface convention: stdin/stdout (javy default) or Extism plugin exports — TBD based on what host runtimes support best
+- No JS runtime required on the backend — any WASM-capable host can SSR a component document
+
+**What needs to happen:**
+- [ ] Add `ssr-wasm` output target type and validation
+- [ ] Build step: after normal SSR bundle is generated, run javy to produce `index.wasm`
+- [ ] Ensure SSR bundle has zero Node built-in deps before handing to javy
+- [ ] Evaluate Extism vs raw javy stdin/stdout for the host call interface
+- [ ] Document usage examples for PHP, Java, Rails, Go
 
 ### 🛢️ Eliminate Barrel Exports in `src/utils`
 - [ ] Use [barrel-breaker](https://github.com/nicolo-ribaudo/babel-plugin-transform-barrels) or similar tool
