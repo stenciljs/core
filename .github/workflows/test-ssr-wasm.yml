@@ -1,0 +1,53 @@
+name: SSR WASM Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test_ssr_wasm:
+    name: SSR WASM (${{ matrix.os }}, node ${{ matrix.node }})
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
+        os: ['ubuntu-latest', 'macos-latest']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: stencil-build
+          path: packages/
+
+      - name: Install Binaryen (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y binaryen
+
+      - name: Install Binaryen (macOS)
+        if: runner.os == 'macOS'
+        run: brew install binaryen
+
+      - name: Install extism-js
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          export PATH="$HOME/.local/bin:$PATH"
+          curl -fsSL https://raw.githubusercontent.com/extism/js-pdk/main/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: SSR WASM Tests
+        run: pnpm --filter "@stencil-core-tests/ssr-wasm" test
+        shell: bash

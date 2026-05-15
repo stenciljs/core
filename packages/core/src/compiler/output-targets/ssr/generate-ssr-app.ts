@@ -139,7 +139,7 @@ export const generateSsrApp = async (
   }
 };
 
-const generateSsrFactory = async (
+export const generateSsrFactory = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,

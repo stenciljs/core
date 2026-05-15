@@ -2164,6 +2164,14 @@ export interface OutputTargetSsr extends OutputTargetBase {
   cjs?: boolean;
 }
 
+export interface OutputTargetSsrWasm extends OutputTargetBase {
+  type: 'ssr-wasm';
+  /** Output directory. @default 'dist/ssr-wasm' */
+  dir?: string;
+  empty?: boolean;
+  minify?: boolean;
+}
+
 export interface OutputTargetCustom extends OutputTargetBase {
   type: 'custom';
   name: string;
@@ -2543,6 +2551,7 @@ export type OutputTarget =
   | OutputTargetLoaderBundle
   | OutputTargetStandalone
   | OutputTargetSsr
+  | OutputTargetSsrWasm
   | OutputTargetCollection
   | OutputTargetTypes
   | OutputTargetGlobalStyle

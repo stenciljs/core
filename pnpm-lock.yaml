@@ -443,6 +443,21 @@ importers:
         specifier: ^14.2.4
         version: 14.2.5
 
+  test/integration/ssr-wasm:
+    devDependencies:
+      '@extism/extism':
+        specifier: 2.0.0-rc13
+        version: 2.0.0-rc13
+      '@extism/js-pdk':
+        specifier: ^1.0.0
+        version: 1.1.1
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.2(@types/node@24.10.13)(@vitest/browser-playwright@4.1.2)(jsdom@28.0.0)(vite@6.4.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.37.0)(tsx@4.21.0)(yaml@2.8.3))
+
   test/perf: {}
 
   test/perf/build-benchmark: {}
@@ -1412,6 +1427,12 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@extism/extism@2.0.0-rc13':
+    resolution: {integrity: sha512-iQ3mrPKOC0WMZ94fuJrKbJmMyz4LQ9Abf8gd4F5ShxKWa+cRKcVzk0EqRQsp5xXsQ2dO3zJTiA6eTc4Ihf7k+A==}
+
+  '@extism/js-pdk@1.1.1':
+    resolution: {integrity: sha512-VZLn/dX0ttA1uKk2PZeR/FL3N+nA1S5Vc7E5gdjkR60LuUIwCZT9cYON245V4HowHlBA7YOegh0TLjkx+wNbrA==}
 
   '@inquirer/external-editor@1.0.3':
     resolution: {integrity: sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==}
@@ -5243,6 +5264,9 @@ packages:
   url-toolkit@2.2.5:
     resolution: {integrity: sha512-mtN6xk+Nac+oyJ/PrI7tzfmomRVNFIWKUbG8jdYFt52hxbiReFAXIjYskvu64/dvuW71IcB7lV8l0HvZMac6Jg==}
 
+  urlpattern-polyfill@8.0.2:
+    resolution: {integrity: sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==}
+
   use@3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}
     engines: {node: '>=0.10.0'}
@@ -6268,6 +6292,12 @@ snapshots:
 
   '@exodus/bytes@1.14.0':
     optional: true
+
+  '@extism/extism@2.0.0-rc13': {}
+
+  '@extism/js-pdk@1.1.1':
+    dependencies:
+      urlpattern-polyfill: 8.0.2
 
   '@inquirer/external-editor@1.0.3(@types/node@24.10.13)':
     dependencies:
@@ -9988,6 +10018,8 @@ snapshots:
   urix@0.1.0: {}
 
   url-toolkit@2.2.5: {}
+
+  urlpattern-polyfill@8.0.2: {}
 
   use@3.1.1: {}
 

@@ -10,6 +10,7 @@ import { outputGlobalStyle } from './output-global-style';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
+import { outputSsrWasm } from './ssr-wasm';
 import { outputStandalone } from './standalone';
 
 export const generateOutputTargets = async (
@@ -65,8 +66,9 @@ export const generateOutputTargets = async (
   const bundlerTasks: Promise<void>[] = needsBundlerRebuild
     ? [
         outputStandalone(config, compilerCtx, buildCtx),
-        outputSsr(config, compilerCtx, buildCtx),
         outputLazy(config, compilerCtx, buildCtx),
+        outputSsr(config, compilerCtx, buildCtx),
+        outputSsrWasm(config, compilerCtx, buildCtx),
       ]
     : [];
 
