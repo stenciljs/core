@@ -64,9 +64,11 @@ describe('ssr-wasm plugin execution', () => {
       html: '<my-greeting name="Stencil"></my-greeting>',
       options: {
         serializeShadowRoot: 'scoped',
+        fullDocument: false,
       },
     });
     expect(output.html).not.toContain('<template shadowrootmode="open">');
+    expect(output.html).not.toContain('<body');
     expect(output.html).toContain('Hello, Stencil!');
   });
 
