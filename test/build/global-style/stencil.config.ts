@@ -12,5 +12,8 @@ export const config: Config = {
     {
       type: 'loader-bundle',
     },
+    {
+      type: 'standalone',
+    },
   ],
 };

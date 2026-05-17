@@ -8,6 +8,10 @@ export const config: Config = {
       type: 'standalone',
       externalRuntime: false,
     },
+    {
+      type: 'global-style',
+      input: 'src/global-style.css',
+    },
   ],
   enableCache: false,
 };

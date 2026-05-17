@@ -50,4 +50,18 @@ assert(
   'Missing hydrated selector rule from stencil-hydrate',
 );
 
+// stencil-hydrate.css must NOT be generated when @import "stencil-hydrate" is present
+// in a global-style input — the standalone output target should detect this and skip it.
+const hydrateCssPath = path.resolve(__dirname, 'dist', 'assets', 'stencil-hydrate.css');
+let hydrateFileExists = true;
+try {
+  await fs.access(hydrateCssPath);
+} catch {
+  hydrateFileExists = false;
+}
+assert(
+  !hydrateFileExists,
+  'stencil-hydrate.css should NOT be generated when @import "stencil-hydrate" is already in a global-style input',
+);
+
 console.log('✅ All assertions passed');

@@ -14,6 +14,10 @@ export const config: Config = {
     {
       type: 'ssr',
     },
+    {
+      type: 'global-style',
+      input: 'src/global-style.css',
+    },
   ],
   enableCache: false,
 };
