@@ -5,8 +5,49 @@ import { runPluginTransforms } from '../plugin/plugin';
 import { optimizeCss } from './optimize-css';
 
 const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?\s*;?/g;
+const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?\s*;?/g;
 
 export const hasStencilGlobalsImport = (css: string): boolean => css.includes('stencil-globals');
+export const hasStencilHydrateImport = (css: string): boolean => css.includes('stencil-hydrate');
+
+/**
+ * Generate the FOUC-prevention CSS for all components in the build.
+ * Mirrors the CSS injected dynamically by bootstrap-loader, but produced at build time
+ * so it can be embedded in a static stylesheet via `@import "stencil-hydrate"`.
+ * @param config the Stencil configuration
+ * @param buildCtx the current build context, used to get the list of components in the build
+ * @returns the generated CSS string to replace `@import "stencil-hydrate"` with
+ */
+export const generateHydrateCss = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): string => {
+  const h = config.hydratedFlag;
+  if (!h) return ''; // hydratedFlag: null means explicitly disabled
+
+  const tags = buildCtx.components.map((c) => c.tagName).sort();
+  if (!tags.length) return '';
+
+  const selector = h.selector === 'attribute' ? `[${h.name}]` : `.${h.name}`;
+  const initial =
+    h.initialValue === '' || h.initialValue == null ? '' : `{${h.property}:${h.initialValue}}`;
+  const hydrated =
+    h.hydratedValue === '' || h.hydratedValue == null
+      ? ''
+      : `${selector}{${h.property}:${h.hydratedValue}}`;
+
+  return tags.join(',') + initial + hydrated;
+};
+
+/**
+ * Replace `@import "stencil-hydrate"` in CSS with the generated FOUC-prevention styles.
+ * @param css the CSS string to process
+ * @param config the Stencil configuration
+ * @param buildCtx the current build context, used to get the list of components in the build
+ * @returns the CSS string with `@import "stencil-hydrate"` replaced by generated styles
+ */
+export const resolveStencilHydrateImport = (
+  css: string,
+  config: d.ValidatedConfig,
+  buildCtx: d.BuildCtx,
+): string => css.replace(STENCIL_HYDRATE_RE, generateHydrateCss(config, buildCtx));
 
 /**
  * Collect and build all component-level globalStyle/globalStyleUrl CSS from the current build.

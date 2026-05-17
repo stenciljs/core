@@ -2,7 +2,12 @@ import type * as d from '@stencil/core';
 
 import { catchError, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
-import { hasStencilGlobalsImport, resolveStencilGlobalsImport } from './component-global-styles';
+import {
+  hasStencilGlobalsImport,
+  hasStencilHydrateImport,
+  resolveStencilGlobalsImport,
+  resolveStencilHydrateImport,
+} from './component-global-styles';
 import { getCssImports } from './css-imports';
 import { optimizeCss } from './optimize-css';
 
@@ -98,6 +103,10 @@ export const buildGlobalStyleFromInput = async (
           buildCtx,
           normalizedPath,
         );
+      }
+
+      if (hasStencilHydrateImport(cssCode)) {
+        cssCode = resolveStencilHydrateImport(cssCode, config, buildCtx);
       }
 
       const optimizedCss = await optimizeCss(

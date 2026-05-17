@@ -6,6 +6,7 @@ import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-da
 export const getLazyBuildConditionals = (
   config: d.ValidatedConfig,
   cmps: d.ComponentCompilerMeta[],
+  staticHydrationStyles = false,
 ): d.BuildConditionals => {
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
 
@@ -14,6 +15,7 @@ export const getLazyBuildConditionals = (
   build.asyncQueue = config.taskQueue === 'congestionAsync';
   build.taskQueue = config.taskQueue !== 'immediate';
   build.initializeNextTick = config.extras.initializeNextTick;
+  build.staticHydrationStyles = staticHydrationStyles;
 
   const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetSsr);
   build.hydrateClientSide = hasSsrOutputTargets;

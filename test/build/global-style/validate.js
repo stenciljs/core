@@ -28,10 +28,26 @@ assert(
   'Missing cmp-b display rule',
 );
 
-// The virtual import is fully resolved — not present in output
+// Both virtual imports are fully resolved — not present in output
 assert(
   !css.includes('stencil-globals'),
   'stencil-globals virtual import should be resolved, not present in output',
+);
+assert(
+  !css.includes('stencil-hydrate'),
+  'stencil-hydrate virtual import should be resolved, not present in output',
+);
+
+// FOUC prevention CSS is injected by @import "stencil-hydrate"
+// Component tags are sorted alphabetically and followed by the .hydrated rule
+assert(css.includes('cmp-a') && css.includes('cmp-b'), 'Missing component tags in FOUC CSS');
+assert(
+  css.includes('visibility:hidden') || css.includes('visibility: hidden'),
+  'Missing visibility:hidden rule from stencil-hydrate',
+);
+assert(
+  css.includes('.hydrated') || css.includes('[hydrated]'),
+  'Missing hydrated selector rule from stencil-hydrate',
 );
 
 console.log('✅ All assertions passed');

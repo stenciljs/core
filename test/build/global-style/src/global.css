@@ -1,3 +1,6 @@
+/* FOUC prevention — replaced at build time with component visibility rules */
+@import 'stencil-hydrate';
+
 /* Base page styles */
 :root {
   --color-primary: #0070f3;

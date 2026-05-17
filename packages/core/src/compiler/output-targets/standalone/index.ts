@@ -24,6 +24,7 @@ import {
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
+import { generateHydrateCss } from '../../style/component-global-styles';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
@@ -198,6 +199,19 @@ export const bundleStandalone = async (
         }
       });
       await Promise.all(files);
+
+      // Generate stencil-hydrate.css as a static FOUC-prevention stylesheet.
+      // Standalone builds have no dynamic loader to inject hydration styles, so
+      // users can link this file in their HTML instead.
+      // Written to the assets dir (same location as global-style CSS), falling back to the standalone dir.
+      if (config.hydratedFlag && config.invisiblePrehydration !== false) {
+        const hydrateCss = generateHydrateCss(config, buildCtx);
+        if (hydrateCss) {
+          const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
+          const cssDir = assetsTarget?.dir ?? outputTargetDir;
+          await compilerCtx.fs.writeFile(join(cssDir, 'stencil-hydrate.css'), hydrateCss);
+        }
+      }
     }
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);

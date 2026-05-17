@@ -187,6 +187,8 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   hydratedAttribute?: boolean;
   hydratedClass?: boolean;
   hydratedSelectorName?: string;
+  /** True when a global-style input contains `@import "stencil-hydrate"` — suppresses dynamic style injection in the loader. */
+  staticHydrationStyles?: boolean;
   initializeNextTick?: boolean;
   asyncQueue?: boolean;
   additionalTagTransformers?: boolean | 'prod';

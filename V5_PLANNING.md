@@ -127,6 +127,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files, each with independent `inject` settings
 - **`www` can now use standalone loader**
 - **`@Component` now supports `globalStyleUrl` and `globalStyle`** — co-locate document-level styles with the component. Styles are collected at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet. Works for all encapsulation types (shadow, scoped, none). No mode variants — CSS handles runtime variants via selectors or custom properties. Changes to `globalStyleUrl` files invalidate the global style build cache and trigger HMR correctly.
+- **`@import "stencil-hydrate"` virtual placeholder** — add to any `global-style` input to inject static FOUC-prevention CSS at build time instead of relying on the dynamic `<style>` tag inserted by the loader. The compiler replaces the placeholder with the sorted component selectors + configured hydration CSS (e.g. `my-cmp,other-cmp{visibility:hidden}.hydrated{visibility:inherit}`). When detected, `BUILD.staticHydrationStyles = true` suppresses the loader's dynamic injection. For `standalone` builds (which have no loader), `stencil-hydrate.css` is auto-generated alongside the bundle.
 
 ---
 
