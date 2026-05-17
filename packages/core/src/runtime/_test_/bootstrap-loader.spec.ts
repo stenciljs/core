@@ -65,6 +65,16 @@ describe('bootstrapLazy - CSS style injection', () => {
     expect(win.document.head.querySelector('[data-styles]')).toBeNull();
   });
 
+  it('does not inject a style element when staticHydrationStyles is enabled', () => {
+    BUILD.invisiblePrehydration = true;
+    BUILD.hydratedClass = true;
+    BUILD.staticHydrationStyles = true;
+
+    bootstrapLazy(minimalBundle('test-cmp'));
+
+    expect(win.document.head.querySelector('[data-styles]')).toBeNull();
+  });
+
   it('applies a nonce from plt.$nonce$ to the style element', () => {
     BUILD.invisiblePrehydration = true;
     BUILD.hydratedClass = true;

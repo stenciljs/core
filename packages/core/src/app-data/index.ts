@@ -90,6 +90,7 @@ export const BUILD: BuildConditionals = {
   hydratedAttribute: false,
   hydratedClass: true,
   invisiblePrehydration: true,
+  staticHydrationStyles: false,
   propBoolean: true,
   propNumber: true,
   propString: true,

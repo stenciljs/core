@@ -5,8 +5,10 @@ import type * as d from '@stencil/core';
 import {
   catchError,
   isOutputTargetAssets,
+  isOutputTargetGlobalStyle,
   isOutputTargetLoaderBundle,
   isOutputTargetDistLazy,
+  normalizePath,
   relative,
   sortBy,
 } from '../../../utils';
@@ -61,7 +63,27 @@ export const outputLazy = async (
     const browserTarget = outputTargets.find((o) => o.isBrowserBuild && o.esmDir);
     const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
 
-    const conditionals = getLazyBuildConditionals(config, buildCtx.components);
+    // Pre-scan global-style inputs to detect @import "stencil-hydrate" before bundling.
+    // When found, the BUILD flag suppresses the dynamic <style> injection in bootstrap-loader.
+    let staticHydrationStyles = false;
+    for (const target of config.outputTargets.filter(isOutputTargetGlobalStyle)) {
+      if (!target.input) continue;
+      try {
+        const content = await compilerCtx.fs.readFile(normalizePath(target.input));
+        if (content?.includes('stencil-hydrate')) {
+          staticHydrationStyles = true;
+          break;
+        }
+      } catch {
+        // file not readable yet — will be caught properly during actual style build
+      }
+    }
+
+    const conditionals = getLazyBuildConditionals(
+      config,
+      buildCtx.components,
+      staticHydrationStyles,
+    );
     mergeCollectionBuildFlags(conditionals, compilerCtx.collections);
 
     const bundleOpts: BundleOptions = {

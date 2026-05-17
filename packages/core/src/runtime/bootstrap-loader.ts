@@ -265,7 +265,11 @@ export const bootstrapLazy = (
   // Only bother generating CSS if we have components
   if (cmpTags.length > 0) {
     // Add hydration styles
-    if (BUILD.invisiblePrehydration && (BUILD.hydratedClass || BUILD.hydratedAttribute)) {
+    if (
+      BUILD.invisiblePrehydration &&
+      !BUILD.staticHydrationStyles &&
+      (BUILD.hydratedClass || BUILD.hydratedAttribute)
+    ) {
       dataStyles.textContent += cmpTags.sort() + HYDRATED_CSS;
     }
 

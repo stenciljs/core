@@ -10,9 +10,11 @@ import {
   hasError,
   isBoolean,
   isOutputTargetAssets,
+  isOutputTargetGlobalStyle,
   isOutputTargetStandalone,
   isString,
   join,
+  normalizePath,
   relative,
   rolldownToStencilSourceMap,
 } from '../../../utils';
@@ -24,6 +26,7 @@ import {
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
+import { generateHydrateCss } from '../../style/component-global-styles';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { addDefineCustomElementFunctions } from '../../transformers/component-native/add-define-custom-element-function';
 import { proxyCustomElement } from '../../transformers/component-native/proxy-custom-element-function';
@@ -34,6 +37,28 @@ import { updateStencilCoreImports } from '../../transformers/update-stencil-core
 import { generateLoaderModule } from './generate-loader-module';
 import { getStandaloneBuildConditionals } from './standalone-build-conditionals';
 import type { BundleOptions } from '../../bundle/bundle-interface';
+
+/**
+ * Returns true if any `global-style` output target's input file contains `@import "stencil-hydrate"`,
+ * meaning the FOUC prevention CSS is already embedded in that stylesheet.
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context, used to read the global style input files
+ * @returns a promise which resolves to true if the FOUC prevention styles are already inlined in a global style, false otherwise
+ */
+export const isHydrateInlinedByGlobalStyle = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+): Promise<boolean> =>
+  Promise.any(
+    config.outputTargets
+      .filter(isOutputTargetGlobalStyle)
+      .filter((t) => t.input)
+      .map(async (t) => {
+        const content = await compilerCtx.fs.readFile(normalizePath(t.input!));
+        if (content?.includes('stencil-hydrate')) return true;
+        throw new Error();
+      }),
+  ).catch(() => false);
 
 /**
  * Main output target function for `standalone` (standalone component modules). This function just
@@ -198,6 +223,17 @@ export const bundleStandalone = async (
         }
       });
       await Promise.all(files);
+
+      const hydrateAlreadyInlined = await isHydrateInlinedByGlobalStyle(config, compilerCtx);
+
+      if (!hydrateAlreadyInlined && config.hydratedFlag && config.invisiblePrehydration !== false) {
+        const hydrateCss = generateHydrateCss(config, buildCtx);
+        if (hydrateCss) {
+          const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
+          const cssDir = assetsTarget?.dir ?? outputTargetDir;
+          await compilerCtx.fs.writeFile(join(cssDir, 'stencil-hydrate.css'), hydrateCss);
+        }
+      }
     }
   } catch (e: any) {
     catchError(buildCtx.diagnostics, e);

@@ -4,8 +4,11 @@ import type * as d from '@stencil/core';
 
 import {
   collectAndBuildComponentGlobalStyles,
+  generateHydrateCss,
   hasStencilGlobalsImport,
+  hasStencilHydrateImport,
   resolveStencilGlobalsImport,
+  resolveStencilHydrateImport,
 } from '../component-global-styles';
 
 describe('component-global-styles', () => {
@@ -153,6 +156,122 @@ describe('component-global-styles', () => {
       );
       expect(result).not.toContain('@import "stencil-globals"');
       expect(result).toContain(':root {}');
+      expect(result).toContain('body {}');
+    });
+  });
+
+  describe('hasStencilHydrateImport', () => {
+    it('detects double-quote import', () => {
+      expect(hasStencilHydrateImport(`@import "stencil-hydrate";`)).toBe(true);
+    });
+
+    it('detects single-quote import', () => {
+      expect(hasStencilHydrateImport(`@import 'stencil-hydrate';`)).toBe(true);
+    });
+
+    it('detects url() form', () => {
+      expect(hasStencilHydrateImport(`@import url("stencil-hydrate");`)).toBe(true);
+    });
+
+    it('returns false when not present', () => {
+      expect(hasStencilHydrateImport(`:root { color: red; }`)).toBe(false);
+    });
+  });
+
+  describe('generateHydrateCss', () => {
+    it('returns empty string when hydratedFlag is null', () => {
+      config.hydratedFlag = null;
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      expect(generateHydrateCss(config, buildCtx)).toBe('');
+    });
+
+    it('returns empty string when there are no components', () => {
+      buildCtx.components = [];
+      expect(generateHydrateCss(config, buildCtx)).toBe('');
+    });
+
+    it('generates FOUC css with default hydratedFlag', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const result = generateHydrateCss(config, buildCtx);
+      expect(result).toBe('my-cmp{visibility:hidden}.hydrated{visibility:inherit}');
+    });
+
+    it('sorts and joins multiple component tags', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [
+        mockCmp({ tagName: 'cmp-z' }),
+        mockCmp({ tagName: 'cmp-a' }),
+        mockCmp({ tagName: 'cmp-m' }),
+      ];
+      const result = generateHydrateCss(config, buildCtx);
+      expect(result).toMatch(/^cmp-a,cmp-m,cmp-z/);
+    });
+
+    it('uses attribute selector when configured', () => {
+      config.hydratedFlag = {
+        selector: 'attribute',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const result = generateHydrateCss(config, buildCtx);
+      expect(result).toContain('[hydrated]');
+    });
+  });
+
+  describe('resolveStencilHydrateImport', () => {
+    it('replaces @import "stencil-hydrate" with FOUC css', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const css = `:root {}\n@import "stencil-hydrate";\nbody {}`;
+      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      expect(result).not.toContain('@import "stencil-hydrate"');
+      expect(result).toContain('my-cmp{visibility:hidden}.hydrated{visibility:inherit}');
+      expect(result).toContain(':root {}');
+      expect(result).toContain('body {}');
+    });
+
+    it('replaces all occurrences', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const css = `@import "stencil-hydrate";\nbody {}\n@import "stencil-hydrate";`;
+      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      expect((result.match(/@import "stencil-hydrate"/g) ?? []).length).toBe(0);
+    });
+
+    it('produces empty replacement when hydratedFlag is null', () => {
+      config.hydratedFlag = null;
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const css = `body {}\n@import "stencil-hydrate";`;
+      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      expect(result).not.toContain('@import "stencil-hydrate"');
       expect(result).toContain('body {}');
     });
   });

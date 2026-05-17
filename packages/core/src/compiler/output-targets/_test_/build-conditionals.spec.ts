@@ -151,6 +151,18 @@ describe('build-conditionals', () => {
       const bc = getLazyBuildConditionals(config, cmps);
       expect(bc.hydratedSelectorName).toBe('boooop');
     });
+
+    it('staticHydrationStyles defaults to false', () => {
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps);
+      expect(bc.staticHydrationStyles).toBe(false);
+    });
+
+    it('staticHydrationStyles is true when passed as true', () => {
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps, true);
+      expect(bc.staticHydrationStyles).toBe(true);
+    });
   });
 
   describe('getSsrBuildConditionals', () => {

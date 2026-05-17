@@ -46,6 +46,7 @@ export function resetBuildConditionals(b: d.BuildConditionals) {
   b.hydratedAttribute = false;
   b.hydratedClass = true;
   b.invisiblePrehydration = true;
+  b.staticHydrationStyles = false;
   b.lightDomPatches = false;
   b.slotChildNodes = false;
   b.slotCloneNode = false;
