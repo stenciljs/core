@@ -9,7 +9,6 @@ export const config: Config = {
     },
     {
       type: 'standalone',
-      externalRuntime: false,
     },
     {
       type: 'ssr',

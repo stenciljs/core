@@ -87,7 +87,7 @@ export const validateWww = (
           type: STANDALONE,
           dir: buildDir,
           empty: false, // www handles emptying its own directory
-          externalRuntime: false, // inline runtime for simpler single-file deployment
+          // inline runtime for simpler single-file deployment
           autoLoader: {
             fileName: config.fsNamespace,
             autoStart: true,

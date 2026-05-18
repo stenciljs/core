@@ -18,7 +18,7 @@ export const config: Config = {
       type: 'standalone',
       dir: 'dist/custom-elements',
       customElementsExportBehavior: 'auto-define-custom-elements',
-      externalRuntime: false,
+
       skipInDev: false,
     },
   ],

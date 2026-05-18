@@ -6,7 +6,6 @@ export const config: Config = {
     { type: 'loader-bundle', hashFileNames: false },
     {
       type: 'standalone',
-      externalRuntime: false,
     },
     {
       type: 'global-style',
