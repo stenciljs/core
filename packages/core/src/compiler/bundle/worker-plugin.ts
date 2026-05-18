@@ -24,7 +24,10 @@ export const workerPlugin = (
         filter: { id: /\?worker(-inline)?$/ },
         handler(_, id) {
           if (id.endsWith('?worker') || id.endsWith('?worker-inline')) {
-            return getMockedWorkerMain();
+            return {
+              code: getMockedWorkerMain(),
+              map: { mappings: '' },
+            };
           }
           return null;
         },
@@ -91,6 +94,7 @@ export const workerPlugin = (
           dependencies.forEach((dep) => this.addWatchFile(dep));
           return {
             code: getWorkerMain(referenceId, workerName, workerMsgId),
+            map: { mappings: '' },
             moduleSideEffects: false,
           };
         } else if (id.endsWith('?worker-inline')) {
@@ -112,6 +116,7 @@ export const workerPlugin = (
           dependencies.forEach((dep) => this.addWatchFile(dep));
           return {
             code: getInlineWorker(referenceId, workerName, workerMsgId),
+            map: { mappings: '' },
             moduleSideEffects: false,
           };
         }
@@ -131,11 +136,13 @@ export const workerPlugin = (
             if (inlineWorkers) {
               return {
                 code: getInlineWorkerProxy(workerEntryPath, worker.workerMsgId, worker.exports),
+                map: { mappings: '' },
                 moduleSideEffects: false,
               };
             } else {
               return {
                 code: getWorkerProxy(workerEntryPath, worker.exports),
+                map: { mappings: '' },
                 moduleSideEffects: false,
               };
             }
@@ -431,7 +438,7 @@ const getWorkerMain = (referenceId: string, workerName: string, workerMsgId: str
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
+export const workerPath = import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export const worker = /*@__PURE__*/createWorker(workerPath, workerName, workerMsgId);
 `;
 };
@@ -441,7 +448,7 @@ const getInlineWorker = (referenceId: string, workerName: string, workerMsgId: s
 import { createWorker } from '${WORKER_HELPER_ID}';
 export const workerName = '${workerName}';
 export const workerMsgId = '${workerMsgId}';
-export const workerPath = /*@__PURE__*/import.meta.ROLLDOWN_FILE_URL_${referenceId};
+export const workerPath = import.meta.ROLLDOWN_FILE_URL_${referenceId};
 export let worker;
 try {
   // first try directly starting the worker with the URL
