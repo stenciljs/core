@@ -51,7 +51,7 @@ export const validateStandalone = (
         outputTarget.empty = true;
       }
       if (!isBoolean(outputTarget.externalRuntime)) {
-        outputTarget.externalRuntime = true;
+        outputTarget.externalRuntime = false;
       }
 
       // Export behavior must be defined on the validated target config and must

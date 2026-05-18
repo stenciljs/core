@@ -2350,7 +2350,7 @@ export interface OutputTargetStandalone extends OutputTargetBaseNext {
    * 2. File names are not hashed.
    * 3. File minification will follow the behavior defined at the root of the Stencil config.
    *
-   * @default true
+   * @default false
    */
   externalRuntime?: boolean;
 

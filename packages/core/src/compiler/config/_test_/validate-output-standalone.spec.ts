@@ -49,7 +49,7 @@ describe('validate-output-standalone', () => {
           copy: [],
           dir: defaultDistDir,
           empty: true,
-          externalRuntime: true,
+          externalRuntime: false,
           autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
@@ -72,7 +72,7 @@ describe('validate-output-standalone', () => {
           copy: [],
           dir: defaultDistDir,
           empty: true,
-          externalRuntime: true,
+          externalRuntime: false,
           autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'single-export-module',
           skipInDev: false,
@@ -95,7 +95,7 @@ describe('validate-output-standalone', () => {
           copy: [],
           dir: defaultDistDir,
           empty: true,
-          externalRuntime: true,
+          externalRuntime: false,
           autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
@@ -118,7 +118,7 @@ describe('validate-output-standalone', () => {
           copy: [],
           dir: join(rootDir, distCustomElementsDir),
           empty: true,
-          externalRuntime: true,
+          externalRuntime: false,
           autoLoader: { fileName: 'loader', autoStart: true },
           customElementsExportBehavior: 'default',
           skipInDev: false,
@@ -176,7 +176,7 @@ describe('validate-output-standalone', () => {
     });
 
     describe('"externalRuntime" field', () => {
-      it('defaults the "externalRuntime" field to true if not provided', () => {
+      it('defaults the "externalRuntime" field to false if not provided', () => {
         const outputTarget: d.OutputTargetStandalone = {
           type: STANDALONE,
           empty: false,
@@ -191,7 +191,7 @@ describe('validate-output-standalone', () => {
             copy: [],
             dir: defaultDistDir,
             empty: false,
-            externalRuntime: true,
+            externalRuntime: false,
             autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
@@ -199,7 +199,7 @@ describe('validate-output-standalone', () => {
         ]);
       });
 
-      it('defaults the "externalRuntime" field to true it\'s not a boolean', () => {
+      it('defaults the "externalRuntime" field to false when not a boolean', () => {
         const outputTarget: d.OutputTargetStandalone = {
           type: STANDALONE,
           empty: false,
@@ -215,7 +215,7 @@ describe('validate-output-standalone', () => {
             copy: [],
             dir: defaultDistDir,
             empty: false,
-            externalRuntime: true,
+            externalRuntime: false,
             autoLoader: { fileName: 'loader', autoStart: true },
             customElementsExportBehavior: 'default',
             skipInDev: false,
