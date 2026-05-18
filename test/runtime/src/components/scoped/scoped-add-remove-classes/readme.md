@@ -7,10 +7,10 @@
 
 ## Properties
 
-| Property        | Attribute | Description | Type       | Default     |
-| --------------- | --------- | ----------- | ---------- | ----------- |
-| `items`         | --        |             | `Item[]`   | `undefined` |
-| `selectedItems` | --        |             | `number[]` | `undefined` |
+| Property        | Attribute | Description | Type                                                  | Default     |
+| --------------- | --------- | ----------- | ----------------------------------------------------- | ----------- |
+| `items`         | --        |             | `{ id: number; label: string; selected: boolean; }[]` | `undefined` |
+| `selectedItems` | --        |             | `number[]`                                            | `undefined` |
 
 
 ----------------------------------------------
