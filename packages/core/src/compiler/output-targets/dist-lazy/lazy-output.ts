@@ -62,6 +62,7 @@ export const outputLazy = async (
 
     const browserTarget = outputTargets.find((o) => o.isBrowserBuild && o.esmDir);
     const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
+    const useExternalRuntime = externalTarget?.externalRuntime ?? false;
 
     // Pre-scan global-style inputs to detect @import "stencil-hydrate" before bundling.
     // When found, the BUILD flag suppresses the dynamic <style> injection in bootstrap-loader.
@@ -115,11 +116,35 @@ export const outputLazy = async (
     );
 
     const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
+
+    // When the bundler variant requests externalRuntime, build a separate bundle for it
+    // so the browser/CDN build always has the runtime included.
+    const bundlerRolldownBuild =
+      rolldownBuild != null && useExternalRuntime
+        ? await bundleOutput(config, compilerCtx, buildCtx, {
+            ...bundleOpts,
+            id: 'lazy-external',
+            externalRuntime: true,
+          })
+        : rolldownBuild;
+
     if (rolldownBuild != null) {
       const results: d.UpdatedLazyBuildCtx[] = await Promise.all([
         generateEsmBrowser(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateEsm(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateCjs(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
+        generateEsm(
+          config,
+          compilerCtx,
+          buildCtx,
+          bundlerRolldownBuild ?? rolldownBuild,
+          outputTargets,
+        ),
+        generateCjs(
+          config,
+          compilerCtx,
+          buildCtx,
+          bundlerRolldownBuild ?? rolldownBuild,
+          outputTargets,
+        ),
       ]);
 
       results.forEach((result) => {

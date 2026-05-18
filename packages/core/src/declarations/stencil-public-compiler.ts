@@ -1959,6 +1959,16 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * @default 8
    */
   hashedFileNameLength?: number;
+
+  /**
+   * When `true`, marks `@stencil/core` as an external dependency in the bundler (ESM/CJS)
+   * distribution output. Consumers must provide `@stencil/core` themselves.
+   *
+   * Has no effect on the browser/CDN build — the runtime is always bundled there.
+   *
+   * @default false
+   */
+  externalRuntime?: boolean;
 }
 
 /**
@@ -2044,6 +2054,8 @@ export interface OutputTargetDistLazy extends OutputTargetBase {
   hashFileNames?: boolean;
   /** Inherited from parent output target (loader-bundle or www). */
   hashedFileNameLength?: number;
+  /** Inherited from loader-bundle. When true, @stencil/core is external in this bundler output. */
+  externalRuntime?: boolean;
 }
 
 /**

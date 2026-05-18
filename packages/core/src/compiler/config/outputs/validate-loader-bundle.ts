@@ -90,6 +90,7 @@ export const validateLoaderBundle = (
         loaderDir: join(loaderBundleOutput.dir, loaderBundleOutput.loaderPath),
         typesDir,
         empty: loaderBundleOutput.empty,
+        externalRuntime: loaderBundleOutput.externalRuntime,
       });
     }
   }
@@ -132,6 +133,7 @@ const validateOutputTargetLoaderBundle = (
     skipInDev: isBoolean(o.skipInDev) ? o.skipInDev : true,
     hashFileNames,
     hashedFileNameLength,
+    externalRuntime: isBoolean(o.externalRuntime) ? o.externalRuntime : false,
   } satisfies Required<d.OutputTargetLoaderBundle>;
 
   if (!isAbsolute(outputTarget.buildDir)) {
