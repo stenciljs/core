@@ -11,6 +11,11 @@ export const config: Config = {
       skipInDev: false,
     },
     {
+      type: 'loader-bundle',
+      externalRuntime: true,
+      skipInDev: false,
+    },
+    {
       type: 'collection',
       skipInDev: false,
     },

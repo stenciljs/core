@@ -18,8 +18,8 @@ describe('resolve modules', () => {
   it('isStencilCoreImport', () => {
     expect(isStencilCoreImport('@stencil/core')).toBe(true);
     expect(isStencilCoreImport('@stencil/core/runtime')).toBe(true);
-    expect(isStencilCoreImport('@stencil/core/runtime/client')).toBe(true);
-    expect(isStencilCoreImport('@stencil/core/runtime/client/index.mjs')).toBe(true);
+    expect(isStencilCoreImport('@stencil/core/runtime/client/standalone')).toBe(true);
+    expect(isStencilCoreImport('@stencil/core/runtime/client/lazy')).toBe(true);
     expect(isStencilCoreImport('lodash')).toBe(false);
     expect(isStencilCoreImport('@ionic/core')).toBe(false);
   });
