@@ -47,6 +47,7 @@ describe('validateLoaderBundleOutputTarget', () => {
         copy: [],
         dir: join(rootDir, 'my-dist'),
         empty: false,
+        externalRuntime: false,
         loaderPath: 'loader',
         type: LOADER_BUNDLE,
         skipInDev: true,
@@ -194,6 +195,41 @@ describe('validateLoaderBundleOutputTarget', () => {
       ) as d.OutputTargetDistLazy;
       expect(distLazy.hashFileNames).toBe(true);
       expect(distLazy.hashedFileNameLength).toBe(8);
+    });
+  });
+
+  describe('externalRuntime', () => {
+    it('defaults externalRuntime to false', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.externalRuntime).toBe(false);
+    });
+
+    it('respects explicit externalRuntime: true', () => {
+      userConfig.outputTargets = [{ type: LOADER_BUNDLE, externalRuntime: true }];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const validated = config.outputTargets.find(
+        (o) => o.type === LOADER_BUNDLE,
+      ) as d.OutputTargetLoaderBundle;
+      expect(validated.externalRuntime).toBe(true);
+    });
+
+    it('forwards externalRuntime to the bundler dist-lazy target only (not browser)', () => {
+      const prodConfig = mockConfig({ devMode: false, fsNamespace: 'testing' });
+      prodConfig.outputTargets = [{ type: LOADER_BUNDLE, externalRuntime: true }];
+      const { config } = validateConfig(prodConfig, mockLoadConfigInit());
+      const distLazyTargets = config.outputTargets.filter(
+        (o) => o.type === DIST_LAZY,
+      ) as d.OutputTargetDistLazy[];
+
+      const browserTarget = distLazyTargets.find((o) => o.isBrowserBuild);
+      const bundlerTarget = distLazyTargets.find((o) => !o.isBrowserBuild);
+
+      expect(browserTarget?.externalRuntime).toBeUndefined();
+      expect(bundlerTarget?.externalRuntime).toBe(true);
     });
   });
 

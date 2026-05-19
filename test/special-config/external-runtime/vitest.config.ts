@@ -8,9 +8,9 @@ export default defineVitestConfig({
     projects: [
       {
         test: {
-          name: 'no-app-data',
+          name: 'standalone-no-app-data',
           include: ['src/**/*.no-app-data.spec.{ts,tsx}'],
-          setupFiles: ['./vitest-setup.ts'],
+          setupFiles: ['./vitest-setup-standalone.ts'],
           browser: {
             enabled: true,
             provider: playwright(),
@@ -21,9 +21,38 @@ export default defineVitestConfig({
       },
       {
         test: {
-          name: 'with-app-data',
+          name: 'standalone-with-app-data',
           include: ['src/**/*.app-data.spec.{ts,tsx}'],
-          setupFiles: ['./vitest-setup.ts'],
+          setupFiles: ['./vitest-setup-standalone.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            headless: true,
+            instances: [{ browser: 'chromium' }],
+          },
+          alias: {
+            '@stencil/core/runtime/app-data': resolve(__dirname, 'dist/collection/app-data.js'),
+          },
+        },
+      },
+      {
+        test: {
+          name: 'loader-no-app-data',
+          include: ['src/**/*.no-app-data.spec.{ts,tsx}'],
+          setupFiles: ['./vitest-setup-loader.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            headless: true,
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+      {
+        test: {
+          name: 'loader-with-app-data',
+          include: ['src/**/*.app-data.spec.{ts,tsx}'],
+          setupFiles: ['./vitest-setup-loader.ts'],
           browser: {
             enabled: true,
             provider: playwright(),

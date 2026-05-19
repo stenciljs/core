@@ -9,7 +9,8 @@ import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';
 import {
   APP_DATA_CONDITIONAL,
   STENCIL_CORE_ID,
-  STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+  STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
+  STENCIL_INTERNAL_LAZY_CLIENT_PLATFORM_ID,
   STENCIL_INTERNAL_SSR_PLATFORM_ID,
   STENCIL_INTERNAL_ID,
   STENCIL_JSX_DEV_RUNTIME_ID,
@@ -25,7 +26,7 @@ export const coreResolvePlugin = (
   lazyLoad: boolean,
 ): Plugin => {
   const compilerExe = config.sys.getCompilerExecutingPath();
-  const internalClient = getStencilInternalModule(config, compilerExe, 'client/index.js');
+  const internalClient = getStencilInternalModule(config, compilerExe, 'client/runtime.js');
   const internalSsr = getStencilInternalModule(config, compilerExe, 'server/index.mjs');
 
   // Cache transformed file content - the hydrated flag replacements are deterministic
@@ -58,7 +59,9 @@ export const coreResolvePlugin = (
           if (platform === 'client') {
             if (externalRuntime) {
               return {
-                id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+                id: lazyLoad
+                  ? STENCIL_INTERNAL_LAZY_CLIENT_PLATFORM_ID
+                  : STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
                 external: true,
               };
             }
@@ -75,18 +78,16 @@ export const coreResolvePlugin = (
             return internalSsr;
           }
         }
-        if (id === STENCIL_INTERNAL_CLIENT_PLATFORM_ID) {
+        if (
+          id === STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID ||
+          id === STENCIL_INTERNAL_LAZY_CLIENT_PLATFORM_ID
+        ) {
           if (externalRuntime) {
-            // not bundling the client runtime and the user's component together this
-            // must be the custom elements build, where @stencil/core/runtime/client
-            // is an import, rather than bundling
-            return {
-              id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
-              external: true,
-            };
+            // not bundling the client runtime — must be a custom elements or loader-bundle
+            // build where the runtime is an external import rather than bundled
+            return { id, external: true };
           }
-          // importing @stencil/core/runtime/client directly, so it shouldn't get
-          // the custom app-data conditionals
+          // importing the runtime directly (no app-data conditionals)
           return internalClient;
         }
         if (id === STENCIL_INTERNAL_SSR_PLATFORM_ID) {
@@ -100,7 +101,9 @@ export const coreResolvePlugin = (
           if (platform === 'client') {
             if (externalRuntime) {
               return {
-                id: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+                id: lazyLoad
+                  ? STENCIL_INTERNAL_LAZY_CLIENT_PLATFORM_ID
+                  : STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
                 external: true,
               };
             }

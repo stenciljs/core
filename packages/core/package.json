@@ -69,8 +69,16 @@
       "import": "./dist/runtime/app-globals/index.js"
     },
     "./runtime/client": {
-      "types": "./dist/runtime/client/index.d.ts",
-      "import": "./dist/runtime/client/index.js"
+      "types": "./dist/runtime/client/runtime.d.ts",
+      "import": "./dist/runtime/client/runtime.js"
+    },
+    "./runtime/client/standalone": {
+      "types": "./dist/runtime/client/runtime.d.ts",
+      "import": "./dist/runtime/client/runtime.js"
+    },
+    "./runtime/client/lazy": {
+      "types": "./dist/runtime/client/runtime.d.ts",
+      "import": "./dist/runtime/client/lazy.js"
     },
     "./runtime/server": {
       "types": "./dist/runtime/server/index.d.mts",

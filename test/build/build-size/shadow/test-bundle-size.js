@@ -13,12 +13,12 @@ console.log('\nChecking bundle size (shadow)...');
 
 const files = fs.readdirSync(distDir);
 const indexFile = files.find(
-  (file) => (file.startsWith('index-') || file.startsWith('client-')) && file.endsWith('.js'),
+  (file) => (file.startsWith('runtime-') || file.startsWith('client-')) && file.endsWith('.js'),
 );
 
 if (!indexFile) {
   console.error(
-    '❌ ERROR: Could not find index-HASH.js file in dist/loader-bundle/bundlesize-shadow/',
+    '❌ ERROR: Could not find runtime-HASH.js file in dist/loader-bundle/bundlesize-shadow/',
   );
   process.exit(1);
 }

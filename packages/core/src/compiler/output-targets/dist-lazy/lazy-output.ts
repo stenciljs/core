@@ -62,6 +62,7 @@ export const outputLazy = async (
 
     const browserTarget = outputTargets.find((o) => o.isBrowserBuild && o.esmDir);
     const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
+    const useExternalRuntime = externalTarget?.externalRuntime ?? false;
 
     // Pre-scan global-style inputs to detect @import "stencil-hydrate" before bundling.
     // When found, the BUILD flag suppresses the dynamic <style> injection in bootstrap-loader.
@@ -115,11 +116,43 @@ export const outputLazy = async (
     );
 
     const rolldownBuild = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
+
+    // When the bundler variant requests externalRuntime, build a separate bundle for it
+    // so the browser/CDN build always has the runtime included.
+    const bundlerRolldownBuild =
+      rolldownBuild != null && useExternalRuntime
+        ? await bundleOutput(config, compilerCtx, buildCtx, {
+            ...bundleOpts,
+            id: 'lazy-external',
+            externalRuntime: true,
+            loader: {
+              ...bundleOpts.loader,
+              [LAZY_EXTERNAL_ENTRY_ID]: getLazyEntry(
+                false,
+                computeAssetPath(externalTarget?.esmDir),
+                true,
+              ),
+            },
+          })
+        : rolldownBuild;
+
     if (rolldownBuild != null) {
       const results: d.UpdatedLazyBuildCtx[] = await Promise.all([
         generateEsmBrowser(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateEsm(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
-        generateCjs(config, compilerCtx, buildCtx, rolldownBuild, outputTargets),
+        generateEsm(
+          config,
+          compilerCtx,
+          buildCtx,
+          bundlerRolldownBuild ?? rolldownBuild,
+          outputTargets,
+        ),
+        generateCjs(
+          config,
+          compilerCtx,
+          buildCtx,
+          bundlerRolldownBuild ?? rolldownBuild,
+          outputTargets,
+        ),
       ]);
 
       results.forEach((result) => {
@@ -231,7 +264,7 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
   };
 }
 
-const getLazyEntry = (isBrowser: boolean, assetPath?: string): string => {
+const getLazyEntry = (isBrowser: boolean, assetPath?: string, externalRuntime = false): string => {
   const s = new MagicString(``);
   s.append(`export { setNonce } from '${STENCIL_CORE_ID}';\n`);
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
@@ -252,9 +285,15 @@ const getLazyEntry = (isBrowser: boolean, assetPath?: string): string => {
     if (assetPath) {
       s.append(`import { setAssetPath } from '${STENCIL_CORE_ID}';\n`);
     }
+    if (externalRuntime) {
+      s.append(`import { setLazyLoadBasePath } from '${STENCIL_CORE_ID}';\n`);
+    }
     s.append(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';\n`);
     if (assetPath) {
       s.append(`setAssetPath(new URL('${assetPath}', String(import.meta.url)).href);\n`);
+    }
+    if (externalRuntime) {
+      s.append(`setLazyLoadBasePath(String(import.meta.url));\n`);
     }
     s.append(`export const defineCustomElements = async (win, options) => {\n`);
     s.append(`  if (typeof window === 'undefined') return undefined;\n`);

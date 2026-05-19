@@ -37,5 +37,5 @@ jobs:
         uses: ./.github/workflows/actions/install-playwright
 
       - name: Runtime Tests
-        run: pnpm --filter "@stencil-core-tests/runtime" test
+        run: pnpm --filter "@stencil-core-tests/runtime" test --prod
         shell: bash

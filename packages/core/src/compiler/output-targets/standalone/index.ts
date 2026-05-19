@@ -22,7 +22,7 @@ import { mergeCollectionBuildFlags } from '../../app-core/app-data';
 import { bundleOutput } from '../../bundle/bundle-output';
 import {
   STENCIL_APP_GLOBALS_ID,
-  STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+  STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
   USER_INDEX_ENTRY_ID,
 } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
@@ -359,13 +359,15 @@ export const generateEntryPoint = (
 
   // Exports that are always present
   exports.push(
-    `export { setNonce, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`,
+    `export { setNonce, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 
   // Auto-configure asset path if components use assets
   if (relativeAssetPath) {
-    imports.push(`import { setAssetPath } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`);
+    imports.push(
+      `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+    );
     // Use import.meta.url for runtime resolution that works regardless of where bundle is hosted
     body.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
   }
@@ -378,7 +380,9 @@ export const generateEntryPoint = (
 
   // Content related to the `bundle` export behavior
   if (outputTarget.customElementsExportBehavior === 'bundle') {
-    imports.push(`import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';`);
+    imports.push(
+      `import { transformTag } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+    );
     imports.push(...cmpImports);
     body.push(
       'export const defineCustomElements = (opts) => {',
@@ -435,7 +439,7 @@ const getCustomBeforeTransformers = (
   buildCtx: d.BuildCtx,
 ): ts.TransformerFactory<ts.SourceFile>[] => {
   const transformOpts: d.TransformOptions = {
-    coreImportPath: STENCIL_INTERNAL_CLIENT_PLATFORM_ID,
+    coreImportPath: STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
     componentExport: null,
     componentMetadata: null,
     currentDirectory: config.sys.getCurrentDirectory(),
