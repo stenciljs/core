@@ -80,7 +80,7 @@ describe('core resolve plugin', () => {
       const plugin = coreResolvePlugin(config, compilerCtx, 'client', false, true);
       const resolveId = plugin.resolveId as { handler: (id: string) => string };
       const resolved = resolveId.handler(STENCIL_JSX_RUNTIME_ID);
-      expect(resolved).toContain('runtime/client/index.js');
+      expect(resolved).toContain('@stencil/core/runtime/client/runtime.js');
       expect(resolved).toContain(APP_DATA_CONDITIONAL);
     });
   });

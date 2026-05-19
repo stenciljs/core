@@ -26,6 +26,14 @@ export const cmpModules = /*@__PURE__*/ new Map<
  */
 const MODULE_IMPORT_PREFIX = './';
 
+// When the runtime is used as an external dependency (externalRuntime: true on loader-bundle),
+// dynamic imports must resolve relative to the loader entry file, not this runtime file.
+// The generated loader entry sets this via setLazyLoadBasePath(import.meta.url).
+let lazyLoadBasePath: string | undefined;
+export const setLazyLoadBasePath = (url: string): void => {
+  lazyLoadBasePath = url;
+};
+
 export const loadModule = (
   cmpMeta: d.ComponentRuntimeMeta,
   hostRef: d.HostRef,
@@ -47,23 +55,26 @@ export const loadModule = (
     return module[exportName];
   }
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
+  const entryFile = `${bundleId}.entry.js${BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''}`;
+  const onLoad = (importedModule: any) => {
+    if (!BUILD.hotModuleReplacement) cmpModules.set(bundleId, importedModule);
+    return importedModule[exportName];
+  };
+  const onError = (e: Error) => consoleError(e, hostRef.$hostElement$);
+  if (lazyLoadBasePath) {
+    return import(
+      /* @vite-ignore */
+      /* webpackInclude: /\.entry\.js$/ */
+      /* webpackExclude: /\.system\.entry\.js$/ */
+      /* webpackMode: "lazy" */
+      new URL(entryFile, lazyLoadBasePath).href
+    ).then(onLoad, onError);
+  }
   return import(
     /* @vite-ignore */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${
-      BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''
-    }`
-  ).then(
-    (importedModule) => {
-      if (!BUILD.hotModuleReplacement) {
-        cmpModules.set(bundleId, importedModule);
-      }
-      return importedModule[exportName];
-    },
-    (e: Error) => {
-      consoleError(e, hostRef.$hostElement$);
-    },
-  );
+    `${MODULE_IMPORT_PREFIX}${entryFile}`
+  ).then(onLoad, onError);
 };

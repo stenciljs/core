@@ -206,10 +206,10 @@ export default defineConfig([
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
-  // Client runtime (app-data/globals externalized for runtime swapping)
+  // Standalone client runtime (app-data/globals externalized for runtime swapping)
   {
     entry: {
-      'runtime/client/index': 'src/client/index.ts',
+      'runtime/client/runtime': 'src/client/index.ts',
     },
     outDir: 'dist',
     format: ['esm'],
@@ -231,6 +231,39 @@ export default defineConfig([
       virtualModules({
         resolve: {
           'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
+        },
+      }),
+    ],
+  },
+
+  // Lazy client runtime (app-data kept external but lazyLoad: true baked in via lazy.ts wrapper)
+  {
+    entry: {
+      'runtime/client/lazy': 'src/client/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: false, // types identical to standalone
+    clean: false,
+    deps: {
+      // virtual:app-data-external is the real app-data, kept external so consumers can alias it
+      neverBundle: [/^node:/, 'virtual:app-globals', 'virtual:app-data-external'],
+      skipNodeModulesBundle: true,
+    },
+    outputOptions: {
+      paths: {
+        'virtual:app-globals': '@stencil/core/runtime/app-globals',
+        'virtual:app-data-external': '@stencil/core/runtime/app-data',
+      },
+    },
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
+          // virtual:app-data → lazy.ts, which wraps virtual:app-data-external with lazyLoad: true
+          'virtual:app-data': resolve(__dirname, 'src/app-data/lazy.ts'),
         },
       }),
     ],

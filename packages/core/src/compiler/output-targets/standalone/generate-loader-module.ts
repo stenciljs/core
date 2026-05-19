@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { STENCIL_INTERNAL_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
+import { STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
 
 /**
  * Generate the auto-loader module content that will be bundled via Rolldown.
@@ -32,14 +32,14 @@ export const generateLoaderModule = (
     .join('\n');
 
   const assetPathImport = relativeAssetPath
-    ? `import { setAssetPath } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';\n`
+    ? `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';\n`
     : '';
   const assetPathInit = relativeAssetPath
     ? `setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);\n`
     : '';
 
   return /* js */ `
-import { transformTag } from '${STENCIL_INTERNAL_CLIENT_PLATFORM_ID}';
+import { transformTag } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 ${assetPathImport}${assetPathInit}
 
 /**
