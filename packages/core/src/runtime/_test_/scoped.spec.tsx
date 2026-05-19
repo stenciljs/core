@@ -42,10 +42,12 @@ describe('scoped', () => {
     expect(page.root).toEqualHtml(`
     <cmp-a class="sc-cmp-a-h hydrated">
       <cmp-b class="sc-cmp-a sc-cmp-b-h hydrated">
-        <div class="sc-cmp-b sc-cmp-b-s">
-          <span class="sc-cmp-a">
-            Hola
-          </span>
+        <div class="sc-cmp-b">
+          <slot class="sc-cmp-b sc-cmp-b-s">
+            <span class="sc-cmp-a">
+              Hola
+            </span>
+          </slot>
         </div>
       </cmp-b>
     </cmp-a>
@@ -84,8 +86,10 @@ describe('scoped', () => {
     expect(page.root).toEqualHtml(`
       <cmp-b class="sc-cmp-b-h hydrated">
         <div class="sc-cmp-b">
-          <div class="sc-cmp-b sc-cmp-b-s">
-            hello
+          <div class="sc-cmp-b">
+            <slot class="sc-cmp-b sc-cmp-b-s">
+              hello
+            </slot>
           </div>
         </div>
       </cmp-b>

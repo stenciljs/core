@@ -17,13 +17,12 @@ describe('scoped-slot-text', () => {
     const label = root.querySelector('label')!;
 
     /**
-     * Expect two child nodes in the label
-     * - a content reference text node
-     * - the slotted text node
+     * Expect one child node in the label: the <slot> element.
+     * Slotted text now lives physically inside <slot>.
      */
     expect(label).toBeTruthy();
-    expect(label.childNodes.length).toBe(2);
+    expect(label.childNodes.length).toBe(1);
     expect((label.childNodes[0] as any)['s-cr']).toBeDefined();
-    expect(label.childNodes[1].textContent).toBe('New text for label structure testing');
+    expect(label.childNodes[0].textContent).toBe('New text for label structure testing');
   });
 });

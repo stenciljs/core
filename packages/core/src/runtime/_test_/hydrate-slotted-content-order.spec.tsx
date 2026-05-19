@@ -43,22 +43,23 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.5.-->
       <!--o.0.6.-->
       <main c-id="1.0.0.0">
-        <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn>
-          slotted item 1
-        </p>
-        <!--c.0.2-->
-        <!-- a comment -->
-        <p c-id="0.3" s-sn>
-          slotted item 2
-        </p>
-        <!--t.0.4-->
-        A text node
-        <p c-id="0.5" s-sn>
-          slotted item 3
-        </p>
-        <!--c.0.6-->
-        <!-- another comment -->
+        <slot c-id="1.1.1.0">
+          <p c-id="0.1">
+            slotted item 1
+          </p>
+          <!--c.0.2-->
+          <!-- a comment -->
+          <p c-id="0.3">
+            slotted item 2
+          </p>
+          <!--t.0.4-->
+          A text node
+          <p c-id="0.5">
+            slotted item 3
+          </p>
+          <!--c.0.6-->
+          <!-- another comment -->
+        </slot>
       </main>
     </cmp-a>`);
 
@@ -137,19 +138,21 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.4.-->
       <main c-id="1.0.0.0">
         <aside c-id="1.1.1.0">
-          <!--s.1.2.2.0.second-->
-          <p slot="second" c-id="0.3">
-            second slot
-          </p>
+          <slot name="second" c-id="1.2.2.0">
+            <p slot="second" c-id="0.3">
+              second slot
+            </p>
+          </slot>
         </aside>
         <section c-id="1.3.1.1">
-          <!--s.1.4.2.0.-->
-          <!--c.0.1-->
-          <!-- comment node -->
-          <!--t.0.2-->
-          Default slot
-          <!--c.0.4-->
-          <!-- another comment node -->
+          <slot c-id="1.4.2.0">
+            <!--c.0.1-->
+            <!-- comment node -->
+            <!--t.0.2-->
+            Default slot
+            <!--c.0.4-->
+            <!-- another comment node -->
+          </slot>
         </section>
       </main>
     </cmp-a>`);
@@ -235,35 +238,37 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.4.-->
       <!--o.0.5.-->
       <main c-id="1.0.0.0">
-        <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn>
-          slotted item 1a
-        </p>
-        <!--c.0.2-->
-        <!-- a comment -->
-        <!--t.0.3-->
-        A text node
-        <!--c.0.4-->
-        <!-- another comment a-->
-        <cmp-b class="hydrated" s-id="2" c-id="0.5" s-sn>
-          <!--r.2-->
-          <!--o.0.6.-->
-          <!--o.0.7.-->
-          <!--o.0.8.-->
-          <!--o.0.9.-->
-          <section c-id="2.0.0.0">
-            <!--s.2.1.1.0.-->
-            <p c-id="0.6" s-sn>
-              slotted item 1b
-            </p>
-            <!--c.0.7-->
-            <!-- b comment -->
-            <!--t.0.8-->
-            B text node
-            <!--c.0.9-->
-            <!-- another comment b-->
-          </section>
-        </cmp-b>
+        <slot c-id="1.1.1.0">
+          <p c-id="0.1">
+            slotted item 1a
+          </p>
+          <!--c.0.2-->
+          <!-- a comment -->
+          <!--t.0.3-->
+          A text node
+          <!--c.0.4-->
+          <!-- another comment a-->
+          <cmp-b class="hydrated" s-id="2" c-id="0.5">
+            <!--r.2-->
+            <!--o.0.6.-->
+            <!--o.0.7.-->
+            <!--o.0.8.-->
+            <!--o.0.9.-->
+            <section c-id="2.0.0.0">
+              <slot c-id="2.1.1.0">
+                <p c-id="0.6">
+                  slotted item 1b
+                </p>
+                <!--c.0.7-->
+                <!-- b comment -->
+                <!--t.0.8-->
+                B text node
+                <!--c.0.9-->
+                <!-- another comment b-->
+              </slot>
+            </section>
+          </cmp-b>
+        </slot>
       </main>
     </cmp-a>`);
 
@@ -318,22 +323,23 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.5.c-->
       <!--o.0.6.c-->
       <main c-id="1.0.0.0">
-        <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn>
-          slotted item 1
-        </p>
-        <!--c.0.2-->
-        <!-- a comment -->
-        <p c-id="0.3" s-sn>
-          slotted item 2
-        </p>
-        <!--t.0.4-->
-        A text node
-        <p c-id="0.5" s-sn>
-          slotted item 3
-        </p>
-        <!--c.0.6-->
-        <!-- another comment -->
+        <slot c-id="1.1.1.0">
+          <p c-id="0.1">
+            slotted item 1
+          </p>
+          <!--c.0.2-->
+          <!-- a comment -->
+          <p c-id="0.3">
+            slotted item 2
+          </p>
+          <!--t.0.4-->
+          A text node
+          <p c-id="0.5">
+            slotted item 3
+          </p>
+          <!--c.0.6-->
+          <!-- another comment -->
+        </slot>
       </main>
     </cmp-a>`);
 
@@ -349,20 +355,21 @@ describe("hydrated components' slotted node order", () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <main class="sc-cmp-a-s sc-cmp-a">
-          <!--s.1.1.1.0.-->
-          <p>
-            slotted item 1
-          </p>
-          <!-- a comment -->
-          <p>
-            slotted item 2
-          </p>
-          A text node
-          <p>
-            slotted item 3
-          </p>
-          <!-- another comment -->
+        <main class="sc-cmp-a">
+          <slot class="sc-cmp-a-s sc-cmp-a">
+            <p>
+              slotted item 1
+            </p>
+            <!-- a comment -->
+            <p>
+              slotted item 2
+            </p>
+            A text node
+            <p>
+              slotted item 3
+            </p>
+            <!-- another comment -->
+          </slot>
         </main>
       </cmp-a>
     `);
@@ -414,19 +421,21 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.4-->
       <main c-id="1.0.0.0">
         <aside c-id="1.1.1.0">
-          <!--s.1.2.2.0.second-->
-          <p slot="second" c-id="0.3">
-            second slot
-          </p>
+          <slot name="second" c-id="1.2.2.0">
+            <p slot="second" c-id="0.3">
+              second slot
+            </p>
+          </slot>
         </aside>
         <section c-id="1.3.1.1">
-          <!--s.1.4.2.0.-->
-          <!--c.0.1-->
-          <!-- comment node -->
-          <!--t.0.2-->
-          Default slot
-          <!--c.0.4-->
-          <!-- another comment node -->
+          <slot c-id="1.4.2.0">
+            <!--c.0.1-->
+            <!-- comment node -->
+            <!--t.0.2-->
+            Default slot
+            <!--c.0.4-->
+            <!-- another comment node -->
+          </slot>
         </section>
       </main>
     </cmp-a>`);
@@ -494,35 +503,37 @@ describe("hydrated components' slotted node order", () => {
       <!--o.0.4-->
       <!--o.0.5-->
       <main c-id="1.0.0.0">
-        <!--s.1.1.1.0.-->
-        <p c-id="0.1" s-sn>
-          slotted item 1a
-        </p>
-        <!--c.0.2-->
-        <!-- a comment -->
-        <!--t.0.3-->
-        A text node
-        <!--c.0.4-->
-        <!-- another comment a-->
-        <cmp-b class="hydrated" s-id="2" c-id="0.5" s-sn>
-          <!--r.2-->
-          <!--o.0.6-->
-          <!--o.0.7-->
-          <!--o.0.8-->
-          <!--o.0.9-->
-          <section c-id="2.0.0.0">
-            <!--s.2.1.1.0.-->
-            <p c-id="0.6" s-sn>
-              slotted item 1b
-            </p>
-            <!--c.0.7-->
-            <!-- b comment -->
-            <!--t.0.8-->
-            B text node
-            <!--c.0.9-->
-            <!-- another comment b-->
-          </section>
-        </cmp-b>
+        <slot c-id="1.1.1.0">
+          <p c-id="0.1">
+            slotted item 1a
+          </p>
+          <!--c.0.2-->
+          <!-- a comment -->
+          <!--t.0.3-->
+          A text node
+          <!--c.0.4-->
+          <!-- another comment a-->
+          <cmp-b class="hydrated" s-id="2" c-id="0.5">
+            <!--r.2-->
+            <!--o.0.6-->
+            <!--o.0.7-->
+            <!--o.0.8-->
+            <!--o.0.9-->
+            <section c-id="2.0.0.0">
+              <slot c-id="2.1.1.0">
+                <p c-id="0.6">
+                  slotted item 1b
+                </p>
+                <!--c.0.7-->
+                <!-- b comment -->
+                <!--t.0.8-->
+                B text node
+                <!--c.0.9-->
+                <!-- another comment b-->
+              </slot>
+            </section>
+          </cmp-b>
+        </slot>
       </main>
     </cmp-a>`);
 

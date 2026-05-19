@@ -6,10 +6,8 @@ import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
   getHostSlotNodes,
-  getSlotChildSiblings,
   getSlotName,
   getSlottedChildNodes,
-  updateFallbackSlotVisibility,
 } from './slot-polyfill-utils';
 
 /// HOST ELEMENTS ///
@@ -95,23 +93,11 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
   HostElementPrototype.__appendChild = HostElementPrototype.appendChild;
 
   HostElementPrototype.appendChild = function (this: d.RenderNode, newChild: d.RenderNode) {
-    const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
+    const { slotNode } = findSlotFromSlottedNode(newChild, this);
     if (slotNode) {
       addSlotRelocateNode(newChild, slotNode);
-
-      const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
-      const appendAfter = slotChildNodes[slotChildNodes.length - 1];
-
-      const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
-      const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(
-        newChild,
-        appendAfter.nextSibling,
-      );
+      const insertedNode: d.RenderNode = internalCall(slotNode, 'appendChild')(newChild);
       dispatchSlotChangeEvent(slotNode);
-
-      // Check if there is fallback content that should be hidden
-      updateFallbackSlotVisibility(this);
-
       return insertedNode;
     }
     return (this as any).__appendChild(newChild);
@@ -130,16 +116,13 @@ export const patchSlotRemoveChild = (ElementPrototype: any) => {
   ElementPrototype.__removeChild = ElementPrototype.removeChild;
 
   ElementPrototype.removeChild = function (this: d.RenderNode, toRemove: d.RenderNode) {
-    if (toRemove && typeof toRemove['s-sn'] !== 'undefined') {
-      const childNodes = (this as any).__childNodes || this.childNodes;
-      const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn']);
-      if (slotNode && toRemove.isConnected) {
-        toRemove.remove();
-        // Check if there is fallback content that should be displayed if that
-        // was the last node in the slot
-        updateFallbackSlotVisibility(this);
-        return;
-      }
+    // If the node lives inside a <slot> element, remove it there directly.
+    // CSS `slot:not(:empty)+slot-fb{display:none}` handles fallback visibility automatically.
+    const slotParent = (toRemove as any).__parentNode as d.RenderNode;
+    if (slotParent?.['s-sr'] && toRemove.isConnected) {
+      toRemove.remove();
+      dispatchSlotChangeEvent(slotParent);
+      return toRemove;
     }
     return (this as any).__removeChild(toRemove);
   };
@@ -167,16 +150,9 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
       const slotNode = getHostSlotNodes(childNodes, this.tagName, slotName)[0];
       if (slotNode) {
         addSlotRelocateNode(newChild, slotNode, true);
-        const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
-        const appendAfter = slotChildNodes[0];
-
-        const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
-        const toReturn = internalCall(parent, 'insertBefore')(
-          newChild,
-          internalCall(appendAfter, 'nextSibling'),
-        );
+        internalCall(slotNode, 'prepend')(newChild);
         dispatchSlotChangeEvent(slotNode);
-        return toReturn;
+        return;
       }
 
       if (newChild.nodeType === 1 && !!newChild.getAttribute('slot')) {

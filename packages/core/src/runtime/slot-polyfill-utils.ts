@@ -5,52 +5,6 @@ import { internalCall } from './dom-extras';
 import { NODE_TYPE } from './runtime-constants';
 
 /**
- * Adjust the `.hidden` property as-needed on any nodes in a DOM subtree which
- * are slot fallback nodes - `<slot-fb>...</slot-fb>`
- *
- * A slot fallback node should be visible by default. Then, it should be
- * conditionally hidden if:
- *
- * - it has a sibling with a `slot` property set to its slot name or if
- * - it is a default fallback slot node, in which case we hide if it has any
- *   content
- *
- * @param elm the element of interest
- */
-export const updateFallbackSlotVisibility = (elm: d.RenderNode) => {
-  const childNodes = internalCall(elm, 'childNodes');
-
-  // is this is a stencil component?
-  if (elm.tagName && elm.tagName.includes('-') && elm['s-cr'] && elm.tagName !== 'SLOT-FB') {
-    // stencil component - try to find any slot fallback nodes
-    getHostSlotNodes(childNodes as any, (elm as HTMLElement).tagName).forEach((slotNode) => {
-      if (slotNode.nodeType === NODE_TYPE.ElementNode && slotNode.tagName === 'SLOT-FB') {
-        // this is a slot fallback node
-        if (getSlotChildSiblings(slotNode, getSlotName(slotNode), false).length) {
-          // has slotted nodes, hide fallback
-          slotNode.hidden = true;
-        } else {
-          // no slotted nodes
-          slotNode.hidden = false;
-        }
-      }
-    });
-  }
-
-  let i = 0;
-  for (i = 0; i < childNodes.length; i++) {
-    const childNode = childNodes[i] as d.RenderNode;
-    if (
-      childNode.nodeType === NODE_TYPE.ElementNode &&
-      internalCall(childNode, 'childNodes').length
-    ) {
-      // keep drilling down
-      updateFallbackSlotVisibility(childNode);
-    }
-  }
-};
-
-/**
  * Get's the child nodes of a component that are actually slotted.
  * It does this by using root nodes of a component; for each slotted node there is a
  * corresponding slot location node which points to the slotted node (via `['s-nr']`).
@@ -103,25 +57,6 @@ export function getHostSlotNodes(
 }
 
 /**
- * Get all 'child' sibling nodes of a slot node
- * @param slot - the slot node to get the child nodes from
- * @param slotName - the name of the slot to match on
- * @param includeSlot - whether to include the slot node in the result
- * @returns child nodes of the slot node
- */
-export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, includeSlot = true) => {
-  const childNodes: d.RenderNode[] = [];
-  if ((includeSlot && slot['s-sr']) || !slot['s-sr']) childNodes.push(slot as any);
-  let node = slot;
-
-  while ((node = node.nextSibling as any)) {
-    if (getSlotName(node) === slotName && (includeSlot || !node['s-sr']))
-      childNodes.push(node as any);
-  }
-  return childNodes;
-};
-
-/**
  * Check whether a node is located in a given named slot.
  *
  * @param nodeToRelocate the node of interest
@@ -130,6 +65,11 @@ export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, inclu
  */
 export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: string): boolean => {
   if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
+    // A forwarding slot (a <slot> rendered inside another component's children)
+    // matches by its own slot name rather than a `slot` attribute.
+    if (nodeToRelocate['s-sr'] && nodeToRelocate['s-sn'] === slotName) {
+      return true;
+    }
     if (nodeToRelocate.getAttribute('slot') === null && slotName === '') {
       // if the node doesn't have a slot attribute, and the slot we're checking
       // is not a named slot, then we assume the node should be within the slot
@@ -207,49 +147,39 @@ export const getSlotName = (node: d.PatchedSlotNode) =>
     : (node.nodeType === 1 && (node as Element).getAttribute('slot')) || undefined;
 
 /**
- * Add `assignedElements` and `assignedNodes` methods on a fake slot node
+ * Add `assignedElements` and `assignedNodes` methods on a `<slot>` element.
+ * Content is now physically inside the slot, so these are trivial.
  *
  * @param node - slot node to patch
  */
 export function patchSlotNode(node: d.RenderNode) {
-  if ((node as any).assignedElements || (node as any).assignedNodes || !node['s-sr']) return;
+  if (!node['s-sr']) return;
 
-  const assignedFactory = (elementsOnly: boolean) =>
-    function (opts?: { flatten: boolean }) {
-      const toReturn: d.RenderNode[] = [];
-      const slotName = this['s-sn'];
-
-      if (opts?.flatten) {
-        if (BUILD.isDev) {
-          console.error(
-            'Flattening is not supported for Stencil non-shadow slots. You can use `.childNodes` for nested slot fallback content.',
-          );
-        } else {
-          console.error('Flattening not supported for Stencil non-shadow slots');
-        }
+  (node as any).assignedNodes = function (opts?: { flatten: boolean }) {
+    if (opts?.flatten) {
+      if (BUILD.isDev) {
+        console.error(
+          'Flattening is not supported for Stencil non-shadow slots. You can use `.childNodes` for nested slot fallback content.',
+        );
+      } else {
+        console.error('Flattening not supported for Stencil non-shadow slots');
       }
+    }
+    return Array.from(this.childNodes);
+  }.bind(node);
 
-      const parent = this['s-cr'].parentElement as d.RenderNode;
-      // get all light dom nodes
-      const slottedNodes = parent.__childNodes
-        ? parent.childNodes
-        : getSlottedChildNodes(parent.childNodes);
-
-      (slottedNodes as d.RenderNode[]).forEach((n) => {
-        // find all the nodes assigned to slots we care about
-        if (slotName === getSlotName(n)) {
-          toReturn.push(n);
-        }
-      });
-
-      if (elementsOnly) {
-        return toReturn.filter((n) => n.nodeType === NODE_TYPE.ElementNode);
+  (node as any).assignedElements = function (opts?: { flatten: boolean }) {
+    if (opts?.flatten) {
+      if (BUILD.isDev) {
+        console.error(
+          'Flattening is not supported for Stencil non-shadow slots. You can use `.childNodes` for nested slot fallback content.',
+        );
+      } else {
+        console.error('Flattening not supported for Stencil non-shadow slots');
       }
-      return toReturn;
-    }.bind(node);
-
-  (node as any).assignedElements = assignedFactory(true);
-  (node as any).assignedNodes = assignedFactory(false);
+    }
+    return Array.from(this.children);
+  }.bind(node);
 }
 
 /**
@@ -258,7 +188,8 @@ export function patchSlotNode(node: d.RenderNode) {
  * @param elm the slot node to dispatch the event from
  */
 export function dispatchSlotChangeEvent(elm: d.RenderNode) {
-  (elm as any).name = elm['s-sn'] || '';
+  // Only set name for named slots — setting name='' adds a spurious empty attribute on default slots
+  if (elm['s-sn']) (elm as any).name = elm['s-sn'];
   elm.dispatchEvent(
     new CustomEvent('slotchange', { bubbles: false, cancelable: false, composed: false }),
   );

@@ -28,9 +28,10 @@ describe('hydrate scoped', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <article c-id="1.0.0.0">
-          <!--s.1.1.1.0.-->
-          <!--t.0.1-->
-          88mph
+          <slot c-id="1.1.1.0">
+            <!--t.0.1-->
+            88mph
+          </slot>
         </article>
       </cmp-a>
     `);
@@ -78,9 +79,10 @@ describe('hydrate scoped', () => {
         <!--r.1-->
         <!--o.0.1.c-->
         <article c-id="1.0.0.0">
-          <!--s.1.1.1.0.-->
-          <!--t.0.1-->
-          88mph
+          <slot c-id="1.1.1.0">
+            <!--t.0.1-->
+            88mph
+          </slot>
         </article>
       </cmp-a>
     `);
@@ -98,9 +100,10 @@ describe('hydrate scoped', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <article class="sc-cmp-a-s sc-cmp-a">
-        <!--s.1.1.1.0.-->
-          88mph
+        <article class="sc-cmp-a">
+          <slot class="sc-cmp-a-s sc-cmp-a">
+            88mph
+          </slot>
         </article>
       </cmp-a>
     `);
@@ -177,9 +180,9 @@ describe('hydrate scoped', () => {
     expect(serverHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
-        <div  class="wrapper" c-id="1.0.0.0">
+        <div class="wrapper" c-id="1.0.0.0">
           <p class="hi" c-id="1.1.1.0">
-            <!--s.1.2.2.0.-->
+            <slot c-id="1.2.2.0"></slot>
           </p>
         </div>
       </cmp-a>`);
@@ -189,14 +192,14 @@ describe('hydrate scoped', () => {
       html: serverHydrated.root.outerHTML,
       hydrateClientSide: true,
     });
-    expect(clientHydrated.root.querySelector('p').className).toBe('hi sc-cmp-a-s sc-cmp-a');
+    expect(clientHydrated.root.querySelector('p').className).toBe('hi sc-cmp-a');
 
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
         <div class="wrapper sc-cmp-a">
-          <p class="hi sc-cmp-a-s sc-cmp-a">
-            <!--s.1.2.2.0.-->
+          <p class="hi sc-cmp-a">
+            <slot class="sc-cmp-a-s sc-cmp-a"></slot>
           </p>
         </div>
       </cmp-a>`);

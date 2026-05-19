@@ -11,8 +11,7 @@ describe('slot-fallback-with-forwarded-slot', () => {
     const fb = cmp.querySelector('slot-fb') as HTMLElement;
 
     expect(fb).toHaveTextContent('Slot fallback via property');
-    expect(fb.getAttribute('hidden')).toBeNull();
-    expect(fb.hidden).toBe(false);
+    expect(fb).toBeVisible();
 
     // Add slotted content dynamically
     const p = document.createElement('p');
@@ -22,8 +21,7 @@ describe('slot-fallback-with-forwarded-slot', () => {
     await waitForChanges();
 
     expect(cmp).toHaveTextContent('Slot content via slot');
-    expect(fb.getAttribute('hidden')).toBe('');
-    expect(fb.hidden).toBe(true);
+    expect(fb).not.toBeVisible();
   });
 
   it('should hide slot-fb elements when slotted content exists', async () => {
@@ -39,14 +37,12 @@ describe('slot-fallback-with-forwarded-slot', () => {
 
     expect(cmp).toHaveTextContent('Slot content via slot');
     expect(fb).toHaveTextContent('Slot fallback via property');
-    expect(fb.getAttribute('hidden')).toBe('');
-    expect(fb.hidden).toBe(true);
+    expect(fb).not.toBeVisible();
 
     // Remove slotted content
     cmp.removeChild(cmp.childNodes[0]);
     await waitForChanges();
 
-    expect(fb.getAttribute('hidden')).toBeNull();
-    expect(fb.hidden).toBe(false);
+    expect(fb).toBeVisible();
   });
 });

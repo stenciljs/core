@@ -31,11 +31,12 @@ describe('hydrate, slot fallback', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <article c-id="1.0.0.0">
-          <slot-fb c-id="1.1.1.0" s-sn>
-            <!--t.1.2.2.0-->
+          <slot c-id="1.1.1.0"></slot>
+          <slot-fb c-id="1.2.1.1">
+            <!--t.1.3.2.0-->
             Fallback text - should not be hidden
-            <strong c-id="1.3.2.1">
-              <!--t.1.4.3.0-->
+            <strong c-id="1.4.2.1">
+              <!--t.1.5.3.0-->
               Fallback element
             </strong>
           </slot-fb>
@@ -52,7 +53,8 @@ describe('hydrate, slot fallback', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <article class="sc-cmp-a-s sc-cmp-a">
+        <article class="sc-cmp-a">
+          <slot class="sc-cmp-a-s sc-cmp-a"></slot>
           <slot-fb class="sc-cmp-a">
             Fallback text - should not be hidden
             <strong class="sc-cmp-a">
@@ -92,16 +94,17 @@ describe('hydrate, slot fallback', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <article c-id="1.0.0.0">
-          <slot-fb c-id="1.1.1.0" s-sn>
-            <!--t.1.2.2.0-->
+          <slot c-id="1.1.1.0"></slot>
+          <slot-fb c-id="1.2.1.1">
+            <!--t.1.3.2.0-->
             Fallback text - should not be hidden
-            <strong c-id="1.3.2.1">
-              <!--t.1.4.3.0-->
-                Fallback element
-              </strong>
-            </slot-fb>
-          </article>
-        </cmp-a>
+            <strong c-id="1.4.2.1">
+              <!--t.1.5.3.0-->
+              Fallback element
+            </strong>
+          </slot-fb>
+        </article>
+      </cmp-a>
     `);
 
     const clientHydrated = await newSpecPage({
@@ -168,29 +171,32 @@ describe('hydrate, slot fallback', () => {
         <!--r.1-->
         <!--o.0.1.c-->
         <article c-id="1.0.0.0">
-          <slot-fb hidden c-id="1.1.1.0" s-sn>
-            <!--t.1.2.2.0-->
+          <slot c-id="1.1.1.0">
+            <cmp-b class="hydrated" s-id="2" c-id="0.1">
+              <!--r.2-->
+              <section c-id="2.0.0.0">
+                <slot c-id="2.1.1.0"></slot>
+                <slot-fb c-id="2.2.1.1">
+                  <!--t.2.3.2.0-->
+                  Fallback content child - should not be hidden
+                </slot-fb>
+                <p c-id="2.4.1.2">
+                  <!--t.2.5.2.0-->
+                  Non slot based content
+                </p>
+              </section>
+            </cmp-b>
+          </slot>
+          <slot-fb c-id="1.2.1.1">
+            <!--t.1.3.2.0-->
             Fallback content parent - should be hidden
           </slot-fb>
-          <cmp-b class="hydrated" s-id="2" c-id="0.1" s-sn>
-            <!--r.2-->
-            <section c-id="2.0.0.0">
-              <slot-fb c-id="2.1.1.0" s-sn>
-                <!--t.2.2.2.0-->
-                Fallback content child - should not be hidden
-              </slot-fb>
-              <p c-id="2.3.1.1">
-                <!--t.2.4.2.0-->
-                Non slot based content
-              </p>
-            </section>
-          </cmp-b>
-          <p c-id="1.3.1.1">
-            <!--t.1.4.2.0-->
+          <p c-id="1.4.1.2">
+            <!--t.1.5.2.0-->
             Non slot based content
           </p>
         </article>
-      </cmp-a>  
+      </cmp-a>
     `);
 
     const clientHydrated = await newSpecPage({
@@ -202,21 +208,24 @@ describe('hydrate, slot fallback', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
-        <article class="sc-cmp-a-s sc-cmp-a">
-          <slot-fb hidden class="sc-cmp-a">
+        <article class="sc-cmp-a">
+          <slot class="sc-cmp-a-s sc-cmp-a">
+            <cmp-b class="hydrated sc-cmp-b-h">
+              <!--r.2-->
+              <section class="sc-cmp-b">
+                <slot class="sc-cmp-b-s sc-cmp-b"></slot>
+                <slot-fb class="sc-cmp-b">
+                  Fallback content child - should not be hidden
+                </slot-fb>
+                <p class="sc-cmp-b">
+                  Non slot based content
+                </p>
+              </section>
+            </cmp-b>
+          </slot>
+          <slot-fb class="sc-cmp-a">
             Fallback content parent - should be hidden
           </slot-fb>
-          <cmp-b class="hydrated sc-cmp-b-h">
-            <!--r.2-->
-            <section class="sc-cmp-b-s sc-cmp-b">
-              <slot-fb class="sc-cmp-b">
-                Fallback content child - should not be hidden
-              </slot-fb>
-              <p class="sc-cmp-b">
-                Non slot based content
-              </p>
-            </section>
-          </cmp-b>
           <p class="sc-cmp-a">
             Non slot based content
           </p>
@@ -267,26 +276,29 @@ describe('hydrate, slot fallback', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <article c-id="1.0.0.0">
-          <slot-fb hidden c-id="1.1.1.0" s-sn>
-            <!--t.1.2.2.0-->
+          <slot c-id="1.1.1.0">
+            <cmp-b class="hydrated" s-id="2" c-id="0.1">
+              <!--r.2-->
+              <section c-id="2.0.0.0">
+                <slot c-id="2.1.1.0"></slot>
+                <slot-fb c-id="2.2.1.1">
+                  <!--t.2.3.2.0-->
+                  Fallback content child - should not be hidden
+                </slot-fb>
+                <p c-id="2.4.1.2">
+                  <!--t.2.5.2.0-->
+                  Non slot based content
+                </p>
+              </section>
+            </cmp-b>
+          </slot>
+          <slot-fb c-id="1.2.1.1">
+            <!--t.1.3.2.0-->
             Fallback content parent - should be hidden
           </slot-fb>
-          <cmp-b class="hydrated" s-id="2" c-id="0.1" s-sn>
-            <!--r.2-->
-            <section c-id="2.0.0.0">
-              <slot-fb c-id="2.1.1.0" s-sn>
-                <!--t.2.2.2.0-->
-                Fallback content child - should not be hidden
-              </slot-fb>
-              <p c-id="2.3.1.1">
-                <!--t.2.4.2.0-->
-                Non slot based content
-              </p>
-            </section>
-          </cmp-b>
-          <p c-id="1.3.1.1">
-            <!--t.1.4.2.0-->
-            Non slot based content 
+          <p c-id="1.4.1.2">
+            <!--t.1.5.2.0-->
+            Non slot based content
           </p>
         </article>
       </cmp-a>
@@ -379,28 +391,33 @@ describe('hydrate, slot fallback', () => {
           <cmp-b class="hydrated" c-id="1.1.1.0" s-id="2">
             <!--r.2-->
             <!--o.1.2.-->
+            <!--o.1.3.-->
             <section c-id="2.0.0.0">
-              <slot-fb hidden c-id="2.1.1.0" s-sn>
-                <!--t.2.2.2.0-->
+              <slot c-id="2.1.1.0">
+                <slot c-id="1.2.2.0">
+                  <p c-id="0.2">
+                    slotted item 1
+                  </p>
+                  <p c-id="0.4">
+                    slotted item 2
+                  </p>
+                  <p c-id="0.6">
+                    slotted item 3
+                  </p>
+                </slot>
+                <slot-fb c-id="1.3.2.1">
+                  <!--t.1.4.3.0-->
+                  Fallback content parent - should be hidden
+                </slot-fb>
+              </slot>
+              <slot-fb c-id="2.2.1.1">
+                <!--t.2.3.2.0-->
                 Fallback content child - should be hidden
               </slot-fb>
-              <slot-fb hidden c-id="1.2.2.0" s-sn>
-                <!--t.1.3.3.0-->
-                Fallback content parent - should be hidden
-              </slot-fb>
-              <p c-id="0.2" s-sn>
-                slotted item 1
-              </p>
-              <p c-id="0.4" s-sn>
-                slotted item 2
-              </p>
-              <p c-id="0.6" s-sn>
-                slotted item 3
-              </p>
             </section>
           </cmp-b>
         </article>
-      </cmp-a>  
+      </cmp-a>
     `);
 
     const clientHydrated = await newSpecPage({
@@ -413,7 +430,7 @@ describe('hydrate, slot fallback', () => {
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
         <article class="sc-cmp-a">
-          <cmp-b class="hydrated sc-cmp-a-s sc-cmp-a">
+          <cmp-b class="hydrated sc-cmp-a">
             <mock:shadow-root>
               <section>
                 <slot>
@@ -421,21 +438,23 @@ describe('hydrate, slot fallback', () => {
                 </slot>
               </section>
             </mock:shadow-root>
-            <slot-fb hidden class="sc-cmp-a">
+            <slot class="sc-cmp-a-s sc-cmp-a">
+              <p>
+                slotted item 1
+              </p>
+              <p>
+                slotted item 2
+              </p>
+              <p>
+                slotted item 3
+              </p>
+            </slot>
+            <slot-fb class="sc-cmp-a">
               Fallback content parent - should be hidden
             </slot-fb>
-            <p>
-              slotted item 1
-            </p>
-            <p>
-              slotted item 2
-            </p>
-            <p>
-              slotted item 3
-            </p>
           </cmp-b>
         </article>
-      </cmp-a>  
+      </cmp-a>
     `);
   });
 
@@ -485,19 +504,23 @@ describe('hydrate, slot fallback', () => {
           <cmp-b class="hydrated" c-id="1.1.1.0" s-id="2">
             <!--r.2-->
             <!--o.1.2.-->
+            <!--o.1.3.-->
             <section c-id="2.0.0.0">
-              <slot-fb c-id="2.1.1.0" s-sn>
-                <!--t.2.2.2.0-->
+              <slot c-id="2.1.1.0">
+                <slot c-id="1.2.2.0"></slot>
+                <slot-fb c-id="1.3.2.1">
+                  <!--t.1.4.3.0-->
+                  Fallback content parent - should be hidden
+                </slot-fb>
+              </slot>
+              <slot-fb c-id="2.2.1.1">
+                <!--t.2.3.2.0-->
                 Fallback content child - should not be hidden
-              </slot-fb>
-              <slot-fb c-id="1.2.2.0" s-sn>
-                <!--t.1.3.3.0-->
-                Fallback content parent - should be hidden
               </slot-fb>
             </section>
           </cmp-b>
         </article>
-      </cmp-a>  
+      </cmp-a>
     `);
 
     const clientHydrated = await newSpecPage({
@@ -510,7 +533,7 @@ describe('hydrate, slot fallback', () => {
       <cmp-a class="hydrated sc-cmp-a-h">
         <!--r.1-->
         <article class="sc-cmp-a">
-          <cmp-b class="hydrated sc-cmp-a-s sc-cmp-a">
+          <cmp-b class="hydrated sc-cmp-a">
             <mock:shadow-root>
               <section>
                 <slot>
@@ -518,12 +541,13 @@ describe('hydrate, slot fallback', () => {
                 </slot>
               </section>
             </mock:shadow-root>
+            <slot class="sc-cmp-a-s sc-cmp-a"></slot>
             <slot-fb class="sc-cmp-a">
               Fallback content parent - should be hidden
             </slot-fb>
           </cmp-b>
         </article>
-      </cmp-a>  
+      </cmp-a>
     `);
   });
 });

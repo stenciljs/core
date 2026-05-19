@@ -10,14 +10,14 @@ describe('slot-shadow-list', () => {
     expect(button).toBeTruthy();
     expect(list).toBeTruthy();
 
-    // Query shadow DOM for list items
-    let items = list!.shadowRoot!.querySelectorAll('.list-wrapper > div');
+    // divs live inside <slot> which is inside .list-wrapper
+    let items = list!.shadowRoot!.querySelectorAll('.list-wrapper slot > div');
     expect(items.length).toBe(0);
 
     button!.click();
     await waitForChanges();
 
-    items = list!.shadowRoot!.querySelectorAll('.list-wrapper > div');
+    items = list!.shadowRoot!.querySelectorAll('.list-wrapper slot > div');
     expect(items.length).toBe(4);
 
     expect(root.querySelector('[hidden]')).toBeNull();

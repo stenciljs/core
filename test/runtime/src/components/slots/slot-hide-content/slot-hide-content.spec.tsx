@@ -8,8 +8,6 @@ describe('slot-hide-content', () => {
           <p id='slotted-1'>Hello</p>
         </slot-hide-content-scoped>,
       );
-      await waitForExist('slot-hide-content-scoped.hydrated');
-
       const host = root;
       const slottedContent = host.querySelector('#slotted-1')!;
 
@@ -21,7 +19,8 @@ describe('slot-hide-content', () => {
       await waitForChanges();
 
       expect(slottedContent.hasAttribute('hidden')).toBe(false);
-      expect(slottedContent.parentElement!.classList).toContain('slot-wrapper');
+      // slottedContent is inside <slot> which is inside .slot-wrapper
+      expect(slottedContent.closest('.slot-wrapper')).not.toBeNull();
     });
   });
 });

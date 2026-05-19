@@ -1,5 +1,5 @@
 /// <reference types="@stencil/core" />
-import './hydrated.css';
+import './dist/assets/stencil-hydrate.css';
 import * as ce from './dist/custom-elements/index.js';
 
 ce.setNonce('test-csp-nonce');

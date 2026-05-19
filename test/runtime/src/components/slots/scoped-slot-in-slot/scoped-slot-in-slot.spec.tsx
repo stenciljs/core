@@ -18,13 +18,13 @@ describe('scoped-slot-in-slot', () => {
     expect(parent.firstElementChild!.tagName).toBe('LABEL');
 
     // Ensure the label slot content made it through
-    const span = parent.firstElementChild!.firstElementChild!;
+    const span = parent.querySelector('label span[slot="label"]')!;
     expect(span).toBeDefined();
     expect(span.tagName).toBe('SPAN');
     expect(span.textContent).toBe('Label text');
 
-    // Ensure the message slot content made it through
-    expect(parent.lastElementChild!.tagName).toBe('SPAN');
+    // Ensure the message slot content made it through (slot[name=message] is lastElementChild)
+    expect(parent.lastElementChild!.tagName).toBe('SLOT');
     expect(parent.lastElementChild!.textContent).toBe('Message text');
 
     // Check the child content
@@ -32,7 +32,8 @@ describe('scoped-slot-in-slot', () => {
     expect(child).toBeDefined();
 
     // Ensure the suffix slot content made it through
-    expect(child.firstElementChild!.firstElementChild!.tagName).toBe('SPAN');
-    expect(child.firstElementChild!.firstElementChild!.textContent).toBe('Suffix text');
+    const suffixSpan = child.querySelector('div span[slot="suffix"]')!;
+    expect(suffixSpan.tagName).toBe('SPAN');
+    expect(suffixSpan.textContent).toBe('Suffix text');
   });
 });

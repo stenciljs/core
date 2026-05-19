@@ -21,8 +21,8 @@ describe('remove-child-patch', () => {
     await waitForExist('remove-child-patch.hydrated');
     const host = document.querySelector('remove-child-patch')!;
     document.querySelector('#remove-child-button')!.addEventListener('click', () => {
-      const slotContainer = host.querySelector('.slot-container')!;
-      const elementToRemove = slotContainer.children[slotContainer.children.length - 1];
+      const slot = host.querySelector('.slot-container slot')!;
+      const elementToRemove = slot.children[slot.children.length - 1];
       host.removeChild(elementToRemove);
     });
 
@@ -52,8 +52,8 @@ describe('remove-child-patch', () => {
     await waitForExist('remove-child-patch.hydrated');
     const host = document.querySelector('remove-child-patch')!;
     document.querySelector('#remove-child-button')!.addEventListener('click', () => {
-      const slotContainer = host.querySelector('.slot-container')!;
-      const elementToRemove = slotContainer.children[slotContainer.children.length - 1];
+      const slot = host.querySelector('.slot-container slot')!;
+      const elementToRemove = slot.children[slot.children.length - 1];
       host.removeChild(elementToRemove);
     });
 

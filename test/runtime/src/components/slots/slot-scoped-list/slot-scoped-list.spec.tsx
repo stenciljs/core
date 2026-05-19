@@ -10,12 +10,13 @@ describe('slot-scoped-list', () => {
     expect(button).toBeTruthy();
     expect(list).toBeTruthy();
 
-    expect(list!.querySelectorAll('.list-wrapper > div').length).toBe(0);
+    // divs live inside <slot> which is inside .list-wrapper
+    expect(list!.querySelectorAll('.list-wrapper slot > div').length).toBe(0);
 
     button!.click();
     await waitForChanges();
 
-    expect(list!.querySelectorAll('.list-wrapper > div').length).toBe(4);
+    expect(list!.querySelectorAll('.list-wrapper slot > div').length).toBe(4);
 
     expect(root.querySelector('[hidden]')).toBeNull();
   });

@@ -11,18 +11,20 @@ describe('scoped-slot-append-and-prepend', () => {
       await waitForExist('scoped-slot-append-and-prepend.hydrated');
       const host = root;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
+      // slotted content lives inside <slot> which is a child of #parentDiv
+      const slot = parentDiv.querySelector('slot')!;
 
       expect(host).toBeDefined();
       expect(parentDiv).toBeDefined();
-      expect(parentDiv.children.length).toBe(1);
-      expect(parentDiv.children[0].textContent).toBe('My initial slotted content.');
+      expect(slot.children.length).toBe(1);
+      expect(slot.children[0].textContent).toBe('My initial slotted content.');
 
       const el = document.createElement('p');
       el.innerText = 'The new slotted content.';
       host.append(el);
 
-      expect(parentDiv.children.length).toBe(2);
-      expect(parentDiv.children[1].textContent).toBe('The new slotted content.');
+      expect(slot.children.length).toBe(2);
+      expect(slot.children[1].textContent).toBe('The new slotted content.');
     });
   });
 
@@ -36,18 +38,19 @@ describe('scoped-slot-append-and-prepend', () => {
 
       const host = document.querySelector('scoped-slot-append-and-prepend')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
+      const slot = parentDiv.querySelector('slot')!;
 
       expect(host).toBeDefined();
       expect(parentDiv).toBeDefined();
-      expect(parentDiv.children.length).toBe(1);
-      expect(parentDiv.children[0].textContent).toBe('My initial slotted content.');
+      expect(slot.children.length).toBe(1);
+      expect(slot.children[0].textContent).toBe('My initial slotted content.');
 
       const el = document.createElement('p');
       el.innerText = 'The new slotted content.';
       host.appendChild(el);
 
-      expect(parentDiv.children.length).toBe(2);
-      expect(parentDiv.children[1].textContent).toBe('The new slotted content.');
+      expect(slot.children.length).toBe(2);
+      expect(slot.children[1].textContent).toBe('The new slotted content.');
     });
   });
 
@@ -61,18 +64,19 @@ describe('scoped-slot-append-and-prepend', () => {
 
       const host = document.querySelector('scoped-slot-append-and-prepend')!;
       const parentDiv = host.querySelector('#parentDiv')! as HTMLDivElement;
+      const slot = parentDiv.querySelector('slot')!;
 
       expect(host).toBeDefined();
       expect(parentDiv).toBeDefined();
-      expect(parentDiv.children.length).toBe(1);
-      expect(parentDiv.children[0].textContent).toBe('My initial slotted content.');
+      expect(slot.children.length).toBe(1);
+      expect(slot.children[0].textContent).toBe('My initial slotted content.');
 
       const el = document.createElement('p');
       el.innerText = 'The new slotted content.';
       host.prepend(el);
 
-      expect(parentDiv.children.length).toBe(2);
-      expect(parentDiv.children[0].textContent).toBe('The new slotted content.');
+      expect(slot.children.length).toBe(2);
+      expect(slot.children[0].textContent).toBe('The new slotted content.');
     });
   });
 });

@@ -9,7 +9,6 @@ import {
   HYDRATE_ID,
   NODE_TYPE,
   ORG_LOCATION_ID,
-  SLOT_NODE_ID,
   STENCIL_DOC_DATA,
   TEXT_NODE_ID,
 } from '../runtime-constants';
@@ -53,9 +52,6 @@ export const insertVdomAnnotations = (doc: Document, staticComponents: string[])
 
           if (nodeRef.nodeType === NODE_TYPE.ElementNode) {
             nodeRef.setAttribute(HYDRATE_CHILD_ID, childId);
-            if (typeof nodeRef['s-sn'] === 'string' && !nodeRef.getAttribute('slot')) {
-              nodeRef.setAttribute('s-sn', nodeRef['s-sn']);
-            }
           } else if (nodeRef.nodeType === NODE_TYPE.TextNode) {
             if (hostId === 0) {
               const textContent = nodeRef.nodeValue?.trim();
@@ -234,9 +230,6 @@ const insertChildVNodeAnnotations = (
 
   if (childElm.nodeType === NODE_TYPE.ElementNode) {
     childElm.setAttribute(HYDRATE_CHILD_ID, childId);
-    if (typeof childElm['s-sn'] === 'string' && !childElm.getAttribute('slot')) {
-      childElm.setAttribute('s-sn', childElm['s-sn']);
-    }
   } else if (childElm.nodeType === NODE_TYPE.TextNode) {
     const parentNode = childElm.parentNode;
     const nodeName = parentNode?.nodeName;
@@ -245,12 +238,6 @@ const insertChildVNodeAnnotations = (
 
       const commentBeforeTextNode = doc.createComment(textNodeId);
       insertBefore(parentNode, commentBeforeTextNode as any, childElm);
-    }
-  } else if (childElm.nodeType === NODE_TYPE.CommentNode) {
-    if (childElm['s-sr']) {
-      const slotName = childElm['s-sn'] || '';
-      const slotNodeId = `${SLOT_NODE_ID}.${childId}.${slotName}`;
-      childElm.nodeValue = slotNodeId;
     }
   }
 

@@ -26,11 +26,12 @@ describe('checks slotted node parentNode', () => {
     );
     await waitForExist('cmp-slotted-parentnode.hydrated');
 
+    // <slot> is the real DOM parent of slotted nodes (it is internal to the component)
     expect(
       (document.querySelector('cmp-slotted-parentnode')!.children[0] as any).__parentNode.tagName,
-    ).toBe('LABEL');
+    ).toBe('SLOT');
     expect(
       (document.querySelector('cmp-slotted-parentnode')!.childNodes[0] as any).__parentNode.tagName,
-    ).toBe('LABEL');
+    ).toBe('SLOT');
   });
 });

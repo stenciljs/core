@@ -134,6 +134,25 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 
 ## Tasks
 
+### 🎰 Light DOM Slot System Modernization
+**Status:** In Progress
+
+Replace Stencil's ~15-year-old proprietary light DOM slot polyfill with a much simpler architecture using real `<slot>` elements as containers.
+
+**Key changes:**
+- Slot references: empty text nodes → real `<slot>` elements (UA stylesheet gives them `display:contents` globally)
+- Content model: siblings after a text-node marker → children *inside* `<slot>` elements
+- Fallback visibility: JS traversal (`updateFallbackSlotVisibility`) → pure CSS: `slot:not(:empty)+slot-fb{display:none}`
+- `assignedNodes()` / `assignedElements()`: sibling traversal → `slot.childNodes` / `slot.children`
+- DOM patches (`dom-extras.ts`): complex sibling-walking → `slot.appendChild` / `slot.prepend`
+- SSR: comment marker soup → real `<slot>` elements with content already inside them
+
+**Removes entirely:** `updateFallbackSlotVisibility`, `getSlotChildSiblings`, `checkSlotFallbackVisibility` flag, `isSlotFallback`/`isSlotReference` VNODE_FLAGS, `s-nt-` comment-node hack for unmatched text nodes, debug slot reference comment nodes
+
+**What stays:** `s-ol` original-location markers (re-render put-back), DOM method patching on host (still needed for transparency, but much simpler implementations), content relocation (still physically moves nodes, now *into* `<slot>` instead of adjacent)
+
+**Normalization:** JSX `<slot>fallback</slot>` is normalized at render time into two sibling vnodes: `<slot/>` + `<slot-fb>fallback</slot-fb>`, so the vdom and DOM always match 1:1.
+
 ### 🌍 `ssr-wasm` Output Target (Planned)
 
 New output target that compiles the SSR script to a standalone `.wasm` binary, callable from any language with a WASM runtime (PHP via `ext-wasm`, Java via `wasmtime-java`, Ruby via `wasmtime-rb`, Go, Rust, etc.).

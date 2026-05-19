@@ -56,7 +56,6 @@ export const NODE_TYPE = {
 
 export const CONTENT_REF_ID = 'r';
 export const ORG_LOCATION_ID = 'o';
-export const SLOT_NODE_ID = 's';
 export const TEXT_NODE_ID = 't';
 export const COMMENT_NODE_ID = 'c';
 
@@ -73,12 +72,14 @@ export const DEFAULT_DOC_DATA = {
 };
 
 /**
- * Constant for styles to be globally applied to `slot-fb` elements for pseudo-slot behavior.
- *
- * Two cascading rules must be used instead of a `:not()` selector due to Stencil browser
- * support as of Stencil v4.
+ * CSS for light DOM slot polyfill. `<slot>` gets display:contents (matches UA stylesheet,
+ * but explicit for SSR/test environments). Fallback visibility is CSS-driven:
+ * `<slot-fb>` shows by default, hidden whenever its preceding `<slot>` has content.
  */
-export const SLOT_FB_CSS = 'slot-fb{display:contents}slot-fb[hidden]{display:none}';
+// slot:has(:not(slot:empty)) handles forwarded-slot chains: hide slot-fb only when
+// the slot tree contains at least one non-empty-slot descendant (real content).
+export const SLOT_FB_CSS =
+  'slot{display:contents}slot-fb{display:contents}slot:has(:not(slot:empty))+slot-fb{display:none}';
 
 export const XLINK_NS = 'http://www.w3.org/1999/xlink';
 

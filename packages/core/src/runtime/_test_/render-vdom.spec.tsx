@@ -593,7 +593,9 @@ describe('render-vdom', () => {
     expect(root).toEqualHtml(`
       <cmp-a class="hydrated">
         <a href="#">
-          Hello
+          <slot>
+            Hello
+          </slot>
         </a>
       </cmp-a>
     `);

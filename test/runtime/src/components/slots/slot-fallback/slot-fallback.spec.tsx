@@ -5,48 +5,40 @@ describe('slot-fallback', () => {
     const { waitForChanges } = await render(<slot-fallback-root></slot-fallback-root>);
 
     // show fallback content
-    expect(
-      document.querySelector('.results1 slot-fb[name="start"]:not([hidden])')!.textContent,
-    ).toBe('slot start fallback 0');
-    expect(document.querySelector('.results1 section slot-fb:not([hidden])')!.textContent).toBe(
-      'slot default fallback 0',
-    );
-    expect(
-      document.querySelector('.results1 article span slot-fb[name="end"]:not([hidden])')!
-        .textContent,
-    ).toBe('slot end fallback 0');
+    const fbStart = () => document.querySelector<HTMLElement>('.results1 slot-fb[name="start"]')!;
+    const fbDefault = () => document.querySelector<HTMLElement>('.results1 section slot-fb')!;
+    const fbEnd = () =>
+      document.querySelector<HTMLElement>('.results1 article span slot-fb[name="end"]')!;
+
+    expect(fbStart().textContent).toBe('slot start fallback 0');
+    expect(fbStart()).toBeVisible();
+    expect(fbDefault().textContent).toBe('slot default fallback 0');
+    expect(fbDefault()).toBeVisible();
+    expect(fbEnd().textContent).toBe('slot end fallback 0');
+    expect(fbEnd()).toBeVisible();
 
     // update fallback content
     (document.querySelector('button.change-fallback-content') as HTMLButtonElement).click();
     await waitForChanges();
 
-    expect(
-      document.querySelector('.results1 slot-fb[name="start"]:not([hidden])')!.textContent,
-    ).toBe('slot start fallback 1');
-    expect(document.querySelector('.results1 section slot-fb:not([hidden])')!.textContent).toBe(
-      'slot default fallback 1',
-    );
-    expect(
-      document.querySelector('.results1 article span slot-fb[name="end"]:not([hidden])')!
-        .textContent,
-    ).toBe('slot end fallback 1');
+    expect(fbStart().textContent).toBe('slot start fallback 1');
+    expect(fbStart()).toBeVisible();
+    expect(fbDefault().textContent).toBe('slot default fallback 1');
+    expect(fbDefault()).toBeVisible();
+    expect(fbEnd().textContent).toBe('slot end fallback 1');
+    expect(fbEnd()).toBeVisible();
 
     // set light dom instead and hide fallback content
     (document.querySelector('button.change-light-dom') as HTMLButtonElement).click();
     await waitForChanges();
 
     // fallback content hidden but still the same
-    expect(
-      document.body.querySelector('.results1 slot-fb[name="start"][hidden]')!.textContent!.trim(),
-    ).toBe('slot start fallback 1');
-    expect(
-      document.body.querySelector('.results1 section slot-fb[hidden]')!.textContent!.trim(),
-    ).toBe('slot default fallback 1');
-    expect(
-      document.body
-        .querySelector('.results1 article span slot-fb[name="end"][hidden]')!
-        .textContent!.trim(),
-    ).toBe('slot end fallback 1');
+    expect(fbStart().textContent!.trim()).toBe('slot start fallback 1');
+    expect(fbStart()).not.toBeVisible();
+    expect(fbDefault().textContent!.trim()).toBe('slot default fallback 1');
+    expect(fbDefault()).not.toBeVisible();
+    expect(fbEnd().textContent!.trim()).toBe('slot end fallback 1');
+    expect(fbEnd()).not.toBeVisible();
 
     // light dom content rendered
     expect(document.querySelector('.results1 content-start')!.textContent).toBe(
@@ -63,18 +55,13 @@ describe('slot-fallback', () => {
     (document.querySelector('button.change-slot-content') as HTMLButtonElement).click();
     await waitForChanges();
 
-    // fallback content hidden and updated content
-    expect(
-      document.querySelector('.results1 slot-fb[name="start"][hidden]')!.textContent!.trim(),
-    ).toBe('slot start fallback 2');
-    expect(document.querySelector('.results1 section slot-fb[hidden]')!.textContent!.trim()).toBe(
-      'slot default fallback 2',
-    );
-    expect(
-      document
-        .querySelector('.results1 article span slot-fb[name="end"][hidden]')!
-        .textContent!.trim(),
-    ).toBe('slot end fallback 2');
+    // fallback content hidden and updated
+    expect(fbStart().textContent!.trim()).toBe('slot start fallback 2');
+    expect(fbStart()).not.toBeVisible();
+    expect(fbDefault().textContent!.trim()).toBe('slot default fallback 2');
+    expect(fbDefault()).not.toBeVisible();
+    expect(fbEnd().textContent!.trim()).toBe('slot end fallback 2');
+    expect(fbEnd()).not.toBeVisible();
 
     // light dom content updated
     expect(document.querySelector('.results1 content-start')!.textContent).toBe(
@@ -91,17 +78,13 @@ describe('slot-fallback', () => {
     (document.querySelector('button.change-light-dom') as HTMLButtonElement).click();
     await waitForChanges();
 
-    // fallback content should not be hidden
-    expect(
-      document.querySelector('.results1 slot-fb[name="start"]:not([hidden])')!.textContent,
-    ).toBe('slot start fallback 2');
-    expect(document.querySelector('.results1 section slot-fb:not([hidden])')!.textContent).toBe(
-      'slot default fallback 2',
-    );
-    expect(
-      document.querySelector('.results1 article span slot-fb[name="end"]:not([hidden])')!
-        .textContent,
-    ).toBe('slot end fallback 2');
+    // fallback content should be visible again
+    expect(fbStart().textContent).toBe('slot start fallback 2');
+    expect(fbStart()).toBeVisible();
+    expect(fbDefault().textContent).toBe('slot default fallback 2');
+    expect(fbDefault()).toBeVisible();
+    expect(fbEnd().textContent).toBe('slot end fallback 2');
+    expect(fbEnd()).toBeVisible();
 
     // light dom content should not exist
     expect(document.querySelector('.results1 content-start')).toBeNull();
