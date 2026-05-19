@@ -112,7 +112,8 @@ describe('slot-html', () => {
     expect(results5SlotStartChildren[0].textContent).toBe('start slot 1');
     expect(results5SlotStartChildren[1].textContent).toBe('start slot 2');
 
-    expect(document.querySelector('.results5 div')!.childNodes[3].textContent!.trim()).toBe(
+    // default text node is now inside <slot> at childNodes[2]
+    expect(document.querySelector('.results5 div')!.childNodes[2].textContent!.trim()).toBe(
       'default text node',
     );
 
@@ -148,36 +149,53 @@ describe('slot-html', () => {
     expect(results9DefaultSlotChildren[0].textContent).toBe('default slot 1');
     expect(results9DefaultSlotChildren[1].textContent).toBe('default slot 2');
 
-    const results10Children = document.querySelector('.results10 div')!.childNodes;
-    expect(results10Children[3].textContent!.trim()).toBe('default slot 1');
-    expect(results10Children[4].textContent!.trim()).toBe('default slot 2');
-    expect(results10Children[5].textContent!.trim()).toBe('default slot text node');
+    // results10: div > [hr, article, slot(default), section]
+    // default slot content is inside <slot> at childNodes[2]
+    const results10DefaultSlot = document.querySelector('.results10 div')!.childNodes[2];
+    expect(results10DefaultSlot.childNodes[0].textContent!.trim()).toBe('default slot 1');
+    expect(results10DefaultSlot.childNodes[1].textContent!.trim()).toBe('default slot 2');
+    expect(results10DefaultSlot.childNodes[2].textContent!.trim()).toBe('default slot text node');
 
+    // results11/12: div > [hr, article, slot(default), section]
+    // article > span > slot[name=start] > content
+    // section > slot[name=end] > content
     const results11 = document.querySelector('.results11 div')!;
-    expect(results11.childNodes[1].childNodes[0].childNodes[1].textContent!.trim()).toBe(
-      'start slot 1',
+    expect(
+      results11.childNodes[1].childNodes[0].childNodes[0].childNodes[0].textContent!.trim(),
+    ).toBe('start slot 1');
+    expect(
+      results11.childNodes[1].childNodes[0].childNodes[0].childNodes[1].textContent!.trim(),
+    ).toBe('start slot 2');
+    expect(results11.childNodes[2].childNodes[0].textContent!.trim()).toBe('default slot 1');
+    expect(results11.childNodes[2].childNodes[1].textContent!.trim()).toBe('default slot 2');
+    expect(results11.childNodes[2].childNodes[2].textContent!.trim()).toBe(
+      'default slot text node',
     );
-    expect(results11.childNodes[1].childNodes[0].childNodes[2].textContent!.trim()).toBe(
-      'start slot 2',
+    expect(results11.childNodes[3].childNodes[0].childNodes[0].textContent!.trim()).toBe(
+      'end slot 1',
     );
-    expect(results11.childNodes[3].textContent!.trim()).toBe('default slot 1');
-    expect(results11.childNodes[4].textContent!.trim()).toBe('default slot 2');
-    expect(results11.childNodes[5].textContent!.trim()).toBe('default slot text node');
-    expect(results11.childNodes[6].childNodes[1].textContent!.trim()).toBe('end slot 1');
-    expect(results11.childNodes[6].childNodes[2].textContent!.trim()).toBe('end slot 2');
+    expect(results11.childNodes[3].childNodes[0].childNodes[1].textContent!.trim()).toBe(
+      'end slot 2',
+    );
 
     const results12 = document.querySelector('.results12 div')!;
-    expect(results12.childNodes[1].childNodes[0].childNodes[1].textContent!.trim()).toBe(
-      'start slot 1',
+    expect(
+      results12.childNodes[1].childNodes[0].childNodes[0].childNodes[0].textContent!.trim(),
+    ).toBe('start slot 1');
+    expect(
+      results12.childNodes[1].childNodes[0].childNodes[0].childNodes[1].textContent!.trim(),
+    ).toBe('start slot 2');
+    expect(results12.childNodes[2].childNodes[0].textContent!.trim()).toBe(
+      'default slot text node',
     );
-    expect(results12.childNodes[1].childNodes[0].childNodes[2].textContent!.trim()).toBe(
-      'start slot 2',
+    expect(results12.childNodes[2].childNodes[1].textContent!.trim()).toBe('default slot 1');
+    expect(results12.childNodes[2].childNodes[2].textContent!.trim()).toBe('default slot 2');
+    expect(results12.childNodes[3].childNodes[0].childNodes[0].textContent!.trim()).toBe(
+      'end slot 1',
     );
-    expect(results12.childNodes[3].textContent!.trim()).toBe('default slot text node');
-    expect(results12.childNodes[4].textContent!.trim()).toBe('default slot 1');
-    expect(results12.childNodes[5].textContent!.trim()).toBe('default slot 2');
-    expect(results12.childNodes[6].childNodes[1].textContent!.trim()).toBe('end slot 1');
-    expect(results12.childNodes[6].childNodes[2].textContent!.trim()).toBe('end slot 2');
+    expect(results12.childNodes[3].childNodes[0].childNodes[1].textContent!.trim()).toBe(
+      'end slot 2',
+    );
 
     expect(document.querySelector('[hidden]')).toBeNull();
   });

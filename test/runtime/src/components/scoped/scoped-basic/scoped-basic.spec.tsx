@@ -24,9 +24,12 @@ describe('scoped-basic', () => {
     expect(getComputedStyle(scopedSpan).color).toBe('rgb(255, 0, 0)');
 
     const scopedP = scopedEl.querySelector('p')!;
-    // p element should have scoped class and slot class
+    // p element should have scoped class
     expect(scopedP.classList.toString()).toContain('sc-scoped-basic');
-    expect(scopedP.classList.toString()).toContain('sc-scoped-basic-s');
+
+    // the slot element inside p should have the scoped slot class
+    const slotEl = scopedP.querySelector('slot')!;
+    expect(slotEl.classList.toString()).toContain('sc-scoped-basic-s');
 
     const slottedSpan = scopedEl.querySelector('p span')!;
     // slotted span should have the parent root's scoped class

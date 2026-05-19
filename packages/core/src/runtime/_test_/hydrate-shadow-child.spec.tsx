@@ -84,9 +84,10 @@ describe('hydrate, shadow child', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <!--o.1.1.-->
-          <!--s.2.0.0.0.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.0.0.0">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -146,7 +147,7 @@ describe('hydrate, shadow child', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
+          <slot c-id="2.1.0.1"></slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -207,7 +208,7 @@ describe('hydrate, shadow child', () => {
           <!--r.2-->
           <!--t.2.0.0.0-->
           shadow-header
-          <!--s.2.1.0.1.-->
+          <slot c-id="2.1.0.1"></slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -268,9 +269,10 @@ describe('hydrate, shadow child', () => {
           <!--r.2-->
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.1.0.1">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -399,9 +401,10 @@ describe('hydrate, shadow child', () => {
           <!--r.2-->
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.1.0.1">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
           <footer c-id="2.2.0.2"></footer>
         </cmp-b>
       </cmp-a>
@@ -481,24 +484,26 @@ describe('hydrate, shadow child', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <!--o.0.2-->
-        <!--s.1.0.0.0.-->
-        <cmp-b class="hydrated" s-id="2" c-id="0.2" s-sn>
-          <!--r.2-->
-          <!--o.0.4.-->
-          <!--o.0.5.-->
-          <section c-id="2.0.0.0">
-            <!--s.2.1.1.0.-->
-            <!--t.0.4-->
-            cmp-b-top-text
-            <cmp-c class="hydrated" s-id="3" c-id="0.5" s-sn>
-              <!--r.3-->
-              <article c-id="3.0.0.0">
-                <!--t.3.1.1.0-->
-                cmp-c
-              </article>
-            </cmp-c>
-          </section>
-        </cmp-b>
+        <slot c-id="1.0.0.0">
+          <cmp-b class="hydrated" s-id="2" c-id="0.2">
+            <!--r.2-->
+            <!--o.0.4.-->
+            <!--o.0.5.-->
+            <section c-id="2.0.0.0">
+              <slot c-id="2.1.1.0">
+                <!--t.0.4-->
+                cmp-b-top-text
+                <cmp-c class="hydrated" s-id="3" c-id="0.5">
+                  <!--r.3-->
+                  <article c-id="3.0.0.0">
+                    <!--t.3.1.1.0-->
+                    cmp-c
+                  </article>
+                </cmp-c>
+              </slot>
+            </section>
+          </cmp-b>
+        </slot>
       </cmp-a>
     `);
 
@@ -512,22 +517,23 @@ describe('hydrate, shadow child', () => {
     expect(clientHydrated.root).toEqualHtml(`
       <cmp-a class="hydrated">
         <!--r.1-->
-        <!--s.1.0.0.0.-->
-        <cmp-b class="hydrated">
-          <mock:shadow-root>
-            <section>
-              <slot></slot>
-            </section>
-          </mock:shadow-root>
-          cmp-b-top-text
-          <cmp-c class="hydrated">
+        <slot>
+          <cmp-b class="hydrated">
             <mock:shadow-root>
-              <article>
-                cmp-c
-              </article>
+              <section>
+                <slot></slot>
+              </section>
             </mock:shadow-root>
-          </cmp-c>
-        </cmp-b>
+            cmp-b-top-text
+            <cmp-c class="hydrated">
+              <mock:shadow-root>
+                <article>
+                  cmp-c
+                </article>
+              </mock:shadow-root>
+            </cmp-c>
+          </cmp-b>
+        </slot>
       </cmp-a>
     `);
   });
@@ -566,21 +572,23 @@ describe('hydrate, shadow child', () => {
         <!--o.0.4.-->
         <!--o.0.6.-->
         <!--o.0.7.-->
-        <slot-fb hidden c-id="1.0.0.0" s-sn>
-        <!--t.1.1.1.0-->
+        <slot c-id="1.0.0.0">
+          <!--t.0.1-->
+          A text node
+          <!--c.0.2-->
+          <!-- a comment -->
+          <div c-id="0.4">
+            An element
+          </div>
+          <!--c.0.6-->
+          <!-- another comment -->
+          <!--t.0.7-->
+          Another text node
+        </slot>
+        <slot-fb c-id="1.1.0.1">
+          <!--t.1.2.1.0-->
           Shadow Content
         </slot-fb>
-        <!--t.0.1-->
-        A text node
-        <!--c.0.2-->
-        <!-- a comment -->
-        <div c-id="0.4" s-sn>
-          An element
-        </div>
-        <!--c.0.6-->
-        <!-- another comment -->
-        <!--t.0.7-->
-        Another text node
       </cmp-a>
     `);
 

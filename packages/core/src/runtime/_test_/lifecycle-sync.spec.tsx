@@ -70,7 +70,9 @@ describe('lifecycle sync', () => {
     expect(root).toEqualHtml(`
       <cmp-b class="hydrated">
         <div>
-          <cmp-a class="hydrated"></cmp-a>
+          <slot>
+            <cmp-a class="hydrated"></cmp-a>
+          </slot>
         </div>
       </cmp-b>
     `);

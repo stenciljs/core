@@ -47,15 +47,17 @@ describe('vdom-relocation', () => {
 <my-root>
   <my-child>
     <div class="wrapper">
-      <div>
-        1
-      </div>
-      <div>
-        2
-      </div>
-      <div>
-        3
-      </div>
+      <slot>
+        <div>
+          1
+        </div>
+        <div>
+          2
+        </div>
+        <div>
+          3
+        </div>
+      </slot>
     </div>
   </my-child>
 </my-root>`);
@@ -67,18 +69,20 @@ describe('vdom-relocation', () => {
   <my-root>
     <my-child>
       <div class="wrapper">
-        <div>
-          1
-        </div>
-        <div>
-          2
-        </div>
-        <div>
-          3
-        </div>
-        <div>
-          4
-        </div>
+        <slot>
+          <div>
+            1
+          </div>
+          <div>
+            2
+          </div>
+          <div>
+            3
+          </div>
+          <div>
+            4
+          </div>
+        </slot>
       </div>
     </my-child>
   </my-root>`);

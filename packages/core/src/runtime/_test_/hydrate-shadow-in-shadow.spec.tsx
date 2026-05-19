@@ -40,10 +40,12 @@ describe('hydrate, shadow in shadow', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <!--o.1.1.-->
-          <!--s.2.0.0.0.-->
-          <!--s.1.1.1.0.-->
-          <!--t.0.1-->
-          light-dom
+          <slot c-id="2.0.0.0">
+            <slot c-id="1.1.1.0">
+              <!--t.0.1-->
+              light-dom
+            </slot>
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -108,9 +110,10 @@ describe('hydrate, shadow in shadow', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <!--o.1.1.-->
-          <!--s.2.0.0.0.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.0.0.0">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -171,7 +174,7 @@ describe('hydrate, shadow in shadow', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
+          <slot c-id="2.1.0.1"></slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -232,7 +235,7 @@ describe('hydrate, shadow in shadow', () => {
           <!--r.2-->
           <!--t.2.0.0.0-->
           shadow-header
-          <!--s.2.1.0.1.-->
+          <slot c-id="2.1.0.1"></slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -293,9 +296,10 @@ describe('hydrate, shadow in shadow', () => {
           <!--r.2-->
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.1.0.1">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -424,9 +428,10 @@ describe('hydrate, shadow in shadow', () => {
           <!--r.2-->
           <!--o.1.1.-->
           <header c-id="2.0.0.0"></header>
-          <!--s.2.1.0.1.-->
-          <!--t.1.1.1.0-->
-          light-dom
+          <slot c-id="2.1.0.1">
+            <!--t.1.1.1.0-->
+            light-dom
+          </slot>
           <footer c-id="2.2.0.2"></footer>
         </cmp-b>
       </cmp-a>

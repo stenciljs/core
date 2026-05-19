@@ -12,11 +12,13 @@ describe('slot-nested-default-order', () => {
       'slot-nested-default-order-parent slot-nested-default-order-child > *',
     );
 
+    // div + slot (slot now exists as a real DOM element)
     expect(childCmps).toHaveLength(2);
     expect(childCmps[0].tagName.toLowerCase()).toBe('div');
     expect(childCmps[0]).toHaveTextContent('State: true');
 
-    expect(childCmps[1].tagName.toLowerCase()).toBe('p');
+    expect(childCmps[1].tagName.toLowerCase()).toBe('slot');
+    // <p> is physically inside <slot>
     expect(childCmps[1]).toHaveTextContent('Hello');
   });
 });

@@ -13,9 +13,10 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     const endSlot = host.querySelector('#parentDiv .end-slot')! as HTMLDivElement;
     const defaultSlot = host.querySelector('#parentDiv .default-slot')! as HTMLDivElement;
 
+    // label div + <slot> element
     expect(defaultSlot.children.length).toBe(2);
-    expect(startSlot.children.length).toBe(1);
-    expect(endSlot.children.length).toBe(1);
+    expect(startSlot.children.length).toBe(2);
+    expect(endSlot.children.length).toBe(2);
 
     const el1 = document.createElement('p');
     const el2 = document.createElement('p');
@@ -28,9 +29,10 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     host.insertBefore(el2, el1);
     host.insertBefore(el3, el2);
 
-    expect(defaultSlot.children.length).toBe(5);
-    expect(startSlot.children.length).toBe(1);
-    expect(endSlot.children.length).toBe(1);
+    // wrapper children are always label div + <slot> (slotted content lives inside <slot>)
+    expect(defaultSlot.children.length).toBe(2);
+    expect(startSlot.children.length).toBe(2);
+    expect(endSlot.children.length).toBe(2);
     expect(defaultSlot.textContent).toBe(
       `Default slot is here:My initial slotted content.Content 3. Content 2. Content 1. `,
     );
@@ -49,8 +51,8 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     const defaultSlot = host.querySelector('#parentDiv .default-slot')! as HTMLDivElement;
 
     expect(defaultSlot.children.length).toBe(2);
-    expect(startSlot.children.length).toBe(1);
-    expect(endSlot.children.length).toBe(1);
+    expect(startSlot.children.length).toBe(2);
+    expect(endSlot.children.length).toBe(2);
 
     const el1 = document.createElement('p');
     const el2 = document.createElement('p');
@@ -65,7 +67,7 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     host.insertBefore(el2, el1);
     host.insertBefore(el3, el2);
 
-    expect(defaultSlot.children.length).toBe(3);
+    expect(defaultSlot.children.length).toBe(2);
     expect(startSlot.children.length).toBe(2);
     expect(endSlot.children.length).toBe(2);
     expect(host.textContent).toBe(`My initial slotted content.Content 1. Content 2. Content 3. `);
@@ -84,8 +86,8 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     const defaultSlot = host.querySelector('#parentDiv .default-slot')! as HTMLDivElement;
 
     expect(defaultSlot.children.length).toBe(2);
-    expect(startSlot.children.length).toBe(1);
-    expect(endSlot.children.length).toBe(1);
+    expect(startSlot.children.length).toBe(2);
+    expect(endSlot.children.length).toBe(2);
 
     const el1 = document.createElement('p');
     const el2 = document.createElement('p');
@@ -100,7 +102,7 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     expect(host.lastElementChild.textContent).toBe('Content 1. ');
 
     expect(defaultSlot.children.length).toBe(2);
-    expect(startSlot.children.length).toBe(1);
-    expect(endSlot.children.length).toBe(1);
+    expect(startSlot.children.length).toBe(2);
+    expect(endSlot.children.length).toBe(2);
   });
 });

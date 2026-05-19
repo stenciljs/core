@@ -40,9 +40,10 @@ describe('hydrate, shadow', () => {
           <!--r.2-->
           <!--o.1.1.-->
           <article c-id="2.0.0.0">
-            <!--s.2.1.1.0.-->
-            <!--t.1.1.1.0-->
-            CmpALightDom
+            <slot c-id="2.1.1.0">
+              <!--t.1.1.1.0-->
+              CmpALightDom
+            </slot>
           </article>
         </cmp-b>
       </cmp-a>
@@ -120,18 +121,19 @@ describe('hydrate, shadow', () => {
               <svg c-id="1.4.3.1"></svg>
             </header>
             <div c-id="1.5.2.1">
-              <!--s.1.6.3.0.-->
-              <div c-id="0.2" s-sn>
-                <img>
-                <p>
-                  LightDom1
-                </p>
-                <docs-button>
-                  <a>
-                    LightDom2
-                  </a>
-                </docs-button>
-              </div>
+              <slot c-id="1.6.3.0">
+                <div c-id="0.2">
+                  <img>
+                  <p>
+                    LightDom1
+                  </p>
+                  <docs-button>
+                    <a>
+                      LightDom2
+                    </a>
+                  </docs-button>
+                </div>
+              </slot>
             </div>
           </section>
         </article>

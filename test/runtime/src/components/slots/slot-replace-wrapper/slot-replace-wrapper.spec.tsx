@@ -20,7 +20,8 @@ describe('slot-replace-wrapper', () => {
 
     const result = root.querySelector('.results2 a')!;
     expect(result.textContent!.trim()).toBe('B');
-    expect(result.children[0].children[0].textContent!.trim()).toBe('B');
+    // a > slot[name=start](empty) | span > slot(default) > content-end
+    expect(result.children[1].children[0].children[0].textContent!.trim()).toBe('B');
 
     expect(root.querySelector('[hidden]')).toBeNull();
   });
@@ -31,7 +32,8 @@ describe('slot-replace-wrapper', () => {
 
     const result = root.querySelector('.results3 a')!;
     expect(result.textContent!.trim()).toBe('C');
-    expect(result.children[0].children[0].children[0].textContent!.trim()).toBe('C');
+    // a > slot[name=start](empty) | span > slot(default)(empty) | span > slot[name=end] > content-end
+    expect(result.children[1].children[1].children[0].children[0].textContent!.trim()).toBe('C');
 
     expect(root.querySelector('[hidden]')).toBeNull();
   });

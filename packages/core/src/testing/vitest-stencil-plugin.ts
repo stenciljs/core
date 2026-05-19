@@ -45,7 +45,7 @@ export function stencilVitestPlugin(): VitePlugin {
         currentDirectory: process.cwd(),
         module: 'esm',
         proxy: null,
-        sourceMap: false,
+        sourceMap: true,
         style: null,
         styleImportData: 'queryparams',
         target: 'es2022',

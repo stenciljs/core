@@ -149,8 +149,8 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     expect((specPage.root.childNodes[0].parentNode as HTMLElement).tagName).toBe('CMP-A');
     expect((specPage.root.childNodes[1].parentNode as HTMLElement).tagName).toBe('CMP-A');
     // @ts-ignore
-    expect((specPage.root.children[0].__parentNode as HTMLElement).tagName).toBe('DIV');
+    expect((specPage.root.children[0].__parentNode as HTMLElement).tagName).toBe('SLOT');
     // @ts-ignore
-    expect((specPage.root.childNodes[0].__parentNode as HTMLElement).tagName).toBe('DIV');
+    expect((specPage.root.childNodes[0].__parentNode as HTMLElement).tagName).toBe('SLOT');
   });
 });

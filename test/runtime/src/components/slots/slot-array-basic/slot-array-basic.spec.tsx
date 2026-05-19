@@ -25,45 +25,46 @@ describe('slot array basic', () => {
     );
 
     await waitForExist('.results1.hydrated');
-    let children = document.querySelectorAll('.results1 > *');
-    expect(children.length).toBe(2);
-    expect(children[0].tagName.toLowerCase()).toBe('header');
-    expect(children[0].textContent).toBe('Header');
-    expect(children[1].tagName.toLowerCase()).toBe('footer');
-    expect(children[1].textContent).toBe('Footer');
 
-    children = document.querySelectorAll('.results2 > *');
+    // <slot> is now a real DOM element — direct children are header, slot, footer
+    let children = document.querySelectorAll('.results1 > *');
     expect(children.length).toBe(3);
     expect(children[0].tagName.toLowerCase()).toBe('header');
     expect(children[0].textContent).toBe('Header');
-    expect(children[1].tagName.toLowerCase()).toBe('content-top');
-    expect(children[1].textContent).toBe('Content');
+    expect(children[1].tagName.toLowerCase()).toBe('slot');
     expect(children[2].tagName.toLowerCase()).toBe('footer');
     expect(children[2].textContent).toBe('Footer');
 
-    children = document.querySelectorAll('.results3 > *');
-    expect(children.length).toBe(4);
+    // slotted content lives inside <slot>
+    children = document.querySelectorAll('.results2 > *');
+    expect(children.length).toBe(3);
     expect(children[0].tagName.toLowerCase()).toBe('header');
-    expect(children[0].textContent).toBe('Header');
-    expect(children[1].tagName.toLowerCase()).toBe('content-top');
-    expect(children[1].textContent).toBe('Content Top');
-    expect(children[2].tagName.toLowerCase()).toBe('content-bottom');
-    expect(children[2].textContent).toBe('Content Bottom');
-    expect(children[3].tagName.toLowerCase()).toBe('footer');
-    expect(children[3].textContent).toBe('Footer');
+    expect(children[1].tagName.toLowerCase()).toBe('slot');
+    expect(children[1].children[0].tagName.toLowerCase()).toBe('content-top');
+    expect(children[1].children[0].textContent).toBe('Content');
+    expect(children[2].tagName.toLowerCase()).toBe('footer');
+
+    children = document.querySelectorAll('.results3 > *');
+    expect(children.length).toBe(3);
+    expect(children[0].tagName.toLowerCase()).toBe('header');
+    expect(children[1].tagName.toLowerCase()).toBe('slot');
+    expect(children[1].children[0].tagName.toLowerCase()).toBe('content-top');
+    expect(children[1].children[0].textContent).toBe('Content Top');
+    expect(children[1].children[1].tagName.toLowerCase()).toBe('content-bottom');
+    expect(children[1].children[1].textContent).toBe('Content Bottom');
+    expect(children[2].tagName.toLowerCase()).toBe('footer');
 
     children = document.querySelectorAll('.results4 > *');
-    expect(children.length).toBe(5);
+    expect(children.length).toBe(3);
     expect(children[0].tagName.toLowerCase()).toBe('header');
-    expect(children[0].textContent).toBe('Header');
-    expect(children[1].tagName.toLowerCase()).toBe('content-top');
-    expect(children[1].textContent).toBe('Content Top');
-    expect(children[2].tagName.toLowerCase()).toBe('content-middle');
-    expect(children[2].textContent).toBe('Content Middle');
-    expect(children[3].tagName.toLowerCase()).toBe('content-bottom');
-    expect(children[3].textContent).toBe('Content Bottom');
-    expect(children[4].tagName.toLowerCase()).toBe('footer');
-    expect(children[4].textContent).toBe('Footer');
+    expect(children[1].tagName.toLowerCase()).toBe('slot');
+    expect(children[1].children[0].tagName.toLowerCase()).toBe('content-top');
+    expect(children[1].children[0].textContent).toBe('Content Top');
+    expect(children[1].children[1].tagName.toLowerCase()).toBe('content-middle');
+    expect(children[1].children[1].textContent).toBe('Content Middle');
+    expect(children[1].children[2].tagName.toLowerCase()).toBe('content-bottom');
+    expect(children[1].children[2].textContent).toBe('Content Bottom');
+    expect(children[2].tagName.toLowerCase()).toBe('footer');
 
     expect(document.querySelector('[hidden]')).toBeNull();
   });

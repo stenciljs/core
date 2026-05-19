@@ -34,9 +34,10 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <div c-id="1.0.0.0">
-          <!--s.1.1.1.0.-->
-          <!--t.0.1-->
-          middle
+          <slot c-id="1.1.1.0">
+            <!--t.0.1-->
+            middle
+          </slot>
         </div>
       </cmp-a>
     `);
@@ -93,9 +94,10 @@ describe('hydrate, shadow parent', () => {
         <!--o.0.1.-->
         <!--t.1.0.0.0-->
         top
-        <!--s.1.1.0.1.-->
-        <!--t.0.1-->
-        middle
+        <slot c-id="1.1.0.1">
+          <!--t.0.1-->
+          middle
+        </slot>
         <!--t.1.2.0.2-->
         bottom
       </cmp-a>
@@ -197,9 +199,9 @@ describe('hydrate, shadow parent', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <div c-id="1.0.0.0">
-          <!--s.1.1.1.0.-->
+          <slot c-id="1.1.1.0"></slot>
         </div>
-        <!--s.1.2.0.1.fixed-->
+        <slot name="fixed" c-id="1.2.0.1"></slot>
       </cmp-a>
     `);
 
@@ -257,9 +259,10 @@ describe('hydrate, shadow parent', () => {
         <cmp-b class="hydrated" c-id="1.0.0.0" s-id="2">
           <!--r.2-->
           <!--o.1.1-->
-          <!--s.2.0.0.0.-->
-          <!--t.1.1.1.0-->
-          cmp-a-light-dom
+          <slot c-id="2.0.0.0">
+            <!--t.1.1.1.0-->
+            cmp-a-light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -276,8 +279,9 @@ describe('hydrate, shadow parent', () => {
         <mock:shadow-root>
           <cmp-b class="hydrated">
             <!--r.2-->
-            <!--s.2.0.0.0.-->
-            cmp-a-light-dom
+            <slot>
+              cmp-a-light-dom
+            </slot>
           </cmp-b>
         </mock:shadow-root>
       </cmp-a>
@@ -322,15 +326,16 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--o.0.1.-->
         <section c-id="1.0.0.0">
-          <!--s.1.1.1.0.start-->
-          <!--s.1.2.1.1.secondary-->
+          <slot name="start" c-id="1.1.1.0"></slot>
+          <slot name="secondary" c-id="1.2.1.1"></slot>
           <div c-id="1.3.1.2">
-            <!--s.1.4.2.0.-->
-            <!--t.0.1-->
-            Title
+            <slot c-id="1.4.2.0">
+              <!--t.0.1-->
+              Title
+            </slot>
           </div>
-          <!--s.1.5.1.3.primary-->
-          <!--s.1.6.1.4.end-->
+          <slot name="primary" c-id="1.5.1.3"></slot>
+          <slot name="end" c-id="1.6.1.4"></slot>
         </section>
       </cmp-a>
     `);
@@ -411,14 +416,16 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--o.0.2.-->
         <a c-id="1.0.0.0">
-          <!--s.1.1.1.0.-->
-          <ion-badge class="hydrated" s-id="2" c-id="0.2" s-sn>
-            <!--r.2-->
-            <!--o.0.4.-->
-            <!--s.2.0.0.0.-->
-            <!--t.0.4-->
-            root-text
-          </ion-badge>
+          <slot c-id="1.1.1.0">
+            <ion-badge class="hydrated" s-id="2" c-id="0.2">
+              <!--r.2-->
+              <!--o.0.4.-->
+              <slot c-id="2.0.0.0">
+                <!--t.0.4-->
+                root-text
+              </slot>
+            </ion-badge>
+          </slot>
           <ion-ripple-effect class="hydrated" c-id="1.2.1.1" s-id="3">
             <!--r.3-->
           </ion-ripple-effect>
@@ -483,14 +490,16 @@ describe('hydrate, shadow parent', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <!--o.0.1.-->
-        <!--s.1.0.0.0.-->
-        <cmp-b class="hydrated" s-id="2" c-id="0.1" s-sn>
-          <!--r.2-->
-          <!--o.0.2-->
-          <!--s.2.0.0.0.-->
-          <!--t.0.2-->
-          cmp-a-light-dom
-        </cmp-b>
+        <slot c-id="1.0.0.0">
+          <cmp-b class="hydrated" s-id="2" c-id="0.1">
+            <!--r.2-->
+            <!--o.0.2-->
+            <slot c-id="2.0.0.0">
+              <!--t.0.2-->
+              cmp-a-light-dom
+            </slot>
+          </cmp-b>
+        </slot>
       </cmp-a>
     `);
 
@@ -508,8 +517,9 @@ describe('hydrate, shadow parent', () => {
         </mock:shadow-root>
         <cmp-b class="hydrated">
           <!--r.2-->
-          <!--s.2.0.0.0.-->
-          cmp-a-light-dom
+          <slot>
+            cmp-a-light-dom
+          </slot>
         </cmp-b>
       </cmp-a>
     `);
@@ -518,8 +528,9 @@ describe('hydrate, shadow parent', () => {
       <cmp-a class="hydrated">
         <cmp-b class="hydrated">
             <!--r.2-->
-            <!--s.2.0.0.0.-->
-            cmp-a-light-dom
+            <slot>
+              cmp-a-light-dom
+            </slot>
         </cmp-b>
       </cmp-a>
     `);
