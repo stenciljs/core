@@ -5,7 +5,7 @@ import {
   addSlotRelocateNode,
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
-  getHostSlotNodes,
+  getHostSlotNode,
   getSlotName,
   getSlottedChildNodes,
 } from './slot-polyfill-utils';
@@ -146,8 +146,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
         newChild = this.ownerDocument.createTextNode(newChild) as unknown as d.RenderNode;
       }
       const slotName = (newChild['s-sn'] = getSlotName(newChild)) || '';
-      const childNodes = internalCall(this, 'childNodes');
-      const slotNode = getHostSlotNodes(childNodes, this.tagName, slotName)[0];
+      const slotNode = getHostSlotNode(this, slotName);
       if (slotNode) {
         addSlotRelocateNode(newChild, slotNode, true);
         internalCall(slotNode, 'prepend')(newChild);

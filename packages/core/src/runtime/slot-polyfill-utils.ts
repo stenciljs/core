@@ -2,7 +2,6 @@ import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
 
 import { internalCall } from './dom-extras';
-import { NODE_TYPE } from './runtime-constants';
 
 /**
  * Get's the child nodes of a component that are actually slotted.
@@ -26,34 +25,19 @@ export const getSlottedChildNodes = (childNodes: NodeListOf<ChildNode>): d.Patch
 };
 
 /**
- * Recursively searches a series of child nodes for slot node/s, optionally with a provided slot name.
- * @param childNodes the nodes to search for a slot with a specific name. Should be an element's root nodes.
- * @param hostName the host name of the slot to match on.
- * @param slotName the name of the slot to match on.
- * @returns a reference to the slot node that matches the provided name, `null` otherwise
+ * Finds a slot element within a host element using native DOM query.
+ * @param host the host element to search within
+ * @param slotName the name of the slot to find, or undefined to get all slots
+ * @returns the matching slot node, or null
  */
-export function getHostSlotNodes(
-  childNodes: NodeListOf<ChildNode>,
-  hostName?: string,
-  slotName?: string,
-) {
-  let i = 0;
-  let slottedNodes: d.RenderNode[] = [];
-  let childNode: d.RenderNode;
-
-  for (; i < childNodes.length; i++) {
-    childNode = childNodes[i] as any;
-    if (
-      childNode['s-sr'] &&
-      (!hostName || childNode['s-hn'] === hostName) &&
-      (slotName === undefined || getSlotName(childNode) === slotName)
-    ) {
-      slottedNodes.push(childNode);
-      if (typeof slotName !== 'undefined') return slottedNodes;
+export function getHostSlotNode(host: Element, slotName?: string): d.RenderNode | null {
+  for (const slot of (host as Element).querySelectorAll('slot') as NodeListOf<d.RenderNode>) {
+    if (slot['s-sr'] && slot['s-hn'] === (host as HTMLElement).tagName &&
+        (slotName === undefined || slot['s-sn'] === slotName)) {
+      return slot;
     }
-    slottedNodes = [...slottedNodes, ...getHostSlotNodes(childNode.childNodes, hostName, slotName)];
   }
-  return slottedNodes;
+  return null;
 }
 
 /**
@@ -64,26 +48,9 @@ export function getHostSlotNodes(
  * @returns whether the node is located in the slot or not
  */
 export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: string): boolean => {
-  if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
-    // A forwarding slot (a <slot> rendered inside another component's children)
-    // matches by its own slot name rather than a `slot` attribute.
-    if (nodeToRelocate['s-sr'] && nodeToRelocate['s-sn'] === slotName) {
-      return true;
-    }
-    if (nodeToRelocate.getAttribute('slot') === null && slotName === '') {
-      // if the node doesn't have a slot attribute, and the slot we're checking
-      // is not a named slot, then we assume the node should be within the slot
-      return true;
-    }
-    if (nodeToRelocate.getAttribute('slot') === slotName) {
-      return true;
-    }
-    return false;
-  }
-  if (nodeToRelocate['s-sn'] === slotName) {
-    return true;
-  }
-  return slotName === '';
+  // getSlotName uses cached s-sn when available, falling back to getAttribute('slot')
+  const nodeName = getSlotName(nodeToRelocate);
+  return nodeName !== undefined ? nodeName === slotName : slotName === '';
 };
 
 /**
@@ -208,7 +175,6 @@ export function findSlotFromSlottedNode(slottedNode: d.PatchedSlotNode, parentHo
   if (!parentHost) return { slotNode: null, slotName: '' };
 
   const slotName = (slottedNode['s-sn'] = getSlotName(slottedNode) || '');
-  const childNodes = internalCall(parentHost, 'childNodes');
-  const slotNode = getHostSlotNodes(childNodes, parentHost.tagName, slotName)[0];
+  const slotNode = getHostSlotNode(parentHost, slotName);
   return { slotNode, slotName };
 }

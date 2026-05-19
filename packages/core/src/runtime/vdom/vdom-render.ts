@@ -461,12 +461,6 @@ const updateChildren = (
       //
       // In this situation we need to patch `newEndVnode` onto `oldStartVnode`
       // and move the DOM element for `oldStartVnode`.
-      if (
-        BUILD.slotRelocation &&
-        (oldStartVnode.$tag$ === 'slot' || newEndVnode.$tag$ === 'slot')
-      ) {
-        putBackInOriginalLocation(oldStartVnode.$elm$.parentNode, false);
-      }
       patch(oldStartVnode, newEndVnode, isInitialRender);
       // We need to move the element for `oldStartVnode` into a position which
       // will be appropriate for `newEndVnode`. For this we can use
@@ -504,12 +498,6 @@ const updateChildren = (
       // (which will handle updating any changed attributes, reconciling their
       // children etc) but we also need to move the DOM node to which
       // `oldEndVnode` corresponds.
-      if (
-        BUILD.slotRelocation &&
-        (oldStartVnode.$tag$ === 'slot' || newEndVnode.$tag$ === 'slot')
-      ) {
-        putBackInOriginalLocation(oldEndVnode.$elm$.parentNode, false);
-      }
       patch(oldEndVnode, newStartVnode, isInitialRender);
       // We've already checked above if `oldStartVnode` and `newStartVnode` are
       // the same node, so since we're here we know that they are not. Thus we
@@ -762,93 +750,67 @@ const relocateNodes: RelocateNodeData[] = [];
  * @param elm a render node whose child nodes need to be relocated
  */
 const markSlotContentForRelocation = (elm: d.RenderNode) => {
-  // tslint:disable-next-line: prefer-const
   let node: d.RenderNode;
   let hostContentNodes: NodeList;
   let j: number;
 
-  const children = elm.__childNodes || elm.childNodes;
-  for (const childNode of children as unknown as d.RenderNode[]) {
-    // we need to find child nodes which are slot references so we can then try
-    // to match them up with nodes that need to be relocated
-    if (childNode['s-sr'] && (node = childNode['s-cr']) && node.parentNode) {
-      // first get the content reference comment node ('s-cr'), then we get
-      // its parent, which is where all the host content is now
-      hostContentNodes =
-        (node.parentNode as d.RenderNode).__childNodes || node.parentNode.childNodes;
-      const slotName = childNode['s-sn'];
+  // <slot> is a real element now — querySelectorAll replaces the old recursive walk.
+  // Process ALL slots in the subtree (not just this host's) so parent re-renders
+  // correctly relocate lightDOM into nested child component slots.
+  for (const childNode of (elm as Element).querySelectorAll('slot') as NodeListOf<d.RenderNode>) {
+    if (!childNode['s-sr']) continue;
+    node = childNode['s-cr'];
+    if (!node?.parentNode) continue;
 
-      // iterate through all the nodes under the location where the host was
-      // originally rendered - forward order so appendChild preserves source order
-      for (j = 0; j < hostContentNodes.length; j++) {
-        node = hostContentNodes[j] as d.RenderNode;
+    // get the host root where lightDOM content lives
+    hostContentNodes = (node.parentNode as d.RenderNode).__childNodes || node.parentNode.childNodes;
+    const slotName = childNode['s-sn'];
 
-        // check that the node is not a content reference node or a node
-        // reference and then check that the host name does not match that of
-        // childNode.
-        // In addition, check that the slot either has not already been relocated, or
-        // that its current location's host is not childNode's host. This is essentially
-        // a check so that we don't try to relocate (and then hide) a node that is already
-        // where it should be.
-        if (
-          !node['s-cn'] &&
-          !node['s-nr'] &&
-          node['s-hn'] !== childNode['s-hn'] &&
-          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'])
-        ) {
-          // if `node` is located in the slot that `childNode` refers to (via the
-          // `'s-sn'` property) then we need to relocate it from it's current spot
-          // (under the host element parent) to the right slot location
-          if (isNodeLocatedInSlot(node, slotName)) {
-            // it's possible we've already decided to relocate this node
-            let relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
+    // forward order so appendChild preserves source order
+    for (j = 0; j < hostContentNodes.length; j++) {
+      node = hostContentNodes[j] as d.RenderNode;
 
-            // ensure that the slot-name attr is correct
-            node['s-sn'] = node['s-sn'] || slotName;
+      // skip the content-ref comment itself, s-ol forwarding anchors, and nodes
+      // already correctly slotted by this host
+      if (
+        !node['s-cn'] &&
+        !node['s-nr'] &&
+        node['s-hn'] !== childNode['s-hn'] &&
+        (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'])
+      ) {
+        if (isNodeLocatedInSlot(node, slotName)) {
+          let relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
 
-            if (relocateNodeData) {
-              relocateNodeData.$nodeToRelocate$['s-sh'] = childNode['s-hn'];
-              // we marked this node for relocation previously but didn't find
-              // out the slot reference node to which it needs to be relocated
-              // so write it down now!
-              relocateNodeData.$slotRefNode$ = childNode;
-            } else {
-              node['s-sh'] = childNode['s-hn'];
-              // add to our list of nodes to relocate
-              relocateNodes.push({
-                $slotRefNode$: childNode,
-                $nodeToRelocate$: node,
-              });
-            }
+          node['s-sn'] = node['s-sn'] || slotName;
 
-            if (node['s-sr']) {
-              relocateNodes.map((relocateNode) => {
-                if (isNodeLocatedInSlot(relocateNode.$nodeToRelocate$, node['s-sn'])) {
-                  relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
-
-                  if (relocateNodeData && !relocateNode.$slotRefNode$) {
-                    relocateNode.$slotRefNode$ = relocateNodeData.$slotRefNode$;
-                  }
-                }
-              });
-            }
-          } else if (!relocateNodes.some((r) => r.$nodeToRelocate$ === node)) {
-            // the node is not found within the slot (`childNode`) that we're
-            // currently looking at, so we stick it into `relocateNodes` to
-            // handle later. If we never find a home for this element then
-            // we'll need to hide it
+          if (relocateNodeData) {
+            relocateNodeData.$nodeToRelocate$['s-sh'] = childNode['s-hn'];
+            relocateNodeData.$slotRefNode$ = childNode;
+          } else {
+            node['s-sh'] = childNode['s-hn'];
             relocateNodes.push({
+              $slotRefNode$: childNode,
               $nodeToRelocate$: node,
             });
           }
+
+          if (node['s-sr']) {
+            relocateNodes.map((relocateNode) => {
+              if (isNodeLocatedInSlot(relocateNode.$nodeToRelocate$, node['s-sn'])) {
+                relocateNodeData = relocateNodes.find((r) => r.$nodeToRelocate$ === node);
+
+                if (relocateNodeData && !relocateNode.$slotRefNode$) {
+                  relocateNode.$slotRefNode$ = relocateNodeData.$slotRefNode$;
+                }
+              }
+            });
+          }
+        } else if (!relocateNodes.some((r) => r.$nodeToRelocate$ === node)) {
+          relocateNodes.push({
+            $nodeToRelocate$: node,
+          });
         }
       }
-    }
-
-    // if we're dealing with any type of element (capable of itself being a
-    // slot reference or containing one) then we recur
-    if (childNode.nodeType === NODE_TYPE.ElementNode) {
-      markSlotContentForRelocation(childNode);
     }
   }
 };
