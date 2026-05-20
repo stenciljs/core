@@ -569,6 +569,75 @@ describe('parse props', () => {
     expect(t.property?.attribute).toBe('val');
   });
 
+  it('prop default value resolved from const string variable', () => {
+    const t = transpileModule(`
+      const DEFAULT_LABEL = 'Submit';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() label: string = DEFAULT_LABEL;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'Submit'`);
+  });
+
+  it('prop default value resolved from const number variable', () => {
+    const t = transpileModule(`
+      const DEFAULT_COUNT = 4;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() count: number = DEFAULT_COUNT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('4');
+  });
+
+  it('prop default value resolved from object property access', () => {
+    const t = transpileModule(`
+      const CONFIG = { label: 'Hello' };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() label: string = CONFIG.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'Hello'`);
+  });
+
+  it('prop default value resolved from indexed object access (FW-7298)', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = {
+        lg: '(min-width: 992px)',
+      };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string | boolean = QUERY['lg'];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'(min-width: 992px)'`);
+  });
+
+  it('prop default value falls back to raw text when initializer is not a resolvable literal', () => {
+    const t = transpileModule(`
+      const computeDefault = () => 'x';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = computeDefault();
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('computeDefault()');
+  });
+
+  it('prop default value falls back to raw text for dynamic (non-literal) indexed access', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };
+      const key = 'lg';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string = QUERY[key];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('QUERY[key]');
+  });
+
   it('should infer string type from `get()` return value', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
