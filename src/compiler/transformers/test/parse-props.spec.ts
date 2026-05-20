@@ -638,6 +638,34 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe('QUERY[key]');
   });
 
+  it('prop default value resolved from a cross-file imported const', () => {
+    const t = transpileModule(
+      `
+      import { QUERY } from './queries';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string | boolean = QUERY['lg'];
+      }
+    `,
+      null,
+      null,
+      [],
+      [],
+      [],
+      {},
+      'module.tsx',
+      {
+        'queries.ts': `export const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };`,
+      },
+    );
+    // With multiple files in the program, the helper-extracted `t.property`
+    // and `getStaticGetter` aren't reliable (module ordering + the emitted
+    // `import` line confuses `new Function()`). Assert the literal made it
+    // into the emitted `static get properties()` block directly — this is
+    // the actual contract the fix protects.
+    expect(t.outputText).toMatch(/"defaultValue":\s*"'\(min-width: 992px\)'"/);
+  });
+
   it('should infer string type from `get()` return value', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})

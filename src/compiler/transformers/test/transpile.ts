@@ -20,6 +20,9 @@ import { getScriptTarget } from '../transform-utils';
  * after declarations are generated
  * @param tsConfig optional typescript compiler options to use
  * @param inputFileName a dummy filename to use for the module (defaults to `module.tsx`)
+ * @param extraFiles optional additional source files (filename → contents) made available
+ * to the TypeScript program. Useful for testing transformers that need to follow
+ * cross-file symbol references (e.g. an `import`ed `const`).
  * @returns the result of the transpilation step
  */
 export function transpileModule(
@@ -31,6 +34,7 @@ export function transpileModule(
   afterDeclarations: ts.TransformerFactory<ts.SourceFile | ts.Bundle>[] = [],
   tsConfig: ts.CompilerOptions = {},
   inputFileName = 'module.tsx',
+  extraFiles: Record<string, string> = {},
 ) {
   const options: ts.CompilerOptions = {
     ...ts.getDefaultCompilerOptions(),
@@ -49,7 +53,7 @@ export function transpileModule(
     noEmitHelpers: true,
     noEmitOnError: undefined,
     noLib: true,
-    noResolve: true,
+    noResolve: Object.keys(extraFiles).length === 0,
     out: undefined,
     outFile: undefined,
     paths: undefined,
@@ -67,6 +71,9 @@ export function transpileModule(
   compilerCtx = compilerCtx || mockCompilerCtx(mergedConfig);
 
   const sourceFile = ts.createSourceFile(inputFileName, input, options.target);
+  const extraSourceFiles = new Map<string, ts.SourceFile>(
+    Object.entries(extraFiles).map(([name, contents]) => [name, ts.createSourceFile(name, contents, options.target)]),
+  );
 
   let outputText: string;
   let declarationOutputText: string;
@@ -82,20 +89,38 @@ export function transpileModule(
   };
 
   const compilerHost: ts.CompilerHost = {
-    getSourceFile: (fileName) => (fileName === inputFileName ? sourceFile : undefined),
+    getSourceFile: (fileName) => {
+      if (fileName === inputFileName) return sourceFile;
+      return extraSourceFiles.get(fileName);
+    },
     writeFile: emitCallback,
     getDefaultLibFileName: () => 'lib.d.ts',
     useCaseSensitiveFileNames: () => false,
     getCanonicalFileName: (fileName) => fileName,
     getCurrentDirectory: () => '',
     getNewLine: () => '',
-    fileExists: (fileName) => fileName === inputFileName,
-    readFile: () => '',
+    fileExists: (fileName) => fileName === inputFileName || extraSourceFiles.has(fileName),
+    readFile: (fileName) => (fileName === inputFileName ? input : extraFiles[fileName] ?? ''),
     directoryExists: () => true,
     getDirectories: () => [],
+    // Short-circuit module resolution for the in-memory extra files. The host
+    // maps a bare import specifier (e.g. `./queries`) to the matching virtual
+    // file we registered for the test, so the type checker can follow the
+    // alias symbol to the actual declaration.
+    resolveModuleNames: (moduleNames) =>
+      moduleNames.map((name) => {
+        const candidate = name.replace(/^\.\//, '');
+        for (const ext of ['.ts', '.tsx', '.d.ts']) {
+          const fileName = candidate.endsWith(ext) ? candidate : `${candidate}${ext}`;
+          if (extraSourceFiles.has(fileName)) {
+            return { resolvedFileName: fileName, extension: ext as ts.Extension };
+          }
+        }
+        return undefined;
+      }),
   };
 
-  const tsProgram = ts.createProgram([inputFileName], options, compilerHost);
+  const tsProgram = ts.createProgram([inputFileName, ...extraSourceFiles.keys()], options, compilerHost);
   const tsTypeChecker = tsProgram.getTypeChecker();
 
   const buildCtx = mockBuildCtx(mergedConfig, compilerCtx);
