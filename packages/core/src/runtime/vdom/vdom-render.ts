@@ -1,3 +1,4 @@
+import { effect } from '@preact/signals-core';
 /**
  * Virtual DOM patching algorithm based on Snabbdom by
  * Simon Friis Vindum (@paldepind)
@@ -14,7 +15,7 @@ import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 import { patchParentNode } from '../dom-extras';
 import { getShadowRoot } from '../element';
-import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
+import { NODE_TYPE, PLATFORM_FLAGS, SHOW_TAG, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
@@ -23,6 +24,7 @@ import {
   updateFallbackSlotVisibility,
 } from '../slot-polyfill-utils';
 import { h, isHost, newVNode as createVNode } from './h';
+import { disposeAllSignalAttrs } from './set-accessor';
 import { updateElement } from './update-element';
 
 let scopeId: string;
@@ -40,6 +42,22 @@ let isSvgMode = false;
  */
 const refCallbacksToRemove: Array<() => void> = [];
 const refCallbacksToAttach: Array<() => void> = [];
+
+/** Disposers for signal subscriptions on individual DOM nodes (text nodes, <s-show> wrappers). */
+const signalNodeDisposers = new WeakMap<Node, () => void>();
+
+const disposeSignalVNode = (vnode: d.VNode) => {
+  const elm = vnode.$elm$;
+  if (elm) {
+    const dispose = signalNodeDisposers.get(elm);
+    if (dispose) {
+      dispose();
+      signalNodeDisposers.delete(elm);
+    }
+    disposeAllSignalAttrs(elm);
+  }
+  vnode.$children$?.forEach(disposeSignalVNode);
+};
 
 /**
  * Create a DOM Node corresponding to one of the children of a given VNode.
@@ -77,15 +95,47 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
   if (BUILD.isDev && newVNode.$elm$) {
     consoleDevError(
       `The JSX ${
-        newVNode.$text$ !== null ? `"${newVNode.$text$}" text` : `"${newVNode.$tag$}" element`
+        newVNode.$text$ !== null
+          ? `"${newVNode.$text$}" text`
+          : `"${String(newVNode.$tag$)}" element`
       } node should not be shared within the same renderer. The renderer caches element lookups in order to improve performance. However, a side effect from this is that the exact same JSX node should not be reused. For more information please see https://stenciljs.com/docs/templating-jsx#avoid-shared-jsx-nodes`,
     );
+  }
+
+  if (BUILD.vdomSignals && newVNode.$tag$ === SHOW_TAG) {
+    elm = newVNode.$elm$ = win.document.createElement('s-show') as any;
+    elm['s-hn'] = hostTagName;
+    const showElm = elm as HTMLElement;
+    if (newVNode.$children$) {
+      for (i = 0; i < newVNode.$children$.length; ++i) {
+        childNode = createElm(oldParentVNode, newVNode, i);
+        if (childNode) showElm.appendChild(childNode);
+      }
+    }
+    const showSig = newVNode.$signal$;
+    signalNodeDisposers.set(
+      elm,
+      effect(() => {
+        showElm.style.display = showSig.value ? 'contents' : 'none';
+      }),
+    );
+    return elm;
   }
 
   // Use loose equality to handle both null and undefined
   if (BUILD.vdomText && newVNode.$text$ != null) {
     // create text node
     elm = newVNode.$elm$ = win.document.createTextNode(newVNode.$text$) as any;
+    if (BUILD.vdomSignals && newVNode.$signal$) {
+      const textSig = newVNode.$signal$;
+      const textNode = elm;
+      signalNodeDisposers.set(
+        textNode,
+        effect(() => {
+          (textNode as unknown as Text).data = String(textSig.value);
+        }),
+      );
+    }
   } else if (BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotReference) {
     // create a slot reference node
     elm = newVNode.$elm$ =
@@ -363,6 +413,9 @@ const removeVnodes = (vnodes: d.VNode[], startIdx: number, endIdx: number) => {
     if (vnode) {
       const elm = vnode.$elm$;
       nullifyVNodeRefs(vnode);
+      if (BUILD.vdomSignals) {
+        disposeSignalVNode(vnode);
+      }
 
       if (elm) {
         if (BUILD.slotRelocation) {
@@ -723,6 +776,19 @@ const referenceNode = (node: d.RenderNode) => (node && node['s-ol']) || node;
  */
 export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = false) => {
   const elm = (newVNode.$elm$ = oldVNode.$elm$);
+
+  if (BUILD.vdomSignals && newVNode.$tag$ === SHOW_TAG && oldVNode.$signal$ !== newVNode.$signal$) {
+    signalNodeDisposers.get(elm)?.();
+    const showSig = newVNode.$signal$;
+    const showElm = elm as HTMLElement;
+    signalNodeDisposers.set(
+      elm,
+      effect(() => {
+        showElm.style.display = showSig.value ? 'contents' : 'none';
+      }),
+    );
+  }
+
   const oldChildren = oldVNode.$children$;
   const newChildren = newVNode.$children$;
   const tag = newVNode.$tag$;

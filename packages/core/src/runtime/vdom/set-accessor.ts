@@ -7,13 +7,27 @@
  * Modified for Stencil's compiler and vdom
  */
 
+import { effect } from '@preact/signals-core';
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, isMemberInElement, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { isComplexType } from '../../utils/helpers';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
+import { isSignalLike } from '../signals';
 import { queueRefAttachment } from './vdom-render';
+
+/** Per-element, per-attribute signal subscription disposers. */
+const signalAttrDisposers = new WeakMap<Node, Map<string, () => void>>();
+
+export const disposeAllSignalAttrs = (elm: Node) => {
+  if (!BUILD.vdomSignals) return;
+  const map = signalAttrDisposers.get(elm);
+  if (map) {
+    map.forEach((d) => d());
+    signalAttrDisposers.delete(elm);
+  }
+};
 
 /**
  * When running a VDom render set properties present on a VDom node onto the
@@ -42,6 +56,33 @@ export const setAccessor = (
 ) => {
   if (oldValue === newValue) {
     return;
+  }
+
+  if (BUILD.vdomSignals && isSignalLike(newValue)) {
+    // New value is a signal — dispose any old signal subscription and re-subscribe.
+    const attrMap = signalAttrDisposers.get(elm) ?? new Map<string, () => void>();
+    attrMap.get(memberName)?.();
+    if (!signalAttrDisposers.has(elm)) signalAttrDisposers.set(elm, attrMap);
+    // Start prevVal at oldValue so the initial effect run detects a change and sets the attr.
+    let prevVal: any = oldValue;
+    attrMap.set(
+      memberName,
+      effect(() => {
+        const curVal = newValue.value;
+        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags);
+        prevVal = curVal;
+      }),
+    );
+    return;
+  }
+
+  if (BUILD.vdomSignals && isSignalLike(oldValue)) {
+    // Old value was a signal, new is a plain value — dispose subscription and fall through.
+    const attrMap = signalAttrDisposers.get(elm);
+    if (attrMap) {
+      attrMap.get(memberName)?.();
+      attrMap.delete(memberName);
+    }
   }
 
   let isProp = isMemberInElement(elm, memberName);

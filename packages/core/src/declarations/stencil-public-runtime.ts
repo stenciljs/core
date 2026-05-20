@@ -812,10 +812,20 @@ export interface QueueApi {
 }
 
 /**
+ * Minimal interface matched by signal objects (from @stencil/core/signals).
+ * Used in JSX attribute types to allow signal-backed values without importing
+ * implementation details from @preact/signals-core.
+ */
+export interface SignalRef<T = any> {
+  readonly value: T;
+  peek(): T;
+}
+
+/**
  * Host
  */
 export interface HostAttributes {
-  class?: string | { [className: string]: boolean };
+  class?: string | { [className: string]: boolean } | SignalRef<string>;
   style?: { [key: string]: string | undefined };
   ref?: (el: HTMLElement | null) => void;
 
@@ -882,7 +892,7 @@ export interface FunctionalComponent<T = {}> {
  * {@link FunctionalUtilities}).
  */
 export interface ChildNode {
-  vtag?: string | number | Function;
+  vtag?: string | number | Function | symbol | null;
   vkey?: string | number;
   vtext?: string;
   vchildren?: VNode[];
@@ -979,13 +989,15 @@ export declare function jsxs(type: any, props: any, key?: string): VNode;
  */
 export interface VNode {
   $flags$: number;
-  $tag$: string | number | Function;
+  $tag$: string | number | Function | symbol | null;
   $elm$: any;
   $text$: string;
   $children$: VNode[];
   $attrs$?: any;
   $name$?: string;
   $key$?: string | number;
+  /** Signal reference for vdom bypass: text nodes and Show VNodes store the signal here. */
+  $signal$?: any;
 }
 
 export interface VNodeData {
@@ -1699,7 +1711,7 @@ export namespace JSXBase {
     accessKey?: string;
     autoFocus?: boolean;
     autofocus?: boolean | string;
-    class?: string | { [className: string]: boolean };
+    class?: string | { [className: string]: boolean } | SignalRef<string>;
     contentEditable?: boolean | string;
     contenteditable?: boolean | string;
     contextMenu?: string;
@@ -1768,7 +1780,7 @@ export namespace JSXBase {
 
   export interface SVGAttributes<T = SVGElement> extends DOMAttributes<T> {
     // Attributes which also defined in HTMLAttributes
-    class?: string | { [className: string]: boolean };
+    class?: string | { [className: string]: boolean } | SignalRef<string>;
     color?: string;
     height?: number | string;
     id?: string;

@@ -56,6 +56,10 @@
       "import": "./dist/mock-doc.mjs",
       "default": "./dist/mock-doc.mjs"
     },
+    "./signals": {
+      "types": "./dist/signals/index.d.mts",
+      "import": "./dist/signals/index.mjs"
+    },
     "./runtime": {
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
@@ -104,6 +108,7 @@
   },
   "dependencies": {
     "@parcel/watcher": "^2.5.1",
+    "@preact/signals-core": "^1.14.2",
     "@rollup/pluginutils": "^5.3.0",
     "@stencil/cli": "workspace:*",
     "@stencil/dev-server": "workspace:*",

@@ -219,4 +219,153 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-04-29*
+---
+
+## ⚡ Signals Integration (In Progress)
+
+### Vision
+
+Replace `@State`/`@Prop` internals with signals via a single opt-in config flag — zero API changes for component authors, cleaner reactivity, cross-framework interop. If it proves popular, make it the default in a later release.
+
+### Approach
+
+Global `extras.signalBacking: true` flag in `stencil.config.ts`. Controls a `BUILD.signalBacking` compile-time constant that tree-shakes the entire signal code path in or out. No per-component or per-decorator changes needed.
+
+```typescript
+// stencil.config.ts
+export const config: Config = {
+  extras: {
+    signalBacking: true  // opt-in
+  }
+};
+
+// Components unchanged — @State and @Prop work identically
+@Component({ tag: 'my-counter' })
+export class MyCounter {
+  @State() count = 0;
+  render() { return <div>{this.count}</div>; }
+}
+```
+
+### Why not per-decorator opt-in?
+
+- **Runtime bytes:** global flag means one code path (signal OR Map), tree-shaken cleanly. Per-decorator would ship both paths in every bundle.
+- **Hot path performance:** no per-member flag check on every getter/setter call.
+- **Simpler implementation:** no `MEMBER_FLAGS.SignalBacked` in compiler metadata, no branching in proxy internals.
+- **Simpler user model:** "my app uses signals" is a project-level decision.
+
+### Signal library
+
+`@preact/signals-core` — production-stable, ~1.3kb, zero deps, convergent with TC39. Abstracted behind `packages/core/src/runtime/signals.ts` so it can be swapped if TC39 finalizes.
+
+### Why bother over `@Watch`?
+
+`@Watch` covers derived state within a component. Signal-backing adds:
+
+1. **Cross-framework interop** — Stencil component state becomes subscribable by Solid/Angular/Preact reactive systems natively, no event/attribute roundtrip.
+2. **Computed derivations** — lazy, auto-dep-tracked, composable. No intermediate `@State` + watcher boilerplate.
+3. **Path to JSX leaf bypass** — signal objects in JSX can skip the vdom diff and update DOM nodes directly (Phase 2).
+
+### Phases
+
+#### Phase 1 — Signal-backed `@State` and `@Prop`
+- [x] Add `@preact/signals-core` to `packages/core`
+- [x] Create `packages/core/src/runtime/signals.ts` — adapter (`signal`, `computed`, `effect`, `batch`, `untracked`) + `initializeSignals`
+- [x] Add `signalBacking?: boolean` to `extras` config type (`ConfigExtrasBase`)
+- [x] Add `BUILD.signalBacking` constant + wire from `updateBuildConditionals` + `COLLECTION_CONFIG_FLAGS`
+- [x] `$signalValues$` + `$signalCleanup$` added to `HostRef`; `signalBacking` added to `BuildConditionals`
+- [x] **`set-value.ts`:** signal fast-path in `getValue` + `setValue` — bypasses Map once signals are initialized
+- [x] **`initialize-component.ts`:** calls `initializeSignals` before first `scheduleUpdate` — allocates one `Signal.State` per `@Prop`/`@State` member, seeded from `$instanceValues$`
+- [x] **Scheduling:** per-prop `effect()` calls `scheduleUpdate()` on change (first run is no-op — `hasRendered` guard)
+- [x] **Watchers:** per-prop `effect()` fires `@Watch` callbacks with old/new value
+- [x] **`componentShouldUpdate`:** called from within the scheduling effect, can still veto
+- [x] **`@Prop` attribute path:** works via existing `attributeChangedCallback` → proxy setter → `setValue` signal fast-path
+- [x] **Disconnect cleanup:** `disconnected-callback.ts` calls `$signalCleanup$()` and nulls it on real disconnects (skipped for temporary slot relocations)
+- [x] **`reflect: true` with custom serializers:** serializer now runs inside the signal fast-path before `sig.value` is set, populating `$serializerValues$` before the triggered re-render
+- [x] Tests — unit (`signals.spec.ts`) + integration (`signal-backing.spec.tsx`)
+
+#### Phase 2 — `@stencil/core/signals` subpath ✅ Complete
+- [x] New `packages/core/src/signals/index.ts` — public entry for signal primitives + decorators
+- [x] Re-exports `signal`, `computed`, `effect`, `batch`, `untracked`, `Signal`, `ReadonlySignal` from `@preact/signals-core` (bundled, no extra install)
+- [x] `@Effect()` — pure runtime TS decorator; marks a method as a reactive effect, auto-tracked deps, auto-cleaned up on disconnect. Requires `signalBacking: true` (wired in `initializeSignals`)
+- ~~`@Computed()` decorator~~ — **removed**. Adds no value over `computed()` as a class field, and the return-type change (`ReadonlySignal<T>` vs `T`) created a typing nightmare for users.
+- [ ] `@Effect()` without `signalBacking` — currently requires `signalBacking: true`; wiring could be moved to `initialize-component.ts` to support external-signal-only use cases
+
+#### Phase 3 — JSX vdom bypass ✅ Complete
+- [x] `BUILD.vdomSignals` flag — auto-enabled by `signalBacking: true`; also standalone via `extras.vdomSignals: true`
+- [x] `<Show when={signal}>` — signal-conditional rendering via `<s-show>` wrapper with `display:contents`/`none` toggle. Children are part of the normal vdom tree so the existing diff handles updates.
+- [x] Signal text children — `<div>{mySignal}</div>` → `effect()` updates `textNode.data` directly, bypasses vdom diff
+- [x] Signal attribute values — `<div class={mySignal}>` → `effect()` calls `setAccessor` directly
+- [x] Per-node cleanup: `WeakMap<Node, () => void>` (text nodes + Show wrappers) + `WeakMap<Node, Map<string, () => void>>` (per-attribute). `removeVnodes` recursively disposes.
+- [x] `SignalRef<T>` interface in public runtime declarations — JSX type compatibility without importing `@preact/signals-core`
+- [x] Tests — 12 tests across signal text children, signal attributes, `<Show>`
+
+**Design decisions:**
+
+- **Signal detection:** Duck-type via `typeof v.peek === 'function' && typeof v.subscribe === 'function'` rather than `instanceof Signal`. This is cross-bundle-safe — both the `signals/` bundle and the `runtime/` bundle inline `@preact/signals-core`; two separate class instances would make `instanceof` fail when signals are passed across bundle boundaries. At app build time bundlers deduplicate `@preact/signals-core`, so `instanceof` would also work, but duck-typing is the safer default.
+- **`@Computed()` bypass:** Computed getter body runs inside `computed()`, so the vdom bypass works automatically — `this.doubled` returns the `ReadonlySignal` and JSX picks it up.
+- **`<s-show>` wrapper:** A generic HTML element (`display:contents` when visible, `display:none` when hidden). `display:contents` removes the element from the layout box model — it is transparent to CSS layout. Children participate in normal vdom diffing via `updateChildren` on the wrapper.
+- **SHOW_TAG sentinel:** `Symbol('s-show')` in `runtime-constants.ts`, used as `$tag$` on Show VNodes. `VNode.$tag$` type extended to `string | number | Function | symbol | null`.
+- **`$signal$?: any` on VNode:** Stores the signal reference through the `h()` → `createElm()` pipeline for text nodes and Show VNodes.
+
+#### Phase 4 — `<For>` reactive list rendering (deferred)
+
+`<For each={signal<T[]>}>{(item: T, index: number) => VNode}</For>`
+
+Deferred because it requires keyed array diffing scoped to a DOM anchor region — essentially a mini vdom reconciler. The anchor-based model (same as `<Show>`) applies, but the update path is significantly more complex:
+
+- On signal change, diff old array vs new array by key
+- For each changed item: patch existing DOM node in place
+- For added items: create new DOM nodes and insert at the right position
+- For removed items: dispose their signal subscriptions and remove from DOM
+
+The fundamental challenge is that creating DOM nodes from VNodes requires the module-level render state (`hostTagName`, `scopeId`, `isSvgMode`) that is only valid during a `renderVdom` call. Either capture this context on first render and restore it during subscription callbacks, or schedule a `hostRef` re-render (which loses the "bypass" benefit for list additions/removals).
+
+Start `<For>` only after `<Show>` has been shipped and tested. Revisit design at that point.
+
+#### Later — make default
+- [ ] Evaluate adoption/feedback from Phases 1 + 2
+- [ ] If stable and popular: flip `signalBacking` default to `true`, deprecate old Map path, remove in next major
+
+#### Out of scope for now
+- Separate `@stencil/signals` store package — relegated; the `@stencil/core/signals` subpath covers the in-component use case
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `packages/core/package.json` | Added `@preact/signals-core` dep; `./signals` subpath export |
+| `packages/core/tsdown.config.ts` | Added `signals/index` entry |
+| `packages/core/src/signals/index.ts` | New — public entry: signal primitives re-export + `@Effect()` + `@Computed()` |
+| `packages/core/src/runtime/signals.ts` | `initializeSignals` — per-prop scheduling + watcher effects + `@Effect()` wiring |
+| `packages/core/src/declarations/stencil-private.ts` | `$signalValues$`, `$signalCleanup$` on `HostRef`; `signalBacking` on `BuildConditionals` |
+| `packages/core/src/declarations/stencil-public-compiler.ts` | `signalBacking` on `ConfigExtrasBase` |
+| `packages/core/src/compiler/app-core/app-data.ts` | Set `BUILD.signalBacking` from config; added to `COLLECTION_CONFIG_FLAGS` |
+| `packages/core/src/runtime/set-value.ts` | Signal fast-path in `getValue` + `setValue`; `applySerializers` helper (deduped); serializer fix |
+| `packages/core/src/runtime/initialize-component.ts` | Calls `initializeSignals` before first `scheduleUpdate` |
+| `packages/core/src/runtime/disconnected-callback.ts` | Calls `$signalCleanup$()` on real disconnect |
+| `packages/core/src/runtime/_test_/signals.spec.ts` | Unit tests: `initializeSignals`, `@Effect()` wiring, decorator factories |
+| `packages/core/src/runtime/_test_/signal-backing.spec.tsx` | Integration tests: `@State`, `@Prop`, `@Watch`, `@Effect()`, `computed()` class fields |
+| `packages/core/src/runtime/runtime-constants.ts` | Added `SHOW_TAG = Symbol('s-show')` sentinel |
+| `packages/core/src/runtime/vdom/h.ts` | Signal text children in `walk()`; guard class→string for signal values |
+| `packages/core/src/runtime/vdom/set-accessor.ts` | Signal attribute subscriptions via `effect()`; `disposeAllSignalAttrs` |
+| `packages/core/src/runtime/vdom/vdom-render.ts` | `createElm` signal text + Show handling; `disposeSignalVNode` on `removeVnodes` |
+| `packages/core/src/declarations/stencil-public-runtime.ts` | `SignalRef<T>` interface; `class` attr type widened to accept `SignalRef<string>` |
+| `packages/core/src/runtime/_test_/signal-vdom.spec.tsx` | New — 12 integration tests for Phase 3 vdom bypass |
+
+### Out of scope (v6+ / future)
+
+Fine-grained JSX compilation (Solid-style): JSX → direct DOM ops + effects, no vdom at all. Requires new compiler pass, new SSR strategy with reactive DOM markers, new hydration protocol. The right long-term direction but a separate multi-year effort.
+
+---
+
+## Build Commands
+
+```bash
+pnpm run build     # Build all packages
+pnpm run dev       # Watch mode
+```
+
+---
+
+*Last updated: 2026-05-20*

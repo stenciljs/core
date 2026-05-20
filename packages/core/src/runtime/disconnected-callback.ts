@@ -23,6 +23,11 @@ export const disconnectedCallback = async (elm: d.HostElement) => {
       }
     }
 
+    if (BUILD.vdomSignals && hostRef?.$signalCleanup$) {
+      hostRef.$signalCleanup$();
+      hostRef.$signalCleanup$ = undefined;
+    }
+
     if (!BUILD.lazyLoad) {
       disconnectInstance(elm);
     } else if (hostRef?.$lazyInstance$) {

@@ -76,6 +76,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomRender: cmps.some((c) => c.hasVdomRender),
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
     vdomText: cmps.some((c) => c.hasVdomText),
+    vdomSignals: cmps.some((c) => c.hasSignalsImport),
     taskQueue: true,
     // Per-component slot patches
     patchAll: cmps.some((c) => c.hasPatchAll),
@@ -109,6 +110,7 @@ export const updateComponentBuildConditionals = (
       cmp.hasVdomRender = cmp.hasVdomRender || importedModule.hasVdomRender;
       cmp.hasVdomStyle = cmp.hasVdomStyle || importedModule.hasVdomStyle;
       cmp.hasVdomText = cmp.hasVdomText || importedModule.hasVdomText;
+      cmp.hasSignalsImport = cmp.hasSignalsImport || importedModule.hasSignalsImport;
 
       cmp.htmlAttrNames.push(...importedModule.htmlAttrNames);
       cmp.htmlTagNames.push(...importedModule.htmlTagNames);
@@ -166,6 +168,8 @@ const COLLECTION_CONFIG_FLAGS: ReadonlySet<keyof BuildConditionals> = new Set([
   'lifecycleDOMEvents',
   'initializeNextTick',
   'asyncQueue',
+  'signalBacking',
+  'vdomSignals',
 ] as Array<keyof BuildConditionals>);
 
 /**
@@ -234,6 +238,8 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
     b.slotTextContent = false;
   }
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
+  b.signalBacking = !!config.extras?.signalBacking;
+  b.vdomSignals = b.vdomSignals || !!(config.extras?.signalBacking || config.extras?.vdomSignals);
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
   if (config.hydratedFlag) {

@@ -354,6 +354,23 @@ interface ConfigExtrasBase {
    * Adds `transformTag` calls to css strings and querySelector(All) calls
    */
   additionalTagTransformers?: boolean | 'prod';
+
+  /**
+   * Replace `@State` and `@Prop` internals with `@preact/signals-core` signal primitives.
+   * Enables cross-framework reactive interop — component state becomes subscribable by
+   * Solid, Angular, Preact and any TC39-signal-compatible library without event/attribute
+   * roundtrips. No API changes required in component code. Also auto-enables `vdomSignals`.
+   * Defaults to `false`.
+   */
+  signalBacking?: boolean;
+
+  /**
+   * Enable JSX signal bypass: `Signal` objects passed as JSX text children or attribute values
+   * subscribe directly to DOM nodes, bypassing the vdom diff on signal changes.
+   * Also enables `<Show>` from `@stencil/core/signals`.
+   * Auto-enabled when `signalBacking: true`. Defaults to `false`.
+   */
+  vdomSignals?: boolean;
 }
 
 /**

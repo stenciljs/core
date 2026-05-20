@@ -206,6 +206,23 @@ export default defineConfig([
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
+  // @stencil/core/signals — public signals primitives + @Effect decorator
+  {
+    entry: {
+      'signals/index': 'src/signals/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    deps: {
+      // Bundle @preact/signals-core so consumers need no extra install
+      neverBundle: [/^node:/],
+    },
+  },
+
   // Standalone client runtime (app-data/globals externalized for runtime swapping)
   {
     entry: {

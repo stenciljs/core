@@ -6,8 +6,36 @@ import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
-export const getValue = (ref: d.RuntimeRef, propName: string) =>
-  getHostRef(ref).$instanceValues$.get(propName);
+const applySerializers = (
+  hostRef: d.HostRef,
+  cmpMeta: d.ComponentRuntimeMeta,
+  propName: string,
+  val: any,
+  instance: any,
+) => {
+  const run = (inst: any) => {
+    let attrVal = val;
+    for (const serializer of cmpMeta.$serializers$[propName]) {
+      const [[methodName]] = Object.entries(serializer);
+      attrVal = inst[methodName](attrVal, propName);
+    }
+    hostRef.$serializerValues$.set(propName, attrVal);
+  };
+  if (instance) {
+    run(instance);
+  } else {
+    hostRef.$fetchedCbList$.push(() => run(hostRef.$lazyInstance$));
+  }
+};
+
+export const getValue = (ref: d.RuntimeRef, propName: string) => {
+  if (BUILD.signalBacking) {
+    const hostRef = getHostRef(ref);
+    const sig = hostRef?.$signalValues$?.get(propName);
+    if (sig !== undefined) return sig.value;
+  }
+  return getHostRef(ref).$instanceValues$.get(propName);
+};
 
 export const setValue = (
   ref: d.RuntimeRef,
@@ -17,8 +45,40 @@ export const setValue = (
 ) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
+
+  if (BUILD.signalBacking) {
+    const sig = hostRef?.$signalValues$?.get(propName);
+    if (sig !== undefined) {
+      const parsed = parsePropertyValue(
+        newVal,
+        cmpMeta.$members$[propName][0],
+        BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+      );
+      if (
+        BUILD.serializer &&
+        BUILD.reflect &&
+        cmpMeta.$attrsToReflect$ &&
+        cmpMeta.$serializers$?.[propName]
+      ) {
+        const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
+        applySerializers(
+          hostRef,
+          cmpMeta,
+          propName,
+          parsed,
+          BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any),
+        );
+      }
+      // @preact/signals-core uses === so NaN !== NaN always triggers effects;
+      // match the legacy path's NaN-equality semantics explicitly.
+      if (!(Number.isNaN(sig.peek()) && Number.isNaN(parsed))) {
+        sig.value = parsed;
+      }
+      return;
+    }
+  }
+
   if (!hostRef) {
-    // Todo(STENCIL-1308): remove once a solution for this was identified and implemented
     if (BUILD.lazyLoad) {
       throw new Error(
         BUILD.isDev
@@ -61,30 +121,13 @@ export const setValue = (
     // set our new value!
     hostRef.$instanceValues$.set(propName, newVal);
 
-    if (BUILD.serializer && BUILD.reflect && cmpMeta.$attrsToReflect$) {
-      if (cmpMeta.$serializers$ && cmpMeta.$serializers$[propName]) {
-        // this property has a serializer method
-        const runSerializer = (inst: any) => {
-          let attrVal = newVal;
-          for (const serializer of cmpMeta.$serializers$[propName]) {
-            const [[methodName]] = Object.entries(serializer);
-            // call the serializer methods
-            attrVal = inst[methodName](attrVal, propName);
-          }
-          // keep the serialized value - it's used in `renderVdom()` (vdom-render.ts)
-          // to set the attribute on the vnode
-          hostRef.$serializerValues$.set(propName, attrVal);
-        };
-
-        if (instance) {
-          runSerializer(instance);
-        } else {
-          // Instance not ready yet, queue the serialization for later
-          hostRef.$fetchedCbList$.push(() => {
-            runSerializer(hostRef.$lazyInstance$);
-          });
-        }
-      }
+    if (
+      BUILD.serializer &&
+      BUILD.reflect &&
+      cmpMeta.$attrsToReflect$ &&
+      cmpMeta.$serializers$?.[propName]
+    ) {
+      applySerializers(hostRef, cmpMeta, propName, newVal, instance);
     }
 
     if (BUILD.isDev) {
@@ -121,6 +164,10 @@ export const setValue = (
           try {
             const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
             if (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate) {
+              // When signalBacking is on and signals haven't been initialized yet,
+              // skip watcher dispatch here — the signal watcher effect will fire
+              // synchronously during initializeSignals and handle it instead.
+              if (BUILD.signalBacking && !hostRef.$signalValues$) return;
               // fire off each of the watch methods that are watching this property
               if (!instance) {
                 hostRef.$fetchedCbList$.push(() => {
