@@ -404,19 +404,9 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
     return undefined;
   }
 
-  // Unwrap value-preserving wrapper expressions so the inner literal is reached:
-  //   `'x' as const`, `('x')`, `<T>x`, `x satisfies T`, `x!`
-  if (
-    ts.isAsExpression(node) ||
-    ts.isParenthesizedExpression(node) ||
-    ts.isTypeAssertionExpression(node) ||
-    ts.isSatisfiesExpression(node) ||
-    ts.isNonNullExpression(node)
-  ) {
-    return resolveLiteralText(node.expression, typeChecker, depth + 1);
-  }
+  node = unwrapValuePreservingWrappers(node);
 
-  // Already a primitive literal — string / number / true / false / null
+  // Already a primitive literal — string / number / true / false / null / signed number
   if (isPrimitiveLiteral(node)) {
     return node.getText();
   }
@@ -439,7 +429,7 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
 
   // OBJ.key
   if (ts.isPropertyAccessExpression(node)) {
-    const obj = resolveObjectLiteral(node.expression, typeChecker);
+    const obj = resolveObjectLiteral(node.expression, typeChecker, depth + 1);
     const prop = obj && findObjectLiteralMember(obj, node.name.text, typeChecker);
     return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
   }
@@ -456,12 +446,29 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
     if (key === undefined) {
       return undefined;
     }
-    const obj = resolveObjectLiteral(node.expression, typeChecker);
+    const obj = resolveObjectLiteral(node.expression, typeChecker, depth + 1);
     const prop = obj && findObjectLiteralMember(obj, key, typeChecker);
     return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
   }
 
   return undefined;
+};
+
+/**
+ * Strips value-preserving wrappers so callers can pattern-match the underlying
+ * expression: `'x' as const`, `('x')`, `<T>x`, `x satisfies T`, `x!`.
+ */
+const unwrapValuePreservingWrappers = (node: ts.Expression): ts.Expression => {
+  while (
+    ts.isAsExpression(node) ||
+    ts.isParenthesizedExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isNonNullExpression(node)
+  ) {
+    node = node.expression;
+  }
+  return node;
 };
 
 const isPrimitiveLiteral = (node: ts.Expression): boolean => {
@@ -473,9 +480,23 @@ const isPrimitiveLiteral = (node: ts.Expression): boolean => {
   return (
     ts.isStringLiteralLike(node) ||
     ts.isNumericLiteral(node) ||
+    isSignedNumericLiteral(node) ||
     node.kind === ts.SyntaxKind.TrueKeyword ||
     node.kind === ts.SyntaxKind.FalseKeyword ||
     node.kind === ts.SyntaxKind.NullKeyword
+  );
+};
+
+/**
+ * TypeScript represents `-1` / `+1` as a `PrefixUnaryExpression` wrapping a
+ * numeric literal — not as a `NumericLiteral` directly. Treat the (+|-)number
+ * shape as a primitive literal so signed numeric defaults inline cleanly.
+ */
+const isSignedNumericLiteral = (node: ts.Expression): boolean => {
+  return (
+    ts.isPrefixUnaryExpression(node) &&
+    (node.operator === ts.SyntaxKind.MinusToken || node.operator === ts.SyntaxKind.PlusToken) &&
+    ts.isNumericLiteral(node.operand)
   );
 };
 
@@ -513,21 +534,27 @@ const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeCh
 };
 
 /**
- * Resolves an expression to an object literal — either directly or by following a
- * single `const` identifier reference. Deeper chains aren't followed here because
- * the caller will recurse through `resolveLiteralText` on the property value.
+ * Resolves an expression to an object literal, walking through value-preserving
+ * wrappers (`as const`, `(...)`, etc.) and chained `const` identifier
+ * references. Bounded by `MAX_RESOLVE_DEPTH` so cyclic or pathological chains
+ * cannot blow the stack.
  */
 const resolveObjectLiteral = (
   node: ts.Expression,
   typeChecker: ts.TypeChecker,
+  depth: number,
 ): ts.ObjectLiteralExpression | undefined => {
+  if (depth >= MAX_RESOLVE_DEPTH) {
+    return undefined;
+  }
+  node = unwrapValuePreservingWrappers(node);
   if (ts.isObjectLiteralExpression(node)) {
     return node;
   }
   if (ts.isIdentifier(node)) {
     const init = getConstVariableInitializer(node, typeChecker);
-    if (init && ts.isObjectLiteralExpression(init)) {
-      return init;
+    if (init) {
+      return resolveObjectLiteral(init, typeChecker, depth + 1);
     }
   }
   return undefined;

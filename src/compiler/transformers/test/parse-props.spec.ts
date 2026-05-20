@@ -695,6 +695,40 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe('undefined');
   });
 
+  it('prop default value resolved from a negative numeric const (PrefixUnaryExpression)', () => {
+    const t = transpileModule(`
+      const N = -1;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: number = N;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('-1');
+  });
+
+  it('prop default value resolved from a wrapped object literal const', () => {
+    const t = transpileModule(`
+      const CONFIG = ({ label: 'wrapped' } as const);
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = CONFIG.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'wrapped'`);
+  });
+
+  it('prop default value resolved through chained const-to-const object aliases', () => {
+    const t = transpileModule(`
+      const CONFIG = { label: 'chained' };
+      const ALIAS = CONFIG;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = ALIAS.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'chained'`);
+  });
+
   it('prop default value resolved from a cross-file imported const', () => {
     // Self-contained 2-file program. Does NOT extend the shared `transpileModule`
     // helper — keeps the multi-file complexity isolated to this single test.
