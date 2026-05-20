@@ -411,9 +411,6 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
 
   // Identifier referencing a `const` variable with a resolvable initializer.
   if (ts.isIdentifier(node)) {
-    if (node.text === 'undefined') {
-      return 'undefined';
-    }
     const init = getConstVariableInitializer(node, typeChecker);
     return init ? resolveLiteralText(init, typeChecker, depth + 1) : undefined;
   }
@@ -451,7 +448,10 @@ const isPrimitiveLiteral = (node: ts.Expression): boolean => {
     ts.isNumericLiteral(node) ||
     node.kind === ts.SyntaxKind.TrueKeyword ||
     node.kind === ts.SyntaxKind.FalseKeyword ||
-    node.kind === ts.SyntaxKind.NullKeyword
+    node.kind === ts.SyntaxKind.NullKeyword ||
+    // `undefined` is an Identifier referencing the global, not a syntax keyword,
+    // but it is treated as a primitive literal value here.
+    (ts.isIdentifier(node) && node.text === 'undefined')
   );
 };
 
@@ -461,10 +461,7 @@ const isPrimitiveLiteral = (node: ts.Expression): boolean => {
  * Only `const` declarations are followed because `let` / `var` bindings may be
  * reassigned and so are not safe to inline at compile time.
  */
-const getConstVariableInitializer = (
-  node: ts.Identifier,
-  typeChecker: ts.TypeChecker,
-): ts.Expression | undefined => {
+const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeChecker): ts.Expression | undefined => {
   const symbol = typeChecker.getSymbolAtLocation(node);
   const decl = symbol?.declarations?.find(ts.isVariableDeclaration);
   if (!decl || !decl.initializer) {
@@ -498,10 +495,7 @@ const resolveObjectLiteral = (
   return undefined;
 };
 
-const findObjectLiteralMember = (
-  obj: ts.ObjectLiteralExpression,
-  name: string,
-): ts.Expression | undefined => {
+const findObjectLiteralMember = (obj: ts.ObjectLiteralExpression, name: string): ts.Expression | undefined => {
   for (const member of obj.properties) {
     if (!ts.isPropertyAssignment(member)) {
       continue;
