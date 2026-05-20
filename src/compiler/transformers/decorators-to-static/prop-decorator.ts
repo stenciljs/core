@@ -400,7 +400,7 @@ const resolveInitializerText = (node: ts.Expression, typeChecker: ts.TypeChecker
 };
 
 const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, depth: number): string | undefined => {
-  if (depth > MAX_RESOLVE_DEPTH) {
+  if (depth >= MAX_RESOLVE_DEPTH) {
     return undefined;
   }
 
@@ -418,7 +418,7 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
   // OBJ.key
   if (ts.isPropertyAccessExpression(node)) {
     const obj = resolveObjectLiteral(node.expression, typeChecker);
-    const prop = obj && findObjectLiteralMember(obj, node.name.text);
+    const prop = obj && findObjectLiteralMember(obj, node.name.text, typeChecker);
     return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
   }
 
@@ -435,7 +435,7 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
       return undefined;
     }
     const obj = resolveObjectLiteral(node.expression, typeChecker);
-    const prop = obj && findObjectLiteralMember(obj, key);
+    const prop = obj && findObjectLiteralMember(obj, key, typeChecker);
     return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
   }
 
@@ -458,13 +458,23 @@ const isPrimitiveLiteral = (node: ts.Expression): boolean => {
 };
 
 /**
- * If `node` resolves through its symbol to a `const` variable declaration with an
- * initializer, returns that initializer expression. Otherwise returns undefined.
+ * Walks a Symbol to the initializer of its underlying `const` variable
+ * declaration, unwrapping import aliases along the way. Returns undefined for
+ * anything that isn't a `const` binding with a literal-bearing initializer.
  * Only `const` declarations are followed because `let` / `var` bindings may be
  * reassigned and so are not safe to inline at compile time.
  */
-const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeChecker): ts.Expression | undefined => {
-  const symbol = typeChecker.getSymbolAtLocation(node);
+const resolveConstSymbolInitializer = (
+  symbol: ts.Symbol | undefined,
+  typeChecker: ts.TypeChecker,
+): ts.Expression | undefined => {
+  // For imported bindings (`import { X } from './x'`), `getSymbolAtLocation`
+  // returns the alias symbol (`ImportSpecifier` / `NamespaceImport` / etc.) —
+  // unwrap it so we can reach the original `VariableDeclaration` in the
+  // source module and resolve cross-file `const` references.
+  if (symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    symbol = typeChecker.getAliasedSymbol(symbol);
+  }
   const decl = symbol?.declarations?.find(ts.isVariableDeclaration);
   if (!decl || !decl.initializer) {
     return undefined;
@@ -474,6 +484,10 @@ const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeCh
     return undefined;
   }
   return decl.initializer;
+};
+
+const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeChecker): ts.Expression | undefined => {
+  return resolveConstSymbolInitializer(typeChecker.getSymbolAtLocation(node), typeChecker);
 };
 
 /**
@@ -497,14 +511,25 @@ const resolveObjectLiteral = (
   return undefined;
 };
 
-const findObjectLiteralMember = (obj: ts.ObjectLiteralExpression, name: string): ts.Expression | undefined => {
+const findObjectLiteralMember = (
+  obj: ts.ObjectLiteralExpression,
+  name: string,
+  typeChecker: ts.TypeChecker,
+): ts.Expression | undefined => {
   for (const member of obj.properties) {
-    if (!ts.isPropertyAssignment(member)) {
+    if (ts.isPropertyAssignment(member)) {
+      const memberName = getPropertyNameText(member.name);
+      if (memberName === name) {
+        return member.initializer;
+      }
       continue;
     }
-    const memberName = getPropertyNameText(member.name);
-    if (memberName === name) {
-      return member.initializer;
+    // Shorthand: `{ label }` — equivalent to `{ label: label }`. The shorthand
+    // name carries the property symbol, not the symbol of the in-scope binding,
+    // so use `getShorthandAssignmentValueSymbol` to reach the original binding
+    // and then walk to its `const` initializer.
+    if (ts.isShorthandPropertyAssignment(member) && member.name.text === name) {
+      return resolveConstSymbolInitializer(typeChecker.getShorthandAssignmentValueSymbol(member), typeChecker);
     }
   }
   return undefined;
