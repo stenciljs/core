@@ -443,15 +443,17 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
 };
 
 const isPrimitiveLiteral = (node: ts.Expression): boolean => {
+  // Identifiers (including `undefined`) are not treated as primitive literals
+  // here. They are resolved through `getConstVariableInitializer`, and any
+  // identifier the resolver can't follow to a primitive ultimately falls back
+  // to `node.getText()` — so `@Prop() x = undefined;` still emits `"undefined"`
+  // while a user-shadowed `const undefined = 'foo'` correctly resolves to `'foo'`.
   return (
     ts.isStringLiteralLike(node) ||
     ts.isNumericLiteral(node) ||
     node.kind === ts.SyntaxKind.TrueKeyword ||
     node.kind === ts.SyntaxKind.FalseKeyword ||
-    node.kind === ts.SyntaxKind.NullKeyword ||
-    // `undefined` is an Identifier referencing the global, not a syntax keyword,
-    // but it is treated as a primitive literal value here.
-    (ts.isIdentifier(node) && node.text === 'undefined')
+    node.kind === ts.SyntaxKind.NullKeyword
   );
 };
 

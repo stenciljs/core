@@ -638,6 +638,16 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe('QUERY[key]');
   });
 
+  it('prop default value preserves `undefined` initializer as raw text', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string | undefined = undefined;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('undefined');
+  });
+
   it('should infer string type from `get()` return value', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
