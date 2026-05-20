@@ -662,6 +662,39 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe(`'Hello'`);
   });
 
+  it('prop default value resolved through `as const` wrapper', () => {
+    const t = transpileModule(`
+      const DEFAULT = 'x' as const;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: 'x' = DEFAULT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'x'`);
+  });
+
+  it('prop default value resolved through parenthesized + non-null wrappers', () => {
+    const t = transpileModule(`
+      const DEFAULT: string | undefined = 'wrapped';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = (DEFAULT)!;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'wrapped'`);
+  });
+
+  it('prop default value resolved through a `const` initialized to undefined', () => {
+    const t = transpileModule(`
+      const DEFAULT = undefined;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string | undefined = DEFAULT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('undefined');
+  });
+
   it('prop default value resolved from a cross-file imported const', () => {
     // Self-contained 2-file program. Does NOT extend the shared `transpileModule`
     // helper — keeps the multi-file complexity isolated to this single test.

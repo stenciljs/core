@@ -404,6 +404,18 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
     return undefined;
   }
 
+  // Unwrap value-preserving wrapper expressions so the inner literal is reached:
+  //   `'x' as const`, `('x')`, `<T>x`, `x satisfies T`, `x!`
+  if (
+    ts.isAsExpression(node) ||
+    ts.isParenthesizedExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isNonNullExpression(node)
+  ) {
+    return resolveLiteralText(node.expression, typeChecker, depth + 1);
+  }
+
   // Already a primitive literal — string / number / true / false / null
   if (isPrimitiveLiteral(node)) {
     return node.getText();
@@ -412,7 +424,17 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
   // Identifier referencing a `const` variable with a resolvable initializer.
   if (ts.isIdentifier(node)) {
     const init = getConstVariableInitializer(node, typeChecker);
-    return init ? resolveLiteralText(init, typeChecker, depth + 1) : undefined;
+    if (init) {
+      return resolveLiteralText(init, typeChecker, depth + 1);
+    }
+    // The chain terminated at a bare `undefined` identifier (either `@Prop() x = undefined;`
+    // or `const X = undefined; @Prop() x = X;`). Emit the literal `undefined` so docs show
+    // the same value the runtime would observe. A user-shadowed `const undefined = 'foo'`
+    // is already handled above by `getConstVariableInitializer`.
+    if (node.text === 'undefined') {
+      return 'undefined';
+    }
+    return undefined;
   }
 
   // OBJ.key
