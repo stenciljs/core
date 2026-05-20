@@ -381,8 +381,12 @@ const findGetProp = (propName: string, members: ts.ClassElement[]): ts.PropertyD
 };
 
 /**
- * Maximum depth when traversing variable references to resolve an initializer
- * to its literal value. Prevents pathological/cyclic chains from blowing the stack.
+ * Maximum number of hops to follow when traversing variable references to
+ * resolve an initializer to its literal value. With the guards below
+ * (`depth > MAX_RESOLVE_DEPTH`), a chain of up to this many `const` / property
+ * follows is supported before bailing out; any deeper chain falls back to the
+ * original source text. Prevents pathological / cyclic chains from blowing the
+ * stack.
  */
 const MAX_RESOLVE_DEPTH = 5;
 
@@ -400,7 +404,7 @@ const resolveInitializerText = (node: ts.Expression, typeChecker: ts.TypeChecker
 };
 
 const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, depth: number): string | undefined => {
-  if (depth >= MAX_RESOLVE_DEPTH) {
+  if (depth > MAX_RESOLVE_DEPTH) {
     return undefined;
   }
 
@@ -436,7 +440,9 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
 
   // OBJ['key']  /  OBJ[0]
   if (ts.isElementAccessExpression(node)) {
-    const arg = node.argumentExpression;
+    // Unwrap value-preserving wrappers so safe shapes like `OBJ[('lg')]`,
+    // `OBJ['lg' as const]`, and `OBJ[('0') as const]` still resolve.
+    const arg = unwrapValuePreservingWrappers(node.argumentExpression);
     let key: string | undefined;
     if (ts.isStringLiteralLike(arg)) {
       key = arg.text;
@@ -501,11 +507,14 @@ const isSignedNumericLiteral = (node: ts.Expression): boolean => {
 };
 
 /**
- * Walks a Symbol to the initializer of its underlying `const` variable
- * declaration, unwrapping import aliases along the way. Returns undefined for
- * anything that isn't a `const` binding with a literal-bearing initializer.
- * Only `const` declarations are followed because `let` / `var` bindings may be
- * reassigned and so are not safe to inline at compile time.
+ * Walks a Symbol to the initializer expression of its underlying `const`
+ * variable declaration, unwrapping import aliases along the way. Returns the
+ * initializer as-is regardless of its shape — the caller is responsible for
+ * deciding whether the expression is something it can resolve further (e.g.
+ * a primitive literal, a nested const reference, an object literal, etc.).
+ * Returns undefined for anything that isn't a `const` binding with an
+ * initializer. Only `const` declarations are followed because `let` / `var`
+ * bindings may be reassigned and so are not safe to inline at compile time.
  */
 const resolveConstSymbolInitializer = (
   symbol: ts.Symbol | undefined,
@@ -544,7 +553,7 @@ const resolveObjectLiteral = (
   typeChecker: ts.TypeChecker,
   depth: number,
 ): ts.ObjectLiteralExpression | undefined => {
-  if (depth >= MAX_RESOLVE_DEPTH) {
+  if (depth > MAX_RESOLVE_DEPTH) {
     return undefined;
   }
   node = unwrapValuePreservingWrappers(node);

@@ -729,6 +729,17 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe(`'chained'`);
   });
 
+  it('prop default value resolved when the element-access key is itself wrapped', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string = QUERY[('lg' as const)];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'(min-width: 992px)'`);
+  });
+
   it('prop default value resolved from a cross-file imported const', () => {
     // Self-contained 2-file program. Does NOT extend the shared `transpileModule`
     // helper — keeps the multi-file complexity isolated to this single test.
