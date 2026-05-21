@@ -729,6 +729,29 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe(`'chained'`);
   });
 
+  it('prop default value resolved to an object literal const through `satisfies`', () => {
+    const t = transpileModule(`
+      type Cols = { xs: number; sm: number };
+      const DEFAULT_COLUMNS = { xs: 2, sm: 3 } satisfies Cols;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() columns: Cols = DEFAULT_COLUMNS;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`{ xs: 2, sm: 3 }`);
+  });
+
+  it('prop default value resolved to an array literal const', () => {
+    const t = transpileModule(`
+      const DEFAULTS = [1, 2, 3];
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() vals: number[] = DEFAULTS;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`[1, 2, 3]`);
+  });
+
   it('falls back to getText() at a chain depth over MAX_RESOLVE_DEPTH', () => {
     // Chain length intentionally exceeds the resolver's MAX_RESOLVE_DEPTH guard
     // (`A -> B -> C -> D -> E -> F -> G -> 'deep'`). The resolver must bail out

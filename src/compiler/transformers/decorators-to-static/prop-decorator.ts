@@ -415,6 +415,15 @@ const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, de
     return node.getText();
   }
 
+  // Object / array literal default — e.g. `@Prop() x = DEFAULT;` where
+  // `const DEFAULT = { a: 1 } satisfies T;`. Emit the literal's source text so
+  // docs show the actual default rather than the resolved identifier name. Inline
+  // literals (`@Prop() x = { a: 1 }`) reach the same text via the fallback in
+  // `resolveInitializerText`, but identifier-referenced literals only resolve here.
+  if (ts.isObjectLiteralExpression(node) || ts.isArrayLiteralExpression(node)) {
+    return node.getText();
+  }
+
   // Identifier referencing a `const` variable with a resolvable initializer.
   if (ts.isIdentifier(node)) {
     const init = getConstVariableInitializer(node, typeChecker);
