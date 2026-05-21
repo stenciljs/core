@@ -143,4 +143,3 @@ describe('vdom signal bypass — attributes', () => {
     expect(root.querySelector('button').getAttribute('aria-label')).toBe('open');
   });
 });
-

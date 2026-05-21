@@ -19,6 +19,7 @@
     "no-await-in-loop": "off",
     "no-new": "off",
     "no-unmodified-loop-condition": "off",
+    "no-underscore-dangle": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/triple-slash-reference": "off",
