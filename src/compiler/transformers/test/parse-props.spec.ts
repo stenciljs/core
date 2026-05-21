@@ -729,6 +729,26 @@ describe('parse props', () => {
     expect(t.property?.defaultValue).toBe(`'chained'`);
   });
 
+  it('falls back to getText() at a chain depth over MAX_RESOLVE_DEPTH', () => {
+    // Chain length intentionally exceeds the resolver's MAX_RESOLVE_DEPTH guard
+    // (`A -> B -> C -> D -> E -> F -> G -> 'deep'`). The resolver must bail out
+    // and the emitted default falls back to the original source text (`A`).
+    const t = transpileModule(`
+      const G = 'deep';
+      const F = G;
+      const E = F;
+      const D = E;
+      const C = D;
+      const B = C;
+      const A = B;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = A;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('A');
+  });
+
   it('prop default value resolved when the element-access key is itself wrapped', () => {
     const t = transpileModule(`
       const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };

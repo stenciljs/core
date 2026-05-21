@@ -593,6 +593,12 @@ const findObjectLiteralMember = (
   return undefined;
 };
 
+/**
+ * Returns the static text of an object-literal property name. Computed property
+ * names (`{ [key]: 'v' }`) are intentionally unsupported and return `undefined`:
+ * resolving them would require evaluating an arbitrary expression at compile
+ * time, so the caller correctly falls back to the original source text instead.
+ */
 const getPropertyNameText = (name: ts.PropertyName): string | undefined => {
   if (ts.isIdentifier(name) || ts.isPrivateIdentifier(name)) {
     return name.text;
