@@ -82,9 +82,6 @@ export const SLOT_FB_CSS = 'slot-fb{display:contents}slot-fb[hidden]{display:non
 
 export const XLINK_NS = 'http://www.w3.org/1999/xlink';
 
-/** Sentinel symbol used as `$tag$` on Show VNodes to trigger signal-conditional rendering. */
-export const SHOW_TAG: unique symbol = Symbol('s-show');
-
 export const FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS = [
   'formAssociatedCallback',
   'formResetCallback',

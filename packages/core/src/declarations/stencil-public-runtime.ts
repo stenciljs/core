@@ -996,7 +996,7 @@ export interface VNode {
   $attrs$?: any;
   $name$?: string;
   $key$?: string | number;
-  /** Signal reference for vdom bypass: text nodes and Show VNodes store the signal here. */
+  /** Signal reference for vdom bypass: signal text nodes store the signal here. */
   $signal$?: any;
 }
 

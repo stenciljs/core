@@ -101,8 +101,8 @@ export const getRolldownOptions = (
       mainFields: ['jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
       // Export conditions for package.json exports field
       conditionNames: (bundleOpts.platform === 'ssr'
-        ? ['node', 'import', 'require', 'default']
-        : ['browser', 'default', 'import', 'module', 'require']) as string[],
+        ? ['import', 'module', 'node', 'default', 'require']
+        : ['import', 'module', 'browser', 'default', 'require']) as string[],
       // File extensions to resolve (includes .d.ts for type declaration files)
       extensions: [
         '.tsx',

@@ -289,39 +289,27 @@ export class MyCounter {
 - [x] Re-exports `signal`, `computed`, `effect`, `batch`, `untracked`, `Signal`, `ReadonlySignal` from `@preact/signals-core` (bundled, no extra install)
 - [x] `@Effect()` — pure runtime TS decorator; marks a method as a reactive effect, auto-tracked deps, auto-cleaned up on disconnect. Requires `signalBacking: true` (wired in `initializeSignals`)
 - ~~`@Computed()` decorator~~ — **removed**. Adds no value over `computed()` as a class field, and the return-type change (`ReadonlySignal<T>` vs `T`) created a typing nightmare for users.
-- [ ] `@Effect()` without `signalBacking` — currently requires `signalBacking: true`; wiring could be moved to `initialize-component.ts` to support external-signal-only use cases
+- [x] `@Effect()` without `signalBacking` — currently requires `signalBacking: true`; wiring could be moved to `initialize-component.ts` to support external-signal-only use cases
 
 #### Phase 3 — JSX vdom bypass ✅ Complete
 - [x] `BUILD.vdomSignals` flag — auto-enabled by `signalBacking: true`; also standalone via `extras.vdomSignals: true`
-- [x] `<Show when={signal}>` — signal-conditional rendering via `<s-show>` wrapper with `display:contents`/`none` toggle. Children are part of the normal vdom tree so the existing diff handles updates.
 - [x] Signal text children — `<div>{mySignal}</div>` → `effect()` updates `textNode.data` directly, bypasses vdom diff
 - [x] Signal attribute values — `<div class={mySignal}>` → `effect()` calls `setAccessor` directly
-- [x] Per-node cleanup: `WeakMap<Node, () => void>` (text nodes + Show wrappers) + `WeakMap<Node, Map<string, () => void>>` (per-attribute). `removeVnodes` recursively disposes.
+- [x] Per-node cleanup: `WeakMap<Node, () => void>` (text nodes) + `WeakMap<Node, Map<string, () => void>>` (per-attribute). `removeVnodes` recursively disposes.
 - [x] `SignalRef<T>` interface in public runtime declarations — JSX type compatibility without importing `@preact/signals-core`
-- [x] Tests — 12 tests across signal text children, signal attributes, `<Show>`
+- [x] Tests — signal text children, signal attributes
 
 **Design decisions:**
 
-- **Signal detection:** Duck-type via `typeof v.peek === 'function' && typeof v.subscribe === 'function'` rather than `instanceof Signal`. This is cross-bundle-safe — both the `signals/` bundle and the `runtime/` bundle inline `@preact/signals-core`; two separate class instances would make `instanceof` fail when signals are passed across bundle boundaries. At app build time bundlers deduplicate `@preact/signals-core`, so `instanceof` would also work, but duck-typing is the safer default.
-- **`@Computed()` bypass:** Computed getter body runs inside `computed()`, so the vdom bypass works automatically — `this.doubled` returns the `ReadonlySignal` and JSX picks it up.
-- **`<s-show>` wrapper:** A generic HTML element (`display:contents` when visible, `display:none` when hidden). `display:contents` removes the element from the layout box model — it is transparent to CSS layout. Children participate in normal vdom diffing via `updateChildren` on the wrapper.
-- **SHOW_TAG sentinel:** `Symbol('s-show')` in `runtime-constants.ts`, used as `$tag$` on Show VNodes. `VNode.$tag$` type extended to `string | number | Function | symbol | null`.
-- **`$signal$?: any` on VNode:** Stores the signal reference through the `h()` → `createElm()` pipeline for text nodes and Show VNodes.
+- **Signal detection:** Duck-type via `typeof v.peek === 'function' && typeof v.subscribe === 'function'` rather than `instanceof Signal`. Cross-bundle-safe — both the `signals/` bundle and the `runtime/` bundle inline `@preact/signals-core`; two separate class instances would make `instanceof` fail when signals are passed across bundle boundaries.
+- **`$signal$?: any` on VNode:** Stores the signal reference through the `h()` → `createElm()` pipeline for text nodes.
+- **`<Show>` removed:** The `<Show when={signal}>` component was removed. It only toggled `display` on a wrapper element — no capability beyond what signal attributes already provide. Use a signal-driven `style` or `class` attribute directly instead.
 
-#### Phase 4 — `<For>` reactive list rendering (deferred)
+#### Phase 4 — `<For>` reactive list rendering (removed)
 
-`<For each={signal<T[]>}>{(item: T, index: number) => VNode}</For>`
+Not implemented. The bypass benefit only applies when the array signal changes without a host component re-render — a narrow use case. The render function typically closes over component state, meaning arrow functions are recreated each render and the bypass is defeated. The implementation also requires capturing and restoring module-level renderer state (`hostTagName`, `scopeId`, `isSvgMode`) from inside signal effect callbacks — a fragile layering violation.
 
-Deferred because it requires keyed array diffing scoped to a DOM anchor region — essentially a mini vdom reconciler. The anchor-based model (same as `<Show>`) applies, but the update path is significantly more complex:
-
-- On signal change, diff old array vs new array by key
-- For each changed item: patch existing DOM node in place
-- For added items: create new DOM nodes and insert at the right position
-- For removed items: dispose their signal subscriptions and remove from DOM
-
-The fundamental challenge is that creating DOM nodes from VNodes requires the module-level render state (`hostTagName`, `scopeId`, `isSvgMode`) that is only valid during a `renderVdom` call. Either capture this context on first render and restore it during subscription callbacks, or schedule a `hostRef` re-render (which loses the "bypass" benefit for list additions/removals).
-
-Start `<For>` only after `<Show>` has been shipped and tested. Revisit design at that point.
+Use keyed `.map()` instead: `{items.value.map((item, i) => <li key={item.id}>...</li>)}`
 
 #### Later — make default
 - [ ] Evaluate adoption/feedback from Phases 1 + 2
