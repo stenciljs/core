@@ -73,6 +73,20 @@ export const getRolldownOptions = (
     tsconfig: config.tsconfig,
 
     plugins: [
+      {
+        name: 'stencil-signals-side-effects',
+        resolveId(source) {
+          if (source === '@preact/signals-core') {
+            // TODO: despite @preact/signals-core having `sideEffects: false` rolldown
+            // isn't properly treeshaking it. Reassess this later to try and find out why
+            return { 
+              id: source, 
+              moduleSideEffects: false 
+            };
+          }
+          return null;
+        },
+      },
       coreResolvePlugin(
         config,
         compilerCtx,
