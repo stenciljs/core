@@ -56,11 +56,11 @@ export const getRolldownOptions = (
   const devModulePlugin: Plugin | null = config.devServer?.experimentalDevModules
     ? {
         name: 'stencil-dev-module-resolve',
-        async resolveId(importee: string, importer: string | undefined) {
+        async resolveId(source: string, importer: string | undefined) {
           // Let other plugins handle it first, then intercept the result
-          const resolved = await this.resolve(importee, importer, { skipSelf: true });
+          const resolved = await this.resolve(source, importer, { skipSelf: true });
           if (resolved) {
-            return devNodeModuleResolveId(config, compilerCtx.fs, resolved, importee);
+            return devNodeModuleResolveId(config, compilerCtx.fs, resolved, source);
           }
           return null;
         },
@@ -75,14 +75,23 @@ export const getRolldownOptions = (
     plugins: [
       {
         name: 'stencil-signals-side-effects',
-        resolveId(source) {
-          if (source === '@preact/signals-core') {
-            // TODO: despite @preact/signals-core having `sideEffects: false` rolldown
-            // isn't properly treeshaking it. Reassess this later to try and find out why
-            return {
-              id: source,
-              moduleSideEffects: false,
-            };
+        async resolveId(source, importer) {
+          if (source !== '@preact/signals-core') return null;
+          // Signals *not* used, redirect to a stub so the real library isn't bundled.
+          // Rolldown not correctly inferring DCE for ... some reason, even though 
+          // `sideEffects: false` in the library's package.json.
+          // Terser cannot minify away due to `prototype.` augmentation perceived as side-effect-ful.
+          if (!bundleOpts.conditionals?.vdomSignals && !bundleOpts.conditionals?.signalBacking) {
+            return { id: '\0preact-signals-stub', moduleSideEffects: false };
+          }
+          // Signals *are* used - resolve normally but mark side-effect-free so rolldown
+          // can shake out any un-referenced exports.
+          const resolved = await this.resolve(source, importer, { skipSelf: true });
+          return resolved ? { ...resolved, moduleSideEffects: false } : null;
+        },
+        load(id) {
+          if (id === '\0preact-signals-stub') {
+            return `export const signal=()=>{};export const effect=()=>()=>{};export const computed=()=>{};export const batch=f=>f();export const untracked=f=>f();`;
           }
           return null;
         },

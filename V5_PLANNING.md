@@ -286,10 +286,47 @@ export class MyCounter {
 
 #### Phase 2 — `@stencil/core/signals` subpath ✅ Complete
 - [x] New `packages/core/src/signals/index.ts` — public entry for signal primitives + decorators
-- [x] Re-exports `signal`, `computed`, `effect`, `batch`, `untracked`, `Signal`, `ReadonlySignal` from `@preact/signals-core` (bundled, no extra install)
+- [x] Re-exports `signal`, `computed`, `effect`, `batch`, `untracked` from `@preact/signals-core` (bundled, no extra install)
+- [x] `Signal<T>` and `ReadonlySignal<T>` declared as Stencil-owned interfaces (not re-exported from preact) so generated `components.d.ts` references `@stencil/core/signals` rather than `@preact/signals-core`
 - [x] `@Effect()` — pure runtime TS decorator; marks a method as a reactive effect, auto-tracked deps, auto-cleaned up on disconnect. Requires `signalBacking: true` (wired in `initializeSignals`)
 - ~~`@Computed()` decorator~~ — **removed**. Adds no value over `computed()` as a class field, and the return-type change (`ReadonlySignal<T>` vs `T`) created a typing nightmare for users.
 - [x] `@Effect()` without `signalBacking` — currently requires `signalBacking: true`; wiring could be moved to `initialize-component.ts` to support external-signal-only use cases
+- [x] **`getSignal<T>(elm, prop)`** — returns the `ReadonlySignal<T>` backing a `@Prop` member; returns `null` for `@State` members (internal) or if not signal-backed. Enables Stencil-to-Stencil reactive composition without events.
+- [x] **`STENCIL_SIGNALS_SYMBOL`** (`Symbol.for('stencil.signals')`) — a `@Prop`-only signal map is set on the host element after `initializeSignals`, cleared on disconnect. `@State` is excluded. Framework adapters (Solid, Angular, Preact) can subscribe without importing from `@stencil/core`.
+
+**External Signal API:**
+
+Two mechanisms let code *outside* a component subscribe to its reactive state:
+
+`getSignal<T>(elm, prop)` — typed, null-safe access for Stencil-aware code:
+
+```ts
+import { getSignal } from '@stencil/core/signals';
+
+const countSig = getSignal<number>(document.querySelector('my-counter'), 'count');
+countSig?.subscribe(v => console.log('count =', v));
+
+// Derive from multiple components without polling or events:
+const total = computed(() =>
+  getSignal<number>(cartEl, 'itemCount')!.value +
+  getSignal<number>(wishlistEl, 'itemCount')!.value
+);
+```
+
+`STENCIL_SIGNALS_SYMBOL` — zero-import interop for framework wrappers and adapters:
+
+```ts
+// Works in Solid, Angular, Preact wrappers — no @stencil/core import required
+const sigs = el[Symbol.for('stencil.signals')];
+sigs?.get('count')?.subscribe(v => console.log('count =', v));
+```
+
+**Design decisions:**
+
+- **`@Prop` only, not `@State`:** `@State` is internal component implementation — exposing it would let external code depend on details that components are free to change. Framework adapters and parent components should only observe the declared public interface (`@Prop`). Internally, `$signalValues$` still holds both `@Prop` and `@State` signals (the write path in `set-value.ts` needs them); the symbol and `getSignal` expose a filtered copy containing only `@Prop` members.
+- **`ReadonlySignal<T>` not `Signal<T>` from `getSignal`:** External consumers must not write directly to a component's `@Prop` — they should set the attribute/property via the DOM. `ReadonlySignal` enforces this at the type level. `computed()` values also satisfy `ReadonlySignal`, so the type composes naturally.
+- **Symbol not typed as a property on `HostElement`:** TypeScript's `Symbol.for()` returns `symbol` (not `unique symbol`), which can't be used as a computed property key in interfaces. Adding an index signature (`[symbol: symbol]: Map<...>`) to `HostElement` breaks `HTMLElement` assignability throughout the codebase. Accepted limitation — framework adapters access it via `el[Symbol.for('stencil.signals')] as any`; typed code uses `getSignal` instead.
+- **Cleared on disconnect:** The symbol property is set to `undefined` in `$signalCleanup$()`. Adapters must use optional chaining: `sigs?.get('prop')?.subscribe(...)`.
 
 #### Phase 3 — JSX vdom bypass ✅ Complete
 - [x] `BUILD.vdomSignals` flag — auto-enabled by `signalBacking: true`; also standalone via `extras.vdomSignals: true`
@@ -356,4 +393,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-05-20*
+*Last updated: 2026-05-21*

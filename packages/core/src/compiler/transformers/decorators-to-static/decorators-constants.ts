@@ -46,7 +46,7 @@ export const MEMBER_DECORATORS_TO_REMOVE = [
  * The names used for the static getters added to Stencil components when they
  * are transformed to remove decorated properties.
  */
-export const STATIC_GETTER_NAMES = [
+const STATIC_GETTER_NAMES = [
   'COMPILER_META',
   'assetsDirs',
   'attachInternalsCustomStates',

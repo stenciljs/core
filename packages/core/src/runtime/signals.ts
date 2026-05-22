@@ -6,6 +6,9 @@ import type * as d from '@stencil/core';
 import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { scheduleUpdate } from './update-component';
 
+// Explicit `unique symbol` annotation is required so this can be used as a typed property key
+export const STENCIL_SIGNALS_SYMBOL: unique symbol = Symbol.for('stencil.signals');
+
 /** Minimal interface for duck-typed signal detection. Cross-bundle-safe (no instanceof). */
 export interface SignalLike<T = any> {
   readonly value: T;
@@ -54,7 +57,7 @@ export const initializeSignals = (
     const sig = signal(initialVal);
     hostRef.$signalValues$.set(memberName, sig);
 
-    // Scheduling effect — first synchronous run is a no-op (hasRendered is false)
+    // Scheduling effect - first synchronous run is a no-op (hasRendered is false)
     let prevScheduleVal = sig.peek();
     disposers.push(
       effect(() => {
@@ -119,12 +122,23 @@ export const initializeSignals = (
     );
   }
 
-  hostRef.$signalCleanup$ = () => disposers.forEach((d) => d());
+  // Expose only @Prop signals externally — @State is internal implementation detail
+  const publicSignals = new Map(
+    [...hostRef.$signalValues$].filter(
+      ([k]) => (cmpMeta.$members$?.[k]?.[0] ?? 0) & MEMBER_FLAGS.Prop,
+    ),
+  );
+  (elm as any)[STENCIL_SIGNALS_SYMBOL] = publicSignals;
+
+  hostRef.$signalCleanup$ = () => {
+    disposers.forEach((d) => d());
+    (elm as any)[STENCIL_SIGNALS_SYMBOL] = undefined;
+  };
 };
 
 /**
  * Sets up `@Effect()` method subscriptions without full signal-backing.
- * Called when `vdomSignals` is active but `signalBacking` is not — allows
+ * Called when `vdomSignals` is active but `signalBacking` is not - allows
  * reactive effects that track external signals with no @Prop/@State overhead.
  * @param elm the host element
  * @param hostRef the component's host reference
@@ -147,3 +161,6 @@ export const initializeEffects = (elm: d.HostElement, hostRef: d.HostRef) => {
   }
   hostRef.$signalCleanup$ = () => disposers.forEach((d) => d());
 };
+
+// re-export from here for easy swap-out
+export { effect } from '@preact/signals-core';

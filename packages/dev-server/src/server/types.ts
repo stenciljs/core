@@ -8,7 +8,6 @@ import type { ServerResponse } from 'node:http';
 // Re-export types from core that we need
 export type {
   CompilerBuildResults,
-  CompilerFsStats,
   CompilerRequestResponse,
   CompilerSystem,
   CompilerWatcher,
@@ -17,8 +16,6 @@ export type {
   DevServerEditor,
   Diagnostic,
   Logger,
-  PageReloadStrategy,
-  PrerenderConfig,
   PrerenderOptions,
   SsrResults,
   StencilDevServerConfig,
@@ -48,7 +45,7 @@ export interface DevServerMessage {
   };
 }
 
-export interface BuildLog {
+interface BuildLog {
   buildId?: number;
   messages?: string[];
   progress?: number;

@@ -589,26 +589,14 @@ function getChildNodes(node: Node | MockNode) {
   return ((node as any).__childNodes || node.childNodes) as NodeList;
 }
 
-/*@__PURE__*/ export const NON_ESCAPABLE_CONTENT = new Set([
-  'STYLE',
-  'SCRIPT',
-  'IFRAME',
-  'NOSCRIPT',
-]);
+export const NON_ESCAPABLE_CONTENT = new Set(['STYLE', 'SCRIPT', 'IFRAME', 'NOSCRIPT']);
 
 /**
  * A list of whitespace sensitive tag names, such as `code`, `pre`, etc.
  */
-/*@__PURE__*/ const WHITESPACE_SENSITIVE = new Set([
-  'CODE',
-  'OUTPUT',
-  'PRE',
-  'SCRIPT',
-  'TEMPLATE',
-  'TEXTAREA',
-]);
+const WHITESPACE_SENSITIVE = new Set(['CODE', 'OUTPUT', 'PRE', 'SCRIPT', 'TEMPLATE', 'TEXTAREA']);
 
-/*@__PURE__*/ export const EMPTY_ELEMENTS = new Set([
+export const EMPTY_ELEMENTS = new Set([
   'area',
   'base',
   'br',
@@ -625,9 +613,9 @@ function getChildNodes(node: Node | MockNode) {
   'wbr',
 ]);
 
-/*@__PURE__*/ const REMOVE_EMPTY_ATTR = new Set(['class', 'dir', 'id', 'lang', 'name', 'title']);
+const REMOVE_EMPTY_ATTR = new Set(['class', 'dir', 'id', 'lang', 'name', 'title']);
 
-/*@__PURE__*/ const BOOLEAN_ATTR = new Set([
+const BOOLEAN_ATTR = new Set([
   'allowfullscreen',
   'async',
   'autofocus',
@@ -657,7 +645,7 @@ function getChildNodes(node: Node | MockNode) {
   'shadowrootserializable',
 ]);
 
-/*@__PURE__*/ const STRUCTURE_ELEMENTS = new Set([
+const STRUCTURE_ELEMENTS = new Set([
   'html',
   'body',
   'head',

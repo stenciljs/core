@@ -10,7 +10,7 @@ const SIG = { buildFlags: { signalBacking: true, vdomSignals: true } } as const;
 
 // ── Signal text children ───────────────────────────────────────────────────
 
-describe('vdom signal bypass — text children', () => {
+describe('vdom signal bypass - text children', () => {
   it('renders the initial signal value as text', async () => {
     const count = signal(5);
 
@@ -90,7 +90,7 @@ describe('vdom signal bypass — text children', () => {
 
 // ── Signal attributes ─────────────────────────────────────────────────────
 
-describe('vdom signal bypass — attributes', () => {
+describe('vdom signal bypass - attributes', () => {
   it('sets the initial attribute value from the signal', async () => {
     const cls = signal('active');
 

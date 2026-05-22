@@ -7,7 +7,7 @@
  * Modified for Stencil's compiler and vdom
  */
 
-import { effect } from '@preact/signals-core';
+import { effect } from '../signals';
 import { BUILD } from 'virtual:app-data';
 import { getHostRef, isMemberInElement, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
@@ -59,7 +59,7 @@ export const setAccessor = (
   }
 
   if (BUILD.vdomSignals && isSignalLike(newValue)) {
-    // New value is a signal — dispose any old signal subscription and re-subscribe.
+    // New value is a signal - dispose any old signal subscription and re-subscribe.
     const attrMap = signalAttrDisposers.get(elm) ?? new Map<string, () => void>();
     attrMap.get(memberName)?.();
     if (!signalAttrDisposers.has(elm)) signalAttrDisposers.set(elm, attrMap);
@@ -77,7 +77,7 @@ export const setAccessor = (
   }
 
   if (BUILD.vdomSignals && isSignalLike(oldValue)) {
-    // Old value was a signal, new is a plain value — dispose subscription and fall through.
+    // Old value was a signal, new is a plain value - dispose subscription and fall through.
     const attrMap = signalAttrDisposers.get(elm);
     if (attrMap) {
       attrMap.get(memberName)?.();
@@ -185,7 +185,7 @@ export const setAccessor = (
       }
     }
   } else if (BUILD.vdomPropOrAttr && memberName[0] === 'a' && memberName.startsWith('attr:')) {
-    // Explicit attr: prefix — always set as attribute, bypass heuristic
+    // Explicit attr: prefix - always set as attribute, bypass heuristic
     const propName = memberName.slice(5);
     // Look up the actual attribute name from component metadata
     // Component metadata stores [flags, attributeName] for each member
@@ -213,7 +213,7 @@ export const setAccessor = (
     }
     return;
   } else if (BUILD.vdomPropOrAttr && memberName[0] === 'p' && memberName.startsWith('prop:')) {
-    // Explicit prop: prefix — always set as property, bypass heuristic
+    // Explicit prop: prefix - always set as property, bypass heuristic
     const propName = memberName.slice(5);
     try {
       (elm as any)[propName] = newValue;

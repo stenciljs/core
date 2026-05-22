@@ -2,9 +2,9 @@ import { Component, h, Method, Prop, State, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
 
-import { Effect, computed } from '../../signals';
+import { Effect, computed, getSignal, STENCIL_SIGNALS_SYMBOL } from '../../signals';
 
-/** Shared option applied to every test — the only thing that makes these tests distinct. */
+/** Shared option applied to every test - the only thing that makes these tests distinct. */
 const SIG = { buildFlags: { signalBacking: true, vdomSignals: true } } as const;
 
 describe('signals (signalBacking: true)', () => {
@@ -629,5 +629,119 @@ describe('signals (signalBacking: true)', () => {
       expect(watchCalls).toHaveLength(1);
       expect(watchCalls[0]).toBe(1);
     });
+  });
+});
+
+// ── getSignal / STENCIL_SIGNALS_SYMBOL ────────────────────────────────────
+
+describe('getSignal', () => {
+  it('returns null for a @State member — state is internal', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @State() count = 5;
+      render() {
+        return <span>{this.count}</span>;
+      }
+    }
+
+    const { root } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    expect(getSignal<number>(root!, 'count')).toBeNull();
+  });
+
+  it('returns the ReadonlySignal for a @Prop member', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() label = 'hello';
+      render() {
+        return <span>{this.label}</span>;
+      }
+    }
+
+    const { root } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const sig = getSignal<string>(root!, 'label');
+    expect(sig!.value).toBe('hello');
+  });
+
+  it('reflects live @Prop changes', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() count = 0;
+      render() {
+        return <span>{this.count}</span>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const sig = getSignal<number>(root!, 'count');
+
+    (root as any).count = 42;
+    await waitForChanges();
+    expect(sig!.value).toBe(42);
+  });
+
+  it('returns null for an unknown prop name', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() label = 'x';
+      render() {
+        return <span />;
+      }
+    }
+
+    const { root } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    expect(getSignal(root!, 'nonexistent')).toBeNull();
+  });
+
+  it('returns null when signalBacking is off', async () => {
+    @Component({ tag: 'cmp-no-sig' })
+    class CmpNoSig {
+      @Prop() count = 0;
+      render() {
+        return <span />;
+      }
+    }
+
+    const { root } = await newSpecPage({
+      buildFlags: { signalBacking: false },
+      components: [CmpNoSig],
+      html: `<cmp-no-sig></cmp-no-sig>`,
+    });
+    expect(getSignal(root!, 'count')).toBeNull();
+  });
+});
+
+describe('STENCIL_SIGNALS_SYMBOL', () => {
+  it('exposes @Prop signals but not @State on the host element', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() label = 'hi';
+      @Prop() count = 3;
+      @State() internal = 99;
+      render() {
+        return <span />;
+      }
+    }
+
+    const { root } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const map = (root as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
+    expect(map).toBeInstanceOf(Map);
+    expect(map.get('label').value).toBe('hi');
+    expect(map.get('count').value).toBe(3);
+    expect(map.has('internal')).toBe(false);
+  });
+
+  it('@Prop signals in the map stay in sync with prop changes', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() count = 0;
+      render() { return <span />; }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const map = (root as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
+
+    (root as any).count = 7;
+    await waitForChanges();
+    expect(map.get('count').value).toBe(7);
   });
 });

@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 
 import { Effect } from '../../signals';
 import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../../utils/constants';
-import { initializeSignals } from '../signals';
+import { initializeSignals, STENCIL_SIGNALS_SYMBOL } from '../signals';
 
 vi.mock('../update-component', () => ({
   scheduleUpdate: vi.fn(),
@@ -463,7 +463,7 @@ describe('initializeSignals', () => {
   // cleanup
 
   describe('$signalCleanup$', () => {
-    it('disposes scheduling effects — changes no longer trigger scheduleUpdate', () => {
+    it('disposes scheduling effects - changes no longer trigger scheduleUpdate', () => {
       const hostRef = makeHostRef();
       const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
       initializeSignals(elm, hostRef, cmpMeta);
@@ -475,7 +475,7 @@ describe('initializeSignals', () => {
       expect(scheduleUpdate).not.toHaveBeenCalled();
     });
 
-    it('disposes watcher effects — watcher no longer fires after cleanup', () => {
+    it('disposes watcher effects - watcher no longer fires after cleanup', () => {
       const instance = { onCountChange: vi.fn() };
       const hostRef = makeHostRef({ $lazyInstance$: instance as any });
       const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State }, { count: [{ onCountChange: 0 }] });
@@ -541,6 +541,45 @@ describe('Effect decorator', () => {
   });
 });
 
+// STENCIL_SIGNALS_SYMBOL exposure
+
+describe('STENCIL_SIGNALS_SYMBOL', () => {
+  it('exposes @Prop signals on the element after initializeSignals', () => {
+    const elm = makeElm();
+    const hostRef = makeHostRef({ $instanceValues$: new Map([['count', 1]]) });
+    const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.String });
+    initializeSignals(elm, hostRef, cmpMeta);
+    const map = (elm as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
+    expect(map).toBeInstanceOf(Map);
+    expect(map.get('count').value).toBe(1);
+  });
+
+  it('does not expose @State signals', () => {
+    const elm = makeElm();
+    const hostRef = makeHostRef({ $instanceValues$: new Map([['count', 42]]) });
+    initializeSignals(elm, hostRef, makeCmpMeta({ count: MEMBER_FLAGS.State }));
+    const map = (elm as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
+    expect(map.has('count')).toBe(false);
+  });
+
+  it('is cleared to undefined after $signalCleanup$()', () => {
+    const elm = makeElm();
+    const hostRef = makeHostRef();
+    initializeSignals(elm, hostRef, makeCmpMeta({ count: MEMBER_FLAGS.State }));
+    hostRef.$signalCleanup$!();
+    expect((elm as any)[STENCIL_SIGNALS_SYMBOL]).toBeUndefined();
+  });
+
+  it('is an empty map when there are no PropLike members', () => {
+    const elm = makeElm();
+    const hostRef = makeHostRef();
+    initializeSignals(elm, hostRef, makeCmpMeta({ doSomething: MEMBER_FLAGS.Method }));
+    const map = (elm as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
+    expect(map).toBeInstanceOf(Map);
+    expect(map.size).toBe(0);
+  });
+});
+
 // computed() as class field
 
 describe('computed() class field', () => {
@@ -563,7 +602,7 @@ describe('computed() class field', () => {
     expect(instance.doubled.value).toBe(10);
   });
 
-  it('memoizes — fn not re-evaluated when dependencies unchanged', () => {
+  it('memoizes - fn not re-evaluated when dependencies unchanged', () => {
     const count = signal(0);
     let computeCount = 0;
     class TestCmp {
@@ -574,7 +613,7 @@ describe('computed() class field', () => {
     }
     const instance = new TestCmp();
     instance.doubled.value;
-    instance.doubled.value; // second read — cached
+    instance.doubled.value; // second read - cached
     expect(computeCount).toBe(1);
   });
 

@@ -28,11 +28,11 @@ function virtualModules(options: {
   return {
     name: 'stencil-virtual-modules',
 
-    resolveId(id: string) {
-      if (resolveMap.has(id)) {
-        return resolveMap.get(id);
-      }
-      return null;
+    resolveId: {
+      filter: { id: /^virtual:/ },
+      handler(id: string) {
+        return resolveMap.get(id) ?? null;
+      },
     },
   };
 }
@@ -217,10 +217,6 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
-    deps: {
-      // Bundle @preact/signals-core so consumers need no extra install
-      neverBundle: [/^node:/],
-    },
   },
 
   // Standalone client runtime (app-data/globals externalized for runtime swapping)

@@ -276,7 +276,7 @@ describe('watch', () => {
     class CmpLegacyWatch {
       @Prop() min = 0;
 
-      // No @Watch decorator here — the watch is wired via the legacy static metadata below
+      // No @Watch decorator here - the watch is wired via the legacy static metadata below
       minChanged(newVal: number, oldVal: number, propName: string) {
         watchCalls.push([newVal, oldVal, propName]);
       }
@@ -302,7 +302,7 @@ describe('watch', () => {
     expect(watchCalls).toHaveLength(2);
     expect(watchCalls[1]).toEqual([100, 42, 'min']);
 
-    // Same value — watcher must NOT fire
+    // Same value - watcher must NOT fire
     root.min = 100;
     expect(watchCalls).toHaveLength(2);
   });
