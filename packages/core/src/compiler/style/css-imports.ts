@@ -199,7 +199,7 @@ export const getCssImports = async (
     }
 
     if (cssImportData.url === 'stencil-globals' || cssImportData.url === 'stencil-hydrate') {
-      // virtual imports resolved by Stencil at build time — leave them in the CSS unchanged
+      // virtual imports resolved by Stencil at build time  leave them in the CSS unchanged
       continue;
     }
 

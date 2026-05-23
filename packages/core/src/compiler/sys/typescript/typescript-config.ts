@@ -97,7 +97,7 @@ export const validateTsConfig = async (
         }
       }
 
-      // Always extract compilerOptions and watchOptions — even when TS reports
+      // Always extract compilerOptions and watchOptions  even when TS reports
       // non-fatal errors (e.g. TS18003 “No inputs found” on an empty src dir).
       if (results.watchOptions) {
         tsconfig.watchOptions = results.watchOptions;

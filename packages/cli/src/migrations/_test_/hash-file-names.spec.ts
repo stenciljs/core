@@ -52,7 +52,7 @@ describe('hashFileNamesRule', () => {
     });
   });
 
-  describe('transform — single-line output target', () => {
+  describe('transform  single-line output target', () => {
     it('injects hashFileNames into single-line loader-bundle', () => {
       const result = transform(`export const config = {
   hashFileNames: false,
@@ -80,7 +80,7 @@ describe('hashFileNamesRule', () => {
     });
   });
 
-  describe('transform — multi-line output target', () => {
+  describe('transform  multi-line output target', () => {
     it('injects hashFileNames into multi-line loader-bundle on its own line', () => {
       const result = transform(`export const config = {
   hashFileNames: false,
@@ -126,7 +126,7 @@ describe('hashFileNamesRule', () => {
     });
   });
 
-  describe('transform — edge cases', () => {
+  describe('transform  edge cases', () => {
     it('removes top-level prop even when no matching output targets exist', () => {
       const result = transform(`export const config = {
   hashFileNames: false,

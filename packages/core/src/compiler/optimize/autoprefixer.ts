@@ -133,7 +133,7 @@ export const autoprefixCss = async (
 
 /**
  * Default browserslist targets used when autoprefixing CSS in v5.
- * Targets modern browsers — IE11, old Edge, and very old mobile browsers
+ * Targets modern browsers  IE11, old Edge, and very old mobile browsers
  * are no longer included since Stencil v5 targets ES2017+ only.
  */
 const DEFAULT_BROWSER_TARGETS: string[] = [

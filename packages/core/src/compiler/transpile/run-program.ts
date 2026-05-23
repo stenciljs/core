@@ -215,7 +215,7 @@ export const validateTypesAfterGeneration = async (
   const componentsDtsPath = join(config.srcDir, 'components.d.ts');
   const componentsDtsExistedBefore = await compilerCtx.fs.access(componentsDtsPath);
 
-  // First run: components.d.ts doesn't exist yet — generate it and request a fresh TS program.
+  // First run: components.d.ts doesn't exist yet  generate it and request a fresh TS program.
   if (!componentsDtsExistedBefore) {
     await generateAppTypes(config, compilerCtx, buildCtx, 'src');
     return { hasTypesChanged: true, needsRebuild: true };
@@ -231,7 +231,7 @@ export const validateTypesAfterGeneration = async (
     };
 
     if (buildCtx.isRebuild) {
-      // Incremental: only walks changed files + transitive dependents — O(changed) not O(all).
+      // Incremental: only walks changed files + transitive dependents  O(changed) not O(all).
       const emitBuilder = tsBuilder as ts.EmitAndSemanticDiagnosticsBuilderProgram;
       let affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
       while (affected) {

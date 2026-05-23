@@ -76,7 +76,7 @@ export const outputLazy = async (
           break;
         }
       } catch {
-        // file not readable yet — will be caught properly during actual style build
+        // file not readable yet  will be caught properly during actual style build
       }
     }
 

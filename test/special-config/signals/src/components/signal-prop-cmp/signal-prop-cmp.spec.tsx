@@ -33,7 +33,7 @@ describe('signal-prop-cmp (@Prop)', () => {
   });
 });
 
-describe('signal-prop-cmp — External Signal API', () => {
+describe('signal-prop-cmp  External Signal API', () => {
   describe('getSignal()', () => {
     it('returns a ReadonlySignal for a @Prop member', async () => {
       const { root } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label='hi' />);

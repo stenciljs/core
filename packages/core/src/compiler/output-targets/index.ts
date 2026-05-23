@@ -59,7 +59,7 @@ export const generateOutputTargets = async (
 
   invalidateRolldownCaches(compilerCtx);
 
-  // Skip bundler outputs on rebuilds where only HTML/assets changed — output would be identical.
+  // Skip bundler outputs on rebuilds where only HTML/assets changed  output would be identical.
   const needsBundlerRebuild =
     !buildCtx.isRebuild || buildCtx.hasScriptChanges || buildCtx.hasStyleChanges;
 

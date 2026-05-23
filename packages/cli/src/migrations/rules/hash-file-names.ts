@@ -30,7 +30,7 @@ export const hashFileNamesRule: MigrationRule = {
         ts.isIdentifier(node.name) &&
         (node.name.text === 'hashFileNames' || node.name.text === 'hashedFileNameLength')
       ) {
-        // Only match at top-level config — skip if inside an output target object
+        // Only match at top-level config  skip if inside an output target object
         // (output targets always have a sibling `type` property)
         const parent = node.parent;
         if (ts.isObjectLiteralExpression(parent)) {

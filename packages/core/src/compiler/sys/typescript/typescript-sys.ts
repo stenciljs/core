@@ -108,7 +108,7 @@ export const patchTsSystemFileSystem = (
 
   tsSys.readDirectory = (path, extensions, exclude, include, depth) => {
     const cwd = compilerSys.getCurrentDirectory();
-    // `matchFiles` is an internal TypeScript API with no public equivalent — it handles
+    // `matchFiles` is an internal TypeScript API with no public equivalent  it handles
     // extension filtering, exclusion patterns, and depth traversal in one call.
     return (ts as any).matchFiles(
       path,

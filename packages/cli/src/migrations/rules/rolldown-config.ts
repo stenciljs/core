@@ -86,7 +86,7 @@ export const rolldownConfigRule: MigrationRule = {
               message:
                 name === 'rollupConfig'
                   ? `'rollupConfig' renamed to 'rolldownConfig'; 'inputOptions' wrapper removed`
-                  : `'rolldownConfig.inputOptions' wrapper removed — options are now top-level`,
+                  : `'rolldownConfig.inputOptions' wrapper removed  options are now top-level`,
               line: line + 1,
               column: character + 1,
             });
@@ -178,7 +178,7 @@ export const rolldownConfigRule: MigrationRule = {
         );
 
         if (!inputOptionsProp) {
-          // No inputOptions to flatten — just rename the key if needed
+          // No inputOptions to flatten  just rename the key if needed
           if (name === 'rollupConfig') {
             const nameStart = node.name.getStart(sourceFile);
             edits.push({

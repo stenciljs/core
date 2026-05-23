@@ -83,7 +83,7 @@ export const coreResolvePlugin = (
           id === STENCIL_INTERNAL_LAZY_CLIENT_PLATFORM_ID
         ) {
           if (externalRuntime) {
-            // not bundling the client runtime — must be a custom elements or loader-bundle
+            // not bundling the client runtime  must be a custom elements or loader-bundle
             // build where the runtime is an external import rather than bundled
             return { id, external: true };
           }

@@ -33,7 +33,7 @@ export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOpti
         : ts.ModuleResolutionKind.NodeJs,
     noEmitOnError: config.tsCompilerOptions?.noEmitOnError || false,
     // Explicitly set rootDir so TypeScript doesn't have to infer it from the
-    // LCA of source files — important when the tsconfig lives at a different
+    // LCA of source files  important when the tsconfig lives at a different
     // location from the source root (e.g. a shared test fixture).
     rootDir: config.rootDir,
     outDir: cacheDir,

@@ -22,12 +22,12 @@ export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diag
 
   if (hasCommonjs) {
     const warn = buildWarn(diagnostics);
-    warn.messageText = `Rolldown handles CommonJS natively — remove the commonjs plugin from your "stencil.config.ts" plugins.`;
+    warn.messageText = `Rolldown handles CommonJS natively  remove the commonjs plugin from your "stencil.config.ts" plugins.`;
   }
 
   if (hasResolveNode) {
     const warn = buildWarn(diagnostics);
-    warn.messageText = `Rolldown handles module resolution natively — remove the node-resolve plugin from your "stencil.config.ts" plugins. Use the "nodeResolve" config option to customise resolution.`;
+    warn.messageText = `Rolldown handles module resolution natively  remove the node-resolve plugin from your "stencil.config.ts" plugins. Use the "nodeResolve" config option to customise resolution.`;
   }
 
   config.rolldownPlugins.before = [

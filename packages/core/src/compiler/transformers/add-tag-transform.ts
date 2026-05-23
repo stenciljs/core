@@ -102,7 +102,7 @@ export const addTagTransform = (
 
                 // If no placeholders for whatever reason, fallback to original literal
                 if (!splitParts || splitParts.length === 0) {
-                  // fallback — keep original string literal
+                  // fallback  keep original string literal
                   newNode = ts.factory.updateCallExpression(
                     node,
                     node.expression,

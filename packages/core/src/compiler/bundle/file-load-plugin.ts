@@ -14,7 +14,7 @@ export const fileLoadPlugin = (fs: InMemoryFileSystem): Plugin => {
     // Confirm paths that exist only in the in-memory FS so rolldown's native
     // disk resolver doesn't reject virtual files before the load hook runs.
     resolveId(id, importer) {
-      // Preserve query params (e.g. ?tag=cmp-a) — strip only for FS lookup,
+      // Preserve query params (e.g. ?tag=cmp-a)  strip only for FS lookup,
       // then re-attach so extTransformsPlugin.transform can parse them.
       const qIdx = id.indexOf('?');
       const query = qIdx !== -1 ? id.slice(qIdx) : '';

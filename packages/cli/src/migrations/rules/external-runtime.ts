@@ -12,7 +12,7 @@ export const externalRuntimeRule: MigrationRule = {
   id: 'external-runtime',
   name: 'externalRuntime Default Change',
   description:
-    "Remove redundant 'externalRuntime: false' from standalone output targets — false is now the default",
+    "Remove redundant 'externalRuntime: false' from standalone output targets  false is now the default",
   fromVersion: '4.x',
   toVersion: '5.x',
 
@@ -40,7 +40,7 @@ export const externalRuntimeRule: MigrationRule = {
             const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
             matches.push({
               node,
-              message: "'externalRuntime: false' is now the default — this property can be removed",
+              message: "'externalRuntime: false' is now the default  this property can be removed",
               line: line + 1,
               column: character + 1,
             });
