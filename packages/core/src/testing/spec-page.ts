@@ -145,6 +145,10 @@ export async function newSpecPage(opts: NewSpecPageOptions): Promise<SpecPage> {
   }
   BUILD.slotCloneNode = false;
 
+  if (opts.buildFlags) {
+    Object.assign(BUILD, opts.buildFlags);
+  }
+
   if (typeof opts.url === 'string') {
     page.win.location.href = opts.url;
   }

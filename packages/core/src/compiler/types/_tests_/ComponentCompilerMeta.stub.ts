@@ -76,6 +76,7 @@ export const stubComponentCompilerMeta = (
   hasVdomStyle: false,
   hasVdomText: false,
   hasVdomXlink: false,
+  hasSignalsImport: false,
   hasWatchCallback: false,
   htmlAttrNames: [],
   htmlParts: [],

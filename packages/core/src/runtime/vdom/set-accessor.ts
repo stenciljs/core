@@ -13,7 +13,21 @@ import type * as d from '@stencil/core';
 
 import { isComplexType } from '../../utils/helpers';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
+import { effect } from '../signals';
+import { isSignalLike } from '../signals';
 import { queueRefAttachment } from './vdom-render';
+
+/** Per-element, per-attribute signal subscription disposers. */
+const signalAttrDisposers = new WeakMap<Node, Map<string, () => void>>();
+
+export const disposeAllSignalAttrs = (elm: Node) => {
+  if (!BUILD.vdomSignals) return;
+  const map = signalAttrDisposers.get(elm);
+  if (map) {
+    map.forEach((d) => d());
+    signalAttrDisposers.delete(elm);
+  }
+};
 
 /**
  * When running a VDom render set properties present on a VDom node onto the
@@ -42,6 +56,33 @@ export const setAccessor = (
 ) => {
   if (oldValue === newValue) {
     return;
+  }
+
+  if (BUILD.vdomSignals && isSignalLike(newValue)) {
+    // New value is a signal - dispose any old signal subscription and re-subscribe.
+    const attrMap = signalAttrDisposers.get(elm) ?? new Map<string, () => void>();
+    attrMap.get(memberName)?.();
+    if (!signalAttrDisposers.has(elm)) signalAttrDisposers.set(elm, attrMap);
+    // Start prevVal at oldValue so the initial effect run detects a change and sets the attr.
+    let prevVal: any = oldValue;
+    attrMap.set(
+      memberName,
+      effect(() => {
+        const curVal = newValue.value;
+        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags);
+        prevVal = curVal;
+      }),
+    );
+    return;
+  }
+
+  if (BUILD.vdomSignals && isSignalLike(oldValue)) {
+    // Old value was a signal, new is a plain value - dispose subscription and fall through.
+    const attrMap = signalAttrDisposers.get(elm);
+    if (attrMap) {
+      attrMap.get(memberName)?.();
+      attrMap.delete(memberName);
+    }
   }
 
   let isProp = isMemberInElement(elm, memberName);
@@ -144,7 +185,7 @@ export const setAccessor = (
       }
     }
   } else if (BUILD.vdomPropOrAttr && memberName[0] === 'a' && memberName.startsWith('attr:')) {
-    // Explicit attr: prefix — always set as attribute, bypass heuristic
+    // Explicit attr: prefix - always set as attribute, bypass heuristic
     const propName = memberName.slice(5);
     // Look up the actual attribute name from component metadata
     // Component metadata stores [flags, attributeName] for each member
@@ -172,7 +213,7 @@ export const setAccessor = (
     }
     return;
   } else if (BUILD.vdomPropOrAttr && memberName[0] === 'p' && memberName.startsWith('prop:')) {
-    // Explicit prop: prefix — always set as property, bypass heuristic
+    // Explicit prop: prefix - always set as property, bypass heuristic
     const propName = memberName.slice(5);
     try {
       (elm as any)[propName] = newValue;

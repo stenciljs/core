@@ -51,6 +51,7 @@ export const createModule = (
   hasVdomStyle: false,
   hasVdomText: false,
   hasVdomXlink: false,
+  hasSignalsImport: false,
   htmlAttrNames: [],
   htmlParts: [],
   htmlTagNames: [],

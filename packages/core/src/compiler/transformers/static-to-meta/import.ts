@@ -21,6 +21,10 @@ export const parseModuleImport = (
       moduleFile.originalImports.push(importPath);
     }
 
+    if (importPath === '@stencil/core/signals') {
+      moduleFile.hasSignalsImport = true;
+    }
+
     if (isAbsolute(importPath)) {
       // absolute import
       importPath = normalizePath(importPath);

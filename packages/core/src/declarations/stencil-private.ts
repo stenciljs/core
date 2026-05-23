@@ -116,6 +116,7 @@ export interface BuildFeatures {
   vdomStyle: boolean;
   vdomText: boolean;
   vdomXlink: boolean;
+  vdomSignals: boolean;
   slotRelocation: boolean;
 
   // per-component slot patches
@@ -192,6 +193,9 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   initializeNextTick?: boolean;
   asyncQueue?: boolean;
   additionalTagTransformers?: boolean | 'prod';
+  signalBacking?: boolean;
+  /** True when JSX signal bypass is active — text nodes and attributes backed by Signal objects update the DOM directly. Auto-enabled when `signalBacking: true`. */
+  vdomSignals?: boolean;
 }
 
 export type ModuleFormat =
@@ -611,6 +615,7 @@ export interface ComponentCompilerFeatures {
   hasVdomStyle: boolean;
   hasVdomText: boolean;
   hasVdomXlink: boolean;
+  hasSignalsImport: boolean;
   hasWatchCallback: boolean;
   htmlAttrNames: string[];
   htmlTagNames: string[];
@@ -1336,6 +1341,7 @@ export interface Module {
   hasVdomStyle: boolean;
   hasVdomText: boolean;
   hasVdomXlink: boolean;
+  hasSignalsImport: boolean;
 }
 
 export interface Plugin {
@@ -1795,6 +1801,9 @@ export interface HostRef {
   $cmpMeta$: ComponentRuntimeMeta;
   $hostElement$: HostElement;
   $instanceValues$?: Map<string, any>;
+  $signalValues$?: Map<string, import('@preact/signals-core').Signal<any>>;
+  /** Dispose function that tears down all signal effects for this component. */
+  $signalCleanup$?: () => void;
   $serializerValues$?: Map<string, string>;
   $lazyInstance$?: ComponentInterface;
   /**
@@ -2177,6 +2186,12 @@ export interface NewSpecPageOptions {
    * Default is `false`.
    */
   serializeShadowRoot?: 'scoped' | false;
+  /**
+   * Override individual {@link BuildConditionals} for this test. Applied after all other
+   * BUILD setup so these values take final precedence. Useful for testing code paths that
+   * are gated behind a build flag (e.g. `{ signalBacking: true }`).
+   */
+  buildFlags?: Partial<BuildConditionals>;
 }
 
 /**

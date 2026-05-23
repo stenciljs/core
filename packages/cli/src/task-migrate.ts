@@ -16,7 +16,7 @@ interface MigrationResult {
 /**
  * Represents a detected migration that can be applied.
  */
-export interface DetectedMigration {
+interface DetectedMigration {
   filePath: string;
   rule: MigrationRule;
   matches: MigrationMatch[];

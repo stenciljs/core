@@ -193,6 +193,7 @@ export const parseStaticComponentMeta = (
     hasVdomRender: false,
     hasVdomStyle: false,
     hasVdomText: false,
+    hasSignalsImport: false,
     hasWatchCallback: false,
     isPlain: false,
     htmlAttrNames: [],

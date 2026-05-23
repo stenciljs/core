@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "alwaysStrict": true,
     "declaration": true,
     "emitDeclarationOnly": true,
     "declarationDir": "dist",
-    "rootDir": "src",
+    "rootDir": "./",
     "outDir": "dist",
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
@@ -38,6 +39,6 @@
       "@stencil/core": ["./src/declarations/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "tsdown.config.ts", "build/**/*.ts"],
   "exclude": ["dist"]
 }

@@ -43,12 +43,14 @@ const FORM_ASSOCIATED_ATTRIBUTES: d.TypeInfo = [
  * @param cmp the metadata for the component that a type definition string is generated for
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
  * @param areTypesInternal `true` if types being generated are for a project's internal purposes, `false` otherwise
+ * @param signalBacking `true` if the component is using signal backing for its props; includes the signals map on the element interface
  * @returns the generated types string alongside additional metadata
  */
 export const generateComponentTypes = (
   cmp: d.ComponentCompilerMeta,
   typeImportData: d.TypesImportData,
   areTypesInternal: boolean,
+  signalBacking = false,
 ): d.TypesModule => {
   const tagName = cmp.tagName.toLowerCase();
   const tagNameAsPascal = dashToPascalCase(tagName);
@@ -100,6 +102,22 @@ export const generateComponentTypes = (
         htmlElementEventListenerProperties,
         cmp.docs,
       );
+
+  if (signalBacking && cmp.properties.length > 0) {
+    const signalsPropNames = (
+      areTypesInternal ? cmp.properties : cmp.properties.filter((p) => !p.internal)
+    )
+      .map((p) => `"${p.name}"`)
+      .join(' | ');
+    if (signalsPropNames) {
+      // Insert before the closing `    }` of the element interface
+      elementInterface.splice(
+        -1,
+        0,
+        `        readonly [STENCIL_SIGNALS_SYMBOL]?: ReadonlyMap<${signalsPropNames}, ReadonlySignal<unknown>>;`,
+      );
+    }
+  }
 
   const element = [
     ...htmlElementEventMap,

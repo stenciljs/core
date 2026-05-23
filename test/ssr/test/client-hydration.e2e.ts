@@ -162,6 +162,48 @@ test.describe('client hydration', () => {
       expect(afterSsrCalled).toBe(1);
       expect(html || '').toContain('<body><div>Hello Universe</div></body>');
     });
+
+    test('beforeSsr can modify component props before hydration', async ({ page }) => {
+      const { html } = await renderToString(`<car-list></car-list>`, {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        clientSsrAnnotations: false,
+        beforeSsr(document) {
+          document.querySelector('car-list').cars = [vento, beetle];
+        },
+      });
+
+      expect(html ?? '').toContain('>2023 VW Beetle<');
+      expect(html ?? '').toContain('>2024 VW Vento<');
+
+      await page.setContent(html ?? '');
+
+      const cars = page.locator('car-detail');
+      const carTexts = await cars.allTextContents();
+      expect(carTexts).toContain('2024 VW Vento');
+      expect(carTexts).toContain('2023 VW Beetle');
+    });
+
+    test('afterSsr can modify component attributes for after hydration', async ({ page }) => {
+      const { html } = await renderToString(`<car-list></car-list>`, {
+        serializeShadowRoot: true,
+        fullDocument: false,
+        clientSsrAnnotations: false,
+        afterSsr(document) {
+          document.querySelector('car-list').setAttribute('cars', JSON.stringify([vento, beetle]));
+        },
+      });
+
+      expect(html ?? '').toContain(
+        `cars="[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]"`,
+      );
+      await page.setContent(html ?? '');
+
+      const cars = page.locator('car-detail');
+      const carTexts = await cars.allTextContents();
+      expect(carTexts).toContain('2024 VW Vento');
+      expect(carTexts).toContain('2023 VW Beetle');
+    });
   });
 
   test.describe('delegated focus', () => {

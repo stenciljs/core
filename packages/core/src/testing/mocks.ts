@@ -87,6 +87,7 @@ export const mockComponentMeta = (
   hasVdomStyle: false,
   hasVdomText: false,
   hasVdomXlink: false,
+  hasSignalsImport: false,
   hasWatchCallback: false,
   htmlAttrNames: [],
   htmlParts: [],
@@ -372,5 +373,6 @@ export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   hasVdomStyle: false,
   hasVdomText: false,
   hasVdomXlink: false,
+  hasSignalsImport: false,
   ...mod,
 });

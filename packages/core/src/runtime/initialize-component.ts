@@ -9,6 +9,7 @@ import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
+import { initializeEffects, initializeSignals } from './signals';
 import { getScopeId, registerStyle } from './styles';
 import { safeCall, scheduleUpdate } from './update-component';
 
@@ -181,7 +182,12 @@ export const initializeComponent = async (
       }
     }
 
-    // we've successfully created a lazy instance
+    if (BUILD.signalBacking && cmpMeta.$members$) {
+      initializeSignals(elm, hostRef, cmpMeta);
+    } else if (BUILD.vdomSignals) {
+      initializeEffects(elm, hostRef);
+    }
+
     const ancestorComponent = hostRef.$ancestorComponent$;
     const schedule = () => scheduleUpdate(hostRef, true);
 
