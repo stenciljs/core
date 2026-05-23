@@ -757,13 +757,13 @@ describe('css-imports', () => {
     describe('virtual imports', () => {
       const filePath = normalizePath(path.join(root, 'src', 'global.css'));
 
-      it('skips @import "stencil-globals" — not resolved as a file', async () => {
+      it('skips @import "stencil-globals" - not resolved as a file', async () => {
         const content = `@import "stencil-globals";`;
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toHaveLength(0);
       });
 
-      it('skips @import "stencil-hydrate" — not resolved as a file', async () => {
+      it('skips @import "stencil-hydrate" - not resolved as a file', async () => {
         const content = `@import "stencil-hydrate";`;
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toHaveLength(0);

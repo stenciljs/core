@@ -144,7 +144,7 @@ describe('transpile() – cross-file class extension', () => {
 
     const cmp = results.data?.[0];
     const propNames = cmp.properties.map((p: any) => p.name);
-    // Only one entry for `baseProp` — it should not appear twice
+    // Only one entry for `baseProp` - it should not appear twice
     expect(propNames.filter((n: string) => n === 'baseProp')).toHaveLength(1);
   });
 });

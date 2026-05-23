@@ -37,8 +37,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "nwsapi": "^2.2.23",
-    "parse5": "7.2.1"
+    "nwsapi": "^2.0.0",
+    "parse5": "^8.0.0"
   },
   "devDependencies": {
     "@stencil/vitest": "catalog:",

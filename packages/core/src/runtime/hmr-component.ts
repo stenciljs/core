@@ -62,7 +62,7 @@ const hmrStandalone = async (
   console.log(`[Stencil HMR] hmrStandalone <${cmpMeta.$tagName$}> modulePath:`, modulePath);
   if (!modulePath) {
     console.warn(
-      `[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor — was this built with devMode?`,
+      `[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor - was this built with devMode?`,
     );
     return;
   }
@@ -74,7 +74,7 @@ const hmrStandalone = async (
       `${modulePath}?s-hmr=${hmrVersionId}`
     );
 
-    // Find the updated class — prefer a named export whose `.is` tag matches,
+    // Find the updated class - prefer a named export whose `.is` tag matches,
     // fall back to the default export
     const NewClass: any =
       Object.values(newModule).find(
@@ -87,7 +87,7 @@ const hmrStandalone = async (
 
     // Patch the registered constructor prototype in-place so all existing
     // instances pick up the new render/lifecycle methods.
-    // Object.assign is intentionally NOT used here — class methods are
+    // Object.assign is intentionally NOT used here - class methods are
     // non-enumerable and would be silently skipped.
     const ctor = customElements.get(cmpMeta.$tagName$) as any;
 

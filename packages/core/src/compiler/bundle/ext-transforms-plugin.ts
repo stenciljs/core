@@ -104,7 +104,7 @@ export const extTransformsPlugin = (
         // Memoize the expensive SASS + Lightning CSS computation across output targets.
         // customElements, lazy, and hydrate all process the same ~N stylesheets;
         // caching here means only the first output target pays the full per-sheet
-        // cost — subsequent targets hit the cache and complete in microseconds.
+        // cost - subsequent targets hit the cache and complete in microseconds.
         //
         // NOTE: this cache is keyed by the raw annotated `id` which encodes the
         // file path plus component metadata (tag, mode, encapsulation). Entries are

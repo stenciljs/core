@@ -130,7 +130,7 @@ const writeCollectionOutput = async (
 };
 
 const generateAppDataModule = (build: d.BuildConditionals, config: d.ValidatedConfig): string => {
-  // JSON.stringify omits undefined fields — missing flags are treated as false by the runtime.
+  // JSON.stringify omits undefined fields - missing flags are treated as false by the runtime.
   const buildStr = JSON.stringify(build, null, 2);
   const envStr = JSON.stringify(config.env ?? {});
   const ns = JSON.stringify(config.fsNamespace);
@@ -167,7 +167,7 @@ const serializeCollectionManifest = (
   buildFlags.initializeNextTick = !!config.extras?.initializeNextTick;
   buildFlags.asyncQueue = config.taskQueue === 'congestionAsync';
 
-  // Hydration marker — consumers must know which selector the lib used so @stencil/vitest
+  // Hydration marker - consumers must know which selector the lib used so @stencil/vitest
   // and other tooling can detect when components are ready. Defaults to class-based.
   if (config.hydratedFlag) {
     buildFlags.hydratedAttribute = config.hydratedFlag.selector === 'attribute';
@@ -178,9 +178,9 @@ const serializeCollectionManifest = (
   }
   buildFlags.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
-  // constructableCSS is only false during HMR dev mode — always true in distributed output
+  // constructableCSS is only false during HMR dev mode - always true in distributed output
   buildFlags.constructableCSS = true;
-  // cssAnnotations gates addHydratedFlag (asyncLoading && cssAnnotations) — always true
+  // cssAnnotations gates addHydratedFlag (asyncLoading && cssAnnotations) - always true
   buildFlags.cssAnnotations = true;
 
   // create the single collection we're going to fill up with data

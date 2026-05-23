@@ -114,7 +114,7 @@ describe('validateSsrWasmOutputTarget', () => {
       const { config: validatedConfig } = validateConfig(config, mockLoadConfigInit());
 
       const ssrWasm = validatedConfig.outputTargets.find(isOutputTargetSsrWasm);
-      // ssr-wasm has no external field — everything is bundled into the binary
+      // ssr-wasm has no external field - everything is bundled into the binary
       expect((ssrWasm as any)?.external).toBeUndefined();
     });
   });

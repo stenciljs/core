@@ -34,7 +34,7 @@ export const validateWww = (
   diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ) => {
-  // Only count 'real' user-configured output targets — exclude auto-generated
+  // Only count 'real' user-configured output targets - exclude auto-generated
   // outputs (types, collection, global-style, assets) that autoGenerateOutputs()
   // may have injected into userOutputs before this function was called, so a bare config
   // (no explicit output targets) still gets the default www output added.

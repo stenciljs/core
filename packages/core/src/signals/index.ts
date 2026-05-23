@@ -11,7 +11,7 @@ export type { ReadonlySignal, Signal } from '@preact/signals-core';
 /**
  * Returns the `ReadonlySignal` backing a `@Prop` member on a Stencil element.
  * Requires `extras.signalBacking: true` in `stencil.config.ts`.
- * Only `@Prop` members are exposed — `@State` is internal component state.
+ * Only `@Prop` members are exposed - `@State` is internal component state.
  *
  * Useful for cross-component or cross-framework reactivity without polling or events:
  * ```ts

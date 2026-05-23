@@ -89,7 +89,7 @@ export const CMP_FLAGS = {
    * Used to determine if a component does not use the shadow DOM _and_ has `<slot/>` tags in its markup.
    */
   hasSlotRelocation: 1 << 2,
-  // bit 3 (1 << 3) is reserved — was needsShadowDomShim, removed in v5
+  // bit 3 (1 << 3) is reserved - was needsShadowDomShim, removed in v5
   /**
    * Determines if `delegatesFocus` is enabled for a component that uses the shadow DOM.
    * e.g. `shadow: { delegatesFocus: true }` is set on the `@Component()` decorator
@@ -100,7 +100,7 @@ export const CMP_FLAGS = {
    */
   hasMode: 1 << 5,
   /**
-   * Determines if styles must be scoped — i.e. the component uses scoped stylesheets.
+   * Determines if styles must be scoped - i.e. the component uses scoped stylesheets.
    */
   needsScopedEncapsulation: CF_scopedCssEncapsulation,
   /**

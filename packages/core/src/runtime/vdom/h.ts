@@ -35,7 +35,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
         if (BUILD.vdomSignals && isSignalLike(child)) {
           // Signal child: create a text VNode seeded with the current value,
           // store signal reference for createElm to subscribe.
-          // Handled as a complete branch — does NOT fall through to the outer push.
+          // Handled as a complete branch - does NOT fall through to the outer push.
           const sigVNode = newVNode(null, String(child.peek()));
           sigVNode.$signal$ = child;
           vNodeChildren.push(sigVNode);

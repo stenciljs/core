@@ -15,7 +15,7 @@ export function resetKeyCounter(): void {
  * Keys are base-36 integers, reset to 0 for each render() method, so they
  * are short (1-2 chars for most components) and stable across re-renders.
  *
- * @param _jsxElement unused — kept for API compatibility
+ * @param _jsxElement unused - kept for API compatibility
  * @returns a short unique key string
  */
 export function deriveJSXKey(_jsxElement: ts.JsxOpeningElement | ts.JsxSelfClosingElement): string {
