@@ -36,8 +36,8 @@ if (typeof globalThis !== "undefined") {
 `;
 
 // TypeScript interface file required by extism-js.
-// Must declare a 'main' module — extism-js uses this as the plugin entry point.
-// All functions are (): void — data flows via Host.inputString()/Host.outputString(),
+// Must declare a 'main' module - extism-js uses this as the plugin entry point.
+// All functions are (): void - data flows via Host.inputString()/Host.outputString(),
 // not as WASM return values. Use I32/I64/F32/F64 only for direct primitive returns.
 const SSR_WASM_INTERFACE = `declare module "main" {
   export function renderToString(): void;
@@ -46,8 +46,8 @@ const SSR_WASM_INTERFACE = `declare module "main" {
 }\n`;
 
 // Extism host entry points appended as rolldown `outro` inside the IIFE.
-// `Host` is a global provided by the Extism/QuickJS-ng runtime — no import needed.
-// Functions reference bundled symbols by name via closure — resolved lazily at call
+// `Host` is a global provided by the Extism/QuickJS-ng runtime - no import needed.
+// Functions reference bundled symbols by name via closure - resolved lazily at call
 // time, so QuickJS-ng sees the fully-initialized IIFE scope rather than an eager
 // snapshot taken during IIFE setup (which QuickJS-ng resolves incorrectly).
 // setTagTransformer accepts [{from: string, to: string}] and builds a tag transformer.
@@ -92,7 +92,7 @@ export const generateSsrWasmApp = async (
 
     const rolldownOptions: InputOptions = {
       ...config.rolldownConfig,
-      // No externals — everything must be self-contained in the WASM binary
+      // No externals - everything must be self-contained in the WASM binary
       external: [],
       input,
       plugins: [
@@ -123,7 +123,7 @@ export const generateSsrWasmApp = async (
         },
       ],
       treeshake: false,
-      // ES2020 max — QuickJS-ng constraint for extism-js compatibility
+      // ES2020 max - QuickJS-ng constraint for extism-js compatibility
       transform: { target: 'es2020' },
       onwarn: createOnWarnFn(buildCtx.diagnostics),
       checks: { pluginTimings: config.logLevel === 'debug' },
@@ -135,7 +135,7 @@ export const generateSsrWasmApp = async (
       outro: SSR_WASM_OUTRO,
       format: 'iife',
       // IIFE supplies `exports` as its parameter, which the bundled CJS code needs.
-      // The global name is unused — extism-js reads module.exports from inside the IIFE.
+      // The global name is unused - extism-js reads module.exports from inside the IIFE.
       name: 'StencilSsrWasm',
       file: 'index.js',
     });
@@ -203,7 +203,7 @@ const compileToWasm = async (
     const warn = buildWarn(buildCtx.diagnostics);
     if (e.code === 'ENOENT') {
       warn.messageText =
-        `ssr-wasm: extism-js not found — index.js was written but index.wasm was not generated. ` +
+        `ssr-wasm: extism-js not found - index.js was written but index.wasm was not generated. ` +
         `Install extism-js: https://github.com/extism/js-pdk`;
     } else {
       warn.messageText = `ssr-wasm: extism-js compile failed: ${e.message}`;

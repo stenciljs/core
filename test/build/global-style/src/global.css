@@ -1,4 +1,4 @@
-/* FOUC prevention — replaced at build time with component visibility rules */
+/* FOUC prevention - replaced at build time with component visibility rules */
 @import 'stencil-hydrate';
 
 /* Base page styles */

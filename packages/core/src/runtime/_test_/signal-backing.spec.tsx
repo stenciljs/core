@@ -635,7 +635,7 @@ describe('signals (signalBacking: true)', () => {
 // ── getSignal / STENCIL_SIGNALS_SYMBOL ────────────────────────────────────
 
 describe('getSignal', () => {
-  it('returns null for a @State member — state is internal', async () => {
+  it('returns null for a @State member - state is internal', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       @State() count = 5;

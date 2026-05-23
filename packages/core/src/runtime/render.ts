@@ -4,7 +4,7 @@ import { renderVdom } from './vdom/vdom-render';
 
 /**
  * A WeakMap to persist HostRef objects across multiple render() calls to the
- * same container. This enables VNode diffing on re-renders — without it, each
+ * same container. This enables VNode diffing on re-renders - without it, each
  * call creates a fresh HostRef with no previous VNode, causing renderVdom to
  * replace the entire DOM subtree instead of patching only what changed.
  */

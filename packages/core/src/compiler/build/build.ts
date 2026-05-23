@@ -61,13 +61,13 @@ export const build = async (
     tsTimeSpan.finish('transpile finished');
     if (buildCtx.hasError) return buildAbort(buildCtx);
 
-    // If TS emitted nothing, the "script change" was a phantom duplicate event — clear the flag
+    // If TS emitted nothing, the "script change" was a phantom duplicate event - clear the flag
     // so type validation and bundling are skipped.
     if (buildCtx.isRebuild && buildCtx.hasScriptChanges && compilerCtx.changedModules.size === 0) {
       buildCtx.hasScriptChanges = false;
     }
 
-    // Skip type validation on rebuilds with no script changes — the type graph is unchanged.
+    // Skip type validation on rebuilds with no script changes - the type graph is unchanged.
     const skipTypeValidation = buildCtx.isRebuild && !buildCtx.hasScriptChanges;
 
     if (!skipTypeValidation) {
@@ -85,7 +85,7 @@ export const build = async (
         // Return null so watch-build restarts with a fresh program.
         return null;
       }
-      // types changed but no restart needed — components.d.ts is watch-ignored
+      // types changed but no restart needed - components.d.ts is watch-ignored
       // to prevent cascade rebuilds, so just continue with the current build.
     }
 

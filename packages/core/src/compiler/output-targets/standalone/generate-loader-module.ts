@@ -24,7 +24,7 @@ export const generateLoaderModule = (
   // Tag name list for the loader
   const tagsList = components.map((cmp) => `'${cmp.tagName}'`).join(', ');
 
-  // Static import switch cases — allows bundlers like Vite to analyze imports
+  // Static import switch cases - allows bundlers like Vite to analyze imports
   const switchCases = components
     .map(
       (cmp) => `      case '${cmp.tagName}': module = await import('./${cmp.tagName}.js'); break;`,
@@ -79,7 +79,7 @@ let observer;
  *    ancestor's \`s-p\` array. That Promise resolves only after the child's full
  *    initial lifecycle completes (\`componentDidLoad\`). This prevents the
  *    ancestor from calling its own \`componentDidLoad\` before all its
- *    descendants are ready — even when a descendant's module loads *after* the
+ *    descendants are ready - even when a descendant's module loads *after* the
  *    ancestor has already started rendering.
  *
  * @param root - The root element to scan
@@ -133,7 +133,7 @@ async function load(root) {
     }
   }
 
-  // Load all unique tags in parallel — lifecycle ordering is handled by the
+  // Load all unique tags in parallel - lifecycle ordering is handled by the
   // pre-marked s-p/s-rc arrays and the wired-up ready promises above.
   await Promise.allSettled([...pending].map(register));
 }

@@ -28,7 +28,7 @@ assert(
   'Missing cmp-b display rule',
 );
 
-// Both virtual imports are fully resolved — not present in output
+// Both virtual imports are fully resolved - not present in output
 assert(
   !css.includes('stencil-globals'),
   'stencil-globals virtual import should be resolved, not present in output',
@@ -51,7 +51,7 @@ assert(
 );
 
 // stencil-hydrate.css must NOT be generated when @import "stencil-hydrate" is present
-// in a global-style input — the standalone output target should detect this and skip it.
+// in a global-style input - the standalone output target should detect this and skip it.
 const hydrateCssPath = path.resolve(__dirname, 'dist', 'assets', 'stencil-hydrate.css');
 let hydrateFileExists = true;
 try {

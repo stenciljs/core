@@ -175,7 +175,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   lazyLoad?: boolean;
   profile?: boolean;
   constructableCSS?: boolean;
-  /** True when `extras.lightDomPatches === true` — enables `applyLightDomPatches` shortcut. */
+  /** True when `extras.lightDomPatches === true` - enables `applyLightDomPatches` shortcut. */
   lightDomPatches?: boolean;
   /** Patch `childNodes`/`children` getters on light-dom slotted components. */
   slotChildNodes?: boolean;
@@ -188,13 +188,13 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   hydratedAttribute?: boolean;
   hydratedClass?: boolean;
   hydratedSelectorName?: string;
-  /** True when a global-style input contains `@import "stencil-hydrate"` — suppresses dynamic style injection in the loader. */
+  /** True when a global-style input contains `@import "stencil-hydrate"` - suppresses dynamic style injection in the loader. */
   staticHydrationStyles?: boolean;
   initializeNextTick?: boolean;
   asyncQueue?: boolean;
   additionalTagTransformers?: boolean | 'prod';
   signalBacking?: boolean;
-  /** True when JSX signal bypass is active — text nodes and attributes backed by Signal objects update the DOM directly. Auto-enabled when `signalBacking: true`. */
+  /** True when JSX signal bypass is active - text nodes and attributes backed by Signal objects update the DOM directly. Auto-enabled when `signalBacking: true`. */
   vdomSignals?: boolean;
 }
 

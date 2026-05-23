@@ -31,7 +31,7 @@ describe('validateRolldownConfig', () => {
     config.rolldownConfig = {
       external: ['foo', 'bar'],
       treeshake: false,
-      // @ts-expect-error — intentionally testing unknown key rejection
+      // @ts-expect-error - intentionally testing unknown key rejection
       notAnOption: {},
     };
     const rolldownConfig = validateRolldownConfig(config);

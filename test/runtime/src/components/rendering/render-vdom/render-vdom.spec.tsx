@@ -63,7 +63,7 @@ describe('render-vdom', () => {
     );
 
     const input = container.querySelector('#test-input') as HTMLInputElement;
-    // Simulate user typing — this is internal DOM state not controlled by VDOM
+    // Simulate user typing - this is internal DOM state not controlled by VDOM
     input.value = 'user typed this';
 
     // Re-render with updated content but same input

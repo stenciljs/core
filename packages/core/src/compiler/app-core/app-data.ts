@@ -156,7 +156,7 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
 /**
  * Config-driven extras flags that a collection lib author may have set explicitly.
  * These are the only flags propagated from a collection's buildFlags into the consumer's
- * build — everything else is a component-derived flag that the consumer recomputes itself
+ * build - everything else is a component-derived flag that the consumer recomputes itself
  * by scanning all components (including those from the collection).
  */
 const COLLECTION_CONFIG_FLAGS: ReadonlySet<keyof BuildConditionals> = new Set([
@@ -174,7 +174,7 @@ const COLLECTION_CONFIG_FLAGS: ReadonlySet<keyof BuildConditionals> = new Set([
 
 /**
  * Merge config-driven build flags from consumed collections into the active build conditionals.
- * Only flags explicitly set via the lib author's stencil.config extras are merged — component-
+ * Only flags explicitly set via the lib author's stencil.config extras are merged - component-
  * derived flags are excluded because the consumer recomputes them from source.
  *
  * **This function mutates the build conditionals argument**
@@ -222,7 +222,7 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.asyncLoading = !!(b.asyncLoading || b.lazyLoad || b.taskQueue || b.initializeNextTick);
   b.cssAnnotations = true;
   // lightDomPatches only matter when there are non-shadow slotted components.
-  // Gating here keeps shadow-only bundles lean — patch functions get tree-shaken out.
+  // Gating here keeps shadow-only bundles lean - patch functions get tree-shaken out.
   const ldp = config.extras.lightDomPatches ?? true;
   if (b.slotRelocation && ldp !== false) {
     b.lightDomPatches = ldp === true;

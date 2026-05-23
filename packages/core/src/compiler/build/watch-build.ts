@@ -50,7 +50,7 @@ export const createWatchBuild = async (
   // TS files that need cache invalidation before the next rebuild
   const tsFilesToInvalidate = new Set<string>();
 
-  // Debounce timer — multiple watchers can fire for the same change
+  // Debounce timer - multiple watchers can fire for the same change
   let rebuildTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Suppress FSEvents double-events (the same save can fire twice ~200-500ms apart),
@@ -175,7 +175,7 @@ export const createWatchBuild = async (
 
   /**
    * Returns files as a prefixed list, or 'none' if empty.
-   * No space before the filename — the logger wraps on whitespace.
+   * No space before the filename - the logger wraps on whitespace.
    * @param files the list of files to format for debug output
    * @returns the formatted string for debug output
    */

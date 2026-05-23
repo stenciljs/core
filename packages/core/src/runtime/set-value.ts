@@ -165,7 +165,7 @@ export const setValue = (
             const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
             if (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate) {
               // When signalBacking is on and signals haven't been initialized yet,
-              // skip watcher dispatch here — the signal watcher effect will fire
+              // skip watcher dispatch here - the signal watcher effect will fire
               // synchronously during initializeSignals and handle it instead.
               if (BUILD.signalBacking && !hostRef.$signalValues$) return;
               // fire off each of the watch methods that are watching this property

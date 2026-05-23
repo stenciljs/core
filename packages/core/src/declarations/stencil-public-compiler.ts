@@ -357,7 +357,7 @@ interface ConfigExtrasBase {
 
   /**
    * Replace `@State` and `@Prop` internals with `@preact/signals-core` signal primitives.
-   * Enables cross-framework reactive interop — component state becomes subscribable by
+   * Enables cross-framework reactive interop - component state becomes subscribable by
    * Solid, Angular, Preact and any TC39-signal-compatible library without event/attribute
    * roundtrips. No API changes required in component code.
    * Defaults to `false`.
@@ -1981,7 +1981,7 @@ export interface OutputTargetLoaderBundle extends OutputTargetBaseNext {
    * When `true`, marks `@stencil/core` as an external dependency in the bundler (ESM/CJS)
    * distribution output. Consumers must provide `@stencil/core` themselves.
    *
-   * Has no effect on the browser/CDN build — the runtime is always bundled there.
+   * Has no effect on the browser/CDN build - the runtime is always bundled there.
    *
    * @default false
    */

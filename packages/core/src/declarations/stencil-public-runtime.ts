@@ -69,7 +69,7 @@ export interface ComponentOptions {
 
   /**
    * Relative URL to an external stylesheet providing document-level styles for this component.
-   * Unlike `styleUrl`, these styles are not scoped to shadow/scoped DOM — they are collected
+   * Unlike `styleUrl`, these styles are not scoped to shadow/scoped DOM - they are collected
    * at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet.
    *
    * Useful for

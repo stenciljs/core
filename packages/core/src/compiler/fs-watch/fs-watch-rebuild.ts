@@ -141,7 +141,7 @@ export const isWatchIgnorePath = (config: d.ValidatedConfig, path: string) => {
   }
   const outputTargets = config.outputTargets;
   const ignoreFiles = [
-    // Ignore components.d.ts — its disk write would cascade-rebuild all components.
+    // Ignore components.d.ts - its disk write would cascade-rebuild all components.
     getComponentsDtsSrcFilePath(config),
     ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.file),
     ...outputTargets.filter(isOutputTargetDocsJson).map((o) => o.typesFile),

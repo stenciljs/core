@@ -57,7 +57,7 @@ describe('outputTarget, www / loader-bundle', () => {
       path.join(root, 'custom-dist', 'cjs'),
     ]);
 
-    // default www/ must not exist — only custom-www/ should
+    // default www/ must not exist - only custom-www/ should
     expectFilesDoNotExist(compiler.fs, [
       path.join(root, 'www'),
       // custom-www with default index.html must not exist (custom indexHtml is custom-index.htm)

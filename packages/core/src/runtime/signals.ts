@@ -122,7 +122,7 @@ export const initializeSignals = (
     );
   }
 
-  // Expose only @Prop signals externally — @State is internal implementation detail
+  // Expose only @Prop signals externally - @State is internal implementation detail
   const publicSignals = new Map(
     [...hostRef.$signalValues$].filter(
       ([k]) => (cmpMeta.$members$?.[k]?.[0] ?? 0) & MEMBER_FLAGS.Prop,

@@ -107,7 +107,7 @@ export const lightDomPatchesRule: MigrationRule = {
       // Explicit opt-out
       replacement = 'lightDomPatches: false';
     } else if (experimentalValue === true && hasIndividualKeys) {
-      // experimentalSlotFixes: true overrides individual flags — treat as all-on
+      // experimentalSlotFixes: true overrides individual flags - treat as all-on
       replacement = null; // new default covers this
     } else {
       // Individual flags only (no experimentalSlotFixes, or unknown value)

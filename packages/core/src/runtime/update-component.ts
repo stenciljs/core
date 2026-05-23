@@ -85,7 +85,7 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
   if (!instance) {
     if (BUILD.isDev) {
       throw new Error(
-        `Can't render <${elm.tagName.toLowerCase()} /> — compiled without externalRuntime: true. See https://stenciljs.com/docs/custom-elements#externalruntime`,
+        `Can't render <${elm.tagName.toLowerCase()} /> - compiled without externalRuntime: true. See https://stenciljs.com/docs/custom-elements#externalruntime`,
       );
     }
     return;

@@ -206,7 +206,7 @@ export default defineConfig([
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
-  // @stencil/core/signals — public signals primitives + @Effect decorator
+  // @stencil/core/signals - public signals primitives + @Effect decorator
   {
     entry: {
       'signals/index': 'src/signals/index.ts',
