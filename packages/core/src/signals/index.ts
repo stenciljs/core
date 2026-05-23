@@ -1,21 +1,12 @@
-export { batch, computed, effect, signal, untracked } from '@preact/signals-core';
-export type { ReadonlySignal, Signal } from '@preact/signals-core';
-
-import { consoleDevWarn, getHostRef } from 'virtual:platform';
 import { BUILD } from 'virtual:app-data';
-import { STENCIL_SIGNALS_SYMBOL } from '../runtime/signals';
-export { STENCIL_SIGNALS_SYMBOL } from '../runtime/signals';
+import { consoleDevWarn, getHostRef } from 'virtual:platform';
 import type { ReadonlySignal } from '@preact/signals-core';
+
 import { MEMBER_FLAGS } from '../utils/constants';
 
-// Augment HTMLStencilElement so that projects importing @stencil/core/signals
-// get a typed property for the public @Prop signal map.
-// @ts-expect-error - this is resolved in importing projects.
-declare module '@stencil/core/runtime' {
-  interface HTMLStencilElement {
-    readonly [STENCIL_SIGNALS_SYMBOL]?: ReadonlyMap<string, ReadonlySignal<unknown>>;
-  }
-}
+export { batch, computed, effect, signal, untracked } from '@preact/signals-core';
+export { STENCIL_SIGNALS_SYMBOL } from '../runtime/signals';
+export type { ReadonlySignal, Signal } from '@preact/signals-core';
 
 /**
  * Returns the `ReadonlySignal` backing a `@Prop` member on a Stencil element.

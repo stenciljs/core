@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-effect-cmp (@Effect)', () => {
   it('runs the effect on initialization', async () => {
@@ -8,7 +8,9 @@ describe('signal-effect-cmp (@Effect)', () => {
   });
 
   it('re-runs when tracked state changes', async () => {
-    const { root, waitForChanges } = await render<HTMLSignalEffectCmpElement>(<signal-effect-cmp />);
+    const { root, waitForChanges } = await render<HTMLSignalEffectCmpElement>(
+      <signal-effect-cmp />,
+    );
 
     await root.increment();
     await waitForChanges();
@@ -18,7 +20,9 @@ describe('signal-effect-cmp (@Effect)', () => {
   });
 
   it('does not re-run for untracked state', async () => {
-    const { root, waitForChanges } = await render<HTMLSignalEffectCmpElement>(<signal-effect-cmp />);
+    const { root, waitForChanges } = await render<HTMLSignalEffectCmpElement>(
+      <signal-effect-cmp />,
+    );
 
     const before = await root.getEffectLog();
     await root.bumpOther();
@@ -67,9 +71,9 @@ describe('signal-effect-cmp (@Effect + @Prop)', () => {
       <signal-effect-cmp multiplier={2} />,
     );
 
-    await root.increment();      // count→1, effect: 1*2=2
+    await root.increment(); // count→1, effect: 1*2=2
     root.setAttribute('multiplier', '10');
-    await waitForChanges();      // multiplier→10, effect: 1*10=10
+    await waitForChanges(); // multiplier→10, effect: 1*10=10
 
     const log = await root.getPropEffectLog();
     expect(log).toEqual([0, 2, 10]);

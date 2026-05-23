@@ -1,4 +1,3 @@
-import { effect } from '../signals';
 /**
  * Virtual DOM patching algorithm based on Snabbdom by
  * Simon Friis Vindum (@paldepind)
@@ -16,6 +15,7 @@ import { isDef } from '../../utils/helpers';
 import { patchParentNode } from '../dom-extras';
 import { getShadowRoot } from '../element';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
+import { effect } from '../signals';
 import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,

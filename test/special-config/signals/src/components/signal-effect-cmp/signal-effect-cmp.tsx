@@ -1,4 +1,4 @@
-import { Component, Method, Prop, State, h } from '@stencil/core';
+import { Component, Method, Prop, State } from '@stencil/core';
 import { Effect } from '@stencil/core/signals';
 
 @Component({ tag: 'signal-effect-cmp' })
@@ -20,10 +20,18 @@ export class SignalEffectCmp {
     this.propEffectLog.push(this.count * this.multiplier);
   }
 
-  @Method() async increment() { this.count++; }
-  @Method() async bumpOther() { this.other++; }
-  @Method() async getEffectLog() { return [...this.effectLog]; }
-  @Method() async getPropEffectLog() { return [...this.propEffectLog]; }
+  @Method() async increment() {
+    this.count++;
+  }
+  @Method() async bumpOther() {
+    this.other++;
+  }
+  @Method() async getEffectLog() {
+    return [...this.effectLog];
+  }
+  @Method() async getPropEffectLog() {
+    return [...this.propEffectLog];
+  }
 
   render() {
     return (

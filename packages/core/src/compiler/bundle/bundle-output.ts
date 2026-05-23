@@ -78,7 +78,7 @@ export const getRolldownOptions = (
         async resolveId(source, importer) {
           if (source !== '@preact/signals-core') return null;
           // Signals *not* used, redirect to a stub so the real library isn't bundled.
-          // Rolldown not correctly inferring DCE for ... some reason, even though 
+          // Rolldown not correctly inferring DCE for ... some reason, even though
           // `sideEffects: false` in the library's package.json.
           // Terser cannot minify away due to `prototype.` augmentation perceived as side-effect-ful.
           if (!bundleOpts.conditionals?.vdomSignals && !bundleOpts.conditionals?.signalBacking) {

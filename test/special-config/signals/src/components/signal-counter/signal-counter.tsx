@@ -1,4 +1,4 @@
-import { Component, Method, State, h } from '@stencil/core';
+import { Component, Method, State } from '@stencil/core';
 
 @Component({ tag: 'signal-counter' })
 export class SignalCounter {

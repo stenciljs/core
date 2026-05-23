@@ -1,12 +1,17 @@
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State } from '@stencil/core';
+import { Effect } from '@stencil/core/signals';
 
 @Component({
   tag: 'signal-ssr-cmp',
   encapsulation: { type: 'shadow' },
 })
 export class SignalSsrCmp {
-  @Prop() initialCount = 0;
+  @Prop({ reflect: true }) initialCount = 0;
   @State() count = 0;
+
+  @Effect() log() {
+    console.log(this.initialCount, this.count);
+  }
 
   componentWillLoad() {
     this.count = this.initialCount;

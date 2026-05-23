@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-computed-cmp (computed())', () => {
   it('renders the initial computed value', async () => {
@@ -7,7 +7,9 @@ describe('signal-computed-cmp (computed())', () => {
   });
 
   it('updates the computed value when dependency changes', async () => {
-    const { root, waitForChanges } = await render<HTMLSignalComputedCmpElement>(<signal-computed-cmp />);
+    const { root, waitForChanges } = await render<HTMLSignalComputedCmpElement>(
+      <signal-computed-cmp />,
+    );
 
     await root.setCount(5);
     await waitForChanges();

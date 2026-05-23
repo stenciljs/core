@@ -813,8 +813,7 @@ export interface QueueApi {
 
 /**
  * Minimal interface matched by signal objects (from @stencil/core/signals).
- * Used in JSX attribute types to allow signal-backed values without importing
- * implementation details from @preact/signals-core.
+ * Used in JSX attribute types.
  */
 export interface SignalRef<T = any> {
   readonly value: T;

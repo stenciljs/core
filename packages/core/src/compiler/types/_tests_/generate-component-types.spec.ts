@@ -335,4 +335,74 @@ describe('generateComponentTypes', () => {
       expect(result.jsx.match(/"form"/g)).toHaveLength(1);
     });
   });
+
+  describe('signal map on element interface', () => {
+    it('omits the signal map when signalBacking is false', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [{ ...stubComponentCompilerProperty(), name: 'count', type: 'number' }],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, false);
+      expect(result.element).not.toContain('STENCIL_SIGNALS_SYMBOL');
+    });
+
+    it('adds a typed signal map for @Prop members when signalBacking is true', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [
+          { ...stubComponentCompilerProperty(), name: 'count', type: 'number' },
+          { ...stubComponentCompilerProperty(), name: 'label', type: 'string' },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, true);
+      expect(result.element).toContain('STENCIL_SIGNALS_SYMBOL');
+      expect(result.element).toContain('"count" | "label"');
+      expect(result.element).toContain('ReadonlySignal<unknown>');
+    });
+
+    it('omits the signal map when the component has no @Prop members', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, true);
+      expect(result.element).not.toContain('STENCIL_SIGNALS_SYMBOL');
+    });
+
+    it('excludes internal @Prop members from the signal map in non-internal builds', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [
+          { ...stubComponentCompilerProperty(), name: 'count', type: 'number', internal: false },
+          { ...stubComponentCompilerProperty(), name: '_internal', type: 'string', internal: true },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, true);
+      expect(result.element).toContain('"count"');
+      expect(result.element).not.toContain('"_internal"');
+    });
+
+    it('includes internal @Prop members in the signal map for internal builds', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [
+          { ...stubComponentCompilerProperty(), name: 'count', type: 'number', internal: false },
+          { ...stubComponentCompilerProperty(), name: '_internal', type: 'string', internal: true },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, true, true);
+      expect(result.element).toContain('"count"');
+      expect(result.element).toContain('"_internal"');
+    });
+  });
 });

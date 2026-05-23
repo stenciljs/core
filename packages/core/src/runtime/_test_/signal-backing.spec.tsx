@@ -671,7 +671,11 @@ describe('getSignal', () => {
       }
     }
 
-    const { root, waitForChanges } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const { root, waitForChanges } = await newSpecPage({
+      ...SIG,
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
     const sig = getSignal<number>(root!, 'count');
 
     (root as any).count = 42;
@@ -734,10 +738,16 @@ describe('STENCIL_SIGNALS_SYMBOL', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
       @Prop() count = 0;
-      render() { return <span />; }
+      render() {
+        return <span />;
+      }
     }
 
-    const { root, waitForChanges } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+    const { root, waitForChanges } = await newSpecPage({
+      ...SIG,
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
     const map = (root as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
 
     (root as any).count = 7;

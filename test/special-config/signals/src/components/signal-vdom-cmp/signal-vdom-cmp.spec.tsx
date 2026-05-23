@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-vdom-cmp (vdom bypass)', () => {
   it('renders the initial signal values', async () => {

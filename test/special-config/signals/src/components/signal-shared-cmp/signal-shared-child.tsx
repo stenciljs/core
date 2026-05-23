@@ -1,4 +1,4 @@
-import { Component, h } from '@stencil/core';
+import { Component } from '@stencil/core';
 
 import { sharedCount, sharedLabel } from '../../shared-signals';
 

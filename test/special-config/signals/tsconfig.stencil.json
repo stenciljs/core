@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "rootDir": "./",
-    "types": ["@stencil/vitest/globals"]
+    "types": ["@stencil/vitest/globals", "node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/**/*.spec.ts", "src/**/*.spec.tsx"]

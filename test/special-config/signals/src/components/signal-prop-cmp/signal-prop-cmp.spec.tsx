@@ -1,5 +1,5 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
 import { getSignal, STENCIL_SIGNALS_SYMBOL } from '@stencil/core/signals';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-prop-cmp (@Prop)', () => {
   it('renders default prop values', async () => {
@@ -9,7 +9,9 @@ describe('signal-prop-cmp (@Prop)', () => {
   });
 
   it('renders initial prop values from attributes', async () => {
-    const { root } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label='hello' value={42} />);
+    const { root } = await render<HTMLSignalPropCmpElement>(
+      <signal-prop-cmp label='hello' value={42} />,
+    );
     expect(root.querySelector('.label')).toHaveTextContent('hello');
     expect(root.querySelector('.value')).toHaveTextContent('42');
   });
@@ -34,7 +36,7 @@ describe('signal-prop-cmp (@Prop)', () => {
 describe('signal-prop-cmp — External Signal API', () => {
   describe('getSignal()', () => {
     it('returns a ReadonlySignal for a @Prop member', async () => {
-      const { root } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label="hi" />);
+      const { root } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label='hi' />);
       const sig = getSignal<string>(root, 'label');
       expect(sig).not.toBeNull();
       expect(sig!.value).toBe('hi');
@@ -72,7 +74,9 @@ describe('signal-prop-cmp — External Signal API', () => {
     });
 
     it('works for numeric @Prop', async () => {
-      const { root, waitForChanges } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp value={7} />);
+      const { root, waitForChanges } = await render<HTMLSignalPropCmpElement>(
+        <signal-prop-cmp value={7} />,
+      );
       const sig = getSignal<number>(root, 'value')!;
 
       expect(sig.value).toBe(7);
@@ -84,7 +88,9 @@ describe('signal-prop-cmp — External Signal API', () => {
 
   describe('STENCIL_SIGNALS_SYMBOL', () => {
     it('exposes a Map on the host element with @Prop entries', async () => {
-      const { root } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label="x" value={3} />);
+      const { root } = await render<HTMLSignalPropCmpElement>(
+        <signal-prop-cmp label='x' value={3} />,
+      );
       const map = (root as any)[STENCIL_SIGNALS_SYMBOL] as Map<string, any>;
 
       expect(map).toBeInstanceOf(Map);
@@ -93,7 +99,9 @@ describe('signal-prop-cmp — External Signal API', () => {
     });
 
     it('signal in the map reflects the current prop value', async () => {
-      const { root, waitForChanges } = await render<HTMLSignalPropCmpElement>(<signal-prop-cmp label="init" />);
+      const { root, waitForChanges } = await render<HTMLSignalPropCmpElement>(
+        <signal-prop-cmp label='init' />,
+      );
       const map = root[STENCIL_SIGNALS_SYMBOL];
       const sig = map?.get('label');
 

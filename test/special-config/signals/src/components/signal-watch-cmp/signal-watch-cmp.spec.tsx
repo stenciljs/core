@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-watch-cmp (@Watch)', () => {
   it('does not fire the watcher on initial load', async () => {

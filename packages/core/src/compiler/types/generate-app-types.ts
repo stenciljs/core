@@ -106,11 +106,20 @@ const generateComponentTypesFile = (
        */
       componentEventDetailTypes.push(generateEventDetailTypes(cmp));
     }
-    return generateComponentTypes(cmp, typeImportData, areTypesInternal);
+    return generateComponentTypes(
+      cmp,
+      typeImportData,
+      areTypesInternal,
+      !!config.extras?.signalBacking,
+    );
   });
 
   c.push(COMPONENTS_DTS_HEADER);
   c.push(`import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";`);
+  if (config.extras?.signalBacking) {
+    c.push(`import { STENCIL_SIGNALS_SYMBOL, type ReadonlySignal } from "@stencil/core/signals";`);
+    c.push(`export { STENCIL_SIGNALS_SYMBOL } from "@stencil/core/signals";`);
+  }
 
   // Generate import and export statements for type dependencies
   const imports: string[] = [];
@@ -271,5 +280,12 @@ const generateComponentTypesFile = (
   c.push(`    }`);
   c.push(`}`);
 
-  return c.join(`\n`) + `\n`;
+  // TODO: remove once tsdown gains deps.dts.alwaysBundle to inline @preact/signals-core types.
+  // checker.typeToString() and signatureToString() emit inline import("@preact/signals-core")
+  // paths for types whose canonical declaration lives in that package. Rewrite them here in a
+  // single pass rather than intercepting each individual typeToString() call.
+  const out = c.join(`\n`) + `\n`;
+  return out.includes('@preact/signals-core')
+    ? out.replaceAll('import("@preact/signals-core")', 'import("@stencil/core/signals")')
+    : out;
 };

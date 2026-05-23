@@ -9,6 +9,7 @@ export default defineVitestConfig({
         test: {
           name: 'loader',
           include: ['src/**/*.spec.{ts,tsx}'],
+          exclude: ['src/**/*.node.spec.ts'],
           setupFiles: ['./vitest-setup-loader.ts'],
           browser: {
             enabled: true,
@@ -22,12 +23,23 @@ export default defineVitestConfig({
         test: {
           name: 'standalone',
           include: ['src/**/*.spec.{ts,tsx}'],
+          exclude: ['src/**/*.node.spec.ts'],
           setupFiles: ['./vitest-setup-standalone.ts'],
           browser: {
             enabled: true,
             provider: playwright(),
             headless: true,
             instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+      {
+        test: {
+          name: 'node',
+          include: ['src/**/*.node.spec.ts'],
+          environment: 'node',
+          typecheck: {
+            enabled: true,
           },
         },
       },

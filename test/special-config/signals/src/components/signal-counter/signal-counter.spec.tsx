@@ -1,5 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
-import { getSignal, STENCIL_SIGNALS_SYMBOL } from '@stencil/core/signals';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('signal-counter (@State)', () => {
   it('renders the initial count', async () => {

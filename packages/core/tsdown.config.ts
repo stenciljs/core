@@ -217,6 +217,10 @@ export default defineConfig([
     target: browserTargets,
     dts: true,
     clean: false,
+    deps: {
+      // Bundle @preact/signals-core so consumers need no extra install
+      neverBundle: [/^node:/],
+    },
   },
 
   // Standalone client runtime (app-data/globals externalized for runtime swapping)

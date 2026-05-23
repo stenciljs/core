@@ -359,7 +359,7 @@ interface ConfigExtrasBase {
    * Replace `@State` and `@Prop` internals with `@preact/signals-core` signal primitives.
    * Enables cross-framework reactive interop — component state becomes subscribable by
    * Solid, Angular, Preact and any TC39-signal-compatible library without event/attribute
-   * roundtrips. No API changes required in component code. Also auto-enables `vdomSignals`.
+   * roundtrips. No API changes required in component code.
    * Defaults to `false`.
    */
   signalBacking?: boolean;

@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect } from '@stencil/vitest';
+import { render, describe, it, expect } from '@stencil/vitest';
 
 describe('shared/external signals', () => {
   it('renders the initial shared signal values in both parent and child', async () => {

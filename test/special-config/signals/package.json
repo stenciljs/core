@@ -7,7 +7,8 @@
   "types": "dist/types/loader.d.ts",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil-test",
+    "test": "pnpm run test:runtime && pnpm run test:ssr",
+    "test:runtime": "stencil-test",
     "test:ssr": "playwright test"
   },
   "dependencies": {

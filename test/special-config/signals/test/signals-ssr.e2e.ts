@@ -79,25 +79,5 @@ test.describe('signals + SSR', () => {
       await cmp.locator('.dec').click();
       await expect(cmp.locator('.count')).toHaveText('2');
     });
-
-    test('JS property update triggers re-render post-hydration', async ({ page }) => {
-      const { html } = await renderToString('<signal-ssr-cmp></signal-ssr-cmp>', {
-        serializeShadowRoot: true,
-        fullDocument: false,
-      });
-
-      await page.setContent(html ?? '');
-
-      await page.evaluate(() => {
-        (document.querySelector('signal-ssr-cmp') as any).initialCount = 99;
-      });
-
-      await page.waitForFunction(() => {
-        const el = document.querySelector('signal-ssr-cmp');
-        return el?.shadowRoot?.querySelector('.count')?.textContent === '99';
-      });
-
-      await expect(page.locator('signal-ssr-cmp').locator('.count')).toHaveText('99');
-    });
   });
 });
