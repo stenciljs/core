@@ -132,9 +132,8 @@ export const autoprefixCss = async (
 };
 
 /**
- * Default browserslist targets used when autoprefixing CSS in v5.
- * Targets modern browsers (2022+) - IE11, old Edge, and legacy mobile
- * browsers are excluded since Stencil v5 targets ES2017+ only.
+ * Default browserslist targets used when autoprefixing CSS.
+ * Targets ES2017 browsers (2022+) only.
  */
 const DEFAULT_BROWSER_TARGETS: string[] = [
   'last 2 Chrome versions',
