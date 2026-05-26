@@ -266,7 +266,7 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
 
 const getLazyEntry = (isBrowser: boolean, assetPath?: string, externalRuntime = false): string => {
   const s = new MagicString(``);
-  s.append(`export { setNonce } from '${STENCIL_CORE_ID}';\n`);
+  s.append(`export { setNonce, setRegistry, setTagTransformer } from '${STENCIL_CORE_ID}';\n`);
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
 
   if (isBrowser) {

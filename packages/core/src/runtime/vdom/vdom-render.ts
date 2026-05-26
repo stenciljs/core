@@ -10,10 +10,11 @@ import { BUILD } from 'virtual:app-data';
 import { consoleDevError, getHostRef, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { CMP_FLAGS, HTML_NS, NODE_TYPES, SVG_NS } from '../../utils/constants';
+import { CMP_FLAGS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 import { patchParentNode } from '../dom-extras';
 import { getShadowRoot } from '../element';
+import { getRegistry } from '../registry';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import { effect } from '../signals';
 import {
@@ -137,23 +138,21 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     }
 
     // create element
+    const tag =
+      !useNativeShadowDom && BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotFallback
+        ? 'slot-fb'
+        : (newVNode.$tag$ as string);
+
+    const _reg = getRegistry();
+    const registryOpts =
+      _reg !== win.customElements && tag.includes('-')
+        ? ({ customElementRegistry: _reg } as ElementCreationOptions)
+        : undefined;
+
     elm = newVNode.$elm$ = (
-      BUILD.svg
-        ? win.document.createElementNS(
-            isSvgMode ? SVG_NS : HTML_NS,
-            !useNativeShadowDom &&
-              BUILD.slotRelocation &&
-              newVNode.$flags$ & VNODE_FLAGS.isSlotFallback
-              ? 'slot-fb'
-              : (newVNode.$tag$ as string),
-          )
-        : win.document.createElement(
-            !useNativeShadowDom &&
-              BUILD.slotRelocation &&
-              newVNode.$flags$ & VNODE_FLAGS.isSlotFallback
-              ? 'slot-fb'
-              : (newVNode.$tag$ as string),
-          )
+      BUILD.svg && isSvgMode
+        ? win.document.createElementNS(SVG_NS, tag)
+        : win.document.createElement(tag, registryOpts)
     ) as any;
 
     if (BUILD.svg && isSvgMode && newVNode.$tag$ === 'foreignObject') {

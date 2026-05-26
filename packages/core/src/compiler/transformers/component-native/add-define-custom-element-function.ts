@@ -2,7 +2,7 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { dashToPascalCase } from '../../../utils';
-import { addCoreRuntimeApi, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-apis';
+import { addCoreRuntimeApi, GET_REGISTRY, RUNTIME_APIS, TRANSFORM_TAG } from '../core-runtime-apis';
 import { createImportStatement, getModuleFromSourceFile } from '../transform-utils';
 
 /**
@@ -29,31 +29,15 @@ export const addDefineCustomElementFunctions = (
 
       if (moduleFile.cmps.length) {
         addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
+        addCoreRuntimeApi(moduleFile, RUNTIME_APIS.getRegistry);
 
         const principalComponent = moduleFile.cmps[0];
         tagNames.push(principalComponent.tagName);
 
-        // define the current component - `customElements.define(transformTag(tagName), MyProxiedComponent);`
-        const customElementsDefineCallExpression = ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier('customElements'),
-            'define',
-          ),
-          undefined,
-          [
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier(TRANSFORM_TAG),
-              [],
-              [ts.factory.createIdentifier('tagName')],
-            ),
-            ts.factory.createIdentifier(principalComponent.componentClassName),
-          ],
-        );
-        // create a `case` block that defines the current component. We'll add them to our switch statement later.
         caseStatements.push(
-          createCustomElementsDefineCase(
+          createDefineCase(
             principalComponent.tagName,
-            customElementsDefineCallExpression,
+            createScopedDefineExpression(principalComponent.componentClassName),
           ),
         );
 
@@ -61,15 +45,9 @@ export const addDefineCustomElementFunctions = (
         addDefineCustomElementFunction(tagNames, newStatements, caseStatements);
 
         if (outputTarget.customElementsExportBehavior === 'auto-define-custom-elements') {
-          const conditionalDefineCustomElementCall = createAutoDefinitionExpression(
-            principalComponent.componentClassName,
-          );
-          newStatements.push(conditionalDefineCustomElementCall);
+          newStatements.push(createAutoDefinitionExpression());
         }
 
-        // In dev builds, stamp each component class with its own module URL so the
-        // HMR runtime can re-import the exact file that needs to be replaced.
-        // Emits: MyComponent.__stencil_module__ = import.meta.url;
         if (devMode) {
           newStatements.push(
             ts.factory.createExpressionStatement(
@@ -102,12 +80,42 @@ export const addDefineCustomElementFunctions = (
 };
 
 /**
- * Adds dependent component import statements and sets up and case blocks
- * @param moduleFile current components' module
- * @param components all current components within the stencil buildCtx
- * @param newStatements new top level statement array to add to that will get added to the AST
- * @param caseStatements an array of case statement blocks to add to. Will get added to `defineCustomElement` later
- * @param tagNames array of all related component tag-names to add to
+ * Creates `(ComponentClass._registry = _reg, _reg.define(transformTag(tagName), ComponentClass))`.
+ * The comma expression lets both the _registry stamp and the define call fit inside the single
+ * if-body block that createDefineCase wraps around the action expression.
+ * @param componentClassName the component class identifier name
+ * @returns a TS comma-list expression for the scoped-registry define
+ */
+const createScopedDefineExpression = (componentClassName: string): ts.Expression =>
+  ts.factory.createCommaListExpression([
+    ts.factory.createAssignment(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createIdentifier(componentClassName),
+        '_registry',
+      ),
+      ts.factory.createIdentifier('_reg'),
+    ),
+    ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('_reg'), 'define'),
+      undefined,
+      [
+        ts.factory.createCallExpression(
+          ts.factory.createIdentifier(TRANSFORM_TAG),
+          [],
+          [ts.factory.createIdentifier('tagName')],
+        ),
+        ts.factory.createIdentifier(componentClassName),
+      ],
+    ),
+  ]);
+
+/**
+ * Adds dependent component imports and case blocks for all transitive dependencies.
+ * @param moduleFile current component's module
+ * @param components all components in the build
+ * @param newStatements top-level statement array to append imports to
+ * @param caseStatements switch case array to append dependency cases to
+ * @param tagNames tag name list to append dependency tag names to
  */
 const setupComponentDependencies = (
   moduleFile: d.Module,
@@ -123,62 +131,49 @@ const setupComponentDependencies = (
       const importAs = `$${exportName}DefineCustomElement`;
       tagNames.push(foundDep.tagName);
 
-      // Will add `import { defineCustomElement as $ComponentDefineCustomElement } from 'my-nested-component.tsx';`
       newStatements.push(
         createImportStatement([`defineCustomElement as ${importAs}`], foundDep.sourceFilePath),
       );
 
-      // define a dependent component by recursively calling their own `defineCustomElement()`
+      // Delegate to the dep's own defineCustomElement, threading opts so it resolves the same registry.
       const callExpression = ts.factory.createCallExpression(
         ts.factory.createIdentifier(importAs),
         undefined,
-        [],
+        [ts.factory.createIdentifier('opts')],
       );
-      // `case` blocks that define the dependent components. We'll add them to our switch statement later.
-      caseStatements.push(createCustomElementsDefineCase(foundDep.tagName, callExpression));
+      caseStatements.push(createDefineCase(foundDep.tagName, callExpression));
     });
   });
 };
 
 /**
- * Creates a case block which will be used to define components. e.g.
- * ``` javascript
- * case "my-component":
- *   if (!customElements.get(transformTag(tagName))) {
- *     customElements.define(transformTag(tagName), MyProxiedComponent);
- *     // OR for dependent components
- *     defineCustomElement(tagName);
- *   }
- *   break;
- * } });
-  ```
- * @param tagName the components' tagName saved within stencil.
- * @param actionExpression the actual expression to call to define the customElement
- * @returns ts AST CaseClause
+ * Creates a switch case that guards the action behind a registry.get() check.
+ *
+ * @param tagName the component's original tag name (before transformation)
+ * @param actionExpression the define or delegate call expression
+ * @returns a TS CaseClause for the switch statement
  */
-const createCustomElementsDefineCase = (
-  tagName: string,
-  actionExpression: ts.Expression,
-): ts.CaseClause => {
+const createDefineCase = (tagName: string, actionExpression: ts.Expression): ts.CaseClause => {
+  const registryIdent = ts.factory.createIdentifier('_reg');
+
+  const getCheck = ts.factory.createPrefixUnaryExpression(
+    ts.SyntaxKind.ExclamationToken,
+    ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessExpression(registryIdent, 'get'),
+      undefined,
+      [
+        ts.factory.createCallExpression(
+          ts.factory.createIdentifier(TRANSFORM_TAG),
+          [],
+          [ts.factory.createIdentifier('tagName')],
+        ),
+      ],
+    ),
+  );
+
   return ts.factory.createCaseClause(ts.factory.createStringLiteral(tagName), [
     ts.factory.createIfStatement(
-      ts.factory.createPrefixUnaryExpression(
-        ts.SyntaxKind.ExclamationToken,
-        ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier('customElements'),
-            'get',
-          ),
-          undefined,
-          [
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier(TRANSFORM_TAG),
-              [],
-              [ts.factory.createIdentifier('tagName')],
-            ),
-          ],
-        ),
-      ),
+      getCheck,
       ts.factory.createBlock([ts.factory.createExpressionStatement(actionExpression)]),
     ),
     ts.factory.createBreakStatement(),
@@ -186,118 +181,160 @@ const createCustomElementsDefineCase = (
 };
 
 /**
- * Add the main `defineCustomElement` function e.g.
- * ```javascript
- * function defineCustomElement() {
- *  if (typeof customElements === 'undefined') {
- *    return;
- *  }
- *  const components = ['my-component'];
- *   components.forEach(tagName => {
- *     switch (tagName) {
- *       case "my-component":
- *         if (!customElements.get(transformTag(tagName))) {
- *           customElements.define(transformTag(tagName), MyProxiedComponent);
- *           // OR for dependent components
- *           defineCustomElement(tagName);
- *         }
- *         break;
- *     }
- *   });
+ * Adds the exported `defineCustomElement` function declaration.
+ *
+ * Global path:
+ * ```js
+ * export function defineCustomElement() {
+ *   if (typeof customElements === 'undefined') return;
+ *   ['my-comp', ...].forEach(tagName => { switch (tagName) { ... } });
  * }
- ```
- * @param tagNames all components that will be defined
- * @param newStatements new top level statement array that will get added to the AST
- * @param caseStatements an array of case statement blocks. Will get added to `defineCustomElement` later
+ * ```
+ *
+ * Scoped path:
+ * ```js
+ * export function defineCustomElement(opts) {
+ *   const _storeReg = __stencil_getRegistry();
+ *   const _reg = opts?.registry ?? _storeReg;
+ *   if (typeof _reg === 'undefined') return;
+ *   ['my-comp', ...].forEach(tagName => { switch (tagName) { ... } });
+ * }
+ * ```
+ */
+/**
+ * @param tagNames all tag names (principal + dependencies) to include in the forEach
+ * @param newStatements top-level statement array to append the function declaration to
+ * @param caseStatements switch case clauses to embed in the forEach body
  */
 const addDefineCustomElementFunction = (
   tagNames: string[],
   newStatements: ts.Statement[],
   caseStatements: ts.CaseClause[],
 ) => {
-  const newExpression = ts.factory.createFunctionDeclaration(
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    undefined,
-    ts.factory.createIdentifier('defineCustomElement'),
-    undefined,
-    [],
-    undefined,
-    ts.factory.createBlock(
-      [
-        ts.factory.createIfStatement(
-          ts.factory.createStrictEquality(
-            ts.factory.createTypeOfExpression(ts.factory.createIdentifier('customElements')),
-            ts.factory.createStringLiteral('undefined'),
-          ),
-          ts.factory.createBlock([ts.factory.createReturnStatement()]),
-        ),
-        ts.factory.createVariableStatement(
-          undefined,
-          ts.factory.createVariableDeclarationList(
-            [
-              ts.factory.createVariableDeclaration(
-                'components',
-                undefined,
-                undefined,
-                ts.factory.createArrayLiteralExpression(
-                  tagNames.map((tagName) => ts.factory.createStringLiteral(tagName)),
-                ),
-              ),
-            ],
-            ts.NodeFlags.Const,
-          ),
-        ),
-        ts.factory.createExpressionStatement(
-          ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier('components'),
-              'forEach',
-            ),
+  const forEachStmt = buildForEachStatement(tagNames, caseStatements);
+
+  const bodyStatements: ts.Statement[] = [
+    // const _storeReg = __stencil_getRegistry();
+    ts.factory.createVariableStatement(
+      undefined,
+      ts.factory.createVariableDeclarationList(
+        [
+          ts.factory.createVariableDeclaration(
+            '_storeReg',
             undefined,
-            [
-              ts.factory.createArrowFunction(
-                undefined,
-                undefined,
-                [
-                  ts.factory.createParameterDeclaration(
-                    undefined,
-                    undefined,
-                    ts.factory.createIdentifier('tagName'),
-                    undefined,
-                    undefined,
-                  ),
-                ],
-                undefined,
-                ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-                ts.factory.createBlock([
-                  ts.factory.createSwitchStatement(
-                    ts.factory.createIdentifier('tagName'),
-                    ts.factory.createCaseBlock(caseStatements),
-                  ),
-                ]),
-              ),
-            ],
+            undefined,
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(GET_REGISTRY),
+              undefined,
+              [],
+            ),
           ),
-        ),
-      ],
-      true,
+        ],
+        ts.NodeFlags.Const,
+      ),
+    ),
+    // const _reg = opts?.registry ?? _storeReg;
+    ts.factory.createVariableStatement(
+      undefined,
+      ts.factory.createVariableDeclarationList(
+        [
+          ts.factory.createVariableDeclaration(
+            '_reg',
+            undefined,
+            undefined,
+            ts.factory.createBinaryExpression(
+              ts.factory.createPropertyAccessChain(
+                ts.factory.createIdentifier('opts'),
+                ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+                ts.factory.createIdentifier('registry'),
+              ),
+              ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+              ts.factory.createIdentifier('_storeReg'),
+            ),
+          ),
+        ],
+        ts.NodeFlags.Const,
+      ),
+    ),
+    // if (typeof _reg === 'undefined') return;
+    ts.factory.createIfStatement(
+      ts.factory.createStrictEquality(
+        ts.factory.createTypeOfExpression(ts.factory.createIdentifier('_reg')),
+        ts.factory.createStringLiteral('undefined'),
+      ),
+      ts.factory.createBlock([ts.factory.createReturnStatement()]),
+    ),
+    forEachStmt,
+  ];
+
+  const params = [
+    ts.factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      'opts',
+      ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+    ),
+  ];
+
+  newStatements.push(
+    ts.factory.createFunctionDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      undefined,
+      ts.factory.createIdentifier('defineCustomElement'),
+      undefined,
+      params,
+      undefined,
+      ts.factory.createBlock(bodyStatements, true),
     ),
   );
-  newStatements.push(newExpression);
 };
 
 /**
- * Create a call to `defineCustomElement` for the principle web component.
- * ```typescript
- * defineCustomElement(MyPrincipalComponent);
- * ```
- * @param componentName the component's class name to use as the first argument to `defineCustomElement`
- * @returns the expression statement described above
+ * Builds `['tag1', 'tag2'].forEach(tagName => { switch (tagName) { ... } })`.
+ * Inlining the array literal avoids a separate `const components` statement.
+ * @param tagNames tag names to iterate over
+ * @param caseStatements switch cases to embed in the arrow function body
+ * @returns a TS expression statement for the forEach call
  */
-function createAutoDefinitionExpression(componentName: string): ts.ExpressionStatement {
+const buildForEachStatement = (tagNames: string[], caseStatements: ts.CaseClause[]): ts.Statement =>
+  ts.factory.createExpressionStatement(
+    ts.factory.createCallExpression(
+      ts.factory.createPropertyAccessExpression(
+        ts.factory.createArrayLiteralExpression(
+          tagNames.map((t) => ts.factory.createStringLiteral(t)),
+        ),
+        'forEach',
+      ),
+      undefined,
+      [
+        ts.factory.createArrowFunction(
+          undefined,
+          undefined,
+          [ts.factory.createParameterDeclaration(undefined, undefined, 'tagName')],
+          undefined,
+          ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+          ts.factory.createBlock([
+            ts.factory.createSwitchStatement(
+              ts.factory.createIdentifier('tagName'),
+              ts.factory.createCaseBlock(caseStatements),
+            ),
+          ]),
+        ),
+      ],
+    ),
+  );
+
+/**
+ * Creates `defineCustomElement(MyPrincipalComponent)` for auto-define-custom-elements behavior.
+ * @param componentName the component class identifier name
+ * @returns the expression statement calling defineCustomElement
+ */
+function createAutoDefinitionExpression(): ts.ExpressionStatement {
   return ts.factory.createExpressionStatement(
-    ts.factory.createCallExpression(ts.factory.createIdentifier('defineCustomElement'), undefined, [
-      ts.factory.createIdentifier(componentName),
-    ]),
+    ts.factory.createCallExpression(
+      ts.factory.createIdentifier('defineCustomElement'),
+      undefined,
+      [],
+    ),
   );
 }

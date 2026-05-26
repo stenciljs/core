@@ -2236,6 +2236,8 @@ export interface JSXAttributes<T = Element> {
 export interface CustomElementsDefineOptions {
   exclude?: string[];
   syncQueue?: boolean;
+  /** Scoped custom element registry to define components in. Defaults to the global registry. */
+  registry?: CustomElementRegistry;
   jmp?: (c: Function) => any;
   raf?: (c: FrameRequestCallback) => number;
   ael?: (

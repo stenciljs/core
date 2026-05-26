@@ -20,6 +20,9 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
   const isClosed = BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
   const opts: ShadowRootInit = { mode: isClosed ? 'closed' : 'open' };
 
+  const reg: CustomElementRegistry | undefined = (this.constructor as any)._registry;
+  if (reg) opts.customElementRegistry = reg;
+
   if (BUILD.shadowDelegatesFocus) {
     opts.delegatesFocus = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus);
   }

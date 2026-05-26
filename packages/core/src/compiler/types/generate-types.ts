@@ -115,6 +115,24 @@ export declare function defineCustomElements(win?: Window, opts?: CustomElements
  * will result in the same behavior.
  */
 export declare function setNonce(nonce: string): void;
+
+/**
+ * Pre-configure the scoped CustomElementRegistry used by the lazy loader.
+ * Call this before the bundle executes (i.e. before defineCustomElements()).
+ * After all components are defined the loader calls registry.initialize(root ?? document)
+ * so that existing light-DOM elements in the subtree are upgraded.
+ */
+export declare function setRegistry(registry: CustomElementRegistry, root?: Node): void;
+
+/** A function that transforms a custom-element tag name before it is registered or looked up. */
+export type TagTransformer = (tag: string) => string;
+
+/**
+ * Install a tag-name transformer. Every component tag name is passed through
+ * this function before being registered with the registry or matched in the DOM.
+ * Useful for namespacing (e.g. \`my-button\` → \`acme-button\`) in multi-library pages.
+ */
+export declare function setTagTransformer(transformer: TagTransformer): void;
 `;
 
   const loaderDtsPath = join(typesDir, 'loader.d.ts');
@@ -140,6 +158,24 @@ const generateStandaloneApiTypes = async (
  * will result in the same behavior.
  */
 export declare const setNonce: (nonce: string) => void;
+
+/**
+ * Pre-configure the scoped CustomElementRegistry before the standalone bundle runs.
+ * Call this before any component modules are imported. Components subsequently defined
+ * via defineCustomElement() will use this registry (and call registry.initialize(root)
+ * to upgrade existing light-DOM elements when root is provided).
+ */
+export declare const setRegistry: (registry: CustomElementRegistry, root?: Node) => void;
+
+/** A function that transforms a custom-element tag name before it is registered or looked up. */
+export type TagTransformer = (tag: string) => string;
+
+/**
+ * Install a tag-name transformer. Every component tag name is passed through
+ * this function before being registered with the registry or matched in the DOM.
+ * Useful for namespacing (e.g. \`my-button\` → \`acme-button\`) in multi-library pages.
+ */
+export declare const setTagTransformer: (transformer: TagTransformer) => void;
 
 export interface SetPlatformOptions {
   raf?: (c: FrameRequestCallback) => number;

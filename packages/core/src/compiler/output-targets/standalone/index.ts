@@ -359,7 +359,7 @@ export const generateEntryPoint = (
 
   // Exports that are always present
   exports.push(
-    `export { setNonce, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+    `export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 
