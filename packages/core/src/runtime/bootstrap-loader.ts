@@ -28,6 +28,8 @@ import { appDidLoad } from './update-component';
 import { addHostEventListeners } from '.';
 import type * as d from '../declarations';
 export { setNonce } from 'virtual:platform';
+export { setRegistry } from './registry';
+import { getRegistry } from './registry';
 
 export const bootstrapLazy = (
   lazyBundles: d.LazyBundlesRuntimeData,
@@ -46,7 +48,7 @@ export const bootstrapLazy = (
   const endBootstrap = createTime('bootstrapLazy');
   const cmpTags: string[] = [];
   const exclude = options.exclude || [];
-  const customElements = win.customElements;
+  const _reg: CustomElementRegistry = options.registry ?? getRegistry();
   const head = win.document.head;
   const metaCharset = /*@__PURE__*/ head.querySelector('meta[charset]');
   const dataStyles = /*@__PURE__*/ win.document.createElement('style');
@@ -252,12 +254,15 @@ export const bootstrapLazy = (
 
       cmpMeta.$lazyBundleId$ = lazyBundle[0];
 
-      if (!exclude.includes(tagName) && !customElements.get(tagName)) {
+      if (!exclude.includes(tagName) && !_reg.get(tagName)) {
         cmpTags.push(tagName);
-        customElements.define(
-          tagName,
-          proxyComponent(HostElement as any, cmpMeta, PROXY_FLAGS.isElementConstructor) as any,
-        );
+        const proxied = proxyComponent(
+          HostElement as any,
+          cmpMeta,
+          PROXY_FLAGS.isElementConstructor,
+        ) as any;
+        proxied._registry = _reg;
+        _reg.define(tagName, proxied);
       }
     });
   });

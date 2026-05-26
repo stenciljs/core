@@ -38,7 +38,9 @@ describe('outputLazy', () => {
       await outputLazy(config, compilerCtx, buildCtx);
 
       const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
-      expect(entry).toContain(`export { setNonce } from '${STENCIL_CORE_ID}';`);
+      expect(entry).toContain(
+        `export { setNonce, setRegistry, setTagTransformer } from '${STENCIL_CORE_ID}';`,
+      );
       expect(entry).toContain('export const defineCustomElements');
     });
 

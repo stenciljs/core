@@ -39,7 +39,7 @@ export const generateLoaderModule = (
     : '';
 
   return /* js */ `
-import { transformTag } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+import { transformTag, getRegistry } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 ${assetPathImport}${assetPathInit}
 
 /**
@@ -58,6 +58,13 @@ const lookup = Object.fromEntries(tags.map(t => [transformTag(t), t]));
  * Prevents duplicate loading attempts.
  */
 const defined = new Set();
+
+/**
+ * The registry to define components in. Captured once at start() time from
+ * getRegistry() so all components in this library share the same registry
+ * regardless of subsequent setRegistry() calls by other libraries.
+ */
+let reg = customElements;
 
 /**
  * MutationObserver instance for watching DOM changes.
@@ -125,7 +132,7 @@ async function load(root) {
         // upgraded (constructor + connectedCallback have run synchronously),
         // at which point __s_ghr and $onReadyPromise$ are set.
         ancestor['s-p'].push(
-          customElements.whenDefined(tag).then(() => el['s-rp'])
+          reg.whenDefined(tag).then(() => el['s-rp'])
         );
         break;
       }
@@ -144,7 +151,7 @@ async function load(root) {
  */
 async function register(transformedTag) {
   // Skip if already defined or being defined
-  if (defined.has(transformedTag) || customElements.get(transformedTag)) {
+  if (defined.has(transformedTag) || reg.get(transformedTag)) {
     defined.add(transformedTag);
     return;
   }
@@ -160,7 +167,7 @@ ${switchCases}
       default: return;
     }
     // Call defineCustomElement if exported (handles component + dependencies)
-    if (typeof module.defineCustomElement === 'function') module.defineCustomElement();
+    if (typeof module.defineCustomElement === 'function') module.defineCustomElement({ registry: reg });
   } catch (e) {
     console.error(\`[Stencil Loader] Failed to load <\${transformedTag}>\`, e);
     // Remove from defined set to allow retry
@@ -170,12 +177,18 @@ ${switchCases}
 
 /**
  * Start the auto-loader, scanning the DOM and watching for changes.
+ * Captures the active registry (set via setRegistry()) at start time so all
+ * components in this library are defined in the same registry.
  * @param root - The root element to observe (default: document.body)
  */
 export function start(root = document.body) {
+  // Capture registry once so all lazy loads in this session use the same one
+  reg = getRegistry();
+
   // Disconnect any existing observer
   if (observer) {
     observer.disconnect();
+    defined.clear();
   }
 
   // Create MutationObserver to watch for new elements

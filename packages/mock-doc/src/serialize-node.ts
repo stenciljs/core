@@ -180,7 +180,9 @@ function* streamToHtml(
         if (
           tag === 'template' &&
           isShadowRoot &&
-          (attrName === 'shadowrootmode' || attrName === 'shadowrootdelegatesfocus')
+          (attrName === 'shadowrootmode' ||
+            attrName === 'shadowrootdelegatesfocus' ||
+            attrName === 'shadowrootcustomelementregistry')
         ) {
           continue;
         }
@@ -641,6 +643,7 @@ const BOOLEAN_ATTR = new Set([
   'reversed',
   'selected',
   'shadowrootclonable',
+  'shadowrootcustomelementregistry',
   'shadowrootdelegatesfocus',
   'shadowrootserializable',
 ]);

@@ -3,13 +3,13 @@ packages:
   - 'test/**/*'
 
 catalog:
-  '@playwright/test': ^1.52.0
+  '@playwright/test': ^1.60.0
   '@stencil/playwright': '~0.4.3'
-  '@stencil/vitest': '^1.11.6'
-  '@vitest/browser': ^4.1.1
-  '@vitest/browser-playwright': ^4.1.2
+  '@stencil/vitest': '^1.12.1'
+  '@vitest/browser': ^4.1.7
+  '@vitest/browser-playwright': ^4.1.7
   playwright: ^1.58.0
   tsdown: '>=0.21.0 <1.0.0'
   typescript: '>4.0.0 <7.0.0'
-  vitest: ^4.1.1
-  'vitest-environment-stencil': '^1.11.6'
+  vitest: ^4.1.7
+  'vitest-environment-stencil': '^1.12.1'

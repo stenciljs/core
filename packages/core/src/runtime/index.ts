@@ -11,6 +11,7 @@ export { addHostEventListeners } from './host-listener';
 export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';
+export { setRegistry, getRegistry } from './registry';
 export { normalizeWatchers } from './normalize-watchers';
 export { parsePropertyValue } from './parse-property-value';
 export { setPlatformOptions } from './platform-options';

@@ -10,6 +10,7 @@ export const REGISTER_INSTANCE = '__stencil_registerInstance';
 const REGISTER_HOST = '__stencil_registerHost';
 export const H = '__stencil_h';
 export const TRANSFORM_TAG = '__stencil_transformTag';
+export const GET_REGISTRY = '__stencil_getRegistry';
 
 export const RUNTIME_APIS = {
   createEvent: `createEvent as ${CREATE_EVENT}`,
@@ -23,6 +24,7 @@ export const RUNTIME_APIS = {
   registerHost: `registerHost as ${REGISTER_HOST}`,
   registerInstance: `registerInstance as ${REGISTER_INSTANCE}`,
   transformTag: `transformTag as ${TRANSFORM_TAG}`,
+  getRegistry: `getRegistry as ${GET_REGISTRY}`,
 };
 
 /**
