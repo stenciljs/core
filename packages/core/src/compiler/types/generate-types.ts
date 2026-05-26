@@ -119,8 +119,6 @@ export declare function setNonce(nonce: string): void;
 /**
  * Pre-configure the scoped CustomElementRegistry used by the lazy loader.
  * Call this before the bundle executes (i.e. before defineCustomElements()).
- * After all components are defined the loader calls registry.initialize(root ?? document)
- * so that existing light-DOM elements in the subtree are upgraded.
  */
 export declare function setRegistry(registry: CustomElementRegistry, root?: Node): void;
 
@@ -162,8 +160,7 @@ export declare const setNonce: (nonce: string) => void;
 /**
  * Pre-configure the scoped CustomElementRegistry before the standalone bundle runs.
  * Call this before any component modules are imported. Components subsequently defined
- * via defineCustomElement() will use this registry (and call registry.initialize(root)
- * to upgrade existing light-DOM elements when root is provided).
+ * via defineCustomElement() will use this registry.
  */
 export declare const setRegistry: (registry: CustomElementRegistry, root?: Node) => void;
 

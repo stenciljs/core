@@ -41,7 +41,7 @@ export default defineVitestConfig({
           },
         },
       },
-      // Scoped Custom Element Registry tests — lazy loader with pre-set scoped registry
+      // Scoped Custom Element Registry tests - lazy loader
       {
         test: {
           name: 'scer-lazy',
@@ -55,7 +55,7 @@ export default defineVitestConfig({
           },
         },
       },
-      // Scoped Custom Element Registry tests — standalone defineCustomElement per-test
+      // Scoped Custom Element Registry tests - standalone
       {
         test: {
           name: 'scer-standalone',
