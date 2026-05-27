@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
-import type { OutputTargetWww } from '@stencil/core';
 
 import { mockCompilerSystem, mockLogger, mockValidatedConfig } from '../../../testing';
 import { validateServiceWorker } from '../validate-service-worker';
@@ -24,35 +23,14 @@ describe('validateServiceWorker', () => {
     });
   });
 
-  /**
-   * A little util to work around a typescript annoyance. Because
-   * `outputTarget.serviceWorker` is typed as
-   * `serviceWorker?: ServiceWorkerConfig | null` we get type errors
-   * all over if we try to just access it directly. So instead, do a little
-   * check to see if it's falsy. If not, we return it, and if it is we fail the test.
-   *
-   * @param target the output target from which we want to pull the serviceWorker
-   * @returns a serviceWorker object or `void`, with a `void` return being
-   * accompanied by a manually-triggered test failure.
-   */
-  function getServiceWorker(target: OutputTargetWww) {
-    if (target.serviceWorker) {
-      return target.serviceWorker;
-    } else {
-      throw new Error(
-        'the serviceWorker on the provided target was unexpectedly falsy, so this test needs to fail!',
-      );
-    }
-  }
-
   it('should add host.config.json to globIgnores', () => {
     outputTarget = {
       type: 'www',
       appDir: '/User/me/app/www/',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globIgnores).toContain('**/host.config.json');
+    expect(outputTarget.serviceWorker!.globIgnores).toContain('**/host.config.json');
   });
 
   it('should set globIgnores from string', () => {
@@ -64,7 +42,7 @@ describe('validateServiceWorker', () => {
       },
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globIgnores).toContain('**/some-file.js');
+    expect(outputTarget.serviceWorker!.globIgnores).toContain('**/some-file.js');
   });
 
   it('should set globDirectory', () => {
@@ -76,17 +54,17 @@ describe('validateServiceWorker', () => {
       },
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globDirectory).toBe('/custom/www');
+    expect(outputTarget.serviceWorker!.globDirectory).toBe('/custom/www');
   });
 
   it('should set default globDirectory', () => {
     outputTarget = {
       type: 'www',
       appDir: '/User/me/app/www/',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globDirectory).toBe('/User/me/app/www/');
+    expect(outputTarget.serviceWorker!.globDirectory).toBe('/User/me/app/www/');
   });
 
   it('should set globPatterns array', () => {
@@ -98,7 +76,7 @@ describe('validateServiceWorker', () => {
       },
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globPatterns).toEqual(['**/*.{png,svg}']);
+    expect(outputTarget.serviceWorker!.globPatterns).toEqual(['**/*.{png,svg}']);
   });
 
   it('should set globPatterns string', () => {
@@ -110,17 +88,17 @@ describe('validateServiceWorker', () => {
       },
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globPatterns).toEqual(['**/*.{png,svg}']);
+    expect(outputTarget.serviceWorker!.globPatterns).toEqual(['**/*.{png,svg}']);
   });
 
   it('should create default globPatterns', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     validateServiceWorker(config, outputTarget);
-    expect(getServiceWorker(outputTarget).globPatterns).toEqual(['*.html', '**/*.{js,css,json}']);
+    expect(outputTarget.serviceWorker!.globPatterns).toEqual(['*.html', '**/*.{js,css,json}']);
   });
 
   it('should default to null when serviceWorker is not set', () => {
@@ -136,7 +114,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     validateServiceWorker(config, outputTarget);
     expect(outputTarget.serviceWorker).not.toBe(null);
@@ -156,7 +134,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     config.devMode = true;
     validateServiceWorker(config, outputTarget);
@@ -167,7 +145,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: {},
+      serviceWorker: true,
     };
     config.devMode = true;
     config.generateServiceWorker = true;

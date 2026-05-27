@@ -7,9 +7,9 @@ export const updateIndexHtmlServiceWorker = async (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   doc: Document,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
 ) => {
-  const serviceWorker = outputTarget.serviceWorker;
+  const serviceWorker = outputTarget.serviceWorker ?? null;
 
   if ((serviceWorker && serviceWorker.unregister) || (!serviceWorker && config.devMode)) {
     injectUnregisterServiceWorker(doc);
@@ -20,7 +20,7 @@ export const updateIndexHtmlServiceWorker = async (
 
 const injectRegisterServiceWorker = async (
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   doc: Document,
 ) => {
   const swUrl = generateServiceWorkerUrl(

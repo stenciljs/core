@@ -23,14 +23,19 @@ import { isString, join } from '../../utils';
  * configuration we want to validate. **Note**: the `.serviceWorker` object
  * _will be mutated_ if it is present.
  */
-export const validateServiceWorker = (
+export function validateServiceWorker(
   config: d.ValidatedConfig,
   outputTarget: d.OutputTargetWww,
-): void => {
+): asserts outputTarget is d.ValidatedOutputTargetWww {
   // null/undefined means opt-out - no SW generated
   if (!outputTarget.serviceWorker) {
     outputTarget.serviceWorker = null;
     return;
+  }
+
+  // true means opt-in with all defaults
+  if (outputTarget.serviceWorker === true) {
+    outputTarget.serviceWorker = {};
   }
 
   if (config.devMode && !config.generateServiceWorker) {
@@ -82,7 +87,7 @@ export const validateServiceWorker = (
       outputTarget.serviceWorker.swDest,
     );
   }
-};
+}
 
 /**
  * Add file glob patterns to the `globIgnores` for files we don't want to cache
