@@ -17,6 +17,7 @@ describe('generateServiceWorkerUrl', () => {
         {
           type: 'www',
           baseUrl: '/docs',
+          serviceWorker: {},
         } as d.OutputTargetWww,
       ],
     });
@@ -30,7 +31,10 @@ describe('generateServiceWorkerUrl', () => {
   });
 
   it('default sw url', () => {
-    userConfig = mockConfig({ devMode: false });
+    userConfig = mockConfig({
+      devMode: false,
+      outputTargets: [{ type: 'www', serviceWorker: {} }],
+    });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     const swUrl = generateServiceWorkerUrl(
