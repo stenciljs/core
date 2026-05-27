@@ -5,7 +5,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'www',
-      serviceWorker: null,
       bundleMode: 'standalone',
     },
   ],

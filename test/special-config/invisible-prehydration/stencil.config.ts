@@ -10,7 +10,6 @@ export const config: Config = {
     {
       type: 'www',
       empty: false,
-      serviceWorker: null,
       dir: 'www',
     },
   ],
