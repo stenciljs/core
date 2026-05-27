@@ -36,6 +36,25 @@ describe('SCER', () => {
     expect(root.classList.contains('hydrated')).toBe(true);
   });
 
+  it('renders a parent component with a nested child component via scoped registry', async () => {
+    const { root } = await render(`<shadow-dom-basic-root />`, { registry: scerRegistry });
+
+    // both parent and child should be defined only in the scoped registry
+    expect(scerRegistry.get('shadow-dom-basic-root')).toBeDefined();
+    expect(scerRegistry.get('shadow-dom-basic')).toBeDefined();
+    expect(customElements.get('shadow-dom-basic-root')).toBeUndefined();
+    expect(customElements.get('shadow-dom-basic')).toBeUndefined();
+
+    // parent renders and is hydrated
+    expect(root.tagName.toLowerCase()).toBe('shadow-dom-basic-root');
+    expect(root.classList.contains('hydrated')).toBe(true);
+
+    // child inside the parent's shadow root also renders and is hydrated
+    const child = root.shadowRoot?.querySelector('shadow-dom-basic');
+    expect(child).not.toBeNull();
+    expect((child as Element).classList.contains('hydrated')).toBe(true);
+  });
+
   it('elements appended to the initialized subtree upgrade from scoped registry', async () => {
     const el = document.createElement('element-cmp', {
       customElementRegistry: scerRegistry,
