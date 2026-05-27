@@ -131,8 +131,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`@import "stencil-hydrate"` virtual placeholder**  add to any `global-style` input to inject static FOUC-prevention CSS at build time instead of relying on the dynamic `<style>` tag inserted by the loader. The compiler replaces the placeholder with the sorted component selectors + configured hydration CSS (e.g. `my-cmp,other-cmp{visibility:hidden}.hydrated{visibility:inherit}`). When detected, `BUILD.staticHydrationStyles = true` suppresses the loader's dynamic injection. For `standalone` builds (which have no loader), `stencil-hydrate.css` is auto-generated alongside the bundle.
 - **`loader-bundle` now supports `externalRuntime`**  set `externalRuntime: true` on the `loader-bundle` output target to mark `@stencil/core` as an external dependency in the ESM/CJS distribution output. Only affects the bundler variant; the browser/CDN build always includes the runtime. Useful when consumers already depend on `@stencil/core` and want to avoid bundling a second copy.
 
-- **Scoped Custom Element Registries** — always available, no config flag required. Pass a `CustomElementRegistry` instance and Stencil defines all components in it instead of `window.customElements`. What you do with that registry (attaching it to shadow roots, scoped DOM subtrees, etc.) is up to you.
-  - **Standalone per-component**: `defineCustomElement({ registry })` — stamps `._registry` on the class and registers in the scoped registry.
+- **Scoped Custom Element Registries** - always available, no config flag required. Pass a `CustomElementRegistry` instance and Stencil defines all components in it instead of `window.customElements`. What you do with that registry (attaching it to shadow roots, scoped DOM subtrees, etc.) is up to you.
+  - **Standalone per-component**: `defineCustomElement({ registry })` - stamps `._registry` on the class and registers in the scoped registry.
   - **Standalone auto-loader / lazy loader**: pre-configure with `setRegistry(registry)` before the bundle loads. All components will be defined in the provided registry.
   - **Shadow components**: `attachShadow({ customElementRegistry: registry })` is set automatically so nested components inside a shadow root resolve from the same registry.
 
@@ -143,8 +143,8 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   setRegistry(registry);
   await defineCustomElements();
   ```
-- **`setTagTransformer` auto-exported** — now auto-injected into generated library entry points (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`.
-- **Signals** — opt-in signal-backed reactivity via `extras.signalBacking: true`. Zero API changes for component authors; `@State` and `@Prop` are backed by `@preact/signals-core` signals internally. New `@stencil/core/signals` subpath exports `signal`, `computed`, `effect`, `batch`, `untracked`, `@Effect()`, `getSignal<T>()`, and `STENCIL_SIGNALS_SYMBOL` for cross-framework interop. Signal values are valid JSX children and attributes — DOM updates bypass the vdom diff entirely. `@Prop`-only signals are exposed on the host element via `Symbol.for('stencil.signals')` for framework adapters without requiring a `@stencil/core` import.
+- **`setTagTransformer` auto-exported** - now auto-injected into generated library entry points (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`.
+- **Signals** - opt-in signal-backed reactivity via `extras.signalBacking: true`. Zero API changes for component authors; `@State` and `@Prop` are backed by `@preact/signals-core` signals internally. New `@stencil/core/signals` subpath exports `signal`, `computed`, `effect`, `batch`, `untracked`, `@Effect()`, `getSignal<T>()`, and `STENCIL_SIGNALS_SYMBOL` for cross-framework interop. Signal values are valid JSX children and attributes - DOM updates bypass the vdom diff entirely. `@Prop`-only signals are exposed on the host element via `Symbol.for('stencil.signals')` for framework adapters without requiring a `@stencil/core` import.
 
 ---
 
@@ -234,7 +234,7 @@ pnpm run dev       # Watch mode
 
 ---
 
-## ⚡ Signals — "make default" consideration
+## ⚡ Signals - "make default" consideration
 - [ ] Evaluate adoption/feedback
 - [ ] If stable and popular: flip `signalBacking` default to `true`, deprecate old Map path, remove in next major
 

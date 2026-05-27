@@ -12,7 +12,7 @@ export const serviceWorkerDefaultRule: MigrationRule = {
   id: 'service-worker-default',
   name: 'Service Worker Default Cleanup',
   description:
-    "Remove redundant 'serviceWorker: null' / 'serviceWorker: false' from www output targets — null is now the default",
+    "Remove redundant 'serviceWorker: null' / 'serviceWorker: false' from www output targets - null is now the default",
   fromVersion: '4.x',
   toVersion: '5.x',
 
@@ -77,7 +77,7 @@ export const serviceWorkerDefaultRule: MigrationRule = {
       if (trailingComma) {
         removeEnd = end + trailingComma[0].length;
       } else {
-        // Last property — also consume the preceding comma to avoid `{ type: 'www', }`
+        // Last property - also consume the preceding comma to avoid `{ type: 'www', }`
         const leadingComma = text.slice(0, start).match(/,\s*$/);
         if (leadingComma) {
           start -= leadingComma[0].length;
