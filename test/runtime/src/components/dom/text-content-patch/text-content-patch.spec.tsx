@@ -14,7 +14,7 @@ describe('textContent patch', () => {
       expect(root.textContent).toContain('Suffix content');
     });
 
-    it('should have default behaviour when there is no default slot', async () => {
+    it('should have default behavior when there is no default slot', async () => {
       const { root } = await render(<text-content-patch-scoped />);
 
       expect(root.textContent).toContain('Top content');

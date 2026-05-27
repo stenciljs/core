@@ -27,7 +27,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'www',
-      serviceWorker: null,
       copy: [{ src: '**/*.html' }, { src: '**/*.css' }],
       hashFileNames: false,
     },

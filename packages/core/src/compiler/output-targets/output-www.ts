@@ -36,7 +36,9 @@ export const outputWww = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  const outputTargets = config.outputTargets.filter(isOutputTargetWww);
+  const outputTargets = config.outputTargets.filter(
+    isOutputTargetWww,
+  ) as d.ValidatedOutputTargetWww[];
   if (outputTargets.length === 0) {
     return;
   }
@@ -90,7 +92,7 @@ const generateWww = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   criticalPath: string[],
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
 ): Promise<void> => {
   const skipHtml = compilerCtx.hasSuccessfulBuild && !buildCtx.hasHtmlChanges;
 
@@ -197,7 +199,7 @@ const processHtmlDoc = async (
   buildCtx: d.BuildCtx,
   doc: Document,
   destPath: string,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   globalStylesMap: Map<string, string>,
   criticalPath?: string[],
 ) => {
@@ -233,7 +235,7 @@ const generateIndexHtml = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   criticalPath: string[],
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   globalStylesMap: Map<string, string>,
 ) => {
   try {
@@ -278,7 +280,7 @@ const generateHtmlFile = async (
   buildCtx: d.BuildCtx,
   doc: Document,
   destPath: string,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   globalStylesMap: Map<string, string>,
 ) => {
   try {

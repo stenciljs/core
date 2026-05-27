@@ -7,22 +7,20 @@ export const updateIndexHtmlServiceWorker = async (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   doc: Document,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
 ) => {
-  const serviceWorker = outputTarget.serviceWorker;
+  const serviceWorker = outputTarget.serviceWorker ?? null;
 
-  if (serviceWorker !== false) {
-    if ((serviceWorker && serviceWorker.unregister) || (!serviceWorker && config.devMode)) {
-      injectUnregisterServiceWorker(doc);
-    } else if (serviceWorker) {
-      await injectRegisterServiceWorker(buildCtx, outputTarget, doc);
-    }
+  if ((serviceWorker && serviceWorker.unregister) || (!serviceWorker && config.devMode)) {
+    injectUnregisterServiceWorker(doc);
+  } else if (serviceWorker) {
+    await injectRegisterServiceWorker(buildCtx, outputTarget, doc);
   }
 };
 
 const injectRegisterServiceWorker = async (
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   doc: Document,
 ) => {
   const swUrl = generateServiceWorkerUrl(

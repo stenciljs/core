@@ -10,6 +10,7 @@ import { hashFileNamesRule } from './rules/hash-file-names';
 import { lightDomPatchesRule } from './rules/light-dom-patches';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
 import { rolldownConfigRule } from './rules/rolldown-config';
+import { serviceWorkerDefaultRule } from './rules/service-worker-default';
 
 /**
  * Build a map of local import names to their original names from @stencil/core.
@@ -124,6 +125,7 @@ const migrationRules: MigrationRule[] = [
   externalRuntimeRule,
   hashFileNamesRule,
   rolldownConfigRule,
+  serviceWorkerDefaultRule,
 ];
 
 /**

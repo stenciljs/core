@@ -12,7 +12,6 @@ export const config: Config = {
       type: 'www',
       dir: 'www',
       baseUrl: 'https://stenciljs.com/prerender',
-      serviceWorker: null,
       empty: false,
       prerenderConfig: './prerender.config.js',
     },

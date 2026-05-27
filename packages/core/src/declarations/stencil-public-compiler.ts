@@ -2549,12 +2549,12 @@ export interface OutputTargetWww extends OutputTargetBase {
   prerenderConfig?: string;
 
   /**
-   * Service worker config for production builds. During development builds
-   * service worker script will be injected to automatically deregister existing
-   * service workers. When set to `false` neither a service worker registration
-   * or deregistration will be added to the index.html.
+   * Service worker config for production builds. In development mode, a script
+   * to deregister existing service workers is always injected. Defaults to
+   * `null` (disabled). Set to `true` to enable with default settings, or provide
+   * a config object for custom settings.
    */
-  serviceWorker?: ServiceWorkerConfig | null | false;
+  serviceWorker?: ServiceWorkerConfig | true | null;
   appDir?: string;
 
   /**
@@ -2596,6 +2596,14 @@ export type OutputTarget =
   // Other output targets
   | OutputTargetWww
   | OutputTargetStats;
+
+/**
+ * A post-validation form of {@link OutputTargetWww} where `serviceWorker`
+ * has been normalized — `true` is resolved to a {@link ServiceWorkerConfig}.
+ */
+export type ValidatedOutputTargetWww = Omit<OutputTargetWww, 'serviceWorker'> & {
+  serviceWorker?: ServiceWorkerConfig | null;
+};
 
 /**
  * Our custom configuration interface for generated caching Service Workers

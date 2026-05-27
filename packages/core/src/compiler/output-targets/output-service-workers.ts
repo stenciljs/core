@@ -12,9 +12,9 @@ export const outputServiceWorkers = async (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  const wwwServiceOutputs = config.outputTargets
-    .filter(isOutputTargetWww)
-    .filter((o) => typeof o.indexHtml === 'string' && !!o.serviceWorker);
+  const wwwServiceOutputs = (
+    config.outputTargets.filter(isOutputTargetWww) as d.ValidatedOutputTargetWww[]
+  ).filter((o) => typeof o.indexHtml === 'string' && !!o.serviceWorker);
 
   if (wwwServiceOutputs.length === 0 || config.sys.lazyRequire == null) {
     return;

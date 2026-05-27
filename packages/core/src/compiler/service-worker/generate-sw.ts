@@ -7,7 +7,7 @@ export const generateServiceWorker = async (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   workbox: d.Workbox,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
 ): Promise<void[] | void> => {
   const serviceWorker = await getServiceWorker(outputTarget);
   if (serviceWorker.unregister) {
@@ -24,7 +24,7 @@ export const generateServiceWorker = async (
 
 const copyLib = async (
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetWww,
+  outputTarget: d.ValidatedOutputTargetWww,
   workbox: d.Workbox,
 ) => {
   const timeSpan = buildCtx.createTimeSpan(`copy service worker library started`, true);
@@ -74,9 +74,9 @@ export const hasServiceWorkerChanges = (config: d.ValidatedConfig, buildCtx: d.B
     return false;
   }
 
-  const wwwServiceOutputs = config.outputTargets
-    .filter(isOutputTargetWww)
-    .filter((o) => o.serviceWorker && o.serviceWorker.swSrc);
+  const wwwServiceOutputs = (
+    config.outputTargets.filter(isOutputTargetWww) as d.ValidatedOutputTargetWww[]
+  ).filter((o) => o.serviceWorker?.swSrc);
 
   return wwwServiceOutputs.some((outputTarget) => {
     return buildCtx.filesChanged.some((fileChanged) => {
@@ -91,7 +91,7 @@ export const hasServiceWorkerChanges = (config: d.ValidatedConfig, buildCtx: d.B
   });
 };
 
-const getServiceWorker = async (outputTarget: d.OutputTargetWww) => {
+const getServiceWorker = async (outputTarget: d.ValidatedOutputTargetWww) => {
   if (!outputTarget.serviceWorker) {
     return undefined;
   }

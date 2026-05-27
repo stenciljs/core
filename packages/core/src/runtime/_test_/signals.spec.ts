@@ -530,7 +530,7 @@ describe('Effect decorator', () => {
     expect((TestCmp.prototype as any).__stencilEffects).toEqual(['effectA', 'effectB']);
   });
 
-  it('does not alter the original method behaviour', () => {
+  it('does not alter the original method behavior', () => {
     class TestCmp {
       @Effect()
       greet() {

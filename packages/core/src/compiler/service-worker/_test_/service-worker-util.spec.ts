@@ -8,7 +8,7 @@ import { generateServiceWorkerUrl } from '../service-worker-util';
 
 describe('generateServiceWorkerUrl', () => {
   let userConfig: d.Config;
-  let outputTarget: d.OutputTargetWww;
+  let outputTarget: d.ValidatedOutputTargetWww;
 
   it('sw url w/ baseUrl', () => {
     userConfig = mockConfig({
@@ -17,11 +17,14 @@ describe('generateServiceWorkerUrl', () => {
         {
           type: 'www',
           baseUrl: '/docs',
+          serviceWorker: true,
         } as d.OutputTargetWww,
       ],
     });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    outputTarget = config.outputTargets.find(
+      isOutputTargetWww,
+    ) as unknown as d.ValidatedOutputTargetWww;
     const swUrl = generateServiceWorkerUrl(
       outputTarget,
       outputTarget.serviceWorker as d.ServiceWorkerConfig,
@@ -30,9 +33,14 @@ describe('generateServiceWorkerUrl', () => {
   });
 
   it('default sw url', () => {
-    userConfig = mockConfig({ devMode: false });
+    userConfig = mockConfig({
+      devMode: false,
+      outputTargets: [{ type: 'www', serviceWorker: true } as d.OutputTargetWww],
+    });
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
+    outputTarget = config.outputTargets.find(
+      isOutputTargetWww,
+    ) as unknown as d.ValidatedOutputTargetWww;
     const swUrl = generateServiceWorkerUrl(
       outputTarget,
       outputTarget.serviceWorker as d.ServiceWorkerConfig,

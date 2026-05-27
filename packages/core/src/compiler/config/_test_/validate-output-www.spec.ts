@@ -66,19 +66,7 @@ describe('validateOutputTargetWww', () => {
         hashFileNames: true,
         hashedFileNameLength: 8,
         indexHtml: join(rootDir, 'www', 'docs', 'index.html'),
-        serviceWorker: {
-          dontCacheBustURLsMatching: /p-\w{8}/,
-          globDirectory: join(rootDir, 'www', 'docs'),
-          globIgnores: [
-            '**/host.config.json',
-            '**/*.system.entry.js',
-            '**/*.system.js',
-            '**/app.js',
-            '**/app.css',
-          ],
-          globPatterns: ['*.html', '**/*.{js,css,json}'],
-          swDest: join(rootDir, 'www', 'docs', 'sw.js'),
-        },
+        serviceWorker: null,
         type: 'www',
       },
       {

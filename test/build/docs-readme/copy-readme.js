@@ -8,7 +8,7 @@
  * - During the `docs-readme` tests, a README file is overwritten as part of the test process.
  * - The expected result of the test must be tracked by Git; otherwise, Git will detect a "dirty"
  *   state and the test will fail.
- * - This behaviour can be used to our advantage: if the file is overwritten with the supplemental
+ * - This behavior can be used to our advantage: if the file is overwritten with the supplemental
  *   file but not overwritten back to the expected result, Git will detect a dirty state, causing
  *   the test to fail. This ensures that the correct action is taken by the code being tested.
  *
