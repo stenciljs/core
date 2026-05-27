@@ -4,10 +4,39 @@ This is a comprehensive list of the breaking changes introduced in the major ver
 
 ## Versions
 
+- [Stencil 5.x](#stencil-v500)
 - [Stencil 4.x](#stencil-v400)
 - [Stencil 3.x](#stencil-v300)
 - [Stencil 2.x](#stencil-two)
 - [Stencil 1.x](#stencil-one)
+
+## Stencil v5.0.0
+
+- [Service worker disabled by default](#service-worker-disabled-by-default)
+- [`serviceWorker: false` removed](#serviceworker-false-removed)
+
+### Service worker disabled by default
+
+The `serviceWorker` option on the `www` output target now defaults to `null` (disabled). Previously, Stencil would automatically generate a Workbox-powered service worker for production `www` builds when no `serviceWorker` config was provided.
+
+To restore the previous behaviour, explicitly opt in:
+
+```ts title="stencil.config.ts"
+import { Config } from '@stencil/core';
+
+export const config: Config = {
+  outputTargets: [
+    {
+      type: 'www',
+      serviceWorker: {},
+    },
+  ],
+};
+```
+
+### `serviceWorker: false` removed
+
+The `false` value for `serviceWorker` has been removed. Use `null` (or omit the option entirely) to disable service worker generation. In development mode, a script to deregister any previously registered service workers is now always injected regardless of this setting.
 
 ## Stencil v4.0.0
 

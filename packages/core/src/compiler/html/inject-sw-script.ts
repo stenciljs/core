@@ -11,12 +11,10 @@ export const updateIndexHtmlServiceWorker = async (
 ) => {
   const serviceWorker = outputTarget.serviceWorker;
 
-  if (serviceWorker !== false) {
-    if ((serviceWorker && serviceWorker.unregister) || (!serviceWorker && config.devMode)) {
-      injectUnregisterServiceWorker(doc);
-    } else if (serviceWorker) {
-      await injectRegisterServiceWorker(buildCtx, outputTarget, doc);
-    }
+  if ((serviceWorker && serviceWorker.unregister) || (!serviceWorker && config.devMode)) {
+    injectUnregisterServiceWorker(doc);
+  } else if (serviceWorker) {
+    await injectRegisterServiceWorker(buildCtx, outputTarget, doc);
   }
 };
 

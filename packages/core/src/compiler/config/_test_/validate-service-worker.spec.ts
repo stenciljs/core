@@ -27,7 +27,7 @@ describe('validateServiceWorker', () => {
   /**
    * A little util to work around a typescript annoyance. Because
    * `outputTarget.serviceWorker` is typed as
-   * `serviceWorker?: ServiceWorkerConfig | null | false;` we get type errors
+   * `serviceWorker?: ServiceWorkerConfig | null` we get type errors
    * all over if we try to just access it directly. So instead, do a little
    * check to see if it's falsy. If not, we return it, and if it is we fail the test.
    *
@@ -49,6 +49,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/User/me/app/www/',
+      serviceWorker: {},
     };
     validateServiceWorker(config, outputTarget);
     expect(getServiceWorker(outputTarget).globIgnores).toContain('**/host.config.json');
@@ -82,6 +83,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/User/me/app/www/',
+      serviceWorker: {},
     };
     validateServiceWorker(config, outputTarget);
     expect(getServiceWorker(outputTarget).globDirectory).toBe('/User/me/app/www/');
@@ -115,21 +117,32 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
+      serviceWorker: {},
     };
     validateServiceWorker(config, outputTarget);
     expect(getServiceWorker(outputTarget).globPatterns).toEqual(['*.html', '**/*.{js,css,json}']);
   });
 
-  it('should create default sw config when www type and prod mode', () => {
+  it('should default to null when serviceWorker is not set', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
     };
     validateServiceWorker(config, outputTarget);
+    expect(outputTarget.serviceWorker).toBe(null);
+  });
+
+  it('should create sw config when explicitly configured in prod mode', () => {
+    outputTarget = {
+      type: 'www',
+      appDir: '/www',
+      serviceWorker: {},
+    };
+    validateServiceWorker(config, outputTarget);
     expect(outputTarget.serviceWorker).not.toBe(null);
   });
 
-  it('should not create default sw config when www type and devMode', () => {
+  it('should not create sw config when www type and devMode', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
@@ -139,22 +152,11 @@ describe('validateServiceWorker', () => {
     expect(outputTarget.serviceWorker).toBe(null);
   });
 
-  it('should create default sw config when true boolean, even if devMode', () => {
+  it('should not create sw config when explicitly configured but in devMode', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: true as any,
-    };
-    config.devMode = true;
-    validateServiceWorker(config, outputTarget);
-    expect(outputTarget.serviceWorker).not.toBe(true);
-  });
-
-  it('should not create sw config when in devMode', () => {
-    outputTarget = {
-      type: 'www',
-      appDir: '/www',
-      serviceWorker: true as any,
+      serviceWorker: {},
     };
     config.devMode = true;
     validateServiceWorker(config, outputTarget);
@@ -165,7 +167,7 @@ describe('validateServiceWorker', () => {
     outputTarget = {
       type: 'www',
       appDir: '/www',
-      serviceWorker: true as any,
+      serviceWorker: {},
     };
     config.devMode = true;
     config.generateServiceWorker = true;
@@ -180,14 +182,5 @@ describe('validateServiceWorker', () => {
     };
     validateServiceWorker(config, outputTarget);
     expect(outputTarget.serviceWorker).toBe(null);
-  });
-
-  it('should stay false', () => {
-    outputTarget = {
-      type: 'www',
-      serviceWorker: false,
-    };
-    validateServiceWorker(config, outputTarget);
-    expect(outputTarget.serviceWorker).toBe(false);
   });
 });

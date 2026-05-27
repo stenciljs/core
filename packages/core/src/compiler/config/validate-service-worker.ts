@@ -27,20 +27,13 @@ export const validateServiceWorker = (
   config: d.ValidatedConfig,
   outputTarget: d.OutputTargetWww,
 ): void => {
-  if (outputTarget.serviceWorker === false) {
+  // null/undefined means opt-out — no SW generated
+  if (!outputTarget.serviceWorker) {
+    outputTarget.serviceWorker = null;
     return;
   }
+
   if (config.devMode && !config.generateServiceWorker) {
-    outputTarget.serviceWorker = null;
-    return;
-  }
-
-  if (outputTarget.serviceWorker === null) {
-    outputTarget.serviceWorker = null;
-    return;
-  }
-
-  if (!outputTarget.serviceWorker && config.devMode) {
     outputTarget.serviceWorker = null;
     return;
   }
