@@ -23,7 +23,7 @@ export const config: Config = {
   env: {
     someEnvVar: 'Envvar label:',
   },
-  extras: {
+  compat: {
     lightDomPatches: false,
   },
 };
