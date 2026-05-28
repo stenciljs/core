@@ -106,12 +106,7 @@ const generateComponentTypesFile = (
        */
       componentEventDetailTypes.push(generateEventDetailTypes(cmp));
     }
-    return generateComponentTypes(
-      cmp,
-      typeImportData,
-      areTypesInternal,
-      !!config.signalBacking,
-    );
+    return generateComponentTypes(cmp, typeImportData, areTypesInternal, !!config.signalBacking);
   });
 
   c.push(COMPONENTS_DTS_HEADER);

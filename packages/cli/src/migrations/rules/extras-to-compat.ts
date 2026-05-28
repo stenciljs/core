@@ -56,7 +56,7 @@ export const extrasToCompatRule: MigrationRule = {
         const keyStart = node.name.getStart();
         const keyEnd = node.name.getEnd();
         text = text.slice(0, keyStart) + 'compat' + text.slice(keyEnd);
-      } 
+      }
     }
 
     return text;
