@@ -29,7 +29,7 @@ describe('add-static-style', () => {
 
   beforeEach(() => {
     buildCtx = mockBuildCtx();
-    buildCtx.config.extras = { additionalTagTransformers: false };
+    buildCtx.config.compat = { additionalTagTransformers: false };
 
     mockComponent = {
       componentClassName: 'MyComponent',
@@ -283,7 +283,7 @@ describe('add-static-style', () => {
     });
 
     it('should handle tag transform configuration', () => {
-      buildCtx.config.extras.additionalTagTransformers = true;
+      buildCtx.config.compat.additionalTagTransformers = true;
       buildCtx.components = [{ tagName: 'other-component' }] as d.ComponentCompilerMeta[];
 
       const styleStatements: ts.Statement[] = [];
@@ -468,7 +468,7 @@ describe('add-static-style', () => {
     });
 
     it('should handle tag transform configuration', () => {
-      buildCtx.config.extras.additionalTagTransformers = true;
+      buildCtx.config.compat.additionalTagTransformers = true;
       buildCtx.components = [{ tagName: 'other-component' }] as d.ComponentCompilerMeta[];
 
       const classMembers: ts.ClassElement[] = [];

@@ -8,7 +8,7 @@ export const config: Config = {
       type: 'loader-bundle',
     },
   ],
-  extras: {
+  compat: {
     lightDomPatches: false,
   },
 };

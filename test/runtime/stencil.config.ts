@@ -27,7 +27,7 @@ export const config: Config = {
       silenceDeprecations: ['import'],
     }),
   ],
-  extras: {
+  compat: {
     lifecycleDOMEvents: true,
     additionalTagTransformers: true,
     lightDomPatches: {

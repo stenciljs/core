@@ -105,7 +105,7 @@ export const validateConfig = (
     devServer: {}, // assign `devServer` before spreading `config`, in the event 'devServer' is not a key on `config`
     ...config,
     devMode,
-    extras: config.extras || {},
+    compat: config.compat || {},
     generateExportMaps: isBoolean(config.generateExportMaps) ? config.generateExportMaps : false,
     hydratedFlag: validateHydrated(config),
     logLevel,
@@ -131,21 +131,21 @@ export const validateConfig = (
     logger.setLogFilePath(validatedConfig.buildLogFilePath);
   }
 
-  validatedConfig.extras.enableImportInjection =
-    validatedConfig.extras.enableImportInjection !== false;
-  validatedConfig.extras.lifecycleDOMEvents = !!validatedConfig.extras.lifecycleDOMEvents;
-  validatedConfig.extras.initializeNextTick = !!validatedConfig.extras.initializeNextTick;
-  validatedConfig.extras.additionalTagTransformers =
-    validatedConfig.extras.additionalTagTransformers === true ||
-    (!devMode && validatedConfig.extras.additionalTagTransformers === 'prod');
+  validatedConfig.compat.enableImportInjection =
+    validatedConfig.compat.enableImportInjection !== false;
+  validatedConfig.compat.lifecycleDOMEvents = !!validatedConfig.compat.lifecycleDOMEvents;
+  validatedConfig.compat.initializeNextTick = !!validatedConfig.compat.initializeNextTick;
+  validatedConfig.compat.additionalTagTransformers =
+    validatedConfig.compat.additionalTagTransformers === true ||
+    (!devMode && validatedConfig.compat.additionalTagTransformers === 'prod');
 
   // Normalize lightDomPatches: default true, accept boolean or granular object.
   // Individual BUILD flags are derived in app-data.ts.
-  const ldp = validatedConfig.extras.lightDomPatches;
+  const ldp = validatedConfig.compat.lightDomPatches;
   if (ldp === undefined) {
-    validatedConfig.extras.lightDomPatches = true;
+    validatedConfig.compat.lightDomPatches = true;
   } else if (typeof ldp !== 'boolean' && typeof ldp !== 'object') {
-    validatedConfig.extras.lightDomPatches = true;
+    validatedConfig.compat.lightDomPatches = true;
   }
 
   // Set boolean config values with defaults

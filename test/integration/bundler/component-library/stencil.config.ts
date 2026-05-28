@@ -13,7 +13,7 @@ export const config: Config = {
       type: 'www',
     },
   ],
-  extras: {
+  compat: {
     enableImportInjection: true,
   },
 };

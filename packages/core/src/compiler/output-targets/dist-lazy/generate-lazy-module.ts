@@ -50,7 +50,7 @@ export const generateLazyModules = async (
     }),
   );
 
-  if (config.extras.enableImportInjection && !isBrowserBuild) {
+  if (config.compat.enableImportInjection && !isBrowserBuild) {
     addStaticImports(rolldownResults, bundleModules);
   } else if (isBrowserBuild) {
     rolldownResults.filter(isStencilCoreResult).forEach((chunk) => {

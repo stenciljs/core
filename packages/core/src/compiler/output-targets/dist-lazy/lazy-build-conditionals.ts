@@ -14,7 +14,7 @@ export const getLazyBuildConditionals = (
   build.hydrateServerSide = false;
   build.asyncQueue = config.taskQueue === 'congestionAsync';
   build.taskQueue = config.taskQueue !== 'immediate';
-  build.initializeNextTick = config.extras.initializeNextTick;
+  build.initializeNextTick = config.compat.initializeNextTick;
   build.staticHydrationStyles = staticHydrationStyles;
 
   const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetSsr);

@@ -4,6 +4,7 @@ import { buildDistDocsRule } from './rules/build-dist-docs';
 import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { externalRuntimeRule } from './rules/external-runtime';
+import { extrasToCompatRule } from './rules/extras-to-compat';
 import { formAssociatedRule } from './rules/form-associated';
 import { globalStyleInjectRule } from './rules/global-style-inject';
 import { hashFileNamesRule } from './rules/hash-file-names';
@@ -122,6 +123,7 @@ const migrationRules: MigrationRule[] = [
   devModeRule,
   globalStyleInjectRule,
   lightDomPatchesRule,
+  extrasToCompatRule,
   externalRuntimeRule,
   hashFileNamesRule,
   rolldownConfigRule,

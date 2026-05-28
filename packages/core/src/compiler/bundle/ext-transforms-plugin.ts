@@ -131,7 +131,7 @@ export const extTransformsPlugin = (
               input: pluginTransforms.code,
               tag: data.tag,
               tags: buildCtx.components.map((c) => c.tagName),
-              addTagTransformers: !!buildCtx.config.extras.additionalTagTransformers,
+              addTagTransformers: !!buildCtx.config.compat.additionalTagTransformers,
               encapsulation: data.encapsulation,
               mode: data.mode,
               sourceMap: config.sourceMap,

@@ -106,17 +106,12 @@ const generateComponentTypesFile = (
        */
       componentEventDetailTypes.push(generateEventDetailTypes(cmp));
     }
-    return generateComponentTypes(
-      cmp,
-      typeImportData,
-      areTypesInternal,
-      !!config.extras?.signalBacking,
-    );
+    return generateComponentTypes(cmp, typeImportData, areTypesInternal, !!config.signalBacking);
   });
 
   c.push(COMPONENTS_DTS_HEADER);
   c.push(`import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";`);
-  if (config.extras?.signalBacking) {
+  if (config.signalBacking) {
     c.push(`import { STENCIL_SIGNALS_SYMBOL, type ReadonlySignal } from "@stencil/core/signals";`);
     c.push(`export { STENCIL_SIGNALS_SYMBOL } from "@stencil/core/signals";`);
   }
