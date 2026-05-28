@@ -1,3 +1,14 @@
+## 🍐 [4.43.5](https://github.com/stenciljs/core/compare/v4.43.4...v4.43.5) (2026-05-28)
+
+
+### Bug Fixes
+
+* **compiler:** resolve @Prop variable defaults to literal values in docs output ([#6728](https://github.com/stenciljs/core/issues/6728)) ([6cdcec7](https://github.com/stenciljs/core/commit/6cdcec725c07ccda5c256e43e89d8aeef2e9c34a))
+* **compiler:** silence INVALID_ANNOTATION and SOURCEMAP_BROKEN warnings from workerPlugin ([#6718](https://github.com/stenciljs/core/issues/6718)) ([ef79a49](https://github.com/stenciljs/core/commit/ef79a49cabda21e040d09b102512a18e97bd949b))
+* **types:** add referrerPolicy to ImgHTMLAttributes ([#6694](https://github.com/stenciljs/core/issues/6694)) ([3ed82f1](https://github.com/stenciljs/core/commit/3ed82f1abbfa46edf4e26e631cd568f4fa92a1d7)), closes [#6692](https://github.com/stenciljs/core/issues/6692)
+
+
+
 ## 🏝 [4.43.4](https://github.com/stenciljs/core/compare/v4.43.3...v4.43.4) (2026-04-13)
 
 
