@@ -154,7 +154,7 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
 };
 
 /**
- * Config-driven extras flags that a collection lib author may have set explicitly.
+ * Config-driven flags that a collection lib author may have set explicitly.
  * These are the only flags propagated from a collection's buildFlags into the consumer's
  * build - everything else is a component-derived flag that the consumer recomputes itself
  * by scanning all components (including those from the collection).
@@ -174,7 +174,7 @@ const COLLECTION_CONFIG_FLAGS: ReadonlySet<keyof BuildConditionals> = new Set([
 
 /**
  * Merge config-driven build flags from consumed collections into the active build conditionals.
- * Only flags explicitly set via the lib author's stencil.config extras are merged - component-
+ * Only flags explicitly set via the lib author's stencil.config are merged - component-
  * derived flags are excluded because the consumer recomputes them from source.
  *
  * **This function mutates the build conditionals argument**
@@ -223,7 +223,7 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
   b.cssAnnotations = true;
   // lightDomPatches only matter when there are non-shadow slotted components.
   // Gating here keeps shadow-only bundles lean - patch functions get tree-shaken out.
-  const ldp = config.extras.lightDomPatches ?? true;
+  const ldp = config.compat.lightDomPatches ?? true;
   if (b.slotRelocation && ldp !== false) {
     b.lightDomPatches = ldp === true;
     b.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
@@ -237,9 +237,9 @@ export const updateBuildConditionals = (config: ValidatedConfig, b: BuildConditi
     b.slotDomMutations = false;
     b.slotTextContent = false;
   }
-  b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
-  b.signalBacking = !!config.extras?.signalBacking;
-  b.vdomSignals = b.vdomSignals || !!(config.extras?.signalBacking || config.extras?.vdomSignals);
+  b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.compat.lifecycleDOMEvents);
+  b.signalBacking = !!config.signalBacking;
+  b.vdomSignals = b.vdomSignals || !!config.signalBacking;
   b.invisiblePrehydration =
     typeof config.invisiblePrehydration === 'undefined' ? true : config.invisiblePrehydration;
   if (config.hydratedFlag) {

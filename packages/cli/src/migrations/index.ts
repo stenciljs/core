@@ -3,6 +3,7 @@ import ts from 'typescript';
 import { buildDistDocsRule } from './rules/build-dist-docs';
 import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
+import { extrasToCompatRule } from './rules/extras-to-compat';
 import { externalRuntimeRule } from './rules/external-runtime';
 import { formAssociatedRule } from './rules/form-associated';
 import { globalStyleInjectRule } from './rules/global-style-inject';
@@ -122,6 +123,7 @@ const migrationRules: MigrationRule[] = [
   devModeRule,
   globalStyleInjectRule,
   lightDomPatchesRule,
+  extrasToCompatRule,
   externalRuntimeRule,
   hashFileNamesRule,
   rolldownConfigRule,

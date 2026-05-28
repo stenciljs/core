@@ -456,7 +456,7 @@ const getCustomBeforeTransformers = (
     customBeforeTransformers.push(rewriteAliasedSourceFileImportPaths);
   }
 
-  if (buildCtx.config.extras.additionalTagTransformers) {
+  if (buildCtx.config.compat.additionalTagTransformers) {
     customBeforeTransformers.push(addTagTransform(compilerCtx, buildCtx));
   }
 

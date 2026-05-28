@@ -279,78 +279,78 @@ describe('validation', () => {
     expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
   });
 
-  it('should set extras defaults', () => {
+  it('should set compat defaults', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.extras.lightDomPatches).toBe(true);
-    expect(config.extras.lifecycleDOMEvents).toBe(false);
-    expect(config.extras.initializeNextTick).toBe(false);
-    expect(config.extras.additionalTagTransformers).toBe(false);
+    expect(config.compat.lightDomPatches).toBe(true);
+    expect(config.compat.lifecycleDOMEvents).toBe(false);
+    expect(config.compat.initializeNextTick).toBe(false);
+    expect(config.compat.additionalTagTransformers).toBe(false);
   });
 
-  describe('extras.additionalTagTransformers', () => {
-    it('set extras.additionalTagTransformers false', () => {
-      userConfig.extras = { additionalTagTransformers: false };
+  describe('compat.additionalTagTransformers', () => {
+    it('set compat.additionalTagTransformers false', () => {
+      userConfig.compat = { additionalTagTransformers: false };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(false);
+      expect(config.compat.additionalTagTransformers).toBe(false);
     });
 
-    it('set extras.additionalTagTransformers true', () => {
-      userConfig.extras = { additionalTagTransformers: true };
+    it('set compat.additionalTagTransformers true', () => {
+      userConfig.compat = { additionalTagTransformers: true };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(true);
+      expect(config.compat.additionalTagTransformers).toBe(true);
     });
 
-    it('set extras.additionalTagTransformers true, dev mode', () => {
+    it('set compat.additionalTagTransformers true, dev mode', () => {
       userConfig.devMode = true;
-      userConfig.extras = { additionalTagTransformers: true };
+      userConfig.compat = { additionalTagTransformers: true };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(true);
+      expect(config.compat.additionalTagTransformers).toBe(true);
     });
 
-    it('prod mode, set extras.additionalTagTransformers', () => {
+    it('prod mode, set compat.additionalTagTransformers', () => {
       userConfig.devMode = false;
-      userConfig.extras = { additionalTagTransformers: true };
+      userConfig.compat = { additionalTagTransformers: true };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(true);
+      expect(config.compat.additionalTagTransformers).toBe(true);
     });
 
-    it('build extras.additionalTagTransformers when set to "prod" and in prod', () => {
+    it('build compat.additionalTagTransformers when set to "prod" and in prod', () => {
       userConfig.devMode = false;
-      userConfig.extras = { additionalTagTransformers: 'prod' };
+      userConfig.compat = { additionalTagTransformers: 'prod' };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(true);
+      expect(config.compat.additionalTagTransformers).toBe(true);
     });
 
-    it('do not build extras.additionalTagTransformers when set to "prod" and in dev', () => {
+    it('do not build compat.additionalTagTransformers when set to "prod" and in dev', () => {
       userConfig.devMode = true;
-      userConfig.extras = { additionalTagTransformers: 'prod' };
+      userConfig.compat = { additionalTagTransformers: 'prod' };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(false);
+      expect(config.compat.additionalTagTransformers).toBe(false);
     });
 
-    it('prod mode default to only modern and not extras.additionalTagTransformers', () => {
+    it('prod mode default to only modern and not compat.additionalTagTransformers', () => {
       userConfig.devMode = false;
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.extras.additionalTagTransformers).toBe(false);
+      expect(config.compat.additionalTagTransformers).toBe(false);
     });
   });
 
   it('should default lightDomPatches to true', () => {
-    userConfig.extras = {};
+    userConfig.compat = {};
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.extras.lightDomPatches).toBe(true);
+    expect(config.compat.lightDomPatches).toBe(true);
   });
 
   it('should preserve lightDomPatches: false', () => {
-    userConfig.extras = { lightDomPatches: false };
+    userConfig.compat = { lightDomPatches: false };
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.extras.lightDomPatches).toBe(false);
+    expect(config.compat.lightDomPatches).toBe(false);
   });
 
   it('should preserve lightDomPatches granular object', () => {
-    userConfig.extras = { lightDomPatches: { childNodes: true, domMutations: false } };
+    userConfig.compat = { lightDomPatches: { childNodes: true, domMutations: false } };
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.extras.lightDomPatches).toEqual({ childNodes: true, domMutations: false });
+    expect(config.compat.lightDomPatches).toEqual({ childNodes: true, domMutations: false });
   });
 
   it('should set taskQueue "async" by default', () => {

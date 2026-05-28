@@ -159,7 +159,7 @@ const getSingleStyle = (
 };
 
 const addTagTransform = (cssCode: string, buildCtx: d.BuildCtx) => {
-  if (!buildCtx.config.extras.additionalTagTransformers) {
+  if (!buildCtx.config.compat.additionalTagTransformers) {
     return ts.factory.createNoSubstitutionTemplateLiteral(cssCode);
   }
   const tagNames = buildCtx.components.map((c) => c.tagName);

@@ -27,7 +27,7 @@ export const generateCjs = async (
     };
 
     // Note: interop and dynamicImportInCjs options are not supported in Rolldown
-    if (config.extras.enableImportInjection) {
+    if (config.compat.enableImportInjection) {
       esmOpts.dynamicImportInCjs = false;
     }
 

@@ -181,11 +181,18 @@ export interface StencilConfig {
   logger?: Logger;
 
   /**
-   * Config to add extra runtime for DOM features that require more polyfills. Note
-   * that not all DOM APIs are fully polyfilled when using the slot polyfill. These
-   * are opt-in since not all users will require the additional runtime.
+   * Compatibility and workaround flags for framework integration and bundler edge cases.
    */
-  extras?: ConfigExtras;
+  compat?: ConfigCompat;
+
+  /**
+   * Replace `@State` and `@Prop` internals with `@preact/signals-core` signal primitives.
+   * Enables cross-framework reactive interop - component state becomes subscribable by
+   * Solid, Angular, Preact and any TC39-signal-compatible library without event/attribute
+   * roundtrips. No API changes required in component code.
+   * Defaults to `false`.
+   */
+  signalBacking?: boolean;
 
   /**
    * The hydrated flag identifies if a component and all of its child components
@@ -328,7 +335,37 @@ export interface StencilConfig {
   stencilCoreResolvedId?: string;
 }
 
-interface ConfigExtrasBase {
+/**
+ * DOM patches for light-dom / scoped components that use `<slot>`.
+ *
+ * These patches shield the component's slot machinery from framework DOM mutations
+ * (e.g. when Angular or React insert / remove nodes they route directly to the host
+ * element, bypassing the slot polyfill) and prevent hydration errors when a framework
+ * encounters Stencil's internal slot reference nodes during SSR reconciliation.
+ *
+ * Patches are only applied at runtime when a component is both non-shadow **and**
+ * declares at least one `<slot>`, so enabling them has no effect on pure shadow-DOM
+ * components.
+ *
+ * Set to `true` (default) to enable all patches, `false` to disable all, or an object
+ * for granular control.
+ */
+export type LightDomPatches = {
+  /** Patches `childNodes`/`children` getters to return only slotted content. */
+  childNodes?: boolean;
+  /** Patches `cloneNode()` to correctly deep-clone slotted content. */
+  cloneNode?: boolean;
+  /** Patches `appendChild()`, `insertBefore()`, and `removeChild()` to route to the correct slot. */
+  domMutations?: boolean;
+  /** Patches `textContent` to act like shadow DOM (reads/writes slotted text only). */
+  textContent?: boolean;
+};
+
+/**
+ * Compatibility and workaround flags for framework integration and bundler edge cases.
+ * These are opt-in runtime behaviours that aren't needed by every project.
+ */
+export interface ConfigCompat {
   /**
    * Projects that use a Stencil library built using the `dist` output target may have trouble lazily
    * loading components when using a bundler such as Vite or Parcel. Setting this flag to `true` will change how Stencil
@@ -351,61 +388,17 @@ interface ConfigExtrasBase {
   initializeNextTick?: boolean;
 
   /**
-   * Adds `transformTag` calls to css strings and querySelector(All) calls
+   * Adds `transformTag` calls to css strings and querySelector(All) calls.
+   * Use `'prod'` to enable only in production builds.
    */
   additionalTagTransformers?: boolean | 'prod';
 
-  /**
-   * Replace `@State` and `@Prop` internals with `@preact/signals-core` signal primitives.
-   * Enables cross-framework reactive interop - component state becomes subscribable by
-   * Solid, Angular, Preact and any TC39-signal-compatible library without event/attribute
-   * roundtrips. No API changes required in component code.
-   * Defaults to `false`.
-   */
-  signalBacking?: boolean;
-
-  /**
-   * Enable JSX signal bypass: `Signal` objects passed as JSX text children or attribute values
-   * subscribe directly to DOM nodes, bypassing the vdom diff on signal changes.
-   * Also enables `<Show>` from `@stencil/core/signals`.
-   * Auto-enabled when `signalBacking: true`. Defaults to `false`.
-   */
-  vdomSignals?: boolean;
-}
-
-/**
- * DOM patches for light-dom / scoped components that use `<slot>`.
- *
- * These patches shield the component's slot machinery from framework DOM mutations
- * (e.g. when Angular or React insert / remove nodes they route directly to the host
- * element, bypassing the slot polyfill) and prevent hydration errors when a framework
- * encounters Stencil's internal slot reference nodes during SSR reconciliation.
- *
- * Patches are only applied at runtime when a component is both non-shadow **and**
- * declares at least one `<slot>`, so enabling them has no effect on pure shadow-DOM
- * components.
- *
- * Set to `true` (default) to enable all patches, `false` to disable all, or an object
- * for granular control.
- */
-type LightDomPatches = {
-  /** Patches `childNodes`/`children` getters to return only slotted content. */
-  childNodes?: boolean;
-  /** Patches `cloneNode()` to correctly deep-clone slotted content. */
-  cloneNode?: boolean;
-  /** Patches `appendChild()`, `insertBefore()`, and `removeChild()` to route to the correct slot. */
-  domMutations?: boolean;
-  /** Patches `textContent` to act like shadow DOM (reads/writes slotted text only). */
-  textContent?: boolean;
-};
-
-export type ConfigExtras = ConfigExtrasBase & {
   /**
    * DOM patches for light-dom / scoped components that use `<slot>`.
    * See {@link LightDomPatches} for granular control. Defaults to `true`.
    */
   lightDomPatches?: boolean | LightDomPatches;
-};
+}
 
 export interface Config extends StencilConfig {
   buildAppCore?: boolean;
@@ -526,7 +519,7 @@ type StrictConfigFields = keyof Pick<
   Config,
   | 'cacheDir'
   | 'devServer'
-  | 'extras'
+  | 'compat'
   | 'fsNamespace'
   | 'hydratedFlag'
   | 'logLevel'
@@ -2599,7 +2592,7 @@ export type OutputTarget =
 
 /**
  * A post-validation form of {@link OutputTargetWww} where `serviceWorker`
- * has been normalized — `true` is resolved to a {@link ServiceWorkerConfig}.
+ * has been normalized - `true` is resolved to a {@link ServiceWorkerConfig}.
  */
 export type ValidatedOutputTargetWww = Omit<OutputTargetWww, 'serviceWorker'> & {
   serviceWorker?: ServiceWorkerConfig | null;

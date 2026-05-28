@@ -148,8 +148,8 @@ const serializeCollectionManifest = (
 
   const buildFlags = getBuildFeatures(localCmps) as d.BuildConditionals;
 
-  // Apply config-driven runtime extras (not build-mode flags like isDev/isTesting)
-  const ldp = config.extras?.lightDomPatches ?? true;
+  // Apply config-driven runtime flags (not build-mode flags like isDev/isTesting)
+  const ldp = config.compat?.lightDomPatches ?? true;
   if (buildFlags.slotRelocation && ldp !== false) {
     buildFlags.lightDomPatches = ldp === true;
     buildFlags.slotChildNodes = ldp === true || (typeof ldp === 'object' && !!ldp.childNodes);
@@ -163,8 +163,8 @@ const serializeCollectionManifest = (
     buildFlags.slotDomMutations = false;
     buildFlags.slotTextContent = false;
   }
-  buildFlags.lifecycleDOMEvents = !!config.extras?.lifecycleDOMEvents;
-  buildFlags.initializeNextTick = !!config.extras?.initializeNextTick;
+  buildFlags.lifecycleDOMEvents = !!config.compat?.lifecycleDOMEvents;
+  buildFlags.initializeNextTick = !!config.compat?.initializeNextTick;
   buildFlags.asyncQueue = config.taskQueue === 'congestionAsync';
 
   // Hydration marker - consumers must know which selector the lib used so @stencil/vitest

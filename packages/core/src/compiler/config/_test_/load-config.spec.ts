@@ -48,8 +48,8 @@ describe('load config', () => {
 
     const actualConfig = loadedConfig.config;
     expect(actualConfig).toBeDefined();
-    expect(actualConfig.extras).toBeDefined();
-    expect(actualConfig.extras!.enableImportInjection).toBe(true);
+    expect(actualConfig.compat).toBeDefined();
+    expect(actualConfig.compat!.enableImportInjection).toBe(true);
     // respects custom root dir
     expect(actualConfig.rootDir).toBe('/foo/bar');
   });

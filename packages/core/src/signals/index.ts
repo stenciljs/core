@@ -10,7 +10,7 @@ export type { ReadonlySignal, Signal } from '@preact/signals-core';
 
 /**
  * Returns the `ReadonlySignal` backing a `@Prop` member on a Stencil element.
- * Requires `extras.signalBacking: true` in `stencil.config.ts`.
+ * Requires `signalBacking: true` in `stencil.config.ts`.
  * Only `@Prop` members are exposed - `@State` is internal component state.
  *
  * Useful for cross-component or cross-framework reactivity without polling or events:
@@ -31,7 +31,7 @@ export const getSignal = <T = unknown>(elm: Element, prop: string): ReadonlySign
     if (BUILD.isDev) {
       consoleDevWarn(
         `getSignal('${prop}'): element <${elm.tagName.toLowerCase()}> is not signal-backed. ` +
-          `Ensure extras.signalBacking is true in stencil.config.ts.`,
+          `Ensure signalBacking is true in stencil.config.ts.`,
       );
     }
     return null;
