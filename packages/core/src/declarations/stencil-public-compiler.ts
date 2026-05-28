@@ -363,7 +363,7 @@ export type LightDomPatches = {
 
 /**
  * Compatibility and workaround flags for framework integration and bundler edge cases.
- * These are opt-in runtime behaviours that aren't needed by every project.
+ * These are opt-in runtime behaviors that aren't needed by every project.
  */
 export interface ConfigCompat {
   /**
