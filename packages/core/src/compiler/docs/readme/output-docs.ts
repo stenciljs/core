@@ -163,7 +163,7 @@ export const generateMarkdown = (
   ].join('\n');
 };
 
-export const generateMergedMarkdown = (
+const generateMergedMarkdown = (
   userContent: string | undefined,
   cmps: d.JsonDocsComponent[],
   allCmps: d.JsonDocsComponent[],
