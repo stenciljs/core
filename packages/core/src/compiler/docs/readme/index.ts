@@ -34,7 +34,13 @@ export const generateReadmeDocs = async (
     Array.from(byReadmePath.values()).map((group) =>
       group.length === 1
         ? generateReadme(config, compilerCtx, readmeOutputTargets, group[0], docsData.components)
-        : generateMergedReadme(config, compilerCtx, readmeOutputTargets, group, docsData.components),
+        : generateMergedReadme(
+            config,
+            compilerCtx,
+            readmeOutputTargets,
+            group,
+            docsData.components,
+          ),
     ),
   );
 };

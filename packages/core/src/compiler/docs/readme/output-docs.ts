@@ -56,7 +56,13 @@ export const generateReadme = async (
         );
 
         // CSS Custom Properties preservation is now handled centrally in outputDocs
-        const readmeContent = generateMarkdown(currentReadmeContent, docsData, cmps, readmeOutput, config);
+        const readmeContent = generateMarkdown(
+          currentReadmeContent,
+          docsData,
+          cmps,
+          readmeOutput,
+          config,
+        );
 
         const existingContent = await compilerCtx.fs.readFile(readmeOutputPath);
         if (existingContent?.replace(/\r/g, '') === readmeContent.replace(/\r/g, '')) {
@@ -78,8 +84,14 @@ export const generateReadme = async (
  * Generate a single README for multiple components that share a directory and
  * therefore share a single readme.md file.
  *
- * Each component gets an `## \`tag\`` section; existing section headings are
+ * Each component gets an '## `tag`' section; existing section headings are
  * shifted from h2 to h3 so they nest correctly under that heading.
+ *
+ * @param config a validated Stencil config
+ * @param compilerCtx the current compiler context
+ * @param readmeOutputs docs-readme output targets
+ * @param cmps the components to include in the README (typically components that share a directory)
+ * @param allCmps metadata for all the components in the project, used to generate dependency lists
  */
 export const generateMergedReadme = async (
   config: d.ValidatedConfig,
@@ -106,7 +118,13 @@ export const generateMergedReadme = async (
           userContent,
         );
 
-        const readmeContent = generateMergedMarkdown(currentReadmeContent, cmps, allCmps, readmeOutput, config);
+        const readmeContent = generateMergedMarkdown(
+          currentReadmeContent,
+          cmps,
+          allCmps,
+          readmeOutput,
+          config,
+        );
 
         const existingContent = await compilerCtx.fs.readFile(readmeOutputPath);
         if (existingContent?.replace(/\r/g, '') === readmeContent.replace(/\r/g, '')) {
@@ -175,7 +193,14 @@ export const generateMergedMarkdown = (
   ].join('\n');
 };
 
-/** Returns the auto-generated lines for a single component (no header/footer). */
+/**
+ * Returns the auto-generated lines for a single component (no header/footer).
+ * @param cmp the component documentation data
+ * @param cmps all components documentation data
+ * @param readmeOutput the readme output target config
+ * @param config the Stencil config
+ * @returns an array of strings representing the auto-generated lines for the component
+ */
 const generateComponentBody = (
   cmp: d.JsonDocsComponent,
   cmps: d.JsonDocsComponent[],
@@ -202,6 +227,12 @@ const generateComponentBody = (
  * Resolves the user-written content (above AUTO_GENERATE_COMMENT) to use when
  * generating a readme, respecting the `overwriteExisting` option and whether
  * the output dir differs from the source dir.
+ * @param compilerCtx the current compiler context
+ * @param readmeOutput the readme output target config
+ * @param readmeOutputPath the full path to the output readme file
+ * @param config the Stencil config
+ * @param userContent the content located above AUTO_GENERATE_COMMENT in the existing readme, or a default template if no existing readme
+ * @returns the content to use as the "user content" (content above AUTO_GENERATE_COMMENT) for the new readme
  */
 const resolveUserContent = async (
   compilerCtx: d.CompilerCtx,
@@ -215,7 +246,8 @@ const resolveUserContent = async (
   }
   if (normalizePath(readmeOutput.dir) !== normalizePath(config.srcDir)) {
     if (
-      (readmeOutput.overwriteExisting === 'if-missing' && (await compilerCtx.fs.access(readmeOutputPath))) ||
+      (readmeOutput.overwriteExisting === 'if-missing' &&
+        (await compilerCtx.fs.access(readmeOutputPath))) ||
       (readmeOutput.overwriteExisting ?? false) === false
     ) {
       return getUserReadmeContent(compilerCtx, readmeOutputPath);
