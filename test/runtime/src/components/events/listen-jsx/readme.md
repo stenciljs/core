@@ -5,7 +5,25 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `listen-jsx`
+
+### Dependencies
+
+### Used by
+
+ - [listen-jsx-root](.)
+
+### Graph
+```mermaid
+graph TD;
+  listen-jsx-root --> listen-jsx
+  style listen-jsx fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `listen-jsx-root`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +35,7 @@ graph TD;
   listen-jsx-root --> listen-jsx
   style listen-jsx-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

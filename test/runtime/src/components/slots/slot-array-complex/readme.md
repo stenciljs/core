@@ -5,7 +5,25 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `slot-array-complex`
+
+### Dependencies
+
+### Used by
+
+ - [slot-array-complex-root](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-array-complex-root --> slot-array-complex
+  style slot-array-complex fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-array-complex-root`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +35,7 @@ graph TD;
   slot-array-complex-root --> slot-array-complex
   style slot-array-complex-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

@@ -5,7 +5,32 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `slot-dynamic-wrapper`
+
+### Properties
+
+| Property | Attribute | Description | Type     | Default     |
+| -------- | --------- | ----------- | -------- | ----------- |
+| `tag`    | `tag`     |             | `string` | `'section'` |
+
+
+### Dependencies
+
+### Used by
+
+ - [slot-dynamic-wrapper-root](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-dynamic-wrapper-root --> slot-dynamic-wrapper
+  style slot-dynamic-wrapper fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-dynamic-wrapper-root`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +42,7 @@ graph TD;
   slot-dynamic-wrapper-root --> slot-dynamic-wrapper
   style slot-dynamic-wrapper-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

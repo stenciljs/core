@@ -47,24 +47,13 @@ export const generateReadme = async (
         const relativeReadmePath = relative(config.srcDir, docsData.readmePath);
         const readmeOutputPath = join(readmeOutput.dir, relativeReadmePath);
 
-        const currentReadmeContent =
-          readmeOutput.overwriteExisting === true
-            ? // Overwrite explicitly requested: always use the provided user content.
-              userContent
-            : normalizePath(readmeOutput.dir) !== normalizePath(config.srcDir)
-              ? (readmeOutput.overwriteExisting === 'if-missing' &&
-                  // Validate a file exists at the output path
-                  (await compilerCtx.fs.access(readmeOutputPath))) ||
-                // False and undefined case: follow the changes made in #5648
-                (readmeOutput.overwriteExisting ?? false) === false
-                ? // Existing file found: The user set a custom `.dir` property, which is
-                  // where we're going to write the updated README. We need to read the
-                  // non-automatically generated content from that file and preserve that.
-                  await getUserReadmeContent(compilerCtx, readmeOutputPath)
-                : // No existing file found: use the provided user content.
-                  userContent
-              : // Default case: writing to srcDir, so use the provided user content.
-                userContent;
+        const currentReadmeContent = await resolveUserContent(
+          compilerCtx,
+          readmeOutput,
+          readmeOutputPath,
+          config,
+          userContent,
+        );
 
         // CSS Custom Properties preservation is now handled centrally in outputDocs
         const readmeContent = generateMarkdown(
@@ -75,13 +64,79 @@ export const generateReadme = async (
           config,
         );
 
-        const results = await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
-        if (results.changedContent) {
-          if (isUpdate) {
-            config.logger.info(`updated readme docs: ${docsData.tag}`);
-          } else {
-            config.logger.info(`created readme docs: ${docsData.tag}`);
-          }
+        const existingContent = await compilerCtx.fs.readFile(readmeOutputPath);
+        if (existingContent?.replace(/\r/g, '') === readmeContent.replace(/\r/g, '')) {
+          return;
+        }
+
+        await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
+        if (isUpdate) {
+          config.logger.info(`updated readme docs: ${docsData.tag}`);
+        } else {
+          config.logger.info(`created readme docs: ${docsData.tag}`);
+        }
+      }
+    }),
+  );
+};
+
+/**
+ * Generate a single README for multiple components that share a directory and
+ * therefore share a single readme.md file.
+ *
+ * Each component gets an '## `tag`' section; existing section headings are
+ * shifted from h2 to h3 so they nest correctly under that heading.
+ *
+ * @param config a validated Stencil config
+ * @param compilerCtx the current compiler context
+ * @param readmeOutputs docs-readme output targets
+ * @param cmps the components to include in the README (typically components that share a directory)
+ * @param allCmps metadata for all the components in the project, used to generate dependency lists
+ */
+export const generateMergedReadme = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  readmeOutputs: d.OutputTargetDocsReadme[],
+  cmps: d.JsonDocsComponent[],
+  allCmps: d.JsonDocsComponent[],
+) => {
+  const primaryCmp = cmps[0];
+  const isUpdate = !!primaryCmp.readme;
+  const userContent = isUpdate ? primaryCmp.readme : getDefaultReadme(primaryCmp);
+
+  await Promise.all(
+    readmeOutputs.map(async (readmeOutput) => {
+      if (readmeOutput.dir) {
+        const relativeReadmePath = relative(config.srcDir, primaryCmp.readmePath);
+        const readmeOutputPath = join(readmeOutput.dir, relativeReadmePath);
+
+        const currentReadmeContent = await resolveUserContent(
+          compilerCtx,
+          readmeOutput,
+          readmeOutputPath,
+          config,
+          userContent,
+        );
+
+        const readmeContent = generateMergedMarkdown(
+          currentReadmeContent,
+          cmps,
+          allCmps,
+          readmeOutput,
+          config,
+        );
+
+        const existingContent = await compilerCtx.fs.readFile(readmeOutputPath);
+        if (existingContent?.replace(/\r/g, '') === readmeContent.replace(/\r/g, '')) {
+          return;
+        }
+
+        await compilerCtx.fs.writeFile(readmeOutputPath, readmeContent);
+        const tags = cmps.map((c) => c.tag).join(', ');
+        if (isUpdate) {
+          config.logger.info(`updated readme docs: ${tags}`);
+        } else {
+          config.logger.info(`created readme docs: ${tags}`);
         }
       }
     }),
@@ -95,14 +150,65 @@ export const generateMarkdown = (
   readmeOutput: d.OutputTargetDocsReadme,
   config?: d.ValidatedConfig,
 ) => {
-  //If the readmeOutput.dependencies is true or undefined the dependencies will be generated.
-  const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps, config) : [];
+  return [
+    userContent || '',
+    AUTO_GENERATE_COMMENT,
+    '',
+    '',
+    ...generateComponentBody(cmp, cmps, readmeOutput, config),
+    `----------------------------------------------`,
+    '',
+    readmeOutput.footer,
+    '',
+  ].join('\n');
+};
+
+const generateMergedMarkdown = (
+  userContent: string | undefined,
+  cmps: d.JsonDocsComponent[],
+  allCmps: d.JsonDocsComponent[],
+  readmeOutput: d.OutputTargetDocsReadme,
+  config?: d.ValidatedConfig,
+): string => {
+  const sections: string[] = [];
+
+  for (const cmp of cmps) {
+    const body = generateComponentBody(cmp, allCmps, readmeOutput, config);
+    if (body.length === 0) continue;
+    // Shift h2 section headings to h3 so they nest under the component's h2
+    const shiftedBody = body.map((line) => line.replace(/^## /, '### '));
+    sections.push(`## \`${cmp.tag}\``, '', ...shiftedBody, '');
+  }
 
   return [
     userContent || '',
     AUTO_GENERATE_COMMENT,
     '',
     '',
+    ...sections,
+    `----------------------------------------------`,
+    '',
+    readmeOutput.footer,
+    '',
+  ].join('\n');
+};
+
+/**
+ * Returns the auto-generated lines for a single component (no header/footer).
+ * @param cmp the component documentation data
+ * @param cmps all components documentation data
+ * @param readmeOutput the readme output target config
+ * @param config the Stencil config
+ * @returns an array of strings representing the auto-generated lines for the component
+ */
+const generateComponentBody = (
+  cmp: d.JsonDocsComponent,
+  cmps: d.JsonDocsComponent[],
+  readmeOutput: d.OutputTargetDocsReadme,
+  config?: d.ValidatedConfig,
+): string[] => {
+  const dependencies = readmeOutput.dependencies !== false ? depsToMarkdown(cmp, cmps, config) : [];
+  return [
     ...getDocsDeprecation(cmp),
     ...overviewToMarkdown(cmp.overview),
     ...usageToMarkdown(cmp.usage),
@@ -114,11 +220,40 @@ export const generateMarkdown = (
     ...customStatesToMarkdown(cmp.customStates),
     ...stylesToMarkdown(cmp.styles),
     ...dependencies,
-    `----------------------------------------------`,
-    '',
-    readmeOutput.footer,
-    '',
-  ].join('\n');
+  ];
+};
+
+/**
+ * Resolves the user-written content (above AUTO_GENERATE_COMMENT) to use when
+ * generating a readme, respecting the `overwriteExisting` option and whether
+ * the output dir differs from the source dir.
+ * @param compilerCtx the current compiler context
+ * @param readmeOutput the readme output target config
+ * @param readmeOutputPath the full path to the output readme file
+ * @param config the Stencil config
+ * @param userContent the content located above AUTO_GENERATE_COMMENT in the existing readme, or a default template if no existing readme
+ * @returns the content to use as the "user content" (content above AUTO_GENERATE_COMMENT) for the new readme
+ */
+const resolveUserContent = async (
+  compilerCtx: d.CompilerCtx,
+  readmeOutput: d.OutputTargetDocsReadme,
+  readmeOutputPath: string,
+  config: d.ValidatedConfig,
+  userContent: string | undefined,
+): Promise<string | undefined> => {
+  if (readmeOutput.overwriteExisting === true) {
+    return userContent;
+  }
+  if (normalizePath(readmeOutput.dir) !== normalizePath(config.srcDir)) {
+    if (
+      (readmeOutput.overwriteExisting === 'if-missing' &&
+        (await compilerCtx.fs.access(readmeOutputPath))) ||
+      (readmeOutput.overwriteExisting ?? false) === false
+    ) {
+      return getUserReadmeContent(compilerCtx, readmeOutputPath);
+    }
+  }
+  return userContent;
 };
 
 const getDocsDeprecation = (cmp: d.JsonDocsComponent) => {

@@ -282,10 +282,6 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
-    interface ExcludeComponentRoot {
-    }
-    interface ExcludedComponent {
-    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -1754,18 +1750,6 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
-    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
-    }
-    var HTMLExcludeComponentRootElement: {
-        prototype: HTMLExcludeComponentRootElement;
-        new (): HTMLExcludeComponentRootElement;
-    };
-    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
-    }
-    var HTMLExcludedComponentElement: {
-        prototype: HTMLExcludedComponentElement;
-        new (): HTMLExcludedComponentElement;
-    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -3120,8 +3104,6 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
-        "exclude-component-root": HTMLExcludeComponentRootElement;
-        "excluded-component": HTMLExcludedComponentElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
@@ -3563,10 +3545,6 @@ declare namespace LocalJSX {
         "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
     }
     interface EventListenerCapture {
-    }
-    interface ExcludeComponentRoot {
-    }
-    interface ExcludedComponent {
     }
     interface ExtendedCmp {
         /**
@@ -4753,8 +4731,6 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
-        "exclude-component-root": ExcludeComponentRoot;
-        "excluded-component": ExcludedComponent;
         "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
         "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
         "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
@@ -5009,8 +4985,6 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
-            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
-            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             /**

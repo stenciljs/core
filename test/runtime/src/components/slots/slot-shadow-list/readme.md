@@ -5,14 +5,60 @@
 <!-- Auto Generated Below -->
 
 
-## Properties
+## `slot-dynamic-shadow-list`
+
+### Properties
 
 | Property | Attribute | Description | Type       | Default |
 | -------- | --------- | ----------- | ---------- | ------- |
 | `items`  | --        |             | `string[]` | `[]`    |
 
 
-## Dependencies
+### Dependencies
+
+### Used by
+
+ - [slot-list-light-root](.)
+
+### Depends on
+
+- [slot-light-list](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-dynamic-shadow-list --> slot-light-list
+  slot-list-light-root --> slot-dynamic-shadow-list
+  style slot-dynamic-shadow-list fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-light-list`
+
+### Dependencies
+
+### Used by
+
+ - [slot-dynamic-shadow-list](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-dynamic-shadow-list --> slot-light-list
+  style slot-light-list fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-list-light-root`
+
+### Properties
+
+| Property | Attribute | Description | Type       | Default |
+| -------- | --------- | ----------- | ---------- | ------- |
+| `items`  | --        |             | `string[]` | `[]`    |
+
+
+### Dependencies
 
 ### Depends on
 
@@ -25,6 +71,7 @@ graph TD;
   slot-dynamic-shadow-list --> slot-light-list
   style slot-list-light-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 
