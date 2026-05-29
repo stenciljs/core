@@ -11,7 +11,7 @@ describe('slot-nested-order', () => {
     );
     await waitForExist('slot-nested-order-parent.hydrated');
 
-    expect(root.parentElement.textContent).toBe('123456');
+    expect(root.parentElement?.textContent).toBe('123456');
     expect(root.querySelector('[hidden]')).toBeNull();
   });
 });

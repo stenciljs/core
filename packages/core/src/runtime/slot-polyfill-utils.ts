@@ -48,7 +48,15 @@ export function getHostSlotNode(host: Element, slotName?: string): d.RenderNode 
  * @returns whether the node is located in the slot or not
  */
 export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: string): boolean => {
-  // getSlotName uses cached s-sn when available, falling back to getAttribute('slot')
+  // fixes nested slot ordering. breaks slot fallback visibility :/
+  
+  // if (nodeToRelocate['s-sr']) {
+  //   // This node is a <slot> element used as light-DOM content of another component.
+  //   // Its s-sn holds the slot's own name (what it accepts), not the slot it goes into.
+  //   // Use the 'slot' attribute to determine which slot of the parent it targets.
+  //   const targetSlot = (nodeToRelocate.nodeType === 1 && (nodeToRelocate as Element).getAttribute('slot')) || '';
+  //   return targetSlot === slotName;
+  // }
   const nodeName = getSlotName(nodeToRelocate);
   return nodeName !== undefined ? nodeName === slotName : slotName === '';
 };
