@@ -240,6 +240,104 @@ pnpm run dev       # Watch mode
 
 ---
 
+## ⚡ SSR / Hydration Performance (Planned)
+
+Hydration on a normal-sized page with multiple components can block the JS main thread for seconds. Several independent improvements, ordered easiest → hardest. Each should be tested and merged independently.
+
+---
+
+### 1. 🌳 TreeWalker traversal (Easy — pure refactor)
+
+**Problem:** Both `initializeDocumentHydrate` and `clientHydrate` use recursive JS traversal.  
+**Fix:** Replace with `document.createTreeWalker()` — C++ native, 2–5× faster than JS recursion on deep trees. Filter callback lets us skip subtrees with no Stencil attributes.  
+**Scope:** `client-hydrate.ts` only. No API changes, no feature flags.
+
+---
+
+### 2. 🧱 `ssr.reHydrate: 'none'` — Truly static components (Medium)
+
+A `@Component` decorator option for purely presentational components (headers, footers, decorative wrappers) that never need client-side rendering or reactivity.
+
+```ts
+@Component({
+  tag: 'my-footer',
+  encapsulation: { type: 'shadow' },
+  ssr: {
+    reHydrate: 'none',     // skip SSR annotations + skip client init entirely
+  }
+})
+```
+
+**Semantics:** The SSR'd HTML is authoritative and stays frozen. `connectedCallback` bails out immediately after ensuring `initializeDocumentHydrate` has run (needed for child CE hydration). `initializeComponent` never runs. No VDOM, no lifecycle, no `@State`/`@Listen`/`@Watch`.
+
+**Constraints:**
+- **Shadow components:** always allowed. `reHydrate: 'none'` implies `ssr.shadowRender: 'dsd'` — DSD bakes shadow DOM into HTML; native `<slot>` handles projection, no `o.` annotations needed.
+- **Non-shadow / scoped components:** allowed only when static analysis confirms no real internal DOM. The compiler checks at build time:
+  - ✅ No `render()` method — pure attribute/class-driven host, nothing to manage
+  - ✅ `render()` returns only `<Host>` with `<slot />` children (default or named) and no other element children — pass-through wrapper, nothing relocates
+  - ❌ `render()` has real internal element children (`<div>`, etc.) — compiler **error**: `dom-extras` shielding and scoped CSS application require `initializeComponent` to run
+- Compiler **warning** if `@State`, `@Listen`, `@Event`, or `@Watch` are present on a `reHydrate: 'none'` component — they silently do nothing.
+- **Without SSR:** `reHydrate: 'none'` has no meaning (there's no SSR'd HTML to preserve). Flag is ignored and component boots normally. This is why the option lives under `ssr.*` not top-level.
+
+**Dynamic islands:** Child CEs inside a static parent hydrate independently — each has its own `s-id` and runs its own `connectedCallback`. The static parent still triggers `initializeDocumentHydrate` (the one-time full-doc scan) before bailing, so child CEs have everything they need.
+
+**SSR changes (`vdom-annotations.ts`):** Skip emitting `s-id` on the host element and skip emitting **all** Stencil comment nodes for its subtree — hydration annotations (`<!--c.-->`, `<!--t.-->`) AND slot polyfill comments (`<!--s.-->`, `<!--o.-->`, `<!--r.-->`). Slot content renders as direct children with no comment anchors. Clean HTML; no unexpected nodes for 3rd-party framework hydration (React, Vue, etc). Continue recursing into children — child CE annotations are emitted normally.
+
+**Client changes (`connected-callback.ts`):** Check `CMP_FLAGS.noClientHydrate`. If set: run `initializeDocumentHydrate` if `plt.$orgLocNodes$` is unset, then `return` — skip `initializeClientHydrate` and `initializeComponent` entirely.
+
+**`ssr` object rationale:** This is the first of several SSR-specific options. Others (e.g. `ssr.shadowRender: 'dsd' | 'scoped'`) belong here too. Keeps all SSR behaviour co-located and discoverable.
+
+---
+
+### 3. ⏳ `hydrateOn` — Deferred client hydration (Medium-Hard)
+
+A top-level `@Component` decorator option controlling *when* hydration is triggered client-side (orthogonal to `ssr.*`).
+
+```ts
+@Component({
+  tag: 'my-card',
+  hydrateOn: 'connected',    // default — current behaviour
+  // or:
+  hydrateOn: 'intersection', // IntersectionObserver — hydrate when visible
+  hydrateOn: 'idle',         // requestIdleCallback — hydrate when browser is idle
+})
+```
+
+**`'intersection'`:** Set up an `IntersectionObserver` in `connectedCallback` instead of running `initializeComponent`. Fire hydration when the element enters the viewport. Default `rootMargin: '200px 0px'` to avoid visible pop-in — should be configurable.
+
+**`'idle'`:** Use `requestIdleCallback` (or `setTimeout(0)` fallback) to defer hydration until the browser has free time. Simpler than IO, useful for below-fold non-critical interactive components.
+
+**Key concerns:**
+- **Prop queuing during deferral window.** Props set between connect and hydration fire must be queued and applied when hydration runs. The `s-pp` pending props map partially handles this; needs audit.
+- **`@Listen` / host event listeners** are not wired until `initializeComponent` runs. During the deferral window, these silently swallow events. Needs documentation; may need a queuing mechanism for critical events.
+- **Already-in-viewport case.** If the element is already visible when `connectedCallback` fires, skip the IO and hydrate immediately.
+- **Disconnect before hydration fires.** If the element disconnects before the IO/idle callback fires, cancel and clean up.
+- SSR annotations are still needed (the component will fully hydrate eventually), so `reHydrate: 'none'` + `hydrateOn` is a nonsensical combination — compiler warning.
+
+---
+
+### 4. 🔭 Single-pass document pre-scan (Hard)
+
+**Problem:** `initializeDocumentHydrate` does one full doc walk to build `orgLocNodes`. Then each of N components does its own `clientHydrate` recursive subtree walk. Total DOM visits ≈ O(N × avg subtree depth).
+
+**Fix:** Extend the single doc walk to build *complete* per-component VNode structures and slotting maps for all components at once. `initializeClientHydrate` becomes a O(1) lookup + apply — no per-component subtree traversal.
+
+**Complexity:** Touches the core hydration algorithm. High risk of subtle regressions. Should be gated behind a build flag initially and heavily tested before enabling by default.
+
+---
+
+### Implementation order
+
+| # | Feature | Difficulty | Files touched |
+|---|---------|-----------|---------------|
+| 1 | TreeWalker traversal | Easy | `client-hydrate.ts` |
+| 2 | `ssr.reHydrate: 'none'` | Medium | `connected-callback.ts`, `vdom-annotations.ts`, `constants.ts`, decorator types, build conditionals |
+| 3 | `hydrateOn: 'intersection'` | Medium-Hard | `connected-callback.ts`, decorator types, build conditionals |
+| 4 | `hydrateOn: 'idle'` | Medium | Same as above, simpler |
+| 5 | Single-pass pre-scan | Hard | `client-hydrate.ts`, `connected-callback.ts` |
+
+---
+
 ## Build Commands
 
 ```bash
@@ -249,4 +347,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-05-23*
+*Last updated: 2026-05-29*
