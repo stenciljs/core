@@ -5,7 +5,25 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `shadow-dom-basic`
+
+### Dependencies
+
+### Used by
+
+ - [shadow-dom-basic-root](.)
+
+### Graph
+```mermaid
+graph TD;
+  shadow-dom-basic-root --> shadow-dom-basic
+  style shadow-dom-basic fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `shadow-dom-basic-root`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +35,7 @@ graph TD;
   shadow-dom-basic-root --> shadow-dom-basic
   style shadow-dom-basic-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

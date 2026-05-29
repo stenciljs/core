@@ -5,11 +5,14 @@
 <!-- Auto Generated Below -->
 
 
-## Properties
+## `form-associated-prop-check`
+
+### Properties
 
 | Property   | Attribute  | Description | Type      | Default     |
 | ---------- | ---------- | ----------- | --------- | ----------- |
 | `disabled` | `disabled` |             | `boolean` | `undefined` |
+
 
 
 ----------------------------------------------

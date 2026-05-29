@@ -5,7 +5,25 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `slot-basic`
+
+### Dependencies
+
+### Used by
+
+ - [slot-basic-root](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-basic-root --> slot-basic
+  style slot-basic fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-basic-root`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +35,7 @@ graph TD;
   slot-basic-root --> slot-basic
   style slot-basic-root fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

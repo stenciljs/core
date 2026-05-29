@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { isOutputTargetDocsReadme } from '../../../utils';
-import { generateReadme } from './output-docs';
+import { generateMergedReadme, generateReadme } from './output-docs';
 
 export const generateReadmeDocs = async (
   config: d.ValidatedConfig,
@@ -18,10 +18,24 @@ export const generateReadmeDocs = async (
     strictCheckDocs(config, docsData);
   }
 
+  // Group components by their readme path — multiple components in the same
+  // directory share a single readme.md and must be merged into one document.
+  const byReadmePath = new Map<string, d.JsonDocsComponent[]>();
+  for (const cmpData of docsData.components) {
+    const group = byReadmePath.get(cmpData.readmePath);
+    if (group) {
+      group.push(cmpData);
+    } else {
+      byReadmePath.set(cmpData.readmePath, [cmpData]);
+    }
+  }
+
   await Promise.all(
-    docsData.components.map((cmpData) => {
-      return generateReadme(config, compilerCtx, readmeOutputTargets, cmpData, docsData.components);
-    }),
+    Array.from(byReadmePath.values()).map((group) =>
+      group.length === 1
+        ? generateReadme(config, compilerCtx, readmeOutputTargets, group[0], docsData.components)
+        : generateMergedReadme(config, compilerCtx, readmeOutputTargets, group, docsData.components),
+    ),
   );
 };
 

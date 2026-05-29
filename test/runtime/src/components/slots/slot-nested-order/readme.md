@@ -5,7 +5,25 @@
 <!-- Auto Generated Below -->
 
 
-## Dependencies
+## `slot-nested-order-child`
+
+### Dependencies
+
+### Used by
+
+ - [slot-nested-order-parent](.)
+
+### Graph
+```mermaid
+graph TD;
+  slot-nested-order-parent --> slot-nested-order-child
+  style slot-nested-order-child fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `slot-nested-order-parent`
+
+### Dependencies
 
 ### Depends on
 
@@ -17,6 +35,7 @@ graph TD;
   slot-nested-order-parent --> slot-nested-order-child
   style slot-nested-order-parent fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

@@ -5,11 +5,24 @@
 <!-- Auto Generated Below -->
 
 
-## Properties
+## `slot-dynamic-name-change-scoped`
+
+### Properties
 
 | Property   | Attribute   | Description | Type     | Default      |
 | ---------- | ----------- | ----------- | -------- | ------------ |
 | `slotName` | `slot-name` |             | `string` | `'greeting'` |
+
+
+
+## `slot-dynamic-name-change-shadow`
+
+### Properties
+
+| Property   | Attribute   | Description | Type     | Default      |
+| ---------- | ----------- | ----------- | -------- | ------------ |
+| `slotName` | `slot-name` |             | `string` | `'greeting'` |
+
 
 
 ----------------------------------------------
