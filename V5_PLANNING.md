@@ -254,7 +254,23 @@ Hydration on a normal-sized page with multiple components can block the JS main 
 
 ---
 
-### 2. 🧱 `ssr.reHydrate: 'none'` — Truly static components (Medium)
+### 2. 📦 Serialize `orgLocNodes` map as JSON (Medium)
+
+**Problem:** `initializeDocumentHydrate` does a full recursive walk of `document.body` on every page load purely to build `plt.$orgLocNodes$` — a map of component host IDs and original-location comment anchors. This data is entirely knowable at SSR time.
+
+**Fix:** During SSR, emit the org-loc data as a JSON blob (e.g. `<script type="application/json" id="stencil-ol">{...}</script>`). On the client, if the script tag is present, parse it and populate `plt.$orgLocNodes$` directly — skipping `initializeDocumentHydrate` entirely.
+
+**What needs to be serialized:**
+- Component host IDs (to populate the `id → element` half of the map): the client can resolve these via `querySelectorAll('[s-id]')` — fast, browser-indexed, no tree walk needed.
+- Original-location anchors (the `o.hostId.nodeId` comment nodes): comments can't be CSS-queried, so the JSON needs enough positional info to find them without a full walk (e.g. a targeted `TreeWalker(SHOW_COMMENT)` filtered to only visit nodes near known host elements, rather than the full document).
+
+**Fallback:** if the script tag is absent (non-SSR page, or older SSR output), fall back to the existing `initializeDocumentHydrate` walk as today.
+
+**Scope:** SSR annotation output + `client-hydrate.ts` + `connected-callback.ts`.
+
+---
+
+### 3. 🧱 `ssr.reHydrate: 'none'` — Truly static components (Medium)
 
 A `@Component` decorator option for purely presentational components (headers, footers, decorative wrappers) that never need client-side rendering or reactivity.
 
@@ -331,10 +347,11 @@ A top-level `@Component` decorator option controlling *when* hydration is trigge
 | # | Feature | Difficulty | Files touched |
 |---|---------|-----------|---------------|
 | 1 | TreeWalker traversal | Easy | `client-hydrate.ts` |
-| 2 | `ssr.reHydrate: 'none'` | Medium | `connected-callback.ts`, `vdom-annotations.ts`, `constants.ts`, decorator types, build conditionals |
-| 3 | `hydrateOn: 'intersection'` | Medium-Hard | `connected-callback.ts`, decorator types, build conditionals |
-| 4 | `hydrateOn: 'idle'` | Medium | Same as above, simpler |
-| 5 | Single-pass pre-scan | Hard | `client-hydrate.ts`, `connected-callback.ts` |
+| 2 | Serialize `orgLocNodes` as JSON | Medium | SSR annotation output, `client-hydrate.ts`, `connected-callback.ts` |
+| 3 | `ssr.reHydrate: 'none'` | Medium | `connected-callback.ts`, `vdom-annotations.ts`, `constants.ts`, decorator types, build conditionals |
+| 4 | `hydrateOn: 'intersection'` | Medium-Hard | `connected-callback.ts`, decorator types, build conditionals |
+| 5 | `hydrateOn: 'idle'` | Medium | Same as above, simpler |
+| 6 | Single-pass pre-scan | Hard | `client-hydrate.ts`, `connected-callback.ts` |
 
 ---
 
