@@ -15,7 +15,7 @@ describe('prerender-utils', () => {
 
     beforeEach(() => {
       config = mockValidatedConfig();
-      const outputTargets = validateWww(config, [], []);
+      const outputTargets = validateWww(config, [], [{ type: 'www' } as d.OutputTargetWww]);
 
       manager = {
         config: config,

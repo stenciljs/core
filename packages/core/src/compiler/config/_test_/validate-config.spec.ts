@@ -258,10 +258,10 @@ describe('validation', () => {
     expect(config.devInspector).toBe(true);
   });
 
-  it('should default loader-bundle false and www true', () => {
+  it('should default to loader-bundle when no outputTargets configured', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.outputTargets.some((o) => o.type === 'loader-bundle')).toBe(false);
-    expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
+    expect(config.outputTargets.some((o) => o.type === 'loader-bundle')).toBe(true);
+    expect(config.outputTargets.some((o) => o.type === 'www')).toBe(false);
   });
 
   it('should error for invalid outputTarget type', () => {
@@ -274,9 +274,9 @@ describe('validation', () => {
     expect(validated.diagnostics).toHaveLength(1);
   });
 
-  it('should default outputTargets with www', () => {
+  it('should default outputTargets with loader-bundle', () => {
     const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
+    expect(config.outputTargets.some((o) => o.type === 'loader-bundle')).toBe(true);
   });
 
   it('should set compat defaults', () => {

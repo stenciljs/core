@@ -98,10 +98,10 @@ describe('validateLoaderBundleOutputTarget', () => {
     expect(outputTarget.empty).toBe(true);
   });
 
-  it('should default to not add loader-bundle when outputTargets exists, but without loader-bundle', () => {
+  it('should default to loader-bundle even when outputTargets is an empty array', () => {
     userConfig.outputTargets = [];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets.some((o) => o.type === LOADER_BUNDLE)).toBe(false);
+    expect(config.outputTargets.some((o) => o.type === LOADER_BUNDLE)).toBe(true);
   });
 
   it('defaults cjs to false when not specified', () => {

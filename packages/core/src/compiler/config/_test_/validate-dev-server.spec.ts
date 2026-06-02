@@ -73,6 +73,13 @@ describe('validateDevServer', () => {
   });
 
   it('should default root', () => {
+    // No www output target → dev server root is rootDir (the project root)
+    const { config } = validateConfig(inputConfig, mockLoadConfigInit());
+    expect(config.devServer.root).toBe(normalizePath(path.join(root, 'some', 'path')));
+  });
+
+  it('should default root to www/appDir when www output is configured', () => {
+    inputConfig.outputTargets = [{ type: 'www' }];
     const { config } = validateConfig(inputConfig, mockLoadConfigInit());
     expect(config.devServer.root).toBe(normalizePath(path.join(root, 'some', 'path', 'www')));
   });

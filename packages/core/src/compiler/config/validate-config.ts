@@ -106,13 +106,15 @@ export const validateConfig = (
 
   // Auto-detect global style / script if not explicitly configured.
   // Checks src/global.{css,scss,sass} and src/global.{ts,js} respectively.
-  if (!isString(config.globalStyle) || !isString(config.globalScript)) {
+  if ((!isString(config.globalStyle) || !isString(config.globalScript)) && typeof sys.accessSync === 'function') {
+    // rootDir may not be set yet (validatePaths runs later), so use the same fallback
+    const preRootDir = typeof config.rootDir !== 'string' ? '/' : config.rootDir;
     const srcDir =
       typeof config.srcDir === 'string'
         ? isAbsolute(config.srcDir)
           ? config.srcDir
-          : join(config.rootDir, config.srcDir)
-        : join(config.rootDir, 'src');
+          : join(preRootDir, config.srcDir)
+        : join(preRootDir, 'src');
 
     if (!isString(config.globalStyle)) {
       for (const ext of STYLE_EXT) {

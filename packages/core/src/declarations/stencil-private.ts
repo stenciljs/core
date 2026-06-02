@@ -268,7 +268,7 @@ export interface BuildCtx {
    * A collection of Stencil's intermediate representation of components, tied to the current build
    */
   moduleFiles: Module[];
-  packageJson: PackageJsonData;
+  packageJson: PackageJsonData | null;
   pendingCopyTasks: Promise<CopyResults>[];
   progress(task: BuildTask): void;
   requiresFullBuild: boolean;

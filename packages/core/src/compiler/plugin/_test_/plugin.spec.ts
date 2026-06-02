@@ -15,7 +15,7 @@ describe('plugin', () => {
   const root = path.resolve('/');
 
   beforeAll(async () => {
-    setup = await prepareTestCompiler();
+    setup = await prepareTestCompiler({ config: { outputTargets: [{ type: 'www' }] } });
   });
 
   beforeEach(async () => {

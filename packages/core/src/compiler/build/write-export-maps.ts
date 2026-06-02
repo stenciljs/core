@@ -69,7 +69,7 @@ const generateRootExport = (
   }
 
   // Check if the current root export already points to a valid output
-  const currentExports = buildCtx.packageJson.exports as Record<string, unknown> | undefined;
+  const currentExports = buildCtx.packageJson?.exports as Record<string, unknown> | undefined;
   const currentRootExport = currentExports?.['.'] as Record<string, string> | undefined;
   const currentImport = currentRootExport?.import;
 

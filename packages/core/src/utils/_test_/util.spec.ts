@@ -59,6 +59,7 @@ describe('util', () => {
 
     beforeEach(() => {
       buildCtx = mockBuildCtx();
+      buildCtx.packageJson = {};
     });
 
     it("returns false when the packageJson field isn't set on the build context", () => {

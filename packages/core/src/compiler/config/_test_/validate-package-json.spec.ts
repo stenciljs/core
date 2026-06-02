@@ -18,6 +18,7 @@ describe('validateBuildPackageJson', () => {
     compilerCtx.fs.accessSync = () => true;
 
     buildCtx = mockBuildCtx(config, compilerCtx);
+    buildCtx.packageJson = {};
     buildCtx.packageJson.module = 'dist/loader-bundle/index.js';
     buildCtx.packageJson.types = 'dist/types/index.d.ts';
     buildCtx.packageJson.type = 'module';

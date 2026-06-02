@@ -10,7 +10,7 @@ describe('outputTarget, www', () => {
   const root = path.resolve('/');
 
   beforeEach(async () => {
-    const result = await createTestCompiler();
+    const result = await createTestCompiler({ config: { outputTargets: [{ type: 'www' }] } });
     compiler = result.compiler;
   });
 
