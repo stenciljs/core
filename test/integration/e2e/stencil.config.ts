@@ -37,6 +37,7 @@ export const config: Config = {
     },
     {
       type: 'ssr',
+      minify: true,
     },
     {
       type: 'docs-json',

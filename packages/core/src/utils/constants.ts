@@ -224,7 +224,7 @@ export const SSR_WASM = 'ssr-wasm';
  * Contains transpiled source + metadata for downstream Stencil projects
  * to re-compile/bundle.
  */
-export const STENCIL_REBUNDLE = 'collection';
+export const COLLECTION = 'collection';
 
 /**
  * Constant for the 'types' output target
@@ -287,7 +287,7 @@ export const WWW = 'www';
  * Note that some internal output targets (e.g. `DIST_LAZY`, `DIST_GLOBAL_STYLES`)
  * are programmatically created by the compiler and are not user-configurable.
  *
- * In v5, `TYPES` and `STENCIL_REBUNDLE` are auto-generated in production builds unless explicitly configured.
+ * In v5, `TYPES` and `COLLECTION` are auto-generated in production builds unless explicitly configured.
  */
 export const VALID_CONFIG_OUTPUT_TARGETS = [
   // DISTRIBUTION
@@ -296,7 +296,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   STANDALONE,
   SSR,
   SSR_WASM,
-  STENCIL_REBUNDLE,
+  COLLECTION,
   TYPES,
   GLOBAL_STYLE,
   ASSETS,
@@ -321,6 +321,8 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
 ] as const;
 
 export const GENERATED_DTS = 'components.d.ts';
+
+export const STYLE_EXT = ['css', 'scss', 'sass', 'pcss', 'styl', 'stylus', 'less'];
 
 /**
  * DOM Node types

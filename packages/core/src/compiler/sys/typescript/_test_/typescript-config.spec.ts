@@ -80,7 +80,7 @@ describe('typescript-config', () => {
         errors: [],
       });
 
-      const result = await tsConfig.validateTsConfig(config, mockSys, {});
+      const result = await tsConfig.validateTsConfig(config, mockSys);
       expect(result.watchOptions).toEqual({
         excludeFiles: ['exclude.ts'],
         excludeDirectories: ['exclude-dir'],
@@ -94,7 +94,7 @@ describe('typescript-config', () => {
         errors: [],
       });
 
-      const result = await tsConfig.validateTsConfig(config, mockSys, {});
+      const result = await tsConfig.validateTsConfig(config, mockSys);
       expect(result.watchOptions).toEqual({});
     });
   });

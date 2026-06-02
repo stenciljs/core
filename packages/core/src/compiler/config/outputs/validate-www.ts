@@ -2,11 +2,9 @@ import { isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
 import {
-  ASSETS,
   buildError,
   COPY,
   DIST_LAZY,
-  GLOBAL_STYLE,
   isBoolean,
   isNumber,
   isOutputTargetLoaderBundle,
@@ -15,9 +13,6 @@ import {
   isString,
   join,
   STANDALONE,
-  STENCIL_REBUNDLE,
-  TYPES,
-  WWW,
 } from '../../../utils';
 import { getAbsolutePath } from '../config-utils';
 import {
@@ -34,19 +29,7 @@ export const validateWww = (
   diagnostics: d.Diagnostic[],
   userOutputs: d.OutputTarget[],
 ) => {
-  // Only count 'real' user-configured output targets - exclude auto-generated
-  // outputs (types, collection, global-style, assets) that autoGenerateOutputs()
-  // may have injected into userOutputs before this function was called, so a bare config
-  // (no explicit output targets) still gets the default www output added.
-  const AUTO_GENERATED_TYPES = [TYPES, STENCIL_REBUNDLE, GLOBAL_STYLE, ASSETS] as const;
-  const hasOutputTargets = userOutputs.some(
-    (o) => !AUTO_GENERATED_TYPES.includes(o.type as (typeof AUTO_GENERATED_TYPES)[number]),
-  );
   const userWwwOutputs = userOutputs.filter(isOutputTargetWww);
-
-  if (!hasOutputTargets) {
-    userWwwOutputs.push({ type: WWW });
-  }
 
   // Auto-detect bundleMode based on configured primary output:
   // If standalone is configured but NOT loader-bundle, default to 'standalone'

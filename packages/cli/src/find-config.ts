@@ -14,7 +14,7 @@ type FindConfigOptions = {
  * The results of attempting to find a Stencil configuration file on disk
  */
 type FindConfigResults = {
-  configPath: string;
+  configPath: string | null;
   rootDir: string;
 };
 
@@ -47,7 +47,7 @@ export const findConfig = async (
   }
 
   const results: FindConfigResults = {
-    configPath,
+    configPath: null,
     rootDir: normalizePath(cwd),
   };
 
@@ -65,7 +65,7 @@ export const findConfig = async (
     results.configPath = configPath;
     results.rootDir = sys.platformPath.dirname(configPath);
   } else if (stat.isDirectory) {
-    // this is only a directory, so let's make some assumptions
+    results.rootDir = configPath;
     for (const configName of ['stencil.config.ts', 'stencil.config.js']) {
       const testConfigFilePath = sys.platformPath.join(configPath, configName);
       const conf = await sys.stat(testConfigFilePath);
@@ -75,6 +75,7 @@ export const findConfig = async (
         break;
       }
     }
+    // if no config file found, configPath remains null — loadConfig handles this gracefully
   }
 
   return result.ok(results);

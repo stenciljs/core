@@ -9,6 +9,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as zlib from 'node:zlib';
 
+import { generateDevPreview } from './dev-preview';
 import { getEditors, serveOpenInEditor } from './editor';
 import { ssrPageRequest, ssrStaticDataRequest } from './ssr';
 import {
@@ -526,6 +527,25 @@ async function serveDirectoryIndex(
   try {
     const dirFilePaths = await serverCtx.sys.readDir(req.filePath!);
 
+    const hasTsx = dirFilePaths.some((f) => f.endsWith('.tsx'));
+    const hasHtml = dirFilePaths.some((f) => f.endsWith('.html') || f.endsWith('.htm'));
+    if (hasTsx && !hasHtml) {
+      return serveDevPreview(devServerConfig, serverCtx, req, res, req.filePath!);
+    }
+
+    // At the project root with no index.html, redirect into src/ if it exists
+    if (req.pathname === '/' || req.pathname === devServerConfig.basePath) {
+      const srcPath = path.join(req.filePath!, 'src');
+      try {
+        const srcStats = await serverCtx.sys.stat(srcPath);
+        if (srcStats.isDirectory) {
+          return serverCtx.serve302(req, res, '/src/');
+        }
+      } catch {
+        // no src/ — fall through to dir listing
+      }
+    }
+
     try {
       if (serverCtx.dirTemplate == null) {
         const dirTemplatePath = path.join(
@@ -560,6 +580,35 @@ async function serveDirectoryIndex(
     }
   } catch {
     return serverCtx.serve404(req, res, 'serveDirectoryIndex');
+  }
+}
+
+async function serveDevPreview(
+  devServerConfig: DevServerConfig,
+  serverCtx: DevServerContext,
+  req: HttpRequest,
+  res: ServerResponse,
+  filterDirPath?: string,
+): Promise<void> {
+  try {
+    const buildResults = await serverCtx.getBuildResults();
+    const html = appendDevServerClientScript(
+      devServerConfig,
+      req,
+      generateDevPreview(buildResults, filterDirPath),
+    );
+    const buf = Buffer.from(html, 'utf-8');
+    serverCtx.logRequest(req, 200);
+    res.writeHead(
+      200,
+      responseHeaders({
+        'content-type': 'text/html;charset=utf-8',
+        'content-length': buf.byteLength,
+      }),
+    );
+    res.end(buf);
+  } catch (e) {
+    serverCtx.serve500(req, res, e, 'serveDevPreview');
   }
 }
 

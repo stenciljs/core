@@ -90,7 +90,7 @@ export const run = async (init: d.CliInitOptions) => {
     const configWithFlags = mergeFlags({}, flags);
     const validated = await coreCompiler.loadConfig({
       config: configWithFlags,
-      configPath: foundConfig.configPath,
+      configPath: foundConfig.configPath ?? undefined,
       logger,
       sys,
     });

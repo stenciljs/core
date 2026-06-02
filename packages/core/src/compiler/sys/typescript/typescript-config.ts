@@ -13,11 +13,7 @@ import {
   relative,
 } from '../../../utils';
 
-export const validateTsConfig = async (
-  config: d.ValidatedConfig,
-  sys: d.CompilerSystem,
-  init: d.LoadConfigInit,
-) => {
+export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.CompilerSystem) => {
   const tsconfig = {
     path: '',
     compilerOptions: {} as ts.CompilerOptions,
@@ -30,7 +26,7 @@ export const validateTsConfig = async (
   };
 
   try {
-    const readTsConfig = await getTsConfigPath(config, sys, init);
+    const readTsConfig = await getTsConfigPath(config, sys);
     if (!readTsConfig) {
       const diagnostic = buildError(tsconfig.diagnostics);
       diagnostic.header = `Missing tsconfig.json`;
@@ -107,14 +103,7 @@ export const validateTsConfig = async (
         tsconfig.compilerOptions = results.options;
 
         const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
-        if (
-          [
-            ts.ScriptTarget.ES3,
-            ts.ScriptTarget.ES5,
-            ts.ScriptTarget.ES2015,
-            ts.ScriptTarget.ES2016,
-          ].includes(target)
-        ) {
+        if (target < ts.ScriptTarget.ES2017) {
           const warn = buildWarn(tsconfig.diagnostics);
           warn.messageText = `Stencil requires the tsconfig.json “target” setting to be “es2017” or higher. ES5 build output is no longer supported.`;
         }
@@ -138,7 +127,6 @@ export const validateTsConfig = async (
 const getTsConfigPath = async (
   config: d.ValidatedConfig,
   sys: d.CompilerSystem,
-  init: d.LoadConfigInit,
 ): Promise<{
   path: string;
   content: string;
@@ -160,12 +148,6 @@ const getTsConfigPath = async (
 
   tsconfig.content = await sys.readFile(tsconfig.path);
   if (!isString(tsconfig.content)) {
-    if (!init.initTsConfig) {
-      // not set to automatically generate a default tsconfig
-      return null;
-    }
-
-    // create a default tsconfig
     tsconfig.path = join(config.rootDir, 'tsconfig.json');
     tsconfig.content = createDefaultTsConfig(config);
     await sys.writeFile(tsconfig.path, tsconfig.content);
@@ -180,17 +162,18 @@ const createDefaultTsConfig = (config: d.ValidatedConfig) =>
   JSON.stringify(
     {
       compilerOptions: {
-        allowSyntheticDefaultImports: true,
         experimentalDecorators: true,
-        lib: ['dom', 'es2015'],
-        moduleResolution: 'node',
-        module: 'esnext',
-        target: 'es2017',
-        jsx: 'react',
-        jsxFactory: 'h',
-        jsxFragmentFactory: 'Fragment',
-        sourceMap: config.sourceMap,
-        inlineSources: config.sourceMap,
+        strict: true,
+        target: 'ES2022',
+        module: 'ESNext',
+        moduleResolution: 'bundler',
+        lib: ['ES2022', 'DOM'],
+        jsx: 'react-jsx',
+        jsxImportSource: '@stencil/core',
+        resolveJsonModule: true,
+        allowJs: true,
+        rootDir: './',
+        outDir: './dist',
       },
       include: [relative(config.rootDir, config.srcDir)],
     },

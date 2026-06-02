@@ -82,7 +82,7 @@ export const loadConfig = async (init: LoadConfigInit = {}): Promise<LoadConfigR
     results.config = validated.config;
 
     if (!hasError(results.diagnostics)) {
-      const tsConfigResults = await validateTsConfig(results.config, sys, init);
+      const tsConfigResults = await validateTsConfig(results.config, sys);
       results.diagnostics.push(...tsConfigResults.diagnostics);
 
       results.config.tsconfig = tsConfigResults.path;

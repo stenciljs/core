@@ -3,15 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import {
-  ASSETS,
-  COPY,
-  DIST_LAZY,
-  join,
-  LOADER_BUNDLE,
-  STENCIL_REBUNDLE,
-  TYPES,
-} from '../../../utils';
+import { ASSETS, COPY, DIST_LAZY, join, LOADER_BUNDLE, COLLECTION, TYPES } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateLoaderBundleOutputTarget', () => {
@@ -250,7 +242,7 @@ describe('validateLoaderBundleOutputTarget', () => {
     it('auto-generates collection alongside loader-bundle in production mode', () => {
       prodConfig.outputTargets = [{ type: LOADER_BUNDLE }];
       const { config } = validateConfig(prodConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === COLLECTION)).toBe(true);
     });
 
     it('does not duplicate types if already explicitly configured', () => {
@@ -264,7 +256,7 @@ describe('validateLoaderBundleOutputTarget', () => {
       devConfig.outputTargets = [{ type: LOADER_BUNDLE }];
       const { config } = validateConfig(devConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
-      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === COLLECTION)).toBe(false);
     });
   });
 });

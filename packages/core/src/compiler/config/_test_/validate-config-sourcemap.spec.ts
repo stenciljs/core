@@ -34,7 +34,6 @@ describe('stencil config - sourceMap option', () => {
       configPath,
       sys: sys as any,
       config: {},
-      initTsConfig: true,
     };
 
     return mockLoadConfigInit({ ...defaults, ...overrides });

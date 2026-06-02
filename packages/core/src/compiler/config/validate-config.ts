@@ -1,3 +1,4 @@
+import { isAbsolute, join } from 'path';
 import {
   ConfigBundle,
   Diagnostic,
@@ -8,14 +9,13 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { isBoolean, isString, sortBy } from '../../utils';
+import { isBoolean, isString, sortBy, STYLE_EXT } from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import { DEFAULT_DEV_MODE } from './constants';
 import { validateOutputTargets } from './outputs';
 import { validateDevServer } from './validate-dev-server';
 import { validateDocs } from './validate-docs';
 import { validateHydrated } from './validate-hydrated';
-import { validateDistNamespace } from './validate-namespace';
 import { validateNamespace } from './validate-namespace';
 import { validatePaths } from './validate-paths';
 import { validatePlugins } from './validate-plugins';
@@ -101,6 +101,40 @@ export const validateConfig = (
     process.env.NODE_ENV === 'test'
   );
 
+  // Derive sys early — needed for namespace derivation from package.json before the config object is fully formed.
+  const sys = config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger });
+
+  // Auto-detect global style / script if not explicitly configured.
+  // Checks src/global.{css,scss,sass} and src/global.{ts,js} respectively.
+  if (!isString(config.globalStyle) || !isString(config.globalScript)) {
+    const srcDir =
+      typeof config.srcDir === 'string'
+        ? isAbsolute(config.srcDir)
+          ? config.srcDir
+          : join(config.rootDir, config.srcDir)
+        : join(config.rootDir, 'src');
+
+    if (!isString(config.globalStyle)) {
+      for (const ext of STYLE_EXT) {
+        const candidate = join(srcDir, `global.${ext}`);
+        if (sys.accessSync(candidate)) {
+          config.globalStyle = candidate;
+          break;
+        }
+      }
+    }
+
+    if (!isString(config.globalScript)) {
+      for (const ext of ['ts', 'js']) {
+        const candidate = join(srcDir, `global.${ext}`);
+        if (sys.accessSync(candidate)) {
+          config.globalScript = candidate;
+          break;
+        }
+      }
+    }
+  }
+
   const validatedConfig: ValidatedConfig = {
     devServer: {}, // assign `devServer` before spreading `config`, in the event 'devServer' is not a key on `config`
     ...config,
@@ -117,12 +151,12 @@ export const validateConfig = (
     sourceMap:
       config.sourceMap === true ||
       (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
-    sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
+    sys,
     docs: validateDocs(config, logger),
     transformAliasedImportPaths: isBoolean(userConfig.transformAliasedImportPaths)
       ? userConfig.transformAliasedImportPaths
       : true,
-    ...validateNamespace(config.namespace, config.fsNamespace, diagnostics),
+    ...validateNamespace(config.namespace, config.fsNamespace, diagnostics, config.rootDir, sys),
     ...validatePaths(config),
   };
 
@@ -200,10 +234,6 @@ export const validateConfig = (
 
   // default devInspector to whatever devMode is
   setBooleanConfig(validatedConfig, 'devInspector', validatedConfig.devMode);
-
-  if (!validatedConfig._isTesting) {
-    validateDistNamespace(validatedConfig, diagnostics);
-  }
 
   setBooleanConfig(validatedConfig, 'enableCache', true);
 
