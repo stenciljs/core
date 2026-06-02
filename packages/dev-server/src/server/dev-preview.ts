@@ -116,10 +116,11 @@ const toServePath = (absPath: string, rootDir: string): string =>
  * @returns A server-relative URL to a loader script, or null if not found.
  */
 const getLoaderUrl = ({ outputs, fsNamespace, rootDir }: CompilerBuildResults): string | null => {
-  const loaderBundle = outputs.find((o) => o.type === 'loader-bundle');
-  if (loaderBundle) {
+  // loader-bundle compiles via the internal 'dist-lazy' pipeline — files are tagged with that type
+  const distLazy = outputs.find((o) => o.type === 'dist-lazy');
+  if (distLazy) {
     // Browser entry is <fsNamespace>.js — exclude the .esm.js backwards-compat shim
-    const file = loaderBundle.files.find((f) => f.endsWith(`/${fsNamespace}.js`));
+    const file = distLazy.files.find((f) => f.endsWith(`/${fsNamespace}.js`));
     if (file) return toServePath(file, rootDir);
   }
 

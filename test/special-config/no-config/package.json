@@ -7,7 +7,8 @@
   "types": "dist/types/loader.d.ts",
   "scripts": {
     "start": "stencil build --dev --watch --serve",
-    "test": "node delete-tsconfig.js && playwright test"
+    "delete:tsconfig": "node delete-tsconfig.js",
+    "test": "pnpm run delete:tsconfig && playwright test"
   },
   "dependencies": {
     "@stencil/core": "workspace:*"

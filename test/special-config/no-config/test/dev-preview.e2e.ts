@@ -18,14 +18,14 @@ test.describe('no-config dev preview', () => {
     await expect(page.locator('.component-preview')).toHaveCount(3);
   });
 
-  // test('global.css is linked and applied in the dev preview', async ({ page }) => {
-  //   await page.goto('/src/cmp-1/');
-  //   await expect(page.locator('link[rel="stylesheet"]')).toHaveCount(1);
-  //   const value = await page.evaluate(() =>
-  //     getComputedStyle(document.documentElement).getPropertyValue('--nc-global-loaded').trim(),
-  //   );
-  //   expect(value).toBe('1');
-  // });
+  test('global.css is linked and applied in the dev preview', async ({ page }) => {
+    await page.goto('/src/cmp-1/');
+    await expect(page.locator('link[rel="stylesheet"]')).toHaveCount(1);
+    const value = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--nc-global-loaded').trim(),
+    );
+    expect(value).toBe('1');
+  });
 
   test('/src/cmp-2/ shows 1 default bare-tag preview', async ({ page }) => {
     await page.goto('/src/cmp-2/');
