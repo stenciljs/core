@@ -41,7 +41,6 @@ describe('load config', () => {
       config: {
         rootDir: '/foo/bar',
       },
-      initTsConfig: true,
     });
 
     expect(loadedConfig.diagnostics).toHaveLength(0);
@@ -58,7 +57,6 @@ describe('load config', () => {
     const loadedConfig = await loadConfig({
       configPath,
       sys,
-      initTsConfig: true,
     });
 
     expect(loadedConfig.diagnostics).toHaveLength(0);
@@ -71,7 +69,7 @@ describe('load config', () => {
 
   describe('empty initialization argument', () => {
     it('provides sensible default values with no config', async () => {
-      const loadedConfig = await loadConfig({ initTsConfig: true, sys });
+      const loadedConfig = await loadConfig({ sys });
 
       const actualConfig = loadedConfig.config;
       expect(actualConfig).toBeDefined();
@@ -80,46 +78,20 @@ describe('load config', () => {
       expect(actualConfig.configPath).toBe(null);
     });
 
-    it('creates a tsconfig file when "initTsConfig" set', async () => {
+    it('auto-generates a tsconfig.json when one is missing', async () => {
       const tsconfigPath = resolve(dirname(configPath), 'tsconfig.json');
       expect(sys.accessSync(tsconfigPath)).toBe(false);
-      const loadedConfig = await loadConfig({ initTsConfig: true, configPath, sys });
+      const loadedConfig = await loadConfig({ configPath, sys });
       expect(sys.accessSync(tsconfigPath)).toBe(true);
       expect(loadedConfig.diagnostics).toHaveLength(0);
-    });
-
-    it('errors that a tsconfig file could not be created when "initTsConfig" isn\'t present', async () => {
-      const loadedConfig = await loadConfig({ configPath, sys });
-      expect(loadedConfig.diagnostics).toHaveLength(1);
-      expect<d.Diagnostic>(loadedConfig.diagnostics[0]).toEqual({
-        absFilePath: undefined,
-        header: 'Missing tsconfig.json',
-        level: 'error',
-        lines: [],
-        messageText: `Unable to load TypeScript config file. Please create a "tsconfig.json" file within the "${normalizePath(
-          dirname(configPath),
-        )}" directory.`,
-        relFilePath: undefined,
-        type: 'build',
-      });
     });
   });
 
   describe('no initialization argument', () => {
-    it('errors that a tsconfig file cannot be found', async () => {
+    it('auto-generates a tsconfig.json and succeeds when no tsconfig is present', async () => {
       const loadConfigResults = await loadConfig({ sys });
-      expect(loadConfigResults.diagnostics).toHaveLength(1);
-      expect<d.Diagnostic>(loadConfigResults.diagnostics[0]).toEqual({
-        absFilePath: undefined,
-        header: 'Missing tsconfig.json',
-        level: 'error',
-        lines: [],
-        messageText: expect.stringMatching(
-          `Unable to load TypeScript config file. Please create a "tsconfig.json" file within the`,
-        ),
-        relFilePath: undefined,
-        type: 'build',
-      });
+      expect(loadConfigResults.diagnostics).toHaveLength(0);
+      expect(loadConfigResults.config).toBeDefined();
     });
   });
 });

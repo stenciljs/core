@@ -150,6 +150,44 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 
 ## Tasks
 
+### 🚀 Zero-Config DX (In Progress)
+
+Stencil is now 90%+ design systems, not apps. The DX should reflect that — `npx stencil build --dev --serve` in a directory with some `.tsx` files should just work.
+
+**Key decisions:**
+- No `stencil.config.ts` required — the compiler already handles a missing config gracefully (`loadConfig` has a "which is fine" path)
+- Default output is `loader-bundle`, not `www` — reflects the design system use case
+- Namespace derives from `package.json#name` (scope-stripped) → directory name → `'App'` as last resort
+- `validateDistNamespace` removed — derivation makes the "don't use App" guard unnecessary
+
+**What's done:**
+- [x] Default output changed from `www` to `loader-bundle` (`outputs/index.ts`)
+- [x] `validate-www.ts` no longer handles defaulting — only validates explicit `www` outputs
+- [x] Namespace auto-derived from `package.json` / directory name (`validate-namespace.ts`)
+- [x] `validateDistNamespace` removed
+- [x] `src/global.{css,scss,sass}` auto-detected → `config.globalStyle` if not set
+- [x] `src/global.{ts,js}` auto-detected → `config.globalScript` if not set
+
+**What's next:**
+
+#### ~~Auto-generate `tsconfig.json`~~ ✅
+- The mechanism already existed behind an `initTsConfig` flag that was never activated
+- Removed the flag — tsconfig is now always auto-written when missing (`typescript-config.ts`)
+- Updated template for v5: `moduleResolution: bundler`, `lib: [dom, ES2017]`, `strict: true`, dropped `sourceMap`/`inlineSources` (Stencil overrides at runtime)
+- Target version check now uses `< ES2017` comparison instead of deprecated `ES3`/`ES5` enum values
+
+#### ~~Dev server: no `index.html` required~~ ✅
+Default behaviour for any project **without a `www` output** (no-config or explicit config using `loader-bundle`/`standalone`):
+
+- `/` → redirects to `/src/` if it exists, otherwise shows dir listing
+- **Dir has `.tsx` files + no `.html` files** → per-directory component preview (only components from that dir), with loader `<script>` and global CSS `<link>`
+- **Dir has an `.html` file** → dir listing as usual (user can click through to their own page)
+- `www` projects are unaffected — their server root is `www.appDir`, not the project root
+
+This is filesystem-driven with no config gating — any non-www project benefits automatically.
+
+---
+
 ### 🌍 `ssr-wasm` Output Target (Planned)
 
 New output target that compiles the SSR script to a standalone `.wasm` binary, callable from any language with a WASM runtime (PHP via `ext-wasm`, Java via `wasmtime-java`, Ruby via `wasmtime-rb`, Go, Rust, etc.).

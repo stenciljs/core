@@ -141,9 +141,15 @@ describe('validateOutputTargetWww', () => {
     expect(www.empty).toBe(false);
   });
 
-  it('should default to add www when outputTargets is undefined', () => {
+  it('should default to loader-bundle when outputTargets is undefined', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
-    expect(config.outputTargets).toHaveLength(8); // types + collection (auto-gen in prod) + assets + www + dist-lazy + copy×2 + docs-readme
+    expect(config.outputTargets.some((o) => o.type === 'loader-bundle')).toBe(true);
+    expect(config.outputTargets.some((o) => o.type === 'www')).toBe(false);
+  });
+
+  it('should validate www when explicitly configured', () => {
+    userConfig.outputTargets = [{ type: 'www' }];
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
 
     const outputTarget = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(outputTarget.dir).toBe(join(rootDir, 'www'));
@@ -504,6 +510,7 @@ describe('validateOutputTargetWww', () => {
 
   describe('ssr', () => {
     it('should not add hydrate by default', () => {
+      userConfig.outputTargets = [{ type: 'www' }];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(false);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
@@ -534,6 +541,7 @@ describe('validateOutputTargetWww', () => {
 
     it('should add hydrate with prerender config', () => {
       userConfig.prerender = true;
+      userConfig.outputTargets = [{ type: 'www' }];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
@@ -541,6 +549,7 @@ describe('validateOutputTargetWww', () => {
 
     it('should add hydrate with ssr config', () => {
       userConfig.ssr = true;
+      userConfig.outputTargets = [{ type: 'www' }];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === 'ssr')).toBe(true);
       expect(config.outputTargets.some((o) => o.type === 'www')).toBe(true);
@@ -563,6 +572,7 @@ describe('validateOutputTargetWww', () => {
 
     it('should add node builtins to external by default', () => {
       userConfig.prerender = true;
+      userConfig.outputTargets = [{ type: 'www' }];
 
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       const o = config.outputTargets.find(isOutputTargetSsr) as d.OutputTargetSsr;

@@ -174,7 +174,6 @@ export const prepareTestCompiler = async (
   const { config: validatedConfig } = await loadConfig({
     sys,
     config: userConfig,
-    initTsConfig: false,
   });
 
   return { _validatedConfig: validatedConfig, _tsconfigPath: tsconfigPath };
@@ -228,7 +227,7 @@ export const createTestCompiler = async (
       ...options.config,
     };
 
-    const { config } = await loadConfig({ sys, config: userConfig, initTsConfig: false });
+    const { config } = await loadConfig({ sys, config: userConfig });
     validatedConfig = config;
   }
 

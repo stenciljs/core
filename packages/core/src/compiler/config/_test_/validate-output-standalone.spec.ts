@@ -3,15 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import {
-  ASSETS,
-  COPY,
-  LOADER_BUNDLE,
-  STENCIL_REBUNDLE,
-  STANDALONE,
-  TYPES,
-  join,
-} from '../../../utils';
+import { ASSETS, COPY, LOADER_BUNDLE, COLLECTION, STANDALONE, TYPES, join } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validate-output-standalone', () => {
@@ -424,7 +416,7 @@ describe('validate-output-standalone', () => {
     it('auto-generates collection alongside standalone in production mode', () => {
       prodConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(prodConfig, mockLoadConfigInit());
-      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(true);
+      expect(config.outputTargets.some((o) => o.type === COLLECTION)).toBe(true);
     });
 
     it('does not duplicate types if already explicitly configured', () => {
@@ -438,7 +430,7 @@ describe('validate-output-standalone', () => {
       devConfig.outputTargets = [{ type: STANDALONE }];
       const { config } = validateConfig(devConfig, mockLoadConfigInit());
       expect(config.outputTargets.some((o) => o.type === TYPES)).toBe(false);
-      expect(config.outputTargets.some((o) => o.type === STENCIL_REBUNDLE)).toBe(false);
+      expect(config.outputTargets.some((o) => o.type === COLLECTION)).toBe(false);
     });
   });
 });

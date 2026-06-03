@@ -1515,6 +1515,7 @@ export interface CompilerBuildResults {
   ssrAppFilePath?: string;
   isRebuild: boolean;
   namespace: string;
+  fsNamespace: string;
   outputs: BuildOutput[];
   rootDir: string;
   srcDir: string;
@@ -2648,12 +2649,6 @@ export interface LoadConfigInit {
   configPath?: string;
   logger?: Logger;
   sys?: CompilerSystem;
-  /**
-   * When set to true, if the "tsconfig.json" file is not found
-   * it'll automatically generate and save a default tsconfig
-   * within the root directory.
-   */
-  initTsConfig?: boolean;
 }
 
 /**

@@ -46,6 +46,7 @@ describe('validatePaths', () => {
   });
 
   it('should set default wwwIndexHtml and convert to absolute path', () => {
+    userConfig.outputTargets = [{ type: 'www' }] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(path.basename(www.indexHtml!)).toBe('index.html');
@@ -86,6 +87,7 @@ describe('validatePaths', () => {
   });
 
   it('should set default emptyWWW to true', () => {
+    userConfig.outputTargets = [{ type: 'www' }] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;
     expect(www.empty).toBe(true);
@@ -107,6 +109,7 @@ describe('validatePaths', () => {
   // These properties no longer exist on loader-bundle output target
 
   it('should set default build dir and convert to absolute path', () => {
+    userConfig.outputTargets = [{ type: 'www' }] as d.OutputTargetWww[];
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     // the path will be normalized by Stencil us use '/', split on that regardless of platform
     const www = config.outputTargets.find(isOutputTargetWww) as d.OutputTargetWww;

@@ -7,6 +7,7 @@ import {
   isOutputTargetDocsVscode,
   isOutputTargetStats,
   isString,
+  STYLE_EXT,
   unique,
 } from '../../utils';
 
@@ -58,8 +59,6 @@ const hasScriptExt = (filePath: string): boolean => {
 
   return ext ? SCRIPT_EXT.includes(ext) : false;
 };
-
-const STYLE_EXT = ['css', 'scss', 'sass', 'pcss', 'styl', 'stylus', 'less'];
 
 /**
  * Helper to check if a filepath has a style extension
@@ -118,9 +117,23 @@ export const hasStyleChanges = (buildCtx: d.BuildCtx): boolean =>
  */
 export const hasHtmlChanges = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): boolean => {
   const srcDirPrefix = config.srcDir + '/';
-  return buildCtx.filesChanged.some(
-    (f) => f.toLowerCase().endsWith('.html') && f.startsWith(srcDirPrefix),
-  );
+
+  const isHtmlOrUsageMd = (f: string) => {
+    if (!f.startsWith(srcDirPrefix)) return false;
+    const lower = f.toLowerCase();
+    return lower.endsWith('.html') || (lower.endsWith('.md') && f.includes('/usage/'));
+  };
+
+  if (buildCtx.filesChanged.some(isHtmlOrUsageMd)) return true;
+  if (buildCtx.filesDeleted.some(isHtmlOrUsageMd)) return true;
+
+  // Deleting a usage/ directory fires dirDelete, not individual fileDelete events
+  const isUsageDir = (d: string) => d.startsWith(srcDirPrefix) && /\/usage\/?$/.test(d);
+  if (buildCtx.dirsDeleted.some(isUsageDir)) return true;
+
+  // Adding or removing a component file changes the set of renderable components
+  const isSrcTsx = (f: string) => f.startsWith(srcDirPrefix) && f.toLowerCase().endsWith('.tsx');
+  return buildCtx.filesAdded.some(isSrcTsx) || buildCtx.filesDeleted.some(isSrcTsx);
 };
 
 /**

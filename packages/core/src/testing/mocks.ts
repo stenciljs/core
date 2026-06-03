@@ -214,7 +214,6 @@ export const mockLoadConfigInit = (overrides?: Partial<d.LoadConfigInit>): d.Loa
   const defaults: d.LoadConfigInit = {
     config: {},
     configPath: undefined,
-    initTsConfig: true,
     logger: undefined,
     sys: undefined,
   };

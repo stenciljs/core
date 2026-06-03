@@ -25,3 +25,5 @@ Generally, non-trivial changes should pass -
 - `pnpm lint`
 
 To run a specific unit test: `pnpm -F PACKAGE_NAME test TEST_NAME`
+
+When adding debug / console.log messaging, do not remove it until it has been confirmed that the issue has been resolved by the user. 

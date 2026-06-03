@@ -1,0 +1,24 @@
+{
+  "name": "@stencil-core-tests/special-config-no-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/loader.d.ts",
+  "scripts": {
+    "start": "stencil build --dev --watch --serve",
+    "delete:tsconfig": "node delete-tsconfig.js",
+    "test": "pnpm run delete:tsconfig && playwright test"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@stencil/playwright": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

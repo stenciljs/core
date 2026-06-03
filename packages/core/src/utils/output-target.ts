@@ -10,7 +10,7 @@ import {
   STANDALONE,
   SSR,
   SSR_WASM,
-  STENCIL_REBUNDLE,
+  COLLECTION,
   TYPES,
   GLOBAL_STYLE,
   ASSETS,
@@ -152,7 +152,7 @@ export const isOutputTargetSsrWasm = (o: d.OutputTarget): o is d.OutputTargetSsr
   o.type === SSR_WASM;
 
 export const isOutputTargetCollection = (o: d.OutputTarget): o is d.OutputTargetCollection =>
-  o.type === STENCIL_REBUNDLE;
+  o.type === COLLECTION;
 
 export const isOutputTargetTypes = (o: d.OutputTarget): o is d.OutputTargetTypes =>
   o.type === TYPES;

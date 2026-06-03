@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mockConfig, mockLoadConfigInit } from '../../../testing';
-import { isOutputTargetCollection, join, resolve, STENCIL_REBUNDLE } from '../../../utils';
+import { isOutputTargetCollection, join, resolve, COLLECTION } from '../../../utils';
 import { validateConfig } from '../validate-config';
 
 describe('validateCollectionOutputTarget', () => {
@@ -17,7 +17,7 @@ describe('validateCollectionOutputTarget', () => {
 
   it('sets correct default values', () => {
     const target: d.OutputTargetCollection = {
-      type: STENCIL_REBUNDLE,
+      type: COLLECTION,
       empty: false,
       dir: null,
     };
@@ -27,7 +27,7 @@ describe('validateCollectionOutputTarget', () => {
 
     const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
     expect(collection).toEqual({
-      type: STENCIL_REBUNDLE,
+      type: COLLECTION,
       empty: false,
       dir: defaultDir,
       transformAliasedImportPaths: true,
@@ -37,7 +37,7 @@ describe('validateCollectionOutputTarget', () => {
 
   it('sets specified directory', () => {
     const target: d.OutputTargetCollection = {
-      type: STENCIL_REBUNDLE,
+      type: COLLECTION,
       empty: false,
       dir: '/my-dist',
     };
@@ -47,7 +47,7 @@ describe('validateCollectionOutputTarget', () => {
 
     const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
     expect(collection).toEqual({
-      type: STENCIL_REBUNDLE,
+      type: COLLECTION,
       empty: false,
       skipInDev: true,
       dir: '/my-dist',
@@ -60,7 +60,7 @@ describe('validateCollectionOutputTarget', () => {
       "sets option '%s' when explicitly '%s' in config",
       (transformAliasedImportPaths: boolean) => {
         const target: d.OutputTargetCollection = {
-          type: STENCIL_REBUNDLE,
+          type: COLLECTION,
           empty: false,
           dir: null,
           transformAliasedImportPaths,
@@ -71,7 +71,7 @@ describe('validateCollectionOutputTarget', () => {
 
         const collection = validatedConfig.outputTargets.find(isOutputTargetCollection);
         expect(collection).toEqual({
-          type: STENCIL_REBUNDLE,
+          type: COLLECTION,
           empty: false,
           dir: defaultDir,
           transformAliasedImportPaths,

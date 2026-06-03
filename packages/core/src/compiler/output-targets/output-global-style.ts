@@ -62,7 +62,9 @@ export const outputGlobalStyle = async (
 
       // Write to the primary location (e.g., dist/assets/{fileName})
       const primaryPath = join(outputTarget.dir, outputTarget.fileName);
-      writePromises.push(compilerCtx.fs.writeFile(primaryPath, css));
+      writePromises.push(
+        compilerCtx.fs.writeFile(primaryPath, css, { outputTargetType: outputTarget.type }),
+      );
 
       // Handle copyToLoaderBrowser for backwards compatibility
       if (outputTarget.copyToLoaderBrowser && loaderBundleTargets.length > 0) {

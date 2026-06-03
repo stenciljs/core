@@ -46,7 +46,7 @@ export class BuildContext implements d.BuildCtx {
   isRebuild = false;
   moduleFiles: d.Module[] = [];
   outputs: d.BuildOutput[] = [];
-  packageJson: d.PackageJsonData = {};
+  packageJson: d.PackageJsonData = null;
   packageJsonFilePath: string = null;
   pendingCopyTasks: Promise<d.CopyResults>[] = [];
   requiresFullBuild = true;

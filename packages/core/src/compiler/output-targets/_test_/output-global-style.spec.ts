@@ -102,6 +102,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(outputDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
     });
 
@@ -124,6 +125,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(outputDir, customFileName),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
     });
   });
@@ -158,6 +160,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(assetsDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
 
       // Compat copy to loader-bundle browser dir
@@ -196,6 +199,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(assetsDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
 
       // Loader-bundle browser dir should NOT be written
@@ -225,6 +229,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(assetsDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
     });
   });
@@ -260,6 +265,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(assetsDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
 
       // www build dir
@@ -353,10 +359,12 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join('/dist/assets', 'global1.css'),
         css1,
+        { outputTargetType: GLOBAL_STYLE },
       );
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join('/dist/assets', 'global2.css'),
         css2,
+        { outputTargetType: GLOBAL_STYLE },
       );
     });
 
@@ -386,10 +394,12 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join('/dist/assets1', `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join('/dist/assets2', `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
 
       // buildGlobalStyleFromInput was called twice, but the actual implementation
@@ -440,6 +450,7 @@ describe('outputGlobalStyle', () => {
       expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
         join(assetsDir, `${namespace}.css`),
         cssContent,
+        { outputTargetType: GLOBAL_STYLE },
       );
 
       // Loader-bundle compat copy

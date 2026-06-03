@@ -5,7 +5,7 @@ import { getBuildTimestamp } from './build-ctx';
 import { generateHmr } from './build-hmr';
 
 export const generateBuildResults = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ) => {
@@ -27,6 +27,7 @@ export const generateBuildResults = (
     hasSuccessfulBuild: compilerCtx.hasSuccessfulBuild,
     isRebuild: buildCtx.isRebuild,
     namespace: config.namespace,
+    fsNamespace: config.fsNamespace,
     outputs: compilerCtx.fs.getBuildOutputs(),
     components: buildCtx.components.slice(),
     rootDir: config.rootDir,

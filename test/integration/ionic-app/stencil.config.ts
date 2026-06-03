@@ -1,9 +1,8 @@
 import { Config } from '@stencil/core';
 
 export const config: Config = {
-  devServer: {
-    port: 3335,
-  },
+  namespace: 'app',
+  devServer: { port: 3335 },
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [{ type: 'www', hashFileNames: false }],
   globalScript: 'src/global/app.ts',

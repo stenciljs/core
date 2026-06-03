@@ -12,7 +12,8 @@ import {
   isOutputTargetTypes,
   isString,
   isValidConfigOutputTarget,
-  STENCIL_REBUNDLE,
+  LOADER_BUNDLE,
+  COLLECTION,
   TYPES,
   VALID_CONFIG_OUTPUT_TARGETS,
 } from '../../../utils';
@@ -53,6 +54,16 @@ export const validateOutputTargets = (config: d.ValidatedConfig, diagnostics: d.
       }". Valid outputTarget types include: ${VALID_CONFIG_OUTPUT_TARGETS.map((t) => `"${t}"`).join(', ')}`;
     }
   });
+
+  // Default to loader-bundle when no real user outputs are configured.
+  // Excludes auto-generated outputs that may have been injected by a previous pass.
+  const IMPLICIT_TYPES = [TYPES, COLLECTION, GLOBAL_STYLE, ASSETS] as const;
+  const hasRealOutputs = userOutputs.some(
+    (o) => !IMPLICIT_TYPES.includes(o.type as (typeof IMPLICIT_TYPES)[number]),
+  );
+  if (!hasRealOutputs) {
+    userOutputs.push({ type: LOADER_BUNDLE } as d.OutputTargetLoaderBundle);
+  }
 
   // Auto-generate types and collection in production builds unless explicitly configured
   autoGenerateOutputs(config, userOutputs, diagnostics);
@@ -148,7 +159,7 @@ const autoGenerateOutputs = (
   // Auto-generate collection output if not explicitly configured
   if (!hasExplicitCollection) {
     userOutputs.push({
-      type: STENCIL_REBUNDLE,
+      type: COLLECTION,
     } as d.OutputTargetCollection);
   }
 };
