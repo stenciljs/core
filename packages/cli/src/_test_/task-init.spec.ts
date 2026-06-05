@@ -5,7 +5,11 @@ import type { KnownIntegration } from '../wizard/init/steps';
 // vi.hoisted runs before vi.mock hoisting — used for values that vary between tests
 const stdEnv = vi.hoisted(() => ({ isCI: false }));
 
-vi.mock('std-env', () => ({ get isCI() { return stdEnv.isCI; } }));
+vi.mock('std-env', () => ({
+  get isCI() {
+    return stdEnv.isCI;
+  },
+}));
 vi.mock('node:fs', () => ({ existsSync: vi.fn().mockReturnValue(false) }));
 vi.mock('nypm', () => ({ installDependencies: vi.fn().mockResolvedValue(undefined) }));
 
@@ -33,12 +37,13 @@ vi.mock('../wizard/init/apply', () => ({
 }));
 
 import { existsSync } from 'node:fs';
-import { installDependencies } from 'nypm';
 import * as clack from '@clack/prompts';
-import { discoverPlugins } from '../wizard/discover';
-import { promptProjectName, promptIntegrations } from '../wizard/init/steps';
-import { copyTemplate, patchPackageJson, applyConfigPatches } from '../wizard/init/apply';
+import { installDependencies } from 'nypm';
+
 import { taskInit } from '../task-init';
+import { discoverPlugins } from '../wizard/discover';
+import { copyTemplate, patchPackageJson, applyConfigPatches } from '../wizard/init/apply';
+import { promptProjectName, promptIntegrations } from '../wizard/init/steps';
 
 const CWD = '/project';
 
@@ -103,7 +108,10 @@ describe('taskInit', () => {
       makeIntegration('@stencil/sass', 'Styling'),
     ]);
     await taskInit();
-    expect(vi.mocked(patchPackageJson)).toHaveBeenCalledWith(CWD, ['@stencil/vitest', '@stencil/sass']);
+    expect(vi.mocked(patchPackageJson)).toHaveBeenCalledWith(CWD, [
+      '@stencil/vitest',
+      '@stencil/sass',
+    ]);
   });
 
   it('does not discover plugins when no integrations are selected', async () => {
