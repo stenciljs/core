@@ -1,7 +1,7 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
 import * as utils from '@stencil/core/compiler/utils';
+import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
 import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type * as d from '@stencil/core/compiler';
 
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
@@ -25,6 +25,7 @@ vi.mock('../wizard/discover', () => ({
 }));
 
 import * as clack from '@clack/prompts';
+
 import { discoverPlugins } from '../wizard/discover';
 
 const mockSelect = vi.mocked(clack.select);
@@ -157,10 +158,9 @@ describe('generate task', () => {
 
     await taskGenerate(config, flags);
 
-    expect(createDirSpy).toHaveBeenCalledWith(
-      `${SRC}/components/my-component`,
-      { recursive: true },
-    );
+    expect(createDirSpy).toHaveBeenCalledWith(`${SRC}/components/my-component`, {
+      recursive: true,
+    });
   });
 
   it('errors without writing when files would be overwritten', async () => {

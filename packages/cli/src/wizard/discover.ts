@@ -37,13 +37,17 @@ async function loadOne(
   try {
     mod = await loader(pathToFileURL(wizardPath).href);
   } catch {
-    console.warn(`[stencil] ${packageName} declares stencil.wizard but the module failed to load: ${wizardPath}`);
+    console.warn(
+      `[stencil] ${packageName} declares stencil.wizard but the module failed to load: ${wizardPath}`,
+    );
     return null;
   }
 
   const plugin = mod.wizard;
   if (!plugin || typeof plugin !== 'object') {
-    console.warn(`[stencil] ${packageName} declares stencil.wizard but does not export a 'wizard' object`);
+    console.warn(
+      `[stencil] ${packageName} declares stencil.wizard but does not export a 'wizard' object`,
+    );
     return null;
   }
 
@@ -57,6 +61,7 @@ async function loadOne(
  *
  * @param rootDir - Absolute path to the project root (where `package.json` lives).
  * @param loader  - Module loader; injectable for testing. Defaults to `import()`.
+ * @returns Array of successfully loaded plugins, in dependency declaration order.
  */
 export async function discoverPlugins(
   rootDir: string,
@@ -65,14 +70,14 @@ export async function discoverPlugins(
   const pkg = await readJson(join(rootDir, 'package.json'));
   if (!pkg) return [];
 
-  const depNames = [...new Set([
-    ...Object.keys(toStringRecord(pkg.dependencies)),
-    ...Object.keys(toStringRecord(pkg.devDependencies)),
-  ])];
+  const depNames = [
+    ...new Set([
+      ...Object.keys(toStringRecord(pkg.dependencies)),
+      ...Object.keys(toStringRecord(pkg.devDependencies)),
+    ]),
+  ];
 
-  const results = await Promise.allSettled(
-    depNames.map((name) => loadOne(rootDir, name, loader)),
-  );
+  const results = await Promise.allSettled(depNames.map((name) => loadOne(rootDir, name, loader)));
 
   return results
     .filter(

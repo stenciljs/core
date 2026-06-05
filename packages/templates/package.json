@@ -3,9 +3,9 @@
   "version": "5.0.0-alpha.6",
   "description": "Project and generate templates for Stencil",
   "keywords": [
+    "scaffolding",
     "stencil",
-    "templates",
-    "scaffolding"
+    "templates"
   ],
   "homepage": "https://stenciljs.com/",
   "license": "MIT",

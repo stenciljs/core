@@ -2,13 +2,13 @@
   "name": "{{PROJECT_NAME}}",
   "version": "0.0.1",
   "description": "A Stencil component library",
-  "main": "dist/loader-bundle/index.cjs",
-  "module": "dist/loader-bundle/index.js",
-  "types": "dist/types/index.d.ts",
-  "collection": "dist/collection/collection-manifest.json",
+  "license": "MIT",
   "files": [
     "dist/"
   ],
+  "main": "dist/loader-bundle/index.cjs",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "build": "stencil build",
     "dev": "stencil build --dev --watch --serve",
@@ -17,5 +17,5 @@
   "devDependencies": {
     "@stencil/core": "^5.0.0"
   },
-  "license": "MIT"
+  "collection": "dist/collection/collection-manifest.json"
 }

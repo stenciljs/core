@@ -44,7 +44,9 @@
   "dependencies": {
     "@clack/prompts": "^1.5.1",
     "@stencil/dev-server": "workspace:*",
-    "@stencil/templates": "workspace:*"
+    "@stencil/templates": "workspace:*",
+    "nypm": "^0.3.12",
+    "std-env": "^3.8.0"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",

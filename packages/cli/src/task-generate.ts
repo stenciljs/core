@@ -4,9 +4,9 @@ import { normalizePath, validateComponentTag } from '@stencil/core/compiler/util
 import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
-import type { ConfigFlags } from './config-flags.js';
-import { discoverPlugins } from './wizard/discover.js';
 import { cancelIfAborted } from './wizard/clack.js';
+import { discoverPlugins } from './wizard/discover.js';
+import type { ConfigFlags } from './config-flags.js';
 
 interface FileToWrite {
   absPath: string;
@@ -28,7 +28,9 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   }
 
   const discovered = await discoverPlugins(config.rootDir);
-  const generateContribs = discovered.flatMap((d) => (d.plugin.generate ? [d.plugin.generate] : []));
+  const generateContribs = discovered.flatMap((d) =>
+    d.plugin.generate ? [d.plugin.generate] : [],
+  );
 
   p.intro('stencil generate');
 
@@ -63,7 +65,10 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
     { value: '', label: 'None' },
   ];
 
-  const stylePick = await p.select<string>({ message: 'Stylesheet format:', options: styleOptions });
+  const stylePick = await p.select<string>({
+    message: 'Stylesheet format:',
+    options: styleOptions,
+  });
   cancelIfAborted(stylePick);
   const styleExtension = stylePick || undefined; // empty string → no stylesheet
 
@@ -104,9 +109,7 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
 
   for (const ext of pickedExtensions) {
     const tmpl = allFileTemplates.find((ft) => ft.extension === ext)!;
-    const absPath = normalizePath(
-      join(outDir, tmpl.subdirectory ?? '', `${componentName}.${ext}`),
-    );
+    const absPath = normalizePath(join(outDir, tmpl.subdirectory ?? '', `${componentName}.${ext}`));
     filesToWrite.push({ absPath, content: tmpl.template(componentName, className) });
   }
 
@@ -131,8 +134,13 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   // create directories, then write
   const dirs = [...new Set(filesToWrite.map(({ absPath }) => normalizePath(join(absPath, '..'))))];
   await Promise.all(dirs.map((d) => config.sys.createDir(d, { recursive: true })));
-  await Promise.all(filesToWrite.map(({ absPath, content }) => config.sys.writeFile(absPath, content)));
+  await Promise.all(
+    filesToWrite.map(({ absPath, content }) => config.sys.writeFile(absPath, content)),
+  );
 
-  p.note(filesToWrite.map(({ absPath }) => relative(config.rootDir, absPath)).join('\n'), 'Generated');
+  p.note(
+    filesToWrite.map(({ absPath }) => relative(config.rootDir, absPath)).join('\n'),
+    'Generated',
+  );
   p.outro(`stencil generate ${input}`);
 };

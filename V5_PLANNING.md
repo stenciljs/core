@@ -389,7 +389,7 @@ packages/cli/src/
 - [x] Define `StencilWizardPlugin` interface in `@stencil/cli` (public, exported)
 - [x] `wizard/discover.ts` — scan `node_modules` for `stencil.wizard` field
 - [x] `task-generate.ts` — replace `prompts` with `@clack/prompts`, use discovered plugin templates
-- [ ] `task-init.ts` — full project wizard (template selection via `@stencil/templates`, deps via `nypm`, CI detection via `std-env`)
+- [x] `task-init.ts` — full project wizard (template selection via `@stencil/templates`, deps via `nypm`, CI detection via `std-env`)
 - [ ] `task-init.ts` — existing project mode (add output targets, styling, testing integrations)
 - [ ] Add `giget` for custom template URL support (`--template github:org/repo`)
 - [ ] Retire `create-stencil` active development, publish permanent shim

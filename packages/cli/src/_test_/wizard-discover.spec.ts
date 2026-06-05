@@ -1,4 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { discoverPlugins } from '../wizard/discover';
 
 vi.mock('node:fs/promises', () => ({ readFile: vi.fn() }));
@@ -8,7 +9,10 @@ const mockReadFile = readFile as ReturnType<typeof vi.fn>;
 
 const ROOT = '/project';
 
-function makeRootPkg(deps: Record<string, string> = {}, devDeps: Record<string, string> = {}): string {
+function makeRootPkg(
+  deps: Record<string, string> = {},
+  devDeps: Record<string, string> = {},
+): string {
   return JSON.stringify({ dependencies: deps, devDependencies: devDeps });
 }
 
@@ -108,7 +112,9 @@ describe('discoverPlugins', () => {
 
     const result = await discoverPlugins(ROOT, loader);
     expect(result).toEqual([]);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("does not export a 'wizard' object"));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("does not export a 'wizard' object"),
+    );
   });
 
   it('does not fail when one plugin errors and others succeed', async () => {

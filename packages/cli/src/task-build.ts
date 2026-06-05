@@ -171,9 +171,9 @@ async function promptForMigration(
   const action = await select<string>({
     message: 'What would you like to do?',
     options: [
-      { value: 'run',      label: 'Run migration',  hint: 'Apply migrations and re-run build' },
-      { value: 'dry-run',  label: 'Dry run',         hint: 'Preview changes without modifying files' },
-      { value: 'exit',     label: 'Exit',             hint: 'Exit without making changes' },
+      { value: 'run', label: 'Run migration', hint: 'Apply migrations and re-run build' },
+      { value: 'dry-run', label: 'Dry run', hint: 'Preview changes without modifying files' },
+      { value: 'exit', label: 'Exit', hint: 'Exit without making changes' },
     ],
   });
 

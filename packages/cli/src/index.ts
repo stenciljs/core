@@ -3,4 +3,10 @@ export type { ConfigFlags } from './config-flags';
 export { parseFlags } from './parse-flags';
 export { run, runTask } from './run';
 export type { TaskCommand } from './types';
-export type { StencilWizardPlugin, WizardContext, WizardFileTemplate, WizardGenerateContribution, WizardInitContribution } from './wizard/types';
+export type {
+  StencilWizardPlugin,
+  WizardContext,
+  WizardFileTemplate,
+  WizardGenerateContribution,
+  WizardInitContribution,
+} from './wizard/types';
