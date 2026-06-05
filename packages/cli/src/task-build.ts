@@ -1,4 +1,5 @@
 import { relative } from 'path';
+import { isCancel, select } from '@clack/prompts';
 import type * as d from '@stencil/core/compiler';
 
 import { printCheckVersionResults, startCheckVersion } from './check-version';
@@ -167,37 +168,18 @@ async function promptForMigration(
     logger.info('These migrations may help resolve the build errors above.');
   }
 
-  // Import prompts dynamically (default export is the prompt function)
-  const prompts = await import('prompts');
-  const prompt = prompts.default;
-
-  const response = await prompt({
-    name: 'action',
-    type: 'select',
+  const action = await select<string>({
     message: 'What would you like to do?',
-    choices: [
-      {
-        title: 'Run migration',
-        value: 'run',
-        description: 'Apply migrations and re-run build',
-      },
-      {
-        title: 'Dry run',
-        value: 'dry-run',
-        description: 'Preview changes without modifying files',
-      },
-      {
-        title: 'Exit',
-        value: 'exit',
-        description: 'Exit without making changes',
-      },
+    options: [
+      { value: 'run',      label: 'Run migration',  hint: 'Apply migrations and re-run build' },
+      { value: 'dry-run',  label: 'Dry run',         hint: 'Preview changes without modifying files' },
+      { value: 'exit',     label: 'Exit',             hint: 'Exit without making changes' },
     ],
   });
 
-  // Handle Ctrl+C or escape
-  if (response.action === undefined) {
+  if (isCancel(action)) {
     return 'exit';
   }
 
-  return response.action as MigrationAction;
+  return action as MigrationAction;
 }

@@ -1,16 +1,11 @@
 {
-  "name": "@stencil/cli",
+  "name": "@stencil/templates",
   "version": "5.0.0-alpha.6",
-  "description": "CLI for Stencil - Web component compiler",
+  "description": "Project and generate templates for Stencil",
   "keywords": [
-    "components",
-    "custom elements",
-    "ionic",
-    "progressive web app",
-    "pwa",
     "stencil",
-    "web components",
-    "webapp"
+    "templates",
+    "scaffolding"
   ],
   "homepage": "https://stenciljs.com/",
   "license": "MIT",
@@ -19,12 +14,9 @@
     "type": "git",
     "url": "git+https://github.com/stenciljs/core.git"
   },
-  "bin": {
-    "stencil": "./bin/stencil.mjs"
-  },
   "files": [
-    "bin/",
-    "dist/"
+    "dist/",
+    "templates/"
   ],
   "type": "module",
   "main": "./dist/index.mjs",
@@ -33,27 +25,17 @@
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
-    },
-    "./cli": "./bin/stencil.mjs"
+    }
   },
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@clack/prompts": "^1.5.1",
-    "@stencil/dev-server": "workspace:*",
-    "@stencil/templates": "workspace:*"
-  },
   "devDependencies": {
-    "@stencil/core": "workspace:*",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  },
-  "peerDependencies": {
-    "@stencil/core": "^5.0.0-0"
   },
   "volta": {
     "extends": "../../package.json"

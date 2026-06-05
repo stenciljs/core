@@ -13,6 +13,7 @@ import { taskDocs } from './task-docs';
 import { taskGenerate } from './task-generate';
 import { taskHelp } from './task-help';
 import { taskInfo } from './task-info';
+import { taskInit } from './task-init';
 import { taskMigrate } from './task-migrate';
 import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
@@ -62,6 +63,11 @@ export const run = async (init: d.CliInitOptions) => {
     if (!task || task === 'help' || flags.help) {
       await taskHelp(createConfigFlags({ task: 'help', args }), logger, sys);
 
+      return;
+    }
+
+    if (task === 'init') {
+      await taskInit();
       return;
     }
 
@@ -163,6 +169,10 @@ export const runTask = async (
 
     case 'help':
       await taskHelp(resolvedFlags, strictConfig.logger, sys);
+      break;
+
+    case 'init':
+      await taskInit();
       break;
 
     case 'migrate':

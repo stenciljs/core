@@ -1,79 +1,83 @@
-import * as utils from '@stencil/core/compiler/utils';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
-import { vi, describe, it, expect, afterEach, afterAll } from 'vitest';
+import * as utils from '@stencil/core/compiler/utils';
+import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
 import type * as d from '@stencil/core/compiler';
 
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
-import { BoilerplateFile, getBoilerplateByExtension, taskGenerate } from '../task-generate';
+import { taskGenerate } from '../task-generate';
 
-const promptMock = vi.hoisted(() => vi.fn().mockResolvedValue('my-component'));
+// --- mocks ---
 
-vi.mock('prompts', () => ({
-  prompt: promptMock,
+vi.mock('@clack/prompts', () => ({
+  intro: vi.fn(),
+  outro: vi.fn(),
+  text: vi.fn(),
+  select: vi.fn(),
+  multiselect: vi.fn(),
+  note: vi.fn(),
+  isCancel: vi.fn().mockReturnValue(false),
+  cancel: vi.fn(),
 }));
 
-let formatToPick = 'css';
+vi.mock('../wizard/discover', () => ({
+  discoverPlugins: vi.fn().mockResolvedValue([]),
+}));
 
-const setup = async (plugins: any[] = []) => {
+import * as clack from '@clack/prompts';
+import { discoverPlugins } from '../wizard/discover';
+
+const mockSelect = vi.mocked(clack.select);
+const mockText = vi.mocked(clack.text);
+const mockMultiselect = vi.mocked(clack.multiselect);
+const mockDiscoverPlugins = vi.mocked(discoverPlugins);
+
+// --- helpers ---
+
+const ROOT = '/project';
+const SRC = '/project/src';
+
+function setup(plugins: d.ValidatedConfig['plugins'] = []) {
   const sys = mockCompilerSystem();
-  const flags = createConfigFlags({ task: 'generate', unknownArgs: [] });
+  const flags: ConfigFlags = createConfigFlags({ task: 'generate', unknownArgs: [] });
   const config: d.ValidatedConfig = mockValidatedConfig({
-    configPath: '/testing-path',
-    srcDir: '/src',
+    configPath: `${ROOT}/stencil.config.ts`,
+    rootDir: ROOT,
+    srcDir: SRC,
     sys,
     plugins,
   });
-
-  // set up some mocks / spies
   config.sys.exit = vi.fn();
   const errorSpy = vi.spyOn(config.logger, 'error');
-  const validateTagSpy = vi.spyOn(utils, 'validateComponentTag').mockReturnValue(undefined);
-
-  // mock prompt usage: tagName and filesToGenerate are the keys used for
-  // different calls, so we can cheat here and just do a single
-  // mockResolvedValue
-  let format = formatToPick;
-  promptMock.mockImplementation((params) => {
-    if (params.name === 'sassFormat') {
-      format = 'sass';
-      return { sassFormat: 'sass' };
-    }
-    return {
-      tagName: 'my-component',
-      filesToGenerate: [format, 'spec.tsx', 'e2e.ts'],
-    };
-  });
-
-  return { config, flags, errorSpy, validateTagSpy };
-};
-
-/**
- * Little test helper function which just temporarily silences
- * console.log calls, so we can avoid spewing a bunch of stuff.
- * @param config the user-supplied config to forward to `taskGenerate`
- * @param flags the CLI flags to forward to `taskGenerate`
- */
-async function silentGenerate(config: d.ValidatedConfig, flags: ConfigFlags): Promise<void> {
-  const tmp = console.log;
-  console.log = vi.fn();
-  await taskGenerate(config, flags);
-  console.log = tmp;
+  vi.spyOn(utils, 'validateComponentTag').mockReturnValue(undefined);
+  return { config, flags, errorSpy };
 }
 
+function withTagName(flags: ConfigFlags, name: string) {
+  flags.unknownArgs = [name];
+}
+
+// Default prompt answers: CSS stylesheet, no plugin file templates
+function defaultPrompts() {
+  mockSelect.mockResolvedValue('css');
+  mockMultiselect.mockResolvedValue([]);
+}
+
+// --- tests ---
+
 describe('generate task', () => {
+  beforeEach(() => {
+    mockDiscoverPlugins.mockResolvedValue([]);
+    defaultPrompts();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
-    vi.resetModules();
-    formatToPick = 'css';
   });
 
-  afterAll(() => {
-    vi.resetAllMocks();
-  });
-
-  it('should exit with an error if no `configPath` is supplied', async () => {
-    const { config, flags, errorSpy } = await setup();
+  it('exits with error when configPath is missing', async () => {
+    const { config, flags, errorSpy } = setup();
     config.configPath = undefined;
     await taskGenerate(config, flags);
     expect(config.sys.exit).toHaveBeenCalledWith(1);
@@ -82,115 +86,164 @@ describe('generate task', () => {
     );
   });
 
-  it('should exit with an error if no `srcDir` is supplied', async () => {
-    const { config, flags, errorSpy } = await setup();
-    // @ts-expect-error force srcDir to be undefined to trigger the error case
+  it('exits with error when srcDir is missing', async () => {
+    const { config, flags, errorSpy } = setup();
+    // @ts-expect-error force undefined to exercise the guard
     config.srcDir = undefined;
     await taskGenerate(config, flags);
     expect(config.sys.exit).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith("Stencil's srcDir was not specified.");
+    expect(errorSpy).toHaveBeenCalledWith(`Stencil's srcDir was not specified.`);
   });
 
-  it('should exit with an error if the component name does not validate', async () => {
-    const { config, flags, errorSpy, validateTagSpy } = await setup();
-    validateTagSpy.mockReturnValue('error error error');
+  it('exits with error when the component tag is invalid', async () => {
+    const { config, flags, errorSpy } = setup();
+    vi.mocked(utils.validateComponentTag).mockReturnValue('bad tag');
+    withTagName(flags, 'bad');
     await taskGenerate(config, flags);
+    expect(errorSpy).toHaveBeenCalledWith('bad tag');
     expect(config.sys.exit).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith('error error error');
   });
 
-  it.each([true, false])(
-    'should create a directory for the generated components',
-    async (includeTests) => {
-      const { config, flags } = await setup();
-      if (!includeTests) {
-        promptMock.mockResolvedValue({
-          tagName: 'my-component',
-          // simulate the user picking only the css option
-          filesToGenerate: ['css'],
-        });
-      }
+  it('prompts for tag name when not supplied as CLI arg', async () => {
+    const { config, flags } = setup();
+    mockText.mockResolvedValue('my-component');
+    await taskGenerate(config, flags);
+    expect(mockText).toHaveBeenCalled();
+  });
 
-      const createDirSpy = vi.spyOn(config.sys, 'createDir');
-      await silentGenerate(config, flags);
-      expect(createDirSpy).toHaveBeenCalledWith(
-        includeTests
-          ? `${config.srcDir}/components/my-component/test`
-          : `${config.srcDir}/components/my-component`,
-        { recursive: true },
-      );
-    },
-  );
+  it('skips tag name prompt when supplied as CLI arg', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-button');
+    await taskGenerate(config, flags);
+    expect(mockText).not.toHaveBeenCalled();
+  });
 
-  it('should generate the files the user picked', async () => {
-    const { config, flags } = await setup();
+  it('generates tsx + css files when user picks CSS stylesheet', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
     const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
-    await silentGenerate(config, flags);
-    const userChoices: ReadonlyArray<BoilerplateFile> = [
-      { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
-      { extension: 'css', path: '/src/components/my-component/my-component.css' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
-      { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
-    ];
 
-    userChoices.forEach((file) => {
-      expect(writeFileSpy).toHaveBeenCalledWith(
-        file.path,
-        getBoilerplateByExtension('my-component', file.extension, true, 'css'),
-      );
-    });
+    await taskGenerate(config, flags);
+
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/my-component.tsx`,
+      getComponentBoilerplate('my-component', 'css'),
+    );
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/my-component.css`,
+      getStyleBoilerplate('css'),
+    );
   });
 
-  it('should error without writing anything if a to-be-generated file is already present', async () => {
-    const { config, flags, errorSpy } = await setup();
-    vi.spyOn(config.sys, 'readFile').mockResolvedValue('some file contents');
-    await silentGenerate(config, flags);
+  it('generates only tsx when user picks None stylesheet', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    mockSelect.mockResolvedValue('');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/my-component.tsx`,
+      getComponentBoilerplate('my-component', undefined),
+    );
+    expect(writeFileSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates directories for all generated files', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    const createDirSpy = vi.spyOn(config.sys, 'createDir');
+
+    await taskGenerate(config, flags);
+
+    expect(createDirSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component`,
+      { recursive: true },
+    );
+  });
+
+  it('errors without writing when files would be overwritten', async () => {
+    const { config, flags, errorSpy } = setup();
+    withTagName(flags, 'my-component');
+    vi.spyOn(config.sys, 'readFile').mockResolvedValue('existing content');
+
+    await taskGenerate(config, flags);
+
     expect(errorSpy).toHaveBeenCalledWith(
       'Generating code would overwrite the following files:',
-      '\t/src/components/my-component/my-component.tsx',
-      '\t/src/components/my-component/my-component.css',
-      '\t/src/components/my-component/test/my-component.spec.tsx',
-      '\t/src/components/my-component/test/my-component.e2e.ts',
+      expect.stringContaining('my-component.tsx'),
+      expect.stringContaining('my-component.css'),
     );
     expect(config.sys.exit).toHaveBeenCalledWith(1);
   });
 
-  it('should generate files for sass projects', async () => {
-    const { config, flags } = await setup([{ name: 'sass' }]);
-    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
-    await silentGenerate(config, flags);
-    const userChoices: ReadonlyArray<BoilerplateFile> = [
-      { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
-      { extension: 'sass', path: '/src/components/my-component/my-component.sass' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
-      { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
-    ];
+  it('generates files from plugin fileTemplates when picked', async () => {
+    const specTemplate = vi.fn().mockReturnValue('// spec content');
+    mockDiscoverPlugins.mockResolvedValue([
+      {
+        packageName: '@stencil/vitest',
+        plugin: {
+          generate: {
+            fileTemplates: [
+              {
+                label: 'Vitest spec (.spec.tsx)',
+                extension: 'spec.tsx',
+                subdirectory: 'test',
+                template: specTemplate,
+              },
+            ],
+          },
+        },
+      },
+    ]);
+    mockMultiselect.mockResolvedValue(['spec.tsx']);
 
-    userChoices.forEach((file) => {
-      expect(writeFileSpy).toHaveBeenCalledWith(
-        file.path,
-        getBoilerplateByExtension('my-component', file.extension, true, 'sass'),
-      );
-    });
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(specTemplate).toHaveBeenCalledWith('my-component', toPascalCase('my-component'));
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/test/my-component.spec.tsx`,
+      '// spec content',
+    );
   });
 
-  it('should generate files for less projects', async () => {
-    formatToPick = 'less';
-    const { config, flags } = await setup([{ name: 'less' }]);
-    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
-    await silentGenerate(config, flags);
-    const userChoices: ReadonlyArray<BoilerplateFile> = [
-      { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
-      { extension: 'less', path: '/src/components/my-component/my-component.less' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
-      { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
-    ];
+  it('offers plugin style extensions in the style select', async () => {
+    mockDiscoverPlugins.mockResolvedValue([
+      {
+        packageName: '@stencil/sass',
+        plugin: { generate: { styleExtensions: ['scss', 'sass'] } },
+      },
+    ]);
+    mockSelect.mockResolvedValue('scss');
 
-    userChoices.forEach((file) => {
-      expect(writeFileSpy).toHaveBeenCalledWith(
-        file.path,
-        getBoilerplateByExtension('my-component', file.extension, true, 'less'),
-      );
-    });
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    const selectCall = mockSelect.mock.calls[0][0] as { options: { value: string }[] };
+    const values = selectCall.options.map((o) => o.value);
+    expect(values).toContain('scss');
+    expect(values).toContain('sass');
+
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/my-component.scss`,
+      getStyleBoilerplate('scss'),
+    );
+  });
+
+  it('skips the file template multiselect when no plugins contribute templates', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+
+    await taskGenerate(config, flags);
+
+    expect(mockMultiselect).not.toHaveBeenCalled();
   });
 });

@@ -245,12 +245,169 @@ Leverage `transpileModule()` for a "fast path" in watch mode:
 
 ---
 
+## 🧙 CLI Wizard & Scaffolding (Planned)
+
+A ground-up redesign of Stencil's project init and code generation DX. Goals: single source of truth in this monorepo, pluggable via an open protocol, visually modern, no separate repo to maintain.
+
+### Command surface
+
+| Command | Description |
+|---------|-------------|
+| `stencil init` | New project wizard **or** add capabilities to existing project (context-aware) |
+| `stencil generate [name]` | Enhanced component/style scaffolding (existing command, upgraded) |
+| `npm create stencil` | Thin shim → delegates to `npx @stencil/cli@latest init` |
+
+`stencil init` detects context: if `stencil.config.ts` is already present it runs in "add capabilities" mode rather than scaffolding a new project from scratch. One entry point, no `stencil add` command needed.
+
+### New package: `@stencil/templates` (`packages/templates/`)
+
+Versioned lockstep with core/cli. Contains:
+
+```
+packages/templates/src/
+  project/
+    component-starter/        ← replaces stenciljs/component-starter GitHub repo
+      package.json
+      stencil.config.ts
+      tsconfig.json
+      src/components/my-component/
+        my-component.tsx
+        my-component.css
+  generate/
+    component.ts              ← template functions for stencil generate
+    style.ts
+    # No test templates — those live in @stencil/vitest / @stencil/playwright
+```
+
+**No template engine needed for project templates** — they are mostly static files, simple `str.replace()` for project name interpolation (same approach as `create-vite`, `create-next-app`). Generate templates are TypeScript functions (as they are today), just moved here.
+
+Custom/community project templates use `giget` via URL: `stencil init --template github:my-org/my-template`.
+
+### Plugin wizard protocol
+
+Any installed package can participate in `stencil init` and `stencil generate` by declaring a `stencil.wizard` path in its `package.json`:
+
+```json
+// @stencil/vitest/package.json
+{ "stencil": { "wizard": "./dist/wizard.js" } }
+```
+
+The wizard module exports a `StencilWizardPlugin` object:
+
+```ts
+// @stencil/vitest/src/wizard.ts
+export const wizard: StencilWizardPlugin = {
+  // Contributes to `stencil generate` — provides spec file template
+  generate: {
+    specTemplate: (tagName: string, className: string) => `...vitest boilerplate...`,
+  },
+  // Contributes to `stencil init` — declares what it installs/configures
+  init: {
+    id: 'vitest',
+    displayName: 'Vitest',
+    description: 'Unit + component testing',
+    devDependencies: ['@stencil/vitest', 'vitest'],
+    configPatch: {
+      imports: [`import { defineConfig } from 'vitest/config'`],
+    },
+  },
+}
+```
+
+**Discovery:** at wizard runtime, the CLI scans installed packages for the `stencil.wizard` field and dynamically imports matching modules. No central registry. Whatever is installed participates.
+
+**Impact on `stencil generate`:**
+- `@stencil/vitest` installed → offer spec file, use its template
+- `@stencil/playwright` installed → offer e2e file, use its template
+- Neither installed → no test file options (or inline hint to install one)
+- `@stencil/sass` installed → offer `sass`/`scss` style extensions, default to `scss`
+
+This replaces the current hardcoded `if (plugin.name === 'sass')` checks in `task-generate.ts`.
+
+### Dependency changes
+
+| Remove | Add |
+|--------|-----|
+| `prompts` | `@clack/prompts` |
+| custom download/unzip in `create-stencil` | `giget` |
+| `yauzl`, `node-fetch` (in create-stencil) | — |
+| — | `nypm` (package manager detection + install) |
+| — | `std-env` (CI/TTY detection — skip wizard in CI) |
+
+### `stencil init` discovery — two-phase approach
+
+`discoverPlugins` only finds packages that are *already installed*, which means a fresh project (nothing installed yet) gets no options. `task-init.ts` solves this with a two-phase flow:
+
+1. **Well-known list baked into the CLI** — just names + display info, no behavior:
+   ```ts
+   const KNOWN_INTEGRATIONS = [
+     { package: '@stencil/vitest',     displayName: 'Vitest',     description: 'Unit testing' },
+     { package: '@stencil/playwright', displayName: 'Playwright', description: 'E2E testing' },
+     { package: '@stencil/sass',       displayName: 'Sass',       description: 'Sass/SCSS styles' },
+   ];
+   ```
+   User picks from this list. CLI installs the selected packages via `nypm`.
+
+2. **Re-discover after install** — `discoverPlugins` runs again; installed modules provide all actual behavior (`configPatch`, `fileTemplates`, etc.). No behavior is hard-coded in the CLI.
+
+**Key property:** the CLI only knows *what exists and what to call it* — not *what it does*. All wizard behavior stays in the packages. A `@stencil/vitest` config-patch change is a `@stencil/vitest` release, not a CLI release. Community packages work identically — they just don't appear in the well-known list (users reach them via `--template` or manual install).
+
+**Type implication:** `WizardInitContribution` is the shape a *plugin* exports. A companion `KnownIntegration` type (just `package` + display info) will live in `task-init.ts` for the CLI-side list — keeping the two concerns separate.
+
+---
+
+### What happens to `create-stencil`
+
+The separate repo is retired as an active package. `npm create stencil` continues to work because `create-stencil` on npm becomes a permanent thin shim:
+
+```js
+#!/usr/bin/env node
+import { spawnSync } from 'node:child_process'
+spawnSync('npx', ['@stencil/cli@latest', 'init', ...process.argv.slice(2)], { stdio: 'inherit' })
+```
+
+### File structure in `@stencil/cli`
+
+```
+packages/cli/src/
+  wizard/
+    types.ts              # StencilWizardPlugin, WizardContext interfaces
+    discover.ts           # scan node_modules for "stencil.wizard" field
+    clack.ts              # shared @clack/prompts helpers (cancel guard, etc.)
+    generate/
+      steps.ts            # generate wizard steps (style ext, test files)
+    init/
+      steps.ts            # init wizard steps (template, output targets, styling, testing)
+      apply.ts            # write files, update package.json, install deps
+  task-init.ts            # new: stencil init
+  task-generate.ts        # existing: upgraded to @clack/prompts + plugin-aware
+```
+
+### Implementation tasks
+
+- [x] Add `packages/templates/` — project template for `component-starter`, generate template functions
+- [x] Define `StencilWizardPlugin` interface in `@stencil/cli` (public, exported)
+- [x] `wizard/discover.ts` — scan `node_modules` for `stencil.wizard` field
+- [x] `task-generate.ts` — replace `prompts` with `@clack/prompts`, use discovered plugin templates
+- [ ] `task-init.ts` — full project wizard (template selection via `@stencil/templates`, deps via `nypm`, CI detection via `std-env`)
+- [ ] `task-init.ts` — existing project mode (add output targets, styling, testing integrations)
+- [ ] Add `giget` for custom template URL support (`--template github:org/repo`)
+- [ ] Retire `create-stencil` active development, publish permanent shim
+- [ ] Update `@stencil/vitest` to export `stencil.wizard` with `fileTemplates` (spec test entry)
+- [ ] Update `@stencil/playwright` to export `stencil.wizard` with `fileTemplates` (e2e test entry)
+- [x] Add `stencil init` to `TaskCommand` type and `runTask` switch
+- [x] `wizard/splash.ts` — ASCII logo with halftone ANSI coloring (dim for `.:- *`, bold for `@%`), TTY/NO_COLOR aware
+- [x] `task-init.ts` — stub wired up, shows splash, intercepts before `findConfig`
+
+---
+
 ## Architecture Reference
 
 ```
 packages/
 ├── core/        @stencil/core (compiler + runtime)
 ├── cli/         @stencil/cli
+├── templates/   @stencil/templates (project + generate templates, versioned lockstep)
 ├── mock-doc/    @stencil/mock-doc
 └── dev-server/  @stencil/dev-server (planned)
 ```
