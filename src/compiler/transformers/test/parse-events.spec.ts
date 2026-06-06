@@ -242,7 +242,7 @@ describe('parse events', () => {
   });
 
   describe('suppressReservedEventNameWarnings', () => {
-    it('should warn when using native DOM event name and flag is false (default)', () => {
+    it('should warn when using native DOM event name and flag is unset (default)', () => {
       expect(() => {
         transpileModule(
           `
@@ -252,7 +252,6 @@ describe('parse events', () => {
               clickEvent: EventEmitter<void>;
             }
           `,
-          { suppressReservedEventNameWarnings: false },
         );
       }).toThrow(/"click".*native DOM event/);
     });
