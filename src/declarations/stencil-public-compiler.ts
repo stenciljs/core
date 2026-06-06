@@ -161,6 +161,10 @@ export interface StencilConfig {
    */
   suppressReservedPublicNameWarnings?: boolean;
   /**
+   * When `true`, Stencil will suppress diagnostics which warn about event names conflicting with native DOM event names. Defaults to `false`.
+   */
+  suppressReservedEventNameWarnings?: boolean;
+  /**
    * When `true`, we will validate a project's `package.json` based on the output target the user has designated
    * as `isPrimaryPackageOutputTarget: true` in their Stencil config.
    */

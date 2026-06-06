@@ -129,6 +129,19 @@ describe('validation', () => {
     });
   });
 
+  describe('suppressReservedEventNameWarnings', () => {
+    it.each([true, false])('sets suppressReservedEventNameWarnings to %p when provided', (bool) => {
+      userConfig.suppressReservedEventNameWarnings = bool;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.suppressReservedEventNameWarnings).toBe(bool);
+    });
+
+    it('defaults suppressReservedEventNameWarnings to false', () => {
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.suppressReservedEventNameWarnings).toBe(false);
+    });
+  });
+
   describe('enableCache', () => {
     it('set enableCache true', () => {
       userConfig.enableCache = true;
