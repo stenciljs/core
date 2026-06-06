@@ -89,7 +89,6 @@ describe('generate task', () => {
 
   it('exits with error when srcDir is missing', async () => {
     const { config, flags, errorSpy } = setup();
-    // @ts-expect-error force undefined to exercise the guard
     config.srcDir = undefined;
     await taskGenerate(config, flags);
     expect(config.sys.exit).toHaveBeenCalledWith(1);

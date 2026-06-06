@@ -46,7 +46,7 @@ function colorize(raw: string): string {
   return style ? out + RESET : out;
 }
 
-export const SPLASH = colorize(RAW);
+const SPLASH = colorize(RAW);
 
 export function printSplash(): void {
   if (!process.stdout.isTTY) return;

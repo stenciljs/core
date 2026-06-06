@@ -1,6 +1,7 @@
 import * as p from '@clack/prompts';
 
 import { cancelIfAborted } from '../clack.js';
+import type { DiscoveredPlugin } from '../discover.js';
 
 export interface KnownIntegration {
   package: string;
@@ -88,18 +89,69 @@ export async function promptProjectName(): Promise<string> {
   return name as string;
 }
 
-export async function promptIntegrations(): Promise<KnownIntegration[]> {
-  // Build group map preserving declaration order
+function buildGroupedOptions(integrations: KnownIntegration[]): Record<string, p.Option<string>[]> {
   const groups: Record<string, p.Option<string>[]> = {};
-  for (const i of KNOWN_INTEGRATIONS) {
+  for (const i of integrations) {
     (groups[i.group] ??= []).push({ value: i.package, label: i.displayName, hint: i.description });
   }
+  return groups;
+}
 
+export async function promptIntegrations(): Promise<KnownIntegration[]> {
   const picks = await p.groupMultiselect<string>({
     message: 'Add integrations (optional):',
-    options: groups,
+    options: buildGroupedOptions(KNOWN_INTEGRATIONS),
     required: false,
   });
   cancelIfAborted(picks);
   return KNOWN_INTEGRATIONS.filter((i) => (picks as string[]).includes(i.package));
+}
+
+export interface AddCapabilitiesSelection {
+  toInstall: KnownIntegration[];
+  toConfigure: DiscoveredPlugin[];
+}
+
+/**
+ * Prompt for actions on an existing project: install new integrations and/or
+ * run init wizards for already-installed packages with wizard contributions.
+ *
+ * @param installable - KNOWN_INTEGRATIONS not yet present in the project.
+ * @param configurable - Already-installed plugins that declare an `init` contribution.
+ * @returns Selected integrations to install and plugins to configure.
+ */
+export async function promptAddCapabilities(
+  installable: KnownIntegration[],
+  configurable: DiscoveredPlugin[],
+): Promise<AddCapabilitiesSelection> {
+  const options: Record<string, p.Option<string>[]> = {};
+
+  if (installable.length > 0) {
+    options['Install new integrations'] = installable.map((i) => ({
+      value: `install:${i.package}`,
+      label: i.displayName,
+      hint: i.description,
+    }));
+  }
+
+  if (configurable.length > 0) {
+    options['Configure existing integrations'] = configurable.map((d) => ({
+      value: `configure:${d.packageName}`,
+      label: d.plugin.init!.displayName,
+      hint: d.plugin.init!.description,
+    }));
+  }
+
+  const picks = await p.groupMultiselect<string>({
+    message: 'What would you like to do?',
+    options,
+    required: false,
+  });
+  cancelIfAborted(picks);
+
+  const pickedSet = new Set(picks as string[]);
+  return {
+    toInstall: installable.filter((i) => pickedSet.has(`install:${i.package}`)),
+    toConfigure: configurable.filter((d) => pickedSet.has(`configure:${d.packageName}`)),
+  };
 }
