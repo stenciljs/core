@@ -136,7 +136,7 @@ const getEventType = (type: ts.TypeNode): ts.TypeNode | null => {
  * @param config a user-supplied Stencil config
  * @param diagnostics a list of diagnostics used as a part of the validation process. Any parse errors/warnings shall be
  * added to this collection
- * @param node the node in the AT containing the class member decorated with `@Event()`
+ * @param node the node in the AST containing the class member decorated with `@Event()`
  * @param eventName the name of the event
  */
 const validateEventName = (
