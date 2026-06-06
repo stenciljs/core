@@ -145,6 +145,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   ```
 - **`setTagTransformer` auto-exported** - now auto-injected into generated library entry points (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`.
 - **Signals** - opt-in signal-backed reactivity via `extras.signalBacking: true`. Zero API changes for component authors; `@State` and `@Prop` are backed by `@preact/signals-core` signals internally. New `@stencil/core/signals` subpath exports `signal`, `computed`, `effect`, `batch`, `untracked`, `@Effect()`, `getSignal<T>()`, and `STENCIL_SIGNALS_SYMBOL` for cross-framework interop. Signal values are valid JSX children and attributes - DOM updates bypass the vdom diff entirely. `@Prop`-only signals are exposed on the host element via `Symbol.for('stencil.signals')` for framework adapters without requiring a `@stencil/core` import.
+- **`stencil init` wizard** — ground-up redesign of project scaffolding and capability management. Context-aware: scaffolds a new project from the `component-starter` template, or runs in "add capabilities" mode on an existing project. Third-party packages participate by exporting a `wizard` object from a `stencil.wizard` entry declared in their `package.json` — no central registry. The `init` contribution's `run(context)` function owns its entire setup (prompts, peer dep installs, config file writes, example tests, script updates), matching the pattern used by `@nuxt/test-utils`. `generate` contributions add file templates and style extensions to `stencil generate`. `STENCIL_WIZARD_DEV=./path/to/wizard.js` injects a local wizard during development without publishing. Replaces `create-stencil` as the primary project bootstrapping path.
 
 ---
 
@@ -436,11 +437,12 @@ packages/cli/src/
 - [x] `task-init.ts` — existing project mode (install new + configure existing integrations)
 - [x] `wizard/splash.ts` — ASCII logo, TTY/NO_COLOR aware
 - [x] `packages/cli/test/` — e2e tests with real temp dir + fixture wizard plugin
-- [ ] **Redesign `WizardInitContribution`** — replace static `configPatch`/`devDependencies` with `run(context: WizardContext) => Promise<void>`
-- [ ] **Update `task-init.ts`** — call `plugin.init.run(context)` instead of `applyConfigPatches`
-- [ ] **Remove `applyConfigPatches`** from `wizard/init/apply.ts` — no longer called by CLI; plugins use Node fs APIs directly
-- [ ] **Update unit tests** — mock `run()` instead of `configPatch`; assert it was called with correct context
-- [ ] **Update e2e fixture** — replace `configPatch.imports` with a real `run()` that writes to stencil.config.ts
+- [x] **Redesign `WizardInitContribution`** — replace static `configPatch`/`devDependencies` with `run(context: WizardContext) => Promise<void>`
+- [x] **Update `task-init.ts`** — call `plugin.init.run(context)` instead of `applyConfigPatches`
+- [x] **Remove `applyConfigPatches`** from `wizard/init/apply.ts` — no longer called by CLI; plugins use Node fs APIs directly
+- [x] **Update unit tests** — mock `run()` instead of `configPatch`; assert it was called with correct context
+- [x] **Update e2e fixture** — replace `configPatch.imports` with a real `run()` that writes to stencil.config.ts
+- [x] **`STENCIL_WIZARD_DEV` escape hatch** — `STENCIL_WIZARD_DEV=./path/to/wizard.js stencil init` injects a local wizard file into discovery without needing it in `node_modules`; dev-mode banner shown in CLI output
 - [ ] Retire `create-stencil` active development, publish permanent shim
 
 ---
