@@ -20,8 +20,13 @@
       "ignore": ["src/**/_test_/**"],
       "ignoreDependencies": ["vitest-environment-stencil"]
     },
-    "packages/cli": {},
+    "packages/cli": {
+      "ignore": ["test/**"]
+    },
     "packages/mock-doc": {},
+    "packages/templates": {
+      "ignore": ["templates/**"]
+    },
     "packages/dev-server": {
       "ignore": ["src/server/worker-thread.js", "src/**/_test_/**"],
       "ignoreDependencies": ["vitest-environment-stencil"]

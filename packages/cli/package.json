@@ -38,16 +38,19 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run",
+    "test": "vitest run && pnpm test:e2e",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clack/prompts": "^1.5.1",
     "@stencil/dev-server": "workspace:*",
-    "prompts": "^2.0.0"
+    "@stencil/templates": "workspace:*",
+    "nypm": "^0.3.12",
+    "std-env": "^3.8.0"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
-    "@types/prompts": "^2.4.9",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

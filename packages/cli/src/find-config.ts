@@ -75,7 +75,7 @@ export const findConfig = async (
         break;
       }
     }
-    // if no config file found, configPath remains null — loadConfig handles this gracefully
+    // if no config file found, configPath remains null - loadConfig handles this gracefully
   }
 
   return result.ok(results);
