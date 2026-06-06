@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { DiscoveredPlugin } from '../wizard/discover';
 import type { KnownIntegration } from '../wizard/init/steps';
 
-// vi.hoisted runs before vi.mock hoisting — used for values that vary between tests
+// vi.hoisted runs before vi.mock hoisting - used for values that vary between tests
 const stdEnv = vi.hoisted(() => ({ isCI: false }));
 
 vi.mock('std-env', () => ({
@@ -202,7 +202,7 @@ describe('taskInit', () => {
 
     it('shows nothing-to-do message when all known integrations are installed and no wizard plugins discovered', async () => {
       // All KNOWN_INTEGRATIONS are installed (KNOWN_INTEGRATIONS is mocked as [])
-      // and no plugins discovered — nothing to offer
+      // and no plugins discovered - nothing to offer
       vi.mocked(discoverPlugins).mockResolvedValue([]);
       await taskInit();
       expect(clack.log.info).toHaveBeenCalled();
@@ -222,7 +222,7 @@ describe('taskInit', () => {
       await taskInit();
 
       expect(vi.mocked(promptAddCapabilities)).toHaveBeenCalledWith(
-        [known[0]], // only vitest — sass is installed
+        [known[0]], // only vitest - sass is installed
         [], // no configurable discovered
       );
     });

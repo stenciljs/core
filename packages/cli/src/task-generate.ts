@@ -34,7 +34,7 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
 
   p.intro('stencil generate');
 
-  // tag name — from CLI arg or prompt
+  // tag name - from CLI arg or prompt
   const rawInput = flags.unknownArgs.find((arg) => !arg.startsWith('-'));
   let input: string;
 
@@ -72,7 +72,7 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   cancelIfAborted(stylePick);
   const styleExtension = stylePick || undefined; // empty string → no stylesheet
 
-  // plugin file templates — only prompt if any are available
+  // plugin file templates - only prompt if any are available
   const allFileTemplates = generateContribs.flatMap((c) => c.fileTemplates ?? []);
   let pickedExtensions: string[] = [];
 

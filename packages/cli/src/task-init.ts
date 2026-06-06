@@ -25,7 +25,7 @@ export async function taskInit(): Promise<void> {
   p.intro('stencil init');
 
   if (isCI) {
-    p.log.warn('Running in CI — non-interactive mode is not yet supported for `stencil init`.');
+    p.log.warn('Running in CI - non-interactive mode is not yet supported for `stencil init`.');
     process.exit(1);
   }
 

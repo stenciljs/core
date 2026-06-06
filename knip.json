@@ -20,7 +20,9 @@
       "ignore": ["src/**/_test_/**"],
       "ignoreDependencies": ["vitest-environment-stencil"]
     },
-    "packages/cli": {},
+    "packages/cli": {
+      "ignore": ["test/**"]
+    },
     "packages/mock-doc": {},
     "packages/templates": {
       "ignore": ["templates/**"]

@@ -152,17 +152,17 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 
 ### 🚀 Zero-Config DX (In Progress)
 
-Stencil is now 90%+ design systems, not apps. The DX should reflect that — `npx stencil build --dev --serve` in a directory with some `.tsx` files should just work.
+Stencil is now 90%+ design systems, not apps. The DX should reflect that - `npx stencil build --dev --serve` in a directory with some `.tsx` files should just work.
 
 **Key decisions:**
-- No `stencil.config.ts` required — the compiler already handles a missing config gracefully (`loadConfig` has a "which is fine" path)
-- Default output is `loader-bundle`, not `www` — reflects the design system use case
+- No `stencil.config.ts` required - the compiler already handles a missing config gracefully (`loadConfig` has a "which is fine" path)
+- Default output is `loader-bundle`, not `www` - reflects the design system use case
 - Namespace derives from `package.json#name` (scope-stripped) → directory name → `'App'` as last resort
-- `validateDistNamespace` removed — derivation makes the "don't use App" guard unnecessary
+- `validateDistNamespace` removed - derivation makes the "don't use App" guard unnecessary
 
 **What's done:**
 - [x] Default output changed from `www` to `loader-bundle` (`outputs/index.ts`)
-- [x] `validate-www.ts` no longer handles defaulting — only validates explicit `www` outputs
+- [x] `validate-www.ts` no longer handles defaulting - only validates explicit `www` outputs
 - [x] Namespace auto-derived from `package.json` / directory name (`validate-namespace.ts`)
 - [x] `validateDistNamespace` removed
 - [x] `src/global.{css,scss,sass}` auto-detected → `config.globalStyle` if not set
@@ -172,7 +172,7 @@ Stencil is now 90%+ design systems, not apps. The DX should reflect that — `np
 
 #### ~~Auto-generate `tsconfig.json`~~ ✅
 - The mechanism already existed behind an `initTsConfig` flag that was never activated
-- Removed the flag — tsconfig is now always auto-written when missing (`typescript-config.ts`)
+- Removed the flag - tsconfig is now always auto-written when missing (`typescript-config.ts`)
 - Updated template for v5: `moduleResolution: bundler`, `lib: [dom, ES2017]`, `strict: true`, dropped `sourceMap`/`inlineSources` (Stencil overrides at runtime)
 - Target version check now uses `< ES2017` comparison instead of deprecated `ES3`/`ES5` enum values
 
@@ -182,9 +182,9 @@ Default behaviour for any project **without a `www` output** (no-config or expli
 - `/` → redirects to `/src/` if it exists, otherwise shows dir listing
 - **Dir has `.tsx` files + no `.html` files** → per-directory component preview (only components from that dir), with loader `<script>` and global CSS `<link>`
 - **Dir has an `.html` file** → dir listing as usual (user can click through to their own page)
-- `www` projects are unaffected — their server root is `www.appDir`, not the project root
+- `www` projects are unaffected - their server root is `www.appDir`, not the project root
 
-This is filesystem-driven with no config gating — any non-www project benefits automatically.
+This is filesystem-driven with no config gating - any non-www project benefits automatically.
 
 ---
 
@@ -276,10 +276,10 @@ packages/templates/src/
   generate/
     component.ts              ← template functions for stencil generate
     style.ts
-    # No test templates — those live in @stencil/vitest / @stencil/playwright
+    # No test templates - those live in @stencil/vitest / @stencil/playwright
 ```
 
-**No template engine needed for project templates** — they are mostly static files, simple `str.replace()` for project name interpolation (same approach as `create-vite`, `create-next-app`). Generate templates are TypeScript functions (as they are today), just moved here.
+**No template engine needed for project templates** - they are mostly static files, simple `str.replace()` for project name interpolation (same approach as `create-vite`, `create-next-app`). Generate templates are TypeScript functions (as they are today), just moved here.
 
 Custom/community project templates use `giget` via URL: `stencil init --template github:my-org/my-template`.
 
@@ -296,49 +296,91 @@ The wizard module exports a `StencilWizardPlugin` object:
 
 ```ts
 // @stencil/vitest/src/wizard.ts
+import { confirm, multiselect, isCancel, cancel } from '@clack/prompts';
+import { addDependency } from 'nypm';
+import { writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
 export const wizard: StencilWizardPlugin = {
-  // Contributes to `stencil generate` — provides spec file template
+  // Contributes to `stencil generate` — file templates offered per-component
   generate: {
-    specTemplate: (tagName: string, className: string) => `...vitest boilerplate...`,
+    fileTemplates: [
+      {
+        label: 'Spec test (.spec.tsx)',
+        extension: 'spec.tsx',
+        template: (tagName, className) => `...vitest boilerplate for ${className}...`,
+      },
+    ],
   },
-  // Contributes to `stencil init` — declares what it installs/configures
+  // Contributes to `stencil init` — owns its entire setup wizard
   init: {
     id: 'vitest',
     displayName: 'Vitest',
     description: 'Unit + component testing',
-    devDependencies: ['@stencil/vitest', 'vitest'],
-    configPatch: {
-      imports: [`import { defineConfig } from 'vitest/config'`],
+    async run({ rootDir, isNewProject }) {
+      // Full interactive wizard — own prompts, branching logic, file generation
+      const scope = await multiselect({
+        message: 'What kind of tests do you need?',
+        options: [
+          { value: 'unit',    label: 'Unit tests',      hint: 'pure functions, no DOM' },
+          { value: 'browser', label: 'Browser / component', hint: 'real DOM via Playwright' },
+        ],
+      });
+      if (isCancel(scope)) { cancel('Setup cancelled.'); process.exit(0); }
+
+      // Install peer deps based on answers
+      const deps = ['vitest'];
+      if (scope.includes('browser')) deps.push('@vitest/browser', 'playwright');
+      await addDependency(deps, { cwd: rootDir, dev: true });
+
+      // Generate vitest.config.ts tailored to answers
+      await writeFile(join(rootDir, 'vitest.config.ts'), generateVitestConfig(scope), 'utf8');
+
+      // Create test directories, example files, update package.json scripts, etc.
     },
   },
+}
+```
+
+**Key principle — the plugin IS the wizard for its own setup.** The CLI's only job is to install the top-level package and then call `run(context)`. Everything inside `run()` is the package's responsibility: prompting, installing peer deps, creating config files, writing example tests, updating `.gitignore`, adding package.json scripts. This matches the pattern used by `@nuxt/test-utils`.
+
+**`WizardContext` passed to `run()`:**
+```ts
+export interface WizardContext {
+  rootDir: string;      // absolute path to the project root
+  isNewProject: boolean; // true if stencil.config.ts did not previously exist
+}
+```
+
+**`WizardInitContribution` — the shape a plugin's `init` export must satisfy:**
+```ts
+export interface WizardInitContribution {
+  id: string;           // stable deduplication key
+  displayName: string;  // shown in the selection prompt
+  description: string;  // hint shown alongside displayName
+  run: (context: WizardContext) => Promise<void>;
 }
 ```
 
 **Discovery:** at wizard runtime, the CLI scans installed packages for the `stencil.wizard` field and dynamically imports matching modules. No central registry. Whatever is installed participates.
 
 **Impact on `stencil generate`:**
-- `@stencil/vitest` installed → offer spec file, use its template
-- `@stencil/playwright` installed → offer e2e file, use its template
-- Neither installed → no test file options (or inline hint to install one)
-- `@stencil/sass` installed → offer `sass`/`scss` style extensions, default to `scss`
-
-This replaces the current hardcoded `if (plugin.name === 'sass')` checks in `task-generate.ts`.
+Any installed package that exports a `stencil.wizard` with a `generate` contribution automatically participates — no CLI changes needed. Style extensions and file templates are purely plugin-driven. If no plugins are installed, no extra prompts appear.
 
 ### Dependency changes
 
 | Remove | Add |
 |--------|-----|
 | `prompts` | `@clack/prompts` |
-| custom download/unzip in `create-stencil` | `giget` |
-| `yauzl`, `node-fetch` (in create-stencil) | — |
-| — | `nypm` (package manager detection + install) |
-| — | `std-env` (CI/TTY detection — skip wizard in CI) |
+| `yauzl`, `node-fetch` (in create-stencil) | - |
+| - | `nypm` (package manager detection + install) |
+| - | `std-env` (CI/TTY detection - skip wizard in CI) |
 
-### `stencil init` discovery — two-phase approach
+### `stencil init` — CLI flow
 
-`discoverPlugins` only finds packages that are *already installed*, which means a fresh project (nothing installed yet) gets no options. `task-init.ts` solves this with a two-phase flow:
+`discoverPlugins` only finds packages that are *already installed*, so a fresh project gets no options. `task-init.ts` solves this with a two-phase flow:
 
-1. **Well-known list baked into the CLI** — just names + display info, no behavior:
+1. **Well-known list baked into the CLI** — just names + display info, zero behavior:
    ```ts
    const KNOWN_INTEGRATIONS = [
      { package: '@stencil/vitest',     displayName: 'Vitest',     description: 'Unit testing' },
@@ -346,13 +388,15 @@ This replaces the current hardcoded `if (plugin.name === 'sass')` checks in `tas
      { package: '@stencil/sass',       displayName: 'Sass',       description: 'Sass/SCSS styles' },
    ];
    ```
-   User picks from this list. CLI installs the selected packages via `nypm`.
+   User picks from this list. CLI installs the selected packages.
 
-2. **Re-discover after install** — `discoverPlugins` runs again; installed modules provide all actual behavior (`configPatch`, `fileTemplates`, etc.). No behavior is hard-coded in the CLI.
+2. **Re-discover after install** — `discoverPlugins` runs again. For each selected package that exposes a `stencil.wizard` with an `init` contribution, the CLI calls `plugin.init.run(context)`. The plugin owns everything from here: its own prompts, peer dep installs, config file generation, example tests, package.json script updates, etc.
 
-**Key property:** the CLI only knows *what exists and what to call it* — not *what it does*. All wizard behavior stays in the packages. A `@stencil/vitest` config-patch change is a `@stencil/vitest` release, not a CLI release. Community packages work identically — they just don't appear in the well-known list (users reach them via `--template` or manual install).
+For **existing projects**, the CLI runs `discoverPlugins` immediately. Already-installed packages with `init.run` contributions appear in a "Configure existing integrations" group alongside the uninstalled KNOWN_INTEGRATIONS. Selecting one calls its `run()` — the plugin is responsible for detecting what's already set up and skipping or adapting accordingly.
 
-**Type implication:** `WizardInitContribution` is the shape a *plugin* exports. A companion `KnownIntegration` type (just `package` + display info) will live in `task-init.ts` for the CLI-side list — keeping the two concerns separate.
+**Key property:** the CLI only knows *what to call* — not *what it does*. All setup logic stays in the packages. A change to how `@stencil/vitest` sets itself up is a `@stencil/vitest` release, not a CLI release. Community packages work identically — they just don't appear in the well-known list.
+
+**Type separation:** `WizardInitContribution` is the shape a plugin exports. `KnownIntegration` (just `package` + display info) lives in `task-init.ts` for the CLI-side list — the two concerns stay separate.
 
 ---
 
@@ -386,18 +430,18 @@ packages/cli/src/
 ### Implementation tasks
 
 - [x] Add `packages/templates/` — project template for `component-starter`, generate template functions
-- [x] Define `StencilWizardPlugin` interface in `@stencil/cli` (public, exported)
 - [x] `wizard/discover.ts` — scan `node_modules` for `stencil.wizard` field
 - [x] `task-generate.ts` — replace `prompts` with `@clack/prompts`, use discovered plugin templates
-- [x] `task-init.ts` — full project wizard (template selection via `@stencil/templates`, deps via `nypm`, CI detection via `std-env`)
-- [ ] `task-init.ts` — existing project mode (add output targets, styling, testing integrations)
-- [ ] Add `giget` for custom template URL support (`--template github:org/repo`)
+- [x] `task-init.ts` — new project wizard (`@stencil/templates`, `nypm`, `std-env`)
+- [x] `task-init.ts` — existing project mode (install new + configure existing integrations)
+- [x] `wizard/splash.ts` — ASCII logo, TTY/NO_COLOR aware
+- [x] `packages/cli/test/` — e2e tests with real temp dir + fixture wizard plugin
+- [ ] **Redesign `WizardInitContribution`** — replace static `configPatch`/`devDependencies` with `run(context: WizardContext) => Promise<void>`
+- [ ] **Update `task-init.ts`** — call `plugin.init.run(context)` instead of `applyConfigPatches`
+- [ ] **Remove `applyConfigPatches`** from `wizard/init/apply.ts` — no longer called by CLI; plugins use Node fs APIs directly
+- [ ] **Update unit tests** — mock `run()` instead of `configPatch`; assert it was called with correct context
+- [ ] **Update e2e fixture** — replace `configPatch.imports` with a real `run()` that writes to stencil.config.ts
 - [ ] Retire `create-stencil` active development, publish permanent shim
-- [ ] Update `@stencil/vitest` to export `stencil.wizard` with `fileTemplates` (spec test entry)
-- [ ] Update `@stencil/playwright` to export `stencil.wizard` with `fileTemplates` (e2e test entry)
-- [x] Add `stencil init` to `TaskCommand` type and `runTask` switch
-- [x] `wizard/splash.ts` — ASCII logo with halftone ANSI coloring (dim for `.:- *`, bold for `@%`), TTY/NO_COLOR aware
-- [x] `task-init.ts` — stub wired up, shows splash, intercepts before `findConfig`
 
 ---
 
