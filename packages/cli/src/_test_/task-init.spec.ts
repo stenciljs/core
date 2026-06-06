@@ -37,7 +37,6 @@ vi.mock('../wizard/init/steps', () => ({
 vi.mock('../wizard/init/apply', () => ({
   copyTemplate: vi.fn().mockResolvedValue(undefined),
   patchPackageJson: vi.fn().mockResolvedValue(undefined),
-  applyConfigPatches: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { existsSync } from 'node:fs';
@@ -47,7 +46,7 @@ import { installDependencies } from 'nypm';
 
 import { taskInit } from '../task-init';
 import { discoverPlugins } from '../wizard/discover';
-import { copyTemplate, patchPackageJson, applyConfigPatches } from '../wizard/init/apply';
+import { copyTemplate, patchPackageJson } from '../wizard/init/apply';
 import {
   KNOWN_INTEGRATIONS,
   promptProjectName,
@@ -63,7 +62,7 @@ function makeIntegration(pkg: string, group = 'Testing'): KnownIntegration {
 
 function makeDiscovered(
   packageName: string,
-  configPatch?: { imports: string[] },
+  run: (ctx: unknown) => Promise<void> = vi.fn().mockResolvedValue(undefined),
 ): DiscoveredPlugin {
   return {
     packageName,
@@ -72,7 +71,7 @@ function makeDiscovered(
         id: packageName,
         displayName: packageName,
         description: '',
-        ...(configPatch ? { configPatch } : {}),
+        run: run as (ctx: never) => Promise<void>,
       },
     },
   };
@@ -151,29 +150,23 @@ describe('taskInit', () => {
     expect(vi.mocked(discoverPlugins)).not.toHaveBeenCalled();
   });
 
-  it('applies config patches from plugins that declare them', async () => {
+  it('calls run() on selected plugins after install', async () => {
     vi.mocked(promptIntegrations).mockResolvedValue([makeIntegration('@stencil/vitest')]);
-    const discovered = [
-      makeDiscovered('@stencil/vitest', {
-        imports: ["import { defineConfig } from 'vitest/config'"],
-      }),
-    ];
-    vi.mocked(discoverPlugins).mockResolvedValue(discovered);
+    const run = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/vitest', run)]);
 
     await taskInit();
 
-    expect(vi.mocked(applyConfigPatches)).toHaveBeenCalledWith(CWD, discovered);
+    expect(run).toHaveBeenCalledWith({ rootDir: CWD, isNewProject: true });
   });
 
-  it('skips applyConfigPatches when discovered plugins have no configPatch', async () => {
+  it('does not call run() on plugins with no init contribution', async () => {
     vi.mocked(promptIntegrations).mockResolvedValue([makeIntegration('@stencil/sass', 'Styling')]);
     vi.mocked(discoverPlugins).mockResolvedValue([
       { packageName: '@stencil/sass', plugin: { generate: { styleExtensions: ['scss'] } } },
     ]);
 
-    await taskInit();
-
-    expect(vi.mocked(applyConfigPatches)).not.toHaveBeenCalled();
+    await taskInit(); // should not throw
   });
 
   it('cancels cleanly without scaffolding when the confirm prompt is dismissed', async () => {
@@ -250,28 +243,22 @@ describe('taskInit', () => {
       expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({ cwd: CWD, silent: true });
     });
 
-    it('applies config patches for newly installed packages after re-discovery', async () => {
+    it('calls run() for newly installed packages after re-discovery', async () => {
       const vitest = makeIntegration('@stencil/vitest');
       vi.mocked(promptAddCapabilities).mockResolvedValue({ toInstall: [vitest], toConfigure: [] });
-      const discovered = [
-        makeDiscovered('@stencil/vitest', {
-          imports: ["import { defineConfig } from 'vitest/config'"],
-        }),
-      ];
+      const run = vi.fn().mockResolvedValue(undefined);
+      const discovered = [makeDiscovered('@stencil/vitest', run)];
       // first call: pre-install discovery (empty); second call: post-install re-discovery
       vi.mocked(discoverPlugins).mockResolvedValueOnce([]).mockResolvedValueOnce(discovered);
 
       await taskInit();
 
-      expect(vi.mocked(applyConfigPatches)).toHaveBeenCalledWith(CWD, discovered);
+      expect(run).toHaveBeenCalledWith({ rootDir: CWD, isNewProject: false });
     });
 
-    it('applies config patches for selected configurable plugins without reinstalling', async () => {
-      const discovered = [
-        makeDiscovered('@stencil/vitest', {
-          imports: ["import { defineConfig } from 'vitest/config'"],
-        }),
-      ];
+    it('calls run() for selected configurable plugins without reinstalling', async () => {
+      const run = vi.fn().mockResolvedValue(undefined);
+      const discovered = [makeDiscovered('@stencil/vitest', run)];
       vi.mocked(discoverPlugins).mockResolvedValue(discovered);
       vi.mocked(promptAddCapabilities).mockResolvedValue({
         toInstall: [],
@@ -282,19 +269,19 @@ describe('taskInit', () => {
 
       expect(vi.mocked(patchPackageJson)).not.toHaveBeenCalled();
       expect(vi.mocked(installDependencies)).not.toHaveBeenCalled();
-      expect(vi.mocked(applyConfigPatches)).toHaveBeenCalledWith(CWD, discovered);
+      expect(run).toHaveBeenCalledWith({ rootDir: CWD, isNewProject: false });
     });
 
-    it('skips install and patches when nothing is selected', async () => {
-      vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/vitest')]);
-      // promptAddCapabilities returns empty selection
+    it('skips run() when nothing is selected', async () => {
+      const run = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/vitest', run)]);
       vi.mocked(promptAddCapabilities).mockResolvedValue({ toInstall: [], toConfigure: [] });
 
       await taskInit();
 
       expect(vi.mocked(patchPackageJson)).not.toHaveBeenCalled();
       expect(vi.mocked(installDependencies)).not.toHaveBeenCalled();
-      expect(vi.mocked(applyConfigPatches)).not.toHaveBeenCalled();
+      expect(run).not.toHaveBeenCalled();
       expect(clack.outro).toHaveBeenCalled();
     });
 

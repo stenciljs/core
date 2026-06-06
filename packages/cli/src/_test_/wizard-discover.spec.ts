@@ -134,4 +134,92 @@ describe('discoverPlugins', () => {
     const result = await discoverPlugins(ROOT, loader);
     expect(result).toEqual([{ packageName: '@stencil/vitest', plugin }]);
   });
+
+  describe('STENCIL_WIZARD_DEV', () => {
+    const DEV_WIZARD = '/path/to/my-plugin/dist/wizard.js';
+    const devPlugin = {
+      init: { id: 'my-plugin', displayName: 'My Plugin', description: '', run: vi.fn() },
+    };
+
+    beforeEach(() => {
+      vi.stubEnv('STENCIL_WIZARD_DEV', DEV_WIZARD);
+    });
+
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it('prepends dev wizard to results (no normal deps)', async () => {
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg()) // root pkg, no deps
+        .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json not found
+        .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // parent package.json
+
+      const loader = makeLoader({ [DEV_WIZARD]: { wizard: devPlugin } });
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ packageName: 'my-plugin', plugin: devPlugin });
+    });
+
+    it('prepends dev wizard before normally discovered plugins', async () => {
+      const installedPlugin = { generate: { fileTemplates: [] } };
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg({ '@stencil/sass': '^3.0.0' }))
+        .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // @stencil/sass
+        .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json not found
+        .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // parent package.json
+
+      const loader = makeLoader({
+        [`${ROOT}/node_modules/@stencil/sass/dist/wizard.js`]: { wizard: installedPlugin },
+        [DEV_WIZARD]: { wizard: devPlugin },
+      });
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({ packageName: 'my-plugin', plugin: devPlugin });
+      expect(result[1]).toEqual({ packageName: '@stencil/sass', plugin: installedPlugin });
+    });
+
+    it('falls back to directory name when no package.json is found', async () => {
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg())
+        .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json
+        .mockRejectedValueOnce(new Error('ENOENT')); // parent package.json
+
+      const loader = makeLoader({ [DEV_WIZARD]: { wizard: devPlugin } });
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result[0].packageName).toBe('dist'); // dirname of wizard.js
+    });
+
+    it('warns and omits dev wizard when the file fails to load', async () => {
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg())
+        .mockRejectedValueOnce(new Error('ENOENT'))
+        .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' }));
+
+      const loader = makeLoader(/* DEV_WIZARD not included → throws */);
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result).toEqual([]);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('STENCIL_WIZARD_DEV'));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('failed to load'));
+    });
+
+    it('warns and omits dev wizard when it does not export a wizard object', async () => {
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg())
+        .mockRejectedValueOnce(new Error('ENOENT'))
+        .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' }));
+
+      const loader = makeLoader({ [DEV_WIZARD]: { notWizard: {} } });
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result).toEqual([]);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("does not export a 'wizard' object"),
+      );
+    });
+  });
 });

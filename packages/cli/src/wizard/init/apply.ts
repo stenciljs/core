@@ -2,8 +2,6 @@ import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { getTemplatePath } from '@stencil/templates';
 
-import type { DiscoveredPlugin } from '../discover.js';
-
 /**
  * Copy component-starter template into rootDir, interpolating project name and namespace.
  *
@@ -54,22 +52,4 @@ export async function patchPackageJson(rootDir: string, integrations: string[]):
   pkg.devDependencies = devDeps;
 
   await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
-}
-
-/**
- * Prepend import lines from plugin config patches to stencil.config.ts.
- *
- * @param rootDir - Absolute path to the project root.
- * @param plugins - Discovered plugins whose `init.configPatch.imports` will be prepended.
- */
-export async function applyConfigPatches(
-  rootDir: string,
-  plugins: DiscoveredPlugin[],
-): Promise<void> {
-  const imports = plugins.flatMap((d) => d.plugin.init?.configPatch?.imports ?? []);
-  if (imports.length === 0) return;
-
-  const configPath = join(rootDir, 'stencil.config.ts');
-  const existing = await readFile(configPath, 'utf8');
-  await writeFile(configPath, imports.join('\n') + '\n' + existing, 'utf8');
 }

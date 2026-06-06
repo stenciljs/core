@@ -4,8 +4,8 @@
 export interface WizardContext {
   /** Absolute path to the project root directory. */
   rootDir: string;
-  /** True when a stencil.config.ts already exists (add-capabilities mode). */
-  isExistingProject: boolean;
+  /** True when `stencil.config.ts` did not previously exist (fresh scaffold). */
+  isNewProject: boolean;
 }
 
 /**
@@ -53,6 +53,9 @@ export interface WizardGenerateContribution {
 
 /**
  * Contribution a package can make to `stencil init`.
+ *
+ * The plugin owns its entire setup: prompts, peer dep installs, config file
+ * generation, example files, package.json script updates, etc.
  */
 export interface WizardInitContribution {
   /** Stable identifier used to deduplicate across re-runs. */
@@ -61,18 +64,12 @@ export interface WizardInitContribution {
   displayName: string;
   /** One-line description shown alongside the name. */
   description: string;
-  /** npm packages to add to `devDependencies`. */
-  devDependencies?: ReadonlyArray<string>;
-  /** npm packages to add to `dependencies`. */
-  dependencies?: ReadonlyArray<string>;
   /**
-   * Additions to the generated / existing `stencil.config.ts`.
-   * Only `imports` is supported initially; more fields will be added as needed.
+   * Called by the CLI after packages are installed. The plugin is responsible
+   * for all further setup: additional prompts, peer dep installs, config file
+   * writes, example tests, `.gitignore` and `package.json` script updates, etc.
    */
-  configPatch?: {
-    /** ES module import statements to prepend to the config file. */
-    imports?: ReadonlyArray<string>;
-  };
+  run: (context: WizardContext) => Promise<void>;
 }
 
 /**

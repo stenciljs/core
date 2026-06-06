@@ -1,10 +1,19 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 export const wizard = {
   init: {
     id: 'fixture-wizard-plugin',
     displayName: 'Fixture Plugin',
     description: 'E2E test fixture with wizard contributions',
-    configPatch: {
-      imports: ["import { fixturePlugin } from 'fixture-wizard-plugin';"],
+    async run({ rootDir }) {
+      const configPath = join(rootDir, 'stencil.config.ts');
+      const existing = await readFile(configPath, 'utf8');
+      await writeFile(
+        configPath,
+        `import { fixturePlugin } from 'fixture-wizard-plugin';\n` + existing,
+        'utf8',
+      );
     },
   },
   generate: {

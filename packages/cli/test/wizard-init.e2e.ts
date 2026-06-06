@@ -1,8 +1,8 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 const clackMocks = vi.hoisted(() => ({
   text: vi.fn(),
@@ -109,7 +109,7 @@ describe('taskInit e2e', () => {
       await installFixturePlugin(tmpDir);
     });
 
-    it('discovers the fixture plugin and applies its config patch', async () => {
+    it('discovers the fixture plugin and calls its run(), which modifies the config', async () => {
       clackMocks.groupMultiselect.mockResolvedValue(['configure:fixture-wizard-plugin']);
 
       await taskInit();

@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import type { StencilWizardPlugin } from './types.js';
@@ -79,10 +79,52 @@ export async function discoverPlugins(
 
   const results = await Promise.allSettled(depNames.map((name) => loadOne(rootDir, name, loader)));
 
-  return results
+  const plugins = results
     .filter(
       (r): r is PromiseFulfilledResult<DiscoveredPlugin> =>
         r.status === 'fulfilled' && r.value !== null,
     )
     .map((r) => r.value);
+
+  // Dev escape hatch: inject a local wizard file without needing node_modules
+  const devPath = process.env.STENCIL_WIZARD_DEV;
+  if (devPath) {
+    const absPath = resolve(rootDir, devPath);
+    const devPlugin = await loadDevPlugin(absPath, loader);
+    if (devPlugin) plugins.unshift(devPlugin);
+  }
+
+  return plugins;
+}
+
+async function findDevPackageName(wizardPath: string): Promise<string> {
+  const dir = dirname(wizardPath);
+  for (const candidate of [dir, resolve(dir, '..')]) {
+    const pkg = await readJson(join(candidate, 'package.json'));
+    if (typeof pkg?.name === 'string') return pkg.name;
+  }
+  return basename(dir);
+}
+
+async function loadDevPlugin(
+  wizardPath: string,
+  loader: ModuleLoader,
+): Promise<DiscoveredPlugin | null> {
+  const packageName = await findDevPackageName(wizardPath);
+
+  let mod: Record<string, unknown>;
+  try {
+    mod = await loader(pathToFileURL(wizardPath).href);
+  } catch {
+    console.warn(`[stencil] STENCIL_WIZARD_DEV: failed to load ${wizardPath}`);
+    return null;
+  }
+
+  const plugin = mod.wizard;
+  if (!plugin || typeof plugin !== 'object') {
+    console.warn(`[stencil] STENCIL_WIZARD_DEV: ${wizardPath} does not export a 'wizard' object`);
+    return null;
+  }
+
+  return { packageName, plugin: plugin as StencilWizardPlugin };
 }

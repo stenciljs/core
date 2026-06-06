@@ -8,7 +8,7 @@ import { isCI } from 'std-env';
 
 import { cancelIfAborted } from './wizard/clack.js';
 import { discoverPlugins } from './wizard/discover.js';
-import { copyTemplate, patchPackageJson, applyConfigPatches } from './wizard/init/apply.js';
+import { copyTemplate, patchPackageJson } from './wizard/init/apply.js';
 import {
   KNOWN_INTEGRATIONS,
   promptProjectName,
@@ -23,6 +23,10 @@ export async function taskInit(): Promise<void> {
 
   printSplash();
   p.intro('stencil init');
+
+  if (process.env.STENCIL_WIZARD_DEV) {
+    p.log.warn(`Dev mode: loading wizard from ${process.env.STENCIL_WIZARD_DEV}`);
+  }
 
   if (isCI) {
     p.log.warn('Running in CI - non-interactive mode is not yet supported for `stencil init`.');
@@ -78,13 +82,16 @@ export async function taskInit(): Promise<void> {
   await installDependencies({ cwd, silent: true });
   s2.stop('Dependencies installed');
 
-  // ── Phase 4: re-discover + apply config patches ───────────────────────────
+  // ── Phase 4: re-discover + run plugin wizards ─────────────────────────────
 
   if (selectedIntegrations.length > 0) {
     const discovered = await discoverPlugins(cwd);
-    const withPatches = discovered.filter((d) => d.plugin.init?.configPatch);
-    if (withPatches.length > 0) {
-      await applyConfigPatches(cwd, withPatches);
+    const selectedPkgs = new Set(selectedIntegrations.map((i) => i.package));
+    const context = { rootDir: cwd, isNewProject: true };
+    for (const d of discovered) {
+      if (selectedPkgs.has(d.packageName) && d.plugin.init?.run) {
+        await d.plugin.init.run(context);
+      }
     }
   }
 
@@ -144,16 +151,17 @@ async function addCapabilities(cwd: string): Promise<void> {
     s.stop('Dependencies installed');
   }
 
-  // Re-discover after install so newly installed packages can contribute config patches
+  // Re-discover after install so newly installed packages can run their wizards
   const allDiscovered = toInstall.length > 0 ? await discoverPlugins(cwd) : discovered;
   const newlyInstalledPkgs = new Set(toInstall.map((i) => i.package));
-  const toPatch = [
+  const toRun = [
     ...allDiscovered.filter((d) => newlyInstalledPkgs.has(d.packageName)),
     ...toConfigure,
-  ].filter((d) => d.plugin.init?.configPatch);
+  ].filter((d) => d.plugin.init?.run);
 
-  if (toPatch.length > 0) {
-    await applyConfigPatches(cwd, toPatch);
+  const context = { rootDir: cwd, isNewProject: false };
+  for (const d of toRun) {
+    await d.plugin.init!.run(context);
   }
 
   p.outro('Done! Run pnpm run dev to continue.');
