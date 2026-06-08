@@ -91,7 +91,12 @@ export async function discoverPlugins(
   if (devPath) {
     const absPath = resolve(rootDir, devPath);
     const devPlugin = await loadDevPlugin(absPath, loader);
-    if (devPlugin) plugins.unshift(devPlugin);
+    if (devPlugin) {
+      // Replace any normally-discovered plugin with the same name so it doesn't appear twice
+      const deduped = plugins.filter((p) => p.packageName !== devPlugin.packageName);
+      plugins.length = 0;
+      plugins.push(devPlugin, ...deduped);
+    }
   }
 
   return plugins;

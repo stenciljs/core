@@ -181,6 +181,25 @@ describe('discoverPlugins', () => {
       expect(result[1]).toEqual({ packageName: '@stencil/sass', plugin: installedPlugin });
     });
 
+    it('replaces the installed version when dev wizard package name matches', async () => {
+      // Simulates developing @stencil/vitest while it is already installed
+      const installedPlugin = { generate: { fileTemplates: [] } };
+      mockReadFile
+        .mockResolvedValueOnce(makeRootPkg({ 'my-plugin': '^1.0.0' }))
+        .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // installed my-plugin
+        .mockRejectedValueOnce(new Error('ENOENT')) // dev: dist/package.json not found
+        .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // dev: parent package.json
+
+      const loader = makeLoader({
+        [`${ROOT}/node_modules/my-plugin/dist/wizard.js`]: { wizard: installedPlugin },
+        [DEV_WIZARD]: { wizard: devPlugin },
+      });
+
+      const result = await discoverPlugins(ROOT, loader);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ packageName: 'my-plugin', plugin: devPlugin });
+    });
+
     it('falls back to directory name when no package.json is found', async () => {
       mockReadFile
         .mockResolvedValueOnce(makeRootPkg())

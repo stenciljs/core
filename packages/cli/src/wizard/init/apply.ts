@@ -20,7 +20,8 @@ export async function copyTemplate(
   for (const entry of entries) {
     if (!entry.isFile()) continue;
     const srcPath = join(entry.parentPath, entry.name);
-    const destPath = join(rootDir, relative(templateDir, srcPath));
+    const relPath = relative(templateDir, srcPath);
+    const destPath = join(rootDir, relPath);
 
     await mkdir(dirname(destPath), { recursive: true });
 
@@ -28,8 +29,92 @@ export async function copyTemplate(
       .replace(/\{\{PROJECT_NAME\}\}/g, projectName)
       .replace(/\{\{NAMESPACE\}\}/g, namespace);
 
-    await writeFile(destPath, content, 'utf8');
+    if (relPath === 'package.json') {
+      await mergePackageJson(destPath, content);
+    } else if (relPath === 'tsconfig.json') {
+      await mergeTsConfig(destPath, content);
+    } else if (relPath === '.gitignore') {
+      await mergeGitignore(destPath, content);
+    } else {
+      await writeIfAbsent(destPath, content);
+    }
   }
+}
+
+async function writeIfAbsent(destPath: string, content: string): Promise<void> {
+  try {
+    await writeFile(destPath, content, { encoding: 'utf8', flag: 'wx' });
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
+  }
+}
+
+async function mergePackageJson(destPath: string, templateContent: string): Promise<void> {
+  const template = JSON.parse(templateContent) as Record<string, unknown>;
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(destPath, 'utf8')) as Record<string, unknown>;
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const merged = {
+    ...template,
+    ...existing,
+    scripts: mergeStringRecord(template.scripts, existing.scripts),
+    dependencies: mergeStringRecord(template.dependencies, existing.dependencies),
+    devDependencies: mergeStringRecord(template.devDependencies, existing.devDependencies),
+  };
+
+  await writeFile(destPath, JSON.stringify(merged, null, 2) + '\n', 'utf8');
+}
+
+async function mergeTsConfig(destPath: string, templateContent: string): Promise<void> {
+  const template = JSON.parse(templateContent) as Record<string, unknown>;
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(destPath, 'utf8')) as Record<string, unknown>;
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const merged = {
+    ...template,
+    ...existing,
+    compilerOptions: mergeStringRecord(template.compilerOptions, existing.compilerOptions),
+  };
+
+  await writeFile(destPath, JSON.stringify(merged, null, 2) + '\n', 'utf8');
+}
+
+async function mergeGitignore(destPath: string, templateContent: string): Promise<void> {
+  let existing: string;
+  try {
+    existing = await readFile(destPath, 'utf8');
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const existingEntries = new Set(existing.split('\n').map((l) => l.trim()).filter(Boolean));
+  const missing = templateContent
+    .split('\n')
+    .filter((line) => line.trim() && !existingEntries.has(line.trim()));
+
+  if (missing.length === 0) return;
+
+  const separator = existing.endsWith('\n') ? '' : '\n';
+  await writeFile(destPath, existing + separator + missing.join('\n') + '\n', 'utf8');
+}
+
+function mergeStringRecord(base: unknown, override: unknown): Record<string, string> {
+  const toObj = (v: unknown) =>
+    v !== null && typeof v === 'object' ? (v as Record<string, string>) : {};
+  return { ...toObj(base), ...toObj(override) };
 }
 
 /**
