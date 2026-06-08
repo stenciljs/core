@@ -100,7 +100,12 @@ async function mergeGitignore(destPath: string, templateContent: string): Promis
     return;
   }
 
-  const existingEntries = new Set(existing.split('\n').map((l) => l.trim()).filter(Boolean));
+  const existingEntries = new Set(
+    existing
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean),
+  );
   const missing = templateContent
     .split('\n')
     .filter((line) => line.trim() && !existingEntries.has(line.trim()));
@@ -115,6 +120,22 @@ function mergeStringRecord(base: unknown, override: unknown): Record<string, str
   const toObj = (v: unknown) =>
     v !== null && typeof v === 'object' ? (v as Record<string, string>) : {};
   return { ...toObj(base), ...toObj(override) };
+}
+
+export async function writeStencilConfig(rootDir: string, content: string): Promise<void> {
+  await writeFile(join(rootDir, 'stencil.config.ts'), content, 'utf8');
+}
+
+export async function writeGlobalStyle(rootDir: string): Promise<void> {
+  const path = join(rootDir, 'src', 'global.css');
+  await mkdir(dirname(path), { recursive: true });
+  await writeIfAbsent(path, `@import "stencil-globals";\n@import "stencil-hydrate";\n`);
+}
+
+export async function writeGlobalScript(rootDir: string): Promise<void> {
+  const path = join(rootDir, 'src', 'global.ts');
+  await mkdir(dirname(path), { recursive: true });
+  await writeIfAbsent(path, `export default function (): void {}\n`);
 }
 
 /**

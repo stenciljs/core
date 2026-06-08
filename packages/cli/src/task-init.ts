@@ -2,18 +2,27 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as p from '@clack/prompts';
-import { toPascalCase } from '@stencil/templates';
+import { generateStencilConfig, toPascalCase } from '@stencil/templates';
 import { installDependencies } from 'nypm';
 import { isCI } from 'std-env';
 
 import { cancelIfAborted } from './wizard/clack.js';
 import { discoverPlugins } from './wizard/discover.js';
-import { copyTemplate, patchPackageJson } from './wizard/init/apply.js';
+import {
+  copyTemplate,
+  patchPackageJson,
+  writeGlobalScript,
+  writeGlobalStyle,
+  writeStencilConfig,
+} from './wizard/init/apply.js';
 import {
   KNOWN_INTEGRATIONS,
-  promptProjectName,
-  promptIntegrations,
   promptAddCapabilities,
+  promptDocs,
+  promptFeatures,
+  promptIntegrations,
+  promptOutputs,
+  promptProjectName,
 } from './wizard/init/steps.js';
 import { printSplash } from './wizard/splash.js';
 
@@ -22,7 +31,7 @@ export async function taskInit(): Promise<void> {
   const isExistingProject = existsSync(join(cwd, 'stencil.config.ts'));
 
   printSplash();
-  p.intro('stencil init');
+  p.intro(`stencil init`);
 
   if (process.env.STENCIL_WIZARD_DEV) {
     p.log.warn(`Dev mode: loading wizard from ${process.env.STENCIL_WIZARD_DEV}`);
@@ -42,12 +51,23 @@ export async function taskInit(): Promise<void> {
 
   const projectName = await promptProjectName();
   const namespace = toNamespace(projectName);
+  const outputs = await promptOutputs();
+  const features = await promptFeatures();
+  const docs = await promptDocs();
   const selectedIntegrations = await promptIntegrations();
+
+  const configSource = generateStencilConfig({
+    namespace,
+    outputs,
+    signals: features.signals,
+    docs,
+  });
 
   const summaryLines = [
     `Template:  component-starter`,
     `Name:      ${projectName}`,
     `Namespace: ${namespace}`,
+    `Config:    ${configSource ? 'stencil.config.ts' : 'zero-config (loader default)'}`,
   ];
   if (selectedIntegrations.length > 0) {
     summaryLines.push(`Add:       ${selectedIntegrations.map((i) => i.displayName).join(', ')}`);
@@ -66,6 +86,9 @@ export async function taskInit(): Promise<void> {
   const s1 = p.spinner();
   s1.start('Scaffolding project files');
   await copyTemplate(cwd, projectName, namespace);
+  if (configSource) await writeStencilConfig(cwd, configSource);
+  if (features.globalStyle) await writeGlobalStyle(cwd);
+  if (features.globalScript) await writeGlobalScript(cwd);
   s1.stop('Project files created');
 
   if (selectedIntegrations.length > 0) {

@@ -8,6 +8,7 @@ import { CoreCompiler, loadCoreCompiler } from './load-compiler';
 import { loadedCompilerLog, startupLog, startupLogVersion } from './logs';
 import { mergeFlags } from './merge-flags';
 import { parseFlags } from './parse-flags';
+import { taskAdd } from './task-add';
 import { taskBuild } from './task-build';
 import { taskDocs } from './task-docs';
 import { taskGenerate } from './task-generate';
@@ -63,6 +64,11 @@ export const run = async (init: d.CliInitOptions) => {
     if (!task || task === 'help' || flags.help) {
       await taskHelp(createConfigFlags({ task: 'help', args }), logger, sys);
 
+      return;
+    }
+
+    if (task === 'add') {
+      await taskAdd(flags.unknownArgs);
       return;
     }
 
@@ -154,6 +160,10 @@ export const runTask = async (
   const strictConfig: ValidatedConfig = coreCompiler.validateConfig(configWithFlags, {}).config;
 
   switch (task) {
+    case 'add':
+      await taskAdd([]);
+      break;
+
     case 'build':
       await taskBuild(coreCompiler, strictConfig, resolvedFlags);
       break;

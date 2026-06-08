@@ -26,32 +26,58 @@ vi.mock('@clack/prompts', () => ({
   isCancel: vi.fn().mockReturnValue(false),
 }));
 
-vi.mock('../wizard/splash', () => ({ printSplash: vi.fn() }));
+vi.mock('../wizard/splash', () => ({ printSplash: vi.fn(), CLI_VERSION: '0.0.0-test' }));
 vi.mock('../wizard/discover', () => ({ discoverPlugins: vi.fn().mockResolvedValue([]) }));
 vi.mock('../wizard/init/steps', () => ({
   KNOWN_INTEGRATIONS: [],
   promptProjectName: vi.fn().mockResolvedValue('my-lib'),
+  promptOutputs: vi.fn().mockResolvedValue([]),
+  promptFeatures: vi
+    .fn()
+    .mockResolvedValue({ signals: false, globalStyle: false, globalScript: false }),
+  promptDocs: vi.fn().mockResolvedValue([]),
   promptIntegrations: vi.fn().mockResolvedValue([]),
   promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
 }));
 vi.mock('../wizard/init/apply', () => ({
   copyTemplate: vi.fn().mockResolvedValue(undefined),
   patchPackageJson: vi.fn().mockResolvedValue(undefined),
+  writeStencilConfig: vi.fn().mockResolvedValue(undefined),
+  writeGlobalStyle: vi.fn().mockResolvedValue(undefined),
+  writeGlobalScript: vi.fn().mockResolvedValue(undefined),
+}));
+vi.mock('@stencil/templates', () => ({
+  generateStencilConfig: vi.fn().mockReturnValue(null),
+  toPascalCase: (str: string) =>
+    str
+      .split('-')
+      .map((p: string) => p[0].toUpperCase() + p.slice(1))
+      .join(''),
 }));
 
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import * as clack from '@clack/prompts';
+import { generateStencilConfig } from '@stencil/templates';
 import { installDependencies } from 'nypm';
 
 import { taskInit } from '../task-init';
 import { discoverPlugins } from '../wizard/discover';
-import { copyTemplate, patchPackageJson } from '../wizard/init/apply';
+import {
+  copyTemplate,
+  patchPackageJson,
+  writeGlobalScript,
+  writeGlobalStyle,
+  writeStencilConfig,
+} from '../wizard/init/apply';
 import {
   KNOWN_INTEGRATIONS,
-  promptProjectName,
-  promptIntegrations,
   promptAddCapabilities,
+  promptDocs,
+  promptFeatures,
+  promptIntegrations,
+  promptOutputs,
+  promptProjectName,
 } from '../wizard/init/steps';
 
 const CWD = '/project';
@@ -91,8 +117,16 @@ describe('taskInit', () => {
     vi.mocked(existsSync).mockReturnValue(false);
     vi.mocked(discoverPlugins).mockResolvedValue([]);
     vi.mocked(promptProjectName).mockResolvedValue('my-lib');
+    vi.mocked(promptOutputs).mockResolvedValue([]);
+    vi.mocked(promptFeatures).mockResolvedValue({
+      signals: false,
+      globalStyle: false,
+      globalScript: false,
+    });
+    vi.mocked(promptDocs).mockResolvedValue([]);
     vi.mocked(promptIntegrations).mockResolvedValue([]);
     vi.mocked(promptAddCapabilities).mockResolvedValue({ toInstall: [], toConfigure: [] });
+    vi.mocked(generateStencilConfig).mockReturnValue(null);
     vi.mocked(clack.confirm).mockResolvedValue(true);
     vi.mocked(clack.isCancel).mockReturnValue(false);
     vi.spyOn(process, 'cwd').mockReturnValue(CWD);
