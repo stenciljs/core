@@ -24,6 +24,11 @@ vi.mock('../wizard/discover', () => ({
   discoverPlugins: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock('node:fs', () => ({
+  existsSync: vi.fn().mockReturnValue(true),
+}));
+
+import { existsSync } from 'node:fs';
 import * as clack from '@clack/prompts';
 
 import { discoverPlugins } from '../wizard/discover';
@@ -69,6 +74,7 @@ function defaultPrompts() {
 describe('generate task', () => {
   beforeEach(() => {
     mockDiscoverPlugins.mockResolvedValue([]);
+    vi.mocked(existsSync).mockReturnValue(true);
     defaultPrompts();
   });
 
@@ -77,22 +83,28 @@ describe('generate task', () => {
     vi.clearAllMocks();
   });
 
-  it('exits with error when configPath is missing', async () => {
+  it('exits with error when srcDir does not exist on disk', async () => {
+    vi.mocked(existsSync).mockReturnValue(false);
     const { config, flags, errorSpy } = setup();
-    config.configPath = undefined;
     await taskGenerate(config, flags);
     expect(config.sys.exit).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith(
-      'Please run this command in your root directory (i. e. the one containing stencil.config.ts).',
-    );
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('project root'));
   });
 
-  it('exits with error when srcDir is missing', async () => {
+  it('runs without a stencil.config.ts when srcDir exists', async () => {
+    const { config, flags } = setup();
+    config.configPath = undefined;
+    withTagName(flags, 'my-component');
+    await taskGenerate(config, flags);
+    expect(config.sys.exit).not.toHaveBeenCalled();
+  });
+
+  it('exits with error when srcDir is missing or does not exist', async () => {
     const { config, flags, errorSpy } = setup();
     config.srcDir = undefined;
     await taskGenerate(config, flags);
     expect(config.sys.exit).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith(`Stencil's srcDir was not specified.`);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('project root'));
   });
 
   it('exits with error when the component tag is invalid', async () => {
@@ -244,5 +256,61 @@ describe('generate task', () => {
     await taskGenerate(config, flags);
 
     expect(mockMultiselect).not.toHaveBeenCalled();
+  });
+
+  it('resolves fileTemplates from an async function and passes GenerateContext', async () => {
+    const specTemplate = vi.fn().mockReturnValue('// spec content');
+    const fileTemplatesFn = vi
+      .fn()
+      .mockResolvedValue([
+        { label: 'Vitest spec (.spec.tsx)', extension: 'spec.tsx', template: specTemplate },
+      ]);
+    mockDiscoverPlugins.mockResolvedValue([
+      { packageName: '@stencil/vitest', plugin: { generate: { fileTemplates: fileTemplatesFn } } },
+    ]);
+    mockMultiselect.mockResolvedValue(['spec.tsx']);
+
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(fileTemplatesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tagName: 'my-component',
+        config: expect.objectContaining({ rootDir: ROOT, srcDir: SRC }),
+      }),
+    );
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/my-component.spec.tsx`,
+      '// spec content',
+    );
+  });
+
+  it('resolves fileTemplates from a sync function', async () => {
+    const specTemplate = vi.fn().mockReturnValue('// spec content');
+    const fileTemplatesFn = vi
+      .fn()
+      .mockReturnValue([
+        { label: 'Spec (.spec.tsx)', extension: 'spec.tsx', template: specTemplate },
+      ]);
+    mockDiscoverPlugins.mockResolvedValue([
+      { packageName: '@stencil/vitest', plugin: { generate: { fileTemplates: fileTemplatesFn } } },
+    ]);
+    mockMultiselect.mockResolvedValue(['spec.tsx']);
+
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+
+    await taskGenerate(config, flags);
+
+    expect(fileTemplatesFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tagName: 'my-component',
+        config: expect.objectContaining({ rootDir: ROOT, srcDir: SRC }),
+      }),
+    );
+    expect(specTemplate).toHaveBeenCalled();
   });
 });

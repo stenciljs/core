@@ -2,6 +2,7 @@
  * Supported CLI task commands
  */
 export type TaskCommand =
+  | 'add'
   | 'build'
   | 'docs'
   | 'generate'

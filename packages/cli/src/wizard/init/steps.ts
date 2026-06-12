@@ -1,7 +1,10 @@
 import * as p from '@clack/prompts';
+import type { DocKey, OutputKey } from '@stencil/templates';
 
 import { cancelIfAborted } from '../clack.js';
 import type { DiscoveredPlugin } from '../discover.js';
+
+export type { OutputKey, DocKey };
 
 export interface KnownIntegration {
   package: string;
@@ -77,6 +80,90 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
   },
 ];
 
+export async function promptOutputs(): Promise<OutputKey[]> {
+  const picks = await p.multiselect<OutputKey>({
+    message: 'Outputs:',
+    options: [
+      { value: 'loader', label: 'Loader', hint: 'performant lazy-loader; browser & bundler ready' },
+      {
+        value: 'standalone',
+        label: 'Standalone',
+        hint: 'per-component modules, import only what you need',
+      },
+      { value: 'ssr', label: 'SSR', hint: 'pre-render components in any JS server environment' },
+      {
+        value: 'ssr-wasm',
+        label: 'SSR WASM',
+        hint: 'experimental: compile SSR to a portable WASM binary',
+      },
+      { value: 'www', label: 'WWW', hint: 'app mode with dev server and optional PWA support' },
+    ],
+    required: false,
+  });
+  cancelIfAborted(picks);
+  return picks as OutputKey[];
+}
+
+export interface FeatureSelections {
+  signals: boolean;
+  globalStyle: boolean;
+  globalScript: boolean;
+}
+
+export async function promptFeatures(): Promise<FeatureSelections> {
+  const picks = await p.multiselect<string>({
+    message: 'Features:',
+    options: [
+      {
+        value: 'signals',
+        label: 'Signals',
+        hint: 'signal-backed @Prop/@State for cross-framework reactive interop',
+      },
+      {
+        value: 'globalStyle',
+        label: 'Global style',
+        hint: 'Global stylesheet for font definitions, CSS variables, pre-load styles etc',
+      },
+      {
+        value: 'globalScript',
+        label: 'Global script',
+        hint: 'Global script for initializing application-wide logic before components load',
+      },
+    ],
+    required: false,
+  });
+  cancelIfAborted(picks);
+  const set = new Set(picks as string[]);
+  return {
+    signals: set.has('signals'),
+    globalStyle: set.has('globalStyle'),
+    globalScript: set.has('globalScript'),
+  };
+}
+
+export async function promptDocs(): Promise<DocKey[]> {
+  const picks = await p.multiselect<DocKey>({
+    message: 'Docs:',
+    options: [
+      {
+        value: 'cem',
+        label: 'CEM',
+        hint: 'custom-elements.json - preferred format for interop with tools like Storybook, Styleguidist, etc',
+      },
+      { value: 'json', label: 'JSON', hint: 'docs.json - Stencil / Ionic centric schema' },
+      {
+        value: 'vscode',
+        label: 'VS Code',
+        hint: 'vscode-data.json - editor autocomplete for your components',
+      },
+    ],
+    initialValues: ['cem'],
+    required: false,
+  });
+  cancelIfAborted(picks);
+  return picks as DocKey[];
+}
+
 export async function promptProjectName(): Promise<string> {
   const name = await p.text({
     message: 'Project name:',
@@ -95,6 +182,19 @@ function buildGroupedOptions(integrations: KnownIntegration[]): Record<string, p
     (groups[i.group] ??= []).push({ value: i.package, label: i.displayName, hint: i.description });
   }
   return groups;
+}
+
+export async function promptCustomPackages(): Promise<string[]> {
+  const input = await p.text({
+    message: 'Additional packages to install:',
+    placeholder: 'e.g. my-plugin another-package (leave blank to skip)',
+  });
+  cancelIfAborted(input);
+  if (typeof input !== 'string' || !input.trim()) return [];
+  return input
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export async function promptIntegrations(): Promise<KnownIntegration[]> {

@@ -1,28 +1,61 @@
-import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as p from '@clack/prompts';
-import { toPascalCase } from '@stencil/templates';
-import { installDependencies } from 'nypm';
+import { generatePackageJsonFields, generateStencilConfig, toPascalCase } from '@stencil/templates';
+import * as nypm from 'nypm';
+import { addDevDependency, installDependencies } from 'nypm';
 import { isCI } from 'std-env';
+import type { OutputTarget, ValidatedConfig } from '@stencil/core/compiler';
+import type { OutputKey } from '@stencil/templates';
 
 import { cancelIfAborted } from './wizard/clack.js';
 import { discoverPlugins } from './wizard/discover.js';
-import { copyTemplate, patchPackageJson } from './wizard/init/apply.js';
+import {
+  applyPackageJsonFields,
+  copyTemplate,
+  writeGlobalScript,
+  writeGlobalStyle,
+  writeStencilConfig,
+} from './wizard/init/apply.js';
 import {
   KNOWN_INTEGRATIONS,
-  promptProjectName,
-  promptIntegrations,
   promptAddCapabilities,
+  promptDocs,
+  promptFeatures,
+  promptIntegrations,
+  promptOutputs,
+  promptProjectName,
 } from './wizard/init/steps.js';
+import {
+  defaultProjectConfig,
+  isExistingStencilProject,
+  toProjectConfig,
+} from './wizard/project.js';
 import { printSplash } from './wizard/splash.js';
+import type { CoreCompiler } from './load-compiler.js';
 
-export async function taskInit(): Promise<void> {
+function outputKeysToTargets(keys: ReadonlyArray<OutputKey>): Array<{ type: string }> {
+  const map: Record<OutputKey, string> = {
+    loader: 'loader-bundle',
+    standalone: 'standalone',
+    ssr: 'ssr',
+    'ssr-wasm': 'ssr-wasm',
+    www: 'www',
+  };
+  // Empty keys = zero-config default = loader-bundle
+  return keys.length > 0 ? keys.map((k) => ({ type: map[k] })) : [{ type: 'loader-bundle' }];
+}
+
+export async function taskInit(
+  coreCompiler?: CoreCompiler,
+  strictConfig?: ValidatedConfig,
+  loadProjectConfig?: (configPath?: string) => Promise<ValidatedConfig>,
+): Promise<void> {
   const cwd = process.cwd();
-  const isExistingProject = existsSync(join(cwd, 'stencil.config.ts'));
+  const isExistingProject = await isExistingStencilProject(cwd);
 
   printSplash();
-  p.intro('stencil init');
+  p.intro(`stencil init`);
 
   if (process.env.STENCIL_WIZARD_DEV) {
     p.log.warn(`Dev mode: loading wizard from ${process.env.STENCIL_WIZARD_DEV}`);
@@ -34,7 +67,7 @@ export async function taskInit(): Promise<void> {
   }
 
   if (isExistingProject) {
-    await addCapabilities(cwd);
+    await addCapabilities(cwd, strictConfig);
     return;
   }
 
@@ -42,12 +75,23 @@ export async function taskInit(): Promise<void> {
 
   const projectName = await promptProjectName();
   const namespace = toNamespace(projectName);
+  const outputs = await promptOutputs();
+  const features = await promptFeatures();
+  const docs = await promptDocs();
   const selectedIntegrations = await promptIntegrations();
+
+  const configSource = generateStencilConfig({
+    namespace,
+    outputs,
+    signals: features.signals,
+    docs,
+  });
 
   const summaryLines = [
     `Template:  component-starter`,
     `Name:      ${projectName}`,
     `Namespace: ${namespace}`,
+    `Config:    ${configSource ? 'stencil.config.ts' : 'zero-config (loader default)'}`,
   ];
   if (selectedIntegrations.length > 0) {
     summaryLines.push(`Add:       ${selectedIntegrations.map((i) => i.displayName).join(', ')}`);
@@ -66,14 +110,11 @@ export async function taskInit(): Promise<void> {
   const s1 = p.spinner();
   s1.start('Scaffolding project files');
   await copyTemplate(cwd, projectName, namespace);
+  await applyPackageJsonFields(cwd, generatePackageJsonFields(outputs));
+  if (configSource) await writeStencilConfig(cwd, configSource);
+  if (features.globalStyle) await writeGlobalStyle(cwd);
+  if (features.globalScript) await writeGlobalScript(cwd);
   s1.stop('Project files created');
-
-  if (selectedIntegrations.length > 0) {
-    await patchPackageJson(
-      cwd,
-      selectedIntegrations.map((i) => i.package),
-    );
-  }
 
   // ── Phase 3: install ───────────────────────────────────────────────────────
 
@@ -82,12 +123,37 @@ export async function taskInit(): Promise<void> {
   await installDependencies({ cwd, silent: true });
   s2.stop('Dependencies installed');
 
+  if (selectedIntegrations.length > 0) {
+    const s3 = p.spinner();
+    const pkgs = selectedIntegrations.map((i) => i.package);
+    s3.start(`Installing ${pkgs.join(', ')}`);
+    await addDevDependency(pkgs, { cwd, silent: true });
+    s3.stop('Integrations installed');
+  }
+
   // ── Phase 4: re-discover + run plugin wizards ─────────────────────────────
 
   if (selectedIntegrations.length > 0) {
     const discovered = await discoverPlugins(cwd);
     const selectedPkgs = new Set(selectedIntegrations.map((i) => i.package));
-    const context = { rootDir: cwd, isNewProject: true };
+    // Load the just-written config (or package.json defaults for zero-config) so plugins
+    // get the authoritative resolved paths - namespace, srcDir, outputTargets, etc.
+    const resolvedValidated = loadProjectConfig
+      ? await loadProjectConfig(configSource ? join(cwd, 'stencil.config.ts') : undefined)
+      : coreCompiler
+        ? coreCompiler.validateConfig(
+            {
+              rootDir: cwd,
+              outputTargets: outputKeysToTargets(outputs) as OutputTarget[],
+              ...(configSource ? { namespace } : {}),
+            },
+            {},
+          ).config
+        : null;
+    const projectConfig = resolvedValidated
+      ? toProjectConfig(resolvedValidated)
+      : defaultProjectConfig(cwd, { namespace });
+    const context = { isNewProject: true, prompts: p, nypm, config: projectConfig };
     for (const d of discovered) {
       if (selectedPkgs.has(d.packageName) && d.plugin.init?.run) {
         await d.plugin.init.run(context);
@@ -98,7 +164,7 @@ export async function taskInit(): Promise<void> {
   p.outro('Your project is ready! Run: pnpm run dev');
 }
 
-async function addCapabilities(cwd: string): Promise<void> {
+async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Promise<void> {
   const raw = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8')) as Record<
     string,
     unknown
@@ -141,13 +207,10 @@ async function addCapabilities(cwd: string): Promise<void> {
   }
 
   if (toInstall.length > 0) {
-    await patchPackageJson(
-      cwd,
-      toInstall.map((i) => i.package),
-    );
     const s = p.spinner();
-    s.start('Installing dependencies');
-    await installDependencies({ cwd, silent: true });
+    const pkgs = toInstall.map((i) => i.package);
+    s.start(`Installing ${pkgs.join(', ')}`);
+    await addDevDependency(pkgs, { cwd, silent: true });
     s.stop('Dependencies installed');
   }
 
@@ -159,7 +222,8 @@ async function addCapabilities(cwd: string): Promise<void> {
     ...toConfigure,
   ].filter((d) => d.plugin.init?.run);
 
-  const context = { rootDir: cwd, isNewProject: false };
+  const projectConfig = strictConfig ? toProjectConfig(strictConfig) : defaultProjectConfig(cwd);
+  const context = { isNewProject: false, prompts: p, nypm, config: projectConfig };
   for (const d of toRun) {
     await d.plugin.init!.run(context);
   }

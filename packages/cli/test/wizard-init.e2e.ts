@@ -6,6 +6,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 const clackMocks = vi.hoisted(() => ({
   text: vi.fn(),
+  multiselect: vi.fn().mockResolvedValue([]),
   groupMultiselect: vi.fn(),
   confirm: vi.fn(),
   isCancel: vi.fn().mockReturnValue(false),
@@ -21,6 +22,7 @@ vi.mock('@clack/prompts', () => ({
   cancel: vi.fn(),
   isCancel: clackMocks.isCancel,
   text: clackMocks.text,
+  multiselect: clackMocks.multiselect,
   groupMultiselect: clackMocks.groupMultiselect,
 }));
 
@@ -59,6 +61,11 @@ describe('taskInit e2e', () => {
   describe('new project', () => {
     beforeEach(() => {
       clackMocks.text.mockResolvedValue('my-e2e-lib');
+      // outputs=standalone forces config generation; features and docs return empty
+      clackMocks.multiselect
+        .mockResolvedValueOnce(['standalone'])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
       clackMocks.groupMultiselect.mockResolvedValue([]);
     });
 
@@ -67,6 +74,7 @@ describe('taskInit e2e', () => {
 
       const config = await readFile(join(tmpDir, 'stencil.config.ts'), 'utf8');
       expect(config).toContain("namespace: 'MyE2eLib'");
+      expect(config).toContain("type: 'standalone'");
 
       const pkg = JSON.parse(await readFile(join(tmpDir, 'package.json'), 'utf8')) as {
         name: string;

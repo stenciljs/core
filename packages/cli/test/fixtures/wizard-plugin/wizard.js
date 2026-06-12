@@ -6,7 +6,7 @@ export const wizard = {
     id: 'fixture-wizard-plugin',
     displayName: 'Fixture Plugin',
     description: 'E2E test fixture with wizard contributions',
-    async run({ rootDir }) {
+    async run({ config: { rootDir } }) {
       const configPath = join(rootDir, 'stencil.config.ts');
       const existing = await readFile(configPath, 'utf8');
       await writeFile(

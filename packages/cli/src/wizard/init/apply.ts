@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { getTemplatePath } from '@stencil/templates';
+import type { PackageJsonFields } from '@stencil/templates';
 
 /**
  * Copy component-starter template into rootDir, interpolating project name and namespace.
@@ -20,7 +21,8 @@ export async function copyTemplate(
   for (const entry of entries) {
     if (!entry.isFile()) continue;
     const srcPath = join(entry.parentPath, entry.name);
-    const destPath = join(rootDir, relative(templateDir, srcPath));
+    const relPath = relative(templateDir, srcPath);
+    const destPath = join(rootDir, relPath);
 
     await mkdir(dirname(destPath), { recursive: true });
 
@@ -28,28 +30,139 @@ export async function copyTemplate(
       .replace(/\{\{PROJECT_NAME\}\}/g, projectName)
       .replace(/\{\{NAMESPACE\}\}/g, namespace);
 
-    await writeFile(destPath, content, 'utf8');
+    if (relPath === 'package.json') {
+      await mergePackageJson(destPath, content);
+    } else if (relPath === 'tsconfig.json') {
+      await mergeTsConfig(destPath, content);
+    } else if (relPath === '.gitignore') {
+      await mergeGitignore(destPath, content);
+    } else {
+      await writeIfAbsent(destPath, content);
+    }
   }
 }
 
+async function writeIfAbsent(destPath: string, content: string): Promise<void> {
+  try {
+    await writeFile(destPath, content, { encoding: 'utf8', flag: 'wx' });
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
+  }
+}
+
+async function mergePackageJson(destPath: string, templateContent: string): Promise<void> {
+  const template = JSON.parse(templateContent) as Record<string, unknown>;
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(destPath, 'utf8')) as Record<string, unknown>;
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const dependencies = mergeStringRecord(template.dependencies, existing.dependencies);
+  const devDependencies = mergeStringRecord(template.devDependencies, existing.devDependencies);
+
+  // Don't duplicate a package in devDependencies if it's already a direct dependency
+  for (const pkg of Object.keys(devDependencies)) {
+    if (pkg in dependencies) delete devDependencies[pkg];
+  }
+
+  const merged = {
+    ...template,
+    ...existing,
+    scripts: mergeStringRecord(template.scripts, existing.scripts),
+    dependencies,
+    devDependencies,
+  };
+
+  await writeFile(destPath, JSON.stringify(merged, null, 2) + '\n', 'utf8');
+}
+
+async function mergeTsConfig(destPath: string, templateContent: string): Promise<void> {
+  const template = JSON.parse(templateContent) as Record<string, unknown>;
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(destPath, 'utf8')) as Record<string, unknown>;
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const merged = {
+    ...template,
+    ...existing,
+    compilerOptions: mergeStringRecord(template.compilerOptions, existing.compilerOptions),
+  };
+
+  await writeFile(destPath, JSON.stringify(merged, null, 2) + '\n', 'utf8');
+}
+
+async function mergeGitignore(destPath: string, templateContent: string): Promise<void> {
+  let existing: string;
+  try {
+    existing = await readFile(destPath, 'utf8');
+  } catch {
+    await writeFile(destPath, templateContent, 'utf8');
+    return;
+  }
+
+  const existingEntries = new Set(
+    existing
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean),
+  );
+  const missing = templateContent
+    .split('\n')
+    .filter((line) => line.trim() && !existingEntries.has(line.trim()));
+
+  if (missing.length === 0) return;
+
+  const separator = existing.endsWith('\n') ? '' : '\n';
+  await writeFile(destPath, existing + separator + missing.join('\n') + '\n', 'utf8');
+}
+
+function mergeStringRecord(base: unknown, override: unknown): Record<string, string> {
+  const toObj = (v: unknown) =>
+    v !== null && typeof v === 'object' ? (v as Record<string, string>) : {};
+  return { ...toObj(base), ...toObj(override) };
+}
+
+export async function writeStencilConfig(rootDir: string, content: string): Promise<void> {
+  await writeFile(join(rootDir, 'stencil.config.ts'), content, 'utf8');
+}
+
+export async function writeGlobalStyle(rootDir: string): Promise<void> {
+  const path = join(rootDir, 'src', 'global.css');
+  await mkdir(dirname(path), { recursive: true });
+  await writeIfAbsent(path, `@import "stencil-globals";\n@import "stencil-hydrate";\n`);
+}
+
+export async function writeGlobalScript(rootDir: string): Promise<void> {
+  const path = join(rootDir, 'src', 'global.ts');
+  await mkdir(dirname(path), { recursive: true });
+  await writeIfAbsent(path, `export default function (): void {}\n`);
+}
+
 /**
- * Inject integration package names into the project's package.json devDependencies.
- * Versions are set to 'latest' so the subsequent install resolves them from the registry.
+ * Write output-driven distributable fields (type, module, types) into package.json.
+ * These fields depend on which outputs the user selected, so they cannot be static in the template.
+ * Skips if fields is empty (e.g. www-only project).
  *
  * @param rootDir - Absolute path to the project root.
- * @param integrations - npm package names to add as devDependencies.
+ * @param fields - Fields to write, from generatePackageJsonFields().
  */
-export async function patchPackageJson(rootDir: string, integrations: string[]): Promise<void> {
-  if (integrations.length === 0) return;
+export async function applyPackageJsonFields(
+  rootDir: string,
+  fields: PackageJsonFields,
+): Promise<void> {
+  if (Object.keys(fields).length === 0) return;
 
   const pkgPath = join(rootDir, 'package.json');
   const pkg = JSON.parse(await readFile(pkgPath, 'utf8')) as Record<string, unknown>;
-  const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
-
-  for (const name of integrations) {
-    devDeps[name] = 'latest';
-  }
-  pkg.devDependencies = devDeps;
-
+  Object.assign(pkg, fields);
   await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 }

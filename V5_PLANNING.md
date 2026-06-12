@@ -189,23 +189,16 @@ This is filesystem-driven with no config gating - any non-www project benefits a
 
 ---
 
-### 🌍 `ssr-wasm` Output Target (Planned)
+### 🌍 `ssr-wasm` Output Target ✅ Complete
 
-New output target that compiles the SSR script to a standalone `.wasm` binary, callable from any language with a WASM runtime (PHP via `ext-wasm`, Java via `wasmtime-java`, Ruby via `wasmtime-rb`, Go, Rust, etc.).
+Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://extism.org/) + QuickJS-ng, callable from any language with a WASM runtime (PHP, Java, Ruby, Go, Rust, etc.).
 
-**Key design decisions:**
-- Strip `streamToString()` and all `node:stream` usage entirely  not needed
-- Expose a single `renderToString(html: string, options?: string): string` interface
-- Toolchain: [javy](https://github.com/bytecodealliance/javy) (Shopify, bytecodealliance) compiles the bundled SSR JS → WASM via QuickJS; [Extism PDK](https://extism.org/) as an optional layer for cleaner host function call interface
-- Interface convention: stdin/stdout (javy default) or Extism plugin exports  TBD based on what host runtimes support best
-- No JS runtime required on the backend  any WASM-capable host can SSR a component document
-
-**What needs to happen:**
-- [ ] Add `ssr-wasm` output target type and validation
-- [ ] Build step: after normal SSR bundle is generated, run javy to produce `index.wasm`
-- [ ] Ensure SSR bundle has zero Node built-in deps before handing to javy
-- [ ] Evaluate Extism vs raw javy stdin/stdout for the host call interface
-- [ ] Document usage examples for PHP, Java, Rails, Go
+**How it works:**
+- Bundles SSR script with rolldown (IIFE, ES2020 target for QuickJS-ng compat), no Node built-ins
+- Timer APIs polyfilled (QuickJS-ng doesn't provide `setTimeout` etc.)
+- Extism host exports: `renderToString()`, `setTagTransformer()`, `resetSsrDocData()` — data via `Host.inputString()`/`Host.outputString()`
+- `extism-js` CLI compiles `index.js` + `plugin.d.ts` → `index.wasm`; graceful warning if `extism-js` not installed
+- CI: Ubuntu, Node 22 + 24 (`test-ssr-wasm.yml`)
 
 ### 🛢️ Eliminate Barrel Exports in `src/utils`
 - [ ] Use [barrel-breaker](https://github.com/nicolo-ribaudo/babel-plugin-transform-barrels) or similar tool
