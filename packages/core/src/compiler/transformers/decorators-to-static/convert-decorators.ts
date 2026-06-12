@@ -161,6 +161,7 @@ const visitClassDeclaration = (
       importAliasMap.get('State'),
     );
     eventDecoratorsToStatic(
+      config,
       diagnostics,
       decoratedMembers,
       typeChecker,

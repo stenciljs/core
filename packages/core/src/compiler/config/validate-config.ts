@@ -197,6 +197,7 @@ export const validateConfig = (
   setBooleanConfig(validatedConfig, 'validateTypes', !validatedConfig._isTesting);
   setBooleanConfig(validatedConfig, 'allowInlineScripts', true);
   setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', false);
+  setBooleanConfig(validatedConfig, 'suppressReservedEventNameWarnings', false);
 
   if (!isString(validatedConfig.taskQueue)) {
     validatedConfig.taskQueue = 'async';

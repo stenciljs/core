@@ -152,6 +152,11 @@ export interface StencilConfig {
   suppressReservedPublicNameWarnings?: boolean;
 
   /**
+   * When `true`, Stencil will suppress diagnostics which warn about event names conflicting with native DOM event names. Defaults to `false`.
+   */
+  suppressReservedEventNameWarnings?: boolean;
+
+  /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
    * For further information: https://stenciljs.com/docs/module-bundling
    */
