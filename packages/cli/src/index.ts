@@ -4,6 +4,8 @@ export { parseFlags } from './parse-flags';
 export { run, runTask } from './run';
 export type { TaskCommand } from './types';
 export type {
+  GenerateContext,
+  ProjectConfig,
   StencilWizardPlugin,
   WizardContext,
   WizardFileTemplate,

@@ -1,12 +1,26 @@
+import { existsSync } from 'node:fs';
 import { join, parse, relative } from 'node:path';
 import * as p from '@clack/prompts';
 import { normalizePath, validateComponentTag } from '@stencil/core/compiler/utils';
 import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
+import * as nypm from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
 import { cancelIfAborted } from './wizard/clack.js';
 import { discoverPlugins } from './wizard/discover.js';
+import { toProjectConfig } from './wizard/project.js';
 import type { ConfigFlags } from './config-flags.js';
+import type {
+  GenerateContext,
+  WizardFileTemplate,
+  WizardGenerateContribution,
+} from './wizard/types.js';
+
+async function resolveFileTemplates(contrib: WizardGenerateContribution, ctx: GenerateContext) {
+  const { fileTemplates } = contrib;
+  if (!fileTemplates) return [];
+  return typeof fileTemplates === 'function' ? fileTemplates(ctx) : fileTemplates;
+}
 
 interface FileToWrite {
   absPath: string;
@@ -14,16 +28,9 @@ interface FileToWrite {
 }
 
 export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags): Promise<void> => {
-  if (!config.configPath) {
-    config.logger.error(
-      'Please run this command in your root directory (i. e. the one containing stencil.config.ts).',
-    );
-    return config.sys.exit(1);
-  }
-
   const srcDir = config.srcDir;
-  if (!srcDir) {
-    config.logger.error(`Stencil's srcDir was not specified.`);
+  if (!srcDir || !existsSync(srcDir)) {
+    config.logger.error('Please run this command in your project root directory.');
     return config.sys.exit(1);
   }
 
@@ -72,8 +79,18 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   cancelIfAborted(stylePick);
   const styleExtension = stylePick || undefined; // empty string → no stylesheet
 
-  // plugin file templates - only prompt if any are available
-  const allFileTemplates = generateContribs.flatMap((c) => c.fileTemplates ?? []);
+  // resolve plugin file templates sequentially - resolvers may prompt the user
+  const generateCtx: GenerateContext = {
+    tagName: componentName,
+    config: toProjectConfig(config),
+    prompts: p,
+    nypm,
+  };
+  const allFileTemplates: WizardFileTemplate[] = [];
+  for (const contrib of generateContribs) {
+    allFileTemplates.push(...(await resolveFileTemplates(contrib, generateCtx)));
+  }
+
   let pickedExtensions: string[] = [];
 
   if (allFileTemplates.length > 0) {

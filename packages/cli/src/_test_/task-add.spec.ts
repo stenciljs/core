@@ -7,32 +7,52 @@ vi.mock('std-env', () => ({
     return stdEnv.isCI;
   },
 }));
-vi.mock('node:fs', () => ({ existsSync: vi.fn().mockReturnValue(true) }));
-vi.mock('nypm', () => ({ installDependencies: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('node:fs/promises', () => ({
+  readFile: vi.fn().mockResolvedValue(JSON.stringify({ devDependencies: {} })),
+}));
+vi.mock('nypm', () => ({ addDevDependency: vi.fn().mockResolvedValue(undefined) }));
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
   outro: vi.fn(),
-  log: { warn: vi.fn(), error: vi.fn() },
+  log: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
 
 vi.mock('../wizard/splash', () => ({ printSplash: vi.fn() }));
 vi.mock('../wizard/discover', () => ({ discoverPlugins: vi.fn().mockResolvedValue([]) }));
-vi.mock('../wizard/init/apply', () => ({
-  patchPackageJson: vi.fn().mockResolvedValue(undefined),
+vi.mock('../wizard/init/apply', () => ({}));
+vi.mock('../wizard/init/steps', () => ({
+  KNOWN_INTEGRATIONS: [
+    {
+      package: '@stencil/sass',
+      displayName: 'Sass',
+      description: 'Sass/SCSS styles',
+      group: 'Styling',
+    },
+  ],
+  promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
+  promptCustomPackages: vi.fn().mockResolvedValue([]),
 }));
 
-import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import * as clack from '@clack/prompts';
-import { installDependencies } from 'nypm';
+import { addDevDependency } from 'nypm';
+import type { ValidatedConfig } from '@stencil/core/compiler';
 
 import { taskAdd } from '../task-add';
 import { discoverPlugins } from '../wizard/discover';
-import { patchPackageJson } from '../wizard/init/apply';
+import * as steps from '../wizard/init/steps';
 import type { DiscoveredPlugin } from '../wizard/discover';
 
 const CWD = '/project';
+const mockStrictConfig = {
+  rootDir: CWD,
+  srcDir: `${CWD}/src`,
+  namespace: 'MyProject',
+  fsNamespace: 'myproject',
+  outputTargets: [],
+} as unknown as ValidatedConfig;
 
 function makeDiscovered(
   packageName: string,
@@ -54,8 +74,10 @@ function makeDiscovered(
 describe('taskAdd', () => {
   beforeEach(() => {
     stdEnv.isCI = false;
-    vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(discoverPlugins).mockResolvedValue([]);
+    vi.mocked(readFile).mockResolvedValue(JSON.stringify({ devDependencies: {} }));
+    vi.mocked(steps.promptAddCapabilities).mockResolvedValue({ toInstall: [], toConfigure: [] });
+    vi.mocked(steps.promptCustomPackages).mockResolvedValue([]);
     vi.spyOn(process, 'cwd').mockReturnValue(CWD);
     vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`exit:${code ?? 0}`);
@@ -67,49 +89,40 @@ describe('taskAdd', () => {
     vi.clearAllMocks();
   });
 
-  it('exits in CI mode without patching or installing', async () => {
+  it('exits in CI mode without installing', async () => {
     stdEnv.isCI = true;
-    await expect(taskAdd(['@stencil/sass'])).rejects.toThrow('exit:1');
+    await expect(taskAdd(['@stencil/sass'], mockStrictConfig)).rejects.toThrow('exit:1');
     expect(clack.log.warn).toHaveBeenCalled();
-    expect(vi.mocked(patchPackageJson)).not.toHaveBeenCalled();
+    expect(vi.mocked(addDevDependency)).not.toHaveBeenCalled();
   });
 
-  it('exits with error when no stencil.config.ts is found', async () => {
-    vi.mocked(existsSync).mockReturnValue(false);
-    await expect(taskAdd(['@stencil/sass'])).rejects.toThrow('exit:1');
-    expect(clack.log.error).toHaveBeenCalled();
-    expect(vi.mocked(patchPackageJson)).not.toHaveBeenCalled();
-  });
-
-  it('exits with error when no packages are provided', async () => {
-    await expect(taskAdd([])).rejects.toThrow('exit:1');
-    expect(clack.log.error).toHaveBeenCalled();
-    expect(vi.mocked(patchPackageJson)).not.toHaveBeenCalled();
-  });
-
-  it('patches package.json and installs the provided packages', async () => {
-    await taskAdd(['@stencil/sass', '@stencil/vitest']);
-    expect(vi.mocked(patchPackageJson)).toHaveBeenCalledWith(CWD, [
-      '@stencil/sass',
-      '@stencil/vitest',
-    ]);
-    expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({ cwd: CWD, silent: true });
+  it('installs the provided packages as dev dependencies', async () => {
+    await taskAdd(['@stencil/sass', '@stencil/vitest'], mockStrictConfig);
+    expect(vi.mocked(addDevDependency)).toHaveBeenCalledWith(['@stencil/sass', '@stencil/vitest'], {
+      cwd: CWD,
+      silent: true,
+    });
   });
 
   it('calls run() on discovered plugins matching the installed packages', async () => {
     const run = vi.fn().mockResolvedValue(undefined);
     vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/sass', run)]);
 
-    await taskAdd(['@stencil/sass']);
+    await taskAdd(['@stencil/sass'], mockStrictConfig);
 
-    expect(run).toHaveBeenCalledWith({ rootDir: CWD, isNewProject: false });
+    expect(run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        isNewProject: false,
+        config: expect.objectContaining({ rootDir: CWD }),
+      }),
+    );
   });
 
   it('does not call run() on discovered plugins not in the installed set', async () => {
     const run = vi.fn().mockResolvedValue(undefined);
     vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/vitest', run)]);
 
-    await taskAdd(['@stencil/sass']);
+    await taskAdd(['@stencil/sass'], mockStrictConfig);
 
     expect(run).not.toHaveBeenCalled();
   });
@@ -119,12 +132,101 @@ describe('taskAdd', () => {
       { packageName: '@stencil/sass', plugin: { generate: { styleExtensions: ['scss'] } } },
     ]);
 
-    await taskAdd(['@stencil/sass']); // should not throw
+    await taskAdd(['@stencil/sass'], mockStrictConfig); // should not throw
     expect(clack.outro).toHaveBeenCalled();
   });
 
   it('calls outro on success', async () => {
-    await taskAdd(['@stencil/sass']);
+    await taskAdd(['@stencil/sass'], mockStrictConfig);
     expect(clack.outro).toHaveBeenCalled();
+  });
+
+  it('skips install in STENCIL_WIZARD_DEV mode', async () => {
+    process.env.STENCIL_WIZARD_DEV = '../../dist/wizard.js';
+    try {
+      await taskAdd(['@stencil/sass'], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).not.toHaveBeenCalled();
+      expect(clack.log.warn).toHaveBeenCalled();
+    } finally {
+      delete process.env.STENCIL_WIZARD_DEV;
+    }
+  });
+
+  describe('interactive mode (no packages provided)', () => {
+    it('shows selection prompts instead of erroring', async () => {
+      await taskAdd([], mockStrictConfig);
+      expect(steps.promptAddCapabilities).toHaveBeenCalled();
+      expect(steps.promptCustomPackages).toHaveBeenCalled();
+    });
+
+    it('installs packages selected from the known integrations list', async () => {
+      vi.mocked(steps.promptAddCapabilities).mockResolvedValue({
+        toInstall: [
+          { package: '@stencil/sass', displayName: 'Sass', description: '', group: 'Styling' },
+        ],
+        toConfigure: [],
+      });
+      await taskAdd([], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).toHaveBeenCalledWith(['@stencil/sass'], {
+        cwd: CWD,
+        silent: true,
+      });
+    });
+
+    it('installs custom packages from free-text input', async () => {
+      vi.mocked(steps.promptCustomPackages).mockResolvedValue(['my-plugin']);
+      await taskAdd([], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).toHaveBeenCalledWith(['my-plugin'], {
+        cwd: CWD,
+        silent: true,
+      });
+    });
+
+    it('installs both known and custom packages together', async () => {
+      vi.mocked(steps.promptAddCapabilities).mockResolvedValue({
+        toInstall: [
+          { package: '@stencil/sass', displayName: 'Sass', description: '', group: 'Styling' },
+        ],
+        toConfigure: [],
+      });
+      vi.mocked(steps.promptCustomPackages).mockResolvedValue(['my-plugin']);
+      await taskAdd([], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).toHaveBeenCalledWith(['@stencil/sass', 'my-plugin'], {
+        cwd: CWD,
+        silent: true,
+      });
+    });
+
+    it('runs wizard for reconfigure selections without reinstalling', async () => {
+      const run = vi.fn().mockResolvedValue(undefined);
+      const discovered = makeDiscovered('@stencil/sass', run);
+      vi.mocked(steps.promptAddCapabilities).mockResolvedValue({
+        toInstall: [],
+        toConfigure: [discovered],
+      });
+      await taskAdd([], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).not.toHaveBeenCalled();
+      expect(run).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isNewProject: false,
+          config: expect.objectContaining({ rootDir: CWD }),
+        }),
+      );
+    });
+
+    it('shows nothing-to-do message when no selections are made', async () => {
+      await taskAdd([], mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).not.toHaveBeenCalled();
+      expect(clack.outro).toHaveBeenCalledWith('Nothing to do.');
+    });
+
+    it('skips promptAddCapabilities when all known integrations are already installed', async () => {
+      vi.mocked(readFile).mockResolvedValue(
+        JSON.stringify({ devDependencies: { '@stencil/sass': '^3.0.0' } }),
+      );
+      await taskAdd([], mockStrictConfig);
+      expect(steps.promptAddCapabilities).not.toHaveBeenCalled();
+      expect(steps.promptCustomPackages).toHaveBeenCalled();
+    });
   });
 });

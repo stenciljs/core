@@ -67,13 +67,39 @@ export const run = async (init: d.CliInitOptions) => {
       return;
     }
 
-    if (task === 'add') {
-      await taskAdd(flags.unknownArgs);
-      return;
-    }
-
-    if (task === 'init') {
-      await taskInit();
+    if (task === 'add' || task === 'init') {
+      const coreCompiler = await loadCoreCompiler(sys);
+      const rootDir = sys.getCurrentDirectory();
+      // Try to load the actual config file (handles both explicit config and zero-config).
+      // Falls back to a minimal config if findConfig errors (e.g. new project, no package.json).
+      const findConfigResults = await findConfig({ sys, configPath: flags.config });
+      let strictConfig: ValidatedConfig;
+      if (!findConfigResults.isErr) {
+        const foundConfig = result.unwrap(findConfigResults);
+        const loaded = await coreCompiler.loadConfig({
+          config: { rootDir },
+          configPath: foundConfig.configPath ?? undefined,
+          logger,
+          sys,
+        });
+        strictConfig = coreCompiler.validateConfig(loaded.config, {}).config;
+      } else {
+        strictConfig = coreCompiler.validateConfig({ rootDir }, {}).config;
+      }
+      if (task === 'add') {
+        await taskAdd(flags.unknownArgs, strictConfig);
+      } else {
+        const loadProjectConfig = async (configPath?: string): Promise<ValidatedConfig> => {
+          const loaded = await coreCompiler.loadConfig({
+            config: { rootDir },
+            configPath,
+            logger,
+            sys,
+          });
+          return coreCompiler.validateConfig(loaded.config, {}).config;
+        };
+        await taskInit(coreCompiler, strictConfig, loadProjectConfig);
+      }
       return;
     }
 
@@ -161,7 +187,7 @@ export const runTask = async (
 
   switch (task) {
     case 'add':
-      await taskAdd([]);
+      await taskAdd(resolvedFlags.unknownArgs ?? [], strictConfig);
       break;
 
     case 'build':
@@ -182,7 +208,7 @@ export const runTask = async (
       break;
 
     case 'init':
-      await taskInit();
+      await taskInit(coreCompiler, strictConfig);
       break;
 
     case 'migrate':

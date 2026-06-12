@@ -122,12 +122,12 @@ export async function promptFeatures(): Promise<FeatureSelections> {
       {
         value: 'globalStyle',
         label: 'Global style',
-        hint: 'src/global.css with @import "stencil-globals" / "stencil-hydrate"',
+        hint: 'Global stylesheet for font definitions, CSS variables, pre-load styles etc',
       },
       {
         value: 'globalScript',
         label: 'Global script',
-        hint: 'src/global.ts — runs before any component loads',
+        hint: 'Global script for initializing application-wide logic before components load',
       },
     ],
     required: false,
@@ -148,13 +148,13 @@ export async function promptDocs(): Promise<DocKey[]> {
       {
         value: 'cem',
         label: 'CEM',
-        hint: 'custom-elements.json — powers VS Code, Storybook, framework wrappers',
+        hint: 'custom-elements.json - preferred format for interop with tools like Storybook, Styleguidist, etc',
       },
-      { value: 'json', label: 'JSON', hint: 'docs/api.json — machine-readable component API' },
+      { value: 'json', label: 'JSON', hint: 'docs.json - Stencil / Ionic centric schema' },
       {
         value: 'vscode',
         label: 'VS Code',
-        hint: 'vscode-data.json — editor autocomplete for your components',
+        hint: 'vscode-data.json - editor autocomplete for your components',
       },
     ],
     initialValues: ['cem'],
@@ -182,6 +182,19 @@ function buildGroupedOptions(integrations: KnownIntegration[]): Record<string, p
     (groups[i.group] ??= []).push({ value: i.package, label: i.displayName, hint: i.description });
   }
   return groups;
+}
+
+export async function promptCustomPackages(): Promise<string[]> {
+  const input = await p.text({
+    message: 'Additional packages to install:',
+    placeholder: 'e.g. my-plugin another-package (leave blank to skip)',
+  });
+  cancelIfAborted(input);
+  if (typeof input !== 'string' || !input.trim()) return [];
+  return input
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export async function promptIntegrations(): Promise<KnownIntegration[]> {

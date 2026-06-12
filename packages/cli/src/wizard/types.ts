@@ -1,11 +1,43 @@
+import type { ConfigCompat, OutputTarget } from '@stencil/core/compiler';
+
+/**
+ * Stable, plugin-relevant subset of the compiler's resolved project config.
+ * Fields are fully resolved - paths are absolute, defaults are applied.
+ * Prefer this over reading `stencil.config.ts` directly.
+ */
+export interface ProjectConfig {
+  /** Absolute path to the project root. */
+  rootDir: string;
+  /** Absolute path to the source directory (default: `<rootDir>/src`). */
+  srcDir: string;
+  /** Component namespace, e.g. `"MyLib"`. Used in generated code and registry names. */
+  namespace: string;
+  /** Filesystem-safe namespace: `namespace.toLowerCase()` unless overridden. Used in output file/directory names. */
+  fsNamespace: string;
+  /** Fully resolved output targets with all defaults applied. */
+  outputTargets: ReadonlyArray<OutputTarget>;
+  /** Absolute path to the global script, if configured. */
+  globalScript?: string;
+  /** Absolute path to the global stylesheet, if configured. */
+  globalStyle?: string;
+  /** Backwards-compatibility flags (`compat` in stencil.config.ts). */
+  compat?: ConfigCompat;
+  /** Enable signal-based reactivity backing (top-level in stencil.config.ts). */
+  signalBacking?: boolean;
+}
+
 /**
  * Context passed to wizard steps at runtime.
  */
 export interface WizardContext {
-  /** Absolute path to the project root directory. */
-  rootDir: string;
   /** True when `stencil.config.ts` did not previously exist (fresh scaffold). */
   isNewProject: boolean;
+  /** Clack prompts - use instead of importing `@clack/prompts` directly for consistent UX. */
+  prompts: typeof import('@clack/prompts');
+  /** nypm - use instead of importing `nypm` directly so the package manager is auto-detected. */
+  nypm: typeof import('nypm');
+  /** Resolved project config. See {@link ProjectConfig} for available fields. */
+  config: ProjectConfig;
 }
 
 /**
@@ -33,16 +65,35 @@ export interface WizardFileTemplate {
 }
 
 /**
+ * Context passed to dynamic `fileTemplates` resolvers during `stencil generate`.
+ */
+export interface GenerateContext {
+  /** The dash-case component tag name entered by the user. */
+  tagName: string;
+  /** Resolved project config. See {@link ProjectConfig} for available fields. */
+  config: ProjectConfig;
+  /** Clack prompts - use instead of importing `@clack/prompts` directly for consistent UX. */
+  prompts: typeof import('@clack/prompts');
+  /** nypm - use instead of importing `nypm` directly so the package manager is auto-detected. */
+  nypm: typeof import('nypm');
+}
+
+/**
  * Contribution a package can make to `stencil generate`.
  */
 export interface WizardGenerateContribution {
   /**
    * Files this plugin can generate alongside the component.
-   * Each entry appears as a checkbox in the generate prompt.
-   * A single plugin may contribute multiple entries (e.g. a vitest setup
-   * with several project configs, each producing a differently-scoped test file).
+   *
+   * May be a static array or an async function that receives project context
+   * (e.g. to read `vitest.config.ts` and offer one template per configured
+   * Vitest project). Called after the user enters the component tag name.
    */
-  fileTemplates?: ReadonlyArray<WizardFileTemplate>;
+  fileTemplates?:
+    | ReadonlyArray<WizardFileTemplate>
+    | ((
+        ctx: GenerateContext,
+      ) => ReadonlyArray<WizardFileTemplate> | Promise<ReadonlyArray<WizardFileTemplate>>);
 
   /**
    * Additional style extensions this package supports (e.g. `['sass', 'scss']`

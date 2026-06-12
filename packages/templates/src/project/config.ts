@@ -1,6 +1,12 @@
 export type OutputKey = 'loader' | 'standalone' | 'ssr' | 'ssr-wasm' | 'www';
 export type DocKey = 'cem' | 'json' | 'vscode';
 
+export interface PackageJsonFields {
+  type?: 'module';
+  module?: string;
+  types?: string;
+}
+
 export interface ConfigSelections {
   namespace: string;
   outputs: ReadonlyArray<OutputKey>;
@@ -51,13 +57,50 @@ export function generateStencilConfig(sel: ConfigSelections): string | null {
   }
 
   if (sel.signals) {
-    parts.push(`  extras: {`);
-    parts.push(`    signalBacking: true,`);
-    parts.push(`  },`);
+    parts.push(`  signalBacking: true,`);
   }
 
   parts.push(`};`);
   parts.push(``);
 
   return parts.join('\n');
+}
+
+/**
+ * Returns the package.json distributable fields for the given output selections.
+ * Returns an empty object for www-only (non-publishable app mode).
+ * Priority: loader > standalone > ssr > ssr-wasm.
+ * @param outputs - Wizard output selections to encode into package.json.
+ * @returns An object with the fields to write into package.json.
+ */
+export function generatePackageJsonFields(outputs: ReadonlyArray<OutputKey>): PackageJsonFields {
+  const isDefault = outputs.length === 0;
+  const has = (key: OutputKey) => outputs.includes(key);
+
+  if (isDefault || has('loader')) {
+    return {
+      type: 'module',
+      module: './dist/loader-bundle/index.js',
+      types: './dist/types/loader.d.ts',
+    };
+  }
+  if (has('standalone')) {
+    return {
+      type: 'module',
+      module: './dist/standalone/index.js',
+      types: './dist/types/standalone.d.ts',
+    };
+  }
+  if (has('ssr')) {
+    return { type: 'module', module: './dist/ssr/index.js', types: './dist/ssr/index.d.ts' };
+  }
+  if (has('ssr-wasm')) {
+    return {
+      type: 'module',
+      module: './dist/ssr-wasm/index.js',
+      types: './dist/ssr-wasm/plugin.d.ts',
+    };
+  }
+  // www-only: no distributable fields
+  return {};
 }

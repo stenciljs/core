@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { getTemplatePath } from '@stencil/templates';
+import type { PackageJsonFields } from '@stencil/templates';
 
 /**
  * Copy component-starter template into rootDir, interpolating project name and namespace.
@@ -60,12 +61,20 @@ async function mergePackageJson(destPath: string, templateContent: string): Prom
     return;
   }
 
+  const dependencies = mergeStringRecord(template.dependencies, existing.dependencies);
+  const devDependencies = mergeStringRecord(template.devDependencies, existing.devDependencies);
+
+  // Don't duplicate a package in devDependencies if it's already a direct dependency
+  for (const pkg of Object.keys(devDependencies)) {
+    if (pkg in dependencies) delete devDependencies[pkg];
+  }
+
   const merged = {
     ...template,
     ...existing,
     scripts: mergeStringRecord(template.scripts, existing.scripts),
-    dependencies: mergeStringRecord(template.dependencies, existing.dependencies),
-    devDependencies: mergeStringRecord(template.devDependencies, existing.devDependencies),
+    dependencies,
+    devDependencies,
   };
 
   await writeFile(destPath, JSON.stringify(merged, null, 2) + '\n', 'utf8');
@@ -139,23 +148,21 @@ export async function writeGlobalScript(rootDir: string): Promise<void> {
 }
 
 /**
- * Inject integration package names into the project's package.json devDependencies.
- * Versions are set to 'latest' so the subsequent install resolves them from the registry.
+ * Write output-driven distributable fields (type, module, types) into package.json.
+ * These fields depend on which outputs the user selected, so they cannot be static in the template.
+ * Skips if fields is empty (e.g. www-only project).
  *
  * @param rootDir - Absolute path to the project root.
- * @param integrations - npm package names to add as devDependencies.
+ * @param fields - Fields to write, from generatePackageJsonFields().
  */
-export async function patchPackageJson(rootDir: string, integrations: string[]): Promise<void> {
-  if (integrations.length === 0) return;
+export async function applyPackageJsonFields(
+  rootDir: string,
+  fields: PackageJsonFields,
+): Promise<void> {
+  if (Object.keys(fields).length === 0) return;
 
   const pkgPath = join(rootDir, 'package.json');
   const pkg = JSON.parse(await readFile(pkgPath, 'utf8')) as Record<string, unknown>;
-  const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
-
-  for (const name of integrations) {
-    devDeps[name] = 'latest';
-  }
-  pkg.devDependencies = devDeps;
-
+  Object.assign(pkg, fields);
   await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 }

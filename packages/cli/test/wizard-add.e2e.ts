@@ -11,7 +11,22 @@ vi.mock('@clack/prompts', () => ({
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
 
-vi.mock('nypm', () => ({ installDependencies: vi.fn().mockResolvedValue(undefined) }));
+// Simulate addDevDependency writing the packages to package.json devDependencies,
+// which discoverPlugins relies on to know which packages to scan.
+vi.mock('nypm', () => ({
+  addDevDependency: vi
+    .fn()
+    .mockImplementation(async (names: string | string[], { cwd }: { cwd: string }) => {
+      const pkgPath = join(cwd, 'package.json');
+      const pkg = JSON.parse(await readFile(pkgPath, 'utf8')) as Record<string, unknown>;
+      const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+      for (const name of Array.isArray(names) ? names : [names]) {
+        devDeps[name] = '^1.0.0';
+      }
+      pkg.devDependencies = devDeps;
+      await writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
+    }),
+}));
 vi.mock('std-env', () => ({ isCI: false }));
 
 import { taskAdd } from '../src/task-add.js';
@@ -62,19 +77,12 @@ describe('taskAdd e2e', () => {
   });
 
   it('installs a package with no wizard without errors', async () => {
-    // no fixture plugin installed in node_modules — discoverPlugins will find nothing
+    // no fixture plugin installed in node_modules - discoverPlugins will find nothing
     const original = await readFile(join(tmpDir, 'stencil.config.ts'), 'utf8');
 
     await taskAdd(['some-package-without-wizard']);
 
     const after = await readFile(join(tmpDir, 'stencil.config.ts'), 'utf8');
     expect(after).toBe(original);
-  });
-
-  it('errors when called outside a stencil project', async () => {
-    // remove stencil.config.ts
-    await rm(join(tmpDir, 'stencil.config.ts'));
-
-    await expect(taskAdd(['@stencil/sass'])).rejects.toThrow('exit:1');
   });
 });
