@@ -135,7 +135,7 @@ export const validateBuildPackageJson = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  if (config.devMode || config.watch || buildCtx.packageJson == null) {
+  if (config.watch || buildCtx.packageJson == null) {
     return;
   }
 
