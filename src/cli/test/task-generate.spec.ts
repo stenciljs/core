@@ -13,6 +13,12 @@ jest.mock('prompts', () => ({
 
 let formatToPick = 'css';
 
+/**
+ * Create a mocked generator config and prompt response.
+ *
+ * @param plugins plugins to include in the mocked Stencil config
+ * @returns the mocked Stencil config and spies used by generator tests
+ */
 const setup = async (plugins: any[] = []) => {
   const sys = mockCompilerSystem();
   const config: d.ValidatedConfig = mockValidatedConfig({
@@ -32,6 +38,7 @@ const setup = async (plugins: any[] = []) => {
   // different calls, so we can cheat here and just do a single
   // mockResolvedValue
   let format = formatToPick;
+  // Return mocked answers for each prompt used by the generator.
   promptMock.mockImplementation((params) => {
     if (params.name === 'sassFormat') {
       format = 'sass';
@@ -39,7 +46,7 @@ const setup = async (plugins: any[] = []) => {
     }
     return {
       tagName: 'my-component',
-      filesToGenerate: [format, 'spec.tsx', 'e2e.ts'],
+      filesToGenerate: [format, 'cmp.test.tsx', 'e2e.ts'],
     };
   });
 
@@ -121,7 +128,7 @@ describe('generate task', () => {
     const userChoices: ReadonlyArray<BoilerplateFile> = [
       { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
       { extension: 'css', path: '/src/components/my-component/my-component.css' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
+      { extension: 'cmp.test.tsx', path: '/src/components/my-component/test/my-component.cmp.test.tsx' },
       { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
     ];
 
@@ -141,7 +148,7 @@ describe('generate task', () => {
       'Generating code would overwrite the following files:',
       '\t/src/components/my-component/my-component.tsx',
       '\t/src/components/my-component/my-component.css',
-      '\t/src/components/my-component/test/my-component.spec.tsx',
+      '\t/src/components/my-component/test/my-component.cmp.test.tsx',
       '\t/src/components/my-component/test/my-component.e2e.ts',
     );
     expect(config.sys.exit).toHaveBeenCalledWith(1);
@@ -154,7 +161,7 @@ describe('generate task', () => {
     const userChoices: ReadonlyArray<BoilerplateFile> = [
       { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
       { extension: 'sass', path: '/src/components/my-component/my-component.sass' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
+      { extension: 'cmp.test.tsx', path: '/src/components/my-component/test/my-component.cmp.test.tsx' },
       { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
     ];
 
@@ -174,7 +181,7 @@ describe('generate task', () => {
     const userChoices: ReadonlyArray<BoilerplateFile> = [
       { extension: 'tsx', path: '/src/components/my-component/my-component.tsx' },
       { extension: 'less', path: '/src/components/my-component/my-component.less' },
-      { extension: 'spec.tsx', path: '/src/components/my-component/test/my-component.spec.tsx' },
+      { extension: 'cmp.test.tsx', path: '/src/components/my-component/test/my-component.cmp.test.tsx' },
       { extension: 'e2e.ts', path: '/src/components/my-component/test/my-component.e2e.ts' },
     ];
 
@@ -184,5 +191,19 @@ describe('generate task', () => {
         getBoilerplateByExtension('my-component', file.extension, true, 'less'),
       );
     });
+  });
+
+  it('should generate a vitest-compatible component test', () => {
+    const boilerplate = getBoilerplateByExtension('my-component', 'cmp.test.tsx', true, 'css');
+
+    expect(boilerplate).toContain(`import { newSpecPage } from '@stencil/core/testing';`);
+    expect(boilerplate).toContain(`import { describe, expect, it } from '@stencil/vitest';`);
+  });
+
+  it('should generate a vitest-compatible e2e test', () => {
+    const boilerplate = getBoilerplateByExtension('my-component', 'e2e.ts', true, 'css');
+
+    expect(boilerplate).toContain(`import { newE2EPage } from '@stencil/core/testing';`);
+    expect(boilerplate).toContain(`import { describe, expect, it } from '@stencil/vitest';`);
   });
 });

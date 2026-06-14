@@ -116,7 +116,7 @@ const chooseFilesToGenerate = async (cssExtension: string): Promise<ReadonlyArra
       message: 'Which additional files do you want to generate?',
       choices: [
         { value: cssExtension, title: `Stylesheet (.${cssExtension})`, selected: true },
-        { value: 'spec.tsx', title: 'Spec Test  (.spec.tsx)', selected: true },
+        { value: 'cmp.test.tsx', title: 'Component Test  (.cmp.test.tsx)', selected: true },
         { value: 'e2e.ts', title: 'E2E Test (.e2e.ts)', selected: true },
       ],
     })
@@ -218,7 +218,7 @@ const checkForOverwrite = async (files: readonly BoilerplateFile[], config: Vali
  * @returns a boolean indicating whether or not its a test
  */
 const isTest = (extension: GeneratableExtension): boolean => {
-  return extension === 'e2e.ts' || extension === 'spec.tsx';
+  return extension === 'cmp.test.tsx' || extension === 'e2e.ts';
 };
 
 /**
@@ -246,7 +246,7 @@ export const getBoilerplateByExtension = (
     case 'scss':
       return getStyleUrlBoilerplate(styleExtension);
 
-    case 'spec.tsx':
+    case 'cmp.test.tsx':
       return getSpecTestBoilerplate(tagName);
 
     case 'e2e.ts':
@@ -314,6 +314,7 @@ const getStyleUrlBoilerplate = (ext: GeneratableExtension): string =>
  */
 const getSpecTestBoilerplate = (tagName: string): string =>
   `import { newSpecPage } from '@stencil/core/testing';
+import { describe, expect, it } from '@stencil/vitest';
 import { ${toPascalCase(tagName)} } from '../${tagName}';
 
 describe('${tagName}', () => {
@@ -340,6 +341,7 @@ describe('${tagName}', () => {
  */
 const getE2eTestBoilerplate = (tagName: string): string =>
   `import { newE2EPage } from '@stencil/core/testing';
+import { describe, expect, it } from '@stencil/vitest';
 
 describe('${tagName}', () => {
   it('renders', async () => {
@@ -363,7 +365,7 @@ const toPascalCase = (str: string): string =>
 /**
  * Extensions available to generate.
  */
-export type GeneratableExtension = 'tsx' | 'spec.tsx' | 'e2e.ts' | GeneratableStylingExtension;
+export type GeneratableExtension = 'tsx' | 'cmp.test.tsx' | 'e2e.ts' | GeneratableStylingExtension;
 
 /**
  * Extensions available to generate.
