@@ -183,7 +183,7 @@
     "cspell": "^8.0.0",
     "css-what": "^7.0.0",
     "dts-bundle-generator": "~9.5.0",
-    "esbuild": "^0.25.0",
+    "esbuild": "^0.28.1",
     "esbuild-plugin-replace": "^1.4.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^9.0.0",
