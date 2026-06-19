@@ -191,7 +191,7 @@ describe('taskInit', () => {
     expect(vi.mocked(promptProjectName)).not.toHaveBeenCalled();
   });
 
-  it('scaffolds the template with derived namespace on confirm', async () => {
+  it('scaffolds the template with derived namespace', async () => {
     await taskInit(mockCoreCompiler, mockStrictConfig);
     expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, 'my-lib', 'MyLib', '5.0.0-test');
     expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({ cwd: CWD, silent: true });
@@ -321,16 +321,6 @@ describe('taskInit', () => {
     ]);
 
     await taskInit(mockCoreCompiler, mockStrictConfig); // should not throw
-  });
-
-  it('cancels cleanly without scaffolding when the confirm prompt is dismissed', async () => {
-    const cancelSym = Symbol('cancel') as unknown as boolean;
-    vi.mocked(clack.confirm).mockResolvedValue(cancelSym);
-    vi.mocked(clack.isCancel).mockReturnValue(true);
-
-    await expect(taskInit(mockCoreCompiler, mockStrictConfig)).rejects.toThrow('exit:0');
-    expect(clack.cancel).toHaveBeenCalled();
-    expect(vi.mocked(copyTemplate)).not.toHaveBeenCalled();
   });
 
   // ── monorepo ───────────────────────────────────────────────────────────────

@@ -23,11 +23,7 @@ async function readJson(filePath: string) {
   }
 }
 
-async function loadOne(
-  rootDir: string,
-  packageName: string,
-  loader: ModuleLoader,
-) {
+async function loadOne(rootDir: string, packageName: string, loader: ModuleLoader) {
   const depPkg = await readJson(join(rootDir, 'node_modules', packageName, 'package.json'));
   const wizardEntry = (depPkg?.stencil as { wizard?: string } | undefined)?.wizard;
   if (!wizardEntry) return null;
@@ -111,10 +107,7 @@ async function findDevPackageName(wizardPath: string) {
   return basename(dir);
 }
 
-async function loadDevPlugin(
-  wizardPath: string,
-  loader: ModuleLoader,
-) {
+async function loadDevPlugin(wizardPath: string, loader: ModuleLoader) {
   const packageName = await findDevPackageName(wizardPath);
 
   let mod: Record<string, unknown>;

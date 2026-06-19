@@ -222,10 +222,7 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string) {
  * @param rootDir - Absolute path to the project root.
  * @param fields - Fields to write, from generatePackageJsonFields().
  */
-export async function applyPackageJsonFields(
-  rootDir: string,
-  fields: PackageJsonFields,
-) {
+export async function applyPackageJsonFields(rootDir: string, fields: PackageJsonFields) {
   if (Object.keys(fields).length === 0) return;
 
   const pkgPath = join(rootDir, 'package.json');

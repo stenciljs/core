@@ -117,13 +117,6 @@ export async function taskInit(
   }
   p.note(summaryLines.join('\n'), 'Summary');
 
-  const confirmed = await p.confirm({ message: 'Scaffold project in current directory?' });
-  cancelIfAborted(confirmed);
-  if (!confirmed) {
-    p.cancel('Cancelled.');
-    process.exit(0);
-  }
-
   // ── Phase 2: scaffold ──────────────────────────────────────────────────────
 
   const coreDir = monorepo ? join(cwd, 'packages', coreName) : cwd;
@@ -189,7 +182,14 @@ export async function taskInit(
     }
   }
 
-  p.outro('Your project is ready! Run: pnpm run dev');
+  const pm = (await nypm.detectPackageManager(cwd))?.name ?? 'npm';
+  const devDir = monorepo ? `packages/${coreName}` : null;
+  const devCmd = `${pm} run dev`;
+  p.outro(
+    devDir
+      ? `Your project is ready!\n  cd ${devDir}\n  ${devCmd}`
+      : `Your project is ready! Run: ${devCmd}`,
+  );
 }
 
 async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Promise<void> {

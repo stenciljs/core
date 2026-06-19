@@ -32,10 +32,7 @@ export function toProjectConfig(validated: ValidatedConfig) {
  * @param overrides Optional fields to override the defaults.
  * @returns A ProjectConfig with reasonable defaults for a new project.
  * */
-export function defaultProjectConfig(
-  rootDir: string,
-  overrides?: Partial<ProjectConfig>,
-) {
+export function defaultProjectConfig(rootDir: string, overrides?: Partial<ProjectConfig>) {
   const namespace = overrides?.namespace ?? '';
   return {
     rootDir,
