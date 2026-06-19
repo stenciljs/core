@@ -182,7 +182,7 @@ describe('taskInit', () => {
     vi.clearAllMocks();
   });
 
-  // ── new project ────────────────────────────────────────────────────────────
+  //  new project
 
   it('exits in CI mode without prompting', async () => {
     stdEnv.isCI = true;
@@ -323,7 +323,7 @@ describe('taskInit', () => {
     await taskInit(mockCoreCompiler, mockStrictConfig); // should not throw
   });
 
-  // ── monorepo ───────────────────────────────────────────────────────────────
+  //  monorepo
 
   describe('monorepo workspace mode', () => {
     const CORE_DIR = `${CWD}/packages/core`;
@@ -378,7 +378,7 @@ describe('taskInit', () => {
     });
   });
 
-  // ── existing project ───────────────────────────────────────────────────────
+  //  existing project
 
   describe('existing project (add-capabilities mode)', () => {
     beforeEach(() => {

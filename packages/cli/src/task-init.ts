@@ -77,7 +77,7 @@ export async function taskInit(
     return;
   }
 
-  // ── Phase 1: gather intent ─────────────────────────────────────────────────
+  // Phase 1: gather intent
 
   const projectName = await promptProjectName();
   const namespace = toNamespace(projectName);
@@ -117,7 +117,7 @@ export async function taskInit(
   }
   p.note(summaryLines.join('\n'), 'Summary');
 
-  // ── Phase 2: scaffold ──────────────────────────────────────────────────────
+  // Phase 2: scaffold
 
   const coreDir = monorepo ? join(cwd, 'packages', coreName) : cwd;
 
@@ -131,7 +131,7 @@ export async function taskInit(
   if (features.globalScript) await writeGlobalScript(coreDir);
   s1.stop('Project files created');
 
-  // ── Phase 3: install ───────────────────────────────────────────────────────
+  // Phase 3: install
 
   const s2 = p.spinner();
   s2.start('Installing dependencies');
@@ -147,7 +147,7 @@ export async function taskInit(
     s3.stop('Integrations installed');
   }
 
-  // ── Phase 4: re-discover + run plugin wizards ─────────────────────────────
+  // Phase 4: re-discover + run plugin wizards
 
   if (selectedIntegrations.length > 0) {
     const discovered = await discoverPlugins(coreDir);
