@@ -15,7 +15,7 @@ function toStringRecord(val: unknown): Record<string, string> {
   return val !== null && typeof val === 'object' ? (val as Record<string, string>) : {};
 }
 
-async function readJson(filePath: string): Promise<Record<string, unknown> | null> {
+async function readJson(filePath: string) {
   try {
     return JSON.parse(await readFile(filePath, 'utf8')) as Record<string, unknown>;
   } catch {
@@ -27,7 +27,7 @@ async function loadOne(
   rootDir: string,
   packageName: string,
   loader: ModuleLoader,
-): Promise<DiscoveredPlugin | null> {
+) {
   const depPkg = await readJson(join(rootDir, 'node_modules', packageName, 'package.json'));
   const wizardEntry = (depPkg?.stencil as { wizard?: string } | undefined)?.wizard;
   if (!wizardEntry) return null;
@@ -66,7 +66,7 @@ async function loadOne(
 export async function discoverPlugins(
   rootDir: string,
   loader: ModuleLoader = (url) => import(url) as Promise<Record<string, unknown>>,
-): Promise<DiscoveredPlugin[]> {
+) {
   const pkg = await readJson(join(rootDir, 'package.json'));
   if (!pkg) return [];
 
@@ -102,7 +102,7 @@ export async function discoverPlugins(
   return plugins;
 }
 
-async function findDevPackageName(wizardPath: string): Promise<string> {
+async function findDevPackageName(wizardPath: string) {
   const dir = dirname(wizardPath);
   for (const candidate of [dir, resolve(dir, '..')]) {
     const pkg = await readJson(join(candidate, 'package.json'));
@@ -114,7 +114,7 @@ async function findDevPackageName(wizardPath: string): Promise<string> {
 async function loadDevPlugin(
   wizardPath: string,
   loader: ModuleLoader,
-): Promise<DiscoveredPlugin | null> {
+) {
   const packageName = await findDevPackageName(wizardPath);
 
   let mod: Record<string, unknown>;

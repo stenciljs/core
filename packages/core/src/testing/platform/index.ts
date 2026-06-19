@@ -34,6 +34,8 @@ export {
 export { win } from './testing-window';
 export { Env } from 'virtual:app-data';
 export * from '../../runtime';
+export { insertVdomAnnotations } from '../../runtime/vdom/vdom-annotations';
+export { renderVdom } from '../../runtime/vdom/vdom-render';
 
 // Testing-specific setMode that clears previous handlers first
 // This shadows the runtime's setMode so each test gets a clean slate

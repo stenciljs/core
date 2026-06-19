@@ -1,7 +1,7 @@
 export const STENCIL_CORE_ID = '@stencil/core';
 export const STENCIL_INTERNAL_ID = '@stencil/core/runtime';
-export const STENCIL_APP_DATA_ID = '@stencil/core/runtime/app-data';
-export const STENCIL_APP_GLOBALS_ID = '@stencil/core/runtime/app-globals';
+export const STENCIL_APP_DATA_ID = '@stencil/core/app-data';
+export const STENCIL_APP_GLOBALS_ID = '@stencil/core/app-globals';
 export const STENCIL_SSR_FACTORY_ID = '@stencil/core/runtime/server/ssr-factory';
 export const STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID =
   '@stencil/core/runtime/client/standalone';

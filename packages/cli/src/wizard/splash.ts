@@ -34,7 +34,7 @@ const RAW = `\
          ......................
             ................`;
 
-function colorize(raw: string): string {
+function colorize(raw: string) {
   if (noColor) return raw;
 
   let out = '';
@@ -55,7 +55,7 @@ function colorize(raw: string): string {
 
 const SPLASH = colorize(RAW);
 
-export function printSplash(): void {
+export function printSplash() {
   if (!isTTY) return;
   const header = `  ${BOLD}Stencil${RESET}  ${BLUE}v${CLI_VERSION}${RESET}`;
   const tagline = `  ${DIM}The Custom Element Compiler${RESET}`;

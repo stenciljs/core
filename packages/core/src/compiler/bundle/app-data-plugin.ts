@@ -49,7 +49,7 @@ export const appDataPlugin = (
 
     // Use Rolldown's hook filter to only call resolveId for specific Stencil IDs
     resolveId: {
-      filter: { id: /^@stencil\/core\/runtime\/app-(data|globals)$/ },
+      filter: { id: /^@stencil\/core\/app-(data|globals)$/ },
       handler(id: string, importer: string | undefined): ResolveIdResult {
         if (id === STENCIL_APP_DATA_ID || id === STENCIL_APP_GLOBALS_ID) {
           if (platform === 'worker') {

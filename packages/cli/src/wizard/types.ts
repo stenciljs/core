@@ -38,6 +38,15 @@ export interface WizardContext {
   nypm: typeof import('nypm');
   /** Resolved project config. See {@link ProjectConfig} for available fields. */
   config: ProjectConfig;
+  /**
+   * Absolute path to the monorepo workspace root when the project is part of a
+   * workspace, `undefined` for single-package projects.
+   *
+   * When present, `config.rootDir` is the core Stencil package (e.g.
+   * `<workspaceRoot>/packages/core/`). The plugin is responsible for deciding
+   * where in the workspace it wants to live and for creating that directory.
+   */
+  workspaceRoot?: string;
 }
 
 /**

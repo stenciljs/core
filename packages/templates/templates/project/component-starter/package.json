@@ -12,7 +12,7 @@
     "generate": "stencil generate"
   },
   "devDependencies": {
-    "@stencil/core": "^5.0.0"
+    "@stencil/core": "{{STENCIL_VERSION}}"
   },
   "collection": "./dist/collection/collection-manifest.json"
 }

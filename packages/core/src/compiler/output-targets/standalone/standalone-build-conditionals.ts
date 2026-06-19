@@ -15,7 +15,7 @@ export const getStandaloneBuildConditionals = (
   cmps: d.ComponentCompilerMeta[],
 ): d.BuildConditionals => {
   // because custom elements bundling does not customize the build conditionals by default
-  // then the default in "import { BUILD, NAMESPACE } from '@stencil/core/runtime/app-data'"
+  // then the default in "import { BUILD, NAMESPACE } from '@stencil/core/app-data'"
   // needs to have the static build conditionals set for the custom elements build
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
   const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetSsr);

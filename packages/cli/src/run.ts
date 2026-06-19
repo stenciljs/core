@@ -1,3 +1,4 @@
+import { dirname } from 'node:path';
 import { ValidatedConfig } from '@stencil/core/compiler';
 import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
 import type * as d from '@stencil/core/compiler';
@@ -91,7 +92,10 @@ export const run = async (init: d.CliInitOptions) => {
       } else {
         const loadProjectConfig = async (configPath?: string): Promise<ValidatedConfig> => {
           const loaded = await coreCompiler.loadConfig({
-            config: { rootDir },
+            // When a config file path is given, derive rootDir from it so the
+            // resolved config points to the package that owns the config, not
+            // necessarily process.cwd() (which differs in a monorepo workspace).
+            config: { rootDir: configPath ? dirname(configPath) : rootDir },
             configPath,
             logger,
             sys,
