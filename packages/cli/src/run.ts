@@ -94,16 +94,22 @@ export const run = async (init: d.CliInitOptions) => {
         await taskAdd(flags.unknownArgs, strictConfig);
       } else {
         const loadProjectConfig = async (configPath?: string): Promise<ValidatedConfig> => {
+          const derivedRootDir = configPath ? dirname(configPath) : rootDir;
           const loaded = await coreCompiler.loadConfig({
             // When a config file path is given, derive rootDir from it so the
             // resolved config points to the package that owns the config, not
             // necessarily process.cwd() (which differs in a monorepo workspace).
-            config: { rootDir: configPath ? dirname(configPath) : rootDir },
+            config: { rootDir: derivedRootDir },
             configPath,
             logger,
             sys,
           });
-          return coreCompiler.validateConfig(loaded.config, {}).config;
+          if (loaded.diagnostics.length > 0) logger.printDiagnostics(loaded.diagnostics);
+          // loadConfig returns config:null when the config file fails to execute (e.g. dynamic
+          // import fails because @stencil/core isn't resolvable in the new project context).
+          // Fall back to a minimal validated config so plugin wizards still run with correct rootDir.
+          return coreCompiler.validateConfig(loaded.config ?? { rootDir: derivedRootDir }, {})
+            .config;
         };
         await taskInit(coreCompiler, strictConfig, loadProjectConfig);
       }

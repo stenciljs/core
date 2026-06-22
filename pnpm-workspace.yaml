@@ -2,6 +2,9 @@ packages:
   - 'packages/*'
   - 'test/**/*'
 
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+
 catalog:
   '@playwright/test': ^1.60.0
   '@stencil/playwright': '~0.4.3'
