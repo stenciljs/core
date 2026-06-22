@@ -71,15 +71,18 @@ export const run = async (init: d.CliInitOptions) => {
     if (task === 'add' || task === 'init') {
       const coreCompiler = await loadCoreCompiler(sys);
       const rootDir = sys.getCurrentDirectory();
-      // Try to load the actual config file (handles both explicit config and zero-config).
-      // Falls back to a minimal config if findConfig errors (e.g. new project, no package.json).
+      // Only call loadConfig when a config file actually exists - loadConfig has the side effect
+      // of writing tsconfig.json to rootDir if one isn't present, which is wrong for new projects
+      // and monorepo workspaces where rootDir is the workspace root, not the core package.
       const findConfigResults = await findConfig({ sys, configPath: flags.config });
       let strictConfig: ValidatedConfig;
-      if (!findConfigResults.isErr) {
-        const foundConfig = result.unwrap(findConfigResults);
+      const foundConfigPath = !findConfigResults.isErr
+        ? result.unwrap(findConfigResults).configPath
+        : null;
+      if (foundConfigPath) {
         const loaded = await coreCompiler.loadConfig({
-          config: { rootDir },
-          configPath: foundConfig.configPath ?? undefined,
+          config: { rootDir: dirname(foundConfigPath) },
+          configPath: foundConfigPath,
           logger,
           sys,
         });

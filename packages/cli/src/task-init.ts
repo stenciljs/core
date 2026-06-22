@@ -98,7 +98,7 @@ export async function taskInit(
     (needsStencilConfig(selectedIntegrations)
       ? // outputs is [] here (generateStencilConfig returned null), so loader-bundle is the
         // implicit default. Make it explicit so framework plugins can add alongside it without
-        // inadvertently replacing it — which would break the loader-bundle files in package.json.
+        // inadvertently replacing it - which would break the loader-bundle files in package.json.
         `import { Config } from '@stencil/core';\n\nexport const config: Config = {\n  namespace: '${namespace}',\n  outputTargets: [{ type: 'loader-bundle' }],\n};\n`
       : null);
 
@@ -154,18 +154,19 @@ export async function taskInit(
     const selectedPkgs = new Set(selectedIntegrations.map((i) => i.package));
     // Load the just-written config (or package.json defaults for zero-config) so plugins
     // get the authoritative resolved paths - namespace, srcDir, outputTargets, etc.
-    const resolvedValidated = loadProjectConfig
-      ? await loadProjectConfig(configSource ? join(coreDir, 'stencil.config.ts') : undefined)
-      : coreCompiler
-        ? coreCompiler.validateConfig(
-            {
-              rootDir: coreDir,
-              outputTargets: outputKeysToTargets(outputs) as OutputTarget[],
-              ...(configSource ? { namespace } : {}),
-            },
-            {},
-          ).config
-        : null;
+    const resolvedValidated =
+      loadProjectConfig && configSource
+        ? await loadProjectConfig(join(coreDir, 'stencil.config.ts'))
+        : coreCompiler
+          ? coreCompiler.validateConfig(
+              {
+                rootDir: coreDir,
+                outputTargets: outputKeysToTargets(outputs) as OutputTarget[],
+                ...(configSource ? { namespace } : {}),
+              },
+              {},
+            ).config
+          : null;
     const projectConfig = resolvedValidated
       ? toProjectConfig(resolvedValidated)
       : defaultProjectConfig(coreDir, { namespace });
