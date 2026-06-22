@@ -11,6 +11,8 @@ export interface KnownIntegration {
   displayName: string;
   description: string;
   group: string;
+  /** When true, a stencil.config.ts must exist before this plugin's run() is called. */
+  requiresStencilConfig?: true;
 }
 
 /** Well-known integrations the CLI can offer before any packages are installed. */
@@ -35,6 +37,7 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     displayName: 'Sass',
     description: 'Sass/SCSS styles',
     group: 'Styling',
+    requiresStencilConfig: true,
   },
 
   // Linting
@@ -59,24 +62,28 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     displayName: 'Types',
     description: 'TypeScript types for React, Vue, Solid, Svelte, Preact',
     group: 'Framework integrations',
+    requiresStencilConfig: true,
   },
   {
     package: '@stencil/react-output-target',
     displayName: 'React',
     description: 'React component wrappers',
     group: 'Framework integrations',
+    requiresStencilConfig: true,
   },
   {
     package: '@stencil/angular-output-target',
     displayName: 'Angular',
     description: 'Angular component wrappers',
     group: 'Framework integrations',
+    requiresStencilConfig: true,
   },
   {
     package: '@stencil/vue-output-target',
     displayName: 'Vue',
     description: 'Vue component wrappers',
     group: 'Framework integrations',
+    requiresStencilConfig: true,
   },
 ];
 
@@ -157,7 +164,6 @@ export async function promptDocs(): Promise<DocKey[]> {
         hint: 'vscode-data.json - editor autocomplete for your components',
       },
     ],
-    initialValues: ['cem'],
     required: false,
   });
   cancelIfAborted(picks);
@@ -205,6 +211,33 @@ export async function promptIntegrations(): Promise<KnownIntegration[]> {
   });
   cancelIfAborted(picks);
   return KNOWN_INTEGRATIONS.filter((i) => (picks as string[]).includes(i.package));
+}
+
+export function hasFrameworkTargets(integrations: KnownIntegration[]) {
+  return integrations.some((i) => i.group === 'Framework integrations');
+}
+
+export function needsStencilConfig(integrations: KnownIntegration[]) {
+  return integrations.some((i) => i.requiresStencilConfig);
+}
+
+export async function promptMonorepo() {
+  const answer = await p.confirm({
+    message: 'Set up as a monorepo workspace? (recommended for publishing framework wrappers)',
+    initialValue: true,
+  });
+  cancelIfAborted(answer);
+  return answer as boolean;
+}
+
+export async function promptWorkspaceCoreName() {
+  const name = await p.text({
+    message: 'Core package directory name:',
+    defaultValue: 'core',
+    placeholder: 'core',
+  });
+  cancelIfAborted(name);
+  return (name as string) || 'core';
 }
 
 export interface AddCapabilitiesSelection {

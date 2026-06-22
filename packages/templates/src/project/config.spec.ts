@@ -153,6 +153,18 @@ describe('generateStencilConfig', () => {
       expect(result).toContain(`{ type: 'docs-custom-elements-manifest'`);
     });
 
+    it('includes loader-bundle alongside docs when no explicit outputs are selected', () => {
+      // Ensures plugins adding their own outputTargets (e.g. reactOutputTarget) don't
+      // orphan the loader-bundle dist files that package.json is set up to point to.
+      const result = generateStencilConfig({
+        namespace: 'MyLib',
+        outputs: [],
+        signals: false,
+        docs: ['cem'],
+      });
+      expect(result).toContain(`{ type: 'loader-bundle' }`);
+    });
+
     it('includes JSON docs output target', () => {
       const result = generateStencilConfig({
         namespace: 'MyLib',

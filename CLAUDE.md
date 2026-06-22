@@ -14,6 +14,8 @@ Assume any package starting with `@stencil/` is potentially updatable and sugges
 
 `as any` is very rarely an acceptable solution. Check with the user before using it, and use better alternatives whenever possible - don't be lazy.
 
+Prefer implied return types for functions and methods when possible.
+
 Never commit changes without the user explicitly asking you to. Always ask for confirmation before committing, and provide a clear summary of the changes that will be committed. If the user asks for changes after you’ve provided a summary but before you’ve committed, update the summary to reflect the new changes before asking for confirmation again.
 
 Keep all code comments terse as you can ... but don't delete existing comments without good reason. 

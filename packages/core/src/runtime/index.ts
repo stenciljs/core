@@ -23,5 +23,3 @@ export { setTagTransformer, transformTag } from './tag-transform';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';
 export { jsx, jsxs, jsxDEV } from './vdom/jsx-runtime';
-export { insertVdomAnnotations } from './vdom/vdom-annotations';
-export { renderVdom } from './vdom/vdom-render';

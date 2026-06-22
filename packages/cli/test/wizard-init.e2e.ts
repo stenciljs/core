@@ -26,7 +26,10 @@ vi.mock('@clack/prompts', () => ({
   groupMultiselect: clackMocks.groupMultiselect,
 }));
 
-vi.mock('nypm', () => ({ installDependencies: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('nypm', () => ({
+  installDependencies: vi.fn().mockResolvedValue(undefined),
+  detectPackageManager: vi.fn().mockResolvedValue({ name: 'npm' }),
+}));
 vi.mock('std-env', () => ({ isCI: false }));
 
 import { taskInit } from '../src/task-init.js';

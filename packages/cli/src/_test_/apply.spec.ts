@@ -121,7 +121,7 @@ describe('copyTemplate — package.json merge', () => {
   const TEMPLATE_PKG = JSON.stringify({
     name: '{{PROJECT_NAME}}',
     version: '0.0.1',
-    devDependencies: { '@stencil/core': '^5.0.0' },
+    devDependencies: { '@stencil/core': '{{STENCIL_VERSION}}' },
   });
 
   beforeEach(() => {
@@ -147,7 +147,17 @@ describe('copyTemplate — package.json merge', () => {
     expect(written.dependencies['@stencil/core']).toBe('link:../local/packages/core');
   });
 
-  it('adds the package to devDependencies when it is not in dependencies', async () => {
+  it('uses the provided stencil version in devDependencies', async () => {
+    const existing = { name: 'my-app' };
+    fsPromises.readFile.mockResolvedValueOnce(JSON.stringify(existing));
+
+    await copyTemplate('/project', 'my-app', 'MyApp', '5.0.0-alpha.8');
+
+    const written = JSON.parse(vi.mocked(fsPromises.writeFile).mock.calls[0][1] as string);
+    expect(written.devDependencies['@stencil/core']).toBe('^5.0.0-alpha.8');
+  });
+
+  it('falls back to ^5.0.0 when no stencil version is provided', async () => {
     const existing = { name: 'my-app' };
     fsPromises.readFile.mockResolvedValueOnce(JSON.stringify(existing));
 

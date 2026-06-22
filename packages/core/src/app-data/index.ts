@@ -16,7 +16,7 @@ import type { BuildConditionals } from '@stencil/core';
  * }
  * ```
  *
- * `virtual:app-data`, the module that `BUILD` is imported from, is an alias for the `@stencil/core/runtime/app-data`, and is
+ * `virtual:app-data`, the module that `BUILD` is imported from, is an alias for `@stencil/core/app-data`, and is
  * partially referenced by {@link STENCIL_APP_DATA_ID}. The `src/compiler/bundle/app-data-plugin.ts` references
  * `STENCIL_APP_DATA_ID` uses it to replace these defaults with {@link BuildConditionals} that are derived from a
  * Stencil project's contents (i.e. metadata from the components). This replacement happens at a Stencil project's

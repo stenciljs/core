@@ -255,7 +255,6 @@ export {
   getShadowRoot,
   getValue,
   Host,
-  insertVdomAnnotations,
   jsx,
   jsxs,
   Mixin,
@@ -263,10 +262,11 @@ export {
   postUpdateComponent,
   proxyComponent,
   proxyCustomElement,
-  renderVdom,
   setMode,
   setNonce,
   setTagTransformer,
   setValue,
   transformTag,
 } from '../../runtime';
+export { insertVdomAnnotations } from '../../runtime/vdom/vdom-annotations';
+export { renderVdom } from '../../runtime/vdom/vdom-render';

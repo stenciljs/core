@@ -1,9 +1,9 @@
 import assert from 'node:assert';
 import { run } from '@stencil/cli';
 import { h } from '@stencil/core';
+import { BUILD } from '@stencil/core/app-data';
 import { version } from '@stencil/core/compiler';
 import { MockDocument } from '@stencil/core/mock-doc';
-import { BUILD } from '@stencil/core/runtime/app-data';
 import { createNodeLogger } from '@stencil/core/sys/node';
 import { newSpecPage } from '@stencil/core/testing';
 

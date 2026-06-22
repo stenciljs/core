@@ -13,7 +13,7 @@ import {
   promptAddCapabilities,
   promptCustomPackages,
 } from './wizard/init/steps.js';
-import { defaultProjectConfig, toProjectConfig } from './wizard/project.js';
+import { defaultProjectConfig, detectWorkspaceRoot, toProjectConfig } from './wizard/project.js';
 import { printSplash } from './wizard/splash.js';
 
 async function getInstalledPackageNames(rootDir: string): Promise<Set<string>> {
@@ -97,7 +97,8 @@ export async function taskAdd(packages: string[], strictConfig?: ValidatedConfig
   }
 
   const config = strictConfig ? toProjectConfig(strictConfig) : defaultProjectConfig(cwd);
-  const context = { isNewProject: false, prompts: p, nypm, config };
+  const workspaceRoot = await detectWorkspaceRoot(cwd);
+  const context = { isNewProject: false, prompts: p, nypm, config, workspaceRoot };
 
   if (packagesToInstall.length > 0) {
     const discovered = await discoverPlugins(cwd);

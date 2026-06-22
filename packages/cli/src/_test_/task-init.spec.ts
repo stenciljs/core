@@ -19,6 +19,7 @@ vi.mock('node:fs/promises', () => ({
 vi.mock('nypm', () => ({
   addDevDependency: vi.fn().mockResolvedValue(undefined),
   installDependencies: vi.fn().mockResolvedValue(undefined),
+  detectPackageManager: vi.fn().mockResolvedValue({ name: 'npm' }),
 }));
 
 vi.mock('@clack/prompts', () => ({
@@ -44,6 +45,10 @@ vi.mock('../wizard/init/steps', () => ({
   promptDocs: vi.fn().mockResolvedValue([]),
   promptIntegrations: vi.fn().mockResolvedValue([]),
   promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
+  hasFrameworkTargets: vi.fn().mockReturnValue(false),
+  needsStencilConfig: vi.fn().mockReturnValue(false),
+  promptMonorepo: vi.fn().mockResolvedValue(false),
+  promptWorkspaceCoreName: vi.fn().mockResolvedValue('core'),
 }));
 vi.mock('../wizard/init/apply', () => ({
   applyPackageJsonFields: vi.fn().mockResolvedValue(undefined),
@@ -51,6 +56,7 @@ vi.mock('../wizard/init/apply', () => ({
   writeStencilConfig: vi.fn().mockResolvedValue(undefined),
   writeGlobalStyle: vi.fn().mockResolvedValue(undefined),
   writeGlobalScript: vi.fn().mockResolvedValue(undefined),
+  scaffoldWorkspaceRoot: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('@stencil/templates', () => ({
   generatePackageJsonFields: vi.fn().mockReturnValue({
@@ -75,15 +81,24 @@ import type { ValidatedConfig } from '@stencil/core/compiler';
 
 import { taskInit } from '../task-init';
 import { discoverPlugins } from '../wizard/discover';
-import { applyPackageJsonFields, copyTemplate, writeStencilConfig } from '../wizard/init/apply';
+import {
+  applyPackageJsonFields,
+  copyTemplate,
+  scaffoldWorkspaceRoot,
+  writeStencilConfig,
+} from '../wizard/init/apply';
 import {
   KNOWN_INTEGRATIONS,
+  hasFrameworkTargets,
+  needsStencilConfig,
   promptAddCapabilities,
   promptDocs,
   promptFeatures,
   promptIntegrations,
+  promptMonorepo,
   promptOutputs,
   promptProjectName,
+  promptWorkspaceCoreName,
 } from '../wizard/init/steps';
 import type { CoreCompiler } from '../load-compiler';
 
@@ -97,6 +112,7 @@ const mockStrictConfig = {
   outputTargets: [],
 } as unknown as ValidatedConfig;
 const mockCoreCompiler = {
+  version: '5.0.0-test',
   validateConfig: vi.fn().mockReturnValue({
     config: {
       rootDir: CWD,
@@ -166,7 +182,7 @@ describe('taskInit', () => {
     vi.clearAllMocks();
   });
 
-  // ── new project ────────────────────────────────────────────────────────────
+  //  new project
 
   it('exits in CI mode without prompting', async () => {
     stdEnv.isCI = true;
@@ -175,9 +191,9 @@ describe('taskInit', () => {
     expect(vi.mocked(promptProjectName)).not.toHaveBeenCalled();
   });
 
-  it('scaffolds the template with derived namespace on confirm', async () => {
+  it('scaffolds the template with derived namespace', async () => {
     await taskInit(mockCoreCompiler, mockStrictConfig);
-    expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, 'my-lib', 'MyLib');
+    expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, 'my-lib', 'MyLib', '5.0.0-test');
     expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({ cwd: CWD, silent: true });
     expect(clack.outro).toHaveBeenCalled();
   });
@@ -185,7 +201,12 @@ describe('taskInit', () => {
   it('strips npm scope and PascalCases the namespace', async () => {
     vi.mocked(promptProjectName).mockResolvedValue('@my-org/my-lib');
     await taskInit(mockCoreCompiler, mockStrictConfig);
-    expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, '@my-org/my-lib', 'MyLib');
+    expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(
+      CWD,
+      '@my-org/my-lib',
+      'MyLib',
+      '5.0.0-test',
+    );
   });
 
   it('applies package.json fields derived from selected outputs', async () => {
@@ -235,6 +256,27 @@ describe('taskInit', () => {
     );
   });
 
+  it('writes a minimal stencil.config.ts when an integration requires it and no config would otherwise be generated', async () => {
+    vi.mocked(generateStencilConfig).mockReturnValue(null);
+    vi.mocked(needsStencilConfig).mockReturnValue(true);
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+    expect(vi.mocked(writeStencilConfig)).toHaveBeenCalledWith(
+      CWD,
+      expect.stringContaining("namespace: 'MyLib'"),
+    );
+    expect(vi.mocked(writeStencilConfig)).toHaveBeenCalledWith(
+      CWD,
+      expect.stringContaining("{ type: 'loader-bundle' }"),
+    );
+  });
+
+  it('does not write stencil.config.ts in true zero-config mode', async () => {
+    vi.mocked(generateStencilConfig).mockReturnValue(null);
+    vi.mocked(needsStencilConfig).mockReturnValue(false);
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+    expect(vi.mocked(writeStencilConfig)).not.toHaveBeenCalled();
+  });
+
   it('does not patch package.json when no integrations are selected', async () => {
     await taskInit(mockCoreCompiler, mockStrictConfig);
     expect(vi.mocked(addDevDependency)).not.toHaveBeenCalled();
@@ -281,17 +323,62 @@ describe('taskInit', () => {
     await taskInit(mockCoreCompiler, mockStrictConfig); // should not throw
   });
 
-  it('cancels cleanly without scaffolding when the confirm prompt is dismissed', async () => {
-    const cancelSym = Symbol('cancel') as unknown as boolean;
-    vi.mocked(clack.confirm).mockResolvedValue(cancelSym);
-    vi.mocked(clack.isCancel).mockReturnValue(true);
+  //  monorepo
 
-    await expect(taskInit(mockCoreCompiler, mockStrictConfig)).rejects.toThrow('exit:0');
-    expect(clack.cancel).toHaveBeenCalled();
-    expect(vi.mocked(copyTemplate)).not.toHaveBeenCalled();
+  describe('monorepo workspace mode', () => {
+    const CORE_DIR = `${CWD}/packages/core`;
+
+    beforeEach(() => {
+      vi.mocked(hasFrameworkTargets).mockReturnValue(true);
+      vi.mocked(promptMonorepo).mockResolvedValue(true);
+      vi.mocked(promptWorkspaceCoreName).mockResolvedValue('core');
+      vi.mocked(promptIntegrations).mockResolvedValue([
+        makeIntegration('@stencil/react-output-target', 'Framework integrations'),
+      ]);
+    });
+
+    it('scaffolds workspace root and copies template into packages/core/', async () => {
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(vi.mocked(scaffoldWorkspaceRoot)).toHaveBeenCalledWith(CWD, 'my-lib');
+      expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(
+        CORE_DIR,
+        'my-lib',
+        'MyLib',
+        '5.0.0-test',
+      );
+    });
+
+    it('installs integration packages into the core package dir', async () => {
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(vi.mocked(addDevDependency)).toHaveBeenCalledWith(['@stencil/react-output-target'], {
+        cwd: CORE_DIR,
+        silent: true,
+      });
+    });
+
+    it('calls run() on all plugins with workspaceRoot', async () => {
+      const run = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(discoverPlugins).mockResolvedValue([
+        makeDiscovered('@stencil/react-output-target', run),
+      ]);
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(run).toHaveBeenCalledWith(expect.objectContaining({ workspaceRoot: CWD }));
+    });
+
+    it('does not scaffold workspace and passes no workspaceRoot when monorepo is declined', async () => {
+      vi.mocked(promptMonorepo).mockResolvedValue(false);
+      const run = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(discoverPlugins).mockResolvedValue([
+        makeDiscovered('@stencil/react-output-target', run),
+      ]);
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(vi.mocked(scaffoldWorkspaceRoot)).not.toHaveBeenCalled();
+      expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, 'my-lib', 'MyLib', '5.0.0-test');
+      expect(run).toHaveBeenCalledWith(expect.objectContaining({ workspaceRoot: undefined }));
+    });
   });
 
-  // ── existing project ───────────────────────────────────────────────────────
+  //  existing project
 
   describe('existing project (add-capabilities mode)', () => {
     beforeEach(() => {

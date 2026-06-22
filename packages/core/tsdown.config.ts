@@ -139,8 +139,8 @@ export default defineConfig([
     },
     outputOptions: {
       paths: {
-        'virtual:app-data': '@stencil/core/runtime/app-data',
-        'virtual:app-globals': '@stencil/core/runtime/app-globals',
+        'virtual:app-data': '@stencil/core/app-data',
+        'virtual:app-globals': '@stencil/core/app-globals',
       },
     },
     plugins: [
@@ -170,7 +170,7 @@ export default defineConfig([
     },
     outputOptions: {
       paths: {
-        'virtual:app-data': '@stencil/core/runtime/app-data',
+        'virtual:app-data': '@stencil/core/app-data',
       },
     },
     plugins: [
@@ -190,8 +190,8 @@ export default defineConfig([
   {
     entry: {
       'runtime/index': 'src/runtime/index.ts',
-      'runtime/app-data/index': 'src/app-data/index.ts',
-      'runtime/app-globals/index': 'src/app-globals/index.ts',
+      'app-data/index': 'src/app-data/index.ts',
+      'app-globals/index': 'src/app-globals/index.ts',
     },
     outDir: 'dist',
     format: ['esm'],
@@ -240,8 +240,8 @@ export default defineConfig([
     },
     outputOptions: {
       paths: {
-        'virtual:app-data': '@stencil/core/runtime/app-data',
-        'virtual:app-globals': '@stencil/core/runtime/app-globals',
+        'virtual:app-data': '@stencil/core/app-data',
+        'virtual:app-globals': '@stencil/core/app-globals',
       },
     },
     plugins: [
@@ -271,8 +271,8 @@ export default defineConfig([
     },
     outputOptions: {
       paths: {
-        'virtual:app-globals': '@stencil/core/runtime/app-globals',
-        'virtual:app-data-external': '@stencil/core/runtime/app-data',
+        'virtual:app-globals': '@stencil/core/app-globals',
+        'virtual:app-data-external': '@stencil/core/app-data',
       },
     },
     plugins: [

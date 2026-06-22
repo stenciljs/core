@@ -13,21 +13,27 @@ import { discoverPlugins } from './wizard/discover.js';
 import {
   applyPackageJsonFields,
   copyTemplate,
+  scaffoldWorkspaceRoot,
   writeGlobalScript,
   writeGlobalStyle,
   writeStencilConfig,
 } from './wizard/init/apply.js';
 import {
   KNOWN_INTEGRATIONS,
+  hasFrameworkTargets,
+  needsStencilConfig,
   promptAddCapabilities,
   promptDocs,
   promptFeatures,
   promptIntegrations,
+  promptMonorepo,
   promptOutputs,
   promptProjectName,
+  promptWorkspaceCoreName,
 } from './wizard/init/steps.js';
 import {
   defaultProjectConfig,
+  detectWorkspaceRoot,
   isExistingStencilProject,
   toProjectConfig,
 } from './wizard/project.js';
@@ -58,7 +64,7 @@ export async function taskInit(
   p.intro(`stencil init`);
 
   if (process.env.STENCIL_WIZARD_DEV) {
-    p.log.warn(`Dev mode: loading wizard from ${process.env.STENCIL_WIZARD_DEV}`);
+    p.log.warn(`Dev mode: loading wizards from ${process.env.STENCIL_WIZARD_DEV}`);
   }
 
   if (isCI) {
@@ -71,7 +77,7 @@ export async function taskInit(
     return;
   }
 
-  // ── Phase 1: gather intent ─────────────────────────────────────────────────
+  // Phase 1: gather intent
 
   const projectName = await promptProjectName();
   const namespace = toNamespace(projectName);
@@ -80,12 +86,21 @@ export async function taskInit(
   const docs = await promptDocs();
   const selectedIntegrations = await promptIntegrations();
 
-  const configSource = generateStencilConfig({
-    namespace,
-    outputs,
-    signals: features.signals,
-    docs,
-  });
+  let monorepo = false;
+  let coreName = '';
+  if (hasFrameworkTargets(selectedIntegrations)) {
+    monorepo = await promptMonorepo();
+    if (monorepo) coreName = await promptWorkspaceCoreName();
+  }
+
+  const configSource =
+    generateStencilConfig({ namespace, outputs, signals: features.signals, docs }) ??
+    (needsStencilConfig(selectedIntegrations)
+      ? // outputs is [] here (generateStencilConfig returned null), so loader-bundle is the
+        // implicit default. Make it explicit so framework plugins can add alongside it without
+        // inadvertently replacing it - which would break the loader-bundle files in package.json.
+        `import { Config } from '@stencil/core';\n\nexport const config: Config = {\n  namespace: '${namespace}',\n  outputTargets: [{ type: 'loader-bundle' }],\n};\n`
+      : null);
 
   const summaryLines = [
     `Template:  component-starter`,
@@ -93,30 +108,30 @@ export async function taskInit(
     `Namespace: ${namespace}`,
     `Config:    ${configSource ? 'stencil.config.ts' : 'zero-config (loader default)'}`,
   ];
+  if (monorepo) {
+    summaryLines.push(`Structure: monorepo workspace`);
+    summaryLines.push(`Core:      packages/${coreName}/`);
+  }
   if (selectedIntegrations.length > 0) {
     summaryLines.push(`Add:       ${selectedIntegrations.map((i) => i.displayName).join(', ')}`);
   }
   p.note(summaryLines.join('\n'), 'Summary');
 
-  const confirmed = await p.confirm({ message: 'Scaffold project in current directory?' });
-  cancelIfAborted(confirmed);
-  if (!confirmed) {
-    p.cancel('Cancelled.');
-    process.exit(0);
-  }
+  // Phase 2: scaffold
 
-  // ── Phase 2: scaffold ──────────────────────────────────────────────────────
+  const coreDir = monorepo ? join(cwd, 'packages', coreName) : cwd;
 
   const s1 = p.spinner();
   s1.start('Scaffolding project files');
-  await copyTemplate(cwd, projectName, namespace);
-  await applyPackageJsonFields(cwd, generatePackageJsonFields(outputs));
-  if (configSource) await writeStencilConfig(cwd, configSource);
-  if (features.globalStyle) await writeGlobalStyle(cwd);
-  if (features.globalScript) await writeGlobalScript(cwd);
+  if (monorepo) await scaffoldWorkspaceRoot(cwd, projectName);
+  await copyTemplate(coreDir, projectName, namespace, coreCompiler?.version);
+  await applyPackageJsonFields(coreDir, generatePackageJsonFields(outputs));
+  if (configSource) await writeStencilConfig(coreDir, configSource);
+  if (features.globalStyle) await writeGlobalStyle(coreDir);
+  if (features.globalScript) await writeGlobalScript(coreDir);
   s1.stop('Project files created');
 
-  // ── Phase 3: install ───────────────────────────────────────────────────────
+  // Phase 3: install
 
   const s2 = p.spinner();
   s2.start('Installing dependencies');
@@ -127,44 +142,62 @@ export async function taskInit(
     const s3 = p.spinner();
     const pkgs = selectedIntegrations.map((i) => i.package);
     s3.start(`Installing ${pkgs.join(', ')}`);
-    await addDevDependency(pkgs, { cwd, silent: true });
+    // Integration packages (e.g. output target plugins) are deps of the core package
+    await addDevDependency(pkgs, { cwd: coreDir, silent: true });
     s3.stop('Integrations installed');
   }
 
-  // ── Phase 4: re-discover + run plugin wizards ─────────────────────────────
+  // Phase 4: re-discover + run plugin wizards
 
   if (selectedIntegrations.length > 0) {
-    const discovered = await discoverPlugins(cwd);
+    const discovered = await discoverPlugins(coreDir);
     const selectedPkgs = new Set(selectedIntegrations.map((i) => i.package));
     // Load the just-written config (or package.json defaults for zero-config) so plugins
     // get the authoritative resolved paths - namespace, srcDir, outputTargets, etc.
-    const resolvedValidated = loadProjectConfig
-      ? await loadProjectConfig(configSource ? join(cwd, 'stencil.config.ts') : undefined)
-      : coreCompiler
-        ? coreCompiler.validateConfig(
-            {
-              rootDir: cwd,
-              outputTargets: outputKeysToTargets(outputs) as OutputTarget[],
-              ...(configSource ? { namespace } : {}),
-            },
-            {},
-          ).config
-        : null;
+    const resolvedValidated =
+      loadProjectConfig && configSource
+        ? await loadProjectConfig(join(coreDir, 'stencil.config.ts'))
+        : coreCompiler
+          ? coreCompiler.validateConfig(
+              {
+                rootDir: coreDir,
+                outputTargets: outputKeysToTargets(outputs) as OutputTarget[],
+                ...(configSource ? { namespace } : {}),
+              },
+              {},
+            ).config
+          : null;
+    // Always use coreDir as rootDir — loadConfig's fallback uses sys.getCurrentDirectory()
+    // (workspace root) when the config file fails to load, silently ignoring the rootDir we pass.
     const projectConfig = resolvedValidated
-      ? toProjectConfig(resolvedValidated)
-      : defaultProjectConfig(cwd, { namespace });
-    const context = { isNewProject: true, prompts: p, nypm, config: projectConfig };
+      ? { ...toProjectConfig(resolvedValidated), rootDir: coreDir }
+      : defaultProjectConfig(coreDir, { namespace });
     for (const d of discovered) {
       if (selectedPkgs.has(d.packageName) && d.plugin.init?.run) {
-        await d.plugin.init.run(context);
+        await d.plugin.init.run({
+          isNewProject: true,
+          prompts: p,
+          nypm,
+          config: projectConfig,
+          workspaceRoot: monorepo ? cwd : undefined,
+        });
       }
     }
   }
 
-  p.outro('Your project is ready! Run: pnpm run dev');
+  const pm = (await nypm.detectPackageManager(cwd))?.name ?? 'npm';
+  const devDir = monorepo ? `packages/${coreName}` : null;
+  const devCmd = `${pm} run dev`;
+  p.outro(
+    devDir
+      ? `Your project is ready!\n  cd ${devDir}\n  ${devCmd}`
+      : `Your project is ready! Run: ${devCmd}`,
+  );
 }
 
 async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Promise<void> {
+  const workspaceRoot = await detectWorkspaceRoot(cwd);
+
   const raw = JSON.parse(await readFile(join(cwd, 'package.json'), 'utf8')) as Record<
     string,
     unknown
@@ -223,9 +256,14 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
   ].filter((d) => d.plugin.init?.run);
 
   const projectConfig = strictConfig ? toProjectConfig(strictConfig) : defaultProjectConfig(cwd);
-  const context = { isNewProject: false, prompts: p, nypm, config: projectConfig };
   for (const d of toRun) {
-    await d.plugin.init!.run(context);
+    await d.plugin.init!.run({
+      isNewProject: false,
+      prompts: p,
+      nypm,
+      config: projectConfig,
+      workspaceRoot,
+    });
   }
 
   p.outro('Done! Run pnpm run dev to continue.');

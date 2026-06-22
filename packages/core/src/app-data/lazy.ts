@@ -1,5 +1,5 @@
 // Import Env/NAMESPACE/BUILD from the external app-data (kept external in the lazy build,
-// maps to @stencil/core/runtime/app-data in dist). Consumers alias that to their
+// maps to @stencil/core/app-data in dist). Consumers alias that to their
 // collection's app-data to get correct Env values and component-specific BUILD flags.
 // We only override lazyLoad: true - the one flag that must always be set for the lazy
 // runtime mechanism to work regardless of what the consumer's app-data provides.

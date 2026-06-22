@@ -31,7 +31,7 @@ export default defineVitestConfig({
             instances: [{ browser: 'chromium' }],
           },
           alias: {
-            '@stencil/core/runtime/app-data': resolve(__dirname, 'dist/collection/app-data.js'),
+            '@stencil/core/app-data': resolve(__dirname, 'dist/collection/app-data.js'),
           },
         },
       },
@@ -60,7 +60,7 @@ export default defineVitestConfig({
             instances: [{ browser: 'chromium' }],
           },
           alias: {
-            '@stencil/core/runtime/app-data': resolve(__dirname, 'dist/collection/app-data.js'),
+            '@stencil/core/app-data': resolve(__dirname, 'dist/collection/app-data.js'),
           },
         },
       },

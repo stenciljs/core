@@ -64,13 +64,13 @@
       "types": "./dist/runtime/index.d.ts",
       "import": "./dist/runtime/index.js"
     },
-    "./runtime/app-data": {
-      "types": "./dist/runtime/app-data/index.d.ts",
-      "import": "./dist/runtime/app-data/index.js"
+    "./app-data": {
+      "types": "./dist/app-data/index.d.ts",
+      "import": "./dist/app-data/index.js"
     },
-    "./runtime/app-globals": {
-      "types": "./dist/runtime/app-globals/index.d.ts",
-      "import": "./dist/runtime/app-globals/index.js"
+    "./app-globals": {
+      "types": "./dist/app-globals/index.d.ts",
+      "import": "./dist/app-globals/index.js"
     },
     "./runtime/client": {
       "types": "./dist/runtime/client/runtime.d.ts",
