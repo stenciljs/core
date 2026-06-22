@@ -82,16 +82,22 @@ export async function discoverPlugins(
     )
     .map((r) => r.value);
 
-  // Dev escape hatch: inject a local wizard file without needing node_modules
-  const devPath = process.env.STENCIL_WIZARD_DEV;
-  if (devPath) {
-    const absPath = resolve(rootDir, devPath);
-    const devPlugin = await loadDevPlugin(absPath, loader);
-    if (devPlugin) {
-      // Replace any normally-discovered plugin with the same name so it doesn't appear twice
-      const deduped = plugins.filter((p) => p.packageName !== devPlugin.packageName);
-      plugins.length = 0;
-      plugins.push(devPlugin, ...deduped);
+  // Dev escape hatch: inject local wizard files without needing node_modules.
+  // Accepts a comma-separated list of paths, e.g.:
+  //   STENCIL_WIZARD_DEV=../react-output-target/wizard.js,../vue-output-target/wizard.js
+  const devEnv = process.env.STENCIL_WIZARD_DEV;
+  if (devEnv) {
+    const devPaths = devEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const devPath of devPaths) {
+      const devPlugin = await loadDevPlugin(resolve(rootDir, devPath), loader);
+      if (devPlugin) {
+        const idx = plugins.findIndex((p) => p.packageName === devPlugin.packageName);
+        if (idx >= 0) plugins.splice(idx, 1, devPlugin);
+        else plugins.unshift(devPlugin);
+      }
     }
   }
 

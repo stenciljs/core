@@ -64,7 +64,7 @@ export async function taskInit(
   p.intro(`stencil init`);
 
   if (process.env.STENCIL_WIZARD_DEV) {
-    p.log.warn(`Dev mode: loading wizard from ${process.env.STENCIL_WIZARD_DEV}`);
+    p.log.warn(`Dev mode: loading wizards from ${process.env.STENCIL_WIZARD_DEV}`);
   }
 
   if (isCI) {
