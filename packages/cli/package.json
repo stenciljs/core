@@ -1,6 +1,6 @@
 {
   "name": "@stencil/cli",
-  "version": "5.0.0-alpha.9",
+  "version": "5.0.0-alpha.8",
   "description": "CLI for Stencil - Web component compiler",
   "keywords": [
     "components",
@@ -47,12 +47,12 @@
     "@stencil/dev-server": "workspace:*",
     "@stencil/templates": "workspace:*",
     "nypm": "^0.3.12",
-    "std-env": "^3.8.0"
+    "std-env": "^3.8.0",
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
     "tsdown": "catalog:",
-    "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
