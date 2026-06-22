@@ -1,6 +1,6 @@
 {
   "name": "@stencil/templates",
-  "version": "5.0.0-alpha.9",
+  "version": "5.0.0-alpha.10",
   "description": "Project and generate templates for Stencil",
   "keywords": [
     "scaffolding",
