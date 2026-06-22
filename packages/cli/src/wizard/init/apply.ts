@@ -20,7 +20,7 @@ export async function copyTemplate(
 ) {
   const templateDir = getTemplatePath('component-starter');
   const entries = await readdir(templateDir, { recursive: true, withFileTypes: true });
-  const resolvedStencilVersion = stencilVersion ? `^${stencilVersion}` : '^5.0.0';
+  const resolvedStencilVersion = stencilVersion ? `^${stencilVersion}` : '^5.0.0-0';
 
   for (const entry of entries) {
     if (!entry.isFile()) continue;

@@ -167,8 +167,10 @@ export async function taskInit(
               {},
             ).config
           : null;
+    // Always use coreDir as rootDir — loadConfig's fallback uses sys.getCurrentDirectory()
+    // (workspace root) when the config file fails to load, silently ignoring the rootDir we pass.
     const projectConfig = resolvedValidated
-      ? toProjectConfig(resolvedValidated)
+      ? { ...toProjectConfig(resolvedValidated), rootDir: coreDir }
       : defaultProjectConfig(coreDir, { namespace });
     for (const d of discovered) {
       if (selectedPkgs.has(d.packageName) && d.plugin.init?.run) {
