@@ -47,6 +47,47 @@ export async function copyTemplate(
   }
 }
 
+// @parcel/watcher is a transitive dep of @stencil/core that requires a native build step.
+// onlyBuiltDependencies = pnpm v10; allowBuilds = pnpm v11+. Include both for compatibility.
+const PARCEL_WATCHER_BUILD_ALLOWANCES = [
+  `onlyBuiltDependencies:`,
+  `  - '@parcel/watcher'`,
+  ``,
+  `allowBuilds:`,
+  `  '@parcel/watcher': true`,
+].join('\n');
+
+async function mergePnpmWorkspaceYaml(yamlPath: string) {
+  let existing: string | null = null;
+  try {
+    existing = await readFile(yamlPath, 'utf8');
+  } catch {
+    // file doesn't exist yet — write from scratch
+  }
+
+  if (existing === null) {
+    await writeFile(
+      yamlPath,
+      [`packages:`, `  - 'packages/*'`, ``, PARCEL_WATCHER_BUILD_ALLOWANCES, ``].join('\n'),
+      'utf8',
+    );
+    return;
+  }
+
+  // File already exists (pnpm may have created it from package.json#workspaces).
+  // Check each field independently — the file may have one but not the other.
+  let toAppend = '';
+  if (!existing.includes('packages/*')) toAppend += `\npackages:\n  - 'packages/*'\n`;
+  if (!existing.includes('onlyBuiltDependencies:'))
+    toAppend += `\nonlyBuiltDependencies:\n  - '@parcel/watcher'\n`;
+  if (!existing.includes('allowBuilds:')) toAppend += `\nallowBuilds:\n  '@parcel/watcher': true\n`;
+
+  if (toAppend) {
+    const separator = existing.endsWith('\n') ? '' : '\n';
+    await writeFile(yamlPath, existing + separator + toAppend, 'utf8');
+  }
+}
+
 async function writeIfAbsent(destPath: string, content: string) {
   try {
     await writeFile(destPath, content, { encoding: 'utf8', flag: 'wx' });
@@ -205,12 +246,7 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string) {
   await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 
   if (usePnpmYaml) {
-    const yamlPath = join(cwd, 'pnpm-workspace.yaml');
-    try {
-      await writeFile(yamlPath, `packages:\n  - 'packages/*'\n`, { encoding: 'utf8', flag: 'wx' });
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
-    }
+    await mergePnpmWorkspaceYaml(join(cwd, 'pnpm-workspace.yaml'));
   }
 }
 
