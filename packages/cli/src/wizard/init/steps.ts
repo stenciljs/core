@@ -13,6 +13,8 @@ export interface KnownIntegration {
   group: string;
   /** When true, a stencil.config.ts must exist before this plugin's run() is called. */
   requiresStencilConfig?: true;
+  /** When true, this integration publishes its own package and benefits from a monorepo workspace. */
+  needsWorkspace?: true;
 }
 
 /** Well-known integrations the CLI can offer before any packages are installed. */
@@ -70,6 +72,7 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     description: 'React component wrappers',
     group: 'Framework integrations',
     requiresStencilConfig: true,
+    needsWorkspace: true,
   },
   {
     package: '@stencil/angular-output-target',
@@ -77,6 +80,7 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     description: 'Angular component wrappers',
     group: 'Framework integrations',
     requiresStencilConfig: true,
+    needsWorkspace: true,
   },
   {
     package: '@stencil/vue-output-target',
@@ -84,6 +88,7 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     description: 'Vue component wrappers',
     group: 'Framework integrations',
     requiresStencilConfig: true,
+    needsWorkspace: true,
   },
 ];
 
@@ -214,7 +219,7 @@ export async function promptIntegrations(): Promise<KnownIntegration[]> {
 }
 
 export function hasFrameworkTargets(integrations: KnownIntegration[]) {
-  return integrations.some((i) => i.group === 'Framework integrations');
+  return integrations.some((i) => i.needsWorkspace);
 }
 
 export function needsStencilConfig(integrations: KnownIntegration[]) {
