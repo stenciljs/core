@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /**
  * Build-time utilities for generating version info baked into the Stencil build.
@@ -409,7 +409,7 @@ export function getBuildVersionInfo(packageJsonPath: string, isProd = false): Bu
   const version = isProd ? baseVersion : getDevVersion(baseVersion, buildId);
 
   const vermoji = isProd
-    ? getVermojiForRelease(join(packageJsonPath, '../../CHANGELOG.md'))
+    ? getVermojiForRelease(join(dirname(packageJsonPath), '../../CHANGELOG.md'))
     : getVermojiFromHash(buildId);
 
   return { version, buildId, vermoji };
