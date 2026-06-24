@@ -28,4 +28,4 @@ Generally, non-trivial changes should pass -
 
 To run a specific unit test: `pnpm -F PACKAGE_NAME test TEST_NAME`
 
-When adding debug / console.log messaging, do not remove it until it has been confirmed that the issue has been resolved by the user. 
+When stuck on any problem, try adding debug logging. Ask the user to paste the results if need be. Having added debug / console.log messaging, do not remove them until it has been confirmed that the issue has been resolved by the user. 

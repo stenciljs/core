@@ -49,6 +49,44 @@ describe('Stencil Collection output target', () => {
     vi.restoreAllMocks();
   });
 
+  describe('app-data.js hydrateClientSide flag', () => {
+    const collectionTarget: d.OutputTargetCollection = {
+      type: 'collection',
+      dir: '/dist/collection',
+    };
+    const appDataPath = '/dist/collection/app-data.js';
+
+    it('sets hydrateClientSide: true when an SSR output target is present', async () => {
+      const config = mockValidatedConfig({
+        srcDir: '/src',
+        bundles: [],
+        outputTargets: [collectionTarget, { type: 'ssr', dir: '/dist/ssr' } as d.OutputTargetSsr],
+      });
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      await outputCollection(config, compilerCtx, buildCtx, changedModules);
+
+      const content = await compilerCtx.fs.readFile(appDataPath);
+      expect(content).toContain('"hydrateClientSide": true');
+    });
+
+    it('sets hydrateClientSide: false when no SSR output target is present', async () => {
+      const config = mockValidatedConfig({
+        srcDir: '/src',
+        bundles: [],
+        outputTargets: [collectionTarget],
+      });
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      await outputCollection(config, compilerCtx, buildCtx, changedModules);
+
+      const content = await compilerCtx.fs.readFile(appDataPath);
+      expect(content).toContain('"hydrateClientSide": false');
+    });
+  });
+
   describe('transform aliased import paths', () => {
     // These tests ensure that the transformer for import paths is called regardless
     // of the config value (the function will decide whether or not to actually do anything) to avoid
