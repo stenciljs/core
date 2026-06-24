@@ -8,6 +8,7 @@ import {
   flatOne,
   generatePreamble,
   isOutputTargetCollection,
+  isOutputTargetSsr,
   join,
   normalizePath,
   relative,
@@ -147,6 +148,8 @@ const serializeCollectionManifest = (
     .flatMap((mod) => mod.cmps);
 
   const buildFlags = getBuildFeatures(localCmps) as d.BuildConditionals;
+
+  buildFlags.hydrateClientSide = config.outputTargets.some(isOutputTargetSsr);
 
   // Apply config-driven runtime flags (not build-mode flags like isDev/isTesting)
   const ldp = config.compat?.lightDomPatches ?? true;

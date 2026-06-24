@@ -77,7 +77,7 @@ export const BUILD: BuildConditionals = {
   isDev: false,
   isTesting: false,
   hydrateServerSide: false,
-  hydrateClientSide: false,
+  hydrateClientSide: true,
   lifecycleDOMEvents: false,
   lazyLoad: false,
   profile: false,
