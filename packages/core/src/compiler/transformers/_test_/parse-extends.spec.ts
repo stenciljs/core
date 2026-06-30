@@ -1,30 +1,37 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
 import { describe, expect, it } from 'vitest';
 
 import { transpile } from '../../transpile';
 
 const fixturesDir = join(__dirname, 'fixtures');
 
-/**
- * Reads a fixture file from the `_test_/fixtures` directory relative to this spec.
- */
 const fixture = (name: string) => readFileSync(join(fixturesDir, name), 'utf-8');
+
+/**
+ * A `resolveImport` callback backed by the real filesystem.
+ * Tries `.ts` then `.tsx` extensions when none is present on the specifier.
+ */
+const diskResolver = (specifier: string, importer: string) => {
+  const base = join(dirname(importer), specifier);
+  for (const ext of ['.ts', '.tsx', '']) {
+    const candidate = base + ext;
+    if (existsSync(candidate)) {
+      return { code: readFileSync(candidate, 'utf-8'), path: candidate };
+    }
+  }
+  return null;
+};
 
 /**
  * Tests for `transpile()` when a component uses cross-file class inheritance.
  *
- * The stateless `transpile()` API previously failed to resolve parent
- * classes that lived in separate modules because:
- *  1. `noResolve: true` prevented TypeScript module resolution in `tsResolveModuleName`
- *  2. The `mergeExtendedClassMeta` loop bailed early when `compilerCtx.moduleMap`
- *     had no entry for the parent (the map is always empty in a fresh transpile context)
- *
- * Each test below has two variants:
- *  - **disk** – parent files exist on disk; `currentDirectory` points at the
- *    fixtures folder so the relative imports resolve naturally via the file system.
- *  - **virtual** – parent files are supplied as strings via `extraFiles` with no
- *    disk access required (useful in browser or in-memory build contexts).
+ * Two resolution strategies are covered per scenario:
+ *  - **disk** — parent files exist on disk; resolved via `buildExtendsTree`
+ *    (the full-compiler path, using `currentDirectory`).
+ *  - **resolveImport** — parent source is supplied via a callback, either
+ *    reading from disk or from an in-memory map (useful for browser / bundler
+ *    contexts where the filesystem is not directly accessible).
  */
 describe('transpile() – cross-file class extension', () => {
   describe('single-level base class', () => {
@@ -49,7 +56,7 @@ describe('transpile() – cross-file class extension', () => {
       }
     `;
 
-    it('resolves the base class from disk', async () => {
+    it('resolves the base class from disk (full-compiler path)', async () => {
       assertSingleLevel(
         await transpile(singleLevelCode, {
           file: join(fixturesDir, 'my-component.tsx'),
@@ -59,13 +66,27 @@ describe('transpile() – cross-file class extension', () => {
       );
     });
 
-    it('resolves the base class via extraFiles (virtual / no disk)', async () => {
+    it('resolves the base class via resolveImport (disk)', async () => {
+      assertSingleLevel(
+        await transpile(singleLevelCode, {
+          file: join(fixturesDir, 'my-component.tsx'),
+          target: 'es2022',
+          resolveImport: diskResolver,
+        }),
+      );
+    });
+
+    it('resolves the base class via resolveImport (virtual / no disk)', async () => {
+      const files: Record<string, string> = {
+        './extends-base': fixture('extends-base.ts'),
+      };
       assertSingleLevel(
         await transpile(singleLevelCode, {
           file: 'my-component.tsx',
           target: 'es2022',
-          extraFiles: {
-            './extends-base.ts': fixture('extends-base.ts'),
+          resolveImport: (specifier) => {
+            const code = files[specifier];
+            return code ? { code, path: `/virtual${specifier}.ts` } : null;
           },
         }),
       );
@@ -96,7 +117,7 @@ describe('transpile() – cross-file class extension', () => {
       }
     `;
 
-    it('resolves the full chain from disk', async () => {
+    it('resolves the full chain from disk (full-compiler path)', async () => {
       assertTwoLevel(
         await transpile(twoLevelCode, {
           file: join(fixturesDir, 'my-component.tsx'),
@@ -106,14 +127,28 @@ describe('transpile() – cross-file class extension', () => {
       );
     });
 
-    it('resolves the full chain via extraFiles (virtual / no disk)', async () => {
+    it('resolves the full chain via resolveImport (disk)', async () => {
+      assertTwoLevel(
+        await transpile(twoLevelCode, {
+          file: join(fixturesDir, 'my-component.tsx'),
+          target: 'es2022',
+          resolveImport: diskResolver,
+        }),
+      );
+    });
+
+    it('resolves the full chain via resolveImport (virtual / no disk)', async () => {
+      const files: Record<string, string> = {
+        './extends-base': fixture('extends-base.ts'),
+        './extends-intermediate': fixture('extends-intermediate.ts'),
+      };
       assertTwoLevel(
         await transpile(twoLevelCode, {
           file: 'my-component.tsx',
           target: 'es2022',
-          extraFiles: {
-            './extends-base.ts': fixture('extends-base.ts'),
-            './extends-intermediate.ts': fixture('extends-intermediate.ts'),
+          resolveImport: (specifier) => {
+            const code = files[specifier];
+            return code ? { code, path: `/virtual${specifier}.ts` } : null;
           },
         }),
       );
@@ -121,6 +156,9 @@ describe('transpile() – cross-file class extension', () => {
   });
 
   it('deduplicates members when the child re-declares an inherited @Prop', async () => {
+    const files: Record<string, string> = {
+      './extends-base': fixture('extends-base.ts'),
+    };
     const results = await transpile(
       `
       import { Component, Prop } from '@stencil/core';
@@ -134,8 +172,9 @@ describe('transpile() – cross-file class extension', () => {
       {
         file: 'my-component.tsx',
         target: 'es2022',
-        extraFiles: {
-          './extends-base.ts': fixture('extends-base.ts'),
+        resolveImport: (specifier) => {
+          const code = files[specifier];
+          return code ? { code, path: `/virtual${specifier}.ts` } : null;
         },
       },
     );
@@ -144,7 +183,6 @@ describe('transpile() – cross-file class extension', () => {
 
     const cmp = results.data?.[0];
     const propNames = cmp.properties.map((p: any) => p.name);
-    // Only one entry for `baseProp` - it should not appear twice
     expect(propNames.filter((n: string) => n === 'baseProp')).toHaveLength(1);
   });
 });

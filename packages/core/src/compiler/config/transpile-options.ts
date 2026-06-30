@@ -146,7 +146,9 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     style: compileOpts.style as any,
     styleImportData: compileOpts.styleImportData as any,
     target: compileOpts.target as any,
-    extraFiles: input.extraFiles,
+    resolveImport: input.resolveImport,
+    transformAsBaseClass: input.transformAsBaseClass,
+    buildOverrides: input.buildOverrides,
   };
 
   const config: UnvalidatedConfig = {

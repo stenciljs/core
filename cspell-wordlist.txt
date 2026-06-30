@@ -177,3 +177,9 @@ extism
 javy
 renderable
 nypm
+customelement
+rspack
+dotless
+queryparams
+extensionless
+rgba

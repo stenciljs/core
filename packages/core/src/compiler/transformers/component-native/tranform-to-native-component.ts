@@ -7,8 +7,35 @@ import { addImports } from '../add-imports';
 import { addLegacyApis } from '../core-runtime-apis';
 import { defineCustomElement } from '../define-custom-element';
 import { updateStyleImports } from '../style-imports';
-import { getComponentMeta, getModuleFromSourceFile } from '../transform-utils';
-import { updateNativeComponentClass, updateNativeExtendedClass } from './native-component';
+import { getComponentMeta, getModuleFromSourceFile, isStaticGetter } from '../transform-utils';
+import {
+  updateNativeBaseClass,
+  updateNativeComponentClass,
+  updateNativeSuperClass,
+} from './native-component';
+
+const STENCIL_META_GETTER_NAMES = [
+  'properties',
+  'states',
+  'events',
+  'listeners',
+  'watchers',
+  'methods',
+] as const;
+
+/*
+ * Returns true when a class has Stencil static meta getters but no `@Component` metadata.
+ * @param node the class to inspect
+ * @returns true if the class is a Stencil base class, false otherwise
+ */
+const isStencilBaseClass = (node: ts.ClassDeclaration): boolean =>
+  node.members.some(
+    (m) =>
+      isStaticGetter(m) &&
+      ts.isGetAccessorDeclaration(m) &&
+      ts.isIdentifier(m.name) &&
+      (STENCIL_META_GETTER_NAMES as readonly string[]).includes(m.name.text),
+  );
 
 /**
  * A function that returns a transformation factory. The returned factory
@@ -48,7 +75,16 @@ export const nativeComponentTransform = (
           if (cmp != null) {
             return updateNativeComponentClass(transformOpts, node, moduleFile, cmp, buildCtx);
           } else if (compilerCtx.moduleMap.get(tsSourceFile.fileName)?.isExtended) {
-            return updateNativeExtendedClass(node, moduleFile, transformOpts);
+            return updateNativeSuperClass(node, moduleFile, transformOpts);
+          } else if (
+            moduleFile &&
+            (isStencilBaseClass(node) || transformOpts.transformAsBaseClass)
+          ) {
+            // Inject `extends HTMLElement` and preserve the export so components can
+            // import as a base class. Triggered either by detecting Stencil
+            // static meta-getters on the class, or by the explicit `transformAsBaseClass`
+            // flag (used by bundler plugins (via `transpile()`) for plain base classes with no decorators).
+            return updateNativeBaseClass(node, moduleFile);
           }
         }
 

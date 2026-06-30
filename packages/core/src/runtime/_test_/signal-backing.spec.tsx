@@ -342,7 +342,7 @@ describe('signals (signalBacking: true)', () => {
     });
   });
 
-  // ── componentShouldUpdate ──────────────────────────────────────────────────
+  // componentShouldUpdate
 
   describe('componentShouldUpdate', () => {
     it('can veto a re-render by returning false', async () => {
@@ -632,7 +632,7 @@ describe('signals (signalBacking: true)', () => {
   });
 });
 
-// ── getSignal / STENCIL_SIGNALS_SYMBOL ────────────────────────────────────
+// getSignal / STENCIL_SIGNALS_SYMBOL
 
 describe('getSignal', () => {
   it('returns null for a @State member - state is internal', async () => {

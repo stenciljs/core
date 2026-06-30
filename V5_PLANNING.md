@@ -440,6 +440,58 @@ packages/cli/src/
 
 ---
 
+## @stencil/unplugin — Universal Bundler Plugin
+
+Package at `packages/unplugin/`. 32 tests (8 browser via `pnpm test:browser`).
+
+### Design
+- `componentExport: 'customelement'` — component self-registers on import
+- `styleImportData: 'queryparams'` — CSS imports carry `?tag=my-cmp&encapsulation=shadow`
+- **JSX detection**: reads `tsconfig.json` for `jsx`/`jsxImportSource`; falls back to detecting `h` import → classic `jsx:react`; otherwise `jsx:react-jsx` + `jsxImportSource:@stencil/core`
+- **Filter**: `/\.tsx?$/` + fast `@Component` decorator check before paying `transpileSync` cost
+- **`enforce: 'pre'`** on Vite plugin so our transform runs before rolldown's built-in TSX handling
+
+### CSS pipeline
+- **Vite**: `resolveId` rewrites `./foo.css?tag=...` → `/abs/foo.css?inline&__stencil_tag=...&__stencil_enc=...`; Vite's own CSS pipeline (PostCSS/SCSS/lightningcss) runs; Stencil never touches it
+- **Non-Vite**: `resolveId` → `\0stencil-css:/abs/foo?tag=...&__ext=css` (dotless ext avoids `CSS_LANGS_RE` match); `load` reads raw CSS, applies `scopeCss` if scoped, returns `export default JSON.stringify(css)`. Users configure their CSS plugin to output strings (rollup-plugin-postcss `inject:false`)
+- `scopeCss` + `getScopeId` are now exported from `@stencil/core/compiler`
+
+### Base class inheritance (virtual module registry)
+
+Devs never manually extend `HTMLElement` — Stencil must inject it automatically, including for base classes that derived Stencil components extend.
+
+**Architecture:**
+1. `makeResolver` in `transform.ts` calls an `onBaseClass?(absPath, rawCode)` callback for every file resolved via `resolveImport`.
+2. `registerBaseClass` in `plugin.ts` caches each file via `transpileBaseClass(rawCode, absPath, { transformAsBaseClass: true })`.
+3. `resolveId` redirects imports of registered base classes to `\0stencil-base:<absPath>` virtual modules.
+4. `load` serves the cached injected code + `addWatchFile` for HMR.
+
+**Ordering:** `resolveId` for imports in transformed output fires *after* the `transform` hook — registry is already populated.
+
+**Two patterns handled:**
+- Classes with Stencil decorators (`@Prop`/`@State` etc.) → detected by `isStencilBaseClass` check
+- Plain classes (only lifecycle hooks, no decorators) → `transformAsBaseClass: true` flag forces `updateNativeBaseClass`
+
+**Core compiler additions:**
+- `TranspileOptions.transformAsBaseClass?: boolean` — new field passed through to `TransformOptions` and `nativeComponentTransform`
+- `updateNativeBaseClass()` in `native-component.ts` — adds `extends HTMLElement`, strips meta getters, injects `super()`, **preserves `export`** (unlike `updateNativeExtendedClass` which strips it in customelement mode)
+
+### HMR
+- **Vite**: `handleHotUpdate` sends `stencil:hmr` WS event; client calls `el['s-hmr'](version)` → `hmrStandalone` re-imports + patches
+- **webpack/rspack**: `module.hot || import.meta.webpackHot` + dispose/accept/data re-execution
+- **bun**: `import.meta.hot` + dispose/accept/data
+- `defineCustomElement` guards `customElements.define` with `customElements.get()` check for HMR re-import safety
+- Base class HMR: `addWatchFile(realPath)` in virtual module `load` hook → bundler invalidates on source change
+
+### Open / next tasks
+- [ ] Scoped CSS post-transform for Vite: needs a separate `enforce:'post'` plugin (putting it in `vite:{transform}` overwrites unplugin's main transform via `Object.assign`)
+- [ ] CSS HMR: when a `.css` file changes, trigger component re-render (currently only `.tsx` HMR is wired)
+- [ ] Storybook migration target (replace `@stencil/react-output-target` + Storybook webpack plugin)
+- [ ] Test fixture for plain lifecycle-only base class (no decorators) to cover `transformAsBaseClass` path end-to-end
+- [ ] README / docs
+
+---
+
 ## Architecture Reference
 
 ```
@@ -448,6 +500,7 @@ packages/
 ├── cli/         @stencil/cli
 ├── templates/   @stencil/templates (project + generate templates, versioned lockstep)
 ├── mock-doc/    @stencil/mock-doc
+├── unplugin/    @stencil/unplugin (universal bundler plugin — Vite/Rollup/webpack/rspack/bun)
 └── dev-server/  @stencil/dev-server (planned)
 ```
 
@@ -483,4 +536,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-05-23*
+*Last updated: 2026-06-25*

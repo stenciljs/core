@@ -14,7 +14,7 @@ Assume any package starting with `@stencil/` is potentially updatable and sugges
 
 `as any` is very rarely an acceptable solution. Check with the user before using it, and use better alternatives whenever possible - don't be lazy.
 
-Prefer implied return types for functions and methods when possible.
+Prefer implied return types for internal/private functions and methods. Use explicit return types only for exported declarations (public API surface), interface implementations, and recursive functions.
 
 Never commit changes without the user explicitly asking you to. Always ask for confirmation before committing, and provide a clear summary of the changes that will be committed. If the user asks for changes after you’ve provided a summary but before you’ve committed, update the summary to reflect the new changes before asking for confirmation again.
 
@@ -27,5 +27,7 @@ Generally, non-trivial changes should pass -
 - `pnpm lint`
 
 To run a specific unit test: `pnpm -F PACKAGE_NAME test TEST_NAME`
+
+Tests are important. If you notice an area that is not well covered by tests, mention it and add a note to the planning document that tests should be added. If you are adding new functionality, add tests for it. If you are fixing a bug, add a test that reproduces the bug and then fixes it.
 
 When stuck on any problem, try adding debug logging. Ask the user to paste the results if need be. Having added debug / console.log messaging, do not remove them until it has been confirmed that the issue has been resolved by the user. 

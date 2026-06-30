@@ -1,0 +1,25 @@
+@use './another';
+
+:host {
+  display: block;
+  padding: 1rem 0;
+}
+
+.counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+}
+
+.btn:hover {
+  background: #5c6ac4;
+  color: white;
+}
+
+.value {
+  min-width: 3rem;
+  text-align: center;
+  font-weight: 700;
+  color: #333;
+}

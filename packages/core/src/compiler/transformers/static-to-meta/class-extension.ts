@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../utils';
+import { augmentDiagnosticWithNode, buildWarn, normalizePath, toDashCase } from '../../../utils';
 import {
   tsResolveModuleName,
   tsGetSourceFile,
@@ -556,42 +556,6 @@ function buildExtendsTree(
           });
         }
       });
-
-      if (!importStatements.length) {
-        // we're in a cjs module (probably in a Jest test) - loop through require modules statements
-        const requireStatements = currentSource.statements.filter(ts.isVariableStatement);
-        requireStatements.forEach((statement) => {
-          statement.declarationList.declarations.forEach((declaration) => {
-            if (
-              declaration.initializer &&
-              ts.isCallExpression(declaration.initializer) &&
-              ts.isIdentifier(declaration.initializer.expression) &&
-              declaration.initializer.expression.escapedText === 'require' &&
-              declaration.initializer.arguments.length === 1 &&
-              ts.isStringLiteral(declaration.initializer.arguments[0])
-            ) {
-              const moduleSpecifier = declaration.initializer.arguments[0].text.replaceAll(
-                /['"]/g,
-                '',
-              );
-              const className = extendee.getText();
-
-              resolveAndProcessExtendedClass(
-                compilerCtx,
-                buildCtx,
-                classDeclaration,
-                currentSource,
-                moduleSpecifier,
-                className,
-                dependentClasses,
-                typeChecker,
-                ogModule,
-                targetScriptTarget,
-              );
-            }
-          });
-        });
-      }
     }
   });
 
@@ -628,7 +592,10 @@ export function mergeExtendedClassMeta(
   let listeners = parseStaticListeners(staticMembers);
   let events = parseStaticEvents(staticMembers);
   let watchers = parseStaticWatchers(staticMembers);
-  let classMethods = cmpNode.members.filter(ts.isMethodDeclaration);
+  let classMethods = cmpNode.members
+    .filter(ts.isMethodDeclaration)
+    .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+    .filter(Boolean);
   let serializers = parseStaticSerializers(staticMembers, 'serializers');
   let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
 
@@ -700,7 +667,10 @@ export function mergeExtendedClassMeta(
     ];
     classMethods = [
       ...classMethods,
-      ...(extendedClass.classNode.members.filter(ts.isMethodDeclaration) ?? []),
+      ...extendedClass.classNode.members
+        .filter(ts.isMethodDeclaration)
+        .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+        .filter(Boolean),
     ];
 
     if (isMixin) hasMixin = true;
@@ -708,6 +678,353 @@ export function mergeExtendedClassMeta(
 
   return {
     hasMixin,
+    doesExtend,
+    properties,
+    states,
+    methods,
+    listeners,
+    events,
+    watchers,
+    classMethods,
+    serializers,
+    deserializers,
+  };
+}
+
+// === Parse-only extraction for the transpile() context ===
+// No TypeScript Program or TypeChecker — safe to call from transpileSync / transpile.
+
+const EMPTY_DOCS: d.CompilerJsDoc = { text: '', tags: [] };
+const EMPTY_PROP_COMPLEX_TYPE: d.ComponentCompilerPropertyComplexType = {
+  original: 'any',
+  resolved: 'any',
+  references: {},
+};
+const EMPTY_EVENT_COMPLEX_TYPE: d.ComponentCompilerEventComplexType = {
+  original: 'any',
+  resolved: 'any',
+  references: {},
+};
+const EMPTY_METHOD_COMPLEX_TYPE: d.ComponentCompilerMethodComplexType = {
+  signature: '() => void',
+  parameters: [],
+  references: {},
+  return: 'void',
+};
+
+function extractDecoratorOptions(
+  node: ts.Expression | undefined,
+): Record<string, string | boolean | number> {
+  if (!node || !ts.isObjectLiteralExpression(node)) return {};
+  const result: Record<string, string | boolean | number> = {};
+  for (const prop of node.properties) {
+    if (!ts.isPropertyAssignment(prop) || !ts.isIdentifier(prop.name)) continue;
+    const key = prop.name.text;
+    const val = prop.initializer;
+    if (ts.isStringLiteral(val)) result[key] = val.text;
+    else if (val.kind === ts.SyntaxKind.TrueKeyword) result[key] = true;
+    else if (val.kind === ts.SyntaxKind.FalseKeyword) result[key] = false;
+    else if (ts.isNumericLiteral(val)) result[key] = Number(val.text);
+  }
+  return result;
+}
+
+export interface ExtractedInheritedMeta {
+  properties: d.ComponentCompilerProperty[];
+  states: d.ComponentCompilerState[];
+  methods: d.ComponentCompilerMethod[];
+  events: d.ComponentCompilerEvent[];
+  listeners: d.ComponentCompilerListener[];
+  watchers: d.ComponentCompilerChangeHandler[];
+  methodNames: string[];
+}
+
+/**
+ * Extract Stencil member metadata from source text using parse-only TypeScript
+ * (no Program, no TypeChecker). Handles both decorator syntax (.tsx source files)
+ * and compiled static getter syntax (.js collection files).
+ *
+ * @param code source text to parse
+ * @param className name of the class to extract metadata from
+ * @param fileName virtual filename used to determine script kind
+ * @returns extracted metadata, or null if the named class is not found
+ */
+export function extractInheritedMeta(
+  code: string,
+  className: string,
+  fileName = '__stencil_parent__.tsx',
+): ExtractedInheritedMeta | null {
+  const scriptKind =
+    fileName.endsWith('.tsx') || fileName.endsWith('.ts') ? ts.ScriptKind.TSX : ts.ScriptKind.JS;
+  const sf = ts.createSourceFile(fileName, code, ts.ScriptTarget.ESNext, true, scriptKind);
+
+  const classDecl = sf.statements
+    .filter(ts.isClassDeclaration)
+    .find((c) => c.name?.text === className);
+  if (!classDecl) return null;
+
+  const methodNames = classDecl.members
+    .filter(ts.isMethodDeclaration)
+    .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+    .filter(Boolean);
+
+  // Detect compiled static getter form (collection .js files).
+  // getStaticValue() is purely syntactic so it works on parse-only AST nodes.
+  const staticMembers = classDecl.members.filter(isStaticGetter) as ts.ClassElement[];
+  const hasStencilStaticGetters = staticMembers.some(
+    (m) =>
+      ts.isGetAccessorDeclaration(m) &&
+      ts.isIdentifier(m.name) &&
+      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(m.name.text),
+  );
+
+  if (hasStencilStaticGetters) {
+    return {
+      properties: parseStaticProps(staticMembers),
+      states: parseStaticStates(staticMembers),
+      methods: parseStaticMethods(staticMembers),
+      events: parseStaticEvents(staticMembers),
+      listeners: parseStaticListeners(staticMembers),
+      watchers: parseStaticWatchers(staticMembers),
+      methodNames,
+    };
+  }
+
+  // Decorator syntax: walk class members and extract directly from AST.
+  const properties: d.ComponentCompilerProperty[] = [];
+  const states: d.ComponentCompilerState[] = [];
+  const methods: d.ComponentCompilerMethod[] = [];
+  const events: d.ComponentCompilerEvent[] = [];
+  const listeners: d.ComponentCompilerListener[] = [];
+  const watchers: d.ComponentCompilerChangeHandler[] = [];
+
+  for (const member of classDecl.members) {
+    if (!ts.isPropertyDeclaration(member) && !ts.isMethodDeclaration(member)) continue;
+    if (!ts.isIdentifier(member.name)) continue;
+    const memberName = member.name.text;
+
+    const decorators = (ts.getDecorators?.(member) ?? []) as ts.Decorator[];
+
+    for (const dec of decorators) {
+      if (!ts.isCallExpression(dec.expression) || !ts.isIdentifier(dec.expression.expression))
+        continue;
+      const decName = dec.expression.expression.text;
+      const args = dec.expression.arguments;
+
+      if (decName === 'Prop' && ts.isPropertyDeclaration(member)) {
+        const opts = extractDecoratorOptions(args[0]);
+        properties.push({
+          name: memberName,
+          attribute:
+            typeof opts.attribute === 'string'
+              ? opts.attribute.toLowerCase()
+              : toDashCase(memberName),
+          reflect: !!opts.reflect,
+          mutable: !!opts.mutable,
+          required: false,
+          optional: !!member.questionToken,
+          type: 'any',
+          complexType: EMPTY_PROP_COMPLEX_TYPE,
+          docs: EMPTY_DOCS,
+          internal: false,
+          getter: false,
+          setter: false,
+        });
+      } else if (decName === 'State' && ts.isPropertyDeclaration(member)) {
+        states.push({ name: memberName });
+      } else if (decName === 'Event' && ts.isPropertyDeclaration(member)) {
+        const opts = extractDecoratorOptions(args[0]);
+        events.push({
+          name: typeof opts.eventName === 'string' ? opts.eventName : memberName,
+          method: memberName,
+          bubbles: opts.bubbles !== false,
+          cancelable: opts.cancelable !== false,
+          composed: !!opts.composed,
+          docs: EMPTY_DOCS,
+          complexType: EMPTY_EVENT_COMPLEX_TYPE,
+          internal: false,
+        });
+      } else if (decName === 'Method' && ts.isMethodDeclaration(member)) {
+        methods.push({
+          name: memberName,
+          docs: EMPTY_DOCS,
+          complexType: EMPTY_METHOD_COMPLEX_TYPE,
+          internal: false,
+        });
+      } else if (decName === 'Watch' && ts.isMethodDeclaration(member)) {
+        const propName = ts.isStringLiteral(args[0]) ? args[0].text : null;
+        if (propName) watchers.push({ propName, methodName: memberName });
+      } else if (decName === 'Listen' && ts.isMethodDeclaration(member)) {
+        const eventName = ts.isStringLiteral(args[0]) ? args[0].text : null;
+        if (eventName) {
+          const listenOpts = extractDecoratorOptions(args[1]);
+          listeners.push({
+            name: eventName,
+            method: memberName,
+            capture: !!listenOpts.capture,
+            passive: !!listenOpts.passive,
+            target:
+              typeof listenOpts.target === 'string'
+                ? (listenOpts.target as d.ListenTargetOptions)
+                : undefined,
+          });
+        }
+      }
+    }
+  }
+
+  return { properties, states, methods, events, listeners, watchers, methodNames };
+}
+
+// === resolveImport-based inheritance merging ===
+//
+// The functions below provide an alternative to the TypeChecker-backed
+// inheritance walk used by the full compiler build.  In the stateless
+// `transpile()`/`transpileAsync()` path there is no `CompilerCtx`, no
+// `moduleMap`, and no TypeScript program — only source text.  Instead of the
+// TypeChecker we accept a caller-supplied `resolveImport` callback that maps
+// an import specifier to source code, then parse each ancestor file on the fly
+// and merge its metadata into the component.
+
+function getExtendsClassName(node: ts.ClassDeclaration): string | null {
+  const heritage = node.heritageClauses?.find((h) => h.token === ts.SyntaxKind.ExtendsKeyword);
+  if (!heritage?.types.length) return null;
+  const expr = heritage.types[0].expression;
+  return ts.isIdentifier(expr) ? expr.text : null;
+}
+
+function findImportSpecifier(sf: ts.SourceFile, localName: string): string | null {
+  for (const stmt of sf.statements) {
+    if (!ts.isImportDeclaration(stmt) || !ts.isStringLiteral(stmt.moduleSpecifier)) continue;
+    const clause = stmt.importClause;
+    if (!clause) continue;
+    // default import: import Foo from '...'
+    if (clause.name?.text === localName) return stmt.moduleSpecifier.text;
+    // named imports: import { Foo } or import { Foo as Bar }
+    const bindings = clause.namedBindings;
+    if (bindings && ts.isNamedImports(bindings)) {
+      for (const el of bindings.elements) {
+        if (el.name.text === localName) return stmt.moduleSpecifier.text;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolves the inheritance chain for a component using a caller-supplied
+ * `resolveImport` callback instead of the full compiler infrastructure.
+ * Safe to call from `transpileSync`/`transpileAsync` (no TypeChecker needed).
+ *
+ * @param cmpNode the component's class declaration
+ * @param staticMembers static getter members already parsed from the component
+ * @param sourceFile the source file containing the component (for import resolution)
+ * @param resolveImport callback that resolves an import specifier to source code
+ * @returns merged metadata including all inherited members
+ */
+export function mergeExtendedClassMetaWithResolveImport(
+  cmpNode: ts.ClassDeclaration,
+  staticMembers: ts.ClassElement[],
+  sourceFile: ts.SourceFile,
+  resolveImport: (specifier: string, importer: string) => { code: string; path: string } | null,
+) {
+  let doesExtend = false;
+  let properties = parseStaticProps(staticMembers);
+  let states = parseStaticStates(staticMembers);
+  let methods = parseStaticMethods(staticMembers);
+  let listeners = parseStaticListeners(staticMembers);
+  let events = parseStaticEvents(staticMembers);
+  let watchers = parseStaticWatchers(staticMembers);
+  let classMethods = cmpNode.members
+    .filter(ts.isMethodDeclaration)
+    .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+    .filter(Boolean);
+  const serializers: d.ComponentCompilerChangeHandler[] = [];
+  const deserializers: d.ComponentCompilerChangeHandler[] = [];
+
+  let currentNode: ts.ClassDeclaration = cmpNode;
+  let currentSf: ts.SourceFile = sourceFile;
+  let currentPath = sourceFile.fileName;
+  const visited = new Set<string>();
+
+  while (true) {
+    const parentClassName = getExtendsClassName(currentNode);
+    if (!parentClassName) break;
+
+    const specifier = findImportSpecifier(currentSf, parentClassName);
+    if (!specifier) break;
+
+    const resolved = resolveImport(specifier, currentPath);
+    if (!resolved) break;
+
+    const { code, path: resolvedPath } = resolved;
+    if (visited.has(resolvedPath)) break; // cycle guard
+    visited.add(resolvedPath);
+
+    // Parse once; reuse for both meta extraction and next-level extends walk.
+    const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
+    const parentSf = ts.createSourceFile(
+      resolvedPath,
+      code,
+      ts.ScriptTarget.ESNext,
+      true,
+      isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
+    );
+    const parentClass = parentSf.statements
+      .filter(ts.isClassDeclaration)
+      .find((c) => c.name?.text === parentClassName);
+    if (!parentClass) break;
+
+    const parentStaticMembers = parentClass.members.filter(isStaticGetter) as ts.ClassElement[];
+    const hasStaticGetters = parentStaticMembers.some(
+      (m) =>
+        ts.isGetAccessorDeclaration(m) &&
+        ts.isIdentifier(m.name) &&
+        ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(
+          m.name.text,
+        ),
+    );
+
+    // Static-getter path avoids a second parse; decorator path calls extractInheritedMeta.
+    const parentMeta = hasStaticGetters
+      ? {
+          properties: parseStaticProps(parentStaticMembers),
+          states: parseStaticStates(parentStaticMembers),
+          methods: parseStaticMethods(parentStaticMembers),
+          events: parseStaticEvents(parentStaticMembers),
+          listeners: parseStaticListeners(parentStaticMembers),
+          watchers: parseStaticWatchers(parentStaticMembers),
+          methodNames: parentClass.members
+            .filter(ts.isMethodDeclaration)
+            .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+            .filter(Boolean),
+        }
+      : extractInheritedMeta(code, parentClassName, resolvedPath);
+
+    if (!parentMeta) break;
+
+    doesExtend = true;
+
+    const mixinPropsExcludingStates = parentMeta.properties.filter(
+      (mp) => !states.some((s) => s.name === mp.name),
+    );
+    const mixinStatesExcludingProps = parentMeta.states.filter(
+      (ms) => !properties.some((p) => p.name === ms.name),
+    );
+    properties = [...deDupeMembers(mixinPropsExcludingStates, properties), ...properties];
+    states = [...deDupeMembers(mixinStatesExcludingProps, states), ...states];
+    methods = [...deDupeMembers(parentMeta.methods, methods), ...methods];
+    events = [...deDupeMembers(parentMeta.events, events), ...events];
+    listeners = [...deDupeMembers(parentMeta.listeners, listeners), ...listeners];
+    watchers = [...deDupeMembers(parentMeta.watchers, watchers), ...watchers];
+    classMethods = [...classMethods, ...parentMeta.methodNames];
+
+    currentNode = parentClass;
+    currentSf = parentSf;
+    currentPath = resolvedPath;
+  }
+
+  return {
     doesExtend,
     properties,
     states,

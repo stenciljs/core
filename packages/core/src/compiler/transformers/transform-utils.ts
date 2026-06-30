@@ -1127,22 +1127,6 @@ export const isInternal = (jsDocs: d.CompilerJsDoc | undefined): boolean => {
 };
 
 /**
- * Check if a class element is a method with a specific name.
- *
- * @param member - the class element to check
- * @param methodName - the method name to match
- * @returns true if the member is a method with the specified name
- */
-export const isMethod = (
-  member: ts.ClassElement,
-  methodName: string,
-): member is ts.MethodDeclaration => {
-  return (
-    ts.isMethodDeclaration(member) && member.name && (member.name as any).escapedText === methodName
-  );
-};
-
-/**
  * Create an ESM import statement.
  *
  * @param importFnNames - the names to import

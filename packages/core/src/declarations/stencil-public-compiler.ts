@@ -1,11 +1,13 @@
 import type { InputOptions as RolldownInputOptions } from 'rolldown';
 
-import type { PrerenderUrlResults, PrintLine } from './stencil-private';
 import type {
+  BuildConditionals,
   BuildCtx,
   CompilerCtx,
   ComponentCompilerMeta,
   InMemoryFileSystem,
+  PrerenderUrlResults,
+  PrintLine,
 } from './stencil-private';
 import type { JsonDocs } from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';
@@ -2932,27 +2934,61 @@ export interface TranspileOptions {
    */
   additionalTagTransformers?: boolean;
   /**
-   * A map of virtual file paths to source text for modules that the component
-   * under transpilation extends from.  When provided, `transpile()` builds a
-   * minimal multi-file TypeScript program from these sources so that
-   * {@link https://stenciljs.com/docs/component-lifecycle inheritance chains}
-   * can be resolved without requiring the parent files to exist on disk.
-   *
-   * Keys are the same import paths used in the component's `import` statements
-   * (relative paths are resolved against `currentDirectory`).  Values are the
-   * TypeScript/JavaScript source text of that module.
+   * Callback used to resolve parent-class source for inheritance-chain analysis.
+   * Called when a component's `extends` clause references a class from another
+   * module.  Return the resolved absolute path and source text of that module,
+   * or `null` to skip inheritance resolution for that specifier.
    *
    * @example
    * ```ts
    * transpile(myComponentCode, {
-   *   extraFiles: {
-   *     './base-component.ts': baseComponentSourceText,
+   *   resolveImport: (specifier, importer) => {
+   *     const resolved = require.resolve(specifier, { paths: [path.dirname(importer)] });
+   *     return { code: fs.readFileSync(resolved, 'utf8'), path: resolved };
    *   },
    * });
    * ```
    */
-  extraFiles?: Record<string, string>;
+  resolveImport?: (specifier: string, importer: string) => { code: string; path: string } | null;
+
+  /**
+   * When `true` class declarations at the end of a `@Component` inheritance chain
+   * * that have no `extends` clause * will get `extends HTMLElement` injected, and a minimal
+   * `constructor() { super(); }`. Any stencil static meta-getters are also stripped.
+   */
+  transformAsBaseClass?: boolean;
+
+  /**
+   * Overrides for Stencil's BUILD feature flags in the generated output.
+   * When set, a BUILD mutation statement is prepended to the compiled code so
+   * that the specified flags take effect for this component at runtime.
+   */
+  buildOverrides?: BuildOverrides;
 }
+
+/**
+ * Keys of {@link BuildConditionals} that can be meaningfully overridden at
+ * transpile time — config-driven flags that are not derived from component
+ * scanning or runtime environment detection.
+ */
+type BuildOverrideKeys =
+  | 'hotModuleReplacement'
+  | 'signalBacking'
+  | 'vdomSignals'
+  | 'lightDomPatches'
+  | 'slotChildNodes'
+  | 'slotCloneNode'
+  | 'slotDomMutations'
+  | 'slotTextContent'
+  | 'lifecycleDOMEvents'
+  | 'initializeNextTick';
+
+/**
+ * Subset of Stencil's BUILD feature flags that can be overridden at transpile
+ * time. Derived from {@link BuildConditionals} via `Pick` so the field list
+ * and types stay in sync with the authoritative definition.
+ */
+export type BuildOverrides = Pick<BuildConditionals, BuildOverrideKeys>;
 
 export type CompileTarget =
   | 'latest'
@@ -2989,9 +3025,15 @@ export interface TransformOptions {
   styleImportData: 'queryparams' | null;
   target?: string;
   /**
-   * @see {@link TranspileOptions.extraFiles}
+   * @see {@link TranspileOptions.resolveImport}
    */
-  extraFiles?: Record<string, string>;
+  resolveImport?: (specifier: string, importer: string) => { code: string; path: string } | null;
+
+  /** @see {@link TranspileOptions.transformAsBaseClass} */
+  transformAsBaseClass?: boolean;
+
+  /** @see {@link TranspileOptions.buildOverrides} */
+  buildOverrides?: BuildOverrides;
 }
 
 export interface CompileScriptMinifyOptions {

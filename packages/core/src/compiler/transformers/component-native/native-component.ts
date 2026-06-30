@@ -55,17 +55,24 @@ export const updateNativeComponentClass = (
 };
 
 /**
- * Updates classes that are extended by Stencil components:
- * - extend `HTMLElement` if necessary
- * - ensure the constructor has a `super()` call
- * - remove static metadata properties
+ * Transforms a Stencil superclass (a base class that Stencil components extend)
+ * in the **full build** path, where `compilerCtx.moduleMap` is populated and the
+ * module is flagged with `isExtended = true`.
+ *
+ * For the stateless transpile / unplugin path, use {@link updateNativeBaseClass}
+ * instead — it preserves the `ClassDeclaration` form so derived components can
+ * still import the base class by name.
+ *
+ * - Adds `extends HTMLElement` if necessary
+ * - Ensures the constructor has a `super()` call
+ * - Removes static metadata properties
  *
  * @param node the class node to update
  * @param moduleFile the module file containing the class
  * @param transformOpts transformation options
  * @returns the updated class node
  */
-export const updateNativeExtendedClass = (
+export const updateNativeSuperClass = (
   node: ts.ClassDeclaration,
   moduleFile: d.Module,
   transformOpts: d.TransformOptions,
@@ -131,6 +138,39 @@ const updateNativeHostComponentHeritageClauses = (
     classNode.typeParameters,
     [heritageClause],
     classNode.members,
+  );
+};
+
+/**
+ * Transforms a Stencil superclass (a base class that Stencil components extend)
+ * in the **stateless transpile / unplugin** path, where `compilerCtx.moduleMap`
+ * is not populated.
+ *
+ * For the full build path, use {@link updateNativeSuperClass} instead.
+ *
+ * Unlike `updateNativeSuperClass` this function keeps the class as a
+ * `ClassDeclaration` so the `export` modifier is preserved — derived
+ * components still need to import the base class by name.
+ *
+ * @param node the base class declaration
+ * @param moduleFile the module file (used to register the HTMLElement import)
+ * @returns the updated class declaration
+ */
+export const updateNativeBaseClass = (
+  node: ts.ClassDeclaration,
+  moduleFile: d.Module,
+): ts.ClassDeclaration => {
+  const withHeritageClauses = updateNativeHostComponentHeritageClauses(node, moduleFile);
+  const members = removeStaticMetaProperties(withHeritageClauses);
+  const membersWithCtor = updateConstructor(withHeritageClauses, members, [], undefined, false);
+
+  return ts.factory.updateClassDeclaration(
+    withHeritageClauses,
+    withHeritageClauses.modifiers, // preserves `export`
+    withHeritageClauses.name,
+    withHeritageClauses.typeParameters,
+    withHeritageClauses.heritageClauses,
+    membersWithCtor,
   );
 };
 

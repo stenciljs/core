@@ -36,7 +36,9 @@ export const generateCustomElementsManifestDocs = async (
  * @param docsData the generated docs data
  * @returns the Custom Elements Manifest object
  */
-const generateManifest = (docsData: d.JsonDocs): CustomElementsManifest => {
+export const generateManifest = (
+  docsData: Pick<d.JsonDocs, 'components'>,
+): CustomElementsManifest => {
   // Group components by their source file path
   const componentsByFile = new Map<string, d.JsonDocsComponent[]>();
 
@@ -247,7 +249,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
 // Custom Elements Manifest Types
 // Based on https://github.com/webcomponents/custom-elements-manifest/blob/main/schema.d.ts
 
-interface CustomElementsManifest {
+export interface CustomElementsManifest {
   schemaVersion: string;
   modules: JavaScriptModule[];
 }
