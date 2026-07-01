@@ -71,8 +71,6 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       cmpMeta.$attrsToReflect$ = [];
     }
 
-    console.log(BUILD, '????');
-
     if (BUILD.hotModuleReplacement) {
       // if we're in an HMR dev build then we need to set up the callback
       // which will carry out the work of actually replacing the module for
