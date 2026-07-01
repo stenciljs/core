@@ -85,12 +85,15 @@ function resolveJsxOpts(code: string, cwd: string): JsxOpts {
  */
 export function resolveSpecifier(specifier: string, importer: string): string | null {
   const base = resolve(dirname(importer), specifier);
+  // Vite normalizes module IDs to forward slashes; we must match that so
+  // virtual-module keys stay consistent on Windows.
+  const norm = (p: string) => p.replace(/\\/g, '/');
 
-  if (existsSync(base)) return base;
+  if (existsSync(base)) return norm(base);
 
   for (const ext of SOURCE_EXTS) {
     const candidate = base + ext;
-    if (existsSync(candidate)) return candidate;
+    if (existsSync(candidate)) return norm(candidate);
   }
 
   // TypeScript ESM: `./foo.js` may physically be `./foo.ts` or `./foo.tsx`
@@ -98,7 +101,7 @@ export function resolveSpecifier(specifier: string, importer: string): string | 
     const stem = base.slice(0, -3);
     for (const ext of ['.ts', '.tsx']) {
       const candidate = stem + ext;
-      if (existsSync(candidate)) return candidate;
+      if (existsSync(candidate)) return norm(candidate);
     }
   }
 
