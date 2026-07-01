@@ -13,7 +13,7 @@ describe('delegates-focus', () => {
     const noDelegatesFocus = root.querySelector('no-delegates-focus')! as HTMLElement;
 
     await waitForChanges();
-    
+
     // Initial state - both have red border
     expect(getComputedStyle(delegatesFocus).borderColor).toBe('rgb(255, 0, 0)');
     expect(getComputedStyle(noDelegatesFocus).borderColor).toBe('rgb(255, 0, 0)');

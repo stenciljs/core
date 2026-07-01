@@ -114,6 +114,17 @@ const convertTypeReferences = (
 };
 
 /**
+ * Converts Stencil docsTags to CEM Tag objects, skipping `@deprecated` which
+ * is already conveyed by the dedicated `deprecated` CEM field.
+ */
+const toTags = (docsTags: d.JsonDocsTag[]): Tag[] | undefined => {
+  const tags = docsTags
+    .filter((t) => t.name !== 'deprecated')
+    .map((t): Tag => ({ name: t.name, ...(t.text && { text: t.text }) }));
+  return tags.length > 0 ? tags : undefined;
+};
+
+/**
  * Create a CEM Type object from a type string and optional references
  * @param text the type string
  * @param references Stencil's type references map
@@ -144,6 +155,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
       ...(prop.default !== undefined && { default: prop.default }),
       fieldName: prop.name,
       ...(prop.deprecation !== undefined && { deprecated: prop.deprecation || true }),
+      ...(toTags(prop.docsTags) && { tags: toTags(prop.docsTags) }),
     }));
 
   const members: (CustomElementField | ClassMethod)[] = [
@@ -159,6 +171,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
         ...(!prop.mutable && { readonly: true }),
         ...(prop.attr && { attribute: prop.attr }),
         ...(prop.reflectToAttr && { reflects: true }),
+        ...(toTags(prop.docsTags) && { tags: toTags(prop.docsTags) }),
       }),
     ),
     // Methods
@@ -184,6 +197,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
             ...(method.returns.docs && { description: method.returns.docs }),
           },
         }),
+        ...(toTags(method.docsTags) && { tags: toTags(method.docsTags) }),
       }),
     ),
   ];
@@ -196,6 +210,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
       event.complexType?.references,
     ),
     ...(event.deprecation !== undefined && { deprecated: event.deprecation || true }),
+    ...(toTags(event.docsTags) && { tags: toTags(event.docsTags) }),
   }));
 
   const slots: Slot[] = component.slots.map((slot) => ({
@@ -229,6 +244,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     name: className,
     ...(component.docs && { description: component.docs }),
     ...(component.deprecation !== undefined && { deprecated: component.deprecation || true }),
+    ...(toTags(component.docsTags) && { tags: toTags(component.docsTags) }),
     ...(attributes.length > 0 && { attributes }),
     ...(members.length > 0 && { members }),
     ...(events.length > 0 && { events }),
@@ -236,7 +252,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     ...(cssParts.length > 0 && { cssParts }),
     ...(cssProperties.length > 0 && { cssProperties }),
     ...(component.customStates.length > 0 && {
-      customStates: component.customStates.map((state) => ({
+      cssStates: component.customStates.map((state) => ({
         name: state.name,
         initialValue: state.initialValue,
         ...(state.docs && { description: state.docs }),
@@ -248,6 +264,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
 
 // Custom Elements Manifest Types
 // Based on https://github.com/webcomponents/custom-elements-manifest/blob/main/schema.d.ts
+// Extended with Stencil-specific fields where the spec has no equivalent.
 
 export interface CustomElementsManifest {
   schemaVersion: string;
@@ -286,6 +303,7 @@ interface CustomElementDeclaration {
   name: string;
   description?: string;
   deprecated?: boolean | string;
+  tags?: Tag[];
   attributes?: Attribute[];
   members?: (CustomElementField | ClassMethod)[];
   events?: Event[];
@@ -308,6 +326,7 @@ interface Attribute {
   default?: string;
   fieldName?: string;
   deprecated?: boolean | string;
+  tags?: Tag[];
 }
 
 interface Type {
@@ -331,6 +350,7 @@ interface CustomElementField {
   readonly?: boolean;
   attribute?: string;
   reflects?: boolean;
+  tags?: Tag[];
 }
 
 interface ClassMethod {
@@ -343,6 +363,7 @@ interface ClassMethod {
     type?: Type;
     description?: string;
   };
+  tags?: Tag[];
 }
 
 interface Parameter {
@@ -356,6 +377,13 @@ interface Event {
   description?: string;
   type: Type;
   deprecated?: boolean | string;
+  tags?: Tag[];
+}
+
+/** Stencil extension: preserves arbitrary JSDoc tags not represented by other CEM fields. */
+interface Tag {
+  name: string;
+  text?: string;
 }
 
 interface Slot {
