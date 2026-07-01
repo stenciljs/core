@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "test": "pnpm run test:unit && pnpm run build && pnpm run test:browser",
+    "test": "pnpm run test:unit",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:browser": "vitest run --config vitest.browser.config.ts",
     "playground": "vite playground"

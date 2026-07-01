@@ -9,6 +9,8 @@ import './fixtures/my-deep-derived';
 import './fixtures/my-mixin-cmp';
 import './fixtures/my-cross-mixin-cmp';
 import './fixtures/my-lightdom-patches';
+import './fixtures/my-button';
+import './fixtures/my-card';
 
 async function ready(el: HTMLElement) {
   const stencilEl = el as HTMLElement & { componentOnReady?: () => Promise<void> };
