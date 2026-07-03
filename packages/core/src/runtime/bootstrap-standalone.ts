@@ -34,10 +34,11 @@ import { PROXY_FLAGS } from './runtime-constants';
 import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
-  customElements.define(
-    transformTag(compactMeta[1]),
-    proxyCustomElement(Cstr, compactMeta) as CustomElementConstructor,
-  );
+  const tag = transformTag(compactMeta[1]);
+  const proxied = proxyCustomElement(Cstr, compactMeta);
+  if (!customElements.get(tag)) {
+    customElements.define(tag, proxied as CustomElementConstructor);
+  }
 };
 
 export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {

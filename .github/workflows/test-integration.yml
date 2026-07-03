@@ -39,3 +39,11 @@ jobs:
       - name: Integration Tests
         run: pnpm --filter "@stencil-core-tests/integration" test
         shell: bash
+
+      - name: Build Unplugin
+        run: pnpm --filter "@stencil/unplugin" build
+        shell: bash
+
+      - name: Unplugin Browser Tests
+        run: pnpm --filter "@stencil/unplugin" test:browser
+        shell: bash

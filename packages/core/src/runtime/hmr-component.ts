@@ -2,8 +2,9 @@ import * as d from '@stencil/core';
 import { BUILD } from 'virtual:app-data';
 import { addHostEventListeners, forceUpdate, getHostRef } from 'virtual:platform';
 
-import { HOST_FLAGS } from '../utils/constants';
+import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
+import { getScopeId, registerStyle } from './styles';
 
 /**
  * Kick off hot-module-replacement for a component. In order to replace the
@@ -59,7 +60,6 @@ const hmrStandalone = async (
   hmrVersionId: string,
 ) => {
   const modulePath: string | undefined = (hostElement.constructor as any).__stencil_module__;
-  console.log(`[Stencil HMR] hmrStandalone <${cmpMeta.$tagName$}> modulePath:`, modulePath);
   if (!modulePath) {
     console.warn(
       `[Stencil HMR] No __stencil_module__ on <${cmpMeta.$tagName$}> constructor - was this built with devMode?`,
@@ -99,6 +99,20 @@ const hmrStandalone = async (
           key,
           Object.getOwnPropertyDescriptor(NewClass.prototype, key)!,
         );
+      }
+
+      // Re-register updated styles so live instances pick up new CSS.
+      // For constructable stylesheets, replaceSync updates all adopted sheets
+      // immediately; for traditional <style> tags, forceUpdate triggers addStyle.
+      const styleDesc = Object.getOwnPropertyDescriptor(NewClass, 'style');
+      if (styleDesc) {
+        Object.defineProperty(ctor, 'style', styleDesc);
+        const newStyle = (NewClass as any).style;
+        if (newStyle) {
+          const scopeId = getScopeId(cmpMeta);
+          const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
+          registerStyle(scopeId, newStyle, isShadow);
+        }
       }
     }
 

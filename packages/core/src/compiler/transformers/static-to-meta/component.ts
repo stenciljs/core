@@ -22,7 +22,7 @@ import {
 } from '../transform-utils';
 import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach-internals';
 import { parseCallExpression } from './call-expression';
-import { mergeExtendedClassMeta } from './class-extension';
+import { mergeExtendedClassMeta, mergeExtendedClassMetaWithResolveImport } from './class-extension';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
 import {
@@ -95,14 +95,21 @@ export const parseStaticComponentMeta = (
     classMethods,
     serializers,
     deserializers,
-  } = mergeExtendedClassMeta(
-    compilerCtx,
-    typeChecker,
-    buildCtx,
-    cmpNode,
-    staticMembers,
-    moduleFile,
-  );
+  } = transformOpts?.resolveImport
+    ? mergeExtendedClassMetaWithResolveImport(
+        cmpNode,
+        staticMembers,
+        moduleFile.staticSourceFile,
+        transformOpts.resolveImport,
+      )
+    : mergeExtendedClassMeta(
+        compilerCtx,
+        typeChecker,
+        buildCtx,
+        cmpNode,
+        staticMembers,
+        moduleFile,
+      );
   const symbol = typeChecker ? typeChecker.getSymbolAtLocation(cmpNode.name) : undefined;
   const docs = serializeSymbol(typeChecker, symbol);
   const isCollectionDependency = moduleFile.isCollectionDependency;

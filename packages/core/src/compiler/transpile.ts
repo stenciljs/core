@@ -139,7 +139,11 @@ const transpileCode = (
     results.outputFilePath = moduleFile.jsFilePath;
 
     moduleFile.cmps.forEach((cmp) => {
-      results.data.push(getPublicCompilerMeta(cmp));
+      results.data.push({
+        ...getPublicCompilerMeta(cmp),
+        docs: cmp.docs,
+        styleDocs: cmp.styleDocs,
+      });
     });
 
     moduleFile.originalImports.forEach((originalImport) => {

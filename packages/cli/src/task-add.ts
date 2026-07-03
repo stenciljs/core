@@ -4,8 +4,10 @@ import * as p from '@clack/prompts';
 import * as nypm from 'nypm';
 import { addDevDependency } from 'nypm';
 import { isCI } from 'std-env';
+import ts from 'typescript';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
+import { openStencilConfig } from './wizard/config-editor.js';
 import { discoverPlugins, type DiscoveredPlugin } from './wizard/discover.js';
 import {
   KNOWN_INTEGRATIONS,
@@ -98,7 +100,15 @@ export async function taskAdd(packages: string[], strictConfig?: ValidatedConfig
 
   const config = strictConfig ? toProjectConfig(strictConfig) : defaultProjectConfig(cwd);
   const workspaceRoot = await detectWorkspaceRoot(cwd);
-  const context = { isNewProject: false, prompts: p, nypm, config, workspaceRoot };
+  const context = {
+    isNewProject: false,
+    prompts: p,
+    nypm,
+    config,
+    workspaceRoot,
+    ts,
+    openStencilConfig: () => openStencilConfig(join(config.rootDir, 'stencil.config.ts')),
+  };
 
   if (packagesToInstall.length > 0) {
     const discovered = await discoverPlugins(cwd);

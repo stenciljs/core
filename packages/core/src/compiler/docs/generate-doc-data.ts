@@ -413,6 +413,53 @@ const getDocsCustomStates = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsCustom
   );
 };
 
+/**
+ * Convert a single {@link d.ComponentCompilerMeta} to a {@link d.JsonDocsComponent}
+ * without reading any files from disk (readme/usage are left empty).
+ *
+ * Useful for single-file transpilation contexts (e.g. `transpileSync`) when a
+ * full build context is not available.
+ * @param cmp the component metadata to convert
+ * @param filePath absolute path to the component source file
+ * @param rootDir project root used to make `filePath` relative (defaults to `process.cwd()`)
+ * @returns a {@link d.JsonDocsComponent} with empty readme/usage
+ */
+export const cmpMetaToDocsComponent = (
+  cmp: d.ComponentCompilerMeta,
+  filePath: string,
+  rootDir = process.cwd(),
+): d.JsonDocsComponent => {
+  const normalizedFilePath = normalizePath(filePath);
+  const dirPath = normalizePath(dirname(normalizedFilePath));
+  const docs = cmp.docs ?? { text: '', tags: [] };
+  return {
+    dirPath,
+    filePath: normalizePath(relative(rootDir, normalizedFilePath), false),
+    fileName: basename(normalizedFilePath),
+    readmePath: normalizePath(join(dirPath, 'readme.md')),
+    usagesDir: normalizePath(join(dirPath, 'usage')),
+    tag: cmp.tagName,
+    readme: '',
+    overview: docs.text,
+    usage: {},
+    docs: docs.text,
+    docsTags: docs.tags,
+    encapsulation: getDocsEncapsulation(cmp),
+    dependents: cmp.directDependents ?? [],
+    dependencies: cmp.directDependencies ?? [],
+    dependencyGraph: {},
+    deprecation: getDocsDeprecationText(docs.tags),
+    props: getDocsProperties(cmp),
+    methods: getDocsMethods(cmp.methods ?? []),
+    events: getDocsEvents(cmp.events ?? []),
+    styles: getDocsStyles(cmp),
+    slots: getDocsSlots(docs.tags),
+    parts: getDocsParts(cmp.htmlParts ?? [], docs.tags),
+    customStates: getDocsCustomStates(cmp),
+    listeners: getDocsListeners(cmp.listeners ?? []),
+  };
+};
+
 export const getNameText = (name: string, tags: d.JsonDocsTag[]) => {
   return tags
     .filter((tag) => tag.name === name && tag.text)

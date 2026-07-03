@@ -1,7 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreWorkspaces": ["test/**"],
-  "ignoreBinaries": ["playwright", "stencil"],
   "rules": {
     "catalog": "off"
   },
@@ -30,6 +29,10 @@
     "packages/dev-server": {
       "ignore": ["src/server/worker-thread.js", "src/**/_test_/**"],
       "ignoreDependencies": ["vitest-environment-stencil"]
+    },
+    "packages/unplugin": {
+      "ignore": ["playground/**", "test/fixtures/my-scss.scss"],
+      "ignoreDependencies": ["@vitest/browser"]
     }
   }
 }

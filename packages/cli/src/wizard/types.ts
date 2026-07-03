@@ -27,6 +27,120 @@ export interface ProjectConfig {
 }
 
 /**
+ * Structured editor for `stencil.config.ts`, backed by the TypeScript compiler API.
+ * Obtain one via {@link WizardContext.openStencilConfig}.
+ *
+ * All mutation methods accumulate edits in memory. Call {@link save} once to
+ * write them all back to disk in a single pass.
+ *
+ * @example
+ * const editor = await ctx.openStencilConfig();
+ * editor.addImport('@stencil/vue-output-target', ['vueOutputTarget']);
+ * editor.addOutputTarget("vueOutputTarget({ proxiesFile: '../vue-lib/src/components.ts' })");
+ * await editor.save();
+ */
+export interface StencilConfigEditor {
+  /**
+   * Returns `true` if any import from `moduleSpecifier` already exists in the file.
+   *
+   * @example
+   * if (!editor.hasImport('@stencil/vue-output-target')) {
+   *   editor.addImport('@stencil/vue-output-target', ['vueOutputTarget']);
+   * }
+   */
+  hasImport(moduleSpecifier: string): boolean;
+
+  /**
+   * Adds `import { ...namedImports } from 'moduleSpecifier'` after the last
+   * existing import in the file. No-op if any import from `moduleSpecifier`
+   * already exists.
+   *
+   * @param moduleSpecifier - The module to import from, e.g. `'@stencil/sass'`.
+   * @param namedImports - At least one named export to import.
+   *
+   * @example
+   * editor.addImport('@stencil/vue-output-target', ['vueOutputTarget']);
+   * // > import { vueOutputTarget } from '@stencil/vue-output-target';
+   *
+   * @example
+   * editor.addImport('@stencil/sass', ['sass']);
+   * // > import { sass } from '@stencil/sass';
+   */
+  addImport(moduleSpecifier: string, namedImports: [string, ...string[]]): void;
+
+  /**
+   * Returns `true` if `substring` appears anywhere in the text of the
+   * `outputTargets` array. Use this to guard against adding the same target twice.
+   *
+   * @example
+   * if (!editor.outputTargetsContains('vueOutputTarget(')) {
+   *   editor.addOutputTarget("vueOutputTarget({ proxiesFile: '../vue-lib/src/components.ts' })");
+   * }
+   */
+  outputTargetsContains(substring: string): boolean;
+
+  /**
+   * Appends `expression` as a new element in the `outputTargets` array,
+   * creating the `outputTargets` property if it is absent from the config.
+   *
+   * `expression` is a TypeScript expression that is inserted verbatim into
+   * the source file. It must evaluate to a value assignable to {@link OutputTarget}
+   * - built-in targets use object literal syntax (e.g. `"{ type: 'standalone' }"`),
+   * while third-party targets are function calls that return `OutputTargetCustom`
+   * (e.g. `"vueOutputTarget({...})"`). Call {@link addImport} first to bring the
+   * factory function into scope.
+   *
+   * @param expression - A TypeScript expression, e.g. `"{ type: 'standalone' }"`
+   *   or `"vueOutputTarget({ proxiesFile: '../vue-lib/src/components.ts' })"`.
+   *
+   * @example
+   * // Built-in target (object literal):
+   * editor.addOutputTarget("{ type: 'standalone' }");
+   *
+   * @example
+   * // Third-party target (OutputTargetCustom - add the import first):
+   * editor.addImport('@stencil/vue-output-target', ['vueOutputTarget']);
+   * editor.addOutputTarget("vueOutputTarget({ proxiesFile: '../vue-lib/src/components.ts' })");
+   */
+  addOutputTarget(expression: string): void;
+
+  /**
+   * Returns `true` if `substring` appears anywhere in the text of the
+   * `plugins` array. Use this to guard against adding the same plugin twice.
+   *
+   * @example
+   * if (!editor.pluginsContains('sass(')) {
+   *   editor.addPlugin('sass()');
+   * }
+   */
+  pluginsContains(substring: string): boolean;
+
+  /**
+   * Appends `expression` as a new element in the `plugins` array,
+   * creating the `plugins` property if it is absent from the config.
+   *
+   * `expression` is a TypeScript expression that is inserted verbatim into
+   * the source file. Call {@link addImport} first to bring the plugin factory
+   * into scope.
+   *
+   * @param expression - A TypeScript expression, e.g. `'sass()'` or
+   *   `"sass({ injectGlobalPaths: ['src/global/variables.scss'] })"`.
+   *
+   * @example
+   * editor.addImport('@stencil/sass', ['sass']);
+   * editor.addPlugin('sass()');
+   *
+   * @example
+   * editor.addImport('@stencil/sass', ['sass']);
+   * editor.addPlugin("sass({ injectGlobalPaths: ['src/global/variables.scss'] })");
+   */
+  addPlugin(expression: string): void;
+
+  /** Write all accumulated edits back to disk. */
+  save(): Promise<void>;
+}
+
+/**
  * Context passed to wizard steps at runtime.
  */
 export interface WizardContext {
@@ -47,6 +161,20 @@ export interface WizardContext {
    * where in the workspace it wants to live and for creating that directory.
    */
   workspaceRoot?: string;
+  /**
+   * Open the project's `stencil.config.ts` for structured editing.
+   * Use the returned {@link StencilConfigEditor} to add imports, output targets,
+   * and plugins, then call `save()` to persist.
+   *
+   * Use {@link ts} directly when you need to manipulate other files or perform
+   * operations the editor does not cover.
+   */
+  openStencilConfig: () => Promise<StencilConfigEditor>;
+  /**
+   * TypeScript compiler API. Available for advanced AST manipulation beyond
+   * what {@link openStencilConfig} covers.
+   */
+  ts: typeof import('typescript');
 }
 
 /**

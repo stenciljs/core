@@ -1,0 +1,78 @@
+{
+  "name": "@stencil/unplugin",
+  "version": "5.0.0-alpha.16",
+  "description": "Universal bundler plugin for Stencil components (Vite, Rollup, Webpack, esbuild)",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./docs": {
+      "types": "./dist/docs.d.mts",
+      "default": "./dist/docs.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm run test:unit",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:browser": "vitest run --config vitest.browser.config.ts",
+    "playground": "vite playground"
+  },
+  "dependencies": {
+    "@rollup/pluginutils": "^5.4.0",
+    "jiti": "^2.0.0",
+    "local-pkg": "^1.2.1",
+    "unplugin": "^3.0.0"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "@types/less": "^3.0.8",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "less": "^4.6.7",
+    "lightningcss": "^1.32.0",
+    "postcss": "^8.5.15",
+    "postcss-load-config": "^6.0.1",
+    "sass": "^1.101.0",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "^8.1.0",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0-0",
+    "less": "^4.0.0",
+    "lightningcss": "^1.0.0",
+    "postcss": "^8.0.0",
+    "postcss-load-config": "^4.0.0 || ^5.0.0 || ^6.0.0",
+    "sass": "^1.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "less": {
+      "optional": true
+    },
+    "lightningcss": {
+      "optional": true
+    },
+    "postcss": {
+      "optional": true
+    },
+    "postcss-load-config": {
+      "optional": true
+    },
+    "sass": {
+      "optional": true
+    }
+  }
+}
