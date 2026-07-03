@@ -239,7 +239,7 @@ Leverage `transpileModule()` for a "fast path" in watch mode:
 
 ---
 
-## 🧙 CLI Wizard & Scaffolding (Planned)
+## 🧙 CLI Wizard & Scaffolding (done)
 
 A ground-up redesign of Stencil's project init and code generation DX. Goals: single source of truth in this monorepo, pluggable via an open protocol, visually modern, no separate repo to maintain.
 
@@ -486,9 +486,29 @@ Devs never manually extend `HTMLElement` — Stencil must inject it automaticall
 ### Open / next tasks
 - [ ] Scoped CSS post-transform for Vite: needs a separate `enforce:'post'` plugin (putting it in `vite:{transform}` overwrites unplugin's main transform via `Object.assign`)
 - [ ] CSS HMR: when a `.css` file changes, trigger component re-render (currently only `.tsx` HMR is wired)
-- [ ] Storybook migration target (replace `@stencil/react-output-target` + Storybook webpack plugin)
 - [ ] Test fixture for plain lifecycle-only base class (no decorators) to cover `transformAsBaseClass` path end-to-end
 - [ ] README / docs
+
+### Storybook integration (`@stencil/storybook-plugin` v1)
+
+Clean-break major branch (`@stencil/storybook-plugin`) targeting v5 + `@stencil/unplugin` only — drops `@stencil-community/unplugin-stencil` entirely.
+
+**Key changes:**
+- `preset.ts`: `unpluginStencil.vite({ docs: true })` + `stencilDocsPlugin()` (serves `getStencilCEM()` as `virtual:stencil-docs`)
+- `entry-preview-auto-docs.ts` (new): separate entry that imports `virtual:stencil-docs` and calls `setCustomElementsManifest()`; isolated from `entry-preview.ts` so `portable-stories.tsx` doesn't pull in the virtual module
+- `framework-api.ts`: switched from `JsonDocs` to `Package` (CEM); `isValidMetaData` checks for `modules` array
+- `docs/custom-elements.ts` + `docs/infer-type.ts`: full rewrite for CEM `ClassField`/`ClassMethod`/`CustomElement` shape; `parseLiteralValues()` replaces `prop.values`
+- `peerDependencies`: `@stencil/core ^5.0.0-alpha.0`; dropped community plugin dep
+
+**Core compiler change — CEM `tags` extension (`packages/core/src/compiler/docs/cem/index.ts`):**
+CEM has no spec field for arbitrary JSDoc tags (`@since`, `@see`, etc.). Added `tags?: Tag[]` as a Stencil-specific extension (same pattern as `cssStates`) on `CustomElementDeclaration`, `Attribute`, `CustomElementField`, `ClassMethod`, and `Event`. `toTags()` maps `docsTags`, skipping `@deprecated` (already handled by CEM's `deprecated: boolean | string` field).
+
+**Known limitation:** `typeLibrary` is unavailable in per-file `transpileSync` mode — complex cross-file type references won't resolve in CEM output.
+
+**Open tasks:**
+- [ ] Surface `tags` field in Storybook docs panel (render `@since`, `@see`, etc. from `CustomElement.tags` / `ClassField.tags`)
+- [ ] Tests for `parseLiteralValues()` and `inferSBType()` / `inferControlType()`
+- [ ] README / migration guide from community plugin
 
 ---
 
@@ -536,4 +556,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-06-25*
+*Last updated: 2026-07-01*

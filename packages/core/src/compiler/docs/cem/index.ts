@@ -116,6 +116,8 @@ const convertTypeReferences = (
 /**
  * Converts Stencil docsTags to CEM Tag objects, skipping `@deprecated` which
  * is already conveyed by the dedicated `deprecated` CEM field.
+ * @param docsTags the Stencil docsTags array
+ * @returns CEM Tag array or undefined if no tags remain
  */
 const toTags = (docsTags: d.JsonDocsTag[]): Tag[] | undefined => {
   const tags = docsTags

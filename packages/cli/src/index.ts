@@ -6,6 +6,7 @@ export type { TaskCommand } from './types';
 export type {
   GenerateContext,
   ProjectConfig,
+  StencilConfigEditor,
   StencilWizardPlugin,
   WizardContext,
   WizardFileTemplate,

@@ -5,10 +5,12 @@ import { generatePackageJsonFields, generateStencilConfig, toPascalCase } from '
 import * as nypm from 'nypm';
 import { addDevDependency, installDependencies } from 'nypm';
 import { isCI } from 'std-env';
+import ts from 'typescript';
 import type { OutputTarget, ValidatedConfig } from '@stencil/core/compiler';
 import type { OutputKey } from '@stencil/templates';
 
 import { cancelIfAborted } from './wizard/clack.js';
+import { openStencilConfig } from './wizard/config-editor.js';
 import { discoverPlugins } from './wizard/discover.js';
 import {
   applyPackageJsonFields,
@@ -180,6 +182,9 @@ export async function taskInit(
           nypm,
           config: projectConfig,
           workspaceRoot: monorepo ? cwd : undefined,
+          ts,
+          openStencilConfig: () =>
+            openStencilConfig(join(projectConfig.rootDir, 'stencil.config.ts')),
         });
       }
     }
@@ -263,6 +268,8 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
       nypm,
       config: projectConfig,
       workspaceRoot,
+      ts,
+      openStencilConfig: () => openStencilConfig(join(projectConfig.rootDir, 'stencil.config.ts')),
     });
   }
 

@@ -39,6 +39,7 @@ import type {
 
 import { loadStencilConfig, stencilConfigToOverrides } from './config.js';
 import { getRealCssPath, isStencilCss, loadStencilCss, resolveStencilCss } from './css.js';
+import { resolveImportedTypes } from './resolve-types.js';
 import { resolveSpecifier, transformStencil, transpileBaseClass } from './transform.js';
 import type { StencilPluginOptions } from './options.js';
 
@@ -87,7 +88,10 @@ async function scanDocs(filter: (id: string) => boolean): Promise<void> {
       if (!/(@Component|@Prop|@State|@Event|@Method|@Watch|@Listen)\s*[(\s]/.test(code)) return;
       const result = await transpile(code, { file: abs, componentExport: 'customelement' });
       for (const item of result.data ?? []) {
-        if (item.tagName) docsRegistry.set(item.tagName, cmpMetaToDocsComponent(item, abs));
+        if (!item.tagName) continue;
+        const component = cmpMetaToDocsComponent(item, abs);
+        resolveImportedTypes(component, abs);
+        docsRegistry.set(item.tagName, component);
       }
     }),
   );
@@ -205,8 +209,10 @@ export const unpluginStencil = createUnplugin(
           configOverrides,
         );
         if (result?.tagName) fileToTagName.set(cleanId, result.tagName);
-        if (result?.docsComponent && options.docs)
+        if (result?.docsComponent && options.docs) {
+          resolveImportedTypes(result.docsComponent, cleanId);
           docsRegistry.set(result.docsComponent.tag, result.docsComponent);
+        }
         return result;
       },
 
@@ -255,7 +261,7 @@ export const unpluginStencil = createUnplugin(
           projectRoot = config.root;
         },
 
-        handleHotUpdate({
+        async handleHotUpdate({
           file,
           server,
         }: {
@@ -286,6 +292,35 @@ export const unpluginStencil = createUnplugin(
               server.moduleGraph.idToModuleMap?.get(virtualId);
             if (virtualMod)
               server.moduleGraph.invalidateModule(virtualMod, new Set(), Date.now(), true);
+          }
+          // Update the docs registry and notify the client only when the CEM
+          // actually changed (new/renamed prop, type update, JSDoc edit, etc.).
+          // Pure implementation changes leave the CEM identical and fall through
+          // to normal stencil:hmr so HMR is not disrupted.
+          if (options.docs && fileToTagName.has(file)) {
+            let cemChanged = false;
+            try {
+              const prevSnapshot = JSON.stringify(docsRegistry.get(tagName));
+              const code = readFileSync(file, 'utf-8');
+              const result = await transpile(code, { file, componentExport: 'customelement' });
+              for (const item of result.data ?? []) {
+                if (!item.tagName) continue;
+                const component = cmpMetaToDocsComponent(item, file);
+                resolveImportedTypes(component, file);
+                docsRegistry.set(item.tagName, component);
+              }
+              cemChanged = JSON.stringify(docsRegistry.get(tagName)) !== prevSnapshot;
+            } catch {
+              // stale docs are acceptable on transpile error
+            }
+            if (cemChanged) {
+              const docsVirtualMod =
+                server.moduleGraph.getModuleById?.(VIRTUAL_DOCS_PREFIX) ??
+                server.moduleGraph.idToModuleMap?.get(VIRTUAL_DOCS_PREFIX);
+              if (docsVirtualMod)
+                server.moduleGraph.invalidateModule(docsVirtualMod, new Set(), Date.now(), true);
+              server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
+            }
           }
           server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });
           return [];

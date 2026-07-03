@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
+    },
+    "./docs": {
+      "types": "./dist/docs.d.mts",
+      "default": "./dist/docs.mjs"
     }
   },
   "scripts": {
@@ -51,7 +55,8 @@
     "lightningcss": "^1.0.0",
     "postcss": "^8.0.0",
     "postcss-load-config": "^4.0.0 || ^5.0.0 || ^6.0.0",
-    "sass": "^1.0.0"
+    "sass": "^1.0.0",
+    "typescript": ">=5.0.0"
   },
   "peerDependenciesMeta": {
     "less": {

@@ -264,9 +264,10 @@ function buildHmrSnippet(
   }
 
   // Vite and Farm both implement the Vite HMR API.
+  // The s-hmr guard prevents ?s-hmr= re-imports from stacking up additional listeners.
   return (
     `\n${className}.__stencil_module__ = import.meta.url;` +
-    `\nif (import.meta.hot) {` +
+    `\nif (import.meta.hot && !import.meta.url.includes('s-hmr=')) {` +
     `\n  import.meta.hot.accept(() => {});` +
     `\n  import.meta.hot.on('stencil:hmr', function({ tagName }) {` +
     `\n    if (tagName === ${tag}) {` +
