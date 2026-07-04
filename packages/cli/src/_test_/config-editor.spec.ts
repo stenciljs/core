@@ -337,6 +337,231 @@ export const config: Config = {
   });
 
   // ---------------------------------------------------------------------------
+  // replaceOutputTarget / removeOutputTarget
+  // ---------------------------------------------------------------------------
+
+  describe('replaceOutputTarget', () => {
+    it('replaces a matching element in a multi-line array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+    vueOutputTarget({ proxiesFile: 'old.ts' }),
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      const replaced = editor.replaceOutputTarget(
+        'vueOutputTarget(',
+        "vueOutputTarget({ proxiesFile: 'new.ts' })",
+      );
+      await editor.save();
+
+      expect(replaced).toBe(true);
+      const result = savedText();
+      expect(result).toContain("proxiesFile: 'new.ts'");
+      expect(result).not.toContain("proxiesFile: 'old.ts'");
+      expect(result).toContain('loader-bundle');
+    });
+
+    it('replaces a matching element in an inline array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }, { type: 'standalone' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.replaceOutputTarget('standalone', "{ type: 'ssr' }");
+      await editor.save();
+
+      const result = savedText();
+      expect(result).toContain('loader-bundle');
+      expect(result).toContain("{ type: 'ssr' }");
+      expect(result).not.toContain('standalone');
+    });
+
+    it('returns false when no element matches', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.replaceOutputTarget('vueOutputTarget(', 'vueOutputTarget({})')).toBe(false);
+    });
+
+    it('returns false when outputTargets is absent', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib' };
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.replaceOutputTarget('vueOutputTarget(', 'vueOutputTarget({})')).toBe(false);
+    });
+  });
+
+  describe('removeOutputTarget', () => {
+    it('removes a matching element from a multi-line array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+    vueOutputTarget({ proxiesFile: 'src/components.ts' }),
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      const removed = editor.removeOutputTarget('vueOutputTarget(');
+      await editor.save();
+
+      expect(removed).toBe(true);
+      const result = savedText();
+      expect(result).not.toContain('vueOutputTarget');
+      expect(result).toContain('loader-bundle');
+    });
+
+    it('removes a matching element from an inline array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }, { type: 'standalone' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.removeOutputTarget('standalone');
+      await editor.save();
+
+      const result = savedText();
+      expect(result).toContain('loader-bundle');
+      expect(result).not.toContain('standalone');
+    });
+
+    it('removes the only element leaving an empty array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.removeOutputTarget('loader-bundle');
+      await editor.save();
+
+      const result = savedText();
+      expect(result).not.toContain('loader-bundle');
+      expect(result).toContain('outputTargets');
+    });
+
+    it('returns false when no element matches', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.removeOutputTarget('vueOutputTarget(')).toBe(false);
+    });
+
+    it('returns false when outputTargets is absent', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib' };
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.removeOutputTarget('loader-bundle')).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // replacePlugin / removePlugin
+  // ---------------------------------------------------------------------------
+
+  describe('replacePlugin', () => {
+    it('replaces a matching plugin in a multi-line array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  plugins: [
+    sass(),
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      const replaced = editor.replacePlugin('sass(', "sass({ injectGlobalPaths: ['vars.scss'] })");
+      await editor.save();
+
+      expect(replaced).toBe(true);
+      expect(savedText()).toContain("sass({ injectGlobalPaths: ['vars.scss'] })");
+      expect(savedText()).not.toContain('sass()');
+    });
+
+    it('returns false when no element matches', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  plugins: [sass()],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.replacePlugin('postcss(', 'postcss()')).toBe(false);
+    });
+
+    it('returns false when plugins is absent', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib' };
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.replacePlugin('sass(', 'sass()')).toBe(false);
+    });
+  });
+
+  describe('removePlugin', () => {
+    it('removes a matching plugin from a multi-line array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  plugins: [
+    sass(),
+    postcss(),
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      const removed = editor.removePlugin('sass(');
+      await editor.save();
+
+      expect(removed).toBe(true);
+      const result = savedText();
+      expect(result).not.toContain('sass()');
+      expect(result).toContain('postcss()');
+    });
+
+    it('removes a matching plugin from an inline array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  plugins: [sass(), postcss()],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.removePlugin('postcss(');
+      await editor.save();
+
+      const result = savedText();
+      expect(result).toContain('sass()');
+      expect(result).not.toContain('postcss()');
+    });
+
+    it('returns false when no element matches', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  plugins: [sass()],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.removePlugin('postcss(')).toBe(false);
+    });
+
+    it('returns false when plugins is absent', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib' };
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.removePlugin('sass(')).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // save()
   // ---------------------------------------------------------------------------
 

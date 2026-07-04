@@ -64,6 +64,56 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     return found;
   }
 
+  function replaceInArray(
+    arr: ts.ArrayLiteralExpression,
+    substring: string,
+    expression: string,
+  ): boolean {
+    for (const element of arr.elements) {
+      if (text.slice(element.getStart(), element.getEnd()).includes(substring)) {
+        text = text.slice(0, element.getStart()) + expression + text.slice(element.getEnd());
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function removeFromArray(arr: ts.ArrayLiteralExpression, substring: string): boolean {
+    const idx = arr.elements.findIndex((element) =>
+      text.slice(element.getStart(), element.getEnd()).includes(substring),
+    );
+    if (idx === -1) return false;
+
+    const element = arr.elements[idx];
+    const isMultiLine =
+      arr.elements.length > 0 &&
+      text.slice(arr.getStart(), arr.elements[0].getStart()).includes('\n');
+
+    if (isMultiLine) {
+      // Remove the whole line: from the preceding newline to the end of the trailing comma.
+      const lineStart = text.lastIndexOf('\n', element.getStart());
+      let end = element.getEnd();
+      const trailingComma = text.slice(end).match(/^\s*,/);
+      if (trailingComma) end += trailingComma[0].length;
+      text = text.slice(0, lineStart) + text.slice(end);
+    } else {
+      let start = element.getStart();
+      let end = element.getEnd();
+      if (idx < arr.elements.length - 1) {
+        // Not the last element — consume the trailing comma+space.
+        const trailingMatch = text.slice(end).match(/^,\s*/);
+        if (trailingMatch) end += trailingMatch[0].length;
+      } else if (idx > 0) {
+        // Last element (not the only one) — consume the preceding comma+space.
+        const precedingMatch = text.slice(0, start).match(/,\s*$/);
+        if (precedingMatch) start -= precedingMatch[0].length;
+      }
+      text = text.slice(0, start) + text.slice(end);
+    }
+
+    return true;
+  }
+
   function appendToArray(arr: ts.ArrayLiteralExpression, code: string): void {
     if (arr.elements.length === 0) {
       const insertPos = arr.getEnd() - 1; // before ]
@@ -161,6 +211,16 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
       }
     },
 
+    replaceOutputTarget(substring, expression) {
+      const arr = findArray(parse(), 'outputTargets');
+      return arr ? replaceInArray(arr, substring, expression) : false;
+    },
+
+    removeOutputTarget(substring) {
+      const arr = findArray(parse(), 'outputTargets');
+      return arr ? removeFromArray(arr, substring) : false;
+    },
+
     pluginsContains(substring) {
       const arr = findArray(parse(), 'plugins');
       return arr ? text.slice(arr.getStart(), arr.getEnd()).includes(substring) : false;
@@ -174,6 +234,16 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
       } else {
         addArrayProp(sf, 'plugins', expression);
       }
+    },
+
+    replacePlugin(substring, expression) {
+      const arr = findArray(parse(), 'plugins');
+      return arr ? replaceInArray(arr, substring, expression) : false;
+    },
+
+    removePlugin(substring) {
+      const arr = findArray(parse(), 'plugins');
+      return arr ? removeFromArray(arr, substring) : false;
     },
 
     async save() {

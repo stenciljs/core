@@ -105,6 +105,32 @@ export interface StencilConfigEditor {
   addOutputTarget(expression: string): void;
 
   /**
+   * Replaces the first element in the `outputTargets` array whose text contains
+   * `substring` with `expression` in-place. Returns `true` if a match was found
+   * and replaced, `false` if no element contained `substring`.
+   *
+   * Useful for the reconfigure flow — the replaced target stays at the same
+   * position in the array rather than being moved to the end.
+   *
+   * @example
+   * // Replace if already configured, otherwise append:
+   * if (!editor.replaceOutputTarget('vueOutputTarget(', newExpression)) {
+   *   editor.addOutputTarget(newExpression);
+   * }
+   */
+  replaceOutputTarget(substring: string, expression: string): boolean;
+
+  /**
+   * Removes the first element in the `outputTargets` array whose text contains
+   * `substring`. Returns `true` if an element was removed, `false` if no match
+   * was found.
+   *
+   * @example
+   * editor.removeOutputTarget('vueOutputTarget(');
+   */
+  removeOutputTarget(substring: string): boolean;
+
+  /**
    * Returns `true` if `substring` appears anywhere in the text of the
    * `plugins` array. Use this to guard against adding the same plugin twice.
    *
@@ -135,6 +161,28 @@ export interface StencilConfigEditor {
    * editor.addPlugin("sass({ injectGlobalPaths: ['src/global/variables.scss'] })");
    */
   addPlugin(expression: string): void;
+
+  /**
+   * Replaces the first element in the `plugins` array whose text contains
+   * `substring` with `expression` in-place. Returns `true` if a match was found
+   * and replaced, `false` if no element contained `substring`.
+   *
+   * @example
+   * if (!editor.replacePlugin('sass(', newSassCall)) {
+   *   editor.addPlugin(newSassCall);
+   * }
+   */
+  replacePlugin(substring: string, expression: string): boolean;
+
+  /**
+   * Removes the first element in the `plugins` array whose text contains
+   * `substring`. Returns `true` if an element was removed, `false` if no match
+   * was found.
+   *
+   * @example
+   * editor.removePlugin('sass(');
+   */
+  removePlugin(substring: string): boolean;
 
   /** Write all accumulated edits back to disk. */
   save(): Promise<void>;
