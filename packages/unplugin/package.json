@@ -3,6 +3,12 @@
   "version": "5.0.0-alpha.16",
   "description": "Universal bundler plugin for Stencil components (Vite, Rollup, Webpack, esbuild)",
   "license": "MIT",
+  "homepage": "https://stenciljs.com/",
+  "author": "StencilJs Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
   "files": [
     "dist"
   ],
