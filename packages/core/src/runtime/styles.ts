@@ -416,11 +416,13 @@ export const hydrateScopedToShadow = () => {
   const styleElements = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
   let i = 0;
   for (; i < styleElements.length; i++) {
-    registerStyle(
-      styleElements[i].getAttribute(HYDRATED_STYLE_ID),
-      convertScopedToShadow(styleElements[i].innerHTML),
-      true,
-    );
+    const scopeId = styleElements[i].getAttribute(HYDRATED_STYLE_ID);
+    const existing = styles.get(scopeId);
+    // Re-derive allowCS from the existing registry entry.
+    // On initial SSR hydration the registry is empty so we default to
+    // true (shadow-as-scoped elements are the only ones with sty-id in SSR output).
+    const allowCS = existing !== undefined ? existing instanceof CSSStyleSheet : true;
+    registerStyle(scopeId, convertScopedToShadow(styleElements[i].innerHTML), allowCS);
   }
 };
 
