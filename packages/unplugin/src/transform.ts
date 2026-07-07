@@ -184,12 +184,13 @@ export function transformStencil(
   const tagName = result.data[0].tagName;
   const className = result.data[0].componentClassName;
 
-  // In dev mode, re-export the class so hmrStandalone can find it in the
-  // re-imported module (customelement mode strips the export keyword).
-  const devExport = dev ? `\nexport{${className}};` : '';
+  // customelement mode strips the export keyword, so re-export the class
+  // ourselves — consumers import it by name, and
+  // hmrStandalone needs it in the re-imported module in dev mode
+  const namedExport = `\nexport{${className}};`;
   const out = dev
-    ? result.code + devExport + buildHmrSnippet(tagName, className, framework)
-    : result.code;
+    ? result.code + namedExport + buildHmrSnippet(tagName, className, framework)
+    : result.code + namedExport;
 
   const docsComponent = cmpMetaToDocsComponent(result.data[0], id);
 
