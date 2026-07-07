@@ -113,7 +113,12 @@ const hmrStandalone = async (
         if (newStyle) {
           const scopeId = getScopeId(cmpMeta);
           const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
-          console.log('[stencil-hmr] registerStyle', { tag: cmpMeta.$tagName$, scopeId, isShadow, cssLen: newStyle.length });
+          console.log('[stencil-hmr] registerStyle', {
+            tag: cmpMeta.$tagName$,
+            scopeId,
+            isShadow,
+            cssLen: newStyle.length,
+          });
           registerStyle(scopeId, newStyle, isShadow);
         }
       }
