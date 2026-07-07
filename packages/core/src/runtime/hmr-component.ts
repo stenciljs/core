@@ -4,7 +4,7 @@ import { addHostEventListeners, forceUpdate, getHostRef } from 'virtual:platform
 
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { initializeComponent } from './initialize-component';
-import { getScopeId, registerStyle } from './styles';
+import { attachStyles, getScopeId, registerStyle } from './styles';
 
 /**
  * Kick off hot-module-replacement for a component. In order to replace the
@@ -102,8 +102,10 @@ const hmrStandalone = async (
       }
 
       // Re-register updated styles so live instances pick up new CSS.
-      // For constructable stylesheets, replaceSync updates all adopted sheets
-      // immediately; for traditional <style> tags, forceUpdate triggers addStyle.
+      // Shadow components with constructable stylesheets: replaceSync updates
+      // all adopted sheets immediately. Scoped/none components: registerStyle
+      // updates the styles map, but attachStyles must be called explicitly
+      // because updateComponent only calls it on isInitialLoad.
       const styleDesc = Object.getOwnPropertyDescriptor(NewClass, 'style');
       if (styleDesc) {
         Object.defineProperty(ctor, 'style', styleDesc);
@@ -111,22 +113,28 @@ const hmrStandalone = async (
         if (newStyle) {
           const scopeId = getScopeId(cmpMeta);
           const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
+          console.log('[stencil-hmr] registerStyle', { tag: cmpMeta.$tagName$, scopeId, isShadow, cssLen: newStyle.length });
           registerStyle(scopeId, newStyle, isShadow);
         }
       }
     }
 
+    const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
+
     // Force a re-render on all live instances
     const instances = document.querySelectorAll(cmpMeta.$tagName$);
     instances.forEach((el) => {
-      if (BUILD.hostListener) {
-        const hostRef = getHostRef(el as any);
-        if (hostRef?.$rmListeners$) {
-          hostRef.$rmListeners$.map((rmListener) => rmListener());
-          hostRef.$rmListeners$ = undefined;
-          // Re-attach listeners with new handler references
-          addHostEventListeners(el as any, hostRef, cmpMeta.$listeners$);
-        }
+      const hostRef = getHostRef(el as any);
+      if (BUILD.hostListener && hostRef?.$rmListeners$) {
+        hostRef.$rmListeners$.map((rmListener) => rmListener());
+        hostRef.$rmListeners$ = undefined;
+        addHostEventListeners(el as any, hostRef, cmpMeta.$listeners$);
+      }
+      // For scoped/none components, attachStyles must be called explicitly -
+      // updateComponent only calls it when isInitialLoad is true.
+      if (!isShadow && hostRef) {
+        console.log('[stencil-hmr] calling attachStyles for', cmpMeta.$tagName$);
+        attachStyles(hostRef);
       }
       forceUpdate(el);
     });

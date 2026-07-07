@@ -4,25 +4,25 @@
  * Wires together four concerns into a single plugin that works across Vite,
  * Rollup, webpack, rspack, and bun:
  *
- *  1. **Component transform** — `transform` drives `transpileSync` on every
+ *  1. **Component transform** - `transform` drives `transpileSync` on every
  *     `.tsx`/`.ts` file that carries Stencil decorators, producing
  *     `customelement` output (self-registering class + `defineCustomElement`).
  *
- *  2. **CSS virtual modules** — Stencil emits `./foo.css?tag=my-cmp&…`
+ *  2. **CSS virtual modules** - Stencil emits `./foo.css?tag=my-cmp&…`
  *     imports. `resolveId` rewrites these to `\0stencil-css:` virtual IDs;
  *     `load` reads the real file, runs it through any installed preprocessors,
  *     and returns `export default () => "…css…"`.
  *
- *  3. **Base-class inheritance** — when a component extends a class that does
+ *  3. **Base-class inheritance** - when a component extends a class that does
  *     not itself extend `HTMLElement`, the custom-element registration breaks.
  *     The plugin intercepts every file the compiler resolves via `resolveImport`
  *     (during `transpileSync`), pre-transforms it with `transformAsBaseClass: true`
  *     so it gets `extends HTMLElement`, and caches the result. `resolveId` then
  *     redirects imports of those files to `\0stencil-base:` virtual modules so
- *     the bundler always sees the injected version — regardless of module-graph
+ *     the bundler always sees the injected version - regardless of module-graph
  *     processing order.
  *
- *  4. **HMR** — Vite receives a custom `stencil:hmr` WebSocket event when a
+ *  4. **HMR** - Vite receives a custom `stencil:hmr` WebSocket event when a
  *     component file changes; other bundlers use the `module.hot` re-execution
  *     pattern. CSS changes are covered automatically by `addWatchFile`.
  */
@@ -97,7 +97,7 @@ async function scanDocs(filter: (id: string) => boolean): Promise<void> {
   );
 }
 
-// Null-byte prefix marks a virtual module — Rollup/Vite convention that
+// Null-byte prefix marks a virtual module - Rollup/Vite convention that
 // prevents the ID from being treated as a real filesystem path.
 const VIRTUAL_BASE_PREFIX = '\0stencil-base:';
 
@@ -128,18 +128,26 @@ export const unpluginStencil = createUnplugin(
     // Vite HMR handler to send targeted `stencil:hmr` events.
     const fileToTagName = new Map<string, string>();
 
-    // Maps CSS dependency paths (including Sass @use/@import) → tag name so
-    // changes to imported partials also trigger HMR for the component.
-    const cssFileToTagName = new Map<string, string>();
+    // Maps CSS file paths → tag names that use them. A shared CSS file can be
+    // used by multiple components, so this is a Set per file path.
+    const cssFileToTagNames = new Map<string, Set<string>>();
 
-    // Maps real CSS file path → virtual CSS module ID (\0stencil-css:...) so
-    // handleHotUpdate can locate and invalidate the right module in the graph.
-    const cssRealToVirtualId = new Map<string, string>();
+    // Maps real CSS file path → virtual CSS module IDs (\0stencil-css:...).
+    // Multiple components may share the same CSS file, each with their own
+    // virtual module ID (different tag/encapsulation query params).
+    const cssRealToVirtualIds = new Map<string, Set<string>>();
+
+    function trackCssFile(realPath: string, tag: string, virtualId: string) {
+      if (!cssFileToTagNames.has(realPath)) cssFileToTagNames.set(realPath, new Set());
+      cssFileToTagNames.get(realPath)!.add(tag);
+      if (!cssRealToVirtualIds.has(realPath)) cssRealToVirtualIds.set(realPath, new Set());
+      cssRealToVirtualIds.get(realPath)!.add(virtualId);
+    }
 
     // absPath → HTMLElement-injected JS. Populated during `transform` when
     // `transpileSync`'s resolveImport callback discovers a base-class file.
     // Rollup guarantees that resolveId for imports in a module's *output* fires
-    // after the transform that produced them — so by the time the bundler asks
+    // after the transform that produced them - so by the time the bundler asks
     // to resolve a base-class import, this map is already populated.
     const baseClassRegistry = new Map<string, string>();
 
@@ -174,7 +182,7 @@ export const unpluginStencil = createUnplugin(
 
         if (baseClassRegistry.size > 0) {
           // Imports inside a virtual base-class module use the virtual ID as
-          // importer — strip the prefix so resolveSpecifier works against the
+          // importer - strip the prefix so resolveSpecifier works against the
           // real path on disk. This matters for multi-level inheritance chains.
 
           const realImporter = importer.startsWith(VIRTUAL_BASE_PREFIX)
@@ -234,16 +242,14 @@ export const unpluginStencil = createUnplugin(
         const tag = qIdx !== -1 ? new URLSearchParams(id.slice(qIdx + 1)).get('tag') : null;
         if (realPath) {
           this.addWatchFile(realPath);
-          if (tag) cssFileToTagName.set(realPath, tag);
-          cssRealToVirtualId.set(realPath, id);
+          if (tag) trackCssFile(realPath, tag, id);
         }
         const cssResult = await loadStencilCss(id, isDev);
         if (cssResult) {
           if (tag) {
             for (const dep of cssResult.deps) {
               this.addWatchFile(dep);
-              cssFileToTagName.set(dep, tag);
-              cssRealToVirtualId.set(dep, id);
+              trackCssFile(dep, tag, id);
             }
           }
           return { code: cssResult.code, map: null };
@@ -280,27 +286,33 @@ export const unpluginStencil = createUnplugin(
             };
           };
         }) {
-          const tagName = fileToTagName.get(file) ?? cssFileToTagName.get(file);
-          if (!tagName) return;
-          // Invalidate the virtual CSS module (\0stencil-css:...) so Vite
-          // rewrites its import URL with ?t=timestamp when serving the
-          // re-fetched TSX — prevents the browser's ESM cache serving stale CSS.
-          const virtualId = cssRealToVirtualId.get(file);
-          if (virtualId) {
-            const virtualMod =
-              server.moduleGraph.getModuleById?.(virtualId) ??
-              server.moduleGraph.idToModuleMap?.get(virtualId);
-            if (virtualMod)
-              server.moduleGraph.invalidateModule(virtualMod, new Set(), Date.now(), true);
+          // Collect all tag names affected by this file change
+          const tsxTag = fileToTagName.get(file);
+          const cssTagNames = cssFileToTagNames.get(file);
+          const tagNames = new Set<string>(cssTagNames);
+          if (tsxTag) tagNames.add(tsxTag);
+          if (tagNames.size === 0) return;
+
+          // Invalidate every virtual CSS module that depends on this file so
+          // Vite adds ?t=timestamp when re-serving the TSX - busts browser cache.
+          const virtualIds = cssRealToVirtualIds.get(file);
+          if (virtualIds) {
+            for (const virtualId of virtualIds) {
+              const virtualMod =
+                server.moduleGraph.getModuleById?.(virtualId) ??
+                server.moduleGraph.idToModuleMap?.get(virtualId);
+              if (virtualMod)
+                server.moduleGraph.invalidateModule(virtualMod, new Set(), Date.now(), true);
+            }
           }
           // Update the docs registry and notify the client only when the CEM
           // actually changed (new/renamed prop, type update, JSDoc edit, etc.).
           // Pure implementation changes leave the CEM identical and fall through
           // to normal stencil:hmr so HMR is not disrupted.
-          if (options.docs && fileToTagName.has(file)) {
+          if (options.docs && tsxTag) {
             let cemChanged = false;
             try {
-              const prevSnapshot = JSON.stringify(docsRegistry.get(tagName));
+              const prevSnapshot = JSON.stringify(docsRegistry.get(tsxTag));
               const code = readFileSync(file, 'utf-8');
               const result = await transpile(code, { file, componentExport: 'customelement' });
               for (const item of result.data ?? []) {
@@ -309,7 +321,7 @@ export const unpluginStencil = createUnplugin(
                 resolveImportedTypes(component, file);
                 docsRegistry.set(item.tagName, component);
               }
-              cemChanged = JSON.stringify(docsRegistry.get(tagName)) !== prevSnapshot;
+              cemChanged = JSON.stringify(docsRegistry.get(tsxTag)) !== prevSnapshot;
             } catch {
               // stale docs are acceptable on transpile error
             }
@@ -322,7 +334,9 @@ export const unpluginStencil = createUnplugin(
               server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
             }
           }
-          server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });
+          for (const tagName of tagNames) {
+            server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });
+          }
           return [];
         },
       },
