@@ -33,6 +33,7 @@ vi.mock('../wizard/init/steps', () => ({
   ],
   promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
   promptCustomPackages: vi.fn().mockResolvedValue([]),
+  withVersionRanges: (packages: string[]) => packages,
 }));
 
 import { readFile } from 'node:fs/promises';

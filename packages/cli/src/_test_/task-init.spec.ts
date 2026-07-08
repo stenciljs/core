@@ -49,6 +49,7 @@ vi.mock('../wizard/init/steps', () => ({
   needsStencilConfig: vi.fn().mockReturnValue(false),
   promptMonorepo: vi.fn().mockResolvedValue(false),
   promptWorkspaceCoreName: vi.fn().mockResolvedValue('core'),
+  withVersionRanges: (packages: string[]) => packages,
 }));
 vi.mock('../wizard/init/apply', () => ({
   applyPackageJsonFields: vi.fn().mockResolvedValue(undefined),

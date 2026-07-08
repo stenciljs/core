@@ -14,6 +14,7 @@ import {
   type KnownIntegration,
   promptAddCapabilities,
   promptCustomPackages,
+  withVersionRanges,
 } from './wizard/init/steps.js';
 import { defaultProjectConfig, detectWorkspaceRoot, toProjectConfig } from './wizard/project.js';
 import { printSplash } from './wizard/splash.js';
@@ -93,7 +94,7 @@ export async function taskAdd(packages: string[], strictConfig?: ValidatedConfig
     } else {
       const s = p.spinner();
       s.start(`Installing ${packagesToInstall.join(', ')}`);
-      await addDevDependency(packagesToInstall, { cwd, silent: true });
+      await addDevDependency(withVersionRanges(packagesToInstall), { cwd, silent: true });
       s.stop('Installed');
     }
   }

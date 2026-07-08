@@ -15,6 +15,8 @@ export interface KnownIntegration {
   requiresStencilConfig?: true;
   /** When true, this integration publishes its own package and benefits from a monorepo workspace. */
   needsWorkspace?: true;
+  /** Semver range appended (as `package@range`) when installing this integration. */
+  versionRange?: string;
 }
 
 /** Well-known integrations the CLI can offer before any packages are installed. */
@@ -56,6 +58,7 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     displayName: 'Storybook',
     description: 'Component development & documentation',
     group: 'Tooling',
+    versionRange: '>=1.0.0-0',
   },
 
   // Framework integrations
@@ -91,6 +94,17 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     needsWorkspace: true,
   },
 ];
+
+const versionRangeByPackage = new Map(
+  KNOWN_INTEGRATIONS.filter((i) => i.versionRange).map((i) => [i.package, i.versionRange!]),
+);
+
+export function withVersionRanges(packages: string[]): string[] {
+  return packages.map((pkg) => {
+    const range = versionRangeByPackage.get(pkg);
+    return range ? `${pkg}@${range}` : pkg;
+  });
+}
 
 export async function promptOutputs(): Promise<OutputKey[]> {
   const picks = await p.multiselect<OutputKey>({
