@@ -58,8 +58,6 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     displayName: 'Storybook',
     description: 'Component development & documentation',
     group: 'Tooling',
-    // "latest" still points at the old v4-compatible 0.x line; the v5-compatible
-    // line is currently only published as 1.0.0 dev prereleases under the "dev" tag.
     versionRange: '>=1.0.0-0',
   },
 
@@ -101,7 +99,6 @@ const versionRangeByPackage = new Map(
   KNOWN_INTEGRATIONS.filter((i) => i.versionRange).map((i) => [i.package, i.versionRange!]),
 );
 
-/** Appends each known integration's configured version range for nypm's addDependency/addDevDependency. */
 export function withVersionRanges(packages: string[]): string[] {
   return packages.map((pkg) => {
     const range = versionRangeByPackage.get(pkg);
