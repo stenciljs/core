@@ -32,6 +32,7 @@ import {
   promptOutputs,
   promptProjectName,
   promptWorkspaceCoreName,
+  withVersionRanges,
 } from './wizard/init/steps.js';
 import {
   defaultProjectConfig,
@@ -145,7 +146,7 @@ export async function taskInit(
     const pkgs = selectedIntegrations.map((i) => i.package);
     s3.start(`Installing ${pkgs.join(', ')}`);
     // Integration packages (e.g. output target plugins) are deps of the core package
-    await addDevDependency(pkgs, { cwd: coreDir, silent: true });
+    await addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true });
     s3.stop('Integrations installed');
   }
 
@@ -248,7 +249,7 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
     const s = p.spinner();
     const pkgs = toInstall.map((i) => i.package);
     s.start(`Installing ${pkgs.join(', ')}`);
-    await addDevDependency(pkgs, { cwd, silent: true });
+    await addDevDependency(withVersionRanges(pkgs), { cwd, silent: true });
     s.stop('Dependencies installed');
   }
 
