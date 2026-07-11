@@ -385,7 +385,11 @@ describe('transform-utils', () => {
         ),
       ];
 
-      const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), ctorStatements);
+      const updatedMembers = updateConstructor(
+        classNode,
+        Array.from(classNode.members),
+        ctorStatements,
+      );
       const constructors = updatedMembers.filter(ts.isConstructorDeclaration);
 
       expect(constructors).toHaveLength(2);
