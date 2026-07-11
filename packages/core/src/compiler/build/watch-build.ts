@@ -163,7 +163,16 @@ export const createWatchBuild = async (
     buildCtx.start();
     const result = await build(config, compilerCtx, buildCtx, tsBuilder);
 
-    if (result && !result.hasError) {
+    if (result === null) {
+      // components.d.ts was just generated on disk (see build.ts). Refresh the TS
+      // root file list so it's picked up, then restart the build with a fresh program.
+      incrementalCompiler.refreshRootNames();
+      const freshTsBuilder = incrementalCompiler.rebuild();
+      await onBuild(freshTsBuilder);
+      return;
+    }
+
+    if (!result.hasError) {
       isRebuild = true;
     }
 

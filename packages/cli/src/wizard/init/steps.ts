@@ -44,15 +44,13 @@ export const KNOWN_INTEGRATIONS: KnownIntegration[] = [
     requiresStencilConfig: true,
   },
 
-  // Linting
+  // Tooling
   {
     package: '@stencil/eslint-plugin',
     displayName: 'ESLint Plugin',
-    description: 'Stencil-aware lint rules (ESLint, oxlint, Biome)',
-    group: 'Linting',
+    description: 'Stencil-aware lint rules (ESLint or oxlint)',
+    group: 'Tooling',
   },
-
-  // Tooling
   {
     package: '@stencil/storybook-plugin',
     displayName: 'Storybook',
