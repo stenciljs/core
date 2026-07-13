@@ -74,6 +74,9 @@ importers:
       '@stencil/templates':
         specifier: workspace:*
         version: link:../templates
+      local-pkg:
+        specifier: ^1.2.1
+        version: 1.2.1
       nypm:
         specifier: ^0.3.12
         version: 0.3.12
@@ -4380,10 +4383,6 @@ packages:
     resolution: {integrity: sha512-I5d00Pd/jwMD2QCduo657+YM/6L3KZu++pmX9VFncxaxvHcru9jx1lBaFft+r4Mt2jK0Yhp41XlRAihzPxHNCg==}
     engines: {node: '>=4.0.0'}
 
-  local-pkg@1.1.2:
-    resolution: {integrity: sha512-arhlxbFRmoQHl33a0Zkle/YWlmNwoyt6QNZEIJcqNbdrsix5Lvc4HyyI3EnwxTYlZYc32EbYrQ8SzEZ7dqgg9A==}
-    engines: {node: '>=14'}
-
   local-pkg@1.2.1:
     resolution: {integrity: sha512-++gUqRDEvcnN6Zhqrr+y/CkVEHhlrR96vZn3nZZPYzMcBUyBtTKzB9NadClFIsIVSsu+3i9tfk/erqy9kAmt7Q==}
     engines: {node: '>=14'}
@@ -7566,7 +7565,7 @@ snapshots:
     dependencies:
       '@stencil/core': link:packages/core
       jiti: 2.7.0
-      local-pkg: 1.1.2
+      local-pkg: 1.2.1
       vitest: 4.1.7(@types/node@25.9.1)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.7)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       vitest-environment-stencil: 1.12.1(@playwright/test@1.60.0)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(playwright@1.60.0)(vitest@4.1.7)
     optionalDependencies:
@@ -7579,7 +7578,7 @@ snapshots:
     dependencies:
       '@stencil/core': link:packages/core
       jiti: 2.7.0
-      local-pkg: 1.1.2
+      local-pkg: 1.2.1
       vitest: 4.1.7(@types/node@25.9.1)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.7)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       vitest-environment-stencil: 1.12.1(@stencil/core@packages+core)
     optionalDependencies:
@@ -7590,7 +7589,7 @@ snapshots:
   '@stencil/vitest@1.12.1(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(playwright@1.60.0)(vitest@4.1.7)':
     dependencies:
       jiti: 2.7.0
-      local-pkg: 1.1.2
+      local-pkg: 1.2.1
       vitest: 4.1.7(@types/node@25.9.1)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.7)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       vitest-environment-stencil: 1.12.1(@stencil/mock-doc@packages+mock-doc)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(playwright@1.60.0)(vitest@4.1.7)
     optionalDependencies:
@@ -7602,7 +7601,7 @@ snapshots:
   '@stencil/vitest@1.12.1(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(playwright@1.60.0)(vitest@4.1.7)':
     dependencies:
       jiti: 2.7.0
-      local-pkg: 1.1.2
+      local-pkg: 1.2.1
       vitest: 4.1.7(@types/node@25.9.1)(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(vite@8.1.0(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.7)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       vitest-environment-stencil: 1.12.1(@vitest/browser-playwright@4.1.7)(jsdom@28.0.0)(playwright@1.60.0)(vitest@4.1.7)
     optionalDependencies:
@@ -9412,12 +9411,6 @@ snapshots:
       big.js: 5.2.2
       emojis-list: 3.0.0
       json5: 1.0.2
-
-  local-pkg@1.1.2:
-    dependencies:
-      mlly: 1.8.0
-      pkg-types: 2.3.0
-      quansync: 0.2.11
 
   local-pkg@1.2.1:
     dependencies:
