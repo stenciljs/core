@@ -75,6 +75,37 @@ function failInstallVerification(missing: string[], rootDir: string): never {
   process.exit(1);
 }
 
+const NPM_CONFIG_ENV_PATTERN = /^npm_config_/i;
+
+/**
+ * `stencil init` is commonly run via `npx create-stencil` / `npm init stencil`, which means
+ * this process itself is a nested child of an active npm/npx invocation. npm sets `npm_config_*`
+ * env vars on every process it spawns, and a nested `npm install` inherits and gets confused by
+ * the *outer* invocation's config (observed: silently reifying zero changes despite an empty
+ * node_modules - see docs.npmjs.com/cli/using-npm/config and nestjs/nest-cli#153 for the same
+ * class of bug). Stripping them for the duration of our own install calls forces the nested
+ * npm to compute its config fresh from cwd instead of inheriting the outer process's state.
+ *
+ * @param fn - install call to run with a clean environment.
+ * @returns whatever `fn` resolves to.
+ */
+async function withoutInheritedNpmConfig<T>(fn: () => Promise<T>): Promise<T> {
+  const saved: Record<string, string | undefined> = {};
+  for (const key of Object.keys(process.env)) {
+    if (NPM_CONFIG_ENV_PATTERN.test(key)) {
+      saved[key] = process.env[key];
+      delete process.env[key];
+    }
+  }
+  try {
+    return await fn();
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      process.env[key] = value;
+    }
+  }
+}
+
 function outputKeysToTargets(keys: ReadonlyArray<OutputKey>): Array<{ type: string }> {
   const map: Record<OutputKey, string> = {
     loader: 'loader-bundle',
@@ -176,7 +207,7 @@ export async function taskInit(
 
   const s2 = p.spinner();
   s2.start('Installing dependencies');
-  await installDependencies({ cwd, silent: true });
+  await withoutInheritedNpmConfig(() => installDependencies({ cwd, silent: true }));
   s2.stop('Dependencies installed');
 
   const missingBase = await verifyInstalled(coreDir, ['@stencil/core']);
@@ -187,7 +218,9 @@ export async function taskInit(
     const pkgs = selectedIntegrations.map((i) => i.package);
     s3.start(`Installing ${pkgs.join(', ')}`);
     // Integration packages (e.g. output target plugins) are deps of the core package
-    await addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true });
+    await withoutInheritedNpmConfig(() =>
+      addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true }),
+    );
     s3.stop('Integrations installed');
 
     const missingIntegrations = await verifyInstalled(coreDir, pkgs);
@@ -293,7 +326,9 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
     const s = p.spinner();
     const pkgs = toInstall.map((i) => i.package);
     s.start(`Installing ${pkgs.join(', ')}`);
-    await addDevDependency(withVersionRanges(pkgs), { cwd, silent: true });
+    await withoutInheritedNpmConfig(() =>
+      addDevDependency(withVersionRanges(pkgs), { cwd, silent: true }),
+    );
     s.stop('Dependencies installed');
 
     const missing = await verifyInstalled(cwd, pkgs);
