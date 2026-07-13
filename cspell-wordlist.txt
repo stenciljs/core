@@ -183,3 +183,4 @@ dotless
 queryparams
 extensionless
 rgba
+unhashed
