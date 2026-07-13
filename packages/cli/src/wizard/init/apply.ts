@@ -240,7 +240,10 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string) {
   pkg.private = true;
   // Recursive build works correctly here because framework wrapper packages declare the core
   // as a workspace dep, so the PM resolves build order from the dependency graph automatically.
-  pkg.scripts ??= { build: workspaceBuildScript(pm?.name) };
+  pkg.scripts = {
+    build: workspaceBuildScript(pm?.name),
+    ...(pkg.scripts as Record<string, string> | undefined),
+  };
   if (!usePnpmYaml) {
     pkg.workspaces = ['packages/*'];
   }

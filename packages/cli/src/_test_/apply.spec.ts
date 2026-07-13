@@ -11,7 +11,17 @@ vi.mock('@stencil/templates', () => ({
   getTemplatePath: vi.fn().mockReturnValue('/template'),
 }));
 
-import { applyPackageJsonFields, copyTemplate, writeIndexHtml } from '../wizard/init/apply';
+const nypm = vi.hoisted(() => ({
+  detectPackageManager: vi.fn().mockResolvedValue({ name: 'pnpm' }),
+}));
+vi.mock('nypm', () => nypm);
+
+import {
+  applyPackageJsonFields,
+  copyTemplate,
+  scaffoldWorkspaceRoot,
+  writeIndexHtml,
+} from '../wizard/init/apply';
 
 const PKG_PATH = '/project/package.json';
 
@@ -109,6 +119,54 @@ describe('applyPackageJsonFields', () => {
 
     const raw = vi.mocked(fsPromises.writeFile).mock.calls[0][1] as string;
     expect(raw.endsWith('\n')).toBe(true);
+  });
+});
+
+describe('scaffoldWorkspaceRoot', () => {
+  const ENOENT = () => Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    fsPromises.writeFile.mockResolvedValue(undefined);
+    fsPromises.mkdir.mockResolvedValue(undefined);
+    nypm.detectPackageManager.mockResolvedValue({ name: 'pnpm' });
+  });
+
+  function writtenPkg() {
+    const call = vi
+      .mocked(fsPromises.writeFile)
+      .mock.calls.find((c) => c[0] === '/project/package.json');
+    return JSON.parse(call![1] as string);
+  }
+
+  it('adds a build script alongside a pre-existing scripts object (e.g. from `pnpm init`)', async () => {
+    fsPromises.readFile
+      .mockResolvedValueOnce(JSON.stringify({ name: 'wiz', scripts: { test: 'echo no test' } }))
+      .mockRejectedValueOnce(ENOENT());
+
+    await scaffoldWorkspaceRoot('/project', 'wiz');
+
+    expect(writtenPkg().scripts).toEqual({ build: 'pnpm -r build', test: 'echo no test' });
+  });
+
+  it('adds a build script when no package.json exists yet', async () => {
+    fsPromises.readFile.mockRejectedValueOnce(ENOENT()).mockRejectedValueOnce(ENOENT());
+
+    await scaffoldWorkspaceRoot('/project', 'wiz');
+
+    expect(writtenPkg().scripts).toEqual({ build: 'pnpm -r build' });
+  });
+
+  it('does not clobber an existing build script', async () => {
+    fsPromises.readFile
+      .mockResolvedValueOnce(
+        JSON.stringify({ name: 'wiz', scripts: { build: 'custom build command' } }),
+      )
+      .mockRejectedValueOnce(ENOENT());
+
+    await scaffoldWorkspaceRoot('/project', 'wiz');
+
+    expect(writtenPkg().scripts).toEqual({ build: 'custom build command' });
   });
 });
 
