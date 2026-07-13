@@ -17,7 +17,7 @@ vi.mock('@clack/prompts', () => ({
   outro: vi.fn(),
   note: vi.fn(),
   confirm: clackMocks.confirm,
-  log: { warn: vi.fn(), info: vi.fn() },
+  log: { warn: vi.fn(), info: vi.fn(), error: vi.fn() },
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   cancel: vi.fn(),
   isCancel: clackMocks.isCancel,
@@ -28,9 +28,24 @@ vi.mock('@clack/prompts', () => ({
 
 vi.mock('nypm', () => ({
   installDependencies: vi.fn().mockResolvedValue(undefined),
+  addDevDependency: vi.fn().mockResolvedValue(undefined),
   detectPackageManager: vi.fn().mockResolvedValue({ name: 'npm' }),
 }));
 vi.mock('std-env', () => ({ isCI: false }));
+// installDependencies/addDevDependency above are no-ops - pretend core resolved
+// rather than tripping the post-install verification. Other packages still resolve for real so
+// discoverPlugins continues to work end-to-end.
+vi.mock('local-pkg', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('local-pkg')>();
+  return {
+    ...actual,
+    getPackageInfo: vi.fn((name: string, options?: Parameters<typeof actual.getPackageInfo>[1]) =>
+      name === '@stencil/core'
+        ? Promise.resolve({ rootPath: '/fake' })
+        : actual.getPackageInfo(name, options),
+    ),
+  };
+});
 
 import { taskInit } from '../src/task-init.js';
 
