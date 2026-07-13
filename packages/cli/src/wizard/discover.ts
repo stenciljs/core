@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { getPackageInfo } from 'local-pkg';
 
 import type { StencilWizardPlugin } from './types.js';
 
@@ -24,11 +25,14 @@ async function readJson(filePath: string) {
 }
 
 async function loadOne(rootDir: string, packageName: string, loader: ModuleLoader) {
-  const depPkg = await readJson(join(rootDir, 'node_modules', packageName, 'package.json'));
-  const wizardEntry = (depPkg?.stencil as { wizard?: string } | undefined)?.wizard;
+  // resolved via node's module resolution (not a plain rootDir/node_modules join) so
+  // hoisted deps in npm/pnpm/yarn workspaces are found regardless of where they land
+  const info = await getPackageInfo(packageName, { paths: [rootDir] });
+  if (!info) return null;
+  const wizardEntry = (info.packageJson.stencil as { wizard?: string } | undefined)?.wizard;
   if (!wizardEntry) return null;
 
-  const wizardPath = join(rootDir, 'node_modules', packageName, wizardEntry);
+  const wizardPath = join(info.rootPath, wizardEntry);
   let mod: Record<string, unknown>;
   try {
     mod = await loader(pathToFileURL(wizardPath).href);

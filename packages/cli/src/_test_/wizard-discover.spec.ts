@@ -3,9 +3,12 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { discoverPlugins } from '../wizard/discover';
 
 vi.mock('node:fs/promises', () => ({ readFile: vi.fn() }));
+vi.mock('local-pkg', () => ({ getPackageInfo: vi.fn() }));
 
 import { readFile } from 'node:fs/promises';
+import { getPackageInfo } from 'local-pkg';
 const mockReadFile = readFile as ReturnType<typeof vi.fn>;
+const mockGetPackageInfo = getPackageInfo as ReturnType<typeof vi.fn>;
 
 const ROOT = '/project';
 
@@ -16,8 +19,19 @@ function makeRootPkg(
   return JSON.stringify({ dependencies: deps, devDependencies: devDeps });
 }
 
-function makeDepPkg(wizardEntry?: string): string {
-  return JSON.stringify(wizardEntry ? { stencil: { wizard: wizardEntry } } : {});
+/** Registers a resolvable package at `${ROOT}/node_modules/${packageName}`, optionally declaring a wizard entry. */
+function mockResolvedPackage(packageName: string, wizardEntry?: string) {
+  const rootPath = `${ROOT}/node_modules/${packageName}`;
+  mockGetPackageInfo.mockImplementation((name: string) => {
+    if (name !== packageName) return Promise.resolve(undefined);
+    return Promise.resolve({
+      name,
+      version: '1.0.0',
+      rootPath,
+      packageJsonPath: `${rootPath}/package.json`,
+      packageJson: wizardEntry ? { stencil: { wizard: wizardEntry } } : {},
+    });
+  });
 }
 
 function makeLoader(modules: Record<string, Record<string, unknown>> = {}) {
@@ -34,6 +48,7 @@ describe('discoverPlugins', () => {
 
   beforeEach(() => {
     warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockGetPackageInfo.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -47,36 +62,54 @@ describe('discoverPlugins', () => {
   });
 
   it('returns empty array when no deps declare stencil.wizard', async () => {
-    mockReadFile
-      .mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }))
-      .mockResolvedValueOnce(makeDepPkg(/* no wizard */));
+    mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
+    mockResolvedPackage('@stencil/vitest' /* no wizard */);
 
     const result = await discoverPlugins(ROOT, makeLoader());
     expect(result).toEqual([]);
   });
 
-  it('discovers a plugin from dependencies', async () => {
+  it('returns empty array when a dep cannot be resolved at all', async () => {
+    mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
+    // mockGetPackageInfo already defaults to resolving undefined
+
+    const result = await discoverPlugins(ROOT, makeLoader());
+    expect(result).toEqual([]);
+  });
+
+  it('discovers a plugin from dependencies, resolved via node module resolution', async () => {
     const plugin = { generate: { fileTemplates: [] } };
-    mockReadFile
-      .mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }))
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js'));
+    mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
+    mockResolvedPackage('@stencil/vitest', './dist/wizard.js');
 
     const wizardPath = `${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`;
     const loader = makeLoader({ [wizardPath]: { wizard: plugin } });
 
     const result = await discoverPlugins(ROOT, loader);
     expect(result).toEqual([{ packageName: '@stencil/vitest', plugin }]);
+    // rootDir is passed through as a resolution path, so hoisted deps (workspace root
+    // node_modules) resolve correctly, not just a literal rootDir/node_modules join
+    expect(mockGetPackageInfo).toHaveBeenCalledWith('@stencil/vitest', { paths: [ROOT] });
   });
 
   it('discovers plugins from both dependencies and devDependencies', async () => {
     const pluginA = { generate: { fileTemplates: [] } };
     const pluginB = { init: { id: 'sass', displayName: 'Sass', description: '' } };
-    mockReadFile
-      .mockResolvedValueOnce(
-        makeRootPkg({ '@stencil/vitest': '^1.0.0' }, { '@stencil/sass': '^3.0.0' }),
-      )
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // @stencil/vitest
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')); // @stencil/sass
+    mockReadFile.mockResolvedValueOnce(
+      makeRootPkg({ '@stencil/vitest': '^1.0.0' }, { '@stencil/sass': '^3.0.0' }),
+    );
+    mockGetPackageInfo.mockImplementation((name: string) => {
+      const wizardEntry = './dist/wizard.js';
+      if (name !== '@stencil/vitest' && name !== '@stencil/sass') return Promise.resolve(undefined);
+      const rootPath = `${ROOT}/node_modules/${name}`;
+      return Promise.resolve({
+        name,
+        version: '1.0.0',
+        rootPath,
+        packageJsonPath: `${rootPath}/package.json`,
+        packageJson: { stencil: { wizard: wizardEntry } },
+      });
+    });
 
     const loader = makeLoader({
       [`${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`]: { wizard: pluginA },
@@ -90,9 +123,8 @@ describe('discoverPlugins', () => {
   });
 
   it('skips a plugin whose module fails to load and warns', async () => {
-    mockReadFile
-      .mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }))
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js'));
+    mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
+    mockResolvedPackage('@stencil/vitest', './dist/wizard.js');
 
     const loader = makeLoader(/* no matching module */);
 
@@ -103,9 +135,8 @@ describe('discoverPlugins', () => {
   });
 
   it('skips a plugin that does not export wizard and warns', async () => {
-    mockReadFile
-      .mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }))
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js'));
+    mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
+    mockResolvedPackage('@stencil/vitest', './dist/wizard.js');
 
     const wizardPath = `${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`;
     const loader = makeLoader({ [wizardPath]: { notWizard: {} } });
@@ -119,12 +150,21 @@ describe('discoverPlugins', () => {
 
   it('does not fail when one plugin errors and others succeed', async () => {
     const plugin = { generate: { fileTemplates: [] } };
-    mockReadFile
-      .mockResolvedValueOnce(
-        makeRootPkg({ '@stencil/vitest': '^1.0.0', '@stencil/broken': '^1.0.0' }),
-      )
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // @stencil/vitest
-      .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')); // @stencil/broken
+    mockReadFile.mockResolvedValueOnce(
+      makeRootPkg({ '@stencil/vitest': '^1.0.0', '@stencil/broken': '^1.0.0' }),
+    );
+    mockGetPackageInfo.mockImplementation((name: string) => {
+      if (name !== '@stencil/vitest' && name !== '@stencil/broken')
+        return Promise.resolve(undefined);
+      const rootPath = `${ROOT}/node_modules/${name}`;
+      return Promise.resolve({
+        name,
+        version: '1.0.0',
+        rootPath,
+        packageJsonPath: `${rootPath}/package.json`,
+        packageJson: { stencil: { wizard: './dist/wizard.js' } },
+      });
+    });
 
     const loader = makeLoader({
       [`${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`]: { wizard: plugin },
@@ -166,9 +206,9 @@ describe('discoverPlugins', () => {
       const installedPlugin = { generate: { fileTemplates: [] } };
       mockReadFile
         .mockResolvedValueOnce(makeRootPkg({ '@stencil/sass': '^3.0.0' }))
-        .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // @stencil/sass
         .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json not found
         .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // parent package.json
+      mockResolvedPackage('@stencil/sass', './dist/wizard.js');
 
       const loader = makeLoader({
         [`${ROOT}/node_modules/@stencil/sass/dist/wizard.js`]: { wizard: installedPlugin },
@@ -186,9 +226,9 @@ describe('discoverPlugins', () => {
       const installedPlugin = { generate: { fileTemplates: [] } };
       mockReadFile
         .mockResolvedValueOnce(makeRootPkg({ 'my-plugin': '^1.0.0' }))
-        .mockResolvedValueOnce(makeDepPkg('./dist/wizard.js')) // installed my-plugin
         .mockRejectedValueOnce(new Error('ENOENT')) // dev: dist/package.json not found
         .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // dev: parent package.json
+      mockResolvedPackage('my-plugin', './dist/wizard.js');
 
       const loader = makeLoader({
         [`${ROOT}/node_modules/my-plugin/dist/wizard.js`]: { wizard: installedPlugin },

@@ -7,6 +7,7 @@ import {
   generateStencilConfig,
   toPascalCase,
 } from '@stencil/templates';
+import { getPackageInfo } from 'local-pkg';
 import * as nypm from 'nypm';
 import { addDevDependency, installDependencies } from 'nypm';
 import { isCI } from 'std-env';
@@ -48,6 +49,31 @@ import {
 } from './wizard/project.js';
 import { printSplash } from './wizard/splash.js';
 import type { CoreCompiler } from './load-compiler.js';
+
+/**
+ * Package managers can report success while silently failing to write to node_modules
+ * (observed with npm computing a resolved lockfile but reifying zero filesystem changes).
+ * Confirms packages actually landed on disk instead of trusting the install call's exit code.
+ *
+ * @param rootDir - directory to resolve packages from.
+ * @param packageNames - packages that were just supposed to be installed.
+ * @returns names that failed to resolve; empty when everything installed correctly.
+ */
+async function verifyInstalled(rootDir: string, packageNames: string[]): Promise<string[]> {
+  const missing: string[] = [];
+  for (const name of packageNames) {
+    const info = await getPackageInfo(name, { paths: [rootDir] });
+    if (!info) missing.push(name);
+  }
+  return missing;
+}
+
+function failInstallVerification(missing: string[], rootDir: string): never {
+  p.log.error(
+    `Install reported success but ${missing.join(', ')} could not be found in ${rootDir}. Your package manager may have silently failed to write to node_modules - check its logs and try again.`,
+  );
+  process.exit(1);
+}
 
 function outputKeysToTargets(keys: ReadonlyArray<OutputKey>): Array<{ type: string }> {
   const map: Record<OutputKey, string> = {
@@ -153,6 +179,9 @@ export async function taskInit(
   await installDependencies({ cwd, silent: true });
   s2.stop('Dependencies installed');
 
+  const missingBase = await verifyInstalled(coreDir, ['@stencil/core']);
+  if (missingBase.length > 0) failInstallVerification(missingBase, coreDir);
+
   if (selectedIntegrations.length > 0) {
     const s3 = p.spinner();
     const pkgs = selectedIntegrations.map((i) => i.package);
@@ -160,6 +189,9 @@ export async function taskInit(
     // Integration packages (e.g. output target plugins) are deps of the core package
     await addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true });
     s3.stop('Integrations installed');
+
+    const missingIntegrations = await verifyInstalled(coreDir, pkgs);
+    if (missingIntegrations.length > 0) failInstallVerification(missingIntegrations, coreDir);
   }
 
   // Phase 4: re-discover + run plugin wizards
@@ -263,6 +295,9 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
     s.start(`Installing ${pkgs.join(', ')}`);
     await addDevDependency(withVersionRanges(pkgs), { cwd, silent: true });
     s.stop('Dependencies installed');
+
+    const missing = await verifyInstalled(cwd, pkgs);
+    if (missing.length > 0) failInstallVerification(missing, cwd);
   }
 
   // Re-discover after install so newly installed packages can run their wizards

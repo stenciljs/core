@@ -89,6 +89,12 @@ describe('taskInit e2e', () => {
         'utf8',
       );
       expect(component).toContain('@Component');
+
+      const usageExample = await readFile(
+        join(tmpDir, 'src/components/my-component/usage/example.md'),
+        'utf8',
+      );
+      expect(usageExample).toContain('<my-component');
     });
 
     it('strips npm scope and PascalCases the namespace', async () => {

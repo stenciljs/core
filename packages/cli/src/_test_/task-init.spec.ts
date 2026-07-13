@@ -21,13 +21,18 @@ vi.mock('nypm', () => ({
   installDependencies: vi.fn().mockResolvedValue(undefined),
   detectPackageManager: vi.fn().mockResolvedValue({ name: 'npm' }),
 }));
+vi.mock('local-pkg', () => ({
+  // installs "succeed" by default; tests override to simulate a package manager
+  // that reports success but silently fails to write to node_modules
+  getPackageInfo: vi.fn().mockResolvedValue({ rootPath: '/node_modules/pkg' }),
+}));
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
   outro: vi.fn(),
   note: vi.fn(),
   confirm: vi.fn().mockResolvedValue(true),
-  log: { warn: vi.fn(), info: vi.fn() },
+  log: { warn: vi.fn(), info: vi.fn(), error: vi.fn() },
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   cancel: vi.fn(),
   isCancel: vi.fn().mockReturnValue(false),
@@ -83,6 +88,7 @@ import {
   generatePackageJsonFields,
   generateStencilConfig,
 } from '@stencil/templates';
+import { getPackageInfo } from 'local-pkg';
 import { addDevDependency, installDependencies } from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
@@ -179,6 +185,7 @@ describe('taskInit', () => {
     vi.mocked(generateStencilConfig).mockReturnValue(null);
     vi.mocked(clack.confirm).mockResolvedValue(true);
     vi.mocked(clack.isCancel).mockReturnValue(false);
+    vi.mocked(getPackageInfo).mockResolvedValue({ rootPath: '/node_modules/pkg' } as never);
     vi.spyOn(process, 'cwd').mockReturnValue(CWD);
     vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`exit:${code ?? 0}`);
@@ -338,6 +345,25 @@ describe('taskInit', () => {
     });
   });
 
+  it('fails loudly when the base install reports success but @stencil/core is not resolvable', async () => {
+    vi.mocked(getPackageInfo).mockResolvedValue(undefined);
+    await expect(taskInit(mockCoreCompiler, mockStrictConfig)).rejects.toThrow('exit:1');
+    expect(clack.log.error).toHaveBeenCalledWith(expect.stringContaining('@stencil/core'));
+  });
+
+  it('fails loudly when an integration reports installed but is not resolvable', async () => {
+    vi.mocked(promptIntegrations).mockResolvedValue([makeIntegration('@stencil/vitest')]);
+    // @stencil/core resolves fine, but the just-added integration does not
+    vi.mocked(getPackageInfo).mockImplementation((name: string) =>
+      Promise.resolve(name === '@stencil/core' ? { rootPath: '/node_modules/pkg' } : undefined),
+    );
+
+    await expect(taskInit(mockCoreCompiler, mockStrictConfig)).rejects.toThrow('exit:1');
+    expect(clack.log.error).toHaveBeenCalledWith(expect.stringContaining('@stencil/vitest'));
+    // never reaches plugin discovery/run since verification fails first
+    expect(vi.mocked(discoverPlugins)).not.toHaveBeenCalled();
+  });
+
   it('does not discover plugins when no integrations are selected', async () => {
     await taskInit(mockCoreCompiler, mockStrictConfig);
     expect(vi.mocked(discoverPlugins)).not.toHaveBeenCalled();
@@ -486,6 +512,15 @@ describe('taskInit', () => {
         cwd: CWD,
         silent: true,
       });
+    });
+
+    it('fails loudly when a newly installed integration is not actually resolvable', async () => {
+      const vitest = makeIntegration('@stencil/vitest');
+      vi.mocked(promptAddCapabilities).mockResolvedValue({ toInstall: [vitest], toConfigure: [] });
+      vi.mocked(getPackageInfo).mockResolvedValue(undefined);
+
+      await expect(taskInit(mockCoreCompiler, mockStrictConfig)).rejects.toThrow('exit:1');
+      expect(clack.log.error).toHaveBeenCalledWith(expect.stringContaining('@stencil/vitest'));
     });
 
     it('calls run() for newly installed packages after re-discovery', async () => {
