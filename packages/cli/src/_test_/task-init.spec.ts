@@ -57,6 +57,7 @@ vi.mock('../wizard/init/apply', () => ({
   writeStencilConfig: vi.fn().mockResolvedValue(undefined),
   writeGlobalStyle: vi.fn().mockResolvedValue(undefined),
   writeGlobalScript: vi.fn().mockResolvedValue(undefined),
+  writeIndexHtml: vi.fn().mockResolvedValue(undefined),
   scaffoldWorkspaceRoot: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('@stencil/templates', () => ({
@@ -66,6 +67,7 @@ vi.mock('@stencil/templates', () => ({
     types: './dist/types/loader.d.ts',
   }),
   generateStencilConfig: vi.fn().mockReturnValue(null),
+  generateIndexHtml: vi.fn().mockReturnValue('<!doctype html>\n'),
   toPascalCase: (str: string) =>
     str
       .split('-')
@@ -76,7 +78,11 @@ vi.mock('@stencil/templates', () => ({
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import * as clack from '@clack/prompts';
-import { generatePackageJsonFields, generateStencilConfig } from '@stencil/templates';
+import {
+  generateIndexHtml,
+  generatePackageJsonFields,
+  generateStencilConfig,
+} from '@stencil/templates';
 import { addDevDependency, installDependencies } from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
@@ -86,6 +92,7 @@ import {
   applyPackageJsonFields,
   copyTemplate,
   scaffoldWorkspaceRoot,
+  writeIndexHtml,
   writeStencilConfig,
 } from '../wizard/init/apply';
 import {
@@ -238,6 +245,42 @@ describe('taskInit', () => {
 
     expect(vi.mocked(generatePackageJsonFields)).toHaveBeenCalledWith(['standalone']);
     expect(vi.mocked(applyPackageJsonFields)).toHaveBeenCalledWith(CWD, fields);
+  });
+
+  it('does not write index.html when www is not selected', async () => {
+    vi.mocked(promptOutputs).mockResolvedValue([]);
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+    expect(vi.mocked(writeIndexHtml)).not.toHaveBeenCalled();
+  });
+
+  it('writes index.html when www is selected', async () => {
+    vi.mocked(promptOutputs).mockResolvedValue(['www']);
+
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+
+    expect(vi.mocked(generateIndexHtml)).toHaveBeenCalledWith({
+      projectName: 'my-lib',
+      namespace: 'MyLib',
+      globalStyle: false,
+    });
+    expect(vi.mocked(writeIndexHtml)).toHaveBeenCalledWith(CWD, '<!doctype html>\n');
+  });
+
+  it('passes globalStyle selection through to generateIndexHtml', async () => {
+    vi.mocked(promptOutputs).mockResolvedValue(['www']);
+    vi.mocked(promptFeatures).mockResolvedValue({
+      signals: false,
+      globalStyle: true,
+      globalScript: false,
+    });
+
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+
+    expect(vi.mocked(generateIndexHtml)).toHaveBeenCalledWith({
+      projectName: 'my-lib',
+      namespace: 'MyLib',
+      globalStyle: true,
+    });
   });
 
   it('applies package.json fields before writing stencil config', async () => {

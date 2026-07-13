@@ -1,7 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import * as p from '@clack/prompts';
-import { generatePackageJsonFields, generateStencilConfig, toPascalCase } from '@stencil/templates';
+import {
+  generateIndexHtml,
+  generatePackageJsonFields,
+  generateStencilConfig,
+  toPascalCase,
+} from '@stencil/templates';
 import * as nypm from 'nypm';
 import { addDevDependency, installDependencies } from 'nypm';
 import { isCI } from 'std-env';
@@ -18,6 +23,7 @@ import {
   scaffoldWorkspaceRoot,
   writeGlobalScript,
   writeGlobalStyle,
+  writeIndexHtml,
   writeStencilConfig,
 } from './wizard/init/apply.js';
 import {
@@ -132,6 +138,12 @@ export async function taskInit(
   if (configSource) await writeStencilConfig(coreDir, configSource);
   if (features.globalStyle) await writeGlobalStyle(coreDir);
   if (features.globalScript) await writeGlobalScript(coreDir);
+  if (outputs.includes('www')) {
+    await writeIndexHtml(
+      coreDir,
+      generateIndexHtml({ projectName, namespace, globalStyle: features.globalStyle }),
+    );
+  }
   s1.stop('Project files created');
 
   // Phase 3: install

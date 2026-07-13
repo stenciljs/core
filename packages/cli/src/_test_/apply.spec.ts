@@ -11,7 +11,7 @@ vi.mock('@stencil/templates', () => ({
   getTemplatePath: vi.fn().mockReturnValue('/template'),
 }));
 
-import { applyPackageJsonFields, copyTemplate } from '../wizard/init/apply';
+import { applyPackageJsonFields, copyTemplate, writeIndexHtml } from '../wizard/init/apply';
 
 const PKG_PATH = '/project/package.json';
 
@@ -109,6 +109,32 @@ describe('applyPackageJsonFields', () => {
 
     const raw = vi.mocked(fsPromises.writeFile).mock.calls[0][1] as string;
     expect(raw.endsWith('\n')).toBe(true);
+  });
+});
+
+describe('writeIndexHtml', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    fsPromises.writeFile.mockResolvedValue(undefined);
+    fsPromises.mkdir.mockResolvedValue(undefined);
+    fsPromises.readFile.mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
+  });
+
+  it('writes the given content to src/index.html', async () => {
+    await writeIndexHtml('/project', '<!doctype html>\n');
+
+    expect(fsPromises.mkdir).toHaveBeenCalledWith('/project/src', { recursive: true });
+    expect(fsPromises.writeFile).toHaveBeenCalledWith(
+      '/project/src/index.html',
+      '<!doctype html>\n',
+      { encoding: 'utf8', flag: 'wx' },
+    );
+  });
+
+  it('does not overwrite an existing src/index.html', async () => {
+    fsPromises.writeFile.mockRejectedValue(Object.assign(new Error('EEXIST'), { code: 'EEXIST' }));
+
+    await expect(writeIndexHtml('/project', '<!doctype html>\n')).resolves.toBeUndefined();
   });
 });
 
