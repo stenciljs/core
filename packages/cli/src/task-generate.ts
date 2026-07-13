@@ -2,10 +2,17 @@ import { existsSync } from 'node:fs';
 import { join, parse, relative } from 'node:path';
 import * as p from '@clack/prompts';
 import { normalizePath, validateComponentTag } from '@stencil/core/compiler/utils';
-import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
+import {
+  getComponentBoilerplate,
+  getPreviewHtmlBoilerplate,
+  getStyleBoilerplate,
+  getUsageExampleBoilerplate,
+  toPascalCase,
+} from '@stencil/templates';
 import * as nypm from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
+import { resolveEntryScriptSrc } from './resolve-entry-script.js';
 import { cancelIfAborted } from './wizard/clack.js';
 import { discoverPlugins } from './wizard/discover.js';
 import { toProjectConfig } from './wizard/project.js';
@@ -79,6 +86,26 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   cancelIfAborted(stylePick);
   const styleExtension = stylePick || undefined; // empty string → no stylesheet
 
+  // demo: either a usage/example.md (picked up by docs + dev server preview) or a
+  // component-scoped index.html (opts out of the dev server's auto-generated preview)
+  const demoPick = await p.select<string>({
+    message: 'Demo:',
+    options: [
+      {
+        value: 'usage',
+        label: 'Usage example',
+        hint: 'usage/example.md - rendered in docs and the dev server auto-preview',
+      },
+      {
+        value: 'preview',
+        label: 'Preview page',
+        hint: 'index.html - full control, opts out of the dev server auto-preview',
+      },
+      { value: '', label: 'None' },
+    ],
+  });
+  cancelIfAborted(demoPick);
+
   // resolve plugin file templates sequentially - resolvers may prompt the user
   const generateCtx: GenerateContext = {
     tagName: componentName,
@@ -128,6 +155,18 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
     const tmpl = allFileTemplates.find((ft) => ft.extension === ext)!;
     const absPath = normalizePath(join(outDir, tmpl.subdirectory ?? '', `${componentName}.${ext}`));
     filesToWrite.push({ absPath, content: tmpl.template(componentName, className) });
+  }
+
+  if (demoPick === 'usage') {
+    filesToWrite.push({
+      absPath: normalizePath(join(outDir, 'usage', 'example.md')),
+      content: getUsageExampleBoilerplate(componentName),
+    });
+  } else if (demoPick === 'preview') {
+    filesToWrite.push({
+      absPath: normalizePath(join(outDir, 'index.html')),
+      content: getPreviewHtmlBoilerplate(componentName, resolveEntryScriptSrc(config)),
+    });
   }
 
   // overwrite check

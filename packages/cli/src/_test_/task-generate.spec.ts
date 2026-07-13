@@ -1,10 +1,17 @@
 import * as utils from '@stencil/core/compiler/utils';
 import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
-import { getComponentBoilerplate, getStyleBoilerplate, toPascalCase } from '@stencil/templates';
+import {
+  getComponentBoilerplate,
+  getPreviewHtmlBoilerplate,
+  getStyleBoilerplate,
+  getUsageExampleBoilerplate,
+  toPascalCase,
+} from '@stencil/templates';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type * as d from '@stencil/core/compiler';
 
 import { createConfigFlags, type ConfigFlags } from '../config-flags';
+import { resolveEntryScriptSrc } from '../resolve-entry-script';
 import { taskGenerate } from '../task-generate';
 
 // --- mocks ---
@@ -172,6 +179,62 @@ describe('generate task', () => {
     expect(createDirSpy).toHaveBeenCalledWith(`${SRC}/components/my-component`, {
       recursive: true,
     });
+  });
+
+  it('generates no demo file by default', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    mockSelect.mockResolvedValueOnce('css').mockResolvedValueOnce('');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(writeFileSpy).toHaveBeenCalledTimes(2); // tsx + css only
+  });
+
+  it('generates usage/example.md when the usage example demo is picked', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    mockSelect.mockResolvedValueOnce('css').mockResolvedValueOnce('usage');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/usage/example.md`,
+      getUsageExampleBoilerplate('my-component'),
+    );
+  });
+
+  it('generates a component-scoped index.html when the preview page demo is picked', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    mockSelect.mockResolvedValueOnce('css').mockResolvedValueOnce('preview');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    expect(writeFileSpy).toHaveBeenCalledWith(
+      `${SRC}/components/my-component/index.html`,
+      getPreviewHtmlBoilerplate('my-component', resolveEntryScriptSrc(config)),
+    );
+  });
+
+  it('resolves the entry script src from the project output targets for the preview page', async () => {
+    const { config, flags } = setup();
+    withTagName(flags, 'my-component');
+    config.outputTargets = [
+      { type: 'www', dir: `${ROOT}/www`, buildDir: `${ROOT}/www/build` } as d.OutputTargetWww,
+    ];
+    mockSelect.mockResolvedValueOnce('css').mockResolvedValueOnce('preview');
+    const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+    await taskGenerate(config, flags);
+
+    const [, written] = vi
+      .mocked(writeFileSpy)
+      .mock.calls.find(([absPath]) => absPath === `${SRC}/components/my-component/index.html`)!;
+    expect(written).toContain('<script type="module" src="/build/testing.js"></script>');
   });
 
   it('errors without writing when files would be overwritten', async () => {

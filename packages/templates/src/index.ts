@@ -7,3 +7,4 @@ export { generateStencilConfig, generatePackageJsonFields } from './project/conf
 export type { ConfigSelections, OutputKey, DocKey, PackageJsonFields } from './project/config.js';
 export { generateIndexHtml } from './project/index-html.js';
 export type { IndexHtmlSelections } from './project/index-html.js';
+export { getUsageExampleBoilerplate, getPreviewHtmlBoilerplate } from './generate/preview.js';
