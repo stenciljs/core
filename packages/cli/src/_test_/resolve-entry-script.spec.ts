@@ -74,7 +74,11 @@ describe('resolveEntryScriptSrc', () => {
 
   it('falls back to a standalone target with default autoLoader', () => {
     const config = setup([
-      { type: 'standalone', dir: `${ROOT}/dist/standalone`, autoLoader: true } as d.OutputTargetStandalone,
+      {
+        type: 'standalone',
+        dir: `${ROOT}/dist/standalone`,
+        autoLoader: true,
+      } as d.OutputTargetStandalone,
     ]);
     expect(resolveEntryScriptSrc(config)).toBe('/dist/standalone/loader.js');
   });
@@ -103,7 +107,11 @@ describe('resolveEntryScriptSrc', () => {
 
   it('prefers dist-lazy over standalone when both are present', () => {
     const config = setup([
-      { type: 'standalone', dir: `${ROOT}/dist/standalone`, autoLoader: true } as d.OutputTargetStandalone,
+      {
+        type: 'standalone',
+        dir: `${ROOT}/dist/standalone`,
+        autoLoader: true,
+      } as d.OutputTargetStandalone,
       {
         type: 'dist-lazy',
         esmDir: `${ROOT}/dist/loader-bundle/testing`,
