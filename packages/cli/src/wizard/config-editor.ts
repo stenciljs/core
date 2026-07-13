@@ -156,8 +156,9 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     if (lastProp) {
       let insertPos = lastProp.getEnd();
       const trailingComma = text.slice(insertPos).match(/^\s*,/);
+      const separator = trailingComma ? '' : ',';
       if (trailingComma) insertPos += trailingComma[0].length;
-      text = `${text.slice(0, insertPos)},\n${propIndent}${newProp}${text.slice(insertPos)}`;
+      text = `${text.slice(0, insertPos)}${separator}\n${propIndent}${newProp}${text.slice(insertPos)}`;
     } else {
       // Empty config object
       const insertPos = configObj.getEnd() - 1; // before }

@@ -272,6 +272,20 @@ export const config: Config = {
       expect(result).toContain('sass()');
     });
 
+    it('does not introduce a double comma when the last property already has a trailing comma', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addPlugin('sass()');
+      await editor.save();
+
+      const result = savedText();
+      expect(result).not.toContain(',,');
+    });
+
     it('supports plugin with options', async () => {
       mockConfig(`export const config: Config = {
   namespace: 'MyLib',
