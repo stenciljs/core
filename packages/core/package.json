@@ -1,6 +1,6 @@
 {
   "name": "@stencil/core",
-  "version": "5.0.0-alpha.23",
+  "version": "5.0.0-alpha.24",
   "description": "A Compiler for Web Components and Progressive Web Apps",
   "keywords": [
     "components",
