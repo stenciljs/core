@@ -20,7 +20,10 @@ export async function copyTemplate(
 ) {
   const templateDir = getTemplatePath('component-starter');
   const entries = await readdir(templateDir, { recursive: true, withFileTypes: true });
-  const resolvedStencilVersion = stencilVersion ? `^${stencilVersion}` : '^5.0.0';
+  // TEMP: pin exact version (no caret range). npm has a bad "5.0.0-next.0" prerelease whose
+  // precedence is higher than our alpha releases; caret range resolves to it.
+  // Revert to `^${stencilVersion}` once there is a version with a higher precedence than "5.0.0-next.0".
+  const resolvedStencilVersion = stencilVersion ?? '^5.0.0';
 
   for (const entry of entries) {
     if (!entry.isFile()) continue;
