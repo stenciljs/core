@@ -193,6 +193,12 @@ export async function writeGlobalScript(rootDir: string) {
   await writeIfAbsent(path, `export default function (): void {}\n`);
 }
 
+export async function writeIndexHtml(rootDir: string, content: string) {
+  const path = join(rootDir, 'src', 'index.html');
+  await mkdir(dirname(path), { recursive: true });
+  await writeIfAbsent(path, content);
+}
+
 function workspaceBuildScript(pm: string | undefined) {
   switch (pm) {
     case 'pnpm':
