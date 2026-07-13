@@ -54,7 +54,7 @@
     "vitest-environment-stencil": "catalog:"
   },
   "peerDependencies": {
-    "@stencil/core": "^5.0.0-0"
+    "@stencil/core": "^5.0.0 || workspace:*"
   },
   "volta": {
     "extends": "../../package.json"
