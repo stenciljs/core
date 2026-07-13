@@ -1,6 +1,6 @@
 {
   "name": "@stencil/unplugin",
-  "version": "5.0.0-alpha.24",
+  "version": "5.0.0-alpha.25",
   "description": "Universal bundler plugin for Stencil components (Vite, Rollup, Webpack, esbuild)",
   "homepage": "https://stenciljs.com/",
   "license": "MIT",
