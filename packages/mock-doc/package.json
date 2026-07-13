@@ -1,6 +1,6 @@
 {
   "name": "@stencil/mock-doc",
-  "version": "5.0.0-alpha.21",
+  "version": "5.0.0-alpha.22",
   "description": "A minimal mock DOM implementation for SSR and testing",
   "keywords": [
     "dom",
