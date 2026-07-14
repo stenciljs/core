@@ -53,6 +53,11 @@ export const initializeComponent = async (
           Cstr = CstrImport as d.ComponentConstructor | undefined;
         }
         if (!Cstr) {
+          // The lazy bundle failed to load (e.g. a dropped network request).
+          // Clear the "initialized" flag so a future `connectedCallback` (see
+          // `connected-callback.ts`) is able to retry loading this component
+          // instead of leaving the host element permanently un-upgraded.
+          hostRef.$flags$ &= ~HOST_FLAGS.hasInitializedComponent;
           throw new Error(`Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`);
         }
         if (BUILD.member && !Cstr.isProxied) {

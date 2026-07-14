@@ -6,6 +6,16 @@ import { consoleDevError, consoleError } from './client-log';
 export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();
 
 /**
+ * Tracks how many times the dynamic `import()` for a given lazy bundle has
+ * failed. A failed dynamic import is cached by the browser's own module map
+ * for the resolved specifier URL, so a bare retry of the exact same URL
+ * would be rejected immediately without ever reaching the network again.
+ * This lets a retry (see `connected-callback.ts`) bust that cache with a
+ * query param, the same way `hmrVersionId` already does for HMR.
+ */
+const failedLoadAttempts = /*@__PURE__*/ new Map<string, number>();
+
+/**
  * We need to separate out this prefix so that Esbuild doesn't try to resolve
  * the below, but instead retains a dynamic `import()` statement in the
  * emitted code.
@@ -43,23 +53,30 @@ export const loadModule = (
   if (module) {
     return module[exportName];
   }
+  const retryCount = failedLoadAttempts.get(bundleId) ?? 0;
+  const cacheBustParams = [
+    retryCount > 0 ? `s-retry=${retryCount}` : '',
+    BUILD.hotModuleReplacement && hmrVersionId ? `s-hmr=${hmrVersionId}` : '',
+  ]
+    .filter(Boolean)
+    .join('&');
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
   return import(
     /* @vite-ignore */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${
-      BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''
-    }`
+    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`
   ).then(
     (importedModule) => {
+      failedLoadAttempts.delete(bundleId);
       if (!BUILD.hotModuleReplacement) {
         cmpModules.set(bundleId, importedModule);
       }
       return importedModule[exportName];
     },
     (e: Error) => {
+      failedLoadAttempts.set(bundleId, retryCount + 1);
       consoleError(e, hostRef.$hostElement$);
     },
   );

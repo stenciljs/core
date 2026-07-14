@@ -118,6 +118,13 @@ export const connectedCallback = (elm: d.HostElement) => {
       // fire off connectedCallback() on component instance
       if (hostRef?.$lazyInstance$) {
         fireConnectedCallback(hostRef.$lazyInstance$, elm);
+      } else if ((hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0) {
+        // A previous initialization attempt for this host element failed
+        // (e.g. the lazy bundle's dynamic import() was rejected) and cleared
+        // `hasInitializedComponent` (see `initialize-component.ts`). Retry
+        // now that we're reconnecting, rather than leaving the element
+        // permanently un-upgraded for the rest of the page's lifetime.
+        initializeComponent(elm, hostRef, cmpMeta);
       } else if (hostRef?.$onReadyPromise$) {
         hostRef.$onReadyPromise$.then(() => fireConnectedCallback(hostRef.$lazyInstance$, elm));
       }
