@@ -11,9 +11,7 @@ import { runTsProgram } from '../run-program';
  * Regression test for a bug where TypeScript errors introduced in a watch-mode rebuild were
  * silently dropped. `tsBuilder.emit()` and `getSemanticDiagnosticsOfNextAffectedFile()` both
  * drain the same "affected files" queue on the builder program - calling emit first (as
- * `runTsProgram` used to) left nothing for the diagnostics walk to find. This test builds a
- * real TypeScript builder program (not mocked) against files on disk, so it exercises the
- * actual TypeScript incremental-build APIs rather than an idealized mock of them.
+ * `runTsProgram` used to) left nothing for the diagnostics walk to find.
  */
 describe('runTsProgram - rebuild diagnostics', () => {
   let tmpDir: string;
