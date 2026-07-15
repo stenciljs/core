@@ -434,7 +434,7 @@ describe('taskInit', () => {
 
     it('scaffolds workspace root and copies template into packages/core/', async () => {
       await taskInit(mockCoreCompiler, mockStrictConfig);
-      expect(vi.mocked(scaffoldWorkspaceRoot)).toHaveBeenCalledWith(CWD, 'my-lib');
+      expect(vi.mocked(scaffoldWorkspaceRoot)).toHaveBeenCalledWith(CWD, 'my-lib', 'core');
       expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(
         CORE_DIR,
         'my-lib',

@@ -149,7 +149,6 @@ td.dev-server-diagnostic-blob-num::before {
 
 .dev-server-diagnostic-error-line td.dev-server-diagnostic-blob-code {
   background: rgba(255, 221, 221, 0.25) !important;
-  z-index: -1;
 }
 
 .dev-server-diagnostic-open-in-editor td.dev-server-diagnostic-blob-num:hover {

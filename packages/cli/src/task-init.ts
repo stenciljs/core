@@ -171,7 +171,7 @@ export async function taskInit(
 
   const s1 = p.spinner();
   s1.start('Scaffolding project files');
-  if (monorepo) await scaffoldWorkspaceRoot(cwd, projectName);
+  if (monorepo) await scaffoldWorkspaceRoot(cwd, projectName, coreName);
   await copyTemplate(coreDir, projectName, namespace, coreCompiler?.version);
   await applyPackageJsonFields(coreDir, generatePackageJsonFields(outputs));
   if (configSource) await writeStencilConfig(coreDir, configSource);

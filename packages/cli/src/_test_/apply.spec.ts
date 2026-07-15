@@ -144,7 +144,7 @@ describe('scaffoldWorkspaceRoot', () => {
       .mockResolvedValueOnce(JSON.stringify({ name: 'wiz', scripts: { test: 'echo no test' } }))
       .mockRejectedValueOnce(ENOENT());
 
-    await scaffoldWorkspaceRoot('/project', 'wiz');
+    await scaffoldWorkspaceRoot('/project', 'wiz', 'core');
 
     expect(writtenPkg().scripts).toEqual({ build: 'pnpm -r build', test: 'echo no test' });
   });
@@ -152,7 +152,7 @@ describe('scaffoldWorkspaceRoot', () => {
   it('adds a build script when no package.json exists yet', async () => {
     fsPromises.readFile.mockRejectedValueOnce(ENOENT()).mockRejectedValueOnce(ENOENT());
 
-    await scaffoldWorkspaceRoot('/project', 'wiz');
+    await scaffoldWorkspaceRoot('/project', 'wiz', 'core');
 
     expect(writtenPkg().scripts).toEqual({ build: 'pnpm -r build' });
   });
@@ -164,9 +164,21 @@ describe('scaffoldWorkspaceRoot', () => {
       )
       .mockRejectedValueOnce(ENOENT());
 
-    await scaffoldWorkspaceRoot('/project', 'wiz');
+    await scaffoldWorkspaceRoot('/project', 'wiz', 'core');
 
     expect(writtenPkg().scripts).toEqual({ build: 'custom build command' });
+  });
+
+  it('builds the core package first for npm, since --workspaces has no topological order', async () => {
+    nypm.detectPackageManager.mockResolvedValue({ name: 'npm' });
+    // npm (unlike pnpm) never reads pnpm-workspace.yaml, so only one readFile call happens here.
+    fsPromises.readFile.mockRejectedValueOnce(ENOENT());
+
+    await scaffoldWorkspaceRoot('/project', 'wiz', 'core');
+
+    expect(writtenPkg().scripts).toEqual({
+      build: 'npm run build -w packages/core && npm run build --workspaces --if-present',
+    });
   });
 });
 
@@ -249,5 +261,45 @@ describe('copyTemplate — package.json merge', () => {
 
     const written = JSON.parse(vi.mocked(fsPromises.writeFile).mock.calls[0][1] as string);
     expect(written.devDependencies['@stencil/core']).toBe('^5.0.0');
+  });
+});
+
+describe('copyTemplate — .gitignore rename', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    fsPromises.writeFile.mockResolvedValue(undefined);
+    fsPromises.mkdir.mockResolvedValue(undefined);
+  });
+
+  it("writes the template's `_gitignore` to `.gitignore` at the destination", async () => {
+    // npm strips real .gitignore files from published packages, so the template ships one
+    // named `_gitignore` - copyTemplate must rename it back on the way out.
+    fsPromises.readdir.mockResolvedValue([makeDirent('_gitignore', '/template')]);
+    fsPromises.readFile
+      .mockResolvedValueOnce('node_modules/\ndist/\n') // template source
+      .mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' })); // no existing dest file
+
+    await copyTemplate('/project', 'my-app', 'MyApp');
+
+    expect(fsPromises.writeFile).toHaveBeenCalledWith(
+      '/project/.gitignore',
+      'node_modules/\ndist/\n',
+      'utf8',
+    );
+  });
+
+  it('merges into an existing .gitignore instead of overwriting it', async () => {
+    fsPromises.readdir.mockResolvedValue([makeDirent('_gitignore', '/template')]);
+    fsPromises.readFile
+      .mockResolvedValueOnce('node_modules/\ndist/\n')
+      .mockResolvedValueOnce('node_modules/\n.env\n');
+
+    await copyTemplate('/project', 'my-app', 'MyApp');
+
+    expect(fsPromises.writeFile).toHaveBeenCalledWith(
+      '/project/.gitignore',
+      'node_modules/\n.env\ndist/\n',
+      'utf8',
+    );
   });
 });
