@@ -28,7 +28,10 @@ export async function copyTemplate(
   for (const entry of entries) {
     if (!entry.isFile()) continue;
     const srcPath = join(entry.parentPath, entry.name);
-    const relPath = relative(templateDir, srcPath);
+    let relPath = relative(templateDir, srcPath);
+    // npm always strips .gitignore files from published packages, so the template ships it
+    // as `_gitignore` and we rename it back on the way out.
+    if (relPath === '_gitignore') relPath = '.gitignore';
     const destPath = join(rootDir, relPath);
 
     await mkdir(dirname(destPath), { recursive: true });
@@ -202,16 +205,20 @@ export async function writeIndexHtml(rootDir: string, content: string) {
   await writeIfAbsent(path, content);
 }
 
-function workspaceBuildScript(pm: string | undefined) {
+function workspaceBuildScript(pm: string | undefined, coreName: string) {
   switch (pm) {
     case 'pnpm':
+      // pnpm's recursive commands are topologically ordered by default.
       return 'pnpm -r build';
     case 'yarn':
       return 'yarn workspaces run build';
     case 'bun':
       return 'bun run --filter "*" build';
     default:
-      return 'npm run build --workspaces --if-present';
+      // npm's --workspaces has no concept of build order - it's not topologically sorted,
+      // so a framework wrapper package can easily run before the core package it depends on.
+      // Build core explicitly first, then everyone (core rebuilds again, harmlessly).
+      return `npm run build -w packages/${coreName} && npm run build --workspaces --if-present`;
   }
 }
 
@@ -221,9 +228,10 @@ function workspaceBuildScript(pm: string | undefined) {
  * `package.json` for npm / yarn / bun), and ensures a root `package.json` exists.
  * @param cwd - Absolute path to the workspace root (where `package.json` will be created).
  * @param projectName - Name to use for the root package.json (typically the project name).
+ * @param coreName - Directory name of the core package under `packages/` (e.g. `core`).
  * @returns A promise that resolves when the workspace root has been scaffolded.
  */
-export async function scaffoldWorkspaceRoot(cwd: string, projectName: string) {
+export async function scaffoldWorkspaceRoot(cwd: string, projectName: string, coreName: string) {
   await mkdir(join(cwd, 'packages'), { recursive: true });
 
   const pm = await detectPackageManager(cwd);
@@ -241,10 +249,8 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string) {
   pkg.name ??= `${projectName}-workspace`;
   pkg.version ??= '0.0.1';
   pkg.private = true;
-  // Recursive build works correctly here because framework wrapper packages declare the core
-  // as a workspace dep, so the PM resolves build order from the dependency graph automatically.
   pkg.scripts = {
-    build: workspaceBuildScript(pm?.name),
+    build: workspaceBuildScript(pm?.name, coreName),
     ...(pkg.scripts as Record<string, string> | undefined),
   };
   if (!usePnpmYaml) {

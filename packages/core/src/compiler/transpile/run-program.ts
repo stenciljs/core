@@ -22,6 +22,21 @@ import { updateStencilTypesImports } from '../types/stencil-types';
 import { validateTranspiledComponents } from './validate-components';
 
 /**
+ * In dev mode, downgrade unused-variable diagnostics to warnings so they don't fail the build
+ * while a component is mid-edit.
+ *
+ * @param config - the validated Stencil configuration
+ * @param diags - the diagnostics to relax in place
+ */
+const applyDevModeRelaxation = (config: d.ValidatedConfig, diags: d.Diagnostic[]): void => {
+  if (config.devMode) {
+    diags.forEach((diag) => {
+      if (diag.code === '6133' || diag.code === '6192') diag.level = 'warn';
+    });
+  }
+};
+
+/**
  * Run the TypeScript program to transpile source files.
  *
  * @param config - the validated Stencil configuration
@@ -52,6 +67,30 @@ export const runTsProgram = async (
   const tsTypeChecker = tsProgram.getTypeChecker();
   const typesOutputTarget = config.outputTargets.filter(isOutputTargetTypes);
   const emittedDts: string[] = [];
+
+  // On a rebuild, collect incremental semantic diagnostics BEFORE calling `tsBuilder.emit()`
+  // below. `getSemanticDiagnosticsOfNextAffectedFile()` and `emit()` both drain the same
+  // "affected files" queue on the builder program - calling emit first leaves nothing for
+  // the diagnostics walk to find, so type errors on changed files go unreported.
+  if (buildCtx.isRebuild && buildCtx.hasScriptChanges && config.validateTypes) {
+    const emitBuilder = tsBuilder as ts.EmitAndSemanticDiagnosticsBuilderProgram;
+    let affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
+    while (affected) {
+      if ('fileName' in affected.affected) {
+        const fileName = normalizePath(affected.affected.fileName);
+        if (
+          !fileName.includes('node_modules') &&
+          !fileName.endsWith('.d.ts') &&
+          fileName.startsWith(normalizePath(config.srcDir))
+        ) {
+          const tsSemantic = loadTypeScriptDiagnostics(affected.result);
+          applyDevModeRelaxation(config, tsSemantic);
+          buildCtx.diagnostics.push(...tsSemantic);
+        }
+      }
+      affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
+    }
+  }
 
   const emitCallback: ts.WriteFileCallback = (emitFilePath, data, _w, _e, tsSourceFiles) => {
     if (
@@ -221,49 +260,21 @@ export const validateTypesAfterGeneration = async (
     return { hasTypesChanged: true, needsRebuild: true };
   }
 
-  if (config.validateTypes) {
-    const applyDevModeRelaxation = (diags: d.Diagnostic[]) => {
-      if (config.devMode) {
-        diags.forEach((d) => {
-          if (d.code === '6133' || d.code === '6192') d.level = 'warn';
-        });
-      }
-    };
-
-    if (buildCtx.isRebuild) {
-      // Incremental: only walks changed files + transitive dependents - O(changed) not O(all).
-      const emitBuilder = tsBuilder as ts.EmitAndSemanticDiagnosticsBuilderProgram;
-      let affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
-      while (affected) {
-        if ('fileName' in affected.affected) {
-          const fileName = normalizePath(affected.affected.fileName);
-          if (
-            !fileName.includes('node_modules') &&
-            !fileName.endsWith('.d.ts') &&
-            fileName.startsWith(normalizePath(config.srcDir))
-          ) {
-            const tsSemantic = loadTypeScriptDiagnostics(affected.result);
-            applyDevModeRelaxation(tsSemantic);
-            buildCtx.diagnostics.push(...tsSemantic);
-          }
-        }
-        affected = emitBuilder.getSemanticDiagnosticsOfNextAffectedFile?.();
-      }
-    } else {
-      // Initial build: walk all source files.
-      const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
-        const fileName = normalizePath(sf.fileName);
-        return (
-          !fileName.includes('node_modules') &&
-          !fileName.endsWith('.d.ts') &&
-          fileName.startsWith(normalizePath(config.srcDir))
-        );
-      });
-      for (const sourceFile of sourceFiles) {
-        const tsSemantic = loadTypeScriptDiagnostics(tsProgram.getSemanticDiagnostics(sourceFile));
-        applyDevModeRelaxation(tsSemantic);
-        buildCtx.diagnostics.push(...tsSemantic);
-      }
+  // Rebuilds are handled earlier in runTsProgram, before tsBuilder.emit() is called - see the
+  // comment there for why the ordering matters.
+  if (config.validateTypes && !buildCtx.isRebuild) {
+    const sourceFiles = tsProgram.getSourceFiles().filter((sf) => {
+      const fileName = normalizePath(sf.fileName);
+      return (
+        !fileName.includes('node_modules') &&
+        !fileName.endsWith('.d.ts') &&
+        fileName.startsWith(normalizePath(config.srcDir))
+      );
+    });
+    for (const sourceFile of sourceFiles) {
+      const tsSemantic = loadTypeScriptDiagnostics(tsProgram.getSemanticDiagnostics(sourceFile));
+      applyDevModeRelaxation(config, tsSemantic);
+      buildCtx.diagnostics.push(...tsSemantic);
     }
   }
 

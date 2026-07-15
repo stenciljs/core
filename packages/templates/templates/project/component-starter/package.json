@@ -11,7 +11,7 @@
     "dev": "stencil build --dev --watch --serve",
     "generate": "stencil generate"
   },
-  "devDependencies": {
+  "dependencies": {
     "@stencil/core": "{{STENCIL_VERSION}}"
   },
   "collection": "./dist/collection/collection-manifest.json"

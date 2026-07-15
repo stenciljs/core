@@ -2,6 +2,7 @@
   "compilerOptions": {
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",

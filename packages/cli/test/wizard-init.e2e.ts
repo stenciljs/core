@@ -29,7 +29,7 @@ vi.mock('@clack/prompts', () => ({
 vi.mock('nypm', () => ({
   installDependencies: vi.fn().mockResolvedValue(undefined),
   addDevDependency: vi.fn().mockResolvedValue(undefined),
-  detectPackageManager: vi.fn().mockResolvedValue({ name: 'npm' }),
+  detectPackageManager: vi.fn().mockResolvedValue({ name: 'pnpm' }),
 }));
 vi.mock('std-env', () => ({ isCI: false }));
 // installDependencies/addDevDependency above are no-ops - pretend core resolved

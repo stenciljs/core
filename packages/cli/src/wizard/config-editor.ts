@@ -71,7 +71,12 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
   ): boolean {
     for (const element of arr.elements) {
       if (text.slice(element.getStart(), element.getEnd()).includes(substring)) {
-        text = text.slice(0, element.getStart()) + expression + text.slice(element.getEnd());
+        // Re-indent every line of `expression`, not just the first - see appendToArray.
+        const lineStart = text.lastIndexOf('\n', element.getStart()) + 1;
+        const indent = text.slice(lineStart, element.getStart()).match(/^\s+/)?.[0] ?? '';
+        const indentedExpression = indent ? expression.replace(/\n/g, `\n${indent}`) : expression;
+        text =
+          text.slice(0, element.getStart()) + indentedExpression + text.slice(element.getEnd());
         return true;
       }
     }
@@ -125,6 +130,7 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     let insertPos = lastElem.getEnd();
     const trailingComma = text.slice(insertPos).match(/^\s*,/);
     if (trailingComma) insertPos += trailingComma[0].length;
+    const separator = trailingComma ? '' : ',';
 
     // Detect multi-line vs inline from the array opening bracket to its first element
     const firstElemStart = arr.elements[0].getStart();
@@ -133,9 +139,13 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     if (isMultiLine) {
       const lineStart = text.lastIndexOf('\n', firstElemStart) + 1;
       const indent = text.slice(lineStart, firstElemStart).match(/^\s+/)?.[0] ?? '  ';
-      text = `${text.slice(0, insertPos)},\n${indent}${code}${text.slice(insertPos)}`;
+      // Re-indent every line of `code`, not just the first - callers build multi-line
+      // expressions (e.g. `angularOutputTarget({\n  key: val,\n})`) indented relative to
+      // their own start, with no idea what depth they'll be spliced in at.
+      const indentedCode = code.replace(/\n/g, `\n${indent}`);
+      text = `${text.slice(0, insertPos)}${separator}\n${indent}${indentedCode}${text.slice(insertPos)}`;
     } else {
-      text = `${text.slice(0, insertPos)}, ${code}${text.slice(insertPos)}`;
+      text = `${text.slice(0, insertPos)}${separator} ${code}${text.slice(insertPos)}`;
     }
   }
 
@@ -150,7 +160,9 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
       propIndent = text.slice(lineStart, firstPropStart).match(/^\s+/)?.[0] ?? '  ';
     }
     const elemIndent = propIndent + '  ';
-    const newProp = `${propName}: [\n${elemIndent}${code},\n${propIndent}]`;
+    // Re-indent every line of `code`, not just the first - see appendToArray for why.
+    const indentedCode = code.replace(/\n/g, `\n${elemIndent}`);
+    const newProp = `${propName}: [\n${elemIndent}${indentedCode},\n${propIndent}]`;
 
     const lastProp = configObj.properties[configObj.properties.length - 1];
     if (lastProp) {

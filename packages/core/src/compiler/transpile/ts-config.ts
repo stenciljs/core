@@ -44,5 +44,14 @@ export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOpti
     incremental: config.enableCache !== false,
     tsBuildInfoFile: config.enableCache !== false ? join(cacheDir, '.tsbuildinfo') : undefined,
   };
+
+  // Default to skipping full type-checking of .d.ts files (lib.dom.d.ts, node_modules
+  // types, etc.) since that's a large chunk of cold-build cost.
+  // Only apply it when the user's own tsconfig (including via
+  // `extends`) hasn't already made an explicit choice.
+  if (config.tsCompilerOptions?.skipLibCheck === undefined) {
+    tsOptions.skipLibCheck = true;
+  }
+
   return tsOptions;
 };

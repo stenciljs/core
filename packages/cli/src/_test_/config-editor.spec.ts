@@ -201,6 +201,43 @@ export const config: Config = {
       expect(result).toContain('outputTargets');
       expect(result).toContain('loader-bundle');
     });
+
+    it('does not double the comma when the last element already has a trailing one', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'docs-custom-elements-manifest', file: 'custom-elements.json' },
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("{ type: 'standalone' }");
+      await editor.save();
+
+      const result = savedText();
+      expect(result).not.toContain(',,');
+      expect(result).toContain(
+        "{ type: 'docs-custom-elements-manifest', file: 'custom-elements.json' },\n    { type: 'standalone' }",
+      );
+    });
+
+    it('re-indents every line of a multi-line expression to match the array', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("angularOutputTarget({\n  componentCorePackage: 'my-lib',\n})");
+      await editor.save();
+
+      const result = savedText();
+      expect(result).toContain(
+        "    angularOutputTarget({\n      componentCorePackage: 'my-lib',\n    })",
+      );
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -376,6 +413,28 @@ export const config: Config = {
       expect(result).toContain("proxiesFile: 'new.ts'");
       expect(result).not.toContain("proxiesFile: 'old.ts'");
       expect(result).toContain('loader-bundle');
+    });
+
+    it('re-indents every line of a multi-line replacement to match the element it replaces', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+    angularOutputTarget({ componentCorePackage: 'old-lib' }),
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.replaceOutputTarget(
+        'angularOutputTarget(',
+        "angularOutputTarget({\n  componentCorePackage: 'my-lib',\n})",
+      );
+      await editor.save();
+
+      const result = savedText();
+      expect(result).toContain(
+        "    angularOutputTarget({\n      componentCorePackage: 'my-lib',\n    })",
+      );
     });
 
     it('replaces a matching element in an inline array', async () => {
