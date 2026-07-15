@@ -89,7 +89,7 @@ import {
   generateStencilConfig,
 } from '@stencil/templates';
 import { getPackageInfo } from 'local-pkg';
-import { addDevDependency, installDependencies } from 'nypm';
+import { addDevDependency, detectPackageManager, installDependencies } from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
 import { taskInit } from '../task-init';
@@ -186,6 +186,7 @@ describe('taskInit', () => {
     vi.mocked(clack.confirm).mockResolvedValue(true);
     vi.mocked(clack.isCancel).mockReturnValue(false);
     vi.mocked(getPackageInfo).mockResolvedValue({ rootPath: '/node_modules/pkg' } as never);
+    vi.mocked(detectPackageManager).mockResolvedValue({ name: 'npm', command: 'npm' });
     vi.spyOn(process, 'cwd').mockReturnValue(CWD);
     vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`exit:${code ?? 0}`);
@@ -343,6 +344,30 @@ describe('taskInit', () => {
       cwd: CWD,
       silent: true,
     });
+  });
+
+  it('clears an inherited NODE_ENV=production before installing', async () => {
+    // npm sets NODE_ENV=production on itself whenever a nested resolve/exec computes
+    // omit:['dev'] (e.g. `npx create-stencil` resolving @stencil/cli to run it), and every
+    // child process - including this one - inherits it. Left alone, our own nested `npm
+    // install` would inherit it right back and silently omit every devDependency.
+    process.env.NODE_ENV = 'production';
+    try {
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(process.env.NODE_ENV).toBeUndefined();
+    } finally {
+      delete process.env.NODE_ENV;
+    }
+  });
+
+  it('leaves a non-production NODE_ENV untouched', async () => {
+    process.env.NODE_ENV = 'test';
+    try {
+      await taskInit(mockCoreCompiler, mockStrictConfig);
+      expect(process.env.NODE_ENV).toBe('test');
+    } finally {
+      delete process.env.NODE_ENV;
+    }
   });
 
   it('fails loudly when the base install reports success but @stencil/core is not resolvable', async () => {

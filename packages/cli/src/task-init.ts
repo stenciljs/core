@@ -9,7 +9,6 @@ import {
 } from '@stencil/templates';
 import { getPackageInfo } from 'local-pkg';
 import * as nypm from 'nypm';
-import { addDevDependency, installDependencies } from 'nypm';
 import { isCI } from 'std-env';
 import ts from 'typescript';
 import type { OutputTarget, ValidatedConfig } from '@stencil/core/compiler';
@@ -51,59 +50,40 @@ import { printSplash } from './wizard/splash.js';
 import type { CoreCompiler } from './load-compiler.js';
 
 /**
- * Package managers can report success while silently failing to write to node_modules
- * (observed with npm computing a resolved lockfile but reifying zero filesystem changes).
+ * Package managers can report success while silently failing to write to node_modules.
  * Confirms packages actually landed on disk instead of trusting the install call's exit code.
  *
  * @param rootDir - directory to resolve packages from.
  * @param packageNames - packages that were just supposed to be installed.
- * @returns names that failed to resolve; empty when everything installed correctly.
  */
-async function verifyInstalled(rootDir: string, packageNames: string[]): Promise<string[]> {
+async function verifyInstalled(rootDir: string, packageNames: string[]): Promise<void> {
   const missing: string[] = [];
   for (const name of packageNames) {
     const info = await getPackageInfo(name, { paths: [rootDir] });
     if (!info) missing.push(name);
   }
-  return missing;
-}
-
-function failInstallVerification(missing: string[], rootDir: string): never {
+  if (missing.length === 0) return;
   p.log.error(
     `Install reported success but ${missing.join(', ')} could not be found in ${rootDir}. Your package manager may have silently failed to write to node_modules - check its logs and try again.`,
   );
   process.exit(1);
 }
 
-const NPM_CONFIG_ENV_PATTERN = /^npm_config_/i;
-
 /**
- * `stencil init` is commonly run via `npx create-stencil` / `npm init stencil`, which means
- * this process itself is a nested child of an active npm/npx invocation. npm sets `npm_config_*`
- * env vars on every process it spawns, and a nested `npm install` inherits and gets confused by
- * the *outer* invocation's config (observed: silently reifying zero changes despite an empty
- * node_modules - see docs.npmjs.com/cli/using-npm/config and nestjs/nest-cli#153 for the same
- * class of bug). Stripping them for the duration of our own install calls forces the nested
- * npm to compute its config fresh from cwd instead of inheriting the outer process's state.
- *
- * @param fn - install call to run with a clean environment.
- * @returns whatever `fn` resolves to.
+ * npm silently omits devDependencies when this CLI is itself running as a nested child
+ * process (e.g. via `npx create-stencil` / `npm init stencil`). Root cause: npm/exec only
+ * needs @stencil/cli's own regular dependencies to resolve+run it, so that install computes
+ * `omit: ['dev']` - and per npm's own config flattening
+ * (@npmcli/config/lib/definitions/definitions.js), whenever `omit` includes 'dev' npm sets
+ * `process.env.NODE_ENV = 'production'` on itself. We inherit that env var from the outer
+ * npm/npx process, and every child process we (or a wizard plugin) spawn from here would
+ * inherit it right back, causing nested `npm install`s to also compute `omit: ['dev']` and
+ * silently drop (or, worse, actively remove) every devDependency in the scaffolded project.
+ * Clearing it once, up front, fixes every install call transitively - ours and every wizard
+ * plugin's - without needing to special-case npm invocations one by one.
  */
-async function withoutInheritedNpmConfig<T>(fn: () => Promise<T>): Promise<T> {
-  const saved: Record<string, string | undefined> = {};
-  for (const key of Object.keys(process.env)) {
-    if (NPM_CONFIG_ENV_PATTERN.test(key)) {
-      saved[key] = process.env[key];
-      delete process.env[key];
-    }
-  }
-  try {
-    return await fn();
-  } finally {
-    for (const [key, value] of Object.entries(saved)) {
-      process.env[key] = value;
-    }
-  }
+function clearInheritedProductionEnv(): void {
+  if (process.env.NODE_ENV === 'production') delete process.env.NODE_ENV;
 }
 
 function outputKeysToTargets(keys: ReadonlyArray<OutputKey>): Array<{ type: string }> {
@@ -123,6 +103,8 @@ export async function taskInit(
   strictConfig?: ValidatedConfig,
   loadProjectConfig?: (configPath?: string) => Promise<ValidatedConfig>,
 ): Promise<void> {
+  clearInheritedProductionEnv();
+
   const cwd = process.cwd();
   const isExistingProject = await isExistingStencilProject(cwd);
 
@@ -207,24 +189,20 @@ export async function taskInit(
 
   const s2 = p.spinner();
   s2.start('Installing dependencies');
-  await withoutInheritedNpmConfig(() => installDependencies({ cwd, silent: true }));
+  await nypm.installDependencies({ cwd, silent: true });
   s2.stop('Dependencies installed');
 
-  const missingBase = await verifyInstalled(coreDir, ['@stencil/core']);
-  if (missingBase.length > 0) failInstallVerification(missingBase, coreDir);
+  await verifyInstalled(coreDir, ['@stencil/core']);
 
   if (selectedIntegrations.length > 0) {
     const s3 = p.spinner();
     const pkgs = selectedIntegrations.map((i) => i.package);
     s3.start(`Installing ${pkgs.join(', ')}`);
     // Integration packages (e.g. output target plugins) are deps of the core package
-    await withoutInheritedNpmConfig(() =>
-      addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true }),
-    );
+    await nypm.addDevDependency(withVersionRanges(pkgs), { cwd: coreDir, silent: true });
     s3.stop('Integrations installed');
 
-    const missingIntegrations = await verifyInstalled(coreDir, pkgs);
-    if (missingIntegrations.length > 0) failInstallVerification(missingIntegrations, coreDir);
+    await verifyInstalled(coreDir, pkgs);
   }
 
   // Phase 4: re-discover + run plugin wizards
@@ -326,13 +304,10 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
     const s = p.spinner();
     const pkgs = toInstall.map((i) => i.package);
     s.start(`Installing ${pkgs.join(', ')}`);
-    await withoutInheritedNpmConfig(() =>
-      addDevDependency(withVersionRanges(pkgs), { cwd, silent: true }),
-    );
+    await nypm.addDevDependency(withVersionRanges(pkgs), { cwd, silent: true });
     s.stop('Dependencies installed');
 
-    const missing = await verifyInstalled(cwd, pkgs);
-    if (missing.length > 0) failInstallVerification(missing, cwd);
+    await verifyInstalled(cwd, pkgs);
   }
 
   // Re-discover after install so newly installed packages can run their wizards
