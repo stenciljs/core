@@ -180,7 +180,7 @@ const validateEventName = (
     return;
   }
 
-  if (!config.suppressReservedEventNameWarnings && DOM_EVENT_NAMES.has(eventName.toLowerCase())) {
+  if (!config.compat?.suppressEventNameWarnings && DOM_EVENT_NAMES.has(eventName.toLowerCase())) {
     const diagnostic = buildWarn(diagnostics);
     diagnostic.messageText = `The event name conflicts with the "${eventName}" native DOM event name.`;
     augmentDiagnosticWithNode(diagnostic, node);

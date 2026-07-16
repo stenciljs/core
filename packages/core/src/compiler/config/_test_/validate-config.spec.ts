@@ -96,32 +96,29 @@ describe('validation', () => {
     });
   });
 
-  describe('suppressReservedPublicNameWarnings', () => {
-    it.each([true, false])(
-      'sets suppressReservedPublicNameWarnings to %p when provided',
-      (bool) => {
-        userConfig.suppressReservedPublicNameWarnings = bool;
-        const { config } = validateConfig(userConfig, bootstrapConfig);
-        expect(config.suppressReservedPublicNameWarnings).toBe(bool);
-      },
-    );
-
-    it('defaults suppressReservedPublicNameWarnings to false', () => {
+  describe('compat.suppressPublicNameWarnings', () => {
+    it.each([true, false])('sets compat.suppressPublicNameWarnings to %p when provided', (bool) => {
+      userConfig.compat = { suppressPublicNameWarnings: bool };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.suppressReservedPublicNameWarnings).toBe(false);
+      expect(config.compat.suppressPublicNameWarnings).toBe(bool);
+    });
+
+    it('defaults compat.suppressPublicNameWarnings to false', () => {
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.compat.suppressPublicNameWarnings).toBe(false);
     });
   });
 
-  describe('suppressReservedEventNameWarnings', () => {
-    it.each([true, false])('sets suppressReservedEventNameWarnings to %p when provided', (bool) => {
-      userConfig.suppressReservedEventNameWarnings = bool;
+  describe('compat.suppressEventNameWarnings', () => {
+    it.each([true, false])('sets compat.suppressEventNameWarnings to %p when provided', (bool) => {
+      userConfig.compat = { suppressEventNameWarnings: bool };
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.suppressReservedEventNameWarnings).toBe(bool);
+      expect(config.compat.suppressEventNameWarnings).toBe(bool);
     });
 
-    it('defaults suppressReservedEventNameWarnings to false', () => {
+    it('defaults compat.suppressEventNameWarnings to false', () => {
       const { config } = validateConfig(userConfig, bootstrapConfig);
-      expect(config.suppressReservedEventNameWarnings).toBe(false);
+      expect(config.compat.suppressEventNameWarnings).toBe(false);
     });
   });
 

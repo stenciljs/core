@@ -117,6 +117,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`standalone` output target: `externalRuntime` now defaults to `false`**. The runtime is bundled as a shared local chunk rather than kept as an external `@stencil/core/runtime/client` import. Set `externalRuntime: true` if you need multiple Stencil component libraries on the same page to share a single runtime instance (e.g., for `setNonce`/`setTagTransformer` to propagate across libraries).
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
 - **`hashFileNames` and `hashedFileNameLength` moved from top-level config to `loader-bundle` and `www` output targets.** Only these two targets serve bundles directly in the browser. Run `stencil migrate` to remove them from the top-level config, then add to your output targets if non-default values are needed.
+- **`suppressReservedPublicNameWarnings` / `suppressReservedEventNameWarnings` moved into `compat` and renamed** to `compat.suppressPublicNameWarnings` / `compat.suppressEventNameWarnings`. Run `stencil migrate` to update your config automatically.
 
 ---
 
@@ -560,6 +561,11 @@ pnpm run dev       # Watch mode
 ## ⚡ Signals - "make default" consideration
 - [ ] Evaluate adoption/feedback
 - [ ] If stable and popular: flip `signalBacking` default to `true`, deprecate old Map path, remove in next major
+
+---
+
+## Known Test Coverage Gaps
+- `validatePublicName` (`compiler/transformers/reserved-public-members.ts`) has no dedicated unit tests - only its event-name counterpart (`compat.suppressEventNameWarnings`, tested in `parse-events.spec.ts`) is covered.
 
 ---
 

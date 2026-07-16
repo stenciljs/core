@@ -23,7 +23,7 @@ export const validatePublicName = (
   memberType: string,
   node: ts.Node,
 ): void => {
-  if (config.suppressReservedPublicNameWarnings) {
+  if (config.compat?.suppressPublicNameWarnings) {
     return;
   }
 

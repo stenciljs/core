@@ -187,6 +187,11 @@ export const validateConfig = (
     validatedConfig.compat.lightDomPatches = true;
   }
 
+  validatedConfig.compat.suppressPublicNameWarnings =
+    !!validatedConfig.compat.suppressPublicNameWarnings;
+  validatedConfig.compat.suppressEventNameWarnings =
+    !!validatedConfig.compat.suppressEventNameWarnings;
+
   // Set boolean config values with defaults
   // CLI is responsible for merging flags into config before validation
   setBooleanConfig(validatedConfig, 'watch', false);
@@ -196,8 +201,6 @@ export const validateConfig = (
   setBooleanConfig(validatedConfig, 'autoprefixCss', false);
   setBooleanConfig(validatedConfig, 'validateTypes', !validatedConfig._isTesting);
   setBooleanConfig(validatedConfig, 'allowInlineScripts', true);
-  setBooleanConfig(validatedConfig, 'suppressReservedPublicNameWarnings', false);
-  setBooleanConfig(validatedConfig, 'suppressReservedEventNameWarnings', false);
 
   if (!isString(validatedConfig.taskQueue)) {
     validatedConfig.taskQueue = 'async';
