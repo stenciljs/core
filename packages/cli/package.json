@@ -1,6 +1,6 @@
 {
   "name": "@stencil/cli",
-  "version": "5.0.0-alpha.27",
+  "version": "5.0.0-alpha.28",
   "description": "CLI for Stencil - Web component compiler",
   "keywords": [
     "components",
