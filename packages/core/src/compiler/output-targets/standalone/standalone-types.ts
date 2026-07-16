@@ -195,15 +195,16 @@ const generateLoaderType = (): string => {
  * @param cmp the component to generate the type declaration file for
  * @returns the contents of the type declaration file for the provided `cmp`
  */
-const generateCustomElementType = (
+export const generateCustomElementType = (
   componentsDtsRelPath: string,
   cmp: d.ComponentCompilerMeta,
 ): string => {
   const tagNameAsPascal = dashToPascalCase(cmp.tagName);
   const o: string[] = [
     `import type { Components, JSX } from "${componentsDtsRelPath}";`,
+    `import type { HTMLStencilElement } from "@stencil/core/runtime";`,
     ``,
-    `interface ${tagNameAsPascal} extends Components.${tagNameAsPascal}, HTMLElement {}`,
+    `interface ${tagNameAsPascal} extends Components.${tagNameAsPascal}, HTMLStencilElement {}`,
     `export const ${tagNameAsPascal}: {`,
     `    prototype: ${tagNameAsPascal};`,
     `    new (): ${tagNameAsPascal};`,
