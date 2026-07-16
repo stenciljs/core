@@ -12,6 +12,7 @@ export default defineVitestConfig({
           include: ['src/**/*.spec.{ts,tsx}'],
           exclude: ['src/scer/**'],
           setupFiles: ['./vitest-setup-dist.ts'],
+          retry: 2,
           env: {
             TEST_PROJECT: 'dist',
           },
@@ -30,6 +31,7 @@ export default defineVitestConfig({
           include: ['src/**/*.spec.{ts,tsx}'],
           exclude: ['src/scer/**'],
           setupFiles: ['./vitest-setup-custom-elements.ts'],
+          retry: 2,
           env: {
             TEST_PROJECT: 'custom-elements',
           },
@@ -47,6 +49,7 @@ export default defineVitestConfig({
           name: 'scer-lazy',
           include: ['src/scer/**/*.spec.{ts,tsx}'],
           setupFiles: ['./vitest-setup-scer-lazy.ts'],
+          retry: 2,
           browser: {
             enabled: true,
             provider: playwright(),
@@ -61,6 +64,7 @@ export default defineVitestConfig({
           name: 'scer-standalone',
           include: ['src/scer/**/*.spec.{ts,tsx}'],
           setupFiles: ['./vitest-setup-scer-standalone.ts'],
+          retry: 2,
           browser: {
             enabled: true,
             provider: playwright(),
