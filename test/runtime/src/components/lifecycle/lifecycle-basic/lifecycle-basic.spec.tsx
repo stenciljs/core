@@ -38,4 +38,17 @@ describe('lifecycle-basic', () => {
     expect(updates[4]).toHaveTextContent('componentDidUpdate-b');
     expect(updates[5]).toHaveTextContent('componentDidUpdate-a');
   });
+
+  it('componentOnReady does not resolve until nested children have finished loading', async () => {
+    const { root } = await render(<lifecycle-basic-a />, { waitForReady: false });
+
+    await customElements.whenDefined('lifecycle-basic-a');
+    await (root as any).componentOnReady();
+
+    const b = root.querySelector('lifecycle-basic-b')!;
+    const c = root.querySelector('lifecycle-basic-c')!;
+
+    expect(b.classList.contains('hydrated')).toBe(true);
+    expect(c.classList.contains('hydrated')).toBe(true);
+  });
 });

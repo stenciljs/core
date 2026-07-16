@@ -25,4 +25,20 @@ describe('lifecycle-nested', () => {
     expect(loads[4]).toHaveTextContent('componentDidLoad-b');
     expect(loads[5]).toHaveTextContent('componentDidLoad-c');
   });
+
+  it('componentOnReady on the outermost element waits for slotted nested children', async () => {
+    const { root } = await render(
+      '<lifecycle-nested-c><lifecycle-nested-b><lifecycle-nested-a></lifecycle-nested-a></lifecycle-nested-b></lifecycle-nested-c>',
+      { waitForReady: false },
+    );
+
+    await customElements.whenDefined('lifecycle-nested-c');
+    await (root as any).componentOnReady();
+
+    const b = root.querySelector('lifecycle-nested-b')!;
+    const a = root.querySelector('lifecycle-nested-a')!;
+
+    expect(b.classList.contains('hydrated')).toBe(true);
+    expect(a.classList.contains('hydrated')).toBe(true);
+  });
 });
