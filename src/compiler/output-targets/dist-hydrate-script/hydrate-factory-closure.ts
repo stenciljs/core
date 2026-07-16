@@ -139,11 +139,21 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
     ${HYDRATE_APP_CLOSURE_START}
 `;
 
+/**
+ * The closure wraps the entire platform (runtime, vdom and every component
+ * class) so it lexically captures the per-call \`window\`/\`document\`.
+ * Re-executing it on every \`hydrateApp\` call is a significant fixed cost per
+ * render, so the evaluated closure is cached on the window object and reused
+ * whenever the same window is passed in again (e.g. via \`reuseWindow\`).
+ */
 export const HYDRATE_FACTORY_OUTRO = `
     /*hydrateAppClosure end*/
-    hydrateApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+    return hydrateApp;
   }
 
-  hydrateAppClosure($stencilWindow);
+  if (!$stencilWindow.__stencilHydrateApp) {
+    $stencilWindow.__stencilHydrateApp = hydrateAppClosure($stencilWindow);
+  }
+  $stencilWindow.__stencilHydrateApp($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
 }
 `;

@@ -22,6 +22,44 @@ import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
 
+/**
+ * Process-global windows reused across renders when `reuseWindow` is enabled,
+ * ONE PER `serializeShadowRoot` mode: scoped serialization permanently ORs
+ * `shadowNeedsScopedCss` into each component's runtime metadata inside the
+ * cached hydrate platform, which would otherwise leak into later
+ * declarative-shadow-dom renders sharing the same window.
+ */
+const reusableWindows = new Map<string, MockWindow>();
+
+/**
+ * The reused windows are not concurrency-safe, so renders against them are
+ * serialized through this promise queue.
+ */
+let reuseRenderQueue: Promise<unknown> = Promise.resolve();
+
+function getReusableWindow(doc: string, opts: HydrateFactoryOptions): MockWindow {
+  const modeKey = JSON.stringify(opts.serializeShadowRoot ?? null);
+  let win = reusableWindows.get(modeKey);
+  if (win) {
+    const document = win.document;
+    /**
+     * Swap in fresh `<head>`/`<body>` ELEMENTS for every render (never reset via
+     * `innerHTML = ''`): the runtime's `rootAppliedStyles` WeakMap is keyed on
+     * the head node, so keeping the node identity would silently drop scoped
+     * `sc-` styles after the first render.
+     */
+    const newHead = document.createElement('head');
+    document.documentElement.replaceChild(newHead, document.head);
+    const newBody = document.createElement('body');
+    newBody.innerHTML = doc;
+    document.documentElement.replaceChild(newBody, document.body);
+  } else {
+    win = new MockWindow(doc);
+    reusableWindows.set(modeKey, win);
+  }
+  return win;
+}
+
 export function streamToString(html: string | any, option?: SerializeDocumentOptions) {
   return renderToString(html, option, true);
 }
@@ -85,6 +123,40 @@ export function hydrateDocument(
   }
 
   if (typeof doc === 'string') {
+    if (opts.reuseWindow) {
+      opts.destroyWindow = false;
+      opts.destroyDocument = false;
+
+      const runRender = (): Promise<HydrateResults> => {
+        let reusedWin: MockWindow | null = null;
+        try {
+          reusedWin = getReusableWindow(doc, opts);
+          return render(reusedWin, opts, results).then(() => results);
+        } catch (e) {
+          if (reusedWin) {
+            reusableWindows.delete(JSON.stringify(opts.serializeShadowRoot ?? null));
+            if (reusedWin.close) {
+              reusedWin.close();
+            }
+          }
+          renderCatchError(results, e);
+          return Promise.resolve(results);
+        }
+      };
+
+      const queuedRender = reuseRenderQueue.then(runRender, runRender);
+      reuseRenderQueue = queuedRender.then(NOOP, NOOP);
+
+      if (!asStream) {
+        return queuedRender;
+      }
+      return Readable.from(
+        (async function* () {
+          yield (await queuedRender).html;
+        })(),
+      );
+    }
+
     try {
       opts.destroyWindow = true;
       opts.destroyDocument = true;
