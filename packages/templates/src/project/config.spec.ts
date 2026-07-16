@@ -175,6 +175,16 @@ describe('generateStencilConfig', () => {
       expect(result).toContain(`{ type: 'docs-json'`);
     });
 
+    it('includes AI Skill docs output target', () => {
+      const result = generateStencilConfig({
+        namespace: 'MyLib',
+        outputs: [],
+        signals: false,
+        docs: ['skill'],
+      });
+      expect(result).toContain(`{ type: 'docs-agent-skill' }`);
+    });
+
     it('includes VSCode docs output target', () => {
       const result = generateStencilConfig({
         namespace: 'MyLib',

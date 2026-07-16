@@ -2313,6 +2313,37 @@ export interface OutputTargetDocsCustom extends OutputTargetBase {
   strict?: boolean;
 }
 
+/**
+ * Output target for generating an [Agent Skill](https://agentskills.io)
+ * (`SKILL.md` + per-component reference files) describing a component
+ * library, so AI coding agents can consume its API and usage examples
+ * directly.
+ */
+export interface OutputTargetDocsAgentSkill extends OutputTargetBase {
+  type: 'docs-agent-skill';
+
+  /**
+   * The root directory where the skill (`SKILL.md` + `components/*.md`) is written.
+   *
+   * defaults to `dist/skill`
+   */
+  dir?: string;
+  /**
+   * The skill's name, used in the `SKILL.md` frontmatter.
+   *
+   * Defaults to a kebab-cased form of {@link Config.namespace}.
+   */
+  name?: string;
+  /**
+   * The skill's description, used in the `SKILL.md` frontmatter - this is the
+   * text agents use to decide when to load the skill.
+   *
+   * Defaults to an auto-generated sentence built from the project's
+   * {@link JsonDocs.usage} (if present) or its component tags.
+   */
+  description?: string;
+}
+
 export interface OutputTargetStats extends OutputTargetBase {
   type: 'stats';
 
@@ -2594,6 +2625,7 @@ export type OutputTarget =
   | OutputTargetDocsReadme
   | OutputTargetDocsVscode
   | OutputTargetDocsCustomElementsManifest
+  | OutputTargetDocsAgentSkill
   // Other output targets
   | OutputTargetWww
   | OutputTargetStats;

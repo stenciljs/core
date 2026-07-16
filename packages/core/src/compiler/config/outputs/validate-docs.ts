@@ -7,6 +7,7 @@ import {
   DOCS_README,
   isBoolean,
   isFunction,
+  isOutputTargetDocsAgentSkill,
   isOutputTargetDocsCustom,
   isOutputTargetDocsCustomElementsManifest,
   isOutputTargetDocsJson,
@@ -15,7 +16,9 @@ import {
   isString,
   join,
 } from '../../../utils';
+import { toSkillName } from '../../docs/agent-skill/frontmatter';
 import { NOTE } from '../../docs/constants';
+import { getAbsolutePath } from '../config-utils';
 
 export const validateDocs = (
   config: d.ValidatedConfig,
@@ -73,6 +76,12 @@ export const validateDocs = (
   );
   customElementsManifestOutputs.forEach((cemOutput) => {
     docsOutputs.push(validateCustomElementsManifestOutputTarget(config, cemOutput));
+  });
+
+  // agent skill docs
+  const agentSkillOutputs = userOutputs.filter(isOutputTargetDocsAgentSkill);
+  agentSkillOutputs.forEach((agentSkillOutput) => {
+    docsOutputs.push(validateAgentSkillOutputTarget(config, agentSkillOutput));
   });
 
   return docsOutputs;
@@ -154,6 +163,23 @@ const validateVScodeDocsOutputTarget = (
     const err = buildError(diagnostics);
     err.messageText = `docs-vscode outputTarget missing the "file" path`;
   }
+  // docs targets skip in dev by default, unless --docs flag was used
+  if (!isBoolean(outputTarget.skipInDev)) {
+    outputTarget.skipInDev = !config._docsFlag;
+  }
+  return outputTarget;
+};
+
+const DEFAULT_AGENT_SKILL_DIR = 'dist/skill';
+
+const validateAgentSkillOutputTarget = (
+  config: d.ValidatedConfig,
+  outputTarget: d.OutputTargetDocsAgentSkill,
+) => {
+  outputTarget.dir = getAbsolutePath(config, outputTarget.dir || DEFAULT_AGENT_SKILL_DIR);
+  // fsNamespace (not namespace) is used here -
+  // fsNamespace stays lowercase/dash-preserving, matching kebab-case skill names.
+  outputTarget.name = toSkillName(outputTarget.name || config.fsNamespace);
   // docs targets skip in dev by default, unless --docs flag was used
   if (!isBoolean(outputTarget.skipInDev)) {
     outputTarget.skipInDev = !config._docsFlag;

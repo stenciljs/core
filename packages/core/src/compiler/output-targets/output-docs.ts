@@ -2,6 +2,7 @@ import type * as d from '@stencil/core';
 
 import {
   filterActiveTargets,
+  isOutputTargetDocsAgentSkill,
   isOutputTargetDocsCustom,
   isOutputTargetDocsCustomElementsManifest,
   isOutputTargetDocsJson,
@@ -10,6 +11,7 @@ import {
   join,
   normalizePath,
 } from '../../utils';
+import { generateAgentSkillDocs } from '../docs/agent-skill';
 import { generateCustomElementsManifestDocs } from '../docs/cem';
 import { generateCustomDocs } from '../docs/custom';
 import { generateDocData } from '../docs/generate-doc-data';
@@ -37,7 +39,8 @@ export const outputDocs = async (
         isOutputTargetDocsJson(o) ||
         isOutputTargetDocsCustom(o) ||
         isOutputTargetDocsVscode(o) ||
-        isOutputTargetDocsCustomElementsManifest(o),
+        isOutputTargetDocsCustomElementsManifest(o) ||
+        isOutputTargetDocsAgentSkill(o),
     ),
     config.devMode,
   );
@@ -60,7 +63,8 @@ export const outputDocs = async (
       target.type === 'docs-json' ||
       target.type === 'docs-custom' ||
       target.type === 'docs-vscode' ||
-      target.type === 'docs-custom-elements-manifest',
+      target.type === 'docs-custom-elements-manifest' ||
+      target.type === 'docs-agent-skill',
   );
 
   if (isDocsOnlyMode) {
@@ -94,5 +98,6 @@ export const outputDocs = async (
     generateVscodeDocs(compilerCtx, docsData, docsOutputTargets),
     generateCustomDocs(config, docsData, docsOutputTargets),
     generateCustomElementsManifestDocs(compilerCtx, docsData, docsOutputTargets),
+    generateAgentSkillDocs(compilerCtx, docsData, docsOutputTargets),
   ]);
 };
