@@ -74,6 +74,64 @@ describe('SVG element', () => {
     `);
   });
 
+  it('should map camelCase props to kebab-case svg attributes', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      render() {
+        const circleProps = { cx: 15, cy: 5, r: 3, stroke: 'green', strokeWidth: 3 };
+        return (
+          <svg viewBox="0 0 30 10">
+            <circle {...circleProps} />
+            <rect width={4} height={4} fillOpacity={0.5} />
+          </svg>
+        );
+      }
+    }
+    const { root } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    expect(root).toEqualHtml(`
+      <cmp-a>
+        <svg viewBox=\"0 0 30 10\">
+          <circle cx=\"15\" cy=\"5\" r=\"3\" stroke=\"green\" stroke-width=\"3\"></circle>
+          <rect width=\"4\" height=\"4\" fill-opacity=\"0.5\"></rect>
+        </svg>
+      </cmp-a>
+    `);
+  });
+
+  it('should update and remove kebab-case mapped svg attributes', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() strokeWidth?: number = 3;
+
+      render() {
+        return (
+          <svg viewBox="0 0 30 10">
+            <circle cx="15" cy="5" r="3" strokeWidth={this.strokeWidth} />
+          </svg>
+        );
+      }
+    }
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    let circle = root.querySelector('circle');
+    expect(circle.getAttribute('stroke-width')).toBe('3');
+
+    root.strokeWidth = 5;
+    await waitForChanges();
+    circle = root.querySelector('circle');
+    expect(circle.getAttribute('stroke-width')).toBe('5');
+
+    root.strokeWidth = undefined;
+    await waitForChanges();
+    circle = root.querySelector('circle');
+    expect(circle.hasAttribute('stroke-width')).toBe(false);
+  });
+
   describe('path', () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {
