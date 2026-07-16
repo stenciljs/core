@@ -224,6 +224,9 @@ export const setAccessor = (
         xlink = true;
       }
     }
+    if (BUILD.svg && isSvg && !xlink) {
+      memberName = mapSvgCamelCaseAttribute(memberName);
+    }
     if (newValue == null || newValue === false) {
       if (newValue !== false || elm.getAttribute(memberName) === '') {
         if (BUILD.vdomXlink && xlink) {
@@ -266,5 +269,45 @@ export const parseClassList = /*@__PURE__*/ (value: string | SVGAnimatedString |
 
   return value.split(parseClassListRegex);
 };
+/**
+ * SVG attributes that are genuinely camelCase per the SVG specification and
+ * must not be converted to kebab-case (e.g. `viewBox`, `preserveAspectRatio`).
+ */
+const SVG_CAMEL_CASE_ATTRS = /*@__PURE__*/ new Set(
+  (
+    'allowReorder attributeName attributeType autoReverse baseFrequency baseProfile calcMode clipPathUnits ' +
+    'contentScriptType contentStyleType diffuseConstant edgeMode externalResourcesRequired filterRes filterUnits ' +
+    'glyphRef gradientTransform gradientUnits kernelMatrix kernelUnitLength keyPoints keySplines keyTimes ' +
+    'lengthAdjust limitingConeAngle markerHeight markerUnits markerWidth maskContentUnits maskUnits numOctaves ' +
+    'pathLength patternContentUnits patternTransform patternUnits pointsAtX pointsAtY pointsAtZ preserveAlpha ' +
+    'preserveAspectRatio primitiveUnits refX refY repeatCount repeatDur requiredExtensions requiredFeatures ' +
+    'specularConstant specularExponent spreadMethod startOffset stdDeviation stitchTiles surfaceScale ' +
+    'systemLanguage tableValues targetX targetY textLength viewBox viewTarget xChannelSelector yChannelSelector ' +
+    'zoomAndPan'
+  ).split(' '),
+);
+
+/**
+ * Maps a camelCase SVG JSX prop name to the corresponding SVG attribute name.
+ * SVG attribute matching is case-sensitive, so `strokeWidth` must be set as
+ * `stroke-width` to take effect. Attributes that are genuinely camelCase in
+ * the SVG specification (e.g. `viewBox`) and `xml`/`xmlns` prefixed names are
+ * left unmodified.
+ *
+ * @param memberName the JSX prop name
+ * @returns the SVG attribute name to set
+ */
+const mapSvgCamelCaseAttribute = (memberName: string): string => {
+  if (!/[A-Z]/.test(memberName) || SVG_CAMEL_CASE_ATTRS.has(memberName) || /^xml/.test(memberName)) {
+    return memberName;
+  }
+  if (memberName === 'tabIndex' || memberName === 'crossOrigin') {
+    // these map to all-lowercase attribute names rather than kebab-case
+    return memberName.toLowerCase();
+  }
+
+  return memberName.replace(/([A-Z])/g, (match) => '-' + match.toLowerCase());
+};
+
 const CAPTURE_EVENT_SUFFIX = 'Capture';
 const CAPTURE_EVENT_REGEX = new RegExp(CAPTURE_EVENT_SUFFIX + '$');

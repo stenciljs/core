@@ -319,6 +319,46 @@ describe('setAccessor for custom elements', () => {
     expect(elm.hasAttribute('transform')).toBe(false);
   });
 
+  it('should map camelCase svg prop to kebab-case attribute', () => {
+    setAccessor(elm, 'strokeWidth', undefined, 3, true, 0);
+    expect(elm.hasAttribute('strokeWidth')).toBe(false);
+    expect(elm.getAttribute('stroke-width')).toBe('3');
+  });
+
+  it('should update camelCase svg prop as kebab-case attribute', () => {
+    elm.setAttribute('stroke-width', '3');
+
+    setAccessor(elm, 'strokeWidth', 3, 5, true, 0);
+    expect(elm.getAttribute('stroke-width')).toBe('5');
+  });
+
+  it('should remove kebab-case attribute when camelCase svg prop is removed', () => {
+    elm.setAttribute('stroke-width', '3');
+
+    setAccessor(elm, 'strokeWidth', 3, undefined, true, 0);
+    expect(elm.hasAttribute('stroke-width')).toBe(false);
+  });
+
+  it('should not map camelCase svg attributes that are camelCase in the SVG spec', () => {
+    setAccessor(elm, 'viewBox', undefined, '0 0 30 10', true, 0);
+    expect(elm.getAttribute('viewBox')).toBe('0 0 30 10');
+    expect(elm.hasAttribute('view-box')).toBe(false);
+
+    setAccessor(elm, 'preserveAspectRatio', undefined, 'xMidYMid meet', true, 0);
+    expect(elm.getAttribute('preserveAspectRatio')).toBe('xMidYMid meet');
+  });
+
+  it('should map tabIndex on svg to the lowercase attribute', () => {
+    setAccessor(elm, 'tabIndex', undefined, 0, true, 0);
+    expect(elm.getAttribute('tabindex')).toBe('0');
+    expect(elm.hasAttribute('tab-index')).toBe(false);
+  });
+
+  it('should not map camelCase props when not in an svg context', () => {
+    setAccessor(elm, 'strokeWidth', undefined, 3, false, 0);
+    expect(elm.hasAttribute('stroke-width')).toBe(false);
+  });
+
   it('should set true boolean to attribute', () => {
     const oldValue: any = 'someval';
     const newValue: any = true;
