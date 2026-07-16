@@ -273,6 +273,10 @@ export const DOCS_VSCODE = 'docs-vscode';
  */
 export const DOCS_CUSTOM_ELEMENTS_MANIFEST = 'docs-custom-elements-manifest';
 /**
+ * Constant for the 'docs-agent-skill' output target
+ */
+export const DOCS_AGENT_SKILL = 'docs-agent-skill';
+/**
  * Constant for the 'stats' output target
  */
 export const STATS = 'stats';
@@ -313,6 +317,7 @@ export const VALID_CONFIG_OUTPUT_TARGETS = [
   DOCS_VSCODE,
   DOCS_CUSTOM,
   DOCS_CUSTOM_ELEMENTS_MANIFEST,
+  DOCS_AGENT_SKILL,
 
   // MISC
   COPY,

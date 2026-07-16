@@ -1,5 +1,5 @@
 export type OutputKey = 'loader' | 'standalone' | 'ssr' | 'ssr-wasm' | 'www';
-export type DocKey = 'cem' | 'json' | 'vscode';
+export type DocKey = 'cem' | 'json' | 'skill' | 'vscode';
 
 export interface PackageJsonFields {
   type?: 'module';
@@ -43,6 +43,7 @@ export function generateStencilConfig(sel: ConfigSelections): string | null {
     );
   if (sel.docs.includes('json'))
     outputLines.push(`    { type: 'docs-json', file: 'docs/api.json' },`);
+  if (sel.docs.includes('skill')) outputLines.push(`    { type: 'docs-agent-skill' },`);
   if (sel.docs.includes('vscode'))
     outputLines.push(`    { type: 'docs-vscode', file: 'vscode-data.json' },`);
 

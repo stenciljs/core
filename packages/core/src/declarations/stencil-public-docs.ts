@@ -27,6 +27,13 @@ export interface JsonDocs {
    */
   components: JsonDocsComponent[];
   /**
+   * Project-level usage content, collected from markdown files in a `usage`
+   * directory at the project's {@link Config.srcDir} root (as opposed to
+   * per-component usage content, which lives in {@link JsonDocsComponent.usage}).
+   * Keyed by file name (without extension), same shape as component usage.
+   */
+  usage?: JsonDocsUsage;
+  /**
    * The timestamp at which the metadata was generated, in the format YYYY-MM-DDThh:mm:ss
    */
   timestamp: string;

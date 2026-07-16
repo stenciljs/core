@@ -75,4 +75,56 @@ describe('validateDocs', () => {
       userConfig.docs.markdown.targetComponent.textColor,
     );
   });
+
+  describe('docs-agent-skill', () => {
+    it('defaults dir to dist/skill', () => {
+      userConfig.outputTargets = [{ type: 'docs-agent-skill' } as d.OutputTargetDocsAgentSkill];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(
+        (o) => o.type === 'docs-agent-skill',
+      ) as d.OutputTargetDocsAgentSkill;
+      expect(o.dir).toContain('dist/skill');
+    });
+
+    it('honors an explicit dir and makes it absolute', () => {
+      userConfig.outputTargets = [
+        { type: 'docs-agent-skill', dir: 'my-skill-dir' } as d.OutputTargetDocsAgentSkill,
+      ];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(
+        (o) => o.type === 'docs-agent-skill',
+      ) as d.OutputTargetDocsAgentSkill;
+      expect(o.dir).toContain('my-skill-dir');
+    });
+
+    it('defaults name to a kebab-cased namespace', () => {
+      userConfig.namespace = 'My Design System';
+      userConfig.outputTargets = [{ type: 'docs-agent-skill' } as d.OutputTargetDocsAgentSkill];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(
+        (o) => o.type === 'docs-agent-skill',
+      ) as d.OutputTargetDocsAgentSkill;
+      expect(o.name).toBe('my-design-system');
+    });
+
+    it('honors an explicit name (still sanitized)', () => {
+      userConfig.outputTargets = [
+        { type: 'docs-agent-skill', name: 'Custom Name' } as d.OutputTargetDocsAgentSkill,
+      ];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(
+        (o) => o.type === 'docs-agent-skill',
+      ) as d.OutputTargetDocsAgentSkill;
+      expect(o.name).toBe('custom-name');
+    });
+
+    it('skips in dev by default, unless the --docs flag was used', () => {
+      userConfig.outputTargets = [{ type: 'docs-agent-skill' } as d.OutputTargetDocsAgentSkill];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const o = config.outputTargets.find(
+        (o) => o.type === 'docs-agent-skill',
+      ) as d.OutputTargetDocsAgentSkill;
+      expect(o.skipInDev).toBe(!config._docsFlag);
+    });
+  });
 });

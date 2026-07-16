@@ -176,6 +176,11 @@ export async function promptDocs(): Promise<DocKey[]> {
       },
       { value: 'json', label: 'JSON', hint: 'docs.json - Stencil / Ionic centric schema' },
       {
+        value: 'skill',
+        label: 'AI Skill',
+        hint: 'dist/skill/SKILL.md - Agent Skill (agentskills.io) reference for AI coding agents',
+      },
+      {
         value: 'vscode',
         label: 'VS Code',
         hint: 'vscode-data.json - editor autocomplete for your components',

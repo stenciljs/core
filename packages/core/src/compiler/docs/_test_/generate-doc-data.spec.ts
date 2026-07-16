@@ -417,4 +417,38 @@ auto-generated content
       ]);
     });
   });
+
+  describe('project-level usage', () => {
+    it('collects markdown files from <srcDir>/usage into the top-level usage field', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      await compilerCtx.fs.writeFile(
+        `${validatedConfig.srcDir}/usage/getting-started.md`,
+        'Install the library with npm.',
+        { immediateWrite: true },
+      );
+
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+      buildCtx.moduleFiles = [];
+      buildCtx.components = [];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.usage).toEqual({
+        'getting-started': 'Install the library with npm.',
+      });
+    });
+
+    it('returns an empty object when there is no usage directory', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+      buildCtx.moduleFiles = [];
+      buildCtx.components = [];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.usage).toEqual({});
+    });
+  });
 });

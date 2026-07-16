@@ -51,6 +51,7 @@ export const generateDocData = async (
       typescriptVersion: versions.typescript,
     },
     components: await getDocsComponents(config, compilerCtx, buildCtx),
+    usage: await generateUsages(compilerCtx, normalizePath(join(config.srcDir, 'usage'))),
     typeLibrary,
   };
 };

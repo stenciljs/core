@@ -189,6 +189,22 @@ This is filesystem-driven with no config gating - any non-www project benefits a
 
 ---
 
+### 🤖 `docs-agent-skill` Output Target (First pass shipped)
+
+A docs output target that emits an [Agent Skill](https://agentskills.io) (`SKILL.md` + frontmatter) describing a component library, so AI coding agents can consume it directly instead of just reading generated readmes. Agent Skills are a **vendor-neutral spec**, not a Claude-only thing - [vercel-labs/skills](https://github.com/vercel-labs/skills) lists 70+ supported agents (Claude Code, Cursor, Codex, Gemini CLI, GitHub Copilot, Windsurf, etc.), each reading from their own `<agent>/skills/` directory.
+
+**How it works:** reuses existing data end-to-end rather than adding a new extraction pipeline:
+- Per-component API + usage examples come from the existing `docs-json`/`generateDocData` pipeline and the existing pure `readme/markdown-*.ts` formatting functions (props/events/methods/slots/CSS custom properties/parts/usage) - reused as-is, not reimplemented.
+- New: project-level intro content from a `<srcDir>/usage/*.md` folder (mirrors the per-component `usage/` convention) surfaces as `JsonDocs.usage`, a new shared field on the docs data model (`packages/core/src/declarations/stencil-public-docs.ts`) populated in `generateDocData` (`packages/core/src/compiler/docs/generate-doc-data.ts`). `docs-json` inherits it automatically (object spread); CEM intentionally does not (no spec-conformant home for project-level text in the real Custom Elements Manifest schema).
+- Output structure is progressive disclosure: `dist/skill/SKILL.md` (frontmatter + intro + component index, stays small for agent triggering) + `dist/skill/components/<tag>.md` per component (full reference, loaded on demand).
+- `name` defaults from `config.fsNamespace` (not `config.namespace` - the latter gets PascalCased when it contains dashes, which collapses word boundaries once re-lowercased). `description` defaults from the first sentence of the project usage intro (heading-stripped, paragraph-bounded) if present, else a generated sentence from the component tag list.
+
+**Distribution is already solved externally:** the `npx skills add <source>` CLI (from the spec's ecosystem, see [skills.sh](https://skills.sh)) installs a `SKILL.md` from a git repo, a path within a repo, or a **local path** - a consumer can run `npx skills add node_modules/my-design-system` and it fans out to whatever agent they're actually using. No Stencil-side wizard/install plumbing was needed for this first pass.
+
+**New module:** `packages/core/src/compiler/docs/agent-skill/` (`frontmatter.ts`, `markdown-component.ts`, `output-agent-skill.ts`, `index.ts`). Wired through the standard docs output-target path (`stencil-public-compiler.ts`, `constants.ts`, `output-target.ts`, `validate-docs.ts`, `output-targets/output-docs.ts`), opt-in only (not auto-injected like `docs-readme`). Golden-file e2e fixture at `test/build/docs-agent-skill/`; unit tests in `packages/core/src/compiler/docs/_test_/agent-skill*.spec.ts`.
+
+---
+
 ### 🌍 `ssr-wasm` Output Target ✅ Complete
 
 Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://extism.org/) + QuickJS-ng, callable from any language with a WASM runtime (PHP, Java, Ruby, Go, Rust, etc.).

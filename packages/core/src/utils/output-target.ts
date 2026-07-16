@@ -17,6 +17,7 @@ import {
   // Internal output targets
   DIST_LAZY,
   // Docs
+  DOCS_AGENT_SKILL,
   DOCS_CUSTOM,
   DOCS_CUSTOM_ELEMENTS_MANIFEST,
   DOCS_JSON,
@@ -180,12 +181,14 @@ export const isOutputTargetDocs = (
   | d.OutputTargetDocsReadme
   | d.OutputTargetDocsVscode
   | d.OutputTargetDocsCustom
-  | d.OutputTargetDocsCustomElementsManifest =>
+  | d.OutputTargetDocsCustomElementsManifest
+  | d.OutputTargetDocsAgentSkill =>
   o.type === DOCS_README ||
   o.type === DOCS_JSON ||
   o.type === DOCS_CUSTOM ||
   o.type === DOCS_VSCODE ||
-  o.type === DOCS_CUSTOM_ELEMENTS_MANIFEST;
+  o.type === DOCS_CUSTOM_ELEMENTS_MANIFEST ||
+  o.type === DOCS_AGENT_SKILL;
 
 export const isOutputTargetDocsReadme = (o: d.OutputTarget): o is d.OutputTargetDocsReadme =>
   o.type === DOCS_README;
@@ -202,6 +205,10 @@ export const isOutputTargetDocsVscode = (o: d.OutputTarget): o is d.OutputTarget
 export const isOutputTargetDocsCustomElementsManifest = (
   o: d.OutputTarget,
 ): o is d.OutputTargetDocsCustomElementsManifest => o.type === DOCS_CUSTOM_ELEMENTS_MANIFEST;
+
+export const isOutputTargetDocsAgentSkill = (
+  o: d.OutputTarget,
+): o is d.OutputTargetDocsAgentSkill => o.type === DOCS_AGENT_SKILL;
 
 export const isOutputTargetWww = (o: d.OutputTarget): o is d.OutputTargetWww => o.type === WWW;
 
