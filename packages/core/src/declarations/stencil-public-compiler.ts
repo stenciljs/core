@@ -147,16 +147,6 @@ export interface StencilConfig {
    * This behavior defaults to `true`, but may be opted-out of by setting this flag to `false`.
    */
   transformAliasedImportPaths?: boolean;
-  /**
-   * When `true`, Stencil will suppress diagnostics which warn about public members using reserved names
-   * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
-   */
-  suppressReservedPublicNameWarnings?: boolean;
-
-  /**
-   * When `true`, Stencil will suppress diagnostics which warn about event names conflicting with native DOM event names. Defaults to `false`.
-   */
-  suppressReservedEventNameWarnings?: boolean;
 
   /**
    * Passes custom configuration down to the "@rolldown/plugin-node-resolve" that Stencil uses under the hood.
@@ -188,7 +178,8 @@ export interface StencilConfig {
   logger?: Logger;
 
   /**
-   * Compatibility and workaround flags for framework integration and bundler edge cases.
+   * Compatibility and workaround flags for framework/bundler edge cases
+   * and rarely-needed diagnostic suppressions.
    */
   compat?: ConfigCompat;
 
@@ -338,8 +329,6 @@ export interface StencilConfig {
    * @default []
    */
   collections?: string[];
-
-  stencilCoreResolvedId?: string;
 }
 
 /**
@@ -369,8 +358,10 @@ export type LightDomPatches = {
 };
 
 /**
- * Compatibility and workaround flags for framework integration and bundler edge cases.
- * These are opt-in runtime behaviors that aren't needed by every project.
+ * Compatibility and workaround flags, primarily for shielding non-shadow DOM components
+ * from consuming frameworks that mutate internals they don't know about, plus other
+ * framework/bundler integration edge cases and rarely-needed diagnostic suppressions.
+ * These are opt-in behaviors that aren't needed by every project.
  */
 export interface ConfigCompat {
   /**
@@ -405,6 +396,17 @@ export interface ConfigCompat {
    * See {@link LightDomPatches} for granular control. Defaults to `true`.
    */
   lightDomPatches?: boolean | LightDomPatches;
+
+  /**
+   * When `true`, Stencil will suppress diagnostics which warn about public members using reserved names
+   * (for example, decorating a method named `focus` with `@Method()`). Defaults to `false`.
+   */
+  suppressPublicNameWarnings?: boolean;
+
+  /**
+   * When `true`, Stencil will suppress diagnostics which warn about event names conflicting with native DOM event names. Defaults to `false`.
+   */
+  suppressEventNameWarnings?: boolean;
 }
 
 export interface Config extends StencilConfig {

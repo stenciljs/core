@@ -12,6 +12,7 @@ import { lightDomPatchesRule } from './rules/light-dom-patches';
 import { outputTargetRenamesRule } from './rules/output-target-renames';
 import { rolldownConfigRule } from './rules/rolldown-config';
 import { serviceWorkerDefaultRule } from './rules/service-worker-default';
+import { suppressWarningsToCompatRule } from './rules/suppress-warnings-to-compat';
 
 /**
  * Build a map of local import names to their original names from @stencil/core.
@@ -124,6 +125,7 @@ const migrationRules: MigrationRule[] = [
   globalStyleInjectRule,
   lightDomPatchesRule,
   extrasToCompatRule,
+  suppressWarningsToCompatRule,
   externalRuntimeRule,
   hashFileNamesRule,
   rolldownConfigRule,

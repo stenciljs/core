@@ -242,7 +242,7 @@ describe('parse events', () => {
     });
   });
 
-  describe('suppressReservedEventNameWarnings', () => {
+  describe('compat.suppressEventNameWarnings', () => {
     it('should warn when using native DOM event name and flag is unset (default)', () => {
       expect(() => {
         transpileModule(
@@ -266,7 +266,7 @@ describe('parse events', () => {
             clickEvent: EventEmitter<void>;
           }
         `,
-        { suppressReservedEventNameWarnings: true },
+        { compat: { suppressEventNameWarnings: true } },
       );
 
       expect(t.event).toEqual({
