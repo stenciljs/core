@@ -496,6 +496,29 @@ var(--theme-secondary-color) var(--theme-secondary-opacity));
     // The runtime CSS string must round-trip the single backslash
     expect(evaluateEsmOutput(result.output)).toBe(input);
   });
+
+  it('escapes raw control characters as visible escape sequences', () => {
+    // genuine control character bytes (form feed, backspace, vertical tab, null),
+    // not their escaped text forms
+    const input = '.x::before { content: "\u000c101 \u0008 \u000b \u0000"; }';
+    const result = transformCssToEsmSync({
+      input,
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // The generated module must be valid JavaScript and the runtime CSS string
+    // must contain the control characters as visible escape sequences
+    // (e.g. U+000C followed by "101" becomes the CSS escape `\f101`)
+    expect(evaluateEsmOutput(result.output)).toBe('.x::before { content: "\\f101 \\b \\v \\0"; }');
+  });
 });
 
 /**
