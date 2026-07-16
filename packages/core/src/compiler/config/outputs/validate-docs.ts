@@ -177,7 +177,7 @@ const validateAgentSkillOutputTarget = (
   outputTarget: d.OutputTargetDocsAgentSkill,
 ) => {
   outputTarget.dir = getAbsolutePath(config, outputTarget.dir || DEFAULT_AGENT_SKILL_DIR);
-  // fsNamespace (not namespace) is used here - 
+  // fsNamespace (not namespace) is used here -
   // fsNamespace stays lowercase/dash-preserving, matching kebab-case skill names.
   outputTarget.name = toSkillName(outputTarget.name || config.fsNamespace);
   // docs targets skip in dev by default, unless --docs flag was used
