@@ -1,5 +1,6 @@
 /* FOUC prevention - replaced at build time with component visibility rules */
-@import 'stencil-hydrate';
+/* layer() modifier wraps the resolved import so it can be reordered/overridden via @layer */
+@import 'stencil-hydrate' layer(init);
 
 /* Base page styles */
 :root {
@@ -7,7 +8,7 @@
 }
 
 /* Component global styles are injected here */
-@import 'stencil-globals';
+@import 'stencil-globals' supports(display: grid);
 
 body {
   margin: 0;

@@ -158,6 +158,35 @@ describe('component-global-styles', () => {
       expect(result).toContain(':root {}');
       expect(result).toContain('body {}');
     });
+
+    it('wraps in @layer when a layer() modifier is present', async () => {
+      buildCtx.components = [
+        mockCmp({ globalStyles: [{ styleStr: 'my-cmp { display: block; }', absolutePath: null }] }),
+      ];
+      const css = `@import "stencil-globals" layer(init);`;
+      const result = await resolveStencilGlobalsImport(
+        css,
+        config,
+        compilerCtx,
+        buildCtx,
+        '/src/global.css',
+      );
+      expect(result).not.toContain('@import');
+      expect(result).toBe('@layer init {\nmy-cmp { display: block; }\n}');
+    });
+
+    it('wraps in @supports and @media when those modifiers are present', async () => {
+      buildCtx.components = [mockCmp({ globalStyles: [{ styleStr: 'x {}', absolutePath: null }] })];
+      const css = `@import "stencil-globals" supports(display: grid) (min-width: 400px);`;
+      const result = await resolveStencilGlobalsImport(
+        css,
+        config,
+        compilerCtx,
+        buildCtx,
+        '/src/global.css',
+      );
+      expect(result).toBe('@supports (display: grid) {\n@media (min-width: 400px) {\nx {}\n}\n}');
+    });
   });
 
   describe('hasStencilHydrateImport', () => {
@@ -273,6 +302,23 @@ describe('component-global-styles', () => {
       const result = resolveStencilHydrateImport(css, config, buildCtx);
       expect(result).not.toContain('@import "stencil-hydrate"');
       expect(result).toContain('body {}');
+    });
+
+    it('wraps in @layer when a layer() modifier is present', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      const css = `@import "stencil-hydrate" layer(init);`;
+      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      expect(result).not.toContain('@import');
+      expect(result).toBe(
+        '@layer init {\nmy-cmp{visibility:hidden}.hydrated{visibility:inherit}\n}',
+      );
     });
   });
 });
