@@ -50,6 +50,18 @@ assert(
   'Missing hydrated selector rule from stencil-hydrate',
 );
 
+// @import "stencil-hydrate" layer(init) wraps the generated FOUC CSS in a named layer
+assert(
+  /@layer init\s*{/.test(css),
+  'stencil-hydrate output should be wrapped in "@layer init" per the layer() modifier',
+);
+
+// @import "stencil-globals" supports(display: grid) wraps the collected styles in @supports
+assert(
+  /@supports\s*\(display:\s*grid\)\s*{/.test(css),
+  'stencil-globals output should be wrapped in "@supports (display: grid)" per the supports() modifier',
+);
+
 // stencil-hydrate.css must NOT be generated when @import "stencil-hydrate" is present
 // in a global-style input - the standalone output target should detect this and skip it.
 const hydrateCssPath = path.resolve(__dirname, 'dist', 'assets', 'stencil-hydrate.css');

@@ -5,7 +5,7 @@ import { buildError, join, normalizePath } from '../../utils';
 import { parseStyleDocs } from '../docs/style-docs';
 import { resolveModuleIdAsync } from '../sys/resolve/resolve-module-async';
 import { getModuleId } from '../sys/resolve/resolve-utils';
-import { stripCssComments } from './style-utils';
+import { stripCssComments, wrapCssWithImportModifiers } from './style-utils';
 
 /**
  * Parse CSS imports into an object which contains a manifest of imports and a
@@ -309,67 +309,9 @@ export const replaceImportDeclarations = (
   for (const cssImport of cssImports) {
     if (isCssEntry) {
       if (typeof cssImport.styleText === 'string') {
-        // For CSS entries, inline the imported CSS content
-        // If there are modifiers (layer, supports, media queries), wrap the content appropriately
-        let replacement = cssImport.styleText;
-
-        if (cssImport.modifiers) {
-          let modifiers = cssImport.modifiers;
-          let layerName = '';
-          let supportsCondition = '';
-          let mediaQuery = '';
-
-          // Extract layer() - innermost wrapper
-          const layerMatch = modifiers.match(/layer\(([^)]+)\)/);
-          if (layerMatch) {
-            layerName = layerMatch[1].trim();
-            modifiers = modifiers.replace(/layer\([^)]+\)/, '').trim();
-          }
-
-          // Extract supports() - handles nested parentheses with a more robust approach
-          // This regex matches supports() and captures content with balanced parentheses
-          let depth = 0;
-          let startIdx = -1;
-          let endIdx = -1;
-          const supportsIdx = modifiers.indexOf('supports(');
-
-          if (supportsIdx !== -1) {
-            startIdx = supportsIdx + 9; // length of 'supports('
-            for (let i = startIdx; i < modifiers.length; i++) {
-              if (modifiers[i] === '(') depth++;
-              if (modifiers[i] === ')') {
-                if (depth === 0) {
-                  endIdx = i;
-                  break;
-                }
-                depth--;
-              }
-            }
-
-            if (endIdx !== -1) {
-              supportsCondition = modifiers.substring(startIdx, endIdx).trim();
-              modifiers = modifiers.substring(0, supportsIdx) + modifiers.substring(endIdx + 1);
-              modifiers = modifiers.trim();
-            }
-          }
-
-          // Anything remaining should be media queries
-          mediaQuery = modifiers.trim();
-
-          // Apply wrappers in correct order: layer (innermost) -> media -> supports (outermost)
-          if (layerName) {
-            replacement = `@layer ${layerName} {\n${replacement}\n}`;
-          }
-
-          if (mediaQuery) {
-            replacement = `@media ${mediaQuery} {\n${replacement}\n}`;
-          }
-
-          if (supportsCondition) {
-            replacement = `@supports (${supportsCondition}) {\n${replacement}\n}`;
-          }
-        }
-
+        // For CSS entries, inline the imported CSS content, wrapped in any
+        // layer/supports/media modifiers that followed the import specifier
+        const replacement = wrapCssWithImportModifiers(cssImport.styleText, cssImport.modifiers);
         styleText = styleText.replace(cssImport.srcImport, replacement);
       }
     } else if (typeof cssImport.updatedImport === 'string') {

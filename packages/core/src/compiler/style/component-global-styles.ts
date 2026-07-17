@@ -3,9 +3,11 @@ import type * as d from '@stencil/core';
 import { normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import { optimizeCss } from './optimize-css';
+import { wrapCssWithImportModifiers } from './style-utils';
 
-const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?\s*;?/g;
-const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?\s*;?/g;
+// the trailing capture group picks up any modifiers (e.g. `layer(name)`) following the specifier
+const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?([^;]*);?/g;
+const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?([^;]*);?/g;
 
 export const hasStencilGlobalsImport = (css: string): boolean => css.includes('stencil-globals');
 export const hasStencilHydrateImport = (css: string): boolean => css.includes('stencil-hydrate');
@@ -38,6 +40,7 @@ export const generateHydrateCss = (config: d.ValidatedConfig, buildCtx: d.BuildC
 
 /**
  * Replace `@import "stencil-hydrate"` in CSS with the generated FOUC-prevention styles.
+ * Supports trailing `layer()`/`supports()`/media modifiers, e.g. `@import "stencil-hydrate" layer(init);`.
  * @param css the CSS string to process
  * @param config the Stencil configuration
  * @param buildCtx the current build context, used to get the list of components in the build
@@ -47,7 +50,12 @@ export const resolveStencilHydrateImport = (
   css: string,
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
-): string => css.replace(STENCIL_HYDRATE_RE, generateHydrateCss(config, buildCtx));
+): string => {
+  const hydrateCss = generateHydrateCss(config, buildCtx);
+  return css.replace(STENCIL_HYDRATE_RE, (_match, modifiers: string) =>
+    wrapCssWithImportModifiers(hydrateCss, modifiers),
+  );
+};
 
 /**
  * Collect and build all component-level globalStyle/globalStyleUrl CSS from the current build.
@@ -107,6 +115,7 @@ export const collectAndBuildComponentGlobalStyles = async (
  * Replace `@import "stencil-globals"` in CSS with the collected component global styles.
  * Also registers component global style files as cssModuleImports of the global stylesheet
  * so the build cache is properly invalidated when those files change.
+ * Supports trailing `layer()`/`supports()`/media modifiers, e.g. `@import "stencil-globals" layer(init);`.
  *
  * @param css the CSS string to process
  * @param config the Stencil configuration
@@ -139,5 +148,7 @@ export const resolveStencilGlobalsImport = async (
     compilerCtx.cssModuleImports.set(globalStyleInputPath, existing);
   }
 
-  return css.replace(STENCIL_GLOBALS_RE, collectedCss);
+  return css.replace(STENCIL_GLOBALS_RE, (_match, modifiers: string) =>
+    wrapCssWithImportModifiers(collectedCss, modifiers),
+  );
 };
