@@ -256,6 +256,25 @@ export const parseStaticComponentMeta = (
   return cmpNode;
 };
 
+/**
+ * Check whether a class declaration is a Stencil component, i.e. it's
+ * decorated with `@Component({ tag: ... })`.
+ * @param classNode the class declaration to check
+ * @returns whether `classNode` is a Stencil component class
+ */
+const isStencilComponentClass = (classNode: ts.ClassDeclaration): boolean => {
+  const decorator = ts.getDecorators(classNode)?.[0];
+  return (
+    decorator != null &&
+    ts.isCallExpression(decorator.expression) &&
+    decorator.expression.arguments.length === 1 &&
+    ts.isObjectLiteralExpression(decorator.expression.arguments[0]) &&
+    decorator.expression.arguments[0].properties.some(
+      (prop) => ts.isPropertyAssignment(prop) && prop.name.getText() === 'tag',
+    )
+  );
+};
+
 const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
   /**
    * validate if:
@@ -272,26 +291,33 @@ const validateComponentMembers = (node: ts.Node, buildCtx: d.BuildCtx) => {
      * the parent node is a class declaration
      */
     node.parent &&
-    ts.isClassDeclaration(node.parent)
+    ts.isClassDeclaration(node.parent) &&
+    isStencilComponentClass(node.parent)
   ) {
     const propName = node.name.escapedText;
-    const decorator = ts.getDecorators(node.parent)[0];
+    const componentName = node.parent.name.getText();
+    const err = buildWarn(buildCtx.diagnostics);
+    err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
+    augmentDiagnosticWithNode(err, node);
+  }
+
+  if (
     /**
-     * the class is actually a Stencil component, has a decorator with a property named "tag"
+     * the component defines a "componentShouldUpdate" method with more than one parameter,
+     * which was the pre-v5 per-prop signature "(newVal, oldVal, propName)"
      */
-    if (
-      ts.isCallExpression(decorator.expression) &&
-      decorator.expression.arguments.length === 1 &&
-      ts.isObjectLiteralExpression(decorator.expression.arguments[0]) &&
-      decorator.expression.arguments[0].properties.some(
-        (prop) => ts.isPropertyAssignment(prop) && prop.name.getText() === 'tag',
-      )
-    ) {
-      const componentName = node.parent.name.getText();
-      const err = buildWarn(buildCtx.diagnostics);
-      err.messageText = `The component "${componentName}" has a getter called "${propName}". This getter is reserved for use by Stencil components and should not be defined by the user.`;
-      augmentDiagnosticWithNode(err, node);
-    }
+    ts.isMethodDeclaration(node) &&
+    ts.isIdentifier(node.name) &&
+    node.name.escapedText === 'componentShouldUpdate' &&
+    node.parameters.length > 1 &&
+    node.parent &&
+    ts.isClassDeclaration(node.parent) &&
+    isStencilComponentClass(node.parent)
+  ) {
+    const componentName = node.parent.name.getText();
+    const err = buildWarn(buildCtx.diagnostics);
+    err.messageText = `The component "${componentName}" defines "componentShouldUpdate" with ${node.parameters.length} parameters. As of Stencil v5, "componentShouldUpdate" is called once per render with a single "changes" argument (a map of prop/state names to "{ newVal, oldVal }") instead of once per prop with "(newVal, oldVal, propName)". This method will still compile, but any extra parameters will be "undefined" at runtime.`;
+    augmentDiagnosticWithNode(err, node);
   }
 };
 

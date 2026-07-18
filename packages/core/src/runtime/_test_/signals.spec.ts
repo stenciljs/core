@@ -193,22 +193,15 @@ describe('initializeSignals', () => {
   });
 
   // componentShouldUpdate
+  //
+  // componentShouldUpdate itself is no longer invoked from the signal effect -
+  // changes are queued onto hostRef.$queuedPropChanges$ and flushed with a single
+  // batched call from dispatchHooks (see update-component.ts) right before the
+  // pending render, so scheduleUpdate always fires once a value changes.
 
-  describe('componentShouldUpdate veto', () => {
-    it('skips scheduleUpdate when componentShouldUpdate returns false', () => {
+  describe('componentShouldUpdate queuing', () => {
+    it('queues the change onto $queuedPropChanges$ and still calls scheduleUpdate', () => {
       const instance = { componentShouldUpdate: vi.fn().mockReturnValue(false) };
-      const hostRef = makeHostRef({ $lazyInstance$: instance as any });
-      const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
-      initializeSignals(elm, hostRef, cmpMeta);
-
-      hostRef.$flags$ |= HOST_FLAGS.hasRendered;
-      hostRef.$signalValues$!.get('count')!.value = 1;
-
-      expect(scheduleUpdate).not.toHaveBeenCalled();
-    });
-
-    it('calls componentShouldUpdate with (newVal, prevVal, memberName)', () => {
-      const instance = { componentShouldUpdate: vi.fn().mockReturnValue(true) };
       const hostRef = makeHostRef({
         $lazyInstance$: instance as any,
         $instanceValues$: new Map([['count', 0]]),
@@ -219,22 +212,28 @@ describe('initializeSignals', () => {
       hostRef.$flags$ |= HOST_FLAGS.hasRendered;
       hostRef.$signalValues$!.get('count')!.value = 5;
 
-      expect(instance.componentShouldUpdate).toHaveBeenCalledWith(5, 0, 'count');
-    });
-
-    it('still calls scheduleUpdate when componentShouldUpdate returns true', () => {
-      const instance = { componentShouldUpdate: vi.fn().mockReturnValue(true) };
-      const hostRef = makeHostRef({ $lazyInstance$: instance as any });
-      const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
-      initializeSignals(elm, hostRef, cmpMeta);
-
-      hostRef.$flags$ |= HOST_FLAGS.hasRendered;
-      hostRef.$signalValues$!.get('count')!.value = 1;
-
+      expect(instance.componentShouldUpdate).not.toHaveBeenCalled();
+      expect(hostRef.$queuedPropChanges$).toEqual({ count: { newVal: 5, oldVal: 0 } });
       expect(scheduleUpdate).toHaveBeenCalledOnce();
     });
 
-    it('still calls scheduleUpdate when componentShouldUpdate is absent', () => {
+    it('keeps the first oldVal and latest newVal when the same signal changes twice before flush', () => {
+      const instance = { componentShouldUpdate: vi.fn() };
+      const hostRef = makeHostRef({
+        $lazyInstance$: instance as any,
+        $instanceValues$: new Map([['count', 0]]),
+        $flags$: HOST_FLAGS.hasRendered,
+      });
+      const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
+      initializeSignals(elm, hostRef, cmpMeta);
+
+      hostRef.$signalValues$!.get('count')!.value = 5;
+      hostRef.$signalValues$!.get('count')!.value = 10;
+
+      expect(hostRef.$queuedPropChanges$).toEqual({ count: { newVal: 10, oldVal: 0 } });
+    });
+
+    it('does not touch $queuedPropChanges$ when componentShouldUpdate is absent', () => {
       const instance = {};
       const hostRef = makeHostRef({ $lazyInstance$: instance as any });
       const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
@@ -243,21 +242,33 @@ describe('initializeSignals', () => {
       hostRef.$flags$ |= HOST_FLAGS.hasRendered;
       hostRef.$signalValues$!.get('count')!.value = 1;
 
+      expect(hostRef.$queuedPropChanges$).toBeUndefined();
       expect(scheduleUpdate).toHaveBeenCalledOnce();
     });
 
-    it('skips scheduleUpdate when veto AND isQueuedForUpdate (falls through, already queued)', () => {
-      const instance = { componentShouldUpdate: vi.fn().mockReturnValue(false) };
-      const hostRef = makeHostRef({ $lazyInstance$: instance as any });
-      const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State });
+    it('accumulates entries for multiple signals changed synchronously', () => {
+      const instance = { componentShouldUpdate: vi.fn() };
+      const hostRef = makeHostRef({
+        $lazyInstance$: instance as any,
+        $instanceValues$: new Map([
+          ['count', 0],
+          ['other', 0],
+        ]),
+      });
+      const cmpMeta = makeCmpMeta({ count: MEMBER_FLAGS.State, other: MEMBER_FLAGS.State });
       initializeSignals(elm, hostRef, cmpMeta);
 
-      hostRef.$flags$ |= HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate;
+      hostRef.$flags$ |= HOST_FLAGS.hasRendered;
       hostRef.$signalValues$!.get('count')!.value = 1;
+      // Simulate: the first scheduleUpdate queued the render
+      hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
+      hostRef.$signalValues$!.get('other')!.value = 1;
 
-      // componentShouldUpdate veto is ignored when already queued,
-      // but scheduleUpdate is still not called (already queued guard)
-      expect(scheduleUpdate).not.toHaveBeenCalled();
+      expect(hostRef.$queuedPropChanges$).toEqual({
+        count: { newVal: 1, oldVal: 0 },
+        other: { newVal: 1, oldVal: 0 },
+      });
+      expect(scheduleUpdate).toHaveBeenCalledOnce();
     });
   });
 

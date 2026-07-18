@@ -22,7 +22,12 @@ import type {
   ValidatedConfig,
 } from './stencil-public-compiler';
 import type { JsonDocMethodParameter } from './stencil-public-docs';
-import type { ComponentInterface, ListenTargetOptions, VNode } from './stencil-public-runtime';
+import type {
+  ComponentInterface,
+  ComponentShouldUpdateChanges,
+  ListenTargetOptions,
+  VNode,
+} from './stencil-public-runtime';
 
 export type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
 export type { RolldownSourceMap };
@@ -1801,6 +1806,11 @@ export interface HostRef {
   $cmpMeta$: ComponentRuntimeMeta;
   $hostElement$: HostElement;
   $instanceValues$?: Map<string, any>;
+  /**
+   * Prop/state changes accumulated since the last render, flushed to
+   * `componentShouldUpdate` once per render cycle.
+   */
+  $queuedPropChanges$?: ComponentShouldUpdateChanges;
   $signalValues$?: Map<string, import('@preact/signals-core').Signal<any>>;
   /** Dispose function that tears down all signal effects for this component. */
   $signalCleanup$?: () => void;

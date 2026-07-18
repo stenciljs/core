@@ -118,6 +118,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
 - **`hashFileNames` and `hashedFileNameLength` moved from top-level config to `loader-bundle` and `www` output targets.** Only these two targets serve bundles directly in the browser. Run `stencil migrate` to remove them from the top-level config, then add to your output targets if non-default values are needed.
 - **`suppressReservedPublicNameWarnings` / `suppressReservedEventNameWarnings` moved into `compat` and renamed** to `compat.suppressPublicNameWarnings` / `compat.suppressEventNameWarnings`. Run `stencil migrate` to update your config automatically.
+- **`componentShouldUpdate` signature changed from `(newVal, oldVal, propName)` to a single batched `(changes)` argument**, where `changes` is a `{ [propName]: { newVal, oldVal } }` map of every `@Prop`/`@State` that changed since the last render. It now fires once per render cycle instead of once per changed member (fixes [#6759](https://github.com/stenciljs/core/issues/6759) — v4.42's per-prop firing multiplied lifecycle cost by prop count on every update).
 
 ---
 

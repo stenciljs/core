@@ -64,15 +64,13 @@ export const initializeSignals = (
         const newVal = sig.value;
         if (hostRef.$flags$ & HOST_FLAGS.hasRendered) {
           if (instance?.componentShouldUpdate) {
-            const shouldUpdate = instance.componentShouldUpdate(
+            // queue the change for a single batched `componentShouldUpdate` call
+            // right before the pending render, rather than calling it here per-signal
+            const changes = (hostRef.$queuedPropChanges$ ||= {});
+            changes[memberName] = {
               newVal,
-              prevScheduleVal,
-              memberName,
-            );
-            if (shouldUpdate === false && !(hostRef.$flags$ & HOST_FLAGS.isQueuedForUpdate)) {
-              prevScheduleVal = newVal;
-              return;
-            }
+              oldVal: changes[memberName]?.oldVal ?? prevScheduleVal,
+            };
           }
           if (!(hostRef.$flags$ & HOST_FLAGS.isQueuedForUpdate)) {
             scheduleUpdate(hostRef, false);

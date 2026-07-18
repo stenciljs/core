@@ -730,6 +730,17 @@ export interface ComponentDidUpdate {
   componentDidUpdate(): void;
 }
 
+/**
+ * A map of `@Prop`/`@State` property names to their new and previous
+ * values, passed to `componentShouldUpdate` once per render cycle.
+ *
+ * Pass `this` as `T` to type `changes` against your component's own
+ * members, e.g. `componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>)`.
+ */
+export type ComponentShouldUpdateChanges<T = any> = {
+  [K in Extract<keyof T, string>]?: { newVal: T[K]; oldVal: T[K] };
+};
+
 export interface ComponentInterface {
   connectedCallback?(): void;
   disconnectedCallback?(): void;
@@ -759,14 +770,18 @@ export interface ComponentInterface {
   componentDidLoad?(): void;
 
   /**
-   * A `@Prop` or `@State` property changed and a rerender is about to be requested.
+   * One or more `@Prop` or `@State` properties changed and a rerender is
+   * about to be requested. `changes` contains every property that changed
+   * since the last render, keyed by property name.
    *
-   * Called multiple times throughout the life of
-   * the component as its properties change.
+   * Called once per render cycle, batching all properties that changed
+   * synchronously since the last render.
+   *
+   * Return `false` to prevent the pending render.
    *
    * componentShouldUpdate is not called on the first render.
    */
-  componentShouldUpdate?(newVal: any, oldVal: any, propName: string): boolean | void;
+  componentShouldUpdate?(changes: ComponentShouldUpdateChanges<this>): boolean | void;
 
   /**
    * The component is about to update and re-render.

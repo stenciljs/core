@@ -11,6 +11,7 @@ export type {
   ComponentDidUpdate,
   ComponentInterface,
   ComponentOptions,
+  ComponentShouldUpdateChanges,
   ComponentWillLoad,
   ComponentWillUpdate,
   EventEmitter,

@@ -1,6 +1,7 @@
 import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+import type { ComponentShouldUpdateChanges } from '@stencil/core';
 
 function Clamp(lowerBound: number, upperBound: number): any {
   const clamp = (value: number) => Math.max(lowerBound, Math.min(value, upperBound));
@@ -130,8 +131,8 @@ describe('prop', () => {
     expect(root.clamped).toBe(5);
   });
 
-  it('should call componentShouldUpdate for each prop when multiple props change synchronously', async () => {
-    const shouldUpdateCalls: Array<{ value: any; old: any; prop: string }> = [];
+  it('should call componentShouldUpdate once with all changes when multiple props change synchronously', async () => {
+    const shouldUpdateCalls: ComponentShouldUpdateChanges[] = [];
 
     @Component({ tag: 'cmp-a' })
     class CmpA {
@@ -139,8 +140,8 @@ describe('prop', () => {
       @Prop({ mutable: true }) second = 'initial-second';
       @Prop({ mutable: true }) third = 'initial-third';
 
-      componentShouldUpdate(value: any, old: any, prop: string) {
-        shouldUpdateCalls.push({ value, old, prop });
+      componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+        shouldUpdateCalls.push(changes);
       }
 
       render() {
@@ -166,22 +167,12 @@ describe('prop', () => {
     root.third = 'new-third';
     await waitForChanges();
 
-    // componentShouldUpdate should have been called for each prop
-    expect(shouldUpdateCalls).toHaveLength(3);
+    // componentShouldUpdate should have been called once, with all three changes batched
+    expect(shouldUpdateCalls).toHaveLength(1);
     expect(shouldUpdateCalls[0]).toEqual({
-      value: 'new-first',
-      old: 'initial-first',
-      prop: 'first',
-    });
-    expect(shouldUpdateCalls[1]).toEqual({
-      value: 'new-second',
-      old: 'initial-second',
-      prop: 'second',
-    });
-    expect(shouldUpdateCalls[2]).toEqual({
-      value: 'new-third',
-      old: 'initial-third',
-      prop: 'third',
+      first: { newVal: 'new-first', oldVal: 'initial-first' },
+      second: { newVal: 'new-second', oldVal: 'initial-second' },
+      third: { newVal: 'new-third', oldVal: 'initial-third' },
     });
 
     // All values should be rendered
@@ -197,9 +188,9 @@ describe('prop', () => {
     class CmpA {
       @Prop() num = 1;
 
-      componentShouldUpdate(newValue: number, _: number, propName: string) {
-        if (propName === 'num') {
-          return newValue % 2 === 0;
+      componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+        if (changes.num) {
+          return changes.num.newVal % 2 === 0;
         }
         return true;
       }
