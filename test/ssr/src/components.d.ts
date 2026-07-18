@@ -152,6 +152,10 @@ export namespace Components {
           * @default -10
          */
         "decoratedProp": number;
+        /**
+          * @default 0
+         */
+        "methodCallingProp": number;
     }
     interface ScopedCarDetail {
         "car": CarData;
@@ -696,6 +700,10 @@ declare namespace LocalJSX {
           * @default -10
          */
         "decoratedProp"?: number;
+        /**
+          * @default 0
+         */
+        "methodCallingProp"?: number;
     }
     interface ScopedCarDetail {
         "car"?: CarData;
@@ -795,6 +803,7 @@ declare namespace LocalJSX {
         "basicProp": string;
         "decoratedProp": number;
         "decoratedGetterSetterProp": number;
+        "methodCallingProp": number;
     }
     interface ScopedCarDetailAttributes {
         "car": string;

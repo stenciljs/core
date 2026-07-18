@@ -75,17 +75,18 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
           delete (elm as any)[memberName];
         }
 
-        if (attrPropVal !== undefined) {
-          // value set via attribute/prop on the host element
-          if (origSetter) {
-            // we have an original setter, so let's set the value via that.
-            origSetter.apply(elm, [attrPropVal]);
-            attrPropVal = origGetter ? origGetter.apply(elm) : attrPropVal;
-          }
+        // proxyComponent replaces the prototype setter with its own wrapper. If it has
+        // already run for this class (isProxied), origSetter is that wrapper, not the
+        // user's setter. Only use origSetter directly on the first instance.
+        const userSetter = !(cstr as any).isProxied ? origSetter : undefined;
+
+        if (attrPropVal !== undefined && !userSetter) {
+          // No user setter (or subsequent instance): store value directly now.
+          // When userSetter exists we defer to $fetchedCbList$ so `this` inside the setter
+          // refers to the component instance, not the element.
           hostRef?.$instanceValues$?.set(memberName, attrPropVal);
         }
 
-        // element
         const getterSetterDescriptor: PropertyDescriptor = {
           get: function (this: d.RuntimeRef) {
             return getValue(this, memberName);
@@ -100,7 +101,15 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
         Object.defineProperty(elm, metaAttributeName, getterSetterDescriptor);
 
         hostRef.$fetchedCbList$.push(() => {
-          if (!hostRef?.$instanceValues$?.has(memberName)) {
+          if (userSetter && attrPropVal !== undefined) {
+            // Call the user's setter now that `this` is the real instance. Then read back
+            // via origGetter to get the processed value (the setter may have transformed it).
+            userSetter.apply(hostRef.$lazyInstance$, [attrPropVal]);
+            const processedValue = origGetter
+              ? origGetter.apply(hostRef.$lazyInstance$)
+              : attrPropVal;
+            setValue(elm, memberName, processedValue, cmpMeta);
+          } else if (!hostRef?.$instanceValues$?.has(memberName)) {
             setValue(
               elm,
               memberName,
@@ -108,7 +117,31 @@ export function proxyHostElement(elm: d.HostElement, cstr: d.ComponentConstructo
               cmpMeta,
             );
           }
-          Object.defineProperty(hostRef.$lazyInstance$, memberName, getterSetterDescriptor);
+
+          if (userSetter) {
+            // Install an instance-level accessor that routes through the user's setter/getter.
+            // We can't rely on the proxyComponent prototype setter here because its read-back
+            // path goes through $hostElement$ (i.e. $instanceValues$), which won't reflect
+            // values the user's setter stores privately on the instance.
+            Object.defineProperty(hostRef.$lazyInstance$, memberName, {
+              get: origGetter
+                ? function (this: any) {
+                    return origGetter.call(this);
+                  }
+                : function (this: d.RuntimeRef) {
+                    return getValue(this, memberName);
+                  },
+              set: function (this: any, newValue: unknown) {
+                userSetter.call(this, newValue);
+                newValue = origGetter ? origGetter.call(this) : newValue;
+                setValue(elm, memberName, newValue, cmpMeta);
+              },
+              configurable: true,
+              enumerable: true,
+            });
+          } else {
+            Object.defineProperty(hostRef.$lazyInstance$, memberName, getterSetterDescriptor);
+          }
         });
       } else if (memberFlags & MEMBER_FLAGS.Method) {
         Object.defineProperty(elm, memberName, {

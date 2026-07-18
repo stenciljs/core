@@ -225,6 +225,7 @@ test.describe('props serialization', () => {
       expect(htmlTxt('basicProp')).toBe('basicProp');
       expect(htmlTxt('decoratedProp')).toBe('-5');
       expect(htmlTxt('decoratedGetterSetterProp')).toBe('999');
+      expect(htmlTxt('methodCallingProp')).toBe('0');
       expect(htmlTxt('basicState')).toBe('basicState');
       expect(htmlTxt('decoratedState')).toBe('10');
 
@@ -233,6 +234,7 @@ test.describe('props serialization', () => {
       expect(await txt('basicProp')).toBe('basicProp');
       expect(await txt('decoratedProp')).toBe('-5');
       expect(await txt('decoratedGetterSetterProp')).toBe('999');
+      expect(await txt('methodCallingProp')).toBe('0');
       expect(await txt('basicState')).toBe('basicState');
       expect(await txt('decoratedState')).toBe('10');
     });
@@ -243,6 +245,7 @@ test.describe('props serialization', () => {
         <runtime-decorators
           decorated-prop="200"
           decorated-getter-setter-prop="-5"
+          method-calling-prop="-5"
           basic-prop="basicProp via attribute"
           basic-state="basicState via attribute"
           decorated-state="decoratedState via attribute"
@@ -253,12 +256,15 @@ test.describe('props serialization', () => {
       expect(htmlTxt('basicProp')).toBe('basicProp via attribute');
       expect(htmlTxt('decoratedProp')).toBe('25');
       expect(htmlTxt('decoratedGetterSetterProp')).toBe('0');
+      // setter calls this.abs(value) — verifies `this` is the component instance during SSR
+      expect(htmlTxt('methodCallingProp')).toBe('5');
 
       await page.setContent(html || '');
 
       expect(await txt('basicProp')).toBe('basicProp via attribute');
       expect(await txt('decoratedProp')).toBe('25');
       expect(await txt('decoratedGetterSetterProp')).toBe('0');
+      expect(await txt('methodCallingProp')).toBe('5');
     });
 
     test('renders values via properties (beforeSsr)', async ({ page: p }) => {
@@ -269,6 +275,7 @@ test.describe('props serialization', () => {
           el.basicProp = 'basicProp via prop';
           el.decoratedProp = 200;
           el.decoratedGetterSetterProp = -5;
+          el.methodCallingProp = -7;
         },
       });
       html = doc.html || '';
@@ -276,12 +283,14 @@ test.describe('props serialization', () => {
       expect(htmlTxt('basicProp')).toBe('basicProp via prop');
       expect(htmlTxt('decoratedProp')).toBe('25');
       expect(htmlTxt('decoratedGetterSetterProp')).toBe('0');
+      expect(htmlTxt('methodCallingProp')).toBe('7');
 
       await page.setContent(html || '');
 
       expect(await txt('basicProp')).toBe('basicProp via prop');
       expect(await txt('decoratedProp')).toBe('25');
       expect(await txt('decoratedGetterSetterProp')).toBe('0');
+      expect(await txt('methodCallingProp')).toBe('7');
     });
 
     test('renders different values on different component instances', async ({ page: p }) => {
