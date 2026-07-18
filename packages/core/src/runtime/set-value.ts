@@ -186,12 +186,10 @@ export const setValue = (
 
     if (BUILD.updatable && flags & HOST_FLAGS.hasRendered) {
       if (instance.componentShouldUpdate) {
-        const shouldUpdate = instance.componentShouldUpdate(newVal, oldVal, propName);
-        // skip scheduling if componentShouldUpdate returns false AND we're not already queued.
-        // If already queued, the render will happen anyway with all the batched prop changes.
-        if (shouldUpdate === false && !(flags & HOST_FLAGS.isQueuedForUpdate)) {
-          return;
-        }
+        // queue the change for a single batched `componentShouldUpdate` call
+        // right before the pending render, rather than calling it here per-prop
+        const changes = (hostRef.$queuedPropChanges$ ||= {});
+        changes[propName] = { newVal, oldVal: changes[propName]?.oldVal ?? oldVal };
       }
 
       // looks like this value actually changed, so we've got work to do!

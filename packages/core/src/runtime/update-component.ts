@@ -138,6 +138,15 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
     // declared above to hold a possible 'queueing' Promise
     maybePromise = safeCall(instance, 'componentWillLoad', undefined, elm);
   } else {
+    if (BUILD.updatable && hostRef.$queuedPropChanges$) {
+      const changes = hostRef.$queuedPropChanges$;
+      hostRef.$queuedPropChanges$ = undefined;
+      if (safeCall(instance, 'componentShouldUpdate', changes, elm) === false) {
+        hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
+        return;
+      }
+    }
+
     if (BUILD.lifecycleDOMEvents) {
       emitLifecycleEvent(elm, 'componentWillUpdate');
     }

@@ -1,6 +1,7 @@
 import { Component, Element, forceUpdate, h, Host, Method, Prop, Watch } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+import type { ComponentShouldUpdateChanges } from '@stencil/core';
 
 describe('lifecycle sync', () => {
   it('should fire connected/disconnected when removed', async () => {
@@ -154,9 +155,10 @@ describe('lifecycle sync', () => {
       renders = 0;
       @Prop() complex: any;
 
-      componentShouldUpdate(newValue: any, oldValue: any) {
+      componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
         try {
-          return JSON.stringify(newValue) !== JSON.stringify(oldValue);
+          const { newVal, oldVal } = changes.complex;
+          return JSON.stringify(newVal) !== JSON.stringify(oldVal);
         } catch {}
         return true;
       }
