@@ -12,6 +12,7 @@
 | `basicProp`                 | `basic-prop`                   |             | `string` | `'basicProp'` |
 | `decoratedGetterSetterProp` | `decorated-getter-setter-prop` |             | `number` | `undefined`   |
 | `decoratedProp`             | `decorated-prop`               |             | `number` | `-10`         |
+| `methodCallingProp`         | `method-calling-prop`          |             | `number` | `0`           |
 
 
 ----------------------------------------------

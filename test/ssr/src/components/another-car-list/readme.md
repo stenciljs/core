@@ -5,11 +5,13 @@
 <!-- Auto Generated Below -->
 
 
-## Overview
+## `another-car-list`
+
+### Overview
 
 Component that helps display a list of cars
 
-## Properties
+### Properties
 
 | Property   | Attribute | Description | Type        | Default     |
 | ---------- | --------- | ----------- | ----------- | ----------- |
@@ -17,28 +19,77 @@ Component that helps display a list of cars
 | `selected` | --        |             | `CarData`   | `undefined` |
 
 
-## Events
+### Events
 
 | Event         | Description | Type                   |
 | ------------- | ----------- | ---------------------- |
 | `carSelected` |             | `CustomEvent<CarData>` |
 
 
-## Slots
+### Slots
 
 | Slot       | Description                      |
 | ---------- | -------------------------------- |
 | `"header"` | The slot for the header content. |
 
 
-## Shadow Parts
+### Shadow Parts
 
 | Part    | Description                                 |
 | ------- | ------------------------------------------- |
 | `"car"` | The shadow part to target to style the car. |
 
 
-## Dependencies
+### Dependencies
+
+### Depends on
+
+- [another-car-detail](../another-car-detail)
+
+### Graph
+```mermaid
+graph TD;
+  another-car-list --> another-car-detail
+  style another-car-list fill:#f9f,stroke:#333,stroke-width:4px
+```
+
+
+## `scoped-car-list`
+
+### Overview
+
+Component that helps display a list of cars
+
+### Properties
+
+| Property   | Attribute | Description | Type        | Default     |
+| ---------- | --------- | ----------- | ----------- | ----------- |
+| `cars`     | `cars`    |             | `CarData[]` | `undefined` |
+| `selected` | --        |             | `CarData`   | `undefined` |
+
+
+### Events
+
+| Event         | Description | Type                   |
+| ------------- | ----------- | ---------------------- |
+| `carSelected` |             | `CustomEvent<CarData>` |
+
+
+### Slots
+
+| Slot       | Description                      |
+| ---------- | -------------------------------- |
+| `"header"` | The slot for the header content. |
+
+
+### Shadow Parts
+
+| Part    | Description                                 |
+| ------- | ------------------------------------------- |
+| `"car"` | The shadow part to target to style the car. |
+
+
+### Dependencies
 
 ### Depends on
 
@@ -50,6 +101,7 @@ graph TD;
   scoped-car-list --> another-car-detail
   style scoped-car-list fill:#f9f,stroke:#333,stroke-width:4px
 ```
+
 
 ----------------------------------------------
 

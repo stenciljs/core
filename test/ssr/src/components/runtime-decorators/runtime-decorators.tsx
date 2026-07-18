@@ -47,6 +47,21 @@ export class RunTimeDecorators {
     this._decoratedGetterSetterProp = value;
   }
 
+  // Prop whose setter calls an instance method — verifies that `this` inside
+  // the setter refers to the component instance, not the DOM element, during SSR.
+  private _methodCallingProp: number = 0;
+  @Prop({ reflect: true })
+  get methodCallingProp() {
+    return this._methodCallingProp;
+  }
+  set methodCallingProp(value: number) {
+    this._methodCallingProp = this.abs(value);
+  }
+
+  private abs(n: number) {
+    return Math.abs(n);
+  }
+
   @State() basicState: string = 'basicState';
 
   @Clamp(0, 10)
@@ -59,6 +74,7 @@ export class RunTimeDecorators {
         <div class='basicProp'>{this.basicProp}</div>
         <div class='decoratedProp'>{this.decoratedProp}</div>
         <div class='decoratedGetterSetterProp'>{this.decoratedGetterSetterProp}</div>
+        <div class='methodCallingProp'>{this.methodCallingProp}</div>
         <div class='basicState'>{this.basicState}</div>
 
         <button
