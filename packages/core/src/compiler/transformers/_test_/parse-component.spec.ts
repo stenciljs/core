@@ -71,6 +71,62 @@ describe('parse component', () => {
     expect(t.componentClassName).toBe('CmpA');
   });
 
+  it('warns about pre-v5 "componentShouldUpdate" signature', () => {
+    let error: Error | undefined;
+    try {
+      transpileModule(`
+        @Component({
+          tag: 'cmp-a'
+        })
+        export class CmpA {
+          componentShouldUpdate(newVal, oldVal, propName) {
+            return newVal !== oldVal;
+          }
+        }
+      `);
+    } catch (err: unknown) {
+      error = err as Error;
+    }
+
+    expect(error.message).toContain(
+      `The component "CmpA" defines "componentShouldUpdate" with 3 parameters.`,
+    );
+  });
+
+  it('does not warn about the v5 "componentShouldUpdate" signature', () => {
+    const t = transpileModule(`
+      @Component({
+        tag: 'cmp-a'
+      })
+      export class CmpA {
+        componentShouldUpdate(changes) {
+          return true;
+        }
+      }
+    `);
+
+    expect(t.componentClassName).toBe('CmpA');
+    expect(t.buildCtx.hasWarning).toBe(false);
+  });
+
+  it('ignores pre-v5 "componentShouldUpdate" signature in unrelated class', () => {
+    const t = transpileModule(`
+      @Component({
+        tag: 'cmp-a'
+      })
+      export class CmpA {}
+
+      export class Unrelated {
+        componentShouldUpdate(newVal, oldVal, propName) {
+          return newVal !== oldVal;
+        }
+      }
+    `);
+
+    expect(t.componentClassName).toBe('CmpA');
+    expect(t.buildCtx.hasWarning).toBe(false);
+  });
+
   it('should derive meta data from extended tree of classes', async () => {
     const t = transpileModule(`
     @Component({tag: 'cmp-a'})
