@@ -135,7 +135,7 @@ export const validateBuildPackageJson = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
 ): Promise<void> => {
-  if (config.watch || buildCtx.packageJson == null) {
+  if (config.watch || config.devMode || buildCtx.packageJson == null) {
     return;
   }
 
@@ -460,51 +460,53 @@ const validatePackageFiles = async (
   buildCtx: d.BuildCtx,
   outputTarget: d.OutputTargetCollection,
 ) => {
-  if (!config.devMode && Array.isArray(buildCtx.packageJson.files)) {
-    const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
+  if (!Array.isArray(buildCtx.packageJson.files)) {
+    return;
+  }
 
-    // Check if the files array contains the distribution directory directly,
-    // or a parent directory that would include it (e.g., "dist/" covers "dist/collection/")
-    const containsDistDir = buildCtx.packageJson.files.some((userPath) => {
-      // Normalize both paths: remove trailing slashes and leading ./
-      const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
-      const normalizedDistDir = actualDistDir.replace(/\/$/, '').replace(/^\.\//, '');
+  const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
-      // Exact match
-      if (normalizedUserPath === normalizedDistDir) {
-        return true;
-      }
+  // Check if the files array contains the distribution directory directly,
+  // or a parent directory that would include it (e.g., "dist/" covers "dist/collection/")
+  const containsDistDir = buildCtx.packageJson.files.some((userPath) => {
+    // Normalize both paths: remove trailing slashes and leading ./
+    const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
+    const normalizedDistDir = actualDistDir.replace(/\/$/, '').replace(/^\.\//, '');
 
-      // Parent directory match (e.g., "dist" covers "dist/collection")
-      const userPathWithSlash = normalizedUserPath + '/';
-      if (normalizedDistDir.startsWith(userPathWithSlash)) {
-        return true;
-      }
-
-      return false;
-    });
-
-    if (!containsDistDir) {
-      const msg = `package.json "files" array must contain the distribution directory "${actualDistDir}/" when generating a distribution.`;
-      packageJsonWarn(config, compilerCtx, buildCtx, msg, `"files"`);
-      return;
+    // Exact match
+    if (normalizedUserPath === normalizedDistDir) {
+      return true;
     }
 
-    await Promise.all(
-      buildCtx.packageJson.files.map(async (pkgFile) => {
-        if (!isGlob(pkgFile)) {
-          const packageJsonDir = dirname(config.packageJsonFilePath);
-          const absPath = join(packageJsonDir, pkgFile);
+    // Parent directory match (e.g., "dist" covers "dist/collection")
+    const userPathWithSlash = normalizedUserPath + '/';
+    if (normalizedDistDir.startsWith(userPathWithSlash)) {
+      return true;
+    }
 
-          const hasAccess = await compilerCtx.fs.access(absPath);
-          if (!hasAccess) {
-            const msg = `Unable to find "${pkgFile}" within the package.json "files" array.`;
-            packageJsonError(config, compilerCtx, buildCtx, msg, `"${pkgFile}"`);
-          }
-        }
-      }),
-    );
+    return false;
+  });
+
+  if (!containsDistDir) {
+    const msg = `package.json "files" array must contain the distribution directory "${actualDistDir}/" when generating a distribution.`;
+    packageJsonWarn(config, compilerCtx, buildCtx, msg, `"files"`);
+    return;
   }
+
+  await Promise.all(
+    buildCtx.packageJson.files.map(async (pkgFile) => {
+      if (!isGlob(pkgFile)) {
+        const packageJsonDir = dirname(config.packageJsonFilePath);
+        const absPath = join(packageJsonDir, pkgFile);
+
+        const hasAccess = await compilerCtx.fs.access(absPath);
+        if (!hasAccess) {
+          const msg = `Unable to find "${pkgFile}" within the package.json "files" array.`;
+          packageJsonError(config, compilerCtx, buildCtx, msg, `"${pkgFile}"`);
+        }
+      }
+    }),
+  );
 };
 
 /**
