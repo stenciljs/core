@@ -12,6 +12,7 @@ describe('validateBuildPackageJson', () => {
   beforeEach(() => {
     config = mockValidatedConfig({
       outputTargets: [],
+      devMode: false,
     });
 
     compilerCtx = mockCompilerCtx(config);
@@ -43,6 +44,26 @@ describe('validateBuildPackageJson', () => {
         empty: true,
         cjs: false,
         skipInDev: false,
+      },
+    ];
+    buildCtx.packageJson.module = 'wrong/path.js';
+
+    await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+    expect(buildCtx.diagnostics.length).toBe(0);
+  });
+
+  it('should not validate in dev mode', async () => {
+    config.devMode = true;
+    config.outputTargets = [
+      {
+        type: 'loader-bundle',
+        dir: '/dist/loader-bundle',
+        buildDir: '/dist/loader-bundle',
+        copy: [],
+        empty: true,
+        cjs: false,
+        skipInDev: true,
       },
     ];
     buildCtx.packageJson.module = 'wrong/path.js';
