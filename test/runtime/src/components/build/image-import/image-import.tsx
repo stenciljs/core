@@ -1,6 +1,6 @@
 import { Component } from '@stencil/core';
 
-import stencilLogo from './stencil-logo.svg';
+import stencilLogo from './stencil-logo.svg?stencil';
 
 @Component({
   tag: 'image-import',

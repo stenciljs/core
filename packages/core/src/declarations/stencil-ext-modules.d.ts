@@ -1,24 +1,24 @@
-declare module "*.css" {
+declare module "*.css?stencil" {
   const src: () => string;
   export default src;
 }
 
-declare module "*.svg" {
+declare module "*.svg?stencil" {
   const src: string;
   export default src;
 }
 
-declare module "*.txt" {
+declare module "*.txt?stencil" {
   const src: string;
   export default src;
 }
 
-declare module "*.frag" {
+declare module "*.frag?stencil" {
   const src: string;
   export default src;
 }
 
-declare module "*.vert" {
+declare module "*.vert?stencil" {
   const src: string;
   export default src;
 }

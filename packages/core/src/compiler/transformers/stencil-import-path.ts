@@ -92,6 +92,12 @@ export const parseImportPath = (importPath: string) => {
           encapsulation: urlParams.get('encapsulation') || 'none',
           mode: urlParams.get('mode') || DEFAULT_STYLE_MODE,
         };
+      } else if (urlParams.has('stencil') && parsedPath.basename.endsWith('.css')) {
+        // user-authored `import styles from './foo.css?stencil'`, disambiguated
+        // from other global `*.css` module typings via the `?stencil` marker
+        parsedPath.data = {
+          encapsulation: 'none',
+        };
       }
     } else if (parsedPath.basename.endsWith('.css')) {
       parsedPath.data = {

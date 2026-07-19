@@ -1,6 +1,6 @@
 import { Component } from '@stencil/core';
 
-import styles from './prerender-cmp.css';
+import styles from './prerender-cmp.css?stencil';
 
 @Component({
   tag: 'prerender-cmp',

@@ -38,4 +38,6 @@ Stop with the
 // Something ...
 // ---------------------------------------------------------------------------
 
-after every thing. It's not necessary and makes the code harder to read.
+after everything. It's not necessary and makes the code harder to read.
+
+If you find dead code, or code that is no longer needed, mention it to the user and ask if it can be removed.
