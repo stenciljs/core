@@ -93,6 +93,19 @@ describe('stencil-import-path', () => {
     expect(p.data).toBe(null);
   });
 
+  it('parse user-authored css import with ?stencil marker', () => {
+    const p = parseImportPath('./some-file.css?stencil');
+    expect(p.basename).toBe('some-file.css');
+    expect(p.ext).toBe('css');
+    expect(p.data).toEqual({ encapsulation: 'none' });
+  });
+
+  it('does not treat ?stencil as a css marker for non-css files', () => {
+    const p = parseImportPath('./some-file.svg?stencil');
+    expect(p.basename).toBe('some-file.svg');
+    expect(p.data).toBe(null);
+  });
+
   it('serialize/parse dts ext', () => {
     const s = serializeImportPath(
       {

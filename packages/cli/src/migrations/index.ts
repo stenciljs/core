@@ -1,6 +1,7 @@
 import ts from 'typescript';
 
 import { buildDistDocsRule } from './rules/build-dist-docs';
+import { cssImportQueryParamRule } from './rules/css-import-query-param';
 import { devModeRule } from './rules/dev-mode';
 import { encapsulationApiRule } from './rules/encapsulation-api';
 import { externalRuntimeRule } from './rules/external-runtime';
@@ -130,6 +131,7 @@ const migrationRules: MigrationRule[] = [
   hashFileNamesRule,
   rolldownConfigRule,
   serviceWorkerDefaultRule,
+  cssImportQueryParamRule,
 ];
 
 /**

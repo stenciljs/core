@@ -1,8 +1,8 @@
 import { Component, Host } from '@stencil/core';
 
-import ionicSvgUrl from './assets/ionic.svg';
+import ionicSvgUrl from './assets/ionic.svg?stencil';
 import ionicSvgText from './assets/ionic.svg?format=text';
-import myText from './assets/my-text.txt';
+import myText from './assets/my-text.txt?stencil';
 import whateverHtml from './assets/whatever.html?format=text';
 
 @Component({
