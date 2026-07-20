@@ -2,7 +2,11 @@ import type * as d from '@stencil/core';
 
 import { MarkdownTable } from './docs-util';
 
-export const eventsToMarkdown = (events: d.JsonDocsEvent[]) => {
+export const eventsToMarkdown = (
+  events: d.JsonDocsEvent[],
+  cmp?: d.JsonDocsComponent,
+  customColumns: d.DocsReadmeCustomColumn<d.JsonDocsEvent>[] = [],
+) => {
   const content: string[] = [];
   if (events.length === 0) {
     return content;
@@ -13,10 +17,15 @@ export const eventsToMarkdown = (events: d.JsonDocsEvent[]) => {
 
   const table = new MarkdownTable();
 
-  table.addHeader(['Event', 'Description', 'Type']);
+  table.addHeader(['Event', 'Description', 'Type', ...customColumns.map((c) => c.header)]);
 
   events.forEach((ev) => {
-    table.addRow([`\`${ev.event}\``, getDocsField(ev), `\`CustomEvent<${ev.detail}>\``]);
+    table.addRow([
+      `\`${ev.event}\``,
+      getDocsField(ev),
+      `\`CustomEvent<${ev.detail}>\``,
+      ...customColumns.map((c) => c.content(ev, cmp!)),
+    ]);
   });
 
   content.push(...table.toMarkdown());

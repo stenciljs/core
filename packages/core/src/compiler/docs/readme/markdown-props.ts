@@ -2,7 +2,11 @@ import type * as d from '@stencil/core';
 
 import { MarkdownTable } from './docs-util';
 
-export const propsToMarkdown = (props: d.JsonDocsProp[]) => {
+export const propsToMarkdown = (
+  props: d.JsonDocsProp[],
+  cmp?: d.JsonDocsComponent,
+  customColumns: d.DocsReadmeCustomColumn<d.JsonDocsProp>[] = [],
+) => {
   const content: string[] = [];
   if (props.length === 0) {
     return content;
@@ -13,7 +17,14 @@ export const propsToMarkdown = (props: d.JsonDocsProp[]) => {
 
   const table = new MarkdownTable();
 
-  table.addHeader(['Property', 'Attribute', 'Description', 'Type', 'Default']);
+  table.addHeader([
+    'Property',
+    'Attribute',
+    'Description',
+    'Type',
+    'Default',
+    ...customColumns.map((c) => c.header),
+  ]);
 
   props.forEach((prop) => {
     table.addRow([
@@ -22,6 +33,7 @@ export const propsToMarkdown = (props: d.JsonDocsProp[]) => {
       getDocsField(prop),
       getTypeField(prop),
       getDefaultValueField(prop),
+      ...customColumns.map((c) => c.content(prop, cmp!)),
     ]);
   });
 

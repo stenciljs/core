@@ -129,4 +129,57 @@ describe('markdown props', () => {
 
 `);
   });
+
+  it('renders custom columns driven by docsTags, in array order', () => {
+    const markdown = propsToMarkdown(
+      [
+        {
+          name: 'configurable',
+          attr: 'configurable',
+          docs: 'A configurable prop',
+          default: 'undefined',
+          type: 'string',
+          mutable: false,
+          optional: false,
+          required: false,
+          reflectToAttr: false,
+          docsTags: [{ name: 'config', text: 'true' }],
+          values: [],
+          getter: false,
+          setter: false,
+        },
+        {
+          name: 'plain',
+          attr: 'plain',
+          docs: 'A plain prop',
+          default: 'undefined',
+          type: 'string',
+          mutable: false,
+          optional: false,
+          required: false,
+          reflectToAttr: false,
+          docsTags: [],
+          values: [],
+          getter: false,
+          setter: false,
+        },
+      ],
+      undefined,
+      [
+        {
+          header: 'Configurable',
+          content: (prop) => (prop.docsTags.some((t) => t.name === 'config') ? '✅' : '❌'),
+        },
+      ],
+    ).join('\n');
+
+    expect(markdown).toEqual(`## Properties
+
+| Property       | Attribute      | Description         | Type     | Default     | Configurable |
+| -------------- | -------------- | ------------------- | -------- | ----------- | ------------ |
+| \`configurable\` | \`configurable\` | A configurable prop | \`string\` | \`undefined\` | ✅            |
+| \`plain\`        | \`plain\`        | A plain prop        | \`string\` | \`undefined\` | ❌            |
+
+`);
+  });
 });
