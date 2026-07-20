@@ -135,5 +135,70 @@ describe('css-props to markdown', () => {
         'Defaults to var(--nano-color-blue-cerulean-1000); with \\| pipes',
       );
     });
+
+    describe('customColumns', () => {
+      it('renders extra props/events columns wired through readmeOutput.customColumns', () => {
+        const readmeOutput: d.OutputTargetDocsReadme = {
+          type: 'docs-readme',
+          footer: '*Built with StencilJS*',
+          customColumns: {
+            props: [
+              {
+                header: 'Configurable',
+                content: (prop) => (prop.docsTags.some((t) => t.name === 'config') ? '✅' : '❌'),
+              },
+            ],
+            events: [
+              {
+                header: 'Internal',
+                content: (ev) => (ev.docsTags.some((t) => t.name === 'internal') ? '✅' : '❌'),
+              },
+            ],
+          },
+        };
+
+        const component: d.JsonDocsComponent = {
+          ...mockComponent,
+          props: [
+            {
+              name: 'configurable',
+              attr: 'configurable',
+              docs: 'A configurable prop',
+              default: 'undefined',
+              type: 'string',
+              mutable: false,
+              optional: false,
+              required: false,
+              reflectToAttr: false,
+              docsTags: [{ name: 'config', text: 'true' }],
+              values: [],
+              getter: false,
+              setter: false,
+            },
+          ],
+          events: [
+            {
+              event: 'myEvent',
+              bubbles: true,
+              cancelable: true,
+              composed: true,
+              complexType: { original: 'void', resolved: 'void', references: {} },
+              docs: 'An event',
+              docsTags: [],
+              detail: 'void',
+            },
+          ],
+        };
+
+        const markdown = generateMarkdown('# my-component', component, [], readmeOutput);
+
+        expect(markdown).toContain('## Properties');
+        expect(markdown).toContain('Configurable');
+        expect(markdown).toContain('✅');
+        expect(markdown).toContain('## Events');
+        expect(markdown).toContain('Internal');
+        expect(markdown).toContain('❌');
+      });
+    });
   });
 });

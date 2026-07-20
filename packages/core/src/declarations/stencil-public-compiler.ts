@@ -9,7 +9,12 @@ import type {
   PrerenderUrlResults,
   PrintLine,
 } from './stencil-private';
-import type { JsonDocs } from './stencil-public-docs';
+import type {
+  JsonDocs,
+  JsonDocsComponent,
+  JsonDocsEvent,
+  JsonDocsProp,
+} from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';
 
 export * from './stencil-public-docs';
@@ -2268,6 +2273,23 @@ export interface OutputTargetDocsReadme extends OutputTargetBase {
   overwriteExisting?: boolean | 'if-missing';
   footer?: string;
   strict?: boolean;
+  /**
+   * Add extra columns to the generated Properties/Events tables, e.g. to
+   * surface custom JSDoc tags as a column of their own.
+   */
+  customColumns?: {
+    props?: DocsReadmeCustomColumn<JsonDocsProp>[];
+    events?: DocsReadmeCustomColumn<JsonDocsEvent>[];
+  };
+}
+
+/**
+ * A custom column to render in a `docs-readme` Properties/Events table.
+ * `content` is invoked once per row.
+ */
+export interface DocsReadmeCustomColumn<T> {
+  header: string;
+  content: (member: T, cmp: JsonDocsComponent) => string;
 }
 
 export interface OutputTargetDocsJson extends OutputTargetBase {
