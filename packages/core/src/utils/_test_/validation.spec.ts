@@ -1,8 +1,97 @@
 import { expect, describe, it } from '@stencil/vitest';
 
-import { validateComponentTag } from '../validation';
+import { validateComponentModes, validateComponentTag } from '../validation';
 
 describe('validation', () => {
+  describe('validateComponentModes', () => {
+    it('returns undefined when config.modes is not declared', () => {
+      expect(validateComponentModes(undefined, { styleUrls: { typo: 'foo.css' } })).toBeUndefined();
+    });
+
+    it('returns undefined when config.modes is an empty array', () => {
+      expect(validateComponentModes([], { styleUrls: { typo: 'foo.css' } })).toBeUndefined();
+    });
+
+    it('returns undefined when all used modes are allowed (string entries)', () => {
+      expect(
+        validateComponentModes(['ios', 'md'], {
+          styleUrls: { ios: 'foo.ios.css', md: 'foo.md.css' },
+        }),
+      ).toBeUndefined();
+    });
+
+    it('returns undefined when styleUrls is the plain array form (no mode keys)', () => {
+      expect(validateComponentModes(['ios', 'md'], { styleUrls: ['foo.css'] })).toBeUndefined();
+    });
+
+    it('errors on an unknown mode key in styleUrls', () => {
+      expect(
+        validateComponentModes(['ios', 'md'], {
+          styleUrls: { ios: 'foo.ios.css', tyop: 'foo.tyop.css' },
+        }),
+      ).toEqual({
+        propName: 'styleUrls',
+        message: 'Invalid mode "tyop" in "styleUrls". Valid modes are: ios, md.',
+      });
+    });
+
+    it('errors on an unknown mode key in styles', () => {
+      expect(
+        validateComponentModes(['ios', 'md'], {
+          styles: { ios: ':host {}', tyop: ':host {}' },
+        }),
+      ).toEqual({
+        propName: 'styles',
+        message: 'Invalid mode "tyop" in "styles". Valid modes are: ios, md.',
+      });
+    });
+
+    it('ignores the __identifier wrapper for a single imported style', () => {
+      expect(
+        validateComponentModes(['ios', 'md'], {
+          styles: { __identifier: true, __escapedText: 'styles' } as any,
+        }),
+      ).toBeUndefined();
+    });
+
+    it('errors when a required mode is missing', () => {
+      expect(
+        validateComponentModes([{ mode: 'ios' }, { mode: 'md', required: true }], {
+          styleUrls: { ios: 'foo.ios.css' },
+        }),
+      ).toEqual({
+        propName: 'styleUrls',
+        message: 'Missing required mode: md.',
+      });
+    });
+
+    it('errors listing all missing required modes', () => {
+      expect(
+        validateComponentModes(
+          [{ mode: 'ios', required: true }, { mode: 'md', required: true }, 'web'],
+          { styleUrls: { web: 'foo.web.css' } },
+        ),
+      ).toEqual({
+        propName: 'styleUrls',
+        message: 'Missing required modes: ios, md.',
+      });
+    });
+
+    it('does not require a mode when the component uses no mode-keyed styles at all', () => {
+      expect(
+        validateComponentModes([{ mode: 'ios', required: true }], { styleUrl: 'foo.css' } as any),
+      ).toBeUndefined();
+    });
+
+    it('supports mixed string and object entries', () => {
+      expect(
+        validateComponentModes(['ios', { mode: 'md', required: true }], {
+          styleUrls: { ios: 'foo.ios.css', md: 'foo.md.css' },
+        }),
+      ).toBeUndefined();
+    });
+  });
+
   describe('validateComponentTag', () => {
     it('should error on non-string', () => {
       // @ts-ignore we're checking what happens when we pass an unexpected type (number instead of string)
