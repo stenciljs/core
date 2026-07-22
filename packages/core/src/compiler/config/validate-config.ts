@@ -238,6 +238,10 @@ export const validateConfig = (
     validatedConfig.collections = [];
   }
 
+  if (!Array.isArray(validatedConfig.modes)) {
+    validatedConfig.modes = [];
+  }
+
   // validate how many workers we can use
   validateWorkers(validatedConfig);
 

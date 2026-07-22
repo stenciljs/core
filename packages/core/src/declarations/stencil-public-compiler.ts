@@ -318,6 +318,24 @@ export interface StencilConfig {
   excludeUnusedDependencies?: boolean;
 
   /**
+   * Declares the set of valid style "modes" (e.g. `ios`, `md`) used by mode-keyed
+   * `styleUrls`/`styles` in `@Component()`. When set, the compiler validates that
+   * every mode key used in a component matches one of these entries, catching typos
+   * at build time. Entries marked `required` must be present on every component that
+   * defines any mode-keyed styles.
+   *
+   * @example
+   * ```ts
+   * export const config: Config = {
+   *   modes: ['ios', { mode: 'md', required: true }],
+   * };
+   * ```
+   *
+   * @default []
+   */
+  modes?: (string | ModeConfig)[];
+
+  /**
    * Explicitly declare which npm packages are Stencil collections to be re-bundled into this project.
    *
    * Without this option, collection ingestion is triggered only by a side-effect import:
@@ -565,6 +583,18 @@ export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
   devMode: boolean;
   sourceMap: boolean;
 };
+
+export interface ModeConfig {
+  /**
+   * The mode name, matched against `styleUrls`/`styles` object keys in `@Component()`.
+   */
+  mode: string;
+  /**
+   * When `true`, every component that defines mode-keyed `styleUrls` or `styles`
+   * must include this mode. Defaults to `false`.
+   */
+  required?: boolean;
+}
 
 export interface HydratedFlag {
   /**

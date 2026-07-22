@@ -1,7 +1,12 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { augmentDiagnosticWithNode, buildError, validateComponentTag } from '../../../utils';
+import {
+  augmentDiagnosticWithNode,
+  buildError,
+  validateComponentModes,
+  validateComponentTag,
+} from '../../../utils';
 import {
   convertValueToLiteral,
   createStaticGetter,
@@ -242,6 +247,15 @@ const validateComponent = (
         }
       }
     }
+  }
+
+  // Validate mode keys used in styleUrls/styles against config.modes, if declared
+  const modeError = validateComponentModes(config.modes, componentOptions);
+  if (modeError) {
+    const err = buildError(diagnostics);
+    err.messageText = modeError.message;
+    augmentDiagnosticWithNode(err, findTagNode(modeError.propName, componentDecorator));
+    return false;
   }
 
   const constructor = cmpNode.members.find(ts.isConstructorDeclaration);
