@@ -165,18 +165,25 @@ const generateTransformCssToEsm = (
 ): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
 
-  // Replace literal newlines/tabs/returns with spaces to avoid them becoming escape sequences
-  // Then handle other special characters and escape backslashes last
+  // Escape backslashes first so the escape sequences added below are not
+  // re-escaped afterwards. Escaping backslashes last would turn the
+  // escaped backtick produced below back into an unescaped backtick,
+  // which terminates the generated template literal early.
+  // Then replace literal newlines/tabs/returns with spaces, keep control
+  // characters visible as escape sequences in the runtime CSS string,
+  // and escape the remaining characters that have a special meaning
+  // inside a template literal (backticks and dollar-brace).
   results.styleText = results.styleText
+    .replace(/\\/g, '\\\\')
     .replace(/\n/g, ' ')
     .replace(/\r/g, ' ')
     .replace(/\t/g, ' ')
+    .replace(/\u000c/g, '\\\\f')
+    .replace(/\u0008/g, '\\\\b')
+    .replace(/\u000b/g, '\\\\v')
+    .replace(/\0/g, '\\\\0')
     .replace(/`/g, '\\`')
-    .replace(/\u000c/g, '\\f')
-    .replace(/\u0008/g, '\\b')
-    .replace(/\u000b/g, '\\v')
-    .replace(/\0/g, '\\0')
-    .replace(/\\/g, '\\\\');
+    .replace(/\$\{/g, '\\${');
 
   if (input.addTagTransformers) {
     results.styleText = addTagTransformToCssString(results.styleText, input.tags);

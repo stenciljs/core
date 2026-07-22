@@ -434,8 +434,9 @@ var(--theme-secondary-color) var(--theme-secondary-opacity));
   });
 
   it('escapes backticks in CSS content', () => {
+    const input = '.my-class::before { content: "`"; }';
     const result = transformCssToEsmSync({
-      input: '.my-class::before { content: "`"; }',
+      input,
       file: '/test.css',
       mode: 'md',
       module: 'esm',
@@ -449,5 +450,85 @@ var(--theme-secondary-color) var(--theme-secondary-opacity));
 
     // Should escape backticks to avoid breaking template literal
     expect(result.output).toContain('\\`');
+    // The backslash escaping the backtick must not itself be escaped,
+    // otherwise the backtick terminates the template literal early
+    expect(result.output).not.toContain('\\\\`');
+    // The generated module must be valid JavaScript and evaluate back to the
+    // original CSS
+    expect(evaluateEsmOutput(result.output)).toBe(input);
+  });
+
+  it('escapes template literal interpolation in CSS content', () => {
+    const input = '.my-class::before { content: "${notAVariable}"; }';
+    const result = transformCssToEsmSync({
+      input,
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // ${ must be escaped so it is not evaluated as an interpolation
+    expect(evaluateEsmOutput(result.output)).toBe(input);
+  });
+
+  it('preserves CSS escape sequences like icon font content', () => {
+    // as read from a CSS file, `content: "\f101"` contains a literal backslash
+    const input = '.icon::before { content: "\\f101"; }';
+    const result = transformCssToEsmSync({
+      input,
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // The runtime CSS string must round-trip the single backslash
+    expect(evaluateEsmOutput(result.output)).toBe(input);
+  });
+
+  it('escapes raw control characters as visible escape sequences', () => {
+    // genuine control character bytes (form feed, backspace, vertical tab, null),
+    // not their escaped text forms
+    const input = '.x::before { content: "\u000c101 \u0008 \u000b \u0000"; }';
+    const result = transformCssToEsmSync({
+      input,
+      file: '/test.css',
+      mode: 'md',
+      module: 'esm',
+      tags: [],
+      addTagTransformers: false,
+      encapsulation: undefined,
+      docs: false,
+      sourceMap: false,
+      styleImportData: undefined,
+    });
+
+    // The generated module must be valid JavaScript and the runtime CSS string
+    // must contain the control characters as visible escape sequences
+    // (e.g. U+000C followed by "101" becomes the CSS escape `\f101`)
+    expect(evaluateEsmOutput(result.output)).toBe('.x::before { content: "\\f101 \\b \\v \\0"; }');
   });
 });
+
+/**
+ * Evaluate the ESM output produced by `transformCssToEsmSync` and return the
+ * runtime CSS string, to assert that the generated module is valid JavaScript.
+ *
+ * @param output the generated ESM module source
+ * @returns the CSS text the module produces at runtime
+ */
+function evaluateEsmOutput(output: string): string {
+  const styleFn = new Function(output.replace('export default', 'return'))();
+  return styleFn();
+}
