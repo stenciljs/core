@@ -34,6 +34,8 @@ export const initializeComponent = async (
     if ((hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0) {
       // Let the runtime know that the component has been initialized
       hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
+      // Starting a fresh attempt clears any failure recorded by a previous one.
+      hostRef.$flags$ &= ~HOST_FLAGS.hasFailedLoad;
 
       const bundleId = cmpMeta.$lazyBundleId$;
       if (BUILD.lazyLoad && bundleId) {
@@ -54,10 +56,17 @@ export const initializeComponent = async (
         }
         if (!Cstr) {
           // The lazy bundle failed to load (e.g. a dropped network request).
-          // Clear the "initialized" flag so a future `connectedCallback` (see
-          // `connected-callback.ts`) is able to retry loading this component
-          // instead of leaving the host element permanently un-upgraded.
+          // Clear the "initialized" flag and mark the load as failed so a
+          // future `connectedCallback` (see `connected-callback.ts`) is able
+          // to retry loading this component instead of leaving the host
+          // element permanently un-upgraded. `hasFailedLoad` (rather than
+          // just the absence of `hasInitializedComponent`) is what gates the
+          // retry, since `hasInitializedComponent` is also unset while an
+          // attempt is merely queued/in-flight (e.g. behind `nextTick`, or
+          // between repeated `connectedCallback` invocations during
+          // server-side hydration) -- neither of which is a failure.
           hostRef.$flags$ &= ~HOST_FLAGS.hasInitializedComponent;
+          hostRef.$flags$ |= HOST_FLAGS.hasFailedLoad;
           throw new Error(`Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`);
         }
         if (BUILD.member && !Cstr.isProxied) {
