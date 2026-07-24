@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 
-import { transpileModule } from './transpile';
+import { transpileModule, transpileModules } from './transpile';
 // import { c, formatCode } from './utils';
 
 describe('parse mixin', () => {
@@ -145,5 +145,121 @@ describe('parse mixin', () => {
         type: 'string',
       },
     ]);
+  });
+
+  describe('mixin factory imported from a barrel index file', () => {
+    it('does not emit a warning when the mixin factory is re-exported via `export * from`', () => {
+      // The component imports the factory from a barrel index file:
+      //   import { colorFactory } from '../mixins';        ← resolves to mixins/index.ts
+      // The barrel only contains `export * from './color'` — it has no direct declaration.
+      // Before the fix this triggered: "Unable to find 'colorFactory' in the imported module".
+      expect(() =>
+        transpileModules(
+          {
+            'component.tsx': `
+              import { Component, Prop, h, Mixin } from '@stencil/core';
+              import { colorFactory } from 'mixins/index.ts';
+
+              const ColorMixin = colorFactory;
+
+              @Component({ tag: 'my-cmp' })
+              class MyCmp extends Mixin(ColorMixin) {
+                @Prop() ownProp: string = 'own';
+              }
+            `,
+            'mixins/index.ts': `
+              export * from './color';
+            `,
+            'mixins/color.ts': `
+              import type { MixedInCtor } from '@stencil/core';
+
+              export const colorFactory = <B extends MixedInCtor>(Base: B) => {
+                class ColorMixin extends Base {
+                  @Prop() color: string = 'red';
+                }
+                return ColorMixin;
+              };
+            `,
+          },
+          null,
+          { target: ts.ScriptTarget.ES2022 },
+        ),
+      ).not.toThrow();
+    });
+
+    it('does not emit a warning when the mixin factory is re-exported via named `export { X } from`', () => {
+      expect(() =>
+        transpileModules(
+          {
+            'component.tsx': `
+              import { Component, Prop, h, Mixin } from '@stencil/core';
+              import { myColorFactory } from 'mixins/index.ts';
+
+              const ColorMixin = myColorFactory;
+
+              @Component({ tag: 'my-cmp' })
+              class MyCmp extends Mixin(ColorMixin) {
+                @Prop() ownProp: string = 'own';
+              }
+            `,
+            'mixins/index.ts': `
+              export { colorFactory as myColorFactory } from './color';
+            `,
+            'mixins/color.ts': `
+              import type { MixedInCtor } from '@stencil/core';
+
+              export const colorFactory = <B extends MixedInCtor>(Base: B) => {
+                class ColorMixin extends Base {
+                  @Prop() color: string = 'red';
+                }
+                return ColorMixin;
+              };
+            `,
+          },
+          null,
+          { target: ts.ScriptTarget.ES2022 },
+        ),
+      ).not.toThrow();
+    });
+
+    it('does not emit a warning when useDefineForClassFields is explicitly false', () => {
+      // When `useDefineForClassFields: false`, TypeScript does not emit class field
+      // initializers, so Stencil's `detectModernPropDeclarations` always returns false
+      // for this config. The warning must be suppressed in this case because
+      // `useDefineForClassFields: false` is the safe / correct Stencil configuration
+      // and the inheritance works correctly at runtime.
+      expect(() =>
+        transpileModules(
+          {
+            'component.tsx': `
+              import { Component, Prop, h, Mixin } from '@stencil/core';
+              import { colorFactory } from 'mixins/index.ts';
+
+              const ColorMixin = colorFactory;
+
+              @Component({ tag: 'my-cmp' })
+              class MyCmp extends Mixin(ColorMixin) {
+                @Prop() ownProp: string = 'own';
+              }
+            `,
+            'mixins/index.ts': `
+              export * from './color';
+            `,
+            'mixins/color.ts': `
+              import type { MixedInCtor } from '@stencil/core';
+
+              export const colorFactory = <B extends MixedInCtor>(Base: B) => {
+                class ColorMixin extends Base {
+                  @Prop() color: string = 'red';
+                }
+                return ColorMixin;
+              };
+            `,
+          },
+          null,
+          { target: ts.ScriptTarget.ES2022, useDefineForClassFields: false },
+        ),
+      ).not.toThrow();
+    });
   });
 });
