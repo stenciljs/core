@@ -34,6 +34,34 @@ describe('class-extension', () => {
       });
     });
 
+    // Regression test for https://github.com/stenciljs/core/issues/6700: an abstract
+    // base class living in a subdirectory of the component imports a type via a relative
+    // specifier that escapes back up into the component's own directory. The re-anchored
+    // specifier must resolve from the component's directory so the generated
+    // components.d.ts import is correct for the extending component.
+    it('re-anchors a relative import when the extended class is in a subdirectory of the component', () => {
+      const property = buildProperty({
+        UtilType: {
+          location: 'import',
+          // relative to the base class in `shared/`, this resolves to /src/components/util-types
+          path: '../util-types',
+          id: 'src/components/util-types.ts::UtilType',
+        },
+      });
+
+      reanchorInheritedTypeReferences(
+        [property],
+        '/src/components/shared/abstract-component.tsx',
+        '/src/components/sub-component.tsx',
+      );
+
+      expect(property.complexType.references['UtilType']).toEqual({
+        location: 'import',
+        path: './util-types',
+        id: 'src/components/util-types.ts::UtilType',
+      });
+    });
+
     it('re-anchors a relative import reference pointing outside the extended class directory', () => {
       const property = buildProperty({
         Validator: {
