@@ -1138,6 +1138,7 @@ export namespace JSXBase {
     onClose?: (event: Event) => void;
     open?: boolean;
     returnValue?: string;
+    closedby?: 'any' | 'closerequest' | 'none';
   }
 
   export interface EmbedHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1579,6 +1580,7 @@ export namespace JSXBase {
     // Developer must explicitly specify one of the valid popover values or it will fallback
     // to `manual` (following the HTML spec).
     popover?: string | null;
+    focusgroup?: string;
 
     // Unknown
     inputMode?: string;
