@@ -152,7 +152,7 @@ const parsePropDecorator = (
 
   // extract default value
   if (ts.isPropertyDeclaration(prop) && prop.initializer) {
-    propMeta.defaultValue = prop.initializer.getText();
+    propMeta.defaultValue = resolveInitializerText(prop.initializer, typeChecker);
   } else if (ts.isGetAccessorDeclaration(prop)) {
     // shallow comb to find default value for a getter
     const returnStatement = prop.body?.statements.find((st) => ts.isReturnStatement(st)) as ts.ReturnStatement;
@@ -166,7 +166,7 @@ const parsePropDecorator = (
       const foundProp = findGetProp(nameToFind, newMembers);
 
       if (foundProp && foundProp.initializer) {
-        propMeta.defaultValue = foundProp.initializer.getText();
+        propMeta.defaultValue = resolveInitializerText(foundProp.initializer, typeChecker);
 
         if (propMeta.type === 'unknown') {
           const type = typeChecker.getTypeAtLocation(foundProp);
@@ -378,4 +378,242 @@ const findSetter = (propName: string, members: ts.ClassElement[]): ts.SetAccesso
  */
 const findGetProp = (propName: string, members: ts.ClassElement[]): ts.PropertyDeclaration | undefined => {
   return members.find((m) => ts.isPropertyDeclaration(m) && m.name.getText() === propName) as ts.PropertyDeclaration;
+};
+
+/**
+ * Maximum number of hops to follow when traversing variable references to
+ * resolve an initializer to its literal value. With the guards below
+ * (`depth > MAX_RESOLVE_DEPTH`), a chain of up to this many `const` / property
+ * follows is supported before bailing out; any deeper chain falls back to the
+ * original source text. Prevents pathological / cyclic chains from blowing the
+ * stack.
+ */
+const MAX_RESOLVE_DEPTH = 5;
+
+/**
+ * Resolves the text representation of a `@Prop` initializer expression. Where possible,
+ * variable / object-property references are followed to their underlying literal value
+ * so that generated documentation (e.g. `@ionic/docs`) shows the real default rather
+ * than the variable name from source. Any expression that cannot be resolved to a
+ * primitive literal falls back to the original source text — preserving previous
+ * behavior for cases that are not safe to evaluate at compile time.
+ */
+const resolveInitializerText = (node: ts.Expression, typeChecker: ts.TypeChecker): string => {
+  const resolved = resolveLiteralText(node, typeChecker, 0);
+  return resolved ?? node.getText();
+};
+
+const resolveLiteralText = (node: ts.Expression, typeChecker: ts.TypeChecker, depth: number): string | undefined => {
+  if (depth > MAX_RESOLVE_DEPTH) {
+    return undefined;
+  }
+
+  node = unwrapValuePreservingWrappers(node);
+
+  // Already a primitive literal — string / number / true / false / null / signed number
+  if (isPrimitiveLiteral(node)) {
+    return node.getText();
+  }
+
+  // Object / array literal default — e.g. `@Prop() x = DEFAULT;` where
+  // `const DEFAULT = { a: 1 } satisfies T;`. Emit the literal's source text so
+  // docs show the actual default rather than the resolved identifier name. Inline
+  // literals (`@Prop() x = { a: 1 }`) reach the same text via the fallback in
+  // `resolveInitializerText`, but identifier-referenced literals only resolve here.
+  if (ts.isObjectLiteralExpression(node) || ts.isArrayLiteralExpression(node)) {
+    return node.getText();
+  }
+
+  // Identifier referencing a `const` variable with a resolvable initializer.
+  if (ts.isIdentifier(node)) {
+    const init = getConstVariableInitializer(node, typeChecker);
+    if (init) {
+      return resolveLiteralText(init, typeChecker, depth + 1);
+    }
+    // The chain terminated at a bare `undefined` identifier (either `@Prop() x = undefined;`
+    // or `const X = undefined; @Prop() x = X;`). Emit the literal `undefined` so docs show
+    // the same value the runtime would observe. A user-shadowed `const undefined = 'foo'`
+    // is already handled above by `getConstVariableInitializer`.
+    if (node.text === 'undefined') {
+      return 'undefined';
+    }
+    return undefined;
+  }
+
+  // OBJ.key
+  if (ts.isPropertyAccessExpression(node)) {
+    const obj = resolveObjectLiteral(node.expression, typeChecker, depth + 1);
+    const prop = obj && findObjectLiteralMember(obj, node.name.text, typeChecker);
+    return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
+  }
+
+  // OBJ['key']  /  OBJ[0]
+  if (ts.isElementAccessExpression(node)) {
+    // Unwrap value-preserving wrappers so safe shapes like `OBJ[('lg')]`,
+    // `OBJ['lg' as const]`, and `OBJ[('0') as const]` still resolve.
+    const arg = unwrapValuePreservingWrappers(node.argumentExpression);
+    let key: string | undefined;
+    if (ts.isStringLiteralLike(arg)) {
+      key = arg.text;
+    } else if (ts.isNumericLiteral(arg)) {
+      key = arg.text;
+    }
+    if (key === undefined) {
+      return undefined;
+    }
+    const obj = resolveObjectLiteral(node.expression, typeChecker, depth + 1);
+    const prop = obj && findObjectLiteralMember(obj, key, typeChecker);
+    return prop ? resolveLiteralText(prop, typeChecker, depth + 1) : undefined;
+  }
+
+  return undefined;
+};
+
+/**
+ * Strips value-preserving wrappers so callers can pattern-match the underlying
+ * expression: `'x' as const`, `('x')`, `<T>x`, `x satisfies T`, `x!`.
+ */
+const unwrapValuePreservingWrappers = (node: ts.Expression): ts.Expression => {
+  while (
+    ts.isAsExpression(node) ||
+    ts.isParenthesizedExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isNonNullExpression(node)
+  ) {
+    node = node.expression;
+  }
+  return node;
+};
+
+const isPrimitiveLiteral = (node: ts.Expression): boolean => {
+  // Identifiers (including `undefined`) are not treated as primitive literals
+  // here. They are resolved through `getConstVariableInitializer`, and any
+  // identifier the resolver can't follow to a primitive ultimately falls back
+  // to `node.getText()` — so `@Prop() x = undefined;` still emits `"undefined"`
+  // while a user-shadowed `const undefined = 'foo'` correctly resolves to `'foo'`.
+  return (
+    ts.isStringLiteralLike(node) ||
+    ts.isNumericLiteral(node) ||
+    isSignedNumericLiteral(node) ||
+    node.kind === ts.SyntaxKind.TrueKeyword ||
+    node.kind === ts.SyntaxKind.FalseKeyword ||
+    node.kind === ts.SyntaxKind.NullKeyword
+  );
+};
+
+/**
+ * TypeScript represents `-1` / `+1` as a `PrefixUnaryExpression` wrapping a
+ * numeric literal — not as a `NumericLiteral` directly. Treat the (+|-)number
+ * shape as a primitive literal so signed numeric defaults inline cleanly.
+ */
+const isSignedNumericLiteral = (node: ts.Expression): boolean => {
+  return (
+    ts.isPrefixUnaryExpression(node) &&
+    (node.operator === ts.SyntaxKind.MinusToken || node.operator === ts.SyntaxKind.PlusToken) &&
+    ts.isNumericLiteral(node.operand)
+  );
+};
+
+/**
+ * Walks a Symbol to the initializer expression of its underlying `const`
+ * variable declaration, unwrapping import aliases along the way. Returns the
+ * initializer as-is regardless of its shape — the caller is responsible for
+ * deciding whether the expression is something it can resolve further (e.g.
+ * a primitive literal, a nested const reference, an object literal, etc.).
+ * Returns undefined for anything that isn't a `const` binding with an
+ * initializer. Only `const` declarations are followed because `let` / `var`
+ * bindings may be reassigned and so are not safe to inline at compile time.
+ */
+const resolveConstSymbolInitializer = (
+  symbol: ts.Symbol | undefined,
+  typeChecker: ts.TypeChecker,
+): ts.Expression | undefined => {
+  // For imported bindings (`import { X } from './x'`), `getSymbolAtLocation`
+  // returns the alias symbol (`ImportSpecifier` / `NamespaceImport` / etc.) —
+  // unwrap it so we can reach the original `VariableDeclaration` in the
+  // source module and resolve cross-file `const` references.
+  if (symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    symbol = typeChecker.getAliasedSymbol(symbol);
+  }
+  const decl = symbol?.declarations?.find(ts.isVariableDeclaration);
+  if (!decl || !decl.initializer) {
+    return undefined;
+  }
+  const list = decl.parent;
+  if (!ts.isVariableDeclarationList(list) || (list.flags & ts.NodeFlags.Const) === 0) {
+    return undefined;
+  }
+  return decl.initializer;
+};
+
+const getConstVariableInitializer = (node: ts.Identifier, typeChecker: ts.TypeChecker): ts.Expression | undefined => {
+  return resolveConstSymbolInitializer(typeChecker.getSymbolAtLocation(node), typeChecker);
+};
+
+/**
+ * Resolves an expression to an object literal, walking through value-preserving
+ * wrappers (`as const`, `(...)`, etc.) and chained `const` identifier
+ * references. Bounded by `MAX_RESOLVE_DEPTH` so cyclic or pathological chains
+ * cannot blow the stack.
+ */
+const resolveObjectLiteral = (
+  node: ts.Expression,
+  typeChecker: ts.TypeChecker,
+  depth: number,
+): ts.ObjectLiteralExpression | undefined => {
+  if (depth > MAX_RESOLVE_DEPTH) {
+    return undefined;
+  }
+  node = unwrapValuePreservingWrappers(node);
+  if (ts.isObjectLiteralExpression(node)) {
+    return node;
+  }
+  if (ts.isIdentifier(node)) {
+    const init = getConstVariableInitializer(node, typeChecker);
+    if (init) {
+      return resolveObjectLiteral(init, typeChecker, depth + 1);
+    }
+  }
+  return undefined;
+};
+
+const findObjectLiteralMember = (
+  obj: ts.ObjectLiteralExpression,
+  name: string,
+  typeChecker: ts.TypeChecker,
+): ts.Expression | undefined => {
+  for (const member of obj.properties) {
+    if (ts.isPropertyAssignment(member)) {
+      const memberName = getPropertyNameText(member.name);
+      if (memberName === name) {
+        return member.initializer;
+      }
+      continue;
+    }
+    // Shorthand: `{ label }` — equivalent to `{ label: label }`. The shorthand
+    // name carries the property symbol, not the symbol of the in-scope binding,
+    // so use `getShorthandAssignmentValueSymbol` to reach the original binding
+    // and then walk to its `const` initializer.
+    if (ts.isShorthandPropertyAssignment(member) && member.name.text === name) {
+      return resolveConstSymbolInitializer(typeChecker.getShorthandAssignmentValueSymbol(member), typeChecker);
+    }
+  }
+  return undefined;
+};
+
+/**
+ * Returns the static text of an object-literal property name. Computed property
+ * names (`{ [key]: 'v' }`) are intentionally unsupported and return `undefined`:
+ * resolving them would require evaluating an arbitrary expression at compile
+ * time, so the caller correctly falls back to the original source text instead.
+ */
+const getPropertyNameText = (name: ts.PropertyName): string | undefined => {
+  if (ts.isIdentifier(name) || ts.isPrivateIdentifier(name)) {
+    return name.text;
+  }
+  if (ts.isStringLiteralLike(name) || ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+  return undefined;
 };

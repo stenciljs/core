@@ -240,4 +240,51 @@ describe('parse events', () => {
       });
     });
   });
+
+  describe('suppressReservedEventNameWarnings', () => {
+    it('should warn when using native DOM event name and flag is unset (default)', () => {
+      expect(() => {
+        transpileModule(
+          `
+            @Component({tag: 'cmp-a'})
+            export class CmpA {
+              @Event({ eventName: 'click' })
+              clickEvent: EventEmitter<void>;
+            }
+          `,
+        );
+      }).toThrow(/"click".*native DOM event/);
+    });
+
+    it('should not warn when using native DOM event name and flag is true', () => {
+      const t = transpileModule(
+        `
+          @Component({tag: 'cmp-a'})
+          export class CmpA {
+            @Event({ eventName: 'click' })
+            clickEvent: EventEmitter<void>;
+          }
+        `,
+        { suppressReservedEventNameWarnings: true },
+      );
+
+      expect(t.event).toEqual({
+        name: 'click',
+        method: 'clickEvent',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        internal: false,
+        complexType: {
+          original: 'void',
+          resolved: 'void',
+          references: {},
+        },
+        docs: {
+          text: '',
+          tags: [],
+        },
+      });
+    });
+  });
 });

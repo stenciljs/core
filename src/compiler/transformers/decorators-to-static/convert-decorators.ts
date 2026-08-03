@@ -148,6 +148,7 @@ const visitClassDeclaration = (
     );
     stateDecoratorsToStatic(decoratedMembers, filteredMethodsAndFields, typeChecker, importAliasMap.get('State'));
     eventDecoratorsToStatic(
+      config,
       diagnostics,
       decoratedMembers,
       typeChecker,

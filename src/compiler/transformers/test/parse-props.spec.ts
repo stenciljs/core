@@ -1,5 +1,7 @@
+import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import * as ts from 'typescript';
 
+import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decorators';
 import { getStaticGetter, transpileModule } from './transpile';
 import { c, formatCode } from './utils';
 
@@ -567,6 +569,283 @@ describe('parse props', () => {
     });
     expect(t.property?.type).toBe('any');
     expect(t.property?.attribute).toBe('val');
+  });
+
+  it('prop default value resolved from const string variable', () => {
+    const t = transpileModule(`
+      const DEFAULT_LABEL = 'Submit';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() label: string = DEFAULT_LABEL;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'Submit'`);
+  });
+
+  it('prop default value resolved from const number variable', () => {
+    const t = transpileModule(`
+      const DEFAULT_COUNT = 4;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() count: number = DEFAULT_COUNT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('4');
+  });
+
+  it('prop default value resolved from object property access', () => {
+    const t = transpileModule(`
+      const CONFIG = { label: 'Hello' };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() label: string = CONFIG.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'Hello'`);
+  });
+
+  it('prop default value resolved from indexed object access (FW-7298)', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = {
+        lg: '(min-width: 992px)',
+      };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string | boolean = QUERY['lg'];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'(min-width: 992px)'`);
+  });
+
+  it('prop default value falls back to raw text when initializer is not a resolvable literal', () => {
+    const t = transpileModule(`
+      const computeDefault = () => 'x';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = computeDefault();
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('computeDefault()');
+  });
+
+  it('prop default value falls back to raw text for dynamic (non-literal) indexed access', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };
+      const key = 'lg';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string = QUERY[key];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('QUERY[key]');
+  });
+
+  it('prop default value preserves `undefined` initializer as raw text', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string | undefined = undefined;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('undefined');
+  });
+
+  it('prop default value resolved through an object shorthand property', () => {
+    const t = transpileModule(`
+      const label = 'Hello';
+      const CONFIG = { label };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = CONFIG.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'Hello'`);
+  });
+
+  it('prop default value resolved through `as const` wrapper', () => {
+    const t = transpileModule(`
+      const DEFAULT = 'x' as const;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: 'x' = DEFAULT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'x'`);
+  });
+
+  it('prop default value resolved through parenthesized + non-null wrappers', () => {
+    const t = transpileModule(`
+      const DEFAULT: string | undefined = 'wrapped';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = (DEFAULT)!;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'wrapped'`);
+  });
+
+  it('prop default value resolved through a `const` initialized to undefined', () => {
+    const t = transpileModule(`
+      const DEFAULT = undefined;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string | undefined = DEFAULT;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('undefined');
+  });
+
+  it('prop default value resolved from a negative numeric const (PrefixUnaryExpression)', () => {
+    const t = transpileModule(`
+      const N = -1;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: number = N;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('-1');
+  });
+
+  it('prop default value resolved from a wrapped object literal const', () => {
+    const t = transpileModule(`
+      const CONFIG = ({ label: 'wrapped' } as const);
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = CONFIG.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'wrapped'`);
+  });
+
+  it('prop default value resolved through chained const-to-const object aliases', () => {
+    const t = transpileModule(`
+      const CONFIG = { label: 'chained' };
+      const ALIAS = CONFIG;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = ALIAS.label;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'chained'`);
+  });
+
+  it('prop default value resolved to an object literal const through `satisfies`', () => {
+    const t = transpileModule(`
+      type Cols = { xs: number; sm: number };
+      const DEFAULT_COLUMNS = { xs: 2, sm: 3 } satisfies Cols;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() columns: Cols = DEFAULT_COLUMNS;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`{ xs: 2, sm: 3 }`);
+  });
+
+  it('prop default value resolved to an array literal const', () => {
+    const t = transpileModule(`
+      const DEFAULTS = [1, 2, 3];
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() vals: number[] = DEFAULTS;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`[1, 2, 3]`);
+  });
+
+  it('falls back to getText() at a chain depth over MAX_RESOLVE_DEPTH', () => {
+    // Chain length intentionally exceeds the resolver's MAX_RESOLVE_DEPTH guard
+    // (`A -> B -> C -> D -> E -> F -> G -> 'deep'`). The resolver must bail out
+    // and the emitted default falls back to the original source text (`A`).
+    const t = transpileModule(`
+      const G = 'deep';
+      const F = G;
+      const E = F;
+      const D = E;
+      const C = D;
+      const B = C;
+      const A = B;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() val: string = A;
+      }
+    `);
+    expect(t.property?.defaultValue).toBe('A');
+  });
+
+  it('prop default value resolved when the element-access key is itself wrapped', () => {
+    const t = transpileModule(`
+      const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string = QUERY[('lg' as const)];
+      }
+    `);
+    expect(t.property?.defaultValue).toBe(`'(min-width: 992px)'`);
+  });
+
+  it('prop default value resolved from a cross-file imported const', () => {
+    // Self-contained 2-file program. Does NOT extend the shared `transpileModule`
+    // helper — keeps the multi-file complexity isolated to this single test.
+    const moduleSrc = `
+      import { QUERY } from './queries';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() when: string | boolean = QUERY['lg'];
+      }
+    `;
+    const queriesSrc = `export const QUERY: { [key: string]: string } = { lg: '(min-width: 992px)' };`;
+    const target = ts.ScriptTarget.Latest;
+    const files = new Map<string, ts.SourceFile>([
+      ['module.tsx', ts.createSourceFile('module.tsx', moduleSrc, target, true, ts.ScriptKind.TSX)],
+      ['queries.ts', ts.createSourceFile('queries.ts', queriesSrc, target, true, ts.ScriptKind.TS)],
+    ]);
+    let emitted = '';
+    const host: ts.CompilerHost = {
+      getSourceFile: (name) => files.get(name),
+      writeFile: (path, data) => {
+        if (path.endsWith('module.js')) emitted = data;
+      },
+      getDefaultLibFileName: () => 'lib.d.ts',
+      useCaseSensitiveFileNames: () => false,
+      getCanonicalFileName: (n) => n,
+      getCurrentDirectory: () => '',
+      getNewLine: () => '\n',
+      fileExists: (name) => files.has(name),
+      readFile: (name) => (name === 'module.tsx' ? moduleSrc : name === 'queries.ts' ? queriesSrc : ''),
+      directoryExists: () => true,
+      getDirectories: () => [],
+      resolveModuleNames: (names) =>
+        names.map((n) => {
+          const candidate = n.replace(/^\.\//, '');
+          for (const ext of ['.ts', '.tsx', '.d.ts'] as const) {
+            const fileName = candidate.endsWith(ext) ? candidate : `${candidate}${ext}`;
+            if (files.has(fileName)) {
+              return { resolvedFileName: fileName, extension: ext as ts.Extension };
+            }
+          }
+          return undefined;
+        }),
+    };
+    const program = ts.createProgram({
+      rootNames: ['module.tsx', 'queries.ts'],
+      options: {
+        experimentalDecorators: true,
+        jsx: ts.JsxEmit.React,
+        jsxFactory: 'h',
+        module: ts.ModuleKind.ESNext,
+        noLib: true,
+        suppressOutputPathCheck: true,
+        target,
+      },
+      host,
+    });
+    const config = mockValidatedConfig();
+    const buildCtx = mockBuildCtx(config);
+    program.emit(program.getSourceFile('module.tsx'), undefined, undefined, undefined, {
+      before: [convertDecoratorsToStatic(config, buildCtx.diagnostics, program.getTypeChecker(), program)],
+    });
+    // Assert the literal made it into the emitted `static get properties()` block.
+    expect(emitted).toMatch(/"defaultValue":\s*"'\(min-width: 992px\)'"/);
   });
 
   it('should infer string type from `get()` return value', () => {

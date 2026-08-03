@@ -1228,7 +1228,7 @@ export const updateConstructor = (
   parameters?: ts.ParameterDeclaration[],
   includeFalseArg?: boolean,
 ): ts.ClassElement[] => {
-  const constructorIndex = classMembers.findIndex((m) => m.kind === ts.SyntaxKind.Constructor);
+  const constructorIndex = classMembers.findIndex((m) => ts.isConstructorDeclaration(m) && m.body != null);
   const constructorMethod = classMembers[constructorIndex];
 
   if (constructorIndex < 0 && !statements?.length && !needsSuper(classNode)) return classMembers;
