@@ -306,6 +306,41 @@ describe('transform-utils', () => {
       );
     });
 
+    it('updates the implementation constructor when overload signatures are present', () => {
+      const sourceFile = ts.createSourceFile(
+        'dummy.ts',
+        `class MyClass extends BaseClass {
+          constructor(value: string);
+          constructor(value?: string) {
+            super();
+            this.value = value;
+          }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+        ts.ScriptKind.TS,
+      );
+      const classNode = sourceFile.statements.find(ts.isClassDeclaration);
+      if (!classNode) {
+        throw new Error('Expected a class declaration');
+      }
+      const ctorStatements = [
+        ts.factory.createExpressionStatement(
+          ts.factory.createCallExpression(ts.factory.createIdentifier('someMethod'), undefined, []),
+        ),
+      ];
+
+      const updatedMembers = updateConstructor(classNode, Array.from(classNode.members), ctorStatements);
+      const constructors = updatedMembers.filter(ts.isConstructorDeclaration);
+
+      expect(constructors).toHaveLength(2);
+      expect(constructors[0].body).toBeUndefined();
+      expect(constructors[1].body?.statements).toHaveLength(3);
+      expect(printClassMembers(classNode, updatedMembers)).toBe(
+        `class MyClass extends BaseClass { constructor(value: string); constructor(value?: string) {  super();  someMethod();  this.value = value; }}`,
+      );
+    });
+
     it('adds false argument to super call when no parameters are provided', () => {
       const classNode = ts.factory.createClassDeclaration(
         [],

@@ -6,6 +6,17 @@ import type { CompilerCtx, OptimizeJsResult, SourceMap, SourceTarget, ValidatedC
 import { minfyJsId } from '../../version';
 import { minifyJs } from './minify-js';
 
+/**
+ * Matches the comments that must survive minification. This extends Terser's default
+ * `comments: 'some'` behavior (`@license`, `@preserve`, etc.) with bundler directive
+ * comments — `@vite-ignore` and webpack magic comments (e.g. `webpackInclude:`,
+ * `webpackMode:`) — which downstream bundlers read from inside dynamic `import()`
+ * calls in the emitted output (e.g. `esm-es5`). Without this, Vite warns that the
+ * runtime's dynamic import cannot be analyzed and webpack ignores the lazy-loading
+ * hints entirely.
+ */
+const PRESERVED_COMMENTS = /^\**!|@preserve|@license|@cc_on|@vite-ignore|webpack[A-Z][a-zA-Z]+:/i;
+
 interface OptimizeModuleOptions {
   input: string;
   sourceMap?: SourceMap;
@@ -139,6 +150,7 @@ export const getTerserOptions = (
   if (sourceTarget === 'es5') {
     opts.ecma = opts.format.ecma = 5;
     opts.compress = false;
+    opts.format.comments = PRESERVED_COMMENTS;
     opts.mangle = {
       properties: getTerserManglePropertiesConfig(),
     };
