@@ -1181,6 +1181,8 @@ export namespace JSXBase {
     allowtransparency?: string | boolean;
     frameBorder?: number | string;
     frameborder?: number | string;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     height?: number | string;
     loading?: 'lazy' | 'auto' | 'eager';
@@ -1204,6 +1206,8 @@ export namespace JSXBase {
     crossOrigin?: string;
     crossorigin?: string;
     decoding?: 'async' | 'auto' | 'sync';
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     height?: number | string;
     loading?: 'lazy' | 'auto' | 'eager';
@@ -1311,6 +1315,8 @@ export namespace JSXBase {
 
   export interface LinkHTMLAttributes<T> extends HTMLAttributes<T> {
     as?: string;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     href?: string;
     hrefLang?: string;
     hreflang?: string;
@@ -1450,6 +1456,8 @@ export namespace JSXBase {
     crossOrigin?: string;
     crossorigin?: string;
     defer?: boolean;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     integrity?: string;
     nonce?: string;
