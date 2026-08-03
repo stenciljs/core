@@ -131,7 +131,7 @@ describe('decorator utils', () => {
           valueDeclaration: variableDeclaration,
         };
 
-        const importSymbolMock = {
+        const importSymbolMock: { valueDeclaration: ts.Declaration | undefined; flags: ts.SymbolFlags } = {
           valueDeclaration: undefined,
           flags: ts.SymbolFlags.Alias,
         };
