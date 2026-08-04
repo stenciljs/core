@@ -1583,6 +1583,10 @@ export namespace JSXBase {
     tabIndex?: number;
     tabindex?: number | string;
     title?: string;
+    // The `'yes' | 'no'` literals provide autocomplete for the common values,
+    // while `(string & {})` keeps that autocomplete without rejecting values
+    // that are widened to `string` (e.g. spread from an object literal).
+    translate?: 'yes' | 'no' | (string & {});
     // These types don't allow you to use popover as a boolean attribute
     // so you can't write HTML like `<div popover>` and get the default value.
     // Developer must explicitly specify one of the valid popover values or it will fallback
