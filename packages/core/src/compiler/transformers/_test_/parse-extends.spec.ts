@@ -185,4 +185,36 @@ describe('transpile() – cross-file class extension', () => {
     const propNames = cmp.properties.map((p: any) => p.name);
     expect(propNames.filter((n: string) => n === 'baseProp')).toHaveLength(1);
   });
+
+  it('resolves a base class declared in the same file (full-compiler path)', async () => {
+    const results = await transpile(
+      `
+      import { Component, Prop, State, Method } from '@stencil/core';
+
+      class ExtendsBase {
+        @Prop() baseProp: string = 'base';
+        @State() baseState: string = 'base';
+        @Method() async baseMethod() {}
+      }
+
+      @Component({ tag: 'my-component' })
+      export class MyComponent extends ExtendsBase {
+        @Prop() ownProp: string = 'own';
+      }
+      `,
+      {
+        file: join(fixturesDir, 'my-component.tsx'),
+        target: 'es2022',
+        currentDirectory: fixturesDir,
+      },
+    );
+
+    expect(results.diagnostics).toHaveLength(0);
+    const cmp = results.data?.[0];
+    expect(cmp).toBeDefined();
+    expect(cmp.properties.map((p: any) => p.name)).toContain('ownProp');
+    expect(cmp.properties.map((p: any) => p.name)).toContain('baseProp');
+    expect(cmp.states.map((s: any) => s.name)).toContain('baseState');
+    expect(cmp.methods.map((m: any) => m.name)).toContain('baseMethod');
+  });
 });

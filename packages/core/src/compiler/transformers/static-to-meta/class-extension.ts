@@ -377,11 +377,13 @@ function buildExtendsTree(
     try {
       // happy path (normally 1 file level removed): the extends type resolves to a class declaration in another file
 
-      const symbol = typeChecker?.getSymbolAtLocation(extendee);
-      const aliasedSymbol = symbol ? typeChecker.getAliasedSymbol(symbol) : undefined;
+      let symbol = typeChecker?.getSymbolAtLocation(extendee);
+      if (symbol && symbol.flags & ts.SymbolFlags.Alias) {
+        symbol = typeChecker.getAliasedSymbol(symbol);
+      }
 
-      let source = aliasedSymbol?.declarations?.[0].getSourceFile();
-      let declarations: ts.Declaration[] | ts.Statement[] = aliasedSymbol?.declarations;
+      let source = symbol?.declarations?.[0].getSourceFile();
+      let declarations: ts.Declaration[] | ts.Statement[] = symbol?.declarations;
 
       if (source.fileName.endsWith('.d.ts')) {
         source = convertDtsToJs(source.fileName, compilerCtx);
