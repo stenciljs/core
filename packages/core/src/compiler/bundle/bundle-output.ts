@@ -1,0 +1,204 @@
+import { rolldown, InputOptions, TreeshakingOptions, Plugin } from 'rolldown';
+import type * as d from '@stencil/core';
+
+import { createOnWarnFn, isRolldownError, loadRolldownDiagnostics } from '../../utils';
+import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
+import { appDataPlugin } from './app-data-plugin';
+import { coreResolvePlugin } from './core-resolve-plugin';
+import { devNodeModuleResolveId } from './dev-node-module-resolve';
+import { extFormatPlugin } from './ext-format-plugin';
+import { extTransformsPlugin } from './ext-transforms-plugin';
+import { fileLoadPlugin } from './file-load-plugin';
+import { loaderPlugin } from './loader-plugin';
+import { pluginHelper } from './plugin-helper';
+import { serverPlugin } from './server-plugin';
+import { typescriptPlugin } from './typescript-plugin';
+import { userIndexPlugin } from './user-index-plugin';
+import { workerPlugin } from './worker-plugin';
+import type { BundleOptions } from './bundle-interface';
+
+export const bundleOutput = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  bundleOpts: BundleOptions,
+) => {
+  try {
+    const rolldownOptions = getRolldownOptions(config, compilerCtx, buildCtx, bundleOpts);
+    const rolldownBuild = await rolldown(rolldownOptions);
+    return rolldownBuild;
+  } catch (e) {
+    if (!buildCtx.hasError && isRolldownError(e)) {
+      loadRolldownDiagnostics(config, compilerCtx, buildCtx, e);
+    }
+  }
+  return undefined;
+};
+
+/**
+ * Build the rolldown options that will be used to transpile, minify, and otherwise transform a Stencil project
+ * @param config the Stencil configuration for the project
+ * @param compilerCtx the current compiler context
+ * @param buildCtx a context object containing information about the current build
+ * @param bundleOpts Rolldown bundling options to apply to the base configuration setup by this function
+ * @returns the rolldown options to be used
+ */
+export const getRolldownOptions = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  bundleOpts: BundleOptions,
+): InputOptions => {
+  const beforePlugins = config.rolldownPlugins.before || [];
+  const afterPlugins = config.rolldownPlugins.after || [];
+
+  // Create a plugin for dev module resolution if enabled
+  const devModulePlugin: Plugin | null = config.devServer?.experimentalDevModules
+    ? {
+        name: 'stencil-dev-module-resolve',
+        async resolveId(source: string, importer: string | undefined) {
+          // Let other plugins handle it first, then intercept the result
+          const resolved = await this.resolve(source, importer, { skipSelf: true });
+          if (resolved) {
+            return devNodeModuleResolveId(config, compilerCtx.fs, resolved, source);
+          }
+          return null;
+        },
+      }
+    : null;
+
+  const rolldownOptions: InputOptions = {
+    input: bundleOpts.inputs,
+    platform: bundleOpts.platform === 'ssr' ? 'node' : 'browser',
+    tsconfig: config.tsconfig,
+
+    plugins: [
+      {
+        name: 'stencil-signals-side-effects',
+        async resolveId(source, importer) {
+          if (source !== '@preact/signals-core') return null;
+          // Signals *not* used, redirect to a stub so the real library isn't bundled.
+          // Rolldown not correctly inferring DCE for ... some reason, even though
+          // `sideEffects: false` in the library's package.json.
+          // Terser cannot minify away due to `prototype.` augmentation perceived as side-effect-ful.
+          if (!bundleOpts.conditionals?.vdomSignals && !bundleOpts.conditionals?.signalBacking) {
+            return { id: '\0preact-signals-stub', moduleSideEffects: false };
+          }
+          // Signals *are* used - resolve normally but mark side-effect-free so rolldown
+          // can shake out any un-referenced exports.
+          const resolved = await this.resolve(source, importer, { skipSelf: true });
+          return resolved ? { ...resolved, moduleSideEffects: false } : null;
+        },
+        load(id) {
+          if (id === '\0preact-signals-stub') {
+            return `export const signal=()=>{};export const effect=()=>()=>{};export const computed=()=>{};export const batch=f=>f();export const untracked=f=>f();`;
+          }
+          return null;
+        },
+      },
+      coreResolvePlugin(
+        config,
+        compilerCtx,
+        bundleOpts.platform,
+        !!bundleOpts.externalRuntime,
+        bundleOpts.conditionals?.lazyLoad ?? false,
+      ),
+      appDataPlugin(config, compilerCtx, buildCtx, bundleOpts.conditionals, bundleOpts.platform),
+      lazyComponentPlugin(buildCtx),
+      loaderPlugin(bundleOpts.loader),
+      userIndexPlugin(config, compilerCtx),
+      typescriptPlugin(compilerCtx, bundleOpts, config),
+      extFormatPlugin(config),
+      extTransformsPlugin(config, compilerCtx, buildCtx),
+      workerPlugin(config, compilerCtx, buildCtx, bundleOpts.platform, !!bundleOpts.inlineWorkers),
+      serverPlugin(config, bundleOpts.platform),
+      ...beforePlugins,
+      devModulePlugin,
+      ...afterPlugins,
+      pluginHelper(config, buildCtx, bundleOpts.platform),
+      fileLoadPlugin(compilerCtx.fs),
+    ].filter(Boolean) as Plugin[],
+
+    resolve: {
+      // Stencil-specific main fields plus standard ones
+      mainFields: ['jsnext:main', 'es2017', 'es2015', 'module', 'main'] as any,
+      // Export conditions for package.json exports field
+      conditionNames: (bundleOpts.platform === 'ssr'
+        ? ['import', 'module', 'node', 'default', 'require']
+        : ['import', 'module', 'browser', 'default', 'require']) as string[],
+      // File extensions to resolve (includes .d.ts for type declaration files)
+      extensions: [
+        '.tsx',
+        '.ts',
+        '.mts',
+        '.cts',
+        '.js',
+        '.mjs',
+        '.cjs',
+        '.json',
+        '.d.ts',
+        '.d.mts',
+        '.d.cts',
+      ] as any,
+      // Apply user's nodeResolve config if provided
+      ...config.nodeResolve,
+    },
+
+    transform: {
+      define: {
+        'process.env.NODE_ENV': config.devMode ? '"development"' : '"production"',
+      },
+    },
+
+    // Disable warnings about built-in features we're intentionally using
+    checks: {
+      preferBuiltinFeature: false,
+      pluginTimings: config.logLevel === 'debug',
+    },
+
+    // Tell Rolldown to treat these files as JS - our plugins transform them to ESM
+    // CSS: ext-transforms-plugin handles CSS to ESM conversion
+    // Text/assets: ext-format-plugin handles text/url to ESM conversion
+    moduleTypes: {
+      '.css': 'js',
+      '.scss': 'js',
+      '.sass': 'js',
+      '.less': 'js',
+      '.styl': 'js',
+      '.stylus': 'js',
+      '.pcss': 'js',
+      // Text formats (from ext-format-plugin FORMAT_TEXT_EXTS)
+      '.txt': 'js',
+      '.frag': 'js',
+      '.vert': 'js',
+      // URL formats (from ext-format-plugin FORMAT_URL_MIME)
+      '.svg': 'js',
+    },
+
+    treeshake: getTreeshakeOption(config, bundleOpts),
+    preserveEntrySignatures: bundleOpts.preserveEntrySignatures ?? 'strict',
+    external: config.rolldownConfig.external,
+    onwarn: createOnWarnFn(buildCtx.diagnostics),
+  };
+
+  return rolldownOptions;
+};
+
+const getTreeshakeOption = (
+  config: d.ValidatedConfig,
+  bundleOpts: BundleOptions,
+): TreeshakingOptions | boolean => {
+  if (bundleOpts.platform === 'ssr') {
+    return {
+      moduleSideEffects: false,
+      propertyReadSideEffects: false,
+    };
+  }
+  if (config.devMode || config.rolldownConfig.treeshake === false) {
+    return false;
+  }
+  return {
+    moduleSideEffects: false,
+    propertyReadSideEffects: false,
+  };
+};

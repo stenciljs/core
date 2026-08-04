@@ -1,20 +1,17 @@
 name: 'Get Core Dependencies'
-description: 'sets the node version & initializes core dependencies'
+description: 'Sets up pnpm, node version & installs dependencies'
 runs:
   using: composite
   steps:
-    # this overrides previous versions of the node runtime that was set.
-    # jobs that need a different version of the Node runtime should explicitly
-    # set their node version after running this step
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Use Node Version from Volta
-      uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: './package.json'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Install Dependencies
-      run: |
-        npm ci \
-        && npm run install.jest
-
+      run: pnpm install --frozen-lockfile
       shell: bash

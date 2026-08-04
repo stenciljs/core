@@ -1,0 +1,44 @@
+{
+  "name": "@stencil-core-tests/build-copy-task",
+  "version": "0.0.2-alpha.0",
+  "description": "Stencil Component Starter",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stenciljs/component-starter.git"
+  },
+  "files": [
+    "dist/",
+    "dist/collection/"
+  ],
+  "type": "module",
+  "module": "dist/loader-bundle/index.js",
+  "types": "dist/types/loader.d.ts",
+  "unpkg": "dist/loader-bundle/copytask/copytask.js",
+  "exports": {
+    ".": {
+      "import": "./dist/loader-bundle/index.js",
+      "types": "./dist/types/components.d.ts"
+    },
+    "./loader": {
+      "import": "./dist/loader-bundle/esm/loader.js",
+      "require": "./dist/loader-bundle/cjs/loader.cjs",
+      "types": "./dist/types/loader.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rimraf ./dist && stencil build",
+    "test": "npm run build && node validate.js"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

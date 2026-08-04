@@ -1,0 +1,21 @@
+{
+  "name": "@stencil-core-tests/ssr-wasm",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && vitest run"
+  },
+  "devDependencies": {
+    "@extism/extism": "2.0.0-rc13",
+    "@extism/js-pdk": "^1.0.0",
+    "@stencil/core": "workspace:*",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

@@ -1,0 +1,35 @@
+{
+  "name": "@stencil-core-tests/integration-ionic-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ionic-app",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "types": "./dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "build.dev": "stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil-test && playwright test",
+    "test.e2e": "playwright test",
+    "test.spec": "stencil-test",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@ionic/core": "^7.0.0",
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@stencil/playwright": "catalog:",
+    "@stencil/vitest": "catalog:",
+    "vitest": "catalog:"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

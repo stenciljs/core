@@ -1,0 +1,39 @@
+name: Quality
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: stencil-build
+          path: packages/
+
+      - name: Format Check
+        run: pnpm format:check
+
+      - name: Lint Check
+        run: pnpm lint:check
+
+      - name: Type Check
+        run: pnpm typecheck
+
+      - name: Knip
+        run: pnpm knip
+
+      - name: Spellcheck
+        run: pnpm spellcheck

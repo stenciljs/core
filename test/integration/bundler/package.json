@@ -1,0 +1,17 @@
+{
+  "name": "@stencil-core-tests/integration-bundler",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -C component-library run build && pnpm -C vite-bundle-test run build",
+    "test": "pnpm build && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "serve": "^14.2.4"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

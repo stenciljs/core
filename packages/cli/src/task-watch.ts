@@ -1,0 +1,71 @@
+import type { DevServer, ValidatedConfig } from '@stencil/core/compiler';
+
+import { printCheckVersionResults, startCheckVersion } from './check-version';
+import { startupCompilerLog } from './logs';
+import type { ConfigFlags } from './config-flags';
+import type { CoreCompiler } from './load-compiler';
+
+export const taskWatch = async (
+  coreCompiler: CoreCompiler,
+  config: ValidatedConfig,
+  flags: ConfigFlags,
+) => {
+  let devServer: DevServer | null = null;
+  let exitCode = 0;
+
+  try {
+    startupCompilerLog(coreCompiler, config);
+
+    const versionChecker = startCheckVersion(config, coreCompiler.version, flags);
+
+    const compiler = await coreCompiler.createCompiler(config);
+    const watcher = await compiler.createWatcher();
+
+    if (!config.sys.onProcessInterrupt) {
+      throw new Error(`Environment doesn't provide required function: onProcessInterrupt`);
+    }
+
+    if (flags.serve) {
+      const { start } = await import('@stencil/dev-server');
+      devServer = await start(config.devServer, config.logger, watcher);
+    }
+
+    config.sys.onProcessInterrupt(() => {
+      config.logger.debug(`close watch`);
+      if (compiler) {
+        compiler.destroy();
+      }
+    });
+
+    const rmVersionCheckerLog = watcher.on('buildFinish', async () => {
+      // log the version check one time
+      rmVersionCheckerLog();
+      printCheckVersionResults(versionChecker);
+    });
+
+    if (devServer) {
+      const rmDevServerLog = watcher.on('buildFinish', () => {
+        // log the dev server url one time
+        rmDevServerLog();
+        const url = devServer?.browserUrl ?? 'UNKNOWN URL';
+        config.logger.info(`${config.logger.cyan(url)}\n`);
+      });
+    }
+
+    const closeResults = await watcher.start();
+    if (closeResults.exitCode > 0) {
+      exitCode = closeResults.exitCode;
+    }
+  } catch (e) {
+    exitCode = 1;
+    config.logger.error(e);
+  }
+
+  if (devServer) {
+    await devServer.close();
+  }
+
+  if (exitCode > 0) {
+    return config.sys.exit(exitCode);
+  }
+};
