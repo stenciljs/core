@@ -138,6 +138,47 @@ describe('decorator utils', () => {
         expect(result).toEqual(['myEvent']);
       });
 
+      it('should resolve const variable imported from another file', () => {
+        const myEventIdentifier = ts.factory.createIdentifier('MY_EVENT');
+        const variableDeclaration = ts.factory.createVariableDeclaration(
+          myEventIdentifier,
+          undefined,
+          undefined,
+          ts.factory.createStringLiteral('myEvent'),
+        );
+
+        // Import specifiers resolve to an alias symbol whose own `valueDeclaration`
+        // is undefined; the real declaration lives on the aliased symbol.
+        const aliasedSymbolMock = {
+          valueDeclaration: variableDeclaration,
+        };
+
+        const importSymbolMock: { valueDeclaration: ts.Declaration | undefined; flags: ts.SymbolFlags } = {
+          valueDeclaration: undefined,
+          flags: ts.SymbolFlags.Alias,
+        };
+
+        const typeCheckerMock = {
+          getSymbolAtLocation: jest.fn(() => importSymbolMock),
+          getAliasedSymbol: jest.fn(() => aliasedSymbolMock),
+          getTypeAtLocation: jest.fn(() => ({
+            value: 'myEvent',
+            isLiteral: () => true,
+          })),
+        } as unknown as ts.TypeChecker;
+
+        const decorator: ts.Decorator = {
+          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
+            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventIdentifier]),
+          ]),
+        } as unknown as ts.Decorator;
+
+        const result = getDecoratorParameters(decorator, typeCheckerMock);
+
+        expect(result).toEqual(['myEvent']);
+        expect(typeCheckerMock.getAliasedSymbol).toHaveBeenCalledWith(importSymbolMock);
+      });
+
       it('should resolve object property', () => {
         const eventsIdentifier = ts.factory.createIdentifier('EVENTS');
         const myEventProperty = ts.factory.createPropertyAccessExpression(

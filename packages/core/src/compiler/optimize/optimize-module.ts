@@ -15,6 +15,17 @@ import type {
 import { getToolVersion } from '../../version';
 import { minifyJs } from './minify-js';
 
+/**
+ * Matches the comments that must survive minification. This extends Terser's default
+ * `comments: 'some'` behavior (`@license`, `@preserve`, etc.) with bundler directive
+ * comments — `@vite-ignore` and webpack magic comments (e.g. `webpackInclude:`,
+ * `webpackMode:`) — which downstream bundlers read from inside dynamic `import()`
+ * calls in the emitted output (e.g. `client-load-module.ts`'s lazy component loading).
+ * Without this, Vite warns that the dynamic import cannot be analyzed and webpack
+ * ignores the lazy-loading hints entirely.
+ */
+const PRESERVED_COMMENTS = /^\**!|@preserve|@license|@cc_on|@vite-ignore|webpack[A-Z][a-zA-Z]+:/i;
+
 interface OptimizeModuleOptions {
   input: string;
   sourceMap?: SourceMap;
@@ -157,6 +168,7 @@ export const getTerserOptions = (
   opts.compress.arrows = true;
   opts.compress.module = true;
   opts.compress.toplevel = true;
+  opts.format.comments = PRESERVED_COMMENTS;
 
   if (prettyOutput) {
     opts.mangle = {

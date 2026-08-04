@@ -16,6 +16,13 @@ import { COMPONENTS_DTS_HEADER, sortImportNames } from './types-utils';
 import { updateReferenceTypeImports } from './update-import-refs';
 
 /**
+ * Above this many required props on a single component, the generated `OneOf<>` required-prop
+ * check is skipped entirely (falling back to unchecked optional `attr:`/`prop:` variants) rather
+ * than risking exponential failure in the TS checker - see the comment at its usage site.
+ */
+const MAX_ONE_OF_REQUIRED_PROPS = 8;
+
+/**
  * Generates and writes a `components.d.ts` file to disk. This file may be written to the `src` directory of a project,
  * or be written to a directory that is meant to be distributed.
  * @param config the Stencil configuration associated with the project being compiled
@@ -201,11 +208,21 @@ const generateComponentTypesFile = (
 
   c.push(`declare namespace LocalJSX {`);
 
-  // Add OneOf helper type for required prop unions
-  const hasAnyRequiredProps = modules.some((m) => m.requiredProps);
+  // Add OneOf helper type for required prop unions.
+  //
+  // This only distinguishes the bare key from `attr:` - `prop:` is intentionally left out of the
+  // union. Including it would make this a 3-way (rather than 2-way) exclusive union, and since
+  // required-prop enforcement combines one of these unions per required prop via intersection,
+  // TypeScript must distribute across all of them, which grows as (branch count)^(required prop
+  // count). At 3 branches this hits `TS2590` ("union type too complex") around 10-11 required
+  // props; capping at 2 branches roughly doubles that ceiling. `prop:` remains valid on required
+  // props via `baseOptional` below - it just can't single-handedly satisfy the required-prop check.
+  const hasAnyRequiredProps = modules.some(
+    (m) => m.requiredProps && m.requiredProps.length > 0 && m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS,
+  );
   if (hasAnyRequiredProps) {
     c.push(
-      `    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in \`attr:\${K}\` | \`prop:\${K}\`]?: never } | { [P in \`attr:\${K}\`]: AttrT } & { [P in K | \`prop:\${K}\`]?: never } | { [P in \`prop:\${K}\`]: PropT } & { [P in K | \`attr:\${K}\`]?: never };`,
+      `    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in \`attr:\${K}\`]?: never } | { [P in \`attr:\${K}\`]: AttrT } & { [P in K]?: never };`,
     );
     c.push(``);
   }
@@ -233,7 +250,7 @@ const generateComponentTypesFile = (
         // Base optional props (props without attributes or optional props with attributes)
         const baseOptional = `Omit<${m.tagNameAsPascal}, keyof ${m.tagNameAsPascal}Attributes> & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes]?: ${m.tagNameAsPascal}[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] }`;
 
-        if (m.requiredProps && m.requiredProps.length > 0) {
+        if (m.requiredProps && m.requiredProps.length > 0 && m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS) {
           // Generate OneOf unions for each required prop
           const requiredUnions = m.requiredProps
             .map((prop) => {
