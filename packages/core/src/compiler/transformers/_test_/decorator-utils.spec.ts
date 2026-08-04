@@ -162,9 +162,9 @@ describe('decorator utils', () => {
         };
 
         const typeCheckerMock = {
-          getSymbolAtLocation: vitest.fn(() => importSymbolMock),
-          getAliasedSymbol: vitest.fn(() => aliasedSymbolMock),
-          getTypeAtLocation: vitest.fn(() => ({
+          getSymbolAtLocation: vi.fn(() => importSymbolMock),
+          getAliasedSymbol: vi.fn(() => aliasedSymbolMock),
+          getTypeAtLocation: vi.fn(() => ({
             value: 'myEvent',
             isLiteral: () => true,
           })),
