@@ -218,7 +218,10 @@ const generateComponentTypesFile = (
   // props; capping at 2 branches roughly doubles that ceiling. `prop:` remains valid on required
   // props via `baseOptional` below - it just can't single-handedly satisfy the required-prop check.
   const hasAnyRequiredProps = modules.some(
-    (m) => m.requiredProps && m.requiredProps.length > 0 && m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS,
+    (m) =>
+      m.requiredProps &&
+      m.requiredProps.length > 0 &&
+      m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS,
   );
   if (hasAnyRequiredProps) {
     c.push(
@@ -250,7 +253,11 @@ const generateComponentTypesFile = (
         // Base optional props (props without attributes or optional props with attributes)
         const baseOptional = `Omit<${m.tagNameAsPascal}, keyof ${m.tagNameAsPascal}Attributes> & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes]?: ${m.tagNameAsPascal}[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] }`;
 
-        if (m.requiredProps && m.requiredProps.length > 0 && m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS) {
+        if (
+          m.requiredProps &&
+          m.requiredProps.length > 0 &&
+          m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS
+        ) {
           // Generate OneOf unions for each required prop
           const requiredUnions = m.requiredProps
             .map((prop) => {

@@ -153,24 +153,35 @@ describe('decorator utils', () => {
           valueDeclaration: variableDeclaration,
         };
 
-        const importSymbolMock: { valueDeclaration: ts.Declaration | undefined; flags: ts.SymbolFlags } = {
+        const importSymbolMock: {
+          valueDeclaration: ts.Declaration | undefined;
+          flags: ts.SymbolFlags;
+        } = {
           valueDeclaration: undefined,
           flags: ts.SymbolFlags.Alias,
         };
 
         const typeCheckerMock = {
-          getSymbolAtLocation: jest.fn(() => importSymbolMock),
-          getAliasedSymbol: jest.fn(() => aliasedSymbolMock),
-          getTypeAtLocation: jest.fn(() => ({
+          getSymbolAtLocation: vitest.fn(() => importSymbolMock),
+          getAliasedSymbol: vitest.fn(() => aliasedSymbolMock),
+          getTypeAtLocation: vitest.fn(() => ({
             value: 'myEvent',
             isLiteral: () => true,
           })),
         } as unknown as ts.TypeChecker;
 
         const decorator: ts.Decorator = {
-          expression: ts.factory.createCallExpression(ts.factory.createIdentifier('Listen'), undefined, [
-            ts.factory.createCallExpression(ts.factory.createIdentifier('resolveVar'), undefined, [myEventIdentifier]),
-          ]),
+          expression: ts.factory.createCallExpression(
+            ts.factory.createIdentifier('Listen'),
+            undefined,
+            [
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier('resolveVar'),
+                undefined,
+                [myEventIdentifier],
+              ),
+            ],
+          ),
         } as unknown as ts.Decorator;
 
         const result = getDecoratorParameters(decorator, typeCheckerMock);
