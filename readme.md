@@ -15,7 +15,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@stencil/core">
     <img src="https://img.shields.io/npm/v/@stencil/core.svg" alt="StencilJS is released under the MIT license." /></a>
-  <a href="https://github.com/stenciljs/core/blob/main/LICENSE.md">
+  <a href="https://github.com/stenciljs/core/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="StencilJS is released under the MIT license." />
   </a>
   <a href="https://github.com/stenciljs/core/blob/main/CONTRIBUTING.md">
