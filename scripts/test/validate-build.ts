@@ -112,7 +112,7 @@ const pkgs: TestPackage[] = [
       'sys/',
       'testing/',
     ],
-    files: ['CHANGELOG.md', 'LICENSE.md', 'readme.md'],
+    files: ['CHANGELOG.md', 'LICENSE', 'readme.md'],
     hasBin: true,
   },
 ];
