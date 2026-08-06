@@ -33,10 +33,17 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
       } else if (child != null && typeof child !== 'boolean') {
         if ((simple = typeof nodeName !== 'function' && !isComplexType(child))) {
           child = String(child);
-        } else if (BUILD.isDev && typeof nodeName !== 'function' && child.$flags$ === undefined) {
-          consoleDevError(`vNode passed as children has unexpected type.
+        } else if (typeof nodeName !== 'function' && child.$flags$ === undefined) {
+          // this isn't a primitive value and it isn't a VNode either (e.g. a
+          // `Date`, plain object, etc. was passed as a child), so there's
+          // nothing sensible to render for it - warn in dev and drop it,
+          // the same way `null`/`undefined`/boolean children are dropped
+          if (BUILD.isDev) {
+            consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.
 Empty objects can also be the cause, look for JSX comments that became objects.`);
+          }
+          continue;
         }
 
         if (simple && lastSimple) {
