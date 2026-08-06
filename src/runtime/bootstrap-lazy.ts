@@ -186,11 +186,8 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
            * Also remove the reference from `deferredConnectedCallbacks` array
            * otherwise removed instances won't get garbage collected.
            *
-           * This bookkeeping is deferred with `nextTick` rather than `plt.raf`
-           * since `requestAnimationFrame` callbacks do not fire while the
-           * document is hidden, which would otherwise pin every disconnected
-           * host element (and everything it references) in memory for as
-           * long as the tab stays in the background.
+           * Use `nextTick` (microtask) rather than `plt.raf` since
+           * `requestAnimationFrame` callbacks do not fire while `document.hidden`
            */
           nextTick(() => {
             const hostRef = getHostRef(this);

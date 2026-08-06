@@ -13,10 +13,8 @@ const queueDomWrites: d.RafCallback[] = [];
 const queueDomWritesLow: d.RafCallback[] = [];
 
 /**
- * `requestAnimationFrame` callbacks do not fire while the document is
- * hidden, so scheduling a flush through it here would let queued tasks (and
- * everything they reference) pile up indefinitely on a backgrounded tab.
- * Fall back to a microtask in that case instead.
+ * Fallback to microtask when `document.hidden`: `requestAnimationFrame` callbacks
+ * do not fire so scheduling flush queues tasks indefinitely.
  */
 const scheduleFlush = () => (win.document?.hidden ? nextTick(flush) : plt.raf(flush));
 
