@@ -3,7 +3,7 @@ import { BUILD } from '@app-data';
 import type * as d from '../declarations';
 import { PLATFORM_FLAGS } from '../runtime/runtime-constants';
 import { consoleError } from './client-log';
-import { plt, promiseResolve } from './client-window';
+import { plt, promiseResolve, win } from './client-window';
 
 let queueCongestion = 0;
 let queuePending = false;
@@ -11,6 +11,14 @@ let queuePending = false;
 const queueDomReads: d.RafCallback[] = [];
 const queueDomWrites: d.RafCallback[] = [];
 const queueDomWritesLow: d.RafCallback[] = [];
+
+/**
+ * `requestAnimationFrame` callbacks do not fire while the document is
+ * hidden, so scheduling a flush through it here would let queued tasks (and
+ * everything they reference) pile up indefinitely on a backgrounded tab.
+ * Fall back to a microtask in that case instead.
+ */
+const scheduleFlush = () => (win.document?.hidden ? nextTick(flush) : plt.raf(flush));
 
 const queueTask = (queue: d.RafCallback[], write: boolean) => (cb: d.RafCallback) => {
   queue.push(cb);
@@ -20,7 +28,7 @@ const queueTask = (queue: d.RafCallback[], write: boolean) => (cb: d.RafCallback
     if (write && plt.$flags$ & PLATFORM_FLAGS.queueSync) {
       nextTick(flush);
     } else {
-      plt.raf(flush);
+      scheduleFlush();
     }
   }
 };
@@ -82,7 +90,7 @@ const flush = () => {
     if ((queuePending = queueDomReads.length + queueDomWrites.length + queueDomWritesLow.length > 0)) {
       // still more to do yet, but we've run out of time
       // let's let this thing cool off and try again in the next tick
-      plt.raf(flush);
+      scheduleFlush();
     } else {
       queueCongestion = 0;
     }
@@ -91,7 +99,7 @@ const flush = () => {
     if ((queuePending = queueDomReads.length > 0)) {
       // still more to do yet, but we've run out of time
       // let's let this thing cool off and try again in the next tick
-      plt.raf(flush);
+      scheduleFlush();
     }
   }
 };

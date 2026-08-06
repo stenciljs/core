@@ -1,4 +1,6 @@
-import { win } from '@platform';
+import { Component } from '@stencil/core';
+import { newSpecPage } from '@stencil/core/testing';
+import { getHostRef, win } from '@stencil/core/internal/testing';
 
 import { LazyBundlesRuntimeData } from '../../internal';
 import { bootstrapLazy } from '../bootstrap-lazy';
@@ -59,5 +61,34 @@ describe('bootstrap lazy', () => {
       }),
       null,
     );
+  });
+
+  describe('disconnectedCallback', () => {
+    it('cleans up host references without waiting on requestAnimationFrame', async () => {
+      @Component({ tag: 'leak-cmp' })
+      class LeakCmp {}
+
+      // a hidden tab never runs rAF callbacks - mock it to never invoke its
+      // callback to prove cleanup doesn't depend on one ever firing
+      const rafSpy = jest.spyOn(global, 'requestAnimationFrame').mockImplementation(() => 0);
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [LeakCmp],
+        html: `<leak-cmp></leak-cmp>`,
+      });
+
+      const hostRef = getHostRef(root)!;
+      expect(hostRef.$vnode$?.$elm$).toBe(root);
+
+      root.remove();
+      expect(hostRef.$vnode$?.$elm$).toBe(root);
+
+      await waitForChanges();
+
+      expect(hostRef.$vnode$?.$elm$).toBeUndefined();
+      expect(rafSpy).not.toHaveBeenCalled();
+
+      rafSpy.mockRestore();
+    });
   });
 });
