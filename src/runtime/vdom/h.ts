@@ -8,7 +8,7 @@
  */
 
 import { BUILD } from '@app-data';
-import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
+import { consoleDevError, consoleDevWarn, consoleError, transformTag } from '@platform';
 import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
@@ -36,12 +36,17 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
         } else if (typeof nodeName !== 'function' && child.$flags$ === undefined) {
           // this isn't a primitive value and it isn't a VNode either (e.g. a
           // `Date`, plain object, etc. was passed as a child), so there's
-          // nothing sensible to render for it - warn in dev and drop it,
-          // the same way `null`/`undefined`/boolean children are dropped
+          // nothing sensible to render for it - drop it, the same way
+          // `null`/`undefined`/boolean children are dropped. Report it via
+          // `consoleError` (not just `consoleDevError`) since this can also
+          // happen at runtime from bad data, not only bad JSX authoring, and
+          // `consoleError` is still reachable in prod builds via `setErrorHandler`.
           if (BUILD.isDev) {
             consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.
 Empty objects can also be the cause, look for JSX comments that became objects.`);
+          } else {
+            consoleError('invalid vNode child');
           }
           continue;
         }
