@@ -1927,7 +1927,7 @@ export interface PlatformRuntime {
 
 export type StyleMap = Map<string, CSSStyleSheet | string>;
 
-export type RootAppliedStyleMap = WeakMap<Element, Set<string>>;
+export type RootAppliedStyleMap = WeakMap<Element | ShadowRoot, Map<string, HTMLStyleElement | null>>;
 
 export interface ScreenshotConnector {
   initBuild(opts: ScreenshotConnectorOptions): Promise<void>;
