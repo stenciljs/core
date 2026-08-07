@@ -54,12 +54,7 @@ export const gatherVdomMeta = (m: d.Module | d.ComponentCompilerMeta, args: ts.N
           }
           ts.SyntaxKind.StringLiteral;
           if (attrName === 'part' && ts.isPropertyAssignment(prop) && ts.isStringLiteral(prop.initializer)) {
-            m.htmlParts.push(
-              ...prop.initializer.text
-                .toLowerCase()
-                .split(' ')
-                .filter((part) => part.length > 0),
-            );
+            m.htmlParts.push(...prop.initializer.text.split(' ').filter((part) => part.length > 0));
           }
           m.htmlAttrNames.push(attrName);
         }
