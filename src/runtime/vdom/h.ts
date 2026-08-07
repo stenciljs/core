@@ -34,13 +34,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
         if ((simple = typeof nodeName !== 'function' && !isComplexType(child))) {
           child = String(child);
         } else if (typeof nodeName !== 'function' && child.$flags$ === undefined) {
-          // this isn't a primitive value and it isn't a VNode either (e.g. a
-          // `Date`, plain object, etc. was passed as a child), so there's
-          // nothing sensible to render for it - drop it, the same way
-          // `null`/`undefined`/boolean children are dropped. Report it via
-          // `consoleError` (not just `consoleDevError`) since this can also
-          // happen at runtime from bad data, not only bad JSX authoring, and
-          // `consoleError` is still reachable in prod builds via `setErrorHandler`.
+          // not a primitive and not a VNode - drop it
           if (BUILD.isDev) {
             consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.

@@ -278,10 +278,6 @@ describe('h()', () => {
   });
 
   it('should not render a non-VNode complex value (e.g. a Date)', () => {
-    // a `Date` (or any other non-VNode object) passed as a child isn't a
-    // primitive we can stringify, nor is it an actual VNode, so there's
-    // nothing sensible to render - it should be dropped just like
-    // null/undefined/boolean children are
     const vnode = h('a', null, [new Date()] as any);
     expect(vnode.$children$).toBe(null);
   });
