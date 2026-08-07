@@ -12,7 +12,6 @@ const queueDomReads: d.RafCallback[] = [];
 const queueDomWrites: d.RafCallback[] = [];
 const queueDomWritesLow: d.RafCallback[] = [];
 
-
 // Fallback to microtask when `document.hidden`: `requestAnimationFrame` callbacks
 // do not fire so scheduling flush queues tasks indefinitely.
 const scheduleFlush = () => (win.document?.hidden ? nextTick(flush) : plt.raf(flush));
