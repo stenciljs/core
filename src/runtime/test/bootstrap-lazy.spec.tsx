@@ -1,6 +1,6 @@
 import { Component } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { getHostRef, win } from '@stencil/core/internal/testing';
+import { newSpecPage } from '@stencil/core/testing';
 
 import { LazyBundlesRuntimeData } from '../../internal';
 import { bootstrapLazy } from '../bootstrap-lazy';
