@@ -140,4 +140,34 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     expect(specPage.root.children[0].__parentNode.tagName).toBe('DIV');
     expect(specPage.root.childNodes[0].__parentNode.tagName).toBe('DIV');
   });
+
+  it('returns null (not undefined) for out-of-bounds siblings/children', async () => {
+    specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
+
+    const firstSlottedNode = specPage.root.childNodes[0];
+    expect(firstSlottedNode.previousSibling).toBeNull();
+
+    const lastSlottedNode = specPage.root.childNodes[specPage.root.childNodes.length - 1];
+    expect(lastSlottedNode.nextSibling).toBeNull();
+
+    const firstSlottedElement = specPage.root.children[0];
+    expect(firstSlottedElement.previousElementSibling).toBeNull();
+
+    const lastSlottedElement = specPage.root.children[specPage.root.children.length - 1];
+    expect(lastSlottedElement.nextElementSibling).toBeNull();
+  });
+
+  it('returns null (not undefined) for firstChild/lastChild on empty patched hosts', async () => {
+    const emptyPage = await newSpecPage({
+      components: [],
+      html: `<div id="empty"></div>`,
+    });
+    const emptyElm = emptyPage.root;
+    (emptyElm as any).__childNodes = [];
+    patchPseudoShadowDom(emptyElm);
+
+    expect(emptyElm.firstChild).toBeNull();
+    expect(emptyElm.lastChild).toBeNull();
+  });
 });
+
