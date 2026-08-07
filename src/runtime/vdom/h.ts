@@ -46,7 +46,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
 Make sure it's using the correct h() function.
 Empty objects can also be the cause, look for JSX comments that became objects.`);
           } else {
-            consoleError('invalid vNode child');
+            consoleError('Invalid vNode child');
           }
           continue;
         }
