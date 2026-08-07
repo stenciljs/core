@@ -24,7 +24,13 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
 };
 
 export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void> | void => {
-  if (BUILD.taskQueue && BUILD.updatable) {
+  if (BUILD.updatable) {
+    // Mark this host as queued/rendering. This must NOT be gated on
+    // `BUILD.taskQueue`: under `taskQueue: 'immediate'` scheduleUpdate dispatches
+    // synchronously, so this flag is the only thing that stops a state write made
+    // during render() (e.g. a measure-then-setState pattern) from synchronously
+    // re-entering the render and corrupting the in-flight vdom patch. It is
+    // cleared in `callRender` once render() has run.
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
   if (BUILD.asyncLoading && hostRef.$flags$ & HOST_FLAGS.isWaitingForChildren) {
@@ -284,7 +290,6 @@ const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isIniti
   // https://rollupjs.org/guide/en/#treeshake tryCatchDeoptimization
   const allRenderFn = BUILD.allRenderFn ? true : false;
   const lazyLoad = BUILD.lazyLoad ? true : false;
-  const taskQueue = BUILD.taskQueue ? true : false;
   const updatable = BUILD.updatable ? true : false;
 
   try {
@@ -295,7 +300,10 @@ const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isIniti
      */
     instance = allRenderFn ? instance.render() : instance.render && instance.render();
 
-    if (updatable && taskQueue) {
+    if (updatable) {
+      // Clear the queued/rendering flag now that render() has produced the new
+      // tree. Not gated on `BUILD.taskQueue` so the reentrancy guard set in
+      // `scheduleUpdate` is balanced under `taskQueue: 'immediate'` too.
       hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
     }
 
