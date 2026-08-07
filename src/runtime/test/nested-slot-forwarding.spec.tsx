@@ -47,9 +47,6 @@ describe('nested named slot forwarding', () => {
       html: `<cmp-b><span slot="named">initial</span></cmp-b>`,
     });
 
-    // grab references before patching `childNodes`/`children` on the host elements below,
-    // since `patchPseudoShadowDom` narrows those accessors to slotted content only, which
-    // breaks `querySelector`'s ability to traverse into (and past) cmp-a/cmp-b afterwards.
     const cmpAEl = page.doc.querySelector('cmp-a');
     const namedSlotDiv = page.doc.querySelector('.named-slot');
     const defaultSlotDiv = page.doc.querySelector('.default-slot');
