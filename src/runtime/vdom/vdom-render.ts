@@ -819,9 +819,10 @@ const markSlotContentForRelocation = (elm: d.RenderNode) => {
           !node['s-cn'] &&
           !node['s-nr'] &&
           node['s-hn'] !== childNode['s-hn'] &&
-          // an exact name match must still be able to override a same-host node that's only
-          // provisionally claimed a *different* slot (e.g. the default-slot fallback below)
-          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'] || getSlotName(node) === slotName)
+          // let an exact named-slot match override a stale default-slot claim. Skip this for
+          // `slotName === ''` itself - a matched default node's cached `s-sn` is `''` too, which
+          // would trivially "match" on every re-render and force pointless re-insertion.
+          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'] || (slotName !== '' && getSlotName(node) === slotName))
         ) {
           // if `node` is located in the slot that `childNode` refers to (via the
           // `'s-sn'` property) then we need to relocate it from it's current spot
