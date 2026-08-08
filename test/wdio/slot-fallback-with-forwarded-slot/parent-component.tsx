@@ -16,7 +16,7 @@ export class MyComponent {
     return (
       <Host>
         <slot-forward-child-fallback label={this.label}>
-          <slot name="label" />
+          <slot name="label" slot="label" />
         </slot-forward-child-fallback>
       </Host>
     );

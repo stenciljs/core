@@ -1489,6 +1489,12 @@ export interface RenderNode extends HostElement {
   ['s-sn']?: string;
 
   /**
+   * `slot` attribute of a `<slot>` reference rendered as a text node (no fallback content),
+   * since text nodes can't carry real DOM attributes.
+   */
+  ['s-sa']?: string;
+
+  /**
    * Host element tag name:
    * The tag name of the host element that this
    * node was created in.

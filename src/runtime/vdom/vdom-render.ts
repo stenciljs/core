@@ -17,6 +17,7 @@ import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
+  getSlotChildSiblings,
   isNodeLocatedInSlot,
   patchSlotNode,
   updateFallbackSlotVisibility,
@@ -91,6 +92,10 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
       BUILD.isDebug || BUILD.hydrateServerSide
         ? slotReferenceDebugNode(newVNode)
         : (win.document.createTextNode('') as any);
+    // this text node can't hold a real `slot` attribute, so capture it as `s-sa` instead
+    if (typeof newVNode.$attrs$?.slot === 'string') {
+      (elm as d.RenderNode)['s-sa'] = newVNode.$attrs$.slot;
+    }
     // add css classes, attrs, props, listeners, etc.
     if (BUILD.vdomAttribute) {
       updateElement(null, newVNode, isSvgMode);
@@ -780,6 +785,37 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
 const relocateNodes: RelocateNodeData[] = [];
 
 /**
+ * When a forwarded `<slot>` gets relocated, drag along any content already forwarded through it,
+ * to wherever it just landed (or nowhere, to be hidden, if it didn't match anything).
+ *
+ * Runs as its own pass after {@link markSlotContentForRelocation} rather than inside it, so that
+ * function's matching order - which hydration's node/comment ordering depends on - is untouched.
+ */
+const carryContentWithRelocatedSlotRefs = () => {
+  for (const relocateData of relocateNodes.slice()) {
+    const marker = relocateData.$nodeToRelocate$;
+    if (!marker['s-sr']) continue;
+
+    const carriedSiblings = getSlotChildSiblings(marker, marker['s-sn'] || '', false);
+    for (const carriedSibling of carriedSiblings) {
+      // `s-ol` means it was already relocated once, i.e. it's genuinely forwarded content, not
+      // just something authored nearby that happens to share a slot name.
+      if (!carriedSibling['s-ol']) continue;
+
+      let siblingRelocateData = relocateNodes.find((r) => r.$nodeToRelocate$ === carriedSibling);
+      if (!siblingRelocateData) {
+        siblingRelocateData = { $nodeToRelocate$: carriedSibling };
+        relocateNodes.push(siblingRelocateData);
+      }
+      siblingRelocateData.$slotRefNode$ = relocateData.$slotRefNode$;
+      if (relocateData.$slotRefNode$) {
+        carriedSibling['s-sh'] = relocateData.$slotRefNode$['s-hn'];
+      }
+    }
+  }
+};
+
+/**
  * Mark the contents of a slot for relocation via adding references to them to
  * the {@link relocateNodes} data structure. The actual work of relocating them
  * will then be handled in {@link renderVdom}.
@@ -1142,6 +1178,7 @@ render() {
 
     if (checkSlotRelocate) {
       markSlotContentForRelocation(rootVnode.$elm$);
+      carryContentWithRelocatedSlotRefs();
 
       for (const relocateData of relocateNodes) {
         const nodeToRelocate = relocateData.$nodeToRelocate$;
@@ -1286,7 +1323,8 @@ render() {
   ) {
     const children = rootVnode.$elm$.__childNodes || rootVnode.$elm$.childNodes;
     for (const childNode of children) {
-      if (childNode['s-hn'] !== hostTagName && !childNode['s-sh']) {
+      // `s-sh` must match *this* host - it may be stale, carried over from an earlier host
+      if (childNode['s-hn'] !== hostTagName && childNode['s-sh'] !== hostTagName) {
         // Store the initial value of `hidden` so we can reset it later when
         // moving nodes around.
         if (isInitialLoad && childNode['s-ih'] == null) {

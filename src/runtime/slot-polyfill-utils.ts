@@ -90,7 +90,7 @@ export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName?: s
       slottedNodes.push(childNode);
       if (typeof slotName !== 'undefined') return slottedNodes;
     }
-    slottedNodes = [...slottedNodes, ...getHostSlotNodes(childNode.childNodes, hostName, slotName)];
+    slottedNodes = [...slottedNodes, ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName)];
   }
   return slottedNodes;
 }
@@ -132,8 +132,8 @@ export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: stri
     }
     return false;
   }
-  if (nodeToRelocate['s-sn'] === slotName) {
-    return true;
+  if (typeof nodeToRelocate['s-sa'] === 'string') {
+    return nodeToRelocate['s-sa'] === slotName;
   }
   return slotName === '';
 };
