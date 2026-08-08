@@ -90,7 +90,7 @@ export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName?: s
       slottedNodes.push(childNode);
       if (typeof slotName !== 'undefined') return slottedNodes;
     }
-    slottedNodes = [...slottedNodes, ...getHostSlotNodes(childNode.childNodes, hostName, slotName)];
+    slottedNodes = [...slottedNodes, ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName)];
   }
   return slottedNodes;
 }
@@ -122,11 +122,6 @@ export const getSlotChildSiblings = (slot: d.RenderNode, slotName: string, inclu
  */
 export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: string): boolean => {
   if (nodeToRelocate.nodeType === NODE_TYPE.ElementNode) {
-    if (nodeToRelocate['s-sr']) {
-      // `<slot>` forwarded from a nested component. Identified by its own slot
-      // name (`s-sn`), not `slot` attribute (which is only set on content assigned *into* a slot).
-      return nodeToRelocate['s-sn'] === slotName;
-    }
     if (nodeToRelocate.getAttribute('slot') === null && slotName === '') {
       // if the node doesn't have a slot attribute, and the slot we're checking
       // is not a named slot, then we assume the node should be within the slot
@@ -137,13 +132,10 @@ export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: stri
     }
     return false;
   }
-  if (nodeToRelocate['s-sn'] === slotName) {
-    return true;
+  if (typeof nodeToRelocate['s-sa'] === 'string') {
+    return nodeToRelocate['s-sa'] === slotName;
   }
-  // If the node has no slot name assigned yet, then we assume it belongs to the default slot.
-  // A node that already has a (different) slot name assigned - e.g. a forwarded `<slot name="x">`
-  // ref from a nested component - must not fall back to matching the default slot.
-  return slotName === '' && !nodeToRelocate['s-sn'];
+  return slotName === '';
 };
 
 /**
