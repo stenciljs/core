@@ -118,6 +118,23 @@ export const connectedCallback = (elm: d.HostElement) => {
       // fire off connectedCallback() on component instance
       if (hostRef?.$lazyInstance$) {
         fireConnectedCallback(hostRef.$lazyInstance$, elm);
+      } else if (hostRef.$flags$ & HOST_FLAGS.hasFailedLoad) {
+        // A previous initialization attempt for this host element failed
+        // (e.g. the lazy bundle's dynamic import() was rejected) -- see
+        // `initialize-component.ts`. Retry now that we're reconnecting,
+        // rather than leaving the element permanently un-upgraded for the
+        // rest of the page's lifetime.
+        //
+        // This must key off the dedicated `hasFailedLoad` flag rather than
+        // `hasInitializedComponent` being unset: that flag is also
+        // (transiently) unset while an initialization attempt is merely
+        // queued/in-flight and hasn't failed at all -- e.g. behind
+        // `nextTick`, or when `connectedCallback` fires again for the same
+        // element before that queued attempt has run, which Stencil's own
+        // server-side hydration deliberately does (see
+        // `serverSideConnected()` in `update-component.ts`). Retrying in
+        // that case double-initializes the component.
+        initializeComponent(elm, hostRef, cmpMeta);
       } else if (hostRef?.$onReadyPromise$) {
         hostRef.$onReadyPromise$.then(() => fireConnectedCallback(hostRef.$lazyInstance$, elm));
       }
