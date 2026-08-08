@@ -1,3 +1,4 @@
+import { vi, it, describe, expect, beforeEach, afterEach } from 'vitest';
 import type { plt as pltType, win as winType } from '../client-window';
 
 describe('client task queue', () => {
@@ -5,22 +6,22 @@ describe('client task queue', () => {
   let win: typeof winType;
   let writeTask: typeof import('../client-task-queue').writeTask;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // each test gets an isolated module instance, since `queuePending` and
     // the queued task arrays are private, file-scoped state that would
     // otherwise leak between tests
-    jest.resetModules();
-    ({ plt, win } = require('../client-window'));
-    ({ writeTask } = require('../client-task-queue'));
+    vi.resetModules();
+    ({ plt, win } = await import('../client-window'));
+    ({ writeTask } = await import('../client-task-queue'));
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('flushes a queued write task via a microtask when the document is hidden, without ever calling rAF', async () => {
     (win as any).document = { hidden: true };
-    const rafSpy = jest.spyOn(plt, 'raf').mockImplementation(() => 0);
+    const rafSpy = vi.spyOn(plt, 'raf').mockImplementation(() => 0);
 
     let called = false;
     writeTask(() => {
@@ -40,7 +41,7 @@ describe('client task queue', () => {
   it('still schedules the flush via rAF when the document is visible', async () => {
     (win as any).document = { hidden: false };
     let rafCallback: FrameRequestCallback | undefined;
-    const rafSpy = jest.spyOn(plt, 'raf').mockImplementation((cb: FrameRequestCallback) => {
+    const rafSpy = vi.spyOn(plt, 'raf').mockImplementation((cb: FrameRequestCallback) => {
       rafCallback = cb;
       return 0;
     });
