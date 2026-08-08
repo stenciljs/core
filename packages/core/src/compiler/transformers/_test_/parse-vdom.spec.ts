@@ -134,6 +134,19 @@ describe('parse vdom', () => {
     expect(t.cmp.hasVdomText).toBe(true);
   });
 
+  it('htmlParts preserves case and splits on whitespace', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <some-cmp part="clickTarget otherPart"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['clickTarget', 'otherPart']);
+  });
+
   it('hasSlot', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})

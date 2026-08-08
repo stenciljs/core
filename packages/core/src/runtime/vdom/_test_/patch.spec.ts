@@ -920,6 +920,18 @@ describe('renderer', () => {
     });
   });
 
+  describe('non-VNode complex child (e.g. a Date)', () => {
+    it('does not throw when re-rendering an element whose only child was an invalid value', () => {
+      const vnode1 = h('div', null, new Date('2026-01-15') as any);
+      patch(vnode0, vnode1);
+      expect(hostElm.innerHTML).toBe('');
+
+      const vnode2 = h('div', null, new Date('2026-03-22') as any);
+      expect(() => patch(vnode1, vnode2)).not.toThrow();
+      expect(hostElm.innerHTML).toBe('');
+    });
+  });
+
   function prop(name: any) {
     return function (obj: any) {
       return obj[name];

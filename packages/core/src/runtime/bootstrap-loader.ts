@@ -1,5 +1,5 @@
 import { BUILD } from 'virtual:app-data';
-import { getHostRef, plt, registerHost, transformTag, win } from 'virtual:platform';
+import { getHostRef, nextTick, plt, registerHost, transformTag, win } from 'virtual:platform';
 
 import { CMP_FLAGS } from '../utils/constants';
 import { queryNonceMetaTagContent } from '../utils/query-nonce-meta-tag-content';
@@ -173,8 +173,11 @@ export const bootstrapLazy = (
            *
            * Also remove the reference from `deferredConnectedCallbacks` array
            * otherwise removed instances won't get garbage collected.
+           *
+           * Use `nextTick` (microtask) rather than `plt.raf` since
+           * `requestAnimationFrame` callbacks do not fire while `document.hidden`
            */
-          plt.raf(() => {
+          nextTick(() => {
             const hostRef = getHostRef(this);
             if (!hostRef) {
               return;

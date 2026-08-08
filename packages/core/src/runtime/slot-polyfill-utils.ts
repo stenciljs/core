@@ -97,7 +97,12 @@ export function getHostSlotNodes(
       slottedNodes.push(childNode);
       if (typeof slotName !== 'undefined') return slottedNodes;
     }
-    slottedNodes = [...slottedNodes, ...getHostSlotNodes(childNode.childNodes, hostName, slotName)];
+    // `internalCall`, not `childNode.childNodes`: a patched nested custom element's `childNodes`
+    // accessor returns slotted content only, hiding the `s-sr` nodes this recursion needs.
+    slottedNodes = [
+      ...slottedNodes,
+      ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName),
+    ];
   }
   return slottedNodes;
 }

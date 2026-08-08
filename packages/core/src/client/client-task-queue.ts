@@ -3,7 +3,7 @@ import type * as d from '@stencil/core';
 
 import { PLATFORM_FLAGS } from '../runtime/runtime-constants';
 import { consoleError } from './client-log';
-import { plt, promiseResolve } from './client-window';
+import { plt, promiseResolve, win } from './client-window';
 
 let queueCongestion = 0;
 let queuePending = false;
@@ -11,6 +11,10 @@ let queuePending = false;
 const queueDomReads: d.RafCallback[] = [];
 const queueDomWrites: d.RafCallback[] = [];
 const queueDomWritesLow: d.RafCallback[] = [];
+
+// Fallback to microtask when `document.hidden`: `requestAnimationFrame` callbacks
+// do not fire so scheduling flush queues tasks indefinitely.
+const scheduleFlush = () => (win.document?.hidden ? nextTick(flush) : plt.raf(flush));
 
 const queueTask = (queue: d.RafCallback[], write: boolean) => (cb: d.RafCallback) => {
   queue.push(cb);
@@ -20,7 +24,7 @@ const queueTask = (queue: d.RafCallback[], write: boolean) => (cb: d.RafCallback
     if (write && plt.$flags$ & PLATFORM_FLAGS.queueSync) {
       nextTick(flush);
     } else {
-      plt.raf(flush);
+      scheduleFlush();
     }
   }
 };
@@ -84,7 +88,7 @@ const flush = () => {
     ) {
       // still more to do yet, but we've run out of time
       // let's let this thing cool off and try again in the next tick
-      plt.raf(flush);
+      scheduleFlush();
     } else {
       queueCongestion = 0;
     }
@@ -93,7 +97,7 @@ const flush = () => {
     if ((queuePending = queueDomReads.length > 0)) {
       // still more to do yet, but we've run out of time
       // let's let this thing cool off and try again in the next tick
-      plt.raf(flush);
+      scheduleFlush();
     }
   }
 };

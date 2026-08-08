@@ -1,13 +1,15 @@
 // @vitest-environment stencil
 
-import { LazyBundlesRuntimeData } from '@stencil/core';
+import { Component } from '@stencil/core';
+import { LazyBundlesRuntimeData } from '@stencil/core/compiler';
 import { expect, describe, it, vi } from '@stencil/vitest';
-import { win } from 'virtual:platform';
+import { win, getHostRef } from 'virtual:platform';
 
+import { newSpecPage } from '../../testing/spec-page';
 import { bootstrapLazy } from '../bootstrap-loader';
 
 describe('bootstrap lazy', () => {
-  it('should not inject invalid CSS when no lazy bundles are provided', () => {
+  it('should not inject invalid CSS when no lazy bund§les are provided', () => {
     const spy = vi.spyOn(win.document.head, 'insertBefore');
 
     bootstrapLazy([]);
@@ -62,5 +64,34 @@ describe('bootstrap lazy', () => {
       }),
       null,
     );
+  });
+
+  describe('disconnectedCallback', () => {
+    it('cleans up host references without waiting on requestAnimationFrame', async () => {
+      @Component({ tag: 'leak-cmp' })
+      class LeakCmp {}
+
+      // a hidden tab never runs rAF callbacks - mock it to never invoke its
+      // callback to prove cleanup doesn't depend on one ever firing
+      const rafSpy = vi.spyOn(global, 'requestAnimationFrame').mockImplementation(() => 0);
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [LeakCmp],
+        html: `<leak-cmp></leak-cmp>`,
+      });
+
+      const hostRef = getHostRef(root)!;
+      expect(hostRef.$vnode$?.$elm$).toBe(root);
+
+      root.remove();
+      expect(hostRef.$vnode$?.$elm$).toBe(root);
+
+      await waitForChanges();
+
+      expect(hostRef.$vnode$?.$elm$).toBeUndefined();
+      expect(rafSpy).not.toHaveBeenCalled();
+
+      rafSpy.mockRestore();
+    });
   });
 });
