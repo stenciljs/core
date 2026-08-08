@@ -17,6 +17,7 @@ import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
+  getSlotName,
   isNodeLocatedInSlot,
   patchSlotNode,
   updateFallbackSlotVisibility,
@@ -818,7 +819,9 @@ const markSlotContentForRelocation = (elm: d.RenderNode) => {
           !node['s-cn'] &&
           !node['s-nr'] &&
           node['s-hn'] !== childNode['s-hn'] &&
-          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'])
+          // an exact name match must still be able to override a same-host node that's only
+          // provisionally claimed a *different* slot (e.g. the default-slot fallback below)
+          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'] || getSlotName(node) === slotName)
         ) {
           // if `node` is located in the slot that `childNode` refers to (via the
           // `'s-sn'` property) then we need to relocate it from it's current spot
