@@ -17,6 +17,7 @@ import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
 import {
   dispatchSlotChangeEvent,
   findSlotFromSlottedNode,
+  getSlotName,
   isNodeLocatedInSlot,
   patchSlotNode,
   updateFallbackSlotVisibility,
@@ -818,7 +819,10 @@ const markSlotContentForRelocation = (elm: d.RenderNode) => {
           !node['s-cn'] &&
           !node['s-nr'] &&
           node['s-hn'] !== childNode['s-hn'] &&
-          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'])
+          // let an exact named-slot match override a stale default-slot claim. Skip this for
+          // `slotName === ''` itself - a matched default node's cached `s-sn` is `''` too, which
+          // would trivially "match" on every re-render and force pointless re-insertion.
+          (!node['s-sh'] || node['s-sh'] !== childNode['s-hn'] || (slotName !== '' && getSlotName(node) === slotName))
         ) {
           // if `node` is located in the slot that `childNode` refers to (via the
           // `'s-sn'` property) then we need to relocate it from it's current spot
