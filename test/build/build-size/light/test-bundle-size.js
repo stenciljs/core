@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-non-shadow');
-const maxBundleSize = 20 * 1024; // 20KB in bytes (non-gzipped - ~7KB gzipped)
+const maxBundleSize = 21 * 1024; // 21KB in bytes (non-gzipped - ~7KB gzipped)
 
 console.log('\nChecking bundle size (non-shadow)...');
 

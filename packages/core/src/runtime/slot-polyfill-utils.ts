@@ -97,8 +97,6 @@ export function getHostSlotNodes(
       slottedNodes.push(childNode);
       if (typeof slotName !== 'undefined') return slottedNodes;
     }
-    // `internalCall`, not `childNode.childNodes`: a patched nested custom element's `childNodes`
-    // accessor returns slotted content only, hiding the `s-sr` nodes this recursion needs.
     slottedNodes = [
       ...slottedNodes,
       ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName),
@@ -145,8 +143,8 @@ export const isNodeLocatedInSlot = (nodeToRelocate: d.RenderNode, slotName: stri
     }
     return false;
   }
-  if (nodeToRelocate['s-sn'] === slotName) {
-    return true;
+  if (typeof nodeToRelocate['s-sa'] === 'string') {
+    return nodeToRelocate['s-sa'] === slotName;
   }
   return slotName === '';
 };
