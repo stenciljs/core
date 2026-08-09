@@ -1,4 +1,5 @@
 import { vi, it, describe, expect, beforeEach, afterEach } from 'vitest';
+
 import type { plt as pltType, win as winType } from '../client-window';
 
 describe('client task queue', () => {
