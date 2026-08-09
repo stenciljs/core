@@ -1,7 +1,45 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, h, Prop, State } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 describe('update-component', () => {
+  describe('scheduleUpdate - reentrancy guard', () => {
+    it('should coalesce a state write during render() into a single follow-up render under taskQueue: immediate', async () => {
+      let renderCount = 0;
+
+      @Component({ tag: 'cmp-reentry' })
+      class CmpReentry {
+        @Prop() trigger = 0;
+        @State() measured = 0;
+
+        render() {
+          renderCount++;
+          // guards the test itself against hanging if the reentrancy guard regresses
+          if (renderCount > 10) {
+            throw new Error('render() re-entered unboundedly');
+          }
+          this.measured++;
+          return h('div', null, this.measured);
+        }
+      }
+
+      const page = await newSpecPage({
+        components: [CmpReentry],
+        html: `<cmp-reentry></cmp-reentry>`,
+      });
+
+      // simulate `taskQueue: 'immediate'`, where BUILD.taskQueue is `false`
+      page.build.taskQueue = false;
+
+      renderCount = 0;
+      page.rootInstance.trigger = 1;
+      await page.waitForChanges();
+
+      // one external update should cause exactly one follow-up render, even though
+      // `render()` writes state on every pass (the reentrancy guard should dedupe it)
+      expect(renderCount).toBe(1);
+    });
+  });
+
   describe('scheduleUpdate - initial load with queueMicrotask', () => {
     @Component({
       tag: 'test-cmp',
