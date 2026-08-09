@@ -1,24 +1,25 @@
-import { it, describe, expect } from 'vitest';
 import { Component, h } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
+import { it, describe, expect } from 'vitest';
 
 import { applyLightDomPatches } from '../dom-extras';
 
 describe('nested named slot forwarding', () => {
   @Component({
     tag: 'cmp-a',
-    shadow: false,
-    scoped: true,
+    encapsulation: {
+      type: 'scoped',
+    },
   })
   class CmpA {
     render() {
       return (
-        <div class="cmp-a-outer">
-          <div class="default-slot">
+        <div class='cmp-a-outer'>
+          <div class='default-slot'>
             <slot />
           </div>
-          <div class="named-slot">
-            <slot name="named" />
+          <div class='named-slot'>
+            <slot name='named' />
           </div>
         </div>
       );
@@ -28,15 +29,16 @@ describe('nested named slot forwarding', () => {
   it('routes appendChild()-ed content to the default slot when the forwarding tag has no explicit `slot` attribute', async () => {
     @Component({
       tag: 'cmp-b',
-      shadow: false,
-      scoped: true,
+      encapsulation: {
+        type: 'scoped',
+      },
     })
     class CmpB {
       render() {
         return (
           <cmp-a>
             <slot />
-            <slot name="named" />
+            <slot name='named' />
           </cmp-a>
         );
       }
@@ -71,15 +73,16 @@ describe('nested named slot forwarding', () => {
   it('routes appendChild()-ed content through a forwarding tag with an explicit `slot` attribute (text-node slot ref)', async () => {
     @Component({
       tag: 'cmp-b',
-      shadow: false,
-      scoped: true,
+      encapsulation: {
+        type: 'scoped',
+      },
     })
     class CmpB {
       render() {
         return (
           <cmp-a>
             <slot />
-            <slot name="named" slot="named" />
+            <slot name='named' slot='named' />
           </cmp-a>
         );
       }
@@ -111,15 +114,16 @@ describe('nested named slot forwarding', () => {
   it('routes appendChild()-ed content through a forwarding tag with fallback content and an explicit `slot` attribute (element slot-fb ref)', async () => {
     @Component({
       tag: 'cmp-b',
-      shadow: false,
-      scoped: true,
+      encapsulation: {
+        type: 'scoped',
+      },
     })
     class CmpB {
       render() {
         return (
           <cmp-a>
             <slot />
-            <slot name="named" slot="named">
+            <slot name='named' slot='named'>
               fallback
             </slot>
           </cmp-a>
@@ -156,8 +160,9 @@ describe('nested named slot forwarding', () => {
   it('hides content forwarded to a slot name that does not exist anywhere on the target', async () => {
     @Component({
       tag: 'cmp-b',
-      shadow: false,
-      scoped: true,
+      encapsulation: {
+        type: 'scoped',
+      },
     })
     class CmpB {
       render() {
@@ -165,7 +170,7 @@ describe('nested named slot forwarding', () => {
           <cmp-a>
             <slot />
             {/* "nonexistent" isn't a slot cmp-a defines at all - not default, not named */}
-            <slot name="named" slot="nonexistent" />
+            <slot name='named' slot='nonexistent' />
           </cmp-a>
         );
       }
@@ -184,17 +189,18 @@ describe('nested named slot forwarding', () => {
   it('does not sweep up a directly-authored slot="named" child that just happens to sit near an unrelated forwarding marker', async () => {
     @Component({
       tag: 'cmp-b',
-      shadow: false,
-      scoped: true,
+      encapsulation: {
+        type: 'scoped',
+      },
     })
     class CmpB {
       render() {
         return (
           <cmp-a>
             <slot />
-            <slot name="named" />
+            <slot name='named' />
             {/* directly authored, not forwarded - must be unaffected by the <slot> above */}
-            <span slot="named" class="direct-named">
+            <span slot='named' class='direct-named'>
               direct
             </span>
           </cmp-a>
