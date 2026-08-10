@@ -1,17 +1,19 @@
+import { augmentDiagnosticWithNode, buildWarn, join, normalizePath, relative } from '@utils';
+import { dirname } from 'path';
 import ts from 'typescript';
-import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '@utils';
-import { tsResolveModuleName, tsGetSourceFile } from '../../sys/typescript/typescript-resolve-module';
+
+import type * as d from '../../../declarations';
+import { isNodeModulePath } from '../../sys/resolve/resolve-utils';
+import { tsGetSourceFile, tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
+import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
 import { parseStaticEvents } from './events';
 import { parseStaticListeners } from './listeners';
 import { parseStaticMethods } from './methods';
 import { parseStaticProps } from './props';
+import { parseStaticSerializers } from './serializers';
 import { parseStaticStates } from './states';
 import { parseStaticWatchers } from './watchers';
-import { parseStaticSerializers } from './serializers';
-
-import type * as d from '../../../declarations';
-import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 
 type DeDupeMember =
   | d.ComponentCompilerProperty
@@ -432,6 +434,71 @@ function buildExtendsTree(
 }
 
 /**
+ * Ensure a module specifier is explicitly relative (i.e. starts with `./` or `../`)
+ *
+ * @param specifier a module specifier
+ * @returns the specifier, prefixed with `./` if it was not already explicitly relative
+ */
+const ensureRelativeSpecifier = (specifier: string): string => {
+  return specifier.startsWith('.') ? specifier : `./${specifier}`;
+};
+
+/**
+ * Rewrite the type references of members inherited from an extended class so that
+ * they resolve from the extending component's file.
+ *
+ * Type references are recorded when a class is parsed, so their `path`s are relative
+ * to the file declaring that class. When members are merged into a component from an
+ * extended class living in a different directory, those specifiers no longer resolve
+ * from the component's file - which is what consumers like `components.d.ts`
+ * generation resolve them against. This re-anchors:
+ *
+ * - `import` references with a relative specifier: rewritten to be relative to the
+ *   component's directory
+ * - `local` references (types declared in the extended class's own file): converted
+ *   to `import` references pointing at the extended class's file, since from the
+ *   component's point of view the type lives in another module
+ *
+ * @param members the inherited members whose complex type references should be re-anchored
+ * @param extendedClassFileName the absolute path of the file declaring the extended class
+ * @param cmpSourceFilePath the absolute path of the extending component's source file
+ * @returns the same members, with their type references re-anchored
+ */
+export const reanchorInheritedTypeReferences = <
+  T extends d.ComponentCompilerProperty | d.ComponentCompilerEvent | d.ComponentCompilerMethod,
+>(
+  members: T[],
+  extendedClassFileName: string,
+  cmpSourceFilePath: string,
+): T[] => {
+  const extendedClassDir = dirname(normalizePath(extendedClassFileName, false));
+  const cmpDir = dirname(normalizePath(cmpSourceFilePath, false));
+  if (extendedClassDir === cmpDir || isNodeModulePath(extendedClassFileName)) {
+    // specifiers already resolve correctly from the component's directory
+    // (or the extended class ships in an external collection, where relative
+    // specifiers cannot be re-anchored onto the consuming project)
+    return members;
+  }
+  members.forEach((member) => {
+    const references = member.complexType?.references;
+    if (!references) {
+      return;
+    }
+    Object.values(references).forEach((reference) => {
+      if (reference.location === 'import' && reference.path?.startsWith('.')) {
+        const typeModulePath = join(extendedClassDir, reference.path);
+        reference.path = ensureRelativeSpecifier(relative(cmpDir, typeModulePath));
+      } else if (reference.location === 'local') {
+        const extendedClassModule = normalizePath(extendedClassFileName, false).replace(/\.(tsx|ts)$/, '');
+        reference.location = 'import';
+        reference.path = ensureRelativeSpecifier(relative(cmpDir, extendedClassModule));
+      }
+    });
+  });
+  return members;
+};
+
+/**
  * Given a class declaration, this function will analyze its heritage clauses
  * to find any extended classes, and then parse the static members of those
  * extended classes to merge them into the current class's metadata.
@@ -467,10 +534,22 @@ export function mergeExtendedClassMeta(
 
   tree.forEach((extendedClass) => {
     const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
-    const mixinProps = parseStaticProps(extendedStaticMembers) ?? [];
+    const mixinProps = reanchorInheritedTypeReferences(
+      parseStaticProps(extendedStaticMembers) ?? [],
+      extendedClass.fileName,
+      moduleFile.sourceFilePath,
+    );
     const mixinStates = parseStaticStates(extendedStaticMembers) ?? [];
-    const mixinMethods = parseStaticMethods(extendedStaticMembers) ?? [];
-    const mixinEvents = parseStaticEvents(extendedStaticMembers) ?? [];
+    const mixinMethods = reanchorInheritedTypeReferences(
+      parseStaticMethods(extendedStaticMembers) ?? [],
+      extendedClass.fileName,
+      moduleFile.sourceFilePath,
+    );
+    const mixinEvents = reanchorInheritedTypeReferences(
+      parseStaticEvents(extendedStaticMembers) ?? [],
+      extendedClass.fileName,
+      moduleFile.sourceFilePath,
+    );
     const isMixin =
       mixinProps.length > 0 || mixinStates.length > 0 || mixinMethods.length > 0 || mixinEvents.length > 0;
     const module = compilerCtx.moduleMap.get(extendedClass.fileName);
