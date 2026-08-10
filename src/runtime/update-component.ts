@@ -24,7 +24,7 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
 };
 
 export const scheduleUpdate = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void> | void => {
-  if (BUILD.taskQueue && BUILD.updatable) {
+  if (BUILD.updatable) {
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
   if (BUILD.asyncLoading && hostRef.$flags$ & HOST_FLAGS.isWaitingForChildren) {
@@ -284,7 +284,6 @@ const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isIniti
   // https://rollupjs.org/guide/en/#treeshake tryCatchDeoptimization
   const allRenderFn = BUILD.allRenderFn ? true : false;
   const lazyLoad = BUILD.lazyLoad ? true : false;
-  const taskQueue = BUILD.taskQueue ? true : false;
   const updatable = BUILD.updatable ? true : false;
 
   try {
@@ -295,7 +294,7 @@ const callRender = (hostRef: d.HostRef, instance: any, elm: HTMLElement, isIniti
      */
     instance = allRenderFn ? instance.render() : instance.render && instance.render();
 
-    if (updatable && taskQueue) {
+    if (updatable) {
       hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
     }
 
