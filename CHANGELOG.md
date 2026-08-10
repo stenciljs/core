@@ -1,3 +1,33 @@
+# 🐓 [4.44.0](https://github.com/stenciljs/core/compare/v4.43.5...v4.44.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **compiler:** escape backslashes before other escape sequences in styles ([#6773](https://github.com/stenciljs/core/issues/6773)) ([348f226](https://github.com/stenciljs/core/commit/348f226f6f1502c5e3b93eb0a337a09ae04b06e4))
+* **compiler:** handle constructor overloads ([#6766](https://github.com/stenciljs/core/issues/6766)) ([1dca769](https://github.com/stenciljs/core/commit/1dca7692a6b279ef65156285e90fd9ea4852116f)), closes [#6712](https://github.com/stenciljs/core/issues/6712)
+* **compiler:** preserve bundler directive comments in es5 output ([#6779](https://github.com/stenciljs/core/issues/6779)) ([f82296d](https://github.com/stenciljs/core/commit/f82296d387ff78f588debd3bdd196b6f89ac76dd))
+* **compiler:** resolve inherited type references against the declaring file ([#6782](https://github.com/stenciljs/core/issues/6782)) ([267d88c](https://github.com/stenciljs/core/commit/267d88caf2345be90faaecef91f88d4cd439adec))
+* **compiler:** resolveVar follows import chain ([#6801](https://github.com/stenciljs/core/issues/6801)) ([85235c3](https://github.com/stenciljs/core/commit/85235c3a3e4d095004a6e44a4c72106cbb138b60))
+* **compiler:** too many required props / "union type too complex" error ([#6804](https://github.com/stenciljs/core/issues/6804)) ([74722db](https://github.com/stenciljs/core/commit/74722db38c86dbf52405d1ec2e544683631425f8))
+* **docs:** stop `toLowerCase()` shadow part names ([#6813](https://github.com/stenciljs/core/issues/6813)) ([77f4510](https://github.com/stenciljs/core/commit/77f45103adddc4518fce5dbb5185991a44db786f))
+* **runtime:** ensure non-shadow DOM getters return null instead of undefined ([#6792](https://github.com/stenciljs/core/issues/6792)) ([6b63cb3](https://github.com/stenciljs/core/commit/6b63cb32ad1373f96671b69199280eda1489aa8f))
+* **runtime:** guard against render reentrancy under `taskQueue: 'immediate'` ([#6817](https://github.com/stenciljs/core/issues/6817)) ([b9b5b55](https://github.com/stenciljs/core/commit/b9b5b55db716fa3f57a43a25a2a87d0b11318049))
+* **runtime:** memory leak on document.hidden ([#6811](https://github.com/stenciljs/core/issues/6811)) ([cda3b04](https://github.com/stenciljs/core/commit/cda3b0481fc26ffce9113009cca9a9883efe9040))
+* **runtime:** retry lazy component load after a failed dynamic import ([#6772](https://github.com/stenciljs/core/issues/6772)) ([1be6b13](https://github.com/stenciljs/core/commit/1be6b13231a940217ba0968b5c531b4bbaff19ef))
+* **runtime:** stop forwarded named slot being added to nested default slot ([#6815](https://github.com/stenciljs/core/issues/6815)) ([b493d61](https://github.com/stenciljs/core/commit/b493d61a960deeb656f940248759f19a3094de6b))
+* **runtime:** VDOM should not process non-vnode objects ([#6812](https://github.com/stenciljs/core/issues/6812)) ([ffc5212](https://github.com/stenciljs/core/commit/ffc52124017581c77034b97e7ec5dcf3cf7f050b))
+
+
+### Features
+
+* added `closedby` and `focusgroup` HTML attributes ([#6797](https://github.com/stenciljs/core/issues/6797)) ([449d7ec](https://github.com/stenciljs/core/commit/449d7ec956ecbffb963ba6ce1fe45f4830e8e7c3))
+* **config:** allow suppressing reserved event name warnings ([#6748](https://github.com/stenciljs/core/issues/6748)) ([ca85879](https://github.com/stenciljs/core/commit/ca858791094349a3d5ccfd9afbdb71612973c2cc))
+* **docs:** better default part / slot handling ([#6819](https://github.com/stenciljs/core/issues/6819)) ([76a3d74](https://github.com/stenciljs/core/commit/76a3d74934cba0006bc9001aaf3d04e9def981db))
+* **jsx:** add fetchpriority attribute to img, link, script, iframe ([#6803](https://github.com/stenciljs/core/issues/6803)) ([1a5bcc8](https://github.com/stenciljs/core/commit/1a5bcc8083d696be998bc732d2e4a65326553a30)), closes [#6802](https://github.com/stenciljs/core/issues/6802)
+* **jsx:** add global `translate` attribute to HTMLAttributes ([#6808](https://github.com/stenciljs/core/issues/6808)) ([1626295](https://github.com/stenciljs/core/commit/1626295f3d40dcdab116aa56e9599a1c818a3036))
+
+
+
 ## 🍐 [4.43.5](https://github.com/stenciljs/core/compare/v4.43.4...v4.43.5) (2026-05-28)
 
 
