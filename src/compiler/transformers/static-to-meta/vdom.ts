@@ -4,11 +4,7 @@ import type * as d from '../../../declarations';
 
 /**
  * Attempt to resolve an expression to a statically-known string value.
- *
- * Handles plain string literals directly. For anything else, falls back to the type checker
- * (when available) so that references to `const`/`readonly` bindings with a literal type (e.g.
- * `static readonly PART = 'foo'`) can still be resolved, since TypeScript preserves the literal
- * type for those bindings rather than widening it to `string`.
+ * Handles plain string literals directly. For anything else, falls back to the type checker.
  *
  * @param expr the expression to resolve
  * @param typeChecker the type checker for the program being compiled, if available
