@@ -1,13 +1,7 @@
 import * as path from 'path';
 
 /**
- * These tests exercise the *real* `loadModule()` (not the testing platform's
- * mocked version used elsewhere) so the `?s-retry=N` cache-busting query
- * param it appends on a retried `import()` is verified end-to-end, rather
- * than via a helper exported solely for testing. A failed dynamic `import()`
- * only "succeeds" here if a virtual module was registered at the *exact*
- * specifier `loadModule()` requested, so a broken query-param join would
- * cause the request to genuinely fail to resolve, just like a real 404 would.
+ * Test loadModule()'s cache-busting behavior when a module fails to load and is retried.
  */
 describe('loadModule cache-busting on retry', () => {
   const bundleId = 'cmp-retry-cache-bust';
