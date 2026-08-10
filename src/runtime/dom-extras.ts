@@ -541,7 +541,7 @@ export const patchParentNode = (node: Node) => {
   patchHostOriginalAccessor('parentNode', node);
   Object.defineProperty(node, 'parentNode', {
     get: function () {
-      return this['s-ol']?.parentNode || this.__parentNode || null;
+      return this['s-ol']?.parentNode || this.__parentNode;
     },
     set: function (value) {
       // mock-doc sets parentNode?

@@ -169,5 +169,11 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     expect(emptyElm.firstChild).toBeNull();
     expect(emptyElm.lastChild).toBeNull();
   });
-});
 
+  it('returns null (not undefined) for parentNode of a node with no parent', async () => {
+    const detachedNode = specPage.doc.createElement('span');
+    patchSlottedNode(detachedNode);
+
+    expect(detachedNode.parentNode).toBeNull();
+  });
+});
