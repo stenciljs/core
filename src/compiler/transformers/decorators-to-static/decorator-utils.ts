@@ -79,7 +79,11 @@ const resolveVariableValue = (
 ): string => {
   // Handle identifiers (const variables)
   if (ts.isIdentifier(node)) {
-    const symbol = typeChecker.getSymbolAtLocation(node);
+    let symbol = typeChecker.getSymbolAtLocation(node);
+    if (symbol && symbol.flags & ts.SymbolFlags.Alias) {
+      // Follow the import chain (e.g. `import { FOO } from './constants'`)
+      symbol = typeChecker.getAliasedSymbol(symbol);
+    }
     if (!symbol || !symbol.valueDeclaration) {
       const err = buildError(diagnostics);
       err.messageText = `resolveVar() cannot resolve the value of "${node.text}" at compile time. Only const variables and object properties with string literal values are supported.`;

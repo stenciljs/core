@@ -53,6 +53,7 @@ export const createModule = (
   hasVdomXlink: false,
   htmlAttrNames: [],
   htmlParts: [],
+  htmlSlots: [],
   htmlTagNames: [],
   isCollectionDependency: false,
   isLegacy: false,

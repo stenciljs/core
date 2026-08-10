@@ -1138,6 +1138,7 @@ export namespace JSXBase {
     onClose?: (event: Event) => void;
     open?: boolean;
     returnValue?: string;
+    closedby?: 'any' | 'closerequest' | 'none';
   }
 
   export interface EmbedHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1180,6 +1181,8 @@ export namespace JSXBase {
     allowtransparency?: string | boolean;
     frameBorder?: number | string;
     frameborder?: number | string;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     height?: number | string;
     loading?: 'lazy' | 'auto' | 'eager';
@@ -1203,6 +1206,8 @@ export namespace JSXBase {
     crossOrigin?: string;
     crossorigin?: string;
     decoding?: 'async' | 'auto' | 'sync';
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     height?: number | string;
     loading?: 'lazy' | 'auto' | 'eager';
@@ -1310,6 +1315,8 @@ export namespace JSXBase {
 
   export interface LinkHTMLAttributes<T> extends HTMLAttributes<T> {
     as?: string;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     href?: string;
     hrefLang?: string;
     hreflang?: string;
@@ -1449,6 +1456,8 @@ export namespace JSXBase {
     crossOrigin?: string;
     crossorigin?: string;
     defer?: boolean;
+    fetchPriority?: 'high' | 'low' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     importance?: 'low' | 'auto' | 'high';
     integrity?: string;
     nonce?: string;
@@ -1574,11 +1583,14 @@ export namespace JSXBase {
     tabIndex?: number;
     tabindex?: number | string;
     title?: string;
+    // `(string & {})` keeps autocomplete without rejecting vals spread from an object literal
+    translate?: 'yes' | 'no' | (string & {});
     // These types don't allow you to use popover as a boolean attribute
     // so you can't write HTML like `<div popover>` and get the default value.
     // Developer must explicitly specify one of the valid popover values or it will fallback
     // to `manual` (following the HTML spec).
     popover?: string | null;
+    focusgroup?: string;
 
     // Unknown
     inputMode?: string;

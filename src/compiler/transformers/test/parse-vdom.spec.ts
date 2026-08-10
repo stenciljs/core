@@ -132,6 +132,19 @@ describe('parse vdom', () => {
     expect(t.cmp.hasVdomText).toBe(true);
   });
 
+  it('htmlParts preserves case and splits on whitespace', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <some-cmp part="clickTarget otherPart"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['clickTarget', 'otherPart']);
+  });
+
   it('hasSlot', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
@@ -143,6 +156,108 @@ describe('parse vdom', () => {
     `);
 
     expect(t.cmp.htmlTagNames).toContain('slot');
+  });
+
+  it('htmlSlots captures the default slot', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <slot/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual(['']);
+  });
+
+  it('htmlSlots captures named slots', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return (
+            <div>
+              <slot name="header"/>
+              <slot/>
+              <slot name="footer"/>
+            </div>
+          )
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual(['header', '', 'footer']);
+  });
+
+  it('htmlSlots does not capture slot names from spread attributes', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          const attrs = { name: 'dynamic' };
+          return <slot {...attrs}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual([]);
+  });
+
+  it('htmlSlots resolves a slot name from a const binding via the type checker', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          const slotName = 'header';
+          return <slot name={slotName}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual(['header']);
+  });
+
+  it('htmlSlots resolves a slot name from a readonly class field via the type checker', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        private readonly slotName = 'footer';
+        render() {
+          return <slot name={this.slotName}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual(['footer']);
+  });
+
+  it('htmlSlots does not resolve a slot name from a mutable (non-readonly) class field', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        slotName = 'header';
+        render() {
+          return <slot name={this.slotName}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlSlots).toEqual([]);
+  });
+
+  it('htmlParts resolves a part name from a static readonly field via the type checker', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        static readonly PART = 'my-part';
+        render() {
+          return <some-cmp part={CmpA.PART}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['my-part']);
   });
 
   it('hasSvg', () => {
