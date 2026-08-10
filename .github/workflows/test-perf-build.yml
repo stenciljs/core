@@ -39,12 +39,23 @@ jobs:
         working-directory: test/end-to-end
         shell: bash
 
+      - name: Write CodSpeed Benchmark Config
+        run: |
+          cat > codspeed.yml <<'EOF'
+          $schema: https://raw.githubusercontent.com/CodSpeedHQ/codspeed/refs/heads/main/schemas/codspeed.schema.json
+          benchmarks:
+            - name: Compile Time (cold)
+              exec: node ../../bin/stencil build --config ./stencil.build.config.ts
+          EOF
+        working-directory: test/end-to-end
+        shell: bash
+
       - name: Run Cold Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: simulation
           working-directory: test/end-to-end
-          run: node ../../bin/stencil build --config ./stencil.build.config.ts
+          config: codspeed.yml
 
   perf_build_warm:
     name: Compile Time (warm)
@@ -78,9 +89,20 @@ jobs:
         working-directory: test/end-to-end
         shell: bash
 
+      - name: Write CodSpeed Benchmark Config
+        run: |
+          cat > codspeed.yml <<'EOF'
+          $schema: https://raw.githubusercontent.com/CodSpeedHQ/codspeed/refs/heads/main/schemas/codspeed.schema.json
+          benchmarks:
+            - name: Compile Time (warm)
+              exec: node ../../bin/stencil build --config ./stencil.build.config.ts
+          EOF
+        working-directory: test/end-to-end
+        shell: bash
+
       - name: Run Warm Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: simulation
           working-directory: test/end-to-end
-          run: node ../../bin/stencil build --config ./stencil.build.config.ts
+          config: codspeed.yml
