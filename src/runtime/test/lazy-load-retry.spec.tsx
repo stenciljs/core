@@ -4,12 +4,6 @@ import { LazyBundlesRuntimeData } from '../../internal';
 import { HOST_FLAGS } from '../../utils';
 import { bootstrapLazy } from '../bootstrap-lazy';
 
-/**
- * Regression tests for a bug where a host element would be permanently
- * "bricked" (never rendered, no lifecycle callbacks) if its lazy bundle
- * failed to load a single time (e.g. a dropped network request). See:
- * https://github.com/stenciljs/core/issues/6771
- */
 describe('lazy-load failure recovery', () => {
   const bundleId = 'cmp-retry-bundle';
   let lazyBundles: LazyBundlesRuntimeData;
