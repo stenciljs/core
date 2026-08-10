@@ -6,12 +6,8 @@ import { consoleDevError, consoleError } from './client-log';
 export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();
 
 /**
- * Tracks how many times the dynamic `import()` for a given lazy bundle has
- * failed. A failed dynamic import is cached by the browser's own module map
- * for the resolved specifier URL, so a bare retry of the exact same URL
- * would be rejected immediately without ever reaching the network again.
- * This lets a retry (see `connected-callback.ts`) bust that cache with a
- * query param, the same way `hmrVersionId` already does for HMR.
+ * Tracks how many times a dynamic `import()` for a given lazy bundle has failed.
+ * Used to cache bust the retry attempt in connected-callback.ts
  */
 const failedLoadAttempts = /*@__PURE__*/ new Map<string, number>();
 
