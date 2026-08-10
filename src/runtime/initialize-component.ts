@@ -39,7 +39,12 @@ export const initializeComponent = async (
 
       const bundleId = cmpMeta.$lazyBundleId$;
       if (BUILD.lazyLoad && bundleId) {
+      const bundleId = cmpMeta.$lazyBundleId$;
+      if (BUILD.lazyLoad && bundleId) {
         // lazy loaded components
+
+        // clear any failure recorded by a previous attempt
+        hostRef.$flags$ &= ~HOST_FLAGS.hasFailedLoad;
         // request the component's implementation to be
         // wired up with the host element
         const CstrImport = loadModule(cmpMeta, hostRef, hmrVersionId);
