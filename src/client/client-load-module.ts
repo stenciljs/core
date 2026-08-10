@@ -69,8 +69,8 @@ export const loadModule = (
     `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`
   ).then(
     (importedModule) => {
-      failedLoadAttempts.delete(bundleId);
       if (!BUILD.hotModuleReplacement) {
+        failedLoadAttempts.delete(bundleId);
         cmpModules.set(bundleId, importedModule);
       }
       return importedModule[exportName];
