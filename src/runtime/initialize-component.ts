@@ -8,7 +8,7 @@ import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
 import { proxyComponent } from './proxy-component';
-import { PROXY_FLAGS } from './runtime-constants';
+import { MAX_LAZY_LOAD_RETRIES, PROXY_FLAGS } from './runtime-constants';
 import { getScopeId, registerStyle } from './styles';
 import { safeCall, scheduleUpdate } from './update-component';
 
@@ -34,6 +34,8 @@ export const initializeComponent = async (
     if ((hostRef.$flags$ & HOST_FLAGS.hasInitializedComponent) === 0) {
       // Let the runtime know that the component has been initialized
       hostRef.$flags$ |= HOST_FLAGS.hasInitializedComponent;
+      // Starting a fresh attempt clears any failure recorded by a previous one.
+      hostRef.$flags$ &= ~HOST_FLAGS.hasFailedLoad;
 
       const bundleId = cmpMeta.$lazyBundleId$;
       if (BUILD.lazyLoad && bundleId) {
@@ -53,6 +55,12 @@ export const initializeComponent = async (
           Cstr = CstrImport as d.ComponentConstructor | undefined;
         }
         if (!Cstr) {
+          // The lazy bundle failed to load (e.g. a dropped network request).
+          hostRef.$flags$ &= ~HOST_FLAGS.hasInitializedComponent;
+          hostRef.$loadRetryCount$ = (hostRef.$loadRetryCount$ ?? 0) + 1;
+          if (hostRef.$loadRetryCount$ < MAX_LAZY_LOAD_RETRIES) {
+            hostRef.$flags$ |= HOST_FLAGS.hasFailedLoad;
+          }
           throw new Error(`Constructor for "${cmpMeta.$tagName$}#${hostRef.$modeName$}" was not found`);
         }
         if (BUILD.member && !Cstr.isProxied) {
@@ -208,8 +216,12 @@ export const initializeComponent = async (
       hostRef.$onRenderResolve$ = undefined;
     }
     // Also resolve the component's ready promise so any code waiting on
-    // componentOnReady() doesn't hang forever
-    if (BUILD.asyncLoading && hostRef.$onReadyResolve$) {
+    // componentOnReady() doesn't hang forever -- unless a retry is still
+    // pending (HOST_FLAGS.hasFailedLoad), in which case a caller should
+    // only be notified once the component actually finishes loading, or
+    // once retries are exhausted (at which point this catch block runs
+    // again with the flag no longer set).
+    if (BUILD.asyncLoading && hostRef.$onReadyResolve$ && !(hostRef.$flags$ & HOST_FLAGS.hasFailedLoad)) {
       hostRef.$onReadyResolve$(elm);
     }
   }

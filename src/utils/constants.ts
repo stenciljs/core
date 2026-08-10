@@ -56,10 +56,16 @@ export const enum HOST_FLAGS {
   isWatchReady = 1 << 7,
   isListenReady = 1 << 8,
   needsRerender = 1 << 9,
+  /**
+   * Set when a lazy component's dynamic `import()` fails to resolve a a
+   * constructor. Distinct from `hasInitializedComponent` being unset, which
+   * is true while an initialization attempt is merely queued/in-flight.
+   */
+  hasFailedLoad = 1 << 10,
 
   // DEV ONLY
-  devOnRender = 1 << 10,
-  devOnDidLoad = 1 << 11,
+  devOnRender = 1 << 11,
+  devOnDidLoad = 1 << 12,
 }
 
 /**

@@ -6,6 +6,12 @@ import { consoleDevError, consoleError } from './client-log';
 export const cmpModules = /*@__PURE__*/ new Map<string, { [exportName: string]: d.ComponentConstructor }>();
 
 /**
+ * Tracks how many times a dynamic `import()` for a given lazy bundle has failed.
+ * Used to cache bust the retry attempt in connected-callback.ts
+ */
+const failedLoadAttempts = /*@__PURE__*/ new Map<string, number>();
+
+/**
  * We need to separate out this prefix so that Esbuild doesn't try to resolve
  * the below, but instead retains a dynamic `import()` statement in the
  * emitted code.
@@ -43,23 +49,30 @@ export const loadModule = (
   if (module) {
     return module[exportName];
   }
+  const retryCount = failedLoadAttempts.get(bundleId) ?? 0;
+  const cacheBustParams = [
+    retryCount > 0 ? `s-retry=${retryCount}` : '',
+    BUILD.hotModuleReplacement && hmrVersionId ? `s-hmr=${hmrVersionId}` : '',
+  ]
+    .filter(Boolean)
+    .join('&');
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
   return import(
     /* @vite-ignore */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${
-      BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''
-    }`
+    `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`
   ).then(
     (importedModule) => {
       if (!BUILD.hotModuleReplacement) {
+        failedLoadAttempts.delete(bundleId);
         cmpModules.set(bundleId, importedModule);
       }
       return importedModule[exportName];
     },
     (e: Error) => {
+      failedLoadAttempts.set(bundleId, retryCount + 1);
       consoleError(e, hostRef.$hostElement$);
     },
   );
