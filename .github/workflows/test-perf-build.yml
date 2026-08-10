@@ -42,10 +42,9 @@ jobs:
       - name: Write CodSpeed Benchmark Config
         run: |
           cat > codspeed.yml <<'EOF'
-          $schema: https://raw.githubusercontent.com/CodSpeedHQ/codspeed/refs/heads/main/schemas/codspeed.schema.json
           benchmarks:
             - name: Compile Time (cold)
-              exec: node ../../bin/stencil build --config ./stencil.build.config.ts
+              exec: node ${{ github.workspace }}/bin/stencil build --config ${{ github.workspace }}/test/end-to-end/stencil.build.config.ts
           EOF
         working-directory: test/end-to-end
         shell: bash
@@ -54,8 +53,7 @@ jobs:
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: simulation
-          working-directory: test/end-to-end
-          config: codspeed.yml
+          config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
 
   perf_build_warm:
     name: Compile Time (warm)
@@ -92,10 +90,9 @@ jobs:
       - name: Write CodSpeed Benchmark Config
         run: |
           cat > codspeed.yml <<'EOF'
-          $schema: https://raw.githubusercontent.com/CodSpeedHQ/codspeed/refs/heads/main/schemas/codspeed.schema.json
           benchmarks:
             - name: Compile Time (warm)
-              exec: node ../../bin/stencil build --config ./stencil.build.config.ts
+              exec: node ${{ github.workspace }}/bin/stencil build --config ${{ github.workspace }}/test/end-to-end/stencil.build.config.ts
           EOF
         working-directory: test/end-to-end
         shell: bash
@@ -104,5 +101,4 @@ jobs:
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: simulation
-          working-directory: test/end-to-end
-          config: codspeed.yml
+          config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
