@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { getHostRef, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
+import { getHostRef, nextTick, plt, registerHost, supportsShadow, transformTag, win } from '@platform';
 import { addHostEventListeners } from '@runtime';
 
 import type * as d from '../declarations';
@@ -185,8 +185,11 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
            *
            * Also remove the reference from `deferredConnectedCallbacks` array
            * otherwise removed instances won't get garbage collected.
+           *
+           * Use `nextTick` (microtask) rather than `plt.raf` since
+           * `requestAnimationFrame` callbacks do not fire while `document.hidden`
            */
-          plt.raf(() => {
+          nextTick(() => {
             const hostRef = getHostRef(this);
             if (!hostRef) {
               return;

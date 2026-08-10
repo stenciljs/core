@@ -8,7 +8,7 @@
  */
 
 import { BUILD } from '@app-data';
-import { consoleDevError, consoleDevWarn, transformTag } from '@platform';
+import { consoleDevError, consoleDevWarn, consoleError, transformTag } from '@platform';
 import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
@@ -33,10 +33,16 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
       } else if (child != null && typeof child !== 'boolean') {
         if ((simple = typeof nodeName !== 'function' && !isComplexType(child))) {
           child = String(child);
-        } else if (BUILD.isDev && typeof nodeName !== 'function' && child.$flags$ === undefined) {
-          consoleDevError(`vNode passed as children has unexpected type.
+        } else if (typeof nodeName !== 'function' && child.$flags$ === undefined) {
+          // not a primitive and not a VNode - drop it
+          if (BUILD.isDev) {
+            consoleDevError(`vNode passed as children has unexpected type.
 Make sure it's using the correct h() function.
 Empty objects can also be the cause, look for JSX comments that became objects.`);
+          } else {
+            consoleError('Invalid vNode child');
+          }
+          continue;
         }
 
         if (simple && lastSimple) {
