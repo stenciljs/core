@@ -277,6 +277,17 @@ describe('h()', () => {
     expect(vnode.$children$).toBe(null);
   });
 
+  it('should not render a non-VNode complex value (e.g. a Date)', () => {
+    const vnode = h('a', null, [new Date()] as any);
+    expect(vnode.$children$).toBe(null);
+  });
+
+  it('should ignore a non-VNode complex value in between simple children', () => {
+    const vnode = h('a', null, 'one', new Date() as any, 'two');
+    expect(vnode.$children$.length).toBe(1);
+    expect(vnode.$children$[0].$text$).toBe('onetwo');
+  });
+
   it('should merge with booleans around', () => {
     const vnode = h('a', null, [false, 'one', true] as any, 'word');
     expect(vnode.$children$.length).toBe(1);

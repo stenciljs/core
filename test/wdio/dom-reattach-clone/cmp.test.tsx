@@ -12,7 +12,7 @@ describe('dom-reattach-clone', function () {
     render({
       template: () => (
         <>
-          <style>button {{ display: 'block' }}</style>
+          <style>{'button { display: block; }'}</style>
           <div id="simple-parent">
             <button onClick={() => clone('simple')} id="clone-simple">
               Clone simple
