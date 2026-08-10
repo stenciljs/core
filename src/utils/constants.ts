@@ -57,11 +57,9 @@ export const enum HOST_FLAGS {
   isListenReady = 1 << 8,
   needsRerender = 1 << 9,
   /**
-   * Set when a lazy component's dynamic `import()` fails to resolve a
+   * Set when a lazy component's dynamic `import()` fails to resolve a a
    * constructor. Distinct from `hasInitializedComponent` being unset, which
-   * is also (transiently) true while an initialization attempt is merely
-   * queued/in-flight (e.g. behind `nextTick`) and hasn't failed at all.
-   * Only this flag should gate a `connectedCallback` retry.
+   * is true while an initialization attempt is merely queued/in-flight.
    */
   hasFailedLoad = 1 << 10,
 
