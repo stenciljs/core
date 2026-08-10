@@ -1,0 +1,86 @@
+name: Perf Benchmark - Build
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+permissions:
+  contents: read
+
+jobs:
+  perf_build_cold:
+    name: Compile Time (cold)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Install test/end-to-end Dependencies
+        run: npm ci
+        working-directory: test/end-to-end
+        shell: bash
+
+      - name: Clear Compile Cache
+        run: rm -rf .stencil
+        working-directory: test/end-to-end
+        shell: bash
+
+      - name: Run Cold Build Benchmark
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
+        with:
+          mode: simulation
+          working-directory: test/end-to-end
+          run: node ../../bin/stencil build --config ./stencil.build.config.ts
+
+  perf_build_warm:
+    name: Compile Time (warm)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Archive
+        uses: ./.github/workflows/actions/download-archive
+        with:
+          name: stencil-core
+          path: .
+          filename: stencil-core-build.zip
+
+      - name: Install test/end-to-end Dependencies
+        run: npm ci
+        working-directory: test/end-to-end
+        shell: bash
+
+      - name: Warm Compile Cache
+        run: |
+          rm -rf .stencil
+          node ../../bin/stencil build --config ./stencil.build.config.ts
+        working-directory: test/end-to-end
+        shell: bash
+
+      - name: Run Warm Build Benchmark
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
+        with:
+          mode: simulation
+          working-directory: test/end-to-end
+          run: node ../../bin/stencil build --config ./stencil.build.config.ts
