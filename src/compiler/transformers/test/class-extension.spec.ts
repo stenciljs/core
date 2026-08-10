@@ -1,5 +1,9 @@
+import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import ts from 'typescript';
+
 import type * as d from '../../../declarations';
-import { reanchorInheritedTypeReferences } from '../static-to-meta/class-extension';
+import { mergeExtendedClassMeta, reanchorInheritedTypeReferences } from '../static-to-meta/class-extension';
+import { isStaticGetter } from '../transform-utils';
 
 describe('class-extension', () => {
   describe('reanchorInheritedTypeReferences', () => {
@@ -34,11 +38,6 @@ describe('class-extension', () => {
       });
     });
 
-    // Regression test for https://github.com/stenciljs/core/issues/6700: an abstract
-    // base class living in a subdirectory of the component imports a type via a relative
-    // specifier that escapes back up into the component's own directory. The re-anchored
-    // specifier must resolve from the component's directory so the generated
-    // components.d.ts import is correct for the extending component.
     it('re-anchors a relative import when the extended class is in a subdirectory of the component', () => {
       const property = buildProperty({
         UtilType: {
@@ -165,6 +164,72 @@ describe('class-extension', () => {
       const method = { name: 'doSomething' } as d.ComponentCompilerMethod;
 
       expect(() => reanchorInheritedTypeReferences([method], BASE_CLASS_PATH, CMP_PATH)).not.toThrow();
+    });
+  });
+
+  describe('mergeExtendedClassMeta', () => {
+    it('re-anchors inherited type references end-to-end when the base class lives in a different directory', async () => {
+      const config = mockValidatedConfig({ tsCompilerOptions: {} });
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      const baseFileName = '/src/components/shared/input/base-input.ts';
+      await compilerCtx.fs.writeFile(baseFileName, `export class BaseInput {}`, { inMemoryOnly: true });
+
+      const baseSource = ts.createSourceFile(
+        baseFileName,
+        `export class BaseInput {
+          static get properties() {
+            return {
+              "validator": {
+                "complexType": {
+                  "original": "Validator",
+                  "resolved": "Validator",
+                  "references": {
+                    "Validator": { "location": "import", "path": "./input.types", "id": "x::Validator" }
+                  }
+                }
+              }
+            };
+          }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      compilerCtx.moduleMap.set(
+        baseFileName,
+        mockModule({ sourceFilePath: baseFileName, staticSourceFile: baseSource }),
+      );
+
+      const cmpFileName = '/src/components/data-entry/checkbox/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from '../../shared/input/base-input';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpModule = mockModule({ sourceFilePath: cmpFileName, staticSourceFile: cmpSource });
+
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const result = mergeExtendedClassMeta(
+        compilerCtx,
+        undefined as unknown as ts.TypeChecker,
+        buildCtx,
+        cmpClass,
+        staticMembers,
+        cmpModule,
+      );
+
+      expect(result.properties[0]?.complexType.references['Validator']).toEqual({
+        location: 'import',
+        path: '../../shared/input/input.types',
+        id: 'x::Validator',
+      });
     });
   });
 });

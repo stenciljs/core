@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
+import { isNodeModulePath } from '../../sys/resolve/resolve-utils';
 import { tsGetSourceFile, tsResolveModuleName } from '../../sys/typescript/typescript-resolve-module';
 import { detectModernPropDeclarations } from '../detect-modern-prop-decls';
 import { isStaticGetter } from '../transform-utils';
@@ -472,7 +473,7 @@ export const reanchorInheritedTypeReferences = <
 ): T[] => {
   const extendedClassDir = dirname(normalizePath(extendedClassFileName, false));
   const cmpDir = dirname(normalizePath(cmpSourceFilePath, false));
-  if (extendedClassDir === cmpDir || extendedClassFileName.includes('node_modules')) {
+  if (extendedClassDir === cmpDir || isNodeModulePath(extendedClassFileName)) {
     // specifiers already resolve correctly from the component's directory
     // (or the extended class ships in an external collection, where relative
     // specifiers cannot be re-anchored onto the consuming project)
