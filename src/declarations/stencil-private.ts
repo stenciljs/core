@@ -601,6 +601,7 @@ export interface ComponentCompilerFeatures {
   htmlAttrNames: string[];
   htmlTagNames: string[];
   htmlParts: string[];
+  htmlSlots: string[];
   isUpdateable: boolean;
   /**
    * A plain component is one that doesn't have:
@@ -1339,6 +1340,7 @@ export interface Module {
   htmlAttrNames: string[];
   htmlTagNames: string[];
   htmlParts: string[];
+  htmlSlots: string[];
   isCollectionDependency: boolean;
   isLegacy: boolean;
   jsFilePath: string;
