@@ -52,7 +52,7 @@ jobs:
       - name: Run Cold Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
-          mode: simulation
+          mode: walltime
           config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
 
   perf_build_warm:
@@ -100,5 +100,5 @@ jobs:
       - name: Run Warm Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
-          mode: simulation
+          mode: walltime
           config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
