@@ -1870,6 +1870,11 @@ export interface HostRef {
    * Defer connectedCallback until after first render for components with slot relocation.
    */
   $deferredConnectedCallback$?: boolean;
+  /**
+   * The number of times this host's lazy component load has failed and been retried.
+   * Used to give up retrying after {@link MAX_LAZY_LOAD_RETRIES} failed attempts.
+   */
+  $loadRetryCount$?: number;
 }
 
 export interface PlatformRuntime {
