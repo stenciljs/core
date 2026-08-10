@@ -209,7 +209,7 @@ auto-generated content
       const actual = getDocsSlots(['', 'header'], []);
 
       expect(actual).toEqual([
-        { name: '', docs: '' },
+        { name: '', docs: 'The default slot' },
         { name: 'header', docs: '' },
       ]);
     });

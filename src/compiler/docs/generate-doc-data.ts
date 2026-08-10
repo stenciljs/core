@@ -370,9 +370,11 @@ const getDocsDeprecationText = (tags: d.JsonDocsTag[]): string | undefined => {
   return undefined;
 };
 
+const DEFAULT_SLOT_DOCS = 'The default slot';
+
 export const getDocsSlots = (vdom: string[], tags: d.JsonDocsTag[]): d.JsonDocsSlot[] => {
   const docsSlots = getNameText('slot', tags).map(([name, docs]) => ({ name, docs }));
-  const vdomSlots = vdom.map((name) => ({ name, docs: '' }));
+  const vdomSlots = vdom.map((name) => ({ name, docs: name === '' ? DEFAULT_SLOT_DOCS : '' }));
   return sortBy(
     unique([...docsSlots, ...vdomSlots], (s) => s.name),
     (a) => a.name,
