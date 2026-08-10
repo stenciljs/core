@@ -20,9 +20,9 @@
 
 ### Features
 
-* added `closedby` and `focusgroup` HTML attributes ([#6797](https://github.com/stenciljs/core/issues/6797)) ([449d7ec](https://github.com/stenciljs/core/commit/449d7ec956ecbffb963ba6ce1fe45f4830e8e7c3))
 * **config:** allow suppressing reserved event name warnings ([#6748](https://github.com/stenciljs/core/issues/6748)) ([ca85879](https://github.com/stenciljs/core/commit/ca858791094349a3d5ccfd9afbdb71612973c2cc))
 * **docs:** better default part / slot handling ([#6819](https://github.com/stenciljs/core/issues/6819)) ([76a3d74](https://github.com/stenciljs/core/commit/76a3d74934cba0006bc9001aaf3d04e9def981db))
+* **jsx:** add `closedby` and `focusgroup` HTML attributes ([#6797](https://github.com/stenciljs/core/issues/6797)) ([449d7ec](https://github.com/stenciljs/core/commit/449d7ec956ecbffb963ba6ce1fe45f4830e8e7c3))
 * **jsx:** add fetchpriority attribute to img, link, script, iframe ([#6803](https://github.com/stenciljs/core/issues/6803)) ([1a5bcc8](https://github.com/stenciljs/core/commit/1a5bcc8083d696be998bc732d2e4a65326553a30)), closes [#6802](https://github.com/stenciljs/core/issues/6802)
 * **jsx:** add global `translate` attribute to HTMLAttributes ([#6808](https://github.com/stenciljs/core/issues/6808)) ([1626295](https://github.com/stenciljs/core/commit/1626295f3d40dcdab116aa56e9599a1c818a3036))
 
