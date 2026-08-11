@@ -57,13 +57,13 @@ const visitCallExpressionArgs = (
     visitCallExpressionArg(m, args[0], typeChecker);
 
     if (fnName === 'h' || fnName === H) {
-      gatherVdomMeta(m, args);
+      gatherVdomMeta(m, args, typeChecker);
     }
   } else if (fnName === 'jsx' || fnName === 'jsxs' || fnName === '_jsx' || fnName === '_jsxs') {
     // Handle jsx-runtime calls (jsx, jsxs)
     // These have the same signature as h() for metadata purposes
     visitCallExpressionArg(m, args[0], typeChecker);
-    gatherVdomMeta(m, args);
+    gatherVdomMeta(m, args, typeChecker);
     // TypeScript's jsx transform passes key as the 3rd argument
     if (args.length > 2 && args[2]) {
       m.hasVdomKey = true;

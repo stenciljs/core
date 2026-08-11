@@ -14,6 +14,15 @@
 | `selected` | `selected` |             | `boolean` | `undefined` |
 
 
+### Slots
+
+| Slot            | Description      |
+| --------------- | ---------------- |
+|                 | The default slot |
+| `"client-only"` |                  |
+| `"top"`         |                  |
+
+
 ### Shadow Parts
 
 | Part          | Description |
@@ -44,6 +53,13 @@ graph TD;
 | `selected` | `selected` |             | `boolean` | `undefined` |
 
 
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
 ### Dependencies
 
 ### Depends on
@@ -59,6 +75,13 @@ graph TD;
 
 
 ## `scoped-ssr-child-cmp`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
 
 ### Dependencies
 
@@ -76,6 +99,14 @@ graph TD;
 
 ## `scoped-ssr-parent-cmp`
 
+### Slots
+
+| Slot       | Description      |
+| ---------- | ---------------- |
+|            | The default slot |
+| `"things"` |                  |
+
+
 ### Dependencies
 
 ### Depends on
@@ -92,6 +123,13 @@ graph TD;
 
 
 ## `shadow-ssr-child-cmp`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
 
 ### Dependencies
 
@@ -113,6 +151,14 @@ graph TD;
 
 
 ## `shadow-ssr-parent-cmp`
+
+### Slots
+
+| Slot       | Description      |
+| ---------- | ---------------- |
+|            | The default slot |
+| `"things"` |                  |
+
 
 ### Dependencies
 
@@ -140,6 +186,13 @@ graph TD;
 
 ## `ssr-order-cmp`
 
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
 ### Dependencies
 
 ### Used by
@@ -157,6 +210,14 @@ graph TD;
 
 
 ## `ssr-order-wrap-cmp`
+
+### Slots
+
+| Slot       | Description      |
+| ---------- | ---------------- |
+|            | The default slot |
+| `"things"` |                  |
+
 
 ### Dependencies
 

@@ -7,7 +7,12 @@ import { initializeClientHydrate } from './client-hydrate';
 import { getShadowRoot } from './element';
 import { fireConnectedCallback, initializeComponent } from './initialize-component';
 import { createTime } from './profile';
-import { HYDRATE_ID, NODE_TYPE, PLATFORM_FLAGS } from './runtime-constants';
+import {
+  HYDRATE_ID,
+  LAZY_LOAD_RETRY_INTERVAL_MS,
+  NODE_TYPE,
+  PLATFORM_FLAGS,
+} from './runtime-constants';
 import { addStyle, getScopeId } from './styles';
 import { attachToAncestor } from './update-component';
 import { insertBefore } from './vdom/vdom-render';
@@ -147,6 +152,10 @@ export const connectedCallback = (elm: d.HostElement) => {
       // fire off connectedCallback() on component instance
       if (hostRef?.$lazyInstance$) {
         fireConnectedCallback(hostRef.$lazyInstance$, elm);
+      } else if (hostRef.$flags$ & HOST_FLAGS.hasFailedLoad) {
+        // init for this host element failed. Retry now that we're
+        // reconnecting, after a short backoff and while retries remain.
+        setTimeout(() => initializeComponent(elm, hostRef, cmpMeta), LAZY_LOAD_RETRY_INTERVAL_MS);
       } else if (hostRef?.$onReadyPromise$) {
         hostRef.$onReadyPromise$.then(() => fireConnectedCallback(hostRef.$lazyInstance$, elm));
       }

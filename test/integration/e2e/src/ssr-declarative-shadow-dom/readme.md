@@ -89,7 +89,44 @@ graph TD;
 
 
 
+## `cmp-with-slot`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
+
+## `dsd-listen-cmp`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
+
+## `nested-cmp-child`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
+
 ## `nested-cmp-parent`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
 
 ### Dependencies
 
@@ -106,6 +143,13 @@ graph TD;
 
 
 ## `nested-scope-cmp`
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
 
 ### Dependencies
 
@@ -189,6 +233,15 @@ graph TD;
 | `selected` | `selected` |             | `boolean` | `undefined` |
 
 
+### Slots
+
+| Slot            | Description      |
+| --------------- | ---------------- |
+|                 | The default slot |
+| `"client-only"` |                  |
+| `"top"`         |                  |
+
+
 ### Dependencies
 
 ### Used by
@@ -210,6 +263,13 @@ graph TD;
 | Property   | Attribute  | Description | Type      | Default     |
 | ---------- | ---------- | ----------- | --------- | ----------- |
 | `selected` | `selected` |             | `boolean` | `undefined` |
+
+
+### Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
 
 
 ### Dependencies

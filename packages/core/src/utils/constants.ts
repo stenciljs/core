@@ -65,10 +65,16 @@ export const HOST_FLAGS = {
    * an ancestor that's already connected. See {@link HostRef.$onFirstConnectResolve$}.
    */
   hasFiredConnected: 1 << 10,
+  /**
+   * Set when a lazy component's dynamic `import()` fails to resolve a
+   * constructor. Distinct from `hasInitializedComponent` being unset, which
+   * is true while an initialization attempt is merely queued/in-flight.
+   */
+  hasFailedLoad: 1 << 11,
 
   // DEV ONLY
-  devOnRender: 1 << 11,
-  devOnDidLoad: 1 << 12,
+  devOnRender: 1 << 12,
+  devOnDidLoad: 1 << 13,
 } as const;
 
 // CMP_FLAGS base values

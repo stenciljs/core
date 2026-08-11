@@ -9,6 +9,12 @@ export const cmpModules = /*@__PURE__*/ new Map<
 >();
 
 /**
+ * Tracks how many times a dynamic `import()` for a given lazy bundle has failed.
+ * Used to cache bust the retry attempt in connected-callback.ts
+ */
+const failedLoadAttempts = /*@__PURE__*/ new Map<string, number>();
+
+/**
  * We need to separate out this prefix so that Esbuild doesn't try to resolve
  * the below, but instead retains a dynamic `import()` statement in the
  * emitted code.
@@ -54,13 +60,26 @@ export const loadModule = (
   if (module) {
     return module[exportName];
   }
+  const retryCount = failedLoadAttempts.get(bundleId) ?? 0;
+  const cacheBustParams = [
+    retryCount > 0 ? `s-retry=${retryCount}` : '',
+    BUILD.hotModuleReplacement && hmrVersionId ? `s-hmr=${hmrVersionId}` : '',
+  ]
+    .filter(Boolean)
+    .join('&');
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
-  const entryFile = `${bundleId}.entry.js${BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''}`;
+  const entryFile = `${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`;
   const onLoad = (importedModule: any) => {
-    if (!BUILD.hotModuleReplacement) cmpModules.set(bundleId, importedModule);
+    if (!BUILD.hotModuleReplacement) {
+      failedLoadAttempts.delete(bundleId);
+      cmpModules.set(bundleId, importedModule);
+    }
     return importedModule[exportName];
   };
-  const onError = (e: Error) => consoleError(e, hostRef.$hostElement$);
+  const onError = (e: Error) => {
+    failedLoadAttempts.set(bundleId, retryCount + 1);
+    consoleError(e, hostRef.$hostElement$);
+  };
   if (lazyLoadBasePath) {
     return import(
       /* @vite-ignore */

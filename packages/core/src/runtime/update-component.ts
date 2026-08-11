@@ -85,7 +85,7 @@ export const scheduleUpdate = (
   hostRef: d.HostRef,
   isInitialLoad: boolean,
 ): Promise<void> | void => {
-  if (BUILD.taskQueue && BUILD.updatable) {
+  if (BUILD.updatable) {
     hostRef.$flags$ |= HOST_FLAGS.isQueuedForUpdate;
   }
   if (BUILD.asyncLoading && hostRef.$flags$ & HOST_FLAGS.isWaitingForChildren) {
@@ -392,7 +392,6 @@ const callRender = (
   // https://rolldownjs.org/guide/en/#treeshake tryCatchDeoptimization
   const allRenderFn = !!BUILD.allRenderFn;
   const lazyLoad = !!BUILD.lazyLoad;
-  const taskQueue = !!BUILD.taskQueue;
   const updatable = !!BUILD.updatable;
 
   try {
@@ -403,7 +402,7 @@ const callRender = (
      */
     instance = allRenderFn ? instance.render() : instance.render && instance.render();
 
-    if (updatable && taskQueue) {
+    if (updatable) {
       hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
     }
 

@@ -10,7 +10,7 @@ import type * as d from '@stencil/core';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { AUTO_GENERATE_COMMENT } from '../constants';
-import { generateDocData, getDocsStyles } from '../generate-doc-data';
+import { generateDocData, getDocsSlots, getDocsStyles } from '../generate-doc-data';
 
 describe('generate-doc-data', () => {
   describe('getDocsComponents', () => {
@@ -201,6 +201,39 @@ auto-generated content
         const componentDocData = generatedDocData.components[0];
         expect(componentDocData.docs).toBe('');
       });
+    });
+  });
+
+  describe('getDocsSlots', () => {
+    it('returns an empty array when there are no JSDoc @slot tags or scraped slots', () => {
+      const actual = getDocsSlots([], []);
+
+      expect(actual).toEqual([]);
+    });
+
+    it('includes slots scraped from the vdom that have no JSDoc', () => {
+      const actual = getDocsSlots(['', 'header'], []);
+
+      expect(actual).toEqual([
+        { name: '', docs: 'The default slot' },
+        { name: 'header', docs: '' },
+      ]);
+    });
+
+    it('includes slots documented only via the `@slot` JSDoc tag', () => {
+      const tags: d.JsonDocsTag[] = [{ name: 'slot', text: 'footer - the footer slot' }];
+
+      const actual = getDocsSlots([], tags);
+
+      expect(actual).toEqual([{ name: 'footer', docs: 'the footer slot' }]);
+    });
+
+    it('prefers the JSDoc description over the scraped entry for the same slot name', () => {
+      const tags: d.JsonDocsTag[] = [{ name: 'slot', text: 'header - the header slot' }];
+
+      const actual = getDocsSlots(['header'], tags);
+
+      expect(actual).toEqual([{ name: 'header', docs: 'the header slot' }]);
     });
   });
 

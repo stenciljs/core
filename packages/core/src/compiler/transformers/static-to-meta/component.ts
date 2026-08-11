@@ -206,6 +206,7 @@ export const parseStaticComponentMeta = (
     htmlAttrNames: [],
     htmlTagNames: [],
     htmlParts: [],
+    htmlSlots: [],
     isUpdateable: false,
     potentialCmpRefs: [],
 
@@ -235,6 +236,7 @@ export const parseStaticComponentMeta = (
   cmp.hasModernPropertyDecls = detectModernPropDeclarations(cmpNode) || doesExtend;
   cmp.htmlAttrNames = unique(cmp.htmlAttrNames);
   cmp.htmlTagNames = unique(cmp.htmlTagNames);
+  cmp.htmlSlots = unique(cmp.htmlSlots);
   cmp.hasSlot = cmp.hasSlot || cmp.htmlTagNames.includes('slot');
   cmp.potentialCmpRefs = unique(cmp.potentialCmpRefs);
   setComponentBuildConditionals(cmp);

@@ -374,14 +374,14 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
   patchHostOriginalAccessor('firstChild', elm);
   Object.defineProperty(elm, 'firstChild', {
     get() {
-      return this.childNodes[0];
+      return this.childNodes[0] || null;
     },
   });
 
   patchHostOriginalAccessor('lastChild', elm);
   Object.defineProperty(elm, 'lastChild', {
     get() {
-      return this.childNodes[this.childNodes.length - 1];
+      return this.childNodes[this.childNodes.length - 1] || null;
     },
   });
 
@@ -442,7 +442,7 @@ const patchNextSibling = (node: Node) => {
       const parentNodes = this['s-ol']?.parentNode.childNodes;
       const index = parentNodes?.indexOf(this);
       if (parentNodes && index > -1) {
-        return parentNodes[index + 1];
+        return parentNodes[index + 1] || null;
       }
       return this.__nextSibling;
     },
@@ -463,7 +463,7 @@ const patchNextElementSibling = (element: Element) => {
       const parentEles = this['s-ol']?.parentNode.children;
       const index = parentEles?.indexOf(this);
       if (parentEles && index > -1) {
-        return parentEles[index + 1];
+        return parentEles[index + 1] || null;
       }
       return this.__nextElementSibling;
     },
@@ -484,7 +484,7 @@ const patchPreviousSibling = (node: Node) => {
       const parentNodes = this['s-ol']?.parentNode.childNodes;
       const index = parentNodes?.indexOf(this);
       if (parentNodes && index > -1) {
-        return parentNodes[index - 1];
+        return parentNodes[index - 1] || null;
       }
       return this.__previousSibling;
     },
@@ -506,7 +506,7 @@ const patchPreviousElementSibling = (element: Element) => {
       const index = parentNodes?.indexOf(this);
 
       if (parentNodes && index > -1) {
-        return parentNodes[index - 1];
+        return parentNodes[index - 1] || null;
       }
       return this.__previousElementSibling;
     },

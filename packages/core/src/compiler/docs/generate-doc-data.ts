@@ -117,7 +117,7 @@ const getDocsComponents = async (
           methods: getDocsMethods(cmp.methods),
           events: getDocsEvents(cmp.events),
           styles: getDocsStyles(cmp),
-          slots: getDocsSlots(cmp.docs.tags),
+          slots: getDocsSlots(cmp.htmlSlots, cmp.docs.tags),
           parts: getDocsParts(cmp.htmlParts, cmp.docs.tags),
           customStates: getDocsCustomStates(cmp),
           listeners: getDocsListeners(cmp.listeners),
@@ -377,9 +377,13 @@ const getDocsDeprecationText = (tags: d.JsonDocsTag[]): string | undefined => {
   return undefined;
 };
 
-const getDocsSlots = (tags: d.JsonDocsTag[]): d.JsonDocsSlot[] => {
+const DEFAULT_SLOT_DOCS = 'The default slot';
+
+export const getDocsSlots = (vdom: string[], tags: d.JsonDocsTag[]): d.JsonDocsSlot[] => {
+  const docsSlots = getNameText('slot', tags).map(([name, docs]) => ({ name, docs }));
+  const vdomSlots = vdom.map((name) => ({ name, docs: name === '' ? DEFAULT_SLOT_DOCS : '' }));
   return sortBy(
-    getNameText('slot', tags).map(([name, docs]) => ({ name, docs })),
+    unique([...docsSlots, ...vdomSlots], (s) => s.name),
     (a) => a.name,
   );
 };

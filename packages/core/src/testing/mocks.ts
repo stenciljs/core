@@ -344,6 +344,7 @@ export const mockModule = (mod: Partial<d.Module> = {}): d.Module => ({
   htmlAttrNames: [],
   htmlTagNames: [],
   htmlParts: [],
+  htmlSlots: [],
   isCollectionDependency: false,
   isLegacy: false,
   jsFilePath: '',

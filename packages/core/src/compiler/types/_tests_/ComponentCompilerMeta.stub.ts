@@ -80,6 +80,7 @@ export const stubComponentCompilerMeta = (
   hasWatchCallback: false,
   htmlAttrNames: [],
   htmlParts: [],
+  htmlSlots: [],
   htmlTagNames: [],
   internal: false,
   isCollectionDependency: false,

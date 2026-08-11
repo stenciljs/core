@@ -54,6 +54,7 @@ export const createModule = (
   hasSignalsImport: false,
   htmlAttrNames: [],
   htmlParts: [],
+  htmlSlots: [],
   htmlTagNames: [],
   isCollectionDependency: false,
   isLegacy: false,

@@ -54,7 +54,7 @@ jobs:
       - name: 🟢 Configure Node for Publish
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: 🔄 Ensure Latest npm
