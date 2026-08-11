@@ -31,6 +31,15 @@ function resolveTypesFilePath(specifier: string, fromDir: string): string | unde
     const candidate = base + ext;
     if (existsSync(candidate)) return candidate;
   }
+  // TypeScript ESM: `./foo.js` may physically be `./foo.ts` or `./foo.tsx` -
+  // mirrors resolveSpecifier's remap in transform.ts.
+  if (base.endsWith('.js')) {
+    const stem = base.slice(0, -3);
+    for (const ext of ['.ts', '.tsx']) {
+      const candidate = stem + ext;
+      if (existsSync(candidate)) return candidate;
+    }
+  }
   return undefined;
 }
 
@@ -103,9 +112,20 @@ function patchType(
   return result;
 }
 
+const hasReferences = (references: ComponentCompilerTypeReferences | undefined): boolean =>
+  !!references && Object.keys(references).length > 0;
+
 /**
- * Patches `prop.type` and `event.detail` in-place for any imported types that
- * resolved to `"any"` in single-file transpile mode.
+ * Patches `prop.type` and `event.detail` in-place for any imported/inherited
+ * types that weren't fully resolved by Stencil's compiler.
+ *
+ * Under-resolved types don't always show up as the literal string `"any"` -
+ * a prop inherited from a same-project base class (merged via a single-file
+ * mini `ts.Program`, which can't follow cross-file imports) can resolve to
+ * the type's own unexpanded name instead (e.g. `"Validator"`), since that's
+ * what a TypeScript checker falls back to for a type it can't bind. Either
+ * way, a `location: 'import'` reference on the prop means there's something
+ * worth trying to expand here.
  * @param component The CEM docs component to patch
  * @param componentAbsPath The absolute path to the component's source file (used to resolve relative imports)
  */
@@ -113,13 +133,13 @@ export function resolveImportedTypes(component: JsonDocsComponent, componentAbsP
   const dir = dirname(componentAbsPath);
 
   for (const prop of component.props) {
-    if (prop.type !== 'any' || !prop.complexType?.references) continue;
+    if (!prop.complexType || !hasReferences(prop.complexType.references)) continue;
     const patched = patchType(prop.complexType.original, prop.complexType.references, dir);
     if (patched !== prop.complexType.original) prop.type = patched;
   }
 
   for (const event of component.events) {
-    if (event.detail !== 'any' || !event.complexType?.references) continue;
+    if (!event.complexType || !hasReferences(event.complexType.references)) continue;
     const patched = patchType(event.complexType.original, event.complexType.references, dir);
     if (patched !== event.complexType.original) event.detail = patched;
   }

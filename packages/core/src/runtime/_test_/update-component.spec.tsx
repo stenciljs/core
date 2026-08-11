@@ -3,7 +3,7 @@ import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
 
 describe('update-component', () => {
-  describe('scheduleUpdate - reentrancy guard', () => {
+  describe('scheduleUpdate - re-entrancy guard', () => {
     it('should coalesce a state write during render() into a single follow-up render under taskQueue: immediate', async () => {
       let renderCount = 0;
 
@@ -14,7 +14,7 @@ describe('update-component', () => {
 
         render() {
           renderCount++;
-          // guards the test itself against hanging if the reentrancy guard regresses
+          // guards the test itself against hanging if the re-entrancy guard regresses
           if (renderCount > 10) {
             throw new Error('render() re-entered unboundedly');
           }
@@ -36,7 +36,7 @@ describe('update-component', () => {
       await page.waitForChanges();
 
       // one external update should cause exactly one follow-up render, even though
-      // `render()` writes state on every pass (the reentrancy guard should dedupe it)
+      // `render()` writes state on every pass (the re-entrancy guard should dedupe it)
       expect(renderCount).toBe(1);
     });
   });

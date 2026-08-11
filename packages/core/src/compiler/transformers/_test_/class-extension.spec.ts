@@ -11,6 +11,7 @@ import type * as d from '@stencil/core';
 import {
   extractInheritedMeta,
   mergeExtendedClassMeta,
+  mergeExtendedClassMetaWithResolveImport,
   reanchorInheritedTypeReferences,
 } from '../static-to-meta/class-extension';
 import { isStaticGetter } from '../transform-utils';
@@ -448,13 +449,14 @@ describe('class-extension', () => {
       expect(property.complexType.references['Validator']).toEqual(reference);
     });
 
-    it('does not rewrite references when the extended class comes from node_modules', () => {
-      const reference: d.ComponentCompilerTypeReference = {
-        location: 'import',
-        path: './input.types',
-        id: 'node_modules::Validator',
-      };
-      const property = buildProperty({ Validator: { ...reference } });
+    it('re-anchors an import reference from a node_modules collection, swapping dist/collection for dist/types', () => {
+      const property = buildProperty({
+        Validator: {
+          location: 'import',
+          path: './input.types',
+          id: 'node_modules::Validator',
+        },
+      });
 
       reanchorInheritedTypeReferences(
         [property],
@@ -462,7 +464,53 @@ describe('class-extension', () => {
         CMP_PATH,
       );
 
-      expect(property.complexType.references['Validator']).toEqual(reference);
+      expect(property.complexType.references['Validator']).toEqual({
+        location: 'import',
+        path: '../../../../node_modules/@my-org/core/dist/types/input.types',
+        id: 'node_modules::Validator',
+      });
+    });
+
+    it('converts a local reference from a node_modules collection into a dist/types import, stripping the .js extension', () => {
+      const property = buildProperty({
+        InputSize: {
+          location: 'local',
+          path: '/node_modules/@my-org/core/dist/collection/base-input.js',
+          id: 'node_modules::InputSize',
+        },
+      });
+
+      reanchorInheritedTypeReferences(
+        [property],
+        '/node_modules/@my-org/core/dist/collection/base-input.js',
+        CMP_PATH,
+      );
+
+      expect(property.complexType.references['InputSize']).toEqual({
+        location: 'import',
+        path: '../../../../node_modules/@my-org/core/dist/types/base-input',
+        id: 'node_modules::InputSize',
+      });
+    });
+
+    it('leaves a node_modules import path untouched when it has no dist/collection segment to swap', () => {
+      const property = buildProperty({
+        Validator: {
+          location: 'import',
+          path: './input.types',
+          id: 'node_modules::Validator',
+        },
+      });
+
+      reanchorInheritedTypeReferences(
+        [property],
+        '/node_modules/@my-org/core/dist-custom-elements/base-input.js',
+        CMP_PATH,
+      );
+
+      expect(property.complexType.references['Validator'].path).toBe(
+        '../../../../node_modules/@my-org/core/dist-custom-elements/input.types',
+      );
     });
 
     it('handles members without complex type references', () => {
@@ -539,6 +587,183 @@ describe('class-extension', () => {
         path: '../../shared/input/input.types',
         id: 'x::Validator',
       });
+    });
+  });
+
+  describe('mergeExtendedClassMetaWithResolveImport', () => {
+    const config = mockValidatedConfig({ tsCompilerOptions: {} });
+
+    it('resolves real complexType info for a decorator-syntax base class instead of falling back to any', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from './base-input';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const baseCode = `
+        import { Prop } from '@stencil/core';
+        export class BaseInput {
+          @Prop() count: number;
+          @Prop() disabled: boolean;
+        }
+      `;
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier) =>
+          specifier === './base-input'
+            ? { code: baseCode, path: '/src/components/base-input.ts' }
+            : null,
+        config,
+      );
+
+      const countProp = result.properties.find((p) => p.name === 'count');
+      const disabledProp = result.properties.find((p) => p.name === 'disabled');
+      expect(countProp?.type).toBe('number');
+      expect(disabledProp?.type).toBe('boolean');
+    });
+
+    it('re-anchors a base-class-local type reference relative to the component', () => {
+      const cmpFileName = '/src/components/data-entry/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from '../shared/base-input';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const baseCode = `
+        import { Prop } from '@stencil/core';
+        export type Validator = 'required' | 'optional';
+        export class BaseInput {
+          @Prop() validator: Validator;
+        }
+      `;
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier) =>
+          specifier === '../shared/base-input'
+            ? { code: baseCode, path: '/src/components/shared/base-input.ts' }
+            : null,
+        config,
+      );
+
+      const validatorProp = result.properties.find((p) => p.name === 'validator');
+      expect(validatorProp?.complexType.references['Validator']).toEqual({
+        location: 'import',
+        path: '../shared/base-input',
+        id: expect.stringContaining('Validator'),
+      });
+    });
+
+    // A type imported into the base class's file from a THIRD file can't be
+    // followed by the mini single-file program (`noResolve: true`, matching
+    // convertDiskSourceFileDecorators's existing, already-accepted limitation
+    // elsewhere in this file) - the checker can't bind the symbol, so
+    // getTypeReferenceLocation degrades it to 'global'. reclassifyGlobalTypeReferences
+    // corrects the classification syntactically (it's genuinely imported, not
+    // global) without needing the checker to have resolved it - downstream
+    // consumers like @stencil/unplugin's docs pipeline resolve `path` themselves.
+    it('reclassifies a type imported from a third file, relative to the component', () => {
+      const cmpFileName = '/src/components/data-entry/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from '../shared/base-input';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const baseCode = `
+        import { Prop } from '@stencil/core';
+        import { Validator } from './input.types';
+        export class BaseInput {
+          @Prop() validator: Validator;
+        }
+      `;
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier, importer) => {
+          if (specifier === '../shared/base-input') {
+            return { code: baseCode, path: '/src/components/shared/base-input.ts' };
+          }
+          if (
+            specifier === './input.types' &&
+            importer === '/src/components/shared/base-input.ts'
+          ) {
+            return {
+              code: `export type Validator = 'required' | 'optional';`,
+              path: '/src/components/shared/input.types.ts',
+            };
+          }
+          return null;
+        },
+        config,
+      );
+
+      const validatorProp = result.properties.find((p) => p.name === 'validator');
+      expect(validatorProp?.complexType.references['Validator']).toEqual({
+        location: 'import',
+        path: '../shared/input.types',
+        id: expect.stringContaining('Validator'),
+      });
+    });
+
+    it('falls back to extractInheritedMeta when the mini-program conversion fails', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from './base-input';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      // Unparseable decorator syntax - the mini-program transform will throw,
+      // so this should still produce a result via the extractInheritedMeta fallback
+      // rather than crashing the whole merge.
+      const baseCode = `export class BaseInput { @Prop( count: number; }`;
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier) =>
+          specifier === './base-input'
+            ? { code: baseCode, path: '/src/components/base-input.ts' }
+            : null,
+        config,
+      );
+
+      expect(result.doesExtend).toBe(true);
     });
   });
 });

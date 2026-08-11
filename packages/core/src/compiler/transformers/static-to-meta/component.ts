@@ -101,6 +101,7 @@ export const parseStaticComponentMeta = (
         staticMembers,
         moduleFile.staticSourceFile,
         transformOpts.resolveImport,
+        buildCtx.config,
       )
     : mergeExtendedClassMeta(
         compilerCtx,
