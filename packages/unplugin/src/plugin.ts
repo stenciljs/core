@@ -59,23 +59,50 @@ export function getStencilCEM(): CustomElementsManifest {
 }
 
 /**
+ * Recursively collect `.tsx`/`.ts` file paths under `dir`, pruning
+ * `node_modules` and hidden directories (`.git`, `.vite`, etc.) as it goes.
+ *
+ * `readdirSync(dir, { recursive: true })` can't prune during traversal - it
+ * walks everything first and only lets the caller filter the flat result
+ * afterward, which is disastrous under a symlink-heavy `node_modules` (e.g.
+ * pnpm's `.pnpm` store, which flattens every dependency in the workspace) -
+ * it can take minutes just to list, blocking `buildStart` the whole time.
+ *
+ * @param dir the directory to walk
+ * @param out accumulator array of absolute file paths, mutated in place
+ */
+function collectSourceFiles(dir: string, out: string[]): void {
+  let entries: import('node:fs').Dirent[];
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    const abs = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      collectSourceFiles(abs, out);
+    } else if (
+      entry.isFile() &&
+      (abs.endsWith('.tsx') || abs.endsWith('.ts')) &&
+      !abs.endsWith('.d.ts')
+    ) {
+      out.push(abs);
+    }
+  }
+}
+
+/**
  * Scan the project for component source files and pre-populate the docs registry.
  * @param filter A function to filter which files should be included.
  * @returns A promise that resolves when the scan is complete.
  */
 async function scanDocs(filter: (id: string) => boolean): Promise<void> {
   const cwd = process.cwd();
-  let entries: string[];
-  try {
-    entries = readdirSync(cwd, { recursive: true, encoding: 'utf-8' }) as string[];
-  } catch {
-    return;
-  }
-
-  const files = entries
-    .filter((rel) => (rel.endsWith('.tsx') || rel.endsWith('.ts')) && !rel.endsWith('.d.ts'))
-    .map((rel) => join(cwd, rel))
-    .filter((abs) => filter(abs));
+  const allFiles: string[] = [];
+  collectSourceFiles(cwd, allFiles);
+  const files = allFiles.filter((abs) => filter(abs));
 
   await Promise.all(
     files.map(async (abs) => {

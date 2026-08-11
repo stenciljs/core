@@ -11,6 +11,7 @@ import './fixtures/my-cross-mixin-cmp';
 import './fixtures/my-lightdom-patches';
 import './fixtures/my-button';
 import './fixtures/my-card';
+import './fixtures/my-input';
 
 async function ready(el: HTMLElement) {
   const stencilEl = el as HTMLElement & { componentOnReady?: () => Promise<void> };
