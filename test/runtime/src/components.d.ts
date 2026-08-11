@@ -205,6 +205,14 @@ export namespace Components {
     }
     interface ConditionalRerenderRoot {
     }
+    interface ConnectedCallbackRaceChild {
+    }
+    interface ConnectedCallbackRaceDeferredChild {
+    }
+    interface ConnectedCallbackRaceDeferredParent {
+    }
+    interface ConnectedCallbackRaceParent {
+    }
     interface CrossDocumentStyle {
     }
     interface CspNonceCmp {
@@ -1571,6 +1579,30 @@ declare global {
     var HTMLConditionalRerenderRootElement: {
         prototype: HTMLConditionalRerenderRootElement;
         new (): HTMLConditionalRerenderRootElement;
+    };
+    interface HTMLConnectedCallbackRaceChildElement extends Components.ConnectedCallbackRaceChild, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceChildElement: {
+        prototype: HTMLConnectedCallbackRaceChildElement;
+        new (): HTMLConnectedCallbackRaceChildElement;
+    };
+    interface HTMLConnectedCallbackRaceDeferredChildElement extends Components.ConnectedCallbackRaceDeferredChild, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceDeferredChildElement: {
+        prototype: HTMLConnectedCallbackRaceDeferredChildElement;
+        new (): HTMLConnectedCallbackRaceDeferredChildElement;
+    };
+    interface HTMLConnectedCallbackRaceDeferredParentElement extends Components.ConnectedCallbackRaceDeferredParent, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceDeferredParentElement: {
+        prototype: HTMLConnectedCallbackRaceDeferredParentElement;
+        new (): HTMLConnectedCallbackRaceDeferredParentElement;
+    };
+    interface HTMLConnectedCallbackRaceParentElement extends Components.ConnectedCallbackRaceParent, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceParentElement: {
+        prototype: HTMLConnectedCallbackRaceParentElement;
+        new (): HTMLConnectedCallbackRaceParentElement;
     };
     interface HTMLCrossDocumentStyleElement extends Components.CrossDocumentStyle, HTMLStencilElement {
     }
@@ -3078,6 +3110,10 @@ declare global {
         "conditional-basic": HTMLConditionalBasicElement;
         "conditional-rerender": HTMLConditionalRerenderElement;
         "conditional-rerender-root": HTMLConditionalRerenderRootElement;
+        "connected-callback-race-child": HTMLConnectedCallbackRaceChildElement;
+        "connected-callback-race-deferred-child": HTMLConnectedCallbackRaceDeferredChildElement;
+        "connected-callback-race-deferred-parent": HTMLConnectedCallbackRaceDeferredParentElement;
+        "connected-callback-race-parent": HTMLConnectedCallbackRaceParentElement;
         "cross-document-style": HTMLCrossDocumentStyleElement;
         "csp-nonce-cmp": HTMLCspNonceCmpElement;
         "css-cmp": HTMLCssCmpElement;
@@ -3282,7 +3318,7 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in `attr:${K}` | `prop:${K}`]?: never } | { [P in `attr:${K}`]: AttrT } & { [P in K | `prop:${K}`]?: never } | { [P in `prop:${K}`]: PropT } & { [P in K | `attr:${K}`]?: never };
+    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in `attr:${K}`]?: never } | { [P in `attr:${K}`]: AttrT } & { [P in K]?: never };
 
     interface AsyncRerender {
     }
@@ -3467,6 +3503,14 @@ declare namespace LocalJSX {
     interface ConditionalRerender {
     }
     interface ConditionalRerenderRoot {
+    }
+    interface ConnectedCallbackRaceChild {
+    }
+    interface ConnectedCallbackRaceDeferredChild {
+    }
+    interface ConnectedCallbackRaceDeferredParent {
+    }
+    interface ConnectedCallbackRaceParent {
     }
     interface CrossDocumentStyle {
     }
@@ -4705,6 +4749,10 @@ declare namespace LocalJSX {
         "conditional-basic": ConditionalBasic;
         "conditional-rerender": ConditionalRerender;
         "conditional-rerender-root": ConditionalRerenderRoot;
+        "connected-callback-race-child": ConnectedCallbackRaceChild;
+        "connected-callback-race-deferred-child": ConnectedCallbackRaceDeferredChild;
+        "connected-callback-race-deferred-parent": ConnectedCallbackRaceDeferredParent;
+        "connected-callback-race-parent": ConnectedCallbackRaceParent;
         "cross-document-style": CrossDocumentStyle;
         "csp-nonce-cmp": CspNonceCmp;
         "css-cmp": CssCmp;
@@ -4959,6 +5007,10 @@ declare module "@stencil/core" {
             "conditional-basic": LocalJSX.IntrinsicElements["conditional-basic"] & JSXBase.HTMLAttributes<HTMLConditionalBasicElement>;
             "conditional-rerender": LocalJSX.IntrinsicElements["conditional-rerender"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderElement>;
             "conditional-rerender-root": LocalJSX.IntrinsicElements["conditional-rerender-root"] & JSXBase.HTMLAttributes<HTMLConditionalRerenderRootElement>;
+            "connected-callback-race-child": LocalJSX.IntrinsicElements["connected-callback-race-child"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceChildElement>;
+            "connected-callback-race-deferred-child": LocalJSX.IntrinsicElements["connected-callback-race-deferred-child"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceDeferredChildElement>;
+            "connected-callback-race-deferred-parent": LocalJSX.IntrinsicElements["connected-callback-race-deferred-parent"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceDeferredParentElement>;
+            "connected-callback-race-parent": LocalJSX.IntrinsicElements["connected-callback-race-parent"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceParentElement>;
             "cross-document-style": LocalJSX.IntrinsicElements["cross-document-style"] & JSXBase.HTMLAttributes<HTMLCrossDocumentStyleElement>;
             "csp-nonce-cmp": LocalJSX.IntrinsicElements["csp-nonce-cmp"] & JSXBase.HTMLAttributes<HTMLCspNonceCmpElement>;
             "css-cmp": LocalJSX.IntrinsicElements["css-cmp"] & JSXBase.HTMLAttributes<HTMLCssCmpElement>;

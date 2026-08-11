@@ -74,13 +74,13 @@ let observer;
 /**
  * Scan a root element for undefined custom elements and load them.
  *
- * Before any modules are imported we do two things to guarantee the documented
- * Stencil lifecycle ordering (componentWillLoad top-down, componentDidLoad
- * bottom-up) regardless of module-load race conditions:
+ * Before any modules are imported we do 3 things to guarantee the documented
+ * Stencil lifecycle ordering (connectedCallback/componentWillLoad top-down,
+ * componentDidLoad bottom-up) regardless of which tag's chunk happens to resolve first:
  *
- * 1. Pre-mark every not-yet-upgraded Stencil element with empty \`s-p\`/\`s-rc\`
- *    arrays so the runtime's connectedCallback ancestor walk can always find a
- *    parent element even before it has been upgraded.
+ * 1. Pre-mark every not-yet-upgraded Stencil element with empty \`s-p\`/\`s-rc\`/\`s-pc\`
+ *    arrays so the runtime's connectedCallback ancestor walk can always find a parent
+ *    element even before it has been upgraded (see \`connected-callback.ts\`).
  *
  * 2. For every child Stencil element, push a Promise into its nearest Stencil
  *    ancestor's \`s-p\` array. That Promise resolves only after the child's full
@@ -88,6 +88,15 @@ let observer;
  *    ancestor from calling its own \`componentDidLoad\` before all its
  *    descendants are ready - even when a descendant's module loads *after* the
  *    ancestor has already started rendering.
+ *
+ * 3. Likewise, push a Promise into the ancestor's \`s-pc\` array that resolves once the
+ *    child's real \`connectedCallback\` has fired (\`s-fc\`). Without this, an ancestor
+ *    whose own module resolves before an unconnected child's would check \`s-pc\` (see
+ *    \`scheduleUpdate\` in \`update-component.ts\`) before that child ever got a chance to
+ *    register itself via \`attachToAncestor\` - since a not-yet-defined child doesn't
+ *    connect (and self-register) until its own module import resolves. Pre-registering
+ *    here means the ancestor's \`componentWillLoad\` always waits for it, however long
+ *    that import takes.
  *
  * @param root - The root element to scan
  */
@@ -101,6 +110,7 @@ async function load(root) {
     if (lookup[rootTag]) {
       if (!root['s-p']) root['s-p'] = [];
       if (!root['s-rc']) root['s-rc'] = [];
+      if (!root['s-pc']) root['s-pc'] = [];
       if (!defined.has(rootTag)) pending.add(rootTag);
       elements.push(root);
     }
@@ -112,6 +122,7 @@ async function load(root) {
     if (lookup[tag]) {
       if (!el['s-p']) el['s-p'] = [];
       if (!el['s-rc']) el['s-rc'] = [];
+      if (!el['s-pc']) el['s-pc'] = [];
       if (!defined.has(tag)) pending.add(tag);
       elements.push(el);
     }
@@ -133,6 +144,11 @@ async function load(root) {
         // at which point __s_ghr and $onReadyPromise$ are set.
         ancestor['s-p'].push(
           reg.whenDefined(tag).then(() => el['s-rp'])
+        );
+        // Same idea, but resolving once the child's real connectedCallback has fired
+        // rather than once its full initial lifecycle has completed.
+        ancestor['s-pc'].push(
+          reg.whenDefined(tag).then(() => el['s-fc'])
         );
         break;
       }

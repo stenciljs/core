@@ -64,11 +64,20 @@ export const registerHost = (hostElement: d.HostElement, cmpMeta: d.ComponentRun
     // ('s-rp') so the autoloader can access it without going through the
     // minified hostRef internals
     hostElement['s-rp'] = hostRef.$onReadyPromise$;
-    // Preserve any existing s-p/s-rc arrays (e.g. pre-set by the autoloader
+    if (!BUILD.lazyLoad) {
+      // Standalone's autoloader needs a not-yet-upgraded element's first-connect promise
+      // before a `HostRef` even exists for it, so it's created eagerly here and exposed
+      // as 's-fc' (see `generate-loader-module.ts`). Lazy has no such pre-upgrade gap -
+      // `ensureFirstConnectPromise` creates it lazily there, on first actual use.
+      hostRef.$onFirstConnectPromise$ = new Promise((r) => (hostRef.$onFirstConnectResolve$ = r));
+      hostElement['s-fc'] = hostRef.$onFirstConnectPromise$;
+    }
+    // Preserve any existing s-p/s-rc/s-pc arrays (e.g. pre-set by the autoloader
     // before this element was upgraded) so that promises pushed by children
     // that connected before this element's constructor ran are not lost.
     if (!hostElement['s-p']) hostElement['s-p'] = [];
     if (!hostElement['s-rc']) hostElement['s-rc'] = [];
+    if (!hostElement['s-pc']) hostElement['s-pc'] = [];
   }
   if (BUILD.lazyLoad) {
     hostRef.$fetchedCbList$ = [];

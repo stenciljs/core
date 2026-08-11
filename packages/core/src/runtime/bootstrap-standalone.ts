@@ -4,6 +4,7 @@ import {
   consoleError,
   forceUpdate,
   getHostRef,
+  plt,
   registerHost,
   styles,
   transformTag,
@@ -30,8 +31,10 @@ import { hmrStart } from './hmr-component';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { proxyComponent } from './proxy-component';
+import { PLATFORM_FLAGS } from './runtime-constants';
 import { PROXY_FLAGS } from './runtime-constants';
 import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
+import { awaitAncestorConnected, markFirstConnected } from './update-component';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
   const tag = transformTag(compactMeta[1]);
@@ -134,9 +137,11 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       componentOnReady(this: d.HostElement) {
         return getHostRef(this)?.$onReadyPromise$;
       },
-      connectedCallback(this: d.HostElement & { __hasHostListenerAttached: boolean }) {
-        if (!this.__hasHostListenerAttached) {
-          const hostRef = getHostRef(this);
+      async connectedCallback(this: d.HostElement & { __hasHostListenerAttached: boolean }) {
+        const isFirstConnect = !this.__hasHostListenerAttached;
+        let hostRef: d.HostRef | undefined;
+        if (isFirstConnect) {
+          hostRef = getHostRef(this);
           if (!hostRef) {
             return;
           }
@@ -145,13 +150,37 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         }
 
         connectedCallback(this);
-        if (originalConnectedCallback) {
+
+        if (BUILD.asyncLoading && hostRef && hostRef.$ancestorComponent$) {
+          // Never fire before our nearest Stencil ancestor's real connectedCallback,
+          // regardless of load order. Gated on having an ancestor since `awaitAncestorConnected`
+          // is `async` - calling it unconditionally would cost every component a wasted tick.
+          await awaitAncestorConnected(hostRef.$ancestorComponent$);
+
+          // If disconnected while suspended above, `disconnectedCallback` already ran - firing
+          // the author's callback now would leak, with no matching disconnect left to follow.
+          if (!this.isConnected) {
+            return;
+          }
+        }
+
+        // Slot relocation (`vdom-render.ts`) moves connected nodes via native insertBefore/
+        // appendChild, which fires spurious disconnect+reconnect; `isTmpDisconnected` pauses
+        // that so author lifecycle methods don't double-fire.
+        if (originalConnectedCallback && (plt.$flags$ & PLATFORM_FLAGS.isTmpDisconnected) === 0) {
           originalConnectedCallback.call(this);
+        }
+
+        if (BUILD.asyncLoading && hostRef) {
+          markFirstConnected(hostRef);
         }
       },
       disconnectedCallback(this: d.HostElement) {
         disconnectedCallback(this);
-        if (originalDisconnectedCallback) {
+        if (
+          originalDisconnectedCallback &&
+          (plt.$flags$ & PLATFORM_FLAGS.isTmpDisconnected) === 0
+        ) {
           originalDisconnectedCallback.call(this);
         }
       },

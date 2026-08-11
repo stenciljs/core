@@ -2,9 +2,10 @@ import { BUILD } from 'virtual:app-data';
 import { getHostRef, plt } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
+import { HOST_FLAGS } from '../utils/constants';
 import { PLATFORM_FLAGS } from './runtime-constants';
 import { rootAppliedStyles } from './styles';
-import { safeCall } from './update-component';
+import { markFirstConnected, safeCall } from './update-component';
 
 const disconnectInstance = (instance: any, elm?: d.HostElement) => {
   if (BUILD.lazyLoad) {
@@ -26,6 +27,13 @@ export const disconnectedCallback = async (elm: d.HostElement) => {
     if (BUILD.vdomSignals && hostRef?.$signalCleanup$) {
       hostRef.$signalCleanup$();
       hostRef.$signalCleanup$ = undefined;
+    }
+
+    // A component removed before its real `connectedCallback` has fired (module still in
+    // flight, or an autoloader hasn't defined its class yet) will now never fire it - release
+    // anything waiting on that (so it doesn't hang forever)
+    if (BUILD.asyncLoading && hostRef && !(hostRef.$flags$ & HOST_FLAGS.hasFiredConnected)) {
+      markFirstConnected(hostRef);
     }
 
     if (!BUILD.lazyLoad) {
