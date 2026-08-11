@@ -5,9 +5,64 @@ import type * as d from '@stencil/core';
 import { CMP_FLAGS, HOST_FLAGS } from '../utils/constants';
 import { emitEvent } from './event-emitter';
 import { createTime } from './profile';
+import { getRegistry } from './registry';
 import { PLATFORM_FLAGS } from './runtime-constants';
 import { attachStyles } from './styles';
 import { renderVdom } from './vdom/vdom-render';
+
+/**
+ * Get (creating on demand) a promise that resolves once `hostRef`'s real
+ * `connectedCallback` has fired for the first time. Two call sites share this for the
+ * same `hostRef`, in either order - whichever asks first creates it, the other reuses it.
+ *
+ * @param hostRef the component's host reference
+ * @returns a promise that resolves once the component's real `connectedCallback` has fired
+ */
+export const ensureFirstConnectPromise = (hostRef: d.HostRef): Promise<void> => {
+  if (!hostRef.$onFirstConnectPromise$) {
+    hostRef.$onFirstConnectPromise$ = new Promise((r) => (hostRef.$onFirstConnectResolve$ = r));
+  }
+  return hostRef.$onFirstConnectPromise$;
+};
+
+/**
+ * Resolve `hostRef`'s first-connect promise and flag it connected. Called once this
+ * component's real `connectedCallback` fires, plus from error/disconnect cleanup so a
+ * component that never connects can't hang an ancestor or descendant forever.
+ *
+ * @param hostRef the component's host reference
+ */
+export const markFirstConnected = (hostRef: d.HostRef) => {
+  hostRef.$flags$ |= HOST_FLAGS.hasFiredConnected;
+  hostRef.$onFirstConnectResolve$?.();
+  hostRef.$onFirstConnectResolve$ = undefined;
+};
+
+/**
+ * Wait for `ancestorElm` (if given) to be defined and its real `connectedCallback` to have
+ * completed. Shared by the lazy ({@link initializeComponent}) and standalone
+ * (`bootstrap-standalone.ts`) `connectedCallback` paths so a component never connects before
+ * its nearest Stencil ancestor, regardless of load order. Lazy's proxy classes are always
+ * pre-defined, so the `whenDefined` wait is a no-op there - it only does real work for
+ * standalone's autoloader, where the ancestor tag may not be defined yet.
+ *
+ * @param ancestorElm the nearest Stencil ancestor element, if any
+ */
+export const awaitAncestorConnected = async (
+  ancestorElm: d.HostElement | undefined,
+): Promise<void> => {
+  if (!BUILD.asyncLoading || !ancestorElm) {
+    return;
+  }
+  let ancestorHostRef = getHostRef(ancestorElm);
+  if (!ancestorHostRef) {
+    await getRegistry().whenDefined(ancestorElm.tagName.toLowerCase());
+    ancestorHostRef = getHostRef(ancestorElm);
+  }
+  if (ancestorHostRef && !(ancestorHostRef.$flags$ & HOST_FLAGS.hasFiredConnected)) {
+    await ensureFirstConnectPromise(ancestorHostRef);
+  }
+};
 
 export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostElement) => {
   if (
@@ -25,6 +80,10 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
           }),
       ),
     );
+    // Resolved by `markFirstConnected` once this component's real `connectedCallback` fires.
+    if (ancestorComponent['s-pc']) {
+      ancestorComponent['s-pc'].push(ensureFirstConnectPromise(hostRef));
+    }
   }
 };
 
@@ -47,6 +106,13 @@ export const scheduleUpdate = (
   const dispatch = () => dispatchHooks(hostRef, isInitialLoad);
 
   if (isInitialLoad) {
+    // `s-pc` holds pending children's first-connect promises (registered via
+    // `attachToAncestor`). `componentWillLoad` must not fire before a pending child's real
+    // `connectedCallback` has, regardless of which module resolves first.
+    const pendingConnects = BUILD.asyncLoading ? hostRef.$hostElement$['s-pc'] : undefined;
+    if (pendingConnects && pendingConnects.length > 0) {
+      return Promise.all(pendingConnects).then(dispatch).catch(dispatch);
+    }
     queueMicrotask(() => {
       dispatch();
     });
@@ -107,12 +173,6 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
 
   if (isInitialLoad) {
     if (BUILD.lazyLoad) {
-      // Fire deferred connectedCallback before componentWillLoad
-      if (BUILD.slotRelocation && hostRef.$deferredConnectedCallback$) {
-        hostRef.$deferredConnectedCallback$ = false;
-        safeCall(instance, 'connectedCallback', undefined, elm);
-      }
-
       if (BUILD.hostListener) {
         hostRef.$flags$ |= HOST_FLAGS.isListenReady;
         if (hostRef.$queuedListeners$) {

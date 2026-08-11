@@ -64,7 +64,9 @@ export const setComponentBuildConditionals = (cmpMeta: d.ComponentCompilerMeta) 
     cmpMeta.hasComponentWillUpdateFn ||
     cmpMeta.hasComponentDidUpdateFn ||
     cmpMeta.hasComponentWillRenderFn ||
-    cmpMeta.hasComponentDidRenderFn;
+    cmpMeta.hasComponentDidRenderFn ||
+    cmpMeta.hasConnectedCallbackFn ||
+    cmpMeta.hasDisconnectedCallbackFn;
   cmpMeta.isPlain =
     !cmpMeta.hasMember &&
     !cmpMeta.hasStyle &&

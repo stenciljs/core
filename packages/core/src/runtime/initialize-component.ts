@@ -11,7 +11,12 @@ import { proxyComponent } from './proxy-component';
 import { PROXY_FLAGS } from './runtime-constants';
 import { initializeEffects, initializeSignals } from './signals';
 import { getScopeId, registerStyle } from './styles';
-import { safeCall, scheduleUpdate } from './update-component';
+import {
+  awaitAncestorConnected,
+  markFirstConnected,
+  safeCall,
+  scheduleUpdate,
+} from './update-component';
 
 /**
  * Initialize a Stencil component given a reference to its host element, its
@@ -95,14 +100,33 @@ export const initializeComponent = async (
         // per lifecycle docs that @Watch should only fire on subsequent prop changes.
         endNewInstance();
 
-        // For components that relocate slots, defer connectedCallback until after first render
-        // so that slotted content is available
+        if (BUILD.asyncLoading && hostRef.$ancestorComponent$) {
+          // Only call through (and thus only ever suspend) when there's actually an
+          // ancestor to wait on - `awaitAncestorConnected` is itself `async`, so awaiting
+          // it unconditionally would cost every component an extra microtask tick even
+          // when there's nothing to wait for.
+          await awaitAncestorConnected(hostRef.$ancestorComponent$);
+        }
+
+        // For components that relocate slots, defer connectedCallback to the next microtask
+        // so that slotted content is available. By the time any microtask runs, whichever
+        // synchronous vdom insertion pass created this component (and any of its own
+        // vdom-composed children, e.g. slotted content) has necessarily already finished,
+        // since nothing here awaits that pass directly.
         const needsDeferredCallback =
           BUILD.slotRelocation && cmpMeta.$flags$ & CMP_FLAGS.hasSlotRelocation;
         if (!needsDeferredCallback) {
           fireConnectedCallback(hostRef.$lazyInstance$, elm);
+          if (BUILD.asyncLoading) {
+            markFirstConnected(hostRef);
+          }
         } else {
-          hostRef.$deferredConnectedCallback$ = true;
+          queueMicrotask(() => {
+            fireConnectedCallback(hostRef.$lazyInstance$, elm);
+            if (BUILD.asyncLoading) {
+              markFirstConnected(hostRef);
+            }
+          });
         }
       } else {
         // sync constructor component
@@ -211,6 +235,13 @@ export const initializeComponent = async (
     if (BUILD.asyncLoading && hostRef.$onRenderResolve$) {
       hostRef.$onRenderResolve$();
       hostRef.$onRenderResolve$ = undefined;
+    }
+    // Same idea, but for a pending ancestor's `s-pc` wait (see `scheduleUpdate`) or a
+    // pending descendant's own connectedCallback-ordering wait (see the `s-pc` block
+    // above): a component that fails to initialize can still never fire its real
+    // `connectedCallback`, so anything waiting on that needs to be released too.
+    if (BUILD.asyncLoading) {
+      markFirstConnected(hostRef);
     }
     // Also resolve the component's ready promise so any code waiting on
     // componentOnReady() doesn't hang forever

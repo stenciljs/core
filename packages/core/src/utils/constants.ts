@@ -59,10 +59,16 @@ export const HOST_FLAGS = {
   isWatchReady: 1 << 7,
   isListenReady: 1 << 8,
   needsRerender: 1 << 9,
+  /**
+   * Set once this component's real (lazy-loaded) `connectedCallback` has fired for
+   * the first time. Lets a descendant skip creating/awaiting a connect-promise for
+   * an ancestor that's already connected. See {@link HostRef.$onFirstConnectResolve$}.
+   */
+  hasFiredConnected: 1 << 10,
 
   // DEV ONLY
-  devOnRender: 1 << 10,
-  devOnDidLoad: 1 << 11,
+  devOnRender: 1 << 11,
+  devOnDidLoad: 1 << 12,
 } as const;
 
 // CMP_FLAGS base values

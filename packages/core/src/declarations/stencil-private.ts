@@ -1192,6 +1192,16 @@ export interface HostElement extends HTMLElement {
    */
   ['s-p']?: Promise<void>[];
 
+  /**
+   * Pending Connects:
+   * A list of {@link HostRef.$onFirstConnectPromise$} promises for descendants that
+   * were already registered with this component (their nearest Stencil ancestor) by
+   * the time this component's own initial `componentWillLoad` was scheduled. Awaited
+   * so this component's `componentWillLoad` can't fire before those descendants'
+   * real `connectedCallback`s have.
+   */
+  ['s-pc']?: Promise<void>[];
+
   componentOnReady?: () => Promise<this>;
 }
 
@@ -1852,15 +1862,26 @@ export interface HostRef {
    * It is called after {@link HostRef.$onInstancePromise$} resolves.
    */
   $onRenderResolve$?: () => void;
+  /**
+   * A promise that resolves once this component's real `connectedCallback` has fired
+   * for the first time. Created lazily - either by a descendant that needs to wait for
+   * this component's connection before firing its own real `connectedCallback`
+   * ({@link HOST_FLAGS.hasFiredConnected}), or by this component registering itself
+   * with its nearest Stencil ancestor's `s-pc` list. This is what lets a component's
+   * real `connectedCallback` (and, transitively, a pending ancestor's initial
+   * `componentWillLoad`) stay ordered correctly regardless of which of an
+   * ancestor/descendant pair's lazy module happens to resolve first.
+   */
+  $onFirstConnectPromise$?: Promise<void>;
+  /**
+   * A callback which resolves {@link HostRef.$onFirstConnectPromise$}
+   */
+  $onFirstConnectResolve$?: () => void;
   $vnode$?: VNode;
   $queuedListeners$?: [string, any][];
   $rmListeners$?: (() => void)[];
   $modeName$?: string;
   $renderCount$?: number;
-  /**
-   * Defer connectedCallback until after first render for components with slot relocation.
-   */
-  $deferredConnectedCallback$?: boolean;
 }
 
 export interface PlatformRuntime {
