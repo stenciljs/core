@@ -458,7 +458,7 @@ export const cmpMetaToDocsComponent = (
     methods: getDocsMethods(cmp.methods ?? []),
     events: getDocsEvents(cmp.events ?? []),
     styles: getDocsStyles(cmp),
-    slots: getDocsSlots(docs.tags),
+    slots: getDocsSlots(cmp.htmlSlots ?? [], docs.tags),
     parts: getDocsParts(cmp.htmlParts ?? [], docs.tags),
     customStates: getDocsCustomStates(cmp),
     listeners: getDocsListeners(cmp.listeners ?? []),

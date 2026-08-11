@@ -91,6 +91,7 @@ export const mockComponentMeta = (
   hasWatchCallback: false,
   htmlAttrNames: [],
   htmlParts: [],
+  htmlSlots: [],
   htmlTagNames: [],
   internal: false,
   isCollectionDependency: false,
