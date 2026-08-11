@@ -11,14 +11,12 @@ import { attachStyles } from './styles';
 import { renderVdom } from './vdom/vdom-render';
 
 /**
- * Get (creating on demand) a promise that resolves once `hostRef`'s real
- * `connectedCallback` has fired for the first time. Two call sites share this for the
- * same `hostRef`, in either order - whichever asks first creates it, the other reuses it.
+ * Get a promise that resolves once `hostRef`'s real `connectedCallback` has fired for the first time.
  *
  * @param hostRef the component's host reference
  * @returns a promise that resolves once the component's real `connectedCallback` has fired
  */
-export const ensureFirstConnectPromise = (hostRef: d.HostRef): Promise<void> => {
+const ensureFirstConnectPromise = (hostRef: d.HostRef): Promise<void> => {
   if (!hostRef.$onFirstConnectPromise$) {
     hostRef.$onFirstConnectPromise$ = new Promise((r) => (hostRef.$onFirstConnectResolve$ = r));
   }
@@ -39,23 +37,19 @@ export const markFirstConnected = (hostRef: d.HostRef) => {
 };
 
 /**
- * Wait for `ancestorElm` (if given) to be defined and its real `connectedCallback` to have
- * completed. Shared by the lazy ({@link initializeComponent}) and standalone
- * (`bootstrap-standalone.ts`) `connectedCallback` paths so a component never connects before
- * its nearest Stencil ancestor, regardless of load order. Lazy's proxy classes are always
- * pre-defined, so the `whenDefined` wait is a no-op there - it only does real work for
- * standalone's autoloader, where the ancestor tag may not be defined yet.
+ * Wait for `ancestorElm` to be defined and its real `connectedCallback` to have completed.
+ * Shared by the lazy ({@link initializeComponent}) and standalone (`bootstrap-standalone.ts`)
+ * `connectedCallback` paths so a component never connects before its nearest Stencil
+ * ancestor, regardless of load order. Both call sites already check `BUILD.asyncLoading` and
+ * that an ancestor exists before calling this. Lazy's proxy classes are always pre-defined,
+ * so the `whenDefined` wait is a no-op there - it only does real work for standalone's
+ * autoloader, where the ancestor tag may not be defined yet.
  *
- * @param ancestorElm the nearest Stencil ancestor element, if any
+ * @param ancestorElm the nearest Stencil ancestor element
  */
-export const awaitAncestorConnected = async (
-  ancestorElm: d.HostElement | undefined,
-): Promise<void> => {
-  if (!BUILD.asyncLoading || !ancestorElm) {
-    return;
-  }
+export const awaitAncestorConnected = async (ancestorElm: d.HostElement): Promise<void> => {
   let ancestorHostRef = getHostRef(ancestorElm);
-  if (!ancestorHostRef) {
+  if (!BUILD.lazyLoad && !ancestorHostRef) {
     await getRegistry().whenDefined(ancestorElm.tagName.toLowerCase());
     ancestorHostRef = getHostRef(ancestorElm);
   }
