@@ -38,6 +38,10 @@ export type StringUnion = 'left' | 'right';
 
 export type JustAnAlias = string;
 
+export class BestClass {
+  static value = 'value';
+}
+
 /**
  * This is a private type, and should not be included!
  *
