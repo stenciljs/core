@@ -135,15 +135,6 @@ const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModule
     }
   }
 
-  // TEMP DEBUG (windows build-conditionals investigation): log when a lookup misses entirely,
-  // so we can compare the attempted key against the actual moduleMap keys on Windows CI.
-  if (moduleFile == null) {
-    console.warn(
-      `[DEBUG getModuleImports] MISS for "${filePath}". moduleMap keys:`,
-      JSON.stringify([...moduleMap.keys()]),
-    );
-  }
-
   if (
     moduleFile != null &&
     !importedModules.some((m) => m.sourceFilePath === moduleFile.sourceFilePath)

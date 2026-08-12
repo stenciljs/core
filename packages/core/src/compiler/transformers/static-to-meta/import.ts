@@ -31,12 +31,7 @@ export const parseModuleImport = (
       moduleFile.localImports.push(importPath);
     } else if (importPath.startsWith('.')) {
       // relative import
-      const resolved = resolve(dirPath, importPath);
-      importPath = normalizePath(resolved);
-      // TEMP DEBUG (windows build-conditionals investigation)
-      console.warn(
-        `[DEBUG parseModuleImport] dirPath="${dirPath}" importPath(raw)="${importNode.moduleSpecifier.text}" resolve()="${resolved}" normalized="${importPath}"`,
-      );
+      importPath = normalizePath(resolve(dirPath, importPath));
       moduleFile.localImports.push(importPath);
     } else {
       // node resolve side effect import
