@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 const fsPromises = vi.hoisted(() => ({
@@ -23,7 +24,7 @@ import {
   writeIndexHtml,
 } from '../wizard/init/apply';
 
-const PKG_PATH = '/project/package.json';
+const PKG_PATH = join('/project', 'package.json');
 
 function mockPkg(pkg: Record<string, unknown>) {
   fsPromises.readFile.mockResolvedValue(JSON.stringify(pkg));
@@ -133,9 +134,7 @@ describe('scaffoldWorkspaceRoot', () => {
   });
 
   function writtenPkg() {
-    const call = vi
-      .mocked(fsPromises.writeFile)
-      .mock.calls.find((c) => c[0] === '/project/package.json');
+    const call = vi.mocked(fsPromises.writeFile).mock.calls.find((c) => c[0] === PKG_PATH);
     return JSON.parse(call![1] as string);
   }
 
@@ -193,9 +192,9 @@ describe('writeIndexHtml', () => {
   it('writes the given content to src/index.html', async () => {
     await writeIndexHtml('/project', '<!doctype html>\n');
 
-    expect(fsPromises.mkdir).toHaveBeenCalledWith('/project/src', { recursive: true });
+    expect(fsPromises.mkdir).toHaveBeenCalledWith(join('/project', 'src'), { recursive: true });
     expect(fsPromises.writeFile).toHaveBeenCalledWith(
-      '/project/src/index.html',
+      join('/project', 'src', 'index.html'),
       '<!doctype html>\n',
       { encoding: 'utf8', flag: 'wx' },
     );
@@ -282,7 +281,7 @@ describe('copyTemplate — .gitignore rename', () => {
     await copyTemplate('/project', 'my-app', 'MyApp');
 
     expect(fsPromises.writeFile).toHaveBeenCalledWith(
-      '/project/.gitignore',
+      join('/project', '.gitignore'),
       'node_modules/\ndist/\n',
       'utf8',
     );
@@ -297,7 +296,7 @@ describe('copyTemplate — .gitignore rename', () => {
     await copyTemplate('/project', 'my-app', 'MyApp');
 
     expect(fsPromises.writeFile).toHaveBeenCalledWith(
-      '/project/.gitignore',
+      join('/project', '.gitignore'),
       'node_modules/\n.env\ndist/\n',
       'utf8',
     );

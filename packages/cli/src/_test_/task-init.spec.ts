@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import type { DiscoveredPlugin } from '../wizard/discover';
@@ -421,7 +422,7 @@ describe('taskInit', () => {
   //  monorepo
 
   describe('monorepo workspace mode', () => {
-    const CORE_DIR = `${CWD}/packages/core`;
+    const CORE_DIR = join(CWD, 'packages', 'core');
 
     beforeEach(() => {
       vi.mocked(hasFrameworkTargets).mockReturnValue(true);

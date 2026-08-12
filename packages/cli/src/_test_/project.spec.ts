@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 vi.mock('node:fs', () => ({ existsSync: vi.fn().mockReturnValue(false) }));
@@ -34,7 +35,9 @@ describe('detectWorkspaceRoot', () => {
   });
 
   it('walks up and finds workspace root in a parent', async () => {
-    vi.mocked(existsSync).mockImplementation((p) => String(p) === '/project/pnpm-workspace.yaml');
+    vi.mocked(existsSync).mockImplementation(
+      (p) => String(p) === join('/project', 'pnpm-workspace.yaml'),
+    );
     expect(await detectWorkspaceRoot('/project/packages/core')).toBe('/project');
   });
 
