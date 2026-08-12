@@ -36,23 +36,23 @@
   },
   "dependencies": {
     "@rollup/pluginutils": "^5.4.0",
-    "jiti": "^2.0.0",
+    "jiti": "^2.7.0",
     "local-pkg": "^1.2.1",
-    "unplugin": "^3.0.0"
+    "unplugin": "^3.3.0"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
     "@types/less": "^3.0.8",
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
-    "less": "^4.6.7",
-    "lightningcss": "^1.32.0",
-    "postcss": "^8.5.15",
+    "less": "^4.8.1",
+    "lightningcss": "^1.33.0",
+    "postcss": "^8.5.26",
     "postcss-load-config": "^6.0.1",
-    "sass": "^1.101.0",
+    "sass": "^1.102.0",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.1.0",
+    "vite": "^8.2.1",
     "vitest": "catalog:"
   },
   "peerDependencies": {

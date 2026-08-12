@@ -2,7 +2,7 @@ import { isAbsolute } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { normalizePath, resolve } from '../../../utils';
+import { join, normalizePath } from '../../../utils';
 import { addExternalImport } from '../collection/add-external-import';
 
 export const parseModuleImport = (
@@ -31,7 +31,14 @@ export const parseModuleImport = (
       moduleFile.localImports.push(importPath);
     } else if (importPath.startsWith('.')) {
       // relative import
-      importPath = normalizePath(resolve(dirPath, importPath));
+      //
+      // `dirPath` is always an already-normalized, Stencil-absolute path (derived
+      // from a source file's own fileName), so `join` is used here instead of
+      // `resolve` - `resolve` falls through to native path.resolve() when given an
+      // "absolute" path with no drive letter (as our normalized paths are on
+      // Windows), which fills in process.cwd()'s real drive letter and corrupts
+      // the path. `join` never touches process.cwd().
+      importPath = normalizePath(join(dirPath, importPath));
       moduleFile.localImports.push(importPath);
     } else {
       // node resolve side effect import

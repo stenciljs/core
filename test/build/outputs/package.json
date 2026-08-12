@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@stencil/mock-doc": "workspace:*",
-    "why-is-node-running": "^2.2.0"
+    "why-is-node-running": "^2.3.0"
   },
   "volta": {
     "extends": "../../../package.json"

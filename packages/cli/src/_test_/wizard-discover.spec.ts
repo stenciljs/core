@@ -1,3 +1,5 @@
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { discoverPlugins } from '../wizard/discover';
@@ -19,26 +21,37 @@ function makeRootPkg(
   return JSON.stringify({ dependencies: deps, devDependencies: devDeps });
 }
 
+// Mirrors how `loadOne` in wizard/discover.ts derives a package's install dir.
+function pluginRootPath(packageName: string): string {
+  return join(ROOT, 'node_modules', packageName);
+}
+
+// Mirrors `join(info.rootPath, wizardEntry)` in wizard/discover.ts.
+function pluginWizardPath(packageName: string, wizardEntry = './dist/wizard.js'): string {
+  return join(pluginRootPath(packageName), wizardEntry);
+}
+
 /** Registers a resolvable package at `${ROOT}/node_modules/${packageName}`, optionally declaring a wizard entry. */
 function mockResolvedPackage(packageName: string, wizardEntry?: string) {
-  const rootPath = `${ROOT}/node_modules/${packageName}`;
+  const rootPath = pluginRootPath(packageName);
   mockGetPackageInfo.mockImplementation((name: string) => {
     if (name !== packageName) return Promise.resolve(undefined);
     return Promise.resolve({
       name,
       version: '1.0.0',
       rootPath,
-      packageJsonPath: `${rootPath}/package.json`,
+      packageJsonPath: join(rootPath, 'package.json'),
       packageJson: wizardEntry ? { stencil: { wizard: wizardEntry } } : {},
     });
   });
 }
 
 function makeLoader(modules: Record<string, Record<string, unknown>> = {}) {
+  const urlModules = new Map(
+    Object.entries(modules).map(([path, mod]) => [pathToFileURL(path).href, mod]),
+  );
   return vi.fn(async (url: string) => {
-    // strip file:// prefix for lookup convenience
-    const path = url.replace(/^file:\/\//, '');
-    if (path in modules) return modules[path];
+    if (urlModules.has(url)) return urlModules.get(url);
     throw new Error(`Module not found: ${url}`);
   });
 }
@@ -82,7 +95,7 @@ describe('discoverPlugins', () => {
     mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
     mockResolvedPackage('@stencil/vitest', './dist/wizard.js');
 
-    const wizardPath = `${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`;
+    const wizardPath = pluginWizardPath('@stencil/vitest');
     const loader = makeLoader({ [wizardPath]: { wizard: plugin } });
 
     const result = await discoverPlugins(ROOT, loader);
@@ -101,19 +114,19 @@ describe('discoverPlugins', () => {
     mockGetPackageInfo.mockImplementation((name: string) => {
       const wizardEntry = './dist/wizard.js';
       if (name !== '@stencil/vitest' && name !== '@stencil/sass') return Promise.resolve(undefined);
-      const rootPath = `${ROOT}/node_modules/${name}`;
+      const rootPath = pluginRootPath(name);
       return Promise.resolve({
         name,
         version: '1.0.0',
         rootPath,
-        packageJsonPath: `${rootPath}/package.json`,
+        packageJsonPath: join(rootPath, 'package.json'),
         packageJson: { stencil: { wizard: wizardEntry } },
       });
     });
 
     const loader = makeLoader({
-      [`${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`]: { wizard: pluginA },
-      [`${ROOT}/node_modules/@stencil/sass/dist/wizard.js`]: { wizard: pluginB },
+      [pluginWizardPath('@stencil/vitest')]: { wizard: pluginA },
+      [pluginWizardPath('@stencil/sass')]: { wizard: pluginB },
     });
 
     const result = await discoverPlugins(ROOT, loader);
@@ -138,7 +151,7 @@ describe('discoverPlugins', () => {
     mockReadFile.mockResolvedValueOnce(makeRootPkg({ '@stencil/vitest': '^1.0.0' }));
     mockResolvedPackage('@stencil/vitest', './dist/wizard.js');
 
-    const wizardPath = `${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`;
+    const wizardPath = pluginWizardPath('@stencil/vitest');
     const loader = makeLoader({ [wizardPath]: { notWizard: {} } });
 
     const result = await discoverPlugins(ROOT, loader);
@@ -156,18 +169,18 @@ describe('discoverPlugins', () => {
     mockGetPackageInfo.mockImplementation((name: string) => {
       if (name !== '@stencil/vitest' && name !== '@stencil/broken')
         return Promise.resolve(undefined);
-      const rootPath = `${ROOT}/node_modules/${name}`;
+      const rootPath = pluginRootPath(name);
       return Promise.resolve({
         name,
         version: '1.0.0',
         rootPath,
-        packageJsonPath: `${rootPath}/package.json`,
+        packageJsonPath: join(rootPath, 'package.json'),
         packageJson: { stencil: { wizard: './dist/wizard.js' } },
       });
     });
 
     const loader = makeLoader({
-      [`${ROOT}/node_modules/@stencil/vitest/dist/wizard.js`]: { wizard: plugin },
+      [pluginWizardPath('@stencil/vitest')]: { wizard: plugin },
       // @stencil/broken deliberately omitted → load fails
     });
 
@@ -177,6 +190,8 @@ describe('discoverPlugins', () => {
 
   describe('STENCIL_WIZARD_DEV', () => {
     const DEV_WIZARD = '/path/to/my-plugin/dist/wizard.js';
+    // Mirrors `resolve(rootDir, devPath)` in wizard/discover.ts.
+    const devWizardPath = resolve(ROOT, DEV_WIZARD);
     const devPlugin = {
       init: { id: 'my-plugin', displayName: 'My Plugin', description: '', run: vi.fn() },
     };
@@ -195,7 +210,7 @@ describe('discoverPlugins', () => {
         .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json not found
         .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' })); // parent package.json
 
-      const loader = makeLoader({ [DEV_WIZARD]: { wizard: devPlugin } });
+      const loader = makeLoader({ [devWizardPath]: { wizard: devPlugin } });
 
       const result = await discoverPlugins(ROOT, loader);
       expect(result).toHaveLength(1);
@@ -211,8 +226,8 @@ describe('discoverPlugins', () => {
       mockResolvedPackage('@stencil/sass', './dist/wizard.js');
 
       const loader = makeLoader({
-        [`${ROOT}/node_modules/@stencil/sass/dist/wizard.js`]: { wizard: installedPlugin },
-        [DEV_WIZARD]: { wizard: devPlugin },
+        [pluginWizardPath('@stencil/sass')]: { wizard: installedPlugin },
+        [devWizardPath]: { wizard: devPlugin },
       });
 
       const result = await discoverPlugins(ROOT, loader);
@@ -231,8 +246,8 @@ describe('discoverPlugins', () => {
       mockResolvedPackage('my-plugin', './dist/wizard.js');
 
       const loader = makeLoader({
-        [`${ROOT}/node_modules/my-plugin/dist/wizard.js`]: { wizard: installedPlugin },
-        [DEV_WIZARD]: { wizard: devPlugin },
+        [pluginWizardPath('my-plugin')]: { wizard: installedPlugin },
+        [devWizardPath]: { wizard: devPlugin },
       });
 
       const result = await discoverPlugins(ROOT, loader);
@@ -246,7 +261,7 @@ describe('discoverPlugins', () => {
         .mockRejectedValueOnce(new Error('ENOENT')) // dist/package.json
         .mockRejectedValueOnce(new Error('ENOENT')); // parent package.json
 
-      const loader = makeLoader({ [DEV_WIZARD]: { wizard: devPlugin } });
+      const loader = makeLoader({ [devWizardPath]: { wizard: devPlugin } });
 
       const result = await discoverPlugins(ROOT, loader);
       expect(result[0].packageName).toBe('dist'); // dirname of wizard.js
@@ -272,7 +287,7 @@ describe('discoverPlugins', () => {
         .mockRejectedValueOnce(new Error('ENOENT'))
         .mockResolvedValueOnce(JSON.stringify({ name: 'my-plugin' }));
 
-      const loader = makeLoader({ [DEV_WIZARD]: { notWizard: {} } });
+      const loader = makeLoader({ [devWizardPath]: { notWizard: {} } });
 
       const result = await discoverPlugins(ROOT, loader);
       expect(result).toEqual([]);

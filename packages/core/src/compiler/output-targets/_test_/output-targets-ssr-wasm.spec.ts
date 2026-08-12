@@ -1,9 +1,8 @@
-import path from 'path';
 import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { SSR_WASM } from '../../../utils';
+import { join, SSR_WASM } from '../../../utils';
 import * as optimizeModuleMod from '../../optimize/optimize-module';
 import { writeSsrWasmOutput } from '../ssr-wasm/generate-ssr-wasm';
 
@@ -37,7 +36,7 @@ describe('ssr-wasm', () => {
     compilerCtx.fs.writeFile = vi.fn().mockResolvedValue(undefined);
     outputTarget = {
       type: SSR_WASM,
-      dir: path.join(config.rootDir, 'dist', 'ssr-wasm'),
+      dir: join(config.rootDir, 'dist', 'ssr-wasm'),
       minify: false,
     };
 
@@ -164,13 +163,7 @@ describe('ssr-wasm', () => {
 
       expect(mockExecFile).toHaveBeenCalledWith(
         'extism-js',
-        [
-          path.join(dir, 'index.js'),
-          '-i',
-          path.join(dir, 'plugin.d.ts'),
-          '-o',
-          path.join(dir, 'index.wasm'),
-        ],
+        [join(dir, 'index.js'), '-i', join(dir, 'plugin.d.ts'), '-o', join(dir, 'index.wasm')],
         expect.any(Function),
       );
     });

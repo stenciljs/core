@@ -160,6 +160,7 @@ const ignoreWarnCodes = new Set([
   'CIRCULAR_DEPENDENCY',
   'EMPTY_BUNDLE',
   'UNUSED_EXTERNAL_IMPORT',
+  'EMPTY_IMPORT_META',
 ]);
 
 const charBreak = new Set([

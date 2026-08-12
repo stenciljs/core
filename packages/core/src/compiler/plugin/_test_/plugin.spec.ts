@@ -1,4 +1,3 @@
-import path from 'path';
 import {
   createTestCompiler,
   prepareTestCompiler,
@@ -7,12 +6,17 @@ import {
 import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
-import { normalizePath } from '../../../utils';
+import { join } from '../../../utils';
 
 describe('plugin', () => {
   let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
-  const root = path.resolve('/');
+  // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+  // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+  // the actual validated config instead of assuming it up front. Use Stencil's own
+  // `join` (always forward-slash) rather than native `path.join`, to match exactly
+  // what the compiler itself uses internally when writing output.
+  let root: string;
 
   beforeAll(async () => {
     setup = await prepareTestCompiler({ config: { outputTargets: [{ type: 'www' }] } });
@@ -21,7 +25,8 @@ describe('plugin', () => {
   beforeEach(async () => {
     const result = await createTestCompiler({ setup });
     compiler = result.compiler;
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    root = result.config.rootDir;
+    await compiler.fs.writeFile(join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();
   });
 
@@ -31,7 +36,7 @@ describe('plugin', () => {
 
   it('transform, async', async () => {
     await compiler.fs.writeFile(
-      path.join(root, 'src', 'cmp-a.tsx'),
+      join(root, 'src', 'cmp-a.tsx'),
       `@Component({ tag: 'cmp-a' }) export class CmpA { constructor() { } }`,
     );
     await compiler.fs.commit();
@@ -52,13 +57,13 @@ describe('plugin', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const cmpA = await compiler.fs.readFile(path.join(root, 'www', 'build', 'cmp-a.entry.js'));
+    const cmpA = await compiler.fs.readFile(join(root, 'www', 'build', 'cmp-a.entry.js'));
     expect(cmpA).toContain('transformed!');
   });
 
   it('transform, sync', async () => {
     await compiler.fs.writeFile(
-      path.join(root, 'src', 'cmp-a.tsx'),
+      join(root, 'src', 'cmp-a.tsx'),
       `@Component({ tag: 'cmp-a' }) export class CmpA { constructor() { } }`,
     );
     await compiler.fs.commit();
@@ -77,15 +82,15 @@ describe('plugin', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const cmpA = await compiler.fs.readFile(path.join(root, 'www', 'build', 'cmp-a.entry.js'));
+    const cmpA = await compiler.fs.readFile(join(root, 'www', 'build', 'cmp-a.entry.js'));
     expect(cmpA).toContain('transformed!');
   });
 
   it('resolveId, async', async () => {
-    const filePath = normalizePath(path.join(root, 'dist', 'my-dep-fn.js'));
+    const filePath = join(root, 'dist', 'my-dep-fn.js');
 
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `
+      [join(root, 'src', 'cmp-a.tsx')]: `
         import { depFn } from '#crazy-path!'
         @Component({ tag: 'cmp-a' }) export class CmpA {
           constructor() { depFn(); }
@@ -110,15 +115,15 @@ describe('plugin', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const cmpA = await compiler.fs.readFile(path.join(root, 'www', 'build', 'cmp-a.entry.js'));
+    const cmpA = await compiler.fs.readFile(join(root, 'www', 'build', 'cmp-a.entry.js'));
     expect(cmpA).toContain('imported depFun()');
   });
 
   it('resolveId, sync', async () => {
-    const filePath = normalizePath(path.join(root, 'dist', 'my-dep-fn.js'));
+    const filePath = join(root, 'dist', 'my-dep-fn.js');
 
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `
+      [join(root, 'src', 'cmp-a.tsx')]: `
         import { depFn } from '#crazy-path!'
         @Component({ tag: 'cmp-a' }) export class CmpA {
           constructor() { depFn(); }
@@ -143,7 +148,7 @@ describe('plugin', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const cmpA = await compiler.fs.readFile(path.join(root, 'www', 'build', 'cmp-a.entry.js'));
+    const cmpA = await compiler.fs.readFile(join(root, 'www', 'build', 'cmp-a.entry.js'));
     expect(cmpA).toContain('imported depFun()');
   });
 });

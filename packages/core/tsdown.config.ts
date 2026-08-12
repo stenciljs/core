@@ -19,11 +19,9 @@ console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji
  * @param options - plugin options containing resolve and external mappings
  * @returns a tsdown plugin object
  */
-function virtualModules(options: {
-  resolve?: Record<string, string>;
-  external?: Record<string, string>;
-}) {
+function virtualModules(options: { resolve?: Record<string, string>; external?: string[] }) {
   const resolveMap = new Map(Object.entries(options.resolve ?? {}));
+  const externalSet = new Set(options.external ?? []);
 
   return {
     name: 'stencil-virtual-modules',
@@ -31,6 +29,7 @@ function virtualModules(options: {
     resolveId: {
       filter: { id: /^virtual:/ },
       handler(id: string) {
+        if (externalSet.has(id)) return { id, external: true as const };
         return resolveMap.get(id) ?? null;
       },
     },
@@ -69,8 +68,9 @@ export default defineConfig([
     dts: true,
     clean: true,
     deps: {
-      neverBundle: [/^node:/, '@stencil/mock-doc'],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
+      // src imports its own public types via '@stencil/core'; keep those inlined, not externalized
+      alwaysBundle: ['@stencil/core'],
     },
     define: defines,
     plugins: [virtualModules({ resolve: virtualResolve })],
@@ -91,8 +91,8 @@ export default defineConfig([
     format: ['esm'],
     platform: 'neutral',
     deps: {
-      neverBundle: [/^node:/],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
     },
     dts: true,
     clean: false,
@@ -111,8 +111,8 @@ export default defineConfig([
     format: ['esm'],
     platform: 'neutral',
     deps: {
-      neverBundle: [/^node:/],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
     },
     dts: true,
     clean: false,
@@ -134,8 +134,8 @@ export default defineConfig([
     dts: true,
     clean: false,
     deps: {
-      neverBundle: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
     },
     outputOptions: {
       paths: {
@@ -148,6 +148,7 @@ export default defineConfig([
         resolve: {
           'virtual:platform': resolve(__dirname, 'src/server/platform/index.ts'),
         },
+        external: ['virtual:app-data', 'virtual:app-globals'],
       }),
     ],
   },
@@ -235,8 +236,8 @@ export default defineConfig([
     dts: true,
     clean: false,
     deps: {
-      neverBundle: [/^node:/, 'virtual:app-data', 'virtual:app-globals'],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
     },
     outputOptions: {
       paths: {
@@ -249,6 +250,7 @@ export default defineConfig([
         resolve: {
           'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
         },
+        external: ['virtual:app-data', 'virtual:app-globals'],
       }),
     ],
   },
@@ -265,9 +267,7 @@ export default defineConfig([
     dts: false, // types identical to standalone
     clean: false,
     deps: {
-      // virtual:app-data-external is the real app-data, kept external so consumers can alias it
-      neverBundle: [/^node:/, 'virtual:app-globals', 'virtual:app-data-external'],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
     },
     outputOptions: {
       paths: {
@@ -282,6 +282,8 @@ export default defineConfig([
           // virtual:app-data → lazy.ts, which wraps virtual:app-data-external with lazyLoad: true
           'virtual:app-data': resolve(__dirname, 'src/app-data/lazy.ts'),
         },
+        // virtual:app-data-external is the real app-data, kept external so consumers can alias it
+        external: ['virtual:app-globals', 'virtual:app-data-external'],
       }),
     ],
   },

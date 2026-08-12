@@ -1,8 +1,8 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
-import { createDefines, getBuildVersionInfo } from './build/version-utils';
-import { stencilVitestPlugin } from './src/testing/vitest-stencil-plugin';
+import { createDefines, getBuildVersionInfo } from './build/version-utils.ts';
+import { stencilVitestPlugin } from './src/testing/vitest-stencil-plugin.ts';
 
 const __dirname = import.meta.dirname;
 

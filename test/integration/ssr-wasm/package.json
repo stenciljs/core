@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@extism/extism": "2.0.0-rc13",
-    "@extism/js-pdk": "^1.0.0",
+    "@extism/js-pdk": "^1.1.1",
     "@stencil/core": "workspace:*",
     "vitest": "catalog:"
   },

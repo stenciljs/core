@@ -1,13 +1,12 @@
-import path from 'path';
 import { createTestCompiler } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 
-describe('service worker', () => {
-  const root = path.resolve('/');
+import { join } from '../../../utils';
 
+describe('service worker', () => {
   it('dev service worker', async () => {
-    const { compiler } = await createTestCompiler({
+    const { compiler, config } = await createTestCompiler({
       config: {
         // @ts-expect-error - need to test dev mode service worker behavior
         devMode: true,
@@ -15,17 +14,23 @@ describe('service worker', () => {
           {
             type: 'www',
             serviceWorker: {
-              swSrc: path.join('src', 'sw.js'),
+              swSrc: join('src', 'sw.js'),
               globPatterns: ['**/*.{html,js,css,json,ico,png}'],
             },
           } as d.OutputTargetWww,
         ],
       },
     });
-    await compiler.fs.writeFile(path.join(root, 'www', 'script.js'), `/**/`);
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+    // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+    // the actual validated config instead of assuming it up front. Use Stencil's own
+    // `join` (always forward-slash) rather than native `path.join`, to match exactly
+    // what the compiler itself uses internally when writing output.
+    const root = config.rootDir;
+    await compiler.fs.writeFile(join(root, 'www', 'script.js'), `/**/`);
+    await compiler.fs.writeFile(join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFile(
-      path.join(root, 'src', 'components', 'cmp-a', 'cmp-a.tsx'),
+      join(root, 'src', 'components', 'cmp-a', 'cmp-a.tsx'),
       `
       @Component({ tag: 'cmp-a' }) export class CmpA { render() { return <p>cmp-a</p>; } }
     `,
@@ -35,7 +40,7 @@ describe('service worker', () => {
     const r = await compiler.build();
     expect(r.diagnostics).toEqual([]);
 
-    const indexHtml = await compiler.fs.readFile(path.join(root, 'www', 'index.html'));
+    const indexHtml = await compiler.fs.readFile(join(root, 'www', 'index.html'));
     expect(indexHtml).toContain(`registration.unregister()`);
   });
 });

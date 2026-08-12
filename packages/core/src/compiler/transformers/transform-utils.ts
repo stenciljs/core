@@ -587,6 +587,19 @@ interface TypeReferenceIR {
 }
 
 /**
+ * Resolve a TypeScript alias to its original symbol.
+ *
+ * @param checker a TypeScript type checker
+ * @param symbol the symbol to resolve, if one was found
+ * @returns the original symbol for an alias, the provided symbol otherwise, or `undefined`
+ */
+export const resolveAliasedSymbol = (
+  checker: ts.TypeChecker,
+  symbol: ts.Symbol | undefined,
+): ts.Symbol | undefined =>
+  symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0 ? checker.getAliasedSymbol(symbol) : symbol;
+
+/**
  * Recursively walks the provided AST to collect all TypeScript type references that are found
  *
  * @param checker a {@link ts.TypeChecker} instance
@@ -625,6 +638,21 @@ const getAllTypeReferences = (
               });
             }
           });
+      }
+    } else if (ts.isTypeQueryNode(currentNode) && ts.isIdentifier(currentNode.exprName)) {
+      const referencedSymbol = resolveAliasedSymbol(
+        checker,
+        checker.getSymbolAtLocation(currentNode.exprName),
+      );
+      const isEnumOrClass = referencedSymbol?.declarations?.some(
+        (declaration) => ts.isEnumDeclaration(declaration) || ts.isClassDeclaration(declaration),
+      );
+
+      if (isEnumOrClass) {
+        referencedTypes.push({
+          name: getEntityName(currentNode.exprName),
+          type: checker.getTypeAtLocation(currentNode.exprName),
+        });
       }
     }
     return ts.forEachChild(currentNode, visit);
@@ -705,14 +733,27 @@ const getTypeReferenceLocation = (
         ? importElement.propertyName.getText()
         : typeName;
 
-      const typeDecl = findTypeWithName(importHomeModule, originalTypeName);
-      type = checker.getTypeAtLocation(typeDecl);
+      const importedSymbol = resolveAliasedSymbol(checker, checker.getSymbolAtLocation(importName));
+      const declaration = importedSymbol?.valueDeclaration ?? importedSymbol?.declarations?.[0];
+      const enumOrClassDeclaration =
+        declaration && (ts.isClassDeclaration(declaration) || ts.isEnumDeclaration(declaration))
+          ? declaration
+          : undefined;
+      if (importedSymbol && enumOrClassDeclaration) {
+        type = checker.getTypeOfSymbolAtLocation(importedSymbol, enumOrClassDeclaration);
+      } else {
+        const typeDecl = findTypeWithName(importHomeModule, originalTypeName);
+        if (typeDecl) {
+          type = checker.getTypeAtLocation(typeDecl);
+        }
+      }
 
+      const typeSourceFile = enumOrClassDeclaration?.getSourceFile() ?? importHomeModule;
       const id = addToLibrary(
         type,
         originalTypeName,
         checker,
-        normalizePath(importHomeModule.fileName, false),
+        normalizePath(typeSourceFile.fileName, false),
       );
       return {
         location: 'import',
@@ -724,13 +765,46 @@ const getTypeReferenceLocation = (
   }
 
   // Loop through all top level exports to find if any reference to the type for 'local' reference location
-  const isExported = sourceFile.statements.some((st) => {
+  const localExport = sourceFile.statements.reduce<
+    { isDefault?: boolean; referenceLocation?: string } | undefined
+  >((exportInfo, st) => {
+    if (exportInfo) {
+      return exportInfo;
+    }
+
+    if (
+      ts.isExportAssignment(st) &&
+      !st.isExportEquals &&
+      ts.isIdentifier(st.expression) &&
+      st.expression.getText() === typeName
+    ) {
+      // `export default TypeName`
+      return { isDefault: true };
+    }
+
+    if (ts.isExportDeclaration(st) && !st.moduleSpecifier && ts.isNamedExports(st.exportClause)) {
+      // `export { TypeName }`, including renamed and default exports
+      const exportSpecifier = st.exportClause.elements.find(
+        (element) => (element.propertyName ?? element.name).getText() === typeName,
+      );
+      if (exportSpecifier) {
+        const exportedName = exportSpecifier.name.getText();
+        return exportedName === 'default'
+          ? { isDefault: true }
+          : { referenceLocation: exportedName === typeName ? undefined : exportedName };
+      }
+    }
+
     const statementModifiers = retrieveTsModifiers(st);
 
     const isDeclarationExported = (
-      statement: ts.InterfaceDeclaration | ts.TypeAliasDeclaration | ts.EnumDeclaration,
+      statement:
+        | ts.InterfaceDeclaration
+        | ts.TypeAliasDeclaration
+        | ts.EnumDeclaration
+        | ts.ClassDeclaration,
     ) =>
-      (<ts.Identifier>statement.name).getText() === typeName &&
+      statement.name?.getText() === typeName &&
       Array.isArray(statementModifiers) &&
       statementModifiers.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword);
 
@@ -743,21 +817,26 @@ const getTypeReferenceLocation = (
 
     const isEnumDeclarationExported = ts.isEnumDeclaration(st) && isDeclarationExported(st);
 
-    // Is the interface exported through a named export
-    const isTypeInExportDeclaration =
-      ts.isExportDeclaration(st) &&
-      ts.isNamedExports(st.exportClause) &&
-      st.exportClause.elements.some((nee) => nee.name.getText() === typeName);
+    const isClassDeclarationExported = ts.isClassDeclaration(st) && isDeclarationExported(st);
 
-    return (
+    const isExported =
       isInterfaceDeclarationExported ||
       isTypeAliasDeclarationExported ||
       isEnumDeclarationExported ||
-      isTypeInExportDeclaration
-    );
-  });
+      isClassDeclarationExported;
 
-  if (isExported) {
+    if (!isExported) {
+      return undefined;
+    }
+
+    // Direct export declarations, with an optional default modifier
+    const isDefault = statementModifiers?.some(
+      (modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword,
+    );
+    return isDefault ? { isDefault: true } : {};
+  }, undefined);
+
+  if (localExport) {
     const id = addToLibrary(type, typeName, checker, sourceFile.fileName);
 
     return {
@@ -772,6 +851,10 @@ const getTypeReferenceLocation = (
       // will not be used for component event definitions
       path: sourceFile.fileName,
       id,
+      ...(localExport.isDefault ? { isDefault: true } : {}),
+      ...(localExport.referenceLocation
+        ? { referenceLocation: localExport.referenceLocation }
+        : {}),
     };
   }
 
@@ -787,44 +870,35 @@ const getTypeReferenceLocation = (
 
   if (defaultImportDeclaration) {
     const localImportPath = (<ts.StringLiteral>defaultImportDeclaration.moduleSpecifier).text;
-    const options = program.getCompilerOptions();
-    const compilerHost = ts.createCompilerHost(options);
-    const importHomeModule = getHomeModule(
-      sourceFile,
-      localImportPath,
-      options,
-      compilerHost,
-      program,
+    const defaultImportName = defaultImportDeclaration.importClause.name;
+    const importedSymbol = resolveAliasedSymbol(
+      checker,
+      checker.getSymbolAtLocation(defaultImportName),
     );
+    const declaration = importedSymbol?.valueDeclaration ?? importedSymbol?.declarations?.[0];
 
-    if (importHomeModule) {
-      // For default imports, the original type name is 'default' in the module's exports
-      // But we want to use the actual type name from the module
-      const defaultExport = importHomeModule.statements.find(
-        (st) =>
-          ts.isExportAssignment(st) &&
-          !st.isExportEquals &&
-          ts.isIdentifier(st.expression) &&
-          st.expression.getText() === typeName,
-      );
-
-      if (defaultExport) {
-        const typeDecl = findTypeWithName(importHomeModule, typeName);
-        type = checker.getTypeAtLocation(typeDecl);
-
-        const id = addToLibrary(
-          type,
-          typeName,
-          checker,
-          normalizePath(importHomeModule.fileName, false),
-        );
-        return {
-          location: 'import',
-          path: localImportPath,
-          id,
-          isDefault: true,
-        };
+    if (importedSymbol && declaration) {
+      if (ts.isClassDeclaration(declaration) || ts.isEnumDeclaration(declaration)) {
+        type = checker.getTypeOfSymbolAtLocation(importedSymbol, declaration);
       }
+      const declarationNodeName = (declaration as ts.NamedDeclaration).name;
+      const declarationName =
+        declarationNodeName && ts.isIdentifier(declarationNodeName)
+          ? declarationNodeName.getText()
+          : importedSymbol.getName();
+      const originalTypeName = declarationName === 'default' ? typeName : declarationName;
+      const id = addToLibrary(
+        type,
+        originalTypeName,
+        checker,
+        normalizePath(declaration.getSourceFile().fileName, false),
+      );
+      return {
+        location: 'import',
+        path: localImportPath,
+        id,
+        isDefault: true,
+      };
     }
   }
 
