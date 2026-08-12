@@ -95,6 +95,10 @@ export const updateModule = (
   }
 
   const srcDirPath = dirname(sourceFilePath);
+  // TEMP DEBUG (windows build-conditionals investigation)
+  console.warn(
+    `[DEBUG updateModule] tsSourceFile.fileName="${tsSourceFile.fileName}" sourceFilePath="${sourceFilePath}" srcDirPath="${srcDirPath}"`,
+  );
   const emitFileName = basename(emitFilePath);
   emitFilePath = normalizePath(join(srcDirPath, emitFileName));
 

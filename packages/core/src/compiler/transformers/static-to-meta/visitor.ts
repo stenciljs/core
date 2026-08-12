@@ -49,10 +49,6 @@ export const convertStaticToMeta = (
     };
 
     return (tsSourceFile) => {
-      // TEMP DEBUG (windows build-conditionals investigation)
-      console.warn(
-        `[DEBUG convertStaticToMeta] tsSourceFile.fileName="${tsSourceFile.fileName}" dirname="${dirname(tsSourceFile.fileName)}"`,
-      );
       dirPath = dirname(tsSourceFile.fileName);
       moduleFile = getModuleLegacy(compilerCtx, tsSourceFile.fileName);
       resetModuleLegacy(moduleFile);
