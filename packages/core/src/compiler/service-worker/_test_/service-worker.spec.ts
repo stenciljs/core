@@ -4,10 +4,8 @@ import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 
 describe('service worker', () => {
-  const root = path.resolve('/');
-
   it('dev service worker', async () => {
-    const { compiler } = await createTestCompiler({
+    const { compiler, config } = await createTestCompiler({
       config: {
         // @ts-expect-error - need to test dev mode service worker behavior
         devMode: true,
@@ -22,6 +20,10 @@ describe('service worker', () => {
         ],
       },
     });
+    // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+    // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+    // the actual validated config instead of assuming it up front.
+    const root = config.rootDir;
     await compiler.fs.writeFile(path.join(root, 'www', 'script.js'), `/**/`);
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFile(

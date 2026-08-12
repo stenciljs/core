@@ -10,7 +10,10 @@ import type * as d from '@stencil/core';
 describe('component-styles', () => {
   let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
-  const root = path.resolve('/');
+  // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+  // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+  // the actual validated config instead of assuming it up front.
+  let root: string;
 
   beforeAll(async () => {
     setup = await prepareTestCompiler({
@@ -24,6 +27,7 @@ describe('component-styles', () => {
   beforeEach(async () => {
     const result = await createTestCompiler({ setup });
     compiler = result.compiler;
+    root = result.config.rootDir;
   });
 
   afterEach(async () => {

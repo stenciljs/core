@@ -7,7 +7,11 @@ import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testin
 
 describe('outputTarget, www / loader-bundle', () => {
   let compiler: d.Compiler;
-  const root = path.resolve('/');
+  // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+  // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+  // the actual validated config instead of assuming it up front. Output target `dir`s
+  // below are relative (resolved against rootDir by config validation) for the same reason.
+  let root: string;
 
   beforeEach(async () => {
     const result = await createTestCompiler({
@@ -15,12 +19,12 @@ describe('outputTarget, www / loader-bundle', () => {
         outputTargets: [
           {
             type: 'www',
-            dir: path.join(root, 'custom-www'),
+            dir: 'custom-www',
             indexHtml: 'custom-index.htm',
           } as d.OutputTargetWww,
           {
             type: 'loader-bundle',
-            dir: path.join(root, 'custom-dist'),
+            dir: 'custom-dist',
             cjs: true,
             skipInDev: false,
           } as d.OutputTargetLoaderBundle,
@@ -29,6 +33,7 @@ describe('outputTarget, www / loader-bundle', () => {
       },
     });
     compiler = result.compiler;
+    root = result.config.rootDir;
   });
 
   afterEach(async () => {

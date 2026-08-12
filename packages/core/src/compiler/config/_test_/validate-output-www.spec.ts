@@ -39,20 +39,20 @@ describe('validateOutputTargetWww', () => {
 
     expect(config.outputTargets).toEqual([
       {
-        dir: '/dist/types',
+        dir: join(rootDir, 'dist', 'types'),
         empty: true,
         skipInDev: true,
         type: 'types',
       },
       {
-        dir: '/dist/collection',
+        dir: join(rootDir, 'dist', 'collection'),
         empty: true,
         skipInDev: true,
         transformAliasedImportPaths: true,
         type: 'collection',
       },
       {
-        dir: '/dist/assets',
+        dir: join(rootDir, 'dist', 'assets'),
         skipInDev: false,
         type: 'assets',
       },

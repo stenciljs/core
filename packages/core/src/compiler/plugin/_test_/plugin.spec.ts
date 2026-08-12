@@ -12,7 +12,10 @@ import { normalizePath } from '../../../utils';
 describe('plugin', () => {
   let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
-  const root = path.resolve('/');
+  // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+  // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+  // the actual validated config instead of assuming it up front.
+  let root: string;
 
   beforeAll(async () => {
     setup = await prepareTestCompiler({ config: { outputTargets: [{ type: 'www' }] } });
@@ -21,6 +24,7 @@ describe('plugin', () => {
   beforeEach(async () => {
     const result = await createTestCompiler({ setup });
     compiler = result.compiler;
+    root = result.config.rootDir;
     await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();
   });

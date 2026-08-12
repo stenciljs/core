@@ -7,11 +7,15 @@ import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testin
 
 describe('outputTarget, www', () => {
   let compiler: d.Compiler;
-  const root = path.resolve('/');
+  // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
+  // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
+  // the actual validated config instead of assuming it up front.
+  let root: string;
 
   beforeEach(async () => {
     const result = await createTestCompiler({ config: { outputTargets: [{ type: 'www' }] } });
     compiler = result.compiler;
+    root = result.config.rootDir;
   });
 
   afterEach(async () => {
