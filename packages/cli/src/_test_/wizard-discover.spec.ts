@@ -1,5 +1,5 @@
 import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { discoverPlugins } from '../wizard/discover';
@@ -46,13 +46,17 @@ function mockResolvedPackage(packageName: string, wizardEntry?: string) {
   });
 }
 
-// Keys are matched via `fileURLToPath`, the exact inverse of the `pathToFileURL` call in
-// wizard/discover.ts, so lookups stay correct regardless of the host OS's path separator
-// (and, on Windows, the drive letter `pathToFileURL` fills in).
+// Keys (native fs paths) are converted to file:// URLs up front via the same `pathToFileURL`
+// call wizard/discover.ts makes, so comparison happens at the URL level. Round-tripping the
+// incoming URL back to a path instead (via fileURLToPath) doesn't work: on Windows,
+// pathToFileURL fills in a drive letter for driveless-rooted paths, and that only happens on
+// one side unless both sides go through the exact same forward transform.
 function makeLoader(modules: Record<string, Record<string, unknown>> = {}) {
+  const urlModules = new Map(
+    Object.entries(modules).map(([path, mod]) => [pathToFileURL(path).href, mod]),
+  );
   return vi.fn(async (url: string) => {
-    const path = fileURLToPath(url);
-    if (path in modules) return modules[path];
+    if (urlModules.has(url)) return urlModules.get(url);
     throw new Error(`Module not found: ${url}`);
   });
 }
