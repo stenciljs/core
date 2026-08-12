@@ -27,14 +27,6 @@ jobs:
           name: stencil-build
           path: packages/
 
-      - name: Debug pnpm workspace (temporary)
-        if: runner.os == 'Windows'
-        run: |
-          echo "cwd: $(pwd)"
-          pnpm -r list --depth -1
-          pnpm -r exec pwd
-        shell: bash
-
       - name: Unit Tests
         run: pnpm test
         shell: bash
