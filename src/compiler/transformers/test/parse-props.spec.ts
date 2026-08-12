@@ -1,6 +1,6 @@
-import { mockBuildCtx, mockConfig, mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerSystem, mockConfig, mockValidatedConfig } from '@stencil/core/testing';
 import { normalizePath } from '@utils';
-import { join, resolve } from 'path';
+import { join, relative, resolve } from 'path';
 import * as ts from 'typescript';
 
 import { createCompiler } from '../../compiler';
@@ -156,16 +156,17 @@ describe('parse props', () => {
   });
 
   it('generates imports for default and aliased exports used by type queries', async () => {
-    const rootDir = normalizePath(process.cwd(), false);
-    const fixtureDir = join(rootDir, '.stencil-type-query-exports');
-    const srcDir = join(fixtureDir, 'src');
+    const sys = mockCompilerSystem();
+    const rootDir = '/';
+    const srcDir = join(rootDir, 'src');
     const config = mockConfig({
       buildDocs: true,
+      sys,
       rootDir,
       srcDir,
-      outputTargets: [{ type: 'docs-json', file: join('.stencil-type-query-exports', 'docs.json') }],
+      outputTargets: [{ type: 'docs-json', file: join(rootDir, 'docs.json') }],
     });
-    const tsconfigPath = join(fixtureDir, 'tsconfig.json');
+    const tsconfigPath = join(rootDir, 'tsconfig.json');
     const componentDir = join(srcDir, 'components');
 
     await config.sys.createDir(componentDir, { recursive: true });
@@ -399,7 +400,7 @@ describe('parse props', () => {
         [],
       );
 
-      const docsJson = JSON.parse(await compiler.sys.readFile(join(fixtureDir, 'docs.json')));
+      const docsJson = JSON.parse(await compiler.sys.readFile(join(rootDir, 'docs.json')));
       const barrelComponent = docsJson.components.find((component: { tag: string }) => component.tag === 'cmp-barrel');
       const getBarrelReference = (propertyName: string, referenceName: string) =>
         barrelComponent.props.find((property: { name: string }) => property.name === propertyName).complexType
@@ -419,12 +420,12 @@ describe('parse props', () => {
       expect(firstModeReference.id).not.toBe(secondModeReference.id);
       expect(docsJson.typeLibrary[firstModeReference.id]).toMatchObject({
         declaration: expect.stringContaining('enum Mode'),
-        path: '.stencil-type-query-exports/src/components/a.ts',
+        path: normalizePath(relative(process.cwd(), join(componentDir, 'a.ts')), false),
       });
       expect(docsJson.typeLibrary[firstModeReference.id].declaration).toContain("A = 'a'");
       expect(docsJson.typeLibrary[secondModeReference.id]).toMatchObject({
         declaration: expect.stringContaining('enum Mode'),
-        path: '.stencil-type-query-exports/src/components/b.ts',
+        path: normalizePath(relative(process.cwd(), join(componentDir, 'b.ts')), false),
       });
       expect(docsJson.typeLibrary[secondModeReference.id].declaration).toContain("B = 'b'");
 

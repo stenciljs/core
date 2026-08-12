@@ -114,6 +114,7 @@ const generateComponentTypesFile = (
       importFilePath = normalizePath('./' + relative(config.srcDir, filePath)).replace(/\.(tsx|ts)$/, '');
     }
 
+    // A module may have multiple local aliases for its default export.
     const defaultImports = typeData.filter((td) => td.isDefault);
 
     if (defaultImports.length > 0) {
@@ -132,14 +133,17 @@ const generateComponentTypesFile = (
         })
         .join(`, `);
 
+      // Combine the first default alias with named imports when both are present.
       if (namedImports.length > 0) {
         imports.push(`import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`);
         exports.push(`export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`);
       } else {
+        // Emit the first default alias by itself when there are no named imports.
         imports.push(`import ${defaultImport.importName} from "${importFilePath}";`);
         exports.push(`export { default as ${defaultImport.importName} } from "${importFilePath}";`);
       }
 
+      // Each additional default alias needs its own import statement.
       additionalDefaultImports.forEach((td) => {
         imports.push(`import ${td.importName} from "${importFilePath}";`);
         exports.push(`export { default as ${td.importName} } from "${importFilePath}";`);

@@ -572,7 +572,14 @@ interface TypeReferenceIR {
   type: ts.Type;
 }
 
-const resolveAliasedSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol | undefined): ts.Symbol | undefined =>
+/**
+ * Resolve a TypeScript alias to its original symbol.
+ *
+ * @param checker a TypeScript type checker
+ * @param symbol the symbol to resolve, if one was found
+ * @returns the original symbol for an alias, the provided symbol otherwise, or `undefined`
+ */
+export const resolveAliasedSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol | undefined): ts.Symbol | undefined =>
   symbol && (symbol.flags & ts.SymbolFlags.Alias) !== 0 ? checker.getAliasedSymbol(symbol) : symbol;
 
 /**
@@ -730,10 +737,12 @@ const getTypeReferenceLocation = (
         ts.isIdentifier(st.expression) &&
         st.expression.getText() === typeName
       ) {
+        // `export default TypeName`
         return { isDefault: true };
       }
 
       if (ts.isExportDeclaration(st) && !st.moduleSpecifier && ts.isNamedExports(st.exportClause)) {
+        // `export { TypeName }`, including renamed and default exports
         const exportSpecifier = st.exportClause.elements.find(
           (element) => (element.propertyName ?? element.name).getText() === typeName,
         );
@@ -773,6 +782,7 @@ const getTypeReferenceLocation = (
         return undefined;
       }
 
+      // Direct export declarations, with an optional default modifier
       const isDefault = statementModifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword);
       return isDefault ? { isDefault: true } : {};
     },
