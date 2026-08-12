@@ -46,11 +46,6 @@ function mockResolvedPackage(packageName: string, wizardEntry?: string) {
   });
 }
 
-// Keys (native fs paths) are converted to file:// URLs up front via the same `pathToFileURL`
-// call wizard/discover.ts makes, so comparison happens at the URL level. Round-tripping the
-// incoming URL back to a path instead (via fileURLToPath) doesn't work: on Windows,
-// pathToFileURL fills in a drive letter for driveless-rooted paths, and that only happens on
-// one side unless both sides go through the exact same forward transform.
 function makeLoader(modules: Record<string, Record<string, unknown>> = {}) {
   const urlModules = new Map(
     Object.entries(modules).map(([path, mod]) => [pathToFileURL(path).href, mod]),

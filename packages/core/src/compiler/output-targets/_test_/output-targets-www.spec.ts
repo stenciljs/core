@@ -1,15 +1,17 @@
-import path from 'path';
 import { createTestCompiler } from '@stencil/core/testing';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+import { join } from '../../../utils';
 
 describe('outputTarget, www', () => {
   let compiler: d.Compiler;
   // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
   // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
-  // the actual validated config instead of assuming it up front.
+  // the actual validated config instead of assuming it up front. Use Stencil's own
+  // `join` (always forward-slash) rather than native `path.join`, to match exactly
+  // what the compiler itself uses internally when writing output.
   let root: string;
 
   beforeEach(async () => {
@@ -24,8 +26,8 @@ describe('outputTarget, www', () => {
 
   it('default www files', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
+      [join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
     await compiler.fs.commit();
 
@@ -33,16 +35,13 @@ describe('outputTarget, www', () => {
     expect(r.diagnostics).toHaveLength(0);
 
     expectFilesExist(compiler.fs, [
-      path.join(root, 'www'),
-      path.join(root, 'www', 'build'),
-      path.join(root, 'www', 'build', 'cmp-a.entry.js'),
-      path.join(root, 'www', 'index.html'),
-      path.join(root, 'src', 'components.d.ts'),
+      join(root, 'www'),
+      join(root, 'www', 'build'),
+      join(root, 'www', 'build', 'cmp-a.entry.js'),
+      join(root, 'www', 'index.html'),
+      join(root, 'src', 'components.d.ts'),
     ]);
 
-    expectFilesDoNotExist(compiler.fs, [
-      path.join(root, 'src', 'cmp-a.js'),
-      path.join(root, 'dist'),
-    ]);
+    expectFilesDoNotExist(compiler.fs, [join(root, 'src', 'cmp-a.js'), join(root, 'dist')]);
   });
 });

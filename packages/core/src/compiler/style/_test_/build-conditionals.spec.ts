@@ -1,4 +1,3 @@
-import path from 'path';
 import {
   createTestCompiler,
   prepareTestCompiler,
@@ -7,6 +6,7 @@ import {
 import { describe, expect, it, beforeAll, beforeEach, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { join } from '../../../utils';
 import { getLazyBuildConditionals } from '../../output-targets/dist-lazy/lazy-build-conditionals';
 
 describe('build-conditionals', () => {
@@ -15,7 +15,9 @@ describe('build-conditionals', () => {
   let config: d.ValidatedConfig;
   // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
   // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
-  // the actual validated config instead of assuming it up front.
+  // the actual validated config instead of assuming it up front. Use Stencil's own
+  // `join` (always forward-slash) rather than native `path.join`, to match exactly
+  // what the compiler itself uses internally when writing output.
   let root: string;
 
   beforeAll(async () => {
@@ -27,7 +29,7 @@ describe('build-conditionals', () => {
     compiler = result.compiler;
     config = result.config;
     root = config.rootDir;
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler.fs.writeFile(join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.commit();
   });
   afterEach(async () => {
@@ -36,13 +38,13 @@ describe('build-conditionals', () => {
 
   it('should set svg/slot/shadow build conditionals', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `
+      [join(root, 'src', 'cmp-a.tsx')]: `
         import { icon, slot } from './icon';
         @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } }) export class CmpA {
           render() { return <div>{icon()}{slot()}</div>; }
         }`,
-      [path.join(root, 'src', 'slot.tsx')]: `export default () => <slot/>;`,
-      [path.join(root, 'src', 'icon.tsx')]: `
+      [join(root, 'src', 'slot.tsx')]: `export default () => <slot/>;`,
+      [join(root, 'src', 'icon.tsx')]: `
         import slot from './slot';
         export const icon = () => <svg/>;
         export { slot };
@@ -59,12 +61,12 @@ describe('build-conditionals', () => {
 
   it('should set slot build conditionals, not import unused svg import', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `
+      [join(root, 'src', 'cmp-a.tsx')]: `
         import icon from './icon';
         @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } }) export class CmpA {
           render() { return <div><slot/></div>; }
         }`,
-      [path.join(root, 'src', 'icon.tsx')]: `export default () => <svg/>;`,
+      [join(root, 'src', 'icon.tsx')]: `export default () => <svg/>;`,
     });
     await compiler.fs.commit();
 
@@ -77,7 +79,7 @@ describe('build-conditionals', () => {
 
   it('should set slot build conditionals', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
         render() { return <div><slot/></div>; }
       }`,
     });
@@ -92,7 +94,7 @@ describe('build-conditionals', () => {
 
   it('should set vdom build conditionals', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
         render() { return <div>Hello World</div>; }
       }`,
     });
@@ -107,7 +109,7 @@ describe('build-conditionals', () => {
 
   it('should not set vdom build conditionals', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {
         render() { return 'Hello World'; }
       }`,
     });

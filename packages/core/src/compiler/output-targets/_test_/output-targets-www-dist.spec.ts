@@ -1,9 +1,9 @@
-import path from 'path';
 import { createTestCompiler } from '@stencil/core/testing';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
+import { join } from '../../../utils';
 
 describe('outputTarget, www / loader-bundle', () => {
   let compiler: d.Compiler;
@@ -11,6 +11,8 @@ describe('outputTarget, www / loader-bundle', () => {
   // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
   // the actual validated config instead of assuming it up front. Output target `dir`s
   // below are relative (resolved against rootDir by config validation) for the same reason.
+  // Use Stencil's own `join` (always forward-slash) rather than native `path.join`, to
+  // match exactly what the compiler itself uses internally when writing output.
   let root: string;
 
   beforeEach(async () => {
@@ -42,13 +44,13 @@ describe('outputTarget, www / loader-bundle', () => {
 
   it('www and loader-bundle with custom paths', async () => {
     await compiler.fs.writeFiles({
-      [path.join(root, 'package.json')]: JSON.stringify({
+      [join(root, 'package.json')]: JSON.stringify({
         type: 'module',
         module: 'custom-dist/index.js',
         main: 'custom-dist/index.cjs',
       }),
-      [path.join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
+      [join(root, 'src', 'index.html')]: `<cmp-a></cmp-a>`,
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({ tag: 'cmp-a' }) export class CmpA {}`,
     });
     await compiler.fs.commit();
 
@@ -57,16 +59,16 @@ describe('outputTarget, www / loader-bundle', () => {
 
     // custom-dist should have loader-bundle distribution outputs
     expectFilesExist(compiler.fs, [
-      path.join(root, 'custom-dist'),
-      path.join(root, 'custom-dist', 'esm'),
-      path.join(root, 'custom-dist', 'cjs'),
+      join(root, 'custom-dist'),
+      join(root, 'custom-dist', 'esm'),
+      join(root, 'custom-dist', 'cjs'),
     ]);
 
     // default www/ must not exist - only custom-www/ should
     expectFilesDoNotExist(compiler.fs, [
-      path.join(root, 'www'),
+      join(root, 'www'),
       // custom-www with default index.html must not exist (custom indexHtml is custom-index.htm)
-      path.join(root, 'custom-www', 'index.html'),
+      join(root, 'custom-www', 'index.html'),
     ]);
   });
 });

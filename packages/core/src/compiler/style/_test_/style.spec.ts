@@ -1,4 +1,3 @@
-import path from 'path';
 import {
   createTestCompiler,
   prepareTestCompiler,
@@ -7,12 +6,16 @@ import {
 import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { join } from '../../../utils';
+
 describe('component-styles', () => {
   let setup: PreparedTestCompiler;
   let compiler: d.Compiler;
   // `createTestCompiler`'s default rootDir comes from the in-memory sys ('/'), which
   // may not match `path.resolve('/')` on Windows (drive-lettered) - read it back from
-  // the actual validated config instead of assuming it up front.
+  // the actual validated config instead of assuming it up front. Use Stencil's own
+  // `join` (always forward-slash) rather than native `path.join`, to match exactly
+  // what the compiler itself uses internally when writing output.
   let root: string;
 
   beforeAll(async () => {
@@ -35,9 +38,9 @@ describe('component-styles', () => {
   });
 
   it('should add mode styles to hashed filename/minified builds', async () => {
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler.fs.writeFile(join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]: `@Component({
+      [join(root, 'src', 'cmp-a.tsx')]: `@Component({
         tag: 'cmp-a',
         styleUrls: {
           ios: 'cmp-a.ios.css',
@@ -45,8 +48,8 @@ describe('component-styles', () => {
         }
       })
       export class CmpA {}`,
-      [path.join(root, 'src', 'cmp-a.ios.css')]: `body{font-family:Helvetica}`,
-      [path.join(root, 'src', 'cmp-a.md.css')]: `body{font-family:Roboto}`,
+      [join(root, 'src', 'cmp-a.ios.css')]: `body{font-family:Helvetica}`,
+      [join(root, 'src', 'cmp-a.md.css')]: `body{font-family:Roboto}`,
     });
     await compiler.fs.commit();
 
@@ -74,20 +77,18 @@ describe('component-styles', () => {
       return 'hashed';
     };
 
-    await compiler.fs.writeFile(path.join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
+    await compiler.fs.writeFile(join(root, 'src', 'index.html'), `<cmp-a></cmp-a>`);
     await compiler.fs.writeFiles({
-      [path.join(root, 'src', 'cmp-a.tsx')]:
+      [join(root, 'src', 'cmp-a.tsx')]:
         `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,
-      [path.join(root, 'src', 'cmp-a.css')]: `body{color:red}`,
+      [join(root, 'src', 'cmp-a.css')]: `body{color:red}`,
     });
     await compiler.fs.commit();
 
     const r = await compiler.build();
     expect(r.diagnostics).toHaveLength(0);
 
-    const content = await compiler.fs.readFile(
-      path.join(root, 'www', 'build', 'p-hashed.entry.js'),
-    );
+    const content = await compiler.fs.readFile(join(root, 'www', 'build', 'p-hashed.entry.js'));
     expect(content).toContain(`body{color:red}`);
   });
 });
