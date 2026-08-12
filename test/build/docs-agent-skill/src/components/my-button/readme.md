@@ -35,6 +35,13 @@ A clickable button component.
 | `myButtonClick` | Emitted when the button is clicked. | `CustomEvent<void>` |
 
 
+## Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*

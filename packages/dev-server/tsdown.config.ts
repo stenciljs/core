@@ -13,8 +13,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     deps: {
-      neverBundle: [/^node:/, '@stencil/core'],
-      skipNodeModulesBundle: true,
+      neverBundle: true,
     },
     copy: [
       // Copy static assets needed by the dev server

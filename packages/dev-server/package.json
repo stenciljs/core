@@ -40,14 +40,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "launch-editor": "^2.0.0",
+    "launch-editor": "^2.14.1",
     "open": "^11.0.0",
-    "ws": "^8.0.0"
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "@stencil/core": "workspace:*",
-    "@tsdown/css": ">=0.21.0 <1.0.0",
-    "@types/ws": "^8.0.0",
+    "@tsdown/css": "^0.22.14",
+    "@types/ws": "^8.18.1",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",

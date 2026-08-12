@@ -43,12 +43,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clack/prompts": "^1.5.1",
+    "@clack/prompts": "^1.7.0",
     "@stencil/dev-server": "workspace:*",
     "@stencil/templates": "workspace:*",
     "local-pkg": "^1.2.1",
     "nypm": "^0.3.12",
-    "std-env": "^3.8.0",
+    "std-env": "^3.10.0",
     "typescript": "catalog:"
   },
   "devDependencies": {

@@ -40,12 +40,12 @@
     "release:prerelease": "./scripts/release-prerelease.sh"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.0",
-    "@types/node": "^24.12.4",
+    "@changesets/cli": "^2.31.1",
+    "@types/node": "^24.13.3",
     "cspell": "^9.8.0",
-    "knip": "^6.23.0",
+    "knip": "^6.32.2",
     "oxfmt": "^0.42.0",
-    "oxlint": "^1.66.0"
+    "oxlint": "^1.78.0"
   },
   "volta": {
     "node": "24.14.0",
