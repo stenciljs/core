@@ -8,8 +8,8 @@ import {
   DEFAULT_STYLE_MODE,
   hasError,
   isString,
+  join,
   normalizePath,
-  resolve,
 } from '../../utils';
 import { scopeCss } from '../../utils/shadow-css';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
@@ -294,8 +294,11 @@ const getCssToEsmImports = (
       // absolute path already
       cssImportData.filePath = normalizePath(cssImportData.url);
     } else {
-      // relative path
-      cssImportData.filePath = normalizePath(resolve(dir, cssImportData.url));
+      // relative path.
+      // `join` (not `resolve`) - `dir` is always already Stencil-normalized/absolute, and
+      // `resolve` falls through to native path.resolve() for a driveless-rooted path on
+      // Windows, which fills in process.cwd()'s real drive letter and corrupts the path.
+      cssImportData.filePath = normalizePath(join(dir, cssImportData.url));
     }
 
     cssImportData.varName = createCssVarName(cssImportData.filePath, modeName);

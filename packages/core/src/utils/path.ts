@@ -249,24 +249,6 @@ export function join(...paths: string[]): string {
  * @returns a resolved path!
  */
 export function resolve(...paths: string[]): string {
-  // path.resolve()'s semantics: process segments right-to-left until an absolute
-  // one is found; anything before it is irrelevant to the result.
-  let start = paths.length - 1;
-  while (start > 0 && !nodePath.isAbsolute(paths[start])) {
-    start--;
-  }
-
-  if (nodePath.isAbsolute(paths[start])) {
-    // Already absolute - join + collapse '.'/'..' segments without consulting
-    // process.cwd(). This matters on Windows: a POSIX-style rooted path with no
-    // drive letter (e.g. one of Stencil's own normalized/virtual paths, like
-    // in-memory-fs paths in tests) passes Node's own isAbsolute() check, but
-    // native path.resolve() still silently prepends process.cwd()'s real drive
-    // letter to it - corrupting a path that was never meant to touch real disk.
-    return normalizePath(nodePath.join(...paths.slice(start)), false);
-  }
-
-  // None of the given segments were absolute - genuinely relative, needs real cwd.
   /**
    * When normalizing, we should _not_ attempt to relativize the path returned by the native Node `resolve` method. When
    * calculating the path from each of the string-based parts, Node does not prepend './' to the calculated path.

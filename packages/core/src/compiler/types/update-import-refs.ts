@@ -2,7 +2,7 @@ import { dirname } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { resolve } from '../../utils';
+import { join } from '../../utils';
 
 /**
  * Find all referenced types by a component and add them to the `importDataObj` parameter
@@ -116,9 +116,12 @@ const updateImportReferenceFactory = (
           }
         }
 
-        // If this is a relative path make it absolute
+        // If this is a relative path make it absolute.
+        // `join` (not `resolve`) - `filePath` is always already Stencil-normalized/absolute, and
+        // `resolve` falls through to native path.resolve() for a driveless-rooted path on Windows,
+        // which fills in process.cwd()'s real drive letter and corrupts the path.
         if (importResolvedFile.startsWith('.')) {
-          importResolvedFile = resolve(dirname(filePath), importResolvedFile);
+          importResolvedFile = join(dirname(filePath), importResolvedFile);
         }
         existingTypeImportData[importResolvedFile] =
           existingTypeImportData[importResolvedFile] || [];
