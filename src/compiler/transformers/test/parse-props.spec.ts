@@ -1,6 +1,6 @@
 import { mockBuildCtx, mockCompilerSystem, mockConfig, mockValidatedConfig } from '@stencil/core/testing';
 import { normalizePath } from '@utils';
-import { join, relative, resolve } from 'path';
+import { join as pathJoin, relative, resolve } from 'path';
 import * as ts from 'typescript';
 
 import { createCompiler } from '../../compiler';
@@ -8,6 +8,8 @@ import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decor
 import { getAttributeTypeInfo } from '../transform-utils';
 import { getStaticGetter, transpileModule } from './transpile';
 import { c, formatCode } from './utils';
+
+const join = (...segments: string[]): string => normalizePath(pathJoin(...segments), false);
 
 describe('parse props', () => {
   it('prop optional', () => {
@@ -370,6 +372,7 @@ describe('parse props', () => {
       `,
     );
 
+    const originalCwd = process.cwd();
     const compiler = await createCompiler({ ...config, tsconfig: tsconfigPath });
     try {
       const results = await compiler.build();
@@ -443,6 +446,7 @@ describe('parse props', () => {
       expect(componentsDts).toContain('import { OriginalClass } from "./components/cmp-shadow";');
       expect(componentsDts).not.toContain('PublicShadow as OriginalClass');
     } finally {
+      process.chdir(originalCwd);
       await compiler.destroy();
     }
   });
