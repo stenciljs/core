@@ -3,7 +3,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { ValidatedConfig } from '../../declarations';
-import { typeToString } from './transform-utils';
+import { resolveAliasedSymbol, typeToString } from './transform-utils';
 
 /**
  * This is a {@link d.JsonDocsTypeLibrary} cache which is used to store a
@@ -231,22 +231,9 @@ export function getOriginalTypeName(identifier: ts.Node, checker: ts.TypeChecker
   if (!possiblyAliasedSymbol) {
     return undefined;
   }
-  const unaliasedSymbol = unalias(possiblyAliasedSymbol, checker);
+  const unaliasedSymbol = resolveAliasedSymbol(checker, possiblyAliasedSymbol);
   const name = unaliasedSymbol.getName();
   return name;
-}
-
-/**
- * Check if a symbol is an alias of another symbol and, if so, use the
- * {@link ts.TypeChecker} to resolve the original. If not, just return the same
- * symbol.
- *
- * @param symbol the symbol of interest
- * @param checker a {@link ts.TypeChecker}
- * @returns a de-aliased symbol
- */
-function unalias(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Symbol {
-  return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
 }
 
 /**
