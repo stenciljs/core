@@ -114,17 +114,10 @@ const generateComponentTypesFile = (
       importFilePath = normalizePath('./' + relative(config.srcDir, filePath)).replace(/\.(tsx|ts)$/, '');
     }
 
-    // Check if this file has any default imports
-    const hasDefaultImport = typeData.some((td) => td.isDefault);
+    const defaultImports = typeData.filter((td) => td.isDefault);
 
-    if (hasDefaultImport && typeData.length === 1) {
-      // Pure default import
-      const td = typeData[0];
-      imports.push(`import ${td.importName} from "${importFilePath}";`);
-      exports.push(`export { default as ${td.importName} } from "${importFilePath}";`);
-    } else if (hasDefaultImport) {
-      // Mixed default and named imports
-      const defaultImport = typeData.find((td) => td.isDefault);
+    if (defaultImports.length > 0) {
+      const [defaultImport, ...additionalDefaultImports] = defaultImports;
       const namedImports = typeData.filter((td) => !td.isDefault);
       const namedPart = namedImports
         .sort(sortImportNames)
@@ -138,8 +131,19 @@ const generateComponentTypesFile = (
           }
         })
         .join(`, `);
-      imports.push(`import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`);
-      exports.push(`export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`);
+
+      if (namedImports.length > 0) {
+        imports.push(`import ${defaultImport.importName}, { ${namedPart} } from "${importFilePath}";`);
+        exports.push(`export { default as ${defaultImport.importName}, ${namedPart} } from "${importFilePath}";`);
+      } else {
+        imports.push(`import ${defaultImport.importName} from "${importFilePath}";`);
+        exports.push(`export { default as ${defaultImport.importName} } from "${importFilePath}";`);
+      }
+
+      additionalDefaultImports.forEach((td) => {
+        imports.push(`import ${td.importName} from "${importFilePath}";`);
+        exports.push(`export { default as ${td.importName} } from "${importFilePath}";`);
+      });
     } else {
       // Named imports only
       const namedPart = typeData
