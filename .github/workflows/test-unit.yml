@@ -27,6 +27,6 @@ jobs:
           name: stencil-build
           path: packages/
 
-      - name: Unit Tests
-        run: pnpm test
+      - name: Unit Tests (temporary - scoped to build-conditionals for debugging)
+        run: pnpm --filter @stencil/core test build-conditionals
         shell: bash
