@@ -1,23 +1,29 @@
+import { getElement } from './element';
 import { forceUpdate } from './update-component';
 import type {
   ComponentInterface,
   ReactiveController,
   ReactiveControllerHostInterface,
+  MixedInCtor,
 } from '../declarations/stencil-public-runtime';
 
-type Ctor<T = {}> = new (...args: any[]) => T;
-
-// Explicit return type: the class below has a #private field, which the dts bundler can't
-// describe for an exported function's inferred (anonymous) return type (TS4094).
-export const ReactiveControllerHost = <B extends Ctor<ComponentInterface>>(
+export const ReactiveControllerHost = <B extends MixedInCtor<ComponentInterface & HTMLElement>>(
   Base: B,
-): Ctor<InstanceType<B> & ReactiveControllerHostInterface> => {
+): B & MixedInCtor<ReactiveControllerHostInterface> =>
   class ReactiveControllerHostMixin extends Base implements ReactiveControllerHostInterface {
     controllers = new Set<ReactiveController>();
+    #connected = false;
     #updateCompleteResolvers: Array<(value: boolean) => void> = [];
 
     addController(controller: ReactiveController) {
       this.controllers.add(controller);
+      // Matches Lit's ReactiveElement: a controller added after the host is already connected
+      // (e.g. constructed from a lifecycle hook rather than a field initializer - needed for any
+      // controller that wants a real DOM element, see connectedCallback below) would otherwise
+      // never see hostConnected - the bulk connectedCallback pass below already ran without it.
+      if (this.#connected) {
+        controller.hostConnected?.();
+      }
     }
 
     removeController(controller: ReactiveController) {
@@ -34,11 +40,31 @@ export const ReactiveControllerHost = <B extends Ctor<ComponentInterface>>(
 
     connectedCallback() {
       super.connectedCallback?.();
+      this.#connected = true;
+
+      // Under lazy-loading, `this` (the lazy instance) and the real host element are different
+      // objects - only `this` has addController/removeController/requestUpdate/updateComplete. A
+      // controller that needs genuine DOM access (addEventListener/dispatchEvent, e.g.
+      // @lit/context) needs a single object with both capabilities; bridge them onto the real
+      // element here so `@Element()`/`getElement(this)` works uniformly across build targets. In
+      // a standalone build getElement(this) === this, so this is a no-op there.
+      const el = getElement(this) as any;
+      if (el && el !== (this as unknown)) {
+        el.addController = (controller: ReactiveController) => this.addController(controller);
+        el.removeController = (controller: ReactiveController) => this.removeController(controller);
+        el.requestUpdate = () => this.requestUpdate();
+        Object.defineProperty(el, 'updateComplete', {
+          configurable: true,
+          get: () => this.updateComplete,
+        });
+      }
+
       this.controllers.forEach((c) => c.hostConnected?.());
     }
 
     disconnectedCallback() {
       super.disconnectedCallback?.();
+      this.#connected = false;
       this.controllers.forEach((c) => c.hostDisconnected?.());
     }
 
@@ -74,10 +100,4 @@ export const ReactiveControllerHost = <B extends Ctor<ComponentInterface>>(
       super.componentDidUpdate?.();
       this.controllers.forEach((c) => c.hostDidUpdate?.());
     }
-  }
-  // TS can't verify a generically-extended class satisfies InstanceType<B> - same pattern used
-  // by other mixin factories in this codebase (e.g. test/runtime's mixin-factories.ts).
-  return ReactiveControllerHostMixin as unknown as Ctor<
-    InstanceType<B> & ReactiveControllerHostInterface
-  >;
-};
+  };

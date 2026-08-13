@@ -13,10 +13,7 @@
     "build": "stencil build",
     "build.dev": "stencil build --dev",
     "start": "stencil build --dev --watch --serve",
-    "test": "stencil-test && playwright test",
-    "test.e2e": "playwright test",
-    "test.spec": "stencil-test",
-    "generate": "stencil generate"
+    "test": "playwright test"
   },
   "dependencies": {
     "@lit/context": "^1.1.6",

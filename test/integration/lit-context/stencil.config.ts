@@ -5,11 +5,7 @@ export const config: Config = {
   devServer: { port: 3336 },
   tsconfig: 'tsconfig.stencil.json',
   outputTargets: [
-    { type: 'www', hashFileNames: false },
-    {
-      type: 'standalone',
-      dir: 'www/build/standalone',
-      customElementsExportBehavior: 'auto-define-custom-elements',
-    },
+    { type: 'loader-bundle', skipInDev: false },
+    { type: 'standalone', skipInDev: false },
   ],
 };

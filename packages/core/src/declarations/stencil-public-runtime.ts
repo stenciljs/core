@@ -825,10 +825,7 @@ export interface ReactiveController {
   hostDidUpdate?(): void;
 }
 
-/**
- * The shape added to a component by mixing in `ReactiveControllerHost` (see below).
- */
-export interface ReactiveControllerHostInterface extends ComponentInterface {
+interface ReactiveControllerHost extends ComponentInterface {
   readonly controllers: ReadonlySet<ReactiveController>;
   addController(controller: ReactiveController): void;
   removeController(controller: ReactiveController): void;
@@ -840,6 +837,11 @@ export interface ReactiveControllerHostInterface extends ComponentInterface {
    */
   readonly updateComplete: Promise<boolean>;
 }
+
+/**
+ * The shape added to a component by mixing in `ReactiveControllerHost` (see below).
+ */
+export type ReactiveControllerHostInterface = ReactiveControllerHost & HTMLElement;
 
 /**
  * A mixin factory (for use with `Mixin()`) that adds `ReactiveController` support to a component,

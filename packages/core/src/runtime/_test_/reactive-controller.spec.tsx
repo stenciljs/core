@@ -247,4 +247,31 @@ describe('reactive-controller', () => {
     await expect(pending).resolves.toBe(true);
     expect(renderCount).toBe(2);
   });
+
+  it('fires hostConnected immediately for a controller added after the host already connected', async () => {
+    const calls: string[] = [];
+    let host: any;
+
+    @Component({ tag: 'rc-late-controller' })
+    class Cmp extends Mixin(ReactiveControllerHost) {
+      constructor() {
+        super();
+        host = this;
+      }
+      render() {
+        return <div />;
+      }
+    }
+
+    await newSpecPage({ components: [Cmp], html: `<rc-late-controller></rc-late-controller>` });
+
+    class LateController implements ReactiveController {
+      hostConnected() {
+        calls.push('hostConnected');
+      }
+    }
+    host.addController(new LateController());
+
+    expect(calls).toEqual(['hostConnected']);
+  });
 });
