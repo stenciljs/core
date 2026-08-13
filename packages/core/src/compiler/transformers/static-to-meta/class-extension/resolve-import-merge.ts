@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { toDashCase } from '../../../../utils';
+import { augmentDiagnosticWithNode, buildWarn } from '../../../../utils';
 import { convertDecoratorsToStatic } from '../../decorators-to-static/convert-decorators';
 import { isStaticGetter } from '../../transform-utils';
 import { parseStaticEvents } from '../events';
@@ -10,7 +10,14 @@ import { parseStaticMethods } from '../methods';
 import { parseStaticProps } from '../props';
 import { parseStaticStates } from '../states';
 import { parseStaticWatchers } from '../watchers';
-import { deDupeMembers, reanchorInheritedTypeReferences } from './shared';
+import { extractInheritedMetaFromClass } from './extract-inherited-meta';
+import {
+  deDupeMembers,
+  findClassWalk,
+  findReExport,
+  matchesNamedDeclaration,
+  reanchorInheritedTypeReferences,
+} from './shared';
 
 // Alternative to the TypeChecker-backed inheritance walk in compiler-ctx-merge.ts,
 // for the stateless `transpile()`/`transpileAsync()` path where there's no
@@ -80,11 +87,24 @@ function convertInMemorySourceDecorators(
   }
 }
 
-function getExtendsClassName(node: ts.ClassDeclaration): string | null {
+/**
+ * Reads the name(s) a class declaration extends from - either a single
+ * identifier (`extends Foo`) or, for the mixin composition pattern, each
+ * mixin factory argument (`extends Mixin(A, B)` > `['A', 'B']`).
+ *
+ * @param node the class declaration to inspect
+ * @returns the extended identifier names, or an empty array if the class
+ * doesn't extend anything recognizable
+ */
+function getExtendsClassNames(node: ts.ClassDeclaration): string[] {
   const heritage = node.heritageClauses?.find((h) => h.token === ts.SyntaxKind.ExtendsKeyword);
-  if (!heritage?.types.length) return null;
+  if (!heritage?.types.length) return [];
   const expr = heritage.types[0].expression;
-  return ts.isIdentifier(expr) ? expr.text : null;
+  if (ts.isIdentifier(expr)) return [expr.text];
+  if (ts.isCallExpression(expr) && expr.expression.getText() === 'Mixin') {
+    return expr.arguments.filter(ts.isIdentifier).map((id) => id.text);
+  }
+  return [];
 }
 
 function findImportSpecifier(sf: ts.SourceFile, localName: string): string | null {
@@ -108,12 +128,14 @@ function findImportSpecifier(sf: ts.SourceFile, localName: string): string | nul
 /**
  * A single-file mini-program (see `convertInMemorySourceDecorators`) can
  * never load an imported module's own `SourceFile`, so a type that's
- * genuinely imported still ends up classified `location: 'global'` there.
+ * genuinely imported still ends up classified `location: 'global'`
+ *
  * This reclassifies those cases using the same syntactic import lookup used
  * to walk the extends chain: if the type name matches something imported in
  * the file that declares it, it's an import, not a global, regardless of
  * whether the mini-program could load that file - downstream consumers
  * (e.g. `@stencil/unplugin`'s own type expansion) resolve `path` themselves.
+ *
  * @param members inherited members whose type references should be reclassified
  * @param declaringSf the source file that declares these members
  * @param declaringPath the resolved absolute path of `declaringSf`
@@ -150,16 +172,292 @@ function reclassifyGlobalTypeReferences<
   return members;
 }
 
+type AncestorEntry = {
+  classNode: ts.ClassDeclaration;
+  sourceFile: ts.SourceFile;
+  path: string;
+};
+
+/**
+ * Looks for `name` as a direct top-level declaration in `sf`; if not found, follows one level of
+ * re-export (barrel file) via `resolveImport` - matching `compiler-ctx-merge.ts`'s equivalent
+ * one-hop fallback (see `findReExport` in `shared.ts` for why it's capped at one hop).
+ *
+ * @param sf the source file to search
+ * @param path the resolved absolute path of `sf`
+ * @param name the declaration name to find
+ * @param resolveImport callback used to follow a re-export's module specifier
+ * @returns the matched statement and the source file/path it was actually found in (which may
+ * differ from `sf`/`path` if resolved through a re-export), or `undefined`
+ */
+function findDeclarationOrReExport(
+  sf: ts.SourceFile,
+  path: string,
+  name: string,
+  resolveImport: ResolveImport,
+):
+  | {
+      statement: ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement;
+      sourceFile: ts.SourceFile;
+      path: string;
+    }
+  | undefined {
+  const direct = sf.statements.find(matchesNamedDeclaration(name));
+  if (direct) return { statement: direct, sourceFile: sf, path };
+
+  const reExport = findReExport(sf, name);
+  if (!reExport) return undefined;
+
+  const resolved = resolveImport(reExport.moduleSpecifier, path);
+  if (!resolved) return undefined;
+
+  const { code, path: resolvedPath } = resolved;
+  const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
+  const reExportSf = ts.createSourceFile(
+    resolvedPath,
+    code,
+    ts.ScriptTarget.ESNext,
+    true,
+    isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
+  );
+  const statement = reExportSf.statements.find(matchesNamedDeclaration(reExport.localName));
+  if (!statement) return undefined;
+
+  return { statement, sourceFile: reExportSf, path: resolvedPath };
+}
+
+/**
+ * Recursively resolves a class's `extends` heritage into a flat, deduplicated
+ * list of ancestor classes, using `resolveImport` (and same-file lookups)
+ * instead of a TypeChecker - the `resolveImport`-callback equivalent of
+ * `compiler-ctx-merge.ts`'s `buildExtendsTree`. Handles both a plain
+ * `extends Foo` and `extends Mixin(A, B, ...)`, resolving each mixin
+ * argument independently.
+ *
+ * A found ancestor that's wrapped in a mixin factory function (rather than a
+ * plain class) stops that branch's recursion - the factory's own `extends`
+ * target is a dynamic parameter (e.g. `Base`), not a statically resolvable
+ * name.
+ * @param classNode the class declaration whose heritage should be walked
+ * @param sf the source file containing `classNode` (for import/statement lookups)
+ * @param path the resolved absolute path of `sf`
+ * @param resolveImport callback that resolves an import specifier to source code
+ * @param visited cycle guard, keyed by `resolvedPath::name`
+ * @param ancestors the flat array to accumulate found ancestors into
+ * @param rootClassDeclaration the top-level component class, used to anchor any "not found" warning
+ * @param buildCtx used to surface a warning when an imported extends/mixin target can't be found -
+ * omit to resolve silently (e.g. from tests that don't care about diagnostics)
+ */
+function resolveAncestors(
+  classNode: ts.ClassDeclaration,
+  sf: ts.SourceFile,
+  path: string,
+  resolveImport: ResolveImport,
+  visited: Set<string>,
+  ancestors: AncestorEntry[],
+  rootClassDeclaration: ts.ClassDeclaration,
+  buildCtx?: d.BuildCtx,
+): void {
+  const parentNames = getExtendsClassNames(classNode);
+
+  for (const parentName of parentNames) {
+    let foundClass: ts.ClassDeclaration | undefined;
+    let foundSf = sf;
+    let foundPath = path;
+    let keepLooking = true;
+
+    const sameFileStatement = sf.statements.find(matchesNamedDeclaration(parentName));
+    if (sameFileStatement) {
+      if (ts.isClassDeclaration(sameFileStatement)) {
+        foundClass = sameFileStatement;
+      } else {
+        // wrapped in a function (mixin factory) - can't recurse further
+        foundClass = findClassWalk(sameFileStatement);
+        keepLooking = false;
+      }
+    } else {
+      const specifier = findImportSpecifier(sf, parentName);
+      if (!specifier) continue;
+
+      const resolved = resolveImport(specifier, path);
+      if (!resolved) continue;
+
+      const { code, path: resolvedPath } = resolved;
+      const visitKey = `${resolvedPath}::${parentName}`;
+      if (visited.has(visitKey)) continue; // cycle guard
+      visited.add(visitKey);
+
+      const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
+      const parentSf = ts.createSourceFile(
+        resolvedPath,
+        code,
+        ts.ScriptTarget.ESNext,
+        true,
+        isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
+      );
+
+      const found = findDeclarationOrReExport(parentSf, resolvedPath, parentName, resolveImport);
+      if (!found) {
+        // we couldn't find the imported declaration as an exported statement in the module
+        if (buildCtx) {
+          const err = buildWarn(buildCtx.diagnostics);
+          err.messageText = `Unable to find "${parentName}" in the imported module "${specifier}".
+                        Please import class / mixin-factory declarations directly and not via barrel files.`;
+          if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, rootClassDeclaration);
+        }
+        continue;
+      }
+
+      foundSf = found.sourceFile;
+      foundPath = found.path;
+
+      if (ts.isClassDeclaration(found.statement)) {
+        foundClass = found.statement;
+      } else {
+        // wrapped in a function (mixin factory) - can't recurse further
+        foundClass = findClassWalk(found.statement);
+        keepLooking = false;
+      }
+    }
+
+    if (!foundClass || ancestors.some((a) => a.classNode === foundClass)) continue;
+
+    ancestors.push({ classNode: foundClass, sourceFile: foundSf, path: foundPath });
+
+    if (keepLooking) {
+      resolveAncestors(
+        foundClass,
+        foundSf,
+        foundPath,
+        resolveImport,
+        visited,
+        ancestors,
+        rootClassDeclaration,
+        buildCtx,
+      );
+    }
+  }
+}
+
+type AncestorMeta = {
+  properties: d.ComponentCompilerProperty[];
+  states: d.ComponentCompilerState[];
+  methods: d.ComponentCompilerMethod[];
+  events: d.ComponentCompilerEvent[];
+  listeners: d.ComponentCompilerListener[];
+  watchers: d.ComponentCompilerChangeHandler[];
+  methodNames: string[];
+};
+
+/**
+ * Extracts Stencil member metadata for a single resolved ancestor - static
+ * getter form, or decorator syntax run through a throwaway single-file
+ * program so real `complexType` info is computed, falling back to the
+ * type-blind `extractInheritedMetaFromClass` walk if that program fails.
+ * @param ancestor the resolved ancestor to extract metadata from
+ * @param cmpSourceFile the extending component's source file (re-anchor target)
+ * @param resolveImport callback that resolves an import specifier to source code
+ * @param config used to compute real `complexType` info via a mini `ts.Program`
+ * @returns the ancestor's metadata
+ */
+function extractAncestorMeta(
+  ancestor: AncestorEntry,
+  cmpSourceFile: ts.SourceFile,
+  resolveImport: ResolveImport,
+  config: d.ValidatedConfig,
+): AncestorMeta {
+  const { classNode, sourceFile: parentSf, path: resolvedPath } = ancestor;
+  const className = classNode.name?.text;
+
+  const parentStaticMembers = classNode.members.filter(isStaticGetter) as ts.ClassElement[];
+  let resolvedClassNode = classNode;
+  let resolvedStaticMembers = parentStaticMembers;
+  let hasUsableStaticMembers = parentStaticMembers.some(
+    (m) =>
+      ts.isGetAccessorDeclaration(m) &&
+      ts.isIdentifier(m.name) &&
+      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(m.name.text),
+  );
+
+  if (!hasUsableStaticMembers && className) {
+    // decorator syntax: run it through a throwaway single-file program so
+    // real complexType info is computed the same way as for any other
+    // Stencil class, instead of falling back to extractInheritedMetaFromClass's
+    // type-blind walk. `className` is the resolved (possibly nested) class's
+    // own name, not necessarily the mixin-factory identifier it was found
+    // through - findClassWalk needs it to disambiguate from other classes in
+    // the same converted file.
+    const converted = convertInMemorySourceDecorators(parentSf, config);
+    const convertedClass = converted && findClassWalk(converted, className);
+    if (convertedClass) {
+      resolvedClassNode = convertedClass;
+      resolvedStaticMembers = convertedClass.members.filter(isStaticGetter) as ts.ClassElement[];
+      hasUsableStaticMembers = true;
+    }
+  }
+
+  // falls back to the cheaper syntactic walk only if the mini-program
+  // conversion above didn't run (ancestor already had static getters) or failed
+  if (!hasUsableStaticMembers) {
+    return extractInheritedMetaFromClass(classNode);
+  }
+
+  return {
+    properties: reanchorInheritedTypeReferences(
+      reclassifyGlobalTypeReferences(
+        parseStaticProps(resolvedStaticMembers) ?? [],
+        parentSf,
+        resolvedPath,
+        resolveImport,
+      ),
+      resolvedPath,
+      cmpSourceFile.fileName,
+    ),
+    states: parseStaticStates(resolvedStaticMembers) ?? [],
+    methods: reanchorInheritedTypeReferences(
+      reclassifyGlobalTypeReferences(
+        parseStaticMethods(resolvedStaticMembers) ?? [],
+        parentSf,
+        resolvedPath,
+        resolveImport,
+      ),
+      resolvedPath,
+      cmpSourceFile.fileName,
+    ),
+    events: reanchorInheritedTypeReferences(
+      reclassifyGlobalTypeReferences(
+        parseStaticEvents(resolvedStaticMembers) ?? [],
+        parentSf,
+        resolvedPath,
+        resolveImport,
+      ),
+      resolvedPath,
+      cmpSourceFile.fileName,
+    ),
+    listeners: parseStaticListeners(resolvedStaticMembers) ?? [],
+    watchers: parseStaticWatchers(resolvedStaticMembers) ?? [],
+    methodNames: resolvedClassNode.members
+      .filter(ts.isMethodDeclaration)
+      .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
+      .filter(Boolean),
+  };
+}
+
 /**
  * Resolves the inheritance chain for a component using a caller-supplied
  * `resolveImport` callback instead of the full compiler infrastructure -
  * safe to call from `transpileSync`/`transpileAsync` (no TypeChecker needed).
+ * Handles both a plain `extends Foo` and the mixin composition pattern
+ * (`extends Mixin(A, B, ...)`).
+ *
  * @param cmpNode the component's class declaration
  * @param staticMembers static getter members already parsed from the component
  * @param sourceFile the source file containing the component (for import resolution)
  * @param resolveImport callback that resolves an import specifier to source code
  * @param config used to compute real `complexType` info for decorator-syntax
  * parent classes via a mini `ts.Program`
+ * @param buildCtx used to surface a warning when an imported extends/mixin target can't be
+ * found - optional so existing (non-diagnostic-checking) callers aren't forced to supply one
  * @returns merged metadata including all inherited members
  */
 export function mergeExtendedClassMetaWithResolveImport(
@@ -168,6 +466,7 @@ export function mergeExtendedClassMetaWithResolveImport(
   sourceFile: ts.SourceFile,
   resolveImport: ResolveImport,
   config: d.ValidatedConfig,
+  buildCtx?: d.BuildCtx,
 ) {
   let doesExtend = false;
   let properties = parseStaticProps(staticMembers);
@@ -183,112 +482,20 @@ export function mergeExtendedClassMetaWithResolveImport(
   const serializers: d.ComponentCompilerChangeHandler[] = [];
   const deserializers: d.ComponentCompilerChangeHandler[] = [];
 
-  let currentNode: ts.ClassDeclaration = cmpNode;
-  let currentSf: ts.SourceFile = sourceFile;
-  let currentPath = sourceFile.fileName;
-  const visited = new Set<string>();
+  const ancestors: AncestorEntry[] = [];
+  resolveAncestors(
+    cmpNode,
+    sourceFile,
+    sourceFile.fileName,
+    resolveImport,
+    new Set(),
+    ancestors,
+    cmpNode,
+    buildCtx,
+  );
 
-  while (true) {
-    const parentClassName = getExtendsClassName(currentNode);
-    if (!parentClassName) break;
-
-    const specifier = findImportSpecifier(currentSf, parentClassName);
-    if (!specifier) break;
-
-    const resolved = resolveImport(specifier, currentPath);
-    if (!resolved) break;
-
-    const { code, path: resolvedPath } = resolved;
-    if (visited.has(resolvedPath)) break; // cycle guard
-    visited.add(resolvedPath);
-
-    // parse once; reuse for both meta extraction and the next-level extends walk
-    const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
-    const parentSf = ts.createSourceFile(
-      resolvedPath,
-      code,
-      ts.ScriptTarget.ESNext,
-      true,
-      isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
-    );
-    const parentClass = parentSf.statements
-      .filter(ts.isClassDeclaration)
-      .find((c) => c.name?.text === parentClassName);
-    if (!parentClass) break;
-
-    const parentStaticMembers = parentClass.members.filter(isStaticGetter) as ts.ClassElement[];
-    let resolvedClassNode = parentClass;
-    let resolvedStaticMembers = parentStaticMembers;
-    let hasUsableStaticMembers = parentStaticMembers.some(
-      (m) =>
-        ts.isGetAccessorDeclaration(m) &&
-        ts.isIdentifier(m.name) &&
-        ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(
-          m.name.text,
-        ),
-    );
-
-    if (!hasUsableStaticMembers) {
-      // decorator syntax: run it through a throwaway single-file program so
-      // real complexType info is computed the same way as for any other
-      // Stencil class, instead of falling back to extractInheritedMeta's
-      // type-blind walk
-      const converted = convertInMemorySourceDecorators(parentSf, config);
-      const convertedClass = converted?.statements
-        .filter(ts.isClassDeclaration)
-        .find((c) => c.name?.text === parentClassName);
-      if (convertedClass) {
-        resolvedClassNode = convertedClass;
-        resolvedStaticMembers = convertedClass.members.filter(isStaticGetter) as ts.ClassElement[];
-        hasUsableStaticMembers = true;
-      }
-    }
-
-    // falls back to the cheaper syntactic walk only if the mini-program
-    // conversion above didn't run (parent already had static getters) or failed
-    const parentMeta = hasUsableStaticMembers
-      ? {
-          properties: reanchorInheritedTypeReferences(
-            reclassifyGlobalTypeReferences(
-              parseStaticProps(resolvedStaticMembers) ?? [],
-              parentSf,
-              resolvedPath,
-              resolveImport,
-            ),
-            resolvedPath,
-            sourceFile.fileName,
-          ),
-          states: parseStaticStates(resolvedStaticMembers) ?? [],
-          methods: reanchorInheritedTypeReferences(
-            reclassifyGlobalTypeReferences(
-              parseStaticMethods(resolvedStaticMembers) ?? [],
-              parentSf,
-              resolvedPath,
-              resolveImport,
-            ),
-            resolvedPath,
-            sourceFile.fileName,
-          ),
-          events: reanchorInheritedTypeReferences(
-            reclassifyGlobalTypeReferences(
-              parseStaticEvents(resolvedStaticMembers) ?? [],
-              parentSf,
-              resolvedPath,
-              resolveImport,
-            ),
-            resolvedPath,
-            sourceFile.fileName,
-          ),
-          listeners: parseStaticListeners(resolvedStaticMembers) ?? [],
-          watchers: parseStaticWatchers(resolvedStaticMembers) ?? [],
-          methodNames: resolvedClassNode.members
-            .filter(ts.isMethodDeclaration)
-            .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
-            .filter(Boolean),
-        }
-      : extractInheritedMeta(code, parentClassName, resolvedPath);
-
-    if (!parentMeta) break;
+  ancestors.forEach((ancestor) => {
+    const parentMeta = extractAncestorMeta(ancestor, sourceFile, resolveImport, config);
 
     doesExtend = true;
 
@@ -305,11 +512,7 @@ export function mergeExtendedClassMetaWithResolveImport(
     listeners = [...deDupeMembers(parentMeta.listeners, listeners), ...listeners];
     watchers = [...deDupeMembers(parentMeta.watchers, watchers), ...watchers];
     classMethods = [...classMethods, ...parentMeta.methodNames];
-
-    currentNode = parentClass;
-    currentSf = parentSf;
-    currentPath = resolvedPath;
-  }
+  });
 
   return {
     doesExtend,
@@ -323,191 +526,4 @@ export function mergeExtendedClassMetaWithResolveImport(
     serializers,
     deserializers,
   };
-}
-
-// extractInheritedMeta is mergeExtendedClassMetaWithResolveImport's fallback
-// for a parent class it can't run through convertInMemorySourceDecorators -
-// parse-only (no Program, no TypeChecker), so every type comes back `any`.
-
-const EMPTY_DOCS: d.CompilerJsDoc = { text: '', tags: [] };
-const EMPTY_PROP_COMPLEX_TYPE: d.ComponentCompilerPropertyComplexType = {
-  original: 'any',
-  resolved: 'any',
-  references: {},
-};
-const EMPTY_EVENT_COMPLEX_TYPE: d.ComponentCompilerEventComplexType = {
-  original: 'any',
-  resolved: 'any',
-  references: {},
-};
-const EMPTY_METHOD_COMPLEX_TYPE: d.ComponentCompilerMethodComplexType = {
-  signature: '() => void',
-  parameters: [],
-  references: {},
-  return: 'void',
-};
-
-function extractDecoratorOptions(
-  node: ts.Expression | undefined,
-): Record<string, string | boolean | number> {
-  if (!node || !ts.isObjectLiteralExpression(node)) return {};
-  const result: Record<string, string | boolean | number> = {};
-  for (const prop of node.properties) {
-    if (!ts.isPropertyAssignment(prop) || !ts.isIdentifier(prop.name)) continue;
-    const key = prop.name.text;
-    const val = prop.initializer;
-    if (ts.isStringLiteral(val)) result[key] = val.text;
-    else if (val.kind === ts.SyntaxKind.TrueKeyword) result[key] = true;
-    else if (val.kind === ts.SyntaxKind.FalseKeyword) result[key] = false;
-    else if (ts.isNumericLiteral(val)) result[key] = Number(val.text);
-  }
-  return result;
-}
-
-export interface ExtractedInheritedMeta {
-  properties: d.ComponentCompilerProperty[];
-  states: d.ComponentCompilerState[];
-  methods: d.ComponentCompilerMethod[];
-  events: d.ComponentCompilerEvent[];
-  listeners: d.ComponentCompilerListener[];
-  watchers: d.ComponentCompilerChangeHandler[];
-  methodNames: string[];
-}
-
-/**
- * Extracts Stencil member metadata from source text using parse-only
- * TypeScript (no Program, no TypeChecker) - handles both decorator syntax
- * (`.tsx` source files) and compiled static-getter syntax (`.js` collection
- * files).
- *
- * @param code source text to parse
- * @param className name of the class to extract metadata from
- * @param fileName virtual filename used to determine script kind
- * @returns extracted metadata, or `null` if the named class isn't found
- */
-export function extractInheritedMeta(
-  code: string,
-  className: string,
-  fileName = '__stencil_parent__.tsx',
-): ExtractedInheritedMeta | null {
-  const scriptKind =
-    fileName.endsWith('.tsx') || fileName.endsWith('.ts') ? ts.ScriptKind.TSX : ts.ScriptKind.JS;
-  const sf = ts.createSourceFile(fileName, code, ts.ScriptTarget.ESNext, true, scriptKind);
-
-  const classDecl = sf.statements
-    .filter(ts.isClassDeclaration)
-    .find((c) => c.name?.text === className);
-  if (!classDecl) return null;
-
-  const methodNames = classDecl.members
-    .filter(ts.isMethodDeclaration)
-    .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
-    .filter(Boolean);
-
-  // detect compiled static getter form (collection .js files) - purely
-  // syntactic, so it works on parse-only AST nodes
-  const staticMembers = classDecl.members.filter(isStaticGetter) as ts.ClassElement[];
-  const hasStencilStaticGetters = staticMembers.some(
-    (m) =>
-      ts.isGetAccessorDeclaration(m) &&
-      ts.isIdentifier(m.name) &&
-      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(m.name.text),
-  );
-
-  if (hasStencilStaticGetters) {
-    return {
-      properties: parseStaticProps(staticMembers),
-      states: parseStaticStates(staticMembers),
-      methods: parseStaticMethods(staticMembers),
-      events: parseStaticEvents(staticMembers),
-      listeners: parseStaticListeners(staticMembers),
-      watchers: parseStaticWatchers(staticMembers),
-      methodNames,
-    };
-  }
-
-  // decorator syntax: walk class members and extract directly from the AST
-  const properties: d.ComponentCompilerProperty[] = [];
-  const states: d.ComponentCompilerState[] = [];
-  const methods: d.ComponentCompilerMethod[] = [];
-  const events: d.ComponentCompilerEvent[] = [];
-  const listeners: d.ComponentCompilerListener[] = [];
-  const watchers: d.ComponentCompilerChangeHandler[] = [];
-
-  for (const member of classDecl.members) {
-    if (!ts.isPropertyDeclaration(member) && !ts.isMethodDeclaration(member)) continue;
-    if (!ts.isIdentifier(member.name)) continue;
-    const memberName = member.name.text;
-
-    const decorators = (ts.getDecorators?.(member) ?? []) as ts.Decorator[];
-
-    for (const dec of decorators) {
-      if (!ts.isCallExpression(dec.expression) || !ts.isIdentifier(dec.expression.expression))
-        continue;
-      const decName = dec.expression.expression.text;
-      const args = dec.expression.arguments;
-
-      if (decName === 'Prop' && ts.isPropertyDeclaration(member)) {
-        const opts = extractDecoratorOptions(args[0]);
-        properties.push({
-          name: memberName,
-          attribute:
-            typeof opts.attribute === 'string'
-              ? opts.attribute.toLowerCase()
-              : toDashCase(memberName),
-          reflect: !!opts.reflect,
-          mutable: !!opts.mutable,
-          required: false,
-          optional: !!member.questionToken,
-          type: 'any',
-          complexType: EMPTY_PROP_COMPLEX_TYPE,
-          docs: EMPTY_DOCS,
-          internal: false,
-          getter: false,
-          setter: false,
-        });
-      } else if (decName === 'State' && ts.isPropertyDeclaration(member)) {
-        states.push({ name: memberName });
-      } else if (decName === 'Event' && ts.isPropertyDeclaration(member)) {
-        const opts = extractDecoratorOptions(args[0]);
-        events.push({
-          name: typeof opts.eventName === 'string' ? opts.eventName : memberName,
-          method: memberName,
-          bubbles: opts.bubbles !== false,
-          cancelable: opts.cancelable !== false,
-          composed: !!opts.composed,
-          docs: EMPTY_DOCS,
-          complexType: EMPTY_EVENT_COMPLEX_TYPE,
-          internal: false,
-        });
-      } else if (decName === 'Method' && ts.isMethodDeclaration(member)) {
-        methods.push({
-          name: memberName,
-          docs: EMPTY_DOCS,
-          complexType: EMPTY_METHOD_COMPLEX_TYPE,
-          internal: false,
-        });
-      } else if (decName === 'Watch' && ts.isMethodDeclaration(member)) {
-        const propName = ts.isStringLiteral(args[0]) ? args[0].text : null;
-        if (propName) watchers.push({ propName, methodName: memberName });
-      } else if (decName === 'Listen' && ts.isMethodDeclaration(member)) {
-        const eventName = ts.isStringLiteral(args[0]) ? args[0].text : null;
-        if (eventName) {
-          const listenOpts = extractDecoratorOptions(args[1]);
-          listeners.push({
-            name: eventName,
-            method: memberName,
-            capture: !!listenOpts.capture,
-            passive: !!listenOpts.passive,
-            target:
-              typeof listenOpts.target === 'string'
-                ? (listenOpts.target as d.ListenTargetOptions)
-                : undefined,
-          });
-        }
-      }
-    }
-  }
-
-  return { properties, states, methods, events, listeners, watchers, methodNames };
 }

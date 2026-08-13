@@ -43,6 +43,7 @@ export {
   setAssetPath,
   forceUpdate,
   Mixin,
+  ReactiveControllerHost,
   getRenderingRef,
 } from '../runtime';
 export type { SpecPage } from '@stencil/core';

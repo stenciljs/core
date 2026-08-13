@@ -522,6 +522,28 @@ importers:
         specifier: 'catalog:'
         version: 4.1.10(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(jsdom@28.0.0)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))
 
+  test/integration/lit-context:
+    dependencies:
+      '@lit/context':
+        specifier: ^1.1.6
+        version: 1.1.6
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+    devDependencies:
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.62.1
+      '@stencil/playwright':
+        specifier: 'catalog:'
+        version: 0.4.3(@playwright/test@1.62.1)(@stencil/core@packages+core)
+      '@stencil/vitest':
+        specifier: 'catalog:'
+        version: 1.14.0(@playwright/test@1.62.1)(@stencil/core@packages+core)(@vitest/browser-playwright@4.1.10)(jsdom@28.0.0)(playwright@1.62.1)(vitest@4.1.10)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(jsdom@28.0.0)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))
+
   test/integration/prerender:
     devDependencies:
       '@playwright/test':
@@ -1629,6 +1651,15 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@lit-labs/ssr-dom-shim@1.6.0':
+    resolution: {integrity: sha512-VHb0ALPMTlgKjM6yIxxoQNnpKyUKLD04VzeQdsiXkMqkvYlAHxq9glGLmgbb889/1GsohSOAjvQYoiBppXFqrQ==}
+
+  '@lit/context@1.1.6':
+    resolution: {integrity: sha512-M26qDE6UkQbZA2mQ3RjJ3Gzd8TxP+/0obMgE5HfkfLhEEyYE3Bui4A5XHiGPjy0MUGAyxB3QgVuw2ciS0kHn6A==}
+
+  '@lit/reactive-element@2.1.2':
+    resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -6797,6 +6828,16 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@lit-labs/ssr-dom-shim@1.6.0': {}
+
+  '@lit/context@1.1.6':
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+
+  '@lit/reactive-element@2.1.2':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:

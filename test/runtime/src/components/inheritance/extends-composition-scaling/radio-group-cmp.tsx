@@ -1,13 +1,20 @@
-import { Component, State, Element, Event, EventEmitter } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  Mixin,
+  ReactiveControllerHost,
+  State,
+} from '@stencil/core';
 
 import { FocusController } from './focus-controller.js';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
 import { ValidationController } from './validation-controller.js';
 
 @Component({
   tag: 'composition-radio-group',
 })
-export class RadioGroupCmp extends ReactiveControllerHost {
+export class RadioGroupCmp extends Mixin(ReactiveControllerHost) {
   @Element() el!: HTMLElement;
   @State() value: string | undefined = undefined;
   @State() helperText: string = 'Select an option';
@@ -16,14 +23,14 @@ export class RadioGroupCmp extends ReactiveControllerHost {
 
   // Controllers via composition
   private validation = new ValidationController(this);
-  private focus = new FocusController(this);
+  private focusController = new FocusController(this);
 
   private inputId = `radio-group-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
   private errorTextId = `${this.inputId}-error-text`;
 
   componentWillLoad() {
-    super.componentWillLoad(); // Call base class to trigger controllers
+    super.componentWillLoad?.(); // Call base class to trigger controllers
     // Set up validation callback
     this.validation.setValidationCallback((val: string | undefined) => {
       if (!val) {
@@ -34,11 +41,11 @@ export class RadioGroupCmp extends ReactiveControllerHost {
   }
 
   componentDidLoad() {
-    super.componentDidLoad(); // Call base class to trigger controllers
+    super.componentDidLoad?.(); // Call base class to trigger controllers
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback(); // Call base class to trigger controllers
+    super.disconnectedCallback?.(); // Call base class to trigger controllers
   }
 
   private handleChange = (e: Event) => {
@@ -51,16 +58,16 @@ export class RadioGroupCmp extends ReactiveControllerHost {
   };
 
   private handleFocus = () => {
-    this.focus.handleFocus();
+    this.focusController.handleFocus();
   };
 
   private handleBlur = () => {
-    this.focus.handleBlur();
+    this.focusController.handleBlur();
     this.validation.handleBlur(this.value);
   };
 
   render() {
-    const focusState = this.focus.getFocusState();
+    const focusState = this.focusController.getFocusState();
     const validationData = this.validation.getValidationMessageData(
       this.helperTextId,
       this.errorTextId,

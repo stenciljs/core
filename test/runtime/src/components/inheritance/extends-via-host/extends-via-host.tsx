@@ -1,10 +1,9 @@
-import { Component, Host, State } from '@stencil/core';
+import { Component, Host, Mixin, ReactiveControllerHost, State } from '@stencil/core';
 
 import { MouseController } from './mouse-controller.js';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
 
 /**
- * A component that extends ReactiveControllerHost to use reactive controllers.
+ * A component that mixes in ReactiveControllerHost to use reactive controllers.
  * Tests that the controller pattern works correctly with Stencil components.
  */
 @Component({
@@ -15,19 +14,19 @@ import { ReactiveControllerHost } from './reactive-controller-host.js';
     }
   `,
 })
-export class ExtendsViaHostCmp extends ReactiveControllerHost {
+export class ExtendsViaHostCmp extends Mixin(ReactiveControllerHost) {
   private mouse = new MouseController(this);
 
   // Track lifecycle calls for testing
   @State() lifecycleCalls: string[] = [];
 
   componentWillLoad(): void {
-    super.componentWillLoad(); // Call base class to trigger controllers
+    super.componentWillLoad?.(); // Call base class to trigger controllers
     this.lifecycleCalls = [...this.lifecycleCalls, 'componentWillLoad'];
   }
 
   componentDidLoad(): void {
-    super.componentDidLoad(); // Call base class to trigger controllers
+    super.componentDidLoad?.(); // Call base class to trigger controllers
     this.lifecycleCalls = [...this.lifecycleCalls, 'componentDidLoad'];
   }
 

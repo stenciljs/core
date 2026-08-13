@@ -121,6 +121,16 @@ describe('my-mixin-cmp', () => {
     expect(el.shadowRoot!.querySelector('.msg')!.textContent).toBe('Hello, Stencil!');
     el.remove();
   });
+
+  it('a @Prop declared on the same-file mixin factory class re-renders when changed', async () => {
+    const el = document.createElement('my-mixin-cmp') as HTMLElement & { excited?: boolean };
+    document.body.appendChild(el);
+    await ready(el);
+    el.excited = true;
+    await new Promise((r) => setTimeout(r, 100));
+    expect(el.shadowRoot!.querySelector('.msg')!.textContent).toBe('Hello, World!!!');
+    el.remove();
+  });
 });
 
 describe('my-cross-mixin-cmp', () => {
@@ -139,6 +149,25 @@ describe('my-cross-mixin-cmp', () => {
     el.name = 'Stencil';
     await new Promise((r) => setTimeout(r, 100));
     expect(el.shadowRoot!.querySelector('.msg')!.textContent).toBe('Stencil!');
+    el.remove();
+  });
+
+  it('a @Prop from each mixin in a multi-argument Mixin(A, B) re-renders when changed', async () => {
+    const el = document.createElement('my-cross-mixin-cmp') as HTMLElement & {
+      prefix?: string;
+      suffix?: string;
+    };
+    document.body.appendChild(el);
+    await ready(el);
+
+    el.suffix = '?';
+    await new Promise((r) => setTimeout(r, 100));
+    expect(el.shadowRoot!.querySelector('.msg')!.textContent).toBe('World?');
+
+    el.prefix = '>>';
+    await new Promise((r) => setTimeout(r, 100));
+    expect(el.shadowRoot!.querySelector('.msg')!.textContent).toBe('>>World?');
+
     el.remove();
   });
 });

@@ -16,7 +16,13 @@ import { parseStaticProps } from '../props';
 import { parseStaticSerializers } from '../serializers';
 import { parseStaticStates } from '../states';
 import { parseStaticWatchers } from '../watchers';
-import { deDupeMembers, reanchorInheritedTypeReferences } from './shared';
+import {
+  deDupeMembers,
+  findClassWalk,
+  findReExport,
+  matchesNamedDeclaration,
+  reanchorInheritedTypeReferences,
+} from './shared';
 
 type DependentClass = {
   classNode: ts.ClassDeclaration;
@@ -69,7 +75,8 @@ function convertDiskSourceFileDecorators(
 /**
  * Resolves an `extends` target through a module specifier: resolves the
  * module, finds the named class/mixin-factory export, and adds it (and its
- * own ancestors) to `dependentClasses`.
+ * own ancestors) to `dependentClasses`. Follows one level of re-export (barrel file) when the
+ * declaration isn't found directly in the resolved module.
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
  * @param classDeclaration the current class being analyzed
@@ -80,6 +87,7 @@ function convertDiskSourceFileDecorators(
  * @param typeChecker the TypeScript type checker
  * @param ogModule the original module file of the class declaration
  * @param targetScriptTarget the script target to convert decorators with, if needed
+ * @param barrelHopsRemaining re-export hops still allowed before giving up
  * @returns the found class declaration, or `undefined`
  */
 function resolveAndProcessExtendedClass(
@@ -93,6 +101,7 @@ function resolveAndProcessExtendedClass(
   typeChecker: ts.TypeChecker,
   ogModule: d.Module,
   targetScriptTarget: ts.ScriptTarget = ts.ScriptTarget.ESNext,
+  barrelHopsRemaining = 1,
 ): ts.ClassDeclaration | undefined {
   // starts optimistic: set false below if the candidate is a mixin factory
   // (class wrapped in a function), which we can't meaningfully recurse into
@@ -136,6 +145,23 @@ function resolveAndProcessExtendedClass(
   // 2) get the exported declaration from the module
   const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
   if (!matchedStatement) {
+    const reExport = barrelHopsRemaining > 0 ? findReExport(foundSource, className) : undefined;
+    if (reExport) {
+      return resolveAndProcessExtendedClass(
+        compilerCtx,
+        buildCtx,
+        classDeclaration,
+        foundSource,
+        reExport.moduleSpecifier,
+        reExport.localName,
+        dependentClasses,
+        typeChecker,
+        ogModule,
+        targetScriptTarget,
+        barrelHopsRemaining - 1,
+      );
+    }
+
     // we couldn't find the imported declaration as an exported statement in the module
     const err = buildWarn(buildCtx.diagnostics);
     err.messageText = `Unable to find "${className}" in the imported module "${moduleSpecifier}".
@@ -180,70 +206,6 @@ function resolveAndProcessExtendedClass(
   }
 
   return foundClassDeclaration;
-}
-
-// Walks the AST looking for a class declaration, optionally by name -
-// descends into a mixin factory's arrow-function body too.
-function findClassWalk(node?: ts.Node, name?: string, depth = 0): ts.ClassDeclaration | undefined {
-  if (!node) return undefined;
-
-  if (node && ts.isClassDeclaration(node)) {
-    if (!name || node.name?.text === name) {
-      return node;
-    }
-  } else if (
-    node &&
-    ts.isVariableDeclaration(node) &&
-    // @ts-ignore
-    (!name || name === (node.name?.text || node.name?.escapedText)) &&
-    node.initializer &&
-    ts.isArrowFunction(node.initializer)
-  ) {
-    // class wrapped in a mixin factory function
-    let found: ts.ClassDeclaration | undefined;
-    ts.forEachChild(node.initializer.body, (child) => {
-      if (found) return;
-      if (ts.isClassDeclaration(child)) found = child;
-    });
-    return found;
-  }
-  let found: ts.ClassDeclaration | undefined;
-
-  ts.forEachChild(node, (child) => {
-    if (found) return;
-    const result = findClassWalk(child, name, depth + 1);
-    if (result) found = result;
-  });
-
-  return found;
-}
-
-// Matches a top-level class/function/variable declaration by name.
-function matchesNamedDeclaration(name: string) {
-  return function (
-    stmt: ts.Statement,
-  ): stmt is ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement {
-    // ClassDeclaration: class Foo {}
-    if (ts.isClassDeclaration(stmt) && stmt.name?.text === name) {
-      return true;
-    }
-
-    // FunctionDeclaration: function Foo() {}
-    if (ts.isFunctionDeclaration(stmt) && stmt.name?.text === name) {
-      return true;
-    }
-
-    // VariableStatement: const Foo = ...
-    if (ts.isVariableStatement(stmt)) {
-      for (const decl of stmt.declarationList.declarations) {
-        if (ts.isIdentifier(decl.name) && decl.name.text === name) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  };
 }
 
 // Maps a `.d.ts` declaration path to its compiled `.js` counterpart and looks
