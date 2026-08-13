@@ -21,9 +21,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@stencil/playwright": "catalog:",
-    "@stencil/vitest": "catalog:",
-    "vitest": "catalog:"
+    "@stencil/playwright": "catalog:"
   },
   "volta": {
     "extends": "../../../package.json"
