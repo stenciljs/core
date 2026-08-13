@@ -1,7 +1,9 @@
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { reanchorInheritedTypeReferences } from '..';
+import { findReExport } from '../shared';
 
 describe('reanchorInheritedTypeReferences', () => {
   const CMP_PATH = '/src/components/data-entry/checkbox/checkbox.tsx';
@@ -226,5 +228,76 @@ describe('reanchorInheritedTypeReferences', () => {
     expect(() =>
       reanchorInheritedTypeReferences([method], BASE_CLASS_PATH, CMP_PATH),
     ).not.toThrow();
+  });
+});
+
+describe('findReExport', () => {
+  const parse = (code: string) =>
+    ts.createSourceFile('barrel.ts', code, ts.ScriptTarget.ESNext, true);
+
+  it('finds a plain re-export', () => {
+    const sf = parse(`export { BaseInput } from './base-input';`);
+
+    expect(findReExport(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './base-input',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('finds an aliased re-export, resolving to the original (local) name', () => {
+    const sf = parse(`export { BaseInput as Input } from './base-input';`);
+
+    expect(findReExport(sf, 'Input')).toEqual({
+      moduleSpecifier: './base-input',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('picks the matching element out of a multi-specifier export clause', () => {
+    const sf = parse(`export { Foo, BaseInput, Bar as Baz } from './base-input';`);
+
+    expect(findReExport(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './base-input',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('finds the matching statement among several re-export statements', () => {
+    const sf = parse(`
+      export { Foo } from './foo';
+      export { BaseInput } from './base-input';
+    `);
+
+    expect(findReExport(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './base-input',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('returns undefined when the name is not re-exported at all', () => {
+    const sf = parse(`export { Foo } from './foo';`);
+
+    expect(findReExport(sf, 'BaseInput')).toBeUndefined();
+  });
+
+  it('does not treat a local declaration of the same name as a re-export', () => {
+    const sf = parse(`export class BaseInput {}`);
+
+    expect(findReExport(sf, 'BaseInput')).toBeUndefined();
+  });
+
+  it('does not follow a wildcard re-export (`export * from`)', () => {
+    const sf = parse(`export * from './base-input';`);
+
+    expect(findReExport(sf, 'BaseInput')).toBeUndefined();
+  });
+
+  it('ignores a bare `export {}` with no module specifier', () => {
+    const sf = parse(`
+      class BaseInput {}
+      export { BaseInput };
+    `);
+
+    expect(findReExport(sf, 'BaseInput')).toBeUndefined();
   });
 });

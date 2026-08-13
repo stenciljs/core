@@ -1,4 +1,4 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
@@ -600,5 +600,224 @@ describe('mergeExtendedClassMetaWithResolveImport', () => {
 
     expect(result.doesExtend).toBe(true);
     expect(result.properties.map((p) => p.name).sort()).toEqual(['disabled', 'name']);
+  });
+
+  describe('barrel / re-export resolution', () => {
+    it('resolves a plain `extends` target reached through a barrel re-export, without warning', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from './shared';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const barrelCode = `export { BaseInput } from './base-input';`;
+      const baseInputCode = `
+        import { Prop } from '@stencil/core';
+        export class BaseInput {
+          @Prop() disabled: boolean;
+        }
+      `;
+
+      const buildCtx = mockBuildCtx();
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier, importer) => {
+          if (specifier === './shared' && importer === cmpFileName) {
+            return { code: barrelCode, path: '/src/components/shared.ts' };
+          }
+          if (specifier === './base-input' && importer === '/src/components/shared.ts') {
+            return { code: baseInputCode, path: '/src/components/base-input.ts' };
+          }
+          return null;
+        },
+        config,
+        buildCtx,
+      );
+
+      expect(result.doesExtend).toBe(true);
+      expect(result.properties.map((p) => p.name)).toEqual(['disabled']);
+      expect(buildCtx.diagnostics).toHaveLength(0);
+    });
+
+    it('resolves an aliased barrel re-export (`export { X as Y }`)', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { Input } from './shared';
+        export class Checkbox extends Input {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const barrelCode = `export { BaseInput as Input } from './base-input';`;
+      const baseInputCode = `
+        import { Prop } from '@stencil/core';
+        export class BaseInput {
+          @Prop() disabled: boolean;
+        }
+      `;
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier, importer) => {
+          if (specifier === './shared' && importer === cmpFileName) {
+            return { code: barrelCode, path: '/src/components/shared.ts' };
+          }
+          if (specifier === './base-input' && importer === '/src/components/shared.ts') {
+            return { code: baseInputCode, path: '/src/components/base-input.ts' };
+          }
+          return null;
+        },
+        config,
+      );
+
+      expect(result.doesExtend).toBe(true);
+      expect(result.properties.map((p) => p.name)).toEqual(['disabled']);
+    });
+
+    it('resolves a Mixin(...) argument reached through a barrel re-export', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { Mixin } from '@stencil/core';
+        import { FocusMixin } from './mixins';
+        export class Checkbox extends Mixin(FocusMixin) {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const barrelCode = `export { FocusMixin } from './focus-mixin';`;
+      const mixinCode = `
+        import { Prop } from '@stencil/core';
+        export const FocusMixin = (Base) => {
+          class FocusMixinClass extends Base {
+            @Prop() isFocused: boolean;
+          }
+          return FocusMixinClass;
+        };
+      `;
+
+      const buildCtx = mockBuildCtx();
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier, importer) => {
+          if (specifier === './mixins' && importer === cmpFileName) {
+            return { code: barrelCode, path: '/src/components/mixins.ts' };
+          }
+          if (specifier === './focus-mixin' && importer === '/src/components/mixins.ts') {
+            return { code: mixinCode, path: '/src/components/focus-mixin.ts' };
+          }
+          return null;
+        },
+        config,
+        buildCtx,
+      );
+
+      expect(result.doesExtend).toBe(true);
+      expect(result.properties.map((p) => p.name)).toEqual(['isFocused']);
+      expect(buildCtx.diagnostics).toHaveLength(0);
+    });
+
+    it('does not follow a second hop through a barrel-of-a-barrel, and warns when buildCtx is supplied', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from './outer-barrel';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const outerBarrelCode = `export { BaseInput } from './inner-barrel';`;
+      const innerBarrelCode = `export { BaseInput } from './base-input';`;
+      const baseInputCode = `
+        import { Prop } from '@stencil/core';
+        export class BaseInput {
+          @Prop() disabled: boolean;
+        }
+      `;
+
+      const buildCtx = mockBuildCtx();
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        (specifier, importer) => {
+          if (specifier === './outer-barrel' && importer === cmpFileName) {
+            return { code: outerBarrelCode, path: '/src/components/outer-barrel.ts' };
+          }
+          if (specifier === './inner-barrel' && importer === '/src/components/outer-barrel.ts') {
+            return { code: innerBarrelCode, path: '/src/components/inner-barrel.ts' };
+          }
+          if (specifier === './base-input' && importer === '/src/components/inner-barrel.ts') {
+            return { code: baseInputCode, path: '/src/components/base-input.ts' };
+          }
+          return null;
+        },
+        config,
+        buildCtx,
+      );
+
+      expect(result.doesExtend).toBe(false);
+      expect(result.properties).toHaveLength(0);
+      expect(buildCtx.diagnostics).toHaveLength(1);
+      expect(buildCtx.diagnostics[0].messageText).toContain('Unable to find "BaseInput"');
+    });
+
+    it('does not warn (or crash) when a component simply has no extends clause', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `export class Checkbox {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const buildCtx = mockBuildCtx();
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        staticMembers,
+        cmpSource,
+        () => null,
+        config,
+        buildCtx,
+      );
+
+      expect(result.doesExtend).toBe(false);
+      expect(buildCtx.diagnostics).toHaveLength(0);
+    });
   });
 });
