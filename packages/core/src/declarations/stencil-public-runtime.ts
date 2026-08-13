@@ -554,7 +554,7 @@ export declare function setNonce(nonce: string): void;
  * @param ref the ref to get the Stencil element for
  * @returns a reference to the element
  */
-export declare function getElement(ref: any): HTMLStencilElement;
+export declare function getElement<T extends HTMLElement = HTMLStencilElement>(ref: any): T;
 
 /**
  * Get the shadow root for a Stencil component's host element.
@@ -825,7 +825,10 @@ export interface ReactiveController {
   hostDidUpdate?(): void;
 }
 
-interface ReactiveControllerHost extends ComponentInterface {
+/**
+ * The shape added to a component by mixing in `ReactiveControllerHost` (see below).
+ */
+export interface ReactiveControllerHostInterface extends ComponentInterface, HTMLElement {
   readonly controllers: ReadonlySet<ReactiveController>;
   addController(controller: ReactiveController): void;
   removeController(controller: ReactiveController): void;
@@ -839,16 +842,12 @@ interface ReactiveControllerHost extends ComponentInterface {
 }
 
 /**
- * The shape added to a component by mixing in `ReactiveControllerHost` (see below).
- */
-export type ReactiveControllerHostInterface = ReactiveControllerHost & HTMLElement;
-
-/**
  * A mixin factory (for use with `Mixin()`) that adds `ReactiveController` support to a component,
  * forwarding each Stencil lifecycle method to every registered controller's matching `hostX` hook.
  *
  * ```ts
  * import { Mixin, ReactiveControllerHost } from '@stencil/core';
+ * import { MouseController } from './mouse-controller';
  *
  * class MyComponent extends Mixin(ReactiveControllerHost) {
  *   private mouse = new MouseController(this);
@@ -856,21 +855,12 @@ export type ReactiveControllerHostInterface = ReactiveControllerHost & HTMLEleme
  * }
  * ```
  *
- * The result is typed as extending `HTMLElement` so controllers needing real DOM access (e.g.
- * `@lit/context`'s `ContextProvider`/`ContextConsumer`) can take `this` directly, with no cast -
- * matching how those controllers are used against Lit's own `ReactiveElement`. This means an
- * instance field can't share a name with an `HTMLElement` member (`focus`, `blur`, `style`, ...) -
- * the same constraint any `HTMLElement` subclass has, Lit-based or not. This access is only real
- * at runtime for standalone/`dist-custom-elements` builds - for the lazy-loaded `dist` output,
- * Stencil's runtime proxies props/lifecycle onto `this` but `this` is not literally the host
- * element (see `getElement()`), so DOM-dependent controllers won't work there regardless of typing.
- *
  * @param Base the class to extend.
  * @returns a class extending `Base` with reactive-controller support.
  */
 export declare function ReactiveControllerHost<B extends MixedInCtor>(
   Base: B,
-): MixedInCtor<InstanceType<B> & ReactiveControllerHostInterface & HTMLElement>;
+): MixedInCtor<InstanceType<B> & ReactiveControllerHostInterface>;
 
 // General types important to applications using stencil built components
 export interface EventEmitter<T = any> {
