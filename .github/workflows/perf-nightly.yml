@@ -1,0 +1,46 @@
+name: Nightly Runtime Perf Baseline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record_baseline:
+    name: Record Runtime Benchmark Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Build Stencil Core
+        run: pnpm build
+        shell: bash
+
+      - name: Install Playwright Browsers
+        uses: ./.github/workflows/actions/install-playwright
+        with:
+          working-directory: test/perf/runtime-benchmark
+
+      - name: Run Runtime Benchmark
+        run: pnpm --filter "@stencil-core-tests/perf-runtime-benchmark" test
+        shell: bash
+
+      - name: Commit Updated Baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add test/perf/runtime-benchmark/benchmark-results.json test/perf/runtime-benchmark/benchmark-results.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(perf): update runtime benchmark baseline"
+            git push origin HEAD:main
+          fi
+        shell: bash
