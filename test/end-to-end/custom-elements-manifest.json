@@ -575,7 +575,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "cmp-with-slot",
-          "name": "CmpWithSlot"
+          "name": "CmpWithSlot",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -687,7 +693,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "dsd-listen-cmp",
-          "name": "DsdListenCmp"
+          "name": "DsdListenCmp",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -955,7 +967,16 @@
           "kind": "class",
           "customElement": true,
           "tagName": "hydrated-sibling-accessors",
-          "name": "HydratedSiblingAccessors"
+          "name": "HydratedSiblingAccessors",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            },
+            {
+              "name": "second-slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1348,7 +1369,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "nested-cmp-child",
-          "name": "NestedCmpChild"
+          "name": "NestedCmpChild",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1376,7 +1403,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "nested-cmp-parent",
-          "name": "NestedCmpParent"
+          "name": "NestedCmpParent",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1404,7 +1437,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "nested-scope-cmp",
-          "name": "NestedScopeCmp"
+          "name": "NestedScopeCmp",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1432,7 +1471,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "non-shadow-child",
-          "name": "NonShadowChild"
+          "name": "NonShadowChild",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1460,7 +1505,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "non-shadow-forwarded-slot",
-          "name": "NonShadowForwardedSlot"
+          "name": "NonShadowForwardedSlot",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1488,7 +1539,16 @@
           "kind": "class",
           "customElement": true,
           "tagName": "non-shadow-multi-slots",
-          "name": "NonShadowMultiSlots"
+          "name": "NonShadowMultiSlots",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            },
+            {
+              "name": "second-slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -1516,7 +1576,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "non-shadow-wrapper",
-          "name": "NonShadowWrapper"
+          "name": "NonShadowWrapper",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -2037,7 +2103,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "shadow-child",
-          "name": "ShadowChild"
+          "name": "ShadowChild",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -2065,7 +2137,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "shadow-wrapper",
-          "name": "ShadowWrapper"
+          "name": "ShadowWrapper",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -2093,7 +2171,13 @@
           "kind": "class",
           "customElement": true,
           "tagName": "slot-cmp",
-          "name": "SlotCmp"
+          "name": "SlotCmp",
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
+          ]
         }
       ],
       "exports": [
@@ -2169,6 +2253,12 @@
               "readonly": true,
               "attribute": "label"
             }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            }
           ]
         }
       ],
@@ -2216,6 +2306,18 @@
               },
               "readonly": true,
               "attribute": "selected"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
+            },
+            {
+              "name": "client-only"
+            },
+            {
+              "name": "top"
             }
           ]
         }
@@ -2292,6 +2394,12 @@
               },
               "readonly": true,
               "attribute": "selected"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The default slot"
             }
           ]
         }

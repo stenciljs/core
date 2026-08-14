@@ -1,9 +1,15 @@
-import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerSystem, mockConfig, mockValidatedConfig } from '@stencil/core/testing';
+import { normalizePath } from '@utils';
+import { join as pathJoin, relative, resolve } from 'path';
 import * as ts from 'typescript';
 
+import { createCompiler } from '../../compiler';
 import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decorators';
+import { getAttributeTypeInfo } from '../transform-utils';
 import { getStaticGetter, transpileModule } from './transpile';
 import { c, formatCode } from './utils';
+
+const join = (...segments: string[]): string => normalizePath(pathJoin(...segments), false);
 
 describe('parse props', () => {
   it('prop optional', () => {
@@ -76,6 +82,398 @@ describe('parse props', () => {
       getter: false,
       setter: false,
     });
+  });
+
+  it('tracks local enum and class references used by type queries', () => {
+    const t = transpileModule(`
+      export enum LocalEnum {
+        Default = 'default'
+      }
+      export class LocalClass {
+        static value = 'value';
+      }
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() enumValue: keyof typeof LocalEnum;
+        @Prop() classValue: keyof typeof LocalClass;
+      }
+    `);
+
+    expect(t.properties.find((prop) => prop.name === 'enumValue')?.complexType.references).toEqual({
+      LocalEnum: { location: 'local', path: 'module.tsx', id: 'module.tsx::LocalEnum' },
+    });
+    expect(t.properties.find((prop) => prop.name === 'classValue')?.complexType.references).toEqual({
+      LocalClass: { location: 'local', path: 'module.tsx', id: 'module.tsx::LocalClass' },
+    });
+  });
+
+  it('tracks imported enum and class references used by type queries', () => {
+    const inputFileName = normalizePath(resolve('src/compiler/transformers/test/type-query-module.ts'), false);
+    const input = `
+      import { BestEnum as ImportedEnum } from './fixtures/meal-entry';
+      import { ObjectMap as ImportedClass } from '../transform-utils';
+      class TypeQueryFixture {
+        enumValue: keyof typeof ImportedEnum;
+        classValue: keyof typeof ImportedClass;
+      }
+    `;
+    const options: ts.CompilerOptions = {
+      ...ts.getDefaultCompilerOptions(),
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Node10,
+      target: ts.ScriptTarget.Latest,
+    };
+    const host = ts.createCompilerHost(options);
+    const getSourceFile = host.getSourceFile.bind(host);
+    const fileExists = host.fileExists.bind(host);
+    const readFile = host.readFile.bind(host);
+    host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) =>
+      fileName === inputFileName
+        ? ts.createSourceFile(fileName, input, languageVersion, true, ts.ScriptKind.TS)
+        : getSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
+    host.fileExists = (fileName) => fileName === inputFileName || fileExists(fileName);
+    host.readFile = (fileName) => (fileName === inputFileName ? input : readFile(fileName));
+
+    const program = ts.createProgram([inputFileName], options, host);
+    const sourceFile = program.getSourceFile(inputFileName)!;
+    const fixture = sourceFile.statements.find(ts.isClassDeclaration)!;
+    const getReferences = (propertyName: string) => {
+      const property = fixture.members.find(
+        (member): member is ts.PropertyDeclaration =>
+          ts.isPropertyDeclaration(member) && member.name.getText() === propertyName,
+      )!;
+      return getAttributeTypeInfo(property, sourceFile, program.getTypeChecker(), program);
+    };
+
+    expect(getReferences('enumValue').ImportedEnum).toMatchObject({
+      location: 'import',
+      path: './fixtures/meal-entry',
+      referenceLocation: 'BestEnum',
+    });
+    expect(getReferences('classValue').ImportedClass).toMatchObject({
+      location: 'import',
+      path: '../transform-utils',
+      referenceLocation: 'ObjectMap',
+    });
+  });
+
+  it('generates imports for default and aliased exports used by type queries', async () => {
+    const sys = mockCompilerSystem();
+    const rootDir = '/';
+    const srcDir = join(rootDir, 'src');
+    const config = mockConfig({
+      buildDocs: true,
+      sys,
+      rootDir,
+      srcDir,
+      outputTargets: [{ type: 'docs-json', file: join(rootDir, 'docs.json') }],
+    });
+    const tsconfigPath = join(rootDir, 'tsconfig.json');
+    const componentDir = join(srcDir, 'components');
+
+    await config.sys.createDir(componentDir, { recursive: true });
+    await config.sys.writeFile(
+      tsconfigPath,
+      JSON.stringify({
+        compilerOptions: {
+          experimentalDecorators: true,
+          jsx: 'react',
+          jsxFactory: 'h',
+          module: 'esnext',
+          moduleResolution: 'node',
+          target: 'es2017',
+        },
+        include: ['src'],
+      }),
+    );
+    await config.sys.writeFile(
+      join('bin', 'lib.es2017.full.d.ts'),
+      `
+        interface Array<T> {}
+        interface Boolean {}
+        interface Function {}
+        interface IArguments {}
+        interface Number {}
+        interface Object {}
+        interface RegExp {}
+        interface String {}
+      `,
+    );
+    await config.sys.writeFile(join('internal', 'stencil-public-docs.d.ts'), 'export interface JsonDocs {}');
+    await config.sys.writeFile(
+      join(componentDir, 'assigned-class.ts'),
+      `
+        class AssignedClass {
+          static value = 'value';
+        }
+        export default AssignedClass;
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'direct-class.ts'),
+      `
+        export default class DirectClass {
+          static value = 'value';
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'default-enum.ts'),
+      `
+        enum DefaultEnum {
+          Value = 'value'
+        }
+        export default DefaultEnum;
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'shared-class.ts'),
+      `
+        export default class SharedClass {
+          static value = 'value';
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'shared-enum.ts'),
+      `
+        enum SharedEnum {
+          Value = 'value'
+        }
+        export default SharedEnum;
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'named.ts'),
+      `
+        export enum NamedEnum {
+          Value = 'value'
+        }
+        export class OriginalClass {
+          static value = 'external';
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'a.ts'),
+      `
+        export enum Mode {
+          A = 'a'
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'b.ts'),
+      `
+        export enum Mode {
+          B = 'b'
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'barrel.ts'),
+      `
+        export { Mode as FirstMode } from './a';
+        export { Mode as SecondMode } from './b';
+      `,
+    );
+    await config.sys.writeFile(
+      join(srcDir, 'stencil-core.d.ts'),
+      `
+        declare module '@stencil/core' {
+          export function Component(options: any): any;
+          export function Prop(): any;
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'cmp-a.tsx'),
+      `
+        import { Component, Prop } from '@stencil/core';
+        import AssignedAlias from './assigned-class';
+        import DirectAlias from './direct-class';
+        import EnumAlias from './default-enum';
+
+        export default class LocalDefault {
+          static value = 'value';
+        }
+        class LocalAlias {
+          static value = 'value';
+        }
+        export { LocalAlias as PublicAlias };
+
+        @Component({ tag: 'cmp-a' })
+        export class CmpA {
+          @Prop() assigned: Array<keyof typeof AssignedAlias>;
+          @Prop() direct: keyof typeof DirectAlias;
+          @Prop() enumValue: keyof typeof EnumAlias;
+          @Prop() localDefault: keyof typeof LocalDefault;
+          @Prop() localAlias: keyof typeof LocalAlias;
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'cmp-first.tsx'),
+      `
+        import { Component, Prop } from '@stencil/core';
+        import FirstClass from './shared-class';
+        import FirstEnum from './shared-enum';
+
+        @Component({ tag: 'cmp-first' })
+        export class CmpFirst {
+          @Prop() firstClass: keyof typeof FirstClass;
+          @Prop() firstEnum: keyof typeof FirstEnum;
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'cmp-second.tsx'),
+      `
+        import { Component, Prop } from '@stencil/core';
+        import SecondClass from './shared-class';
+        import SecondEnum from './shared-enum';
+
+        @Component({ tag: 'cmp-second' })
+        export class CmpSecond {
+          @Prop() secondClass: keyof typeof SecondClass;
+          @Prop() secondEnum: keyof typeof SecondEnum;
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'cmp-shadow.tsx'),
+      `
+        import { Component, Prop } from '@stencil/core';
+        import { NamedEnum as NamedAlias } from './named';
+        export { OriginalClass as PublicShadow } from './named';
+
+        export class OriginalClass {
+          static value = 'local';
+        }
+
+        @Component({ tag: 'cmp-shadow' })
+        export class CmpShadow {
+          @Prop() namedEnum: keyof typeof NamedAlias;
+          @Prop() localClass: keyof typeof OriginalClass;
+        }
+      `,
+    );
+    await config.sys.writeFile(
+      join(componentDir, 'cmp-barrel.tsx'),
+      `
+        import { Component, Prop } from '@stencil/core';
+        import { FirstMode, SecondMode } from './barrel';
+
+        @Component({ tag: 'cmp-barrel' })
+        export class CmpBarrel {
+          @Prop() firstMode: keyof typeof FirstMode;
+          @Prop() secondMode: keyof typeof SecondMode;
+        }
+      `,
+    );
+
+    const originalCwd = process.cwd();
+    const compiler = await createCompiler({ ...config, tsconfig: tsconfigPath });
+    try {
+      const results = await compiler.build();
+      expect(results.diagnostics.filter((diagnostic) => diagnostic.level === 'error')).toEqual([]);
+
+      const componentsDts = await compiler.sys.readFile(join(srcDir, 'components.d.ts'));
+      expect(componentsDts).toContain('import AssignedAlias from "./components/assigned-class";');
+      expect(componentsDts).toContain('import DirectAlias from "./components/direct-class";');
+      expect(componentsDts).toContain('import EnumAlias from "./components/default-enum";');
+      expect(componentsDts).toContain('import LocalDefault, { PublicAlias as LocalAlias } from "./components/cmp-a";');
+      expect(componentsDts).toContain('import FirstClass from "./components/shared-class";');
+      expect(componentsDts).toContain('import SecondClass from "./components/shared-class";');
+      expect(componentsDts).toContain('import FirstEnum from "./components/shared-enum";');
+      expect(componentsDts).toContain('import SecondEnum from "./components/shared-enum";');
+      expect(componentsDts).toContain('import { NamedEnum as NamedAlias } from "./components/named";');
+      expect(componentsDts).toContain('import { FirstMode, SecondMode } from "./components/barrel";');
+      expect(componentsDts).not.toContain(', { } from');
+      expect(componentsDts).toContain('"firstClass": keyof typeof FirstClass;');
+      expect(componentsDts).toContain('"secondClass": keyof typeof SecondClass;');
+      expect(componentsDts).toContain('"firstEnum": keyof typeof FirstEnum;');
+      expect(componentsDts).toContain('"secondEnum": keyof typeof SecondEnum;');
+
+      const generatedDiagnostics = ts.transpileModule(componentsDts, {
+        fileName: 'components.ts',
+        reportDiagnostics: true,
+      }).diagnostics;
+      expect(generatedDiagnostics?.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)).toEqual(
+        [],
+      );
+
+      const docsJson = JSON.parse(await compiler.sys.readFile(join(rootDir, 'docs.json')));
+      const barrelComponent = docsJson.components.find((component: { tag: string }) => component.tag === 'cmp-barrel');
+      const getBarrelReference = (propertyName: string, referenceName: string) =>
+        barrelComponent.props.find((property: { name: string }) => property.name === propertyName).complexType
+          .references[referenceName];
+      const firstModeReference = getBarrelReference('firstMode', 'FirstMode');
+      const secondModeReference = getBarrelReference('secondMode', 'SecondMode');
+      expect(firstModeReference).toMatchObject({
+        location: 'import',
+        path: './barrel',
+        referenceLocation: 'FirstMode',
+      });
+      expect(secondModeReference).toMatchObject({
+        location: 'import',
+        path: './barrel',
+        referenceLocation: 'SecondMode',
+      });
+      expect(firstModeReference.id).not.toBe(secondModeReference.id);
+      expect(docsJson.typeLibrary[firstModeReference.id]).toMatchObject({
+        declaration: expect.stringContaining('enum Mode'),
+        path: normalizePath(relative(process.cwd(), join(componentDir, 'a.ts')), false),
+      });
+      expect(docsJson.typeLibrary[firstModeReference.id].declaration).toContain("A = 'a'");
+      expect(docsJson.typeLibrary[secondModeReference.id]).toMatchObject({
+        declaration: expect.stringContaining('enum Mode'),
+        path: normalizePath(relative(process.cwd(), join(componentDir, 'b.ts')), false),
+      });
+      expect(docsJson.typeLibrary[secondModeReference.id].declaration).toContain("B = 'b'");
+
+      const getTypeDeclaration = (typeName: string): string | undefined => {
+        const typeEntry = Object.entries(docsJson.typeLibrary).find(([id]) => id.endsWith(`::${typeName}`))?.[1] as
+          | { declaration?: string }
+          | undefined;
+        return typeEntry?.declaration;
+      };
+      expect(getTypeDeclaration('AssignedClass')).toContain('class AssignedClass');
+      expect(getTypeDeclaration('DirectClass')).toContain('class DirectClass');
+      expect(getTypeDeclaration('DefaultEnum')).toContain('enum DefaultEnum');
+      expect(getTypeDeclaration('NamedEnum')).toContain('enum NamedEnum');
+      expect(getTypeDeclaration('AssignedClass')).not.toBe('any');
+      expect(componentsDts).toContain('import { OriginalClass } from "./components/cmp-shadow";');
+      expect(componentsDts).not.toContain('PublicShadow as OriginalClass');
+    } finally {
+      process.chdir(originalCwd);
+      await compiler.destroy();
+    }
+  });
+
+  it('ignores type queries for arbitrary values and value aliases', () => {
+    const t = transpileModule(`
+      const LocalValue = { value: 'value' } as const;
+      function LocalFunction() {
+        return 'value';
+      }
+      class SomeClass {
+        static value = 'value';
+      }
+      const ClassAlias = SomeClass;
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() objectValue: keyof typeof LocalValue;
+        @Prop() functionValue: keyof typeof LocalFunction;
+        @Prop() classAlias: keyof typeof ClassAlias;
+      }
+    `);
+
+    const getReferences = (propertyName: string) =>
+      t.properties.find((property) => property.name === propertyName)?.complexType.references;
+    expect(getReferences('objectValue')).toEqual({});
+    expect(getReferences('functionValue')).toEqual({});
+    expect(getReferences('classAlias')).toEqual({});
   });
 
   it('should correctly parse a prop with an unresolved type', () => {
