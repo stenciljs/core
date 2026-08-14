@@ -1,27 +1,26 @@
-import { Component, State, Element } from '@stencil/core';
+import { Component, Element, Mixin, ReactiveControllerHost, State } from '@stencil/core';
 
 import { FocusController } from './focus-controller.js';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
 import { ValidationController } from './validation-controller.js';
 
 @Component({
   tag: 'composition-text-input',
 })
-export class TextInputCmp extends ReactiveControllerHost {
+export class TextInputCmp extends Mixin(ReactiveControllerHost) {
   @Element() el!: HTMLElement;
   @State() value: string = '';
   @State() helperText: string = 'Enter your name';
 
   // Controllers via composition
   private validation = new ValidationController(this);
-  private focus = new FocusController(this);
+  private focusController = new FocusController(this);
 
   private inputId = `text-input-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
   private errorTextId = `${this.inputId}-error-text`;
 
   componentWillLoad() {
-    super.componentWillLoad(); // Call base class to trigger controllers
+    super.componentWillLoad?.(); // Call base class to trigger controllers
     // Set up validation callback
     this.validation.setValidationCallback((val: string) => {
       if (!val || val.trim().length === 0) {
@@ -35,11 +34,11 @@ export class TextInputCmp extends ReactiveControllerHost {
   }
 
   componentDidLoad() {
-    super.componentDidLoad(); // Call base class to trigger controllers
+    super.componentDidLoad?.(); // Call base class to trigger controllers
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback(); // Call base class to trigger controllers
+    super.disconnectedCallback?.(); // Call base class to trigger controllers
   }
 
   private handleInput = (e: Event) => {
@@ -48,16 +47,16 @@ export class TextInputCmp extends ReactiveControllerHost {
   };
 
   private handleFocus = () => {
-    this.focus.handleFocus();
+    this.focusController.handleFocus();
   };
 
   private handleBlur = () => {
-    this.focus.handleBlur();
+    this.focusController.handleBlur();
     this.validation.handleBlur(this.value);
   };
 
   render() {
-    const focusState = this.focus.getFocusState();
+    const focusState = this.focusController.getFocusState();
     const validationState = this.validation.getValidationState();
     const validationData = this.validation.getValidationMessageData(
       this.helperTextId,

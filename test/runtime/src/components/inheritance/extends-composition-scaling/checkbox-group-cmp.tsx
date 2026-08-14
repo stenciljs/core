@@ -1,13 +1,20 @@
-import { Component, State, Element, Event, EventEmitter } from '@stencil/core';
+import {
+  Component,
+  Element,
+  Event,
+  EventEmitter,
+  Mixin,
+  ReactiveControllerHost,
+  State,
+} from '@stencil/core';
 
 import { FocusController } from './focus-controller.js';
-import { ReactiveControllerHost } from './reactive-controller-host.js';
 import { ValidationController } from './validation-controller.js';
 
 @Component({
   tag: 'composition-checkbox-group',
 })
-export class CheckboxGroupCmp extends ReactiveControllerHost {
+export class CheckboxGroupCmp extends Mixin(ReactiveControllerHost) {
   @Element() el!: HTMLElement;
   @State() values: string[] = [];
   @State() helperText: string = 'Select at least one option';
@@ -16,14 +23,14 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
 
   // Controllers via composition
   private validation = new ValidationController(this);
-  private focus = new FocusController(this);
+  private focusController = new FocusController(this);
 
   private inputId = `checkbox-group-${Math.random().toString(36).substr(2, 9)}`;
   private helperTextId = `${this.inputId}-helper-text`;
   private errorTextId = `${this.inputId}-error-text`;
 
   componentWillLoad() {
-    super.componentWillLoad(); // Call base class to trigger controllers
+    super.componentWillLoad?.(); // Call base class to trigger controllers
     // Set up validation callback
     this.validation.setValidationCallback((vals: string[]) => {
       if (!vals || vals.length === 0) {
@@ -34,11 +41,11 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
   }
 
   componentDidLoad() {
-    super.componentDidLoad(); // Call base class to trigger controllers
+    super.componentDidLoad?.(); // Call base class to trigger controllers
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback(); // Call base class to trigger controllers
+    super.disconnectedCallback?.(); // Call base class to trigger controllers
   }
 
   private handleChange = (e: Event) => {
@@ -56,16 +63,16 @@ export class CheckboxGroupCmp extends ReactiveControllerHost {
   };
 
   private handleFocus = () => {
-    this.focus.handleFocus();
+    this.focusController.handleFocus();
   };
 
   private handleBlur = () => {
-    this.focus.handleBlur();
+    this.focusController.handleBlur();
     this.validation.handleBlur(this.values);
   };
 
   render() {
-    const focusState = this.focus.getFocusState();
+    const focusState = this.focusController.getFocusState();
     const validationData = this.validation.getValidationMessageData(
       this.helperTextId,
       this.errorTextId,

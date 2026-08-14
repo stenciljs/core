@@ -7,16 +7,15 @@
  * 3. Provides methods to handle focus lifecycle
  */
 import { forceUpdate } from '@stencil/core';
-
-import type { ReactiveControllerHost, ReactiveController } from './reactive-controller-host.js';
+import type { ReactiveController, ReactiveControllerHostInterface } from '@stencil/core';
 
 export class FocusController implements ReactiveController {
-  private host: ReactiveControllerHost;
+  private host: ReactiveControllerHostInterface;
   private isFocused: boolean = false;
   private focusCount: number = 0;
   private blurCount: number = 0;
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(host: ReactiveControllerHostInterface) {
     this.host = host;
     host.addController(this);
   }

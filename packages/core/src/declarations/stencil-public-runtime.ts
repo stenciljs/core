@@ -554,7 +554,7 @@ export declare function setNonce(nonce: string): void;
  * @param ref the ref to get the Stencil element for
  * @returns a reference to the element
  */
-export declare function getElement(ref: any): HTMLStencilElement;
+export declare function getElement<T extends HTMLElement = HTMLStencilElement>(ref: any): T;
 
 /**
  * Get the shadow root for a Stencil component's host element.
@@ -808,6 +808,59 @@ export interface ComponentInterface {
 
   [memberName: string]: any;
 }
+
+/**
+ * A reusable behavior that hooks into a `ReactiveControllerHost`'s lifecycle. Modeled after Lit's
+ * `ReactiveController` pattern: implement the hooks you need, then register an instance with a host
+ * via `host.addController(this)`.
+ */
+export interface ReactiveController {
+  hostConnected?(): void;
+  hostDisconnected?(): void;
+  hostWillLoad?(): Promise<void> | void;
+  hostDidLoad?(): void;
+  hostWillRender?(): Promise<void> | void;
+  hostDidRender?(): void;
+  hostWillUpdate?(): Promise<void> | void;
+  hostDidUpdate?(): void;
+}
+
+/**
+ * The shape added to a component by mixing in `ReactiveControllerHost` (see below).
+ */
+export interface ReactiveControllerHostInterface extends ComponentInterface, HTMLElement {
+  readonly controllers: ReadonlySet<ReactiveController>;
+  addController(controller: ReactiveController): void;
+  removeController(controller: ReactiveController): void;
+  requestUpdate(): void;
+  /**
+   * Resolves once the next pending render commits. Matches the shape of Lit's
+   * `ReactiveControllerHost.updateComplete`, for interop with controllers written against Lit's API
+   * (e.g. `@lit/context`).
+   */
+  readonly updateComplete: Promise<boolean>;
+}
+
+/**
+ * A mixin factory (for use with `Mixin()`) that adds `ReactiveController` support to a component,
+ * forwarding each Stencil lifecycle method to every registered controller's matching `hostX` hook.
+ *
+ * ```ts
+ * import { Mixin, ReactiveControllerHost } from '@stencil/core';
+ * import { MouseController } from './mouse-controller';
+ *
+ * class MyComponent extends Mixin(ReactiveControllerHost) {
+ *   private mouse = new MouseController(this);
+ *   render() { return <Host>{this.mouse.pos.x}, {this.mouse.pos.y}</Host>; }
+ * }
+ * ```
+ *
+ * @param Base the class to extend.
+ * @returns a class extending `Base` with reactive-controller support.
+ */
+export declare function ReactiveControllerHost<B extends MixedInCtor>(
+  Base: B,
+): MixedInCtor<InstanceType<B> & ReactiveControllerHostInterface>;
 
 // General types important to applications using stencil built components
 export interface EventEmitter<T = any> {

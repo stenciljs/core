@@ -7,7 +7,7 @@
 
 ## Overview
 
-A component that extends ReactiveControllerHost to use reactive controllers.
+A component that mixes in ReactiveControllerHost to use reactive controllers.
 Tests that the controller pattern works correctly with Stencil components.
 
 ----------------------------------------------

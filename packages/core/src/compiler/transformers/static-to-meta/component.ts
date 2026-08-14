@@ -95,13 +95,14 @@ export const parseStaticComponentMeta = (
     classMethods,
     serializers,
     deserializers,
-  } = transformOpts?.resolveImport
+  } = transformOpts?.resolveImport // 1 file / transpile-only mode, no Program, no TypeChecker
     ? mergeExtendedClassMetaWithResolveImport(
         cmpNode,
         staticMembers,
         moduleFile.staticSourceFile,
         transformOpts.resolveImport,
         buildCtx.config,
+        buildCtx,
       )
     : mergeExtendedClassMeta(
         compilerCtx,
@@ -241,6 +242,14 @@ export const parseStaticComponentMeta = (
   cmp.hasSlot = cmp.hasSlot || cmp.htmlTagNames.includes('slot');
   cmp.potentialCmpRefs = unique(cmp.potentialCmpRefs);
   setComponentBuildConditionals(cmp);
+
+  // An extended/mixed-in base class may declare lifecycle methods that aren't resolvable.
+  if (
+    cmp.isPlain &&
+    cmpNode.heritageClauses?.some((c) => c.token === ts.SyntaxKind.ExtendsKeyword)
+  ) {
+    cmp.isPlain = false;
+  }
 
   if (transformOpts && transformOpts.componentMetadata === 'compilerstatic') {
     cmpNode = addComponentMetaStatic(cmpNode, cmp);

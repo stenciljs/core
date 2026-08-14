@@ -1,4 +1,4 @@
-import { ReactiveController, ReactiveControllerHost } from './reactive-controller-host.js';
+import { ReactiveController, ReactiveControllerHostInterface } from '@stencil/core';
 
 /**
  * A reactive controller that tracks mouse position.
@@ -6,7 +6,7 @@ import { ReactiveController, ReactiveControllerHost } from './reactive-controlle
  * reusable behavior that can request component updates.
  */
 export class MouseController implements ReactiveController {
-  host: ReactiveControllerHost;
+  host: ReactiveControllerHostInterface;
   pos = { x: 0, y: 0 };
 
   // Test hooks to verify lifecycle methods were called
@@ -18,7 +18,7 @@ export class MouseController implements ReactiveController {
     this.host.requestUpdate();
   };
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(host: ReactiveControllerHostInterface) {
     this.host = host;
     host.addController(this);
   }

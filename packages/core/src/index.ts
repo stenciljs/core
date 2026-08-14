@@ -25,6 +25,7 @@ export {
   Host,
   Mixin,
   readTask,
+  ReactiveControllerHost,
   render,
   setAssetPath,
   setErrorHandler,

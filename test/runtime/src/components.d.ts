@@ -290,6 +290,10 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -642,10 +646,12 @@ export namespace Components {
         "updateBaseState": (value: string) => Promise<void>;
         "updateComponentState": (value: string) => Promise<void>;
     }
+    interface ExtendsReactiveControllerPlainCmp {
+    }
     interface ExtendsRender {
     }
     /**
-     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * A component that mixes in ReactiveControllerHost to use reactive controllers.
      * Tests that the controller pattern works correctly with Stencil components.
      */
     interface ExtendsViaHostCmp {
@@ -1782,6 +1788,18 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
+    }
+    var HTMLExcludeComponentRootElement: {
+        prototype: HTMLExcludeComponentRootElement;
+        new (): HTMLExcludeComponentRootElement;
+    };
+    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
+    }
+    var HTMLExcludedComponentElement: {
+        prototype: HTMLExcludedComponentElement;
+        new (): HTMLExcludedComponentElement;
+    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -1986,6 +2004,12 @@ declare global {
         prototype: HTMLExtendsPropsStateElement;
         new (): HTMLExtendsPropsStateElement;
     };
+    interface HTMLExtendsReactiveControllerPlainCmpElement extends Components.ExtendsReactiveControllerPlainCmp, HTMLStencilElement {
+    }
+    var HTMLExtendsReactiveControllerPlainCmpElement: {
+        prototype: HTMLExtendsReactiveControllerPlainCmpElement;
+        new (): HTMLExtendsReactiveControllerPlainCmpElement;
+    };
     interface HTMLExtendsRenderElement extends Components.ExtendsRender, HTMLStencilElement {
     }
     var HTMLExtendsRenderElement: {
@@ -1993,7 +2017,7 @@ declare global {
         new (): HTMLExtendsRenderElement;
     };
     /**
-     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * A component that mixes in ReactiveControllerHost to use reactive controllers.
      * Tests that the controller pattern works correctly with Stencil components.
      */
     interface HTMLExtendsViaHostCmpElement extends Components.ExtendsViaHostCmp, HTMLStencilElement {
@@ -3140,6 +3164,8 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "exclude-component-root": HTMLExcludeComponentRootElement;
+        "excluded-component": HTMLExcludedComponentElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
@@ -3159,6 +3185,7 @@ declare global {
         "extends-mixin-cmp": HTMLExtendsMixinCmpElement;
         "extends-mixin-slot-cmp": HTMLExtendsMixinSlotCmpElement;
         "extends-props-state": HTMLExtendsPropsStateElement;
+        "extends-reactive-controller-plain-cmp": HTMLExtendsReactiveControllerPlainCmpElement;
         "extends-render": HTMLExtendsRenderElement;
         "extends-via-host-cmp": HTMLExtendsViaHostCmpElement;
         "extends-watch": HTMLExtendsWatchElement;
@@ -3590,6 +3617,10 @@ declare namespace LocalJSX {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -3848,10 +3879,12 @@ declare namespace LocalJSX {
          */
         "componentProp"?: string;
     }
+    interface ExtendsReactiveControllerPlainCmp {
+    }
     interface ExtendsRender {
     }
     /**
-     * A component that extends ReactiveControllerHost to use reactive controllers.
+     * A component that mixes in ReactiveControllerHost to use reactive controllers.
      * Tests that the controller pattern works correctly with Stencil components.
      */
     interface ExtendsViaHostCmp {
@@ -4779,6 +4812,8 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "exclude-component-root": ExcludeComponentRoot;
+        "excluded-component": ExcludedComponent;
         "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
         "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
         "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
@@ -4798,6 +4833,7 @@ declare namespace LocalJSX {
         "extends-mixin-cmp": Omit<ExtendsMixinCmp, keyof ExtendsMixinCmpAttributes> & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes]?: ExtendsMixinCmp[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `attr:${K}`]?: ExtendsMixinCmpAttributes[K] } & { [K in keyof ExtendsMixinCmp & keyof ExtendsMixinCmpAttributes as `prop:${K}`]?: ExtendsMixinCmp[K] };
         "extends-mixin-slot-cmp": ExtendsMixinSlotCmp;
         "extends-props-state": Omit<ExtendsPropsState, keyof ExtendsPropsStateAttributes> & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes]?: ExtendsPropsState[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `attr:${K}`]?: ExtendsPropsStateAttributes[K] } & { [K in keyof ExtendsPropsState & keyof ExtendsPropsStateAttributes as `prop:${K}`]?: ExtendsPropsState[K] };
+        "extends-reactive-controller-plain-cmp": ExtendsReactiveControllerPlainCmp;
         "extends-render": ExtendsRender;
         "extends-via-host-cmp": ExtendsViaHostCmp;
         "extends-watch": Omit<ExtendsWatch, keyof ExtendsWatchAttributes> & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes]?: ExtendsWatch[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `attr:${K}`]?: ExtendsWatchAttributes[K] } & { [K in keyof ExtendsWatch & keyof ExtendsWatchAttributes as `prop:${K}`]?: ExtendsWatch[K] };
@@ -5037,6 +5073,8 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
+            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             /**
@@ -5135,9 +5173,10 @@ declare module "@stencil/core" {
              * - Property reactivity (inherited props/state trigger re-renders)
              */
             "extends-props-state": LocalJSX.IntrinsicElements["extends-props-state"] & JSXBase.HTMLAttributes<HTMLExtendsPropsStateElement>;
+            "extends-reactive-controller-plain-cmp": LocalJSX.IntrinsicElements["extends-reactive-controller-plain-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsReactiveControllerPlainCmpElement>;
             "extends-render": LocalJSX.IntrinsicElements["extends-render"] & JSXBase.HTMLAttributes<HTMLExtendsRenderElement>;
             /**
-             * A component that extends ReactiveControllerHost to use reactive controllers.
+             * A component that mixes in ReactiveControllerHost to use reactive controllers.
              * Tests that the controller pattern works correctly with Stencil components.
              */
             "extends-via-host-cmp": LocalJSX.IntrinsicElements["extends-via-host-cmp"] & JSXBase.HTMLAttributes<HTMLExtendsViaHostCmpElement>;

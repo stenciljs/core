@@ -1,4 +1,5 @@
 import { dirname } from 'path';
+import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { join, normalizePath, relative } from '../../../../utils';
@@ -7,6 +8,117 @@ import { isNodeModulePath } from '../../../sys/resolve/resolve-utils';
 // Helpers shared by both merge paths: compiler-ctx-merge.ts (the full
 // compiler build) and resolve-import-merge.ts (the stateless transpile()
 // path). Neither owns these - they're common ground between the two.
+
+/**
+ * Walks the AST looking for a class declaration, optionally by name - descends
+ * into a mixin factory's wrapping function (arrow function or `function`
+ * declaration) body too, since a mixin factory's class is always nested one
+ * level inside it (e.g. `const Foo = (Base) => class extends Base {}`).
+ * @param node the node to search from
+ * @param name if given, only matches a class declaration with this name
+ * @returns the found class declaration, or `undefined`
+ */
+export function findClassWalk(node?: ts.Node, name?: string): ts.ClassDeclaration | undefined {
+  if (!node) return undefined;
+
+  if (ts.isClassDeclaration(node)) {
+    if (!name || node.name?.text === name) {
+      return node;
+    }
+  } else if (
+    ts.isVariableDeclaration(node) &&
+    (!name || name === (node.name as ts.Identifier)?.text) &&
+    node.initializer &&
+    ts.isArrowFunction(node.initializer)
+  ) {
+    // class wrapped in a mixin factory function
+    let found: ts.ClassDeclaration | undefined;
+    ts.forEachChild(node.initializer.body, (child) => {
+      if (found) return;
+      if (ts.isClassDeclaration(child)) found = child;
+    });
+    return found;
+  }
+  let found: ts.ClassDeclaration | undefined;
+
+  ts.forEachChild(node, (child) => {
+    if (found) return;
+    const result = findClassWalk(child, name);
+    if (result) found = result;
+  });
+
+  return found;
+}
+
+/**
+ * Matches a top-level class/function/variable declaration by name - the three
+ * shapes a mixin or base-class export can take (a plain class, a mixin
+ * factory function declaration, or a mixin factory assigned to a `const`).
+ * @param name the declaration name to match
+ * @returns a predicate usable with `Array.prototype.find` over a source file's statements
+ */
+export function matchesNamedDeclaration(name: string) {
+  return function (
+    stmt: ts.Statement,
+  ): stmt is ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement {
+    // ClassDeclaration: class Foo {}
+    if (ts.isClassDeclaration(stmt) && stmt.name?.text === name) {
+      return true;
+    }
+
+    // FunctionDeclaration: function Foo() {}
+    if (ts.isFunctionDeclaration(stmt) && stmt.name?.text === name) {
+      return true;
+    }
+
+    // VariableStatement: const Foo = ...
+    if (ts.isVariableStatement(stmt)) {
+      for (const decl of stmt.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name) && decl.name.text === name) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+}
+
+/**
+ * Finds a re-export of `className` in `sourceFile` - `export { X } from './y'` or
+ * `export { X as Y } from './y'` - as used by barrel entry points (e.g. `@stencil/core`'s own
+ * public `index.d.mts`, which re-exports its runtime API from `./declarations/stencil-public-runtime`
+ * rather than declaring it directly).
+ * @param sourceFile the (barrel) source file to scan
+ * @param className the exported name to look for
+ * @returns the module specifier and the name to look for in that module (the local name, before
+ * any `as` aliasing), or `undefined` if no matching re-export is found
+ */
+export function findReExport(
+  sourceFile: ts.SourceFile,
+  className: string,
+): { moduleSpecifier: string; localName: string } | undefined {
+  for (const stmt of sourceFile.statements) {
+    if (
+      !ts.isExportDeclaration(stmt) ||
+      !stmt.moduleSpecifier ||
+      !ts.isStringLiteral(stmt.moduleSpecifier) ||
+      !stmt.exportClause ||
+      !ts.isNamedExports(stmt.exportClause)
+    ) {
+      continue;
+    }
+    for (const element of stmt.exportClause.elements) {
+      if (element.name.text === className) {
+        return {
+          moduleSpecifier: stmt.moduleSpecifier.text,
+          localName: element.propertyName?.text ?? element.name.text,
+        };
+      }
+    }
+  }
+  return undefined;
+}
 
 export type DeDupeMember =
   | d.ComponentCompilerProperty

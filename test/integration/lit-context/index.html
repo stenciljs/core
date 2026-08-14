@@ -1,0 +1,32 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>lit-context interop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- lazy-loaded build (loader-bundle output target), default tag names -->
+    <script type="module" src="/dist/loader-bundle/app/app.js"></script>
+
+    <!-- standalone build (dist-custom-elements), tag names prefixed so it can be verified on the
+         same page without colliding with the lazy-loaded custom elements above -->
+    <script type="module">
+      import { setTagTransformer } from '/dist/standalone/index.js';
+      setTagTransformer((tag) => `standalone-${tag}`);
+      const provider = await import('/dist/standalone/lit-context-provider.js');
+      const consumer = await import('/dist/standalone/lit-context-consumer.js');
+      provider.defineCustomElement();
+      consumer.defineCustomElement();
+    </script>
+  </head>
+
+  <body>
+    <lit-context-provider>
+      <lit-context-consumer></lit-context-consumer>
+    </lit-context-provider>
+
+    <standalone-lit-context-provider>
+      <standalone-lit-context-consumer></standalone-lit-context-consumer>
+    </standalone-lit-context-provider>
+  </body>
+</html>

@@ -31,7 +31,7 @@
       "ignoreDependencies": ["vitest-environment-stencil"]
     },
     "packages/unplugin": {
-      "ignore": ["playground/**", "test/fixtures/my-scss.scss"],
+      "ignore": ["playground/**"],
       "ignoreDependencies": ["@vitest/browser"]
     }
   }
