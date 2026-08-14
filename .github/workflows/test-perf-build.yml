@@ -1,0 +1,102 @@
+name: Perf Benchmark - Build
+
+on:
+  workflow_call:
+    # Make this a reusable workflow, no value needed
+    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+permissions:
+  contents: read
+
+jobs:
+  perf_build_cold:
+    name: Compile Time (cold)
+    runs-on: codspeed-macro
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: stencil-build
+          path: packages/
+
+      - name: Clear Compile Cache
+        run: rm -rf .stencil
+        working-directory: test/integration/e2e
+        shell: bash
+
+      - name: Write CodSpeed Benchmark Config
+        run: |
+          cat > codspeed.yml <<'EOF'
+          benchmarks:
+            - name: Compile Time (cold)
+              exec: node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ${{ github.workspace }}/test/integration/e2e/stencil.build.config.ts
+              options:
+                warmup-time: 0s
+                min-rounds: 1
+                max-rounds: 1
+                max-time: 180s
+          EOF
+        working-directory: test/integration/e2e
+        shell: bash
+
+      - name: Run Cold Build Benchmark
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
+        with:
+          mode: walltime
+          config: ${{ github.workspace }}/test/integration/e2e/codspeed.yml
+
+  perf_build_warm:
+    name: Compile Time (warm)
+    runs-on: codspeed-macro
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: stencil-build
+          path: packages/
+
+      - name: Warm Compile Cache
+        run: |
+          rm -rf .stencil
+          node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ./stencil.build.config.ts
+        working-directory: test/integration/e2e
+        shell: bash
+
+      - name: Write CodSpeed Benchmark Config
+        run: |
+          cat > codspeed.yml <<'EOF'
+          benchmarks:
+            - name: Compile Time (warm)
+              exec: node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ${{ github.workspace }}/test/integration/e2e/stencil.build.config.ts
+              options:
+                warmup-time: 0s
+                min-rounds: 2
+                max-rounds: 2
+                max-time: 180s
+          EOF
+        working-directory: test/integration/e2e
+        shell: bash
+
+      - name: Run Warm Build Benchmark
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
+        with:
+          mode: walltime
+          config: ${{ github.workspace }}/test/integration/e2e/codspeed.yml

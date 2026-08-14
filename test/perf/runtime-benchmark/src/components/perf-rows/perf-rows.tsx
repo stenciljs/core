@@ -98,7 +98,7 @@ function buildData(count: number): Row[] {
       color: red;
     }
   `,
-  shadow: false,
+  encapsulation: { type: 'shadow' },
 })
 export class PerfRows {
   @State() rows: Row[] = [];
