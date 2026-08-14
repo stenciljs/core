@@ -1591,6 +1591,7 @@ export namespace JSXBase {
     // to `manual` (following the HTML spec).
     popover?: string | null;
     focusgroup?: string;
+    focusgroupstart?: boolean;
 
     // Unknown
     inputMode?: string;
