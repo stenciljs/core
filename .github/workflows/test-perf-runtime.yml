@@ -50,23 +50,30 @@ jobs:
           path: base
 
       - name: Install Base Dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          npm ci
+          npm run install.jest
         working-directory: base
         shell: bash
 
       - name: Build Base Stencil Core
-        run: pnpm build
+        run: npm run build -- --ci
         working-directory: base
         shell: bash
 
+      - name: Install Base test/runtime-benchmark Dependencies
+        run: npm ci
+        working-directory: base/test/runtime-benchmark
+        shell: bash
+
       - name: Run Base Runtime Benchmark
-        run: pnpm --filter "@stencil-core-tests/perf-runtime-benchmark" test
-        working-directory: base
+        run: npm run benchmark
+        working-directory: base/test/runtime-benchmark
         shell: bash
 
       - name: Convert Base Results to Raw Format
         run: node to-codspeed-raw.js "$GITHUB_WORKSPACE/base-raw.json"
-        working-directory: base/test/perf/runtime-benchmark
+        working-directory: base/test/runtime-benchmark
         shell: bash
 
       - name: Compare Runtime Benchmark (PR vs base)
