@@ -1,6 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreWorkspaces": ["test/**"],
+  "ignore": [".github/workflows/scripts/**"],
   "rules": {
     "catalog": "off"
   },
