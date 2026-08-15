@@ -1,0 +1,47 @@
+name: Nightly Runtime Perf Baseline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record_baseline:
+    name: Record Runtime Benchmark Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Get Core Dependencies
+        uses: ./.github/workflows/actions/get-core-dependencies
+
+      - name: Build Stencil Core
+        run: npm run build -- --ci
+        shell: bash
+
+      - name: Install test/runtime-benchmark Dependencies
+        run: npm ci
+        working-directory: test/runtime-benchmark
+        shell: bash
+
+      - name: Run Runtime Benchmark
+        run: npm run benchmark
+        working-directory: test/runtime-benchmark
+        shell: bash
+
+      - name: Commit Updated Baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add test/runtime-benchmark/benchmark-results.json test/runtime-benchmark/benchmark-results.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(perf): update runtime benchmark baseline"
+            git push origin HEAD:main
+          fi
+        shell: bash

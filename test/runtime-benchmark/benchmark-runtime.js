@@ -199,7 +199,7 @@ async function main() {
   const { server, port } = await startServer();
 
   // Launch browser
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
   try {
