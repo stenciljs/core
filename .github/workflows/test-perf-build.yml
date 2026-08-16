@@ -11,6 +11,7 @@ permissions:
 jobs:
   perf_build_cold:
     name: Compile Time (cold)
+    if: ${{ github.event_name != 'merge_group' }}
     runs-on: codspeed-macro
     permissions:
       contents: read
@@ -62,6 +63,7 @@ jobs:
 
   perf_build_warm:
     name: Compile Time (warm)
+    if: ${{ github.event_name != 'merge_group' }}
     runs-on: codspeed-macro
     permissions:
       contents: read
