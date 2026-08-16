@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const MARKER = '<!-- runtime-benchmark-report -->';
 
-module.exports = async ({ github, context }) => {
+module.exports = async ({ github, context, prNumber }) => {
   const pr = JSON.parse(fs.readFileSync('pr-raw.json', 'utf-8'));
   const base = JSON.parse(fs.readFileSync('base-raw.json', 'utf-8'));
   const baseByName = Object.fromEntries(base.map((entry) => [entry.name, entry]));
@@ -22,7 +22,7 @@ module.exports = async ({ github, context }) => {
   const { data: comments } = await github.rest.issues.listComments({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    issue_number: context.issue.number,
+    issue_number: prNumber,
   });
   const existing = comments.find((comment) => comment.body.includes(MARKER));
 
@@ -37,7 +37,7 @@ module.exports = async ({ github, context }) => {
     await github.rest.issues.createComment({
       owner: context.repo.owner,
       repo: context.repo.repo,
-      issue_number: context.issue.number,
+      issue_number: prNumber,
       body,
     });
   }

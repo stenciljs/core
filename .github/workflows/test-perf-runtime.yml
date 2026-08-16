@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
       issues: write
     steps:
       - name: Checkout PR Head
@@ -82,4 +81,4 @@ jobs:
         with:
           script: |
             const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.js');
-            await script({ github, context });
+            await script({ github, context, prNumber: context.issue.number });
