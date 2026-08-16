@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+      issues: write
     steps:
       - name: Checkout PR Head
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -78,13 +78,9 @@ jobs:
         working-directory: base/test/runtime-benchmark
         shell: bash
 
-      - name: Compare Runtime Benchmark (PR vs base)
-        uses: openpgpjs/github-action-pull-request-benchmark@11e6f9c49191a57127f53dddcbdcc30b18f7f0a3 # v1.4.0
+      - name: Post Runtime Benchmark Comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          name: 'Runtime Benchmark'
-          tool: 'raw'
-          pr-benchmark-file-path: pr-raw.json
-          base-benchmark-file-path: base-raw.json
-          comment-on-alert: true
-          alert-threshold: '120%'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.js');
+            await script({ github, context, prNumber: context.issue.number });
