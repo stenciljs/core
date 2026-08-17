@@ -55,6 +55,11 @@
   "pnpm": {
     "overrides": {
       "@stencil/core": "workspace:*"
+    },
+    "updateConfig": {
+      "ignoreDependencies": [
+        "typescript"
+      ]
     }
   }
 }
