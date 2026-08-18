@@ -56,8 +56,11 @@ export const generateDevPreview = (
     h1 { font-size: 1rem; font-weight: 500; margin: 0 0 2rem; color: color-mix(in oklab, CanvasText 90%, Canvas 10%); }
     .component { border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas 80%); border-radius: 6px; margin-bottom: 1.5rem; overflow: hidden; }
     .component-header { padding: 0.5rem 1rem; background: color-mix(in oklab, CanvasText 5%, Canvas 95%); font-family: monospace; font-size: 0.875rem; }
+    .component-description { margin: 0; padding: 0.75rem 1rem 0; font-size: 0.875rem; color: color-mix(in oklab, CanvasText 70%, Canvas 30%); }
     .component-preview { padding: 1.5rem; }
     .component-preview + .component-preview { border-top: 1px dashed color-mix(in oklab, CanvasText 20%, Canvas 80%); }
+    .preview-note { margin: 0.75rem 0 0; font-size: 0.8125rem; color: color-mix(in oklab, CanvasText 50%, Canvas 50%); }
+    .preview-note code { font-size: 0.8125rem; }
   </style>
 ${headAssets}
 </head>
@@ -75,13 +78,23 @@ const renderComponentSection = (component: ComponentCompilerMeta): string => {
       ? snippets
           .map((html) => `    <div class="component-preview">\n      ${html}\n    </div>`)
           .join('\n')
-      : `    <div class="component-preview"><${component.tagName}></${component.tagName}></div>`;
+      : `    <div class="component-preview">
+      <${component.tagName}></${component.tagName}>
+      <p class="preview-note">No demos found - add usage examples to <code>usage/*.md</code> (fenced &#96;&#96;&#96;html&#96;&#96;&#96; blocks) to customize this preview.</p>
+    </div>`;
+
+  const description = component.docs.text.trim()
+    ? `\n    <p class="component-description">${escapeHtml(component.docs.text.trim())}</p>`
+    : '';
 
   return `  <div class="component">
-    <div class="component-header">&lt;${component.tagName}&gt;</div>
+    <div class="component-header">&lt;${component.tagName}&gt;</div>${description}
 ${previews}
   </div>`;
 };
+
+const escapeHtml = (unsafe: string): string =>
+  unsafe.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const getUsageSnippets = (component: ComponentCompilerMeta): string[] => {
   const usageDir = path.join(path.dirname(component.sourceFilePath), 'usage');
