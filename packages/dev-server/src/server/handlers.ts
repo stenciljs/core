@@ -528,8 +528,7 @@ async function serveDirectoryIndex(
     const dirFilePaths = await serverCtx.sys.readDir(req.filePath!);
 
     const hasTsx = dirFilePaths.some((f) => f.endsWith('.tsx'));
-    const hasHtml = dirFilePaths.some((f) => f.endsWith('.html') || f.endsWith('.htm'));
-    if (hasTsx && !hasHtml) {
+    if (hasTsx && !(await hasNestedHtmlFile(serverCtx.sys, dirFilePaths))) {
       return serveDevPreview(devServerConfig, serverCtx, req, res, req.filePath!);
     }
 
@@ -581,6 +580,41 @@ async function serveDirectoryIndex(
   } catch {
     return serverCtx.serve404(req, res, 'serveDirectoryIndex');
   }
+}
+
+/**
+ * Recursively checks a directory (and its subdirectories) for any .html/.htm file.
+ * Used to decide whether the auto-generated component preview should be shown, or
+ * the default file-listing view (since a nested html file likely means a custom
+ * preview/demo page already exists somewhere in the tree).
+ * @param sys The dev server's compiler system, used to read directories and stat files.
+ * @param dirFilePaths The full paths of entries in the directory to check.
+ * @returns true if an html file exists at this level or in any subdirectory.
+ */
+export async function hasNestedHtmlFile(
+  sys: DevServerContext['sys'],
+  dirFilePaths: string[],
+): Promise<boolean> {
+  const subDirPaths: string[] = [];
+
+  for (const filePath of dirFilePaths) {
+    if (filePath.endsWith('.html') || filePath.endsWith('.htm')) {
+      return true;
+    }
+    const stats = await sys.stat(filePath);
+    if (stats.isDirectory) {
+      subDirPaths.push(filePath);
+    }
+  }
+
+  for (const subDirPath of subDirPaths) {
+    const childFilePaths = await sys.readDir(subDirPath);
+    if (await hasNestedHtmlFile(sys, childFilePaths)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 async function serveDevPreview(
