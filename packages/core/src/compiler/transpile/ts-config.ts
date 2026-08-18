@@ -27,10 +27,16 @@ export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOpti
     // declaration files
     declaration: config.outputTargets.some(isOutputTargetTypes),
     module: config.tsCompilerOptions?.module || ts.ModuleKind.ESNext,
+    // Only `NodeJs` and `Bundler` are supported: Stencil hardcodes `module: ESNext` for its
+    // bundler-based (rolldown/esbuild) output pipeline, which is incompatible with
+    // Node16/NodeNext (they require `module` to match exactly, and mandate explicit file
+    // extensions on relative imports, which Stencil components don't use). Default to
+    // `Bundler` rather than the deprecated `NodeJs`/`Node10` unless a user explicitly opted
+    // into it.
     moduleResolution:
-      config.tsCompilerOptions?.moduleResolution === ts.ModuleResolutionKind.Bundler
-        ? ts.ModuleResolutionKind.Bundler
-        : ts.ModuleResolutionKind.NodeJs,
+      config.tsCompilerOptions?.moduleResolution === ts.ModuleResolutionKind.NodeJs
+        ? ts.ModuleResolutionKind.NodeJs
+        : ts.ModuleResolutionKind.Bundler,
     noEmitOnError: config.tsCompilerOptions?.noEmitOnError || false,
     // Explicitly set rootDir so TypeScript doesn't have to infer it from the
     // LCA of source files - important when the tsconfig lives at a different
