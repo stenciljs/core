@@ -1,5 +1,6 @@
 import { BUILD } from '@app-data';
 
+import { VNODE_FLAGS } from '../../runtime-constants';
 import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {
@@ -268,6 +269,56 @@ describe('setAccessor for custom elements', () => {
     expect(elm.myprop).toBeUndefined();
 
     expect(elm).toEqualAttributes({});
+  });
+
+  it('should remove a reflected boolean attribute even if it holds a stale literal string', () => {
+    // e.g. static/SSR markup wrote `flag="true"` before the component upgraded;
+    // `flags` carries VNODE_FLAGS.isHost because this is how `@Prop({ reflect: true })`
+    // values are written back onto the host element
+    elm.setAttribute('flag', 'true');
+
+    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost);
+
+    expect(elm.hasAttribute('flag')).toBe(false);
+  });
+
+  it('should still remove a reflected boolean attribute that holds the canonical empty string', () => {
+    elm.setAttribute('flag', '');
+
+    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost);
+
+    expect(elm.hasAttribute('flag')).toBe(false);
+  });
+
+  it('should never remove enumerated attributes outright when reflected as false', () => {
+    // enumerated (tri-state) attributes must stay present - `draggable` is a native
+    // IDL property, so its value gets updated to "false" via the property setter
+    // (still present, not removed); the others aren't touched at all here and so
+    // keep their original literal value
+    for (const [attrName, expectedValue] of [
+      ['draggable', 'false'],
+      ['contenteditable', 'true'],
+      ['spellcheck', 'true'],
+      ['aria-hidden', 'true'],
+    ]) {
+      const enumElm = document.createElement('my-tag');
+      enumElm.setAttribute(attrName, 'true');
+
+      setAccessor(enumElm, attrName, true, false, false, VNODE_FLAGS.isHost);
+
+      expect(enumElm.hasAttribute(attrName)).toBe(true);
+      expect(enumElm.getAttribute(attrName)).toBe(expectedValue);
+    }
+  });
+
+  it('should preserve a stale literal "true" for non-host (non-reflected) writes, matching prior behavior', () => {
+    // no VNODE_FLAGS.isHost set here - e.g. an author writing `<div flag={false}>`
+    // by hand in JSX on some element that isn't the component's own host
+    elm.setAttribute('flag', 'true');
+
+    setAccessor(elm, 'flag', true, false, false, 0);
+
+    expect(elm.getAttribute('flag')).toBe('true');
   });
 
   it('should add aria role attribute', () => {
