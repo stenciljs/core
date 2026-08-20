@@ -83,5 +83,3 @@ jobs:
     uses: ./.github/workflows/test-perf-runtime.yml
     permissions:
       contents: read
-      issues: write
-      pull-requests: write

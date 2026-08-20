@@ -1,0 +1,48 @@
+name: Perf Benchmark - Runtime Comment
+
+# Split out from the "Perf Benchmark - Runtime" job in main.yml (test-perf-runtime.yml)
+# specifically so a fork PR's read-only GITHUB_TOKEN (forced by GitHub regardless of any
+# `permissions:` we declare) never has to be paired with write access. That job builds
+# and executes the PR's own code with a read-only token; this workflow runs with a
+# write-scoped token but MUST NEVER check out or execute anything from the PR/fork - it
+# only ever reads plain data (numbers, a PR number) from the artifact the other job
+# uploaded, and posts it as a comment. Do not add a `ref:` to the checkout below.
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  post_comment:
+    name: Post Runtime Benchmark Comment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Download Benchmark Results
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        with:
+          name: perf-runtime-results
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post Runtime Benchmark Comment
+        if: steps.download.outcome == 'success'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const prNumber = parseInt(fs.readFileSync('pr-number.txt', 'utf-8').trim(), 10);
+            const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.cjs');
+            await script({ github, context, prNumber });

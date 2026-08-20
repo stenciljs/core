@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
     steps:
       - name: Checkout PR Head
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -124,9 +122,20 @@ jobs:
         working-directory: base/test/runtime-benchmark
         shell: bash
 
-      - name: Post Runtime Benchmark Comment
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      - name: Write PR Number
+        run: echo "${{ github.event.pull_request.number }}" > pr-number.txt
+        shell: bash
+
+      # Uploaded as data only, for a separate privileged workflow to read and post
+      # a comment - this job never gets write access (forks always get a read-only
+      # GITHUB_TOKEN for pull_request-triggered runs, by GitHub's design), and it
+      # must stay that way since this job builds and executes the PR's own code.
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          script: |
-            const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.cjs');
-            await script({ github, context, prNumber: context.issue.number });
+          name: perf-runtime-results
+          path: |
+            pr-raw.json
+            base-raw.json
+            pr-number.txt
+          retention-days: 1
