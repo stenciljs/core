@@ -225,7 +225,11 @@ export const setAccessor = (
       }
     }
     if (newValue == null || newValue === false) {
-      if (newValue !== false || elm.getAttribute(memberName) === '') {
+      if (
+        newValue !== false ||
+        elm.getAttribute(memberName) === '' ||
+        (flags & VNODE_FLAGS.isHost && !isEnumeratedAttribute(memberName))
+      ) {
         if (BUILD.vdomXlink && xlink) {
           elm.removeAttributeNS(XLINK_NS, memberName);
         } else {
@@ -246,6 +250,17 @@ export const setAccessor = (
     }
   }
 };
+
+/**
+ * Attribute names that are enumerated (tri-state true/false/unset) rather than
+ * plain boolean-presence attributes. An explicit `"false"` string on one of
+ * these is semantically different from the attribute being absent, so a
+ * reflected `false` value must not clear a pre-existing literal value.
+ */
+const ENUMERATED_ATTRIBUTES = /*@__PURE__*/ new Set(['draggable', 'contenteditable', 'spellcheck']);
+
+const isEnumeratedAttribute = (attrName: string): boolean =>
+  ENUMERATED_ATTRIBUTES.has(attrName) || attrName.startsWith('aria-');
 
 const parseClassListRegex = /\s/;
 /**
