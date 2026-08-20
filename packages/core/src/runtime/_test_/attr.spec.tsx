@@ -386,6 +386,26 @@ describe('attribute', () => {
       `);
     });
 
+    it('should remove a reflected boolean attribute when set to false, even if pre-existing markup wrote it as a literal string', async () => {
+      // https://github.com/stenciljs/core/issues/6828
+      @Component({ tag: 'cmp-reflect-bool-literal' })
+      class CmpReflectBoolLiteral {
+        @Prop({ reflect: true, mutable: true }) flag = false;
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectBoolLiteral],
+        html: `<cmp-reflect-bool-literal flag="true"></cmp-reflect-bool-literal>`,
+      });
+
+      expect(root.flag).toBe(true);
+
+      root.flag = false;
+      await waitForChanges();
+
+      expect(root.hasAttribute('flag')).toBe(false);
+    });
+
     it('should reflect properties as attributes with strict build', async () => {
       @Component({ tag: 'cmp-a', encapsulation: { type: 'shadow' } })
       class CmpA {
