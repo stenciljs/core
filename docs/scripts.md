@@ -239,10 +239,10 @@ Most Node.js dependencies are externalized except:
 
 ```bash
 # Development build
-npm run build
+npm run build -- --dev
 
-# Production build
-npm run build -- --prod
+# Production build (default)
+npm run build
 
 # Watch mode
 npm run build -- --watch

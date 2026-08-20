@@ -1,0 +1,30 @@
+<shadow-closed custom-hydrate-flag="">
+  <!--org-location for <style> (host=undefined)-->
+  <!---->
+  <!--org-location for <span> (host=undefined)-->
+  <div class="closed-content">
+    <strong>
+      Closed Shadow DOM Content
+    </strong>
+  </div>
+  <slot-fb hidden="">
+    <span>
+      Fallback slot content
+    </span>
+  </slot-fb>
+  <style sty-id="sc-shadow-closed">
+    /*!@:host*/.sc-shadow-closed-h {
+      display: block;
+      border: 3px solid purple;
+      padding: 10px;
+    }
+    /*!@.closed-content*/.closed-content.sc-shadow-closed {
+      background: rgb(128, 0, 128);
+      color: white;
+      padding: 5px;
+    }
+  </style>
+  <span>
+    Custom slotted content
+  </span>
+</shadow-closed>

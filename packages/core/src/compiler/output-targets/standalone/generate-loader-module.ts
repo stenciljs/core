@@ -1,0 +1,239 @@
+import type * as d from '@stencil/core';
+
+import { STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID } from '../../bundle/entry-alias-ids';
+
+/**
+ * Generate the auto-loader module content that will be bundled via Rolldown.
+ * This loader uses MutationObserver to lazily load and define custom elements
+ * as they appear in the DOM.
+ *
+ * @param components - The list of components to include in the loader
+ * @param outputTarget - The output target configuration
+ * @param relativeAssetPath - Optional relative path to the assets directory, used to set the loader's asset path at runtime
+ * @returns The generated loader module source code
+ */
+export const generateLoaderModule = (
+  components: d.ComponentCompilerMeta[],
+  outputTarget: d.OutputTargetStandalone,
+  relativeAssetPath?: string,
+): string => {
+  const autoLoaderConfig = outputTarget.autoLoader;
+  const autoStart =
+    typeof autoLoaderConfig === 'object' ? autoLoaderConfig.autoStart !== false : true;
+
+  // Tag name list for the loader
+  const tagsList = components.map((cmp) => `'${cmp.tagName}'`).join(', ');
+
+  // Static import switch cases - allows bundlers like Vite to analyze imports
+  const switchCases = components
+    .map(
+      (cmp) => `      case '${cmp.tagName}': module = await import('./${cmp.tagName}.js'); break;`,
+    )
+    .join('\n');
+
+  const assetPathImport = relativeAssetPath
+    ? `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';\n`
+    : '';
+  const assetPathInit = relativeAssetPath
+    ? `setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);\n`
+    : '';
+
+  return /* js */ `
+import { transformTag, getRegistry } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+${assetPathImport}${assetPathInit}
+
+/**
+ * Tag names built at compile time.
+ */
+const tags = [${tagsList}];
+
+/**
+ * Maps transformed tag names to original tag names.
+ * Built at runtime to account for any tag transformers set via setTagTransformer().
+ */
+const lookup = Object.fromEntries(tags.map(t => [transformTag(t), t]));
+
+/**
+ * Set of tags that have already been loaded/registered.
+ * Prevents duplicate loading attempts.
+ */
+const defined = new Set();
+
+/**
+ * The registry to define components in. Captured once at start() time from
+ * getRegistry() so all components in this library share the same registry
+ * regardless of subsequent setRegistry() calls by other libraries.
+ */
+let reg = customElements;
+
+/**
+ * MutationObserver instance for watching DOM changes.
+ */
+let observer;
+
+/**
+ * Scan a root element for undefined custom elements and load them.
+ *
+ * Before any modules are imported we do 3 things to guarantee the documented
+ * Stencil lifecycle ordering (connectedCallback/componentWillLoad top-down,
+ * componentDidLoad bottom-up) regardless of which tag's chunk happens to resolve first:
+ *
+ * 1. Pre-mark every not-yet-upgraded Stencil element with empty \`s-p\`/\`s-rc\`/\`s-pc\`
+ *    arrays so the runtime's connectedCallback ancestor walk can always find a parent
+ *    element even before it has been upgraded (see \`connected-callback.ts\`).
+ *
+ * 2. For every child Stencil element, push a Promise into its nearest Stencil
+ *    ancestor's \`s-p\` array. That Promise resolves only after the child's full
+ *    initial lifecycle completes (\`componentDidLoad\`). This prevents the
+ *    ancestor from calling its own \`componentDidLoad\` before all its
+ *    descendants are ready - even when a descendant's module loads *after* the
+ *    ancestor has already started rendering.
+ *
+ * 3. Likewise, push a Promise into the ancestor's \`s-pc\` array that resolves once the
+ *    child's real \`connectedCallback\` has fired (\`s-fc\`). Without this, an ancestor
+ *    whose own module resolves before an unconnected child's would check \`s-pc\` (see
+ *    \`scheduleUpdate\` in \`update-component.ts\`) before that child ever got a chance to
+ *    register itself via \`attachToAncestor\` - since a not-yet-defined child doesn't
+ *    connect (and self-register) until its own module import resolves. Pre-registering
+ *    here means the ancestor's \`componentWillLoad\` always waits for it, however long
+ *    that import takes.
+ *
+ * @param root - The root element to scan
+ */
+async function load(root) {
+  const pending = new Set();
+  const elements = [];
+
+  // Collect the root element itself if it's a Stencil component.
+  if (root instanceof Element) {
+    const rootTag = root.tagName.toLowerCase();
+    if (lookup[rootTag]) {
+      if (!root['s-p']) root['s-p'] = [];
+      if (!root['s-rc']) root['s-rc'] = [];
+      if (!root['s-pc']) root['s-pc'] = [];
+      if (!defined.has(rootTag)) pending.add(rootTag);
+      elements.push(root);
+    }
+  }
+
+  // Collect all not-yet-upgraded descendants that are known Stencil components.
+  root.querySelectorAll(':not(:defined)').forEach(el => {
+    const tag = el.tagName.toLowerCase();
+    if (lookup[tag]) {
+      if (!el['s-p']) el['s-p'] = [];
+      if (!el['s-rc']) el['s-rc'] = [];
+      if (!el['s-pc']) el['s-pc'] = [];
+      if (!defined.has(tag)) pending.add(tag);
+      elements.push(el);
+    }
+  });
+
+  // For each child Stencil element, find its nearest Stencil ancestor element
+  // and push a lifecycle promise into that ancestor's s-p array. The promise
+  // resolves when the child's componentDidLoad fires (via $onReadyPromise$).
+  // This ensures the ancestor waits for the child even when the child's module
+  // loads after the ancestor has already begun its own lifecycle.
+  for (const el of elements) {
+    const tag = el.tagName.toLowerCase();
+    let ancestor = el.parentElement;
+    while (ancestor) {
+      if (lookup[ancestor.tagName.toLowerCase()]) {
+        // Push a placeholder promise that resolves after the child is ready.
+        // customElements.whenDefined resolves after the element has been
+        // upgraded (constructor + connectedCallback have run synchronously),
+        // at which point __s_ghr and $onReadyPromise$ are set.
+        ancestor['s-p'].push(
+          reg.whenDefined(tag).then(() => el['s-rp'])
+        );
+        // Same idea, but resolving once the child's real connectedCallback has fired
+        // rather than once its full initial lifecycle has completed.
+        ancestor['s-pc'].push(
+          reg.whenDefined(tag).then(() => el['s-fc'])
+        );
+        break;
+      }
+      ancestor = ancestor.parentElement;
+    }
+  }
+
+  // Load all unique tags in parallel - lifecycle ordering is handled by the
+  // pre-marked s-p/s-rc arrays and the wired-up ready promises above.
+  await Promise.allSettled([...pending].map(register));
+}
+
+/**
+ * Register a single component by importing its module.
+ * @param transformedTag - The transformed tag name (as it appears in the DOM)
+ */
+async function register(transformedTag) {
+  // Skip if already defined or being defined
+  if (defined.has(transformedTag) || reg.get(transformedTag)) {
+    defined.add(transformedTag);
+    return;
+  }
+
+  // Mark as being processed to prevent duplicate attempts
+  defined.add(transformedTag);
+
+  try {
+    let module;
+    const originalTag = lookup[transformedTag];
+    switch (originalTag) {
+${switchCases}
+      default: return;
+    }
+    // Call defineCustomElement if exported (handles component + dependencies)
+    if (typeof module.defineCustomElement === 'function') module.defineCustomElement({ registry: reg });
+  } catch (e) {
+    console.error(\`[Stencil Loader] Failed to load <\${transformedTag}>\`, e);
+    // Remove from defined set to allow retry
+    defined.delete(transformedTag);
+  }
+}
+
+/**
+ * Start the auto-loader, scanning the DOM and watching for changes.
+ * Captures the active registry (set via setRegistry()) at start time so all
+ * components in this library are defined in the same registry.
+ * @param root - The root element to observe (default: document.body)
+ */
+export function start(root = document.body) {
+  // Capture registry once so all lazy loads in this session use the same one
+  reg = getRegistry();
+
+  // Disconnect any existing observer
+  if (observer) {
+    observer.disconnect();
+    defined.clear();
+  }
+
+  // Create MutationObserver to watch for new elements
+  observer = new MutationObserver(mutations => {
+    for (const { addedNodes } of mutations) {
+      for (const node of addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          load(node);
+        }
+      }
+    }
+  });
+
+  // Initial scan of existing DOM
+  load(root);
+
+  // Start observing for new elements
+  observer.observe(root, { subtree: true, childList: true });
+}
+
+/**
+ * Stop the auto-loader and disconnect the MutationObserver.
+ */
+export function stop() {
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+}
+${autoStart ? '\n// Auto-start the loader\nstart();' : ''}
+`.trim();
+};

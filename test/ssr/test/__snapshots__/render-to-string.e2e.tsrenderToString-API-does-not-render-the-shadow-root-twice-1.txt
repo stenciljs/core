@@ -1,0 +1,30 @@
+<nested-cmp-parent custom-hydrate-flag="" s-id="1">
+  <template shadowrootmode="open">
+    <style sty-id="sc-nested-cmp-parent">
+      .sc-nested-scope-cmp-h{color:green}slot-fb{display:contents}slot-fb[hidden]{display:none}:host{display:inline-block}
+    </style>
+    <div c-id="1.0.0.0" class="some-class">
+      <nested-scope-cmp c-id="1.1.1.0" class="sc-nested-scope-cmp-h" custom-hydrate-flag="" s-id="3">
+        <!--r.3-->
+        <!--o.1.2.c-->
+        <div c-id="3.0.0.0" class="sc-nested-scope-cmp sc-nested-scope-cmp-s some-scope-class">
+          <!--s.3.1.1.0.-->
+          <slot c-id="1.2.2.0" s-sn=""></slot>
+        </div>
+      </nested-scope-cmp>
+    </div>
+  </template>
+  <!--r.1-->
+  <nested-child-cmp custom-hydrate-flag="" s-id="2">
+    <template shadowrootmode="open">
+      <style sty-id="sc-nested-child-cmp">
+        :host{display:block}
+      </style>
+      <div c-id="2.0.0.0" class="some-other-class">
+        <slot c-id="2.1.1.0"></slot>
+      </div>
+    </template>
+    <!--r.2-->
+    Hello World
+  </nested-child-cmp>
+</nested-cmp-parent>

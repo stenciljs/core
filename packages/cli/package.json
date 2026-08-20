@@ -1,0 +1,65 @@
+{
+  "name": "@stencil/cli",
+  "version": "5.0.0-alpha.32",
+  "description": "CLI for Stencil - Web component compiler",
+  "keywords": [
+    "components",
+    "custom elements",
+    "ionic",
+    "progressive web app",
+    "pwa",
+    "stencil",
+    "web components",
+    "webapp"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "bin": {
+    "stencil": "./bin/stencil.mjs"
+  },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./cli": "./bin/stencil.mjs"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run && pnpm test:e2e",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "@stencil/dev-server": "workspace:*",
+    "@stencil/templates": "workspace:*",
+    "local-pkg": "^1.2.1",
+    "nypm": "^0.3.12",
+    "std-env": "^3.10.0",
+    "typescript": "catalog:"
+  },
+  "devDependencies": {
+    "@stencil/core": "workspace:*",
+    "tsdown": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0 || workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

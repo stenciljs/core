@@ -1,0 +1,99 @@
+import { BUILD } from 'virtual:app-data';
+import type * as d from '@stencil/core';
+
+import { consoleDevError, consoleError } from './client-log';
+
+export const cmpModules = /*@__PURE__*/ new Map<
+  string,
+  { [exportName: string]: d.ComponentConstructor }
+>();
+
+/**
+ * Tracks how many times a dynamic `import()` for a given lazy bundle has failed.
+ * Used to cache bust the retry attempt in connected-callback.ts
+ */
+const failedLoadAttempts = /*@__PURE__*/ new Map<string, number>();
+
+/**
+ * We need to separate out this prefix so that Esbuild doesn't try to resolve
+ * the below, but instead retains a dynamic `import()` statement in the
+ * emitted code.
+ *
+ * See here for details https://esbuild.github.io/api/#non-analyzable-imports
+ *
+ * We need to do this in order to prevent Esbuild from analyzing / transforming
+ * the input. However some _other_ bundlers will _not_ work with such an import
+ * if it _lacks_ a leading `"./"`, so we thus we have to do a little dance
+ * where here in the source code it must be like this, so that an undesirable
+ * transformation that Esbuild would otherwise carry out doesn't occur, but we
+ * actually need to then manually edit the bundled Esbuild code later on to fix
+ * that. We do this with plugins in the Esbuild and Rolldown bundles which
+ * include this file.
+ */
+const MODULE_IMPORT_PREFIX = './';
+
+// When the runtime is used as an external dependency (externalRuntime: true on loader-bundle),
+// dynamic imports must resolve relative to the loader entry file, not this runtime file.
+// The generated loader entry sets this via setLazyLoadBasePath(import.meta.url).
+let lazyLoadBasePath: string | undefined;
+export const setLazyLoadBasePath = (url: string): void => {
+  lazyLoadBasePath = url;
+};
+
+export const loadModule = (
+  cmpMeta: d.ComponentRuntimeMeta,
+  hostRef: d.HostRef,
+  hmrVersionId?: string,
+): Promise<d.ComponentConstructor | undefined> | d.ComponentConstructor | undefined => {
+  // loadModuleImport
+  const exportName = cmpMeta.$tagName$.replace(/-/g, '_');
+  const bundleId = cmpMeta.$lazyBundleId$;
+  if (BUILD.isDev && typeof bundleId !== 'string') {
+    consoleDevError(
+      `Trying to lazily load component <${cmpMeta.$tagName$}> with style mode "${hostRef.$modeName$}", but it does not exist.`,
+    );
+    return undefined;
+  } else if (!bundleId) {
+    return undefined;
+  }
+  const module = !BUILD.hotModuleReplacement ? cmpModules.get(bundleId) : false;
+  if (module) {
+    return module[exportName];
+  }
+  const retryCount = failedLoadAttempts.get(bundleId) ?? 0;
+  const cacheBustParams = [
+    retryCount > 0 ? `s-retry=${retryCount}` : '',
+    BUILD.hotModuleReplacement && hmrVersionId ? `s-hmr=${hmrVersionId}` : '',
+  ]
+    .filter(Boolean)
+    .join('&');
+  /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
+  const entryFile = `${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`;
+  const onLoad = (importedModule: any) => {
+    if (!BUILD.hotModuleReplacement) {
+      failedLoadAttempts.delete(bundleId);
+      cmpModules.set(bundleId, importedModule);
+    }
+    return importedModule[exportName];
+  };
+  const onError = (e: Error) => {
+    failedLoadAttempts.set(bundleId, retryCount + 1);
+    consoleError(e, hostRef.$hostElement$);
+  };
+  if (lazyLoadBasePath) {
+    return import(
+      /* @vite-ignore */
+      /* webpackInclude: /\.entry\.js$/ */
+      /* webpackExclude: /\.system\.entry\.js$/ */
+      /* webpackMode: "lazy" */
+      new URL(entryFile, lazyLoadBasePath).href
+    ).then(onLoad, onError);
+  }
+  return import(
+    /* @vite-ignore */
+    /* webpackInclude: /\.entry\.js$/ */
+    /* webpackExclude: /\.system\.entry\.js$/ */
+    /* webpackMode: "lazy" */
+    `${MODULE_IMPORT_PREFIX}${entryFile}`
+  ).then(onLoad, onError);
+};

@@ -48,7 +48,7 @@ This generates a hydrate module that can be imported in Node.js:
 
 ```typescript
 import { 
-  hydrateDocument, 
+  ssrDocument, 
   renderToString, 
   streamToString,
   createWindowFromHtml 
@@ -57,16 +57,16 @@ import {
 
 ### Core User APIs
 
-#### hydrateDocument
+#### ssrDocument
 Takes a DOM document and returns hydrated HTML:
 
 ```typescript
-import { hydrateDocument, createWindowFromHtml } from 'yourpackage/hydrate';
+import { ssrDocument, createWindowFromHtml } from 'yourpackage/hydrate';
 
 export async function hydrateComponents(template: string) {
   const win = createWindowFromHtml(template, Math.random().toString())
   
-  const results = await hydrateDocument(win.document, {
+  const results = await ssrDocument(win.document, {
     url: 'https://example.com',
     userAgent: 'Node.js',
     cookie: 'session=abc123',
@@ -100,7 +100,7 @@ Returns a readable stream for progressive rendering:
 ```typescript
 const stream = streamToString(htmlString, {
   serializeShadowRoot: 'scoped',
-  beforeHydrate: (doc) => {
+  beforeSsr: (doc) => {
     // Modify document before hydration
   }
 });
@@ -200,7 +200,7 @@ Generated hydrate app exports:
 ```typescript
 // hydrate/index.js
 module.exports = {
-  hydrateDocument,
+  ssrDocument,
   renderToString,
   createWindowFromHtml,
   serializeNodeToHtml
@@ -209,18 +209,18 @@ module.exports = {
 
 ## Core APIs
 
-### hydrateDocument
+### ssrDocument
 
 **Location:** [`src/hydrate/runner/hydrate-document.ts`](../src/hydrate/runner/hydrate-document.ts)
 
 Hydrates an entire document:
 
 ```typescript
-export const hydrateDocument = async (
+export const ssrDocument = async (
   doc: Document,
-  options: HydrateDocumentOptions = {}
-): Promise<HydrateResults> => {
-  const results: HydrateResults = {
+  options: SsrDocumentOptions = {}
+): Promise<SsrResults> => {
+  const results: SsrResults = {
     diagnostics: [],
     url: options.url || doc.location.href,
     title: doc.title,
@@ -272,7 +272,7 @@ export const renderToString = async (
   const doc = createDocument(html);
   
   // Hydrate the document
-  const hydrateResults = await hydrateDocument(doc, options);
+  const hydrateResults = await ssrDocument(doc, options);
   
   return {
     html: hydrateResults.html,
@@ -595,7 +595,7 @@ const clientHydrate = (
 **Location:** [`src/declarations/stencil-public-runtime.ts`](../src/declarations/stencil-public-runtime.ts)
 
 ```typescript
-interface HydrateDocumentOptions {
+interface SsrDocumentOptions {
   url?: string;
   userAgent?: string;
   cookie?: string;
@@ -603,7 +603,7 @@ interface HydrateDocumentOptions {
   direction?: string;
   language?: string;
   buildId?: string;
-  clientHydrateAnnotations?: boolean;
+  clientSsrAnnotations?: boolean;
   constrainTimeouts?: boolean;
   timeout?: number;
   staticComponents?: string[];
@@ -620,7 +620,7 @@ interface HydrateDocumentOptions {
 ```typescript
 interface PrerenderConfig {
   entryUrls: string[];
-  hydrateOptions?: HydrateDocumentOptions;
+  hydrateOptions?: SsrDocumentOptions;
   robotsTxt?: (opts: RobotsTxtOpts) => string;
   sitemapXml?: (opts: SitemapXmpOpts) => string;
   baseUrl?: string;

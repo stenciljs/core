@@ -1,133 +1,72 @@
 # Stencil Continuous Integration (CI)
 
-Continuous integration (CI) is an important aspect of any project, and is used to verify and validate the changes to the
-codebase work as intended, to avoid introducing regressions (bugs), and to adhere to coding standards (e.g. formatting
-rules). It provides a consistent means of performing a series of checks over the entire codebase on behalf of the team.
-
-This document explains Stencil's CI setup. 
+This document explains Stencil's CI setup for the v5 monorepo.
 
 ## CI Environment
 
-Stencil's CI system runs on GitHub Actions.
-GitHub Actions allow developers to declare a series of _workflows_ to run following an _event_ in the repository, or on
-a set schedule.
+Stencil's CI runs on GitHub Actions using pnpm and supports Node.js 22 and 24.
 
-The workflows that are run as a part of Stencil's CI process are declared as YAML files, and are stored in the same
-directory as this file.
-Each workflow file is explained in greater depth in the [workflows section](#workflows) of this document.
+## Workflow Structure
+
+```mermaid
+graph TD;
+    build[Build]
+
+    build --> quality[Quality]
+    build --> unit[Unit Tests]
+    build --> test-build[Build Tests]
+    build --> test-integration[Integration Tests]
+    build --> test-runtime[Runtime Tests]
+    build --> test-special-config[Special Config Tests]
+    build --> test-ssr[SSR Tests]
+    build --> test-starter[Component Starter]
+```
 
 ## Workflows
 
-This section describes each of Stencil's GitHub Actions workflows.
-Each of these tasks below are codified as [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows).
-
-Generally speaking, workflows are designed to be declarative in nature.
-As such, this section does not intend to duplicate the details of each workflow, but rather give a high level overview
-of each one and mention nuances of each.
-
 ### Main (`main.yml`)
 
-The main workflow for Stencil can be found in `main.yml` in this directory.
-This workflow is the entrypoint of Stencil's CI system, and initializes every workflow & job that runs.
+The orchestrator workflow that runs on push to `main`/`v5` branches and on pull requests.
 
 ### Build (`build.yml`)
 
-This workflow is responsible for building Stencil and validating the resultant artifact.
+Builds all packages and uploads artifacts for downstream jobs.
 
-### Format (`format.yml`)
+### Quality (`quality.yml`)
 
-This workflow is responsible for validating that the code adheres to the Stencil team's formatting configuration before
-a pull request is merged.
+Runs quality checks (Linux only):
+- `pnpm format:check` - Code formatting (oxfmt)
+- `pnpm lint:check` - Linting (oxlint)
+- `pnpm typecheck` - TypeScript type checking
+- `pnpm knip` - Unused code detection
 
-### Dev Release (`release-dev.yml`)
+### Test Workflows
 
-This workflow initiates a developer build of Stencil from the `main` branch.
-It is intended to be manually invoked by a member of the Stencil team.
+| Workflow | Matrix | Description |
+|----------|--------|-------------|
+| `test-unit.yml` | Linux | Unit tests for packages (`pnpm test`) |
+| `test-build.yml` | Linux/Windows × Node 22/24 | Build test suite (`test/build`) |
+| `test-integration.yml` | Linux/Windows × Node 22/24 | Integration tests (`test/integration`) |
+| `test-runtime.yml` | Linux/Windows × Node 22/24 | Runtime tests (`test/runtime`) |
+| `test-special-config.yml` | Linux/Windows × Node 22/24 | Special config tests (`test/special-config`) |
+| `test-ssr.yml` | Linux/Windows × Node 22/24 | SSR tests (`test/ssr`) |
+| `test-component-starter.yml` | Linux/Windows × Node 22/24 | Smoke test with component starter template |
 
-### Nightly Release (`release-nightly.yml`)
+## Release Workflows
 
-This workflow initiates a nightly build of Stencil from the `main` branch.
-A nightly build is similar to a 'Dev Release', except that:
-- it is run on a set cadence (it is not expectedthat a developer to manually invoke it)
-- it is published to the npm registry under the 'nightly' tag
+Release workflows are managed separately and support both v4 (legacy) and v5 (monorepo with changesets).
 
-### Test Analysis (`test-analysis.yml`)
+| Workflow | Description |
+|----------|-------------|
+| `release-dev.yml` | Developer builds from main |
+| `release-nightly.yml` | Nightly builds |
+| `release-production.yml` | Production releases |
+| `publish-npm.yml` | NPM publishing |
 
-This workflow is responsible for running the Stencil analysis testing suite.
+## Test Matrix
 
-### Test End-to-End (`test-e2e.yml`)
+Integration test workflows use `fail-fast: false` so sibling jobs continue even if one fails. This reduces the need to re-run all jobs when investigating failures.
 
-This workflow is responsible for running the Stencil end-to-end testing suite.
-This suite does _not_ run Stencil's BrowserStack tests.
-Those are handled by a [separate workflow](#browserstack-browserstackyml).
+## Concurrency
 
-### Test Unit (`test-unit.yml`)
-
-This workflow is responsible for running the Stencil unit testing suite.
-
-### WebdriverIO Tests (`test-wdio.yml`)
-
-This workflow runs our integration tests which assert that various Stencil
-features work correctly when components using them are built and then rendered
-in actual browsers. We run these tests using
-[WebdriverIO](https://webdriver.io/) against Firefox, Chrome, and Edge.
-
-For more information on how those tests are set up please see the [WebdriverIO
-test README](../../test/wdio/README.md).
-
-### Design
-
-#### Overview
-
-Most of the workflows above are contingent on the build finishing (otherwise there would be nothing to run against).
-The diagram below displays the dependencies between each workflow.
-
-```mermaid
-graph LR;
-    build-core-->test-analysis;
-    build-core-->test-e2e;
-    build-core-->test-unit;
-    format;
-```
-
-Making each 'task' a reusable workflow allows CI to run more jobs in parallel, improving the throughput of Stencil's CI.
-All resusable workflows can be found in the [workflows directory](.).
-This is a GitHub Actions convention that cannot be overridden.
-
-#### Running Tests
-
-All test-related jobs require the build to finish first.
-Upon successful completion of the build workflow, each test workflow will start.
-
-The test-running workflows have been designed to run in parallel and are configured to run against several operating
-systems & versions of node.
-For a test workflow that theoretically runs on Ubuntu and Windows operating systems and targets Node v14, v16 and v18, a
-single test workflow may spawn several jobs:
-
-```mermaid
-graph LR;
-    test-analysis-->ubuntu-node14;
-    test-analysis-->ubuntu-node16;
-    test-analysis-->ubuntu-node18;
-    test-analysis-->windows-node14;
-    test-analysis-->windows-node16;
-    test-analysis-->windows-node18;
-```
-
-These 'os-node jobs' (e.g. `ubuntu-node16`) are designed to _not_ prematurely stop their sibling jobs should one of
-them fail.
-This allows the opportunity for the sibling test jobs to potentially pass, and reduce the number of runners that need to
-be spun up again should a developer wish to 're-run failed jobs'.
-Should a developer feel that it is more appropriate to re-run all os-node jobs, they may do so using GitHub's 're-run
-all jobs' options in the GitHub Actions UI.
-
-#### Concurrency
-
-When a `git push` is made to a branch, Stencil's CI is designed to stop existing job(s) associated with the workflow + 
-branch.
-A new CI run (of each workflow) will begin upon stopping the existing job(s) using the new `HEAD` of the branch.
-
-## Repository Configuration
-
-Each of the workflows described in the [workflows section](#workflows) of this document must be configured in the
-Stencil GitHub repository to be _required_ to pass in order to land code in the `main` branch.
+When a `git push` is made to a branch, existing CI jobs for that branch are cancelled and a new run begins.

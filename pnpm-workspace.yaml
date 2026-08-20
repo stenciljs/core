@@ -1,0 +1,18 @@
+packages:
+  - 'packages/*'
+  - 'test/**/*'
+
+catalog:
+  '@playwright/test': ^1.62.1
+  '@stencil/playwright': '~0.4.3'
+  '@stencil/vitest': '^1.14.0'
+  '@vitest/browser': ^4.1.10
+  '@vitest/browser-playwright': ^4.1.10
+  playwright: ^1.62.1
+  tsdown: '^0.22.14'
+  typescript: '>5.0.0 <7.0.0'
+  vitest: ^4.1.10
+  'vitest-environment-stencil': '^1.14.0'
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'

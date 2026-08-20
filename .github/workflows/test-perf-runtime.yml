@@ -17,62 +17,107 @@ jobs:
       contents: read
     steps:
       - name: Checkout PR Head
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: stencil-core
-          path: .
-          filename: stencil-core-build.zip
+          name: stencil-build
+          path: packages/
 
-      - name: Install PR test/runtime-benchmark Dependencies
-        run: npm ci
-        working-directory: test/runtime-benchmark
-        shell: bash
+      - name: Install Playwright Browsers
+        uses: ./.github/workflows/actions/install-playwright
+        with:
+          working-directory: test/perf/runtime-benchmark
 
       - name: Run PR Runtime Benchmark
-        run: npm run benchmark
-        working-directory: test/runtime-benchmark
+        run: pnpm --filter "@stencil-core-tests/perf-runtime-benchmark" test
         shell: bash
 
       - name: Convert PR Results to Raw Format
         run: node to-codspeed-raw.js "$GITHUB_WORKSPACE/pr-raw.json"
-        working-directory: test/runtime-benchmark
+        working-directory: test/perf/runtime-benchmark
         shell: bash
 
       - name: Checkout Base Branch
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
 
-      - name: Install Base Dependencies
+      - name: Detect Base Package Manager
+        id: detect-base-pm
+        run: |
+          if [ -f "base/pnpm-lock.yaml" ]; then
+            echo "pm=pnpm" >> "$GITHUB_OUTPUT"
+          else
+            echo "pm=npm" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
+      # base = v5 (or a v5 descendant): pnpm, test/perf/runtime-benchmark, Playwright
+      - name: Install Playwright Browsers (Base)
+        if: steps.detect-base-pm.outputs.pm == 'pnpm'
+        uses: ./.github/workflows/actions/install-playwright
+        with:
+          working-directory: base/test/perf/runtime-benchmark
+
+      - name: Install Base Dependencies (pnpm)
+        if: steps.detect-base-pm.outputs.pm == 'pnpm'
+        run: pnpm install --frozen-lockfile
+        working-directory: base
+        shell: bash
+
+      - name: Build Base Stencil Core (pnpm)
+        if: steps.detect-base-pm.outputs.pm == 'pnpm'
+        run: pnpm build
+        working-directory: base
+        shell: bash
+
+      - name: Run Base Runtime Benchmark (pnpm)
+        if: steps.detect-base-pm.outputs.pm == 'pnpm'
+        run: pnpm --filter "@stencil-core-tests/perf-runtime-benchmark" test
+        working-directory: base
+        shell: bash
+
+      - name: Convert Base Results to Raw Format (pnpm)
+        if: steps.detect-base-pm.outputs.pm == 'pnpm'
+        run: node to-codspeed-raw.js "$GITHUB_WORKSPACE/base-raw.json"
+        working-directory: base/test/perf/runtime-benchmark
+        shell: bash
+
+      # base = main (or a main descendant): npm, test/runtime-benchmark, Puppeteer
+      - name: Install Base Dependencies (npm)
+        if: steps.detect-base-pm.outputs.pm == 'npm'
         run: |
           npm ci
           npm run install.jest
         working-directory: base
         shell: bash
 
-      - name: Build Base Stencil Core
+      - name: Build Base Stencil Core (npm)
+        if: steps.detect-base-pm.outputs.pm == 'npm'
         run: npm run build -- --ci
         working-directory: base
         shell: bash
 
-      - name: Install Base test/runtime-benchmark Dependencies
+      - name: Install Base test/runtime-benchmark Dependencies (npm)
+        if: steps.detect-base-pm.outputs.pm == 'npm'
         run: npm ci
         working-directory: base/test/runtime-benchmark
         shell: bash
 
-      - name: Run Base Runtime Benchmark
+      - name: Run Base Runtime Benchmark (npm)
+        if: steps.detect-base-pm.outputs.pm == 'npm'
         run: npm run benchmark
         working-directory: base/test/runtime-benchmark
         shell: bash
 
-      - name: Convert Base Results to Raw Format
+      - name: Convert Base Results to Raw Format (npm)
+        if: steps.detect-base-pm.outputs.pm == 'npm'
         run: node to-codspeed-raw.js "$GITHUB_WORKSPACE/base-raw.json"
         working-directory: base/test/runtime-benchmark
         shell: bash

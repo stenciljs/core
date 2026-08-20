@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+.box {
+  background: coral;
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+}

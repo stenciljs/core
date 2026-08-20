@@ -1,0 +1,290 @@
+import { resolve } from 'node:path';
+import { defineConfig } from 'tsdown';
+
+import { createDefines, getBuildVersionInfo } from './build/version-utils.ts';
+
+const __dirname = import.meta.dirname;
+
+// Get build-time version info for string replacements
+const isProd = process.env.NODE_ENV === 'production';
+const versionInfo = getBuildVersionInfo(resolve(__dirname, 'package.json'), isProd);
+const defines = createDefines(versionInfo);
+
+console.log(`Building @stencil/core ${versionInfo.version} ${versionInfo.vermoji}`);
+
+/**
+ * Virtual module plugin for Stencil internal builds.
+ * Maps virtual:app-data, virtual:app-globals, virtual:platform to real files or external packages.
+ *
+ * @param options - plugin options containing resolve and external mappings
+ * @returns a tsdown plugin object
+ */
+function virtualModules(options: { resolve?: Record<string, string>; external?: string[] }) {
+  const resolveMap = new Map(Object.entries(options.resolve ?? {}));
+  const externalSet = new Set(options.external ?? []);
+
+  return {
+    name: 'stencil-virtual-modules',
+
+    resolveId: {
+      filter: { id: /^virtual:/ },
+      handler(id: string) {
+        if (externalSet.has(id)) return { id, external: true as const };
+        return resolveMap.get(id) ?? null;
+      },
+    },
+  };
+}
+
+const browserTargets = ['es2022'];
+const nodeTarget = 'node22';
+
+// Common virtual module resolve mappings
+const virtualResolve = {
+  'virtual:app-data': resolve(__dirname, 'src/app-data/index.ts'),
+  'virtual:app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+  'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
+};
+
+export default defineConfig([
+  // ============================================
+  // Node builds (compiler, utils, testing, sys)
+  // ============================================
+  {
+    entry: {
+      index: 'src/index.ts',
+      'jsx-runtime': 'src/jsx-runtime.ts',
+      'compiler/index': 'src/compiler/index.ts',
+      'compiler/utils/index': 'src/utils/compiler-exports.ts',
+      'testing/index': 'src/testing/index.ts',
+      'sys/node/index': 'src/sys/node/index.ts',
+      'sys/node/worker': 'src/sys/node/worker.ts',
+      'mock-doc': 'src/mock-doc.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'node',
+    target: nodeTarget,
+    dts: true,
+    clean: true,
+    deps: {
+      neverBundle: true,
+      // src imports its own public types via '@stencil/core'; keep those inlined, not externalized
+      alwaysBundle: ['@stencil/core'],
+    },
+    define: defines,
+    plugins: [virtualModules({ resolve: virtualResolve })],
+    copy: [
+      // Copy curated public types (paths resolve via declarations entry below)
+      { from: 'src/index.d.mts', to: 'dist' },
+      { from: 'src/jsx-runtime.d.mts', to: 'dist' },
+    ],
+  },
+
+  // Declarations (types only - generates .d.ts for public API imports)
+  {
+    entry: {
+      'declarations/stencil-public-runtime': 'src/declarations/stencil-public-runtime.ts',
+      'declarations/stencil-public-compiler': 'src/declarations/stencil-public-compiler.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    deps: {
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
+    },
+    dts: true,
+    clean: false,
+    copy: [
+      // Copy ext-modules types for CSS/SVG/etc imports
+      { from: 'src/declarations/stencil-ext-modules.d.ts', to: 'dist/declarations' },
+    ],
+  },
+
+  // Declarations for JSON docs. To be self contained, `codeSplitting: false,` only works on a single entry
+  {
+    entry: {
+      'declarations/stencil-public-docs': 'src/declarations/stencil-public-docs.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    deps: {
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
+    },
+    dts: true,
+    clean: false,
+    // Disable code splitting to avoid hashed chunk imports in declarations
+    outputOptions: {
+      codeSplitting: false,
+    },
+  },
+
+  // Server/SSR platform (virtuals externalized for runtime swapping)
+  {
+    entry: {
+      'runtime/server/index': 'src/server/platform/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'node',
+    target: nodeTarget,
+    dts: true,
+    clean: false,
+    deps: {
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
+    },
+    outputOptions: {
+      paths: {
+        'virtual:app-data': '@stencil/core/app-data',
+        'virtual:app-globals': '@stencil/core/app-globals',
+      },
+    },
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:platform': resolve(__dirname, 'src/server/platform/index.ts'),
+        },
+        external: ['virtual:app-data', 'virtual:app-globals'],
+      }),
+    ],
+  },
+
+  // Server/SSR runner (user-facing hydrate API: renderToString, ssrDocument, etc.)
+  {
+    entry: {
+      'runtime/server/runner': 'src/server/runner/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'node',
+    target: nodeTarget,
+    dts: true,
+    clean: false,
+    deps: {
+      onlyBundle: ['parse5', 'entities'],
+      alwaysBundle: ['@stencil/mock-doc', 'parse5', '@stencil/core/runtime/server'],
+      neverBundle: ['@stencil/core/runtime/server/ssr-factory', 'virtual:app-data'],
+    },
+    outputOptions: {
+      paths: {
+        'virtual:app-data': '@stencil/core/app-data',
+      },
+    },
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:platform': resolve(__dirname, 'src/server/platform/index.ts'),
+        },
+      }),
+    ],
+  },
+
+  // ============================================
+  // Browser builds
+  // ============================================
+
+  // Runtime core + app-data + app-globals (bundled together)
+  {
+    entry: {
+      'runtime/index': 'src/runtime/index.ts',
+      'app-data/index': 'src/app-data/index.ts',
+      'app-globals/index': 'src/app-globals/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    // sourcemap: true,
+    deps: {
+      neverBundle: [/^node:/],
+    },
+    plugins: [virtualModules({ resolve: virtualResolve })],
+  },
+
+  // @stencil/core/signals - public signals primitives + @Effect decorator
+  {
+    entry: {
+      'signals/index': 'src/signals/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'neutral',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    deps: {
+      // Bundle @preact/signals-core so consumers need no extra install
+      neverBundle: [/^node:/],
+    },
+  },
+
+  // Standalone client runtime (app-data/globals externalized for runtime swapping)
+  {
+    entry: {
+      'runtime/client/runtime': 'src/client/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    deps: {
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
+    },
+    outputOptions: {
+      paths: {
+        'virtual:app-data': '@stencil/core/app-data',
+        'virtual:app-globals': '@stencil/core/app-globals',
+      },
+    },
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
+        },
+        external: ['virtual:app-data', 'virtual:app-globals'],
+      }),
+    ],
+  },
+
+  // Lazy client runtime (app-data kept external but lazyLoad: true baked in via lazy.ts wrapper)
+  {
+    entry: {
+      'runtime/client/lazy': 'src/client/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: false, // types identical to standalone
+    clean: false,
+    deps: {
+      neverBundle: true,
+    },
+    outputOptions: {
+      paths: {
+        'virtual:app-globals': '@stencil/core/app-globals',
+        'virtual:app-data-external': '@stencil/core/app-data',
+      },
+    },
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:platform': resolve(__dirname, 'src/client/index.ts'),
+          // virtual:app-data → lazy.ts, which wraps virtual:app-data-external with lazyLoad: true
+          'virtual:app-data': resolve(__dirname, 'src/app-data/lazy.ts'),
+        },
+        // virtual:app-data-external is the real app-data, kept external so consumers can alias it
+        external: ['virtual:app-globals', 'virtual:app-data-external'],
+      }),
+    ],
+  },
+]);
