@@ -971,7 +971,7 @@ export const insertBefore = (
     }
   }
 
-  if ((parent as d.RenderNode).__insertBefore) {
+  if (BUILD.slotRelocation && (parent as d.RenderNode)?.__insertBefore) {
     return (parent as d.RenderNode).__insertBefore(newNode, reference) as d.RenderNode;
   } else {
     return parent?.insertBefore(newNode, reference) as d.RenderNode;

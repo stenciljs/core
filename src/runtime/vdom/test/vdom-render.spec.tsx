@@ -1,5 +1,5 @@
 import { h, newVNode } from '../h';
-import { isSameVnode, patch } from '../vdom-render';
+import { insertBefore, isSameVnode, patch } from '../vdom-render';
 
 describe('template elements', () => {
   it('should append children to template.content, not template directly', () => {
@@ -105,5 +105,31 @@ describe('isSameVnode', () => {
     expect(isSameVnode(vnode1, vnode2)).toBe(false);
     expect(isSameVnode(vnode1, vnode2, true)).toBe(true);
     expect(vnode1.$key$).toBe('1');
+  });
+});
+
+describe('insertBefore', () => {
+  it('should not throw when the parent node is null', () => {
+    // Regression test for #6822: on iOS Safari, Reader/translation features can
+    // detach a slotted light-DOM node mid-render, leaving its `parentNode` null.
+    // The `__insertBefore` branch dereferenced `parent` without a guard, unlike
+    // the fallback branch, so a null parent threw
+    // "Cannot read properties of null (reading '__insertBefore')".
+    const newNode = document.createElement('div') as any;
+
+    expect(() => insertBefore(null as any, newNode)).not.toThrow();
+    expect(insertBefore(null as any, newNode)).toBeUndefined();
+  });
+
+  it('should still insert normally when the parent node is valid', () => {
+    const parent = document.createElement('div');
+    const reference = document.createElement('span');
+    parent.appendChild(reference);
+    const newNode = document.createElement('p') as any;
+
+    insertBefore(parent, newNode, reference as any);
+
+    expect(parent.childNodes[0]).toBe(newNode);
+    expect(parent.childNodes[1]).toBe(reference);
   });
 });
