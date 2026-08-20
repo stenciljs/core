@@ -74,7 +74,7 @@ export interface CustomElementsDefineOptions {
   ael?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
   rel?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
 }
-export declare function defineCustomElements(win?: Window, opts?: CustomElementsDefineOptions): void;
+export declare function defineCustomElements(win?: Window, opts?: CustomElementsDefineOptions): Promise<void>;
 /**
  * @deprecated
  */
