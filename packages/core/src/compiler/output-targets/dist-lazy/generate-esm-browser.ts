@@ -57,9 +57,10 @@ export const generateEsmBrowser = async (
         true,
       );
 
-      // Write backwards-compatible forwarding module for CDN consumers
-      // who may have hardcoded references to NAMESPACE.esm.js
-      await writeEsmForwardingModule(config, compilerCtx, outputTargetType, es2017destinations);
+      // Write backwards-compatible forwarding modules for CDN consumers who may
+      // have hardcoded references to NAMESPACE.esm.js or index.esm.js - both were
+      // real entry file names before the browser build dropped the .esm.js suffix
+      await writeEsmForwardingModules(config, compilerCtx, outputTargetType, es2017destinations);
     }
   }
 
@@ -67,7 +68,7 @@ export const generateEsmBrowser = async (
 };
 
 /**
- * Write a backwards-compatible forwarding module that re-exports from the new .js file.
+ * Write backwards-compatible forwarding modules that re-export from the new .js files.
  * This allows existing CDN consumers with hardcoded .esm.js references to continue working.
  *
  * @param config the Stencil configuration
@@ -75,20 +76,24 @@ export const generateEsmBrowser = async (
  * @param outputTargetType the output target type for file writing
  * @param destinations the destination directories to write forwarding modules to
  */
-const writeEsmForwardingModule = async (
+const writeEsmForwardingModules = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   outputTargetType: string,
   destinations: string[],
 ): Promise<void> => {
-  const namespace = config.fsNamespace;
-  // Import ensures IIFE side effects run, export * re-exports setNonce
-  const forwardingCode = `import './${namespace}.js';\nexport * from './${namespace}.js';\n`;
+  // the namespace entry (e.g. NAMESPACE.js) and the user's index.ts entry (index.js)
+  // are the only top-level browser entries that used to carry the .esm.js suffix
+  const entryNames = [config.fsNamespace, 'index'];
 
   await Promise.all(
-    destinations.map((dest) => {
-      const filePath = join(dest, `${namespace}.esm.js`);
-      return compilerCtx.fs.writeFile(filePath, forwardingCode, { outputTargetType });
-    }),
+    destinations.flatMap((dest) =>
+      entryNames.map((name) => {
+        // Import ensures IIFE side effects run, export * re-exports named exports
+        const forwardingCode = `import './${name}.js';\nexport * from './${name}.js';\n`;
+        const filePath = join(dest, `${name}.esm.js`);
+        return compilerCtx.fs.writeFile(filePath, forwardingCode, { outputTargetType });
+      }),
+    ),
   );
 };
